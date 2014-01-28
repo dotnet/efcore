@@ -1,0 +1,11 @@
+{
+  "version" : "0.1-pre-*",
+  "dependencies": { 
+    "Microsoft.AspNet.DependencyInjection" : "0.1-alpha-*",
+    "Microsoft.Bcl.Immutable" : "1.0.30"
+  },
+  "configurations": {
+    "net45": {},
+    "k10": {}
+  }
+}
