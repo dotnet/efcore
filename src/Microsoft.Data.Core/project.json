@@ -1,14 +1,14 @@
 {
-  "version" : "0.1-pre-*",
-  "dependencies": {
-    "Microsoft.AspNet.DependencyInjection" : "0.1-alpha-*"
-  },
-  "configurations": {
-    "net45": {
-      "dependencies": {
-        "Microsoft.Bcl.Immutable" : "1.0.30"
-      }
-    },
-    "k10": {}
-  }
+  "version" : "0.1-pre-*",
+  "dependencies": {
+    "Microsoft.AspNet.DependencyInjection" : "0.1-alpha-*"
+  },
+  "configurations": {
+    "net45": {
+      "dependencies": {
+        "Microsoft.Bcl.Immutable" : "1.0.30"
+      }
+    },
+    "k10": {}
+  }
 }
