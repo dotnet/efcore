@@ -8,7 +8,7 @@ namespace Microsoft.Data.Core.Utilities
     using JetBrains.Annotations;
 
     [DebuggerStepThrough]
-    public sealed class LazyRef<T>
+    internal sealed class LazyRef<T>
         where T : class
     {
         private Func<T> _initializer;

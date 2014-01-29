@@ -10,7 +10,7 @@ namespace Microsoft.Data.Core.Utilities
     using JetBrains.Annotations;
 
     [DebuggerStepThrough]
-    public static class TypeExtensions
+    internal static class TypeExtensions
     {
         public static Type ElementType([NotNull] this Type type)
         {

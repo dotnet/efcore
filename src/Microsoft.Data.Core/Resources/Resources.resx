@@ -121,9 +121,9 @@
     <value>The argument '{0}' cannot be null, empty or contain only white space.</value>
   </data>
   <data name="InvalidPropertiesExpression" xml:space="preserve">
-    <value>The properties expression '{0}' is not valid. The expression should represent a property: C#: 't =&gt; t.MyProperty'  VB.Net: 'Function(t) t.MyProperty'. When specifying multiple properties use an anonymous type: C#: 't =&gt; new {{ t.MyProperty1, t.MyProperty2 }}'  VB.Net: 'Function(t) New With {{ t.MyProperty1, t.MyProperty2 }}'.</value>
+    <value>The properties expression '{0}' is not valid. The expression should represent a property access: 't =&gt; t.MyProperty'. When specifying multiple properties use an anonymous type: 't =&gt; new {{ t.MyProperty1, t.MyProperty2 }}'.</value>
   </data>
   <data name="InvalidPropertyExpression" xml:space="preserve">
-    <value>The expression '{0}' is not a valid property expression. The expression should represent a property: C#: 't =&gt; t.MyProperty'  VB.Net: 'Function(t) t.MyProperty'.</value>
+    <value>The expression '{0}' is not a valid property expression. The expression should represent a property access: 't =&gt; t.MyProperty'.</value>
   </data>
 </root>

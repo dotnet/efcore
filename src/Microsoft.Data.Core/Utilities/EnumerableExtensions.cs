@@ -10,7 +10,7 @@ namespace Microsoft.Data.Core.Utilities
     using JetBrains.Annotations;
 
     [DebuggerStepThrough]
-    public static class EnumerableExtensions
+    internal static class EnumerableExtensions
     {
         public static IOrderedEnumerable<TSource> OrderByOrdinal<TSource>(
             this IEnumerable<TSource> source, Func<TSource, string> keySelector)

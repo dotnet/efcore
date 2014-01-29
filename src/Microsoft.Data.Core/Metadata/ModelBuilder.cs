@@ -93,12 +93,10 @@ namespace Microsoft.Data.Core.Metadata
             {
                 private readonly Entity _entity;
 
-                internal PropertiesBuilder()
-                {
-                }
-
                 internal PropertiesBuilder(Entity entity)
                 {
+                    DebugCheck.NotNull(entity);
+
                     _entity = entity;
                 }
 

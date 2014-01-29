@@ -5,7 +5,7 @@ namespace Microsoft.Data.Core.Utilities
     using System.Diagnostics;
 
     [DebuggerStepThrough]
-    public static class DebugCheck
+    internal static class DebugCheck
     {
         [Conditional("DEBUG")]
         public static void NotNull(object value)

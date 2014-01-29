@@ -7,7 +7,7 @@ namespace Microsoft.Data.Core.Utilities
     using System.Globalization;
 
     [DebuggerStepThrough]
-    public static class StringExtensions
+    internal static class StringExtensions
     {
         public static bool EqualsOrdinal(this string s1, string s2)
         {

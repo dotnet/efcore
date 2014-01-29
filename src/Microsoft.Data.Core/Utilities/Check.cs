@@ -8,7 +8,7 @@ namespace Microsoft.Data.Core.Utilities
     using Microsoft.Data.Core.Resources;
 
     [DebuggerStepThrough]
-    public static class Check
+    internal static class Check
     {
         public static void NotNull(object value, [InvokerParameterName] [NotNull] string parameterName)
         {
@@ -26,14 +26,6 @@ namespace Microsoft.Data.Core.Utilities
 
             return result(value);
         }
-
-//        public static T Inline<T>(T value, Action checker)
-//            where T : class
-//        {
-//            checker();
-//
-//            return value;
-//        }
 
         public static string NotEmpty(string value, [InvokerParameterName] [NotNull] string parameterName)
         {

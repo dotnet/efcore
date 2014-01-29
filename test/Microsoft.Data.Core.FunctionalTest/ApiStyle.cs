@@ -6,7 +6,6 @@ namespace Microsoft.Data.Core
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-    using JetBrains.Annotations;
     using Microsoft.Data.Core.Metadata;
     using Xunit;
 
@@ -47,7 +46,7 @@ namespace Microsoft.Data.Core
                         && m.DeclaringType.Assembly == assembly
                   from p in m.GetParameters()
                   where !p.ParameterType.IsValueType
-                        && p.GetCustomAttribute<NotNullAttribute>() == null
+                        && p.GetCustomAttributes().All(a => a.GetType().Name != "NotNullAttribute")
                   select t.Name + "." + m.Name + "[" + p.Name + "]";
 
             Assert.Equal("", string.Join("\r\n", parametersMissingAttribute));
