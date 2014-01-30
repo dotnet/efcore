@@ -9,7 +9,7 @@ namespace Microsoft.Data.Entity.Resources
     internal static class Strings
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("Microsoft.Data.Entity.Resources.Resources", typeof(Strings).GetTypeInfo().Assembly);
+            = new ResourceManager("Microsoft.Data.Entity.Resources", typeof(Strings).GetTypeInfo().Assembly);
 
         /// <summary>
         ///     "The argument '{0}' cannot be null, empty or contain only white space."
