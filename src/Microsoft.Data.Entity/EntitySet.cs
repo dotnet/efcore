@@ -7,6 +7,8 @@ namespace Microsoft.Data.Entity
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+    using JetBrains.Annotations;
+    using Microsoft.Data.Entity.Utilities;
 
     public class EntitySet<TEntity> : IQueryable<TEntity>
         where TEntity : class
@@ -23,46 +25,67 @@ namespace Microsoft.Data.Entity
         }
 
         // TODO
-        public Type ElementType { get; private set; }
+        public Type ElementType
+        {
+            get { return null; }
+        }
 
         // TODO
-        public Expression Expression { get; private set; }
+        public Expression Expression
+        {
+            get { return null; }
+        }
 
         // TODO
-        public IQueryProvider Provider { get; private set; }
-
-        public virtual TEntity Add(TEntity entity)
+        public IQueryProvider Provider
         {
+            get { return null; }
+        }
+
+        public virtual TEntity Add([NotNull] TEntity entity)
+        {
+            Check.NotNull(entity, "entity");
+
             // TODO
             return entity;
         }
 
-        public virtual TEntity Remove(TEntity entity)
+        public virtual TEntity Remove([NotNull] TEntity entity)
         {
+            Check.NotNull(entity, "entity");
+
             // TODO
             return entity;
         }
 
-        public virtual TEntity Update(TEntity entity)
+        public virtual TEntity Update([NotNull] TEntity entity)
         {
+            Check.NotNull(entity, "entity");
+
             // TODO
             return entity;
         }
 
-        public virtual IEnumerable<TEntity> AddRange(IEnumerable<TEntity> entities)
+        public virtual IEnumerable<TEntity> AddRange([NotNull] IEnumerable<TEntity> entities)
         {
+            Check.NotNull(entities, "entities");
+
             // TODO
             return entities;
         }
 
-        public virtual IEnumerable<TEntity> RemoveRange(IEnumerable<TEntity> entities)
+        public virtual IEnumerable<TEntity> RemoveRange([NotNull] IEnumerable<TEntity> entities)
         {
+            Check.NotNull(entities, "entities");
+
             // TODO
             return entities;
         }
 
-        public virtual IEnumerable<TEntity> UpdateRange(IEnumerable<TEntity> entities)
+        public virtual IEnumerable<TEntity> UpdateRange([NotNull] IEnumerable<TEntity> entities)
         {
+            Check.NotNull(entities, "entities");
+
             // TODO
             return entities;
         }

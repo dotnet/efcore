@@ -5,13 +5,17 @@ namespace Microsoft.Data.Entity
     using System;
     using System.Threading;
     using System.Threading.Tasks;
+    using JetBrains.Annotations;
+    using Microsoft.Data.Entity.Utilities;
 
     public class EntityContext : IDisposable
     {
         private readonly Database _database = new Database();
 
-        public EntityContext(string nameOrConnectionString)
+        public EntityContext([NotNull] string nameOrConnectionString)
         {
+            Check.NotEmpty(nameOrConnectionString, "nameOrConnectionString");
+
             // TODO
         }
 

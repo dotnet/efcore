@@ -6,24 +6,24 @@ namespace Microsoft.Data.Entity
 
     public class Database
     {
-        public void Create()
+        public virtual void Create()
         {
             // TODO
         }
 
-        public bool Delete()
+        public virtual bool Delete()
         {
             // TODO
             return false;
         }
 
-        public Task CreateAsync()
+        public virtual Task CreateAsync()
         {
             // TODO
             return Task.FromResult(false);
         }
 
-        public Task<bool> DeleteAsync()
+        public virtual Task<bool> DeleteAsync()
         {
             // TODO
             return Task.FromResult(false);

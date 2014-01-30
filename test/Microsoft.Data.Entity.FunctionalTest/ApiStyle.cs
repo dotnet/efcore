@@ -41,7 +41,8 @@ namespace Microsoft.Data.Entity
             var parametersMissingAttribute
                 = from t in GetAllTypes(assembly.GetTypes())
                   where t.IsVisible
-                  from m in t.GetMethods(PublicInstance)
+                  from m in t.GetMethods(PublicInstance | BindingFlags.Static)
+                      .Concat<MethodBase>(t.GetConstructors())
                   where m.DeclaringType != null
                         && m.DeclaringType.Assembly == assembly
                   from p in m.GetParameters()

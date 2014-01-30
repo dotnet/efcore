@@ -9,7 +9,7 @@ namespace Microsoft.Data.Entity.Metadata
     {
         private readonly object _value;
 
-        public Annotation([NotNull] string name, object value)
+        public Annotation([NotNull] string name, [NotNull] object value)
             : base(name)
         {
             Check.NotNull(value, "value");
