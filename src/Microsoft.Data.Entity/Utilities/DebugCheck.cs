@@ -8,13 +8,13 @@ namespace Microsoft.Data.Entity.Utilities
     internal static class DebugCheck
     {
         [Conditional("DEBUG")]
-        public static void NotNull(object value)
+        public static void NotNull([ValidatedNotNull] object value)
         {
             Debug.Assert(value != null);
         }
 
         [Conditional("DEBUG")]
-        public static void NotEmpty(string value)
+        public static void NotEmpty([ValidatedNotNull] string value)
         {
             Debug.Assert(!string.IsNullOrWhiteSpace(value));
         }

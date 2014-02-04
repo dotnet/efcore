@@ -17,3 +17,12 @@ namespace JetBrains.Annotations
     {
     }
 }
+
+namespace Microsoft.Data.Entity
+{
+    using System;
+
+    internal sealed class ValidatedNotNullAttribute : Attribute
+    {
+    }
+}
