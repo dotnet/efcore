@@ -1,8 +1,8 @@
 {
   "version" : "0.1-pre-*",
   "dependencies": {
-    "Microsoft.Data.Entity" : "0.1-alpha-*",
-    "Microsoft.Data.Relational" : "0.1-alpha-*"
+    "Microsoft.Data.Entity" : "",
+    "Microsoft.Data.Relational" : ""
   },
   "configurations": {
     "net45": {},

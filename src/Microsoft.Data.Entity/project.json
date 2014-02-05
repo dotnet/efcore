@@ -1,14 +1,15 @@
 {
   "version" : "0.1-alpha-*",
   "dependencies": {
+    "System.Collections.Immutable" : "1.1.15.0",
     "Microsoft.AspNet.DependencyInjection" : "0.1-alpha-*",
     "Microsoft.AspNet.Logging" : "0.1-alpha-*"
   },
   "configurations": {
     "net45": {
       "dependencies": {
-        "Microsoft.Bcl.Immutable" : "1.0.30",
-        "System.Runtime" : ""
+        "System.Runtime" : "",
+        "System.Collections" : ""
       }
     },
     "k10": {}
