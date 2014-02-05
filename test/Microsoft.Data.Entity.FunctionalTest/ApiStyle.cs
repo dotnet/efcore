@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using Microsoft.Data.Entity.Metadata;
+using Xunit;
+
 namespace Microsoft.Data.Entity
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Reflection;
-    using Microsoft.Data.Entity.Metadata;
-    using Xunit;
-
     public class ApiStyle
     {
         private const BindingFlags PublicInstance
@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity
         [Fact]
         public void Public_inheritable_apis_should_be_virtual()
         {
-            var assembly = typeof(Entity).Assembly;
+            var assembly = typeof(Metadata.Entity).Assembly;
 
             var nonVirtualMethods
                 = from t in GetAllTypes(assembly.GetTypes())
@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity
         [Fact]
         public void Public_api_arguments_should_have_not_null_annotation()
         {
-            var assembly = typeof(Entity).Assembly;
+            var assembly = typeof(Metadata.Entity).Assembly;
 
             var parametersMissingAttribute
                 = from t in GetAllTypes(assembly.GetTypes())
@@ -58,7 +58,7 @@ namespace Microsoft.Data.Entity
         {
             var fluentApiTypes = new[] { typeof(ModelBuilder) };
 
-            var assembly = typeof(Entity).Assembly;
+            var assembly = typeof(Metadata.Entity).Assembly;
 
             var voidMethods
                 = from t in GetAllTypes(fluentApiTypes)

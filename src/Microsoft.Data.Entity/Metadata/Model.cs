@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
+using JetBrains.Annotations;
+using Microsoft.Data.Entity.Utilities;
+
 namespace Microsoft.Data.Entity.Metadata
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.Immutable;
-    using System.Linq;
-    using JetBrains.Annotations;
-    using Microsoft.Data.Entity.Utilities;
-
     public class Model : MetadataBase
     {
         private readonly LazyRef<ImmutableDictionary<Type, Entity>> _entities

@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System;
+using System.Diagnostics;
+using System.Threading;
+using JetBrains.Annotations;
+
 namespace Microsoft.Data.Entity.Utilities
 {
-    using System;
-    using System.Diagnostics;
-    using System.Threading;
-    using JetBrains.Annotations;
-
     [DebuggerStepThrough]
     internal sealed class LazyRef<T>
         where T : class

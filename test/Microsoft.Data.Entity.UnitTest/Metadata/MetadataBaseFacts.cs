@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System.Linq;
+using Xunit;
+
 namespace Microsoft.Data.Entity.Metadata
 {
-    using System.Linq;
-    using Xunit;
-
     public class MetadataBaseFacts
     {
         #region Fixture

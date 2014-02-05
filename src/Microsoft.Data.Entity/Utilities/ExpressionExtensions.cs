@@ -1,15 +1,15 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+using Microsoft.Data.Entity.Resources;
+
 namespace Microsoft.Data.Entity.Utilities
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Linq;
-    using System.Linq.Expressions;
-    using System.Reflection;
-    using Microsoft.Data.Entity.Resources;
-
     [DebuggerStepThrough]
     internal static class ExpressionExtensions
     {

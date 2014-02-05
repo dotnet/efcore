@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using Xunit;
+using Xunit.Sdk;
+
 namespace Microsoft.Data.Entity.Utilities
 {
-    using Xunit;
-    using Xunit.Sdk;
-
     public class DebugCheckFacts
     {
         [Fact]

@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System.Globalization;
+using System.Reflection;
+using System.Resources;
+
 namespace Microsoft.Data.Entity.Resources
 {
-    using System.Globalization;
-    using System.Reflection;
-    using System.Resources;
-
     internal static class Strings
     {
         private static readonly ResourceManager _resourceManager

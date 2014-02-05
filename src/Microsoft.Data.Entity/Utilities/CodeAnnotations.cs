@@ -1,9 +1,9 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System;
+
 namespace JetBrains.Annotations
 {
-    using System;
-
     [AttributeUsage(
         AttributeTargets.Method | AttributeTargets.Parameter |
         AttributeTargets.Property | AttributeTargets.Delegate |
@@ -20,8 +20,6 @@ namespace JetBrains.Annotations
 
 namespace Microsoft.Data.Entity
 {
-    using System;
-
     internal sealed class ValidatedNotNullAttribute : Attribute
     {
     }

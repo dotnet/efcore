@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System;
+using System.Linq;
+using System.Linq.Expressions;
+using JetBrains.Annotations;
+using Microsoft.Data.Entity.Utilities;
+
 namespace Microsoft.Data.Entity.Metadata
 {
-    using System;
-    using System.Linq;
-    using System.Linq.Expressions;
-    using JetBrains.Annotations;
-    using Microsoft.Data.Entity.Utilities;
-
     public class ModelBuilder
     {
         private readonly Model _model;

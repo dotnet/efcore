@@ -1,15 +1,15 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
+using System.Reflection;
+using JetBrains.Annotations;
+using Microsoft.Data.Entity.Utilities;
+
 namespace Microsoft.Data.Entity.Metadata
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.Immutable;
-    using System.Linq;
-    using System.Reflection;
-    using JetBrains.Annotations;
-    using Microsoft.Data.Entity.Utilities;
-
     public class Entity : MetadataBase
     {
         private readonly Type _type;

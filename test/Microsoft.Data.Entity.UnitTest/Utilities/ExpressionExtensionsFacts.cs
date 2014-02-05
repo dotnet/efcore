@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System;
+using System.Linq;
+using System.Linq.Expressions;
+using Microsoft.Data.Entity.Resources;
+using Xunit;
+
 namespace Microsoft.Data.Entity.Utilities
 {
-    using System;
-    using System.Linq;
-    using System.Linq.Expressions;
-    using Microsoft.Data.Entity.Resources;
-    using Xunit;
-
     public class ExpressionExtensionsFacts
     {
         [Fact]

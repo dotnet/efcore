@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System;
+using System.Collections.Concurrent;
+using JetBrains.Annotations;
+using Microsoft.AspNet.Logging;
+using Microsoft.Data.Entity.Utilities;
+
 namespace Microsoft.Data.Entity.Services
 {
-    using System;
-    using System.Collections.Concurrent;
-    using JetBrains.Annotations;
-    using Microsoft.AspNet.Logging;
-    using Microsoft.Data.Entity.Utilities;
-
     public class ConsoleLoggerFactory : ILoggerFactory
     {
         private readonly ConcurrentDictionary<string, ConsoleLogger> _loggers

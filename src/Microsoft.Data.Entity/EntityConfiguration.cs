@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System;
+using JetBrains.Annotations;
+using Microsoft.AspNet.DependencyInjection;
+using Microsoft.Data.Entity.Resources;
+using Microsoft.Data.Entity.Utilities;
+
 namespace Microsoft.Data.Entity
 {
-    using System;
-    using JetBrains.Annotations;
-    using Microsoft.AspNet.DependencyInjection;
-    using Microsoft.Data.Entity.Resources;
-    using Microsoft.Data.Entity.Utilities;
-
     public class EntityConfiguration
     {
         private readonly IServiceProvider _serviceProvider;

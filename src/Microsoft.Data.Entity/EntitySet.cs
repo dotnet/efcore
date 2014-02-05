@@ -1,15 +1,15 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using JetBrains.Annotations;
+using Microsoft.Data.Entity.Utilities;
+
 namespace Microsoft.Data.Entity
 {
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Linq.Expressions;
-    using JetBrains.Annotations;
-    using Microsoft.Data.Entity.Utilities;
-
     public class EntitySet<TEntity> : IQueryable<TEntity>
         where TEntity : class
     {
