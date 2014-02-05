@@ -38,6 +38,14 @@ namespace Microsoft.Data.Entity.Resources
             return string.Format(CultureInfo.CurrentCulture, GetString("InvalidPropertyExpression"), p0);
         }
 
+        /// <summary>
+        ///     "The EntityConfiguration property '{0}' has not been set."
+        /// </summary>
+        internal static string MissingConfigurationItem(object p0)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("MissingConfigurationItem"), p0);
+        }
+
         private static string GetString(string name)
         {
             return _resourceManager.GetString(name)

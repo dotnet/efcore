@@ -10,13 +10,13 @@ namespace Microsoft.Data.Entity
 
     public class EntityContext : IDisposable
     {
-        private readonly Database _database = new Database();
+        private readonly EntityConfiguration _entityConfiguration;
 
-        public EntityContext([NotNull] string nameOrConnectionString)
+        public EntityContext([NotNull] EntityConfiguration entityConfiguration)
         {
-            Check.NotEmpty(nameOrConnectionString, "nameOrConnectionString");
+            Check.NotNull(entityConfiguration, "entityConfiguration");
 
-            // TODO
+            _entityConfiguration = entityConfiguration;
         }
 
         public virtual int SaveChanges()
@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity
 
         public virtual Database Database
         {
-            get { return _database; }
+            get { return new Database(); }
         }
     }
 }

@@ -30,6 +30,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.AspNet.DependencyInjection, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Microsoft.AspNet.DependencyInjection.0.1-alpha-010\lib\net45\Microsoft.AspNet.DependencyInjection.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.Logging">
+      <HintPath>..\..\packages\Microsoft.AspNet.Logging.0.1-alpha-009\lib\net45\Microsoft.AspNet.Logging.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="xunit, Version=1.9.2.1705, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
@@ -41,12 +48,15 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EntityServicesFacts.cs" />
+    <Compile Include="EntityConfigurationFacts.cs" />
     <Compile Include="Metadata\AnnotationFacts.cs" />
     <Compile Include="Metadata\EntityFacts.cs" />
     <Compile Include="Metadata\MetadataBaseFacts.cs" />
     <Compile Include="Metadata\ModelBuilderFacts.cs" />
     <Compile Include="Metadata\ModelFacts.cs" />
     <Compile Include="Metadata\PropertyFacts.cs" />
+    <Compile Include="Services\ConsoleLoggerFactoryFacts.cs" />
     <Compile Include="Utilities\CheckFacts.cs" />
     <Compile Include="Utilities\DebugCheckFacts.cs" />
     <Compile Include="Utilities\EnumerableExtensionsFacts.cs" />

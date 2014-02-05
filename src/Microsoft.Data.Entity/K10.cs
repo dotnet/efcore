@@ -3,6 +3,7 @@
 
 #if K10
 
+// ReSharper disable CheckNamespace
 namespace System.Collections.Immutable
 {
     using System.Collections.Generic;

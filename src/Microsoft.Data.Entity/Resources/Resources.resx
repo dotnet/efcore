@@ -126,4 +126,7 @@
   <data name="InvalidPropertyExpression" xml:space="preserve">
     <value>The expression '{0}' is not a valid property expression. The expression should represent a property access: 't =&gt; t.MyProperty'.</value>
   </data>
+  <data name="MissingConfigurationItem" xml:space="preserve">
+    <value>The EntityConfiguration property '{0}' has not been set.</value>
+  </data>
 </root>
