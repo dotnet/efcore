@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
+
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Metadata
         private readonly LazyRef<ImmutableList<Property>> _keyProperties
             = new LazyRef<ImmutableList<Property>>(() => ImmutableList<Property>.Empty);
 
-        public Entity([NotNull] Type type)
+        public Entity(Type type)
             : base(Check.NotNull(type, "type", t => t.Name))
         {
             _type = type;
@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.Metadata
                     ? _keyProperties.Value
                     : Enumerable.Empty<Property>();
             }
-            [param: NotNull]
+            
             set
             {
                 Check.NotNull(value, "value");
@@ -49,14 +49,14 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        public virtual void AddProperty([NotNull] Property property)
+        public virtual void AddProperty(Property property)
         {
             Check.NotNull(property, "property");
 
             _properties.ExchangeValue(l => l.Add(property.PropertyInfo, property));
         }
 
-        public virtual void RemoveProperty([NotNull] Property property)
+        public virtual void RemoveProperty(Property property)
         {
             Check.NotNull(property, "property");
 
@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        public virtual Property Property([NotNull] PropertyInfo propertyInfo)
+        public virtual Property Property(PropertyInfo propertyInfo)
         {
             Check.NotNull(propertyInfo, "propertyInfo");
 

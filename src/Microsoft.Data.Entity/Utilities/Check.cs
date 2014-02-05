@@ -2,7 +2,7 @@
 
 using System;
 using System.Diagnostics;
-using JetBrains.Annotations;
+
 using Microsoft.Data.Entity.Resources;
 
 namespace Microsoft.Data.Entity.Utilities
@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.Utilities
     [DebuggerStepThrough]
     internal static class Check
     {
-        public static void NotNull(object value, [InvokerParameterName] [NotNull] string parameterName)
+        public static void NotNull(object value, string parameterName)
         {
             NotEmpty(parameterName, "parameterName");
 
@@ -20,14 +20,14 @@ namespace Microsoft.Data.Entity.Utilities
             }
         }
 
-        public static S NotNull<T, S>(T value, [InvokerParameterName] [NotNull] string parameterName, Func<T, S> result)
+        public static S NotNull<T, S>(T value, string parameterName, Func<T, S> result)
         {
             NotNull(value, parameterName);
 
             return result(value);
         }
 
-        public static string NotEmpty(string value, [InvokerParameterName] [NotNull] string parameterName)
+        public static string NotEmpty(string value, string parameterName)
         {
             if (string.IsNullOrWhiteSpace(parameterName))
             {

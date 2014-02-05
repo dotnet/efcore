@@ -3,7 +3,7 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
+
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.Metadata
     {
         private readonly Model _model;
 
-        public ModelBuilder([NotNull] Model model)
+        public ModelBuilder(Model model)
         {
             Check.NotNull(model, "model");
 
@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.Metadata
             return new EntityBuilder<T>(entity);
         }
 
-        public virtual ModelBuilder Annotation([NotNull] string annotation, [NotNull] object value)
+        public virtual ModelBuilder Annotation(string annotation, object value)
         {
             Check.NotEmpty(annotation, "annotation");
             Check.NotNull(value, "value");
@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.Metadata
                 _entity = entity;
             }
 
-            public EntityBuilder<TEntity> Key<TKey>([NotNull] Expression<Func<TEntity, TKey>> keyExpression)
+            public EntityBuilder<TEntity> Key<TKey>(Expression<Func<TEntity, TKey>> keyExpression)
             {
                 Check.NotNull(keyExpression, "keyExpression");
 
@@ -70,7 +70,7 @@ namespace Microsoft.Data.Entity.Metadata
                 return this;
             }
 
-            public EntityBuilder<TEntity> Annotation([NotNull] string annotation, [NotNull] object value)
+            public EntityBuilder<TEntity> Annotation(string annotation, object value)
             {
                 Check.NotEmpty(annotation, "annotation");
                 Check.NotNull(value, "value");
@@ -80,7 +80,7 @@ namespace Microsoft.Data.Entity.Metadata
                 return this;
             }
 
-            public EntityBuilder<TEntity> Properties([NotNull] Action<PropertiesBuilder> propertiesBuilder)
+            public EntityBuilder<TEntity> Properties(Action<PropertiesBuilder> propertiesBuilder)
             {
                 Check.NotNull(propertiesBuilder, "propertiesBuilder");
 
@@ -100,7 +100,7 @@ namespace Microsoft.Data.Entity.Metadata
                     _entity = entity;
                 }
 
-                public virtual PropertyBuilder Property([NotNull] Expression<Func<TEntity, object>> propertyExpression)
+                public virtual PropertyBuilder Property(Expression<Func<TEntity, object>> propertyExpression)
                 {
                     var propertyInfo = propertyExpression.GetPropertyAccess();
 
@@ -129,7 +129,7 @@ namespace Microsoft.Data.Entity.Metadata
                         _property = property;
                     }
 
-                    public PropertyBuilder Annotation([NotNull] string annotation, [NotNull] object value)
+                    public PropertyBuilder Annotation(string annotation, object value)
                     {
                         Check.NotEmpty(annotation, "annotation");
                         Check.NotNull(value, "value");

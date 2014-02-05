@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using JetBrains.Annotations;
+
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
@@ -14,28 +14,28 @@ namespace Microsoft.Data.Entity.Metadata
         private readonly LazyRef<ImmutableDictionary<Type, Entity>> _entities
             = new LazyRef<ImmutableDictionary<Type, Entity>>(() => ImmutableDictionary<Type, Entity>.Empty);
 
-        public virtual void AddEntity([NotNull] Entity entity)
+        public virtual void AddEntity(Entity entity)
         {
             Check.NotNull(entity, "entity");
 
             _entities.ExchangeValue(d => d.Add(entity.Type, entity));
         }
 
-        public virtual void RemoveEntity([NotNull] Entity entity)
+        public virtual void RemoveEntity(Entity entity)
         {
             Check.NotNull(entity, "entity");
 
             _entities.ExchangeValue(l => l.Remove(entity.Type));
         }
 
-        public virtual Entity Entity([NotNull] object @object)
+        public virtual Entity Entity(object @object)
         {
             Check.NotNull(@object, "object");
 
             return Entity(@object.GetType());
         }
 
-        public virtual Entity Entity([NotNull] Type type)
+        public virtual Entity Entity(Type type)
         {
             Check.NotNull(type, "type");
 

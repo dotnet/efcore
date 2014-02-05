@@ -5,7 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
+
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity
@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity
             get { return null; }
         }
 
-        public virtual TEntity Add([NotNull] TEntity entity)
+        public virtual TEntity Add(TEntity entity)
         {
             Check.NotNull(entity, "entity");
 
@@ -50,7 +50,7 @@ namespace Microsoft.Data.Entity
             return entity;
         }
 
-        public virtual TEntity Remove([NotNull] TEntity entity)
+        public virtual TEntity Remove(TEntity entity)
         {
             Check.NotNull(entity, "entity");
 
@@ -58,7 +58,7 @@ namespace Microsoft.Data.Entity
             return entity;
         }
 
-        public virtual TEntity Update([NotNull] TEntity entity)
+        public virtual TEntity Update(TEntity entity)
         {
             Check.NotNull(entity, "entity");
 
@@ -66,7 +66,7 @@ namespace Microsoft.Data.Entity
             return entity;
         }
 
-        public virtual IEnumerable<TEntity> AddRange([NotNull] IEnumerable<TEntity> entities)
+        public virtual IEnumerable<TEntity> AddRange(IEnumerable<TEntity> entities)
         {
             Check.NotNull(entities, "entities");
 
@@ -74,7 +74,7 @@ namespace Microsoft.Data.Entity
             return entities;
         }
 
-        public virtual IEnumerable<TEntity> RemoveRange([NotNull] IEnumerable<TEntity> entities)
+        public virtual IEnumerable<TEntity> RemoveRange(IEnumerable<TEntity> entities)
         {
             Check.NotNull(entities, "entities");
 
@@ -82,7 +82,7 @@ namespace Microsoft.Data.Entity
             return entities;
         }
 
-        public virtual IEnumerable<TEntity> UpdateRange([NotNull] IEnumerable<TEntity> entities)
+        public virtual IEnumerable<TEntity> UpdateRange(IEnumerable<TEntity> entities)
         {
             Check.NotNull(entities, "entities");
 

@@ -34,26 +34,6 @@ namespace Microsoft.Data.Entity
         }
 
         [Fact]
-        public void Public_api_arguments_should_have_not_null_annotation()
-        {
-            var assembly = typeof(Metadata.Entity).Assembly;
-
-            var parametersMissingAttribute
-                = from t in GetAllTypes(assembly.GetTypes())
-                  where t.IsVisible
-                  from m in t.GetMethods(PublicInstance | BindingFlags.Static)
-                      .Concat<MethodBase>(t.GetConstructors())
-                  where m.DeclaringType != null
-                        && m.DeclaringType.Assembly == assembly
-                  from p in m.GetParameters()
-                  where !p.ParameterType.IsValueType
-                        && p.GetCustomAttributes().All(a => a.GetType().Name != "NotNullAttribute")
-                  select t.Name + "." + m.Name + "[" + p.Name + "]";
-
-            Assert.Equal("", string.Join("\r\n", parametersMissingAttribute));
-        }
-
-        [Fact]
         public void Fluent_api_methods_should_not_return_void()
         {
             var fluentApiTypes = new[] { typeof(ModelBuilder) };
