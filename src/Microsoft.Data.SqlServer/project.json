@@ -1,0 +1,11 @@
+{
+  "version" : "0.1-pre-*",
+  "dependencies": {
+    "Microsoft.Data.Entity" : "",
+    "Microsoft.Data.Relational" : ""
+  },
+  "configurations": {
+    "net45": {},
+    "k10": {}
+  }
+}
