@@ -32,10 +32,10 @@
   <ItemGroup>
     <Reference Include="Microsoft.AspNet.DependencyInjection, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Microsoft.AspNet.DependencyInjection.0.1-alpha-010\lib\net45\Microsoft.AspNet.DependencyInjection.dll</HintPath>
+      <HintPath>..\..\packages\Microsoft.AspNet.DependencyInjection.0.1-alpha-028\lib\net45\Microsoft.AspNet.DependencyInjection.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.AspNet.Logging">
-      <HintPath>..\..\packages\Microsoft.AspNet.Logging.0.1-alpha-009\lib\net45\Microsoft.AspNet.Logging.dll</HintPath>
+      <HintPath>..\..\packages\Microsoft.AspNet.Logging.0.1-alpha-022\lib\net45\Microsoft.AspNet.Logging.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
