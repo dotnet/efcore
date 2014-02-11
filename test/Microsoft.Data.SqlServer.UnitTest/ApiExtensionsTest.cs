@@ -5,7 +5,7 @@ using Xunit;
 
 namespace Microsoft.Data.SqlServer
 {
-    public class ApiExtensionsFacts
+    public class ApiExtensionsTest
     {
         [Fact]
         public void Can_create_context_with_name_or_connection_string()

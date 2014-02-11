@@ -1,7 +1,8 @@
 {
   "version" : "0.1-alpha-*",
   "dependencies": {
-    "Microsoft.Data.Entity" : ""
+    "xunit" : "1.9.2",
+    "Microsoft.Data.Entity" : "0.1-alpha-*"
   },
   "configurations": {
     "net45": {},

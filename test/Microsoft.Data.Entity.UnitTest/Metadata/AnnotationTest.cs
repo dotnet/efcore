@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public class AnnotationFacts
+    public class AnnotationTest
     {
         [Fact]
         public void Can_create_annotation()

@@ -5,7 +5,11 @@
     "Microsoft.Data.Relational" : ""
   },
   "configurations": {
-    "net45": {},
+    "net45": {
+      "dependencies": {
+        "System.Data" : ""
+      }
+    },
     "k10": {}
   }
 }

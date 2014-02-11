@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public class ModelBuilderFacts
+    public class ModelBuilderTest
     {
         #region Fixture
 

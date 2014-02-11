@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Utilities
 {
-    public class EnumerableExtensionsFacts
+    public class EnumerableExtensionsTest
     {
         [Fact]
         public void OrderByOrdinal_should_respect_case()

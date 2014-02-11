@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Utilities
 {
-    public class ExpressionExtensionsFacts
+    public class ExpressionExtensionsTest
     {
         [Fact]
         public void GetPropertyAccess_should_return_property_info_when_valid_property_access_expression()
