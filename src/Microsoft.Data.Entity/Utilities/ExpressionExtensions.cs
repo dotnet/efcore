@@ -15,7 +15,6 @@ namespace Microsoft.Data.Entity.Utilities
     {
         public static PropertyInfo GetPropertyAccess(this LambdaExpression propertyAccessExpression)
         {
-            DebugCheck.NotNull(propertyAccessExpression);
             Debug.Assert(propertyAccessExpression.Parameters.Count == 1);
 
             var propertyInfo
@@ -36,7 +35,6 @@ namespace Microsoft.Data.Entity.Utilities
 
         public static IList<PropertyInfo> GetPropertyAccessList(this LambdaExpression propertyAccessExpression)
         {
-            DebugCheck.NotNull(propertyAccessExpression);
             Debug.Assert(propertyAccessExpression.Parameters.Count == 1);
 
             var propertyPaths
@@ -55,8 +53,6 @@ namespace Microsoft.Data.Entity.Utilities
         private static IList<PropertyInfo> MatchPropertyAccessList(
             this LambdaExpression lambdaExpression, Func<Expression, Expression, PropertyInfo> propertyMatcher)
         {
-            DebugCheck.NotNull(lambdaExpression);
-            DebugCheck.NotNull(propertyMatcher);
             Debug.Assert(lambdaExpression.Body != null);
 
             var newExpression
@@ -91,8 +87,6 @@ namespace Microsoft.Data.Entity.Utilities
         private static PropertyInfo MatchSimplePropertyAccess(
             this Expression parameterExpression, Expression propertyAccessExpression)
         {
-            DebugCheck.NotNull(propertyAccessExpression);
-
             var propertyInfos = MatchPropertyAccess(parameterExpression, propertyAccessExpression);
 
             return propertyInfos != null && propertyInfos.Length == 1 ? propertyInfos[0] : null;
@@ -101,9 +95,6 @@ namespace Microsoft.Data.Entity.Utilities
         private static PropertyInfo[] MatchPropertyAccess(
             this Expression parameterExpression, Expression propertyAccessExpression)
         {
-            DebugCheck.NotNull(parameterExpression);
-            DebugCheck.NotNull(propertyAccessExpression);
-
             var propertyInfos = new List<PropertyInfo>();
 
             MemberExpression memberExpression;
@@ -135,8 +126,6 @@ namespace Microsoft.Data.Entity.Utilities
 
         private static Expression RemoveConvert(this Expression expression)
         {
-            DebugCheck.NotNull(expression);
-
             while ((expression != null)
                    && (expression.NodeType == ExpressionType.Convert
                        || expression.NodeType == ExpressionType.ConvertChecked))

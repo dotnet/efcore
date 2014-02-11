@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
-
+using JetBrains.Annotations;
 using Microsoft.AspNet.DependencyInjection;
 using Microsoft.Data.Entity.Resources;
 using Microsoft.Data.Entity.Utilities;
@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity
         {
         }
 
-        public EntityConfiguration(IServiceProvider serviceProvider)
+        public EntityConfiguration([NotNull] IServiceProvider serviceProvider)
         {
             Check.NotNull(serviceProvider, "serviceProvider");
 
@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity
                        ?? _serviceProvider.GetService<DataStore>()
                        ?? ThrowNotConfigured<DataStore>();
             }
-            
+            [param: NotNull]
             set
             {
                 Check.NotNull(value, "value");

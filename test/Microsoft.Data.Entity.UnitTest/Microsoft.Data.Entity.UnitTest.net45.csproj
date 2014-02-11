@@ -48,6 +48,10 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\shared\ApiConsistencyFactsBase.cs">
+      <Link>ApiConsistencyFactsBase.cs</Link>
+    </Compile>
+    <Compile Include="ApiConsistencyFacts.cs" />
     <Compile Include="EntityServicesFacts.cs" />
     <Compile Include="EntityConfigurationFacts.cs" />
     <Compile Include="Metadata\AnnotationFacts.cs" />
@@ -58,7 +62,6 @@
     <Compile Include="Metadata\PropertyFacts.cs" />
     <Compile Include="Services\ConsoleLoggerFactoryFacts.cs" />
     <Compile Include="Utilities\CheckFacts.cs" />
-    <Compile Include="Utilities\DebugCheckFacts.cs" />
     <Compile Include="Utilities\EnumerableExtensionsFacts.cs" />
     <Compile Include="Utilities\ExpressionExtensionsFacts.cs" />
     <Compile Include="Utilities\LazyRefFacts.cs" />

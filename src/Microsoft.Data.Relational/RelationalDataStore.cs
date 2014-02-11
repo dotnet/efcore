@@ -1,18 +1,16 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using JetBrains.Annotations;
 using Microsoft.Data.Entity;
-using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.SqlServer
+namespace Microsoft.Data.Relational
 {
     public class RelationalDataStore : DataStore
     {
         private readonly string _nameOrConnectionString;
 
-        public RelationalDataStore(string nameOrConnectionString)
+        public RelationalDataStore([NotNull] string nameOrConnectionString)
         {
-            Check.NotEmpty(nameOrConnectionString, "nameOrConnectionString");
-
             _nameOrConnectionString = nameOrConnectionString;
         }
 

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
-
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
         }
 
-        protected MetadataBase(string name)
+        protected MetadataBase([NotNull] string name)
         {
             Check.NotEmpty(name, "name");
 
@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.Metadata
         public virtual string StorageName
         {
             get { return _storageName ?? Name; }
-            
+            [param: NotNull]
             set
             {
                 Check.NotEmpty(value, "value");
@@ -47,21 +47,21 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        public virtual void AddAnnotation(Annotation annotation)
+        public virtual void AddAnnotation([NotNull] Annotation annotation)
         {
             Check.NotNull(annotation, "annotation");
 
             _annotations.ExchangeValue(d => d.Add(annotation.Name, annotation));
         }
 
-        public virtual void RemoveAnnotation(Annotation annotation)
+        public virtual void RemoveAnnotation([NotNull] Annotation annotation)
         {
             Check.NotNull(annotation, "annotation");
 
             _annotations.ExchangeValue(l => l.Remove(annotation.Name));
         }
 
-        public virtual object this[string annotation]
+        public virtual object this[[NotNull] string annotation]
         {
             get
             {
@@ -73,7 +73,7 @@ namespace Microsoft.Data.Entity.Metadata
                     ? value.Value
                     : null;
             }
-            
+            [param: NotNull]
             set
             {
                 Check.NotEmpty(annotation, "annotation");

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
-
+using JetBrains.Annotations;
 using Microsoft.AspNet.DependencyInjection;
 using Microsoft.AspNet.Logging;
 using Microsoft.Data.Entity.Services;
@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity
             return serviceProvider;
         }
 
-        public static void AddDefaultServices(Action<Type, Type> serviceRegistrar)
+        public static void AddDefaultServices([NotNull] Action<Type, Type> serviceRegistrar)
         {
             Check.NotNull(serviceRegistrar, "serviceRegistrar");
 

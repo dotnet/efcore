@@ -5,14 +5,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-
+using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.Utilities
 {
     [DebuggerStepThrough]
     internal static class TypeExtensions
     {
-        public static Type ElementType(this Type type)
+        public static Type ElementType([NotNull] this Type type)
         {
             Check.NotNull(type, "type");
 

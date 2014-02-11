@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System.Reflection;
-
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.Metadata
     {
         private readonly PropertyInfo _propertyInfo;
 
-        public Property(PropertyInfo propertyInfo)
+        public Property([NotNull] PropertyInfo propertyInfo)
             : base(Check.NotNull(propertyInfo, "propertyInfo", p => p.Name))
         {
             _propertyInfo = propertyInfo;

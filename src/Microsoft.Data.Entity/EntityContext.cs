@@ -3,7 +3,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity
@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity
     {
         private readonly EntityConfiguration _entityConfiguration;
 
-        public EntityContext(EntityConfiguration entityConfiguration)
+        public EntityContext([NotNull] EntityConfiguration entityConfiguration)
         {
             Check.NotNull(entityConfiguration, "entityConfiguration");
 

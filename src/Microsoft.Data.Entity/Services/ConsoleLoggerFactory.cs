@@ -2,7 +2,7 @@
 
 using System;
 using System.Collections.Concurrent;
-
+using JetBrains.Annotations;
 using Microsoft.AspNet.Logging;
 using Microsoft.Data.Entity.Utilities;
 
@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Services
         private readonly ConcurrentDictionary<string, ConsoleLogger> _loggers
             = new ConcurrentDictionary<string, ConsoleLogger>(StringComparer.OrdinalIgnoreCase);
 
-        public virtual ILogger Create(string name)
+        public virtual ILogger Create([NotNull] string name)
         {
             Check.NotEmpty(name, "name");
 
@@ -32,8 +32,6 @@ namespace Microsoft.Data.Entity.Services
             public bool WriteCore(
                 TraceType eventType, int eventId, object state, Exception exception, Func<object, Exception, string> formatter)
             {
-                DebugCheck.NotNull(formatter);
-
                 Console.WriteLine("{0}: {1}: {2}", _name, eventType, formatter(state, exception));
 
                 return true;

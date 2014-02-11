@@ -3,7 +3,7 @@
 using System;
 using System.Diagnostics;
 using System.Threading;
-
+using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.Utilities
 {
@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Utilities
         {
         }
 
-        public LazyRef(Func<T> initializer)
+        public LazyRef([NotNull] Func<T> initializer)
         {
             Check.NotNull(initializer, "initializer");
 
@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity.Utilities
             }
         }
 
-        public void ExchangeValue(Func<T, T> newValueCreator)
+        public void ExchangeValue([NotNull] Func<T, T> newValueCreator)
         {
             Check.NotNull(newValueCreator, "newValueCreator");
 
