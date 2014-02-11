@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity
 {
-    public class EntityConfigurationFacts
+    public class EntityConfigurationTest
     {
         [Fact]
         public void Throws_if_no_data_store()

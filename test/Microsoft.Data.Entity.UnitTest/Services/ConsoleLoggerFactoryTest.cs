@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Services
 {
-    public class ConsoleLoggerFactoryFacts
+    public class ConsoleLoggerFactoryTest
     {
         [Fact]
         public void Logger_is_cached()

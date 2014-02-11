@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{EF361118-7D0D-453E-ADA4-2F24FBEE196C}</ProjectGuid>
+    <ProjectGuid>{B9A39248-3648-4C90-A936-8CD90FFAE7A6}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.Data.Entity</RootNamespace>
-    <AssemblyName>Microsoft.Data.Entity.UnitTest</AssemblyName>
+    <RootNamespace>Microsoft.Data.SqlServer</RootNamespace>
+    <AssemblyName>Microsoft.Data.SqlServer.FunctionalTest</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -30,15 +30,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.AspNet.DependencyInjection, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Microsoft.AspNet.DependencyInjection.0.1-alpha-028\lib\net45\Microsoft.AspNet.DependencyInjection.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.AspNet.Logging">
-      <HintPath>..\..\packages\Microsoft.AspNet.Logging.0.1-alpha-022\lib\net45\Microsoft.AspNet.Logging.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
     <Reference Include="xunit, Version=1.9.2.1705, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\xunit.1.9.2\lib\net20\xunit.dll</HintPath>
@@ -46,26 +40,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="..\shared\ApiConsistencyTestBase.cs">
-      <Link>ApiConsistencyTestBase.cs</Link>
-    </Compile>
-    <Compile Include="ApiConsistencyTest.cs" />
-    <Compile Include="EntityServicesTest.cs" />
-    <Compile Include="EntityConfigurationTest.cs" />
-    <Compile Include="Metadata\AnnotationTest.cs" />
-    <Compile Include="Metadata\EntityTest.cs" />
-    <Compile Include="Metadata\MetadataBaseTest.cs" />
-    <Compile Include="Metadata\ModelBuilderTest.cs" />
-    <Compile Include="Metadata\ModelTest.cs" />
-    <Compile Include="Metadata\PropertyTest.cs" />
-    <Compile Include="Services\ConsoleLoggerFactoryTest.cs" />
-    <Compile Include="Utilities\CheckTest.cs" />
-    <Compile Include="Utilities\EnumerableExtensionsTest.cs" />
-    <Compile Include="Utilities\ExpressionExtensionsTest.cs" />
-    <Compile Include="Utilities\LazyRefTest.cs" />
-    <Compile Include="Utilities\TypeExtensionsTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -76,6 +50,19 @@
       <Project>{71415cec-8111-4c73-8751-512d22f10602}</Project>
       <Name>Microsoft.Data.Entity.net45</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\src\Microsoft.Data.Relational\Microsoft.Data.Relational.net45.csproj">
+      <Project>{75c5a774-a3f3-43eb-97d3-dbe0cf2825d8}</Project>
+      <Name>Microsoft.Data.Relational.net45</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Microsoft.Data.SqlServer\Microsoft.Data.SqlServer.net45.csproj">
+      <Project>{04e6620b-5b41-45fe-981a-f40eb7686b0e}</Project>
+      <Name>Microsoft.Data.SqlServer.net45</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="SequenceIdentityGeneratorTest.cs" />
+    <Compile Include="SequentialGuidIdentityGeneratorTest.cs" />
+    <Compile Include="TestDatabase.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

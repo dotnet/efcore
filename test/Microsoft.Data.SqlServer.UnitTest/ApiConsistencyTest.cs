@@ -5,7 +5,7 @@ using Microsoft.Data.Entity;
 
 namespace Microsoft.Data.SqlServer
 {
-    public class ApiConsistencyFacts : ApiConsistencyFactsBase
+    public class ApiConsistencyTest : ApiConsistencyTestBase
     {
         protected override Assembly TargetAssembly
         {

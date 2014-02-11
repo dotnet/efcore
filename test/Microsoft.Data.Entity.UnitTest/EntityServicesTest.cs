@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity
 {
-    public class EntityServicesFacts
+    public class EntityServicesTest
     {
         [Fact]
         public void Can_create_default_provider()

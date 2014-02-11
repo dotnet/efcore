@@ -5,7 +5,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Utilities
 {
-    public class CheckFacts
+    public class CheckTest
     {
         [Fact]
         public void NotNull_throws_when_arg_is_null()

@@ -59,12 +59,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\shared\ApiConsistencyFactsBase.cs">
-      <Link>ApiConsistencyFactsBase.cs</Link>
+    <Compile Include="..\shared\ApiConsistencyTestBase.cs">
+      <Link>ApiConsistencyTestBase.cs</Link>
     </Compile>
-    <Compile Include="ApiConsistencyFacts.cs" />
-    <Compile Include="ApiExtensionsFacts.cs" />
-    <Compile Include="SqlServerDataStoreFacts.cs" />
+    <Compile Include="ApiConsistencyTest.cs" />
+    <Compile Include="ApiExtensionsTest.cs" />
+    <Compile Include="SqlServerDataStoreTest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
