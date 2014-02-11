@@ -48,25 +48,24 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\shared\ApiConsistencyFactsBase.cs">
-      <Link>ApiConsistencyFactsBase.cs</Link>
+    <Compile Include="..\shared\ApiConsistencyTestBase.cs">
+      <Link>ApiConsistencyTestBase.cs</Link>
     </Compile>
-    <Compile Include="ApiConsistencyFacts.cs" />
-    <Compile Include="EntityServicesFacts.cs" />
-    <Compile Include="EntityConfigurationFacts.cs" />
-    <Compile Include="Metadata\AnnotationFacts.cs" />
-    <Compile Include="Metadata\EntityFacts.cs" />
-    <Compile Include="Metadata\MetadataBaseFacts.cs" />
-    <Compile Include="Metadata\ModelBuilderFacts.cs" />
-    <Compile Include="Metadata\ModelFacts.cs" />
-    <Compile Include="Metadata\PropertyFacts.cs" />
-    <Compile Include="Services\ConsoleLoggerFactoryFacts.cs" />
-    <Compile Include="Utilities\CheckFacts.cs" />
-    <Compile Include="Utilities\EnumerableExtensionsFacts.cs" />
-    <Compile Include="Utilities\ExpressionExtensionsFacts.cs" />
-    <Compile Include="Utilities\LazyRefFacts.cs" />
-    <Compile Include="Utilities\StringExtensionsFacts.cs" />
-    <Compile Include="Utilities\TypeExtensionsFacts.cs" />
+    <Compile Include="ApiConsistencyTest.cs" />
+    <Compile Include="EntityServicesTest.cs" />
+    <Compile Include="EntityConfigurationTest.cs" />
+    <Compile Include="Metadata\AnnotationTest.cs" />
+    <Compile Include="Metadata\EntityTest.cs" />
+    <Compile Include="Metadata\MetadataBaseTest.cs" />
+    <Compile Include="Metadata\ModelBuilderTest.cs" />
+    <Compile Include="Metadata\ModelTest.cs" />
+    <Compile Include="Metadata\PropertyTest.cs" />
+    <Compile Include="Services\ConsoleLoggerFactoryTest.cs" />
+    <Compile Include="Utilities\CheckTest.cs" />
+    <Compile Include="Utilities\EnumerableExtensionsTest.cs" />
+    <Compile Include="Utilities\ExpressionExtensionsTest.cs" />
+    <Compile Include="Utilities\LazyRefTest.cs" />
+    <Compile Include="Utilities\TypeExtensionsTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

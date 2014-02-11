@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Utilities
 {
-    public class TypeExtensionsFacts
+    public class TypeExtensionsTest
     {
         [Fact]
         public void ElementType_should_return_element_type_from_sequence_type()

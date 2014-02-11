@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Microsoft.Data.SqlServer
 {
-    public class SqlServerDataStoreFacts
+    public class SqlServerDataStoreTest
     {
         [Fact]
         public void Can_initialize_with_name_or_connection_string()

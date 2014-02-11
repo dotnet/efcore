@@ -5,7 +5,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public class MetadataBaseFacts
+    public class MetadataBaseTest
     {
         #region Fixture
 

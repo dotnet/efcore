@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Utilities
 {
-    public class LazyRefFacts
+    public class LazyRefTest
     {
         [Fact]
         public async Task Can_initialize_from_multiple_threads_and_initialization_happens_only_once()
