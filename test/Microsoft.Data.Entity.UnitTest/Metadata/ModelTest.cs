@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using Xunit;
 
@@ -22,10 +23,32 @@ namespace Microsoft.Data.Entity.Metadata
         #endregion
 
         [Fact]
-        public void CanAddAndRemoveEntity()
+        public void Members_check_arguments()
         {
             var model = new Model();
-            var entity = new Entity(typeof(Customer));
+
+            Assert.Equal(
+                "entityType",
+                Assert.Throws<ArgumentNullException>(() => model.AddEntity(null)).ParamName);
+
+            Assert.Equal(
+                "entityType",
+                Assert.Throws<ArgumentNullException>(() => model.RemoveEntity(null)).ParamName);
+
+            Assert.Equal(
+                "instance",
+                Assert.Throws<ArgumentNullException>(() => model.Entity((object)null)).ParamName);
+
+            Assert.Equal(
+                "type",
+                Assert.Throws<ArgumentNullException>(() => model.Entity((Type)null)).ParamName);
+        }
+
+        [Fact]
+        public void Can_add_and_remove_entity()
+        {
+            var model = new Model();
+            var entity = new EntityType(typeof(Customer));
 
             model.AddEntity(entity);
 
@@ -40,7 +63,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void CanGetEntityByInstance()
         {
             var model = new Model();
-            model.AddEntity(new Entity(typeof(Customer)));
+            model.AddEntity(new EntityType(typeof(Customer)));
 
             var entity = model.Entity(new Customer());
 
@@ -53,7 +76,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void CanGetEntityByType()
         {
             var model = new Model();
-            model.AddEntity(new Entity(typeof(Customer)));
+            model.AddEntity(new EntityType(typeof(Customer)));
 
             var entity = model.Entity(typeof(Customer));
 
@@ -66,8 +89,8 @@ namespace Microsoft.Data.Entity.Metadata
         public void EntitiesAreOrderedByName()
         {
             var model = new Model();
-            var entity1 = new Entity(typeof(Order));
-            var entity2 = new Entity(typeof(Customer));
+            var entity1 = new EntityType(typeof(Order));
+            var entity2 = new EntityType(typeof(Customer));
 
             model.AddEntity(entity1);
             model.AddEntity(entity2);

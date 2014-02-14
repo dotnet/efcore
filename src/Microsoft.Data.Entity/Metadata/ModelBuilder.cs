@@ -22,20 +22,26 @@ namespace Microsoft.Data.Entity.Metadata
         public virtual EntityBuilder<T> Entity<T>()
         {
             var type = typeof(T);
-            var entity = _model.Entity(type);
+            var entityType = _model.Entity(type);
+            var concreteEntityType = entityType as EntityType;
 
-            if (entity == null)
+            if (entityType == null)
             {
-                _model.AddEntity(entity = new Entity(type));
+                _model.AddEntity(concreteEntityType = new EntityType(type));
             }
 
-            return new EntityBuilder<T>(entity);
+            if (concreteEntityType == null)
+            {
+                throw new NotSupportedException("TODO");
+            }
+
+            return new EntityBuilder<T>(concreteEntityType);
         }
 
-        public virtual ModelBuilder Annotation([NotNull] string annotation, [NotNull] object value)
+        public virtual ModelBuilder Annotation([NotNull] string annotation, [NotNull] string value)
         {
             Check.NotEmpty(annotation, "annotation");
-            Check.NotNull(value, "value");
+            Check.NotEmpty(value, "value");
 
             _model[annotation] = value;
 
@@ -44,15 +50,15 @@ namespace Microsoft.Data.Entity.Metadata
 
         public class EntityBuilder<TEntity>
         {
-            private readonly Entity _entity;
+            private readonly EntityType _entityType;
 
             internal EntityBuilder()
             {
             }
 
-            internal EntityBuilder(Entity entity)
+            internal EntityBuilder(EntityType entityType)
             {
-                _entity = entity;
+                _entityType = entityType;
             }
 
             public EntityBuilder<TEntity> Key<TKey>([NotNull] Expression<Func<TEntity, TKey>> keyExpression)
@@ -61,19 +67,19 @@ namespace Microsoft.Data.Entity.Metadata
 
                 var propertyInfos = keyExpression.GetPropertyAccessList();
 
-                _entity.Key
+                _entityType.Key
                     = propertyInfos
-                        .Select(pi => _entity.Property(pi) ?? new Property(pi));
+                        .Select(pi => _entityType.Property(pi.Name) ?? new Property(pi));
 
                 return this;
             }
 
-            public EntityBuilder<TEntity> Annotation([NotNull] string annotation, [NotNull] object value)
+            public EntityBuilder<TEntity> Annotation([NotNull] string annotation, [NotNull] string value)
             {
                 Check.NotEmpty(annotation, "annotation");
-                Check.NotNull(value, "value");
+                Check.NotEmpty(value, "value");
 
-                _entity[annotation] = value;
+                _entityType[annotation] = value;
 
                 return this;
             }
@@ -82,32 +88,38 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 Check.NotNull(propertiesBuilder, "propertiesBuilder");
 
-                propertiesBuilder(new PropertiesBuilder(_entity));
+                propertiesBuilder(new PropertiesBuilder(_entityType));
 
                 return this;
             }
 
             public class PropertiesBuilder
             {
-                private readonly Entity _entity;
+                private readonly EntityType _entityType;
 
-                internal PropertiesBuilder(Entity entity)
+                internal PropertiesBuilder(EntityType entityType)
                 {
-                    _entity = entity;
+                    _entityType = entityType;
                 }
 
                 public virtual PropertyBuilder Property([NotNull] Expression<Func<TEntity, object>> propertyExpression)
                 {
                     var propertyInfo = propertyExpression.GetPropertyAccess();
 
-                    var property = _entity.Property(propertyInfo);
+                    var property = _entityType.Property(propertyInfo.Name);
+                    var concreteProperty = property as Property;
 
                     if (property == null)
                     {
-                        _entity.AddProperty(property = new Property(propertyInfo));
+                        _entityType.AddProperty(concreteProperty = new Property(propertyInfo));
                     }
 
-                    return new PropertyBuilder(property);
+                    if (concreteProperty == null)
+                    {
+                        throw new NotSupportedException("TODO");
+                    }
+
+                    return new PropertyBuilder(concreteProperty);
                 }
 
                 public class PropertyBuilder
@@ -123,10 +135,10 @@ namespace Microsoft.Data.Entity.Metadata
                         _property = property;
                     }
 
-                    public PropertyBuilder Annotation([NotNull] string annotation, [NotNull] object value)
+                    public PropertyBuilder Annotation([NotNull] string annotation, [NotNull] string value)
                     {
                         Check.NotEmpty(annotation, "annotation");
-                        Check.NotNull(value, "value");
+                        Check.NotEmpty(value, "value");
 
                         _property[annotation] = value;
 

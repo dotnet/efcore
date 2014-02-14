@@ -1,12 +1,13 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using System.Reflection;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public class EntityTest
+    public class EntityTypeTest
     {
         #region Fixture
 
@@ -22,9 +23,59 @@ namespace Microsoft.Data.Entity.Metadata
         #endregion
 
         [Fact]
-        public void CanCreateEntity()
+        public void Members_check_arguments()
         {
-            var entity = new Entity(typeof(Customer));
+            Assert.Equal(
+                "type",
+                Assert.Throws<ArgumentNullException>(() => new EntityType((Type)null)).ParamName);
+
+            Assert.Equal(
+                Strings.ArgumentIsNullOrWhitespace("name"),
+                Assert.Throws<ArgumentException>(() => new EntityType((string)null)).Message);
+
+            var entityType = new EntityType(typeof(Random));
+
+            Assert.Equal(
+                Strings.ArgumentIsNullOrWhitespace("value"),
+                Assert.Throws<ArgumentException>(() => entityType.StorageName = "").Message);
+
+            Assert.Equal(
+                "value",
+                Assert.Throws<ArgumentNullException>(() => entityType.Key = null).ParamName);
+
+            Assert.Equal(
+                "property",
+                Assert.Throws<ArgumentNullException>(() => entityType.AddProperty(null)).ParamName);
+
+            Assert.Equal(
+                "property",
+                Assert.Throws<ArgumentNullException>(() => entityType.RemoveProperty(null)).ParamName);
+
+            Assert.Equal(
+                Strings.ArgumentIsNullOrWhitespace("name"),
+                Assert.Throws<ArgumentException>(() => entityType.Property("")).Message);
+        }
+
+        [Fact]
+        public void StorageName_defaults_to_name()
+        {
+            var entity = new EntityType(typeof(Customer));
+
+            Assert.Equal("Customer", entity.StorageName);
+        }
+
+        [Fact]
+        public void StorageName_can_be_different_from_name()
+        {
+            var entity = new EntityType(typeof(Customer)) { StorageName = "CustomerTable" };
+
+            Assert.Equal("CustomerTable", entity.StorageName);
+        }
+
+        [Fact]
+        public void Can_create_entity_type()
+        {
+            var entity = new EntityType(typeof(Customer));
 
             Assert.Equal("Customer", entity.Name);
             Assert.Same(typeof(Customer), entity.Type);
@@ -33,7 +84,7 @@ namespace Microsoft.Data.Entity.Metadata
         [Fact]
         public void CanAddAndRemoveProperties()
         {
-            var entity = new Entity(typeof(Customer));
+            var entity = new EntityType(typeof(Customer));
 
             var property1 = new Property(Customer.IdProperty);
             var property2 = new Property(Customer.NameProperty);
@@ -51,7 +102,7 @@ namespace Microsoft.Data.Entity.Metadata
         [Fact]
         public void PropertiesAreOrderedByName()
         {
-            var entity = new Entity(typeof(Customer));
+            var entity = new EntityType(typeof(Customer));
 
             var property1 = new Property(Customer.IdProperty);
             var property2 = new Property(Customer.NameProperty);
@@ -65,7 +116,7 @@ namespace Microsoft.Data.Entity.Metadata
         [Fact]
         public void CanSetAndResetKey()
         {
-            var entity = new Entity(typeof(Customer));
+            var entity = new EntityType(typeof(Customer));
 
             var property1 = new Property(Customer.IdProperty);
             var property2 = new Property(Customer.NameProperty);
@@ -89,7 +140,7 @@ namespace Microsoft.Data.Entity.Metadata
         [Fact]
         public void SettingKeyPropertiesShouldUpdateExistingProperties()
         {
-            var entity = new Entity(typeof(Customer));
+            var entity = new EntityType(typeof(Customer));
 
             entity.AddProperty(new Property(Customer.IdProperty));
 
@@ -105,7 +156,7 @@ namespace Microsoft.Data.Entity.Metadata
         [Fact]
         public void CanClearKey()
         {
-            var entity = new Entity(typeof(Customer));
+            var entity = new EntityType(typeof(Customer));
 
             var property1 = new Property(Customer.IdProperty);
             var property2 = new Property(Customer.NameProperty);

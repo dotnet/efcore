@@ -55,7 +55,7 @@
     <Compile Include="EntityServicesTest.cs" />
     <Compile Include="EntityConfigurationTest.cs" />
     <Compile Include="Metadata\AnnotationTest.cs" />
-    <Compile Include="Metadata\EntityTest.cs" />
+    <Compile Include="Metadata\EntityTypeTest.cs" />
     <Compile Include="Metadata\MetadataBaseTest.cs" />
     <Compile Include="Metadata\ModelBuilderTest.cs" />
     <Compile Include="Metadata\ModelTest.cs" />
