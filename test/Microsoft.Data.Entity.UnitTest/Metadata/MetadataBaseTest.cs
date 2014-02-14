@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using Xunit;
 
@@ -11,42 +12,34 @@ namespace Microsoft.Data.Entity.Metadata
 
         private class ConcreteMetadata : MetadataBase
         {
-            public ConcreteMetadata()
-                : base("Test")
-            {
-            }
-
-            public ConcreteMetadata(string name)
-                : base(name)
-            {
-            }
         }
 
         #endregion
 
         [Fact]
-        public void CanSetNameViaCtor()
+        public void Members_check_arguments()
         {
-            var metadataBase = new ConcreteMetadata("Foo");
+            var metadataBase = new ConcreteMetadata();
 
-            Assert.Equal("Foo", metadataBase.Name);
-        }
+            Assert.Equal(
+                "annotation",
+                Assert.Throws<ArgumentNullException>(() => metadataBase.AddAnnotation(null)).ParamName);
 
-        [Fact]
-        public void StorageNameDefaultsToName()
-        {
-            var metadataBase = new ConcreteMetadata("Foo");
+            Assert.Equal(
+                "annotation",
+                Assert.Throws<ArgumentNullException>(() => metadataBase.RemoveAnnotation(null)).ParamName);
 
-            Assert.Equal("Foo", metadataBase.StorageName);
-        }
+            Assert.Equal(
+                Strings.ArgumentIsNullOrWhitespace("annotationName"),
+                Assert.Throws<ArgumentException>(() => metadataBase[""]).Message);
 
-        [Fact]
-        public void StorageNameCanBeDifferentFromName()
-        {
-            var metadataBase = new ConcreteMetadata("Foo") { StorageName = "Bar" };
+            Assert.Equal(
+                Strings.ArgumentIsNullOrWhitespace("annotationName"),
+                Assert.Throws<ArgumentException>(() => metadataBase[""] = "The kake is a lie").Message);
 
-            Assert.Equal("Foo", metadataBase.Name);
-            Assert.Equal("Bar", metadataBase.StorageName);
+            Assert.Equal(
+                Strings.ArgumentIsNullOrWhitespace("value"),
+                Assert.Throws<ArgumentException>(() => metadataBase["X"] = null).Message);
         }
 
         [Fact]

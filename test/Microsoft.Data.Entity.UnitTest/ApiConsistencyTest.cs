@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity
 
         protected override Assembly TargetAssembly
         {
-            get { return typeof(Metadata.Entity).Assembly; }
+            get { return typeof(EntityType).Assembly; }
         }
     }
 }

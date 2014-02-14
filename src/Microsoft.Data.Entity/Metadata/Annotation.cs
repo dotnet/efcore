@@ -5,19 +5,26 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public class Annotation : MetadataBase
+    public class Annotation : IAnnotation
     {
-        private readonly object _value;
+        private readonly string _name;
+        private readonly string _value;
 
-        public Annotation([NotNull] string name, [NotNull] object value)
-            : base(name)
+        public Annotation([NotNull] string name, [NotNull] string value)
         {
-            Check.NotNull(value, "value");
+            Check.NotEmpty(name, "name");
+            Check.NotEmpty(value, "value");
 
+            _name = name;
             _value = value;
         }
 
-        public virtual object Value
+        public virtual string Name
+        {
+            get { return _name; }
+        }
+
+        public virtual string Value
         {
             get { return _value; }
         }

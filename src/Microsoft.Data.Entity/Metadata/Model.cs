@@ -9,50 +9,50 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public class Model : MetadataBase
+    public class Model : MetadataBase, IModel
     {
-        private readonly LazyRef<ImmutableDictionary<Type, Entity>> _entities
-            = new LazyRef<ImmutableDictionary<Type, Entity>>(() => ImmutableDictionary<Type, Entity>.Empty);
+        private readonly LazyRef<ImmutableDictionary<Type, IEntityType>> _entities
+            = new LazyRef<ImmutableDictionary<Type, IEntityType>>(() => ImmutableDictionary<Type, IEntityType>.Empty);
 
-        public virtual void AddEntity([NotNull] Entity entity)
+        public virtual void AddEntity([NotNull] IEntityType entityType)
         {
-            Check.NotNull(entity, "entity");
+            Check.NotNull(entityType, "entityType");
 
-            _entities.ExchangeValue(d => d.Add(entity.Type, entity));
+            _entities.ExchangeValue(d => d.Add(entityType.Type, entityType));
         }
 
-        public virtual void RemoveEntity([NotNull] Entity entity)
+        public virtual void RemoveEntity([NotNull] IEntityType entityType)
         {
-            Check.NotNull(entity, "entity");
+            Check.NotNull(entityType, "entityType");
 
-            _entities.ExchangeValue(l => l.Remove(entity.Type));
+            _entities.ExchangeValue(l => l.Remove(entityType.Type));
         }
 
-        public virtual Entity Entity([NotNull] object @object)
+        public virtual IEntityType Entity(object instance)
         {
-            Check.NotNull(@object, "object");
+            Check.NotNull(instance, "instance");
 
-            return Entity(@object.GetType());
+            return Entity(instance.GetType());
         }
 
-        public virtual Entity Entity([NotNull] Type type)
+        public virtual IEntityType Entity(Type type)
         {
             Check.NotNull(type, "type");
 
-            Entity value;
+            IEntityType value;
             return _entities.HasValue
                    && _entities.Value.TryGetValue(type, out value)
                 ? value
                 : null;
         }
 
-        public virtual IEnumerable<Entity> Entities
+        public virtual IEnumerable<IEntityType> Entities
         {
             get
             {
                 return _entities.HasValue
                     ? _entities.Value.Values.OrderByOrdinal(e => e.Name)
-                    : Enumerable.Empty<Entity>();
+                    : Enumerable.Empty<IEntityType>();
             }
         }
     }
