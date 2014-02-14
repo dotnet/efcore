@@ -120,13 +120,4 @@
   <data name="ArgumentIsNullOrWhitespace" xml:space="preserve">
     <value>The argument '{argumentName}' cannot be null, empty or contain only white space.</value>
   </data>
-  <data name="InvalidPropertiesExpression" xml:space="preserve">
-    <value>The properties expression '{expression}' is not valid. The expression should represent a property access: 't =&gt; t.MyProperty'. When specifying multiple properties use an anonymous type: 't =&gt; new {{ t.MyProperty1, t.MyProperty2 }}'.</value>
-  </data>
-  <data name="InvalidPropertyExpression" xml:space="preserve">
-    <value>The expression '{expression}' is not a valid property expression. The expression should represent a property access: 't =&gt; t.MyProperty'.</value>
-  </data>
-  <data name="MissingConfigurationItem" xml:space="preserve">
-    <value>The EntityConfiguration property '{propertyName}' has not been set.</value>
-  </data>
 </root>

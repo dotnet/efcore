@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity
     public class ApiConsistencyTest : ApiConsistencyTestBase
     {
         [Fact]
-        public void Fluent_api_methods_should_not_return_void()
+        public void FluentApiMethodsShouldNotReturnVoid()
         {
             var fluentApiTypes = new[] { typeof(ModelBuilder) };
 

@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Metadata
         #endregion
 
         [Fact]
-        public void Can_create_entity()
+        public void CanCreateEntity()
         {
             var entity = new Entity(typeof(Customer));
 
@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void Can_add_and_remove_properties()
+        public void CanAddAndRemoveProperties()
         {
             var entity = new Entity(typeof(Customer));
 
@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void Properties_are_ordered_by_name()
+        public void PropertiesAreOrderedByName()
         {
             var entity = new Entity(typeof(Customer));
 
@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void Can_set_and_reset_key()
+        public void CanSetAndResetKey()
         {
             var entity = new Entity(typeof(Customer));
 
@@ -87,7 +87,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void Setting_key_properties_should_update_existing_properties()
+        public void SettingKeyPropertiesShouldUpdateExistingProperties()
         {
             var entity = new Entity(typeof(Customer));
 
@@ -103,7 +103,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void Can_clear_key()
+        public void CanClearKey()
         {
             var entity = new Entity(typeof(Customer));
 

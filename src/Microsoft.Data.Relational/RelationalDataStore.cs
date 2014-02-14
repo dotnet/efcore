@@ -17,7 +17,7 @@ namespace Microsoft.Data.Relational
             _nameOrConnectionString = nameOrConnectionString;
         }
 
-        public string NameOrConnectionString
+        public virtual string NameOrConnectionString
         {
             get { return _nameOrConnectionString; }
         }

@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Metadata
         #endregion
 
         [Fact]
-        public void Can_get_entity_builder_for_clr_type()
+        public void CanGetEntityBuilderForClrType()
         {
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void Can_set_entity_key_from_clr_properties()
+        public void CanSetEntityKeyFromClrProperties()
         {
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
@@ -48,7 +48,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void Can_set_composite_entity_key_from_clr_properties()
+        public void CanSetCompositeEntityKeyFromClrProperties()
         {
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void Can_set_entity_annotation()
+        public void CanSetEntityAnnotation()
         {
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
@@ -78,7 +78,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void Can_set_property_annotation()
+        public void CanSetPropertyAnnotation()
         {
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
@@ -93,7 +93,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void Can_add_multiple_properties()
+        public void CanAddMultipleProperties()
         {
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);

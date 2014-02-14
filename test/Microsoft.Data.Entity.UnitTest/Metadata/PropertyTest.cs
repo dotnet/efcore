@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Metadata
         #endregion
 
         [Fact]
-        public void Can_create_property()
+        public void CanCreateProperty()
         {
             var property = new Property(Customer.NameProperty);
 

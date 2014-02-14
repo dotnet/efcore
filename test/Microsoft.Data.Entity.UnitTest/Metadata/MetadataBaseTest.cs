@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Metadata
         #endregion
 
         [Fact]
-        public void Can_set_name_via_ctor()
+        public void CanSetNameViaCtor()
         {
             var metadataBase = new ConcreteMetadata("Foo");
 
@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void StorageName_defaults_to_name()
+        public void StorageNameDefaultsToName()
         {
             var metadataBase = new ConcreteMetadata("Foo");
 
@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void StorageName_can_be_different_from_name()
+        public void StorageNameCanBeDifferentFromName()
         {
             var metadataBase = new ConcreteMetadata("Foo") { StorageName = "Bar" };
 
@@ -50,7 +50,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void Can_add_annotation()
+        public void CanAddAnnotation()
         {
             var metadataBase = new ConcreteMetadata();
 
@@ -60,7 +60,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void Can_remove_annotation()
+        public void CanRemoveAnnotation()
         {
             var metadataBase = new ConcreteMetadata();
             var annotation = new Annotation("Foo", "Bar");
@@ -75,7 +75,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void Can_update_existing_annotation()
+        public void CanUpdateExistingAnnotation()
         {
             var metadataBase = new ConcreteMetadata();
             var annotation = new Annotation("Foo", "Bar");
@@ -90,7 +90,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void Can_get_set_model_annotations_via_indexer()
+        public void CanGetSetModelAnnotationsViaIndexer()
         {
             var metadataBase = new ConcreteMetadata();
 
@@ -100,7 +100,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void Annotations_are_ordered_by_name()
+        public void AnnotationsAreOrderedByName()
         {
             var metadataBase = new ConcreteMetadata();
 

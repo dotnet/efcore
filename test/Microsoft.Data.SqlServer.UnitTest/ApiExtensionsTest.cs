@@ -8,7 +8,7 @@ namespace Microsoft.Data.SqlServer
     public class ApiExtensionsTest
     {
         [Fact]
-        public void Can_create_context_with_name_or_connection_string()
+        public void CanCreateContextWithNameOrConnectionString()
         {
             var entityConfiguration = new EntityConfiguration();
 

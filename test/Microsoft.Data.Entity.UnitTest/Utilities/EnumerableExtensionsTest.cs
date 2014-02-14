@@ -9,37 +9,37 @@ namespace Microsoft.Data.Entity.Utilities
     public class EnumerableExtensionsTest
     {
         [Fact]
-        public void OrderByOrdinal_should_respect_case()
+        public void OrderByOrdinalShouldRespectCase()
         {
             Assert.Equal(new[] { "A", "a", "b" }, new[] { "b", "A", "a" }.OrderByOrdinal(s => s));
         }
 
         [Fact]
-        public void Join_empty_input_returns_empty_string()
+        public void JoinEmptyInputReturnsEmptyString()
         {
             Assert.Equal("", new object[] { }.Join());
         }
 
         [Fact]
-        public void Join_single_element_does_not_use_separator()
+        public void JoinSingleElementDoesNotUseSeparator()
         {
             Assert.Equal("42", new object[] { 42 }.Join());
         }
 
         [Fact]
-        public void Join_should_use_comma_by_default()
+        public void JoinShouldUseCommaByDefault()
         {
             Assert.Equal("42, bar", new object[] { 42, "bar" }.Join());
         }
 
         [Fact]
-        public void Join_should_use_explicit_separator_when_provided()
+        public void JoinShouldUseExplicitSeparatorWhenProvided()
         {
             Assert.Equal("42-bar", new object[] { 42, "bar" }.Join("-"));
         }
 
         [Fact]
-        public async Task SelectAsync_should_apply_selector_over_sequence()
+        public async Task SelectAsyncShouldApplySelectorOverSequence()
         {
             Assert.Equal(
                 new[] { "aa", "bb" },
@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.Utilities
         }
 
         [Fact]
-        public async Task SelectManyAsync_should_apply_selector_over_inner_sequences()
+        public async Task SelectManyAsyncShouldApplySelectorOverInnerSequences()
         {
             Assert.Equal(
                 new[] { "a", "b", "c", "d" },
@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.Utilities
         }
 
         [Fact]
-        public async Task WhereAsync_should_apply_filter_over_sequence()
+        public async Task WhereAsyncShouldApplyFilterOverSequence()
         {
             Assert.Equal(
                 new[] { "BB" },
