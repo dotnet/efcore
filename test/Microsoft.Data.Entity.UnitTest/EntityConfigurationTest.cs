@@ -9,7 +9,7 @@ namespace Microsoft.Data.Entity
     public class EntityConfigurationTest
     {
         [Fact]
-        public void Throws_if_no_data_store()
+        public void ThrowsIfNoDataStore()
         {
             Assert.Equal(
                 Strings.MissingConfigurationItem("DataStore"),
@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity
         }
 
         [Fact]
-        public void Can_set_data_store()
+        public void CanSetDataStore()
         {
             var dataStore = new FakeDataStore();
             var entityConfiguration = new EntityConfiguration { DataStore = dataStore };
@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity
         }
 
         [Fact]
-        public void Can_provide_data_store_from_service_provider()
+        public void CanProvideDataStoreFromServiceProvider()
         {
             var serviceProvider = new ServiceProvider();
             var dataStore = new FakeDataStore();

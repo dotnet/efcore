@@ -7,7 +7,7 @@ namespace Microsoft.Data.SqlServer
     public class SqlServerDataStoreTest
     {
         [Fact]
-        public void Can_initialize_with_name_or_connection_string()
+        public void CanInitializeWithNameOrConnectionString()
         {
             var sqlServerDataStore = new SqlServerDataStore("Foo");
 

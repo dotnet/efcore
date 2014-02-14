@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity
     public class EntityServicesTest
     {
         [Fact]
-        public void Can_create_default_provider()
+        public void CanCreateDefaultProvider()
         {
             var serviceProvider = EntityServices.CreateDefaultProvider();
 
@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity
         }
 
         [Fact]
-        public void Can_surface_default_services_to_consumers()
+        public void CanSurfaceDefaultServicesToConsumers()
         {
             var services = new Dictionary<Type, Type>();
 

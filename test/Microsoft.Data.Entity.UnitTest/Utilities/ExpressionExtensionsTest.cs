@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.Utilities
     public class ExpressionExtensionsTest
     {
         [Fact]
-        public void GetPropertyAccess_should_return_property_info_when_valid_property_access_expression()
+        public void GetPropertyAccessShouldReturnPropertyInfoWhenValidPropertyAccessExpression()
         {
             Expression<Func<DateTime, int>> expression = d => d.Hour;
 
@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Utilities
         }
 
         [Fact]
-        public void GetPropertyAccess_should_throw_when_not_property_access()
+        public void GetPropertyAccessShouldThrowWhenNotPropertyAccess()
         {
             Expression<Func<DateTime, int>> expression = d => 123;
 
@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.Utilities
         }
 
         [Fact]
-        public void GetPropertyAccess_should_throw_when_not_property_access_on_the_provided_argument()
+        public void GetPropertyAccessShouldThrowWhenNotPropertyAccessOnTheProvidedArgument()
         {
             var closure = DateTime.Now;
             Expression<Func<DateTime, int>> expression = d => closure.Hour;
@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.Utilities
         }
 
         [Fact]
-        public void GetPropertyAccess_should_remove_convert()
+        public void GetPropertyAccessShouldRemoveConvert()
         {
             Expression<Func<DateTime, long>> expression = d => d.Hour;
 
@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity.Utilities
         }
 
         [Fact]
-        public void GetPropertyAccessList_should_return_property_info_collection()
+        public void GetPropertyAccessListShouldReturnPropertyInfoCollection()
         {
             Expression<Func<DateTime, object>> expression = d => new
             {
@@ -70,7 +70,7 @@ namespace Microsoft.Data.Entity.Utilities
         }
 
         [Fact]
-        public void GetPropertyAccessList_should_throw_when_invalid_expression()
+        public void GetPropertyAccessListShouldThrowWhenInvalidExpression()
         {
             Expression<Func<DateTime, object>> expression = d => new
             {
@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.Utilities
         }
 
         [Fact]
-        public void GetPropertyAccessList_should_throw_when_property_access_not_on_the_provided_argument()
+        public void GetPropertyAccessListShouldThrowWhenPropertyAccessNotOnTheProvidedArgument()
         {
             var closure = DateTime.Now;
 

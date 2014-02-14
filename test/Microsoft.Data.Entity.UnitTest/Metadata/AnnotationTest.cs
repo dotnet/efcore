@@ -7,7 +7,7 @@ namespace Microsoft.Data.Entity.Metadata
     public class AnnotationTest
     {
         [Fact]
-        public void Can_create_annotation()
+        public void CanCreateAnnotation()
         {
             var annotation = new Annotation("Foo", "Bar");
 

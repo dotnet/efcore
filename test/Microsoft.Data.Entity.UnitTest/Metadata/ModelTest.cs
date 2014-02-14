@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Metadata
         #endregion
 
         [Fact]
-        public void Can_add_and_remove_entity()
+        public void CanAddAndRemoveEntity()
         {
             var model = new Model();
             var entity = new Entity(typeof(Customer));
@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void Can_get_entity_by_instance()
+        public void CanGetEntityByInstance()
         {
             var model = new Model();
             model.AddEntity(new Entity(typeof(Customer)));
@@ -50,7 +50,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void Can_get_entity_by_type()
+        public void CanGetEntityByType()
         {
             var model = new Model();
             model.AddEntity(new Entity(typeof(Customer)));
@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void Entities_are_ordered_by_name()
+        public void EntitiesAreOrderedByName()
         {
             var model = new Model();
             var entity1 = new Entity(typeof(Order));

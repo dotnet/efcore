@@ -8,32 +8,32 @@ namespace Microsoft.Data.Entity.Utilities
     public class CheckTest
     {
         [Fact]
-        public void NotNull_throws_when_arg_is_null()
+        public void NotNullThrowsWhenArgIsNull()
         {
 // ReSharper disable once NotResolvedInText
             Assert.Throws<ArgumentNullException>(() => Check.NotNull(null, "foo"));
         }
 
         [Fact]
-        public void NotNull_throws_when_arg_name_empty()
+        public void NotNullThrowsWhenArgNameEmpty()
         {
             Assert.Throws<ArgumentException>(() => Check.NotNull(new object(), string.Empty));
         }
 
         [Fact]
-        public void NotEmpty_throws_when_empty()
+        public void NotEmptyThrowsWhenEmpty()
         {
             Assert.Throws<ArgumentException>(() => Check.NotEmpty("", string.Empty));
         }
 
         [Fact]
-        public void NotEmpty_throws_when_whitespace()
+        public void NotEmptyThrowsWhenWhitespace()
         {
             Assert.Throws<ArgumentException>(() => Check.NotEmpty(" ", string.Empty));
         }
 
         [Fact]
-        public void NotEmpty_throws_when_parameter_name_null()
+        public void NotEmptyThrowsWhenParameterNameNull()
         {
             Assert.Throws<ArgumentException>(() => Check.NotEmpty("42", string.Empty));
         }

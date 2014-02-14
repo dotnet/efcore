@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{50F8CE3F-907C-48A6-A7EB-73CC631ADBE6}</ProjectGuid>
+    <ProjectGuid>{001005B3-D16F-4399-9265-A67D619652BD}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.Data.Migrations</RootNamespace>
-    <AssemblyName>Microsoft.Data.Migrations.UnitTest</AssemblyName>
+    <RootNamespace>Microsoft.Data.Relational</RootNamespace>
+    <AssemblyName>Microsoft.Data.Relational.UnitTest</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -45,20 +45,21 @@
     <None Include="_project.json" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\shared\ApiConsistencyTestBase.cs">
-      <Link>ApiConsistencyTestBase.cs</Link>
-    </Compile>
-    <Compile Include="ApiConsistencyTest.cs" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\..\src\Microsoft.Data.Entity\Microsoft.Data.Entity.net45.csproj">
       <Project>{71415cec-8111-4c73-8751-512d22f10602}</Project>
       <Name>Microsoft.Data.Entity.net45</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\Microsoft.Data.Migrations\Microsoft.Data.Migrations.net45.csproj">
-      <Project>{6e38b72f-31da-4aef-8f34-b8269572ec6b}</Project>
-      <Name>Microsoft.Data.Migrations.net45</Name>
+    <ProjectReference Include="..\..\src\Microsoft.Data.Relational\Microsoft.Data.Relational.net45.csproj">
+      <Project>{75c5a774-a3f3-43eb-97d3-dbe0cf2825d8}</Project>
+      <Name>Microsoft.Data.Relational.net45</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\shared\ApiConsistencyTestBase.cs">
+      <Link>ApiConsistencyTestBase.cs</Link>
+    </Compile>
+    <Compile Include="ApiConsistencyTest.cs" />
+    <Compile Include="SchemaQualifiedNameTest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

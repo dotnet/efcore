@@ -7,7 +7,7 @@ namespace Microsoft.Data.Entity.Services
     public class ConsoleLoggerFactoryTest
     {
         [Fact]
-        public void Logger_is_cached()
+        public void LoggerIsCached()
         {
             var consoleLoggerFactory = new ConsoleLoggerFactory();
 

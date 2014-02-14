@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity
             = BindingFlags.Instance | BindingFlags.Public;
 
         [Fact]
-        public void Public_inheritable_apis_should_be_virtual()
+        public void PublicInheritableApisShouldBeVirtual()
         {
             var nonVirtualMethods
                 = from t in GetAllTypes(TargetAssembly.GetTypes())
@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity
         }
 
         [Fact]
-        public void Public_api_arguments_should_have_not_null_annotation()
+        public void PublicApiArgumentsShouldHaveNotNullAnnotation()
         {
             var parametersMissingAttribute
                 = from t in GetAllTypes(TargetAssembly.GetTypes())

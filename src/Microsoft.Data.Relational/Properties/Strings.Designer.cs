@@ -19,27 +19,11 @@ namespace Microsoft.Data.Relational
         }
 
         /// <summary>
-        /// The properties expression '{expression}' is not valid. The expression should represent a property access: 't =&gt; t.MyProperty'. When specifying multiple properties use an anonymous type: 't =&gt; new {{ t.MyProperty1, t.MyProperty2 }}'.
+        /// The schema qualified name '{name}' is invalid. Schema qualified names must be of the form [&lt;schema_name&gt;.]&lt;object_name&gt;.
         /// </summary>
-        internal static string InvalidPropertiesExpression(object expression)
+        internal static string InvalidSchemaQualifiedName(object name)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidPropertiesExpression", "expression"), expression);
-        }
-
-        /// <summary>
-        /// The expression '{expression}' is not a valid property expression. The expression should represent a property access: 't =&gt; t.MyProperty'.
-        /// </summary>
-        internal static string InvalidPropertyExpression(object expression)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidPropertyExpression", "expression"), expression);
-        }
-
-        /// <summary>
-        /// The EntityConfiguration property '{propertyName}' has not been set.
-        /// </summary>
-        internal static string MissingConfigurationItem(object propertyName)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("MissingConfigurationItem", "propertyName"), propertyName);
+            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidSchemaQualifiedName", "name"), name);
         }
 
         private static string GetString(string name, params string[] argumentNames)

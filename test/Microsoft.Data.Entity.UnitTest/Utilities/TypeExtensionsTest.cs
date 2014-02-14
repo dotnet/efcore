@@ -9,14 +9,14 @@ namespace Microsoft.Data.Entity.Utilities
     public class TypeExtensionsTest
     {
         [Fact]
-        public void ElementType_should_return_element_type_from_sequence_type()
+        public void ElementTypeShouldReturnElementTypeFromSequenceType()
         {
             Assert.Equal(typeof(string), typeof(IEnumerable<string>).ElementType());
             Assert.Equal(typeof(string), typeof(IQueryable<string>).ElementType());
         }
 
         [Fact]
-        public void ElementType_should_return_input_type_when_not_sequence_type()
+        public void ElementTypeShouldReturnInputTypeWhenNotSequenceType()
         {
             Assert.Equal(typeof(string), typeof(string));
         }
