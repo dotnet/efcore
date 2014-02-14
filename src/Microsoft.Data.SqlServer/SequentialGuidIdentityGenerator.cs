@@ -13,13 +13,18 @@ namespace Microsoft.Data.SqlServer
 
         static SequentialGuidIdentityGenerator()
         {
-            _counter = DateTime.Now.Ticks;
+            _counter = DateTime.UtcNow.Ticks;
         }
 
         public Task<Guid> NextAsync()
         {
             var guidBytes = Guid.NewGuid().ToByteArray();
             var counterBytes = BitConverter.GetBytes(Interlocked.Increment(ref _counter));
+
+            if (!BitConverter.IsLittleEndian)
+            {
+                Array.Reverse(counterBytes);
+            }
 
             guidBytes[08] = counterBytes[1];
             guidBytes[09] = counterBytes[0];
