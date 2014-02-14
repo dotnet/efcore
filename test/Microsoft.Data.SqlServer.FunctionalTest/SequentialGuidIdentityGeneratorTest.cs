@@ -10,7 +10,7 @@ namespace Microsoft.Data.SqlServer
     public class SequentialGuidIdentityGeneratorTest
     {
         [Fact]
-        public async Task Can_get_next_values()
+        public async Task CanGetNextValues()
         {
             var sequentialGuidIdentityGenerator = new SequentialGuidIdentityGenerator();
             var values = new List<Guid>();
