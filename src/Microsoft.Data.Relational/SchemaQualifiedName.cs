@@ -19,8 +19,7 @@ namespace Microsoft.Data.Relational
                     CultureInfo.InvariantCulture,
                     @"^{0}(?:\.{1})?$",
                     string.Format(CultureInfo.InvariantCulture, NamePartRegex, 1),
-                    string.Format(CultureInfo.InvariantCulture, NamePartRegex, 2)),
-                RegexOptions.Compiled);
+                    string.Format(CultureInfo.InvariantCulture, NamePartRegex, 2)));
 
         public static SchemaQualifiedName Parse([NotNull] string name)
         {
