@@ -6,7 +6,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Microsoft.Data.Entity.Resources;
 
 namespace Microsoft.Data.Entity.Utilities
 {

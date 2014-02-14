@@ -3,7 +3,6 @@
 using System;
 using System.Diagnostics;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Resources;
 
 namespace Microsoft.Data.Entity.Utilities
 {

@@ -2,7 +2,6 @@
 
 using System;
 using Microsoft.AspNet.DependencyInjection;
-using Microsoft.Data.Entity.Resources;
 using Xunit;
 
 namespace Microsoft.Data.Entity

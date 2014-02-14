@@ -3,7 +3,6 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
-using Microsoft.Data.Entity.Resources;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Utilities
