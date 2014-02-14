@@ -2,13 +2,14 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Relational;
+using Microsoft.Data.SqlServer.Utilities;
 
 namespace Microsoft.Data.SqlServer
 {
     public class SqlServerDataStore : RelationalDataStore
     {
         public SqlServerDataStore([NotNull] string nameOrConnectionString)
-            : base(nameOrConnectionString)
+            : base(Check.NotEmpty(nameOrConnectionString, "nameOrConnectionString"))
         {
         }
     }

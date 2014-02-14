@@ -2,6 +2,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity;
+using Microsoft.Data.Relational.Utilities;
 
 namespace Microsoft.Data.Relational
 {
@@ -11,6 +12,8 @@ namespace Microsoft.Data.Relational
 
         public RelationalDataStore([NotNull] string nameOrConnectionString)
         {
+            Check.NotEmpty(nameOrConnectionString, "nameOrConnectionString");
+
             _nameOrConnectionString = nameOrConnectionString;
         }
 

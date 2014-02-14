@@ -1,6 +1,5 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 #if NET45
 using System.Data;
 using System.Data.SqlClient;
@@ -8,6 +7,8 @@ using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Identity;
+using Microsoft.Data.SqlServer.Utilities;
+using JetBrains.Annotations;
 
 namespace Microsoft.Data.SqlServer
 {
@@ -26,23 +27,26 @@ namespace Microsoft.Data.SqlServer
         private long _max;
 
         public SequenceIdentityGenerator([NotNull] string connectionString)
-            : this(connectionString, 10)
+            : this(Check.NotEmpty(connectionString, "connectionString"), 10)
         {
         }
 
         public SequenceIdentityGenerator([NotNull] string connectionString, int increment)
-            : this(connectionString, increment, DefaultSequenceName)
+            : this(Check.NotEmpty(connectionString, "connectionString"), increment, DefaultSequenceName)
         {
         }
 
         public SequenceIdentityGenerator([NotNull] string connectionString, int increment, [NotNull] string name)
-            : this(connectionString, increment, name, null)
+            : this(Check.NotEmpty(connectionString, "connectionString"), increment, Check.NotEmpty(name, "name"), null)
         {
         }
 
         public SequenceIdentityGenerator(
             [NotNull] string connectionString, int increment, [NotNull] string name, [CanBeNull] string schema)
         {
+            Check.NotEmpty(connectionString, "connectionString");
+            Check.NotEmpty(name, "name");
+
             _connectionString = connectionString;
             _increment = increment;
             _name = name;
