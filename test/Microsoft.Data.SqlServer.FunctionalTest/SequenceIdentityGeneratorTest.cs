@@ -15,7 +15,8 @@ namespace Microsoft.Data.SqlServer
                 var sequenceIdentityGenerator
                     = new SequenceIdentityGenerator(testDatabase.ConnectionString);
 
-                await sequenceIdentityGenerator.EnsureSequenceAsync();
+                await testDatabase.ExecuteAsync(
+                    SqlServerDdlSqlGenerator.Generate(sequenceIdentityGenerator.CreateDdlOperation()));
 
                 var next = sequenceIdentityGenerator.NextAsync().Result;
 

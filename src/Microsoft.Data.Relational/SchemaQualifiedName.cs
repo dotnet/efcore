@@ -87,6 +87,11 @@ namespace Microsoft.Data.Relational
             get { return _schema; }
         }
 
+        public bool IsSchemaQualified
+        {
+            get { return _schema != null; }
+        }
+
         public override string ToString()
         {
             var s = Escape(_name);

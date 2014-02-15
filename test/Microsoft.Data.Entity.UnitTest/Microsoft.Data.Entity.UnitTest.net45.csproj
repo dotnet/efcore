@@ -64,6 +64,7 @@
     <Compile Include="Utilities\CheckTest.cs" />
     <Compile Include="Utilities\EnumerableExtensionsTest.cs" />
     <Compile Include="Utilities\ExpressionExtensionsTest.cs" />
+    <Compile Include="Utilities\IndentedStringBuilderTest.cs" />
     <Compile Include="Utilities\LazyRefTest.cs" />
     <Compile Include="Utilities\TypeExtensionsTest.cs" />
   </ItemGroup>

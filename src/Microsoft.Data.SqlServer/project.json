@@ -2,7 +2,8 @@
   "version" : "0.1-pre-*",
   "dependencies": {
     "Microsoft.Data.Entity" : "",
-    "Microsoft.Data.Relational" : ""
+    "Microsoft.Data.Relational" : "",
+    "Microsoft.Data.Migrations" : ""
   },
   "configurations": {
     "net45": {

@@ -57,6 +57,7 @@ namespace Microsoft.Data.Relational
 
             Assert.Equal("S", schemaQualifiedName.Schema);
             Assert.Equal("A", schemaQualifiedName.Name);
+            Assert.True(schemaQualifiedName.IsSchemaQualified);
         }
 
         [Fact]

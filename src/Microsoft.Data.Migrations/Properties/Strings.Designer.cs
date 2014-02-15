@@ -18,6 +18,14 @@ namespace Microsoft.Data.Migrations
             return string.Format(CultureInfo.CurrentCulture, GetString("ArgumentIsNullOrWhitespace", "argumentName"), argumentName);
         }
 
+        /// <summary>
+        /// The current migration SQL generator '{sqlGeneratorType}' is unable to generate SQL for operations of type '{operationType}'.
+        /// </summary>
+        internal static string UnknownOperation(object sqlGeneratorType, object operationType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("UnknownOperation", "sqlGeneratorType", "operationType"), sqlGeneratorType, operationType);
+        }
+
         private static string GetString(string name, params string[] argumentNames)
         {
             var value = _resourceManager.GetString(name);

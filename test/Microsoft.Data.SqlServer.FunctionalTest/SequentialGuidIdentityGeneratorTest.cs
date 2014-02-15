@@ -22,16 +22,16 @@ namespace Microsoft.Data.SqlServer
 
             using (var testDatabase = await new TestDatabase().Create())
             {
-                await testDatabase.Execute("CREATE TABLE SequentialGuidTest (value uniqueidentifier)");
+                await testDatabase.ExecuteAsync("CREATE TABLE SequentialGuidTest (value uniqueidentifier)");
 
                 for (var i = values.Count - 1; i >= 0; i--)
                 {
-                    await testDatabase.Execute("INSERT SequentialGuidTest VALUES (@p0)", values[i]);
+                    await testDatabase.ExecuteAsync("INSERT SequentialGuidTest VALUES (@p0)", values[i]);
                 }
 
                 Assert.Equal(
                     values,
-                    await testDatabase.Query<Guid>("SELECT value FROM SequentialGuidTest ORDER BY value"));
+                    await testDatabase.QueryAsync<Guid>("SELECT value FROM SequentialGuidTest ORDER BY value"));
             }
         }
     }
