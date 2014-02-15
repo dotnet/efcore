@@ -1,13 +1,18 @@
 {
-  "version" : "0.1-alpha-*",
-  "dependencies": {
-    "xunit" : "1.9.2",
-    "Microsoft.Data.Entity" : "0.1-alpha-*",
-    "Microsoft.AspNet.DependencyInjection" : "0.1-alpha-*",
-	"Microsoft.AspNet.Logging" : "0.1-alpha-*" 
-  },
-  "configurations": {
-    "net45": {},
-    "k10": {}
-  }
+    "version": "0.1-alpha-*",
+    "dependencies": {
+        "xunit": "1.9.2",
+        "Microsoft.Data.Entity": "",
+        "Microsoft.Data.Relational": "",
+        "Microsoft.Data.SqlServer": "",
+        "System.Data.Common": "0.1-alpha-*"
+    },
+    "configurations": {
+        "net45": {
+            "dependencies": {
+                "System.Data": ""
+            }
+        },
+        "k10": {}
+    }
 }

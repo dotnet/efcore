@@ -3,12 +3,13 @@
   "dependencies": {
     "Microsoft.Data.Entity" : "",
     "Microsoft.Data.Relational" : "",
-    "Microsoft.Data.Migrations" : ""
+    "Microsoft.Data.Migrations" : "",
+    "System.Data.Common": "0.1-alpha-*"
   },
   "configurations": {
     "net45": {
       "dependencies": {
-        "System.Data" : ""
+        "System.Data": ""
       }
     },
     "k10": {}
