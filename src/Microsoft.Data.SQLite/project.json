@@ -1,0 +1,14 @@
+{
+    "version": "0.1-alpha-*",
+    "dependencies": {
+        "System.Data.Common": "0.1-alpha-*"
+    },
+    "configurations": {
+        "net45": {
+            "dependencies": {
+                "System.Data": ""
+            }
+        },
+        "k10": {}
+    }
+}
