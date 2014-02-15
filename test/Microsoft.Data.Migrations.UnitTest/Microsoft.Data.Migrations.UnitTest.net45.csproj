@@ -49,6 +49,8 @@
       <Link>ApiConsistencyTestBase.cs</Link>
     </Compile>
     <Compile Include="ApiConsistencyTest.cs" />
+    <Compile Include="DdlSqlGeneratorTest.cs" />
+    <Compile Include="Model\CreateSequenceOperationTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Microsoft.Data.Entity\Microsoft.Data.Entity.net45.csproj">
@@ -58,6 +60,10 @@
     <ProjectReference Include="..\..\src\Microsoft.Data.Migrations\Microsoft.Data.Migrations.net45.csproj">
       <Project>{6e38b72f-31da-4aef-8f34-b8269572ec6b}</Project>
       <Name>Microsoft.Data.Migrations.net45</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Microsoft.Data.Relational\Microsoft.Data.Relational.net45.csproj">
+      <Project>{75c5a774-a3f3-43eb-97d3-dbe0cf2825d8}</Project>
+      <Name>Microsoft.Data.Relational.net45</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

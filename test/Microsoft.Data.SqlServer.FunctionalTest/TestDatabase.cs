@@ -44,7 +44,7 @@ namespace Microsoft.Data.SqlServer
             get { return _connection.ConnectionString; }
         }
 
-        public Task<int> Execute(string sql, params object[] parameters)
+        public Task<int> ExecuteAsync(string sql, params object[] parameters)
         {
             using (var command = new SqlCommand())
             {
@@ -54,7 +54,7 @@ namespace Microsoft.Data.SqlServer
             }
         }
 
-        public async Task<IEnumerable<T>> Query<T>(string sql, params object[] parameters)
+        public async Task<IEnumerable<T>> QueryAsync<T>(string sql, params object[] parameters)
         {
             using (var command = new SqlCommand())
             {

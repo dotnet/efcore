@@ -50,9 +50,9 @@
       <Project>{71415cec-8111-4c73-8751-512d22f10602}</Project>
       <Name>Microsoft.Data.Entity.net45</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\Microsoft.Data.Relational\Microsoft.Data.Relational.net45.csproj">
-      <Project>{75c5a774-a3f3-43eb-97d3-dbe0cf2825d8}</Project>
-      <Name>Microsoft.Data.Relational.net45</Name>
+    <ProjectReference Include="..\..\src\Microsoft.Data.Migrations\Microsoft.Data.Migrations.net45.csproj">
+      <Project>{6e38b72f-31da-4aef-8f34-b8269572ec6b}</Project>
+      <Name>Microsoft.Data.Migrations.net45</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\src\Microsoft.Data.SqlServer\Microsoft.Data.SqlServer.net45.csproj">
       <Project>{04e6620b-5b41-45fe-981a-f40eb7686b0e}</Project>

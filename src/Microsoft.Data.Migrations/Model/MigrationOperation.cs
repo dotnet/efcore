@@ -9,6 +9,9 @@ namespace Microsoft.Data.Migrations.Model
             get { return null; }
         }
 
-        public abstract bool IsDestructiveChange { get; }
+        public virtual bool IsDestructiveChange
+        {
+            get { return true; }
+        }
     }
 }
