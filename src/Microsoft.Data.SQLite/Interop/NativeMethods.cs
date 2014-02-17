@@ -2,21 +2,22 @@
 
 using System;
 using System.Runtime.InteropServices;
-using Microsoft.Data.SQLite.Utilities;
 
 namespace Microsoft.Data.SQLite.Interop
 {
     internal static class NativeMethods
     {
-        public const int SQLITE_OK = 0;
-
-        [DllImport("sqlite3")]
+        [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         public static extern int sqlite3_changes(IntPtr db);
 
-        [DllImport("sqlite3")]
+        [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         public static extern int sqlite3_close_v2(IntPtr db);
 
-        [DllImport("sqlite3", EntryPoint = "sqlite3_errstr")]
+        [DllImport(
+            "sqlite3",
+            EntryPoint = "sqlite3_errstr",
+            CallingConvention = CallingConvention.Cdecl,
+            ExactSpelling = true)]
         private static extern IntPtr sqlite3_errstr_raw(int rc);
 
         public static string sqlite3_errstr(int rc)
@@ -24,10 +25,14 @@ namespace Microsoft.Data.SQLite.Interop
             return MarshalEx.PtrToStringUTF8(sqlite3_errstr_raw(rc));
         }
 
-        [DllImport("sqlite3")]
+        [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         public static extern int sqlite3_finalize(IntPtr pStmt);
 
-        [DllImport("sqlite3", EntryPoint = "sqlite3_libversion")]
+        [DllImport(
+            "sqlite3",
+            EntryPoint = "sqlite3_libversion",
+            CallingConvention = CallingConvention.Cdecl,
+            ExactSpelling = true)]
         private static extern IntPtr sqlite3_libversion_raw();
 
         public static string sqlite3_libversion()
@@ -35,55 +40,61 @@ namespace Microsoft.Data.SQLite.Interop
             return MarshalEx.PtrToStringUTF8(sqlite3_libversion_raw());
         }
 
-        [DllImport("sqlite3")]
-        private static extern int sqlite3_open(IntPtr filename, out IntPtr ppDb);
+        [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        private static extern int sqlite3_open_v2(IntPtr filename, out IntPtr ppDb, int flags, IntPtr zVfs);
 
-        public static int sqlite3_open(string filename, out IntPtr ppDb)
+        public static int sqlite3_open_v2(string filename, out IntPtr ppDb, int flags, string zVfs)
         {
-            var ptr = MarshalEx.StringToHGlobalUTF8(filename);
+            var filenamePtr = MarshalEx.StringToHGlobalUTF8(filename);
+            var zVfsPtr = MarshalEx.StringToHGlobalUTF8(zVfs);
             try
             {
-                return sqlite3_open(ptr, out ppDb);
+                return sqlite3_open_v2(filenamePtr, out ppDb, flags, zVfsPtr);
             }
             finally
             {
-                if (ptr != IntPtr.Zero)
-                    Marshal.FreeHGlobal(ptr);
+                if (filenamePtr != IntPtr.Zero)
+                    Marshal.FreeHGlobal(filenamePtr);
+                if (zVfsPtr != IntPtr.Zero)
+                    Marshal.FreeHGlobal(zVfsPtr);
             }
         }
 
-        [DllImport("sqlite3")]
+        [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         private static extern int sqlite3_prepare_v2(
             IntPtr db,
             IntPtr zSql,
             int nByte,
             out IntPtr ppStmt,
-            IntPtr pzTail);
+            out IntPtr pzTail);
 
         public static int sqlite3_prepare_v2(
             IntPtr db,
             string zSql,
             int nByte,
             out IntPtr ppStmt,
-            // TODO: ref string?
-            IntPtr pzTail)
+            out string pzTail)
         {
-            var ptr = MarshalEx.StringToHGlobalUTF8(zSql);
+            var zSqlPtr = MarshalEx.StringToHGlobalUTF8(zSql);
             try
             {
-                return sqlite3_prepare_v2(db, ptr, nByte, out ppStmt, pzTail);
+                IntPtr pzTailPtr;
+                var rc = sqlite3_prepare_v2(db, zSqlPtr, nByte, out ppStmt, out pzTailPtr);
+                pzTail = MarshalEx.PtrToStringUTF8(pzTailPtr);
+
+                return rc;
             }
             finally
             {
-                if (ptr != IntPtr.Zero)
-                    Marshal.FreeHGlobal(ptr);
+                if (zSqlPtr != IntPtr.Zero)
+                    Marshal.FreeHGlobal(zSqlPtr);
             }
         }
 
-        [DllImport("sqlite3")]
+        [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         public static extern int sqlite3_reset(IntPtr pStmt);
 
-        [DllImport("sqlite3")]
+        [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         public static extern int sqlite3_step(IntPtr pStmt);
     }
 }

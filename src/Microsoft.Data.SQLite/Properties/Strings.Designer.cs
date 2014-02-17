@@ -51,11 +51,27 @@ namespace Microsoft.Data.SQLite
         }
 
         /// <summary>
+        /// Invalid '{keyword}' value in the connection string: {value}.
+        /// </summary>
+        internal static string InvalidConnectionOptionValue(object keyword, object value)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidConnectionOptionValue", "keyword", "value"), keyword, value);
+        }
+
+        /// <summary>
         /// The IsolationLevel '{isolationLevel}' is invalid.
         /// </summary>
         internal static string InvalidIsolationLevel(object isolationLevel)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("InvalidIsolationLevel", "isolationLevel"), isolationLevel);
+        }
+
+        /// <summary>
+        /// Keyword not supported: '{keyword}'.
+        /// </summary>
+        internal static string KeywordNotSupported(object keyword)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("KeywordNotSupported", "keyword"), keyword);
         }
 
         /// <summary>

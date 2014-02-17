@@ -89,7 +89,7 @@ namespace Microsoft.Data.SQLite
         [Fact]
         public void Prepare_throws_when_connection_closed()
         {
-            using (var connection = new SQLiteConnection("test.db"))
+            using (var connection = new SQLiteConnection("Filename=test.db"))
             using (var command = connection.CreateCommand())
             {
                 var ex = Assert.Throws<InvalidOperationException>(() => command.Prepare());
@@ -101,7 +101,7 @@ namespace Microsoft.Data.SQLite
         [Fact]
         public void Prepare_throws_when_no_command_text()
         {
-            using (var connection = new SQLiteConnection("test.db"))
+            using (var connection = new SQLiteConnection("Filename=test.db"))
             using (var command = connection.CreateCommand())
             {
                 connection.Open();
@@ -115,7 +115,7 @@ namespace Microsoft.Data.SQLite
         [Fact]
         public void Prepare_throws_on_error()
         {
-            using (var connection = new SQLiteConnection("test.db"))
+            using (var connection = new SQLiteConnection("Filename=test.db"))
             using (var command = connection.CreateCommand())
             {
                 command.CommandText = "INVALID";
@@ -150,7 +150,7 @@ namespace Microsoft.Data.SQLite
         [Fact]
         public void ExecuteNonQuery_throws_when_connection_closed()
         {
-            using (var connection = new SQLiteConnection("test.db"))
+            using (var connection = new SQLiteConnection("Filename=test.db"))
             using (var command = connection.CreateCommand())
             {
                 var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteNonQuery());
@@ -162,7 +162,7 @@ namespace Microsoft.Data.SQLite
         [Fact]
         public void ExecuteNonQuery_throws_when_no_command_text()
         {
-            using (var connection = new SQLiteConnection("test.db"))
+            using (var connection = new SQLiteConnection("Filename=test.db"))
             using (var command = connection.CreateCommand())
             {
                 connection.Open();
@@ -176,7 +176,7 @@ namespace Microsoft.Data.SQLite
         [Fact]
         public void ExecuteNonQuery_works()
         {
-            using (var connection = new SQLiteConnection("test.db"))
+            using (var connection = new SQLiteConnection("Filename=test.db"))
             using (var command = connection.CreateCommand())
             {
                 command.CommandText = "SELECT 1";
@@ -191,7 +191,7 @@ namespace Microsoft.Data.SQLite
         [Fact]
         public void ExecuteNonQuery_can_be_called_more_than_once()
         {
-            using (var connection = new SQLiteConnection("test.db"))
+            using (var connection = new SQLiteConnection("Filename=test.db"))
             using (var command = connection.CreateCommand())
             {
                 command.CommandText = "SELECT 1";
@@ -205,7 +205,7 @@ namespace Microsoft.Data.SQLite
         [Fact]
         public void ExecuteNonQuery_can_be_called_more_than_once_when_text_changed()
         {
-            using (var connection = new SQLiteConnection("test.db"))
+            using (var connection = new SQLiteConnection("Filename=test.db"))
             using (var command = connection.CreateCommand())
             {
                 command.CommandText = "SELECT 1";
@@ -222,7 +222,7 @@ namespace Microsoft.Data.SQLite
         {
             using (var command = new SQLiteCommand("SELECT 1"))
             {
-                using (var connection = new SQLiteConnection("test.db"))
+                using (var connection = new SQLiteConnection("Filename=test.db"))
                 {
                     command.Connection = connection;
                     connection.Open();
@@ -230,7 +230,7 @@ namespace Microsoft.Data.SQLite
                     command.ExecuteNonQuery();
                 }
 
-                using (var connection = new SQLiteConnection("new.db"))
+                using (var connection = new SQLiteConnection("Filename=new.db"))
                 {
                     command.Connection = connection;
                     connection.Open();

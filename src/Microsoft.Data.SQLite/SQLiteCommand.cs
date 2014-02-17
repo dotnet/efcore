@@ -149,13 +149,18 @@ namespace Microsoft.Data.SQLite
             Debug.Assert(_connection._db != IntPtr.Zero, "_connection._db is Zero.");
             Debug.Assert(_stmt == IntPtr.Zero, "_stmt is not Zero.");
 
+            string tail;
             var rc = NativeMethods.sqlite3_prepare_v2(
                 _connection._db,
                 _commandText,
                 Encoding.UTF8.GetByteCount(_commandText) + 1,
                 out _stmt,
-                IntPtr.Zero);
+                out tail);
             MarshalEx.ThrowExceptionForRC(rc);
+
+            // TODO: Handle this. Only the only first statement is compiled. This is what
+            //       remains uncompiled.
+            Debug.Assert(string.IsNullOrEmpty(tail), "CommandText contains more than one statement.");
 
             _prepared = true;
         }
@@ -235,7 +240,7 @@ namespace Microsoft.Data.SQLite
                 return;
 
             var rc = NativeMethods.sqlite3_finalize(_stmt);
-            Debug.Assert(rc == NativeMethods.SQLITE_OK, "rc is not SQLITE_OK.");
+            Debug.Assert(rc == Constants.SQLITE_OK, "rc is not SQLITE_OK.");
 
             _stmt = IntPtr.Zero;
         }

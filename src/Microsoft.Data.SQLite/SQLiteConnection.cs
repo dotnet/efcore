@@ -13,6 +13,7 @@ namespace Microsoft.Data.SQLite
     public class SQLiteConnection : DbConnection
     {
         private string _connectionString;
+        private SQLiteConnectionStringBuilder _connectionOptions;
         private ConnectionState _state;
         internal IntPtr _db = IntPtr.Zero;
         private bool _disposed;
@@ -39,19 +40,19 @@ namespace Microsoft.Data.SQLite
                 if (_state != ConnectionState.Closed)
                     throw new InvalidOperationException(Strings.ConnectionStringRequiresClosedConnection);
 
-                // TODO: Parse and cache
                 _connectionString = value;
+                _connectionOptions = new SQLiteConnectionStringBuilder(value);
             }
         }
 
         public override string Database
         {
-            get { return _connectionString; }
+            get { return "main"; }
         }
 
         public override string DataSource
         {
-            get { return _connectionString; }
+            get { return _connectionOptions.Filename; }
         }
 
         public override string ServerVersion
@@ -84,8 +85,13 @@ namespace Microsoft.Data.SQLite
                 throw new InvalidOperationException(Strings.OpenRequiresSetConnectionString);
 
             Debug.Assert(_db == IntPtr.Zero, "_db is not Zero.");
+            Debug.Assert(_connectionOptions != null, "_connectionOptions is null.");
 
-            var rc = NativeMethods.sqlite3_open(_connectionString, out _db);
+            var rc = NativeMethods.sqlite3_open_v2(
+                _connectionOptions.Filename,
+                out _db,
+                _connectionOptions.GetFlags(),
+                _connectionOptions.VirtualFileSystem);
             MarshalEx.ThrowExceptionForRC(rc);
 
             SetState(ConnectionState.Open);
@@ -117,7 +123,7 @@ namespace Microsoft.Data.SQLite
                 return;
 
             var rc = NativeMethods.sqlite3_close_v2(_db);
-            Debug.Assert(rc == NativeMethods.SQLITE_OK, "rc is not SQLITE_OK.");
+            Debug.Assert(rc == Constants.SQLITE_OK, "rc is not SQLITE_OK.");
 
             _db = IntPtr.Zero;
         }

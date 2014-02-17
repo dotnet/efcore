@@ -3,15 +3,14 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Text;
-using Microsoft.Data.SQLite.Interop;
 
-namespace Microsoft.Data.SQLite.Utilities
+namespace Microsoft.Data.SQLite.Interop
 {
     internal static class MarshalEx
     {
         public static SQLiteException GetExceptionForRC(int errorCode)
         {
-            if (errorCode == NativeMethods.SQLITE_OK)
+            if (errorCode == Constants.SQLITE_OK)
                 return null;
 
             return new SQLiteException(NativeMethods.sqlite3_errstr(errorCode), errorCode);
@@ -47,7 +46,7 @@ namespace Microsoft.Data.SQLite.Utilities
 
         public static void ThrowExceptionForRC(int errorCode)
         {
-            if (errorCode == NativeMethods.SQLITE_OK)
+            if (errorCode == Constants.SQLITE_OK)
                 return;
 
             throw GetExceptionForRC(errorCode);

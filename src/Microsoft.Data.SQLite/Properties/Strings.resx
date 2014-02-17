@@ -132,8 +132,14 @@
   <data name="InvalidCommandType" xml:space="preserve">
     <value>The CommandType '{commandType}' is invalid.</value>
   </data>
+  <data name="InvalidConnectionOptionValue" xml:space="preserve">
+    <value>Invalid '{keyword}' value in the connection string: {value}.</value>
+  </data>
   <data name="InvalidIsolationLevel" xml:space="preserve">
     <value>The IsolationLevel '{isolationLevel}' is invalid.</value>
+  </data>
+  <data name="KeywordNotSupported" xml:space="preserve">
+    <value>Keyword not supported: '{keyword}'.</value>
   </data>
   <data name="OpenRequiresSetConnectionString" xml:space="preserve">
     <value>ConnectionString must be set before Open can be called.</value>
