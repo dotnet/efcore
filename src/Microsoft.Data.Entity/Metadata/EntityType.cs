@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Metadata
             = new LazyRef<ImmutableList<IProperty>>(() => ImmutableList<IProperty>.Empty);
 
         /// <summary>
-        /// Creates a new metadata object representing an entity type associated with the given .NET type.
+        ///     Creates a new metadata object representing an entity type associated with the given .NET type.
         /// </summary>
         /// <param name="type">The .NET entity type that this metadata object represents.</param>
         public EntityType([NotNull] Type type)
@@ -34,8 +34,8 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         /// <summary>
-        /// Creates a new metadata object representing an entity type that will participate in shadow-state
-        /// such that there is no underlying .NET type corresponding to this metadata object.
+        ///     Creates a new metadata object representing an entity type that will participate in shadow-state
+        ///     such that there is no underlying .NET type corresponding to this metadata object.
         /// </summary>
         /// <param name="name">The name of the shadow-state entity type.</param>
         public EntityType([NotNull] string name)
@@ -53,7 +53,8 @@ namespace Microsoft.Data.Entity.Metadata
         public virtual string StorageName
         {
             get { return _storageName ?? _name; }
-            [param: NotNull] set
+            [param: NotNull]
+            set
             {
                 Check.NotEmpty(value, "value");
 

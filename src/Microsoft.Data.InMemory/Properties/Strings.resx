@@ -120,4 +120,7 @@
   <data name="ArgumentIsNullOrWhitespace" xml:space="preserve">
     <value>The argument '{argumentName}' cannot be null, empty or contain only white space.</value>
   </data>
+  <data name="InvalidEnumValue" xml:space="preserve">
+    <value>The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.</value>
+  </data>
 </root>

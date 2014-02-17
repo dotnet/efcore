@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.Utilities
         public void NotNullThrowsWhenArgIsNull()
         {
 // ReSharper disable once NotResolvedInText
-            Assert.Throws<ArgumentNullException>(() => Check.NotNull(null, "foo"));
+            Assert.Throws<ArgumentNullException>(() => Check.NotNull<string>(null, "foo"));
         }
 
         [Fact]
@@ -36,6 +36,13 @@ namespace Microsoft.Data.Entity.Utilities
         public void NotEmptyThrowsWhenParameterNameNull()
         {
             Assert.Throws<ArgumentException>(() => Check.NotEmpty("42", string.Empty));
+        }
+
+        [Fact]
+        public void IsDefinedThrowsWhenEnumOutOfRange()
+        {
+// ReSharper disable once NotResolvedInText
+            Assert.Throws<ArgumentException>(() => Check.IsDefined((EntityState)42, "foo"));
         }
     }
 }

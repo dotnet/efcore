@@ -19,6 +19,14 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
+        /// The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.
+        /// </summary>
+        internal static string InvalidEnumValue(object argumentName, object enumType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidEnumValue", "argumentName", "enumType"), argumentName, enumType);
+        }
+
+        /// <summary>
         /// The properties expression '{expression}' is not valid. The expression should represent a property access: 't =&gt; t.MyProperty'. When specifying multiple properties use an anonymous type: 't =&gt; new {{ t.MyProperty1, t.MyProperty2 }}'.
         /// </summary>
         internal static string InvalidPropertiesExpression(object expression)

@@ -1,7 +1,10 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Relational.Utilities;
 
 namespace Microsoft.Data.Relational
@@ -20,6 +23,13 @@ namespace Microsoft.Data.Relational
         public virtual string NameOrConnectionString
         {
             get { return _nameOrConnectionString; }
+        }
+
+        public override Task<int> SaveChangesAsync(IEnumerable<EntityEntry> entityEntries)
+        {
+            // Entities are dependency ordered.
+
+            return base.SaveChangesAsync(entityEntries);
         }
     }
 }

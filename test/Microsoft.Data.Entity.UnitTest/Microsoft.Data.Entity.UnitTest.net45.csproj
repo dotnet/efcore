@@ -52,6 +52,7 @@
       <Link>ApiConsistencyTestBase.cs</Link>
     </Compile>
     <Compile Include="ApiConsistencyTest.cs" />
+    <Compile Include="EntityEntryTest.cs" />
     <Compile Include="EntityServicesTest.cs" />
     <Compile Include="EntityConfigurationTest.cs" />
     <Compile Include="Metadata\AnnotationTest.cs" />

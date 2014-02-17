@@ -120,6 +120,9 @@
   <data name="ArgumentIsNullOrWhitespace" xml:space="preserve">
     <value>The argument '{argumentName}' cannot be null, empty or contain only white space.</value>
   </data>
+  <data name="InvalidEnumValue" xml:space="preserve">
+    <value>The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.</value>
+  </data>
   <data name="InvalidSchemaQualifiedName" xml:space="preserve">
     <value>The schema qualified name '{name}' is invalid. Schema qualified names must be of the form [&lt;schema_name&gt;.]&lt;object_name&gt;.</value>
   </data>

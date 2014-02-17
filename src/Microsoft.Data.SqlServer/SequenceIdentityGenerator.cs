@@ -1,8 +1,9 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+#if NET45
 using Microsoft.Data.Migrations.Model;
 using Microsoft.Data.Relational;
-#if NET45
+using Microsoft.Data.Relational.Model;
 using System.Data.SqlClient;
 using System.Globalization;
 using System.Threading.Tasks;
@@ -17,69 +18,72 @@ namespace Microsoft.Data.SqlServer
     {
         public const string DefaultSequenceName = "EF_IdentityGenerator";
 
-        private readonly string _connectionString;
+        public const int DefaultCommandTimeout = 1;
+        public const int DefaultIncrement = 10;
+
+        private readonly SqlTransaction _transaction;
+        private readonly SchemaQualifiedName _sequenceName;
         private readonly int _increment;
-        private readonly SchemaQualifiedName _schemaQualifiedName;
+        private readonly int _commandTimeout;
+        private readonly string _selectNextValueSql;
 
         private long _current;
         private long _max;
 
-        public SequenceIdentityGenerator([NotNull] string connectionString)
-            : this(Check.NotEmpty(connectionString, "connectionString"), 10)
+        public SequenceIdentityGenerator([NotNull] SqlTransaction transaction)
+            : this(Check.NotNull(transaction, "transaction"), DefaultIncrement)
         {
         }
 
-        public SequenceIdentityGenerator([NotNull] string connectionString, int increment)
-            : this(Check.NotEmpty(connectionString, "connectionString"), increment, DefaultSequenceName)
+        public SequenceIdentityGenerator([NotNull] SqlTransaction transaction, int increment)
+            : this(Check.NotNull(transaction, "transaction"), increment, DefaultSequenceName, DefaultCommandTimeout)
         {
         }
 
         public SequenceIdentityGenerator(
-            [NotNull] string connectionString, int increment, [NotNull] string schemaQualifiedName)
+            [NotNull] SqlTransaction transaction, int increment, SchemaQualifiedName sequenceName, int commandTimeout)
         {
-            Check.NotEmpty(connectionString, "connectionString");
-            Check.NotEmpty(schemaQualifiedName, "schemaQualifiedName");
+            Check.NotNull(transaction, "transaction");
 
-            _connectionString = connectionString;
+            _transaction = transaction;
             _increment = increment;
-            _schemaQualifiedName = schemaQualifiedName;
+            _sequenceName = sequenceName;
+            _commandTimeout = commandTimeout;
+
+            _selectNextValueSql
+                = string.Format(
+                    CultureInfo.InvariantCulture,
+                    "SELECT NEXT VALUE FOR {0}",
+                    new SqlServerMigrationOperationSqlGenerator().DelimitIdentifier(_sequenceName));
         }
 
         public virtual async Task<long> NextAsync()
         {
             if (_current == _max)
             {
-                using (var connection = new SqlConnection(_connectionString))
+                using (var command = _transaction.Connection.CreateCommand())
                 {
-                    await connection.OpenAsync();
+                    command.CommandTimeout = _commandTimeout;
+                    command.CommandText = _selectNextValueSql;
+                    command.Transaction = _transaction;
 
-                    using (var command = connection.CreateCommand())
-                    {
-                        var ddlSqlGenerator = new SqlServerDdlSqlGenerator();
-
-                        command.CommandText
-                            = string.Format(
-                                CultureInfo.InvariantCulture,
-                                "SELECT NEXT VALUE FOR {0}",
-                                ddlSqlGenerator.DelimitIdentifier(_schemaQualifiedName));
-
-                        _current = (long)await command.ExecuteScalarAsync();
-                        _max = _current + _increment;
-                    }
+                    _current = (long)await command.ExecuteScalarAsync();
+                    _max = _current + _increment;
                 }
             }
 
             return ++_current;
         }
 
-        public virtual CreateSequenceOperation CreateDdlOperation()
+        public virtual CreateSequenceOperation CreateMigrationOperation()
         {
-            return new CreateSequenceOperation(_schemaQualifiedName)
-            {
-                StartWith = 0,
-                IncrementBy = _increment,
-                DataType = "BIGINT"
-            };
+            return new CreateSequenceOperation(
+                new Sequence(_sequenceName)
+                {
+                    StartWith = 0,
+                    IncrementBy = _increment,
+                    DataType = "BIGINT"
+                });
         }
     }
 }

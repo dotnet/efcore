@@ -37,10 +37,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\xunit.1.9.2\lib\net20\xunit.dll</HintPath>
     </Reference>
-    <Reference Include="System.Data.Common, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\System.Data.Common.0.1-alpha-006\lib\net45\System.Data.Common.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
@@ -73,7 +69,7 @@
     </Compile>
     <Compile Include="ApiConsistencyTest.cs" />
     <Compile Include="ApiExtensionsTest.cs" />
-    <Compile Include="SqlServerDdlSqlGeneratorTest.cs" />
+    <Compile Include="SqlServerMigrationOperationSqlGeneratorTest.cs" />
     <Compile Include="SqlServerDataStoreTest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
