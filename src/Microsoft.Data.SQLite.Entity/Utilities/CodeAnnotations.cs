@@ -26,7 +26,7 @@ namespace JetBrains.Annotations
     }
 }
 
-namespace Microsoft.Data.Relational.Utilities
+namespace Microsoft.Data.SQLite.Entity.Utilities
 {
     internal sealed class ValidatedNotNullAttribute : Attribute
     {

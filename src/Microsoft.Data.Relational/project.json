@@ -1,10 +1,15 @@
 {
-  "version" : "0.1-alpha-*",
-  "dependencies": {
-    "Microsoft.Data.Entity" : ""
-  },
-  "configurations": {
-    "net45": {},
-    "k10": {}
-  }
+    "version": "0.1-alpha-*",
+    "dependencies": {
+        "Microsoft.Data.Entity": "",
+        "System.Data.Common": "0.1-alpha-*"
+    },
+    "configurations": {
+        "net45": {
+            "dependencies": {
+                "System.Data": ""
+            }
+        },
+        "k10": {}
+    }
 }

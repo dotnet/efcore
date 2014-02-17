@@ -17,7 +17,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.InMemory.k10
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Relational.k10", "src\Microsoft.Data.Relational\Microsoft.Data.Relational.k10.csproj", "{895E3376-22A5-449D-AAEB-407DD28C4CE7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.SQLite.k10", "src\Microsoft.Data.SQLite\Microsoft.Data.SQLite.k10.csproj", "{F86D8125-0DAC-4E9F-81EE-E2EEF23F5D83}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.SQLite.Entity.k10", "src\Microsoft.Data.SQLite.Entity\Microsoft.Data.SQLite.Entity.k10.csproj", "{F86D8125-0DAC-4E9F-81EE-E2EEF23F5D83}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.SqlServer.k10", "src\Microsoft.Data.SqlServer\Microsoft.Data.SqlServer.k10.csproj", "{2E7C4BB1-9680-40D3-832B-6C5369DB8569}"
 EndProject
@@ -27,7 +27,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.InMemory.net
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Relational.net45", "src\Microsoft.Data.Relational\Microsoft.Data.Relational.net45.csproj", "{75C5A774-A3F3-43EB-97D3-DBE0CF2825D8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.SQLite.net45", "src\Microsoft.Data.SQLite\Microsoft.Data.SQLite.net45.csproj", "{4CC98896-FE91-4F16-AE60-D6FF9E905836}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.SQLite.Entity.net45", "src\Microsoft.Data.SQLite.Entity\Microsoft.Data.SQLite.Entity.net45.csproj", "{4CC98896-FE91-4F16-AE60-D6FF9E905836}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.SqlServer.net45", "src\Microsoft.Data.SqlServer\Microsoft.Data.SqlServer.net45.csproj", "{04E6620B-5B41-45FE-981A-F40EB7686B0E}"
 EndProject
