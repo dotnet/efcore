@@ -89,7 +89,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             Assert.Equal(
                 "bar",
-                model.Entity(typeof(Customer)).Property(Customer.NameProperty)["foo"]);
+                model.Entity(typeof(Customer)).Property("Name")["foo"]);
         }
 
         [Fact]

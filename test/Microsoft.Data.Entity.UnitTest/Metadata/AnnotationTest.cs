@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Metadata
@@ -7,7 +8,19 @@ namespace Microsoft.Data.Entity.Metadata
     public class AnnotationTest
     {
         [Fact]
-        public void CanCreateAnnotation()
+        public void Members_check_arguments()
+        {
+            Assert.Equal(
+                Strings.ArgumentIsNullOrWhitespace("name"),
+                Assert.Throws<ArgumentException>(() => new Annotation("", "Kake")).Message);
+
+            Assert.Equal(
+                Strings.ArgumentIsNullOrWhitespace("value"),
+                Assert.Throws<ArgumentException>(() => new Annotation("Lie", "")).Message);
+        }
+
+        [Fact]
+        public void Can_create_annotation()
         {
             var annotation = new Annotation("Foo", "Bar");
 

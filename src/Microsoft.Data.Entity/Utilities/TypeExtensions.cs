@@ -27,5 +27,16 @@ namespace Microsoft.Data.Entity.Utilities
 
             return type;
         }
+
+        public static PropertyInfo GetAnyProperty(this Type type, string name)
+        {
+            var props = type.GetRuntimeProperties().Where(p => p.Name == name).ToList();
+            if (props.Count() > 1)
+            {
+                throw new AmbiguousMatchException();
+            }
+
+            return props.SingleOrDefault();
+        }
     }
 }
