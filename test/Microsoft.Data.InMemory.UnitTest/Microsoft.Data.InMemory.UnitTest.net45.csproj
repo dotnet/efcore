@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{3159FABC-0C89-41FF-A279-48665CC068DC}</ProjectGuid>
+    <ProjectGuid>{81EF720B-EC6D-456F-9FA6-71DA7D4ED3BF}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.Data.SqlServer</RootNamespace>
-    <AssemblyName>Microsoft.Data.SqlServer.UnitTest</AssemblyName>
+    <RootNamespace>Microsoft.Data.InMemory</RootNamespace>
+    <AssemblyName>Microsoft.Data.InMemory.UnitTest</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -32,15 +32,14 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Data" />
     <Reference Include="xunit, Version=1.9.2.1705, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\xunit.1.9.2\lib\net20\xunit.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.AspNet.DependencyInjection, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-        <SpecificVersion>False</SpecificVersion>
-        <HintPath>..\..\packages\Microsoft.AspNet.DependencyInjection.0.1-alpha-028\lib\net45\Microsoft.AspNet.DependencyInjection.dll</HintPath>
-     </Reference>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Microsoft.AspNet.DependencyInjection.0.1-alpha-028\lib\net45\Microsoft.AspNet.DependencyInjection.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
@@ -54,17 +53,9 @@
       <Project>{71415cec-8111-4c73-8751-512d22f10602}</Project>
       <Name>Microsoft.Data.Entity.net45</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\Microsoft.Data.Migrations\Microsoft.Data.Migrations.net45.csproj">
-      <Project>{6e38b72f-31da-4aef-8f34-b8269572ec6b}</Project>
-      <Name>Microsoft.Data.Migrations.net45</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\src\Microsoft.Data.Relational\Microsoft.Data.Relational.net45.csproj">
-      <Project>{75c5a774-a3f3-43eb-97d3-dbe0cf2825d8}</Project>
-      <Name>Microsoft.Data.Relational.net45</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\src\Microsoft.Data.SqlServer\Microsoft.Data.SqlServer.net45.csproj">
-      <Project>{04e6620b-5b41-45fe-981a-f40eb7686b0e}</Project>
-      <Name>Microsoft.Data.SqlServer.net45</Name>
+    <ProjectReference Include="..\..\src\Microsoft.Data.InMemory\Microsoft.Data.InMemory.net45.csproj">
+      <Project>{ba3f5dbc-ec16-4d5a-8298-8226e6c5accc}</Project>
+      <Name>Microsoft.Data.InMemory.net45</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -72,10 +63,6 @@
       <Link>ApiConsistencyTestBase.cs</Link>
     </Compile>
     <Compile Include="ApiConsistencyTest.cs" />
-    <Compile Include="ApiExtensionsTest.cs" />
-    <Compile Include="SqlServerMigrationOperationSqlGeneratorTest.cs" />
-    <Compile Include="SqlServerDataStoreTest.cs" />
-    <Compile Include="SqlServerServicesTest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

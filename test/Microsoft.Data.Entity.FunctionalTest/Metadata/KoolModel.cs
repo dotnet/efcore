@@ -213,7 +213,7 @@ namespace Microsoft.Data.Entity.Metadata
     }
 
     // Proposed generated code below
-
+// ReSharper disable InconsistentNaming
     public class _OneTwoThreeContextModel
         : CompiledModelBase<_OneTwoThreeContextEntities, _OneTwoThreeContextAnnotations>, IModel
     {
@@ -1099,4 +1099,5 @@ namespace Microsoft.Data.Entity.Metadata
             return ((KoolEntityBase)instance).Goo;
         }
     }
+// ReSharper restore InconsistentNaming
 }

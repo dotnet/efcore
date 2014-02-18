@@ -8,19 +8,19 @@ namespace Microsoft.Data.Entity.Metadata
     public class AnnotationTest
     {
         [Fact]
-        public void Members_check_arguments()
+        public void MembersCheckArguments()
         {
             Assert.Equal(
-                Strings.ArgumentIsNullOrWhitespace("name"),
+                Strings.ArgumentIsEmpty("name"),
                 Assert.Throws<ArgumentException>(() => new Annotation("", "Kake")).Message);
 
             Assert.Equal(
-                Strings.ArgumentIsNullOrWhitespace("value"),
+                Strings.ArgumentIsEmpty("value"),
                 Assert.Throws<ArgumentException>(() => new Annotation("Lie", "")).Message);
         }
 
         [Fact]
-        public void Can_create_annotation()
+        public void CanCreateAnnotation()
         {
             var annotation = new Annotation("Foo", "Bar");
 

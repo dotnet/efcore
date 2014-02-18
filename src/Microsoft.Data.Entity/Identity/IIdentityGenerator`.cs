@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Data.Entity.Identity
 {
-    public interface IIdentityGenerator
+    public interface IIdentityGenerator<T> : IIdentityGenerator
     {
-        Task<object> NextAsync();
+        new Task<T> NextAsync();
     }
 }

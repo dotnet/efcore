@@ -2,20 +2,32 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Data.Relational;
 
 namespace Microsoft.Data.SqlServer
 {
-    public class TestDatabase : IDisposable
+    public class TestDatabase : IDisposable, IDbCommandExecutor
     {
         public const int CommandTimeout = 1;
 
         private SqlConnection _connection;
         private SqlTransaction _transaction;
 
-        public async Task<TestDatabase> Create(string name = "Microsoft.Data.SqlServer.FunctionalTest", bool transactional = true)
+        public static Task<TestDatabase> Create(string name = "Microsoft.Data.SqlServer.FunctionalTest", bool transactional = true)
+        {
+            return new TestDatabase().CreateInternal(name, transactional);
+        }
+
+        private TestDatabase()
+        {
+            // Use async static factory method
+        }
+
+        private async Task<TestDatabase> CreateInternal(string name, bool transactional)
         {
             using (var master = new SqlConnection(CreateConnectionString("master")))
             {
@@ -44,12 +56,20 @@ namespace Microsoft.Data.SqlServer
             return this;
         }
 
-        public SqlTransaction Transaction
+        public SqlConnection Connection
         {
-            get { return _transaction; }
+            get { return _connection; }
         }
 
-        public Task<int> ExecuteAsync(string sql, params object[] parameters)
+        public async Task<T> ExecuteScalarAsync<T>(string sql, params object[] parameters)
+        {
+            using (var command = CreateCommand(sql, parameters))
+            {
+                return (T)await command.ExecuteScalarAsync();
+            }
+        }
+
+        public Task<int> ExecuteNonQueryAsync(string sql, params object[] parameters)
         {
             using (var command = CreateCommand(sql, parameters))
             {
@@ -75,7 +95,7 @@ namespace Microsoft.Data.SqlServer
             }
         }
 
-        private SqlCommand CreateCommand(string sql, object[] parameters)
+        private DbCommand CreateCommand(string commandText, object[] parameters)
         {
             var command = _connection.CreateCommand();
 
@@ -84,7 +104,7 @@ namespace Microsoft.Data.SqlServer
                 command.Transaction = _transaction;
             }
 
-            command.CommandText = sql;
+            command.CommandText = commandText;
             command.CommandTimeout = CommandTimeout;
 
             for (var i = 0; i < parameters.Length; i++)

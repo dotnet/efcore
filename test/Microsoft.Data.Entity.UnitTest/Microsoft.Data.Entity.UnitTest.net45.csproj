@@ -62,6 +62,7 @@
     <Compile Include="Metadata\ModelTest.cs" />
     <Compile Include="Metadata\PropertyTest.cs" />
     <Compile Include="Services\ConsoleLoggerFactoryTest.cs" />
+    <Compile Include="Services\ServiceDescriptorTest.cs" />
     <Compile Include="Utilities\CheckTest.cs" />
     <Compile Include="Utilities\EnumerableExtensionsTest.cs" />
     <Compile Include="Utilities\ExpressionExtensionsTest.cs" />

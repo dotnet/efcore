@@ -14,5 +14,10 @@ namespace Microsoft.Data.InMemory
         {
             return Task.FromResult(Interlocked.Increment(ref _current));
         }
+
+        async Task<object> IIdentityGenerator.NextAsync()
+        {
+            return await NextAsync();
+        }
     }
 }

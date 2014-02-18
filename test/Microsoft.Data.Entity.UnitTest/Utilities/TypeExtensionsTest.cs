@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Utilities
         }
 
         [Fact]
-        public void GetAnyProperty_returns_any_property()
+        public void GetAnyPropertyReturnsAnyProperty()
         {
             Assert.Same(typeof(TindersticksII), typeof(TindersticksII).GetAnyProperty("ElDiabloEnElOjo").DeclaringType);
             Assert.Same(typeof(TindersticksII), typeof(TindersticksII).GetAnyProperty("ANightIn").DeclaringType);
@@ -75,7 +75,7 @@ namespace Microsoft.Data.Entity.Utilities
             Assert.Same(typeof(TindersticksIICd), typeof(TindersticksIICd).GetAnyProperty("VertrauenIII").DeclaringType);
             Assert.Throws<AmbiguousMatchException>(() => typeof(TindersticksIICd).GetAnyProperty("SleepySong"));
         }
-
+// ReSharper disable InconsistentNaming
         public class TindersticksII
         {
             public virtual int ElDiabloEnElOjo { get; set; }
@@ -176,5 +176,6 @@ namespace Microsoft.Data.Entity.Utilities
             public override int VertrauenIII { get; set; }
             public new static int SleepySong { get; set; }
         }
+// ReSharper restore InconsistentNaming
     }
 }

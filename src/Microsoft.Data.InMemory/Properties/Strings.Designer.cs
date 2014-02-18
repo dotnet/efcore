@@ -11,11 +11,11 @@ namespace Microsoft.Data.InMemory
             = new ResourceManager("Microsoft.Data.InMemory.Strings", typeof(Strings).GetTypeInfo().Assembly);
 
         /// <summary>
-        /// The argument '{argumentName}' cannot be null, empty or contain only white space.
+        /// The string argument '{argumentName}' cannot be empty.
         /// </summary>
-        internal static string ArgumentIsNullOrWhitespace(object argumentName)
+        internal static string ArgumentIsEmpty(object argumentName)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("ArgumentIsNullOrWhitespace", "argumentName"), argumentName);
+            return string.Format(CultureInfo.CurrentCulture, GetString("ArgumentIsEmpty", "argumentName"), argumentName);
         }
 
         /// <summary>

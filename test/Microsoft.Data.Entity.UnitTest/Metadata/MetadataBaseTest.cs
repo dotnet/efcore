@@ -17,29 +17,31 @@ namespace Microsoft.Data.Entity.Metadata
         #endregion
 
         [Fact]
-        public void Members_check_arguments()
+        public void MembersCheckArguments()
         {
             var metadataBase = new ConcreteMetadata();
 
             Assert.Equal(
                 "annotation",
+// ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(() => metadataBase.AddAnnotation(null)).ParamName);
 
             Assert.Equal(
                 "annotation",
+// ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(() => metadataBase.RemoveAnnotation(null)).ParamName);
 
             Assert.Equal(
-                Strings.ArgumentIsNullOrWhitespace("annotationName"),
+                Strings.ArgumentIsEmpty("annotationName"),
                 Assert.Throws<ArgumentException>(() => metadataBase[""]).Message);
 
             Assert.Equal(
-                Strings.ArgumentIsNullOrWhitespace("annotationName"),
+                Strings.ArgumentIsEmpty("annotationName"),
                 Assert.Throws<ArgumentException>(() => metadataBase[""] = "The kake is a lie").Message);
 
             Assert.Equal(
-                Strings.ArgumentIsNullOrWhitespace("value"),
-                Assert.Throws<ArgumentException>(() => metadataBase["X"] = null).Message);
+                "value",
+                Assert.Throws<ArgumentNullException>(() => metadataBase["X"] = null).ParamName);
         }
 
         [Fact]

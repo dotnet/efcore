@@ -25,14 +25,24 @@ namespace Microsoft.Data.InMemory.Utilities
         [ContractAnnotation("value:null => halt")]
         public static string NotEmpty(string value, [InvokerParameterName] [NotNull] string parameterName)
         {
-            if (string.IsNullOrWhiteSpace(parameterName))
+            if (ReferenceEquals(parameterName, null))
             {
-                throw new ArgumentException(Strings.ArgumentIsNullOrWhitespace("parameterName"));
+                throw new ArgumentNullException("parameterName");
             }
 
-            if (string.IsNullOrWhiteSpace(value))
+            if (parameterName.Length == 0)
             {
-                throw new ArgumentException(Strings.ArgumentIsNullOrWhitespace(parameterName));
+                throw new ArgumentException(Strings.ArgumentIsEmpty("parameterName"));
+            }
+
+            if (ReferenceEquals(value, null))
+            {
+                throw new ArgumentNullException(parameterName);
+            }
+
+            if (value.Length == 0)
+            {
+                throw new ArgumentException(Strings.ArgumentIsEmpty(parameterName));
             }
 
             return value;

@@ -5,7 +5,8 @@
     "Microsoft.Data.Entity" : "",
     "Microsoft.Data.Relational" : "",
     "Microsoft.Data.Migrations" : "",
-    "System.Data.Common": "0.1-alpha-*"
+    "System.Data.Common": "0.1-alpha-*",
+    "Microsoft.AspNet.DependencyInjection" : "0.1-alpha-*"
   },
   "configurations": {
     "net45": {

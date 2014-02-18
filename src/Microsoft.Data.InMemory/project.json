@@ -2,7 +2,8 @@
   "version" : "0.1-alpha-*",
   "compilationOptions" : { "warningsAsErrors" : true },
   "dependencies": {
-    "Microsoft.Data.Entity" : ""
+    "Microsoft.Data.Entity" : "",
+    "Microsoft.AspNet.DependencyInjection" : "0.1-alpha-*"
   },
   "configurations": {
     "net45": {},
