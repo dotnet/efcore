@@ -7,7 +7,7 @@ namespace Microsoft.Data.Entity.Utilities
     public class IndentedStringBuilderTest
     {
         [Fact]
-        public void AppendAtStartWithIndent()
+        public void Append_at_start_with_indent()
         {
             var indentedStringBuilder = new IndentedStringBuilder();
 
@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Utilities
         }
 
         [Fact]
-        public void AppendInMiddleWhenNoNewLine()
+        public void Append_in_middle_when_no_new_line()
         {
             var indentedStringBuilder = new IndentedStringBuilder();
 
@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.Utilities
         }
 
         [Fact]
-        public void AppendInMiddleWhenNewLine()
+        public void Append_in_middle_when_new_line()
         {
             var indentedStringBuilder = new IndentedStringBuilder();
 
@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.Utilities
         }
 
         [Fact]
-        public void AppendLineAtStartWithIndent()
+        public void Append_line_at_start_with_indent()
         {
             var indentedStringBuilder = new IndentedStringBuilder();
 
@@ -64,7 +64,7 @@ namespace Microsoft.Data.Entity.Utilities
         }
 
         [Fact]
-        public void AppendLineInMiddleWhenNoNewLine()
+        public void Append_line_in_middle_when_no_new_line()
         {
             var indentedStringBuilder = new IndentedStringBuilder();
 

@@ -8,7 +8,7 @@ namespace Microsoft.Data.SqlServer
     public class SequenceIdentityGeneratorTest
     {
         [Fact]
-        public async Task CanGetNextValues()
+        public async Task Can_get_next_values()
         {
             using (var testDatabase = await TestDatabase.Create())
             {

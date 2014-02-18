@@ -8,40 +8,40 @@ namespace Microsoft.Data.Entity.Utilities
     public class CheckTest
     {
         [Fact]
-        public void NotNullThrowsWhenArgIsNull()
+        public void Not_null_throws_when_arg_is_null()
         {
-// ReSharper disable once NotResolvedInText
+            // ReSharper disable once NotResolvedInText
             Assert.Throws<ArgumentNullException>(() => Check.NotNull<string>(null, "foo"));
         }
 
         [Fact]
-        public void NotNullThrowsWhenArgNameEmpty()
+        public void Not_null_throws_when_arg_name_empty()
         {
             Assert.Throws<ArgumentException>(() => Check.NotNull(new object(), string.Empty));
         }
 
         [Fact]
-        public void NotEmptyThrowsWhenEmpty()
+        public void Not_empty_throws_when_empty()
         {
             Assert.Throws<ArgumentException>(() => Check.NotEmpty("", string.Empty));
         }
 
         [Fact]
-        public void NotEmptyThrowsWhenWhitespace()
+        public void Not_empty_throws_when_whitespace()
         {
             Assert.Throws<ArgumentException>(() => Check.NotEmpty(" ", string.Empty));
         }
 
         [Fact]
-        public void NotEmptyThrowsWhenParameterNameNull()
+        public void Not_empty_throws_when_parameter_name_null()
         {
             Assert.Throws<ArgumentException>(() => Check.NotEmpty("42", string.Empty));
         }
 
         [Fact]
-        public void IsDefinedThrowsWhenEnumOutOfRange()
+        public void Is_defined_throws_when_enum_out_of_range()
         {
-// ReSharper disable once NotResolvedInText
+            // ReSharper disable once NotResolvedInText
             Assert.Throws<ArgumentException>(() => Check.IsDefined((EntityState)42, "foo"));
         }
     }

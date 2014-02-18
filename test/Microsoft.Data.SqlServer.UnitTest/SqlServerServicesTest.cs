@@ -11,7 +11,7 @@ namespace Microsoft.Data.SqlServer
     public class SqlServerServicesTest
     {
         [Fact]
-        public void CanGetDefaultServices()
+        public void Can_get_default_services()
         {
             var services = SqlServerServices.GetDefaultServices().ToList();
 
@@ -20,7 +20,7 @@ namespace Microsoft.Data.SqlServer
         }
 
         [Fact]
-        public void ServicesWireUpCorrectly()
+        public void Services_wire_up_correctly()
         {
             var serviceProvider = new ServiceProvider().Add(SqlServerServices.GetDefaultServices());
 

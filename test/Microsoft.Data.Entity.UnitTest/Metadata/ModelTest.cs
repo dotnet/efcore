@@ -23,33 +23,33 @@ namespace Microsoft.Data.Entity.Metadata
         #endregion
 
         [Fact]
-        public void MembersCheckArguments()
+        public void Members_check_arguments()
         {
             var model = new Model();
 
             Assert.Equal(
                 "entityType",
-// ReSharper disable once AssignNullToNotNullAttribute
+                // ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(() => model.AddEntity(null)).ParamName);
 
             Assert.Equal(
                 "entityType",
-// ReSharper disable once AssignNullToNotNullAttribute
+                // ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(() => model.RemoveEntity(null)).ParamName);
 
             Assert.Equal(
                 "instance",
-// ReSharper disable once AssignNullToNotNullAttribute
+                // ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(() => model.Entity((object)null)).ParamName);
 
             Assert.Equal(
                 "type",
-// ReSharper disable once AssignNullToNotNullAttribute
+                // ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(() => model.Entity(null)).ParamName);
         }
 
         [Fact]
-        public void CanAddAndRemoveEntity()
+        public void Can_add_and_remove_entity()
         {
             var model = new Model();
             var entity = new EntityType(typeof(Customer));
@@ -64,7 +64,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void CanGetEntityByInstance()
+        public void Can_get_entity_by_instance()
         {
             var model = new Model();
             model.AddEntity(new EntityType(typeof(Customer)));
@@ -77,7 +77,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void CanGetEntityByType()
+        public void Can_get_entity_by_type()
         {
             var model = new Model();
             model.AddEntity(new EntityType(typeof(Customer)));
@@ -90,7 +90,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void EntitiesAreOrderedByName()
+        public void Entities_are_ordered_by_name()
         {
             var model = new Model();
             var entity1 = new EntityType(typeof(Order));

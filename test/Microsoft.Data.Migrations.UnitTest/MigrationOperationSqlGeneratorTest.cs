@@ -19,7 +19,7 @@ namespace Microsoft.Data.Migrations
         #endregion
 
         [Fact]
-        public void GenerateWhenUnsupportedOperation()
+        public void Generate_when_unsupported_operation()
         {
             Assert.Equal(
                 Strings.UnknownOperation(typeof(MigrationOperationSqlGenerator), typeof(UnknownOperation)),
@@ -28,7 +28,7 @@ namespace Microsoft.Data.Migrations
         }
 
         [Fact]
-        public void GenerateWhenAddPrimaryKeyOperation()
+        public void Generate_when_add_primary_key_operation()
         {
             var table = new Table("dbo.T");
             var primaryKey = new PrimaryKey("pk");
@@ -40,7 +40,7 @@ namespace Microsoft.Data.Migrations
         }
 
         [Fact]
-        public void GenerateWhenCreateSequenceOperation()
+        public void Generate_when_create_sequence_operation()
         {
             Assert.Equal(
                 "CREATE SEQUENCE \"dbo\".\"MySequence\" AS BIGINT START WITH 0 INCREMENT BY 1",
@@ -48,7 +48,7 @@ namespace Microsoft.Data.Migrations
         }
 
         [Fact]
-        public void DelimitIdentifier()
+        public void Delimit_identifier()
         {
             var ddlSqlGenerator = new MigrationOperationSqlGenerator();
 
@@ -56,7 +56,7 @@ namespace Microsoft.Data.Migrations
         }
 
         [Fact]
-        public void DelimitIdentifierWhenSchemaQualified()
+        public void Delimit_identifier_when_schema_qualified()
         {
             var ddlSqlGenerator = new MigrationOperationSqlGenerator();
 
@@ -64,7 +64,7 @@ namespace Microsoft.Data.Migrations
         }
 
         [Fact]
-        public void EscapeIdentifier()
+        public void Escape_identifier()
         {
             var ddlSqlGenerator = new MigrationOperationSqlGenerator();
 
@@ -72,7 +72,7 @@ namespace Microsoft.Data.Migrations
         }
 
         [Fact]
-        public void DelimitLiteral()
+        public void Delimit_literal()
         {
             var ddlSqlGenerator = new MigrationOperationSqlGenerator();
 
@@ -80,7 +80,7 @@ namespace Microsoft.Data.Migrations
         }
 
         [Fact]
-        public void EscapeLiteral()
+        public void Escape_literal()
         {
             var ddlSqlGenerator = new MigrationOperationSqlGenerator();
 

@@ -8,7 +8,7 @@ namespace Microsoft.Data.Entity.Metadata
     public class AnnotationTest
     {
         [Fact]
-        public void MembersCheckArguments()
+        public void Members_check_arguments()
         {
             Assert.Equal(
                 Strings.ArgumentIsEmpty("name"),
@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void CanCreateAnnotation()
+        public void Can_create_annotation()
         {
             var annotation = new Annotation("Foo", "Bar");
 

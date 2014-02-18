@@ -10,20 +10,20 @@ namespace Microsoft.Data.Entity.Utilities
     public class TypeExtensionsTest
     {
         [Fact]
-        public void ElementTypeShouldReturnElementTypeFromSequenceType()
+        public void Element_type_should_return_element_type_from_sequence_type()
         {
             Assert.Equal(typeof(string), typeof(IEnumerable<string>).ElementType());
             Assert.Equal(typeof(string), typeof(IQueryable<string>).ElementType());
         }
 
         [Fact]
-        public void ElementTypeShouldReturnInputTypeWhenNotSequenceType()
+        public void Element_type_should_return_input_type_when_not_sequence_type()
         {
             Assert.Equal(typeof(string), typeof(string));
         }
 
         [Fact]
-        public void GetAnyPropertyReturnsAnyProperty()
+        public void Get_any_property_returns_any_property()
         {
             Assert.Same(typeof(TindersticksII), typeof(TindersticksII).GetAnyProperty("ElDiabloEnElOjo").DeclaringType);
             Assert.Same(typeof(TindersticksII), typeof(TindersticksII).GetAnyProperty("ANightIn").DeclaringType);
@@ -75,7 +75,8 @@ namespace Microsoft.Data.Entity.Utilities
             Assert.Same(typeof(TindersticksIICd), typeof(TindersticksIICd).GetAnyProperty("VertrauenIII").DeclaringType);
             Assert.Throws<AmbiguousMatchException>(() => typeof(TindersticksIICd).GetAnyProperty("SleepySong"));
         }
-// ReSharper disable InconsistentNaming
+
+        // ReSharper disable InconsistentNaming
         public class TindersticksII
         {
             public virtual int ElDiabloEnElOjo { get; set; }
@@ -176,6 +177,7 @@ namespace Microsoft.Data.Entity.Utilities
             public override int VertrauenIII { get; set; }
             public new static int SleepySong { get; set; }
         }
-// ReSharper restore InconsistentNaming
+
+        // ReSharper restore InconsistentNaming
     }
 }

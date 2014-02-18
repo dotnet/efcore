@@ -73,11 +73,11 @@ namespace Microsoft.Data.SqlServer
         {
             return new CreateSequenceOperation(
                 new Sequence(_sequenceName)
-                    {
-                        StartWith = 0,
-                        IncrementBy = _increment,
-                        DataType = "BIGINT"
-                    });
+                {
+                    StartWith = 0,
+                    IncrementBy = _increment,
+                    DataType = "BIGINT"
+                });
         }
     }
 }

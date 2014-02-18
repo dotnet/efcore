@@ -9,7 +9,7 @@ namespace Microsoft.Data.SqlServer
     public class SqlServerMigrationOperationSqlGeneratorTest
     {
         [Fact]
-        public void GenerateWhenAddPrimaryKeyOperation()
+        public void Generate_when_add_primary_key_operation()
         {
             var table = new Table("dbo.T");
             var primaryKey = new PrimaryKey("pk");
@@ -21,7 +21,7 @@ namespace Microsoft.Data.SqlServer
         }
 
         [Fact]
-        public void GenerateWhenAddPrimaryKeyOperationWhenIsClustered()
+        public void Generate_when_add_primary_key_operation_when_is_clustered()
         {
             var table = new Table("dbo.T");
             var primaryKey = new PrimaryKey("pk") { IsClustered = true };
@@ -33,7 +33,7 @@ namespace Microsoft.Data.SqlServer
         }
 
         [Fact]
-        public void GenerateWhenCreateSequenceOperationAndIdempotent()
+        public void Generate_when_create_sequence_operation_and_idempotent()
         {
             Assert.Equal(
                 @"IF NOT EXISTS (SELECT * FROM sys.sequences WHERE name = 'MySequence')
@@ -42,7 +42,7 @@ namespace Microsoft.Data.SqlServer
         }
 
         [Fact]
-        public void DelimitIdentifier()
+        public void Delimit_identifier()
         {
             var sqlGenerator = new SqlServerMigrationOperationSqlGenerator();
 
@@ -50,7 +50,7 @@ namespace Microsoft.Data.SqlServer
         }
 
         [Fact]
-        public void EscapeIdentifier()
+        public void Escape_identifier()
         {
             var sqlGenerator = new SqlServerMigrationOperationSqlGenerator();
 
@@ -58,7 +58,7 @@ namespace Microsoft.Data.SqlServer
         }
 
         [Fact]
-        public void DelimitLiteral()
+        public void Delimit_literal()
         {
             var sqlGenerator = new SqlServerMigrationOperationSqlGenerator();
 
@@ -66,7 +66,7 @@ namespace Microsoft.Data.SqlServer
         }
 
         [Fact]
-        public void EscapeLiteral()
+        public void Escape_literal()
         {
             var sqlGenerator = new SqlServerMigrationOperationSqlGenerator();
 

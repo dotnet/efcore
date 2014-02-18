@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity
     public class EntityServicesTest
     {
         [Fact]
-        public void CanGetDefaultServices()
+        public void Can_get_default_services()
         {
             var services = EntityServices.GetDefaultServices().ToList();
 
@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity
         }
 
         [Fact]
-        public void ServicesWireUpCorrectly()
+        public void Services_wire_up_correctly()
         {
             var serviceProvider = new ServiceProvider().Add(EntityServices.GetDefaultServices());
 

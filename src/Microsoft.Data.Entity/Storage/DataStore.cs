@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.ChangeTracking;
 
 namespace Microsoft.Data.Entity.Storage
 {

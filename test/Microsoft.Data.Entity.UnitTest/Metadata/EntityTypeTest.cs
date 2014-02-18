@@ -3,6 +3,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Data.Entity.ChangeTracking;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Metadata
@@ -23,16 +24,16 @@ namespace Microsoft.Data.Entity.Metadata
         #endregion
 
         [Fact]
-        public void MembersCheckArguments()
+        public void Members_check_arguments()
         {
             Assert.Equal(
                 "type",
-// ReSharper disable once AssignNullToNotNullAttribute
+                // ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(() => new EntityType((Type)null)).ParamName);
 
             Assert.Equal(
                 "name",
-// ReSharper disable once AssignNullToNotNullAttribute
+                // ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(() => new EntityType((string)null)).ParamName);
 
             var entityType = new EntityType(typeof(Random));
@@ -47,21 +48,26 @@ namespace Microsoft.Data.Entity.Metadata
 
             Assert.Equal(
                 "property",
-// ReSharper disable once AssignNullToNotNullAttribute
+                // ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(() => entityType.AddProperty(null)).ParamName);
 
             Assert.Equal(
                 "property",
-// ReSharper disable once AssignNullToNotNullAttribute
+                // ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(() => entityType.RemoveProperty(null)).ParamName);
 
             Assert.Equal(
                 Strings.ArgumentIsEmpty("name"),
                 Assert.Throws<ArgumentException>(() => entityType.Property("")).Message);
+
+            Assert.Equal(
+                "entity",
+                // ReSharper disable once AssignNullToNotNullAttribute
+                Assert.Throws<ArgumentNullException>(() => entityType.CreateKey(null)).ParamName);
         }
 
         [Fact]
-        public void StorageNameDefaultsToName()
+        public void Storage_name_defaults_to_name()
         {
             var entity = new EntityType(typeof(Customer));
 
@@ -69,7 +75,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void StorageNameCanBeDifferentFromName()
+        public void Storage_name_can_be_different_from_name()
         {
             var entity = new EntityType(typeof(Customer)) { StorageName = "CustomerTable" };
 
@@ -77,7 +83,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void CanCreateEntityType()
+        public void Can_create_entity_type()
         {
             var entity = new EntityType(typeof(Customer));
 
@@ -86,7 +92,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void CanAddAndRemoveProperties()
+        public void Can_add_and_remove_properties()
         {
             var entity = new EntityType(typeof(Customer));
 
@@ -104,7 +110,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void PropertiesAreOrderedByName()
+        public void Properties_are_ordered_by_name()
         {
             var entity = new EntityType(typeof(Customer));
 
@@ -118,7 +124,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void CanSetAndResetKey()
+        public void Can_set_and_reset_key()
         {
             var entity = new EntityType(typeof(Customer));
 
@@ -142,7 +148,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void SettingKeyPropertiesShouldUpdateExistingProperties()
+        public void Setting_key_properties_should_update_existing_properties()
         {
             var entity = new EntityType(typeof(Customer));
 
@@ -158,7 +164,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void CanClearKey()
+        public void Can_clear_key()
         {
             var entity = new EntityType(typeof(Customer));
 
@@ -172,6 +178,17 @@ namespace Microsoft.Data.Entity.Metadata
             entity.Key = new Property[] { };
 
             Assert.Equal(0, entity.Key.Count());
+        }
+
+        [Fact]
+        public void Can_create_EntityKey_fopr_given_entity_instance()
+        {
+            var entityType = new EntityType(typeof(Customer)) { Key = new[] { new Property(Customer.IdProperty) } };
+
+            var key = entityType.CreateKey(new Customer { Id = 77 });
+
+            Assert.IsType<SimpleEntityKey<Customer, int>>(key);
+            Assert.Equal(77, key.Value);
         }
     }
 }

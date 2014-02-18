@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNet.DependencyInjection;
+using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Storage;
 using Xunit;
@@ -13,7 +14,7 @@ namespace Microsoft.Data.Entity
     public class EntityConfigurationTest
     {
         [Fact]
-        public void ThrowsIfNoDataStore()
+        public void Throws_if_no_data_store()
         {
             Assert.Equal(
                 Strings.MissingConfigurationItem(typeof(DataStore)),
@@ -29,7 +30,7 @@ namespace Microsoft.Data.Entity
         }
 
         [Fact]
-        public void CanSetDataStore()
+        public void Can_set_data_store()
         {
             var dataStore = new FakeDataStore();
             var entityConfiguration = new EntityConfiguration { DataStore = dataStore };
@@ -38,7 +39,7 @@ namespace Microsoft.Data.Entity
         }
 
         [Fact]
-        public void CanProvideDataStoreFromServiceProvider()
+        public void Can_provide_data_store_from_service_provider()
         {
             var serviceProvider = new ServiceProvider();
             var dataStore = new FakeDataStore();
@@ -49,7 +50,7 @@ namespace Microsoft.Data.Entity
         }
 
         [Fact]
-        public void ThrowsIfNoIdentityGenerator()
+        public void Throws_if_no_identity_generator()
         {
             Assert.Equal(
                 Strings.MissingConfigurationItem(typeof(IIdentityGenerator<object>)),
@@ -70,7 +71,7 @@ namespace Microsoft.Data.Entity
         }
 
         [Fact]
-        public void CanSetIdentityGenerator()
+        public void Can_set_identity_generator()
         {
             var identityGenerator = new FakeIdentityGenerator<object>();
             var entityConfiguration = new EntityConfiguration();
@@ -81,7 +82,7 @@ namespace Microsoft.Data.Entity
         }
 
         [Fact]
-        public void CanProvideIdentityGeneratorFromServiceProvider()
+        public void Can_provide_identity_generator_from_service_provider()
         {
             var serviceProvider = new ServiceProvider();
             var entityConfiguration = new EntityConfiguration(serviceProvider);

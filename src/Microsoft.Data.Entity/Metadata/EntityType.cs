@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
@@ -21,6 +22,8 @@ namespace Microsoft.Data.Entity.Metadata
         private readonly LazyRef<ImmutableList<IProperty>> _keyProperties
             = new LazyRef<ImmutableList<IProperty>>(() => ImmutableList<IProperty>.Empty);
 
+        private readonly LazyRef<EntityKeyFactory> _keyFactory;
+
         /// <summary>
         ///     Creates a new metadata object representing an entity type associated with the given .NET type.
         /// </summary>
@@ -31,6 +34,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             _name = type.Name;
             _type = type;
+            _keyFactory = new LazyRef<EntityKeyFactory>(() => new EntityKeyFactoryFactory().Create(this));
         }
 
         /// <summary>
@@ -126,6 +130,13 @@ namespace Microsoft.Data.Entity.Metadata
                     ? _properties.Value.Values.OrderByOrdinal(e => e.Name)
                     : Enumerable.Empty<IProperty>();
             }
+        }
+
+        public EntityKey CreateKey(object entity)
+        {
+            Check.NotNull(entity, "entity");
+
+            return _keyFactory.Value.Create(entity);
         }
     }
 }

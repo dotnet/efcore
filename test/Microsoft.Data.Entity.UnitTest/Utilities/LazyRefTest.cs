@@ -9,7 +9,7 @@ namespace Microsoft.Data.Entity.Utilities
     public class LazyRefTest
     {
         [Fact]
-        public async Task CanInitializeFromMultipleThreadsAndInitializationHappensOnlyOnce()
+        public async Task Can_initialize_from_multiple_threads_and_initialization_happens_only_once()
         {
             var counter = 0;
             var safeLazy = new LazyRef<string>(() => counter++.ToString());
@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Utilities
         }
 
         [Fact]
-        public async Task CanExchangeValue()
+        public async Task Can_exchange_value()
         {
             var safeLazy = new LazyRef<string>(() => "");
             var tasks = new List<Task>();
@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.Utilities
         }
 
         [Fact]
-        public void HasValueIsFalseUntilValueAccessed()
+        public void Has_value_is_false_until_value_accessed()
         {
             var safeLazy = new LazyRef<string>(() => "s");
 

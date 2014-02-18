@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.Metadata
     public class CompiledModelTest
     {
         [Fact]
-        public void EntitiesPropertiesAndAnnotationsCanBeObtainedFromCompiledModel()
+        public void Entities_properties_and_annotations_can_be_obtained_from_compiled_model()
         {
             var compiledModel = new _OneTwoThreeContextModel();
             var builtModel = BuildModel();
@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void PropertyValuesCanBeReadAndSetUsingCompiledMetadataWithoutReflection()
+        public void Property_values_can_be_read_and_set_using_compiled_metadata_without_reflection()
         {
             var entity = new KoolEntity15();
             var property = new _OneTwoThreeContextModel().Entity(entity).Property("Id");
@@ -76,7 +76,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void CompiledModelUsesHeapMemoryOnPayPerPlayBasisAndOverallUsesLess()
+        public void Compiled_model_uses_heap_memory_on_pay_per_play_basis_and_overall_uses_less()
         {
             var compiledMemory = RecordModelHeapUse(() => new _OneTwoThreeContextModel());
             var builtMemory = RecordModelHeapUse(BuildModel);
@@ -124,17 +124,17 @@ namespace Microsoft.Data.Entity.Metadata
 
             // Acceptable ranges for memory ratios
             var expected = new[]
-                {
-                    Tuple.Create(0.0, 0.0), // Starting memory; not used
-                    Tuple.Create(-0.01, 0.01), // Just models
-                    Tuple.Create(-0.01, 0.01), // Model annotations
-                    Tuple.Create(0.02, 0.07), // All entities
-                    Tuple.Create(0.02, 0.07), // Properties from one entity
-                    Tuple.Create(0.1, 0.3), // All keys
-                    Tuple.Create(0.1, 0.3), // All properties
-                    Tuple.Create(0.2, 0.4), // All entity annotations
-                    Tuple.Create(0.3, 0.5) // All property annotations
-                };
+            {
+                Tuple.Create(0.0, 0.0), // Starting memory; not used
+                Tuple.Create(-0.01, 0.01), // Just models
+                Tuple.Create(-0.01, 0.01), // Model annotations
+                Tuple.Create(0.02, 0.07), // All entities
+                Tuple.Create(0.02, 0.07), // Properties from one entity
+                Tuple.Create(0.1, 0.3), // All keys
+                Tuple.Create(0.1, 0.3), // All properties
+                Tuple.Create(0.2, 0.4), // All entity annotations
+                Tuple.Create(0.3, 0.5) // All property annotations
+            };
 
             for (var i = 1; i < expected.Length; i++)
             {

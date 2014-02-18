@@ -4,7 +4,9 @@ using System;
 using System.Collections.Immutable;
 using JetBrains.Annotations;
 using Microsoft.AspNet.DependencyInjection;
+using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Identity;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
@@ -15,6 +17,8 @@ namespace Microsoft.Data.Entity
         private readonly IServiceProvider _serviceProvider;
 
         private DataStore _dataStore;
+        private IModel _model;
+        private ChangeTracker _changeTracker;
 
         private readonly LazyRef<ImmutableDictionary<Type, IIdentityGenerator>> _identityGenerators
             = new LazyRef<ImmutableDictionary<Type, IIdentityGenerator>>(() => ImmutableDictionary<Type, IIdentityGenerator>.Empty);
@@ -73,6 +77,46 @@ namespace Microsoft.Data.Entity
             _identityGenerators.ExchangeValue(igs => igs.SetItem(typeof(TIdentity), identityGenerator));
 
             return this;
+        }
+
+        // TODO: This will change when more of the model building patterns are defined. For now
+        // it provides a way to associate a context with a model
+        public virtual IModel Model
+        {
+            get
+            {
+                // TODO: Cannot get service of just model--need to use some form of factory to
+                // know which model is needed
+                return _model
+                       ?? _serviceProvider.GetService<IModel>()
+                       ?? ThrowNotConfigured<IModel>();
+            }
+            [param: NotNull]
+            set
+            {
+                Check.NotNull(value, "value");
+
+                _model = value;
+            }
+        }
+
+        // TODO: This will change when more of the model building patterns are defined. For now
+        // it provides a way to associate a context with a change tracker
+        public virtual ChangeTracker ChangeTracker
+        {
+            get
+            {
+                return _changeTracker
+                       ?? _serviceProvider.GetService<ChangeTracker>()
+                       ?? ThrowNotConfigured<ChangeTracker>();
+            }
+            [param: NotNull]
+            set
+            {
+                Check.NotNull(value, "value");
+
+                _changeTracker = value;
+            }
         }
 
         public virtual EntityContext CreateContext()

@@ -17,18 +17,18 @@ namespace Microsoft.Data.Entity.Metadata
         #endregion
 
         [Fact]
-        public void MembersCheckArguments()
+        public void Members_check_arguments()
         {
             var metadataBase = new ConcreteMetadata();
 
             Assert.Equal(
                 "annotation",
-// ReSharper disable once AssignNullToNotNullAttribute
+                // ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(() => metadataBase.AddAnnotation(null)).ParamName);
 
             Assert.Equal(
                 "annotation",
-// ReSharper disable once AssignNullToNotNullAttribute
+                // ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(() => metadataBase.RemoveAnnotation(null)).ParamName);
 
             Assert.Equal(
@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void CanAddAnnotation()
+        public void Can_add_annotation()
         {
             var metadataBase = new ConcreteMetadata();
 
@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void CanRemoveAnnotation()
+        public void Can_remove_annotation()
         {
             var metadataBase = new ConcreteMetadata();
             var annotation = new Annotation("Foo", "Bar");
@@ -70,7 +70,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void CanUpdateExistingAnnotation()
+        public void Can_update_existing_annotation()
         {
             var metadataBase = new ConcreteMetadata();
             var annotation = new Annotation("Foo", "Bar");
@@ -85,7 +85,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void CanGetSetModelAnnotationsViaIndexer()
+        public void Can_get_set_model_annotations_via_indexer()
         {
             var metadataBase = new ConcreteMetadata();
 
@@ -95,7 +95,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void AnnotationsAreOrderedByName()
+        public void Annotations_are_ordered_by_name()
         {
             var metadataBase = new ConcreteMetadata();
 

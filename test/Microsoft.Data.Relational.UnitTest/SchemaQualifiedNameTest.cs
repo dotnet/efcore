@@ -8,7 +8,7 @@ namespace Microsoft.Data.Relational
     public class SchemaQualifiedNameTest
     {
         [Fact]
-        public void ToStringReturnsTableNameWhenNoSchemaSpecified()
+        public void To_string_returns_table_name_when_no_schema_specified()
         {
             var schemaQualifiedName = new SchemaQualifiedName("T");
 
@@ -16,7 +16,7 @@ namespace Microsoft.Data.Relational
         }
 
         [Fact]
-        public void ToStringReturnsSchemaAndTableNameWhenSchemaSpecified()
+        public void To_string_returns_schema_and_table_name_when_schema_specified()
         {
             var schemaQualifiedName = new SchemaQualifiedName("T", "S");
 
@@ -24,7 +24,7 @@ namespace Microsoft.Data.Relational
         }
 
         [Fact]
-        public void EqualsReturnsTrueWhenNamesEqualAndNoSchemaSpecified()
+        public void Equals_returns_true_when_names_equal_and_no_schema_specified()
         {
             var schemaQualifiedName1 = new SchemaQualifiedName("T");
             var schemaQualifiedName2 = new SchemaQualifiedName("T");
@@ -33,7 +33,7 @@ namespace Microsoft.Data.Relational
         }
 
         [Fact]
-        public void EqualsReturnsFalseWhenNamesEqualAndSchemasNotEqual()
+        public void Equals_returns_false_when_names_equal_and_schemas_not_equal()
         {
             var schemaQualifiedName1 = new SchemaQualifiedName("T", "S1");
             var schemaQualifiedName2 = new SchemaQualifiedName("T", "S2");
@@ -42,7 +42,7 @@ namespace Microsoft.Data.Relational
         }
 
         [Fact]
-        public void ParseParsesTableName()
+        public void Parse_parses_table_name()
         {
             var schemaQualifiedName = SchemaQualifiedName.Parse("A");
 
@@ -51,7 +51,7 @@ namespace Microsoft.Data.Relational
         }
 
         [Fact]
-        public void ParseParsesSchemaDotTableName()
+        public void Parse_parses_schema_dot_table_name()
         {
             var schemaQualifiedName = SchemaQualifiedName.Parse("S.A");
 
@@ -61,7 +61,7 @@ namespace Microsoft.Data.Relational
         }
 
         [Fact]
-        public void ParseThrowsWhenTooManyParts()
+        public void Parse_throws_when_too_many_parts()
         {
             Assert.Equal(
                 Strings.InvalidSchemaQualifiedName("S1.S2.A"),
@@ -69,7 +69,7 @@ namespace Microsoft.Data.Relational
         }
 
         [Fact]
-        public void ParseThrowsForEmptyTable()
+        public void Parse_throws_for_empty_table()
         {
             Assert.Equal(
                 Strings.InvalidSchemaQualifiedName("A."),
@@ -77,7 +77,7 @@ namespace Microsoft.Data.Relational
         }
 
         [Fact]
-        public void ParseThrowsForEmptySchema()
+        public void Parse_throws_for_empty_schema()
         {
             Assert.Equal(
                 Strings.InvalidSchemaQualifiedName(".A"),
@@ -85,7 +85,7 @@ namespace Microsoft.Data.Relational
         }
 
         [Fact]
-        public void ParseThrowsForEmptyTableAndSchema()
+        public void Parse_throws_for_empty_table_and_schema()
         {
             Assert.Equal(
                 Strings.InvalidSchemaQualifiedName("."),
@@ -93,7 +93,7 @@ namespace Microsoft.Data.Relational
         }
 
         [Fact]
-        public void ParseParsesNameWithDelimeters()
+        public void Parse_parses_name_with_delimeters()
         {
             var schemaQualifiedName = SchemaQualifiedName.Parse("[a.].[.b]");
 
@@ -117,7 +117,7 @@ namespace Microsoft.Data.Relational
         }
 
         [Fact]
-        public void ParseParsesNameWithEscapedDelimeters()
+        public void Parse_parses_name_with_escaped_delimeters()
         {
             var schemaQualifiedName = SchemaQualifiedName.Parse("[a.]].]]].[.b.[c]]d]");
 
@@ -126,7 +126,7 @@ namespace Microsoft.Data.Relational
         }
 
         [Fact]
-        public void ToStringShouldEscapeNameWhenRequired()
+        public void To_string_should_escape_name_when_required()
         {
             var schemaQualifiedName = SchemaQualifiedName.Parse("[a.]].]]].[.b.[c]]d]");
 

@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.Utilities
     public class ExpressionExtensionsTest
     {
         [Fact]
-        public void GetPropertyAccessShouldReturnPropertyInfoWhenValidPropertyAccessExpression()
+        public void Get_property_access_should_return_property_info_when_valid_property_access_expression()
         {
             Expression<Func<DateTime, int>> expression = d => d.Hour;
 
@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Utilities
         }
 
         [Fact]
-        public void GetPropertyAccessShouldThrowWhenNotPropertyAccess()
+        public void Get_property_access_should_throw_when_not_property_access()
         {
             Expression<Func<DateTime, int>> expression = d => 123;
 
@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.Utilities
         }
 
         [Fact]
-        public void GetPropertyAccessShouldThrowWhenNotPropertyAccessOnTheProvidedArgument()
+        public void Get_property_access_should_throw_when_not_property_access_on_the_provided_argument()
         {
             var closure = DateTime.Now;
             Expression<Func<DateTime, int>> expression = d => closure.Hour;
@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.Utilities
         }
 
         [Fact]
-        public void GetPropertyAccessShouldRemoveConvert()
+        public void Get_property_access_should_remove_convert()
         {
             Expression<Func<DateTime, long>> expression = d => d.Hour;
 
@@ -53,13 +53,13 @@ namespace Microsoft.Data.Entity.Utilities
         }
 
         [Fact]
-        public void GetPropertyAccessListShouldReturnPropertyInfoCollection()
+        public void Get_property_access_list_should_return_property_info_collection()
         {
             Expression<Func<DateTime, object>> expression = d => new
-                {
-                    d.Date,
-                    d.Day
-                };
+            {
+                d.Date,
+                d.Day
+            };
 
             var propertyInfos = expression.GetPropertyAccessList();
 
@@ -70,12 +70,12 @@ namespace Microsoft.Data.Entity.Utilities
         }
 
         [Fact]
-        public void GetPropertyAccessListShouldThrowWhenInvalidExpression()
+        public void Get_property_access_list_should_throw_when_invalid_expression()
         {
             Expression<Func<DateTime, object>> expression = d => new
-                {
-                    P = d.AddTicks(23)
-                };
+            {
+                P = d.AddTicks(23)
+            };
 
             Assert.Contains(
                 Strings.InvalidPropertiesExpression(expression),
@@ -83,15 +83,15 @@ namespace Microsoft.Data.Entity.Utilities
         }
 
         [Fact]
-        public void GetPropertyAccessListShouldThrowWhenPropertyAccessNotOnTheProvidedArgument()
+        public void Get_property_access_list_should_throw_when_property_access_not_on_the_provided_argument()
         {
             var closure = DateTime.Now;
 
             Expression<Func<DateTime, object>> expression = d => new
-                {
-                    d.Date,
-                    closure.Day
-                };
+            {
+                d.Date,
+                closure.Day
+            };
 
             Assert.Contains(
                 Strings.InvalidPropertiesExpression(expression),

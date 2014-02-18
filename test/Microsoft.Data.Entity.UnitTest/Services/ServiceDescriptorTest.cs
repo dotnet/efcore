@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Services
         #endregion
 
         [Fact]
-        public void SingletonCreatesDescriptorForType()
+        public void Singleton_creates_descriptor_for_type()
         {
             var serviceDescriptor = ServiceDescriptor.Singleton<IComponent, Component>();
 
@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Services
         }
 
         [Fact]
-        public void SingletonCreatesDescriptorForInstance()
+        public void Singleton_creates_descriptor_for_instance()
         {
             var implementationInstance = new Component();
 
@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.Services
         }
 
         [Fact]
-        public void ScopedCreatesDescriptorForType()
+        public void Scoped_creates_descriptor_for_type()
         {
             var serviceDescriptor = ServiceDescriptor.Scoped<IComponent, Component>();
 
@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.Services
         }
 
         [Fact]
-        public void ScopedCreatesDescriptorForInstance()
+        public void Scoped_creates_descriptor_for_instance()
         {
             var implementationInstance = new Component();
 
@@ -61,8 +61,9 @@ namespace Microsoft.Data.Entity.Services
             Assert.Same(implementationInstance, serviceDescriptor.ImplementationInstance);
             Assert.Null(serviceDescriptor.ImplementationType);
         }
+
         [Fact]
-        public void TransientCreatesDescriptorForType()
+        public void Transient_creates_descriptor_for_type()
         {
             var serviceDescriptor = ServiceDescriptor.Transient<IComponent, Component>();
 
@@ -72,7 +73,7 @@ namespace Microsoft.Data.Entity.Services
         }
 
         [Fact]
-        public void TransientCreatesDescriptorForInstance()
+        public void Transient_creates_descriptor_for_instance()
         {
             var implementationInstance = new Component();
 

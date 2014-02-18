@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Metadata
         #endregion
 
         [Fact]
-        public void CanGetEntityBuilderForClrType()
+        public void Can_get_entity_builder_for_clr_type()
         {
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void CanSetEntityKeyFromClrProperties()
+        public void Can_set_entity_key_from_clr_properties()
         {
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
@@ -48,7 +48,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void CanSetCompositeEntityKeyFromClrProperties()
+        public void Can_set_composite_entity_key_from_clr_properties()
         {
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void CanSetEntityAnnotation()
+        public void Can_set_entity_annotation()
         {
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
@@ -78,7 +78,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void CanSetPropertyAnnotation()
+        public void Can_set_property_annotation()
         {
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
@@ -93,7 +93,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void CanAddMultipleProperties()
+        public void Can_add_multiple_properties()
         {
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
@@ -102,10 +102,10 @@ namespace Microsoft.Data.Entity.Metadata
                 .Entity<Customer>()
                 .Properties(
                     ps =>
-                        {
-                            ps.Property(c => c.Id);
-                            ps.Property(c => c.Name).Annotation("foo", "bar");
-                        });
+                    {
+                        ps.Property(c => c.Id);
+                        ps.Property(c => c.Name).Annotation("foo", "bar");
+                    });
 
             Assert.Equal(2, model.Entity(typeof(Customer)).Properties.Count());
         }

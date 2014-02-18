@@ -8,7 +8,7 @@ namespace Microsoft.Data.SqlServer
     public class SqlServerSimpleCommandExecutorTest
     {
         [Fact]
-        public async Task CanExecuteScalarCommand()
+        public async Task Can_execute_scalar_command()
         {
             using (var testDatabase = await TestDatabase.Create())
             {
