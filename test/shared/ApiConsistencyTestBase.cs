@@ -37,13 +37,13 @@ namespace Microsoft.Data.Entity
         {
             var parametersMissingAttribute
                 = from t in GetAllTypes(TargetAssembly.GetTypes())
-                  where t.IsVisible && !t.IsInterface
+                  where t.IsVisible
                   let ims = t.GetInterfaces().Select(t.GetInterfaceMap)
                   from m in t.GetMethods(PublicInstance | BindingFlags.Static)
                       .Concat<MethodBase>(t.GetConstructors())
                   where m.DeclaringType != null
                         && m.DeclaringType.Assembly == TargetAssembly
-                  where !ims.Any(im => im.TargetMethods.Contains(m))
+                  where t.IsInterface || !ims.Any(im => im.TargetMethods.Contains(m))
                   from p in m.GetParameters()
                   where !p.ParameterType.IsValueType
                         && !p.GetCustomAttributes()
