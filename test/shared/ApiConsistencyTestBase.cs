@@ -13,15 +13,16 @@ namespace Microsoft.Data.Entity
         protected const BindingFlags PublicInstance
             = BindingFlags.Instance | BindingFlags.Public;
 
-        // TODO: Update this to handle places where members are not virtual by design
-        //[Fact]
-        public void Public_inheritable_apis_should_be_virtual()
+        [Fact]
+        public void PublicInheritableApisShouldBeVirtual()
         {
             var nonVirtualMethods
                 = from t in GetAllTypes(TargetAssembly.GetTypes())
                   where t.IsVisible
                         && !t.IsSealed
                         && t.GetConstructors(PublicInstance).Any()
+                        && t.Namespace != null
+                        && !t.Namespace.EndsWith(".Compiled")
                   from m in t.GetMethods(PublicInstance)
                   where m.DeclaringType != null
                         && m.DeclaringType.Assembly == TargetAssembly
@@ -31,17 +32,18 @@ namespace Microsoft.Data.Entity
             Assert.Equal("", string.Join("\r\n", nonVirtualMethods));
         }
 
-        // TODO: Update this to handle interfaces correctly
-        //[Fact]
-        public void Public_api_arguments_should_have_not_null_annotation()
+        [Fact]
+        public void PublicApiArgumentsShouldHaveNotNullAnnotation()
         {
             var parametersMissingAttribute
                 = from t in GetAllTypes(TargetAssembly.GetTypes())
-                  where t.IsVisible
+                  where t.IsVisible && !t.IsInterface
+                  let ims = t.GetInterfaces().Select(t.GetInterfaceMap)
                   from m in t.GetMethods(PublicInstance | BindingFlags.Static)
                       .Concat<MethodBase>(t.GetConstructors())
                   where m.DeclaringType != null
                         && m.DeclaringType.Assembly == TargetAssembly
+                  where !ims.Any(im => im.TargetMethods.Contains(m))
                   from p in m.GetParameters()
                   where !p.ParameterType.IsValueType
                         && !p.GetCustomAttributes()

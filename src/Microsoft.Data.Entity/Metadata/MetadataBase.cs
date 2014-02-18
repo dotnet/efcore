@@ -27,7 +27,8 @@ namespace Microsoft.Data.Entity.Metadata
             _annotations.ExchangeValue(l => l.Remove(annotation.Name));
         }
 
-        public virtual string this[string annotationName]
+// ReSharper disable once AnnotationRedundanceInHierarchy
+        public virtual string this[[param: NotNull] string annotationName]
         {
             get
             {
