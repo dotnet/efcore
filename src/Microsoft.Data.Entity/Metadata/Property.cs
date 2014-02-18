@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Metadata
         private readonly Type _declaringType;
 
         /// <summary>
-        /// Creates a new metadata object representing a .NET property.
+        ///     Creates a new metadata object representing a .NET property.
         /// </summary>
         /// <param name="propertyInfo">The .NET property that this metadata object represents.</param>
         public Property([NotNull] PropertyInfo propertyInfo)
@@ -28,8 +28,8 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         /// <summary>
-        /// Creates a new metadata object representing an property that will participate in shadow-state
-        /// such that there is no underlying .NET property corresponding to this metadata object.
+        ///     Creates a new metadata object representing an property that will participate in shadow-state
+        ///     such that there is no underlying .NET property corresponding to this metadata object.
         /// </summary>
         /// <param name="name">The name of the shadow-state property.</param>
         /// <param name="type">The type of the shadow-state property.</param>

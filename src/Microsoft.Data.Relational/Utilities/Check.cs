@@ -9,23 +9,20 @@ namespace Microsoft.Data.Relational.Utilities
     [DebuggerStepThrough]
     internal static class Check
     {
-        public static void NotNull(object value, [InvokerParameterName] [NotNull] string parameterName)
+        [ContractAnnotation("value:null => halt")]
+        public static T NotNull<T>([NoEnumeration] T value, [InvokerParameterName] [NotNull] string parameterName)
         {
             NotEmpty(parameterName, "parameterName");
 
-            if (value == null)
+            if (ReferenceEquals(value, null))
             {
                 throw new ArgumentNullException(parameterName);
             }
+
+            return value;
         }
 
-        public static S NotNull<T, S>(T value, [InvokerParameterName] [NotNull] string parameterName, Func<T, S> result)
-        {
-            NotNull(value, parameterName);
-
-            return result(value);
-        }
-
+        [ContractAnnotation("value:null => halt")]
         public static string NotEmpty(string value, [InvokerParameterName] [NotNull] string parameterName)
         {
             if (string.IsNullOrWhiteSpace(parameterName))
@@ -36,6 +33,19 @@ namespace Microsoft.Data.Relational.Utilities
             if (string.IsNullOrWhiteSpace(value))
             {
                 throw new ArgumentException(Strings.ArgumentIsNullOrWhitespace(parameterName));
+            }
+
+            return value;
+        }
+
+        public static T IsDefined<T>(T value, [InvokerParameterName] [NotNull] string parameterName)
+            where T : struct
+        {
+            NotEmpty(parameterName, "parameterName");
+
+            if (!Enum.IsDefined(typeof(T), value))
+            {
+                throw new ArgumentException(Strings.InvalidEnumValue(parameterName, typeof(T)));
             }
 
             return value;

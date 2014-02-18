@@ -2,7 +2,9 @@
 
 namespace Microsoft.Data.Entity
 {
-    public abstract class DataStore
+    public enum EntityState
     {
+        Unchanged,
+        Added
     }
 }

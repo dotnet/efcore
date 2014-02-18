@@ -19,6 +19,14 @@ namespace Microsoft.Data.Migrations
         }
 
         /// <summary>
+        /// The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.
+        /// </summary>
+        internal static string InvalidEnumValue(object argumentName, object enumType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidEnumValue", "argumentName", "enumType"), argumentName, enumType);
+        }
+
+        /// <summary>
         /// The current migration SQL generator '{sqlGeneratorType}' is unable to generate SQL for operations of type '{operationType}'.
         /// </summary>
         internal static string UnknownOperation(object sqlGeneratorType, object operationType)

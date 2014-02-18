@@ -30,6 +30,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Moq">
+      <HintPath>..\..\packages\Moq.4.2.1312.1622\lib\net40\Moq.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="xunit, Version=1.9.2.1705, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
@@ -49,8 +52,13 @@
       <Link>ApiConsistencyTestBase.cs</Link>
     </Compile>
     <Compile Include="ApiConsistencyTest.cs" />
-    <Compile Include="DdlSqlGeneratorTest.cs" />
+    <Compile Include="MigrationOperationSqlGeneratorTest.cs" />
+    <Compile Include="Model\AddPrimaryKeyOperationTest.cs" />
     <Compile Include="Model\CreateSequenceOperationTest.cs" />
+    <Compile Include="Model\DropPrimaryKeyOperationTest.cs" />
+    <Compile Include="Model\CreateTableOperationTest.cs" />
+    <Compile Include="Model\DropSequenceOperationTest.cs" />
+    <Compile Include="Model\DropTableOperationTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Microsoft.Data.Entity\Microsoft.Data.Entity.net45.csproj">

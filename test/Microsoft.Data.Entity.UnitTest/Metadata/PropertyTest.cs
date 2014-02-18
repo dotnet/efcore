@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.Metadata
         [Fact]
         public void StorageName_can_be_different_from_name()
         {
-            var property = new Property(Customer.NameProperty){ StorageName = "CustomerName" };
+            var property = new Property(Customer.NameProperty) { StorageName = "CustomerName" };
 
             Assert.Equal("CustomerName", property.StorageName);
         }

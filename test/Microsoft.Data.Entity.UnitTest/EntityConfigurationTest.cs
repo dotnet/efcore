@@ -1,7 +1,10 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.AspNet.DependencyInjection;
+using Microsoft.Data.Entity.Storage;
 using Xunit;
 
 namespace Microsoft.Data.Entity
@@ -18,6 +21,10 @@ namespace Microsoft.Data.Entity
 
         private class FakeDataStore : DataStore
         {
+            public override Task<int> SaveChangesAsync(IEnumerable<EntityEntry> entityEntries)
+            {
+                return Task.FromResult(0);
+            }
         }
 
         [Fact]

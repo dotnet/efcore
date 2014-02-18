@@ -13,10 +13,10 @@ namespace Microsoft.Data.SqlServer
             using (var testDatabase = await new TestDatabase().Create())
             {
                 var sequenceIdentityGenerator
-                    = new SequenceIdentityGenerator(testDatabase.ConnectionString);
+                    = new SequenceIdentityGenerator(testDatabase.Transaction);
 
                 await testDatabase.ExecuteAsync(
-                    SqlServerDdlSqlGenerator.Generate(sequenceIdentityGenerator.CreateDdlOperation()));
+                    SqlServerMigrationOperationSqlGenerator.Generate(sequenceIdentityGenerator.CreateMigrationOperation()));
 
                 var next = sequenceIdentityGenerator.NextAsync().Result;
 

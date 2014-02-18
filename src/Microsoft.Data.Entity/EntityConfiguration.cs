@@ -3,6 +3,7 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.AspNet.DependencyInjection;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity

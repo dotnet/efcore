@@ -19,6 +19,14 @@ namespace Microsoft.Data.Relational
         }
 
         /// <summary>
+        /// The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.
+        /// </summary>
+        internal static string InvalidEnumValue(object argumentName, object enumType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidEnumValue", "argumentName", "enumType"), argumentName, enumType);
+        }
+
+        /// <summary>
         /// The schema qualified name '{name}' is invalid. Schema qualified names must be of the form [&lt;schema_name&gt;.]&lt;object_name&gt;.
         /// </summary>
         internal static string InvalidSchemaQualifiedName(object name)

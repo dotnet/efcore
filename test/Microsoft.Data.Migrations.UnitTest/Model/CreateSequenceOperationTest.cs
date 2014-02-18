@@ -1,5 +1,8 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using Microsoft.Data.Entity.Utilities;
+using Microsoft.Data.Relational.Model;
+using Moq;
 using Xunit;
 
 namespace Microsoft.Data.Migrations.Model
@@ -7,20 +10,38 @@ namespace Microsoft.Data.Migrations.Model
     public class CreateSequenceOperationTest
     {
         [Fact]
-        public void CreateOperationAndSetProperties()
+        public void CreateAndInitializeOperation()
         {
-            var createSequenceOperation
-                = new CreateSequenceOperation("foo.bar")
-                {
-                    StartWith = 42,
-                    IncrementBy = 44,
-                    DataType = "smallint"
-                };
+            var sequence = new Sequence("foo.bar");
 
-            Assert.Equal<string>("foo.bar", createSequenceOperation.SchemaQualifiedName);
-            Assert.Equal(42, createSequenceOperation.StartWith);
-            Assert.Equal(44, createSequenceOperation.IncrementBy);
-            Assert.Equal("smallint", createSequenceOperation.DataType);
+            var createSequenceOperation = new CreateSequenceOperation(sequence);
+
+            Assert.Same(sequence, createSequenceOperation.Target);
+        }
+
+        [Fact]
+        public void ObtainInverse()
+        {
+            var sequence = new Sequence("foo.bar");
+            var createSequenceOperation = new CreateSequenceOperation(sequence);
+
+            var inverse = createSequenceOperation.Inverse;
+
+            Assert.Same(sequence, inverse.Target);
+        }
+
+        [Fact]
+        public void DispatchesSqlGeneration()
+        {
+            var sequence = new Sequence("foo.bar");
+            var createSequenceOperation = new CreateSequenceOperation(sequence);
+            var mockSqlGenerator = new Mock<MigrationOperationSqlGenerator>();
+            var stringBuilder = new IndentedStringBuilder();
+
+            createSequenceOperation.GenerateOperationSql(mockSqlGenerator.Object, stringBuilder, true);
+
+            mockSqlGenerator.Verify(
+                g => g.Generate(createSequenceOperation, stringBuilder, true), Times.Once());
         }
     }
 }

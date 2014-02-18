@@ -18,6 +18,14 @@ namespace Microsoft.Data.SqlServer
             return string.Format(CultureInfo.CurrentCulture, GetString("ArgumentIsNullOrWhitespace", "argumentName"), argumentName);
         }
 
+        /// <summary>
+        /// The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.
+        /// </summary>
+        internal static string InvalidEnumValue(object argumentName, object enumType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidEnumValue", "argumentName", "enumType"), argumentName, enumType);
+        }
+
         private static string GetString(string name, params string[] argumentNames)
         {
             var value = _resourceManager.GetString(name);

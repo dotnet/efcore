@@ -10,18 +10,20 @@ namespace Microsoft.Data.SqlServer
 {
     public class TestDatabase : IDisposable
     {
+        public const int CommandTimeout = 1;
+
         private SqlConnection _connection;
         private SqlTransaction _transaction;
 
-        public async Task<TestDatabase> Create(string name = "Microsoft.Data.SqlServer.FunctionalTests")
+        public async Task<TestDatabase> Create(string name = "Microsoft.Data.SqlServer.FunctionalTest", bool transactional = true)
         {
             using (var master = new SqlConnection(CreateConnectionString("master")))
             {
                 await master.OpenAsync();
 
-                using (var command = new SqlCommand())
+                using (var command = master.CreateCommand())
                 {
-                    command.Connection = master;
+                    command.CommandTimeout = CommandTimeout;
                     command.CommandText
                         = string.Format(@"IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = N'{0}')
                                             CREATE DATABASE [{0}]", name);
@@ -34,32 +36,31 @@ namespace Microsoft.Data.SqlServer
 
             await _connection.OpenAsync();
 
-            _transaction = _connection.BeginTransaction();
+            if (transactional)
+            {
+                _transaction = _connection.BeginTransaction();
+            }
 
             return this;
         }
 
-        public string ConnectionString
+        public SqlTransaction Transaction
         {
-            get { return _connection.ConnectionString; }
+            get { return _transaction; }
         }
 
         public Task<int> ExecuteAsync(string sql, params object[] parameters)
         {
-            using (var command = new SqlCommand())
+            using (var command = CreateCommand(sql, parameters))
             {
-                InitializeCommand(command, sql, parameters);
-
                 return command.ExecuteNonQueryAsync();
             }
         }
 
         public async Task<IEnumerable<T>> QueryAsync<T>(string sql, params object[] parameters)
         {
-            using (var command = new SqlCommand())
+            using (var command = CreateCommand(sql, parameters))
             {
-                InitializeCommand(command, sql, parameters);
-
                 using (var dataReader = await command.ExecuteReaderAsync())
                 {
                     var results = Enumerable.Empty<T>();
@@ -74,21 +75,33 @@ namespace Microsoft.Data.SqlServer
             }
         }
 
-        private void InitializeCommand(SqlCommand command, string sql, object[] parameters)
+        private SqlCommand CreateCommand(string sql, object[] parameters)
         {
-            command.Connection = _connection;
-            command.Transaction = _transaction;
+            var command = _connection.CreateCommand();
+
+            if (_transaction != null)
+            {
+                command.Transaction = _transaction;
+            }
+
             command.CommandText = sql;
+            command.CommandTimeout = CommandTimeout;
 
             for (var i = 0; i < parameters.Length; i++)
             {
                 command.Parameters.AddWithValue("p" + i, parameters[i]);
             }
+
+            return command;
         }
 
         public void Dispose()
         {
-            _transaction.Dispose();
+            if (_transaction != null)
+            {
+                _transaction.Dispose();
+            }
+
             _connection.Dispose();
         }
 
