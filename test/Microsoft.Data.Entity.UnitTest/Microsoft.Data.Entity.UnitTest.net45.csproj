@@ -52,7 +52,12 @@
       <Link>ApiConsistencyTestBase.cs</Link>
     </Compile>
     <Compile Include="ApiConsistencyTest.cs" />
-    <Compile Include="EntityEntryTest.cs" />
+    <Compile Include="ChangeTracking\ChangeTrackerTest.cs" />
+    <Compile Include="ChangeTracking\EntityKeyFactoryFactoryTest.cs" />
+    <Compile Include="ChangeTracking\SimpleEntityKeyFactoryTest.cs" />
+    <Compile Include="EntityContextTest.cs" />
+    <Compile Include="ChangeTracking\EntityEntryTest.cs" />
+    <Compile Include="ChangeTracking\EntityKeyTest.cs" />
     <Compile Include="EntityServicesTest.cs" />
     <Compile Include="EntityConfigurationTest.cs" />
     <Compile Include="Metadata\AnnotationTest.cs" />
@@ -61,8 +66,10 @@
     <Compile Include="Metadata\ModelBuilderTest.cs" />
     <Compile Include="Metadata\ModelTest.cs" />
     <Compile Include="Metadata\PropertyTest.cs" />
+    <Compile Include="ChangeTracking\PropertyEntryTest.cs" />
     <Compile Include="Services\ConsoleLoggerFactoryTest.cs" />
     <Compile Include="Services\ServiceDescriptorTest.cs" />
+    <Compile Include="ChangeTracking\SimpleEntityKeyTest.cs" />
     <Compile Include="Utilities\CheckTest.cs" />
     <Compile Include="Utilities\EnumerableExtensionsTest.cs" />
     <Compile Include="Utilities\ExpressionExtensionsTest.cs" />
