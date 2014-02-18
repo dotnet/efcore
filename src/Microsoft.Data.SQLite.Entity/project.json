@@ -1,15 +1,16 @@
 {
-    "version": "0.1-alpha-*",
-    "dependencies": {
-        "Microsoft.Data.SQLite": "0.1-alpha-*",
-        "System.Data.Common": "0.1-alpha-*"
-    },
-    "configurations": {
-        "net45": {
-            "dependencies": {
-                "System.Data": ""
-            }
-        },
-        "k10": {}
-    }
+  "version": "0.1-alpha-*",
+  "compilationOptions" : { "warningsAsErrors" : true },
+  "dependencies": {
+    "Microsoft.Data.SQLite": "0.1-alpha-*",
+    "System.Data.Common": "0.1-alpha-*"
+  },
+  "configurations": {
+    "net45": {
+      "dependencies": {
+        "System.Data": ""
+        }
+      },
+      "k10": {}
+  }
 }
