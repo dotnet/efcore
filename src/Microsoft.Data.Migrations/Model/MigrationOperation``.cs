@@ -10,10 +10,6 @@ namespace Microsoft.Data.Migrations.Model
     {
         private readonly TTarget _target;
 
-        internal MigrationOperation()
-        {
-        }
-
         protected MigrationOperation([NotNull] TTarget target)
         {
             Check.NotNull(target, "target");

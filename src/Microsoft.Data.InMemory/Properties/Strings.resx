@@ -117,8 +117,8 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ArgumentIsNullOrWhitespace" xml:space="preserve">
-    <value>The argument '{argumentName}' cannot be null, empty or contain only white space.</value>
+  <data name="ArgumentIsEmpty" xml:space="preserve">
+    <value>The string argument '{argumentName}' cannot be empty.</value>
   </data>
   <data name="InvalidEnumValue" xml:space="preserve">
     <value>The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.</value>

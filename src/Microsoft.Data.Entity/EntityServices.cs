@@ -1,32 +1,20 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
+using System.Collections.Generic;
 using Microsoft.AspNet.DependencyInjection;
 using Microsoft.AspNet.Logging;
+using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Services;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity
 {
     public static class EntityServices
     {
-        public static ServiceProvider CreateDefaultProvider()
+        public static IEnumerable<IServiceDescriptor> GetDefaultServices()
         {
-            var serviceProvider = new ServiceProvider();
-
-            AddDefaultServices(
-                (serviceType, implementationType)
-                    => serviceProvider.Add(serviceType, implementationType));
-
-            return serviceProvider;
-        }
-
-        public static void AddDefaultServices([NotNull] Action<Type, Type> serviceRegistrar)
-        {
-            Check.NotNull(serviceRegistrar, "serviceRegistrar");
-
-            serviceRegistrar(typeof(ILoggerFactory), typeof(ConsoleLoggerFactory));
+            yield return ServiceDescriptor.Singleton<ILoggerFactory, ConsoleLoggerFactory>();
+            yield return ServiceDescriptor.Singleton<IIdentityGenerator<Guid>, GuidIdentityGenerator>();
         }
     }
 }

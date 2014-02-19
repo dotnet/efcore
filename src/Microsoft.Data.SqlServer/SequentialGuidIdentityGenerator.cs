@@ -37,5 +37,10 @@ namespace Microsoft.Data.SqlServer
 
             return Task.FromResult(new Guid(guidBytes));
         }
+
+        async Task<object> IIdentityGenerator.NextAsync()
+        {
+            return await NextAsync();
+        }
     }
 }

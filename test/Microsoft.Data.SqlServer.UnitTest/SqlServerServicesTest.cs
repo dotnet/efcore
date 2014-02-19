@@ -3,29 +3,28 @@
 using System;
 using System.Linq;
 using Microsoft.AspNet.DependencyInjection;
-using Microsoft.AspNet.Logging;
 using Microsoft.Data.Entity.Identity;
 using Xunit;
 
-namespace Microsoft.Data.Entity
+namespace Microsoft.Data.SqlServer
 {
-    public class EntityServicesTest
+    public class SqlServerServicesTest
     {
         [Fact]
         public void CanGetDefaultServices()
         {
-            var services = EntityServices.GetDefaultServices().ToList();
+            var services = SqlServerServices.GetDefaultServices().ToList();
 
-            Assert.True(services.Any(sd => sd.ServiceType == typeof(ILoggerFactory)));
             Assert.True(services.Any(sd => sd.ServiceType == typeof(IIdentityGenerator<Guid>)));
+            Assert.True(services.Any(sd => sd.ServiceType == typeof(IIdentityGenerator<long>)));
         }
 
         [Fact]
         public void ServicesWireUpCorrectly()
         {
-            var serviceProvider = new ServiceProvider().Add(EntityServices.GetDefaultServices());
+            var serviceProvider = new ServiceProvider().Add(SqlServerServices.GetDefaultServices());
 
-            Assert.NotNull(serviceProvider.GetService<ILoggerFactory>());
+            Assert.NotNull(serviceProvider.GetService<IIdentityGenerator<long>>());
             Assert.NotNull(serviceProvider.GetService<IIdentityGenerator<Guid>>());
         }
     }

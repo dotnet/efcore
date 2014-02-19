@@ -16,10 +16,6 @@ namespace Microsoft.Data.Entity.Utilities
 
         private T _value;
 
-        internal LazyRef()
-        {
-        }
-
         public LazyRef([NotNull] Func<T> initializer)
         {
             Check.NotNull(initializer, "initializer");

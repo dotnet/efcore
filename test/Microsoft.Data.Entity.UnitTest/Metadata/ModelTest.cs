@@ -23,29 +23,33 @@ namespace Microsoft.Data.Entity.Metadata
         #endregion
 
         [Fact]
-        public void Members_check_arguments()
+        public void MembersCheckArguments()
         {
             var model = new Model();
 
             Assert.Equal(
                 "entityType",
+// ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(() => model.AddEntity(null)).ParamName);
 
             Assert.Equal(
                 "entityType",
+// ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(() => model.RemoveEntity(null)).ParamName);
 
             Assert.Equal(
                 "instance",
+// ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(() => model.Entity((object)null)).ParamName);
 
             Assert.Equal(
                 "type",
-                Assert.Throws<ArgumentNullException>(() => model.Entity((Type)null)).ParamName);
+// ReSharper disable once AssignNullToNotNullAttribute
+                Assert.Throws<ArgumentNullException>(() => model.Entity(null)).ParamName);
         }
 
         [Fact]
-        public void Can_add_and_remove_entity()
+        public void CanAddAndRemoveEntity()
         {
             var model = new Model();
             var entity = new EntityType(typeof(Customer));

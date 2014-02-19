@@ -11,11 +11,11 @@ namespace Microsoft.Data.Entity
             = new ResourceManager("Microsoft.Data.Entity.Strings", typeof(Strings).GetTypeInfo().Assembly);
 
         /// <summary>
-        /// The argument '{argumentName}' cannot be null, empty or contain only white space.
+        /// The string argument '{argumentName}' cannot be empty.
         /// </summary>
-        internal static string ArgumentIsNullOrWhitespace(object argumentName)
+        internal static string ArgumentIsEmpty(object argumentName)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("ArgumentIsNullOrWhitespace", "argumentName"), argumentName);
+            return string.Format(CultureInfo.CurrentCulture, GetString("ArgumentIsEmpty", "argumentName"), argumentName);
         }
 
         /// <summary>
@@ -43,11 +43,11 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        /// The EntityConfiguration property '{propertyName}' has not been set.
+        /// A service of type '{serviceType}' has not been configured. Either configure the service explicitly, or ensure one is available from the current IServiceProvider.
         /// </summary>
-        internal static string MissingConfigurationItem(object propertyName)
+        internal static string MissingConfigurationItem(object serviceType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("MissingConfigurationItem", "propertyName"), propertyName);
+            return string.Format(CultureInfo.CurrentCulture, GetString("MissingConfigurationItem", "serviceType"), serviceType);
         }
 
         private static string GetString(string name, params string[] argumentNames)

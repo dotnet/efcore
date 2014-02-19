@@ -23,20 +23,22 @@ namespace Microsoft.Data.Entity.Metadata
         #endregion
 
         [Fact]
-        public void Members_check_arguments()
+        public void MembersCheckArguments()
         {
             Assert.Equal(
                 "type",
+// ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(() => new EntityType((Type)null)).ParamName);
 
             Assert.Equal(
-                Strings.ArgumentIsNullOrWhitespace("name"),
-                Assert.Throws<ArgumentException>(() => new EntityType((string)null)).Message);
+                "name",
+// ReSharper disable once AssignNullToNotNullAttribute
+                Assert.Throws<ArgumentNullException>(() => new EntityType((string)null)).ParamName);
 
             var entityType = new EntityType(typeof(Random));
 
             Assert.Equal(
-                Strings.ArgumentIsNullOrWhitespace("value"),
+                Strings.ArgumentIsEmpty("value"),
                 Assert.Throws<ArgumentException>(() => entityType.StorageName = "").Message);
 
             Assert.Equal(
@@ -45,19 +47,21 @@ namespace Microsoft.Data.Entity.Metadata
 
             Assert.Equal(
                 "property",
+// ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(() => entityType.AddProperty(null)).ParamName);
 
             Assert.Equal(
                 "property",
+// ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(() => entityType.RemoveProperty(null)).ParamName);
 
             Assert.Equal(
-                Strings.ArgumentIsNullOrWhitespace("name"),
+                Strings.ArgumentIsEmpty("name"),
                 Assert.Throws<ArgumentException>(() => entityType.Property("")).Message);
         }
 
         [Fact]
-        public void StorageName_defaults_to_name()
+        public void StorageNameDefaultsToName()
         {
             var entity = new EntityType(typeof(Customer));
 
@@ -65,7 +69,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void StorageName_can_be_different_from_name()
+        public void StorageNameCanBeDifferentFromName()
         {
             var entity = new EntityType(typeof(Customer)) { StorageName = "CustomerTable" };
 
@@ -73,7 +77,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void Can_create_entity_type()
+        public void CanCreateEntityType()
         {
             var entity = new EntityType(typeof(Customer));
 

@@ -10,12 +10,12 @@ namespace Microsoft.Data.SqlServer
         [Fact]
         public async Task CanGetNextValues()
         {
-            using (var testDatabase = await new TestDatabase().Create())
+            using (var testDatabase = await TestDatabase.Create())
             {
                 var sequenceIdentityGenerator
-                    = new SequenceIdentityGenerator(testDatabase.Transaction);
+                    = new SequenceIdentityGenerator(testDatabase);
 
-                await testDatabase.ExecuteAsync(
+                await testDatabase.ExecuteNonQueryAsync(
                     SqlServerMigrationOperationSqlGenerator.Generate(sequenceIdentityGenerator.CreateMigrationOperation()));
 
                 var next = sequenceIdentityGenerator.NextAsync().Result;

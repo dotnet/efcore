@@ -11,5 +11,10 @@ namespace Microsoft.Data.Entity.Identity
         {
             return Task.FromResult(Guid.NewGuid());
         }
+
+        async Task<object> IIdentityGenerator.NextAsync()
+        {
+            return await NextAsync();
+        }
     }
 }

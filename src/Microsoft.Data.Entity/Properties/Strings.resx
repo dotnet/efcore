@@ -117,8 +117,8 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ArgumentIsNullOrWhitespace" xml:space="preserve">
-    <value>The argument '{argumentName}' cannot be null, empty or contain only white space.</value>
+  <data name="ArgumentIsEmpty" xml:space="preserve">
+    <value>The string argument '{argumentName}' cannot be empty.</value>
   </data>
   <data name="InvalidEnumValue" xml:space="preserve">
     <value>The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.</value>
@@ -130,6 +130,6 @@
     <value>The expression '{expression}' is not a valid property expression. The expression should represent a property access: 't =&gt; t.MyProperty'.</value>
   </data>
   <data name="MissingConfigurationItem" xml:space="preserve">
-    <value>The EntityConfiguration property '{propertyName}' has not been set.</value>
+    <value>A service of type '{serviceType}' has not been configured. Either configure the service explicitly, or ensure one is available from the current IServiceProvider.</value>
   </data>
 </root>

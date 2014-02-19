@@ -20,13 +20,13 @@ namespace Microsoft.Data.SqlServer
                 values.Add(await sequentialGuidIdentityGenerator.NextAsync());
             }
 
-            using (var testDatabase = await new TestDatabase().Create())
+            using (var testDatabase = await TestDatabase.Create())
             {
-                await testDatabase.ExecuteAsync("CREATE TABLE SequentialGuidTest (value uniqueidentifier)");
+                await testDatabase.ExecuteNonQueryAsync("CREATE TABLE SequentialGuidTest (value uniqueidentifier)");
 
                 for (var i = values.Count - 1; i >= 0; i--)
                 {
-                    await testDatabase.ExecuteAsync("INSERT SequentialGuidTest VALUES (@p0)", values[i]);
+                    await testDatabase.ExecuteNonQueryAsync("INSERT SequentialGuidTest VALUES (@p0)", values[i]);
                 }
 
                 Assert.Equal(

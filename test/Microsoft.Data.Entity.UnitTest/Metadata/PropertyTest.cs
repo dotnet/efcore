@@ -20,29 +20,32 @@ namespace Microsoft.Data.Entity.Metadata
         #endregion
 
         [Fact]
-        public void Members_check_arguments()
+        public void MembersCheckArguments()
         {
             Assert.Equal(
                 "propertyInfo",
+// ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(() => new Property(null)).ParamName);
 
             var property = new Property(Customer.NameProperty);
 
             Assert.Equal(
-                Strings.ArgumentIsNullOrWhitespace("value"),
+                Strings.ArgumentIsEmpty("value"),
                 Assert.Throws<ArgumentException>(() => property.StorageName = "").Message);
 
             Assert.Equal(
                 "instance",
+// ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(() => property.GetValue(null)).ParamName);
 
             Assert.Equal(
                 "instance",
+// ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(() => property.SetValue(null, "Kake")).ParamName);
         }
 
         [Fact]
-        public void StorageName_defaults_to_name()
+        public void StorageNameDefaultsToName()
         {
             var property = new Property(Customer.NameProperty);
 
@@ -50,7 +53,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void StorageName_can_be_different_from_name()
+        public void StorageNameCanBeDifferentFromName()
         {
             var property = new Property(Customer.NameProperty) { StorageName = "CustomerName" };
 
@@ -58,7 +61,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void Can_create_property()
+        public void CanCreateProperty()
         {
             var property = new Property(Customer.NameProperty);
 
@@ -68,7 +71,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void Can_get_and_set_property_value()
+        public void CanGetAndSetPropertyValue()
         {
             var entity = new Customer();
             var property = new Property(Customer.NameProperty);
