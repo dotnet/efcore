@@ -1,0 +1,81 @@
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
+
+using System.Collections.Generic;
+using System.Linq;
+using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Utilities;
+
+namespace Microsoft.Data.Entity.ChangeTracking
+{
+    public class ChangeTracker
+    {
+        private readonly IModel _model;
+        private readonly Dictionary<EntityKey, EntityEntryImpl> _primaryKeyIndex = new Dictionary<EntityKey, EntityEntryImpl>();
+
+        public ChangeTracker([NotNull] IModel model)
+        {
+            Check.NotNull(model, "model");
+
+            _model = model;
+        }
+
+        public virtual EntityEntry<TEntity> Entry<TEntity>([NotNull] TEntity entity)
+        {
+            Check.NotNull(entity, "entity");
+
+            var impl = TryGetEntry(entity);
+            return impl != null ? new EntityEntry<TEntity>(impl) : new EntityEntry<TEntity>(this, entity);
+        }
+
+        public virtual EntityEntry Entry([NotNull] object entity)
+        {
+            Check.NotNull(entity, "entity");
+
+            var impl = TryGetEntry(entity);
+            return impl != null ? new EntityEntry(impl) : new EntityEntry(this, entity);
+        }
+
+        private EntityEntryImpl TryGetEntry(object entity)
+        {
+            // TODO: Error checking for type that is not in the model
+            // TODO: Error checking for different entity instance with same key
+
+            var key = _model.Entity(entity).CreateKey(entity);
+
+            EntityEntryImpl impl;
+            return _primaryKeyIndex.TryGetValue(key, out impl) ? impl : null;
+        }
+
+        public virtual IEnumerable<EntityEntry> Entries()
+        {
+            return _primaryKeyIndex.Values.Select(e => new EntityEntry(e));
+        }
+
+        public virtual IEnumerable<EntityEntry<TEntity>> Entries<TEntity>()
+        {
+            return _primaryKeyIndex.Values
+                .Where(e => e.Entity is TEntity)
+                .Select(e => new EntityEntry<TEntity>(e));
+        }
+
+        internal void Track(EntityEntryImpl entry)
+        {
+            // TODO: Error checking for entry/entity that is already tracked
+
+            _primaryKeyIndex[entry.Key] = entry;
+        }
+
+        internal void Detach(EntityEntryImpl entry)
+        {
+            // TODO: Error checking for entry/entity that is not being tracked
+
+            _primaryKeyIndex.Remove(entry.Key);
+        }
+
+        public virtual IModel Model
+        {
+            get { return _model; }
+        }
+    }
+}

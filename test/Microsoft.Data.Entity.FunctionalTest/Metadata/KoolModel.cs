@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata.Compiled;
 
 namespace Microsoft.Data.Entity.Metadata
@@ -299,6 +300,11 @@ namespace Microsoft.Data.Entity.Metadata
         {
             get { return "KoolEntity1Table"; }
         }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity1, int>(((KoolEntity1)entity).Id);
+        }
     }
 
     public class _KoolEntity2EntityType
@@ -312,6 +318,11 @@ namespace Microsoft.Data.Entity.Metadata
         public string StorageName
         {
             get { return "KoolEntity2Table"; }
+        }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity2, int>(((KoolEntity2)entity).Id);
         }
     }
 
@@ -327,6 +338,11 @@ namespace Microsoft.Data.Entity.Metadata
         {
             get { return "KoolEntity3Table"; }
         }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity3, int>(((KoolEntity3)entity).Id);
+        }
     }
 
     public class _KoolEntity4EntityType
@@ -340,6 +356,11 @@ namespace Microsoft.Data.Entity.Metadata
         public string StorageName
         {
             get { return "KoolEntity4Table"; }
+        }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity4, int>(((KoolEntity4)entity).Id);
         }
     }
 
@@ -355,6 +376,11 @@ namespace Microsoft.Data.Entity.Metadata
         {
             get { return "KoolEntity5Table"; }
         }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity5, int>(((KoolEntity5)entity).Id);
+        }
     }
 
     public class _KoolEntity6EntityType
@@ -368,6 +394,11 @@ namespace Microsoft.Data.Entity.Metadata
         public string StorageName
         {
             get { return "KoolEntity6Table"; }
+        }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity6, int>(((KoolEntity6)entity).Id);
         }
     }
 
@@ -383,6 +414,11 @@ namespace Microsoft.Data.Entity.Metadata
         {
             get { return "KoolEntity7Table"; }
         }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity7, int>(((KoolEntity7)entity).Id);
+        }
     }
 
     public class _KoolEntity8EntityType
@@ -396,6 +432,11 @@ namespace Microsoft.Data.Entity.Metadata
         public string StorageName
         {
             get { return "KoolEntity8Table"; }
+        }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity8, int>(((KoolEntity8)entity).Id);
         }
     }
 
@@ -411,6 +452,11 @@ namespace Microsoft.Data.Entity.Metadata
         {
             get { return "KoolEntity9Table"; }
         }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity9, int>(((KoolEntity9)entity).Id);
+        }
     }
 
     public class _KoolEntity10EntityType
@@ -424,6 +470,11 @@ namespace Microsoft.Data.Entity.Metadata
         public string StorageName
         {
             get { return "KoolEntity10Table"; }
+        }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity10, int>(((KoolEntity10)entity).Id);
         }
     }
 
@@ -439,6 +490,11 @@ namespace Microsoft.Data.Entity.Metadata
         {
             get { return "KoolEntity11Table"; }
         }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity11, int>(((KoolEntity11)entity).Id);
+        }
     }
 
     public class _KoolEntity12EntityType
@@ -452,6 +508,11 @@ namespace Microsoft.Data.Entity.Metadata
         public string StorageName
         {
             get { return "KoolEntity12Table"; }
+        }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity12, int>(((KoolEntity12)entity).Id);
         }
     }
 
@@ -467,6 +528,11 @@ namespace Microsoft.Data.Entity.Metadata
         {
             get { return "KoolEntity13Table"; }
         }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity13, int>(((KoolEntity13)entity).Id);
+        }
     }
 
     public class _KoolEntity14EntityType
@@ -480,6 +546,11 @@ namespace Microsoft.Data.Entity.Metadata
         public string StorageName
         {
             get { return "KoolEntity14Table"; }
+        }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity14, int>(((KoolEntity14)entity).Id);
         }
     }
 
@@ -495,6 +566,11 @@ namespace Microsoft.Data.Entity.Metadata
         {
             get { return "KoolEntity15Table"; }
         }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity15, int>(((KoolEntity15)entity).Id);
+        }
     }
 
     public class _KoolEntity16EntityType
@@ -508,6 +584,11 @@ namespace Microsoft.Data.Entity.Metadata
         public string StorageName
         {
             get { return "KoolEntity16Table"; }
+        }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity16, int>(((KoolEntity16)entity).Id);
         }
     }
 
@@ -523,6 +604,11 @@ namespace Microsoft.Data.Entity.Metadata
         {
             get { return "KoolEntity17Table"; }
         }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity17, int>(((KoolEntity17)entity).Id);
+        }
     }
 
     public class _KoolEntity18EntityType
@@ -536,6 +622,11 @@ namespace Microsoft.Data.Entity.Metadata
         public string StorageName
         {
             get { return "KoolEntity18Table"; }
+        }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity18, int>(((KoolEntity18)entity).Id);
         }
     }
 
@@ -551,6 +642,11 @@ namespace Microsoft.Data.Entity.Metadata
         {
             get { return "KoolEntity19Table"; }
         }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity19, int>(((KoolEntity19)entity).Id);
+        }
     }
 
     public class _KoolEntity20EntityType
@@ -564,6 +660,11 @@ namespace Microsoft.Data.Entity.Metadata
         public string StorageName
         {
             get { return "KoolEntity20Table"; }
+        }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity20, int>(((KoolEntity20)entity).Id);
         }
     }
 
@@ -579,6 +680,11 @@ namespace Microsoft.Data.Entity.Metadata
         {
             get { return "KoolEntity21Table"; }
         }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity21, int>(((KoolEntity21)entity).Id);
+        }
     }
 
     public class _KoolEntity22EntityType
@@ -592,6 +698,11 @@ namespace Microsoft.Data.Entity.Metadata
         public string StorageName
         {
             get { return "KoolEntity22Table"; }
+        }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity22, int>(((KoolEntity22)entity).Id);
         }
     }
 
@@ -607,6 +718,11 @@ namespace Microsoft.Data.Entity.Metadata
         {
             get { return "KoolEntity23Table"; }
         }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity23, int>(((KoolEntity23)entity).Id);
+        }
     }
 
     public class _KoolEntity24EntityType
@@ -620,6 +736,11 @@ namespace Microsoft.Data.Entity.Metadata
         public string StorageName
         {
             get { return "KoolEntity24Table"; }
+        }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity24, int>(((KoolEntity24)entity).Id);
         }
     }
 
@@ -635,6 +756,11 @@ namespace Microsoft.Data.Entity.Metadata
         {
             get { return "KoolEntity25Table"; }
         }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity25, int>(((KoolEntity25)entity).Id);
+        }
     }
 
     public class _KoolEntity26EntityType
@@ -648,6 +774,11 @@ namespace Microsoft.Data.Entity.Metadata
         public string StorageName
         {
             get { return "KoolEntity26Table"; }
+        }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity26, int>(((KoolEntity26)entity).Id);
         }
     }
 
@@ -663,6 +794,11 @@ namespace Microsoft.Data.Entity.Metadata
         {
             get { return "KoolEntity27Table"; }
         }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity27, int>(((KoolEntity27)entity).Id);
+        }
     }
 
     public class _KoolEntity28EntityType
@@ -676,6 +812,11 @@ namespace Microsoft.Data.Entity.Metadata
         public string StorageName
         {
             get { return "KoolEntity28Table"; }
+        }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity28, int>(((KoolEntity28)entity).Id);
         }
     }
 
@@ -691,6 +832,11 @@ namespace Microsoft.Data.Entity.Metadata
         {
             get { return "KoolEntity29Table"; }
         }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity29, int>(((KoolEntity29)entity).Id);
+        }
     }
 
     public class _KoolEntity30EntityType
@@ -704,6 +850,11 @@ namespace Microsoft.Data.Entity.Metadata
         public string StorageName
         {
             get { return "KoolEntity30Table"; }
+        }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity30, int>(((KoolEntity30)entity).Id);
         }
     }
 
@@ -719,6 +870,11 @@ namespace Microsoft.Data.Entity.Metadata
         {
             get { return "KoolEntity31Table"; }
         }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity31, int>(((KoolEntity31)entity).Id);
+        }
     }
 
     public class _KoolEntity32EntityType
@@ -732,6 +888,11 @@ namespace Microsoft.Data.Entity.Metadata
         public string StorageName
         {
             get { return "KoolEntity32Table"; }
+        }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity32, int>(((KoolEntity32)entity).Id);
         }
     }
 
@@ -747,6 +908,11 @@ namespace Microsoft.Data.Entity.Metadata
         {
             get { return "KoolEntity33Table"; }
         }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity33, int>(((KoolEntity33)entity).Id);
+        }
     }
 
     public class _KoolEntity34EntityType
@@ -760,6 +926,11 @@ namespace Microsoft.Data.Entity.Metadata
         public string StorageName
         {
             get { return "KoolEntity34Table"; }
+        }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity34, int>(((KoolEntity34)entity).Id);
         }
     }
 
@@ -775,6 +946,11 @@ namespace Microsoft.Data.Entity.Metadata
         {
             get { return "KoolEntity35Table"; }
         }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity35, int>(((KoolEntity35)entity).Id);
+        }
     }
 
     public class _KoolEntity36EntityType
@@ -788,6 +964,11 @@ namespace Microsoft.Data.Entity.Metadata
         public string StorageName
         {
             get { return "KoolEntity36Table"; }
+        }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity36, int>(((KoolEntity36)entity).Id);
         }
     }
 
@@ -803,6 +984,11 @@ namespace Microsoft.Data.Entity.Metadata
         {
             get { return "KoolEntity37Table"; }
         }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity37, int>(((KoolEntity37)entity).Id);
+        }
     }
 
     public class _KoolEntity38EntityType
@@ -816,6 +1002,11 @@ namespace Microsoft.Data.Entity.Metadata
         public string StorageName
         {
             get { return "KoolEntity38Table"; }
+        }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity38, int>(((KoolEntity38)entity).Id);
         }
     }
 
@@ -831,6 +1022,11 @@ namespace Microsoft.Data.Entity.Metadata
         {
             get { return "KoolEntity39Table"; }
         }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity39, int>(((KoolEntity39)entity).Id);
+        }
     }
 
     public class _KoolEntity40EntityType
@@ -844,6 +1040,11 @@ namespace Microsoft.Data.Entity.Metadata
         public string StorageName
         {
             get { return "KoolEntity40Table"; }
+        }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity40, int>(((KoolEntity40)entity).Id);
         }
     }
 
@@ -859,6 +1060,11 @@ namespace Microsoft.Data.Entity.Metadata
         {
             get { return "KoolEntity41Table"; }
         }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity41, int>(((KoolEntity41)entity).Id);
+        }
     }
 
     public class _KoolEntity42EntityType
@@ -872,6 +1078,11 @@ namespace Microsoft.Data.Entity.Metadata
         public string StorageName
         {
             get { return "KoolEntity42Table"; }
+        }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity42, int>(((KoolEntity42)entity).Id);
         }
     }
 
@@ -887,6 +1098,11 @@ namespace Microsoft.Data.Entity.Metadata
         {
             get { return "KoolEntity43Table"; }
         }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity43, int>(((KoolEntity43)entity).Id);
+        }
     }
 
     public class _KoolEntity44EntityType
@@ -900,6 +1116,11 @@ namespace Microsoft.Data.Entity.Metadata
         public string StorageName
         {
             get { return "KoolEntity44Table"; }
+        }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity44, int>(((KoolEntity44)entity).Id);
         }
     }
 
@@ -915,6 +1136,11 @@ namespace Microsoft.Data.Entity.Metadata
         {
             get { return "KoolEntity45Table"; }
         }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity45, int>(((KoolEntity45)entity).Id);
+        }
     }
 
     public class _KoolEntity46EntityType
@@ -928,6 +1154,11 @@ namespace Microsoft.Data.Entity.Metadata
         public string StorageName
         {
             get { return "KoolEntity46Table"; }
+        }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity46, int>(((KoolEntity46)entity).Id);
         }
     }
 
@@ -943,6 +1174,11 @@ namespace Microsoft.Data.Entity.Metadata
         {
             get { return "KoolEntity47Table"; }
         }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity47, int>(((KoolEntity47)entity).Id);
+        }
     }
 
     public class _KoolEntity48EntityType
@@ -956,6 +1192,11 @@ namespace Microsoft.Data.Entity.Metadata
         public string StorageName
         {
             get { return "KoolEntity48Table"; }
+        }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity48, int>(((KoolEntity48)entity).Id);
         }
     }
 
@@ -971,6 +1212,11 @@ namespace Microsoft.Data.Entity.Metadata
         {
             get { return "KoolEntity49Table"; }
         }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity49, int>(((KoolEntity49)entity).Id);
+        }
     }
 
     public class _KoolEntity50EntityType
@@ -984,6 +1230,11 @@ namespace Microsoft.Data.Entity.Metadata
         public string StorageName
         {
             get { return "KoolEntity50Table"; }
+        }
+
+        public EntityKey CreateKey(object entity)
+        {
+            return new SimpleEntityKey<KoolEntity50, int>(((KoolEntity50)entity).Id);
         }
     }
 
