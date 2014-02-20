@@ -10,18 +10,18 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
         : CompiledPropertyBase<TEntity, TProperty>
         where TAnnotations : CompiledAnnotationsBase, new()
     {
-        protected readonly LazyMetadataRef<TAnnotations> LazyAnnotations = new LazyMetadataRef<TAnnotations>();
+        protected TAnnotations LazyAnnotations;
 
         public new IEnumerable<IAnnotation> Annotations
         {
-            get { return LazyAnnotations.Value.Annotations; }
+            get { return LazyMetadata.Init(ref LazyAnnotations).Annotations; }
         }
 
         public new string this[[NotNull] string annotationName]
         {
             get
             {
-                var annotation = LazyAnnotations.Value.Annotations.FirstOrDefault(a => a.Name == annotationName);
+                var annotation = LazyMetadata.Init(ref LazyAnnotations).Annotations.FirstOrDefault(a => a.Name == annotationName);
                 return annotation == null ? null : annotation.Value;
             }
         }
