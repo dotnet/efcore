@@ -11,26 +11,26 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
         where TProperties : CompiledPropertiesBase, new()
         where TAnnotations : CompiledAnnotationsBase, new()
     {
-        protected readonly LazyMetadataRef<TProperties> LazyProperties = new LazyMetadataRef<TProperties>();
-        protected readonly LazyMetadataRef<TAnnotations> LazyAnnotations = new LazyMetadataRef<TAnnotations>();
+        protected TProperties LazyProperties;
+        protected TAnnotations LazyAnnotations;
 
         public IEnumerable<IAnnotation> Annotations
         {
-            get { return LazyAnnotations.Value.Annotations; }
+            get { return LazyMetadata.Init(ref LazyAnnotations).Annotations; }
         }
 
         public string this[[NotNull] string annotationName]
         {
             get
             {
-                var annotation = LazyAnnotations.Value.Annotations.FirstOrDefault(a => a.Name == annotationName);
+                var annotation = LazyMetadata.Init(ref LazyAnnotations).Annotations.FirstOrDefault(a => a.Name == annotationName);
                 return annotation == null ? null : annotation.Value;
             }
         }
 
         public IProperty Property([NotNull] string name)
         {
-            return LazyProperties.Value.Properties.FirstOrDefault(p => p.Name == name);
+            return LazyMetadata.Init(ref LazyProperties).Properties.FirstOrDefault(p => p.Name == name);
         }
 
         public Type Type
@@ -40,12 +40,12 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 
         public IEnumerable<IProperty> Key
         {
-            get { return LazyProperties.Value.Keys; }
+            get { return LazyMetadata.Init(ref LazyProperties).Keys; }
         }
 
         public IEnumerable<IProperty> Properties
         {
-            get { return LazyProperties.Value.Properties; }
+            get { return LazyMetadata.Init(ref LazyProperties).Properties; }
         }
     }
 }

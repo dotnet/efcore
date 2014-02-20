@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Data.Entity.ChangeTracking;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Metadata
@@ -76,6 +77,16 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
+        public void EntityKeys_can_be_obtained_from_compiled_metadata_without_reflection()
+        {
+            var entity = new KoolEntity27 { Id = 77 };
+            var key = new _OneTwoThreeContextModel().Entity(entity).CreateKey(entity);
+
+            Assert.IsType<SimpleEntityKey<KoolEntity27, int>>(key);
+            Assert.Equal(77, key.Value);
+        }
+
+        [Fact]
         public void Compiled_model_uses_heap_memory_on_pay_per_play_basis_and_overall_uses_less()
         {
             var compiledMemory = RecordModelHeapUse(() => new _OneTwoThreeContextModel());
@@ -95,14 +106,14 @@ namespace Microsoft.Data.Entity.Metadata
             // Numbers are not 100% consistent due to other threads running and GC.GetTotalMemory not 
             // necessarily returning an accurate number. At the time of checkin the numbers are:
             //
-            //  Compiled: 4568 (50)  Built: 4506256 (50) Ratio: 0.00101370184028604
-            //  Compiled: 13256 (100)  Built: 4507424 (100) Ratio: 0.00294092590357597
-            //  Compiled: 236544 (2500)  Built: 4509128 (2500) Ratio: 0.0524589233217598
-            //  Compiled: 252312 (150)  Built: 4510144 (150) Ratio: 0.0559432248726426
-            //  Compiled: 860336 (2500)  Built: 4512040 (2500) Ratio: 0.190675614577885
-            //  Compiled: 860728 (7500)  Built: 4513928 (7500) Ratio: 0.19068270473078
-            //  Compiled: 1201464 (5000)  Built: 4515808 (5000) Ratio: 0.266057370021046
-            //  Compiled: 1882736 (10000)  Built: 4518296 (10000) Ratio: 0.416691602320875
+            //  Compiled: 2168 (50)  Built: 4546256 (50) Ratio: 0.000476875917238273
+            //  Compiled: 10824 (100)  Built: 4547424 (100) Ratio: 0.0023802486858494
+            //  Compiled: 114112 (2500)  Built: 4549128 (2500) Ratio: 0.0250843678173048
+            //  Compiled: 127480 (150)  Built: 4550144 (150) Ratio: 0.0280166957353438
+            //  Compiled: 617904 (2500)  Built: 4552040 (2500) Ratio: 0.135742216676479
+            //  Compiled: 618296 (7500)  Built: 4553928 (7500) Ratio: 0.135772019232627
+            //  Compiled: 959032 (5000)  Built: 4555808 (5000) Ratio: 0.210507554313088
+            //  Compiled: 1640336 (10000)  Built: 4558264 (10000) Ratio: 0.359859806277127
             //
             // Uncomment to get new numbers:
             //for (var i = 1; i < compiledMemory.Count; i++)
@@ -128,12 +139,12 @@ namespace Microsoft.Data.Entity.Metadata
                 Tuple.Create(0.0, 0.0), // Starting memory; not used
                 Tuple.Create(-0.01, 0.01), // Just models
                 Tuple.Create(-0.01, 0.01), // Model annotations
-                Tuple.Create(0.02, 0.07), // All entities
-                Tuple.Create(0.02, 0.07), // Properties from one entity
+                Tuple.Create(0.01, 0.06), // All entities
+                Tuple.Create(0.01, 0.06), // Properties from one entity
                 Tuple.Create(0.1, 0.3), // All keys
                 Tuple.Create(0.1, 0.3), // All properties
-                Tuple.Create(0.2, 0.4), // All entity annotations
-                Tuple.Create(0.3, 0.5) // All property annotations
+                Tuple.Create(0.1, 0.3), // All entity annotations
+                Tuple.Create(0.2, 0.4) // All property annotations
             };
 
             for (var i = 1; i < expected.Length; i++)

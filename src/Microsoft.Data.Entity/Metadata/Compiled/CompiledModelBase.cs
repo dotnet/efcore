@@ -11,19 +11,19 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
         where TEntities : CompiledEntitiesBase, new()
         where TAnnotations : CompiledAnnotationsBase, new()
     {
-        protected readonly LazyMetadataRef<TAnnotations> LazyAnnotations = new LazyMetadataRef<TAnnotations>();
-        protected readonly LazyMetadataRef<TEntities> LazyEntities = new LazyMetadataRef<TEntities>();
+        protected TAnnotations LazyAnnotations;
+        protected TEntities LazyEntities;
 
         public IEnumerable<IAnnotation> Annotations
         {
-            get { return LazyAnnotations.Value.Annotations; }
+            get { return LazyMetadata.Init(ref LazyAnnotations).Annotations; }
         }
 
         public string this[[NotNull] string annotationName]
         {
             get
             {
-                var annotation = LazyAnnotations.Value.Annotations.FirstOrDefault(a => a.Name == annotationName);
+                var annotation = LazyMetadata.Init(ref LazyAnnotations).Annotations.FirstOrDefault(a => a.Name == annotationName);
                 return annotation == null ? null : annotation.Value;
             }
         }
@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 
         public IEnumerable<IEntityType> Entities
         {
-            get { return LazyEntities.Value.EntityTypes; }
+            get { return LazyMetadata.Init(ref LazyEntities).EntityTypes; }
         }
     }
 }
