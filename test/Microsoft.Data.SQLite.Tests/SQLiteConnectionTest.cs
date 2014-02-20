@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Microsoft.Data.SQLite
 {
-    public class SQLiteConnectionFacts
+    public class SQLiteConnectionTest
     {
         [Fact]
         public void Ctor_validates_argument()

@@ -17,7 +17,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.SQLite.k10",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.SQLite.net45", "src\Microsoft.Data.SQLite\Microsoft.Data.SQLite.net45.csproj", "{EB1BE0B1-ED95-44C2-A4CB-B5ABD8F9569B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.SQLite.UnitTest.net45", "test\Microsoft.Data.SQLite.UnitTest\Microsoft.Data.SQLite.UnitTest.net45.csproj", "{8D11D4DA-75D4-4C82-A0C8-B0167D86B3D2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.SQLite.Tests.net45", "test\Microsoft.Data.SQLite.Tests\Microsoft.Data.SQLite.Tests.net45.csproj", "{8D11D4DA-75D4-4C82-A0C8-B0167D86B3D2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

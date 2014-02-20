@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Microsoft.Data.SQLite
 {
-    public class SQLiteCommandFacts
+    public class SQLiteCommandTest
     {
         [Fact]
         public void Ctor_validates_arguments()

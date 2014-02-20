@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Microsoft.Data.SQLite</RootNamespace>
-    <AssemblyName>Microsoft.Data.SQLite.UnitTest</AssemblyName>
+    <AssemblyName>Microsoft.Data.SQLite.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <BaseIntermediateOutputPath>obj/net45</BaseIntermediateOutputPath>
@@ -48,8 +48,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="SQLiteCommandFacts.cs" />
-    <Compile Include="SQLiteConnectionFacts.cs" />
+    <Compile Include="SQLiteCommandTest.cs" />
+    <Compile Include="SQLiteConnectionTest.cs" />
     <Content Include="_project.json" />
   </ItemGroup>
   <ItemGroup>
@@ -57,6 +57,9 @@
       <Project>{EB1BE0B1-ED95-44C2-A4CB-B5ABD8F9569B}</Project>
       <Name>Microsoft.Data.SQLite</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

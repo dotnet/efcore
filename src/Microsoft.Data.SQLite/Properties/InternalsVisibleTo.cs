@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 #if !INTERNALS_INVISIBLE
 
-[assembly: InternalsVisibleTo("Microsoft.Data.SQLite.UnitTest")]
+[assembly: InternalsVisibleTo("Microsoft.Data.SQLite.Tests")]
 
 // for Moq
 
