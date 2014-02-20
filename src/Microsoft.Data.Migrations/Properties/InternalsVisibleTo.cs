@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 #if !INTERNALS_INVISIBLE
 
-[assembly: InternalsVisibleTo("Microsoft.Data.Migrations.UnitTest")]
+[assembly: InternalsVisibleTo("Microsoft.Data.Migrations.Tests")]
 
 // for Moq
 
