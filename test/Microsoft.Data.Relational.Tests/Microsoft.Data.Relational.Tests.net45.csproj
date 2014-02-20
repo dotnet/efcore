@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Microsoft.Data.Relational</RootNamespace>
-    <AssemblyName>Microsoft.Data.Relational.UnitTest</AssemblyName>
+    <AssemblyName>Microsoft.Data.Relational.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

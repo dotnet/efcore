@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Microsoft.Data.InMemory</RootNamespace>
-    <AssemblyName>Microsoft.Data.InMemory.UnitTest</AssemblyName>
+    <AssemblyName>Microsoft.Data.InMemory.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

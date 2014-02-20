@@ -33,11 +33,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.SqlServer.ne
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "net45", "net45", "{13FEFC36-1C4B-47FC-9086-8D922285D8C4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Entity.UnitTest.net45", "test\Microsoft.Data.Entity.UnitTest\Microsoft.Data.Entity.UnitTest.net45.csproj", "{EF361118-7D0D-453E-ADA4-2F24FBEE196C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Entity.Tests.net45", "test\Microsoft.Data.Entity.Tests\Microsoft.Data.Entity.Tests.net45.csproj", "{EF361118-7D0D-453E-ADA4-2F24FBEE196C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Entity.FunctionalTest.net45", "test\Microsoft.Data.Entity.FunctionalTest\Microsoft.Data.Entity.FunctionalTest.net45.csproj", "{CA431AD7-2D95-402B-AC17-214994E81943}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.SqlServer.UnitTest.net45", "test\Microsoft.Data.SqlServer.UnitTest\Microsoft.Data.SqlServer.UnitTest.net45.csproj", "{3159FABC-0C89-41FF-A279-48665CC068DC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.SqlServer.Tests.net45", "test\Microsoft.Data.SqlServer.Tests\Microsoft.Data.SqlServer.Tests.net45.csproj", "{3159FABC-0C89-41FF-A279-48665CC068DC}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "shared", "shared", "{4C4AEEAB-DCD5-4C52-97A2-9187A204AA8F}"
 	ProjectSection(SolutionItems) = preProject
@@ -50,15 +50,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Migrations.n
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Migrations.k10", "src\Microsoft.Data.Migrations\Microsoft.Data.Migrations.k10.csproj", "{6983B107-265E-439F-9B82-162CFB9BFBA4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Migrations.UnitTest.net45", "test\Microsoft.Data.Migrations.UnitTest\Microsoft.Data.Migrations.UnitTest.net45.csproj", "{50F8CE3F-907C-48A6-A7EB-73CC631ADBE6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Migrations.Tests.net45", "test\Microsoft.Data.Migrations.Tests\Microsoft.Data.Migrations.Tests.net45.csproj", "{50F8CE3F-907C-48A6-A7EB-73CC631ADBE6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Migrations.FunctionalTest.net45", "test\Microsoft.Data.Migrations.FunctionalTest\Microsoft.Data.Migrations.FunctionalTest.net45.csproj", "{E3C4C2F5-B8CF-4795-90F1-364A23DAEE43}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Relational.UnitTest.net45", "test\Microsoft.Data.Relational.UnitTest\Microsoft.Data.Relational.UnitTest.net45.csproj", "{001005B3-D16F-4399-9265-A67D619652BD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Relational.Tests.net45", "test\Microsoft.Data.Relational.Tests\Microsoft.Data.Relational.Tests.net45.csproj", "{001005B3-D16F-4399-9265-A67D619652BD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Relational.FunctionalTest.net45", "test\Microsoft.Data.Relational.FunctionalTest\Microsoft.Data.Relational.FunctionalTest.net45.csproj", "{5E888D49-467B-4F2B-B723-7D76C5D21841}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.InMemory.UnitTest.net45", "test\Microsoft.Data.InMemory.UnitTest\Microsoft.Data.InMemory.UnitTest.net45.csproj", "{81EF720B-EC6D-456F-9FA6-71DA7D4ED3BF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.InMemory.Tests.net45", "test\Microsoft.Data.InMemory.Tests\Microsoft.Data.InMemory.Tests.net45.csproj", "{81EF720B-EC6D-456F-9FA6-71DA7D4ED3BF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
