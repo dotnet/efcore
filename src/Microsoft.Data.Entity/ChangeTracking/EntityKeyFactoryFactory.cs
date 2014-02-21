@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             {
                 var keyProperty = keyDefinition.First();
                 return (EntityKeyFactory)Activator.CreateInstance(
-                    typeof(SimpleEntityKeyFactory<,>).MakeGenericType(entityType.Type, keyProperty.Type),
+                    typeof(SimpleEntityKeyFactory<,>).MakeGenericType(entityType.Type, keyProperty.PropertyType),
                     keyProperty);
             }
 

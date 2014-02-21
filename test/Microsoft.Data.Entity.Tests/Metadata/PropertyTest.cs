@@ -67,7 +67,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             Assert.Equal("Name", property.Name);
             Assert.Same(typeof(Customer), property.DeclaringType);
-            Assert.Same(typeof(string), property.Type);
+            Assert.Same(typeof(string), property.PropertyType);
         }
 
         [Fact]
