@@ -23,19 +23,13 @@ namespace Microsoft.Data.Entity.Metadata
         {
             var type = typeof(T);
             var entityType = _model.Entity(type);
-            var concreteEntityType = entityType as EntityType;
 
             if (entityType == null)
             {
-                _model.AddEntity(concreteEntityType = new EntityType(type));
+                _model.AddEntity(entityType = new EntityType(type));
             }
 
-            if (concreteEntityType == null)
-            {
-                throw new NotSupportedException("TODO");
-            }
-
-            return new EntityBuilder<T>(concreteEntityType);
+            return new EntityBuilder<T>(entityType);
         }
 
         public virtual ModelBuilder Annotation([NotNull] string annotation, [NotNull] string value)
@@ -107,19 +101,13 @@ namespace Microsoft.Data.Entity.Metadata
                     var propertyInfo = propertyExpression.GetPropertyAccess();
 
                     var property = _entityType.Property(propertyInfo.Name);
-                    var concreteProperty = property as Property;
 
                     if (property == null)
                     {
-                        _entityType.AddProperty(concreteProperty = new Property(propertyInfo));
+                        _entityType.AddProperty(property = new Property(propertyInfo));
                     }
 
-                    if (concreteProperty == null)
-                    {
-                        throw new NotSupportedException("TODO");
-                    }
-
-                    return new PropertyBuilder(concreteProperty);
+                    return new PropertyBuilder(property);
                 }
 
                 public class PropertyBuilder

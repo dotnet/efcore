@@ -16,11 +16,11 @@ namespace Microsoft.Data.Entity.Metadata
         private string _storageName;
         private readonly Type _type;
 
-        private readonly LazyRef<ImmutableDictionary<string, IProperty>> _properties
-            = new LazyRef<ImmutableDictionary<string, IProperty>>(() => ImmutableDictionary<string, IProperty>.Empty);
+        private readonly LazyRef<ImmutableDictionary<string, Property>> _properties
+            = new LazyRef<ImmutableDictionary<string, Property>>(() => ImmutableDictionary<string, Property>.Empty);
 
-        private readonly LazyRef<ImmutableList<IProperty>> _keyProperties
-            = new LazyRef<ImmutableList<IProperty>>(() => ImmutableList<IProperty>.Empty);
+        private readonly LazyRef<ImmutableList<Property>> _keyProperties
+            = new LazyRef<ImmutableList<Property>>(() => ImmutableList<Property>.Empty);
 
         private readonly LazyRef<EntityKeyFactory> _keyFactory;
 
@@ -71,13 +71,13 @@ namespace Microsoft.Data.Entity.Metadata
             get { return _type; }
         }
 
-        public virtual IEnumerable<IProperty> Key
+        public virtual IEnumerable<Property> Key
         {
             get
             {
                 return _keyProperties.HasValue
                     ? _keyProperties.Value
-                    : Enumerable.Empty<IProperty>();
+                    : Enumerable.Empty<Property>();
             }
             [param: NotNull]
             set
@@ -89,14 +89,14 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        public virtual void AddProperty([NotNull] IProperty property)
+        public virtual void AddProperty([NotNull] Property property)
         {
             Check.NotNull(property, "property");
 
             _properties.ExchangeValue(l => l.Add(property.Name, property));
         }
 
-        public virtual void RemoveProperty([NotNull] IProperty property)
+        public virtual void RemoveProperty([NotNull] Property property)
         {
             Check.NotNull(property, "property");
 
@@ -111,25 +111,40 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        public virtual IProperty Property(string name)
+        public virtual Property Property([NotNull] string name)
         {
             Check.NotEmpty(name, "name");
 
-            IProperty property;
+            Property property;
             return _properties.HasValue
                    && _properties.Value.TryGetValue(name, out property)
                 ? property
                 : null;
         }
 
-        public virtual IEnumerable<IProperty> Properties
+        public virtual IEnumerable<Property> Properties
         {
             get
             {
                 return _properties.HasValue
                     ? _properties.Value.Values.OrderByOrdinal(e => e.Name)
-                    : Enumerable.Empty<IProperty>();
+                    : Enumerable.Empty<Property>();
             }
+        }
+
+        IEnumerable<IProperty> IEntityType.Key
+        {
+            get { return Key; }
+        }
+
+        IProperty IEntityType.Property(string name)
+        {
+            return Property(name);
+        }
+
+        IEnumerable<IProperty> IEntityType.Properties
+        {
+            get { return Properties; }
         }
 
         public EntityKey CreateKey(object entity)

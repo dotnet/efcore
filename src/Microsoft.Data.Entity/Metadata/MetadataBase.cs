@@ -10,17 +10,17 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public abstract class MetadataBase : IMetadata
     {
-        private readonly LazyRef<ImmutableDictionary<string, IAnnotation>> _annotations
-            = new LazyRef<ImmutableDictionary<string, IAnnotation>>(() => ImmutableDictionary<string, IAnnotation>.Empty);
+        private readonly LazyRef<ImmutableDictionary<string, Annotation>> _annotations
+            = new LazyRef<ImmutableDictionary<string, Annotation>>(() => ImmutableDictionary<string, Annotation>.Empty);
 
-        public virtual void AddAnnotation([NotNull] IAnnotation annotation)
+        public virtual void AddAnnotation([NotNull] Annotation annotation)
         {
             Check.NotNull(annotation, "annotation");
 
             _annotations.ExchangeValue(d => d.Add(annotation.Name, annotation));
         }
 
-        public virtual void RemoveAnnotation([NotNull] IAnnotation annotation)
+        public virtual void RemoveAnnotation([NotNull] Annotation annotation)
         {
             Check.NotNull(annotation, "annotation");
 
@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 Check.NotEmpty(annotationName, "annotationName");
 
-                IAnnotation value;
+                Annotation value;
                 return _annotations.HasValue
                        && _annotations.Value.TryGetValue(annotationName, out value)
                     ? value.Value
@@ -52,14 +52,19 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        public virtual IEnumerable<IAnnotation> Annotations
+        public virtual IEnumerable<Annotation> Annotations
         {
             get
             {
                 return _annotations.HasValue
                     ? _annotations.Value.Values.OrderByOrdinal(e => e.Name)
-                    : Enumerable.Empty<IAnnotation>();
+                    : Enumerable.Empty<Annotation>();
             }
+        }
+
+        IEnumerable<IAnnotation> IMetadata.Annotations
+        {
+            get { return Annotations; }
         }
     }
 }

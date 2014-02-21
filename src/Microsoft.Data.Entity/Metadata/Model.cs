@@ -11,49 +11,64 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public class Model : MetadataBase, IModel
     {
-        private readonly LazyRef<ImmutableDictionary<Type, IEntityType>> _entities
-            = new LazyRef<ImmutableDictionary<Type, IEntityType>>(() => ImmutableDictionary<Type, IEntityType>.Empty);
+        private readonly LazyRef<ImmutableDictionary<Type, EntityType>> _entities
+            = new LazyRef<ImmutableDictionary<Type, EntityType>>(() => ImmutableDictionary<Type, EntityType>.Empty);
 
-        public virtual void AddEntity([NotNull] IEntityType entityType)
+        public virtual void AddEntity([NotNull] EntityType entityType)
         {
             Check.NotNull(entityType, "entityType");
 
             _entities.ExchangeValue(d => d.Add(entityType.Type, entityType));
         }
 
-        public virtual void RemoveEntity([NotNull] IEntityType entityType)
+        public virtual void RemoveEntity([NotNull] EntityType entityType)
         {
             Check.NotNull(entityType, "entityType");
 
             _entities.ExchangeValue(l => l.Remove(entityType.Type));
         }
 
-        public virtual IEntityType Entity(object instance)
+        public virtual EntityType Entity([NotNull] object instance)
         {
             Check.NotNull(instance, "instance");
 
             return Entity(instance.GetType());
         }
 
-        public virtual IEntityType Entity(Type type)
+        public virtual EntityType Entity([NotNull] Type type)
         {
             Check.NotNull(type, "type");
 
-            IEntityType value;
+            EntityType value;
             return _entities.HasValue
                    && _entities.Value.TryGetValue(type, out value)
                 ? value
                 : null;
         }
 
-        public virtual IEnumerable<IEntityType> Entities
+        public virtual IEnumerable<EntityType> Entities
         {
             get
             {
                 return _entities.HasValue
                     ? _entities.Value.Values.OrderByOrdinal(e => e.Name)
-                    : Enumerable.Empty<IEntityType>();
+                    : Enumerable.Empty<EntityType>();
             }
+        }
+
+        IEntityType IModel.Entity(object instance)
+        {
+            return Entity(instance);
+        }
+
+        IEntityType IModel.Entity(Type type)
+        {
+            return Entity(type);
+        }
+
+        IEnumerable<IEntityType> IModel.Entities
+        {
+            get { return Entities; }
         }
     }
 }
