@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
+using Moq;
 using Xunit;
 
 namespace Microsoft.Data.Entity.ChangeTracking
@@ -11,7 +13,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
         [Fact]
         public void Members_check_arguments()
         {
-            var entityEntry = new EntityEntry<Cheese>(new ChangeTracker(BuildModel()), new Cheese());
+            var entityEntry = new EntityEntry<Cheese>(
+                new ChangeTracker(BuildModel(), new Mock<ActiveIdentityGenerators>().Object),
+                new Cheese());
 
             Assert.Equal(
                 Strings.ArgumentIsEmpty("name"),
@@ -33,8 +37,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
         [Fact]
         public void Can_get_name()
         {
-            var entity = new Cheese();
-            var entityEntry = new EntityEntry<Cheese>(new ChangeTracker(BuildModel()), entity) { State = EntityState.Unchanged };
+            var entityEntry = new EntityEntry<Cheese>(
+                new ChangeTracker(BuildModel(), new Mock<ActiveIdentityGenerators>().Object),
+                new Cheese());
 
             Assert.Equal("Maturity", new PropertyEntry(entityEntry, "Maturity").Name);
             Assert.Equal("Maturity", new PropertyEntry<Cheese, string>(entityEntry, "Maturity").Name);
@@ -43,8 +48,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
         [Fact]
         public void Can_set_unchanged_properties_to_modified_and_back_to_unchanged()
         {
-            var entity = new Cheese();
-            var entityEntry = new EntityEntry<Cheese>(new ChangeTracker(BuildModel()), entity) { State = EntityState.Unchanged };
+            var entityEntry = new EntityEntry<Cheese>(
+                new ChangeTracker(BuildModel(), new Mock<ActiveIdentityGenerators>().Object),
+                new Cheese()) { State = EntityState.Unchanged };
 
             var nameEntry = new PropertyEntry<Cheese, string>(entityEntry, "Name");
             var maturityEntry = new PropertyEntry<Cheese, string>(entityEntry, "Maturity");
@@ -66,8 +72,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
         [Fact]
         public void Changing_property_states_for_Added_Deleted_and_Unknown_properties_has_no_effect()
         {
-            var entity = new Cheese();
-            var entityEntry = new EntityEntry<Cheese>(new ChangeTracker(BuildModel()), entity) { State = EntityState.Added };
+            var entityEntry = new EntityEntry<Cheese>(
+                new ChangeTracker(BuildModel(), new Mock<ActiveIdentityGenerators>().Object),
+                new Cheese()) { State = EntityState.Added };
 
             var nameEntry = new PropertyEntry<Cheese, string>(entityEntry, "Name");
             var maturityEntry = new PropertyEntry<Cheese, string>(entityEntry, "Maturity");
@@ -78,11 +85,13 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Assert.False(maturityEntry.IsModified);
 
             entityEntry.State = EntityState.Deleted;
+            maturityEntry.IsModified = true;
 
             Assert.False(nameEntry.IsModified);
             Assert.False(maturityEntry.IsModified);
 
             entityEntry.State = EntityState.Unknown;
+            maturityEntry.IsModified = true;
 
             Assert.False(nameEntry.IsModified);
             Assert.False(maturityEntry.IsModified);
@@ -91,8 +100,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
         [Fact]
         public void Changing_property_state_to_modified_marks_entity_as_Modified()
         {
-            var entity = new Cheese();
-            var entityEntry = new EntityEntry<Cheese>(new ChangeTracker(BuildModel()), entity) { State = EntityState.Unchanged };
+            var entityEntry = new EntityEntry<Cheese>(
+                new ChangeTracker(BuildModel(), new Mock<ActiveIdentityGenerators>().Object),
+                new Cheese()) { State = EntityState.Unchanged };
 
             new PropertyEntry<Cheese, string>(entityEntry, "Maturity") { IsModified = true };
 
@@ -102,8 +112,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
         [Fact]
         public void Changing_all_property_states_to_unchanged_marks_entity_as_Unchanged()
         {
-            var entity = new Cheese();
-            var entityEntry = new EntityEntry<Cheese>(new ChangeTracker(BuildModel()), entity) { State = EntityState.Modified };
+            var entityEntry = new EntityEntry<Cheese>(
+                new ChangeTracker(BuildModel(), new Mock<ActiveIdentityGenerators>().Object),
+                new Cheese()) { State = EntityState.Modified };
 
             var idEntry = new PropertyEntry<Cheese, int>(entityEntry, "Id");
             var nameEntry = new PropertyEntry<Cheese, string>(entityEntry, "Name");

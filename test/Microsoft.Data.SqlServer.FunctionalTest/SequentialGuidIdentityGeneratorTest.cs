@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -17,7 +18,7 @@ namespace Microsoft.Data.SqlServer
 
             for (var _ = 0; _ < 100; _++)
             {
-                values.Add(await sequentialGuidIdentityGenerator.NextAsync());
+                values.Add(await sequentialGuidIdentityGenerator.NextAsync(CancellationToken.None));
             }
 
             using (var testDatabase = await TestDatabase.Create())

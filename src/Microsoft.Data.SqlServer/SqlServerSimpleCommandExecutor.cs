@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System.Threading;
 #if NET45
 using System.Data.SqlClient;
 using System.Threading.Tasks;
@@ -29,21 +30,21 @@ namespace Microsoft.Data.SqlServer
             _commandTimeout = commandTimeout;
         }
 
-        public async Task<T> ExecuteScalarAsync<T>(string commandText, params object[] parameters)
+        public async Task<T> ExecuteScalarAsync<T>(string commandText, CancellationToken cancellationToken, params object[] parameters)
         {
             Check.NotEmpty(commandText, "commandText");
             Check.NotNull(parameters, "parameters");
 
             using (var connection = new SqlConnection(_connectionString))
             {
-                await connection.OpenAsync();
+                await connection.OpenAsync(cancellationToken);
 
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = commandText;
                     command.CommandTimeout = _commandTimeout;
 
-                    return (T)await command.ExecuteScalarAsync();
+                    return (T)await command.ExecuteScalarAsync(cancellationToken);
                 }
             }
         }
