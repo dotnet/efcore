@@ -11,7 +11,7 @@ namespace Microsoft.Data.InMemory
     {
         public static IEnumerable<IServiceDescriptor> GetDefaultServices()
         {
-            yield return ServiceDescriptor.Singleton<IIdentityGenerator<long>, InMemoryIdentityGenerator>();
+            yield return ServiceDescriptor.Singleton<IdentityGeneratorFactory, InMemoryIdentityGeneratorFactory>();
         }
     }
 }

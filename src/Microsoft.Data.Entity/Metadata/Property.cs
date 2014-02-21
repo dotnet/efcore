@@ -69,6 +69,8 @@ namespace Microsoft.Data.Entity.Metadata
             get { return _declaringType; }
         }
 
+        public virtual ValueGenerationStrategy ValueGenerationStrategy { get; [param: NotNull] set; }
+
         public virtual void SetValue(object instance, object value)
         {
             Check.NotNull(instance, "instance");

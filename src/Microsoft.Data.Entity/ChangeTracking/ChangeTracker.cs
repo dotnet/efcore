@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
@@ -11,40 +13,62 @@ namespace Microsoft.Data.Entity.ChangeTracking
     public class ChangeTracker
     {
         private readonly IModel _model;
+        private readonly ActiveIdentityGenerators _identityGenerators;
         private readonly Dictionary<EntityKey, ChangeTrackerEntry> _identityMap = new Dictionary<EntityKey, ChangeTrackerEntry>();
 
-        public ChangeTracker([NotNull] IModel model)
+        // Intended only for creation of test doubles
+        internal ChangeTracker()
+        {
+        }
+
+        public ChangeTracker([NotNull] IModel model, [NotNull] ActiveIdentityGenerators identityGenerators)
         {
             Check.NotNull(model, "model");
+            Check.NotNull(identityGenerators, "identityGenerators");
 
             _model = model;
+            _identityGenerators = identityGenerators;
         }
 
         public virtual EntityEntry<TEntity> Entry<TEntity>([NotNull] TEntity entity)
         {
             Check.NotNull(entity, "entity");
 
-            var impl = TryGetEntry(entity);
-            return impl != null ? new EntityEntry<TEntity>(impl) : new EntityEntry<TEntity>(this, entity);
+            var entityType = GetEntityType(entity);
+            var entry = TryGetEntry(entityType, entity);
+            return entry != null ? new EntityEntry<TEntity>(entry) : new EntityEntry<TEntity>(this, entity);
         }
 
         public virtual EntityEntry Entry([NotNull] object entity)
         {
             Check.NotNull(entity, "entity");
 
-            var impl = TryGetEntry(entity);
-            return impl != null ? new EntityEntry(impl) : new EntityEntry(this, entity);
+            var entityType = GetEntityType(entity);
+            var entry = TryGetEntry(entityType, entity);
+            return entry != null ? new EntityEntry(entry) : new EntityEntry(this, entity);
         }
 
-        private ChangeTrackerEntry TryGetEntry(object entity)
+        private IEntityType GetEntityType(object entity)
         {
-            // TODO: Error checking for type that is not in the model
-            // TODO: Error checking for different entity instance with same key
+            // TODO: Consider what to do with derived types that are not explicitly in the model
 
-            var key = _model.Entity(entity).CreateEntityKey(entity);
+            var entityType = _model.Entity(entity);
+
+            if (entityType == null)
+            {
+                // TODO: Consider specialized exception types
+                throw new InvalidOperationException(Strings.TypeNotInModel(entity.GetType().Name));
+            }
+
+            return entityType;
+        }
+
+        private ChangeTrackerEntry TryGetEntry(IEntityType entityType, object entity)
+        {
+            var key = entityType.CreateEntityKey(entity);
 
             ChangeTrackerEntry entry;
-            return _identityMap.TryGetValue(key, out entry) ? entry : null;
+            return _identityMap.TryGetValue(key, out entry) && ReferenceEquals(entry.Entity, entity) ? entry : null;
         }
 
         public virtual IEnumerable<EntityEntry> Entries()
@@ -61,21 +85,36 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         internal void Track(ChangeTrackerEntry entry)
         {
-            // TODO: Error checking for entry/entity that is already tracked
+            ChangeTrackerEntry existingEntry;
+            if (_identityMap.TryGetValue(entry.Key, out existingEntry)
+                && !ReferenceEquals(entry.Entity, existingEntry.Entity))
+            {
+                // TODO: Consider a hook for identity resolution
+                // TODO: Consider specialized exception types
+                throw new InvalidOperationException(Strings.IdentityConflict(entry.Entity.GetType().Name));
+            }
 
+            // TODO: Consider the case where two EntityEntry instances both track the same entity instance
             _identityMap[entry.Key] = entry;
         }
 
-        internal void Detach(ChangeTrackerEntry entry)
+        internal void StopTracking(ChangeTrackerEntry entry)
         {
-            // TODO: Error checking for entry/entity that is not being tracked
-
-            _identityMap.Remove(entry.Key);
+            var key = entry.Key;
+            if (_identityMap.ContainsKey(key))
+            {
+                _identityMap.Remove(key);
+            }
         }
 
-        public virtual IModel Model
+        internal virtual IModel Model
         {
             get { return _model; }
+        }
+
+        internal virtual IIdentityGenerator GetIdentityGenerator(IProperty property)
+        {
+            return _identityGenerators.GetOrAdd(property);
         }
     }
 }

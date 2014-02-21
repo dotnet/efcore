@@ -3,7 +3,9 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
+using Moq;
 using Xunit;
 
 namespace Microsoft.Data.Entity.ChangeTracking
@@ -20,23 +22,28 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Assert.Equal(
                 "entity",
                 // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => new EntityEntry(new ChangeTracker(new Model()), null)).ParamName);
+                Assert.Throws<ArgumentNullException>(
+                    () => new EntityEntry(new Mock<ChangeTracker>().Object, null)).ParamName);
+
             Assert.Equal(
                 "changeTracker",
                 // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => new EntityEntry<Random>(null, new Random())).ParamName);
+                Assert.Throws<ArgumentNullException>(
+                    () => new EntityEntry<Random>(null, new Random())).ParamName);
             Assert.Equal(
                 "entity",
                 // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => new EntityEntry<Random>(new ChangeTracker(new Model()), null)).ParamName);
+                Assert.Throws<ArgumentNullException>(
+                    () => new EntityEntry<Random>(new Mock<ChangeTracker>().Object, null)).ParamName);
 
-            var entry = new EntityEntry(new ChangeTracker(BuildModel()), new Category());
+            var entry = new EntityEntry(new ChangeTracker(BuildModel(), new Mock<ActiveIdentityGenerators>().Object), new Category());
 
             Assert.Equal(
                 Strings.ArgumentIsEmpty("propertyName"),
                 Assert.Throws<ArgumentException>(() => entry.Property("")).Message);
 
-            var genericEntry = new EntityEntry<Category>(new ChangeTracker(BuildModel()), new Category());
+            var genericEntry = new EntityEntry<Category>(
+                new ChangeTracker(BuildModel(), new Mock<ActiveIdentityGenerators>().Object), new Category());
 
             Assert.Equal(
                 "propertyExpression",
@@ -48,7 +55,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         public void Can_obtain_entity_instance()
         {
             var entity = new Category();
-            var changeTracker = new ChangeTracker(BuildModel());
+            var changeTracker = new ChangeTracker(BuildModel(), new Mock<ActiveIdentityGenerators>().Object);
 
             Assert.Same(entity, new EntityEntry(changeTracker, entity).Entity);
             Assert.Same(entity, new EntityEntry<Category>(changeTracker, entity).Entity);
@@ -58,7 +65,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         public void New_entries_have_state_Unknown_and_are_not_tracked()
         {
             var entity = new Category();
-            var changeTracker = new ChangeTracker(BuildModel());
+            var changeTracker = new ChangeTracker(BuildModel(), new Mock<ActiveIdentityGenerators>().Object);
 
             Assert.Equal(EntityState.Unknown, new EntityEntry(changeTracker, entity).State);
             Assert.Equal(EntityState.Unknown, new EntityEntry<Category>(changeTracker, entity).State);
@@ -70,7 +77,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         public void Can_obtain_entity_key()
         {
             var entity = new Category { Id = 77 };
-            var changeTracker = new ChangeTracker(BuildModel());
+            var changeTracker = new ChangeTracker(BuildModel(), new Mock<ActiveIdentityGenerators>().Object);
 
             Assert.Equal(77, new EntityEntry(changeTracker, entity).Key.Value);
             Assert.Equal(77, new EntityEntry<Category>(changeTracker, entity).Key.Value);
@@ -80,7 +87,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         public void Changing_state_from_Unknown_causes_entity_to_start_tracking()
         {
             var entity = new Category();
-            var changeTracker = new ChangeTracker(BuildModel());
+            var changeTracker = new ChangeTracker(BuildModel(), new Mock<ActiveIdentityGenerators>().Object);
 
             new EntityEntry<Category>(changeTracker, entity) { State = EntityState.Added };
 
@@ -92,7 +99,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         public void Changing_state_to_Unknown_causes_entity_to_stop_tracking()
         {
             var entity = new Category();
-            var changeTracker = new ChangeTracker(BuildModel());
+            var changeTracker = new ChangeTracker(BuildModel(), new Mock<ActiveIdentityGenerators>().Object);
 
             var entry = new EntityEntry<Category>(changeTracker, entity) { State = EntityState.Added };
 
@@ -107,7 +114,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         public void Changing_state_to_Modified_or_Unchanged_causes_all_properties_to_be_marked_accordingly()
         {
             var entity = new Category();
-            var changeTracker = new ChangeTracker(BuildModel());
+            var changeTracker = new ChangeTracker(BuildModel(), new Mock<ActiveIdentityGenerators>().Object);
 
             var entry = new EntityEntry<Category>(changeTracker, entity) { State = EntityState.Added };
 
@@ -126,10 +133,21 @@ namespace Microsoft.Data.Entity.ChangeTracking
         }
 
         [Fact]
+        public void Changing_state_to_Added_triggers_key_generation()
+        {
+            var entity = new TheGu();
+            var changeTracker = new ChangeTracker(BuildModel(), new ActiveIdentityGenerators(new DefaultIdentityGeneratorFactory()));
+
+            new EntityEntry<TheGu>(changeTracker, entity) { State = EntityState.Added };
+
+            Assert.NotEqual(default(Guid), entity.Id);
+        }
+
+        [Fact]
         public void Can_get_property_entry_by_name()
         {
             var entity = new Category();
-            var changeTracker = new ChangeTracker(BuildModel());
+            var changeTracker = new ChangeTracker(BuildModel(), new Mock<ActiveIdentityGenerators>().Object);
 
             var entry = new EntityEntry<Category>(changeTracker, entity) { State = EntityState.Added };
 
@@ -140,7 +158,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         public void Can_get_property_entry_by_lambda()
         {
             var entity = new Category();
-            var changeTracker = new ChangeTracker(BuildModel());
+            var changeTracker = new ChangeTracker(BuildModel(), new Mock<ActiveIdentityGenerators>().Object);
 
             var entry = new EntityEntry<Category>(changeTracker, entity) { State = EntityState.Added };
 
@@ -153,6 +171,11 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             public int Id { get; set; }
             public string Name { get; set; }
+        }
+
+        public class TheGu
+        {
+            public Guid Id { get; set; }
         }
 
         private static IModel BuildModel()
@@ -168,6 +191,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
                         pb.Property(c => c.Id);
                         pb.Property(c => c.Name);
                     });
+
+            builder.Entity<TheGu>().Key(e => e.Id);
+            model.Entity(typeof(TheGu)).Key.Single().ValueGenerationStrategy = ValueGenerationStrategy.Client;
 
             return model;
         }

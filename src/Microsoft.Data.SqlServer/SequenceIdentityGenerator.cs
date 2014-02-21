@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System.Threading;
 #if NET45
 using Microsoft.Data.Migrations.Model;
 using Microsoft.Data.Relational;
@@ -53,20 +54,20 @@ namespace Microsoft.Data.SqlServer
                     new SqlServerMigrationOperationSqlGenerator().DelimitIdentifier(_sequenceName));
         }
 
-        public virtual async Task<long> NextAsync()
+        public virtual async Task<long> NextAsync(CancellationToken cancellationToken)
         {
             if (_current == _max)
             {
-                _current = await _commandExecutor.ExecuteScalarAsync<long>(_selectNextValueSql);
+                _current = await _commandExecutor.ExecuteScalarAsync<long>(_selectNextValueSql, cancellationToken);
                 _max = _current + _increment;
             }
 
             return ++_current;
         }
 
-        async Task<object> IIdentityGenerator.NextAsync()
+        async Task<object> IIdentityGenerator.NextAsync(CancellationToken cancellationToken)
         {
-            return await NextAsync();
+            return await NextAsync(cancellationToken);
         }
 
         public virtual CreateSequenceOperation CreateMigrationOperation()

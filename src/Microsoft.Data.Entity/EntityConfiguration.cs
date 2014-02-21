@@ -1,12 +1,10 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Immutable;
 using JetBrains.Annotations;
 using Microsoft.AspNet.DependencyInjection;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Identity;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
@@ -17,11 +15,9 @@ namespace Microsoft.Data.Entity
         private readonly IServiceProvider _serviceProvider;
 
         private DataStore _dataStore;
-        private IModel _model;
-        private ChangeTracker _changeTracker;
-
-        private readonly LazyRef<ImmutableDictionary<Type, IIdentityGenerator>> _identityGenerators
-            = new LazyRef<ImmutableDictionary<Type, IIdentityGenerator>>(() => ImmutableDictionary<Type, IIdentityGenerator>.Empty);
+        private ChangeTrackerFactory _changeTrackerFactory;
+        private IdentityGeneratorFactory _identityGeneratorFactory;
+        private ActiveIdentityGenerators _activeIdentityGenerators;
 
         public EntityConfiguration()
             : this(new ServiceProvider().Add(EntityServices.GetDefaultServices()))
@@ -52,70 +48,54 @@ namespace Microsoft.Data.Entity
             }
         }
 
-        public virtual IIdentityGenerator<TIdentity> GetIdentityGenerator<TIdentity>()
-        {
-            IIdentityGenerator<TIdentity> identityGenerator = null;
-
-            if (_identityGenerators.HasValue)
-            {
-                IIdentityGenerator untypedReference;
-                if (_identityGenerators.Value.TryGetValue(typeof(TIdentity), out untypedReference))
-                {
-                    identityGenerator = untypedReference as IIdentityGenerator<TIdentity>;
-                }
-            }
-
-            return identityGenerator
-                   ?? _serviceProvider.GetService<IIdentityGenerator<TIdentity>>()
-                   ?? ThrowNotConfigured<IIdentityGenerator<TIdentity>>();
-        }
-
-        public virtual EntityConfiguration SetIdentityGenerator<TIdentity>([NotNull] IIdentityGenerator<TIdentity> identityGenerator)
-        {
-            Check.NotNull(identityGenerator, "identityGenerator");
-
-            _identityGenerators.ExchangeValue(igs => igs.SetItem(typeof(TIdentity), identityGenerator));
-
-            return this;
-        }
-
-        // TODO: This will change when more of the model building patterns are defined. For now
-        // it provides a way to associate a context with a model
-        public virtual IModel Model
+        public virtual IdentityGeneratorFactory IdentityGeneratorFactory
         {
             get
             {
-                // TODO: Cannot get service of just model--need to use some form of factory to
-                // know which model is needed
-                return _model
-                       ?? _serviceProvider.GetService<IModel>()
-                       ?? ThrowNotConfigured<IModel>();
+                return _identityGeneratorFactory
+                       ?? _serviceProvider.GetService<IdentityGeneratorFactory>()
+                       ?? ThrowNotConfigured<IdentityGeneratorFactory>();
             }
             [param: NotNull]
             set
             {
                 Check.NotNull(value, "value");
 
-                _model = value;
+                _identityGeneratorFactory = value;
             }
         }
 
-        // TODO: This will change when more of the model building patterns are defined. For now
-        // it provides a way to associate a context with a change tracker
-        public virtual ChangeTracker ChangeTracker
+        public virtual ActiveIdentityGenerators ActiveIdentityGenerators
         {
             get
             {
-                return _changeTracker
-                       ?? _serviceProvider.GetService<ChangeTracker>()
-                       ?? ThrowNotConfigured<ChangeTracker>();
+                return _activeIdentityGenerators
+                       ?? _serviceProvider.GetService<ActiveIdentityGenerators>()
+                       ?? ThrowNotConfigured<ActiveIdentityGenerators>();
             }
             [param: NotNull]
             set
             {
                 Check.NotNull(value, "value");
 
-                _changeTracker = value;
+                _activeIdentityGenerators = value;
+            }
+        }
+
+        public virtual ChangeTrackerFactory ChangeTrackerFactory
+        {
+            get
+            {
+                return _changeTrackerFactory
+                       ?? _serviceProvider.GetService<ChangeTrackerFactory>()
+                       ?? ThrowNotConfigured<ChangeTrackerFactory>();
+            }
+            [param: NotNull]
+            set
+            {
+                Check.NotNull(value, "value");
+
+                _changeTrackerFactory = value;
             }
         }
 

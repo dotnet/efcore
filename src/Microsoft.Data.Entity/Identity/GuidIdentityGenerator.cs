@@ -1,20 +1,21 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Microsoft.Data.Entity.Identity
 {
     public class GuidIdentityGenerator : IIdentityGenerator<Guid>
     {
-        public virtual Task<Guid> NextAsync()
+        public virtual Task<Guid> NextAsync(CancellationToken cancellationToken)
         {
             return Task.FromResult(Guid.NewGuid());
         }
 
-        async Task<object> IIdentityGenerator.NextAsync()
+        async Task<object> IIdentityGenerator.NextAsync(CancellationToken cancellationToken)
         {
-            return await NextAsync();
+            return await NextAsync(cancellationToken);
         }
     }
 }

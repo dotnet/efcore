@@ -2,7 +2,10 @@
 
 using System;
 using System.Collections;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Microsoft.Data.Entity.ChangeTracking
 {
@@ -32,31 +35,51 @@ namespace Microsoft.Data.Entity.ChangeTracking
             get { return _changeTracker.Model.Entity(_entity).CreateEntityKey(_entity); }
         }
 
-        public virtual EntityState EntityState
+        public async virtual Task SetEntityStateAsync(EntityState value, CancellationToken cancellationToken)
         {
-            get { return _entityState; }
-            set
+            var oldState = _entityState;
+            _entityState = value;
+
+            // The entity state can be Modified even if some properties are not modified so always
+            // set all properties to modified if the entity state is explicitly set to Modified.
+            if (value == EntityState.Modified)
             {
-                if (_entityState == EntityState.Unknown
-                    && value != EntityState.Unknown)
-                {
-                    _changeTracker.Track(this);
-                }
-                else if (_entityState != EntityState.Unknown
-                         && value == EntityState.Unknown)
-                {
-                    _changeTracker.Detach(this);
-                }
-
-                if (value == EntityState.Modified
-                    || value == EntityState.Unchanged)
-                {
-                    // TODO: Avoid setting keys/readonly properties to modified
-                    _propertyStates.SetAll(value == EntityState.Modified);
-                }
-
-                _entityState = value;
+                // TODO: Avoid setting keys/readonly properties to modified
+                _propertyStates.SetAll(true);
             }
+
+            if (oldState == value)
+            {
+                return;
+            }
+
+            if (value == EntityState.Added)
+            {
+                var entityType = _changeTracker.Model.Entity(_entity);
+                Debug.Assert(entityType.Key.Count() == 1, "Composite keys not implemented yet.");
+
+                var keyProperty = entityType.Key.First();
+                var identityGenerator = _changeTracker.GetIdentityGenerator(keyProperty);
+
+                if (identityGenerator != null)
+                {
+                    keyProperty.SetValue(_entity, await identityGenerator.NextAsync(cancellationToken));
+                }
+            }
+
+            if (oldState == EntityState.Unknown)
+            {
+                _changeTracker.Track(this);
+            }
+            else if (value == EntityState.Unknown)
+            {
+                _changeTracker.StopTracking(this);
+            }
+        }
+
+        public virtual EntityState GetEntityState()
+        {
+            return _entityState;
         }
 
         public virtual bool IsPropertyModified(string propertyName)

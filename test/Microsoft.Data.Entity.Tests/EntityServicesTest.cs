@@ -4,7 +4,9 @@ using System;
 using System.Linq;
 using Microsoft.AspNet.DependencyInjection;
 using Microsoft.AspNet.Logging;
+using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Identity;
+using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
 namespace Microsoft.Data.Entity
@@ -17,7 +19,9 @@ namespace Microsoft.Data.Entity
             var services = EntityServices.GetDefaultServices().ToList();
 
             Assert.True(services.Any(sd => sd.ServiceType == typeof(ILoggerFactory)));
-            Assert.True(services.Any(sd => sd.ServiceType == typeof(IIdentityGenerator<Guid>)));
+            Assert.True(services.Any(sd => sd.ServiceType == typeof(IdentityGeneratorFactory)));
+            Assert.True(services.Any(sd => sd.ServiceType == typeof(ActiveIdentityGenerators)));
+            Assert.True(services.Any(sd => sd.ServiceType == typeof(ChangeTrackerFactory)));
         }
 
         [Fact]
@@ -25,8 +29,47 @@ namespace Microsoft.Data.Entity
         {
             var serviceProvider = new ServiceProvider().Add(EntityServices.GetDefaultServices());
 
-            Assert.NotNull(serviceProvider.GetService<ILoggerFactory>());
-            Assert.NotNull(serviceProvider.GetService<IIdentityGenerator<Guid>>());
+            var loggerFactory = serviceProvider.GetService<ILoggerFactory>();
+            Assert.NotNull(loggerFactory);
+
+            // TODO: Currently Singleton returns a new instance each time
+            //Assert.Same(loggerFactory, serviceProvider.GetService<ILoggerFactory>());
+
+            var identityGeneratorFactory = serviceProvider.GetService<IdentityGeneratorFactory>();
+            Assert.NotNull(identityGeneratorFactory);
+            // TODO: Currently Singleton returns a new instance each time
+            //Assert.Same(identityGeneratorFactory, serviceProvider.GetService<IdentityGeneratorFactory>());
+
+            var activeIdentityGenerators = serviceProvider.GetService<ActiveIdentityGenerators>();
+            Assert.NotNull(activeIdentityGenerators);
+            // TODO: Currently Singleton returns a new instance each time
+            //Assert.Same(activeIdentityGenerators, serviceProvider.GetService<ActiveIdentityGenerators>());
+
+            var changeTrackerFactory = serviceProvider.GetService<ChangeTrackerFactory>();
+            Assert.NotNull(changeTrackerFactory);
+            // TODO: Currently Scoped returns a new instance each time
+            //Assert.Same(changeTrackerFactory, serviceProvider.GetService<ChangeTrackerFactory>());
+
+            var scaoped = serviceProvider.GetService<IServiceProvider>();
+            Assert.NotNull(scaoped);
+
+            // TODO: Currently scoping not working
+            //Assert.Same(loggerFactory, scaoped.GetService<ILoggerFactory>());
+            //Assert.Same(identityGeneratorFactory, scaoped.GetService<IdentityGeneratorFactory>());
+            //Assert.Same(activeIdentityGenerators, scaoped.GetService<ActiveIdentityGenerators>());
+            Assert.NotSame(changeTrackerFactory, scaoped.GetService<ChangeTrackerFactory>());
+        }
+
+        [Fact]
+        public void ActiveIdentityGenerators_is_configured_with_IdentityGeneratorFactory()
+        {
+            var serviceProvider = new ServiceProvider().Add(EntityServices.GetDefaultServices());
+
+            var generators = serviceProvider.GetService<ActiveIdentityGenerators>();
+
+            var property = new Property("Foo", typeof(Guid)) { ValueGenerationStrategy = ValueGenerationStrategy.Client };
+
+            Assert.IsType<GuidIdentityGenerator>(generators.GetOrAdd(property));
         }
     }
 }

@@ -34,5 +34,10 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
         {
             get { return typeof(TEntity); }
         }
+
+        public ValueGenerationStrategy ValueGenerationStrategy
+        {
+            get { return ValueGenerationStrategy.None; }
+        }
     }
 }
