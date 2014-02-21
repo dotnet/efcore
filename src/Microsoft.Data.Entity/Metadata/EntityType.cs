@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
@@ -10,10 +11,10 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
+    [DebuggerDisplay("{Name},nq")]
     public class EntityType : MetadataBase, IEntityType
     {
         private readonly string _name;
-        private string _storageName;
         private readonly Type _type;
 
         private readonly LazyRef<ImmutableDictionary<string, Property>> _properties
@@ -22,7 +23,12 @@ namespace Microsoft.Data.Entity.Metadata
         private readonly LazyRef<ImmutableList<Property>> _keyProperties
             = new LazyRef<ImmutableList<Property>>(() => ImmutableList<Property>.Empty);
 
+        private readonly LazyRef<ImmutableList<ForeignKey>> _foreignKeys
+            = new LazyRef<ImmutableList<ForeignKey>>(() => ImmutableList<ForeignKey>.Empty);
+
         private readonly LazyRef<EntityKeyFactory> _keyFactory;
+
+        private string _storageName;
 
         /// <summary>
         ///     Creates a new metadata object representing an entity type associated with the given .NET type.
@@ -84,8 +90,26 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 Check.NotNull(value, "value");
 
-                _keyProperties.ExchangeValue(l => l.Clear().AddRange(value));
-                _properties.ExchangeValue(ps => ps.SetItems(value.ToDictionary(p => p.Name)));
+                _keyProperties.ExchangeValue(l => ImmutableList.CreateRange(value));
+                _properties.ExchangeValue(d => d.SetItems(value.ToDictionary(p => p.Name)));
+            }
+        }
+
+        public virtual void AddForeignKey([NotNull] ForeignKey foreignKey)
+        {
+            Check.NotNull(foreignKey, "foreignKey");
+
+            _foreignKeys.ExchangeValue(l => l.Add(foreignKey));
+            _properties.ExchangeValue(d => d.SetItems(foreignKey.Properties.ToDictionary(p => p.Name)));
+        }
+
+        public virtual IEnumerable<ForeignKey> ForeignKeys
+        {
+            get
+            {
+                return _foreignKeys.HasValue
+                    ? _foreignKeys.Value
+                    : Enumerable.Empty<ForeignKey>();
             }
         }
 
@@ -145,6 +169,11 @@ namespace Microsoft.Data.Entity.Metadata
         IEnumerable<IProperty> IEntityType.Properties
         {
             get { return Properties; }
+        }
+
+        IEnumerable<IForeignKey> IEntityType.ForeignKeys
+        {
+            get { return ForeignKeys; }
         }
 
         public EntityKey CreateEntityKey(object entity)

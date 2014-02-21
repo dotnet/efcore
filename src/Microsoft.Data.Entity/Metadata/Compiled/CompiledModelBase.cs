@@ -28,17 +28,17 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
             }
         }
 
-        public IEntityType Entity([NotNull] object instance)
+        public IEntityType EntityType([NotNull] object instance)
         {
-            return Entity(instance.GetType());
+            return EntityType(instance.GetType());
         }
 
-        public IEntityType Entity([NotNull] Type type)
+        public IEntityType EntityType([NotNull] Type type)
         {
-            return Entities.FirstOrDefault(e => e.Type == type);
+            return EntityTypes.FirstOrDefault(e => e.Type == type);
         }
 
-        public IEnumerable<IEntityType> Entities
+        public IEnumerable<IEntityType> EntityTypes
         {
             get { return LazyMetadata.Init(ref LazyEntities).EntityTypes; }
         }

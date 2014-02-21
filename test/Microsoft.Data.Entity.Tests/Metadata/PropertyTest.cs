@@ -12,9 +12,15 @@ namespace Microsoft.Data.Entity.Metadata
 
         public class Customer
         {
+            public static PropertyInfo IdProperty = typeof(Customer).GetProperty("Id");
             public static PropertyInfo NameProperty = typeof(Customer).GetProperty("Name");
+            public static PropertyInfo AgeProperty = typeof(Customer).GetProperty("Age");
+            public static PropertyInfo HashProperty = typeof(Customer).GetProperty("Hash");
 
+            public int Id { get; set; }
             public string Name { get; set; }
+            public byte? Age { get; set; }
+            public Guid Hash { get; set; }
         }
 
         #endregion
@@ -61,13 +67,14 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void Can_create_property()
+        public void Can_create_property_from_property_info()
         {
             var property = new Property(Customer.NameProperty);
 
             Assert.Equal("Name", property.Name);
             Assert.Same(typeof(Customer), property.DeclaringType);
             Assert.Same(typeof(string), property.PropertyType);
+            Assert.True(property.IsNullable);
         }
 
         [Fact]

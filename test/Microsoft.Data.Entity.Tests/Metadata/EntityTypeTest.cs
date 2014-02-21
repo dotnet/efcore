@@ -69,119 +69,157 @@ namespace Microsoft.Data.Entity.Metadata
         [Fact]
         public void Storage_name_defaults_to_name()
         {
-            var entity = new EntityType(typeof(Customer));
+            var entityType = new EntityType(typeof(Customer));
 
-            Assert.Equal("Customer", entity.StorageName);
+            Assert.Equal("Customer", entityType.StorageName);
         }
 
         [Fact]
         public void Storage_name_can_be_different_from_name()
         {
-            var entity = new EntityType(typeof(Customer)) { StorageName = "CustomerTable" };
+            var entityType = new EntityType(typeof(Customer)) { StorageName = "CustomerTable" };
 
-            Assert.Equal("CustomerTable", entity.StorageName);
+            Assert.Equal("CustomerTable", entityType.StorageName);
         }
 
         [Fact]
         public void Can_create_entity_type()
         {
-            var entity = new EntityType(typeof(Customer));
+            var entityType = new EntityType(typeof(Customer));
 
-            Assert.Equal("Customer", entity.Name);
-            Assert.Same(typeof(Customer), entity.Type);
+            Assert.Equal("Customer", entityType.Name);
+            Assert.Same(typeof(Customer), entityType.Type);
         }
 
         [Fact]
         public void Can_add_and_remove_properties()
         {
-            var entity = new EntityType(typeof(Customer));
+            var entityType = new EntityType(typeof(Customer));
 
             var property1 = new Property(Customer.IdProperty);
             var property2 = new Property(Customer.NameProperty);
 
-            entity.AddProperty(property1);
-            entity.AddProperty(property2);
+            entityType.AddProperty(property1);
+            entityType.AddProperty(property2);
 
-            Assert.True(new[] { property1, property2 }.SequenceEqual(entity.Properties));
+            Assert.True(new[] { property1, property2 }.SequenceEqual(entityType.Properties));
 
-            entity.RemoveProperty(property1);
+            entityType.RemoveProperty(property1);
 
-            Assert.True(new[] { property2 }.SequenceEqual(entity.Properties));
+            Assert.True(new[] { property2 }.SequenceEqual(entityType.Properties));
         }
 
         [Fact]
         public void Properties_are_ordered_by_name()
         {
-            var entity = new EntityType(typeof(Customer));
+            var entityType = new EntityType(typeof(Customer));
 
             var property1 = new Property(Customer.IdProperty);
             var property2 = new Property(Customer.NameProperty);
 
-            entity.AddProperty(property2);
-            entity.AddProperty(property1);
+            entityType.AddProperty(property2);
+            entityType.AddProperty(property1);
 
-            Assert.True(new[] { property1, property2 }.SequenceEqual(entity.Properties));
+            Assert.True(new[] { property1, property2 }.SequenceEqual(entityType.Properties));
         }
 
         [Fact]
         public void Can_set_and_reset_key()
         {
-            var entity = new EntityType(typeof(Customer));
+            var entityType = new EntityType(typeof(Customer));
 
             var property1 = new Property(Customer.IdProperty);
             var property2 = new Property(Customer.NameProperty);
 
-            entity.Key = new[] { property1, property2 };
+            entityType.Key = new[] { property1, property2 };
 
-            Assert.True(new[] { property1, property2 }.SequenceEqual(entity.Key));
-            Assert.True(new[] { property1, property2 }.SequenceEqual(entity.Properties));
+            Assert.True(new[] { property1, property2 }.SequenceEqual(entityType.Key));
+            Assert.True(new[] { property1, property2 }.SequenceEqual(entityType.Properties));
 
-            entity.RemoveProperty(property1);
+            entityType.RemoveProperty(property1);
 
-            Assert.True(new[] { property2 }.SequenceEqual(entity.Key));
-            Assert.True(new[] { property2 }.SequenceEqual(entity.Properties));
+            Assert.True(new[] { property2 }.SequenceEqual(entityType.Key));
+            Assert.True(new[] { property2 }.SequenceEqual(entityType.Properties));
 
-            entity.Key = new[] { property1 };
+            entityType.Key = new[] { property1 };
 
-            Assert.True(new[] { property1 }.SequenceEqual(entity.Key));
-            Assert.True(new[] { property1, property2 }.SequenceEqual(entity.Properties));
+            Assert.True(new[] { property1 }.SequenceEqual(entityType.Key));
+            Assert.True(new[] { property1, property2 }.SequenceEqual(entityType.Properties));
         }
 
         [Fact]
         public void Setting_key_properties_should_update_existing_properties()
         {
-            var entity = new EntityType(typeof(Customer));
+            var entityType = new EntityType(typeof(Customer));
 
-            entity.AddProperty(new Property(Customer.IdProperty));
+            entityType.AddProperty(new Property(Customer.IdProperty));
 
             var newIdProperty = new Property(Customer.IdProperty);
 
             var property2 = new Property(Customer.NameProperty);
 
-            entity.Key = new[] { newIdProperty, property2 };
+            entityType.Key = new[] { newIdProperty, property2 };
 
-            Assert.True(new[] { newIdProperty, property2 }.SequenceEqual(entity.Properties));
+            Assert.True(new[] { newIdProperty, property2 }.SequenceEqual(entityType.Properties));
         }
 
         [Fact]
         public void Can_clear_key()
         {
-            var entity = new EntityType(typeof(Customer));
+            var entityType = new EntityType(typeof(Customer));
 
             var property1 = new Property(Customer.IdProperty);
             var property2 = new Property(Customer.NameProperty);
 
-            entity.Key = new[] { property1, property2 };
+            entityType.Key = new[] { property1, property2 };
 
-            Assert.Equal(2, entity.Key.Count());
+            Assert.Equal(2, entityType.Key.Count());
 
-            entity.Key = new Property[] { };
+            entityType.Key = new Property[] { };
 
-            Assert.Equal(0, entity.Key.Count());
+            Assert.Equal(0, entityType.Key.Count());
         }
 
         [Fact]
-        public void Can_create_EntityKey_fopr_given_entity_instance()
+        public void Add_foreign_key()
+        {
+            var entityType = new EntityType(typeof(Customer));
+            var foreignKey = new ForeignKey(entityType, new[] { new Property(Customer.IdProperty) });
+
+            entityType.AddForeignKey(foreignKey);
+
+            Assert.True(entityType.ForeignKeys.Contains(foreignKey));
+        }
+
+        [Fact]
+        public void Adding_foreign_key_should_add_properties()
+        {
+            var entityType = new EntityType(typeof(Customer));
+            var idProperty = new Property(Customer.IdProperty);
+
+            entityType.AddForeignKey(new ForeignKey(entityType, new[] { idProperty }));
+
+            Assert.True(entityType.Properties.Contains(idProperty));
+        }
+
+        [Fact]
+        public void Setting_foreign_key_properties_should_update_existing_properties()
+        {
+            var entityType = new EntityType(typeof(Customer));
+
+            entityType.AddProperty(new Property(Customer.IdProperty));
+
+            var newIdProperty = new Property(Customer.IdProperty);
+
+            var property2 = new Property(Customer.NameProperty);
+
+            entityType.AddForeignKey(new ForeignKey(entityType, new[] { newIdProperty, property2 }));
+
+            Assert.True(new[] { newIdProperty, property2 }.SequenceEqual(entityType.Properties));
+        }
+
+        [Fact]
+        public void Can_create_EntityKey_given_entity_instance()
         {
             var entityType = new EntityType(typeof(Customer)) { Key = new[] { new Property(Customer.IdProperty) } };
 
