@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             // TODO: Consider what to do with derived types that are not explicitly in the model
 
-            var entityType = _model.Entity(entity);
+            var entityType = _model.EntityType(entity);
 
             if (entityType == null)
             {

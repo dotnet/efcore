@@ -22,14 +22,14 @@ namespace Microsoft.Data.Entity.Metadata
         public virtual EntityBuilder<T> Entity<T>()
         {
             var type = typeof(T);
-            var entityType = _model.Entity(type);
+            var entityType = _model.EntityType(type);
 
             if (entityType == null)
             {
-                _model.AddEntity(entityType = new EntityType(type));
+                _model.AddEntityType(entityType = new EntityType(type));
             }
 
-            return new EntityBuilder<T>(entityType);
+            return new EntityBuilder<T>(entityType, this);
         }
 
         public virtual ModelBuilder Annotation([NotNull] string annotation, [NotNull] string value)
@@ -47,10 +47,17 @@ namespace Microsoft.Data.Entity.Metadata
             where TMetadataBuilder : MetadataBuilder<TMetadata, TMetadataBuilder>
         {
             private readonly TMetadata _metadata;
+            private readonly ModelBuilder _modelBuilder;
 
             internal MetadataBuilder(TMetadata metadata)
+                : this(metadata, null)
+            {
+            }
+
+            internal MetadataBuilder(TMetadata metadata, ModelBuilder modelBuilder)
             {
                 _metadata = metadata;
+                _modelBuilder = modelBuilder;
             }
 
             public TMetadataBuilder Annotation([NotNull] string annotation, [NotNull] string value)
@@ -67,24 +74,43 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 get { return _metadata; }
             }
+
+            protected ModelBuilder ModelBuilder
+            {
+                get { return _modelBuilder; }
+            }
         }
 
         public class EntityBuilder<TEntity> : MetadataBuilder<EntityType, EntityBuilder<TEntity>>
         {
-            internal EntityBuilder(EntityType entityType)
-                : base(entityType)
+            internal EntityBuilder(EntityType entityType, ModelBuilder modelBuilder)
+                : base(entityType, modelBuilder)
             {
             }
 
-            public EntityBuilder<TEntity> Key<TKey>([NotNull] Expression<Func<TEntity, TKey>> keyExpression)
+            public EntityBuilder<TEntity> Key([NotNull] Expression<Func<TEntity, object>> keyExpression)
             {
                 Check.NotNull(keyExpression, "keyExpression");
 
-                var propertyInfos = keyExpression.GetPropertyAccessList();
-
                 Metadata.Key
-                    = propertyInfos
+                    = keyExpression.GetPropertyAccessList()
                         .Select(pi => Metadata.Property(pi.Name) ?? new Property(pi));
+
+                return this;
+            }
+
+            public EntityBuilder<TEntity> ForeignKey<TReferencedEntityType>(
+                [NotNull] Expression<Func<TEntity, object>> foreignKeyExpression)
+            {
+                Check.NotNull(foreignKeyExpression, "foreignKeyExpression");
+
+                var foreignKey
+                    = new ForeignKey(
+                        ModelBuilder.Entity<TReferencedEntityType>().Metadata,
+                        foreignKeyExpression.GetPropertyAccessList()
+                            .Select(pi => Metadata.Property(pi.Name) ?? new Property(pi)));
+
+                Metadata.AddForeignKey(foreignKey);
 
                 return this;
             }
@@ -117,7 +143,6 @@ namespace Microsoft.Data.Entity.Metadata
                 public virtual PropertyBuilder Property([NotNull] Expression<Func<TEntity, object>> propertyExpression)
                 {
                     var propertyInfo = propertyExpression.GetPropertyAccess();
-
                     var property = _entityType.Property(propertyInfo.Name);
 
                     if (property == null)

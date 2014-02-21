@@ -12,11 +12,18 @@ namespace Microsoft.Data.Entity.Metadata
 
         public class Customer
         {
-            public static PropertyInfo NameProperty
-                = typeof(Customer).GetProperty("Name");
+            public static PropertyInfo NameProperty = typeof(Customer).GetProperty("Name");
 
             public int Id { get; set; }
             public string Name { get; set; }
+        }
+
+        public class Order
+        {
+            public int OrderId { get; set; }
+
+            public int CustomerId { get; set; }
+            public Customer Customer { get; set; }
         }
 
         #endregion
@@ -30,7 +37,7 @@ namespace Microsoft.Data.Entity.Metadata
             var entityBuilder = modelBuilder.Entity<Customer>();
 
             Assert.NotNull(entityBuilder);
-            Assert.Equal("Customer", model.Entity(typeof(Customer)).Name);
+            Assert.Equal("Customer", model.EntityType(typeof(Customer)).Name);
         }
 
         [Fact]
@@ -41,7 +48,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             modelBuilder.Entity<Customer>().Key(e => e.Id);
 
-            var entity = model.Entity(typeof(Customer));
+            var entity = model.EntityType(typeof(Customer));
 
             Assert.Equal(1, entity.Key.Count());
             Assert.Equal("Id", entity.Key.First().Name);
@@ -57,7 +64,7 @@ namespace Microsoft.Data.Entity.Metadata
                 .Entity<Customer>()
                 .Key(e => new { e.Id, e.Name });
 
-            var entity = model.Entity(typeof(Customer));
+            var entity = model.EntityType(typeof(Customer));
 
             Assert.Equal(2, entity.Key.Count());
             Assert.Equal("Id", entity.Key.First().Name);
@@ -74,7 +81,7 @@ namespace Microsoft.Data.Entity.Metadata
                 .Entity<Customer>()
                 .Annotation("foo", "bar");
 
-            Assert.Equal("bar", model.Entity(typeof(Customer))["foo"]);
+            Assert.Equal("bar", model.EntityType(typeof(Customer))["foo"]);
         }
 
         [Fact]
@@ -87,7 +94,7 @@ namespace Microsoft.Data.Entity.Metadata
                 .Entity<Customer>()
                 .StorageName("foo");
 
-            Assert.Equal("foo", model.Entity(typeof(Customer)).StorageName);
+            Assert.Equal("foo", model.EntityType(typeof(Customer)).StorageName);
         }
 
         [Fact]
@@ -102,7 +109,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             Assert.Equal(
                 "bar",
-                model.Entity(typeof(Customer)).Property("Name")["foo"]);
+                model.EntityType(typeof(Customer)).Property("Name")["foo"]);
         }
 
         [Fact]
@@ -117,7 +124,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             Assert.Equal(
                 "foo",
-                model.Entity(typeof(Customer)).Property("Name").StorageName);
+                model.EntityType(typeof(Customer)).Property("Name").StorageName);
         }
 
         [Fact]
@@ -135,7 +142,18 @@ namespace Microsoft.Data.Entity.Metadata
                         ps.Property(c => c.Name).Annotation("foo", "bar");
                     });
 
-            Assert.Equal(2, model.Entity(typeof(Customer)).Properties.Count());
+            Assert.Equal(2, model.EntityType(typeof(Customer)).Properties.Count());
+        }
+
+        [Fact]
+        public void Can_add_foreign_key()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+
+            modelBuilder
+                .Entity<Order>()
+                .ForeignKey<Customer>(c => c.CustomerId);
         }
     }
 }

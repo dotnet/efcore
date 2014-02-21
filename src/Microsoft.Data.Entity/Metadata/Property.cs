@@ -1,29 +1,30 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using System.Diagnostics;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
+    [DebuggerDisplay("{PropertyType.Name,nq} {Name,nq}")]
     public class Property : MetadataBase, IProperty
     {
         private readonly string _name;
-        private string _storageName;
         private readonly Type _propertyType;
         private readonly Type _declaringType;
+
+        private string _storageName;
+        private bool _isNullable = true;
 
         /// <summary>
         ///     Creates a new metadata object representing a .NET property.
         /// </summary>
         /// <param name="propertyInfo">The .NET property that this metadata object represents.</param>
         public Property([NotNull] PropertyInfo propertyInfo)
+            : this(Check.NotNull(propertyInfo, "propertyInfo").Name, propertyInfo.PropertyType)
         {
-            Check.NotNull(propertyInfo, "propertyInfo");
-
-            _name = propertyInfo.Name;
-            _propertyType = propertyInfo.PropertyType;
             _declaringType = propertyInfo.DeclaringType;
         }
 
@@ -40,6 +41,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             _name = name;
             _propertyType = propertyType;
+            _isNullable = propertyType.IsNullableType();
         }
 
         public virtual string Name
@@ -67,6 +69,12 @@ namespace Microsoft.Data.Entity.Metadata
         public virtual Type DeclaringType
         {
             get { return _declaringType; }
+        }
+
+        public virtual bool IsNullable
+        {
+            get { return _isNullable; }
+            set { _isNullable = value; }
         }
 
         public virtual ValueGenerationStrategy ValueGenerationStrategy { get; [param: NotNull] set; }

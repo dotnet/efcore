@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -9,6 +10,15 @@ namespace Microsoft.Data.Entity.Utilities
 {
     public class TypeExtensionsTest
     {
+        [Fact]
+        public void IsNullableType_when_value_or_nullable_type()
+        {
+            Assert.True(typeof(string).IsNullableType());
+            Assert.False(typeof(int).IsNullableType());
+            Assert.False(typeof(Guid).IsNullableType());
+            Assert.True(typeof(int?).IsNullableType());
+        }
+
         [Fact]
         public void Element_type_should_return_element_type_from_sequence_type()
         {

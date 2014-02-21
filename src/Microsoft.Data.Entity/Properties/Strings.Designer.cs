@@ -19,6 +19,14 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
+        /// A circular model foreign key dependency was detected: {cycle}.
+        /// </summary>
+        internal static string CircularDependency(object cycle)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("CircularDependency", "cycle"), cycle);
+        }
+
+        /// <summary>
         /// The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.
         /// </summary>
         internal static string InvalidEnumValue(object argumentName, object enumType)
