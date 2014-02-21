@@ -7,18 +7,19 @@ namespace Microsoft.Data.Relational.Model
 {
     public class Column
     {
-        private readonly SchemaQualifiedName _name;
+        private readonly string _name;
         private string _dataType;
 
-        public Column(SchemaQualifiedName name, [NotNull] string dataType)
+        public Column([NotNull] string name, [NotNull] string dataType)
         {
+            Check.NotEmpty(name, "name");
             Check.NotEmpty(dataType, "dataType");
 
             _name = name;
             _dataType = dataType;
         }
 
-        public virtual SchemaQualifiedName Name
+        public virtual string Name
         {
             get { return _name; }
             [param: NotNull]

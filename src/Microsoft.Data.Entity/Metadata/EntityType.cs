@@ -147,7 +147,7 @@ namespace Microsoft.Data.Entity.Metadata
             get { return Properties; }
         }
 
-        public EntityKey CreateKey(object entity)
+        public EntityKey CreateEntityKey(object entity)
         {
             Check.NotNull(entity, "entity");
 
