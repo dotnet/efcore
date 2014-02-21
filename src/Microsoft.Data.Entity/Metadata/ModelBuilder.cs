@@ -98,6 +98,13 @@ namespace Microsoft.Data.Entity.Metadata
                 return this;
             }
 
+            public EntityBuilder<TEntity> StorageName([NotNull] string storageName)
+            {
+                Metadata.StorageName = storageName;
+
+                return this;
+            }
+
             public class PropertiesBuilder
             {
                 private readonly EntityType _entityType;
@@ -126,6 +133,13 @@ namespace Microsoft.Data.Entity.Metadata
                     internal PropertyBuilder(Property property)
                         : base(property)
                     {
+                    }
+
+                    public PropertyBuilder StorageName([NotNull] string storageName)
+                    {
+                        Metadata.StorageName = storageName;
+
+                        return this;
                     }
                 }
             }

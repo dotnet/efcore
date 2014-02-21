@@ -45,6 +45,10 @@
     <None Include="_project.json" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Microsoft.Data.Entity\Microsoft.Data.Entity.net45.csproj">
+      <Project>{71415CEC-8111-4C73-8751-512D22F10602}</Project>
+      <Name>Microsoft.Data.Entity.net45</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\Microsoft.Data.Relational\Microsoft.Data.Relational.net45.csproj">
       <Project>{75c5a774-a3f3-43eb-97d3-dbe0cf2825d8}</Project>
       <Name>Microsoft.Data.Relational.net45</Name>
@@ -55,6 +59,7 @@
       <Link>ApiConsistencyTestBase.cs</Link>
     </Compile>
     <Compile Include="ApiConsistencyTest.cs" />
+    <Compile Include="ApiExtensionsTest.cs" />
     <Compile Include="SchemaQualifiedNameTest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

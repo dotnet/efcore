@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(annotation, "annotation");
 
-            _annotations.ExchangeValue(l => l.Remove(annotation.Name));
+            _annotations.ExchangeValue(d => d.Remove(annotation.Name));
         }
 
 // ReSharper disable once AnnotationRedundanceInHierarchy
@@ -46,9 +46,8 @@ namespace Microsoft.Data.Entity.Metadata
                 Check.NotEmpty(annotationName, "annotationName");
                 Check.NotEmpty(value, "value");
 
-                _annotations.ExchangeValue(l => l.Remove(annotationName));
-
-                AddAnnotation(new Annotation(annotationName, value));
+                _annotations.ExchangeValue(
+                    d => d.SetItem(annotationName, new Annotation(annotationName, value)));
             }
         }
 

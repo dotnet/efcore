@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity.Metadata
             Assert.Equal(
                 "entity",
                 // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => entityType.CreateKey(null)).ParamName);
+                Assert.Throws<ArgumentNullException>(() => entityType.CreateEntityKey(null)).ParamName);
         }
 
         [Fact]
@@ -185,7 +185,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             var entityType = new EntityType(typeof(Customer)) { Key = new[] { new Property(Customer.IdProperty) } };
 
-            var key = entityType.CreateKey(new Customer { Id = 77 });
+            var key = entityType.CreateEntityKey(new Customer { Id = 77 });
 
             Assert.IsType<SimpleEntityKey<Customer, int>>(key);
             Assert.Equal(77, key.Value);
