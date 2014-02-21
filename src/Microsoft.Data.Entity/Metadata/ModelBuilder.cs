@@ -42,17 +42,38 @@ namespace Microsoft.Data.Entity.Metadata
             return this;
         }
 
-        public class EntityBuilder<TEntity>
+        public class MetadataBuilder<TMetadata, TMetadataBuilder>
+            where TMetadata : MetadataBase
+            where TMetadataBuilder : MetadataBuilder<TMetadata, TMetadataBuilder>
         {
-            private readonly EntityType _entityType;
+            private readonly TMetadata _metadata;
 
-            internal EntityBuilder()
+            internal MetadataBuilder(TMetadata metadata)
             {
+                _metadata = metadata;
             }
 
-            internal EntityBuilder(EntityType entityType)
+            public TMetadataBuilder Annotation([NotNull] string annotation, [NotNull] string value)
             {
-                _entityType = entityType;
+                Check.NotEmpty(annotation, "annotation");
+                Check.NotEmpty(value, "value");
+
+                _metadata[annotation] = value;
+
+                return (TMetadataBuilder)this;
+            }
+
+            protected TMetadata Metadata
+            {
+                get { return _metadata; }
+            }
+        }
+
+        public class EntityBuilder<TEntity> : MetadataBuilder<EntityType, EntityBuilder<TEntity>>
+        {
+            internal EntityBuilder(EntityType entityType)
+                : base(entityType)
+            {
             }
 
             public EntityBuilder<TEntity> Key<TKey>([NotNull] Expression<Func<TEntity, TKey>> keyExpression)
@@ -61,19 +82,9 @@ namespace Microsoft.Data.Entity.Metadata
 
                 var propertyInfos = keyExpression.GetPropertyAccessList();
 
-                _entityType.Key
+                Metadata.Key
                     = propertyInfos
-                        .Select(pi => _entityType.Property(pi.Name) ?? new Property(pi));
-
-                return this;
-            }
-
-            public EntityBuilder<TEntity> Annotation([NotNull] string annotation, [NotNull] string value)
-            {
-                Check.NotEmpty(annotation, "annotation");
-                Check.NotEmpty(value, "value");
-
-                _entityType[annotation] = value;
+                        .Select(pi => Metadata.Property(pi.Name) ?? new Property(pi));
 
                 return this;
             }
@@ -82,7 +93,7 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 Check.NotNull(propertiesBuilder, "propertiesBuilder");
 
-                propertiesBuilder(new PropertiesBuilder(_entityType));
+                propertiesBuilder(new PropertiesBuilder(Metadata));
 
                 return this;
             }
@@ -110,27 +121,11 @@ namespace Microsoft.Data.Entity.Metadata
                     return new PropertyBuilder(property);
                 }
 
-                public class PropertyBuilder
+                public class PropertyBuilder : MetadataBuilder<Property, PropertyBuilder>
                 {
-                    private readonly Property _property;
-
-                    internal PropertyBuilder()
-                    {
-                    }
-
                     internal PropertyBuilder(Property property)
+                        : base(property)
                     {
-                        _property = property;
-                    }
-
-                    public PropertyBuilder Annotation([NotNull] string annotation, [NotNull] string value)
-                    {
-                        Check.NotEmpty(annotation, "annotation");
-                        Check.NotEmpty(value, "value");
-
-                        _property[annotation] = value;
-
-                        return this;
                     }
                 }
             }
