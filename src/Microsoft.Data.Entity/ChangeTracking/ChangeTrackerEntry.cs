@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         public virtual EntityKey Key
         {
-            get { return _changeTracker.Model.Entity(_entity).CreateKey(_entity); }
+            get { return _changeTracker.Model.Entity(_entity).CreateEntityKey(_entity); }
         }
 
         public virtual EntityState EntityState

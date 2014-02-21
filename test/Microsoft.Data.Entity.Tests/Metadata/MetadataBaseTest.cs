@@ -55,6 +55,16 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
+        public void Add_duplicate_annotation_throws()
+        {
+            var metadataBase = new ConcreteMetadata();
+
+            metadataBase.AddAnnotation(new Annotation("Foo", "Bar"));
+
+            Assert.Throws<ArgumentException>(() => metadataBase.AddAnnotation(new Annotation("Foo", "Bar")));
+        }
+
+        [Fact]
         public void Can_remove_annotation()
         {
             var metadataBase = new ConcreteMetadata();
@@ -67,6 +77,8 @@ namespace Microsoft.Data.Entity.Metadata
             metadataBase.RemoveAnnotation(annotation);
 
             Assert.Null(metadataBase["Foo"]);
+
+            metadataBase.RemoveAnnotation(annotation); // no throw
         }
 
         [Fact]

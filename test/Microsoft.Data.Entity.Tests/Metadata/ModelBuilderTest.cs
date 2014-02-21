@@ -78,6 +78,19 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
+        public void Can_set_entity_storage_name()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+
+            modelBuilder
+                .Entity<Customer>()
+                .StorageName("foo");
+
+            Assert.Equal("foo", model.Entity(typeof(Customer)).StorageName);
+        }
+
+        [Fact]
         public void Can_set_property_annotation()
         {
             var model = new Model();
@@ -90,6 +103,21 @@ namespace Microsoft.Data.Entity.Metadata
             Assert.Equal(
                 "bar",
                 model.Entity(typeof(Customer)).Property("Name")["foo"]);
+        }
+
+        [Fact]
+        public void Can_set_property_storage_name()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+
+            modelBuilder
+                .Entity<Customer>()
+                .Properties(ps => ps.Property(c => c.Name).StorageName("foo"));
+
+            Assert.Equal(
+                "foo",
+                model.Entity(typeof(Customer)).Property("Name").StorageName);
         }
 
         [Fact]
