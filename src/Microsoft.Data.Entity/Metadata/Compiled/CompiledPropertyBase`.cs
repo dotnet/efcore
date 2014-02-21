@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
             }
         }
 
-        public Type Type
+        public Type PropertyType
         {
             get { return typeof(TProperty); }
         }

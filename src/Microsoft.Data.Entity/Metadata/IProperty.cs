@@ -9,7 +9,7 @@ namespace Microsoft.Data.Entity.Metadata
     {
         string Name { get; }
         string StorageName { get; }
-        Type Type { get; }
+        Type PropertyType { get; }
         Type DeclaringType { get; }
         void SetValue([NotNull] object instance, [CanBeNull] object value);
         object GetValue([NotNull] object instance);

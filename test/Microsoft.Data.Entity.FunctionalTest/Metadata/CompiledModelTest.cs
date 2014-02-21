@@ -43,8 +43,8 @@ namespace Microsoft.Data.Entity.Metadata
                 compiledModel.Entities.First().Properties.Select(p => p.StorageName)
                     .SequenceEqual(builtModel.Entities.First().Properties.Select(p => p.StorageName)));
             Assert.True(
-                compiledModel.Entities.First().Properties.Select(p => p.Type)
-                    .SequenceEqual(builtModel.Entities.First().Properties.Select(p => p.Type)));
+                compiledModel.Entities.First().Properties.Select(p => p.PropertyType)
+                    .SequenceEqual(builtModel.Entities.First().Properties.Select(p => p.PropertyType)));
             Assert.True(
                 compiledModel.Entities.First().Properties.Select(p => p.DeclaringType)
                     .SequenceEqual(builtModel.Entities.First().Properties.Select(p => p.DeclaringType)));

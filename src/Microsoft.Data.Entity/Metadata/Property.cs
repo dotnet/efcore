@@ -32,14 +32,14 @@ namespace Microsoft.Data.Entity.Metadata
         ///     such that there is no underlying .NET property corresponding to this metadata object.
         /// </summary>
         /// <param name="name">The name of the shadow-state property.</param>
-        /// <param name="type">The type of the shadow-state property.</param>
-        public Property([NotNull] string name, [NotNull] Type type)
+        /// <param name="propertyType">The type of the shadow-state property.</param>
+        public Property([NotNull] string name, [NotNull] Type propertyType)
         {
             Check.NotEmpty(name, "name");
-            Check.NotNull(type, "type");
+            Check.NotNull(propertyType, "propertyType");
 
             _name = name;
-            _propertyType = type;
+            _propertyType = propertyType;
         }
 
         public virtual string Name
@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        public virtual Type Type
+        public virtual Type PropertyType
         {
             get { return _propertyType; }
         }
