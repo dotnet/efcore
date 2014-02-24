@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata.Compiled;
 
@@ -215,15 +216,12 @@ namespace Microsoft.Data.Entity.Metadata
 
     // Proposed generated code below
 // ReSharper disable InconsistentNaming
-    public class _OneTwoThreeContextModel
-        : CompiledModelBase<_OneTwoThreeContextEntities, _OneTwoThreeContextAnnotations>, IModel
+    public class _OneTwoThreeContextModel : CompiledModel, IModel
     {
-    }
-
-    public class _OneTwoThreeContextEntities : CompiledEntitiesBase
-    {
-        public _OneTwoThreeContextEntities()
-            : base(
+        protected override IEntityType[] LoadEntityTypes()
+        {
+            return new IEntityType[]
+            {
                 new _KoolEntity1EntityType(),
                 new _KoolEntity10EntityType(),
                 new _KoolEntity11EntityType(),
@@ -273,23 +271,19 @@ namespace Microsoft.Data.Entity.Metadata
                 new _KoolEntity6EntityType(),
                 new _KoolEntity7EntityType(),
                 new _KoolEntity8EntityType(),
-                new _KoolEntity9EntityType())
-        {
+                new _KoolEntity9EntityType()
+            };
         }
-    }
 
-    public class _OneTwoThreeContextAnnotations : CompiledAnnotationsBase
-    {
-        public _OneTwoThreeContextAnnotations()
-            : base(
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
                 new[] { "ModelAnnotation1", "ModelAnnotation2" },
-                new[] { "ModelValue1", "ModelValue2" })
-        {
+                new[] { "ModelValue1", "ModelValue2" }).ToArray();
         }
     }
 
-    public class _KoolEntity1EntityType
-        : CompiledEntityBase<KoolEntity1, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+    public class _KoolEntity1EntityType : CompiledEntityType<KoolEntity1>, IEntityType
     {
         public string Name
         {
@@ -305,10 +299,26 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity1, int>(((KoolEntity1)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
-    public class _KoolEntity2EntityType
-        : CompiledEntityBase<KoolEntity2, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+    public class _KoolEntity2EntityType : CompiledEntityType<KoolEntity2>, IEntityType
     {
         public string Name
         {
@@ -324,10 +334,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity2, int>(((KoolEntity2)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity3EntityType
-        : CompiledEntityBase<KoolEntity3, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity3>, IEntityType
     {
         public string Name
         {
@@ -343,10 +370,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity3, int>(((KoolEntity3)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity4EntityType
-        : CompiledEntityBase<KoolEntity4, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity4>, IEntityType
     {
         public string Name
         {
@@ -362,10 +406,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity4, int>(((KoolEntity4)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity5EntityType
-        : CompiledEntityBase<KoolEntity5, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity5>, IEntityType
     {
         public string Name
         {
@@ -381,10 +442,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity5, int>(((KoolEntity5)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity6EntityType
-        : CompiledEntityBase<KoolEntity6, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity6>, IEntityType
     {
         public string Name
         {
@@ -400,10 +478,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity6, int>(((KoolEntity6)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity7EntityType
-        : CompiledEntityBase<KoolEntity7, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity7>, IEntityType
     {
         public string Name
         {
@@ -419,10 +514,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity7, int>(((KoolEntity7)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity8EntityType
-        : CompiledEntityBase<KoolEntity8, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity8>, IEntityType
     {
         public string Name
         {
@@ -438,10 +550,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity8, int>(((KoolEntity8)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity9EntityType
-        : CompiledEntityBase<KoolEntity9, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity9>, IEntityType
     {
         public string Name
         {
@@ -457,10 +586,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity9, int>(((KoolEntity9)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity10EntityType
-        : CompiledEntityBase<KoolEntity10, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity10>, IEntityType
     {
         public string Name
         {
@@ -476,10 +622,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity10, int>(((KoolEntity10)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity11EntityType
-        : CompiledEntityBase<KoolEntity11, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity11>, IEntityType
     {
         public string Name
         {
@@ -495,10 +658,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity11, int>(((KoolEntity11)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity12EntityType
-        : CompiledEntityBase<KoolEntity12, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity12>, IEntityType
     {
         public string Name
         {
@@ -514,10 +694,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity12, int>(((KoolEntity12)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity13EntityType
-        : CompiledEntityBase<KoolEntity13, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity13>, IEntityType
     {
         public string Name
         {
@@ -533,10 +730,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity13, int>(((KoolEntity13)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity14EntityType
-        : CompiledEntityBase<KoolEntity14, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity14>, IEntityType
     {
         public string Name
         {
@@ -552,10 +766,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity14, int>(((KoolEntity14)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity15EntityType
-        : CompiledEntityBase<KoolEntity15, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity15>, IEntityType
     {
         public string Name
         {
@@ -571,10 +802,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity15, int>(((KoolEntity15)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity16EntityType
-        : CompiledEntityBase<KoolEntity16, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity16>, IEntityType
     {
         public string Name
         {
@@ -590,10 +838,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity16, int>(((KoolEntity16)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity17EntityType
-        : CompiledEntityBase<KoolEntity17, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity17>, IEntityType
     {
         public string Name
         {
@@ -609,10 +874,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity17, int>(((KoolEntity17)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity18EntityType
-        : CompiledEntityBase<KoolEntity18, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity18>, IEntityType
     {
         public string Name
         {
@@ -628,10 +910,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity18, int>(((KoolEntity18)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity19EntityType
-        : CompiledEntityBase<KoolEntity19, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity19>, IEntityType
     {
         public string Name
         {
@@ -647,10 +946,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity19, int>(((KoolEntity19)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity20EntityType
-        : CompiledEntityBase<KoolEntity20, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity20>, IEntityType
     {
         public string Name
         {
@@ -666,10 +982,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity20, int>(((KoolEntity20)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity21EntityType
-        : CompiledEntityBase<KoolEntity21, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity21>, IEntityType
     {
         public string Name
         {
@@ -685,10 +1018,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity21, int>(((KoolEntity21)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity22EntityType
-        : CompiledEntityBase<KoolEntity22, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity22>, IEntityType
     {
         public string Name
         {
@@ -704,10 +1054,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity22, int>(((KoolEntity22)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity23EntityType
-        : CompiledEntityBase<KoolEntity23, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity23>, IEntityType
     {
         public string Name
         {
@@ -723,10 +1090,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity23, int>(((KoolEntity23)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity24EntityType
-        : CompiledEntityBase<KoolEntity24, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity24>, IEntityType
     {
         public string Name
         {
@@ -742,10 +1126,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity24, int>(((KoolEntity24)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity25EntityType
-        : CompiledEntityBase<KoolEntity25, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity25>, IEntityType
     {
         public string Name
         {
@@ -761,10 +1162,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity25, int>(((KoolEntity25)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity26EntityType
-        : CompiledEntityBase<KoolEntity26, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity26>, IEntityType
     {
         public string Name
         {
@@ -780,10 +1198,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity26, int>(((KoolEntity26)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity27EntityType
-        : CompiledEntityBase<KoolEntity27, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity27>, IEntityType
     {
         public string Name
         {
@@ -799,10 +1234,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity27, int>(((KoolEntity27)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity28EntityType
-        : CompiledEntityBase<KoolEntity28, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity28>, IEntityType
     {
         public string Name
         {
@@ -818,10 +1270,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity28, int>(((KoolEntity28)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity29EntityType
-        : CompiledEntityBase<KoolEntity29, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity29>, IEntityType
     {
         public string Name
         {
@@ -837,10 +1306,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity29, int>(((KoolEntity29)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity30EntityType
-        : CompiledEntityBase<KoolEntity30, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity30>, IEntityType
     {
         public string Name
         {
@@ -856,10 +1342,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity30, int>(((KoolEntity30)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity31EntityType
-        : CompiledEntityBase<KoolEntity31, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity31>, IEntityType
     {
         public string Name
         {
@@ -875,10 +1378,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity31, int>(((KoolEntity31)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity32EntityType
-        : CompiledEntityBase<KoolEntity32, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity32>, IEntityType
     {
         public string Name
         {
@@ -894,10 +1414,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity32, int>(((KoolEntity32)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity33EntityType
-        : CompiledEntityBase<KoolEntity33, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity33>, IEntityType
     {
         public string Name
         {
@@ -913,10 +1450,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity33, int>(((KoolEntity33)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity34EntityType
-        : CompiledEntityBase<KoolEntity34, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity34>, IEntityType
     {
         public string Name
         {
@@ -932,10 +1486,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity34, int>(((KoolEntity34)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity35EntityType
-        : CompiledEntityBase<KoolEntity35, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity35>, IEntityType
     {
         public string Name
         {
@@ -951,10 +1522,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity35, int>(((KoolEntity35)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity36EntityType
-        : CompiledEntityBase<KoolEntity36, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity36>, IEntityType
     {
         public string Name
         {
@@ -970,10 +1558,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity36, int>(((KoolEntity36)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity37EntityType
-        : CompiledEntityBase<KoolEntity37, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity37>, IEntityType
     {
         public string Name
         {
@@ -989,10 +1594,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity37, int>(((KoolEntity37)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity38EntityType
-        : CompiledEntityBase<KoolEntity38, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity38>, IEntityType
     {
         public string Name
         {
@@ -1008,10 +1630,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity38, int>(((KoolEntity38)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity39EntityType
-        : CompiledEntityBase<KoolEntity39, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity39>, IEntityType
     {
         public string Name
         {
@@ -1027,10 +1666,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity39, int>(((KoolEntity39)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity40EntityType
-        : CompiledEntityBase<KoolEntity40, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity40>, IEntityType
     {
         public string Name
         {
@@ -1046,10 +1702,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity40, int>(((KoolEntity40)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity41EntityType
-        : CompiledEntityBase<KoolEntity41, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity41>, IEntityType
     {
         public string Name
         {
@@ -1065,10 +1738,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity41, int>(((KoolEntity41)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity42EntityType
-        : CompiledEntityBase<KoolEntity42, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity42>, IEntityType
     {
         public string Name
         {
@@ -1084,10 +1774,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity42, int>(((KoolEntity42)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity43EntityType
-        : CompiledEntityBase<KoolEntity43, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity43>, IEntityType
     {
         public string Name
         {
@@ -1103,10 +1810,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity43, int>(((KoolEntity43)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity44EntityType
-        : CompiledEntityBase<KoolEntity44, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity44>, IEntityType
     {
         public string Name
         {
@@ -1122,10 +1846,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity44, int>(((KoolEntity44)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity45EntityType
-        : CompiledEntityBase<KoolEntity45, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity45>, IEntityType
     {
         public string Name
         {
@@ -1141,10 +1882,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity45, int>(((KoolEntity45)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity46EntityType
-        : CompiledEntityBase<KoolEntity46, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity46>, IEntityType
     {
         public string Name
         {
@@ -1160,10 +1918,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity46, int>(((KoolEntity46)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity47EntityType
-        : CompiledEntityBase<KoolEntity47, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity47>, IEntityType
     {
         public string Name
         {
@@ -1179,10 +1954,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity47, int>(((KoolEntity47)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity48EntityType
-        : CompiledEntityBase<KoolEntity48, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity48>, IEntityType
     {
         public string Name
         {
@@ -1198,10 +1990,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity48, int>(((KoolEntity48)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity49EntityType
-        : CompiledEntityBase<KoolEntity49, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity49>, IEntityType
     {
         public string Name
         {
@@ -1217,10 +2026,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity49, int>(((KoolEntity49)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     public class _KoolEntity50EntityType
-        : CompiledEntityBase<KoolEntity50, _KoolEntityProperties, _KoolEntityAnnotations>, IEntityType
+        : CompiledEntityType<KoolEntity50>, IEntityType
     {
         public string Name
         {
@@ -1236,6 +2062,23 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return new SimpleEntityKey<KoolEntity50, int>(((KoolEntity50)entity).Id);
         }
+
+        protected override int[] LoadKey()
+        {
+            return new[] { 2 };
+        }
+
+        protected override IProperty[] LoadProperties()
+        {
+            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Annotation1", "Annotation2" },
+                new[] { "Value1", "Value2" }).ToArray();
+        }
     }
 
     // The code below is shared by all entity types above to avoid having to have lots of hand-written
@@ -1243,26 +2086,7 @@ namespace Microsoft.Data.Entity.Metadata
     // heap memory usage, except that there will be more than the usual amount of string interning
     // due to the similarity of all entity types
 
-    public class _KoolEntityProperties : CompiledPropertiesBase
-    {
-        public _KoolEntityProperties()
-        {
-            Keys = new IProperty[] { new _KoolEntityIdProperty() };
-            Properties = new[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), Keys[0] };
-        }
-    }
-
-    public class _KoolEntityAnnotations : CompiledAnnotationsBase
-    {
-        public _KoolEntityAnnotations()
-            : base(
-                new[] { "Annotation1", "Annotation2" },
-                new[] { "Value1", "Value2" })
-        {
-        }
-    }
-
-    public class _KoolEntityIdProperty : CompiledPropertyBase<KoolEntityBase, int, _KoolEntityIdAnnotations>, IProperty
+    public class _KoolEntityIdProperty : CompiledProperty<KoolEntityBase, int>, IProperty
     {
         public string Name
         {
@@ -1283,19 +2107,16 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return ((KoolEntityBase)instance).Id;
         }
-    }
 
-    public class _KoolEntityIdAnnotations : CompiledAnnotationsBase
-    {
-        public _KoolEntityIdAnnotations()
-            : base(
-                new[] { "IdAnnotation1", "IdAnnotation2" },
-                new[] { "IdValue1", "IdValue2" })
+        protected override IAnnotation[] LoadAnnotations()
         {
+            return ZipAnnotations(
+                new[] { "IdAnnotation1", "IdAnnotation2" },
+                new[] { "IdValue1", "IdValue2" }).ToArray();
         }
     }
 
-    public class _KoolEntityFooProperty : CompiledPropertyBase<KoolEntityBase, string, _KoolEntityFooAnnotations>, IProperty
+    public class _KoolEntityFooProperty : CompiledProperty<KoolEntityBase, string>, IProperty
     {
         public string Name
         {
@@ -1316,19 +2137,16 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return ((KoolEntityBase)instance).Foo;
         }
-    }
 
-    public class _KoolEntityFooAnnotations : CompiledAnnotationsBase
-    {
-        public _KoolEntityFooAnnotations()
-            : base(
-                new[] { "FooAnnotation1", "FooAnnotation2" },
-                new[] { "FooValue1", "FooValue2" })
+        protected override IAnnotation[] LoadAnnotations()
         {
+            return ZipAnnotations(
+                new[] { "FooAnnotation1", "FooAnnotation2" },
+                new[] { "FooValue1", "FooValue2" }).ToArray();
         }
     }
 
-    public class _KoolEntityGooProperty : CompiledPropertyBase<KoolEntityBase, Guid>, IProperty
+    public class _KoolEntityGooProperty : CompiledPropertyNoAnnotations<KoolEntityBase, Guid>, IProperty
     {
         public string Name
         {

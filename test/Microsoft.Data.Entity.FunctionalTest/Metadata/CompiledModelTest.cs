@@ -104,16 +104,16 @@ namespace Microsoft.Data.Entity.Metadata
             }
 
             // Numbers are not 100% consistent due to other threads running and GC.GetTotalMemory not 
-            // necessarily returning an accurate number. At the time of checkin the numbers are:
+            // necessarily returning an accurate number. At the time of check in the numbers are:
             //
-            //  Compiled: 2168 (50)  Built: 4546256 (50) Ratio: 0.000476875917238273
-            //  Compiled: 10824 (100)  Built: 4547424 (100) Ratio: 0.0023802486858494
-            //  Compiled: 114112 (2500)  Built: 4549128 (2500) Ratio: 0.0250843678173048
-            //  Compiled: 127480 (150)  Built: 4550144 (150) Ratio: 0.0280166957353438
-            //  Compiled: 617904 (2500)  Built: 4552040 (2500) Ratio: 0.135742216676479
-            //  Compiled: 618296 (7500)  Built: 4553928 (7500) Ratio: 0.135772019232627
-            //  Compiled: 959032 (5000)  Built: 4555808 (5000) Ratio: 0.210507554313088
-            //  Compiled: 1640336 (10000)  Built: 4558264 (10000) Ratio: 0.359859806277127
+            //  Compiled: 2168 (50)  Built: 4546216 (50) Ratio: 0.000476880113043463
+            //  Compiled: 8360 (100)  Built: 4547384 (100) Ratio: 0.00183841962763646
+            //  Compiled: 130224 (2500)  Built: 4549088 (2500) Ratio: 0.0286263972031317
+            //  Compiled: 139768 (150)  Built: 4550104 (150) Ratio: 0.0307175396430499
+            //  Compiled: 553888 (2500)  Built: 4552000 (2500) Ratio: 0.12168014059754
+            //  Compiled: 554280 (7500)  Built: 4553888 (7500) Ratio: 0.121715773422623
+            //  Compiled: 834848 (5000)  Built: 4555768 (5000) Ratio: 0.183250771329883
+            //  Compiled: 1395816 (10000)  Built: 4558256 (10000) Ratio: 0.306217114615765
             //
             // Uncomment to get new numbers:
             //for (var i = 1; i < compiledMemory.Count; i++)
@@ -141,8 +141,8 @@ namespace Microsoft.Data.Entity.Metadata
                 Tuple.Create(-0.01, 0.01), // Model annotations
                 Tuple.Create(0.01, 0.06), // All entities
                 Tuple.Create(0.01, 0.06), // Properties from one entity
-                Tuple.Create(0.1, 0.3), // All keys
-                Tuple.Create(0.1, 0.3), // All properties
+                Tuple.Create(0.1, 0.2), // All keys
+                Tuple.Create(0.1, 0.2), // All properties
                 Tuple.Create(0.1, 0.3), // All entity annotations
                 Tuple.Create(0.2, 0.4) // All property annotations
             };
@@ -208,8 +208,7 @@ namespace Microsoft.Data.Entity.Metadata
                 entityType.AddAnnotation(new Annotation("Annotation1", "Value1"));
                 entityType.AddAnnotation(new Annotation("Annotation2", "Value2"));
 
-                var id = new Property(entityType.Type.GetProperty("Id"));
-                id.StorageName = "MyKey";
+                var id = new Property(entityType.Type.GetProperty("Id")) { StorageName = "MyKey" };
 
                 id.AddAnnotation(new Annotation("IdAnnotation1", "IdValue1"));
                 id.AddAnnotation(new Annotation("IdAnnotation2", "IdValue2"));

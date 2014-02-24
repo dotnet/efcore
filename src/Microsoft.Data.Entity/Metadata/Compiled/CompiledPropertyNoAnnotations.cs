@@ -8,7 +8,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Compiled
 {
-    public class CompiledPropertyBase<TEntity, TProperty>
+    public class CompiledPropertyNoAnnotations<TEntity, TProperty>
     {
         public IEnumerable<IAnnotation> Annotations
         {
