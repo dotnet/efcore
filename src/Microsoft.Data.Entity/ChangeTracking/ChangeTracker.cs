@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             // TODO: Error checking for type that is not in the model
             // TODO: Error checking for different entity instance with same key
 
-            var key = _model.Entity(entity).CreateEntityKey(entity);
+            var key = _model.EntityType(entity).CreateEntityKey(entity);
 
             ChangeTrackerEntry entry;
             return _identityMap.TryGetValue(key, out entry) ? entry : null;

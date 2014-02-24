@@ -120,6 +120,9 @@
   <data name="ArgumentIsEmpty" xml:space="preserve">
     <value>The string argument '{argumentName}' cannot be empty.</value>
   </data>
+  <data name="CircularDependency" xml:space="preserve">
+    <value>A circular model foreign key dependency was detected: {cycle}.</value>
+  </data>
   <data name="InvalidEnumValue" xml:space="preserve">
     <value>The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.</value>
   </data>

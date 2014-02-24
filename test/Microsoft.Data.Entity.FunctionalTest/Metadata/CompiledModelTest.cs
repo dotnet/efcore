@@ -24,52 +24,52 @@ namespace Microsoft.Data.Entity.Metadata
                     .SequenceEqual(builtModel.Annotations.Select(a => a.Value)));
 
             Assert.True(
-                compiledModel.Entities.Select(e => e.Name)
-                    .SequenceEqual(builtModel.Entities.Select(a => a.Name)));
+                compiledModel.EntityTypes.Select(e => e.Name)
+                    .SequenceEqual(builtModel.EntityTypes.Select(a => a.Name)));
             Assert.True(
-                compiledModel.Entities.Select(e => e.StorageName)
-                    .SequenceEqual(builtModel.Entities.Select(a => a.StorageName)));
+                compiledModel.EntityTypes.Select(e => e.StorageName)
+                    .SequenceEqual(builtModel.EntityTypes.Select(a => a.StorageName)));
             Assert.True(
-                compiledModel.Entities.Select(e => e.Type)
-                    .SequenceEqual(builtModel.Entities.Select(a => a.Type)));
+                compiledModel.EntityTypes.Select(e => e.Type)
+                    .SequenceEqual(builtModel.EntityTypes.Select(a => a.Type)));
 
             Assert.True(
-                compiledModel.Entities.First().Key.Select(p => p.Name)
-                    .SequenceEqual(builtModel.Entities.First().Key.Select(p => p.Name)));
+                compiledModel.EntityTypes.First().Key.Select(p => p.Name)
+                    .SequenceEqual(builtModel.EntityTypes.First().Key.Select(p => p.Name)));
 
             Assert.True(
-                compiledModel.Entities.First().Properties.Select(p => p.Name)
-                    .SequenceEqual(builtModel.Entities.First().Properties.Select(p => p.Name)));
+                compiledModel.EntityTypes.First().Properties.Select(p => p.Name)
+                    .SequenceEqual(builtModel.EntityTypes.First().Properties.Select(p => p.Name)));
             Assert.True(
-                compiledModel.Entities.First().Properties.Select(p => p.StorageName)
-                    .SequenceEqual(builtModel.Entities.First().Properties.Select(p => p.StorageName)));
+                compiledModel.EntityTypes.First().Properties.Select(p => p.StorageName)
+                    .SequenceEqual(builtModel.EntityTypes.First().Properties.Select(p => p.StorageName)));
             Assert.True(
-                compiledModel.Entities.First().Properties.Select(p => p.PropertyType)
-                    .SequenceEqual(builtModel.Entities.First().Properties.Select(p => p.PropertyType)));
+                compiledModel.EntityTypes.First().Properties.Select(p => p.PropertyType)
+                    .SequenceEqual(builtModel.EntityTypes.First().Properties.Select(p => p.PropertyType)));
             Assert.True(
-                compiledModel.Entities.First().Properties.Select(p => p.DeclaringType)
-                    .SequenceEqual(builtModel.Entities.First().Properties.Select(p => p.DeclaringType)));
+                compiledModel.EntityTypes.First().Properties.Select(p => p.DeclaringType)
+                    .SequenceEqual(builtModel.EntityTypes.First().Properties.Select(p => p.DeclaringType)));
 
             Assert.True(
-                compiledModel.Entities.SelectMany(p => p.Annotations).Select(p => p.Name)
-                    .SequenceEqual(builtModel.Entities.SelectMany(p => p.Annotations).Select(p => p.Name)));
+                compiledModel.EntityTypes.SelectMany(p => p.Annotations).Select(p => p.Name)
+                    .SequenceEqual(builtModel.EntityTypes.SelectMany(p => p.Annotations).Select(p => p.Name)));
             Assert.True(
-                compiledModel.Entities.SelectMany(p => p.Annotations).Select(p => p.Value)
-                    .SequenceEqual(builtModel.Entities.SelectMany(p => p.Annotations).Select(p => p.Value)));
+                compiledModel.EntityTypes.SelectMany(p => p.Annotations).Select(p => p.Value)
+                    .SequenceEqual(builtModel.EntityTypes.SelectMany(p => p.Annotations).Select(p => p.Value)));
 
             Assert.True(
-                compiledModel.Entities.First().Properties.SelectMany(p => p.Annotations).Select(p => p.Name)
-                    .SequenceEqual(builtModel.Entities.First().Properties.SelectMany(p => p.Annotations).Select(p => p.Name)));
+                compiledModel.EntityTypes.First().Properties.SelectMany(p => p.Annotations).Select(p => p.Name)
+                    .SequenceEqual(builtModel.EntityTypes.First().Properties.SelectMany(p => p.Annotations).Select(p => p.Name)));
             Assert.True(
-                compiledModel.Entities.First().Properties.SelectMany(p => p.Annotations).Select(p => p.Value)
-                    .SequenceEqual(builtModel.Entities.First().Properties.SelectMany(p => p.Annotations).Select(p => p.Value)));
+                compiledModel.EntityTypes.First().Properties.SelectMany(p => p.Annotations).Select(p => p.Value)
+                    .SequenceEqual(builtModel.EntityTypes.First().Properties.SelectMany(p => p.Annotations).Select(p => p.Value)));
         }
 
         [Fact]
         public void Property_values_can_be_read_and_set_using_compiled_metadata_without_reflection()
         {
             var entity = new KoolEntity15();
-            var property = new _OneTwoThreeContextModel().Entity(entity).Property("Id");
+            var property = new _OneTwoThreeContextModel().EntityType(entity).Property("Id");
 
             Assert.Equal(0, property.GetValue(entity));
             property.SetValue(entity, 777);
@@ -80,7 +80,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void EntityKeys_can_be_obtained_from_compiled_metadata_without_reflection()
         {
             var entity = new KoolEntity27 { Id = 77 };
-            var key = new _OneTwoThreeContextModel().Entity(entity).CreateEntityKey(entity);
+            var key = new _OneTwoThreeContextModel().EntityType(entity).CreateEntityKey(entity);
 
             Assert.IsType<SimpleEntityKey<KoolEntity27, int>>(key);
             Assert.Equal(77, key.Value);
@@ -171,7 +171,7 @@ namespace Microsoft.Data.Entity.Metadata
             var annotations = models.SelectMany(m => m.Annotations);
             memory.Add(Tuple.Create(annotations.Count(), GetMemory()));
 
-            var entities = models.SelectMany(m => m.Entities);
+            var entities = models.SelectMany(m => m.EntityTypes);
             memory.Add(Tuple.Create(entities.Count(), GetMemory()));
 
             var propertiesOneEntity = entities.Where(e => e.Type == typeof(KoolEntity9)).SelectMany(e => e.Properties);
@@ -228,7 +228,7 @@ namespace Microsoft.Data.Entity.Metadata
 
                 entityType.AddProperty(goo);
 
-                model.AddEntity(entityType);
+                model.AddEntityType(entityType);
             }
 
             return model;

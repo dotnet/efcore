@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             _entity = entity;
 
             // TODO: Possible perf--avoid counting properties here or even create lazily
-            _propertyStates = new BitArray(_changeTracker.Model.Entity(_entity).Properties.Count());
+            _propertyStates = new BitArray(_changeTracker.Model.EntityType(_entity).Properties.Count());
         }
 
         public virtual object Entity
@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         public virtual EntityKey Key
         {
-            get { return _changeTracker.Model.Entity(_entity).CreateEntityKey(_entity); }
+            get { return _changeTracker.Model.EntityType(_entity).CreateEntityKey(_entity); }
         }
 
         public virtual EntityState EntityState
@@ -85,7 +85,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             // TODO: Possible perf--make it faster to find the index for a property
             var index = 0;
-            var enumerator = _changeTracker.Model.Entity(_entity).Properties.GetEnumerator();
+            var enumerator = _changeTracker.Model.EntityType(_entity).Properties.GetEnumerator();
             while (enumerator.MoveNext()
                    && enumerator.Current.Name != property)
             {

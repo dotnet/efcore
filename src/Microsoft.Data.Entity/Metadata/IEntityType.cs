@@ -15,6 +15,7 @@ namespace Microsoft.Data.Entity.Metadata
         IEnumerable<IProperty> Key { get; }
         IProperty Property([NotNull] string name);
         IEnumerable<IProperty> Properties { get; }
+        IEnumerable<IForeignKey> ForeignKeys { get; }
         EntityKey CreateEntityKey([NotNull] object entity);
     }
 }

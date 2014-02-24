@@ -14,28 +14,28 @@ namespace Microsoft.Data.Entity.Metadata
         private readonly LazyRef<ImmutableDictionary<Type, EntityType>> _entities
             = new LazyRef<ImmutableDictionary<Type, EntityType>>(() => ImmutableDictionary<Type, EntityType>.Empty);
 
-        public virtual void AddEntity([NotNull] EntityType entityType)
+        public virtual void AddEntityType([NotNull] EntityType entityType)
         {
             Check.NotNull(entityType, "entityType");
 
             _entities.ExchangeValue(d => d.Add(entityType.Type, entityType));
         }
 
-        public virtual void RemoveEntity([NotNull] EntityType entityType)
+        public virtual void RemoveEntityType([NotNull] EntityType entityType)
         {
             Check.NotNull(entityType, "entityType");
 
             _entities.ExchangeValue(l => l.Remove(entityType.Type));
         }
 
-        public virtual EntityType Entity([NotNull] object instance)
+        public virtual EntityType EntityType([NotNull] object instance)
         {
             Check.NotNull(instance, "instance");
 
-            return Entity(instance.GetType());
+            return EntityType(instance.GetType());
         }
 
-        public virtual EntityType Entity([NotNull] Type type)
+        public virtual EntityType EntityType([NotNull] Type type)
         {
             Check.NotNull(type, "type");
 
@@ -56,17 +56,68 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        IEntityType IModel.Entity(object instance)
+        public virtual IEnumerable<IEntityType> TopologicalSort()
         {
-            return Entity(instance);
+            if (!_entities.HasValue)
+            {
+                return Enumerable.Empty<IEntityType>();
+            }
+
+            var sorted = new List<IEntityType>();
+            var visiting = new HashSet<IEntityType>();
+            var visited = new HashSet<IEntityType>();
+
+            foreach (var entityType in Entities)
+            {
+                TopologicalSortVisit(entityType, sorted, visiting, visited);
+            }
+
+            return sorted;
         }
 
-        IEntityType IModel.Entity(Type type)
+        private static void TopologicalSortVisit(
+            IEntityType entityType, 
+            ICollection<IEntityType> sorted,
+            ISet<IEntityType> visiting, 
+            ISet<IEntityType> visited)
         {
-            return Entity(type);
+            if (visiting.Contains(entityType)) // TODO: Support cycle-breaking in UP?
+            {
+                throw new InvalidOperationException(
+                    Strings.CircularDependency(
+                        visiting
+                            .Concat(new[] { entityType })
+                            .Select(et => et.Name).Join(" -> ")));
+            }
+
+            if (visited.Contains(entityType))
+            {
+                return;
+            }
+
+            visited.Add(entityType);
+            visiting.Add(entityType);
+
+            foreach (var predecessor in entityType.ForeignKeys.Select(fk => fk.ReferencedEntityType))
+            {
+                TopologicalSortVisit(predecessor, sorted, visiting, visited);
+            }
+
+            visiting.Remove(entityType);
+            sorted.Add(entityType);
         }
 
-        IEnumerable<IEntityType> IModel.Entities
+        IEntityType IModel.EntityType(object instance)
+        {
+            return EntityType(instance);
+        }
+
+        IEntityType IModel.EntityType(Type type)
+        {
+            return EntityType(type);
+        }
+
+        IEnumerable<IEntityType> IModel.EntityTypes
         {
             get { return Entities; }
         }

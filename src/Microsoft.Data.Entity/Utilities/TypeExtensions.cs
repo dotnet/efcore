@@ -28,6 +28,17 @@ namespace Microsoft.Data.Entity.Utilities
             return type;
         }
 
+        public static bool IsNullableType([NotNull] this Type type)
+        {
+            Check.NotNull(type, "type");
+
+            var typeInfo = type.GetTypeInfo();
+
+            return !typeInfo.IsValueType
+                   || (typeInfo.IsGenericType
+                       && typeInfo.GetGenericTypeDefinition() == typeof(Nullable<>));
+        }
+
         public static PropertyInfo GetAnyProperty(this Type type, string name)
         {
             var props = type.GetRuntimeProperties().Where(p => p.Name == name).ToList();

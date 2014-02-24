@@ -47,5 +47,10 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
         {
             get { return LazyMetadata.Init(ref LazyProperties).Properties; }
         }
+
+        public IEnumerable<IForeignKey> ForeignKeys
+        {
+            get { return null; }
+        }
     }
 }
