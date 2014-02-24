@@ -10,14 +10,14 @@ namespace Microsoft.Data.InMemory
     {
         private static long _current;
 
-        public Task<long> NextAsync()
+        public Task<long> NextAsync(CancellationToken cancellationToken)
         {
             return Task.FromResult(Interlocked.Increment(ref _current));
         }
 
-        async Task<object> IIdentityGenerator.NextAsync()
+        async Task<object> IIdentityGenerator.NextAsync(CancellationToken cancellationToken)
         {
-            return await NextAsync();
+            return await NextAsync(cancellationToken);
         }
     }
 }

@@ -15,8 +15,7 @@ namespace Microsoft.Data.SqlServer
         {
             var services = SqlServerServices.GetDefaultServices().ToList();
 
-            Assert.True(services.Any(sd => sd.ServiceType == typeof(IIdentityGenerator<Guid>)));
-            Assert.True(services.Any(sd => sd.ServiceType == typeof(IIdentityGenerator<long>)));
+            Assert.True(services.Any(sd => sd.ServiceType == typeof(IdentityGeneratorFactory)));
         }
 
         [Fact]
@@ -24,8 +23,7 @@ namespace Microsoft.Data.SqlServer
         {
             var serviceProvider = new ServiceProvider().Add(SqlServerServices.GetDefaultServices());
 
-            Assert.NotNull(serviceProvider.GetService<IIdentityGenerator<long>>());
-            Assert.NotNull(serviceProvider.GetService<IIdentityGenerator<Guid>>());
+            Assert.NotNull(serviceProvider.GetService<IdentityGeneratorFactory>());
         }
     }
 }

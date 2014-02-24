@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Relational;
 
@@ -61,11 +62,11 @@ namespace Microsoft.Data.SqlServer
             get { return _connection; }
         }
 
-        public async Task<T> ExecuteScalarAsync<T>(string sql, params object[] parameters)
+        public async Task<T> ExecuteScalarAsync<T>(string sql, CancellationToken cancellationToken, params object[] parameters)
         {
             using (var command = CreateCommand(sql, parameters))
             {
-                return (T)await command.ExecuteScalarAsync();
+                return (T)await command.ExecuteScalarAsync(cancellationToken);
             }
         }
 

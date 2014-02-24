@@ -13,5 +13,6 @@ namespace Microsoft.Data.Entity.Metadata
         Type DeclaringType { get; }
         void SetValue([NotNull] object instance, [CanBeNull] object value);
         object GetValue([NotNull] object instance);
+        ValueGenerationStrategy ValueGenerationStrategy { get; }
     }
 }

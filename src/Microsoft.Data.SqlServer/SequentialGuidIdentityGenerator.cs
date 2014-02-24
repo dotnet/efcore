@@ -16,7 +16,7 @@ namespace Microsoft.Data.SqlServer
             _counter = DateTime.UtcNow.Ticks;
         }
 
-        public Task<Guid> NextAsync()
+        public Task<Guid> NextAsync(CancellationToken cancellationToken)
         {
             var guidBytes = Guid.NewGuid().ToByteArray();
             var counterBytes = BitConverter.GetBytes(Interlocked.Increment(ref _counter));
@@ -38,9 +38,9 @@ namespace Microsoft.Data.SqlServer
             return Task.FromResult(new Guid(guidBytes));
         }
 
-        async Task<object> IIdentityGenerator.NextAsync()
+        async Task<object> IIdentityGenerator.NextAsync(CancellationToken cancellationToken)
         {
-            return await NextAsync();
+            return await NextAsync(cancellationToken);
         }
     }
 }

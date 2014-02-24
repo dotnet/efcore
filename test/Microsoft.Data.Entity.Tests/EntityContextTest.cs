@@ -1,8 +1,10 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using System.Threading;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
@@ -26,7 +28,8 @@ namespace Microsoft.Data.Entity
                 Assert.Equal(
                     "entity",
                     // ReSharper disable once AssignNullToNotNullAttribute
-                    Assert.Throws<ArgumentNullException>(() => context.AddAsync<Random>(null, new CancellationToken())).ParamName);
+                    Assert.Throws<ArgumentNullException>(
+                        () => context.AddAsync<Random>(null, new CancellationToken()).GetAwaiter().GetResult()).ParamName);
 
                 Assert.Equal(
                     "entity",
@@ -81,10 +84,7 @@ namespace Microsoft.Data.Entity
             Func<EntityContext, Category, Category> categoryAdder,
             Func<EntityContext, Product, Product> productAdder, EntityState expectedState)
         {
-            var model = BuildModel();
-            var config = new EntityConfiguration { ChangeTracker = new ChangeTracker(model), Model = model };
-
-            using (var context = new EntityContext(config))
+            using (var context = new EntityContext(new EntityConfiguration()) { Model = BuildModel() })
             {
                 var category1 = new Category { Id = 1, Name = "Beverages" };
                 var category2 = new Category { Id = 2, Name = "Foods" };
@@ -114,6 +114,42 @@ namespace Microsoft.Data.Entity
             }
         }
 
+        [Fact]
+        public void Can_add_new_entities_to_context_with_key_generation()
+        {
+            TrackEntitiesWithKeyGenerationTest((c, e) => c.Add(e));
+        }
+
+        [Fact]
+        public void Can_add_new_entities_to_context_with_key_generation_async()
+        {
+            TrackEntitiesWithKeyGenerationTest((c, e) => c.AddAsync(e).Result);
+            TrackEntitiesWithKeyGenerationTest((c, e) => c.AddAsync(e, new CancellationToken()).Result);
+        }
+
+        private void TrackEntitiesWithKeyGenerationTest(Func<EntityContext, TheGu, TheGu> adder)
+        {
+            using (var context = new EntityContext(new EntityConfiguration()) { Model = BuildModel() })
+            {
+                var gu1 = new TheGu { ShirtColor = "Red" };
+                var gu2 = new TheGu { ShirtColor = "Still Red" };
+
+                Assert.Same(gu1, adder(context, gu1));
+                Assert.Same(gu2, adder(context, gu2));
+                Assert.NotEqual(default(Guid), gu1.Id);
+                Assert.NotEqual(default(Guid), gu2.Id);
+                Assert.NotEqual(gu1.Id, gu2.Id);
+
+                var categoryEntry = context.ChangeTracker.Entry(gu1);
+                Assert.Same(gu1, categoryEntry.Entity);
+                Assert.Equal(EntityState.Added, categoryEntry.State);
+
+                categoryEntry = context.ChangeTracker.Entry(gu2);
+                Assert.Same(gu2, categoryEntry.Entity);
+                Assert.Equal(EntityState.Added, categoryEntry.State);
+            }
+        }
+
         #region Fixture
 
         public class Category
@@ -127,6 +163,12 @@ namespace Microsoft.Data.Entity
             public int Id { get; set; }
             public string Name { get; set; }
             public decimal Price { get; set; }
+        }
+
+        public class TheGu
+        {
+            public Guid Id { get; set; }
+            public string ShirtColor { get; set; }
         }
 
         private static IModel BuildModel()
@@ -152,6 +194,17 @@ namespace Microsoft.Data.Entity
                         pb.Property(c => c.Name);
                         pb.Property(c => c.Price);
                     });
+
+            builder.Entity<TheGu>()
+                .Key(e => e.Id)
+                .Properties(
+                    pb =>
+                    {
+                        pb.Property(c => c.Id);
+                        pb.Property(c => c.ShirtColor);
+                    });
+
+            model.Entity(typeof(TheGu)).Key.Single().ValueGenerationStrategy = ValueGenerationStrategy.Client;
 
             return model;
         }

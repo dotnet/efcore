@@ -37,6 +37,9 @@
     <Reference Include="Microsoft.AspNet.Logging">
       <HintPath>..\..\packages\Microsoft.AspNet.Logging.0.1-alpha-022\lib\net45\Microsoft.AspNet.Logging.dll</HintPath>
     </Reference>
+    <Reference Include="Moq">
+      <HintPath>..\..\packages\Moq.4.2.1312.1622\lib\net40\Moq.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="xunit, Version=1.9.2.1705, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
