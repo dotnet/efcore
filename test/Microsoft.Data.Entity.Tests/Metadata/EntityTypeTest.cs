@@ -3,7 +3,6 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using Microsoft.Data.Entity.ChangeTracking;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Metadata
@@ -59,11 +58,6 @@ namespace Microsoft.Data.Entity.Metadata
             Assert.Equal(
                 Strings.ArgumentIsEmpty("name"),
                 Assert.Throws<ArgumentException>(() => entityType.Property("")).Message);
-
-            Assert.Equal(
-                "entity",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => entityType.CreateEntityKey(null)).ParamName);
         }
 
         [Fact]
@@ -216,17 +210,6 @@ namespace Microsoft.Data.Entity.Metadata
             entityType.AddForeignKey(new ForeignKey(entityType, new[] { newIdProperty, property2 }));
 
             Assert.True(new[] { newIdProperty, property2 }.SequenceEqual(entityType.Properties));
-        }
-
-        [Fact]
-        public void Can_create_EntityKey_given_entity_instance()
-        {
-            var entityType = new EntityType(typeof(Customer)) { Key = new[] { new Property(Customer.IdProperty) } };
-
-            var key = entityType.CreateEntityKey(new Customer { Id = 77 });
-
-            Assert.IsType<SimpleEntityKey<Customer, int>>(key);
-            Assert.Equal(77, key.Value);
         }
     }
 }

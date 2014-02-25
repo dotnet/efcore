@@ -14,6 +14,13 @@ namespace Microsoft.Data.Entity.Metadata
         private readonly LazyRef<ImmutableDictionary<Type, EntityType>> _entities
             = new LazyRef<ImmutableDictionary<Type, EntityType>>(() => ImmutableDictionary<Type, EntityType>.Empty);
 
+        private readonly LazyRef<IEqualityComparer<object>> _entityEqualityComparer;
+
+        public Model()
+        {
+            _entityEqualityComparer = new LazyRef<IEqualityComparer<object>>(() => new EntityEqualityComparer(this));
+        }
+
         public virtual void AddEntityType([NotNull] EntityType entityType)
         {
             Check.NotNull(entityType, "entityType");
@@ -54,6 +61,11 @@ namespace Microsoft.Data.Entity.Metadata
                     ? _entities.Value.Values.OrderByOrdinal(e => e.Name)
                     : Enumerable.Empty<EntityType>();
             }
+        }
+
+        public virtual IEqualityComparer<object> EntityEqualityComparer
+        {
+            get { return _entityEqualityComparer.Value; }
         }
 
         public virtual IEnumerable<IEntityType> TopologicalSort()

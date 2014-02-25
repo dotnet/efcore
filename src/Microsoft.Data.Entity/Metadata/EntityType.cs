@@ -6,7 +6,6 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
@@ -26,8 +25,6 @@ namespace Microsoft.Data.Entity.Metadata
         private readonly LazyRef<ImmutableList<ForeignKey>> _foreignKeys
             = new LazyRef<ImmutableList<ForeignKey>>(() => ImmutableList<ForeignKey>.Empty);
 
-        private readonly LazyRef<EntityKeyFactory> _keyFactory;
-
         private string _storageName;
 
         /// <summary>
@@ -40,7 +37,6 @@ namespace Microsoft.Data.Entity.Metadata
 
             _name = type.Name;
             _type = type;
-            _keyFactory = new LazyRef<EntityKeyFactory>(() => new EntityKeyFactoryFactory().Create(this));
         }
 
         /// <summary>
@@ -174,13 +170,6 @@ namespace Microsoft.Data.Entity.Metadata
         IEnumerable<IForeignKey> IEntityType.ForeignKeys
         {
             get { return ForeignKeys; }
-        }
-
-        public EntityKey CreateEntityKey(object entity)
-        {
-            Check.NotNull(entity, "entity");
-
-            return _keyFactory.Value.Create(entity);
         }
     }
 }

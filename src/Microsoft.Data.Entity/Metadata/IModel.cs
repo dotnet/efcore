@@ -8,8 +8,13 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public interface IModel : IMetadata
     {
+        [CanBeNull]
         IEntityType EntityType([NotNull] object instance);
+
+        [CanBeNull]
         IEntityType EntityType([NotNull] Type type);
+
         IEnumerable<IEntityType> EntityTypes { get; }
+        IEqualityComparer<object> EntityEqualityComparer { get; }
     }
 }

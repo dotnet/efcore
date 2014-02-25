@@ -28,11 +28,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
             get { return _entry.Entity; }
         }
 
-        public virtual EntityKey Key
-        {
-            get { return _entry.Key; }
-        }
-
         public virtual EntityState State
         {
             get { return _entry.GetEntityState(); }
