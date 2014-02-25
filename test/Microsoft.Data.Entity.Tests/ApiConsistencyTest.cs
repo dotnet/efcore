@@ -16,12 +16,12 @@ namespace Microsoft.Data.Entity
 
             var voidMethods
                 = from t in GetAllTypes(fluentApiTypes)
-                    where t.IsVisible
-                    from m in t.GetMethods(PublicInstance)
-                    where m.DeclaringType != null
-                          && m.DeclaringType.Assembly == TargetAssembly
-                          && m.ReturnType == typeof(void)
-                    select t.Name + "." + m.Name;
+                  where t.IsVisible
+                  from m in t.GetMethods(PublicInstance)
+                  where m.DeclaringType != null
+                        && m.DeclaringType.Assembly == TargetAssembly
+                        && m.ReturnType == typeof(void)
+                  select t.Name + "." + m.Name;
 
             Assert.Equal("", string.Join("\r\n", voidMethods));
         }

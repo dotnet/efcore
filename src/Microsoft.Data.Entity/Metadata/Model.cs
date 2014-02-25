@@ -76,9 +76,9 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         private static void TopologicalSortVisit(
-            IEntityType entityType, 
+            IEntityType entityType,
             ICollection<IEntityType> sorted,
-            ISet<IEntityType> visiting, 
+            ISet<IEntityType> visiting,
             ISet<IEntityType> visited)
         {
             if (visiting.Contains(entityType)) // TODO: Support cycle-breaking in UP?

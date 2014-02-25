@@ -18,16 +18,16 @@ namespace Microsoft.Data.Entity
         {
             var nonVirtualMethods
                 = from t in GetAllTypes(TargetAssembly.GetTypes())
-                    where t.IsVisible
-                          && !t.IsSealed
-                          && t.GetConstructors(PublicInstance).Any()
-                          && t.Namespace != null
-                          && !t.Namespace.EndsWith(".Compiled")
-                    from m in t.GetMethods(PublicInstance)
-                    where m.DeclaringType != null
-                          && m.DeclaringType.Assembly == TargetAssembly
-                          && !m.IsVirtual
-                    select t.Name + "." + m.Name;
+                  where t.IsVisible
+                        && !t.IsSealed
+                        && t.GetConstructors(PublicInstance).Any()
+                        && t.Namespace != null
+                        && !t.Namespace.EndsWith(".Compiled")
+                  from m in t.GetMethods(PublicInstance)
+                  where m.DeclaringType != null
+                        && m.DeclaringType.Assembly == TargetAssembly
+                        && !m.IsVirtual
+                  select t.Name + "." + m.Name;
 
             Assert.Equal("", string.Join("\r\n", nonVirtualMethods));
         }
@@ -37,20 +37,20 @@ namespace Microsoft.Data.Entity
         {
             var parametersMissingAttribute
                 = from t in GetAllTypes(TargetAssembly.GetTypes())
-                    where t.IsVisible
-                    let ims = t.GetInterfaces().Select(t.GetInterfaceMap)
-                    from m in t.GetMethods(PublicInstance | BindingFlags.Static)
-                        .Concat<MethodBase>(t.GetConstructors())
-                    where m.DeclaringType != null
-                          && m.DeclaringType.Assembly == TargetAssembly
-                    where t.IsInterface || !ims.Any(im => im.TargetMethods.Contains(m))
-                    from p in m.GetParameters()
-                    where !p.ParameterType.IsValueType
-                          && !p.GetCustomAttributes()
-                              .Any(
-                                  a => a.GetType().Name == "NotNullAttribute"
-                                       || a.GetType().Name == "CanBeNullAttribute")
-                    select t.Name + "." + m.Name + "[" + p.Name + "]";
+                  where t.IsVisible
+                  let ims = t.GetInterfaces().Select(t.GetInterfaceMap)
+                  from m in t.GetMethods(PublicInstance | BindingFlags.Static)
+                      .Concat<MethodBase>(t.GetConstructors())
+                  where m.DeclaringType != null
+                        && m.DeclaringType.Assembly == TargetAssembly
+                  where t.IsInterface || !ims.Any(im => im.TargetMethods.Contains(m))
+                  from p in m.GetParameters()
+                  where !p.ParameterType.IsValueType
+                        && !p.GetCustomAttributes()
+                            .Any(
+                                a => a.GetType().Name == "NotNullAttribute"
+                                     || a.GetType().Name == "CanBeNullAttribute")
+                  select t.Name + "." + m.Name + "[" + p.Name + "]";
 
             Assert.Equal("", string.Join("\r\n", parametersMissingAttribute));
         }

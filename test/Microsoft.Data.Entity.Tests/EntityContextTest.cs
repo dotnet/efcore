@@ -3,8 +3,6 @@
 using System;
 using System.Linq;
 using System.Threading;
-using Microsoft.Data.Entity.ChangeTracking;
-using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
@@ -204,7 +202,7 @@ namespace Microsoft.Data.Entity
                         pb.Property(c => c.ShirtColor);
                     });
 
-            model.Entity(typeof(TheGu)).Key.Single().ValueGenerationStrategy = ValueGenerationStrategy.Client;
+            model.EntityType(typeof(TheGu)).Key.Single().ValueGenerationStrategy = ValueGenerationStrategy.Client;
 
             return model;
         }

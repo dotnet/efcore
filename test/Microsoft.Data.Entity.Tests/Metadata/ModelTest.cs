@@ -219,7 +219,7 @@ namespace Microsoft.Data.Entity.Metadata
 
                 // A -> A
                 entityTypeA.AddForeignKey(new ForeignKey(entityTypeA, _properties));
-                
+
                 Assert.Equal(
                     Strings.CircularDependency("A -> A"),
                     Assert.Throws<InvalidOperationException>(() => model.TopologicalSort()).Message);

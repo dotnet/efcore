@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             get { return _changeTracker.Model.EntityType(_entity).CreateEntityKey(_entity); }
         }
 
-        public async virtual Task SetEntityStateAsync(EntityState value, CancellationToken cancellationToken)
+        public virtual async Task SetEntityStateAsync(EntityState value, CancellationToken cancellationToken)
         {
             var oldState = _entityState;
             _entityState = value;
@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             if (value == EntityState.Added)
             {
-                var entityType = _changeTracker.Model.Entity(_entity);
+                var entityType = _changeTracker.Model.EntityType(_entity);
                 Debug.Assert(entityType.Key.Count() == 1, "Composite keys not implemented yet.");
 
                 var keyProperty = entityType.Key.First();

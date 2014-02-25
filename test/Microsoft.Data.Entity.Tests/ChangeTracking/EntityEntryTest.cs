@@ -193,7 +193,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                     });
 
             builder.Entity<TheGu>().Key(e => e.Id);
-            model.Entity(typeof(TheGu)).Key.Single().ValueGenerationStrategy = ValueGenerationStrategy.Client;
+            model.EntityType(typeof(TheGu)).Key.Single().ValueGenerationStrategy = ValueGenerationStrategy.Client;
 
             return model;
         }
