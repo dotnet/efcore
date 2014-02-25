@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
     {
         private readonly IModel _model;
         private readonly ActiveIdentityGenerators _identityGenerators;
-        private readonly Dictionary<EntityKey, ChangeTrackerEntry> _identityMap = new Dictionary<EntityKey, ChangeTrackerEntry>();
+        private readonly Dictionary<object, ChangeTrackerEntry> _identityMap;
 
         // Intended only for creation of test doubles
         internal ChangeTracker()
@@ -28,47 +28,38 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             _model = model;
             _identityGenerators = identityGenerators;
+            _identityMap = new Dictionary<object, ChangeTrackerEntry>(_model.EntityEqualityComparer);
         }
 
         public virtual EntityEntry<TEntity> Entry<TEntity>([NotNull] TEntity entity)
         {
             Check.NotNull(entity, "entity");
 
-            var entityType = GetEntityType(entity);
-            var entry = TryGetEntry(entityType, entity);
-            return entry != null ? new EntityEntry<TEntity>(entry) : new EntityEntry<TEntity>(this, entity);
+            var entry = TryGetEntry(entity);
+
+            return entry != null
+                ? new EntityEntry<TEntity>(entry)
+                : new EntityEntry<TEntity>(this, entity);
         }
 
         public virtual EntityEntry Entry([NotNull] object entity)
         {
             Check.NotNull(entity, "entity");
 
-            var entityType = GetEntityType(entity);
-            var entry = TryGetEntry(entityType, entity);
-            return entry != null ? new EntityEntry(entry) : new EntityEntry(this, entity);
+            var entry = TryGetEntry(entity);
+
+            return entry != null
+                ? new EntityEntry(entry)
+                : new EntityEntry(this, entity);
         }
 
-        private IEntityType GetEntityType(object entity)
+        private ChangeTrackerEntry TryGetEntry(object entity)
         {
-            // TODO: Consider what to do with derived types that are not explicitly in the model
-
-            var entityType = _model.EntityType(entity);
-
-            if (entityType == null)
-            {
-                // TODO: Consider specialized exception types
-                throw new InvalidOperationException(Strings.TypeNotInModel(entity.GetType().Name));
-            }
-
-            return entityType;
-        }
-
-        private ChangeTrackerEntry TryGetEntry(IEntityType entityType, object entity)
-        {
-            var key = entityType.CreateEntityKey(entity);
-
             ChangeTrackerEntry entry;
-            return _identityMap.TryGetValue(key, out entry) && ReferenceEquals(entry.Entity, entity) ? entry : null;
+            return _identityMap.TryGetValue(entity, out entry)
+                   && ReferenceEquals(entry.Entity, entity)
+                ? entry
+                : null;
         }
 
         public virtual IEnumerable<EntityEntry> Entries()
@@ -86,7 +77,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         internal virtual void Track(ChangeTrackerEntry entry)
         {
             ChangeTrackerEntry existingEntry;
-            if (_identityMap.TryGetValue(entry.Key, out existingEntry)
+            if (_identityMap.TryGetValue(entry.Entity, out existingEntry)
                 && !ReferenceEquals(entry.Entity, existingEntry.Entity))
             {
                 // TODO: Consider a hook for identity resolution
@@ -95,15 +86,14 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
 
             // TODO: Consider the case where two EntityEntry instances both track the same entity instance
-            _identityMap[entry.Key] = entry;
+            _identityMap[entry.Entity] = entry;
         }
 
         internal virtual void StopTracking(ChangeTrackerEntry entry)
         {
-            var key = entry.Key;
-            if (_identityMap.ContainsKey(key))
+            if (_identityMap.ContainsKey(entry.Entity))
             {
-                _identityMap.Remove(key);
+                _identityMap.Remove(entry.Entity);
             }
         }
 

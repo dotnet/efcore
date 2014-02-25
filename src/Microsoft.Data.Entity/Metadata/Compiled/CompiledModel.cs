@@ -28,5 +28,10 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
         {
             get { return LazyInitializer.EnsureInitialized(ref _entityTypes, LoadEntityTypes); }
         }
+
+        public virtual IEqualityComparer<object> EntityEqualityComparer
+        {
+            get { return null; } // TODO
+        }
     }
 }

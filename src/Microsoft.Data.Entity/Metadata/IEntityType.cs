@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking;
 
 namespace Microsoft.Data.Entity.Metadata
 {
@@ -16,6 +15,5 @@ namespace Microsoft.Data.Entity.Metadata
         IProperty Property([NotNull] string name);
         IEnumerable<IProperty> Properties { get; }
         IEnumerable<IForeignKey> ForeignKeys { get; }
-        EntityKey CreateEntityKey([NotNull] object entity);
     }
 }

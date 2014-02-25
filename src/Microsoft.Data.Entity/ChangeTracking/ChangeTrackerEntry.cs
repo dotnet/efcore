@@ -21,18 +21,21 @@ namespace Microsoft.Data.Entity.ChangeTracking
             _changeTracker = changeTracker;
             _entity = entity;
 
+            var entityType = _changeTracker.Model.EntityType(_entity);
+
+            if (entityType == null)
+            {
+                // TODO: Consider specialized exception types
+                throw new InvalidOperationException(Strings.TypeNotInModel(entity.GetType().Name));
+            }
+
             // TODO: Possible perf--avoid counting properties here or even create lazily
-            _propertyStates = new BitArray(_changeTracker.Model.EntityType(_entity).Properties.Count());
+            _propertyStates = new BitArray(entityType.Properties.Count());
         }
 
         public virtual object Entity
         {
             get { return _entity; }
-        }
-
-        public virtual EntityKey Key
-        {
-            get { return _changeTracker.Model.EntityType(_entity).CreateEntityKey(_entity); }
         }
 
         public virtual async Task SetEntityStateAsync(EntityState value, CancellationToken cancellationToken)

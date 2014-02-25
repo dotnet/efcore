@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Data.Entity.ChangeTracking;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Metadata
@@ -74,16 +73,6 @@ namespace Microsoft.Data.Entity.Metadata
             Assert.Equal(0, property.GetValue(entity));
             property.SetValue(entity, 777);
             Assert.Equal(777, property.GetValue(entity));
-        }
-
-        [Fact]
-        public void EntityKeys_can_be_obtained_from_compiled_metadata_without_reflection()
-        {
-            var entity = new KoolEntity27 { Id = 77 };
-            var key = new _OneTwoThreeContextModel().EntityType(entity).CreateEntityKey(entity);
-
-            Assert.IsType<SimpleEntityKey<KoolEntity27, int>>(key);
-            Assert.Equal(77, key.Value);
         }
 
         [Fact]
@@ -171,7 +160,7 @@ namespace Microsoft.Data.Entity.Metadata
             var annotations = models.SelectMany(m => m.Annotations);
             memory.Add(Tuple.Create(annotations.Count(), GetMemory()));
 
-            var entities = models.SelectMany(m => m.EntityTypes);
+            var entities = models.SelectMany(m => m.EntityTypes).ToList();
             memory.Add(Tuple.Create(entities.Count(), GetMemory()));
 
             var propertiesOneEntity = entities.Where(e => e.Type == typeof(KoolEntity9)).SelectMany(e => e.Properties);
@@ -180,7 +169,7 @@ namespace Microsoft.Data.Entity.Metadata
             var keys = entities.SelectMany(e => e.Key);
             memory.Add(Tuple.Create(keys.Count(), GetMemory()));
 
-            var properties = entities.SelectMany(e => e.Properties);
+            var properties = entities.SelectMany(e => e.Properties).ToList();
             memory.Add(Tuple.Create(properties.Count(), GetMemory()));
 
             var entityAnnotations = entities.SelectMany(e => e.Annotations);
@@ -202,7 +191,11 @@ namespace Microsoft.Data.Entity.Metadata
 
             for (var i = 1; i <= 50; i++)
             {
-                var entityType = new EntityType(Type.GetType("Microsoft.Data.Entity.Metadata.KoolEntity" + i));
+                var type = Type.GetType("Microsoft.Data.Entity.Metadata.KoolEntity" + i);
+
+                Assert.NotNull(type);
+
+                var entityType = new EntityType(type);
                 entityType.StorageName = entityType.Name + "Table";
 
                 entityType.AddAnnotation(new Annotation("Annotation1", "Value1"));

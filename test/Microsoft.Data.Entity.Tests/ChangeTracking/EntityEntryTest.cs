@@ -74,16 +74,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
         }
 
         [Fact]
-        public void Can_obtain_entity_key()
-        {
-            var entity = new Category { Id = 77 };
-            var changeTracker = new ChangeTracker(BuildModel(), new Mock<ActiveIdentityGenerators>().Object);
-
-            Assert.Equal(77, new EntityEntry(changeTracker, entity).Key.Value);
-            Assert.Equal(77, new EntityEntry<Category>(changeTracker, entity).Key.Value);
-        }
-
-        [Fact]
         public void Changing_state_from_Unknown_causes_entity_to_start_tracking()
         {
             var entity = new Category();
