@@ -99,7 +99,7 @@ namespace Microsoft.Data.Entity.Metadata
             model.AddEntityType(entityType1);
             model.AddEntityType(entityType2);
 
-            Assert.True(new[] { entityType2, entityType1 }.SequenceEqual(model.Entities));
+            Assert.True(new[] { entityType2, entityType1 }.SequenceEqual(model.EntityTypes));
         }
 
         public class TopologicalSortTest

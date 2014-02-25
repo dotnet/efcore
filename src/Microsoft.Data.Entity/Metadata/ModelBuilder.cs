@@ -88,6 +88,13 @@ namespace Microsoft.Data.Entity.Metadata
             {
             }
 
+            public EntityBuilder<TEntity> StorageName([NotNull] string storageName)
+            {
+                Metadata.StorageName = storageName;
+
+                return this;
+            }
+
             public EntityBuilder<TEntity> Key([NotNull] Expression<Func<TEntity, object>> keyExpression)
             {
                 Check.NotNull(keyExpression, "keyExpression");
@@ -99,34 +106,11 @@ namespace Microsoft.Data.Entity.Metadata
                 return this;
             }
 
-            public EntityBuilder<TEntity> ForeignKey<TReferencedEntityType>(
-                [NotNull] Expression<Func<TEntity, object>> foreignKeyExpression)
-            {
-                Check.NotNull(foreignKeyExpression, "foreignKeyExpression");
-
-                var foreignKey
-                    = new ForeignKey(
-                        ModelBuilder.Entity<TReferencedEntityType>().Metadata,
-                        foreignKeyExpression.GetPropertyAccessList()
-                            .Select(pi => Metadata.Property(pi.Name) ?? new Property(pi)));
-
-                Metadata.AddForeignKey(foreignKey);
-
-                return this;
-            }
-
             public EntityBuilder<TEntity> Properties([NotNull] Action<PropertiesBuilder> propertiesBuilder)
             {
                 Check.NotNull(propertiesBuilder, "propertiesBuilder");
 
                 propertiesBuilder(new PropertiesBuilder(Metadata));
-
-                return this;
-            }
-
-            public EntityBuilder<TEntity> StorageName([NotNull] string storageName)
-            {
-                Metadata.StorageName = storageName;
 
                 return this;
             }
@@ -163,6 +147,65 @@ namespace Microsoft.Data.Entity.Metadata
                     public PropertyBuilder StorageName([NotNull] string storageName)
                     {
                         Metadata.StorageName = storageName;
+
+                        return this;
+                    }
+                }
+            }
+
+            public EntityBuilder<TEntity> ForeignKeys([NotNull] Action<ForeignKeysBuilder> foreignKeysBuilder)
+            {
+                Check.NotNull(foreignKeysBuilder, "foreignKeysBuilder");
+
+                foreignKeysBuilder(new ForeignKeysBuilder(Metadata, ModelBuilder));
+
+                return this;
+            }
+
+            public class ForeignKeysBuilder
+            {
+                private readonly EntityType _entityType;
+                private readonly ModelBuilder _modelBuilder;
+
+                internal ForeignKeysBuilder(EntityType entityType, ModelBuilder modelBuilder)
+                {
+                    _entityType = entityType;
+                    _modelBuilder = modelBuilder;
+                }
+
+                public ForeignKeyBuilder ForeignKey<TReferencedEntityType>(
+                    [NotNull] Expression<Func<TEntity, object>> foreignKeyExpression)
+                {
+                    Check.NotNull(foreignKeyExpression, "foreignKeyExpression");
+
+                    var foreignKey
+                        = new ForeignKey(
+                            _modelBuilder.Entity<TReferencedEntityType>().Metadata,
+                            foreignKeyExpression.GetPropertyAccessList()
+                                .Select(pi => _entityType.Property(pi.Name) ?? new Property(pi)));
+
+                    _entityType.AddForeignKey(foreignKey);
+
+                    return new ForeignKeyBuilder(foreignKey);
+                }
+
+                public class ForeignKeyBuilder : MetadataBuilder<ForeignKey, ForeignKeyBuilder>
+                {
+                    internal ForeignKeyBuilder(ForeignKey foreignKey)
+                        : base(foreignKey)
+                    {
+                    }
+
+                    public ForeignKeyBuilder StorageName([NotNull] string storageName)
+                    {
+                        Metadata.StorageName = storageName;
+
+                        return this;
+                    }
+
+                    public ForeignKeyBuilder IsUnique()
+                    {
+                        Metadata.IsUnique = true;
 
                         return this;
                     }
