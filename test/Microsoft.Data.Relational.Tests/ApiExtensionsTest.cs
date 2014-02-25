@@ -25,7 +25,7 @@ namespace Microsoft.Data.Relational
 
             modelBuilder.Entity<Customer>().ToTable("customers");
 
-            Assert.Equal("customers", model.Entities.Single().StorageName);
+            Assert.Equal("customers", model.EntityTypes.Single().StorageName);
         }
 
         [Fact]
@@ -36,7 +36,7 @@ namespace Microsoft.Data.Relational
 
             modelBuilder.Entity<Customer>().Properties(ps => ps.Property(c => c.Id).ColumnName("id"));
 
-            Assert.Equal("id", model.Entities.Single().Properties.Single().StorageName);
+            Assert.Equal("id", model.EntityTypes.Single().Properties.Single().StorageName);
         }
 
         [Fact]
@@ -47,7 +47,7 @@ namespace Microsoft.Data.Relational
 
             modelBuilder.Entity<Customer>().Properties(ps => ps.Property(c => c.Id).ColumnType("bigint"));
 
-            Assert.Equal("bigint", model.Entities.Single().Properties.Single()[ApiExtensions.Annotations.StorageTypeName]);
+            Assert.Equal("bigint", model.EntityTypes.Single().Properties.Single()[ApiExtensions.Annotations.StorageTypeName]);
         }
     }
 }

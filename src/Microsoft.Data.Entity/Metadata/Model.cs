@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.Metadata
                 : null;
         }
 
-        public virtual IEnumerable<EntityType> Entities
+        public virtual IEnumerable<EntityType> EntityTypes
         {
             get
             {
@@ -67,7 +67,7 @@ namespace Microsoft.Data.Entity.Metadata
             var visiting = new HashSet<IEntityType>();
             var visited = new HashSet<IEntityType>();
 
-            foreach (var entityType in Entities)
+            foreach (var entityType in EntityTypes)
             {
                 TopologicalSortVisit(entityType, sorted, visiting, visited);
             }
@@ -119,7 +119,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         IEnumerable<IEntityType> IModel.EntityTypes
         {
-            get { return Entities; }
+            get { return EntityTypes; }
         }
     }
 }
