@@ -177,10 +177,10 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 .Key(e => e.Id)
                 .Properties(
                     pb =>
-                    {
-                        pb.Property(c => c.Id);
-                        pb.Property(c => c.Name);
-                    });
+                        {
+                            pb.Property(c => c.Id);
+                            pb.Property(c => c.Name);
+                        });
 
             builder.Entity<TheGu>().Key(e => e.Id);
             model.EntityType(typeof(TheGu)).Key.Single().ValueGenerationStrategy = ValueGenerationStrategy.Client;

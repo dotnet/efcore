@@ -129,11 +129,11 @@ namespace Microsoft.Data.SqlServer
         private static string CreateConnectionString(string name)
         {
             return new SqlConnectionStringBuilder
-            {
-                DataSource = @".\SQLEXPRESS",
-                InitialCatalog = name,
-                IntegratedSecurity = true
-            }.ConnectionString;
+                {
+                    DataSource = @".\SQLEXPRESS",
+                    InitialCatalog = name,
+                    IntegratedSecurity = true
+                }.ConnectionString;
         }
     }
 }

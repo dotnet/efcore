@@ -196,20 +196,20 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 .Key(e => e.Id)
                 .Properties(
                     pb =>
-                    {
-                        pb.Property(c => c.Id);
-                        pb.Property(c => c.Name);
-                    });
+                        {
+                            pb.Property(c => c.Id);
+                            pb.Property(c => c.Name);
+                        });
 
             builder.Entity<Product>()
                 .Key(e => e.Id)
                 .Properties(
                     pb =>
-                    {
-                        pb.Property(c => c.Id);
-                        pb.Property(c => c.Name);
-                        pb.Property(c => c.Price);
-                    });
+                        {
+                            pb.Property(c => c.Id);
+                            pb.Property(c => c.Name);
+                            pb.Property(c => c.Price);
+                        });
 
             return model;
         }

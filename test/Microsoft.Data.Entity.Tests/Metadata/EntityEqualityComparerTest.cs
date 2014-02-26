@@ -76,7 +76,7 @@ namespace Microsoft.Data.Entity.Metadata
             IEqualityComparer<object> comparer = new EntityEqualityComparer(model);
 
             Assert.Equal(
-                comparer.GetHashCode(new Customer { Id = 42, Name = "Foo" }), 
+                comparer.GetHashCode(new Customer { Id = 42, Name = "Foo" }),
                 comparer.GetHashCode(new Customer { Id = 42, Name = "Foo" }));
             Assert.NotEqual(
                 comparer.GetHashCode(new Customer { Id = 42, Name = "Foo" }),
