@@ -3,7 +3,6 @@
 using System;
 using System.Linq;
 using System.Threading;
-using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
 namespace Microsoft.Data.Entity
@@ -13,7 +12,7 @@ namespace Microsoft.Data.Entity
         [Fact]
         public void Members_check_arguments()
         {
-            using (var context = new EntityContext(new EntityConfiguration()))
+            using (var context = new EarlyLearningCenter())
             {
                 Assert.Equal(
                     "entity",
@@ -82,7 +81,7 @@ namespace Microsoft.Data.Entity
             Func<EntityContext, Category, Category> categoryAdder,
             Func<EntityContext, Product, Product> productAdder, EntityState expectedState)
         {
-            using (var context = new EntityContext(new EntityConfiguration()) { Model = BuildModel() })
+            using (var context = new EarlyLearningCenter())
             {
                 var category1 = new Category { Id = 1, Name = "Beverages" };
                 var category2 = new Category { Id = 2, Name = "Foods" };
@@ -127,7 +126,7 @@ namespace Microsoft.Data.Entity
 
         private void TrackEntitiesWithKeyGenerationTest(Func<EntityContext, TheGu, TheGu> adder)
         {
-            using (var context = new EntityContext(new EntityConfiguration()) { Model = BuildModel() })
+            using (var context = new EarlyLearningCenter())
             {
                 var gu1 = new TheGu { ShirtColor = "Red" };
                 var gu2 = new TheGu { ShirtColor = "Still Red" };
@@ -145,6 +144,35 @@ namespace Microsoft.Data.Entity
                 categoryEntry = context.ChangeTracker.Entry(gu2);
                 Assert.Same(gu2, categoryEntry.Entity);
                 Assert.Equal(EntityState.Added, categoryEntry.State);
+            }
+        }
+
+        [Fact]
+        public void Context_can_build_model_using_EntitySet_properties()
+        {
+            using (var context = new EarlyLearningCenter())
+            {
+                Assert.Equal(
+                    new[] { "Category", "Product", "TheGu" },
+                    context.Model.EntityTypes.Select(e => e.Name).ToArray());
+
+                var categoryType = context.Model.EntityType(typeof(Category));
+                Assert.Equal("Id", categoryType.Key.Single().Name);
+                Assert.Equal(
+                    new[] { "Id", "Name" },
+                    categoryType.Properties.Select(p => p.Name).ToArray());
+
+                var productType = context.Model.EntityType(typeof(Product));
+                Assert.Equal("Id", productType.Key.Single().Name);
+                Assert.Equal(
+                    new[] { "Id", "Name", "Price" },
+                    productType.Properties.Select(p => p.Name).ToArray());
+
+                var guType = context.Model.EntityType(typeof(TheGu));
+                Assert.Equal("Id", guType.Key.Single().Name);
+                Assert.Equal(
+                    new[] { "Id", "ShirtColor" },
+                    guType.Properties.Select(p => p.Name).ToArray());
             }
         }
 
@@ -169,42 +197,16 @@ namespace Microsoft.Data.Entity
             public string ShirtColor { get; set; }
         }
 
-        private static IModel BuildModel()
+        public class EarlyLearningCenter : EntityContext
         {
-            var model = new Model();
-            var builder = new ModelBuilder(model);
+            public EarlyLearningCenter()
+                : base(new EntityConfiguration())
+            {
+            }
 
-            builder.Entity<Category>()
-                .Key(e => e.Id)
-                .Properties(
-                    pb =>
-                        {
-                            pb.Property(c => c.Id);
-                            pb.Property(c => c.Name);
-                        });
-
-            builder.Entity<Product>()
-                .Key(e => e.Id)
-                .Properties(
-                    pb =>
-                        {
-                            pb.Property(c => c.Id);
-                            pb.Property(c => c.Name);
-                            pb.Property(c => c.Price);
-                        });
-
-            builder.Entity<TheGu>()
-                .Key(e => e.Id)
-                .Properties(
-                    pb =>
-                        {
-                            pb.Property(c => c.Id);
-                            pb.Property(c => c.ShirtColor);
-                        });
-
-            model.EntityType(typeof(TheGu)).Key.Single().ValueGenerationStrategy = ValueGenerationStrategy.Client;
-
-            return model;
+            public EntitySet<Product> Products { get; set; }
+            public EntitySet<Category> Categories { get; set; }
+            public EntitySet<TheGu> Gus { get; set; }
         }
 
         #endregion

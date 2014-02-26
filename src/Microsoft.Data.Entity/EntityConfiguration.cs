@@ -18,6 +18,7 @@ namespace Microsoft.Data.Entity
         private ChangeTrackerFactory _changeTrackerFactory;
         private IdentityGeneratorFactory _identityGeneratorFactory;
         private ActiveIdentityGenerators _activeIdentityGenerators;
+        private ModelLoader _modelLoader;
 
         public EntityConfiguration()
             : this(new ServiceProvider().Add(EntityServices.GetDefaultServices()))
@@ -29,6 +30,23 @@ namespace Microsoft.Data.Entity
             Check.NotNull(serviceProvider, "serviceProvider");
 
             _serviceProvider = serviceProvider;
+        }
+
+        public virtual ModelLoader ModelLoader
+        {
+            get
+            {
+                return _modelLoader
+                       ?? _serviceProvider.GetService<ModelLoader>()
+                       ?? ThrowNotConfigured<ModelLoader>();
+            }
+            [param: NotNull]
+            set
+            {
+                Check.NotNull(value, "value");
+
+                _modelLoader = value;
+            }
         }
 
         public virtual DataStore DataStore

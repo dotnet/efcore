@@ -146,15 +146,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
             var model = new Model();
             var builder = new ModelBuilder(model);
 
-            builder.Entity<Cheese>()
-                .Key(e => e.Id)
-                .Properties(
-                    pb =>
-                        {
-                            pb.Property(c => c.Id);
-                            pb.Property(c => c.Name);
-                            pb.Property(c => c.Maturity);
-                        });
+            builder.Entity<Cheese>();
+
+            new SimpleTemporaryConvention().Apply(model);
 
             return model;
         }
