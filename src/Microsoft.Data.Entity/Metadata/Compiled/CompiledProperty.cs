@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 
         public ValueGenerationStrategy ValueGenerationStrategy
         {
-            get {  return ValueGenerationStrategy.None; }
+            get { return ValueGenerationStrategy.None; }
         }
     }
 }

@@ -124,17 +124,17 @@ namespace Microsoft.Data.Entity.Metadata
 
             // Acceptable ranges for memory ratios
             var expected = new[]
-            {
-                Tuple.Create(0.0, 0.0), // Starting memory; not used
-                Tuple.Create(-0.01, 0.01), // Just models
-                Tuple.Create(-0.01, 0.01), // Model annotations
-                Tuple.Create(0.01, 0.06), // All entities
-                Tuple.Create(0.01, 0.06), // Properties from one entity
-                Tuple.Create(0.1, 0.2), // All keys
-                Tuple.Create(0.1, 0.2), // All properties
-                Tuple.Create(0.1, 0.3), // All entity annotations
-                Tuple.Create(0.2, 0.4) // All property annotations
-            };
+                {
+                    Tuple.Create(0.0, 0.0), // Starting memory; not used
+                    Tuple.Create(-0.01, 0.01), // Just models
+                    Tuple.Create(-0.01, 0.01), // Model annotations
+                    Tuple.Create(0.01, 0.06), // All entities
+                    Tuple.Create(0.01, 0.06), // Properties from one entity
+                    Tuple.Create(0.1, 0.2), // All keys
+                    Tuple.Create(0.1, 0.2), // All properties
+                    Tuple.Create(0.1, 0.3), // All entity annotations
+                    Tuple.Create(0.2, 0.4) // All property annotations
+                };
 
             for (var i = 1; i < expected.Length; i++)
             {

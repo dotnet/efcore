@@ -14,10 +14,10 @@ namespace Microsoft.Data.Entity.Metadata
             var property = new Property("P", typeof(int));
 
             var foreignKey = new ForeignKey(entityType, new[] { property })
-            {
-                IsUnique = true,
-                StorageName = "FK_Foo"
-            };
+                {
+                    IsUnique = true,
+                    StorageName = "FK_Foo"
+                };
 
             Assert.Same(entityType, foreignKey.ReferencedEntityType);
             Assert.True(foreignKey.Properties.Contains(property));

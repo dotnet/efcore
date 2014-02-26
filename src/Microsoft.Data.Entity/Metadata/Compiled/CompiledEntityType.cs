@@ -28,10 +28,7 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 
         public IEnumerable<IProperty> Key
         {
-            get
-            {
-                return LazyInitializer.EnsureInitialized(ref _keys, BuildKey);
-            }
+            get { return LazyInitializer.EnsureInitialized(ref _keys, BuildKey); }
         }
 
         public IEnumerable<IForeignKey> ForeignKeys

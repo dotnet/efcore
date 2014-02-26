@@ -137,10 +137,10 @@ namespace Microsoft.Data.Entity.Metadata
                 .Entity<Customer>()
                 .Properties(
                     ps =>
-                    {
-                        ps.Property(c => c.Id);
-                        ps.Property(c => c.Name).Annotation("foo", "bar");
-                    });
+                        {
+                            ps.Property(c => c.Id);
+                            ps.Property(c => c.Name).Annotation("foo", "bar");
+                        });
 
             Assert.Equal(2, model.EntityType(typeof(Customer)).Properties.Count());
         }

@@ -178,29 +178,29 @@ namespace Microsoft.Data.Entity
                 .Key(e => e.Id)
                 .Properties(
                     pb =>
-                    {
-                        pb.Property(c => c.Id);
-                        pb.Property(c => c.Name);
-                    });
+                        {
+                            pb.Property(c => c.Id);
+                            pb.Property(c => c.Name);
+                        });
 
             builder.Entity<Product>()
                 .Key(e => e.Id)
                 .Properties(
                     pb =>
-                    {
-                        pb.Property(c => c.Id);
-                        pb.Property(c => c.Name);
-                        pb.Property(c => c.Price);
-                    });
+                        {
+                            pb.Property(c => c.Id);
+                            pb.Property(c => c.Name);
+                            pb.Property(c => c.Price);
+                        });
 
             builder.Entity<TheGu>()
                 .Key(e => e.Id)
                 .Properties(
                     pb =>
-                    {
-                        pb.Property(c => c.Id);
-                        pb.Property(c => c.ShirtColor);
-                    });
+                        {
+                            pb.Property(c => c.Id);
+                            pb.Property(c => c.ShirtColor);
+                        });
 
             model.EntityType(typeof(TheGu)).Key.Single().ValueGenerationStrategy = ValueGenerationStrategy.Client;
 

@@ -150,11 +150,11 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 .Key(e => e.Id)
                 .Properties(
                     pb =>
-                    {
-                        pb.Property(c => c.Id);
-                        pb.Property(c => c.Name);
-                        pb.Property(c => c.Maturity);
-                    });
+                        {
+                            pb.Property(c => c.Id);
+                            pb.Property(c => c.Name);
+                            pb.Property(c => c.Maturity);
+                        });
 
             return model;
         }
