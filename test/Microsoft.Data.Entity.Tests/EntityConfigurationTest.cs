@@ -210,5 +210,37 @@ namespace Microsoft.Data.Entity
 
             Assert.Same(factory, configuration.ActiveIdentityGenerators);
         }
+
+        [Fact]
+        public void Throws_if_no_ModelLoader_registered()
+        {
+            Assert.Equal(
+                Strings.MissingConfigurationItem(typeof(ModelLoader)),
+                Assert.Throws<InvalidOperationException>(
+                    () => new EntityConfiguration(new ServiceProvider()).ModelLoader).Message);
+        }
+
+        [Fact]
+        public void Can_provide_ModelLoader_from_service_provider()
+        {
+            var serviceProvider = new ServiceProvider();
+            var configuration = new EntityConfiguration(serviceProvider);
+
+            var factory = new Mock<ModelLoader>().Object;
+            serviceProvider.AddInstance<ModelLoader>(factory);
+
+            Assert.Same(factory, configuration.ModelLoader);
+        }
+
+        [Fact]
+        public void Can_set_ModelLoader()
+        {
+            var configuration = new EntityConfiguration();
+
+            var factory = new Mock<ModelLoader>().Object;
+            configuration.ModelLoader = factory;
+
+            Assert.Same(factory, configuration.ModelLoader);
+        }
     }
 }

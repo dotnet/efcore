@@ -22,6 +22,7 @@ namespace Microsoft.Data.Entity
             Assert.True(services.Any(sd => sd.ServiceType == typeof(IdentityGeneratorFactory)));
             Assert.True(services.Any(sd => sd.ServiceType == typeof(ActiveIdentityGenerators)));
             Assert.True(services.Any(sd => sd.ServiceType == typeof(ChangeTrackerFactory)));
+            Assert.True(services.Any(sd => sd.ServiceType == typeof(ModelLoader)));
         }
 
         [Fact]
