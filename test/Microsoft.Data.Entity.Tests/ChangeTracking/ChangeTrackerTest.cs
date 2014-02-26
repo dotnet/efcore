@@ -192,24 +192,10 @@ namespace Microsoft.Data.Entity.ChangeTracking
             var model = new Model();
             var builder = new ModelBuilder(model);
 
-            builder.Entity<Category>()
-                .Key(e => e.Id)
-                .Properties(
-                    pb =>
-                        {
-                            pb.Property(c => c.Id);
-                            pb.Property(c => c.Name);
-                        });
+            builder.Entity<Product>();
+            builder.Entity<Category>();
 
-            builder.Entity<Product>()
-                .Key(e => e.Id)
-                .Properties(
-                    pb =>
-                        {
-                            pb.Property(c => c.Id);
-                            pb.Property(c => c.Name);
-                            pb.Property(c => c.Price);
-                        });
+            new SimpleTemporaryConvention().Apply(model);
 
             return model;
         }

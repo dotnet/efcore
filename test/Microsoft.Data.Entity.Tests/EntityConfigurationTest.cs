@@ -210,5 +210,66 @@ namespace Microsoft.Data.Entity
 
             Assert.Same(factory, configuration.ActiveIdentityGenerators);
         }
+
+        [Fact]
+        public void Model_returns_null_if_no_ModelSource_registered()
+        {
+            Assert.Null(new EntityConfiguration(new ServiceProvider()).Model);
+        }
+
+        [Fact]
+        public void Can_provide_Model_from_service_provider()
+        {
+            var serviceProvider = new ServiceProvider();
+            var configuration = new EntityConfiguration(serviceProvider);
+
+            var model = new Mock<IModel>().Object;
+            serviceProvider.AddInstance<IModel>(model);
+
+            Assert.Same(model, configuration.Model);
+        }
+
+        [Fact]
+        public void Can_set_Model()
+        {
+            var configuration = new EntityConfiguration();
+
+            var model = new Mock<IModel>().Object;
+            configuration.Model = model;
+
+            Assert.Same(model, configuration.Model);
+        }
+
+        [Fact]
+        public void Throws_if_no_ModelSource_registered()
+        {
+            Assert.Equal(
+                Strings.MissingConfigurationItem(typeof(IModelSource)),
+                Assert.Throws<InvalidOperationException>(
+                    () => new EntityConfiguration(new ServiceProvider()).ModelSource).Message);
+        }
+
+        [Fact]
+        public void Can_provide_ModelSource_from_service_provider()
+        {
+            var serviceProvider = new ServiceProvider();
+            var configuration = new EntityConfiguration(serviceProvider);
+
+            var factory = new Mock<IModelSource>().Object;
+            serviceProvider.AddInstance<IModelSource>(factory);
+
+            Assert.Same(factory, configuration.ModelSource);
+        }
+
+        [Fact]
+        public void Can_set_ModelSource()
+        {
+            var configuration = new EntityConfiguration();
+
+            var factory = new Mock<IModelSource>().Object;
+            configuration.ModelSource = factory;
+
+            Assert.Same(factory, configuration.ModelSource);
+        }
     }
 }

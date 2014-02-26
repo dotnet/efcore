@@ -12,15 +12,17 @@ namespace Microsoft.Data.Entity
 {
     public class EntityContext : IDisposable
     {
-        private readonly EntityConfiguration _entityConfiguration;
-        private ChangeTracker _changeTracker;
-        private IModel _model;
+        private readonly EntityConfiguration _configuration;
+        private readonly LazyRef<IModel> _model;
+        private readonly LazyRef<ChangeTracker> _changeTracker;
 
-        public EntityContext([NotNull] EntityConfiguration entityConfiguration)
+        public EntityContext([NotNull] EntityConfiguration configuration)
         {
-            Check.NotNull(entityConfiguration, "entityConfiguration");
+            Check.NotNull(configuration, "configuration");
 
-            _entityConfiguration = entityConfiguration;
+            _configuration = configuration;
+            _model = new LazyRef<IModel>(() => _configuration.Model ?? _configuration.ModelSource.LoadModel(this));
+            _changeTracker = new LazyRef<ChangeTracker>(() => _configuration.ChangeTrackerFactory.Create(_model.Value));
         }
 
         public virtual int SaveChanges()
@@ -98,21 +100,12 @@ namespace Microsoft.Data.Entity
 
         public virtual ChangeTracker ChangeTracker
         {
-            get { return _changeTracker; }
+            get { return _changeTracker.Value; }
         }
 
-        // TODO: Model discovery/configuration needed
         public virtual IModel Model
         {
-            get { return _model; }
-            [param: NotNull]
-            set
-            {
-                Check.NotNull(value, "value");
-
-                _model = value;
-                _changeTracker = _entityConfiguration.ChangeTrackerFactory.Create(value);
-            }
+            get { return _model.Value; }
         }
     }
 }

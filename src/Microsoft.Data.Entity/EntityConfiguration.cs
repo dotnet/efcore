@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 using Microsoft.AspNet.DependencyInjection;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Identity;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
@@ -18,6 +19,8 @@ namespace Microsoft.Data.Entity
         private ChangeTrackerFactory _changeTrackerFactory;
         private IdentityGeneratorFactory _identityGeneratorFactory;
         private ActiveIdentityGenerators _activeIdentityGenerators;
+        private IModel _model;
+        private IModelSource _modelSource;
 
         public EntityConfiguration()
             : this(new ServiceProvider().Add(EntityServices.GetDefaultServices()))
@@ -29,6 +32,35 @@ namespace Microsoft.Data.Entity
             Check.NotNull(serviceProvider, "serviceProvider");
 
             _serviceProvider = serviceProvider;
+        }
+
+        public virtual IModel Model
+        {
+            get { return _model ?? _serviceProvider.GetService<IModel>(); }
+            [param: NotNull]
+            set
+            {
+                Check.NotNull(value, "value");
+
+                _model = value;
+            }
+        }
+
+        public virtual IModelSource ModelSource
+        {
+            get
+            {
+                return _modelSource
+                       ?? _serviceProvider.GetService<IModelSource>()
+                       ?? ThrowNotConfigured<IModelSource>();
+            }
+            [param: NotNull]
+            set
+            {
+                Check.NotNull(value, "value");
+
+                _modelSource = value;
+            }
         }
 
         public virtual DataStore DataStore

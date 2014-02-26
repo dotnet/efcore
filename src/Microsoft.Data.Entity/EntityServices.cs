@@ -14,6 +14,7 @@ namespace Microsoft.Data.Entity
         public static IEnumerable<IServiceDescriptor> GetDefaultServices()
         {
             yield return ServiceDescriptor.Singleton<ILoggerFactory, ConsoleLoggerFactory>();
+            yield return ServiceDescriptor.Singleton<IModelSource, DefaultModelSource>();
             yield return ServiceDescriptor.Singleton<IdentityGeneratorFactory, DefaultIdentityGeneratorFactory>();
             yield return ServiceDescriptor.Singleton<ActiveIdentityGenerators, ActiveIdentityGenerators>();
             yield return ServiceDescriptor.Scoped<ChangeTrackerFactory, ChangeTrackerFactory>();

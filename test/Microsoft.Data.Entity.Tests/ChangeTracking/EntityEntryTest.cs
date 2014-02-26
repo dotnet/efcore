@@ -173,17 +173,10 @@ namespace Microsoft.Data.Entity.ChangeTracking
             var model = new Model();
             var builder = new ModelBuilder(model);
 
-            builder.Entity<Category>()
-                .Key(e => e.Id)
-                .Properties(
-                    pb =>
-                        {
-                            pb.Property(c => c.Id);
-                            pb.Property(c => c.Name);
-                        });
+            builder.Entity<Category>();
+            builder.Entity<TheGu>();
 
-            builder.Entity<TheGu>().Key(e => e.Id);
-            model.EntityType(typeof(TheGu)).Key.Single().ValueGenerationStrategy = ValueGenerationStrategy.Client;
+            new SimpleTemporaryConvention().Apply(model);
 
             return model;
         }
