@@ -17,6 +17,8 @@ namespace Microsoft.Data.Entity
 
         private DataStore _dataStore;
         private ChangeTrackerFactory _changeTrackerFactory;
+        private EntitySetFinder _entitySetFinder;
+        private EntitySetInitializer _entitySetInitializer;
         private IdentityGeneratorFactory _identityGeneratorFactory;
         private ActiveIdentityGenerators _activeIdentityGenerators;
         private IModel _model;
@@ -48,12 +50,7 @@ namespace Microsoft.Data.Entity
 
         public virtual IModelSource ModelSource
         {
-            get
-            {
-                return _modelSource
-                       ?? _serviceProvider.GetService<IModelSource>()
-                       ?? ThrowNotConfigured<IModelSource>();
-            }
+            get { return _modelSource ?? GetRequiredService<IModelSource>(); }
             [param: NotNull]
             set
             {
@@ -63,14 +60,33 @@ namespace Microsoft.Data.Entity
             }
         }
 
+        public virtual EntitySetFinder EntitySetFinder
+        {
+            get { return _entitySetFinder ?? GetRequiredService<EntitySetFinder>(); }
+            [param: NotNull]
+            set
+            {
+                Check.NotNull(value, "value");
+
+                _entitySetFinder = value;
+            }
+        }
+
+        public virtual EntitySetInitializer EntitySetInitializer
+        {
+            get { return _entitySetInitializer ?? GetRequiredService<EntitySetInitializer>(); }
+            [param: NotNull]
+            set
+            {
+                Check.NotNull(value, "value");
+
+                _entitySetInitializer = value;
+            }
+        }
+
         public virtual DataStore DataStore
         {
-            get
-            {
-                return _dataStore
-                       ?? _serviceProvider.GetService<DataStore>()
-                       ?? ThrowNotConfigured<DataStore>();
-            }
+            get { return _dataStore ?? GetRequiredService<DataStore>(); }
             [param: NotNull]
             set
             {
@@ -82,12 +98,7 @@ namespace Microsoft.Data.Entity
 
         public virtual IdentityGeneratorFactory IdentityGeneratorFactory
         {
-            get
-            {
-                return _identityGeneratorFactory
-                       ?? _serviceProvider.GetService<IdentityGeneratorFactory>()
-                       ?? ThrowNotConfigured<IdentityGeneratorFactory>();
-            }
+            get { return _identityGeneratorFactory ?? GetRequiredService<IdentityGeneratorFactory>(); }
             [param: NotNull]
             set
             {
@@ -99,12 +110,7 @@ namespace Microsoft.Data.Entity
 
         public virtual ActiveIdentityGenerators ActiveIdentityGenerators
         {
-            get
-            {
-                return _activeIdentityGenerators
-                       ?? _serviceProvider.GetService<ActiveIdentityGenerators>()
-                       ?? ThrowNotConfigured<ActiveIdentityGenerators>();
-            }
+            get { return _activeIdentityGenerators ?? GetRequiredService<ActiveIdentityGenerators>(); }
             [param: NotNull]
             set
             {
@@ -116,12 +122,7 @@ namespace Microsoft.Data.Entity
 
         public virtual ChangeTrackerFactory ChangeTrackerFactory
         {
-            get
-            {
-                return _changeTrackerFactory
-                       ?? _serviceProvider.GetService<ChangeTrackerFactory>()
-                       ?? ThrowNotConfigured<ChangeTrackerFactory>();
-            }
+            get { return _changeTrackerFactory ?? GetRequiredService<ChangeTrackerFactory>(); }
             [param: NotNull]
             set
             {
@@ -136,10 +137,16 @@ namespace Microsoft.Data.Entity
             return new EntityContext(this);
         }
 
-        private static T ThrowNotConfigured<T>()
+        private TService GetRequiredService<TService>() where TService : class
         {
-            throw new InvalidOperationException(
-                Strings.MissingConfigurationItem(typeof(T)));
+            var service = _serviceProvider.GetService<TService>();
+
+            if (service != null)
+            {
+                return service;
+            }
+
+            throw new InvalidOperationException(Strings.MissingConfigurationItem(typeof(TService)));
         }
     }
 }

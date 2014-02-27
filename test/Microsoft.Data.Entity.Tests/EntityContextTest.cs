@@ -3,6 +3,7 @@
 using System;
 using System.Linq;
 using System.Threading;
+using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
@@ -94,7 +95,7 @@ namespace Microsoft.Data.Entity
                 Assert.Same(product1, productAdder(context, product1));
                 Assert.Same(product2, productAdder(context, product2));
 
-                var categoryEntry = context.ChangeTracker.Entry(category1);
+                EntityEntry<Category> categoryEntry = context.ChangeTracker.Entry(category1);
                 Assert.Same(category1, categoryEntry.Entity);
                 Assert.Equal(expectedState, categoryEntry.State);
 
@@ -102,7 +103,7 @@ namespace Microsoft.Data.Entity
                 Assert.Same(category2, categoryEntry.Entity);
                 Assert.Equal(expectedState, categoryEntry.State);
 
-                var productEntry = context.ChangeTracker.Entry(product1);
+                EntityEntry<Product> productEntry = context.ChangeTracker.Entry(product1);
                 Assert.Same(product1, productEntry.Entity);
                 Assert.Equal(expectedState, productEntry.State);
 
@@ -138,7 +139,7 @@ namespace Microsoft.Data.Entity
                 Assert.NotEqual(default(Guid), gu2.Id);
                 Assert.NotEqual(gu1.Id, gu2.Id);
 
-                var categoryEntry = context.ChangeTracker.Entry(gu1);
+                EntityEntry<TheGu> categoryEntry = context.ChangeTracker.Entry(gu1);
                 Assert.Same(gu1, categoryEntry.Entity);
                 Assert.Equal(EntityState.Added, categoryEntry.State);
 
@@ -157,19 +158,19 @@ namespace Microsoft.Data.Entity
                     new[] { "Category", "Product", "TheGu" },
                     context.Model.EntityTypes.Select(e => e.Name).ToArray());
 
-                var categoryType = context.Model.EntityType(typeof(Category));
+                IEntityType categoryType = context.Model.EntityType(typeof(Category));
                 Assert.Equal("Id", categoryType.Key.Single().Name);
                 Assert.Equal(
                     new[] { "Id", "Name" },
                     categoryType.Properties.Select(p => p.Name).ToArray());
 
-                var productType = context.Model.EntityType(typeof(Product));
+                IEntityType productType = context.Model.EntityType(typeof(Product));
                 Assert.Equal("Id", productType.Key.Single().Name);
                 Assert.Equal(
                     new[] { "Id", "Name", "Price" },
                     productType.Properties.Select(p => p.Name).ToArray());
 
-                var guType = context.Model.EntityType(typeof(TheGu));
+                IEntityType guType = context.Model.EntityType(typeof(TheGu));
                 Assert.Equal("Id", guType.Key.Single().Name);
                 Assert.Equal(
                     new[] { "Id", "ShirtColor" },
@@ -188,6 +189,51 @@ namespace Microsoft.Data.Entity
                 Assert.Equal(
                     new[] { "TheGu" },
                     context.Model.EntityTypes.Select(e => e.Name).ToArray());
+            }
+        }
+
+        [Fact]
+        public void Context_initializes_all_EntitySet_properties_with_setters()
+        {
+            using (var context = new ContextWithSets())
+            {
+                Assert.NotNull(context.Products);
+                Assert.NotNull(context.Categories);
+                Assert.NotNull(context.GetGus());
+                Assert.Null(context.NoSetter);
+            }
+        }
+
+        public class ContextWithSets : EntityContext
+        {
+            private readonly EntitySet<Random> _noSetter;
+
+            public ContextWithSets()
+                : base(new EntityConfiguration())
+            {
+            }
+
+            public EntitySet<Product> Products { get; set; }
+            public EntitySet<Category> Categories { get; private set; }
+            private EntitySet<TheGu> Gus { get; set; }
+
+            public EntitySet<Random> NoSetter
+            {
+                get { return _noSetter; }
+            }
+
+            public EntitySet<TheGu> GetGus()
+            {
+                return Gus;
+            }
+        }
+
+        [Fact]
+        public void Set_returns_a_new_EntitySet_for_the_given_type()
+        {
+            using (var context = new ContextWithSets())
+            {
+                Assert.NotNull(context.Set<Product>());
             }
         }
 

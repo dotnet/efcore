@@ -2,6 +2,7 @@
 
 using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
@@ -9,22 +10,22 @@ namespace Microsoft.Data.Entity
 {
     public class DefaultModelSource : IModelSource
     {
-        public virtual IModel LoadModel(EntityContext context)
+        private readonly EntitySetFinder _setFinder;
+
+        public DefaultModelSource([NotNull] EntitySetFinder setFinder)
+        {
+            Check.NotNull(setFinder, "setFinder");
+
+            _setFinder = setFinder;
+        }
+
+        public virtual IModel GetModel(EntityContext context)
         {
             Check.NotNull(context, "context");
 
             var model = new Model();
 
-            var setProperties = context.GetType().GetRuntimeProperties()
-                .Where(
-                    p => !p.IsStatic()
-                         && !p.GetIndexParameters().Any()
-                         && p.DeclaringType != typeof(EntityContext)
-                         && p.PropertyType.GetTypeInfo().IsGenericType
-                         && p.PropertyType.GetGenericTypeDefinition() == typeof(EntitySet<>))
-                .OrderBy(p => p.Name);
-
-            foreach (var setProperty in setProperties)
+            foreach (var setProperty in _setFinder.FindSets(context))
             {
                 var type = setProperty.PropertyType.GetTypeInfo().GenericTypeArguments.Single();
 
@@ -37,7 +38,6 @@ namespace Microsoft.Data.Entity
             // TODO: Use conventions/builder appropriately
             new SimpleTemporaryConvention().Apply(model);
 
-            // TODO: Initialize context EntitySets
             return model;
         }
     }

@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Identity
 
         async Task<object> IIdentityGenerator.NextAsync(CancellationToken cancellationToken)
         {
-            return await NextAsync(cancellationToken);
+            return await NextAsync(cancellationToken).ConfigureAwait(false);
         }
     }
 }

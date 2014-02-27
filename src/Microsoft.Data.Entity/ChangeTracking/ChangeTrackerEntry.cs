@@ -66,7 +66,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
                 if (identityGenerator != null)
                 {
-                    keyProperty.SetValue(_entity, await identityGenerator.NextAsync(cancellationToken));
+                    keyProperty.SetValue(_entity, await identityGenerator.NextAsync(cancellationToken).ConfigureAwait(false));
                 }
             }
 

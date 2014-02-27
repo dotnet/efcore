@@ -5,6 +5,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
@@ -13,6 +15,20 @@ namespace Microsoft.Data.Entity
     public class EntitySet<TEntity> : IQueryable<TEntity>
         where TEntity : class
     {
+        private readonly EntityContext _context;
+
+        // Intended only for creation of test doubles
+        internal EntitySet()
+        {
+        }
+
+        public EntitySet([NotNull] EntityContext context)
+        {
+            Check.NotNull(context, "context");
+
+            _context = context;
+        }
+
         public IEnumerator<TEntity> GetEnumerator()
         {
             // TODO
@@ -46,8 +62,21 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(entity, "entity");
 
-            // TODO
-            return entity;
+            return _context.Add(entity);
+        }
+
+        public virtual Task<TEntity> AddAsync([NotNull] TEntity entity)
+        {
+            Check.NotNull(entity, "entity");
+
+            return _context.AddAsync(entity, CancellationToken.None);
+        }
+
+        public virtual Task<TEntity> AddAsync([NotNull] TEntity entity, CancellationToken cancellationToken)
+        {
+            Check.NotNull(entity, "entity");
+
+            return _context.AddAsync(entity, cancellationToken);
         }
 
         public virtual TEntity Remove([NotNull] TEntity entity)
@@ -62,8 +91,21 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(entity, "entity");
 
-            // TODO
-            return entity;
+            return _context.Update(entity);
+        }
+
+        public virtual Task<TEntity> UpdateAsync([NotNull] TEntity entity)
+        {
+            Check.NotNull(entity, "entity");
+
+            return _context.UpdateAsync(entity, CancellationToken.None);
+        }
+
+        public virtual Task<TEntity> UpdateAsync([NotNull] TEntity entity, CancellationToken cancellationToken)
+        {
+            Check.NotNull(entity, "entity");
+
+            return _context.UpdateAsync(entity, cancellationToken);
         }
 
         public virtual IEnumerable<TEntity> AddRange([NotNull] IEnumerable<TEntity> entities)

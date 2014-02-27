@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity.Utilities
 
             foreach (var item in source)
             {
-                results = results.Concat(new[] { await selector(item) });
+                results = results.Concat(new[] { await selector(item).ConfigureAwait(false) });
             }
 
             return results;
@@ -85,7 +85,7 @@ namespace Microsoft.Data.Entity.Utilities
 
             foreach (var item in source)
             {
-                results = results.Concat(await selector(item));
+                results = results.Concat(await selector(item).ConfigureAwait(false));
             }
 
             return results;
@@ -101,7 +101,7 @@ namespace Microsoft.Data.Entity.Utilities
 
             foreach (var item in source)
             {
-                if (await predicate(item))
+                if (await predicate(item).ConfigureAwait(false))
                 {
                     results = results.Concat(new[] { item });
                 }

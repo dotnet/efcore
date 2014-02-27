@@ -55,6 +55,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         private ChangeTrackerEntry TryGetEntry(object entity)
         {
+            // TODO: Add back error checking at some point in the process for types not in the model
+            // TODO: Consider how to handle derived types that are not explicitly in the model
+
             ChangeTrackerEntry entry;
             return _identityMap.TryGetValue(entity, out entry)
                    && ReferenceEquals(entry.Entity, entity)

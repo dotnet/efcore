@@ -16,13 +16,20 @@ namespace Microsoft.Data.Entity
         private readonly LazyRef<IModel> _model;
         private readonly LazyRef<ChangeTracker> _changeTracker;
 
+        // Intended only for creation of test doubles
+        internal EntityContext()
+        {
+        }
+
         public EntityContext([NotNull] EntityConfiguration configuration)
         {
             Check.NotNull(configuration, "configuration");
 
             _configuration = configuration;
-            _model = new LazyRef<IModel>(() => _configuration.Model ?? _configuration.ModelSource.LoadModel(this));
+            _model = new LazyRef<IModel>(() => _configuration.Model ?? _configuration.ModelSource.GetModel(this));
             _changeTracker = new LazyRef<ChangeTracker>(() => _configuration.ChangeTrackerFactory.Create(_model.Value));
+
+            _configuration.EntitySetInitializer.InitializeSets(this);
         }
 
         public virtual int SaveChanges()
@@ -65,7 +72,7 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(entity, "entity");
 
-            await ChangeTracker.Entry(entity).Entry.SetEntityStateAsync(EntityState.Added, cancellationToken);
+            await ChangeTracker.Entry(entity).Entry.SetEntityStateAsync(EntityState.Added, cancellationToken).ConfigureAwait(false);
 
             return entity;
         }
@@ -106,6 +113,12 @@ namespace Microsoft.Data.Entity
         public virtual IModel Model
         {
             get { return _model.Value; }
+        }
+
+        public virtual EntitySet<TEntity> Set<TEntity>() where TEntity : class
+        {
+            // TODO: Check that the type is actually in the model
+            return new EntitySet<TEntity>(this);
         }
     }
 }
