@@ -14,7 +14,7 @@ namespace Microsoft.Data.InMemory
         {
             var services = InMemoryServices.GetDefaultServices().ToList();
 
-            Assert.True(services.Any(sd => sd.ServiceType == typeof(IIdentityGenerator<long>)));
+            Assert.True(services.Any(sd => sd.ServiceType == typeof(IdentityGeneratorFactory)));
         }
 
         [Fact]
@@ -22,7 +22,7 @@ namespace Microsoft.Data.InMemory
         {
             var serviceProvider = new ServiceProvider().Add(InMemoryServices.GetDefaultServices());
 
-            Assert.NotNull(serviceProvider.GetService<IIdentityGenerator<long>>());
+            Assert.NotNull(serviceProvider.GetService<IdentityGeneratorFactory>());
         }
     }
 }
