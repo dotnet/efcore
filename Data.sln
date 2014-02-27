@@ -39,11 +39,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Entity.Funct
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.SqlServer.Tests.net45", "test\Microsoft.Data.SqlServer.Tests\Microsoft.Data.SqlServer.Tests.net45.csproj", "{3159FABC-0C89-41FF-A279-48665CC068DC}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "shared", "shared", "{4C4AEEAB-DCD5-4C52-97A2-9187A204AA8F}"
-	ProjectSection(SolutionItems) = preProject
-		test\shared\ApiConsistencyTestBase.cs = test\shared\ApiConsistencyTestBase.cs
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.SqlServer.FunctionalTest.net45", "test\Microsoft.Data.SqlServer.FunctionalTest\Microsoft.Data.SqlServer.FunctionalTest.net45.csproj", "{B9A39248-3648-4C90-A936-8CD90FFAE7A6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Migrations.net45", "src\Microsoft.Data.Migrations\Microsoft.Data.Migrations.net45.csproj", "{6E38B72F-31DA-4AEF-8F34-B8269572EC6B}"
@@ -308,7 +303,6 @@ Global
 		{EF361118-7D0D-453E-ADA4-2F24FBEE196C} = {13FEFC36-1C4B-47FC-9086-8D922285D8C4}
 		{CA431AD7-2D95-402B-AC17-214994E81943} = {13FEFC36-1C4B-47FC-9086-8D922285D8C4}
 		{3159FABC-0C89-41FF-A279-48665CC068DC} = {13FEFC36-1C4B-47FC-9086-8D922285D8C4}
-		{4C4AEEAB-DCD5-4C52-97A2-9187A204AA8F} = {13FEFC36-1C4B-47FC-9086-8D922285D8C4}
 		{B9A39248-3648-4C90-A936-8CD90FFAE7A6} = {13FEFC36-1C4B-47FC-9086-8D922285D8C4}
 		{50F8CE3F-907C-48A6-A7EB-73CC631ADBE6} = {13FEFC36-1C4B-47FC-9086-8D922285D8C4}
 		{E3C4C2F5-B8CF-4795-90F1-364A23DAEE43} = {13FEFC36-1C4B-47FC-9086-8D922285D8C4}

@@ -1,7 +1,8 @@
 {
   "version" : "0.1-alpha-*",
   "dependencies": {
-    "Microsoft.Data.Entity" : "0.1-alpha-*",
+    "Microsoft.Data.Entity" : "",
+    "Microsoft.Data.Relational" : "",
     "Microsoft.AspNet.DependencyInjection" : "0.1-alpha-*",
     "Microsoft.AspNet.Logging" : "0.1-alpha-*" 
   },

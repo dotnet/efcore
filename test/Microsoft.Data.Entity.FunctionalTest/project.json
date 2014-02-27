@@ -1,7 +1,7 @@
 {
   "version" : "0.1-alpha-*",
   "dependencies": {
-    "Microsoft.Data.Entity" : "0.1-alpha-*"
+    "Microsoft.Data.Entity" : ""
   },
   "configurations": {
     "net45": {
