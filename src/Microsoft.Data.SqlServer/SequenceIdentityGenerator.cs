@@ -58,7 +58,7 @@ namespace Microsoft.Data.SqlServer
         {
             if (_current == _max)
             {
-                _current = await _commandExecutor.ExecuteScalarAsync<long>(_selectNextValueSql, cancellationToken);
+                _current = await _commandExecutor.ExecuteScalarAsync<long>(_selectNextValueSql, cancellationToken).ConfigureAwait(false);
                 _max = _current + _increment;
             }
 
@@ -67,7 +67,7 @@ namespace Microsoft.Data.SqlServer
 
         async Task<object> IIdentityGenerator.NextAsync(CancellationToken cancellationToken)
         {
-            return await NextAsync(cancellationToken);
+            return await NextAsync(cancellationToken).ConfigureAwait(false);
         }
 
         public virtual CreateSequenceOperation CreateMigrationOperation()

@@ -35,6 +35,22 @@ namespace Microsoft.Data.Entity
             Assert.Equal(
                 "value",
                 Assert.Throws<ArgumentNullException>(() => configuration.ChangeTrackerFactory = null).ParamName);
+
+            Assert.Equal(
+                "value",
+                Assert.Throws<ArgumentNullException>(() => configuration.ModelSource = null).ParamName);
+
+            Assert.Equal(
+                "value",
+                Assert.Throws<ArgumentNullException>(() => configuration.Model = null).ParamName);
+
+            Assert.Equal(
+                "value",
+                Assert.Throws<ArgumentNullException>(() => configuration.EntitySetInitializer = null).ParamName);
+
+            Assert.Equal(
+                "value",
+                Assert.Throws<ArgumentNullException>(() => configuration.EntitySetFinder = null).ParamName);
         }
 
         [Fact]
@@ -270,6 +286,70 @@ namespace Microsoft.Data.Entity
             configuration.ModelSource = factory;
 
             Assert.Same(factory, configuration.ModelSource);
+        }
+
+        [Fact]
+        public void Throws_if_no_EntitySetInitializer_registered()
+        {
+            Assert.Equal(
+                Strings.MissingConfigurationItem(typeof(EntitySetInitializer)),
+                Assert.Throws<InvalidOperationException>(
+                    () => new EntityConfiguration(new ServiceProvider()).EntitySetInitializer).Message);
+        }
+
+        [Fact]
+        public void Can_provide_EntitySetInitializer_from_service_provider()
+        {
+            var serviceProvider = new ServiceProvider();
+            var configuration = new EntityConfiguration(serviceProvider);
+
+            var service = new Mock<EntitySetInitializer>().Object;
+            serviceProvider.AddInstance<EntitySetInitializer>(service);
+
+            Assert.Same(service, configuration.EntitySetInitializer);
+        }
+
+        [Fact]
+        public void Can_set_EntitySetInitializer()
+        {
+            var configuration = new EntityConfiguration();
+
+            var service = new Mock<EntitySetInitializer>().Object;
+            configuration.EntitySetInitializer = service;
+
+            Assert.Same(service, configuration.EntitySetInitializer);
+        }
+
+        [Fact]
+        public void Throws_if_no_EntitySetFinder_registered()
+        {
+            Assert.Equal(
+                Strings.MissingConfigurationItem(typeof(EntitySetFinder)),
+                Assert.Throws<InvalidOperationException>(
+                    () => new EntityConfiguration(new ServiceProvider()).EntitySetFinder).Message);
+        }
+
+        [Fact]
+        public void Can_provide_EntitySetFinder_from_service_provider()
+        {
+            var serviceProvider = new ServiceProvider();
+            var configuration = new EntityConfiguration(serviceProvider);
+
+            var service = new Mock<EntitySetFinder>().Object;
+            serviceProvider.AddInstance<EntitySetFinder>(service);
+
+            Assert.Same(service, configuration.EntitySetFinder);
+        }
+
+        [Fact]
+        public void Can_set_EntitySetFinder()
+        {
+            var configuration = new EntityConfiguration();
+
+            var service = new Mock<EntitySetFinder>().Object;
+            configuration.EntitySetFinder = service;
+
+            Assert.Same(service, configuration.EntitySetFinder);
         }
     }
 }

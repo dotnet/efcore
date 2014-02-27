@@ -7,6 +7,6 @@ namespace Microsoft.Data.Entity
 {
     public interface IModelSource
     {
-        IModel LoadModel([NotNull] EntityContext context);
+        IModel GetModel([NotNull] EntityContext context);
     }
 }
