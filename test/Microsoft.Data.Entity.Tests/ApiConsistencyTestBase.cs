@@ -6,6 +6,8 @@ using System.Linq;
 using System.Reflection;
 using Xunit;
 
+// TODO: This file should be shared
+
 namespace Microsoft.Data.Entity
 {
     public abstract class ApiConsistencyTestBase
