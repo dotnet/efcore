@@ -30,6 +30,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.AspNet.DependencyInjection, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Microsoft.AspNet.DependencyInjection.0.1-alpha-085\lib\net45\Microsoft.AspNet.DependencyInjection.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.Logging, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Microsoft.AspNet.Logging.0.1-alpha-061\lib\net45\Microsoft.AspNet.Logging.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
@@ -37,10 +45,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\xunit.1.9.2\lib\net20\xunit.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.AspNet.DependencyInjection, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-        <SpecificVersion>False</SpecificVersion>
-        <HintPath>..\..\packages\Microsoft.AspNet.DependencyInjection.0.1-alpha-028\lib\net45\Microsoft.AspNet.DependencyInjection.dll</HintPath>
-     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
