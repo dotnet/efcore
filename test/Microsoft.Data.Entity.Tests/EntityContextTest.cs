@@ -206,7 +206,7 @@ namespace Microsoft.Data.Entity
 
         public class ContextWithSets : EntityContext
         {
-            private readonly EntitySet<Random> _noSetter;
+            private readonly EntitySet<Random> _noSetter = null;
 
             public ContextWithSets()
                 : base(new EntityConfiguration())
