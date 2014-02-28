@@ -158,19 +158,19 @@ namespace Microsoft.Data.Entity
                     new[] { "Category", "Product", "TheGu" },
                     context.Model.EntityTypes.Select(e => e.Name).ToArray());
 
-                IEntityType categoryType = context.Model.EntityType(typeof(Category));
+                IEntityType categoryType = context.Model.GetEntityType(typeof(Category));
                 Assert.Equal("Id", categoryType.Key.Single().Name);
                 Assert.Equal(
                     new[] { "Id", "Name" },
                     categoryType.Properties.Select(p => p.Name).ToArray());
 
-                IEntityType productType = context.Model.EntityType(typeof(Product));
+                IEntityType productType = context.Model.GetEntityType(typeof(Product));
                 Assert.Equal("Id", productType.Key.Single().Name);
                 Assert.Equal(
                     new[] { "Id", "Name", "Price" },
                     productType.Properties.Select(p => p.Name).ToArray());
 
-                IEntityType guType = context.Model.EntityType(typeof(TheGu));
+                IEntityType guType = context.Model.GetEntityType(typeof(TheGu));
                 Assert.Equal("Id", guType.Key.Single().Name);
                 Assert.Equal(
                     new[] { "Id", "ShirtColor" },

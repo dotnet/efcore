@@ -97,11 +97,11 @@ namespace Microsoft.Data.Entity.ChangeTracking
             var tracker = new ChangeTracker(BuildModel(), new Mock<ActiveIdentityGenerators>().Object);
 
             Assert.Equal(
-                Strings.TypeNotInModel("Random"),
+                Strings.EntityTypeNotFound("System.Random"),
                 Assert.Throws<InvalidOperationException>(() => tracker.Entry(new Random())).Message);
 
             Assert.Equal(
-                Strings.TypeNotInModel("Random"),
+                Strings.EntityTypeNotFound("System.Random"),
                 Assert.Throws<InvalidOperationException>(() => tracker.Entry((object)new Random())).Message);
         }
 

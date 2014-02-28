@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.Metadata
                 return false;
             }
 
-            var entityType = _model.EntityType(x);
+            var entityType = _model.TryGetEntityType(x.GetType());
 
             return entityType != null
                    && entityType.Key.All(property => Equals(property.GetValue(x), property.GetValue(y)));
@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity.Metadata
                 return 0;
             }
 
-            var entityType = _model.EntityType(obj);
+            var entityType = _model.TryGetEntityType(obj.GetType());
 
             if (entityType == null)
             {

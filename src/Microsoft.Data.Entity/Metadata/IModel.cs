@@ -9,10 +9,10 @@ namespace Microsoft.Data.Entity.Metadata
     public interface IModel : IMetadata
     {
         [CanBeNull]
-        IEntityType EntityType([NotNull] object instance);
+        IEntityType TryGetEntityType([NotNull] Type type);
 
-        [CanBeNull]
-        IEntityType EntityType([NotNull] Type type);
+        [NotNull]
+        IEntityType GetEntityType([NotNull] Type type);
 
         IEnumerable<IEntityType> EntityTypes { get; }
         IEqualityComparer<object> EntityEqualityComparer { get; }

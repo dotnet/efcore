@@ -35,22 +35,30 @@ namespace Microsoft.Data.Entity.Metadata
             _entities.ExchangeValue(l => l.Remove(entityType.Type));
         }
 
-        public virtual EntityType EntityType([NotNull] object instance)
-        {
-            Check.NotNull(instance, "instance");
 
-            return EntityType(instance.GetType());
-        }
-
-        public virtual EntityType EntityType([NotNull] Type type)
+        public virtual EntityType TryGetEntityType([NotNull] Type type)
         {
             Check.NotNull(type, "type");
 
-            EntityType value;
+            EntityType entityType;
             return _entities.HasValue
-                   && _entities.Value.TryGetValue(type, out value)
-                ? value
+                   && _entities.Value.TryGetValue(type, out entityType)
+                ? entityType
                 : null;
+        }
+
+        public virtual EntityType GetEntityType([NotNull] Type type)
+        {
+            Check.NotNull(type, "type");
+
+            var entityType = TryGetEntityType(type);
+
+            if (entityType == null)
+            {
+                throw new InvalidOperationException(Strings.EntityTypeNotFound(type));
+            }
+
+            return entityType;
         }
 
         public virtual IEnumerable<EntityType> EntityTypes
@@ -119,14 +127,14 @@ namespace Microsoft.Data.Entity.Metadata
             sorted.Add(entityType);
         }
 
-        IEntityType IModel.EntityType(object instance)
+        IEntityType IModel.TryGetEntityType(Type type)
         {
-            return EntityType(instance);
+            return TryGetEntityType(type);
         }
 
-        IEntityType IModel.EntityType(Type type)
+        IEntityType IModel.GetEntityType(Type type)
         {
-            return EntityType(type);
+            return GetEntityType(type);
         }
 
         IEnumerable<IEntityType> IModel.EntityTypes

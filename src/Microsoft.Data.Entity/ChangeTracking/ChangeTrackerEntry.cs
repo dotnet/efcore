@@ -23,13 +23,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             _changeTracker = changeTracker;
             _entity = entity;
 
-            var entityType = _changeTracker.Model.EntityType(_entity);
-
-            if (entityType == null)
-            {
-                // TODO: Consider specialized exception types
-                throw new InvalidOperationException(Strings.TypeNotInModel(entity.GetType().Name));
-            }
+            var entityType = _changeTracker.Model.GetEntityType(_entity.GetType());
 
             _propertyStates = new int[(entityType.Properties.Count() + BitsForEntityState - 1) / BitsPerInt + 1];
         }
@@ -48,7 +42,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             // set all properties to modified if the entity state is explicitly set to Modified.
             if (value == EntityState.Modified)
             {
-                var propertyCount = _changeTracker.Model.EntityType(_entity).Properties.Count();
+                var propertyCount = _changeTracker.Model.GetEntityType(_entity.GetType()).Properties.Count();
                 for (var i = 0; i < _propertyStates.Length; i++)
                 {
                     _propertyStates[i] |= CreateMask(i, propertyCount);
@@ -62,7 +56,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             if (value == EntityState.Added)
             {
-                var entityType = _changeTracker.Model.EntityType(_entity);
+                var entityType = _changeTracker.Model.GetEntityType(_entity.GetType());
                 Debug.Assert(entityType.Key.Count() == 1, "Composite keys not implemented yet.");
 
                 var keyProperty = entityType.Key.First();
@@ -157,7 +151,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         private int GetPropertyIndex(string propertyName)
         {
-            var index = _changeTracker.Model.EntityType(_entity).PropertyIndex(propertyName);
+            var index = _changeTracker.Model.GetEntityType(_entity.GetType()).PropertyIndex(propertyName);
 
             if (index < 0)
             {

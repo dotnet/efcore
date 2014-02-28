@@ -12,14 +12,14 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
     {
         private IEntityType[] _entityTypes;
 
-        public IEntityType EntityType([NotNull] object instance)
-        {
-            return EntityType(instance.GetType());
-        }
-
-        public IEntityType EntityType([NotNull] Type type)
+        public IEntityType TryGetEntityType([NotNull] Type type)
         {
             return EntityTypes.FirstOrDefault(e => e.Type == type);
+        }
+
+        public IEntityType GetEntityType([NotNull] Type type)
+        {
+            return EntityTypes.First(e => e.Type == type);
         }
 
         protected abstract IEntityType[] LoadEntityTypes();
