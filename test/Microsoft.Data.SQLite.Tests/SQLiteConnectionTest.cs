@@ -100,12 +100,14 @@ namespace Microsoft.Data.SQLite
         }
 
         [Fact]
-        public void Open_throws_when_disposed()
+        public void Open_can_be_called_when_disposed()
         {
-            var connection = new SQLiteConnection("Filename=test.db");
-            connection.Dispose();
+            using (var connection = new SQLiteConnection("Filename=test.db"))
+            {
+                connection.Dispose();
 
-            Assert.Throws<ObjectDisposedException>(() => connection.Open());
+                connection.Open();
+            }
         }
 
         [Fact]

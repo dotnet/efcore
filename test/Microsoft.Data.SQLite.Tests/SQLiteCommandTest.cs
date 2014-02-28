@@ -67,12 +67,18 @@ namespace Microsoft.Data.SQLite
         }
 
         [Fact]
-        public void Prepare_throws_when_disposed()
+        public void Prepare_can_be_called_when_disposed()
         {
-            var command = new SQLiteCommand();
-            command.Dispose();
+            using (var connection = new SQLiteConnection("Filename=test.db"))
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT 1";
+                command.Dispose();
+                command.Connection = connection;
+                connection.Open();
 
-            Assert.Throws<ObjectDisposedException>(() => command.Prepare());
+                command.Prepare();
+            }
         }
 
         [Fact]
@@ -128,12 +134,18 @@ namespace Microsoft.Data.SQLite
         }
 
         [Fact]
-        public void ExecuteNonQuery_throws_when_disposed()
+        public void ExecuteNonQuery_can_be_called_when_disposed()
         {
-            var command = new SQLiteCommand();
-            command.Dispose();
+            using (var connection = new SQLiteConnection("Filename=test.db"))
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT 1";
+                command.Dispose();
+                command.Connection = connection;
+                connection.Open();
 
-            Assert.Throws<ObjectDisposedException>(() => command.ExecuteNonQuery());
+                command.ExecuteNonQuery();
+            }
         }
 
         [Fact]

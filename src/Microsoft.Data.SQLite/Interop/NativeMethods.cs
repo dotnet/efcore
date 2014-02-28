@@ -8,7 +8,7 @@ namespace Microsoft.Data.SQLite.Interop
     internal static class NativeMethods
     {
         [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
-        public static extern int sqlite3_changes(IntPtr db);
+        public static extern int sqlite3_changes(DatabaseHandle db);
 
         [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         public static extern int sqlite3_close_v2(IntPtr db);
@@ -41,9 +41,9 @@ namespace Microsoft.Data.SQLite.Interop
         }
 
         [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
-        private static extern int sqlite3_open_v2(IntPtr filename, out IntPtr ppDb, int flags, IntPtr zVfs);
+        private static extern int sqlite3_open_v2(IntPtr filename, out DatabaseHandle ppDb, int flags, IntPtr zVfs);
 
-        public static int sqlite3_open_v2(string filename, out IntPtr ppDb, int flags, string zVfs)
+        public static int sqlite3_open_v2(string filename, out DatabaseHandle ppDb, int flags, string zVfs)
         {
             var filenamePtr = MarshalEx.StringToHGlobalUTF8(filename);
             var zVfsPtr = MarshalEx.StringToHGlobalUTF8(zVfs);
@@ -62,17 +62,17 @@ namespace Microsoft.Data.SQLite.Interop
 
         [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         private static extern int sqlite3_prepare_v2(
-            IntPtr db,
+            DatabaseHandle db,
             IntPtr zSql,
             int nByte,
-            out IntPtr ppStmt,
+            out StatementHandle ppStmt,
             out IntPtr pzTail);
 
         public static int sqlite3_prepare_v2(
-            IntPtr db,
+            DatabaseHandle db,
             string zSql,
             int nByte,
-            out IntPtr ppStmt,
+            out StatementHandle ppStmt,
             out string pzTail)
         {
             var zSqlPtr = MarshalEx.StringToHGlobalUTF8(zSql);
@@ -92,9 +92,9 @@ namespace Microsoft.Data.SQLite.Interop
         }
 
         [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
-        public static extern int sqlite3_reset(IntPtr pStmt);
+        public static extern int sqlite3_reset(StatementHandle pStmt);
 
         [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
-        public static extern int sqlite3_step(IntPtr pStmt);
+        public static extern int sqlite3_step(StatementHandle pStmt);
     }
 }

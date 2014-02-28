@@ -17,8 +17,7 @@ namespace Microsoft.Data.SQLite
         private CommandType _commandType = CommandType.Text;
         private string _commandText;
         private bool _prepared;
-        private IntPtr _stmt = IntPtr.Zero;
-        private bool _disposed;
+        private StatementHandle _stmt;
 
         public SQLiteCommand()
         {
@@ -137,8 +136,6 @@ namespace Microsoft.Data.SQLite
 
         public override void Prepare()
         {
-            if (_disposed)
-                throw new ObjectDisposedException(null);
             if (_connection == null || _connection.State != ConnectionState.Open)
                 throw new InvalidOperationException(Strings.CallRequiresOpenConnection("Prepare"));
             if (string.IsNullOrWhiteSpace(_commandText))
@@ -146,8 +143,8 @@ namespace Microsoft.Data.SQLite
             if (_prepared)
                 return;
 
-            Debug.Assert(_connection._db != IntPtr.Zero, "_connection._db is Zero.");
-            Debug.Assert(_stmt == IntPtr.Zero, "_stmt is not Zero.");
+            Debug.Assert(_connection._db != null, "_connection._db is null.");
+            Debug.Assert(_stmt == null, "_stmt is not null.");
 
             string tail;
             var rc = NativeMethods.sqlite3_prepare_v2(
@@ -167,8 +164,6 @@ namespace Microsoft.Data.SQLite
 
         protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
         {
-            if (_disposed)
-                throw new ObjectDisposedException(null);
             if (_connection == null || _connection.State != ConnectionState.Open)
                 throw new InvalidOperationException(Strings.CallRequiresOpenConnection("ExecuteDbDataReader"));
             if (string.IsNullOrWhiteSpace(_commandText))
@@ -182,8 +177,6 @@ namespace Microsoft.Data.SQLite
 
         public override int ExecuteNonQuery()
         {
-            if (_disposed)
-                throw new ObjectDisposedException(null);
             if (_connection == null || _connection.State != ConnectionState.Open)
                 throw new InvalidOperationException(Strings.CallRequiresOpenConnection("ExecuteNonQuery"));
             if (string.IsNullOrWhiteSpace(_commandText))
@@ -195,15 +188,13 @@ namespace Microsoft.Data.SQLite
             var rc = NativeMethods.sqlite3_reset(_stmt);
             MarshalEx.ThrowExceptionForRC(rc);
 
-            Debug.Assert(_connection._db != IntPtr.Zero, "_connection._db is Zero.");
+            Debug.Assert(_connection._db != null, "_connection._db is null.");
 
             return NativeMethods.sqlite3_changes(_connection._db);
         }
 
         public override object ExecuteScalar()
         {
-            if (_disposed)
-                throw new ObjectDisposedException(null);
             if (_connection == null || _connection.State != ConnectionState.Open)
                 throw new InvalidOperationException(Strings.CallRequiresOpenConnection("ExecuteScalar"));
             if (string.IsNullOrWhiteSpace(_commandText))
@@ -226,7 +217,6 @@ namespace Microsoft.Data.SQLite
             {
                 _connection = null;
                 _prepared = false;
-                _disposed = true;
             }
 
             ReleaseNativeObjects();
@@ -236,13 +226,11 @@ namespace Microsoft.Data.SQLite
 
         private void ReleaseNativeObjects()
         {
-            if (_stmt == IntPtr.Zero)
+            if (_stmt == null || _stmt.IsInvalid)
                 return;
 
-            var rc = NativeMethods.sqlite3_finalize(_stmt);
-            Debug.Assert(rc == Constants.SQLITE_OK, "rc is not SQLITE_OK.");
-
-            _stmt = IntPtr.Zero;
+            _stmt.Dispose();
+            _stmt = null;
         }
     }
 }

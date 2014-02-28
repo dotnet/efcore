@@ -15,8 +15,7 @@ namespace Microsoft.Data.SQLite
         private string _connectionString;
         private SQLiteConnectionStringBuilder _connectionOptions;
         private ConnectionState _state;
-        internal IntPtr _db = IntPtr.Zero;
-        private bool _disposed;
+        internal DatabaseHandle _db;
 
         public SQLiteConnection()
         {
@@ -77,14 +76,12 @@ namespace Microsoft.Data.SQLite
 
         public override void Open()
         {
-            if (_disposed)
-                throw new ObjectDisposedException(null);
             if (_state == ConnectionState.Open)
                 return;
             if (_connectionString == null)
                 throw new InvalidOperationException(Strings.OpenRequiresSetConnectionString);
 
-            Debug.Assert(_db == IntPtr.Zero, "_db is not Zero.");
+            Debug.Assert(_db == null, "_db is not null.");
             Debug.Assert(_connectionOptions != null, "_connectionOptions is null.");
 
             var rc = NativeMethods.sqlite3_open_v2(
@@ -108,8 +105,6 @@ namespace Microsoft.Data.SQLite
             if (disposing)
             {
                 SetState(ConnectionState.Closed);
-
-                _disposed = true;
             }
 
             ReleaseNativeObjects();
@@ -119,13 +114,11 @@ namespace Microsoft.Data.SQLite
 
         private void ReleaseNativeObjects()
         {
-            if (_db == IntPtr.Zero)
+            if (_db == null || _db.IsInvalid)
                 return;
 
-            var rc = NativeMethods.sqlite3_close_v2(_db);
-            Debug.Assert(rc == Constants.SQLITE_OK, "rc is not SQLITE_OK.");
-
-            _db = IntPtr.Zero;
+            _db.Dispose();
+            _db = null;
         }
 
         public new SQLiteCommand CreateCommand()
