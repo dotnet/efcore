@@ -59,19 +59,19 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        /// The entity of type '{entityType}' cannot be tracked because type '{entityType}' has not been included in the model. To include this type in the model create an EntitySet&lt;{entityType}&gt; property on your EntityContext class, or use the ModelBuilder.Entity&lt;{entityType}&gt; method.
-        /// </summary>
-        internal static string TypeNotInModel(object entityType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("TypeNotInModel", "entityType"), entityType);
-        }
-
-        /// <summary>
         /// The instance of entity type '{entityType}' cannot be tracked because another instance of this type with the same key is already being tracked. For new entities consider using an IIdentityGenerator to generate unique key values.
         /// </summary>
         internal static string IdentityConflict(object entityType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("IdentityConflict", "entityType"), entityType);
+        }
+
+        /// <summary>
+        /// The entity type '{entityType}' was not found. Ensure that the entity type '{entityType}' has been added to the model.
+        /// </summary>
+        internal static string EntityTypeNotFound(object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("EntityTypeNotFound", "entityType"), entityType);
         }
 
         private static string GetString(string name, params string[] argumentNames)

@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity
             {
                 var type = setProperty.PropertyType.GetTypeInfo().GenericTypeArguments.Single();
 
-                if (model.EntityType(type) == null)
+                if (model.TryGetEntityType(type) == null)
                 {
                     model.AddEntityType(new EntityType(type));
                 }

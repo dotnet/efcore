@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.Metadata
             var entityBuilder = modelBuilder.Entity<Customer>();
 
             Assert.NotNull(entityBuilder);
-            Assert.Equal("Customer", model.EntityType(typeof(Customer)).Name);
+            Assert.Equal("Customer", model.GetEntityType(typeof(Customer)).Name);
         }
 
         [Fact]
@@ -48,7 +48,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             modelBuilder.Entity<Customer>().Key(e => e.Id);
 
-            var entity = model.EntityType(typeof(Customer));
+            var entity = model.GetEntityType(typeof(Customer));
 
             Assert.Equal(1, entity.Key.Count());
             Assert.Equal("Id", entity.Key.First().Name);
@@ -64,7 +64,7 @@ namespace Microsoft.Data.Entity.Metadata
                 .Entity<Customer>()
                 .Key(e => new { e.Id, e.Name });
 
-            var entity = model.EntityType(typeof(Customer));
+            var entity = model.GetEntityType(typeof(Customer));
 
             Assert.Equal(2, entity.Key.Count());
             Assert.Equal("Id", entity.Key.First().Name);
@@ -81,7 +81,7 @@ namespace Microsoft.Data.Entity.Metadata
                 .Entity<Customer>()
                 .Annotation("foo", "bar");
 
-            Assert.Equal("bar", model.EntityType(typeof(Customer))["foo"]);
+            Assert.Equal("bar", model.GetEntityType(typeof(Customer))["foo"]);
         }
 
         [Fact]
@@ -94,7 +94,7 @@ namespace Microsoft.Data.Entity.Metadata
                 .Entity<Customer>()
                 .StorageName("foo");
 
-            Assert.Equal("foo", model.EntityType(typeof(Customer)).StorageName);
+            Assert.Equal("foo", model.GetEntityType(typeof(Customer)).StorageName);
         }
 
         [Fact]
@@ -107,9 +107,7 @@ namespace Microsoft.Data.Entity.Metadata
                 .Entity<Customer>()
                 .Properties(ps => ps.Property(c => c.Name).Annotation("foo", "bar"));
 
-            Assert.Equal(
-                "bar",
-                model.EntityType(typeof(Customer)).Property("Name")["foo"]);
+            Assert.Equal("bar", model.GetEntityType(typeof(Customer)).Property("Name")["foo"]);
         }
 
         [Fact]
@@ -122,9 +120,7 @@ namespace Microsoft.Data.Entity.Metadata
                 .Entity<Customer>()
                 .Properties(ps => ps.Property(c => c.Name).StorageName("foo"));
 
-            Assert.Equal(
-                "foo",
-                model.EntityType(typeof(Customer)).Property("Name").StorageName);
+            Assert.Equal("foo", model.GetEntityType(typeof(Customer)).Property("Name").StorageName);
         }
 
         [Fact]
@@ -142,9 +138,9 @@ namespace Microsoft.Data.Entity.Metadata
                             ps.Property(c => c.Name).Annotation("foo", "bar");
                         });
 
-            Assert.Equal(2, model.EntityType(typeof(Customer)).Properties.Count());
+            Assert.Equal(2, model.GetEntityType(typeof(Customer)).Properties.Count());
         }
-        
+
         [Fact]
         public void Can_add_foreign_key()
         {
@@ -155,7 +151,7 @@ namespace Microsoft.Data.Entity.Metadata
                 .Entity<Order>()
                 .ForeignKeys(fks => fks.ForeignKey<Customer>(c => c.CustomerId));
 
-            var entityType = model.EntityType(typeof(Order));
+            var entityType = model.GetEntityType(typeof(Order));
 
             Assert.Equal(1, entityType.ForeignKeys.Count());
         }
@@ -170,12 +166,12 @@ namespace Microsoft.Data.Entity.Metadata
                 .Entity<Order>()
                 .ForeignKeys(
                     fks =>
-                    {
-                        fks.ForeignKey<Customer>(c => c.CustomerId);
-                        fks.ForeignKey<Customer>(c => c.CustomerId).IsUnique();
-                    });
+                        {
+                            fks.ForeignKey<Customer>(c => c.CustomerId);
+                            fks.ForeignKey<Customer>(c => c.CustomerId).IsUnique();
+                        });
 
-            var entityType = model.EntityType(typeof(Order));
+            var entityType = model.GetEntityType(typeof(Order));
 
             Assert.Equal(2, entityType.ForeignKeys.Count());
             Assert.True(entityType.ForeignKeys.Last().IsUnique);

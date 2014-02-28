@@ -143,7 +143,8 @@ namespace Microsoft.Data.Entity.Metadata
 
             // TODO: Consider if it is okay to take properties out of the key, which may not be empty
             // TODO: Consider what to do with FKs that contain this property
-            if (_keyProperties != null && _keyProperties.Contains(property))
+            if (_keyProperties != null
+                && _keyProperties.Contains(property))
             {
                 _keyProperties.Remove(property);
             }

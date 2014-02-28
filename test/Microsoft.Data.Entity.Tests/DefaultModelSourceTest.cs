@@ -32,12 +32,12 @@ namespace Microsoft.Data.Entity
             var setFinderMock = new Mock<EntitySetFinder>();
             setFinderMock.Setup(m => m.FindSets(It.IsAny<EntityContext>())).Returns(
                 new[]
-                {
-                    typeof(JustAClass).GetAnyProperty("One"),
-                    typeof(JustAClass).GetAnyProperty("Two"),
-                    typeof(JustAClass).GetAnyProperty("Three"),
-                    typeof(JustAClass).GetAnyProperty("Four")
-                });
+                    {
+                        typeof(JustAClass).GetAnyProperty("One"),
+                        typeof(JustAClass).GetAnyProperty("Two"),
+                        typeof(JustAClass).GetAnyProperty("Three"),
+                        typeof(JustAClass).GetAnyProperty("Four")
+                    });
 
             var model = new DefaultModelSource(setFinderMock.Object).GetModel(new Mock<EntityContext>().Object);
 

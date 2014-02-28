@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Metadata
         public virtual EntityBuilder<T> Entity<T>()
         {
             var type = typeof(T);
-            var entityType = _model.EntityType(type);
+            var entityType = _model.TryGetEntityType(type);
 
             if (entityType == null)
             {

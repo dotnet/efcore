@@ -38,14 +38,9 @@ namespace Microsoft.Data.Entity.Metadata
                 Assert.Throws<ArgumentNullException>(() => model.RemoveEntityType(null)).ParamName);
 
             Assert.Equal(
-                "instance",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => model.EntityType((object)null)).ParamName);
-
-            Assert.Equal(
                 "type",
                 // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => model.EntityType(null)).ParamName);
+                Assert.Throws<ArgumentNullException>(() => model.TryGetEntityType(null)).ParamName);
         }
 
         [Fact]
@@ -56,37 +51,23 @@ namespace Microsoft.Data.Entity.Metadata
 
             model.AddEntityType(entityType);
 
-            Assert.NotNull(model.EntityType(new Customer()));
+            Assert.NotNull(model.TryGetEntityType(typeof(Customer)));
 
             model.RemoveEntityType(entityType);
 
-            Assert.Null(model.EntityType(new Customer()));
-        }
-
-        [Fact]
-        public void Can_get_entity_by_instance()
-        {
-            var model = new Model();
-            model.AddEntityType(new EntityType(typeof(Customer)));
-
-            var entityType = model.EntityType(new Customer());
-
-            Assert.NotNull(entityType);
-            Assert.Equal("Customer", entityType.Name);
-            Assert.Same(entityType, model.EntityType(typeof(Customer)));
+            Assert.Null(model.TryGetEntityType(typeof(Customer)));
         }
 
         [Fact]
         public void Can_get_entity_by_type()
         {
             var model = new Model();
-            model.AddEntityType(new EntityType(typeof(Customer)));
+            var entityType = new EntityType(typeof(Customer));
+            model.AddEntityType(entityType);
 
-            var entityType = model.EntityType(typeof(Customer));
-
-            Assert.NotNull(entityType);
-            Assert.Equal("Customer", entityType.Name);
-            Assert.Same(entityType, model.EntityType(typeof(Customer)));
+            Assert.Same(entityType, model.GetEntityType(typeof(Customer)));
+            Assert.Same(entityType, model.TryGetEntityType(typeof(Customer)));
+            Assert.Null(model.TryGetEntityType(typeof(string)));
         }
 
         [Fact]
