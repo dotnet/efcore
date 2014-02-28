@@ -8,7 +8,7 @@ using JetBrains.Annotations;
 namespace Microsoft.Data.Entity.Utilities
 {
     [DebuggerStepThrough]
-    internal sealed class LazyRef<T>
+    public sealed class LazyRef<T>
         where T : class
     {
         private Func<T> _initializer;

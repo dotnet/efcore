@@ -1,12 +1,17 @@
 {
   "version" : "0.1-alpha-*",
   "compilationOptions" : { "warningsAsErrors" : true },
-  "dependencies": {
+  "dependencies" : {
     "Microsoft.Data.Entity" : "",
-    "Microsoft.AspNet.DependencyInjection" : "0.1-alpha-*"
+    "Microsoft.AspNet.DependencyInjection" : "0.1-alpha-*",
+    "System.Collections.Immutable" : "1.1.15.0"
   },
   "configurations": {
-    "net45": {},
+    "net45": {
+      "dependencies" : {
+        "System.Runtime": ""
+      }
+    },
     "k10": {}
   }
 }
