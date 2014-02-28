@@ -140,7 +140,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             Assert.Equal(2, model.GetEntityType(typeof(Customer)).Properties.Count());
         }
-        
+
         [Fact]
         public void Can_add_foreign_key()
         {
@@ -166,10 +166,10 @@ namespace Microsoft.Data.Entity.Metadata
                 .Entity<Order>()
                 .ForeignKeys(
                     fks =>
-                    {
-                        fks.ForeignKey<Customer>(c => c.CustomerId);
-                        fks.ForeignKey<Customer>(c => c.CustomerId).IsUnique();
-                    });
+                        {
+                            fks.ForeignKey<Customer>(c => c.CustomerId);
+                            fks.ForeignKey<Customer>(c => c.CustomerId).IsUnique();
+                        });
 
             var entityType = model.GetEntityType(typeof(Order));
 

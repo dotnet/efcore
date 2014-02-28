@@ -35,7 +35,6 @@ namespace Microsoft.Data.Entity.Metadata
             _entities.ExchangeValue(l => l.Remove(entityType.Type));
         }
 
-
         public virtual EntityType TryGetEntityType([NotNull] Type type)
         {
             Check.NotNull(type, "type");

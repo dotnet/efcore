@@ -3,7 +3,6 @@
 using System;
 using System.Linq;
 using System.Threading;
-using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
@@ -95,7 +94,7 @@ namespace Microsoft.Data.Entity
                 Assert.Same(product1, productAdder(context, product1));
                 Assert.Same(product2, productAdder(context, product2));
 
-                EntityEntry<Category> categoryEntry = context.ChangeTracker.Entry(category1);
+                var categoryEntry = context.ChangeTracker.Entry(category1);
                 Assert.Same(category1, categoryEntry.Entity);
                 Assert.Equal(expectedState, categoryEntry.State);
 
@@ -103,7 +102,7 @@ namespace Microsoft.Data.Entity
                 Assert.Same(category2, categoryEntry.Entity);
                 Assert.Equal(expectedState, categoryEntry.State);
 
-                EntityEntry<Product> productEntry = context.ChangeTracker.Entry(product1);
+                var productEntry = context.ChangeTracker.Entry(product1);
                 Assert.Same(product1, productEntry.Entity);
                 Assert.Equal(expectedState, productEntry.State);
 
@@ -139,7 +138,7 @@ namespace Microsoft.Data.Entity
                 Assert.NotEqual(default(Guid), gu2.Id);
                 Assert.NotEqual(gu1.Id, gu2.Id);
 
-                EntityEntry<TheGu> categoryEntry = context.ChangeTracker.Entry(gu1);
+                var categoryEntry = context.ChangeTracker.Entry(gu1);
                 Assert.Same(gu1, categoryEntry.Entity);
                 Assert.Equal(EntityState.Added, categoryEntry.State);
 
@@ -158,19 +157,19 @@ namespace Microsoft.Data.Entity
                     new[] { "Category", "Product", "TheGu" },
                     context.Model.EntityTypes.Select(e => e.Name).ToArray());
 
-                IEntityType categoryType = context.Model.GetEntityType(typeof(Category));
+                var categoryType = context.Model.GetEntityType(typeof(Category));
                 Assert.Equal("Id", categoryType.Key.Single().Name);
                 Assert.Equal(
                     new[] { "Id", "Name" },
                     categoryType.Properties.Select(p => p.Name).ToArray());
 
-                IEntityType productType = context.Model.GetEntityType(typeof(Product));
+                var productType = context.Model.GetEntityType(typeof(Product));
                 Assert.Equal("Id", productType.Key.Single().Name);
                 Assert.Equal(
                     new[] { "Id", "Name", "Price" },
                     productType.Properties.Select(p => p.Name).ToArray());
 
-                IEntityType guType = context.Model.GetEntityType(typeof(TheGu));
+                var guType = context.Model.GetEntityType(typeof(TheGu));
                 Assert.Equal("Id", guType.Key.Single().Name);
                 Assert.Equal(
                     new[] { "Id", "ShirtColor" },
