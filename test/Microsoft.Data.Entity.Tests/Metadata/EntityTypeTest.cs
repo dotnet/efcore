@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Xunit;
@@ -15,9 +16,11 @@ namespace Microsoft.Data.Entity.Metadata
         {
             public static PropertyInfo IdProperty = typeof(Customer).GetProperty("Id");
             public static PropertyInfo NameProperty = typeof(Customer).GetProperty("Name");
+            public static PropertyInfo ManeProperty = typeof(Customer).GetProperty("Mane");
 
             public int Id { get; set; }
             public string Name { get; set; }
+            public string Mane { get; set; }
         }
 
         #endregion
@@ -210,6 +213,44 @@ namespace Microsoft.Data.Entity.Metadata
             entityType.AddForeignKey(new ForeignKey(entityType, new[] { newIdProperty, property2 }));
 
             Assert.True(new[] { newIdProperty, property2 }.SequenceEqual(entityType.Properties));
+        }
+
+        [Fact]
+        public void Properties_is_IList_to_ensure_collecting_the_count_is_fast()
+        {
+            Assert.IsAssignableFrom<IList<Property>>(new EntityType(typeof(Customer)).Properties);
+        }
+
+        [Fact]
+        public void Can_get_property_indexes()
+        {
+            var entityType = new EntityType(typeof(Customer));
+
+            entityType.AddProperty(new Property(Customer.NameProperty));
+            entityType.AddProperty(new Property(Customer.IdProperty));
+            entityType.AddProperty(new Property(Customer.ManeProperty));
+
+            Assert.Equal(0, entityType.PropertyIndex("Id"));
+            Assert.Equal(1, entityType.PropertyIndex("Mane"));
+            Assert.Equal(2, entityType.PropertyIndex("Name"));
+        }
+
+        [Fact]
+        public void Indexes_are_rebuilt_when_more_properties_added()
+        {
+            var entityType = new EntityType(typeof(Customer));
+
+            entityType.AddProperty(new Property(Customer.NameProperty));
+            entityType.AddProperty(new Property(Customer.IdProperty));
+
+            Assert.Equal(0, entityType.PropertyIndex("Id"));
+            Assert.Equal(1, entityType.PropertyIndex("Name"));
+
+            entityType.AddProperty(new Property(Customer.ManeProperty));
+
+            Assert.Equal(0, entityType.PropertyIndex("Id"));
+            Assert.Equal(1, entityType.PropertyIndex("Mane"));
+            Assert.Equal(2, entityType.PropertyIndex("Name"));
         }
     }
 }

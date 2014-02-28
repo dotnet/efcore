@@ -4,10 +4,10 @@ namespace Microsoft.Data.Entity
 {
     public enum EntityState
     {
-        Unknown = 1,
-        Unchanged = 2,
-        Added = 3,
-        Deleted = 4,
-        Modified = 5
+        Unknown = 0,
+        Unchanged = 1,
+        Added = 2,
+        Deleted = 3,
+        Modified = 4
     }
 }

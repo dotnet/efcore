@@ -95,14 +95,14 @@ namespace Microsoft.Data.Entity.Metadata
             // Numbers are not 100% consistent due to other threads running and GC.GetTotalMemory not 
             // necessarily returning an accurate number. At the time of check in the numbers are:
             //
-            //  Compiled: 2168 (50)  Built: 4546216 (50) Ratio: 0.000476880113043463
-            //  Compiled: 8360 (100)  Built: 4547384 (100) Ratio: 0.00183841962763646
-            //  Compiled: 130224 (2500)  Built: 4549088 (2500) Ratio: 0.0286263972031317
-            //  Compiled: 139768 (150)  Built: 4550104 (150) Ratio: 0.0307175396430499
-            //  Compiled: 553888 (2500)  Built: 4552000 (2500) Ratio: 0.12168014059754
-            //  Compiled: 554280 (7500)  Built: 4553888 (7500) Ratio: 0.121715773422623
-            //  Compiled: 834848 (5000)  Built: 4555768 (5000) Ratio: 0.183250771329883
-            //  Compiled: 1395816 (10000)  Built: 4558256 (10000) Ratio: 0.306217114615765
+            //  Compiled: 2168 (50)  Built: 4091744 (50) Ratio: 0.000529847419584412
+            //  Compiled: 8360 (100)  Built: 4092824 (100) Ratio: 0.00204259943745443
+            //  Compiled: 182928 (2500)  Built: 4126088 (2500) Ratio: 0.0443344882610356
+            //  Compiled: 192488 (150)  Built: 4126392 (150) Ratio: 0.0466480159907251
+            //  Compiled: 606384 (2500)  Built: 4126632 (2500) Ratio: 0.146944045410398
+            //  Compiled: 672120 (7500)  Built: 4192272 (7500) Ratio: 0.160323566791468
+            //  Compiled: 952560 (5000)  Built: 4192912 (5000) Ratio: 0.227183399031508
+            //  Compiled: 1513272 (10000)  Built: 4193584 (10000) Ratio: 0.36085410474668
             //
             // Uncomment to get new numbers:
             //for (var i = 1; i < compiledMemory.Count; i++)

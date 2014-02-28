@@ -16,15 +16,10 @@ namespace Microsoft.Data.Entity.Metadata
         private readonly string _name;
         private readonly Type _type;
 
-        private readonly LazyRef<ImmutableDictionary<string, Property>> _properties
-            = new LazyRef<ImmutableDictionary<string, Property>>(() => ImmutableDictionary<string, Property>.Empty);
-
-        private readonly LazyRef<ImmutableList<Property>> _keyProperties
-            = new LazyRef<ImmutableList<Property>>(() => ImmutableList<Property>.Empty);
-
-        private readonly LazyRef<ImmutableList<ForeignKey>> _foreignKeys
-            = new LazyRef<ImmutableList<ForeignKey>>(() => ImmutableList<ForeignKey>.Empty);
-
+        private ImmutableSortedSet<Property> _properties = ImmutableSortedSet<Property>.Empty.WithComparer(new PropertyComparer());
+        private IDictionary<string, int> _propertyIndexes;
+        private IList<Property> _keyProperties;
+        private IList<ForeignKey> _foreignKeys;
         private string _storageName;
 
         /// <summary>
@@ -75,19 +70,18 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual IEnumerable<Property> Key
         {
-            get
-            {
-                return _keyProperties.HasValue
-                    ? _keyProperties.Value
-                    : Enumerable.Empty<Property>();
-            }
+            get { return _keyProperties ?? Enumerable.Empty<Property>(); }
             [param: NotNull]
             set
             {
                 Check.NotNull(value, "value");
 
-                _keyProperties.ExchangeValue(l => ImmutableList.CreateRange(value));
-                _properties.ExchangeValue(d => d.SetItems(value.ToDictionary(p => p.Name)));
+                _keyProperties = value.ToList();
+                foreach (var property in value)
+                {
+                    // TODO: Consider if this should be replace/throw/no-op when prop with this name exists
+                    AddProperty(property);
+                }
             }
         }
 
@@ -95,39 +89,63 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(foreignKey, "foreignKey");
 
-            _foreignKeys.ExchangeValue(l => l.Add(foreignKey));
-            _properties.ExchangeValue(d => d.SetItems(foreignKey.Properties.ToDictionary(p => p.Name)));
+            if (_foreignKeys == null)
+            {
+                _foreignKeys = new List<ForeignKey>();
+            }
+
+            // TODO: Consider ordering of FKs
+            _foreignKeys.Add(foreignKey);
+            foreach (var property in foreignKey.Properties)
+            {
+                // TODO: Consider if this should be replace/throw/no-op when prop with this name exists
+                AddProperty(property);
+            }
         }
 
         public virtual IEnumerable<ForeignKey> ForeignKeys
         {
-            get
-            {
-                return _foreignKeys.HasValue
-                    ? _foreignKeys.Value
-                    : Enumerable.Empty<ForeignKey>();
-            }
+            get { return _foreignKeys ?? Enumerable.Empty<ForeignKey>(); }
         }
 
         public virtual void AddProperty([NotNull] Property property)
         {
             Check.NotNull(property, "property");
 
-            _properties.ExchangeValue(l => l.Add(property.Name, property));
+            // TODO: Consider if replace as opposed to throw/no-op is correct when prop with this name exists
+
+            Property currentProperty;
+            if (_properties.TryGetValue(property, out currentProperty))
+            {
+                if (!ReferenceEquals(currentProperty, property))
+                {
+                    _properties = _properties.Remove(currentProperty).Add(property);
+                    _propertyIndexes = null;
+                }
+            }
+            else
+            {
+                _properties = _properties.Add(property);
+                _propertyIndexes = null;
+            }
         }
 
         public virtual void RemoveProperty([NotNull] Property property)
         {
             Check.NotNull(property, "property");
 
-            if (_properties.HasValue)
+            var updatedProperties = _properties.Remove(property);
+            if (updatedProperties != _properties)
             {
-                _properties.ExchangeValue(l => l.Remove(property.Name));
+                _properties = updatedProperties;
+                _propertyIndexes = null;
+            }
 
-                if (_keyProperties.HasValue)
-                {
-                    _keyProperties.ExchangeValue(l => l.Remove(property));
-                }
+            // TODO: Consider if it is okay to take properties out of the key, which may not be empty
+            // TODO: Consider what to do with FKs that contain this property
+            if (_keyProperties != null && _keyProperties.Contains(property))
+            {
+                _keyProperties.Remove(property);
             }
         }
 
@@ -135,21 +153,35 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotEmpty(name, "name");
 
-            Property property;
-            return _properties.HasValue
-                   && _properties.Value.TryGetValue(name, out property)
-                ? property
-                : null;
+            EnsureIndexesCreated();
+
+            int index;
+            return _propertyIndexes.TryGetValue(name, out index) ? _properties[index] : null;
+        }
+
+        public virtual int PropertyIndex(string name)
+        {
+            EnsureIndexesCreated();
+
+            int index;
+            return _propertyIndexes.TryGetValue(name, out index) ? index : -1;
+        }
+
+        private void EnsureIndexesCreated()
+        {
+            if (_propertyIndexes == null)
+            {
+                _propertyIndexes = new Dictionary<string, int>(_properties.Count, StringComparer.Ordinal);
+                for (var i = 0; i < _properties.Count; i++)
+                {
+                    _propertyIndexes[_properties[i].Name] = i;
+                }
+            }
         }
 
         public virtual IEnumerable<Property> Properties
         {
-            get
-            {
-                return _properties.HasValue
-                    ? _properties.Value.Values.OrderByOrdinal(e => e.Name)
-                    : Enumerable.Empty<Property>();
-            }
+            get { return _properties; }
         }
 
         IEnumerable<IProperty> IEntityType.Key
@@ -170,6 +202,14 @@ namespace Microsoft.Data.Entity.Metadata
         IEnumerable<IForeignKey> IEntityType.ForeignKeys
         {
             get { return ForeignKeys; }
+        }
+
+        private class PropertyComparer : IComparer<Property>
+        {
+            public int Compare(Property x, Property y)
+            {
+                return StringComparer.Ordinal.Compare(x.Name, y.Name);
+            }
         }
     }
 }

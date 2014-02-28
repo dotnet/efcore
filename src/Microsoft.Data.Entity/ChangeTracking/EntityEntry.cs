@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         public virtual EntityState State
         {
-            get { return _entry.GetEntityState(); }
+            get { return _entry.EntityState; }
             set
             {
                 Check.IsDefined(value, "value");

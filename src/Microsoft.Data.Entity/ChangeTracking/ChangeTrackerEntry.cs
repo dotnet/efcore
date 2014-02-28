@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
-using System.Collections;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -11,10 +10,13 @@ namespace Microsoft.Data.Entity.ChangeTracking
 {
     internal class ChangeTrackerEntry
     {
+        private const int BitsPerInt = 32;
+        private const int BitsForEntityState = 3;
+        private const int EntityStateMask = 0x07;
+
         private readonly ChangeTracker _changeTracker;
         private readonly object _entity;
-        private EntityState _entityState = EntityState.Unknown;
-        private readonly BitArray _propertyStates;
+        private readonly int[] _propertyStates;
 
         public ChangeTrackerEntry(ChangeTracker changeTracker, object entity)
         {
@@ -29,8 +31,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 throw new InvalidOperationException(Strings.TypeNotInModel(entity.GetType().Name));
             }
 
-            // TODO: Possible perf--avoid counting properties here or even create lazily
-            _propertyStates = new BitArray(entityType.Properties.Count());
+            _propertyStates = new int[(entityType.Properties.Count() + BitsForEntityState - 1) / BitsPerInt + 1];
         }
 
         public virtual object Entity
@@ -40,15 +41,18 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         public virtual async Task SetEntityStateAsync(EntityState value, CancellationToken cancellationToken)
         {
-            var oldState = _entityState;
-            _entityState = value;
+            var oldState = EntityState;
+            EntityState = value;
 
             // The entity state can be Modified even if some properties are not modified so always
             // set all properties to modified if the entity state is explicitly set to Modified.
             if (value == EntityState.Modified)
             {
-                // TODO: Avoid setting keys/readonly properties to modified
-                _propertyStates.SetAll(true);
+                var propertyCount = _changeTracker.Model.EntityType(_entity).Properties.Count();
+                for (var i = 0; i < _propertyStates.Length; i++)
+                {
+                    _propertyStates[i] |= CreateMask(i, propertyCount);
+                }
             }
 
             if (oldState == value)
@@ -80,49 +84,88 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
         }
 
-        public virtual EntityState GetEntityState()
+        public virtual EntityState EntityState
         {
-            return _entityState;
+            get { return (EntityState)(_propertyStates[0] & EntityStateMask); }
+            private set { _propertyStates[0] = (_propertyStates[0] & ~EntityStateMask) | (int)value; }
         }
 
         public virtual bool IsPropertyModified(string propertyName)
         {
-            return _entityState == EntityState.Modified && _propertyStates[GetPropertyIndex(propertyName)];
+            if (EntityState != EntityState.Modified)
+            {
+                return false;
+            }
+
+            var index = GetPropertyIndex(propertyName);
+            return (_propertyStates[index / BitsPerInt] & (1 << index % BitsPerInt)) != 0;
         }
 
         public virtual void SetPropertyModified(string propertyName, bool isModified)
         {
             // TODO: Restore original value to reject changes when isModified is false
-            _propertyStates[GetPropertyIndex(propertyName)] = isModified;
+
+            var index = GetPropertyIndex(propertyName);
+            if (isModified)
+            {
+                _propertyStates[index / BitsPerInt] |= 1 << index % BitsPerInt;
+            }
+            else
+            {
+                _propertyStates[index / BitsPerInt] &= ~(1 << index % BitsPerInt);
+            }
 
             // Don't change entity state if it is Added or Deleted
-            if (isModified && _entityState == EntityState.Unchanged)
+            if (isModified && EntityState == EntityState.Unchanged)
             {
-                _entityState = EntityState.Modified;
+                EntityState = EntityState.Modified;
             }
             else if (!isModified
-                     && _propertyStates.OfType<bool>().All(s => !s))
+                     && !_propertyStates.Where((t, i) => (t & CreateMask(i)) != 0).Any())
             {
-                _entityState = EntityState.Unchanged;
+                EntityState = EntityState.Unchanged;
             }
         }
 
-        private int GetPropertyIndex(string property)
+        private int CreateMask(int i)
         {
-            // TODO: Possible perf--make it faster to find the index for a property
-            var index = 0;
-            var enumerator = _changeTracker.Model.EntityType(_entity).Properties.GetEnumerator();
-            while (enumerator.MoveNext()
-                   && enumerator.Current.Name != property)
+            var mask = unchecked(((int)0xFFFFFFFF));
+            if (i == 0)
             {
-                index++;
+                mask &= ~EntityStateMask;
             }
 
-            if (index >= _propertyStates.Length)
+            // TODO: Remove keys/readonly indexes from the mask to avoid setting them to modified
+            return mask;
+        }
+
+        private int CreateMask(int i, int propertyCount)
+        {
+            var mask = CreateMask(i);
+
+            if (i == _propertyStates.Length - 1)
             {
+                var overlay = unchecked(((int)0xFFFFFFFF));
+                var shift = (propertyCount + BitsForEntityState) % BitsPerInt;
+                overlay = shift != 0 ? overlay << shift : 0;
+                mask &= ~overlay;
+            }
+
+            // TODO: Remove keys/readonly indexes from the mask to avoid setting them to modified
+            return mask;
+        }
+
+        private int GetPropertyIndex(string propertyName)
+        {
+            var index = _changeTracker.Model.EntityType(_entity).PropertyIndex(propertyName);
+
+            if (index < 0)
+            {
+                // TODO: Proper message
                 throw new InvalidOperationException("Bad property name");
             }
-            return index;
+
+            return index + BitsForEntityState;
         }
     }
 }
