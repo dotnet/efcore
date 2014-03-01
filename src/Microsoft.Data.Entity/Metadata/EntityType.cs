@@ -20,7 +20,13 @@ namespace Microsoft.Data.Entity.Metadata
         private IDictionary<string, int> _propertyIndexes;
         private IList<Property> _keyProperties;
         private IList<ForeignKey> _foreignKeys;
+        private IList<Navigation> _navigations;
         private string _storageName;
+
+        // Intended only for creation of test doubles
+        internal EntityType()
+        {
+        }
 
         /// <summary>
         ///     Creates a new metadata object representing an entity type associated with the given .NET type.
@@ -85,7 +91,7 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        public virtual void AddForeignKey([NotNull] ForeignKey foreignKey)
+        public virtual ForeignKey AddForeignKey([NotNull] ForeignKey foreignKey)
         {
             Check.NotNull(foreignKey, "foreignKey");
 
@@ -96,11 +102,13 @@ namespace Microsoft.Data.Entity.Metadata
 
             // TODO: Consider ordering of FKs
             _foreignKeys.Add(foreignKey);
-            foreach (var property in foreignKey.Properties)
+            foreach (var property in foreignKey.Properties.Select(p => p.Dependent))
             {
                 // TODO: Consider if this should be replace/throw/no-op when prop with this name exists
                 AddProperty(property);
             }
+
+            return foreignKey;
         }
 
         public virtual IEnumerable<ForeignKey> ForeignKeys
@@ -108,7 +116,27 @@ namespace Microsoft.Data.Entity.Metadata
             get { return _foreignKeys ?? Enumerable.Empty<ForeignKey>(); }
         }
 
-        public virtual void AddProperty([NotNull] Property property)
+        public virtual Navigation AddNavigation([NotNull] Navigation navigation)
+        {
+            Check.NotNull(navigation, "navigation");
+
+            if (_navigations == null)
+            {
+                _navigations = new List<Navigation>();
+            }
+
+            navigation.EntityType = this;
+            _navigations.Add(navigation);
+
+            return navigation;
+        }
+
+        public virtual IEnumerable<Navigation> Navigations
+        {
+            get { return _navigations ?? Enumerable.Empty<Navigation>(); }
+        }
+
+        public virtual Property AddProperty([NotNull] Property property)
         {
             Check.NotNull(property, "property");
 
@@ -128,6 +156,8 @@ namespace Microsoft.Data.Entity.Metadata
                 _properties = _properties.Add(property);
                 _propertyIndexes = null;
             }
+
+            return property;
         }
 
         public virtual void RemoveProperty([NotNull] Property property)
@@ -203,6 +233,11 @@ namespace Microsoft.Data.Entity.Metadata
         IEnumerable<IForeignKey> IEntityType.ForeignKeys
         {
             get { return ForeignKeys; }
+        }
+
+        IEnumerable<INavigation> IEntityType.Navigations
+        {
+            get { return Navigations; }
         }
 
         private class PropertyComparer : IComparer<Property>

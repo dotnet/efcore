@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity
         private readonly IServiceProvider _serviceProvider;
 
         private DataStore _dataStore;
-        private ChangeTrackerFactory _changeTrackerFactory;
+        private StateManagerFactory _stateManagerFactory;
         private EntitySetFinder _entitySetFinder;
         private EntitySetInitializer _entitySetInitializer;
         private IdentityGeneratorFactory _identityGeneratorFactory;
@@ -120,15 +120,15 @@ namespace Microsoft.Data.Entity
             }
         }
 
-        public virtual ChangeTrackerFactory ChangeTrackerFactory
+        public virtual StateManagerFactory StateManagerFactory
         {
-            get { return _changeTrackerFactory ?? GetRequiredService<ChangeTrackerFactory>(); }
+            get { return _stateManagerFactory ?? GetRequiredService<StateManagerFactory>(); }
             [param: NotNull]
             set
             {
                 Check.NotNull(value, "value");
 
-                _changeTrackerFactory = value;
+                _stateManagerFactory = value;
             }
         }
 

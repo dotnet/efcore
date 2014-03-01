@@ -18,6 +18,11 @@ namespace Microsoft.Data.Entity.Metadata
         private string _storageName;
         private bool _isNullable = true;
 
+        // Intended only for creation of test doubles
+        internal Property()
+        {
+        }
+
         /// <summary>
         ///     Creates a new metadata object representing a .NET property.
         /// </summary>

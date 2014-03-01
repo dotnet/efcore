@@ -99,7 +99,7 @@ namespace Microsoft.Data.Entity.Metadata
             {
             }
 
-            private readonly Property[] _properties = { new Property("P", typeof(int)) };
+            private readonly PropertyPair[] _properties = { new PropertyPair(new Property("Id", typeof(int)), new Property("P", typeof(int))) };
 
             #endregion
 
