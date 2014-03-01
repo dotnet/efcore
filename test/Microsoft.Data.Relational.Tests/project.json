@@ -9,7 +9,8 @@
   "configurations": {
     "net45": {  
       "dependencies": {
-        "xunit" : "1.9.2"
+        "xunit" : "1.9.2",
+        "Moq" : "4.2.1312.1622"
       }
     }
   }
