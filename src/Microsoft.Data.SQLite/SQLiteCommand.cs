@@ -17,7 +17,7 @@ namespace Microsoft.Data.SQLite
         private CommandType _commandType = CommandType.Text;
         private string _commandText;
         private bool _prepared;
-        private StatementHandle _stmt;
+        private StatementHandle _handle;
 
         public SQLiteCommand()
         {
@@ -143,15 +143,15 @@ namespace Microsoft.Data.SQLite
             if (_prepared)
                 return;
 
-            Debug.Assert(_connection._db != null, "_connection._db is null.");
-            Debug.Assert(_stmt == null, "_stmt is not null.");
+            Debug.Assert(_connection.Handle != null && !_connection.Handle.IsInvalid, "_connection.Handle is null.");
+            Debug.Assert(_handle == null, "_handle is not null.");
 
             string tail;
             var rc = NativeMethods.sqlite3_prepare_v2(
-                _connection._db,
+                _connection.Handle,
                 _commandText,
                 Encoding.UTF8.GetByteCount(_commandText) + 1,
-                out _stmt,
+                out _handle,
                 out tail);
             MarshalEx.ThrowExceptionForRC(rc);
 
@@ -184,13 +184,13 @@ namespace Microsoft.Data.SQLite
 
             Prepare();
 
-            NativeMethods.sqlite3_step(_stmt);
-            var rc = NativeMethods.sqlite3_reset(_stmt);
+            NativeMethods.sqlite3_step(_handle);
+            var rc = NativeMethods.sqlite3_reset(_handle);
             MarshalEx.ThrowExceptionForRC(rc);
 
-            Debug.Assert(_connection._db != null, "_connection._db is null.");
+            Debug.Assert(_connection.Handle != null && !_connection.Handle.IsInvalid, "_connection.Handle is null.");
 
-            return NativeMethods.sqlite3_changes(_connection._db);
+            return NativeMethods.sqlite3_changes(_connection.Handle);
         }
 
         public override object ExecuteScalar()
@@ -202,8 +202,41 @@ namespace Microsoft.Data.SQLite
 
             Prepare();
 
-            // TODO
-            throw new NotImplementedException();
+            var rc = NativeMethods.sqlite3_step(_handle);
+            try
+            {
+                if (rc == Constants.SQLITE_DONE)
+                    return null;
+                if (rc != Constants.SQLITE_ROW)
+                    MarshalEx.ThrowExceptionForRC(rc);
+
+                switch (NativeMethods.sqlite3_column_type(_handle, 0))
+                {
+                    case Constants.SQLITE_INTEGER:
+                        return NativeMethods.sqlite3_column_int64(_handle, 0);
+
+                    case Constants.SQLITE_FLOAT:
+                        return NativeMethods.sqlite3_column_double(_handle, 0);
+
+                    case Constants.SQLITE_TEXT:
+                        return NativeMethods.sqlite3_column_text(_handle, 0);
+
+                    case Constants.SQLITE_BLOB:
+                        return NativeMethods.sqlite3_column_blob(_handle, 0);
+
+                    case Constants.SQLITE_NULL:
+                        return DBNull.Value;
+
+                    default:
+                        Debug.Assert(false, "Unexpected value.");
+                        return DBNull.Value;
+                }
+            }
+            finally
+            {
+                rc = NativeMethods.sqlite3_reset(_handle);
+                MarshalEx.ThrowExceptionForRC(rc);
+            }
         }
 
         public override void Cancel()
@@ -226,11 +259,11 @@ namespace Microsoft.Data.SQLite
 
         private void ReleaseNativeObjects()
         {
-            if (_stmt == null || _stmt.IsInvalid)
+            if (_handle == null || _handle.IsInvalid)
                 return;
 
-            _stmt.Dispose();
-            _stmt = null;
+            _handle.Dispose();
+            _handle = null;
         }
     }
 }

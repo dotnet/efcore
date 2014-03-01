@@ -69,7 +69,7 @@ namespace Microsoft.Data.SQLite
         [Fact]
         public void Prepare_can_be_called_when_disposed()
         {
-            using (var connection = new SQLiteConnection("Filename=test.db"))
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
             using (var command = connection.CreateCommand())
             {
                 command.CommandText = "SELECT 1";
@@ -95,7 +95,7 @@ namespace Microsoft.Data.SQLite
         [Fact]
         public void Prepare_throws_when_connection_closed()
         {
-            using (var connection = new SQLiteConnection("Filename=test.db"))
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
             using (var command = connection.CreateCommand())
             {
                 var ex = Assert.Throws<InvalidOperationException>(() => command.Prepare());
@@ -107,7 +107,7 @@ namespace Microsoft.Data.SQLite
         [Fact]
         public void Prepare_throws_when_no_command_text()
         {
-            using (var connection = new SQLiteConnection("Filename=test.db"))
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
             using (var command = connection.CreateCommand())
             {
                 connection.Open();
@@ -121,7 +121,7 @@ namespace Microsoft.Data.SQLite
         [Fact]
         public void Prepare_throws_on_error()
         {
-            using (var connection = new SQLiteConnection("Filename=test.db"))
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
             using (var command = connection.CreateCommand())
             {
                 command.CommandText = "INVALID";
@@ -134,20 +134,134 @@ namespace Microsoft.Data.SQLite
         }
 
         [Fact]
-        public void ExecuteNonQuery_can_be_called_when_disposed()
+        public void ExecuteScalar_throws_when_no_connection()
         {
-            using (var connection = new SQLiteConnection("Filename=test.db"))
-            using (var command = connection.CreateCommand())
+            using (var command = new SQLiteCommand())
             {
-                command.CommandText = "SELECT 1";
-                command.Dispose();
-                command.Connection = connection;
-                connection.Open();
+                var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteScalar());
 
-                command.ExecuteNonQuery();
+                Assert.Equal(Strings.CallRequiresOpenConnection("ExecuteScalar"), ex.Message);
             }
         }
 
+        [Fact]
+        public void ExecuteScalar_throws_when_connection_closed()
+        {
+            using (var connection = new SQLiteConnection())
+            using (var command = connection.CreateCommand())
+            {
+                var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteScalar());
+
+                Assert.Equal(Strings.CallRequiresOpenConnection("ExecuteScalar"), ex.Message);
+            }
+        }
+
+        [Fact]
+        public void ExecuteScalar_throws_when_no_command_text()
+        {
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
+            using (var command = connection.CreateCommand())
+            {
+                connection.Open();
+
+                var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteScalar());
+
+                Assert.Equal(Strings.CallRequiresSetCommandText("ExecuteScalar"), ex.Message);
+            }
+        }
+
+        [Fact]
+        public void ExecuteScalar_returns_null_when_empty()
+        {
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT 1 WHERE 0 = 1";
+                connection.Open();
+
+                Assert.Null(command.ExecuteScalar());
+            }
+        }
+
+        [Fact]
+        public void ExecuteScalar_returns_long_when_integer()
+        {
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT 1";
+                connection.Open();
+
+                Assert.Equal(1L, command.ExecuteScalar());
+            }
+        }
+
+        [Fact]
+        public void ExecuteScalar_returns_double_when_float()
+        {
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT 3.14";
+                connection.Open();
+
+                Assert.Equal(3.14, command.ExecuteScalar());
+            }
+        }
+
+        [Fact]
+        public void ExecuteScalar_returns_string_when_text()
+        {
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT 'test'";
+                connection.Open();
+
+                Assert.Equal("test", command.ExecuteScalar());
+            }
+        }
+
+        [Fact]
+        public void ExecuteScalar_returns_byte_array_when_blob()
+        {
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT x'7e57'";
+                connection.Open();
+
+                Assert.Equal(new byte[] { 0x7e, 0x57 }, command.ExecuteScalar());
+            }
+        }
+
+        [Fact]
+        public void ExecuteScalar_returns_DBNull_when_null()
+        {
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT NULL";
+                connection.Open();
+
+                Assert.Equal(DBNull.Value, command.ExecuteScalar());
+            }
+        }
+        
+        [Fact]
+        public void ExecuteScalar_can_be_called_more_than_once()
+        {
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT 1";
+                connection.Open();
+
+                Assert.Equal(1L, command.ExecuteScalar());
+                Assert.Equal(1L, command.ExecuteScalar());
+            }
+        }
+                
         [Fact]
         public void ExecuteNonQuery_throws_when_no_connection()
         {
@@ -162,7 +276,7 @@ namespace Microsoft.Data.SQLite
         [Fact]
         public void ExecuteNonQuery_throws_when_connection_closed()
         {
-            using (var connection = new SQLiteConnection("Filename=test.db"))
+            using (var connection = new SQLiteConnection())
             using (var command = connection.CreateCommand())
             {
                 var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteNonQuery());
@@ -174,7 +288,7 @@ namespace Microsoft.Data.SQLite
         [Fact]
         public void ExecuteNonQuery_throws_when_no_command_text()
         {
-            using (var connection = new SQLiteConnection("Filename=test.db"))
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
             using (var command = connection.CreateCommand())
             {
                 connection.Open();
@@ -188,7 +302,7 @@ namespace Microsoft.Data.SQLite
         [Fact]
         public void ExecuteNonQuery_works()
         {
-            using (var connection = new SQLiteConnection("Filename=test.db"))
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
             using (var command = connection.CreateCommand())
             {
                 command.CommandText = "SELECT 1";
@@ -203,7 +317,7 @@ namespace Microsoft.Data.SQLite
         [Fact]
         public void ExecuteNonQuery_can_be_called_more_than_once()
         {
-            using (var connection = new SQLiteConnection("Filename=test.db"))
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
             using (var command = connection.CreateCommand())
             {
                 command.CommandText = "SELECT 1";
@@ -217,7 +331,7 @@ namespace Microsoft.Data.SQLite
         [Fact]
         public void ExecuteNonQuery_can_be_called_more_than_once_when_text_changed()
         {
-            using (var connection = new SQLiteConnection("Filename=test.db"))
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
             using (var command = connection.CreateCommand())
             {
                 command.CommandText = "SELECT 1";
@@ -234,7 +348,7 @@ namespace Microsoft.Data.SQLite
         {
             using (var command = new SQLiteCommand("SELECT 1"))
             {
-                using (var connection = new SQLiteConnection("Filename=test.db"))
+                using (var connection = new SQLiteConnection("Filename=:memory:"))
                 {
                     command.Connection = connection;
                     connection.Open();

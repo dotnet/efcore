@@ -44,7 +44,7 @@
     </Reference>
     <Reference Include="System.Data.Common, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\System.Data.Common.0.1-alpha-029\lib\net45\System.Data.Common.dll</HintPath>
+      <HintPath>..\..\packages\System.Data.Common.0.1-alpha-034\lib\net45\System.Data.Common.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

@@ -13,6 +13,41 @@ namespace Microsoft.Data.SQLite.Interop
         [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         public static extern int sqlite3_close_v2(IntPtr db);
 
+        [DllImport("sqlite3", EntryPoint = "sqlite3_column_blob", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        private static extern IntPtr sqlite3_column_blob_raw(StatementHandle pStmt, int iCol);
+
+        public static byte[] sqlite3_column_blob(StatementHandle pStmt, int iCol)
+        {
+            var ptr = sqlite3_column_blob_raw(pStmt, iCol);
+            var bytes = sqlite3_column_bytes(pStmt, iCol);
+
+            var result = new byte[bytes];
+            Marshal.Copy(ptr, result, 0, bytes);
+
+            return result;
+        }
+
+        [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        private static extern int sqlite3_column_bytes(StatementHandle pStmt, int iCol);
+
+        [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        public static extern double sqlite3_column_double(StatementHandle pStmt, int iCol);
+
+        [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        public static extern long sqlite3_column_int64(StatementHandle pStmt, int iCol);
+
+        [DllImport("sqlite3", EntryPoint = "sqlite3_column_text", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        private static extern IntPtr sqlite3_column_text_raw(StatementHandle pStmt, int iCol);
+
+        public static string sqlite3_column_text(StatementHandle pStmt, int iCol)
+        {
+            return MarshalEx.PtrToStringUTF8(sqlite3_column_text_raw(pStmt, iCol));
+        }
+
+
+        [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        public static extern int sqlite3_column_type(StatementHandle pStmt, int iCol);
+
         [DllImport(
             "sqlite3",
             EntryPoint = "sqlite3_errstr",

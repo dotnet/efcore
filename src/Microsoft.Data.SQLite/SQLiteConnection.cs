@@ -15,7 +15,7 @@ namespace Microsoft.Data.SQLite
         private string _connectionString;
         private SQLiteConnectionStringBuilder _connectionOptions;
         private ConnectionState _state;
-        internal DatabaseHandle _db;
+        private DatabaseHandle _handle;
 
         public SQLiteConnection()
         {
@@ -27,6 +27,11 @@ namespace Microsoft.Data.SQLite
             Check.NotEmpty(connectionString, "connectionString");
 
             ConnectionString = connectionString;
+        }
+
+        internal DatabaseHandle Handle
+        {
+            get { return _handle; }
         }
 
         public override string ConnectionString
@@ -81,12 +86,12 @@ namespace Microsoft.Data.SQLite
             if (_connectionString == null)
                 throw new InvalidOperationException(Strings.OpenRequiresSetConnectionString);
 
-            Debug.Assert(_db == null, "_db is not null.");
+            Debug.Assert(_handle == null, "_handle is not null.");
             Debug.Assert(_connectionOptions != null, "_connectionOptions is null.");
 
             var rc = NativeMethods.sqlite3_open_v2(
                 _connectionOptions.Filename,
-                out _db,
+                out _handle,
                 _connectionOptions.GetFlags(),
                 _connectionOptions.VirtualFileSystem);
             MarshalEx.ThrowExceptionForRC(rc);
@@ -114,11 +119,11 @@ namespace Microsoft.Data.SQLite
 
         private void ReleaseNativeObjects()
         {
-            if (_db == null || _db.IsInvalid)
+            if (_handle == null || _handle.IsInvalid)
                 return;
 
-            _db.Dispose();
-            _db = null;
+            _handle.Dispose();
+            _handle = null;
         }
 
         public new SQLiteCommand CreateCommand()
