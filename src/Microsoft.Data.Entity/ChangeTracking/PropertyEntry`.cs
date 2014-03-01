@@ -6,8 +6,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
 {
     public class PropertyEntry<TEntity, TProperty> : PropertyEntry
     {
-        public PropertyEntry([NotNull] EntityEntry entityEntry, [NotNull] string name)
-            : base(entityEntry, name)
+        public PropertyEntry([NotNull] StateEntry stateEntry, [NotNull] string name)
+            : base(stateEntry, name)
         {
         }
     }

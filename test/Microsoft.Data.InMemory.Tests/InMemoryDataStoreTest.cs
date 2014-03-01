@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity;
@@ -26,9 +27,10 @@ namespace Microsoft.Data.InMemory
         public async Task Save_changes_adds_new_objects_to_store()
         {
             var model = CreateModel();
-            var changeTracker = new ChangeTracker(model, new ActiveIdentityGenerators(new InMemoryIdentityGeneratorFactory()));
+            var changeTracker = new StateManager(
+                model, new ActiveIdentityGenerators(new InMemoryIdentityGeneratorFactory()), Enumerable.Empty<IEntityStateListener>());
             var customer = new Customer { Id = 42, Name = "Unikorn" };
-            var entityEntry = new ChangeTrackerEntry(changeTracker, customer);
+            var entityEntry = new StateEntry(changeTracker, customer);
             await entityEntry.SetEntityStateAsync(EntityState.Added, CancellationToken.None);
             var inMemoryDataStore = new InMemoryDataStore();
 
@@ -42,16 +44,17 @@ namespace Microsoft.Data.InMemory
         public async Task Save_changes_updates_changed_objects_in_store()
         {
             var model = CreateModel();
-            var changeTracker = new ChangeTracker(model, new ActiveIdentityGenerators(new InMemoryIdentityGeneratorFactory()));
-            
+            var changeTracker = new StateManager(
+                model, new ActiveIdentityGenerators(new InMemoryIdentityGeneratorFactory()), Enumerable.Empty<IEntityStateListener>());
+
             var customer = new Customer { Id = 42, Name = "Unikorn" };
-            var entityEntry = new ChangeTrackerEntry(changeTracker, customer);
+            var entityEntry = new StateEntry(changeTracker, customer);
             await entityEntry.SetEntityStateAsync(EntityState.Added, CancellationToken.None);
             var inMemoryDataStore = new InMemoryDataStore();
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry }, model);
 
             customer.Name = "Unikorn, The Return";
-            entityEntry = new ChangeTrackerEntry(changeTracker, customer);
+            entityEntry = new StateEntry(changeTracker, customer);
             await entityEntry.SetEntityStateAsync(EntityState.Modified, CancellationToken.None);
 
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry }, model);
@@ -64,16 +67,17 @@ namespace Microsoft.Data.InMemory
         public async Task Save_changes_removes_deleted_objects_from_store()
         {
             var model = CreateModel();
-            var changeTracker = new ChangeTracker(model, new ActiveIdentityGenerators(new InMemoryIdentityGeneratorFactory()));
+            var changeTracker = new StateManager(
+                model, new ActiveIdentityGenerators(new InMemoryIdentityGeneratorFactory()), Enumerable.Empty<IEntityStateListener>());
 
             var customer = new Customer { Id = 42, Name = "Unikorn" };
-            var entityEntry = new ChangeTrackerEntry(changeTracker, customer);
+            var entityEntry = new StateEntry(changeTracker, customer);
             await entityEntry.SetEntityStateAsync(EntityState.Added, CancellationToken.None);
             var inMemoryDataStore = new InMemoryDataStore();
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry }, model);
 
             customer.Name = "Unikorn, The Return";
-            entityEntry = new ChangeTrackerEntry(changeTracker, customer);
+            entityEntry = new StateEntry(changeTracker, customer);
             await entityEntry.SetEntityStateAsync(EntityState.Deleted, CancellationToken.None);
 
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry }, model);

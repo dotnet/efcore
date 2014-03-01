@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity
     {
         private readonly EntityConfiguration _configuration;
         private readonly LazyRef<IModel> _model;
-        private readonly LazyRef<ChangeTracker> _changeTracker;
+        private readonly LazyRef<StateManager> _stateManager;
 
         // Intended only for creation of test doubles
         internal EntityContext()
@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity
 
             _configuration = configuration;
             _model = new LazyRef<IModel>(() => _configuration.Model ?? _configuration.ModelSource.GetModel(this));
-            _changeTracker = new LazyRef<ChangeTracker>(() => _configuration.ChangeTrackerFactory.Create(_model.Value));
+            _stateManager = new LazyRef<StateManager>(() => _configuration.StateManagerFactory.Create(_model.Value));
 
             _configuration.EntitySetInitializer.InitializeSets(this);
         }
@@ -72,7 +72,7 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(entity, "entity");
 
-            await ChangeTracker.Entry(entity).Entry.SetEntityStateAsync(EntityState.Added, cancellationToken).ConfigureAwait(false);
+            await _stateManager.Value.GetOrCreateEntry(entity).SetEntityStateAsync(EntityState.Added, cancellationToken).ConfigureAwait(false);
 
             return entity;
         }
@@ -107,7 +107,7 @@ namespace Microsoft.Data.Entity
 
         public virtual ChangeTracker ChangeTracker
         {
-            get { return _changeTracker.Value; }
+            get { return new ChangeTracker(_stateManager.Value); }
         }
 
         public virtual IModel Model

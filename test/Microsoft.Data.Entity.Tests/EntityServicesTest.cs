@@ -21,10 +21,11 @@ namespace Microsoft.Data.Entity
             Assert.True(services.Any(sd => sd.ServiceType == typeof(ILoggerFactory)));
             Assert.True(services.Any(sd => sd.ServiceType == typeof(IdentityGeneratorFactory)));
             Assert.True(services.Any(sd => sd.ServiceType == typeof(ActiveIdentityGenerators)));
-            Assert.True(services.Any(sd => sd.ServiceType == typeof(ChangeTrackerFactory)));
+            Assert.True(services.Any(sd => sd.ServiceType == typeof(StateManagerFactory)));
             Assert.True(services.Any(sd => sd.ServiceType == typeof(IModelSource)));
             Assert.True(services.Any(sd => sd.ServiceType == typeof(EntitySetFinder)));
             Assert.True(services.Any(sd => sd.ServiceType == typeof(EntitySetInitializer)));
+            Assert.True(services.Any(sd => sd.ServiceType == typeof(IEntityStateListener)));
         }
 
         [Fact]
@@ -48,10 +49,10 @@ namespace Microsoft.Data.Entity
             // TODO: Currently Singleton returns a new instance each time
             //Assert.Same(activeIdentityGenerators, serviceProvider.GetService<ActiveIdentityGenerators>());
 
-            var changeTrackerFactory = serviceProvider.GetService<ChangeTrackerFactory>();
+            var changeTrackerFactory = serviceProvider.GetService<StateManagerFactory>();
             Assert.NotNull(changeTrackerFactory);
             // TODO: Currently Scoped returns a new instance each time
-            //Assert.Same(changeTrackerFactory, serviceProvider.GetService<ChangeTrackerFactory>());
+            //Assert.Same(changeTrackerFactory, serviceProvider.GetService<StateManagerFactory>());
 
             var scaoped = serviceProvider.GetService<IServiceProvider>();
             Assert.NotNull(scaoped);
@@ -60,7 +61,7 @@ namespace Microsoft.Data.Entity
             //Assert.Same(loggerFactory, scaoped.GetService<ILoggerFactory>());
             //Assert.Same(identityGeneratorFactory, scaoped.GetService<IdentityGeneratorFactory>());
             //Assert.Same(activeIdentityGenerators, scaoped.GetService<ActiveIdentityGenerators>());
-            Assert.NotSame(changeTrackerFactory, scaoped.GetService<ChangeTrackerFactory>());
+            Assert.NotSame(changeTrackerFactory, scaoped.GetService<StateManagerFactory>());
         }
 
         [Fact]

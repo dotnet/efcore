@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Moq;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Metadata
@@ -17,10 +18,23 @@ namespace Microsoft.Data.Entity.Metadata
             public static PropertyInfo IdProperty = typeof(Customer).GetProperty("Id");
             public static PropertyInfo NameProperty = typeof(Customer).GetProperty("Name");
             public static PropertyInfo ManeProperty = typeof(Customer).GetProperty("Mane");
+            public static PropertyInfo UniqueProperty = typeof(Customer).GetProperty("Unique");
 
             public int Id { get; set; }
+            public Guid Unique { get; set; }
             public string Name { get; set; }
             public string Mane { get; set; }
+        }
+
+        public class Order
+        {
+            public static PropertyInfo IdProperty = typeof(Order).GetProperty("Id");
+            public static PropertyInfo CustomerIdProperty = typeof(Order).GetProperty("CustomerId");
+            public static PropertyInfo CustomerUniqueProperty = typeof(Order).GetProperty("CustomerUnique");
+
+            public int Id { get; set; }
+            public int CustomerId { get; set; }
+            public Guid CustomerUnique { get; set; }
         }
 
         #endregion
@@ -96,8 +110,8 @@ namespace Microsoft.Data.Entity.Metadata
             var property1 = new Property(Customer.IdProperty);
             var property2 = new Property(Customer.NameProperty);
 
-            entityType.AddProperty(property1);
-            entityType.AddProperty(property2);
+            Assert.Same(property1, entityType.AddProperty(property1));
+            Assert.Same(property2, entityType.AddProperty(property2));
 
             Assert.True(new[] { property1, property2 }.SequenceEqual(entityType.Properties));
 
@@ -180,10 +194,12 @@ namespace Microsoft.Data.Entity.Metadata
         [Fact]
         public void Add_foreign_key()
         {
-            var entityType = new EntityType(typeof(Customer));
-            var foreignKey = new ForeignKey(entityType, new[] { new Property(Customer.IdProperty) });
+            var entityType = new EntityType(typeof(Order));
 
-            entityType.AddForeignKey(foreignKey);
+            var foreignKey = new ForeignKey(
+                entityType, new[] { new Property(Order.CustomerUniqueProperty) });
+
+            Assert.Same(foreignKey, entityType.AddForeignKey(foreignKey));
 
             Assert.True(entityType.ForeignKeys.Contains(foreignKey));
         }
@@ -191,10 +207,12 @@ namespace Microsoft.Data.Entity.Metadata
         [Fact]
         public void Adding_foreign_key_should_add_properties()
         {
-            var entityType = new EntityType(typeof(Customer));
-            var idProperty = new Property(Customer.IdProperty);
+            var entityType = new EntityType(typeof(Order));
+            var idProperty = new Property(Order.CustomerIdProperty);
 
-            entityType.AddForeignKey(new ForeignKey(entityType, new[] { idProperty }));
+            entityType.AddForeignKey(
+                new ForeignKey(
+                    entityType, new[] { new Property(Order.CustomerIdProperty) }));
 
             Assert.True(entityType.Properties.Contains(idProperty));
         }
@@ -202,17 +220,30 @@ namespace Microsoft.Data.Entity.Metadata
         [Fact]
         public void Setting_foreign_key_properties_should_update_existing_properties()
         {
-            var entityType = new EntityType(typeof(Customer));
+            var entityType = new EntityType(typeof(Order));
+            entityType.AddProperty(new Property(Order.CustomerIdProperty));
 
-            entityType.AddProperty(new Property(Customer.IdProperty));
+            var newIdProperty = new Property(Order.CustomerIdProperty);
+            var property2 = new Property(Order.CustomerUniqueProperty);
 
-            var newIdProperty = new Property(Customer.IdProperty);
+            entityType.AddForeignKey(
+                new ForeignKey(
+                    entityType, new[] { newIdProperty, property2 }));
 
-            var property2 = new Property(Customer.NameProperty);
+            Assert.Equal(new[] { newIdProperty, property2 }, entityType.Properties.ToArray());
+        }
 
-            entityType.AddForeignKey(new ForeignKey(entityType, new[] { newIdProperty, property2 }));
+        [Fact]
+        public void Can_add_navigations()
+        {
+            var entityType = new EntityType(typeof(Order));
 
-            Assert.True(new[] { newIdProperty, property2 }.SequenceEqual(entityType.Properties));
+            var navigation = new Navigation(new Mock<ForeignKey>().Object, "Milk");
+
+            entityType.AddNavigation(navigation);
+
+            Assert.Same(navigation, entityType.Navigations.Single());
+            Assert.Same(entityType, navigation.EntityType);
         }
 
         [Fact]

@@ -8,47 +8,41 @@ namespace Microsoft.Data.Entity.ChangeTracking
 {
     public class EntityEntry
     {
-        private readonly ChangeTrackerEntry _entry;
+        private readonly StateEntry _stateEntry;
 
-        internal EntityEntry(ChangeTrackerEntry entry)
+        public EntityEntry([NotNull] StateEntry stateEntry)
         {
-            _entry = entry;
-        }
+            Check.NotNull(stateEntry, "stateEntry");
 
-        public EntityEntry([NotNull] ChangeTracker changeTracker, [NotNull] object entity)
-        {
-            Check.NotNull(changeTracker, "changeTracker");
-            Check.NotNull(entity, "entity");
-
-            _entry = new ChangeTrackerEntry(changeTracker, entity);
+            _stateEntry = stateEntry;
         }
 
         public virtual object Entity
         {
-            get { return _entry.Entity; }
+            get { return _stateEntry.Entity; }
         }
 
         public virtual EntityState State
         {
-            get { return _entry.EntityState; }
+            get { return _stateEntry.EntityState; }
             set
             {
                 Check.IsDefined(value, "value");
 
-                _entry.SetEntityStateAsync(value, CancellationToken.None).Wait();
+                _stateEntry.SetEntityStateAsync(value, CancellationToken.None).Wait();
             }
         }
 
-        internal ChangeTrackerEntry Entry
+        public virtual StateEntry StateEntry
         {
-            get { return _entry; }
+            get { return _stateEntry; }
         }
 
         public virtual PropertyEntry Property([NotNull] string propertyName)
         {
             Check.NotEmpty(propertyName, "propertyName");
 
-            return new PropertyEntry(this, propertyName);
+            return new PropertyEntry(_stateEntry, propertyName);
         }
     }
 }

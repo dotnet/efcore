@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.Storage
     public abstract class DataStore
     {
         public virtual Task<int> SaveChangesAsync(
-            [NotNull] IEnumerable<ChangeTrackerEntry> changeTrackerEntries, [NotNull] IModel model)
+            [NotNull] IEnumerable<StateEntry> changeTrackerEntries, [NotNull] IModel model)
         {
             return Task.FromResult(0);
         }

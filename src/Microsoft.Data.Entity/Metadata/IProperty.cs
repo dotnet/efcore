@@ -11,6 +11,7 @@ namespace Microsoft.Data.Entity.Metadata
         string StorageName { get; }
         Type PropertyType { get; }
         Type DeclaringType { get; }
+        bool IsNullable { get; }
         void SetValue([NotNull] object instance, [CanBeNull] object value);
         object GetValue([NotNull] object instance);
         ValueGenerationStrategy ValueGenerationStrategy { get; }

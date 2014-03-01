@@ -6,8 +6,9 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public interface IForeignKey : IMetadata
     {
-        IEnumerable<Property> Properties { get; }
-        EntityType ReferencedEntityType { get; }
+        IEnumerable<IProperty> DependentProperties { get; }
+        IEnumerable<IProperty> PrincipalProperties { get; }
+        IEntityType PrincipalType { get; }
         bool IsUnique { get; }
         bool IsRequired { get; }
         string StorageName { get; }

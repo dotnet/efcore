@@ -38,6 +38,12 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
             get { return Enumerable.Empty<IForeignKey>(); }
         }
 
+        public IEnumerable<INavigation> Navigations
+        {
+            // TODO: Implement navigations in the compiled model
+            get { return Enumerable.Empty<INavigation>(); }
+        }
+
         public IEnumerable<IProperty> Properties
         {
             get { return EnsurePropertiesInitialized(); }

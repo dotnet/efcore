@@ -18,14 +18,14 @@ namespace Microsoft.Data.InMemory
         private readonly LazyRef<ImmutableDictionary<object, object[]>> _objectData
             = new LazyRef<ImmutableDictionary<object, object[]>>(() => ImmutableDictionary<object, object[]>.Empty);
 
-        public override Task<int> SaveChangesAsync(IEnumerable<ChangeTrackerEntry> changeTrackerEntries, IModel model)
+        public override Task<int> SaveChangesAsync(IEnumerable<StateEntry> changeTrackerEntries, IModel model)
         {
             Check.NotNull(changeTrackerEntries, "changeTrackerEntries");
             Check.NotNull(model, "model");
 
-            var added = new List<ChangeTrackerEntry>();
-            var deleted = new List<ChangeTrackerEntry>();
-            var modified = new List<ChangeTrackerEntry>();
+            var added = new List<StateEntry>();
+            var deleted = new List<StateEntry>();
+            var modified = new List<StateEntry>();
 
             foreach (var changeTrackerEntry in changeTrackerEntries)
             {
