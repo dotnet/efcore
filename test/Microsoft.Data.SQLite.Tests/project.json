@@ -1,0 +1,22 @@
+{
+    "version": "0.1-alpha-*",
+    "dependencies": {
+        "Microsoft.Data.SQLite": "",
+        "System.Data.Common": "0.1-alpha-*",
+        "Xunit.KRunner": "0.1-alpha-*",
+        "xunit2": "0.1-alpha-*",
+        "xunit2.assert": "0.1-alpha-*"
+    },
+    "commands": {
+        "test": "Xunit.KRunner"
+    },
+    "configurations": {
+        "net45": {
+            "dependencies": {
+                "System.Data": "",
+                "System.Runtime": ""
+            }
+        },
+        "k10": {}
+    }
+}

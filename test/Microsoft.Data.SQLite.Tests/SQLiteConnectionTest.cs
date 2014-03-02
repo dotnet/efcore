@@ -14,7 +14,7 @@ namespace Microsoft.Data.SQLite
         {
             var ex = Assert.Throws<ArgumentException>(() => new SQLiteConnection(null));
 
-            Assert.Equal(Strings.ArgumentIsNullOrWhitespace("connectionString"), ex.Message);
+            Assert.Equal(Strings.FormatArgumentIsNullOrWhitespace("connectionString"), ex.Message);
         }
 
         [Fact]
@@ -33,7 +33,7 @@ namespace Microsoft.Data.SQLite
             {
                 var ex = Assert.Throws<ArgumentException>(() => connection.ConnectionString = null);
 
-                Assert.Equal(Strings.ArgumentIsNullOrWhitespace("value"), ex.Message);
+                Assert.Equal(Strings.FormatArgumentIsNullOrWhitespace("value"), ex.Message);
             }
         }
 
@@ -287,7 +287,7 @@ namespace Microsoft.Data.SQLite
 
                 var ex = Assert.Throws<ArgumentException>(() => connection.BeginTransaction(0));
 
-                Assert.Equal(Strings.InvalidIsolationLevel(0), ex.Message);
+                Assert.Equal(Strings.FormatInvalidIsolationLevel(0), ex.Message);
             }
         }
 
@@ -298,7 +298,7 @@ namespace Microsoft.Data.SQLite
             {
                 var ex = Assert.Throws<InvalidOperationException>(() => connection.BeginTransaction());
 
-                Assert.Equal(Strings.CallRequiresOpenConnection("BeginTransaction"), ex.Message);
+                Assert.Equal(Strings.FormatCallRequiresOpenConnection("BeginTransaction"), ex.Message);
             }
         }
 

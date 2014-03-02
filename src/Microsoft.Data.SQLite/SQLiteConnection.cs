@@ -149,9 +149,9 @@ namespace Microsoft.Data.SQLite
         public new SQLiteTransaction BeginTransaction(IsolationLevel isolationLevel)
         {
             if (isolationLevel != IsolationLevel.ReadUncommitted && isolationLevel != IsolationLevel.Serializable)
-                throw new ArgumentException(Strings.InvalidIsolationLevel(isolationLevel));
+                throw new ArgumentException(Strings.FormatInvalidIsolationLevel(isolationLevel));
             if (_state != ConnectionState.Open)
-                throw new InvalidOperationException(Strings.CallRequiresOpenConnection("BeginTransaction"));
+                throw new InvalidOperationException(Strings.FormatCallRequiresOpenConnection("BeginTransaction"));
 
             return new SQLiteTransaction(this, isolationLevel);
         }

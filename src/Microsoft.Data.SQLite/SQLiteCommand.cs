@@ -59,7 +59,7 @@ namespace Microsoft.Data.SQLite
             set
             {
                 if (value != CommandType.Text)
-                    throw new ArgumentException(Strings.InvalidCommandType(value));
+                    throw new ArgumentException(Strings.FormatInvalidCommandType(value));
 
                 _commandType = value;
             }
@@ -137,9 +137,9 @@ namespace Microsoft.Data.SQLite
         public override void Prepare()
         {
             if (_connection == null || _connection.State != ConnectionState.Open)
-                throw new InvalidOperationException(Strings.CallRequiresOpenConnection("Prepare"));
+                throw new InvalidOperationException(Strings.FormatCallRequiresOpenConnection("Prepare"));
             if (string.IsNullOrWhiteSpace(_commandText))
-                throw new InvalidOperationException(Strings.CallRequiresSetCommandText("Prepare"));
+                throw new InvalidOperationException(Strings.FormatCallRequiresSetCommandText("Prepare"));
             if (_prepared)
                 return;
 
@@ -165,9 +165,9 @@ namespace Microsoft.Data.SQLite
         protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
         {
             if (_connection == null || _connection.State != ConnectionState.Open)
-                throw new InvalidOperationException(Strings.CallRequiresOpenConnection("ExecuteDbDataReader"));
+                throw new InvalidOperationException(Strings.FormatCallRequiresOpenConnection("ExecuteDbDataReader"));
             if (string.IsNullOrWhiteSpace(_commandText))
-                throw new InvalidOperationException(Strings.CallRequiresSetCommandText("ExecuteDbDataReader"));
+                throw new InvalidOperationException(Strings.FormatCallRequiresSetCommandText("ExecuteDbDataReader"));
 
             Prepare();
 
@@ -178,9 +178,9 @@ namespace Microsoft.Data.SQLite
         public override int ExecuteNonQuery()
         {
             if (_connection == null || _connection.State != ConnectionState.Open)
-                throw new InvalidOperationException(Strings.CallRequiresOpenConnection("ExecuteNonQuery"));
+                throw new InvalidOperationException(Strings.FormatCallRequiresOpenConnection("ExecuteNonQuery"));
             if (string.IsNullOrWhiteSpace(_commandText))
-                throw new InvalidOperationException(Strings.CallRequiresSetCommandText("ExecuteNonQuery"));
+                throw new InvalidOperationException(Strings.FormatCallRequiresSetCommandText("ExecuteNonQuery"));
 
             Prepare();
 
@@ -196,9 +196,9 @@ namespace Microsoft.Data.SQLite
         public override object ExecuteScalar()
         {
             if (_connection == null || _connection.State != ConnectionState.Open)
-                throw new InvalidOperationException(Strings.CallRequiresOpenConnection("ExecuteScalar"));
+                throw new InvalidOperationException(Strings.FormatCallRequiresOpenConnection("ExecuteScalar"));
             if (string.IsNullOrWhiteSpace(_commandText))
-                throw new InvalidOperationException(Strings.CallRequiresSetCommandText("ExecuteScalar"));
+                throw new InvalidOperationException(Strings.FormatCallRequiresSetCommandText("ExecuteScalar"));
 
             Prepare();
 

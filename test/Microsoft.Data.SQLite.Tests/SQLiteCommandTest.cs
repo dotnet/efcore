@@ -12,7 +12,7 @@ namespace Microsoft.Data.SQLite
         public void Ctor_validates_arguments()
         {
             var ex = Assert.Throws<ArgumentException>(() => new SQLiteCommand(null));
-            Assert.Equal(Strings.ArgumentIsNullOrWhitespace("commandText"), ex.Message);
+            Assert.Equal(Strings.FormatArgumentIsNullOrWhitespace("commandText"), ex.Message);
 
             ex = Assert.Throws<ArgumentNullException>(() => new SQLiteCommand("SELECT 1", null));
             Assert.Equal("connection", ex.ParamName);
@@ -40,7 +40,7 @@ namespace Microsoft.Data.SQLite
             {
                 var ex = Assert.Throws<ArgumentException>(() => command.CommandType = 0);
 
-                Assert.Equal(Strings.InvalidCommandType(0), ex.Message);
+                Assert.Equal(Strings.FormatInvalidCommandType(0), ex.Message);
             }
         }
 
@@ -51,7 +51,7 @@ namespace Microsoft.Data.SQLite
             {
                 var ex = Assert.Throws<ArgumentException>(() => command.CommandText = null);
 
-                Assert.Equal(Strings.ArgumentIsNullOrWhitespace("value"), ex.Message);
+                Assert.Equal(Strings.FormatArgumentIsNullOrWhitespace("value"), ex.Message);
             }
         }
 
@@ -88,7 +88,7 @@ namespace Microsoft.Data.SQLite
             {
                 var ex = Assert.Throws<InvalidOperationException>(() => command.Prepare());
 
-                Assert.Equal(Strings.CallRequiresOpenConnection("Prepare"), ex.Message);
+                Assert.Equal(Strings.FormatCallRequiresOpenConnection("Prepare"), ex.Message);
             }
         }
 
@@ -100,7 +100,7 @@ namespace Microsoft.Data.SQLite
             {
                 var ex = Assert.Throws<InvalidOperationException>(() => command.Prepare());
 
-                Assert.Equal(Strings.CallRequiresOpenConnection("Prepare"), ex.Message);
+                Assert.Equal(Strings.FormatCallRequiresOpenConnection("Prepare"), ex.Message);
             }
         }
 
@@ -114,7 +114,7 @@ namespace Microsoft.Data.SQLite
 
                 var ex = Assert.Throws<InvalidOperationException>(() => command.Prepare());
 
-                Assert.Equal(Strings.CallRequiresSetCommandText("Prepare"), ex.Message);
+                Assert.Equal(Strings.FormatCallRequiresSetCommandText("Prepare"), ex.Message);
             }
         }
 
@@ -140,7 +140,7 @@ namespace Microsoft.Data.SQLite
             {
                 var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteScalar());
 
-                Assert.Equal(Strings.CallRequiresOpenConnection("ExecuteScalar"), ex.Message);
+                Assert.Equal(Strings.FormatCallRequiresOpenConnection("ExecuteScalar"), ex.Message);
             }
         }
 
@@ -152,7 +152,7 @@ namespace Microsoft.Data.SQLite
             {
                 var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteScalar());
 
-                Assert.Equal(Strings.CallRequiresOpenConnection("ExecuteScalar"), ex.Message);
+                Assert.Equal(Strings.FormatCallRequiresOpenConnection("ExecuteScalar"), ex.Message);
             }
         }
 
@@ -166,7 +166,7 @@ namespace Microsoft.Data.SQLite
 
                 var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteScalar());
 
-                Assert.Equal(Strings.CallRequiresSetCommandText("ExecuteScalar"), ex.Message);
+                Assert.Equal(Strings.FormatCallRequiresSetCommandText("ExecuteScalar"), ex.Message);
             }
         }
 
@@ -269,7 +269,7 @@ namespace Microsoft.Data.SQLite
             {
                 var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteNonQuery());
 
-                Assert.Equal(Strings.CallRequiresOpenConnection("ExecuteNonQuery"), ex.Message);
+                Assert.Equal(Strings.FormatCallRequiresOpenConnection("ExecuteNonQuery"), ex.Message);
             }
         }
 
@@ -281,7 +281,7 @@ namespace Microsoft.Data.SQLite
             {
                 var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteNonQuery());
 
-                Assert.Equal(Strings.CallRequiresOpenConnection("ExecuteNonQuery"), ex.Message);
+                Assert.Equal(Strings.FormatCallRequiresOpenConnection("ExecuteNonQuery"), ex.Message);
             }
         }
 
@@ -295,7 +295,7 @@ namespace Microsoft.Data.SQLite
 
                 var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteNonQuery());
 
-                Assert.Equal(Strings.CallRequiresSetCommandText("ExecuteNonQuery"), ex.Message);
+                Assert.Equal(Strings.FormatCallRequiresSetCommandText("ExecuteNonQuery"), ex.Message);
             }
         }
 

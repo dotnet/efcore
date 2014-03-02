@@ -30,12 +30,12 @@ namespace Microsoft.Data.SQLite.Utilities
         {
             if (string.IsNullOrWhiteSpace(parameterName))
             {
-                throw new ArgumentException(Strings.ArgumentIsNullOrWhitespace("parameterName"));
+                throw new ArgumentException(Strings.FormatArgumentIsNullOrWhitespace("parameterName"));
             }
 
             if (string.IsNullOrWhiteSpace(value))
             {
-                throw new ArgumentException(Strings.ArgumentIsNullOrWhitespace(parameterName));
+                throw new ArgumentException(Strings.FormatArgumentIsNullOrWhitespace(parameterName));
             }
 
             return value;

@@ -13,7 +13,15 @@ namespace Microsoft.Data.SQLite
         /// <summary>
         /// The argument '{argumentName}' cannot be null, empty or contain only white space.
         /// </summary>
-        internal static string ArgumentIsNullOrWhitespace(object argumentName)
+        internal static string ArgumentIsNullOrWhitespace
+        {
+            get { return GetString("ArgumentIsNullOrWhitespace"); }
+        }
+
+        /// <summary>
+        /// The argument '{argumentName}' cannot be null, empty or contain only white space.
+        /// </summary>
+        internal static string FormatArgumentIsNullOrWhitespace(object argumentName)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("ArgumentIsNullOrWhitespace", "argumentName"), argumentName);
         }
@@ -21,7 +29,15 @@ namespace Microsoft.Data.SQLite
         /// <summary>
         /// {methodName} can only be called when the connection is open.
         /// </summary>
-        internal static string CallRequiresOpenConnection(object methodName)
+        internal static string CallRequiresOpenConnection
+        {
+            get { return GetString("CallRequiresOpenConnection"); }
+        }
+
+        /// <summary>
+        /// {methodName} can only be called when the connection is open.
+        /// </summary>
+        internal static string FormatCallRequiresOpenConnection(object methodName)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("CallRequiresOpenConnection", "methodName"), methodName);
         }
@@ -29,7 +45,15 @@ namespace Microsoft.Data.SQLite
         /// <summary>
         /// CommandText must be set before {methodName} can be called.
         /// </summary>
-        internal static string CallRequiresSetCommandText(object methodName)
+        internal static string CallRequiresSetCommandText
+        {
+            get { return GetString("CallRequiresSetCommandText"); }
+        }
+
+        /// <summary>
+        /// CommandText must be set before {methodName} can be called.
+        /// </summary>
+        internal static string FormatCallRequiresSetCommandText(object methodName)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("CallRequiresSetCommandText", "methodName"), methodName);
         }
@@ -43,9 +67,25 @@ namespace Microsoft.Data.SQLite
         }
 
         /// <summary>
+        /// ConnectionString cannot be set when the connection is open.
+        /// </summary>
+        internal static string FormatConnectionStringRequiresClosedConnection()
+        {
+            return GetString("ConnectionStringRequiresClosedConnection");
+        }
+
+        /// <summary>
         /// The CommandType '{commandType}' is invalid.
         /// </summary>
-        internal static string InvalidCommandType(object commandType)
+        internal static string InvalidCommandType
+        {
+            get { return GetString("InvalidCommandType"); }
+        }
+
+        /// <summary>
+        /// The CommandType '{commandType}' is invalid.
+        /// </summary>
+        internal static string FormatInvalidCommandType(object commandType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("InvalidCommandType", "commandType"), commandType);
         }
@@ -53,7 +93,15 @@ namespace Microsoft.Data.SQLite
         /// <summary>
         /// Invalid '{keyword}' value in the connection string: {value}.
         /// </summary>
-        internal static string InvalidConnectionOptionValue(object keyword, object value)
+        internal static string InvalidConnectionOptionValue
+        {
+            get { return GetString("InvalidConnectionOptionValue"); }
+        }
+
+        /// <summary>
+        /// Invalid '{keyword}' value in the connection string: {value}.
+        /// </summary>
+        internal static string FormatInvalidConnectionOptionValue(object keyword, object value)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("InvalidConnectionOptionValue", "keyword", "value"), keyword, value);
         }
@@ -61,7 +109,15 @@ namespace Microsoft.Data.SQLite
         /// <summary>
         /// The IsolationLevel '{isolationLevel}' is invalid.
         /// </summary>
-        internal static string InvalidIsolationLevel(object isolationLevel)
+        internal static string InvalidIsolationLevel
+        {
+            get { return GetString("InvalidIsolationLevel"); }
+        }
+
+        /// <summary>
+        /// The IsolationLevel '{isolationLevel}' is invalid.
+        /// </summary>
+        internal static string FormatInvalidIsolationLevel(object isolationLevel)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("InvalidIsolationLevel", "isolationLevel"), isolationLevel);
         }
@@ -69,7 +125,15 @@ namespace Microsoft.Data.SQLite
         /// <summary>
         /// Keyword not supported: '{keyword}'.
         /// </summary>
-        internal static string KeywordNotSupported(object keyword)
+        internal static string KeywordNotSupported
+        {
+            get { return GetString("KeywordNotSupported"); }
+        }
+
+        /// <summary>
+        /// Keyword not supported: '{keyword}'.
+        /// </summary>
+        internal static string FormatKeywordNotSupported(object keyword)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("KeywordNotSupported", "keyword"), keyword);
         }
@@ -82,15 +146,26 @@ namespace Microsoft.Data.SQLite
             get { return GetString("OpenRequiresSetConnectionString"); }
         }
 
-        private static string GetString(string name, params string[] argumentNames)
+        /// <summary>
+        /// ConnectionString must be set before Open can be called.
+        /// </summary>
+        internal static string FormatOpenRequiresSetConnectionString()
+        {
+            return GetString("OpenRequiresSetConnectionString");
+        }
+
+        private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
 
             System.Diagnostics.Debug.Assert(value != null);
-
-            for (var i = 0; i < argumentNames.Length; i++)
+    
+            if (formatterNames != null)
             {
-                value = value.Replace("{" + argumentNames[i] + "}", "{" + i + "}");
+                for (var i = 0; i < formatterNames.Length; i++)
+                {
+                    value = value.Replace("{" + formatterNames[i] + "}", "{" + i + "}");
+                }
             }
 
             return value;

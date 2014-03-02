@@ -1,3 +1,7 @@
+use assembly='System.IO.Compression, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'
+use assembly='System.Net.Http, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'
+use namespace='System.IO.Compression'
+use namespace='System.Net.Http'
 
 var VERSION='0.1'
 var FULL_VERSION='0.1'
@@ -5,3 +9,26 @@ var AUTHORS='Microsoft'
 
 use-standard-lifecycle
 k-standard-goals
+
+-// TODO: Include this in the nupkg
+var sqliteDllPath='src/Microsoft.Data.SQLite/bin/net45/sqlite3.dll'
+#sqlite-download target='compile' if='!File.Exists(sqliteDllPath)'
+    var sqliteUri='http://sqlite.org/2014/sqlite-dll-win32-x86-3080301.zip'
+    @{
+        using (var client = new HttpClient())
+        using (var archiveStream = client.GetStreamAsync(sqliteUri).Result)
+        using (var archive = new ZipArchive(archiveStream))
+        {
+            var entry = archive.GetEntry("sqlite3.dll");
+            if (entry == null)
+                throw new FileNotFoundException("Could not find file 'sqlite3.dll'.");
+                
+            Directory.CreateDirectory(Path.GetDirectoryName(sqliteDllPath));
+            
+            using (var entryStream = entry.Open())
+            using (var dllStream = File.OpenWrite(sqliteDllPath))
+            {
+                entryStream.CopyTo(dllStream);
+            }
+        }
+    }

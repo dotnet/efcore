@@ -68,7 +68,7 @@ namespace Microsoft.Data.SQLite
                 else if (string.IsNullOrEmpty(value))
                     value = null;
                 else
-                    throw new ArgumentException(Strings.InvalidConnectionOptionValue("Cache", value));
+                    throw new ArgumentException(Strings.FormatInvalidConnectionOptionValue("Cache", value));
 
                 base["Cache"] = value;
                 _cache = value;
@@ -97,7 +97,7 @@ namespace Microsoft.Data.SQLite
                 else if (string.IsNullOrEmpty(value) || value.Equals("RWC", StringComparison.OrdinalIgnoreCase))
                     value = "RWC";
                 else
-                    throw new ArgumentException(Strings.InvalidConnectionOptionValue("Mode", value));
+                    throw new ArgumentException(Strings.FormatInvalidConnectionOptionValue("Mode", value));
 
                 base["Mode"] = value;
                 _mode = value;
@@ -116,7 +116,7 @@ namespace Microsoft.Data.SQLite
                 else if (string.IsNullOrEmpty(value))
                     value = null;
                 else
-                    throw new ArgumentException(Strings.InvalidConnectionOptionValue("Mutex", value));
+                    throw new ArgumentException(Strings.FormatInvalidConnectionOptionValue("Mutex", value));
 
                 base["Mutex"] = value;
                 _mutex = value;
@@ -344,7 +344,7 @@ namespace Microsoft.Data.SQLite
 
             Keywords index;
             if (!_keywords.TryGetValue(keyword, out index))
-                throw new ArgumentException(Strings.KeywordNotSupported(keyword));
+                throw new ArgumentException(Strings.FormatKeywordNotSupported(keyword));
 
             return index;
         }

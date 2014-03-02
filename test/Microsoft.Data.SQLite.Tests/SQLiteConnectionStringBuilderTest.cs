@@ -12,7 +12,7 @@ namespace Microsoft.Data.SQLite
         {
             var ex = Assert.Throws<ArgumentException>(() => new SQLiteConnectionStringBuilder(null));
 
-            Assert.Equal(Strings.ArgumentIsNullOrWhitespace("connectionString"), ex.Message);
+            Assert.Equal(Strings.FormatArgumentIsNullOrWhitespace("connectionString"), ex.Message);
         }
 
         [Fact]
@@ -22,7 +22,7 @@ namespace Microsoft.Data.SQLite
 
             var ex = Assert.Throws<ArgumentException>(() => builder.Cache = "Invalid");
 
-            Assert.Equal(Strings.InvalidConnectionOptionValue("Cache", "Invalid"), ex.Message);
+            Assert.Equal(Strings.FormatInvalidConnectionOptionValue("Cache", "Invalid"), ex.Message);
         }
 
         [Fact]
@@ -71,7 +71,7 @@ namespace Microsoft.Data.SQLite
 
             var ex = Assert.Throws<ArgumentException>(() => builder.Mode = "Invalid");
 
-            Assert.Equal(Strings.InvalidConnectionOptionValue("Mode", "Invalid"), ex.Message);
+            Assert.Equal(Strings.FormatInvalidConnectionOptionValue("Mode", "Invalid"), ex.Message);
         }
 
         [Fact]
@@ -99,7 +99,7 @@ namespace Microsoft.Data.SQLite
 
             var ex = Assert.Throws<ArgumentException>(() => builder.Mutex = "Invalid");
 
-            Assert.Equal(Strings.InvalidConnectionOptionValue("Mutex", "Invalid"), ex.Message);
+            Assert.Equal(Strings.FormatInvalidConnectionOptionValue("Mutex", "Invalid"), ex.Message);
         }
 
         [Fact]
@@ -171,16 +171,16 @@ namespace Microsoft.Data.SQLite
         public void Item_validates_argument()
         {
             var ex = Assert.Throws<ArgumentException>(() => new SQLiteConnectionStringBuilder()[null]);
-            Assert.Equal(Strings.ArgumentIsNullOrWhitespace("keyword"), ex.Message);
+            Assert.Equal(Strings.FormatArgumentIsNullOrWhitespace("keyword"), ex.Message);
 
             ex = Assert.Throws<ArgumentException>(() => new SQLiteConnectionStringBuilder()[null] = 0);
-            Assert.Equal(Strings.ArgumentIsNullOrWhitespace("keyword"), ex.Message);
+            Assert.Equal(Strings.FormatArgumentIsNullOrWhitespace("keyword"), ex.Message);
 
             ex = Assert.Throws<ArgumentException>(() => new SQLiteConnectionStringBuilder()["Invalid"]);
-            Assert.Equal(Strings.KeywordNotSupported("Invalid"), ex.Message);
+            Assert.Equal(Strings.FormatKeywordNotSupported("Invalid"), ex.Message);
 
             ex = Assert.Throws<ArgumentException>(() => new SQLiteConnectionStringBuilder()["Invalid"] = 0);
-            Assert.Equal(Strings.KeywordNotSupported("Invalid"), ex.Message);
+            Assert.Equal(Strings.FormatKeywordNotSupported("Invalid"), ex.Message);
         }
 
         [Fact]
@@ -276,7 +276,7 @@ namespace Microsoft.Data.SQLite
         {
             var ex = Assert.Throws<ArgumentException>(() => new SQLiteConnectionStringBuilder().ContainsKey(null));
 
-            Assert.Equal(Strings.ArgumentIsNullOrWhitespace("keyword"), ex.Message);
+            Assert.Equal(Strings.FormatArgumentIsNullOrWhitespace("keyword"), ex.Message);
         }
 
         [Fact]
@@ -296,7 +296,7 @@ namespace Microsoft.Data.SQLite
         {
             var ex = Assert.Throws<ArgumentException>(() => new SQLiteConnectionStringBuilder().Remove(null));
 
-            Assert.Equal(Strings.ArgumentIsNullOrWhitespace("keyword"), ex.Message);
+            Assert.Equal(Strings.FormatArgumentIsNullOrWhitespace("keyword"), ex.Message);
         }
 
         [Fact]
@@ -321,7 +321,7 @@ namespace Microsoft.Data.SQLite
         {
             var ex = Assert.Throws<ArgumentException>(() => new SQLiteConnectionStringBuilder().ShouldSerialize(null));
 
-            Assert.Equal(Strings.ArgumentIsNullOrWhitespace("keyword"), ex.Message);
+            Assert.Equal(Strings.FormatArgumentIsNullOrWhitespace("keyword"), ex.Message);
         }
 
         [Fact]
