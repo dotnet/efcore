@@ -12,6 +12,10 @@ namespace Microsoft.Data.Relational.Utilities
         public static StringBuilder AppendJoin(
             [NotNull] this StringBuilder stringBuilder, [NotNull] IEnumerable<string> values, [NotNull] string separator)
         {
+            Check.NotNull(stringBuilder, "stringBuilder");
+            Check.NotNull(values, "values");
+            Check.NotNull(separator, "separator");
+
             return stringBuilder.AppendJoin(values, (sb, value) => sb.Append(value), separator);
         }
 
@@ -19,6 +23,11 @@ namespace Microsoft.Data.Relational.Utilities
             [NotNull] this StringBuilder stringBuilder, [NotNull] IEnumerable<T> values, Action<StringBuilder, T> joinAction,
             [NotNull] string separator)
         {
+            Check.NotNull(stringBuilder, "stringBuilder");
+            Check.NotNull(values, "values");
+            Check.NotNull(joinAction, "joinAction");
+            Check.NotNull(separator, "separator");
+
             var appended = false;
 
             foreach (var value in values)
