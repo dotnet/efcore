@@ -178,11 +178,14 @@ namespace Microsoft.Data.Entity.Metadata
                 {
                     Check.NotNull(foreignKeyExpression, "foreignKeyExpression");
 
-                    var foreignKey
-                        = new ForeignKey(
-                            _modelBuilder.Entity<TReferencedEntityType>().Metadata,
-                            foreignKeyExpression.GetPropertyAccessList()
-                                .Select(pi => _entityType.Property(pi.Name) ?? new Property(pi)));
+                    var principalType = _modelBuilder.Entity<TReferencedEntityType>().Metadata;
+
+                    var dependentProperties = foreignKeyExpression.GetPropertyAccessList()
+                        .Select(pi => _entityType.Property(pi.Name) ?? new Property(pi));
+
+                    // TODO: This code currently assumes that the FK maps to a PK on the principal end
+                    var foreignKey = new ForeignKey(
+                        principalType, principalType.Key.Zip(dependentProperties, (p, d) => new PropertyPair(p, d)));
 
                     _entityType.AddForeignKey(foreignKey);
 

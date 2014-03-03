@@ -10,36 +10,42 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public class ForeignKey : MetadataBase, IForeignKey
     {
-        private readonly EntityType _referencedEntityType;
-        private readonly ImmutableList<Property> _properties;
+        private readonly EntityType _principalType;
+        private readonly ImmutableList<PropertyPair> _properties;
 
         private string _storageName;
 
-        public ForeignKey(
-            [NotNull] EntityType referencedEntityType, [NotNull] IEnumerable<Property> properties)
+        // Intended only for creation of test doubles
+        internal ForeignKey()
         {
-            Check.NotNull(referencedEntityType, "referencedEntityType");
+        }
+
+        public ForeignKey(
+            [NotNull] EntityType principalType, 
+            [NotNull] IEnumerable<PropertyPair> properties)
+        {
+            Check.NotNull(principalType, "principalType");
             Check.NotNull(properties, "properties");
 
-            _referencedEntityType = referencedEntityType;
+            _principalType = principalType;
             _properties = ImmutableList.CreateRange(properties);
         }
 
-        public virtual IEnumerable<Property> Properties
+        public virtual IEnumerable<PropertyPair> Properties
         {
             get { return _properties; }
         }
 
-        public virtual EntityType ReferencedEntityType
+        public virtual EntityType PrincipalType
         {
-            get { return _referencedEntityType; }
+            get { return _principalType; }
         }
 
         public virtual bool IsUnique { get; set; }
 
         public virtual bool IsRequired
         {
-            get { return Properties.Any(p => !p.IsNullable); }
+            get { return Properties.Any(p => !p.Dependent.IsNullable); }
         }
 
         public virtual string StorageName
@@ -52,6 +58,16 @@ namespace Microsoft.Data.Entity.Metadata
 
                 _storageName = value;
             }
+        }
+
+        IEnumerable<IPropertyPair> IForeignKey.Properties
+        {
+            get { return _properties; }
+        }
+
+        IEntityType IForeignKey.PrincipalType
+        {
+            get { return _principalType; }
         }
     }
 }

@@ -39,5 +39,10 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
         {
             get { return ValueGenerationStrategy.None; }
         }
+
+        public bool IsNullable
+        {
+            get { return typeof(TProperty).IsNullableType(); }
+        }
     }
 }

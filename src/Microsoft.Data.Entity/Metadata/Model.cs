@@ -117,7 +117,7 @@ namespace Microsoft.Data.Entity.Metadata
             visited.Add(entityType);
             visiting.Add(entityType);
 
-            foreach (var predecessor in entityType.ForeignKeys.Select(fk => fk.ReferencedEntityType))
+            foreach (var predecessor in entityType.ForeignKeys.Select(fk => fk.PrincipalType))
             {
                 TopologicalSortVisit(predecessor, sorted, visiting, visited);
             }

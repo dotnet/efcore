@@ -9,13 +9,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
 {
     public class EntityEntry<TEntity> : EntityEntry
     {
-        internal EntityEntry(ChangeTrackerEntry entry)
-            : base(entry)
-        {
-        }
-
-        public EntityEntry([NotNull] ChangeTracker changeTracker, [NotNull] TEntity entity)
-            : base(changeTracker, entity)
+        public EntityEntry([NotNull] StateEntry stateEntry)
+            : base(stateEntry)
         {
         }
 
@@ -31,7 +26,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             var propertyInfo = propertyExpression.GetPropertyAccess();
 
-            return new PropertyEntry<TEntity, TProperty>(this, propertyInfo.Name);
+            return new PropertyEntry<TEntity, TProperty>(StateEntry, propertyInfo.Name);
         }
     }
 }

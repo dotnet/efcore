@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity
 
             Assert.Equal(
                 "value",
-                Assert.Throws<ArgumentNullException>(() => configuration.ChangeTrackerFactory = null).ParamName);
+                Assert.Throws<ArgumentNullException>(() => configuration.StateManagerFactory = null).ParamName);
 
             Assert.Equal(
                 "value",
@@ -164,35 +164,35 @@ namespace Microsoft.Data.Entity
         }
 
         [Fact]
-        public void Throws_if_no_ChangeTrackerFactory_registered()
+        public void Throws_if_no_StateManagerFactory_registered()
         {
             Assert.Equal(
-                Strings.MissingConfigurationItem(typeof(ChangeTrackerFactory)),
+                Strings.MissingConfigurationItem(typeof(StateManagerFactory)),
                 Assert.Throws<InvalidOperationException>(
-                    () => new EntityConfiguration(new ServiceProvider()).ChangeTrackerFactory).Message);
+                    () => new EntityConfiguration(new ServiceProvider()).StateManagerFactory).Message);
         }
 
         [Fact]
-        public void Can_provide_ChangeTrackerFactory_from_service_provider()
+        public void Can_provide_StateManagerFactory_from_service_provider()
         {
             var serviceProvider = new ServiceProvider();
             var configuration = new EntityConfiguration(serviceProvider);
 
-            var factory = new Mock<ChangeTrackerFactory>().Object;
-            serviceProvider.AddInstance<ChangeTrackerFactory>(factory);
+            var factory = new Mock<StateManagerFactory>().Object;
+            serviceProvider.AddInstance<StateManagerFactory>(factory);
 
-            Assert.Same(factory, configuration.ChangeTrackerFactory);
+            Assert.Same(factory, configuration.StateManagerFactory);
         }
 
         [Fact]
-        public void Can_set_ChangeTrackerFactory()
+        public void Can_set_StateManagerFactory()
         {
             var configuration = new EntityConfiguration();
 
-            var factory = new Mock<ChangeTrackerFactory>().Object;
-            configuration.ChangeTrackerFactory = factory;
+            var factory = new Mock<StateManagerFactory>().Object;
+            configuration.StateManagerFactory = factory;
 
-            Assert.Same(factory, configuration.ChangeTrackerFactory);
+            Assert.Same(factory, configuration.StateManagerFactory);
         }
 
         [Fact]

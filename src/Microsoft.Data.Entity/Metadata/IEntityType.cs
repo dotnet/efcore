@@ -15,6 +15,7 @@ namespace Microsoft.Data.Entity.Metadata
         IProperty Property([NotNull] string name);
         IEnumerable<IProperty> Properties { get; }
         IEnumerable<IForeignKey> ForeignKeys { get; }
+        IEnumerable<INavigation> Navigations { get; }
         int PropertyIndex([NotNull] string name);
     }
 }

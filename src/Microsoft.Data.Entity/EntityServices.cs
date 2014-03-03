@@ -17,9 +17,10 @@ namespace Microsoft.Data.Entity
             yield return ServiceDescriptor.Singleton<IModelSource, DefaultModelSource>();
             yield return ServiceDescriptor.Singleton<IdentityGeneratorFactory, DefaultIdentityGeneratorFactory>();
             yield return ServiceDescriptor.Singleton<ActiveIdentityGenerators, ActiveIdentityGenerators>();
-            yield return ServiceDescriptor.Scoped<ChangeTrackerFactory, ChangeTrackerFactory>();
+            yield return ServiceDescriptor.Singleton<StateManagerFactory, StateManagerFactory>();
             yield return ServiceDescriptor.Singleton<EntitySetFinder, EntitySetFinder>();
             yield return ServiceDescriptor.Singleton<EntitySetInitializer, EntitySetInitializer>();
+            yield return ServiceDescriptor.Singleton<IEntityStateListener, NavigationFixer>();
         }
     }
 }
