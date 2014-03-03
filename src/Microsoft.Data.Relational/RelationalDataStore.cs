@@ -26,11 +26,11 @@ namespace Microsoft.Data.Relational
             get { return _nameOrConnectionString; }
         }
 
-        public override Task<int> SaveChangesAsync(IEnumerable<StateEntry> changeTrackerEntries, IModel model)
+        public override Task<int> SaveChangesAsync(IEnumerable<StateEntry> stateEntries, IModel model)
         {
             // Entities are dependency ordered.
 
-            return base.SaveChangesAsync(changeTrackerEntries, model);
+            return base.SaveChangesAsync(stateEntries, model);
         }
     }
 }

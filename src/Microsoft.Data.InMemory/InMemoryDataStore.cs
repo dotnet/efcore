@@ -2,11 +2,15 @@
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
+using Microsoft.AspNet.Logging;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Services;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.InMemory.Utilities;
@@ -18,38 +22,70 @@ namespace Microsoft.Data.InMemory
         private readonly LazyRef<ImmutableDictionary<object, object[]>> _objectData
             = new LazyRef<ImmutableDictionary<object, object[]>>(() => ImmutableDictionary<object, object[]>.Empty);
 
-        public override Task<int> SaveChangesAsync(IEnumerable<StateEntry> changeTrackerEntries, IModel model)
+        private readonly ILogger _logger;
+
+        public InMemoryDataStore()
+            : this(NullLogger.Instance)
         {
-            Check.NotNull(changeTrackerEntries, "changeTrackerEntries");
+        }
+
+        public InMemoryDataStore([NotNull] ILoggerFactory loggerFactory)
+            : this(Check.NotNull(loggerFactory, "loggerFactory").Create(typeof(InMemoryDataStore).Name))
+        {
+        }
+
+        public InMemoryDataStore([NotNull] ILogger logger)
+        {
+            Check.NotNull(logger, "logger");
+
+            _logger = logger;
+        }
+
+        public override Task<int> SaveChangesAsync(IEnumerable<StateEntry> stateEntries, IModel model)
+        {
+            Check.NotNull(stateEntries, "stateEntries");
             Check.NotNull(model, "model");
 
             var added = new List<StateEntry>();
             var deleted = new List<StateEntry>();
             var modified = new List<StateEntry>();
 
-            foreach (var changeTrackerEntry in changeTrackerEntries)
+            foreach (var stateEntry in stateEntries)
             {
-                switch (changeTrackerEntry.EntityState)
+                switch (stateEntry.EntityState)
                 {
                     case EntityState.Added:
-                        added.Add(changeTrackerEntry);
+                        added.Add(stateEntry);
                         break;
 
                     case EntityState.Deleted:
-                        deleted.Add(changeTrackerEntry);
+                        deleted.Add(stateEntry);
                         break;
 
                     case EntityState.Modified:
-                        modified.Add(changeTrackerEntry);
+                        modified.Add(stateEntry);
                         break;
                 }
             }
 
             _objectData.ExchangeValue(
                 db => db.WithComparers(model.EntityEqualityComparer)
-                    .AddRange(added.Select(cte => new KeyValuePair<object, object[]>(cte.Entity, cte.GetValueBuffer())))
-                    .SetItems(modified.Select(cte => new KeyValuePair<object, object[]>(cte.Entity, cte.GetValueBuffer())))
-                    .RemoveRange(deleted.Select(cte => cte.Entity)));
+                    .AddRange(added.Select(se => new KeyValuePair<object, object[]>(se.Entity, se.GetValueBuffer())))
+                    .SetItems(modified.Select(se => new KeyValuePair<object, object[]>(se.Entity, se.GetValueBuffer())))
+                    .RemoveRange(deleted.Select(se => se.Entity)));
+
+            if (_logger.IsEnabled(TraceType.Information))
+            {
+                foreach (var stateEntry in added.Concat(modified).Concat(deleted))
+                {
+                    _logger.WriteInformation(
+                        string.Format(
+                            CultureInfo.InvariantCulture,
+                            "Saved entity of type: '{0}' [{1}]",
+                            stateEntry.Entity.GetType().Name,
+                            stateEntry.EntityState));
+                }
+            }
 
             return Task.FromResult(added.Count + modified.Count + deleted.Count);
         }

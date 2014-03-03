@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity
 
         private class FakeDataStore : DataStore
         {
-            public override Task<int> SaveChangesAsync(IEnumerable<StateEntry> changeTrackerEntries, IModel model)
+            public override Task<int> SaveChangesAsync(IEnumerable<StateEntry> stateEntries, IModel model)
             {
                 return Task.FromResult(0);
             }
