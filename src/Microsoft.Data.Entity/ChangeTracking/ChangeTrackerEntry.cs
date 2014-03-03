@@ -5,10 +5,12 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking
 {
-    internal class ChangeTrackerEntry
+    public class ChangeTrackerEntry
     {
         private const int BitsPerInt = 32;
         private const int BitsForEntityState = 3;
@@ -18,8 +20,11 @@ namespace Microsoft.Data.Entity.ChangeTracking
         private readonly object _entity;
         private readonly int[] _propertyStates;
 
-        public ChangeTrackerEntry(ChangeTracker changeTracker, object entity)
+        public ChangeTrackerEntry([NotNull] ChangeTracker changeTracker, [NotNull] object entity)
         {
+            Check.NotNull(changeTracker, "changeTracker");
+            Check.NotNull(entity, "entity");
+
             _changeTracker = changeTracker;
             _entity = entity;
 
@@ -84,8 +89,10 @@ namespace Microsoft.Data.Entity.ChangeTracking
             private set { _propertyStates[0] = (_propertyStates[0] & ~EntityStateMask) | (int)value; }
         }
 
-        public virtual bool IsPropertyModified(string propertyName)
+        public virtual bool IsPropertyModified([NotNull] string propertyName)
         {
+            Check.NotEmpty(propertyName, "propertyName");
+
             if (EntityState != EntityState.Modified)
             {
                 return false;
@@ -95,8 +102,10 @@ namespace Microsoft.Data.Entity.ChangeTracking
             return (_propertyStates[index / BitsPerInt] & (1 << index % BitsPerInt)) != 0;
         }
 
-        public virtual void SetPropertyModified(string propertyName, bool isModified)
+        public virtual void SetPropertyModified([NotNull] string propertyName, bool isModified)
         {
+            Check.NotEmpty(propertyName, "propertyName");
+
             // TODO: Restore original value to reject changes when isModified is false
 
             var index = GetPropertyIndex(propertyName);
@@ -121,7 +130,14 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
         }
 
-        private int CreateMask(int i)
+        public virtual object[] GetValueBuffer()
+        {
+            return _changeTracker.Model
+                .GetEntityType(_entity.GetType())
+                .Properties.Select(p => p.GetValue(_entity)).ToArray();
+        }
+
+        private static int CreateMask(int i)
         {
             var mask = unchecked(((int)0xFFFFFFFF));
             if (i == 0)
