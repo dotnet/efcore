@@ -10,36 +10,56 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public class ForeignKey : MetadataBase, IForeignKey
     {
-        private readonly EntityType _referencedEntityType;
-        private readonly ImmutableList<Property> _properties;
+        private readonly EntityType _principalType;
+        private readonly ImmutableList<Property> _dependentProperties;
+
+        private Property[] _principalProperties;
 
         private string _storageName;
 
+        // Intended only for creation of test doubles
+        internal ForeignKey()
+        {
+        }
+
         public ForeignKey(
-            [NotNull] EntityType referencedEntityType, [NotNull] IEnumerable<Property> properties)
+            [NotNull] EntityType principalType, 
+            [NotNull] IEnumerable<Property> dependentProperties)
         {
-            Check.NotNull(referencedEntityType, "referencedEntityType");
-            Check.NotNull(properties, "properties");
+            Check.NotNull(principalType, "principalType");
+            Check.NotNull(dependentProperties, "dependentProperties");
 
-            _referencedEntityType = referencedEntityType;
-            _properties = ImmutableList.CreateRange(properties);
+            _principalType = principalType;
+            _dependentProperties = ImmutableList.CreateRange(dependentProperties);
         }
 
-        public virtual IEnumerable<Property> Properties
+        public virtual IEnumerable<Property> DependentProperties
         {
-            get { return _properties; }
+            get { return _dependentProperties; }
         }
 
-        public virtual EntityType ReferencedEntityType
+        public virtual IEnumerable<Property> PrincipalProperties
         {
-            get { return _referencedEntityType; }
+            get { return _principalProperties ?? _principalType.Key; }
+            [param: NotNull]
+            set
+            {
+                Check.NotNull(value, "value");
+
+                _principalProperties = value.ToArray();
+            }
+        }
+
+        public virtual EntityType PrincipalType
+        {
+            get { return _principalType; }
         }
 
         public virtual bool IsUnique { get; set; }
 
         public virtual bool IsRequired
         {
-            get { return Properties.Any(p => !p.IsNullable); }
+            get { return DependentProperties.Any(p => !p.IsNullable); }
         }
 
         public virtual string StorageName
@@ -52,6 +72,21 @@ namespace Microsoft.Data.Entity.Metadata
 
                 _storageName = value;
             }
+        }
+
+        IEnumerable<IProperty> IForeignKey.DependentProperties
+        {
+            get { return _dependentProperties; }
+        }
+
+        IEnumerable<IProperty> IForeignKey.PrincipalProperties
+        {
+            get { return PrincipalProperties; }
+        }
+
+        IEntityType IForeignKey.PrincipalType
+        {
+            get { return _principalType; }
         }
     }
 }

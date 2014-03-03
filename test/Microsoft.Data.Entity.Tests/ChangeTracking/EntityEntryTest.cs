@@ -1,10 +1,8 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
-using System.Linq;
 using System.Linq.Expressions;
-using Microsoft.Data.Entity.Identity;
-using Microsoft.Data.Entity.Metadata;
+using System.Threading;
 using Moq;
 using Xunit;
 
@@ -16,130 +14,73 @@ namespace Microsoft.Data.Entity.ChangeTracking
         public void Members_check_arguments()
         {
             Assert.Equal(
-                "changeTracker",
+                "stateEntry",
                 // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => new EntityEntry(null, new Random())).ParamName);
-            Assert.Equal(
-                "entity",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(
-                    () => new EntityEntry(new Mock<ChangeTracker>().Object, null)).ParamName);
+                Assert.Throws<ArgumentNullException>(() => new EntityEntry(null)).ParamName);
 
             Assert.Equal(
-                "changeTracker",
+                "stateEntry",
                 // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(
-                    () => new EntityEntry<Random>(null, new Random())).ParamName);
-            Assert.Equal(
-                "entity",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(
-                    () => new EntityEntry<Random>(new Mock<ChangeTracker>().Object, null)).ParamName);
+                Assert.Throws<ArgumentNullException>(() => new EntityEntry<Random>(null)).ParamName);
 
-            var entry = new EntityEntry(new ChangeTracker(BuildModel(), new Mock<ActiveIdentityGenerators>().Object), new Category());
+            var entry = new EntityEntry(new Mock<StateEntry>().Object);
 
             Assert.Equal(
                 Strings.ArgumentIsEmpty("propertyName"),
                 Assert.Throws<ArgumentException>(() => entry.Property("")).Message);
 
-            var genericEntry = new EntityEntry<Category>(
-                new ChangeTracker(BuildModel(), new Mock<ActiveIdentityGenerators>().Object), new Category());
+            var genericEntry = new EntityEntry<Random>(new Mock<StateEntry>().Object);
 
             Assert.Equal(
                 "propertyExpression",
                 // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => genericEntry.Property((Expression<Func<Category, int>>)null)).ParamName);
+                Assert.Throws<ArgumentNullException>(() => genericEntry.Property((Expression<Func<Random, int>>)null)).ParamName);
         }
 
         [Fact]
         public void Can_obtain_entity_instance()
         {
-            var entity = new Category();
-            var changeTracker = new ChangeTracker(BuildModel(), new Mock<ActiveIdentityGenerators>().Object);
+            var entity = new Random();
 
-            Assert.Same(entity, new EntityEntry(changeTracker, entity).Entity);
-            Assert.Same(entity, new EntityEntry<Category>(changeTracker, entity).Entity);
+            var stateEntryMock = new Mock<StateEntry>();
+            stateEntryMock.Setup(m => m.Entity).Returns(entity);
+
+            Assert.Same(entity, new EntityEntry(stateEntryMock.Object).Entity);
+            Assert.Same(entity, new EntityEntry<Random>(stateEntryMock.Object).Entity);
         }
 
         [Fact]
-        public void New_entries_have_state_Unknown_and_are_not_tracked()
+        public void Can_obtain_underlying_state_entry()
         {
-            var entity = new Category();
-            var changeTracker = new ChangeTracker(BuildModel(), new Mock<ActiveIdentityGenerators>().Object);
+            var stateEntry = new Mock<StateEntry>().Object;
 
-            Assert.Equal(EntityState.Unknown, new EntityEntry(changeTracker, entity).State);
-            Assert.Equal(EntityState.Unknown, new EntityEntry<Category>(changeTracker, entity).State);
-
-            Assert.Equal(0, changeTracker.Entries().Count());
+            Assert.Same(stateEntry, new EntityEntry(stateEntry).StateEntry);
+            Assert.Same(stateEntry, new EntityEntry<Random>(stateEntry).StateEntry);
         }
 
         [Fact]
-        public void Changing_state_from_Unknown_causes_entity_to_start_tracking()
+        public void State_change_is_delegated_to_low_level_object()
         {
-            var entity = new Category();
-            var changeTracker = new ChangeTracker(BuildModel(), new Mock<ActiveIdentityGenerators>().Object);
+            var stateEntryMock = new Mock<StateEntry>();
 
-            new EntityEntry<Category>(changeTracker, entity) { State = EntityState.Added };
+            new EntityEntry<Random>(stateEntryMock.Object) { State = EntityState.Added };
 
-            Assert.Same(entity, changeTracker.Entries().Single().Entity);
-            Assert.Equal(EntityState.Added, changeTracker.Entries().Single().State);
+            stateEntryMock.Verify(m => m.SetEntityStateAsync(EntityState.Added, CancellationToken.None));
         }
 
         [Fact]
-        public void Changing_state_to_Unknown_causes_entity_to_stop_tracking()
+        public void Reading_State_is_delegated_to_low_level_object()
         {
-            var entity = new Category();
-            var changeTracker = new ChangeTracker(BuildModel(), new Mock<ActiveIdentityGenerators>().Object);
+            var stateEntryMock = new Mock<StateEntry>();
+            stateEntryMock.Setup(m => m.EntityState).Returns(EntityState.Modified);
 
-            var entry = new EntityEntry<Category>(changeTracker, entity) { State = EntityState.Added };
-
-            Assert.Equal(1, changeTracker.Entries().Count());
-
-            entry.State = EntityState.Unknown;
-
-            Assert.Equal(0, changeTracker.Entries().Count());
-        }
-
-        [Fact]
-        public void Changing_state_to_Modified_or_Unchanged_causes_all_properties_to_be_marked_accordingly()
-        {
-            var entity = new Category();
-            var changeTracker = new ChangeTracker(BuildModel(), new Mock<ActiveIdentityGenerators>().Object);
-
-            var entry = new EntityEntry<Category>(changeTracker, entity) { State = EntityState.Added };
-
-            Assert.False(entry.Property(e => e.Id).IsModified);
-            Assert.False(entry.Property(e => e.Name).IsModified);
-
-            entry.State = EntityState.Modified;
-
-            Assert.True(entry.Property(e => e.Id).IsModified);
-            Assert.True(entry.Property(e => e.Name).IsModified);
-
-            entry.State = EntityState.Unchanged;
-
-            Assert.False(entry.Property(e => e.Id).IsModified);
-            Assert.False(entry.Property(e => e.Name).IsModified);
-        }
-
-        [Fact]
-        public void Changing_state_to_Added_triggers_key_generation()
-        {
-            var entity = new TheGu();
-            var changeTracker = new ChangeTracker(BuildModel(), new ActiveIdentityGenerators(new DefaultIdentityGeneratorFactory()));
-
-            new EntityEntry<TheGu>(changeTracker, entity) { State = EntityState.Added };
-
-            Assert.NotEqual(default(Guid), entity.Id);
+            Assert.Equal(EntityState.Modified, new EntityEntry<Random>(stateEntryMock.Object).State);
         }
 
         [Fact]
         public void Can_get_property_entry_by_name()
         {
-            var entity = new Category();
-            var changeTracker = new ChangeTracker(BuildModel(), new Mock<ActiveIdentityGenerators>().Object);
-
-            var entry = new EntityEntry<Category>(changeTracker, entity) { State = EntityState.Added };
+            var entry = new EntityEntry<Random>(new Mock<StateEntry>().Object);
 
             Assert.Equal("Name", entry.Property("Name").Name);
         }
@@ -147,40 +88,14 @@ namespace Microsoft.Data.Entity.ChangeTracking
         [Fact]
         public void Can_get_property_entry_by_lambda()
         {
-            var entity = new Category();
-            var changeTracker = new ChangeTracker(BuildModel(), new Mock<ActiveIdentityGenerators>().Object);
+            var entry = new EntityEntry<Chunky>(new Mock<StateEntry>().Object);
 
-            var entry = new EntityEntry<Category>(changeTracker, entity) { State = EntityState.Added };
-
-            Assert.Equal("Name", entry.Property(e => e.Name).Name);
+            Assert.Equal("Monkey", entry.Property(e => e.Monkey).Name);
         }
 
-        #region Fixture
-
-        public class Category
+        private class Chunky
         {
-            public int Id { get; set; }
-            public string Name { get; set; }
+            public int Monkey { get; set; }
         }
-
-        public class TheGu
-        {
-            public Guid Id { get; set; }
-        }
-
-        private static IModel BuildModel()
-        {
-            var model = new Model();
-            var builder = new ModelBuilder(model);
-
-            builder.Entity<Category>();
-            builder.Entity<TheGu>();
-
-            new SimpleTemporaryConvention().Apply(model);
-
-            return model;
-        }
-
-        #endregion
     }
 }

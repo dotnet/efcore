@@ -7,22 +7,22 @@ namespace Microsoft.Data.Entity.ChangeTracking
 {
     public class PropertyEntry
     {
-        private readonly ChangeTrackerEntry _entityEntry;
+        private readonly StateEntry _stateEntry;
         private readonly string _name;
 
-        public PropertyEntry([NotNull] EntityEntry entityEntry, [NotNull] string name)
+        public PropertyEntry([NotNull] StateEntry stateEntry, [NotNull] string name)
         {
-            Check.NotNull(entityEntry, "entityEntry");
+            Check.NotNull(stateEntry, "stateEntry");
             Check.NotEmpty(name, "name");
 
-            _entityEntry = entityEntry.Entry;
+            _stateEntry = stateEntry;
             _name = name;
         }
 
         public virtual bool IsModified
         {
-            get { return _entityEntry.IsPropertyModified(_name); }
-            set { _entityEntry.SetPropertyModified(_name, value); }
+            get { return _stateEntry.IsPropertyModified(_name); }
+            set { _stateEntry.SetPropertyModified(_name, value); }
         }
 
         public virtual string Name
