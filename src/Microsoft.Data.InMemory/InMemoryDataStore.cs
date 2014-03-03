@@ -2,11 +2,15 @@
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
+using Microsoft.AspNet.Logging;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Services;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.InMemory.Utilities;
@@ -17,6 +21,25 @@ namespace Microsoft.Data.InMemory
     {
         private readonly LazyRef<ImmutableDictionary<object, object[]>> _objectData
             = new LazyRef<ImmutableDictionary<object, object[]>>(() => ImmutableDictionary<object, object[]>.Empty);
+
+        private readonly ILogger _logger;
+
+        public InMemoryDataStore()
+            : this(NullLogger.Instance)
+        {
+        }
+
+        public InMemoryDataStore([NotNull] ILoggerFactory loggerFactory)
+            : this(Check.NotNull(loggerFactory, "loggerFactory").Create(typeof(InMemoryDataStore).Name))
+        {
+        }
+
+        public InMemoryDataStore([NotNull] ILogger logger)
+        {
+            Check.NotNull(logger, "logger");
+
+            _logger = logger;
+        }
 
         public override Task<int> SaveChangesAsync(IEnumerable<ChangeTrackerEntry> changeTrackerEntries, IModel model)
         {
@@ -50,6 +73,19 @@ namespace Microsoft.Data.InMemory
                     .AddRange(added.Select(cte => new KeyValuePair<object, object[]>(cte.Entity, cte.GetValueBuffer())))
                     .SetItems(modified.Select(cte => new KeyValuePair<object, object[]>(cte.Entity, cte.GetValueBuffer())))
                     .RemoveRange(deleted.Select(cte => cte.Entity)));
+
+            if (_logger.IsEnabled(TraceType.Information))
+            {
+                foreach (var changeTrackerEntry in added.Concat(modified).Concat(deleted))
+                {
+                    _logger.WriteInformation(
+                        string.Format(
+                            CultureInfo.InvariantCulture,
+                            "Saved entity of type: '{0}' [{1}]",
+                            changeTrackerEntry.Entity.GetType().Name,
+                            changeTrackerEntry.EntityState));
+                }
+            }
 
             return Task.FromResult(added.Count + modified.Count + deleted.Count);
         }

@@ -1,11 +1,14 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNet.Logging;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
+using Moq;
 using Xunit;
 
 namespace Microsoft.Data.InMemory
@@ -43,7 +46,7 @@ namespace Microsoft.Data.InMemory
         {
             var model = CreateModel();
             var changeTracker = new ChangeTracker(model, new ActiveIdentityGenerators(new InMemoryIdentityGeneratorFactory()));
-            
+
             var customer = new Customer { Id = 42, Name = "Unikorn" };
             var entityEntry = new ChangeTrackerEntry(changeTracker, customer);
             await entityEntry.SetEntityStateAsync(EntityState.Added, CancellationToken.None);
@@ -79,6 +82,24 @@ namespace Microsoft.Data.InMemory
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry }, model);
 
             Assert.Equal(0, inMemoryDataStore.Objects.Count);
+        }
+
+        [Fact]
+        public async Task Should_log_writes()
+        {
+            var model = CreateModel();
+            var changeTracker = new ChangeTracker(model, new ActiveIdentityGenerators(new InMemoryIdentityGeneratorFactory()));
+            var customer = new Customer { Id = 42, Name = "Unikorn" };
+            var entityEntry = new ChangeTrackerEntry(changeTracker, customer);
+            await entityEntry.SetEntityStateAsync(EntityState.Added, CancellationToken.None);
+
+            var mockLogger = new Mock<ILogger>();
+            var inMemoryDataStore = new InMemoryDataStore(mockLogger.Object);
+
+            await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry }, model);
+
+            mockLogger.Verify(
+                l => l.WriteCore(TraceType.Information, 0, null, null, It.IsAny<Func<object, Exception, string>>()), Times.Once);
         }
 
         private static Model CreateModel()

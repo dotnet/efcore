@@ -32,7 +32,10 @@ namespace Microsoft.Data.Entity.Services
             public bool WriteCore(
                 TraceType eventType, int eventId, object state, Exception exception, Func<object, Exception, string> formatter)
             {
-                Console.WriteLine("{0}: {1}: {2}", _name, eventType, formatter(state, exception));
+                if (formatter != null)
+                {
+                    Console.WriteLine("{0}: {1}: {2}", _name, eventType, formatter(state, exception));
+                }
 
                 return true;
             }
