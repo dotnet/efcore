@@ -67,7 +67,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             if (value == EntityState.Added)
             {
-                Debug.Assert(EntityType.Key.Count() == 1, "Composite keys not implemented yet.");
+                Debug.Assert(EntityType.Key.Count() <= 1, "Composite keys not implemented yet.");
 
                 var keyProperty = EntityType.Key.First();
                 var identityGenerator = _stateManager.GetIdentityGenerator(keyProperty);

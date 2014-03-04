@@ -34,8 +34,8 @@ namespace Microsoft.Data.Entity
 
         public virtual int SaveChanges()
         {
-            // TODO
-            return 0;
+            // TODO: May need a parallel code path :-(
+            return SaveChangesAsync().Result;
         }
 
         public virtual Task<int> SaveChangesAsync()
@@ -45,8 +45,7 @@ namespace Microsoft.Data.Entity
 
         public virtual Task<int> SaveChangesAsync(CancellationToken cancellationToken)
         {
-            // TODO
-            return Task.FromResult(0);
+            return _configuration.DataStore.SaveChangesAsync(_stateManager.Value.StateEntries, _model.Value);
         }
 
         public void Dispose()
@@ -98,6 +97,15 @@ namespace Microsoft.Data.Entity
             Check.NotNull(entity, "entity");
 
             return Task.FromResult(Update(entity));
+        }
+
+        public virtual TEntity Delete<TEntity>([NotNull] TEntity entity)
+        {
+            Check.NotNull(entity, "entity");
+
+            ChangeTracker.Entry(entity).State = EntityState.Deleted;
+
+            return entity;
         }
 
         public virtual Database Database
