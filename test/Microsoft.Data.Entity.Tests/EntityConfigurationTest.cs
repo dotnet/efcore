@@ -11,7 +11,7 @@ using Microsoft.Data.Entity.Storage;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity
+namespace Microsoft.Data.Entity.Tests
 {
     public class EntityConfigurationTest
     {

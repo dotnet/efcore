@@ -5,7 +5,7 @@ using Microsoft.AspNet.DependencyInjection;
 using Microsoft.Data.Entity.Identity;
 using Xunit;
 
-namespace Microsoft.Data.InMemory
+namespace Microsoft.Data.InMemory.Tests
 {
     public class InMemoryServicesTest
     {

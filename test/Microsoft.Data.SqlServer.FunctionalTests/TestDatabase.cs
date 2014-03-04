@@ -9,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Relational;
 
-namespace Microsoft.Data.SqlServer
+namespace Microsoft.Data.SqlServer.FunctionalTests
 {
     public class TestDatabase : IDisposable, IDbCommandExecutor
     {

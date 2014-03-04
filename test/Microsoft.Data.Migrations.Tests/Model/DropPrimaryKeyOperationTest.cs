@@ -1,11 +1,12 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Data.Migrations.Model;
 using Microsoft.Data.Relational.Model;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Migrations.Model
+namespace Microsoft.Data.Migrations.Tests.Model
 {
     public class DropPrimaryKeyOperationTest
     {

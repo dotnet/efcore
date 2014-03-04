@@ -2,9 +2,10 @@
 
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.Utilities;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Utilities
+namespace Microsoft.Data.Entity.Tests.Utilities
 {
     public class EnumerableExtensionsTest
     {

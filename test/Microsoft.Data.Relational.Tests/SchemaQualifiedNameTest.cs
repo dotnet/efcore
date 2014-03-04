@@ -3,7 +3,7 @@
 using System;
 using Xunit;
 
-namespace Microsoft.Data.Relational
+namespace Microsoft.Data.Relational.Tests
 {
     public class SchemaQualifiedNameTest
     {

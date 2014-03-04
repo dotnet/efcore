@@ -2,9 +2,10 @@
 
 using System;
 using System.Text;
+using Microsoft.Data.Relational.Utilities;
 using Xunit;
 
-namespace Microsoft.Data.Relational.Utilities
+namespace Microsoft.Data.Relational.Tests.Utilities
 {
     public class StringBuilderExtensionsTest
     {

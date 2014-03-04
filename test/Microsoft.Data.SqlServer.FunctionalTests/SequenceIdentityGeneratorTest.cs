@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Microsoft.Data.SqlServer
+namespace Microsoft.Data.SqlServer.FunctionalTests
 {
     public class SequenceIdentityGeneratorTest
     {

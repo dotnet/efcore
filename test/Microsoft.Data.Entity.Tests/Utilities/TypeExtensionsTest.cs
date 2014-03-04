@@ -4,9 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Data.Entity.Utilities;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Utilities
+namespace Microsoft.Data.Entity.Tests.Utilities
 {
     public class TypeExtensionsTest
     {

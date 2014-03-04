@@ -1,10 +1,11 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.Data.Entity.ChangeTracking;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity.ChangeTracking
+namespace Microsoft.Data.Entity.Tests.ChangeTracking
 {
     public class PropertyEntryTest
     {

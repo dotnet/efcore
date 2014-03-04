@@ -2,9 +2,10 @@
 
 using System;
 using System.Linq;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Compiled;
 
-namespace Microsoft.Data.Entity.Metadata
+namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 {
     public class KoolEntityBase
     {

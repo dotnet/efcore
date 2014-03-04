@@ -3,10 +3,11 @@
 using System;
 using System.Linq.Expressions;
 using System.Threading;
+using Microsoft.Data.Entity.ChangeTracking;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity.ChangeTracking
+namespace Microsoft.Data.Entity.Tests.ChangeTracking
 {
     public class EntityEntryTest
     {

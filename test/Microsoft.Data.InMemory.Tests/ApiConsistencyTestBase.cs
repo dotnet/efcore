@@ -8,7 +8,7 @@ using Xunit;
 
 // TODO: This file should be shared
 
-namespace Microsoft.Data.Entity
+namespace Microsoft.Data.InMemory.Tests
 {
     public abstract class ApiConsistencyTestBase
     {

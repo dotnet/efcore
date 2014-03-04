@@ -4,7 +4,7 @@ using Microsoft.Data.Migrations.Model;
 using Microsoft.Data.Relational.Model;
 using Xunit;
 
-namespace Microsoft.Data.SqlServer
+namespace Microsoft.Data.SqlServer.Tests
 {
     public class SqlServerMigrationOperationSqlGeneratorTest
     {

@@ -1,9 +1,8 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System.Reflection;
-using Microsoft.Data.Entity;
 
-namespace Microsoft.Data.InMemory
+namespace Microsoft.Data.InMemory.Tests
 {
     public class ApiConsistencyTest : ApiConsistencyTestBase
     {

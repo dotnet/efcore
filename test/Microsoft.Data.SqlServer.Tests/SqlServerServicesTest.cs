@@ -5,7 +5,7 @@ using Microsoft.AspNet.DependencyInjection;
 using Microsoft.Data.Entity.Identity;
 using Xunit;
 
-namespace Microsoft.Data.SqlServer
+namespace Microsoft.Data.SqlServer.Tests
 {
     public class SqlServerServicesTest
     {

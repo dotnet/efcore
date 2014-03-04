@@ -6,7 +6,7 @@ using Microsoft.Data.Relational;
 using Microsoft.Data.Relational.Model;
 using Xunit;
 
-namespace Microsoft.Data.Migrations
+namespace Microsoft.Data.Migrations.Tests
 {
     public class MigrationOperationSqlGeneratorTest
     {

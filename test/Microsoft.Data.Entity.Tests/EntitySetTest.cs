@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity
+namespace Microsoft.Data.Entity.Tests
 {
     public class EntitySetTest
     {

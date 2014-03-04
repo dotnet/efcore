@@ -12,7 +12,7 @@ using Microsoft.Data.Entity.Metadata;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.InMemory
+namespace Microsoft.Data.InMemory.Tests
 {
     public class InMemoryDataStoreTest
     {

@@ -2,7 +2,7 @@
 
 using Xunit;
 
-namespace Microsoft.Data.SqlServer
+namespace Microsoft.Data.SqlServer.Tests
 {
     public class SqlServerDataStoreTest
     {
