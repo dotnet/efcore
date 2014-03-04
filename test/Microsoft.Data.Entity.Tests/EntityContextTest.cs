@@ -28,7 +28,6 @@ namespace Microsoft.Data.Entity.Tests
                     // ReSharper disable once AssignNullToNotNullAttribute
                     Assert.Throws<ArgumentNullException>(
                         () => context.AddAsync<Random>(null, new CancellationToken()).GetAwaiter().GetResult()).ParamName);
-
                 Assert.Equal(
                     "entity",
                     // ReSharper disable once AssignNullToNotNullAttribute
@@ -78,7 +77,13 @@ namespace Microsoft.Data.Entity.Tests
                 EntityState.Modified);
         }
 
-        private void TrackEntitiesTest(
+        [Fact]
+        public void Can_add_existing_entities_to_context_to_be_deleted()
+        {
+            TrackEntitiesTest((c, e) => c.Delete(e), (c, e) => c.Delete(e), EntityState.Deleted);
+        }
+
+        private static void TrackEntitiesTest(
             Func<EntityContext, Category, Category> categoryAdder,
             Func<EntityContext, Product, Product> productAdder, EntityState expectedState)
         {
@@ -125,7 +130,7 @@ namespace Microsoft.Data.Entity.Tests
             TrackEntitiesWithKeyGenerationTest((c, e) => c.AddAsync(e, new CancellationToken()).Result);
         }
 
-        private void TrackEntitiesWithKeyGenerationTest(Func<EntityContext, TheGu, TheGu> adder)
+        private static void TrackEntitiesWithKeyGenerationTest(Func<EntityContext, TheGu, TheGu> adder)
         {
             using (var context = new EarlyLearningCenter())
             {
