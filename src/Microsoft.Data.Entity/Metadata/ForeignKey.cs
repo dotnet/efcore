@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         public ForeignKey(
-            [NotNull] EntityType principalType, 
+            [NotNull] EntityType principalType,
             [NotNull] IEnumerable<Property> dependentProperties)
         {
             Check.NotNull(principalType, "principalType");

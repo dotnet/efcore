@@ -82,11 +82,11 @@ namespace Microsoft.Data.Relational.Tests
 
             new SqlGenerator()
                 .AppendUpdateCommandHeader(stringBuilder, "Table",
-                new[]
-                    {
-                        new KeyValuePair<string, string>("Col1", "@p1"),
-                        new KeyValuePair<string, string>("Name", "@p2"),
-                    });
+                    new[]
+                        {
+                            new KeyValuePair<string, string>("Col1", "@p1"),
+                            new KeyValuePair<string, string>("Name", "@p2"),
+                        });
 
             Assert.Equal("UPDATE Table SET Col1 = @p1, Name = @p2", stringBuilder.ToString());
         }
@@ -135,11 +135,11 @@ namespace Microsoft.Data.Relational.Tests
                 .AppendWhereClause(
                     stringBuilder,
                     new[]
-                    {
-                        new KeyValuePair<string, string>("Id", "@p1"),
-                        new KeyValuePair<string, string>("Col2", "@p2"),
-                        new KeyValuePair<string, string>("Version", "@p3"),
-                    });
+                        {
+                            new KeyValuePair<string, string>("Id", "@p1"),
+                            new KeyValuePair<string, string>("Col2", "@p2"),
+                            new KeyValuePair<string, string>("Version", "@p3"),
+                        });
 
             Assert.Equal(
                 "WHERE Id = @p1 AND Col2 = @p2 AND Version = @p3",

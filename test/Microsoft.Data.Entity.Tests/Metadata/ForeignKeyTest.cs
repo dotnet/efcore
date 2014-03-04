@@ -38,11 +38,11 @@ namespace Microsoft.Data.Entity.Metadata
             entityType.Key = new[] { keyProp };
 
             var foreignKey = new ForeignKey(entityType, new[] { dependentProp })
-            {
-                IsUnique = true,
-                StorageName = "FK_Foo",
-                PrincipalProperties = new[] {  principalProp }
-            };
+                {
+                    IsUnique = true,
+                    StorageName = "FK_Foo",
+                    PrincipalProperties = new[] { principalProp }
+                };
 
             Assert.Same(entityType, foreignKey.PrincipalType);
             Assert.Same(principalProp, foreignKey.PrincipalProperties.Single());
