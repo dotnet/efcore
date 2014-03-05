@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Tests.Services
         [Fact]
         public void Singleton_creates_descriptor_for_type()
         {
-            var serviceDescriptor = ServiceDescriptor.Singleton<IComponent, Component>();
+            var serviceDescriptor = Service.Singleton<IComponent, Component>();
 
             Assert.Equal(typeof(IComponent), serviceDescriptor.ServiceType);
             Assert.Equal(typeof(Component), serviceDescriptor.ImplementationType);
@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Tests.Services
         {
             var implementationInstance = new Component();
 
-            var serviceDescriptor = ServiceDescriptor.Singleton<IComponent>(implementationInstance);
+            var serviceDescriptor = Service.Singleton<IComponent>(implementationInstance);
 
             Assert.Equal(typeof(IComponent), serviceDescriptor.ServiceType);
             Assert.Same(implementationInstance, serviceDescriptor.ImplementationInstance);
@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.Tests.Services
         [Fact]
         public void Scoped_creates_descriptor_for_type()
         {
-            var serviceDescriptor = ServiceDescriptor.Scoped<IComponent, Component>();
+            var serviceDescriptor = Service.Scoped<IComponent, Component>();
 
             Assert.Equal(typeof(IComponent), serviceDescriptor.ServiceType);
             Assert.Equal(typeof(Component), serviceDescriptor.ImplementationType);
@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.Tests.Services
         {
             var implementationInstance = new Component();
 
-            var serviceDescriptor = ServiceDescriptor.Scoped<IComponent>(implementationInstance);
+            var serviceDescriptor = Service.Scoped<IComponent>(implementationInstance);
 
             Assert.Equal(typeof(IComponent), serviceDescriptor.ServiceType);
             Assert.Same(implementationInstance, serviceDescriptor.ImplementationInstance);
@@ -66,7 +66,7 @@ namespace Microsoft.Data.Entity.Tests.Services
         [Fact]
         public void Transient_creates_descriptor_for_type()
         {
-            var serviceDescriptor = ServiceDescriptor.Transient<IComponent, Component>();
+            var serviceDescriptor = Service.Transient<IComponent, Component>();
 
             Assert.Equal(typeof(IComponent), serviceDescriptor.ServiceType);
             Assert.Equal(typeof(Component), serviceDescriptor.ImplementationType);
@@ -78,7 +78,7 @@ namespace Microsoft.Data.Entity.Tests.Services
         {
             var implementationInstance = new Component();
 
-            var serviceDescriptor = ServiceDescriptor.Transient<IComponent>(implementationInstance);
+            var serviceDescriptor = Service.Transient<IComponent>(implementationInstance);
 
             Assert.Equal(typeof(IComponent), serviceDescriptor.ServiceType);
             Assert.Same(implementationInstance, serviceDescriptor.ImplementationInstance);

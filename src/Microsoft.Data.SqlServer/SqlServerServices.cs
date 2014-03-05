@@ -11,7 +11,7 @@ namespace Microsoft.Data.SqlServer
     {
         public static IEnumerable<IServiceDescriptor> GetDefaultServices()
         {
-            yield return ServiceDescriptor.Singleton<IdentityGeneratorFactory, SqlServerIdentityGeneratorFactory>();
+            yield return Service.Singleton<IdentityGeneratorFactory, SqlServerIdentityGeneratorFactory>();
         }
     }
 }

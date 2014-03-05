@@ -13,14 +13,14 @@ namespace Microsoft.Data.Entity
     {
         public static IEnumerable<IServiceDescriptor> GetDefaultServices()
         {
-            yield return ServiceDescriptor.Singleton<ILoggerFactory, ConsoleLoggerFactory>();
-            yield return ServiceDescriptor.Singleton<IModelSource, DefaultModelSource>();
-            yield return ServiceDescriptor.Singleton<IdentityGeneratorFactory, DefaultIdentityGeneratorFactory>();
-            yield return ServiceDescriptor.Singleton<ActiveIdentityGenerators, ActiveIdentityGenerators>();
-            yield return ServiceDescriptor.Singleton<StateManagerFactory, StateManagerFactory>();
-            yield return ServiceDescriptor.Singleton<EntitySetFinder, EntitySetFinder>();
-            yield return ServiceDescriptor.Singleton<EntitySetInitializer, EntitySetInitializer>();
-            yield return ServiceDescriptor.Singleton<IEntityStateListener, NavigationFixer>();
+            yield return Service.Singleton<ILoggerFactory, ConsoleLoggerFactory>();
+            yield return Service.Singleton<IModelSource, DefaultModelSource>();
+            yield return Service.Singleton<IdentityGeneratorFactory, DefaultIdentityGeneratorFactory>();
+            yield return Service.Singleton<ActiveIdentityGenerators, ActiveIdentityGenerators>();
+            yield return Service.Singleton<StateManagerFactory, StateManagerFactory>();
+            yield return Service.Singleton<EntitySetFinder, EntitySetFinder>();
+            yield return Service.Singleton<EntitySetInitializer, EntitySetInitializer>();
+            yield return Service.Singleton<IEntityStateListener, NavigationFixer>();
         }
     }
 }

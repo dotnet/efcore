@@ -7,91 +7,64 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Services
 {
-    public sealed class ServiceDescriptor : IServiceDescriptor
+    public sealed class Service
     {
         public static IServiceDescriptor Singleton<TService, TImplementation>()
         {
-            return new ServiceDescriptor(LifecycleKind.Singleton, typeof(TService), typeof(TImplementation));
+            return FromType(LifecycleKind.Singleton, typeof(TService), typeof(TImplementation));
         }
 
         public static IServiceDescriptor Singleton<TService>([NotNull] object implementationInstance)
         {
             Check.NotNull(implementationInstance, "implementationInstance");
 
-            return new ServiceDescriptor(LifecycleKind.Singleton, typeof(TService), implementationInstance);
+            return FromInstance(LifecycleKind.Singleton, typeof(TService), implementationInstance);
         }
 
         public static IServiceDescriptor Transient<TService, TImplementation>()
         {
-            return new ServiceDescriptor(LifecycleKind.Transient, typeof(TService), typeof(TImplementation));
+            return FromType(LifecycleKind.Transient, typeof(TService), typeof(TImplementation));
         }
 
         public static IServiceDescriptor Transient<TService>([NotNull] object implementationInstance)
         {
             Check.NotNull(implementationInstance, "implementationInstance");
 
-            return new ServiceDescriptor(LifecycleKind.Transient, typeof(TService), implementationInstance);
+            return FromInstance(LifecycleKind.Transient, typeof(TService), implementationInstance);
         }
 
         public static IServiceDescriptor Scoped<TService, TImplementation>()
         {
-            return new ServiceDescriptor(LifecycleKind.Scoped, typeof(TService), typeof(TImplementation));
+            return FromType(LifecycleKind.Scoped, typeof(TService), typeof(TImplementation));
         }
 
         public static IServiceDescriptor Scoped<TService>([NotNull] object implementationInstance)
         {
             Check.NotNull(implementationInstance, "implementationInstance");
 
-            return new ServiceDescriptor(LifecycleKind.Scoped, typeof(TService), implementationInstance);
+            return FromInstance(LifecycleKind.Scoped, typeof(TService), implementationInstance);
         }
 
-        private readonly LifecycleKind _lifecycleKind;
-        private readonly Type _serviceType;
-        private readonly Type _implementationType;
-        private readonly object _implementationInstance;
-
-        private ServiceDescriptor(
+        private static IServiceDescriptor FromType(
             LifecycleKind lifecycleKind, [NotNull] Type serviceType, [NotNull] Type implementationType)
         {
-            Check.IsDefined(lifecycleKind, "lifecycleKind");
-            Check.NotNull(serviceType, "serviceType");
-            Check.NotNull(implementationType, "implementationType");
-
-            _lifecycleKind = lifecycleKind;
-            _serviceType = serviceType;
-            _implementationType = implementationType;
+            return new ServiceDescriptor
+                {
+                    Lifecycle = lifecycleKind,
+                    ServiceType = serviceType,
+                    ImplementationType = implementationType
+                };
         }
 
-        private ServiceDescriptor(
+        private static IServiceDescriptor FromInstance(
             LifecycleKind lifecycleKind, [NotNull] Type serviceType, [NotNull] object implementationInstance)
         {
-            Check.IsDefined(lifecycleKind, "lifecycleKind");
-            Check.NotNull(serviceType, "serviceType");
-            Check.NotNull(implementationInstance, "implementationInstance");
-
-            _lifecycleKind = lifecycleKind;
-            _serviceType = serviceType;
-            _implementationInstance = implementationInstance;
-        }
-
-        public LifecycleKind Lifecycle
-        {
-            get { return _lifecycleKind; }
-        }
-
-        public Type ServiceType
-        {
-            get { return _serviceType; }
-        }
-
-        public Type ImplementationType
-        {
-            get { return _implementationType; }
-        }
-
-        public object ImplementationInstance
-        {
-            get { return _implementationInstance; }
+            return new ServiceDescriptor
+                {
+                    Lifecycle = lifecycleKind,
+                    ServiceType = serviceType,
+                    ImplementationInstance = implementationInstance
+                };
         }
     }
 }
