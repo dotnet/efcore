@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
     {
         private IAnnotation[] _annotations;
 
-        public IEnumerable<IAnnotation> Annotations
+        public IReadOnlyList<IAnnotation> Annotations
         {
             get { return LazyInitializer.EnsureInitialized(ref _annotations, LoadAnnotations); }
         }

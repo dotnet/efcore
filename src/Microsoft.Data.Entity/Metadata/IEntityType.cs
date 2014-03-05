@@ -11,11 +11,11 @@ namespace Microsoft.Data.Entity.Metadata
         string Name { get; }
         string StorageName { get; }
         Type Type { get; }
-        IEnumerable<IProperty> Key { get; }
+        IReadOnlyList<IProperty> Key { get; }
         IProperty Property([NotNull] string name);
-        IEnumerable<IProperty> Properties { get; }
-        IEnumerable<IForeignKey> ForeignKeys { get; }
-        IEnumerable<INavigation> Navigations { get; }
+        IReadOnlyList<IProperty> Properties { get; }
+        IReadOnlyList<IForeignKey> ForeignKeys { get; }
+        IReadOnlyList<INavigation> Navigations { get; }
         int PropertyIndex([NotNull] string name);
     }
 }

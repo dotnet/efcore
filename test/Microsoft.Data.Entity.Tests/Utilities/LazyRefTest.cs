@@ -1,7 +1,5 @@
-﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.Data.Entity.Utilities;
 using Xunit;
 
@@ -10,46 +8,38 @@ namespace Microsoft.Data.Entity.Tests.Utilities
     public class LazyRefTest
     {
         [Fact]
-        public async Task Can_initialize_from_multiple_threads_and_initialization_happens_only_once()
-        {
-            var counter = 0;
-            var safeLazy = new LazyRef<string>(() => counter++.ToString());
-            var tasks = new List<Task>();
-
-            for (var i = 0; i < 10; i++)
-            {
-                tasks.Add(Task.Run(() => safeLazy.Value));
-            }
-
-            await Task.WhenAll(tasks);
-
-            Assert.Equal(1, counter);
-        }
-
-        [Fact]
-        public async Task Can_exchange_value()
-        {
-            var safeLazy = new LazyRef<string>(() => "");
-            var tasks = new List<Task>();
-
-            for (var i = 0; i < 10; i++)
-            {
-                tasks.Add(Task.Run(() => safeLazy.ExchangeValue(s => s + "s")));
-            }
-
-            await Task.WhenAll(tasks);
-
-            Assert.Equal("ssssssssss", safeLazy.Value);
-        }
-
-        [Fact]
         public void Has_value_is_false_until_value_accessed()
         {
-            var safeLazy = new LazyRef<string>(() => "s");
+            var lazy = new LazyRef<string>(() => "Cherry Coke");
 
-            Assert.False(safeLazy.HasValue);
-            Assert.Equal("s", safeLazy.Value);
-            Assert.True(safeLazy.HasValue);
+            Assert.False(lazy.HasValue);
+            Assert.Equal("Cherry Coke", lazy.Value);
+            Assert.True(lazy.HasValue);
+        }
+
+        [Fact]
+        public void Value_can_be_set_explicitly()
+        {
+            var lazy = new LazyRef<string>(() => "Cherry Coke");
+
+            lazy.Value = "Fresca";
+
+            Assert.True(lazy.HasValue);
+            Assert.Equal("Fresca", lazy.Value);
+        }
+
+        [Fact]
+        public void Initialization_can_be_reset()
+        {
+            var lazy = new LazyRef<string>(() => "Cherry Coke");
+
+            Assert.Equal("Cherry Coke", lazy.Value);
+
+            lazy.Reset(() => "Fresca");
+
+            Assert.False(lazy.HasValue);
+            Assert.Equal("Fresca", lazy.Value);
+            Assert.True(lazy.HasValue);
         }
     }
 }

@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
@@ -11,10 +10,9 @@ namespace Microsoft.Data.Entity.Metadata
     public class ForeignKey : MetadataBase, IForeignKey
     {
         private readonly EntityType _principalType;
-        private readonly ImmutableList<Property> _dependentProperties;
+        private readonly IReadOnlyList<Property> _dependentProperties;
 
         private Property[] _principalProperties;
-
         private string _storageName;
 
         // Intended only for creation of test doubles
@@ -24,21 +22,21 @@ namespace Microsoft.Data.Entity.Metadata
 
         public ForeignKey(
             [NotNull] EntityType principalType,
-            [NotNull] IEnumerable<Property> dependentProperties)
+            [NotNull] IReadOnlyList<Property> dependentProperties)
         {
             Check.NotNull(principalType, "principalType");
             Check.NotNull(dependentProperties, "dependentProperties");
 
             _principalType = principalType;
-            _dependentProperties = ImmutableList.CreateRange(dependentProperties);
+            _dependentProperties = dependentProperties;
         }
 
-        public virtual IEnumerable<Property> DependentProperties
+        public virtual IReadOnlyList<Property> DependentProperties
         {
             get { return _dependentProperties; }
         }
 
-        public virtual IEnumerable<Property> PrincipalProperties
+        public virtual IReadOnlyList<Property> PrincipalProperties
         {
             get { return _principalProperties ?? _principalType.Key; }
             [param: NotNull]
@@ -74,12 +72,14 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        IEnumerable<IProperty> IForeignKey.DependentProperties
+        public virtual EntityType DependentType { get; [param: CanBeNull] set; }
+
+        IReadOnlyList<IProperty> IForeignKey.DependentProperties
         {
             get { return _dependentProperties; }
         }
 
-        IEnumerable<IProperty> IForeignKey.PrincipalProperties
+        IReadOnlyList<IProperty> IForeignKey.PrincipalProperties
         {
             get { return PrincipalProperties; }
         }
@@ -87,6 +87,11 @@ namespace Microsoft.Data.Entity.Metadata
         IEntityType IForeignKey.PrincipalType
         {
             get { return _principalType; }
+        }
+
+        IEntityType IForeignKey.DependentType
+        {
+            get { return DependentType; }
         }
     }
 }

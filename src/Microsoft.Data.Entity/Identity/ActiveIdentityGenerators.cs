@@ -11,8 +11,8 @@ namespace Microsoft.Data.Entity.Identity
     {
         private readonly IdentityGeneratorFactory _factory;
 
-        private readonly LazyRef<ImmutableDictionary<IProperty, IIdentityGenerator>> _identityGenerators
-            = new LazyRef<ImmutableDictionary<IProperty, IIdentityGenerator>>(
+        private readonly ThreadSafeLazyRef<ImmutableDictionary<IProperty, IIdentityGenerator>> _identityGenerators
+            = new ThreadSafeLazyRef<ImmutableDictionary<IProperty, IIdentityGenerator>>(
                 () => ImmutableDictionary<IProperty, IIdentityGenerator>.Empty);
 
         // Intended only for creation of test doubles

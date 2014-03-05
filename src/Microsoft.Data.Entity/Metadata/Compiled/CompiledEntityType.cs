@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using JetBrains.Annotations;
@@ -27,24 +28,24 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
         protected abstract int[] LoadKey();
         protected abstract IProperty[] LoadProperties();
 
-        public IEnumerable<IProperty> Key
+        public IReadOnlyList<IProperty> Key
         {
             get { return LazyInitializer.EnsureInitialized(ref _keys, BuildKey); }
         }
 
-        public IEnumerable<IForeignKey> ForeignKeys
+        public IReadOnlyList<IForeignKey> ForeignKeys
         {
             // TODO: Implement FKs in the compiled model
-            get { return Enumerable.Empty<IForeignKey>(); }
+            get { return ImmutableList<IForeignKey>.Empty; }
         }
 
-        public IEnumerable<INavigation> Navigations
+        public IReadOnlyList<INavigation> Navigations
         {
             // TODO: Implement navigations in the compiled model
-            get { return Enumerable.Empty<INavigation>(); }
+            get { return ImmutableList<INavigation>.Empty; }
         }
 
-        public IEnumerable<IProperty> Properties
+        public IReadOnlyList<IProperty> Properties
         {
             get { return EnsurePropertiesInitialized(); }
         }

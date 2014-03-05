@@ -122,8 +122,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 entityTypeA.AddForeignKey(new ForeignKey(entityTypeB, _properties));
 
                 Assert.Equal(
-                    new[] { entityTypeB, entityTypeA, entityTypeC },
-                    model.TopologicalSort());
+                    new IEntityType[] { entityTypeB, entityTypeA, entityTypeC },
+                    model.TopologicalSort().ToArray());
             }
 
             [Fact]
@@ -144,8 +144,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 entityTypeB.AddForeignKey(new ForeignKey(entityTypeC, _properties));
 
                 Assert.Equal(
-                    new[] { entityTypeC, entityTypeB, entityTypeA },
-                    model.TopologicalSort());
+                    new IEntityType[] { entityTypeC, entityTypeB, entityTypeA },
+                    model.TopologicalSort().ToArray());
             }
 
             [Fact]
@@ -167,8 +167,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 entityTypeB.AddForeignKey(new ForeignKey(entityTypeC, _properties));
 
                 Assert.Equal(
-                    new[] { entityTypeA, entityTypeC, entityTypeB },
-                    model.TopologicalSort());
+                    new IEntityType[] { entityTypeA, entityTypeC, entityTypeB },
+                    model.TopologicalSort().ToArray());
             }
 
             [Fact]
@@ -186,8 +186,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
                 // A B C
                 Assert.Equal(
-                    new[] { entityTypeA, entityTypeB, entityTypeC },
-                    model.TopologicalSort());
+                    new IEntityType[] { entityTypeA, entityTypeB, entityTypeC },
+                    model.TopologicalSort().ToArray());
             }
 
             [Fact]

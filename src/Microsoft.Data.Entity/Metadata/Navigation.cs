@@ -10,8 +10,6 @@ namespace Microsoft.Data.Entity.Metadata
         private readonly string _name;
         private readonly ForeignKey _foreignKey;
 
-        private EntityType _entityType;
-
         public Navigation([NotNull] ForeignKey foreignKey, [NotNull] string name)
         {
             Check.NotNull(foreignKey, "foreignKey");
@@ -26,17 +24,7 @@ namespace Microsoft.Data.Entity.Metadata
             get { return _name; }
         }
 
-        public virtual EntityType EntityType
-        {
-            get { return _entityType; }
-            [param: NotNull]
-            set
-            {
-                Check.NotNull(value, "value");
-
-                _entityType = value;
-            }
-        }
+        public virtual EntityType EntityType { get; [param: CanBeNull] set; }
 
         public virtual ForeignKey ForeignKey
         {

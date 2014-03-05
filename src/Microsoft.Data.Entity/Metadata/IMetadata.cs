@@ -8,6 +8,6 @@ namespace Microsoft.Data.Entity.Metadata
     public interface IMetadata
     {
         string this[[NotNull] string annotationName] { get; }
-        IEnumerable<IAnnotation> Annotations { get; }
+        IReadOnlyList<IAnnotation> Annotations { get; }
     }
 }

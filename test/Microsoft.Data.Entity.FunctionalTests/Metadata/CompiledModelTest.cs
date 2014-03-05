@@ -46,9 +46,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             Assert.True(
                 compiledModel.EntityTypes.First().Properties.Select(p => p.PropertyType)
                     .SequenceEqual(builtModel.EntityTypes.First().Properties.Select(p => p.PropertyType)));
-            Assert.True(
-                compiledModel.EntityTypes.First().Properties.Select(p => p.DeclaringType)
-                    .SequenceEqual(builtModel.EntityTypes.First().Properties.Select(p => p.DeclaringType)));
 
             Assert.True(
                 compiledModel.EntityTypes.SelectMany(p => p.Annotations).Select(p => p.Name)

@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 
         protected abstract IEntityType[] LoadEntityTypes();
 
-        public IEnumerable<IEntityType> EntityTypes
+        public IReadOnlyList<IEntityType> EntityTypes
         {
             get { return LazyInitializer.EnsureInitialized(ref _entityTypes, LoadEntityTypes); }
         }

@@ -2,7 +2,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Threading;
 using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.Utilities
@@ -12,8 +11,6 @@ namespace Microsoft.Data.Entity.Utilities
         where T : class
     {
         private Func<T> _initializer;
-        private object _syncLock;
-
         private T _value;
 
         public LazyRef([NotNull] Func<T> initializer)
@@ -29,50 +26,32 @@ namespace Microsoft.Data.Entity.Utilities
             {
                 if (_value == null)
                 {
-                    var syncLock = new object();
-
-                    syncLock
-                        = Interlocked.CompareExchange(ref _syncLock, syncLock, null)
-                          ?? syncLock;
-
-                    lock (syncLock)
-                    {
-                        if (_value == null)
-                        {
-                            _value = _initializer();
-
-                            _syncLock = null;
-                            _initializer = null;
-                        }
-                    }
+                    _value = _initializer();
+                    _initializer = null;
                 }
 
                 return _value;
             }
-        }
-
-        public void ExchangeValue([NotNull] Func<T, T> newValueCreator)
-        {
-            Check.NotNull(newValueCreator, "newValueCreator");
-
-            T originalValue, newValue;
-
-            do
+            [param: NotNull] set
             {
-                originalValue = Value;
-                newValue = newValueCreator(originalValue);
+                Check.NotNull(value, "value");
 
-                if (ReferenceEquals(newValue, originalValue))
-                {
-                    return;
-                }
+                _value = value;
+                _initializer = null;
             }
-            while (Interlocked.CompareExchange(ref _value, newValue, originalValue) != originalValue);
         }
 
         public bool HasValue
         {
             get { return _value != null; }
+        }
+
+        public void Reset([NotNull] Func<T> initializer)
+        {
+            Check.NotNull(initializer, "initializer");
+
+            _initializer = initializer;
+            _value = null;
         }
     }
 }
