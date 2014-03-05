@@ -1,15 +1,18 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNet.Logging;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Services;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
@@ -90,9 +93,71 @@ namespace Microsoft.Data.InMemory
             return Task.FromResult(added.Count + modified.Count + deleted.Count);
         }
 
-        public virtual IDictionary<object, object[]> Objects
+        public override IAsyncEnumerable<object[]> Read(Type type, IModel model)
+        {
+            var entityType = model.GetEntityType(type);
+
+            return new CompletedAsyncEnumerable<object[]>(
+                _objectData.Value
+                    .Where(kv => kv.Key.GetType() == entityType.Type)
+                    .Select(kv => kv.Value));
+        }
+
+        internal IDictionary<object, object[]> Objects
         {
             get { return _objectData.Value; }
+        }
+
+        private class CompletedAsyncEnumerable<T> : IAsyncEnumerable<T>
+            where T : class
+        {
+            private readonly IEnumerable<T> _enumerable;
+
+            public CompletedAsyncEnumerable(IEnumerable<T> enumerable)
+            {
+                _enumerable = enumerable;
+            }
+
+            public IAsyncEnumerator<T> GetAsyncEnumerator()
+            {
+                return new CompletedAsyncEnumerator<T>(_enumerable.GetEnumerator());
+            }
+
+            IAsyncEnumerator IAsyncEnumerable.GetAsyncEnumerator()
+            {
+                return GetAsyncEnumerator();
+            }
+        }
+
+        private class CompletedAsyncEnumerator<T> : IAsyncEnumerator<T>
+            where T : class
+        {
+            private readonly IEnumerator<T> _enumerator;
+
+            public CompletedAsyncEnumerator(IEnumerator<T> enumerator)
+            {
+                _enumerator = enumerator;
+            }
+
+            public Task<bool> MoveNextAsync(CancellationToken cancellationToken)
+            {
+                return Task.FromResult(_enumerator.MoveNext());
+            }
+
+            public T Current
+            {
+                get { return _enumerator.Current; }
+            }
+
+            object IAsyncEnumerator.Current
+            {
+                get { return Current; }
+            }
+
+            public void Dispose()
+            {
+                _enumerator.Dispose();
+            }
         }
     }
 }

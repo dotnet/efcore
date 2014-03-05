@@ -141,4 +141,16 @@
   <data name="EntityTypeNotFound" xml:space="preserve">
     <value>The entity type '{entityType}' was not found. Ensure that the entity type '{entityType}' has been added to the model.</value>
   </data>
+  <data name="EmptySequence" xml:space="preserve">
+    <value>Sequence contains no elements.</value>
+  </data>
+  <data name="MoreThanOneElement" xml:space="preserve">
+    <value>Sequence contains more than one element.</value>
+  </data>
+  <data name="MoreThanOneMatch" xml:space="preserve">
+    <value>Sequence contains more than one matching element.</value>
+  </data>
+  <data name="NoMatch" xml:space="preserve">
+    <value>Sequence contains no matching element.</value>
+  </data>
 </root>

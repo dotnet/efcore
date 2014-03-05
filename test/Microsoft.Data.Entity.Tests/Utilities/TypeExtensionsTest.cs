@@ -11,6 +11,42 @@ namespace Microsoft.Data.Entity.Tests.Utilities
 {
     public class TypeExtensionsTest
     {
+        public class CtorFixture
+        {
+            public CtorFixture()
+            {
+            }
+
+            // ReSharper disable once UnusedParameter.Local
+            public CtorFixture(int frob)
+            {
+            }
+        }
+
+        [Fact]
+        public void GetDeclaredConstructor_finds_ctor_no_args()
+        {
+            var constructorInfo = typeof(CtorFixture).GetDeclaredConstructor(null);
+
+            Assert.NotNull(constructorInfo);
+            Assert.Equal(0, constructorInfo.GetParameters().Length);
+        }
+
+        [Fact]
+        public void GetDeclaredConstructor_returns_null_when_no_match()
+        {
+            Assert.Null(typeof(CtorFixture).GetDeclaredConstructor(new[] { typeof(string) }));
+        }
+
+        [Fact]
+        public void GetDeclaredConstructor_finds_ctor_args()
+        {
+            var constructorInfo = typeof(CtorFixture).GetDeclaredConstructor(new[] { typeof(int) });
+
+            Assert.NotNull(constructorInfo);
+            Assert.Equal(1, constructorInfo.GetParameters().Length);
+        }
+
         [Fact]
         public void IsNullableType_when_value_or_nullable_type()
         {

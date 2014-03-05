@@ -3,6 +3,7 @@
 using System.Threading.Tasks;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Query;
 using Xunit;
 
 namespace Microsoft.Data.InMemory.FunctionalTests
@@ -11,6 +12,17 @@ namespace Microsoft.Data.InMemory.FunctionalTests
     {
         public class Customer
         {
+            // ReSharper disable once UnusedMember.Local
+            private Customer(object[] values)
+            {
+                Id = (int)values[0];
+                Name = (string)values[1];
+            }
+
+            public Customer()
+            {
+            }
+
             public int Id { get; set; }
             public string Name { get; set; }
         }
@@ -19,12 +31,13 @@ namespace Microsoft.Data.InMemory.FunctionalTests
         public async Task Can_add_update_delete_end_to_end()
         {
             var inMemoryDataStore = new InMemoryDataStore();
+            var model = CreateModel();
 
             var entityConfiguration
                 = new EntityConfiguration
                     {
                         DataStore = inMemoryDataStore,
-                        Model = CreateModel()
+                        Model = model
                     };
 
             var customer = new Customer { Id = 42, Name = "Theon" };
@@ -34,10 +47,13 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                 context.Add(customer);
 
                 await context.SaveChangesAsync();
+
+                customer.Name = "Changed!";
             }
 
-            Assert.Equal(1, inMemoryDataStore.Objects.Count);
-            Assert.Equal(new object[] { 42, "Theon" }, inMemoryDataStore.Objects[customer]);
+            var customerFromStore = await inMemoryDataStore.Read(typeof(Customer), model).SingleAsync();
+
+            Assert.Equal(new object[] { 42, "Theon" }, customerFromStore);
 
             using (var context = entityConfiguration.CreateContext())
             {
@@ -47,8 +63,9 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                 await context.SaveChangesAsync();
             }
 
-            Assert.Equal(1, inMemoryDataStore.Objects.Count);
-            Assert.Equal(new object[] { 42, "Theon Greyjoy" }, inMemoryDataStore.Objects[customer]);
+            customerFromStore = await inMemoryDataStore.Read(typeof(Customer), model).SingleAsync();
+
+            Assert.Equal(new object[] { 42, "Theon Greyjoy" }, customerFromStore);
 
             using (var context = entityConfiguration.CreateContext())
             {
@@ -57,7 +74,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                 await context.SaveChangesAsync();
             }
 
-            Assert.Equal(0, inMemoryDataStore.Objects.Count);
+            Assert.Equal(0, await inMemoryDataStore.Read(typeof(Customer), model).CountAsync());
         }
 
         private static Model CreateModel()
