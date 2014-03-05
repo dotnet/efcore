@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         public void Members_check_arguments()
         {
             Assert.Equal(
-                Strings.ArgumentIsEmpty("name"),
+                Strings.FormatArgumentIsEmpty("name"),
                 Assert.Throws<ArgumentException>(() => new PropertyEntry(new Mock<StateEntry>().Object, "")).Message);
             Assert.Equal(
                 "stateEntry",
@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 Assert.Throws<ArgumentNullException>(() => new PropertyEntry(null, "Kake")).ParamName);
 
             Assert.Equal(
-                Strings.ArgumentIsEmpty("name"),
+                Strings.FormatArgumentIsEmpty("name"),
                 Assert.Throws<ArgumentException>(() => new PropertyEntry<Random, int>(new Mock<StateEntry>().Object, "")).Message);
             Assert.Equal(
                 "stateEntry",

@@ -13,7 +13,15 @@ namespace Microsoft.Data.Relational
         /// <summary>
         /// The string argument '{argumentName}' cannot be empty.
         /// </summary>
-        internal static string ArgumentIsEmpty(object argumentName)
+        internal static string ArgumentIsEmpty
+        {
+            get { return GetString("ArgumentIsEmpty"); }
+        }
+
+        /// <summary>
+        /// The string argument '{argumentName}' cannot be empty.
+        /// </summary>
+        internal static string FormatArgumentIsEmpty(object argumentName)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("ArgumentIsEmpty", "argumentName"), argumentName);
         }
@@ -21,7 +29,15 @@ namespace Microsoft.Data.Relational
         /// <summary>
         /// The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.
         /// </summary>
-        internal static string InvalidEnumValue(object argumentName, object enumType)
+        internal static string InvalidEnumValue
+        {
+            get { return GetString("InvalidEnumValue"); }
+        }
+
+        /// <summary>
+        /// The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.
+        /// </summary>
+        internal static string FormatInvalidEnumValue(object argumentName, object enumType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("InvalidEnumValue", "argumentName", "enumType"), argumentName, enumType);
         }
@@ -29,20 +45,31 @@ namespace Microsoft.Data.Relational
         /// <summary>
         /// The schema qualified name '{name}' is invalid. Schema qualified names must be of the form [&lt;schema_name&gt;.]&lt;object_name&gt;.
         /// </summary>
-        internal static string InvalidSchemaQualifiedName(object name)
+        internal static string InvalidSchemaQualifiedName
+        {
+            get { return GetString("InvalidSchemaQualifiedName"); }
+        }
+
+        /// <summary>
+        /// The schema qualified name '{name}' is invalid. Schema qualified names must be of the form [&lt;schema_name&gt;.]&lt;object_name&gt;.
+        /// </summary>
+        internal static string FormatInvalidSchemaQualifiedName(object name)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("InvalidSchemaQualifiedName", "name"), name);
         }
 
-        private static string GetString(string name, params string[] argumentNames)
+        private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
 
             System.Diagnostics.Debug.Assert(value != null);
-
-            for (var i = 0; i < argumentNames.Length; i++)
+    
+            if (formatterNames != null)
             {
-                value = value.Replace("{" + argumentNames[i] + "}", "{" + i + "}");
+                for (var i = 0; i < formatterNames.Length; i++)
+                {
+                    value = value.Replace("{" + formatterNames[i] + "}", "{" + i + "}");
+                }
             }
 
             return value;

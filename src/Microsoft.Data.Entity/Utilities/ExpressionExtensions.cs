@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Utilities
             if (propertyInfo == null)
             {
                 throw new ArgumentException(
-                    Strings.InvalidPropertyExpression(propertyAccessExpression),
+                    Strings.FormatInvalidPropertyExpression(propertyAccessExpression),
                     "propertyAccessExpression");
             }
 
@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.Utilities
             if (propertyPaths == null)
             {
                 throw new ArgumentException(
-                    Strings.InvalidPropertiesExpression(propertyAccessExpression),
+                    Strings.FormatInvalidPropertiesExpression(propertyAccessExpression),
                     "propertyAccessExpression");
             }
 

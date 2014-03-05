@@ -146,7 +146,7 @@ namespace Microsoft.Data.Entity
                 return service;
             }
 
-            throw new InvalidOperationException(Strings.MissingConfigurationItem(typeof(TService)));
+            throw new InvalidOperationException(Strings.FormatMissingConfigurationItem(typeof(TService)));
         }
     }
 }

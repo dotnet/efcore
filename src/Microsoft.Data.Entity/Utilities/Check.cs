@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.Utilities
 
             if (parameterName.Length == 0)
             {
-                throw new ArgumentException(Strings.ArgumentIsEmpty("parameterName"));
+                throw new ArgumentException(Strings.FormatArgumentIsEmpty("parameterName"));
             }
 
             if (ReferenceEquals(value, null))
@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.Utilities
 
             if (value.Length == 0)
             {
-                throw new ArgumentException(Strings.ArgumentIsEmpty(parameterName));
+                throw new ArgumentException(Strings.FormatArgumentIsEmpty(parameterName));
             }
 
             return value;
@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity.Utilities
 
             if (!Enum.IsDefined(typeof(T), value))
             {
-                throw new ArgumentException(Strings.InvalidEnumValue(parameterName, typeof(T)));
+                throw new ArgumentException(Strings.FormatInvalidEnumValue(parameterName, typeof(T)));
             }
 
             return value;

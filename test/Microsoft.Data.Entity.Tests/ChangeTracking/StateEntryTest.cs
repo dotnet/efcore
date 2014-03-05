@@ -29,11 +29,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entry = new StateEntry(CreateManagerMock().Object, new Random());
 
             Assert.Equal(
-                Strings.ArgumentIsEmpty("propertyName"),
+                Strings.FormatArgumentIsEmpty("propertyName"),
                 Assert.Throws<ArgumentException>(() => entry.IsPropertyModified("")).Message);
 
             Assert.Equal(
-                Strings.ArgumentIsEmpty("propertyName"),
+                Strings.FormatArgumentIsEmpty("propertyName"),
                 Assert.Throws<ArgumentException>(() => entry.SetPropertyModified("", true)).Message);
         }
 
@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         public void Constructor_throws_for_entity_not_in_the_model()
         {
             Assert.Equal(
-                Strings.EntityTypeNotFound("System.Random"),
+                Strings.FormatEntityTypeNotFound("System.Random"),
                 Assert.Throws<InvalidOperationException>(
                     () =>
                         new StateEntry(

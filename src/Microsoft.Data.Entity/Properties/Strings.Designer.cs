@@ -13,7 +13,15 @@ namespace Microsoft.Data.Entity
         /// <summary>
         /// The string argument '{argumentName}' cannot be empty.
         /// </summary>
-        internal static string ArgumentIsEmpty(object argumentName)
+        internal static string ArgumentIsEmpty
+        {
+            get { return GetString("ArgumentIsEmpty"); }
+        }
+
+        /// <summary>
+        /// The string argument '{argumentName}' cannot be empty.
+        /// </summary>
+        internal static string FormatArgumentIsEmpty(object argumentName)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("ArgumentIsEmpty", "argumentName"), argumentName);
         }
@@ -21,7 +29,15 @@ namespace Microsoft.Data.Entity
         /// <summary>
         /// A circular model foreign key dependency was detected: {cycle}.
         /// </summary>
-        internal static string CircularDependency(object cycle)
+        internal static string CircularDependency
+        {
+            get { return GetString("CircularDependency"); }
+        }
+
+        /// <summary>
+        /// A circular model foreign key dependency was detected: {cycle}.
+        /// </summary>
+        internal static string FormatCircularDependency(object cycle)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("CircularDependency", "cycle"), cycle);
         }
@@ -29,7 +45,15 @@ namespace Microsoft.Data.Entity
         /// <summary>
         /// The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.
         /// </summary>
-        internal static string InvalidEnumValue(object argumentName, object enumType)
+        internal static string InvalidEnumValue
+        {
+            get { return GetString("InvalidEnumValue"); }
+        }
+
+        /// <summary>
+        /// The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.
+        /// </summary>
+        internal static string FormatInvalidEnumValue(object argumentName, object enumType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("InvalidEnumValue", "argumentName", "enumType"), argumentName, enumType);
         }
@@ -37,7 +61,15 @@ namespace Microsoft.Data.Entity
         /// <summary>
         /// The properties expression '{expression}' is not valid. The expression should represent a property access: 't =&gt; t.MyProperty'. When specifying multiple properties use an anonymous type: 't =&gt; new {{ t.MyProperty1, t.MyProperty2 }}'.
         /// </summary>
-        internal static string InvalidPropertiesExpression(object expression)
+        internal static string InvalidPropertiesExpression
+        {
+            get { return GetString("InvalidPropertiesExpression"); }
+        }
+
+        /// <summary>
+        /// The properties expression '{expression}' is not valid. The expression should represent a property access: 't =&gt; t.MyProperty'. When specifying multiple properties use an anonymous type: 't =&gt; new {{ t.MyProperty1, t.MyProperty2 }}'.
+        /// </summary>
+        internal static string FormatInvalidPropertiesExpression(object expression)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("InvalidPropertiesExpression", "expression"), expression);
         }
@@ -45,7 +77,15 @@ namespace Microsoft.Data.Entity
         /// <summary>
         /// The expression '{expression}' is not a valid property expression. The expression should represent a property access: 't =&gt; t.MyProperty'.
         /// </summary>
-        internal static string InvalidPropertyExpression(object expression)
+        internal static string InvalidPropertyExpression
+        {
+            get { return GetString("InvalidPropertyExpression"); }
+        }
+
+        /// <summary>
+        /// The expression '{expression}' is not a valid property expression. The expression should represent a property access: 't =&gt; t.MyProperty'.
+        /// </summary>
+        internal static string FormatInvalidPropertyExpression(object expression)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("InvalidPropertyExpression", "expression"), expression);
         }
@@ -53,7 +93,15 @@ namespace Microsoft.Data.Entity
         /// <summary>
         /// A service of type '{serviceType}' has not been configured. Either configure the service explicitly, or ensure one is available from the current IServiceProvider.
         /// </summary>
-        internal static string MissingConfigurationItem(object serviceType)
+        internal static string MissingConfigurationItem
+        {
+            get { return GetString("MissingConfigurationItem"); }
+        }
+
+        /// <summary>
+        /// A service of type '{serviceType}' has not been configured. Either configure the service explicitly, or ensure one is available from the current IServiceProvider.
+        /// </summary>
+        internal static string FormatMissingConfigurationItem(object serviceType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("MissingConfigurationItem", "serviceType"), serviceType);
         }
@@ -61,7 +109,15 @@ namespace Microsoft.Data.Entity
         /// <summary>
         /// The instance of entity type '{entityType}' cannot be tracked because another instance of this type with the same key is already being tracked. For new entities consider using an IIdentityGenerator to generate unique key values.
         /// </summary>
-        internal static string IdentityConflict(object entityType)
+        internal static string IdentityConflict
+        {
+            get { return GetString("IdentityConflict"); }
+        }
+
+        /// <summary>
+        /// The instance of entity type '{entityType}' cannot be tracked because another instance of this type with the same key is already being tracked. For new entities consider using an IIdentityGenerator to generate unique key values.
+        /// </summary>
+        internal static string FormatIdentityConflict(object entityType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("IdentityConflict", "entityType"), entityType);
         }
@@ -69,20 +125,31 @@ namespace Microsoft.Data.Entity
         /// <summary>
         /// The entity type '{entityType}' was not found. Ensure that the entity type '{entityType}' has been added to the model.
         /// </summary>
-        internal static string EntityTypeNotFound(object entityType)
+        internal static string EntityTypeNotFound
+        {
+            get { return GetString("EntityTypeNotFound"); }
+        }
+
+        /// <summary>
+        /// The entity type '{entityType}' was not found. Ensure that the entity type '{entityType}' has been added to the model.
+        /// </summary>
+        internal static string FormatEntityTypeNotFound(object entityType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("EntityTypeNotFound", "entityType"), entityType);
         }
 
-        private static string GetString(string name, params string[] argumentNames)
+        private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
 
             System.Diagnostics.Debug.Assert(value != null);
-
-            for (var i = 0; i < argumentNames.Length; i++)
+    
+            if (formatterNames != null)
             {
-                value = value.Replace("{" + argumentNames[i] + "}", "{" + i + "}");
+                for (var i = 0; i < formatterNames.Length; i++)
+                {
+                    value = value.Replace("{" + formatterNames[i] + "}", "{" + i + "}");
+                }
             }
 
             return value;

@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 // ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(() => new CollectionNavigation(null, "Handlebars")).ParamName);
             Assert.Equal(
-                Strings.ArgumentIsEmpty("name"),
+                Strings.FormatArgumentIsEmpty("name"),
                 Assert.Throws<ArgumentException>(() => new CollectionNavigation(new Mock<ForeignKey>().Object, "")).Message);
 
             var navigation = new CollectionNavigation(new Mock<ForeignKey>().Object, "Handlebars");

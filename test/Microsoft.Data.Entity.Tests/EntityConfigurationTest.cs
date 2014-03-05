@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.Tests
         public void Throws_if_no_data_store()
         {
             Assert.Equal(
-                Strings.MissingConfigurationItem(typeof(DataStore)),
+                Strings.FormatMissingConfigurationItem(typeof(DataStore)),
                 Assert.Throws<InvalidOperationException>(() => new EntityConfiguration().DataStore).Message);
         }
 
@@ -93,7 +93,7 @@ namespace Microsoft.Data.Entity.Tests
         public void Throws_if_no_IdentityGeneratorFactory_registered()
         {
             Assert.Equal(
-                Strings.MissingConfigurationItem(typeof(IdentityGeneratorFactory)),
+                Strings.FormatMissingConfigurationItem(typeof(IdentityGeneratorFactory)),
                 Assert.Throws<InvalidOperationException>(
                     () => new EntityConfiguration(new ServiceProvider()).IdentityGeneratorFactory).Message);
         }
@@ -167,7 +167,7 @@ namespace Microsoft.Data.Entity.Tests
         public void Throws_if_no_StateManagerFactory_registered()
         {
             Assert.Equal(
-                Strings.MissingConfigurationItem(typeof(StateManagerFactory)),
+                Strings.FormatMissingConfigurationItem(typeof(StateManagerFactory)),
                 Assert.Throws<InvalidOperationException>(
                     () => new EntityConfiguration(new ServiceProvider()).StateManagerFactory).Message);
         }
@@ -199,7 +199,7 @@ namespace Microsoft.Data.Entity.Tests
         public void Throws_if_no_ActiveIdentityGenerators_registered()
         {
             Assert.Equal(
-                Strings.MissingConfigurationItem(typeof(ActiveIdentityGenerators)),
+                Strings.FormatMissingConfigurationItem(typeof(ActiveIdentityGenerators)),
                 Assert.Throws<InvalidOperationException>(
                     () => new EntityConfiguration(new ServiceProvider()).ActiveIdentityGenerators).Message);
         }
@@ -260,7 +260,7 @@ namespace Microsoft.Data.Entity.Tests
         public void Throws_if_no_ModelSource_registered()
         {
             Assert.Equal(
-                Strings.MissingConfigurationItem(typeof(IModelSource)),
+                Strings.FormatMissingConfigurationItem(typeof(IModelSource)),
                 Assert.Throws<InvalidOperationException>(
                     () => new EntityConfiguration(new ServiceProvider()).ModelSource).Message);
         }
@@ -292,7 +292,7 @@ namespace Microsoft.Data.Entity.Tests
         public void Throws_if_no_EntitySetInitializer_registered()
         {
             Assert.Equal(
-                Strings.MissingConfigurationItem(typeof(EntitySetInitializer)),
+                Strings.FormatMissingConfigurationItem(typeof(EntitySetInitializer)),
                 Assert.Throws<InvalidOperationException>(
                     () => new EntityConfiguration(new ServiceProvider()).EntitySetInitializer).Message);
         }
@@ -324,7 +324,7 @@ namespace Microsoft.Data.Entity.Tests
         public void Throws_if_no_EntitySetFinder_registered()
         {
             Assert.Equal(
-                Strings.MissingConfigurationItem(typeof(EntitySetFinder)),
+                Strings.FormatMissingConfigurationItem(typeof(EntitySetFinder)),
                 Assert.Throws<InvalidOperationException>(
                     () => new EntityConfiguration(new ServiceProvider()).EntitySetFinder).Message);
         }

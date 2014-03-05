@@ -74,7 +74,7 @@ namespace Microsoft.Data.Migrations
             Check.NotNull(migrationOperation, "migrationOperation");
             Check.NotNull(stringBuilder, "stringBuilder");
 
-            throw new NotSupportedException(Strings.UnknownOperation(GetType(), migrationOperation.GetType()));
+            throw new NotSupportedException(Strings.FormatUnknownOperation(GetType(), migrationOperation.GetType()));
         }
 
         public virtual string DelimitIdentifier(SchemaQualifiedName schemaQualifiedName)

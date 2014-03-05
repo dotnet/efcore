@@ -22,7 +22,7 @@ namespace Microsoft.Data.Migrations.Tests
         public void Generate_when_unsupported_operation()
         {
             Assert.Equal(
-                Strings.UnknownOperation(typeof(MigrationOperationSqlGenerator), typeof(UnknownOperation)),
+                Strings.FormatUnknownOperation(typeof(MigrationOperationSqlGenerator), typeof(UnknownOperation)),
                 Assert.Throws<NotSupportedException>(
                     () => MigrationOperationSqlGenerator.Generate(new UnknownOperation())).Message);
         }

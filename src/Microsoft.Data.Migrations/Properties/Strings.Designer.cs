@@ -13,7 +13,15 @@ namespace Microsoft.Data.Migrations
         /// <summary>
         /// The string argument '{argumentName}' cannot be empty.
         /// </summary>
-        internal static string ArgumentIsEmpty(object argumentName)
+        internal static string ArgumentIsEmpty
+        {
+            get { return GetString("ArgumentIsEmpty"); }
+        }
+
+        /// <summary>
+        /// The string argument '{argumentName}' cannot be empty.
+        /// </summary>
+        internal static string FormatArgumentIsEmpty(object argumentName)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("ArgumentIsEmpty", "argumentName"), argumentName);
         }
@@ -21,7 +29,15 @@ namespace Microsoft.Data.Migrations
         /// <summary>
         /// The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.
         /// </summary>
-        internal static string InvalidEnumValue(object argumentName, object enumType)
+        internal static string InvalidEnumValue
+        {
+            get { return GetString("InvalidEnumValue"); }
+        }
+
+        /// <summary>
+        /// The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.
+        /// </summary>
+        internal static string FormatInvalidEnumValue(object argumentName, object enumType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("InvalidEnumValue", "argumentName", "enumType"), argumentName, enumType);
         }
@@ -29,20 +45,31 @@ namespace Microsoft.Data.Migrations
         /// <summary>
         /// The current migration SQL generator '{sqlGeneratorType}' is unable to generate SQL for operations of type '{operationType}'.
         /// </summary>
-        internal static string UnknownOperation(object sqlGeneratorType, object operationType)
+        internal static string UnknownOperation
+        {
+            get { return GetString("UnknownOperation"); }
+        }
+
+        /// <summary>
+        /// The current migration SQL generator '{sqlGeneratorType}' is unable to generate SQL for operations of type '{operationType}'.
+        /// </summary>
+        internal static string FormatUnknownOperation(object sqlGeneratorType, object operationType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("UnknownOperation", "sqlGeneratorType", "operationType"), sqlGeneratorType, operationType);
         }
 
-        private static string GetString(string name, params string[] argumentNames)
+        private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
 
             System.Diagnostics.Debug.Assert(value != null);
-
-            for (var i = 0; i < argumentNames.Length; i++)
+    
+            if (formatterNames != null)
             {
-                value = value.Replace("{" + argumentNames[i] + "}", "{" + i + "}");
+                for (var i = 0; i < formatterNames.Length; i++)
+                {
+                    value = value.Replace("{" + formatterNames[i] + "}", "{" + i + "}");
+                }
             }
 
             return value;

@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var property = new Property(Customer.NameProperty);
 
             Assert.Equal(
-                Strings.ArgumentIsEmpty("value"),
+                Strings.FormatArgumentIsEmpty("value"),
                 Assert.Throws<ArgumentException>(() => property.StorageName = "").Message);
 
             Assert.Equal(

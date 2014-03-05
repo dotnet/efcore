@@ -33,11 +33,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 Assert.Throws<ArgumentNullException>(() => metadataBase.RemoveAnnotation(null)).ParamName);
 
             Assert.Equal(
-                Strings.ArgumentIsEmpty("annotationName"),
+                Strings.FormatArgumentIsEmpty("annotationName"),
                 Assert.Throws<ArgumentException>(() => metadataBase[""]).Message);
 
             Assert.Equal(
-                Strings.ArgumentIsEmpty("annotationName"),
+                Strings.FormatArgumentIsEmpty("annotationName"),
                 Assert.Throws<ArgumentException>(() => metadataBase[""] = "The kake is a lie").Message);
 
             Assert.Equal(

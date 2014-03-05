@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entry = new EntityEntry(new Mock<StateEntry>().Object);
 
             Assert.Equal(
-                Strings.ArgumentIsEmpty("propertyName"),
+                Strings.FormatArgumentIsEmpty("propertyName"),
                 Assert.Throws<ArgumentException>(() => entry.Property("")).Message);
 
             var genericEntry = new EntityEntry<Random>(new Mock<StateEntry>().Object);

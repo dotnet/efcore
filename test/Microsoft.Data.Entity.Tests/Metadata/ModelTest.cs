@@ -203,7 +203,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 entityTypeA.AddForeignKey(new ForeignKey(entityTypeA, _properties));
 
                 Assert.Equal(
-                    Strings.CircularDependency("A -> A"),
+                    Strings.FormatCircularDependency("A -> A"),
                     Assert.Throws<InvalidOperationException>(() => model.TopologicalSort()).Message);
             }
 
@@ -223,7 +223,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 entityTypeB.AddForeignKey(new ForeignKey(entityTypeA, _properties));
 
                 Assert.Equal(
-                    Strings.CircularDependency("A -> B -> A"),
+                    Strings.FormatCircularDependency("A -> B -> A"),
                     Assert.Throws<InvalidOperationException>(() => model.TopologicalSort()).Message);
             }
 
@@ -246,7 +246,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 entityTypeC.AddForeignKey(new ForeignKey(entityTypeA, _properties));
 
                 Assert.Equal(
-                    Strings.CircularDependency("A -> B -> C -> A"),
+                    Strings.FormatCircularDependency("A -> B -> C -> A"),
                     Assert.Throws<InvalidOperationException>(() => model.TopologicalSort()).Message);
             }
         }

@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             {
                 // TODO: Consider a hook for identity resolution
                 // TODO: Consider specialized exception types
-                throw new InvalidOperationException(Strings.IdentityConflict(entry.Entity.GetType().Name));
+                throw new InvalidOperationException(Strings.FormatIdentityConflict(entry.Entity.GetType().Name));
             }
 
             // TODO: Consider the case where two EntityEntry instances both track the same entity instance

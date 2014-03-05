@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var entityType = new EntityType(typeof(Random));
 
             Assert.Equal(
-                Strings.ArgumentIsEmpty("value"),
+                Strings.FormatArgumentIsEmpty("value"),
                 Assert.Throws<ArgumentException>(() => entityType.StorageName = "").Message);
 
             Assert.Equal(
@@ -74,7 +74,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 Assert.Throws<ArgumentNullException>(() => entityType.RemoveProperty(null)).ParamName);
 
             Assert.Equal(
-                Strings.ArgumentIsEmpty("name"),
+                Strings.FormatArgumentIsEmpty("name"),
                 Assert.Throws<ArgumentException>(() => entityType.Property("")).Message);
         }
 

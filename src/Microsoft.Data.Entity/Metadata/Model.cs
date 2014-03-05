@@ -54,7 +54,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             if (entityType == null)
             {
-                throw new InvalidOperationException(Strings.EntityTypeNotFound(type));
+                throw new InvalidOperationException(Strings.FormatEntityTypeNotFound(type));
             }
 
             return entityType;
@@ -103,7 +103,7 @@ namespace Microsoft.Data.Entity.Metadata
             if (visiting.Contains(entityType)) // TODO: Support cycle-breaking in UP?
             {
                 throw new InvalidOperationException(
-                    Strings.CircularDependency(
+                    Strings.FormatCircularDependency(
                         visiting
                             .Concat(new[] { entityType })
                             .Select(et => et.Name).Join(" -> ")));
