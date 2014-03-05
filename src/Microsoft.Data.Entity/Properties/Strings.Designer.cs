@@ -138,6 +138,70 @@ namespace Microsoft.Data.Entity
             return string.Format(CultureInfo.CurrentCulture, GetString("EntityTypeNotFound", "entityType"), entityType);
         }
 
+        /// <summary>
+        /// Sequence contains no elements.
+        /// </summary>
+        internal static string EmptySequence
+        {
+            get { return GetString("EmptySequence"); }
+        }
+
+        /// <summary>
+        /// Sequence contains no elements.
+        /// </summary>
+        internal static string FormatEmptySequence()
+        {
+            return GetString("EmptySequence");
+        }
+
+        /// <summary>
+        /// Sequence contains more than one element.
+        /// </summary>
+        internal static string MoreThanOneElement
+        {
+            get { return GetString("MoreThanOneElement"); }
+        }
+
+        /// <summary>
+        /// Sequence contains more than one element.
+        /// </summary>
+        internal static string FormatMoreThanOneElement()
+        {
+            return GetString("MoreThanOneElement");
+        }
+
+        /// <summary>
+        /// Sequence contains more than one matching element.
+        /// </summary>
+        internal static string MoreThanOneMatch
+        {
+            get { return GetString("MoreThanOneMatch"); }
+        }
+
+        /// <summary>
+        /// Sequence contains more than one matching element.
+        /// </summary>
+        internal static string FormatMoreThanOneMatch()
+        {
+            return GetString("MoreThanOneMatch");
+        }
+
+        /// <summary>
+        /// Sequence contains no matching element.
+        /// </summary>
+        internal static string NoMatch
+        {
+            get { return GetString("NoMatch"); }
+        }
+
+        /// <summary>
+        /// Sequence contains no matching element.
+        /// </summary>
+        internal static string FormatNoMatch()
+        {
+            return GetString("NoMatch");
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

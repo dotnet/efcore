@@ -5,17 +5,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.Utilities
 {
     [DebuggerStepThrough]
     internal static class TypeExtensions
     {
-        public static Type ElementType([NotNull] this Type type)
+        public static Type ElementType(this Type type)
         {
-            Check.NotNull(type, "type");
-
             var typeInfo = type.GetTypeInfo();
 
             if (typeInfo.IsGenericType
@@ -28,10 +25,8 @@ namespace Microsoft.Data.Entity.Utilities
             return type;
         }
 
-        public static bool IsNullableType([NotNull] this Type type)
+        public static bool IsNullableType(this Type type)
         {
-            Check.NotNull(type, "type");
-
             var typeInfo = type.GetTypeInfo();
 
             return !typeInfo.IsValueType
@@ -48,6 +43,16 @@ namespace Microsoft.Data.Entity.Utilities
             }
 
             return props.SingleOrDefault();
+        }
+
+        public static ConstructorInfo GetDeclaredConstructor(this Type type, Type[] types)
+        {
+            types = types ?? new Type[0];
+
+            return type.GetTypeInfo().DeclaredConstructors
+                .SingleOrDefault(
+                    c => !c.IsStatic
+                         && c.GetParameters().Select(p => p.ParameterType).SequenceEqual(types));
         }
     }
 }

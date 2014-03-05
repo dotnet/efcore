@@ -80,5 +80,10 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 
             return _propertyIndexes;
         }
+
+        public object CreateInstance([NotNull] object[] values)
+        {
+            return null;
+        }
     }
 }

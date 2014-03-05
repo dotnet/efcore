@@ -17,5 +17,6 @@ namespace Microsoft.Data.Entity.Metadata
         IReadOnlyList<IForeignKey> ForeignKeys { get; }
         IReadOnlyList<INavigation> Navigations { get; }
         int PropertyIndex([NotNull] string name);
+        object CreateInstance([NotNull] object[] values);
     }
 }

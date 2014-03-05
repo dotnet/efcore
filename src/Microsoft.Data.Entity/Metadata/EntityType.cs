@@ -22,6 +22,7 @@ namespace Microsoft.Data.Entity.Metadata
         private ImmutableSortedSet<Property> _properties = ImmutableSortedSet<Property>.Empty.WithComparer(new PropertyComparer());
         private IReadOnlyList<Property> _keyProperties;
         private string _storageName;
+        public Func<object[], object> _activator;
 
         // Intended only for creation of test doubles
         internal EntityType()
@@ -71,6 +72,26 @@ namespace Microsoft.Data.Entity.Metadata
         public virtual Type Type
         {
             get { return _type; }
+        }
+
+        public object CreateInstance(object[] values)
+        {
+            Check.NotNull(values, "values");
+
+            if (_activator == null)
+            {
+                var ctor = Type.GetDeclaredConstructor(new[] { typeof(object[]) });
+
+                if (ctor == null)
+                {
+                    // TODO: Fallback to slow path
+                    throw new InvalidOperationException();
+                }
+
+                _activator = vs => ctor.Invoke(new object[] { vs });
+            }
+
+            return _activator(values);
         }
 
         public virtual IReadOnlyList<Property> Key

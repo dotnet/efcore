@@ -32,7 +32,8 @@ namespace Microsoft.Data.Entity.Utilities
 
                 return _value;
             }
-            [param: NotNull] set
+            [param: NotNull]
+            set
             {
                 Check.NotNull(value, "value");
 

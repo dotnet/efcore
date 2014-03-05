@@ -61,7 +61,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var metadataBase = new ConcreteMetadata();
 
             metadataBase.AddAnnotation(new Annotation("Foo", "Bar"));
-            
+
             var newAnnotation = new Annotation("Foo", "Bar");
             metadataBase.AddAnnotation(newAnnotation);
 
