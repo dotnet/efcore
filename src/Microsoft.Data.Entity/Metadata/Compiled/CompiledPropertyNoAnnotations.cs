@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
@@ -10,9 +11,9 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 {
     public class CompiledPropertyNoAnnotations<TEntity, TProperty>
     {
-        public IEnumerable<IAnnotation> Annotations
+        public IReadOnlyList<IAnnotation> Annotations
         {
-            get { return Enumerable.Empty<IAnnotation>(); }
+            get { return ImmutableList<Annotation>.Empty; }
         }
 
         public string this[[NotNull] string annotationName]
@@ -43,6 +44,12 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
         public bool IsNullable
         {
             get { return typeof(TProperty).IsNullableType(); }
+        }
+
+        public IEntityType EntityType
+        {
+            // TODO
+            get { return null; }
         }
     }
 }

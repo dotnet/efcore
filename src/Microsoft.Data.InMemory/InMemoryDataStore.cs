@@ -19,8 +19,8 @@ namespace Microsoft.Data.InMemory
 {
     public class InMemoryDataStore : DataStore
     {
-        private readonly LazyRef<ImmutableDictionary<object, object[]>> _objectData
-            = new LazyRef<ImmutableDictionary<object, object[]>>(() => ImmutableDictionary<object, object[]>.Empty);
+        private readonly ThreadSafeLazyRef<ImmutableDictionary<object, object[]>> _objectData
+            = new ThreadSafeLazyRef<ImmutableDictionary<object, object[]>>(() => ImmutableDictionary<object, object[]>.Empty);
 
         private readonly ILogger _logger;
 

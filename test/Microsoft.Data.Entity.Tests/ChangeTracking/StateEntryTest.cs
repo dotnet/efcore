@@ -134,7 +134,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             entityTypeMock = entityTypeMock ?? new Mock<IEntityType>();
             entityTypeMock.Setup(m => m.Key).Returns(keys);
-            entityTypeMock.Setup(m => m.Properties).Returns(keys.Concat(new[] { new Mock<IProperty>().Object }));
+            entityTypeMock.Setup(m => m.Properties).Returns(keys.Concat(new[] { new Mock<IProperty>().Object }).ToArray());
             entityTypeMock.Setup(m => m.PropertyIndex("Foo")).Returns(0);
             entityTypeMock.Setup(m => m.PropertyIndex("Goo")).Returns(1);
 

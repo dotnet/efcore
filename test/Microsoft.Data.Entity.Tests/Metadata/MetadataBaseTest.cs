@@ -56,13 +56,16 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
-        public void Add_duplicate_annotation_throws()
+        public void Add_duplicate_annotation_replaces_current_annotation()
         {
             var metadataBase = new ConcreteMetadata();
 
             metadataBase.AddAnnotation(new Annotation("Foo", "Bar"));
+            
+            var newAnnotation = new Annotation("Foo", "Bar");
+            metadataBase.AddAnnotation(newAnnotation);
 
-            Assert.Throws<ArgumentException>(() => metadataBase.AddAnnotation(new Annotation("Foo", "Bar")));
+            Assert.Same(newAnnotation, metadataBase.Annotations.Single());
         }
 
         [Fact]

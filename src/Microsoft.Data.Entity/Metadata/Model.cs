@@ -11,8 +11,9 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public class Model : MetadataBase, IModel
     {
-        private readonly LazyRef<ImmutableDictionary<Type, EntityType>> _entities
-            = new LazyRef<ImmutableDictionary<Type, EntityType>>(() => ImmutableDictionary<Type, EntityType>.Empty);
+        private readonly LazyRef<ImmutableSortedSet<EntityType>> _entities
+            = new LazyRef<ImmutableSortedSet<EntityType>>(
+                () => ImmutableSortedSet<EntityType>.Empty.WithComparer(new EntityTypeComparer()));
 
         private readonly LazyRef<IEqualityComparer<object>> _entityEqualityComparer;
 
@@ -25,23 +26,24 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(entityType, "entityType");
 
-            _entities.ExchangeValue(d => d.Add(entityType.Type, entityType));
+            _entities.Value = _entities.Value.Add(entityType);
         }
 
         public virtual void RemoveEntityType([NotNull] EntityType entityType)
         {
             Check.NotNull(entityType, "entityType");
 
-            _entities.ExchangeValue(l => l.Remove(entityType.Type));
+            _entities.Value = _entities.Value.Remove(entityType);
         }
 
         public virtual EntityType TryGetEntityType([NotNull] Type type)
         {
             Check.NotNull(type, "type");
 
+            // TODO: Consider shadow state entities and using multiple entities
+            // TODO: with the same CLR type name in the same model
             EntityType entityType;
-            return _entities.HasValue
-                   && _entities.Value.TryGetValue(type, out entityType)
+            return _entities.Value.TryGetValue(new EntityType(type), out entityType)
                 ? entityType
                 : null;
         }
@@ -60,14 +62,9 @@ namespace Microsoft.Data.Entity.Metadata
             return entityType;
         }
 
-        public virtual IEnumerable<EntityType> EntityTypes
+        public virtual IReadOnlyList<EntityType> EntityTypes
         {
-            get
-            {
-                return _entities.HasValue
-                    ? _entities.Value.Values.OrderByOrdinal(e => e.Name)
-                    : Enumerable.Empty<EntityType>();
-            }
+            get { return _entities.HasValue ? (IReadOnlyList<EntityType>)_entities.Value : ImmutableList<EntityType>.Empty; }
         }
 
         public virtual IEqualityComparer<object> EntityEqualityComparer
@@ -75,11 +72,11 @@ namespace Microsoft.Data.Entity.Metadata
             get { return _entityEqualityComparer.Value; }
         }
 
-        public virtual IEnumerable<IEntityType> TopologicalSort()
+        public virtual IReadOnlyList<IEntityType> TopologicalSort()
         {
             if (!_entities.HasValue)
             {
-                return Enumerable.Empty<IEntityType>();
+                return ImmutableList<EntityType>.Empty;
             }
 
             var sorted = new List<IEntityType>();
@@ -136,9 +133,17 @@ namespace Microsoft.Data.Entity.Metadata
             return GetEntityType(type);
         }
 
-        IEnumerable<IEntityType> IModel.EntityTypes
+        IReadOnlyList<IEntityType> IModel.EntityTypes
         {
             get { return EntityTypes; }
+        }
+
+        private class EntityTypeComparer : IComparer<EntityType>
+        {
+            public int Compare(EntityType x, EntityType y)
+            {
+                return StringComparer.Ordinal.Compare(x.Name, y.Name);
+            }
         }
     }
 }

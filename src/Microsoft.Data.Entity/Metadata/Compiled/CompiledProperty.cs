@@ -26,5 +26,11 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
         {
             get { return typeof(TProperty).IsNullableType(); }
         }
+
+        public IEntityType EntityType
+        {
+            // TODO
+            get { return null; }
+        }
     }
 }

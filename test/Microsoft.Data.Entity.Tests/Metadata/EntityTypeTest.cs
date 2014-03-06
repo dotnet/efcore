@@ -122,6 +122,28 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
+        public void Property_back_pointer_is_fixed_up_as_property_is_added_and_removed()
+        {
+            var entityType1 = new EntityType(typeof(Customer));
+            var entityType2 = new EntityType(typeof(Customer));
+
+            var property = new Property(Customer.IdProperty);
+            entityType1.AddProperty(property);
+
+            Assert.Same(entityType1, property.EntityType);
+
+            entityType2.AddProperty(property);
+
+            Assert.Same(entityType2, property.EntityType);
+            Assert.Empty(entityType1.Properties);
+
+            entityType2.RemoveProperty(property);
+
+            Assert.Empty(entityType2.Properties);
+            Assert.Null(property.EntityType);
+        }
+
+        [Fact]
         public void Properties_are_ordered_by_name()
         {
             var entityType = new EntityType(typeof(Customer));
@@ -235,6 +257,35 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
+        public void FK_back_pointer_is_fixed_up_as_FK_is_added_and_removed()
+        {
+            var entityType1 = new EntityType(typeof(Customer));
+            var entityType2 = new EntityType(typeof(Customer));
+
+            var property = new Property(Customer.IdProperty);
+            var foreignKey = new ForeignKey(entityType1, new[] { property });
+            entityType1.AddForeignKey(foreignKey);
+
+            Assert.Same(entityType1, foreignKey.DependentType);
+            Assert.Same(entityType1, property.EntityType);
+
+            entityType2.AddForeignKey(foreignKey);
+
+            Assert.Same(entityType2, foreignKey.DependentType);
+            Assert.Same(entityType2, property.EntityType);
+            Assert.Empty(entityType1.ForeignKeys);
+            Assert.Empty(entityType1.Properties);
+
+            entityType2.RemoveForeignKey(foreignKey);
+
+            // Currently property is not removed when FK is removed
+            Assert.Empty(entityType2.ForeignKeys);
+            Assert.Same(property, entityType2.Properties.Single());
+            Assert.Null(foreignKey.DependentType);
+            Assert.Same(entityType2, property.EntityType);
+        }
+
+        [Fact]
         public void Can_add_navigations()
         {
             var entityType = new EntityType(typeof(Order));
@@ -245,6 +296,30 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Same(navigation, entityType.Navigations.Single());
             Assert.Same(entityType, navigation.EntityType);
+        }
+
+        [Fact]
+        public void Navigation_back_pointer_is_fixed_up_as_navigation_is_added_and_removed()
+        {
+            var entityType1 = new EntityType(typeof(Customer));
+            var entityType2 = new EntityType(typeof(Customer));
+
+            var navigation = new Navigation(
+                new ForeignKey(entityType1, new[] { new Property(Customer.IdProperty) }), "Nav");
+
+            entityType1.AddNavigation(navigation);
+
+            Assert.Same(entityType1, navigation.EntityType);
+
+            entityType2.AddNavigation(navigation);
+
+            Assert.Same(entityType2, navigation.EntityType);
+            Assert.Empty(entityType1.Navigations);
+
+            entityType2.RemoveNavigation(navigation);
+
+            Assert.Empty(entityType2.Navigations);
+            Assert.Null(navigation.EntityType);
         }
 
         [Fact]

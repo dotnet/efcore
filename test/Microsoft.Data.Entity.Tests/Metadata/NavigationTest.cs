@@ -23,11 +23,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var navigation = new Navigation(new Mock<ForeignKey>().Object, "Handlebars");
 
             Assert.Equal(
-                "value",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => navigation.EntityType = null).ParamName);
-
-            Assert.Equal(
                 "ownerEntity",
                 // ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(() => navigation.SetOrAddEntity(null, new Random())).ParamName);

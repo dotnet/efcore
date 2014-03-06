@@ -13,7 +13,6 @@ namespace Microsoft.Data.Entity.Metadata
     {
         private readonly string _name;
         private readonly Type _propertyType;
-        private readonly Type _declaringType;
 
         private string _storageName;
         private bool _isNullable = true;
@@ -30,7 +29,6 @@ namespace Microsoft.Data.Entity.Metadata
         public Property([NotNull] PropertyInfo propertyInfo)
             : this(Check.NotNull(propertyInfo, "propertyInfo").Name, propertyInfo.PropertyType)
         {
-            _declaringType = propertyInfo.DeclaringType;
         }
 
         /// <summary>
@@ -71,10 +69,8 @@ namespace Microsoft.Data.Entity.Metadata
             get { return _propertyType; }
         }
 
-        public virtual Type DeclaringType
-        {
-            get { return _declaringType; }
-        }
+        // TODO: Consider properties that are part of some complex/value type
+        public virtual EntityType EntityType { get; [param: CanBeNull] set; }
 
         public virtual bool IsNullable
         {
@@ -89,7 +85,7 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotNull(instance, "instance");
 
             // TODO: Handle shadow state
-            _declaringType.GetAnyProperty(Name).SetValue(instance, value);
+            EntityType.Type.GetAnyProperty(Name).SetValue(instance, value);
         }
 
         public virtual object GetValue(object instance)
@@ -97,7 +93,12 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotNull(instance, "instance");
 
             // TODO: Handle shadow state
-            return _declaringType.GetAnyProperty(Name).GetValue(instance);
+            return EntityType.Type.GetAnyProperty(Name).GetValue(instance);
+        }
+
+        IEntityType IProperty.EntityType
+        {
+            get { return EntityType; }
         }
     }
 }

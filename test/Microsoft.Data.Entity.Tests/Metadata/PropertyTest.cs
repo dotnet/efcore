@@ -73,7 +73,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var property = new Property(Customer.NameProperty);
 
             Assert.Equal("Name", property.Name);
-            Assert.Same(typeof(Customer), property.DeclaringType);
             Assert.Same(typeof(string), property.PropertyType);
             Assert.True(property.IsNullable);
         }
@@ -81,8 +80,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_get_and_set_property_value()
         {
-            var entity = new Customer();
+            var entityType = new EntityType(typeof(Customer));
             var property = new Property(Customer.NameProperty);
+            entityType.AddProperty(property);
+            var entity = new Customer();
 
             Assert.Null(property.GetValue(entity));
             property.SetValue(entity, "There is no kake");
