@@ -1,6 +1,5 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
-using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -11,10 +10,10 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking
 {
-    public class StateEntry
+    public abstract class StateEntry
     {
         private readonly StateManager _stateManager;
-        private readonly object _entity;
+        private readonly IEntityType _entityType;
         private StateData _stateData;
 
         // Intended only for creation of test doubles
@@ -22,24 +21,22 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
         }
 
-        public StateEntry([NotNull] StateManager stateManager, [NotNull] object entity)
+        protected StateEntry([NotNull] StateManager stateManager, [NotNull] IEntityType entityType)
         {
             Check.NotNull(stateManager, "stateManager");
-            Check.NotNull(entity, "entity");
+            Check.NotNull(entityType, "entityType");
 
             _stateManager = stateManager;
-            _entity = entity;
-            _stateData = new StateData(EntityType.Properties.Count());
+            _entityType = entityType;
+            _stateData = new StateData(entityType.Properties.Count);
         }
 
-        public virtual object Entity
-        {
-            get { return _entity; }
-        }
+        [CanBeNull]
+        public abstract object Entity { get; }
 
         public virtual IEntityType EntityType
         {
-            get { return _stateManager.Model.GetEntityType(_entity.GetType()); }
+            get { return _entityType; }
         }
 
         public virtual StateManager StateManager
@@ -53,7 +50,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             // set all properties to modified if the entity state is explicitly set to Modified.
             if (value == EntityState.Modified)
             {
-                _stateData.SetAllPropertiesModified(EntityType.Properties.Count());
+                _stateData.SetAllPropertiesModified(_entityType.Properties.Count());
             }
 
             var oldState = _stateData.EntityState;
@@ -67,14 +64,14 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             if (value == EntityState.Added)
             {
-                Debug.Assert(EntityType.Key.Count() <= 1, "Composite keys not implemented yet.");
+                Debug.Assert(_entityType.Key.Count() <= 1, "Composite keys not implemented yet.");
 
-                var keyProperty = EntityType.Key.First();
+                var keyProperty = _entityType.Key.First();
                 var identityGenerator = _stateManager.GetIdentityGenerator(keyProperty);
 
                 if (identityGenerator != null)
                 {
-                    keyProperty.SetValue(_entity, await identityGenerator.NextAsync(cancellationToken).ConfigureAwait(false));
+                    SetPropertyValue(keyProperty, await identityGenerator.NextAsync(cancellationToken).ConfigureAwait(false));
                 }
             }
 
@@ -96,25 +93,25 @@ namespace Microsoft.Data.Entity.ChangeTracking
             get { return _stateData.EntityState; }
         }
 
-        public virtual bool IsPropertyModified([NotNull] string propertyName)
+        public virtual bool IsPropertyModified([NotNull] IProperty property)
         {
-            Check.NotEmpty(propertyName, "propertyName");
+            Check.NotNull(property, "property");
 
             if (_stateData.EntityState != EntityState.Modified)
             {
                 return false;
             }
 
-            return _stateData.IsPropertyModified(GetPropertyIndex(propertyName));
+            return _stateData.IsPropertyModified(property.Index);
         }
 
-        public virtual void SetPropertyModified([NotNull] string propertyName, bool isModified)
+        public virtual void SetPropertyModified([NotNull] IProperty property, bool isModified)
         {
-            Check.NotEmpty(propertyName, "propertyName");
+            Check.NotNull(property, "property");
 
             // TODO: Restore original value to reject changes when isModified is false
 
-            _stateData.SetPropertyModified(GetPropertyIndex(propertyName), isModified);
+            _stateData.SetPropertyModified(property.Index, isModified);
 
             // Don't change entity state if it is Added or Deleted
             var currentState = _stateData.EntityState;
@@ -133,25 +130,18 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
         }
 
-        public virtual object[] GetValueBuffer()
+        public abstract object GetPropertyValue([NotNull] IProperty property);
 
+        public abstract void SetPropertyValue([NotNull] IProperty property, [CanBeNull] object value);
+
+        public virtual EntityKey CreateKey()
         {
-            return _stateManager.Model
-                .GetEntityType(_entity.GetType())
-                .Properties.Select(p => p.GetValue(_entity)).ToArray();
+            return _stateManager.GetKeyFactory(_entityType).Create(this);
         }
 
-        private int GetPropertyIndex(string propertyName)
+        public virtual object[] GetValueBuffer()
         {
-            var index = EntityType.PropertyIndex(propertyName);
-
-            if (index >= 0)
-            {
-                return index;
-            }
-
-            // TODO: Proper message
-            throw new InvalidOperationException("Bad property name");
+            return _entityType.Properties.Select(GetPropertyValue).ToArray();
         }
 
         internal struct StateData

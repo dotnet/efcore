@@ -21,6 +21,8 @@ namespace Microsoft.Data.Entity
             yield return Service.Singleton<EntitySetFinder, EntitySetFinder>();
             yield return Service.Singleton<EntitySetInitializer, EntitySetInitializer>();
             yield return Service.Singleton<IEntityStateListener, NavigationFixer>();
+            yield return Service.Singleton<EntityKeyFactorySource, EntityKeyFactorySource>();
+            yield return Service.Singleton<StateEntryFactory, StateEntryFactory>();
         }
     }
 }

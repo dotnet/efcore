@@ -26,6 +26,8 @@ namespace Microsoft.Data.Entity.Tests
             Assert.True(services.Any(sd => sd.ServiceType == typeof(EntitySetFinder)));
             Assert.True(services.Any(sd => sd.ServiceType == typeof(EntitySetInitializer)));
             Assert.True(services.Any(sd => sd.ServiceType == typeof(IEntityStateListener)));
+            Assert.True(services.Any(sd => sd.ServiceType == typeof(StateEntryFactory)));
+            Assert.True(services.Any(sd => sd.ServiceType == typeof(EntityKeyFactorySource)));
         }
 
         [Fact]
@@ -71,7 +73,7 @@ namespace Microsoft.Data.Entity.Tests
 
             var generators = serviceProvider.GetService<ActiveIdentityGenerators>();
 
-            var property = new Property("Foo", typeof(Guid)) { ValueGenerationStrategy = ValueGenerationStrategy.Client };
+            var property = new Property("Foo", typeof(Guid), hasClrProperty: true) { ValueGenerationStrategy = ValueGenerationStrategy.Client };
 
             Assert.IsType<GuidIdentityGenerator>(generators.GetOrAdd(property));
         }

@@ -20,6 +20,11 @@ namespace Microsoft.Data.Entity.Storage
 
         public virtual IAsyncEnumerable<object[]> Read([NotNull] Type type, [NotNull] IModel model)
         {
+            return Read(model.GetEntityType(type));
+        }
+
+        public virtual IAsyncEnumerable<object[]> Read([NotNull] IEntityType type)
+        {
             throw new NotImplementedException();
         }
     }

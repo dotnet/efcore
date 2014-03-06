@@ -12,26 +12,37 @@ namespace Microsoft.Data.Entity.ChangeTracking
     {
         private readonly ActiveIdentityGenerators _identityGenerators;
         private readonly IEnumerable<IEntityStateListener> _entityStateListeners;
+        private readonly EntityKeyFactorySource _keyFactorySource;
+        private readonly StateEntryFactory _stateEntryFactory;
 
         // Intended only for creation of test doubles
         internal StateManagerFactory()
         {
         }
 
-        public StateManagerFactory([NotNull] ActiveIdentityGenerators identityGenerators, [NotNull] IEnumerable<IEntityStateListener> entityStateListeners)
+        public StateManagerFactory(
+            [NotNull] ActiveIdentityGenerators identityGenerators,
+            [NotNull] IEnumerable<IEntityStateListener> entityStateListeners,
+            [NotNull] EntityKeyFactorySource entityKeyFactorySource,
+            [NotNull] StateEntryFactory stateEntryFactory)
+
         {
             Check.NotNull(identityGenerators, "identityGenerators");
             Check.NotNull(entityStateListeners, "entityStateListeners");
+            Check.NotNull(entityKeyFactorySource, "entityKeyFactorySource");
+            Check.NotNull(stateEntryFactory, "stateEntryFactory");
 
             _identityGenerators = identityGenerators;
             _entityStateListeners = entityStateListeners;
+            _keyFactorySource = entityKeyFactorySource;
+            _stateEntryFactory = stateEntryFactory;
         }
 
         public virtual StateManager Create([NotNull] IModel model)
         {
             Check.NotNull(model, "model");
 
-            return new StateManager(model, _identityGenerators, _entityStateListeners);
+            return new StateManager(model, _identityGenerators, _entityStateListeners, _keyFactorySource, _stateEntryFactory);
         }
     }
 }

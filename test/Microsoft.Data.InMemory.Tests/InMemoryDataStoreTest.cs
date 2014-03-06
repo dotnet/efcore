@@ -30,63 +30,58 @@ namespace Microsoft.Data.InMemory.Tests
         public async Task Save_changes_adds_new_objects_to_store()
         {
             var model = CreateModel();
-            var stateManager
-                = new StateManager(
-                    model,
-                    new ActiveIdentityGenerators(new InMemoryIdentityGeneratorFactory()), Enumerable.Empty<IEntityStateListener>());
+            var stateManager = CreateStateManager(model);
+            var entityType = model.GetEntityType(typeof(Customer));
+
             var customer = new Customer { Id = 42, Name = "Unikorn" };
-            var entityEntry = new StateEntry(stateManager, customer);
+            var entityEntry = new ClrStateEntry(stateManager, entityType, customer);
             await entityEntry.SetEntityStateAsync(EntityState.Added, CancellationToken.None);
             var inMemoryDataStore = new InMemoryDataStore();
 
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry }, model);
 
+            var key = new SimpleEntityKey<int>(entityType, 42);
             Assert.Equal(1, inMemoryDataStore.Objects.Count);
-            Assert.Equal(new object[] { 42, "Unikorn" }, inMemoryDataStore.Objects[customer]);
+            Assert.Equal(new object[] { 42, "Unikorn" }, inMemoryDataStore.Objects[key]);
         }
 
         [Fact]
         public async Task Save_changes_updates_changed_objects_in_store()
         {
             var model = CreateModel();
-            var stateManager
-                = new StateManager(
-                    model,
-                    new ActiveIdentityGenerators(new InMemoryIdentityGeneratorFactory()), Enumerable.Empty<IEntityStateListener>());
+            var stateManager = CreateStateManager(model);
+            var entityType = model.GetEntityType(typeof(Customer));
 
             var customer = new Customer { Id = 42, Name = "Unikorn" };
-            var entityEntry = new StateEntry(stateManager, customer);
+            var entityEntry = new ClrStateEntry(stateManager, entityType, customer);
             await entityEntry.SetEntityStateAsync(EntityState.Added, CancellationToken.None);
             var inMemoryDataStore = new InMemoryDataStore();
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry }, model);
 
             customer.Name = "Unikorn, The Return";
-            entityEntry = new StateEntry(stateManager, customer);
             await entityEntry.SetEntityStateAsync(EntityState.Modified, CancellationToken.None);
 
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry }, model);
 
+            var key = new SimpleEntityKey<int>(entityType, 42);
             Assert.Equal(1, inMemoryDataStore.Objects.Count);
-            Assert.Equal(new object[] { 42, "Unikorn, The Return" }, inMemoryDataStore.Objects[customer]);
+            Assert.Equal(new object[] { 42, "Unikorn, The Return" }, inMemoryDataStore.Objects[key]);
         }
 
         [Fact]
         public async Task Save_changes_removes_deleted_objects_from_store()
         {
             var model = CreateModel();
-            var stateManager
-                = new StateManager(
-                    model,
-                    new ActiveIdentityGenerators(new InMemoryIdentityGeneratorFactory()), Enumerable.Empty<IEntityStateListener>());
+            var stateManager = CreateStateManager(model);
+            var entityType = model.GetEntityType(typeof(Customer));
 
             var customer = new Customer { Id = 42, Name = "Unikorn" };
-            var entityEntry = new StateEntry(stateManager, customer);
+            var entityEntry = new ClrStateEntry(stateManager, entityType, customer);
             await entityEntry.SetEntityStateAsync(EntityState.Added, CancellationToken.None);
             var inMemoryDataStore = new InMemoryDataStore();
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry }, model);
 
             customer.Name = "Unikorn, The Return";
-            entityEntry = new StateEntry(stateManager, customer);
             await entityEntry.SetEntityStateAsync(EntityState.Deleted, CancellationToken.None);
 
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry }, model);
@@ -98,12 +93,11 @@ namespace Microsoft.Data.InMemory.Tests
         public async Task Should_log_writes()
         {
             var model = CreateModel();
-            var stateManager
-                = new StateManager(
-                    model,
-                    new ActiveIdentityGenerators(new InMemoryIdentityGeneratorFactory()), Enumerable.Empty<IEntityStateListener>());
+            var stateManager = CreateStateManager(model);
+            var entityType = model.GetEntityType(typeof(Customer));
+
             var customer = new Customer { Id = 42, Name = "Unikorn" };
-            var entityEntry = new StateEntry(stateManager, customer);
+            var entityEntry = new ClrStateEntry(stateManager, entityType, customer);
             await entityEntry.SetEntityStateAsync(EntityState.Added, CancellationToken.None);
 
             var mockLogger = new Mock<ILogger>();
@@ -126,6 +120,16 @@ namespace Microsoft.Data.InMemory.Tests
                 .Properties(ps => ps.Property(c => c.Name));
 
             return model;
+        }
+
+        private static StateManager CreateStateManager(IModel model)
+        {
+            return new StateManager(
+                model,
+                new Mock<ActiveIdentityGenerators>().Object,
+                Enumerable.Empty<IEntityStateListener>(),
+                new EntityKeyFactorySource(),
+                new StateEntryFactory());
         }
     }
 }

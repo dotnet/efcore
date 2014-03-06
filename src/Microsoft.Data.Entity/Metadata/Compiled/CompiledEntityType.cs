@@ -13,11 +13,20 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
     {
         private IProperty[] _keys;
         private IProperty[] _properties;
-        private IDictionary<string, int> _propertyIndexes;
 
-        public IProperty Property([NotNull] string name)
+        public IProperty TryGetProperty([NotNull] string name)
         {
             return Properties.FirstOrDefault(p => p.Name == name);
+        }
+
+        public IProperty GetProperty([NotNull] string name)
+        {
+            var property = TryGetProperty(name);
+            if (property == null)
+            {
+                throw new Exception(Strings.FormatPropertyNotFound(name, typeof(TEntity).Name));
+            }
+            return property;
         }
 
         public Type Type
@@ -61,24 +70,16 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
             return LazyInitializer.EnsureInitialized(ref _properties, LoadProperties);
         }
 
-        public int PropertyIndex([NotNull] string name)
+        public int ShadowPropertyCount
         {
-            var indexes = LazyInitializer.EnsureInitialized(ref _propertyIndexes, BuildIndexes);
-            int index;
-            return indexes.TryGetValue(name, out index) ? index : -1;
+            // TODO: Implement
+            get { return 0; }
         }
 
-        private IDictionary<string, int> BuildIndexes()
+        public bool HasClrType
         {
-            var properties = EnsurePropertiesInitialized();
-
-            _propertyIndexes = new Dictionary<string, int>(properties.Length, StringComparer.Ordinal);
-            for (var i = 0; i < _properties.Length; i++)
-            {
-                _propertyIndexes[_properties[i].Name] = i;
-            }
-
-            return _propertyIndexes;
+            // TODO: Implement
+            get { return true; }
         }
 
         public object CreateInstance([NotNull] object[] values)

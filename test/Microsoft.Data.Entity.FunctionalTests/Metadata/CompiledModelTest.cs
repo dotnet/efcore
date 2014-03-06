@@ -66,7 +66,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         public void Property_values_can_be_read_and_set_using_compiled_metadata_without_reflection()
         {
             var entity = new KoolEntity15();
-            var property = new _OneTwoThreeContextModel().GetEntityType(entity.GetType()).Property("Id");
+            var property = new _OneTwoThreeContextModel().GetEntityType(entity.GetType()).TryGetProperty("Id");
 
             Assert.Equal(0, property.GetValue(entity));
             property.SetValue(entity, 777);

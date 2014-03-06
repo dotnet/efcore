@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(
                 "type",
                 // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => model.TryGetEntityType(null)).ParamName);
+                Assert.Throws<ArgumentNullException>(() => model.TryGetEntityType((Type)null)).ParamName);
         }
 
         [Fact]
@@ -100,7 +100,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             {
             }
 
-            private readonly Property[] _properties = { new Property("P", typeof(int)) };
+            private readonly Property[] _properties = { new Property("P", typeof(int), hasClrProperty: true) };
 
             #endregion
 

@@ -10,13 +10,23 @@ namespace Microsoft.Data.Entity.Metadata
     {
         string Name { get; }
         string StorageName { get; }
+        
+        [CanBeNull]
         Type Type { get; }
+
         IReadOnlyList<IProperty> Key { get; }
-        IProperty Property([NotNull] string name);
+
+        [CanBeNull]
+        IProperty TryGetProperty([NotNull] string name);
+
+        [NotNull]
+        IProperty GetProperty([NotNull] string name);
+
         IReadOnlyList<IProperty> Properties { get; }
         IReadOnlyList<IForeignKey> ForeignKeys { get; }
         IReadOnlyList<INavigation> Navigations { get; }
-        int PropertyIndex([NotNull] string name);
         object CreateInstance([NotNull] object[] values);
+        int ShadowPropertyCount { get; }
+        bool HasClrType { get; }
     }
 }

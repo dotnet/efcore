@@ -101,7 +101,7 @@ namespace Microsoft.Data.Entity.Metadata
 
                 Metadata.Key
                     = keyExpression.GetPropertyAccessList()
-                        .Select(pi => Metadata.Property(pi.Name) ?? new Property(pi)).ToArray();
+                        .Select(pi => Metadata.TryGetProperty(pi.Name) ?? new Property(pi)).ToArray();
 
                 return this;
             }
@@ -127,7 +127,7 @@ namespace Microsoft.Data.Entity.Metadata
                 public virtual PropertyBuilder Property([NotNull] Expression<Func<TEntity, object>> propertyExpression)
                 {
                     var propertyInfo = propertyExpression.GetPropertyAccess();
-                    var property = _entityType.Property(propertyInfo.Name);
+                    var property = _entityType.TryGetProperty(propertyInfo.Name);
 
                     if (property == null)
                     {
@@ -181,7 +181,7 @@ namespace Microsoft.Data.Entity.Metadata
                     var principalType = _modelBuilder.Entity<TReferencedEntityType>().Metadata;
 
                     var dependentProperties = foreignKeyExpression.GetPropertyAccessList()
-                        .Select(pi => _entityType.Property(pi.Name) ?? new Property(pi)).ToArray();
+                        .Select(pi => _entityType.TryGetProperty(pi.Name) ?? new Property(pi)).ToArray();
 
                     // TODO: This code currently assumes that the FK maps to a PK on the principal end
                     var foreignKey = new ForeignKey(principalType, dependentProperties);

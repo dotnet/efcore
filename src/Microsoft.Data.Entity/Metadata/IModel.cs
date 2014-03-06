@@ -15,6 +15,11 @@ namespace Microsoft.Data.Entity.Metadata
         IEntityType GetEntityType([NotNull] Type type);
 
         IReadOnlyList<IEntityType> EntityTypes { get; }
-        IEqualityComparer<object> EntityEqualityComparer { get; }
+
+        [CanBeNull]
+        IEntityType TryGetEntityType([NotNull] string name);
+
+        [NotNull]
+        IEntityType GetEntityType([NotNull] string name);
     }
 }

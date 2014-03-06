@@ -15,13 +15,6 @@ namespace Microsoft.Data.Entity.Metadata
             = new LazyRef<ImmutableSortedSet<EntityType>>(
                 () => ImmutableSortedSet<EntityType>.Empty.WithComparer(new EntityTypeComparer()));
 
-        private readonly LazyRef<IEqualityComparer<object>> _entityEqualityComparer;
-
-        public Model()
-        {
-            _entityEqualityComparer = new LazyRef<IEqualityComparer<object>>(() => new EntityEqualityComparer(this));
-        }
-
         public virtual void AddEntityType([NotNull] EntityType entityType)
         {
             Check.NotNull(entityType, "entityType");
@@ -36,11 +29,11 @@ namespace Microsoft.Data.Entity.Metadata
             _entities.Value = _entities.Value.Remove(entityType);
         }
 
+        [CanBeNull]
         public virtual EntityType TryGetEntityType([NotNull] Type type)
         {
             Check.NotNull(type, "type");
 
-            // TODO: Consider shadow state entities and using multiple entities
             // TODO: with the same CLR type name in the same model
             EntityType entityType;
             return _entities.Value.TryGetValue(new EntityType(type), out entityType)
@@ -48,6 +41,7 @@ namespace Microsoft.Data.Entity.Metadata
                 : null;
         }
 
+        [NotNull]
         public virtual EntityType GetEntityType([NotNull] Type type)
         {
             Check.NotNull(type, "type");
@@ -62,14 +56,35 @@ namespace Microsoft.Data.Entity.Metadata
             return entityType;
         }
 
+        [CanBeNull]
+        public virtual EntityType TryGetEntityType([NotNull] string name)
+        {
+            Check.NotEmpty(name, "name");
+
+            EntityType entityType;
+            return _entities.Value.TryGetValue(new EntityType(name), out entityType)
+                ? entityType
+                : null;
+        }
+
+        [NotNull]
+        public virtual EntityType GetEntityType([NotNull] string name)
+        {
+            Check.NotEmpty(name, "name");
+
+            var entityType = TryGetEntityType(name);
+
+            if (entityType == null)
+            {
+                throw new InvalidOperationException(Strings.FormatEntityTypeNotFound(name));
+            }
+
+            return entityType;
+        }
+
         public virtual IReadOnlyList<EntityType> EntityTypes
         {
             get { return _entities.HasValue ? (IReadOnlyList<EntityType>)_entities.Value : ImmutableList<EntityType>.Empty; }
-        }
-
-        public virtual IEqualityComparer<object> EntityEqualityComparer
-        {
-            get { return _entityEqualityComparer.Value; }
         }
 
         public virtual IReadOnlyList<IEntityType> TopologicalSort()
@@ -131,6 +146,16 @@ namespace Microsoft.Data.Entity.Metadata
         IEntityType IModel.GetEntityType(Type type)
         {
             return GetEntityType(type);
+        }
+
+        IEntityType IModel.TryGetEntityType(string name)
+        {
+            return TryGetEntityType(name);
+        }
+
+        IEntityType IModel.GetEntityType(string name)
+        {
+            return GetEntityType(name);
         }
 
         IReadOnlyList<IEntityType> IModel.EntityTypes

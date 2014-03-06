@@ -2,6 +2,7 @@
 
 using System;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.Metadata;
 using Moq;
 using Xunit;
 
@@ -32,24 +33,41 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Can_get_name()
         {
-            Assert.Equal("Maturity", new PropertyEntry(new Mock<StateEntry>().Object, "Maturity").Name);
-            Assert.Equal("Maturity", new PropertyEntry<Random, string>(new Mock<StateEntry>().Object, "Maturity").Name);
+            var stateEntryMock = CreateStateEntryMock(new Mock<IProperty>());
+
+            Assert.Equal("Monkey", new PropertyEntry(stateEntryMock.Object, "Monkey").Name);
+            Assert.Equal("Monkey", new PropertyEntry<Random, string>(stateEntryMock.Object, "Monkey").Name);
         }
 
         [Fact]
         public void IsModified_delegates_to_state_object()
         {
-            var stateEntryMock = new Mock<StateEntry>();
-            stateEntryMock.Setup(m => m.IsPropertyModified("Name")).Returns(true);
+            var propertyMock = new Mock<IProperty>();
+            var stateEntryMock = CreateStateEntryMock(propertyMock);
+            stateEntryMock.Setup(m => m.IsPropertyModified(propertyMock.Object)).Returns(true);
 
-            var propertyEntry = new PropertyEntry<Random, string>(stateEntryMock.Object, "Name");
+            var propertyEntry = new PropertyEntry<Random, string>(stateEntryMock.Object, "Monkey");
 
             Assert.True(propertyEntry.IsModified);
-            stateEntryMock.Verify(m => m.IsPropertyModified("Name"));
+            stateEntryMock.Verify(m => m.IsPropertyModified(propertyMock.Object));
 
             propertyEntry.IsModified = true;
 
-            stateEntryMock.Verify(m => m.SetPropertyModified("Name", true));
+            stateEntryMock.Verify(m => m.SetPropertyModified(propertyMock.Object, true));
         }
+
+        private static Mock<StateEntry> CreateStateEntryMock(Mock<IProperty> propertyMock)
+        {
+            propertyMock.Setup(m => m.Name).Returns("Monkey");
+
+            var entityTypeMock = new Mock<IEntityType>();
+            entityTypeMock.Setup(m => m.GetProperty("Monkey")).Returns(propertyMock.Object);
+
+            var stateEntryMock = new Mock<StateEntry>();
+            stateEntryMock.Setup(m => m.EntityType).Returns(entityTypeMock.Object);
+            return stateEntryMock;
+        }
+
+
     }
 }

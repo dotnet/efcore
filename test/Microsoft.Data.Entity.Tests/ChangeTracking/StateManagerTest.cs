@@ -20,21 +20,39 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 "model",
                 // ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(
-                    () => new StateManager(null, new Mock<ActiveIdentityGenerators>().Object, Enumerable.Empty<IEntityStateListener>()))
-                    .ParamName);
+                    () => new StateManager(
+                        null, new Mock<ActiveIdentityGenerators>().Object, Enumerable.Empty<IEntityStateListener>(),
+                        new Mock<EntityKeyFactorySource>().Object, new Mock<StateEntryFactory>().Object)).ParamName);
+
             Assert.Equal(
                 "identityGenerators",
                 // ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(
-                    () => new StateManager(new Model(), null, Enumerable.Empty<IEntityStateListener>())).ParamName);
+                    () => new StateManager(new Model(), null, Enumerable.Empty<IEntityStateListener>(),
+                        new Mock<EntityKeyFactorySource>().Object, new Mock<StateEntryFactory>().Object)).ParamName);
+
             Assert.Equal(
                 "entityStateListeners",
                 // ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(
-                    () => new StateManager(new Model(), new Mock<ActiveIdentityGenerators>().Object, null)).ParamName);
+                    () => new StateManager(new Model(), new Mock<ActiveIdentityGenerators>().Object, null,
+                        new Mock<EntityKeyFactorySource>().Object, new Mock<StateEntryFactory>().Object)).ParamName);
 
-            var stateManager = new StateManager(
-                new Model(), new Mock<ActiveIdentityGenerators>().Object, Enumerable.Empty<IEntityStateListener>());
+            Assert.Equal(
+                "entityKeyFactorySource",
+                // ReSharper disable once AssignNullToNotNullAttribute
+                Assert.Throws<ArgumentNullException>(
+                    () => new StateManager(new Model(), new Mock<ActiveIdentityGenerators>().Object, Enumerable.Empty<IEntityStateListener>(),
+                        null, new Mock<StateEntryFactory>().Object)).ParamName);
+
+            Assert.Equal(
+                "stateEntryFactory",
+                // ReSharper disable once AssignNullToNotNullAttribute
+                Assert.Throws<ArgumentNullException>(
+                    () => new StateManager(new Model(), new Mock<ActiveIdentityGenerators>().Object, Enumerable.Empty<IEntityStateListener>(),
+                        new Mock<EntityKeyFactorySource>().Object, null)).ParamName);
+
+            var stateManager = CreateStateManager(new Model());
 
             Assert.Equal(
                 "entity",
@@ -57,13 +75,22 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 Assert.Throws<ArgumentNullException>(() => stateManager.GetIdentityGenerator(null)).ParamName);
         }
 
-        [Fact]
-        public void Can_get_existing_entry_if_entity_is_already_tracked_otherwise_null()
+        private static StateManager CreateStateManager(IModel model)
         {
-            var stateManager =
-                new StateManager(BuildModel(), new Mock<ActiveIdentityGenerators>().Object, Enumerable.Empty<IEntityStateListener>());
+            return new StateManager(
+                model,
+                new Mock<ActiveIdentityGenerators>().Object,
+                Enumerable.Empty<IEntityStateListener>(),
+                new EntityKeyFactorySource(),
+                new StateEntryFactory());
+        }
 
+        [Fact]
+        public void Can_get_existing_entry_if_entity_is_already_tracked_otherwise_new_entry()
+        {
+            var stateManager = CreateStateManager(BuildModel());
             var category = new Category();
+
             var stateEntry = stateManager.GetOrCreateEntry(category);
 
             stateManager.StartTracking(stateEntry);
@@ -71,14 +98,89 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var stateEntry2 = stateManager.GetOrCreateEntry(category);
 
             Assert.Same(stateEntry, stateEntry2);
-            Assert.Equal(EntityState.Unchanged, stateEntry.EntityState);
+            Assert.Equal(EntityState.Unknown, stateEntry.EntityState);
+        }
+
+        [Fact]
+        public void Can_get_existing_entry_even_if_state_not_yet_set()
+        {
+            var stateManager = CreateStateManager(BuildModel());
+            var category = new Category();
+
+            var stateEntry = stateManager.GetOrCreateEntry(category);
+            var stateEntry2 = stateManager.GetOrCreateEntry(category);
+
+            Assert.Same(stateEntry, stateEntry2);
+            Assert.Equal(EntityState.Unknown, stateEntry.EntityState);
+        }
+
+        [Fact]
+        public void Can_stop_tracking_and_then_start_tracking_again()
+        {
+            var stateManager = CreateStateManager(BuildModel());
+            var category = new Category();
+
+            var stateEntry = stateManager.GetOrCreateEntry(category);
+            stateManager.StartTracking(stateEntry);
+            stateManager.StopTracking(stateEntry);
+            stateManager.StartTracking(stateEntry);
+
+            var stateEntry2 = stateManager.GetOrCreateEntry(category);
+            Assert.Same(stateEntry, stateEntry2);
+        }
+
+        [Fact]
+        public void Can_stop_tracking_and_then_start_tracking_using_a_new_state_entry()
+        {
+            var stateManager = CreateStateManager(BuildModel());
+            var category = new Category();
+
+            var stateEntry = stateManager.GetOrCreateEntry(category);
+            stateManager.StartTracking(stateEntry);
+            stateManager.StopTracking(stateEntry);
+
+            var stateEntry2 = stateManager.GetOrCreateEntry(category);
+            Assert.NotSame(stateEntry, stateEntry2);
+
+            stateManager.StartTracking(stateEntry2);
+        }
+
+        [Fact]
+        public void Throws_on_attempt_to_start_tracking_same_entity_with_two_entries()
+        {
+            var stateManager = CreateStateManager(BuildModel());
+            var category = new Category();
+
+            var stateEntry = stateManager.GetOrCreateEntry(category);
+            stateManager.StartTracking(stateEntry);
+            stateManager.StopTracking(stateEntry);
+
+            var stateEntry2 = stateManager.GetOrCreateEntry(category);
+            stateManager.StartTracking(stateEntry2);
+
+            Assert.Equal(
+                Strings.FormatMultipleStateEntries("Category"),
+                Assert.Throws<ArgumentException>(() => stateManager.StartTracking(stateEntry)).Message);
+        }
+
+        [Fact]
+        public void Throws_on_attempt_to_start_tracking_with_wrong_manager()
+        {
+            var model = BuildModel();
+            var stateManager = CreateStateManager(model);
+            var stateManager2 = CreateStateManager(model);
+
+            var stateEntry = stateManager.GetOrCreateEntry(new Category());
+
+            Assert.Equal(
+                Strings.FormatWrongStateManager("Category"),
+                Assert.Throws<ArgumentException>(() => stateManager2.StartTracking(stateEntry)).Message);
         }
 
         [Fact]
         public void Will_get_new_entry_if_another_entity_with_the_same_key_is_already_tracked()
         {
-            var stateManager =
-                new StateManager(BuildModel(), new Mock<ActiveIdentityGenerators>().Object, Enumerable.Empty<IEntityStateListener>());
+            var stateManager = CreateStateManager(BuildModel());
 
             Assert.NotSame(
                 stateManager.GetOrCreateEntry(new Category { Id = 77 }),
@@ -88,13 +190,15 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Can_get_all_entities()
         {
-            var stateManager =
-                new StateManager(BuildModel(), new Mock<ActiveIdentityGenerators>().Object, Enumerable.Empty<IEntityStateListener>());
+            var stateManager = CreateStateManager(BuildModel());
+
+            var productId1 = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
+            var productId2 = new Guid("0edc9136-7eed-463b-9b97-bdb9648ab877");
 
             stateManager.StartTracking(stateManager.GetOrCreateEntry(new Category { Id = 77 }));
             stateManager.StartTracking(stateManager.GetOrCreateEntry(new Category { Id = 78 }));
-            stateManager.StartTracking(stateManager.GetOrCreateEntry(new Product { Id = 77 }));
-            stateManager.StartTracking(stateManager.GetOrCreateEntry(new Product { Id = 78 }));
+            stateManager.StartTracking(stateManager.GetOrCreateEntry(new Product { Id = productId1 }));
+            stateManager.StartTracking(stateManager.GetOrCreateEntry(new Product { Id = productId2 }));
 
             Assert.Equal(4, stateManager.StateEntries.Count());
 
@@ -108,7 +212,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                     .ToArray());
 
             Assert.Equal(
-                new[] { 77, 78 },
+                new[] { productId2, productId1 },
                 stateManager.StateEntries
                     .Select(e => e.Entity)
                     .OfType<Product>()
@@ -121,9 +225,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         public void Can_get_model()
         {
             var model = BuildModel();
-            Assert.Same(
-                model,
-                new StateManager(model, new Mock<ActiveIdentityGenerators>().Object, Enumerable.Empty<IEntityStateListener>()).Model);
+            var stateManager = CreateStateManager(model);
+
+            Assert.Same(model, stateManager.Model);
         }
 
         [Fact]
@@ -131,8 +235,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var listeners = new[] { new Mock<IEntityStateListener>(), new Mock<IEntityStateListener>(), new Mock<IEntityStateListener>() };
 
-            var stateManager =
-                new StateManager(BuildModel(), new Mock<ActiveIdentityGenerators>().Object, listeners.Select(m => m.Object));
+            var stateManager = new StateManager(
+                BuildModel(),
+                new Mock<ActiveIdentityGenerators>().Object,
+                listeners.Select(m => m.Object),
+                new EntityKeyFactorySource(),
+                new StateEntryFactory());
 
             var entry = stateManager.GetOrCreateEntry(new Category { Id = 77 });
             entry.SetEntityStateAsync(EntityState.Added, CancellationToken.None).Wait();
@@ -158,6 +266,16 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             }
         }
 
+        [Fact]
+        public void Can_get_key_factory()
+        {
+            var model = BuildModel();
+            var stateManager = CreateStateManager(model);
+
+            Assert.IsType<SimpleEntityKeyFactory<int>>(stateManager.GetKeyFactory(model.GetEntityType(typeof(Category))));
+            Assert.IsType<SimpleEntityKeyFactory<Guid>>(stateManager.GetKeyFactory(model.GetEntityType(typeof(Product))));
+        }
+
         #region Fixture
 
         private class Category
@@ -168,7 +286,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
         private class Product
         {
-            public int Id { get; set; }
+            public Guid Id { get; set; }
             public string Name { get; set; }
             public decimal Price { get; set; }
         }
