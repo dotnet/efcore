@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
@@ -46,6 +47,12 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
         }
 
         public IEntityType EntityType
+        {
+            // TODO
+            get { return null; }
+        }
+
+        public PropertyInfo PropertyInfo
         {
             // TODO
             get { return null; }

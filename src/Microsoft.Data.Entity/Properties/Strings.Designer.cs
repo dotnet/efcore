@@ -202,6 +202,22 @@ namespace Microsoft.Data.Entity
             return GetString("NoMatch");
         }
 
+        /// <summary>
+        /// The entity type '{entityType}' requires an accessible default constructor.
+        /// </summary>
+        internal static string NoDefaultCtor
+        {
+            get { return GetString("NoDefaultCtor"); }
+        }
+
+        /// <summary>
+        /// The entity type '{entityType}' requires an accessible default constructor.
+        /// </summary>
+        internal static string FormatNoDefaultCtor(object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NoDefaultCtor", "entityType"), entityType);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
