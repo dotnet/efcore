@@ -222,6 +222,7 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 currentOwner.RemoveProperty(property);
             }
+
             property.EntityType = this;
 
             return property;
@@ -236,6 +237,7 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 _properties = updatedProperties;
                 _propertyIndexes.Reset(CreateIndexes);
+
                 property.EntityType = null;
             }
 

@@ -153,4 +153,7 @@
   <data name="NoMatch" xml:space="preserve">
     <value>Sequence contains no matching element.</value>
   </data>
+  <data name="NoDefaultCtor" xml:space="preserve">
+    <value>The entity type '{entityType}' requires an accessible default constructor.</value>
+  </data>
 </root>
