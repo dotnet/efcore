@@ -4,12 +4,18 @@
     "Microsoft.Data.Entity" : "",
     "Microsoft.Data.Relational" : "",
     "Microsoft.AspNet.DependencyInjection" : "0.1-alpha-*",
-    "Microsoft.AspNet.Logging" : "0.1-alpha-*" 
+    "Microsoft.AspNet.Logging" : "0.1-alpha-*",
+    "Xunit.KRunner": "0.1-alpha-*",
+    "xunit2": "0.1-alpha-*",
+    "xunit2.assert": "0.1-alpha-*"
+  },
+  "commands": {
+    "test": "Xunit.KRunner"
   },
   "configurations": {
-    "net45": {  
+    "net45": {
       "dependencies": {
-        "xunit" : "1.9.2",
+        "System.Runtime": "",
         "Moq" : "4.2.1312.1622"
       }
     }
