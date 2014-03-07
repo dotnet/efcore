@@ -4,6 +4,7 @@
     "Microsoft.Data.Entity" : "",
     "Xunit.KRunner": "0.1-alpha-*",
     "xunit2": "0.1-alpha-*",
+    "xunit.abstractions": "3.0.0-alpha-*",
     "xunit2.assert": "0.1-alpha-*"
   },
   "commands": {
