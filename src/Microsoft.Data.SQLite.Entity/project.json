@@ -1,6 +1,8 @@
 {
   "version": "0.1-alpha-*",
-  "compilationOptions" : { "warningsAsErrors" : true },
+  "compilationOptions": {
+    "warningsAsErrors": true
+  },
   "dependencies": {
     "Microsoft.Data.SQLite": "0.1-alpha-*",
     "System.Data.Common": "0.1-alpha-*"
@@ -9,8 +11,16 @@
     "net45": {
       "dependencies": {
         "System.Data": ""
-        }
-      },
-      "k10": {}
+      }
+    },
+    "k10": {
+      "dependencies": {
+        "System.Diagnostics.Debug": "4.0.10.0",
+        "System.Globalization": "4.0.10.0",
+        "System.Reflection": "4.0.10.0",
+        "System.Resources.ResourceManager": "4.0.0.0",
+        "System.Runtime": "4.0.20.0"
+      }
+    }
   }
 }
