@@ -120,5 +120,10 @@ namespace Microsoft.Data.Relational
                 .Append("WHERE ")
                 .AppendJoin(whereConditions, (sb, v) => sb.Append(v.Key).Append(" = ").Append(v.Value), " AND ");
         }
+
+        public virtual string BatchCommandSeparator
+        {
+            get { return ";"; }
+        }
     }
 }
