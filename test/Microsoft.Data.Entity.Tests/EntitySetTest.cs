@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.Tests
             Assert.Equal(
                 "entity",
                 // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => set.AddAsync(null)).ParamName);
+                Assert.ThrowsAsync<ArgumentNullException>(() => set.AddAsync(null)).Result.ParamName);
             Assert.Equal(
                 "entity",
                 // ReSharper disable once AssignNullToNotNullAttribute
@@ -41,11 +41,11 @@ namespace Microsoft.Data.Entity.Tests
             Assert.Equal(
                 "entity",
                 // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => set.UpdateAsync(null)).ParamName);
+                Assert.ThrowsAsync<ArgumentNullException>(() => set.UpdateAsync(null)).Result.ParamName);
             Assert.Equal(
                 "entity",
                 // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => set.UpdateAsync(null, new CancellationToken())).ParamName);
+                Assert.ThrowsAsync<ArgumentNullException>(() => set.UpdateAsync(null, new CancellationToken())).Result.ParamName);
         }
 
         [Fact]
