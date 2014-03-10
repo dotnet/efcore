@@ -146,6 +146,12 @@ namespace Microsoft.Data.Relational.Tests
                 stringBuilder.ToString());
         }
 
+        [Fact]
+        public void Default_BatchCommandSeparator_is_semicolon()
+        {
+            Assert.Equal(";", new SqlGenerator().BatchCommandSeparator);
+        }
+
         public class ParameterValidation
         {
             [Fact]
