@@ -102,6 +102,40 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
+        public void Can_explicitly_create_new_entry_for_shadow_state_entity()
+        {
+            var model = BuildModel();
+            var stateManager = CreateStateManager(model);
+
+            var stateEntry = stateManager.CreateNewEntry(model.GetEntityType("Location"));
+
+            Assert.Equal(EntityState.Unknown, stateEntry.EntityState);
+            Assert.Null(stateEntry.Entity);
+            Assert.Equal(0, stateManager.StateEntries.Count());
+
+            stateManager.StartTracking(stateEntry);
+
+            Assert.Equal(1, stateManager.StateEntries.Count());
+        }
+
+        [Fact]
+        public void Can_explicitly_create_new_entry_for_normal_state_entity()
+        {
+            var model = BuildModel();
+            var stateManager = CreateStateManager(model);
+
+            var stateEntry = stateManager.CreateNewEntry(model.GetEntityType(typeof(Category)));
+
+            Assert.Equal(EntityState.Unknown, stateEntry.EntityState);
+            Assert.IsType<Category>(stateEntry.Entity);
+            Assert.Equal(0, stateManager.StateEntries.Count());
+
+            stateManager.StartTracking(stateEntry);
+
+            Assert.Equal(1, stateManager.StateEntries.Count());
+        }
+
+        [Fact]
         public void Can_get_existing_entry_even_if_state_not_yet_set()
         {
             var stateManager = CreateStateManager(BuildModel());
@@ -160,7 +194,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             Assert.Equal(
                 Strings.FormatMultipleStateEntries("Category"),
-                Assert.Throws<ArgumentException>(() => stateManager.StartTracking(stateEntry)).Message);
+                Assert.Throws<InvalidOperationException>(() => stateManager.StartTracking(stateEntry)).Message);
         }
 
         [Fact]
@@ -174,7 +208,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             Assert.Equal(
                 Strings.FormatWrongStateManager("Category"),
-                Assert.Throws<ArgumentException>(() => stateManager2.StartTracking(stateEntry)).Message);
+                Assert.Throws<InvalidOperationException>(() => stateManager2.StartTracking(stateEntry)).Message);
         }
 
         [Fact]
@@ -300,6 +334,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             builder.Entity<Category>();
 
             new SimpleTemporaryConvention().Apply(model);
+
+            var locationType = new EntityType("Location");
+            locationType.AddProperty(new Property("Id", typeof(int), hasClrProperty: false));
+            locationType.AddProperty(new Property("Planet", typeof(string), hasClrProperty: false));
+            model.AddEntityType(locationType);
 
             return model;
         }

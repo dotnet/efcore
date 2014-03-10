@@ -24,8 +24,12 @@ namespace Microsoft.Data.Entity.ChangeTracking
         private readonly EntityKeyFactorySource _keyFactorySource;
         private readonly StateEntryFactory _stateEntryFactory;
 
-        // Intended only for creation of test doubles
-        internal StateManager()
+        /// <summary>
+        /// This constructor is intended only for use when creating test doubles that will override members
+        /// with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
+        /// behavior including but not limited to throwing <see cref="NullReferenceException"/>.
+        /// </summary>
+        protected StateManager()
         {
         }
 
@@ -87,7 +91,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             if (entry.StateManager != this)
             {
-                throw new ArgumentException(Strings.FormatWrongStateManager(entry.EntityType.Name));
+                throw new InvalidOperationException(Strings.FormatWrongStateManager(entry.EntityType.Name));
             }
 
             StateEntry existingEntry;
@@ -99,7 +103,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 }
                 else if (existingEntry != entry)
                 {
-                    throw new ArgumentException(Strings.FormatMultipleStateEntries(entry.EntityType.Name));
+                    throw new InvalidOperationException(Strings.FormatMultipleStateEntries(entry.EntityType.Name));
                 }
             }
 

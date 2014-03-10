@@ -89,5 +89,62 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             property.SetValue(entity, "There is no kake");
             Assert.Equal("There is no kake", property.GetValue(entity));
         }
+
+        [Fact]
+        public void HasClrProperty_is_set_appropriately()
+        {
+            Assert.True(new Property(Customer.NameProperty).HasClrProperty);
+            Assert.True(new Property("Kake", typeof(int), hasClrProperty: true).HasClrProperty);
+            Assert.False(new Property("Kake", typeof(int), hasClrProperty: false).HasClrProperty);
+        }
+
+        [Fact]
+        public void Can_get_and_set_property_index_for_normal_property()
+        {
+            var property = new Property("Kake", typeof(int), hasClrProperty: true);
+
+            Assert.Equal(0, property.Index);
+            Assert.Equal(-1, property.ShadowIndex);
+
+            property.Index = 1;
+
+            Assert.Equal(1, property.Index);
+            Assert.Equal(-1, property.ShadowIndex);
+
+            Assert.Equal(
+                "value",
+                Assert.Throws<ArgumentOutOfRangeException>(() => property.Index = -1).ParamName);
+
+            Assert.Equal(
+                "value",
+                Assert.Throws<ArgumentOutOfRangeException>(() => property.ShadowIndex = -1).ParamName);
+
+            Assert.Equal(
+                "value",
+                Assert.Throws<ArgumentOutOfRangeException>(() => property.ShadowIndex = 1).ParamName);
+        }
+
+        [Fact]
+        public void Can_get_and_set_property_and_shadow_index_for_shadow_property()
+        {
+            var property = new Property("Kake", typeof(int), hasClrProperty: false);
+
+            Assert.Equal(0, property.Index);
+            Assert.Equal(0, property.ShadowIndex);
+
+            property.Index = 1;
+            property.ShadowIndex = 2;
+
+            Assert.Equal(1, property.Index);
+            Assert.Equal(2, property.ShadowIndex);
+
+            Assert.Equal(
+                "value",
+                Assert.Throws<ArgumentOutOfRangeException>(() => property.Index = -1).ParamName);
+
+            Assert.Equal(
+                "value",
+                Assert.Throws<ArgumentOutOfRangeException>(() => property.ShadowIndex = -1).ParamName);
+        }
     }
 }

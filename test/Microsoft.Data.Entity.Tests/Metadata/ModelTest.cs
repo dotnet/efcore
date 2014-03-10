@@ -69,6 +69,26 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Same(entityType, model.GetEntityType(typeof(Customer)));
             Assert.Same(entityType, model.TryGetEntityType(typeof(Customer)));
             Assert.Null(model.TryGetEntityType(typeof(string)));
+
+            Assert.Equal(
+                Strings.FormatEntityTypeNotFound("String"),
+                Assert.Throws<ModelItemNotFoundException>(() => model.GetEntityType(typeof(string))).Message);
+        }
+
+        [Fact]
+        public void Can_get_entity_by_name()
+        {
+            var model = new Model();
+            var entityType = new EntityType(typeof(Customer));
+            model.AddEntityType(entityType);
+
+            Assert.Same(entityType, model.GetEntityType("Customer"));
+            Assert.Same(entityType, model.TryGetEntityType("Customer"));
+            Assert.Null(model.TryGetEntityType(typeof(string)));
+
+            Assert.Equal(
+                Strings.FormatEntityTypeNotFound("String"),
+                Assert.Throws<ModelItemNotFoundException>(() => model.GetEntityType("String")).Message);
         }
 
         [Fact]

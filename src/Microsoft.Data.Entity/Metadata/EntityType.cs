@@ -24,8 +24,12 @@ namespace Microsoft.Data.Entity.Metadata
         public Func<object[], object> _activator;
         private int _shadowPropertyCount;
 
-        // Intended only for creation of test doubles
-        internal EntityType()
+        /// <summary>
+        /// This constructor is intended only for use when creating test doubles that will override members
+        /// with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
+        /// behavior including but not limited to throwing <see cref="NullReferenceException"/>.
+        /// </summary>
+        protected EntityType()
         {
         }
 
@@ -294,7 +298,7 @@ namespace Microsoft.Data.Entity.Metadata
             var property = TryGetProperty(name);
             if (property == null)
             {
-                throw new InvalidOperationException(Strings.FormatPropertyNotFound(name, Name));
+                throw new ModelItemNotFoundException(Strings.FormatPropertyNotFound(name, Name));
             }
             return property;
         }

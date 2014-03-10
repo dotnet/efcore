@@ -19,9 +19,9 @@ namespace Microsoft.Data.Relational.Update
         public async Task BatchCommands_creates_valid_batch_for_added_entities()
         {
             var model = CreateModel();
-            var stateManager = 
-                new StateManager(model, Mock.Of<ActiveIdentityGenerators>(), new IEntityStateListener[0]);
-            var stateEntry = new StateEntry(stateManager, new FakeEntity { Id = 42, Value = "Test"});
+            var stateManager =
+                new StateManager(model, Mock.Of<ActiveIdentityGenerators>(), new IEntityStateListener[0], new EntityKeyFactorySource(), new StateEntryFactory());
+            var stateEntry = new MixedStateEntry(stateManager, model.GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
             await stateEntry.SetEntityStateAsync(EntityState.Added, new CancellationToken());
 
             var commandBatches = new CommandBatchPreparer().BatchCommands(new[] { stateEntry }).ToArray();
@@ -44,8 +44,8 @@ namespace Microsoft.Data.Relational.Update
         {
             var model = CreateModel();
             var stateManager =
-                new StateManager(model, Mock.Of<ActiveIdentityGenerators>(), new IEntityStateListener[0]);
-            var stateEntry = new StateEntry(stateManager, new FakeEntity { Id = 42, Value = "Test" });
+                new StateManager(model, Mock.Of<ActiveIdentityGenerators>(), new IEntityStateListener[0], new EntityKeyFactorySource(), new StateEntryFactory());
+            var stateEntry = new MixedStateEntry(stateManager, model.GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
             await stateEntry.SetEntityStateAsync(EntityState.Modified, new CancellationToken());
 
             var commandBatches = new CommandBatchPreparer().BatchCommands(new[] { stateEntry }).ToArray();
@@ -75,8 +75,8 @@ namespace Microsoft.Data.Relational.Update
         {
             var model = CreateModel();
             var stateManager =
-                new StateManager(model, Mock.Of<ActiveIdentityGenerators>(), new IEntityStateListener[0]);
-            var stateEntry = new StateEntry(stateManager, new FakeEntity { Id = 42, Value = "Test" });
+                new StateManager(model, Mock.Of<ActiveIdentityGenerators>(), new IEntityStateListener[0], new EntityKeyFactorySource(), new StateEntryFactory());
+            var stateEntry = new MixedStateEntry(stateManager, model.GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
             await stateEntry.SetEntityStateAsync(EntityState.Deleted, new CancellationToken());
 
             var commandBatches = new CommandBatchPreparer().BatchCommands(new[] { stateEntry }).ToArray();

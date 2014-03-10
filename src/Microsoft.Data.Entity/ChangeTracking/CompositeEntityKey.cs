@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
     {
         private readonly object[] _keyValueParts;
 
-        public CompositeEntityKey([NotNull] IEntityType entityType, [CanBeNull] object[] keyValueParts)
+        public CompositeEntityKey([NotNull] IEntityType entityType, [NotNull] object[] keyValueParts)
             : base(entityType)
         {
             Check.NotNull(keyValueParts, "keyValueParts");
