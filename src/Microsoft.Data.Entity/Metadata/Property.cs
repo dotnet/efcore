@@ -19,8 +19,12 @@ namespace Microsoft.Data.Entity.Metadata
         private int _shadowIndex;
         private int _index;
 
-        // Intended only for creation of test doubles
-        internal Property()
+        /// <summary>
+        /// This constructor is intended only for use when creating test doubles that will override members
+        /// with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
+        /// behavior including but not limited to throwing <see cref="NullReferenceException"/>.
+        /// </summary>
+        protected Property()
         {
         }
 
@@ -103,7 +107,7 @@ namespace Microsoft.Data.Entity.Metadata
             }
             set
             {
-                if (value < 0)
+                if (value < 0 || HasClrProperty)
                 {
                     throw new ArgumentOutOfRangeException("value");
                 }

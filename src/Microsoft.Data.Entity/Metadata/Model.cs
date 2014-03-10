@@ -50,7 +50,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             if (entityType == null)
             {
-                throw new InvalidOperationException(Strings.FormatEntityTypeNotFound(type));
+                throw new ModelItemNotFoundException(Strings.FormatEntityTypeNotFound(type.Name));
             }
 
             return entityType;
@@ -76,7 +76,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             if (entityType == null)
             {
-                throw new InvalidOperationException(Strings.FormatEntityTypeNotFound(name));
+                throw new ModelItemNotFoundException(Strings.FormatEntityTypeNotFound(name));
             }
 
             return entityType;

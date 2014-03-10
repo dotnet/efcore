@@ -108,7 +108,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .Entity<Customer>()
                 .Properties(ps => ps.Property(c => c.Name).Annotation("foo", "bar"));
 
-            Assert.Equal("bar", model.GetEntityType(typeof(Customer)).TryGetProperty("Name")["foo"]);
+            Assert.Equal("bar", model.GetEntityType(typeof(Customer)).GetProperty("Name")["foo"]);
         }
 
         [Fact]
@@ -121,7 +121,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .Entity<Customer>()
                 .Properties(ps => ps.Property(c => c.Name).StorageName("foo"));
 
-            Assert.Equal("foo", model.GetEntityType(typeof(Customer)).TryGetProperty("Name").StorageName);
+            Assert.Equal("foo", model.GetEntityType(typeof(Customer)).GetProperty("Name").StorageName);
         }
 
         [Fact]
