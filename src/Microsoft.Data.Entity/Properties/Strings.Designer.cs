@@ -123,6 +123,38 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
+        /// Cannot start tracking StateEntry for entity type '{entityType}' because it was created by a different StateManager instance.
+        /// </summary>
+        internal static string WrongStateManager
+        {
+            get { return GetString("WrongStateManager"); }
+        }
+
+        /// <summary>
+        /// Cannot start tracking StateEntry for entity type '{entityType}' because it was created by a different StateManager instance.
+        /// </summary>
+        internal static string FormatWrongStateManager(object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("WrongStateManager", "entityType"), entityType);
+        }
+
+        /// <summary>
+        /// Cannot start tracking StateEntry for entity type '{entityType}' because another StateEntry is already tracking the same entity.
+        /// </summary>
+        internal static string MultipleStateEntries
+        {
+            get { return GetString("MultipleStateEntries"); }
+        }
+
+        /// <summary>
+        /// Cannot start tracking StateEntry for entity type '{entityType}' because another StateEntry is already tracking the same entity.
+        /// </summary>
+        internal static string FormatMultipleStateEntries(object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("MultipleStateEntries", "entityType"), entityType);
+        }
+
+        /// <summary>
         /// The entity type '{entityType}' was not found. Ensure that the entity type '{entityType}' has been added to the model.
         /// </summary>
         internal static string EntityTypeNotFound
@@ -136,6 +168,22 @@ namespace Microsoft.Data.Entity
         internal static string FormatEntityTypeNotFound(object entityType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("EntityTypeNotFound", "entityType"), entityType);
+        }
+
+        /// <summary>
+        /// The property '{property}' on entity type '{entityType}' could not be found. Ensure that the property exists and has been included in the model.
+        /// </summary>
+        internal static string PropertyNotFound
+        {
+            get { return GetString("PropertyNotFound"); }
+        }
+
+        /// <summary>
+        /// The property '{property}' on entity type '{entityType}' could not be found. Ensure that the property exists and has been included in the model.
+        /// </summary>
+        internal static string FormatPropertyNotFound(object property, object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("PropertyNotFound", "property", "entityType"), property, entityType);
         }
 
         /// <summary>

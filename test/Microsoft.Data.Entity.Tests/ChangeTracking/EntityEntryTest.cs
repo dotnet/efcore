@@ -4,6 +4,7 @@ using System;
 using System.Linq.Expressions;
 using System.Threading;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.Metadata;
 using Moq;
 using Xunit;
 
@@ -81,17 +82,32 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Can_get_property_entry_by_name()
         {
-            var entry = new EntityEntry<Random>(new Mock<StateEntry>().Object);
+            var stateEntryMock = CreateStateEntryMock();
+            var entry = new EntityEntry<Random>(stateEntryMock.Object);
 
-            Assert.Equal("Name", entry.Property("Name").Name);
+            Assert.Equal("Monkey", entry.Property("Monkey").Name);
         }
 
         [Fact]
         public void Can_get_property_entry_by_lambda()
         {
-            var entry = new EntityEntry<Chunky>(new Mock<StateEntry>().Object);
+            var stateEntryMock = CreateStateEntryMock();
+            var entry = new EntityEntry<Chunky>(stateEntryMock.Object);
 
             Assert.Equal("Monkey", entry.Property(e => e.Monkey).Name);
+        }
+
+        private static Mock<StateEntry> CreateStateEntryMock()
+        {
+            var propertyMock = new Mock<IProperty>();
+            propertyMock.Setup(m => m.Name).Returns("Monkey");
+
+            var entityTypeMock = new Mock<IEntityType>();
+            entityTypeMock.Setup(m => m.GetProperty("Monkey")).Returns(propertyMock.Object);
+
+            var stateEntryMock = new Mock<StateEntry>();
+            stateEntryMock.Setup(m => m.EntityType).Returns(entityTypeMock.Object);
+            return stateEntryMock;
         }
 
         private class Chunky

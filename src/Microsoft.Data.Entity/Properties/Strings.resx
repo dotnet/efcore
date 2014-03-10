@@ -138,8 +138,17 @@
   <data name="IdentityConflict" xml:space="preserve">
     <value>The instance of entity type '{entityType}' cannot be tracked because another instance of this type with the same key is already being tracked. For new entities consider using an IIdentityGenerator to generate unique key values.</value>
   </data>
+  <data name="WrongStateManager" xml:space="preserve">
+    <value>Cannot start tracking StateEntry for entity type '{entityType}' because it was created by a different StateManager instance.</value>
+  </data>
+  <data name="MultipleStateEntries" xml:space="preserve">
+    <value>Cannot start tracking StateEntry for entity type '{entityType}' because another StateEntry is already tracking the same entity.</value>
+  </data>
   <data name="EntityTypeNotFound" xml:space="preserve">
     <value>The entity type '{entityType}' was not found. Ensure that the entity type '{entityType}' has been added to the model.</value>
+  </data>
+  <data name="PropertyNotFound" xml:space="preserve">
+    <value>The property '{property}' on entity type '{entityType}' could not be found. Ensure that the property exists and has been included in the model.</value>
   </data>
   <data name="EmptySequence" xml:space="preserve">
     <value>Sequence contains no elements.</value>

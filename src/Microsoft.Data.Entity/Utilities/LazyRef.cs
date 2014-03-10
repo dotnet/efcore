@@ -8,7 +8,6 @@ namespace Microsoft.Data.Entity.Utilities
 {
     [DebuggerStepThrough]
     public sealed class LazyRef<T>
-        where T : class
     {
         private Func<T> _initializer;
         private T _value;
@@ -24,7 +23,7 @@ namespace Microsoft.Data.Entity.Utilities
         {
             get
             {
-                if (_value == null)
+                if (_initializer != null)
                 {
                     _value = _initializer();
                     _initializer = null;
@@ -44,7 +43,7 @@ namespace Microsoft.Data.Entity.Utilities
 
         public bool HasValue
         {
-            get { return _value != null; }
+            get { return _initializer == null; }
         }
 
         public void Reset([NotNull] Func<T> initializer)
@@ -52,7 +51,7 @@ namespace Microsoft.Data.Entity.Utilities
             Check.NotNull(initializer, "initializer");
 
             _initializer = initializer;
-            _value = null;
+            _value = default(T);
         }
     }
 }

@@ -16,6 +16,8 @@ namespace Microsoft.Data.Entity.Metadata
 
         private string _storageName;
         private bool _isNullable = true;
+        private int _shadowIndex;
+        private int _index;
 
         // Intended only for creation of test doubles
         internal Property()
@@ -27,23 +29,18 @@ namespace Microsoft.Data.Entity.Metadata
         /// </summary>
         /// <param name="propertyInfo">The .NET property that this metadata object represents.</param>
         public Property([NotNull] PropertyInfo propertyInfo)
-            : this(Check.NotNull(propertyInfo, "propertyInfo").Name, propertyInfo.PropertyType)
+            : this(Check.NotNull(propertyInfo, "propertyInfo").Name, propertyInfo.PropertyType, hasClrProperty: true)
         {
         }
 
-        /// <summary>
-        ///     Creates a new metadata object representing an property that will participate in shadow-state
-        ///     such that there is no underlying .NET property corresponding to this metadata object.
-        /// </summary>
-        /// <param name="name">The name of the shadow-state property.</param>
-        /// <param name="propertyType">The type of the shadow-state property.</param>
-        public Property([NotNull] string name, [NotNull] Type propertyType)
+        public Property([NotNull] string name, [NotNull] Type propertyType, bool hasClrProperty)
         {
             Check.NotEmpty(name, "name");
             Check.NotNull(propertyType, "propertyType");
 
             _name = name;
             _propertyType = propertyType;
+            _shadowIndex = hasClrProperty ? -1 : 0;
             _isNullable = propertyType.IsNullableType();
         }
 
@@ -80,19 +77,53 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual ValueGenerationStrategy ValueGenerationStrategy { get; [param: NotNull] set; }
 
+        public virtual bool HasClrProperty
+        {
+            get { return _shadowIndex < 0; }
+        }
+
+        public virtual int Index
+        {
+            get { return _index; }
+            set
+            {
+                if (value < 0)
+                {
+                    throw new ArgumentOutOfRangeException("value");
+                }
+                _index = value;
+            }
+        }
+
+        public virtual int ShadowIndex
+        {
+            get
+            {
+                return _shadowIndex;
+            }
+            set
+            {
+                if (value < 0)
+                {
+                    throw new ArgumentOutOfRangeException("value");
+                }
+                _shadowIndex = value;
+            }
+        }
+
+        // TODO: Move these off IProperty
         public virtual void SetValue(object instance, object value)
         {
             Check.NotNull(instance, "instance");
 
-            // TODO: Handle shadow state
             EntityType.Type.GetAnyProperty(Name).SetValue(instance, value);
         }
 
+        // TODO: Move these off IProperty
         public virtual object GetValue(object instance)
         {
             Check.NotNull(instance, "instance");
 
-            // TODO: Handle shadow state
             return EntityType.Type.GetAnyProperty(Name).GetValue(instance);
         }
 

@@ -30,8 +30,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Does_fixup_of_related_principals()
         {
-            var manager = new StateManager(
-                BuildModel(), new Mock<ActiveIdentityGenerators>().Object, Enumerable.Empty<IEntityStateListener>());
+            var manager = CreateStateManager();
 
             var principal1 = new Category { Id = 11 };
             var principal2 = new Category { Id = 12 };
@@ -54,8 +53,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Does_fixup_of_related_dependents()
         {
-            var manager = new StateManager(
-                BuildModel(), new Mock<ActiveIdentityGenerators>().Object, Enumerable.Empty<IEntityStateListener>());
+            var manager = CreateStateManager();
 
             var dependent1 = new Product { Id = 21, CategoryId = 11 };
             var dependent2 = new Product { Id = 22, CategoryId = 12 };
@@ -80,6 +78,16 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.Contains(dependent1, principal.Products);
             Assert.DoesNotContain(dependent2, principal.Products);
             Assert.Contains(dependent3, principal.Products);
+        }
+
+        private static StateManager CreateStateManager()
+        {
+            return new StateManager(
+                BuildModel(),
+                new Mock<ActiveIdentityGenerators>().Object,
+                Enumerable.Empty<IEntityStateListener>(),
+                new EntityKeyFactorySource(),
+                new StateEntryFactory());
         }
 
         #region Fixture
@@ -118,7 +126,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var productType = model.GetEntityType(typeof(Product));
 
             var categoryIdFk = productType.AddForeignKey(
-                new ForeignKey(categoryType, new[] { productType.Property("CategoryId") })
+                new ForeignKey(categoryType, new[] { productType.GetProperty("CategoryId") })
                     {
                         StorageName = "Category_Products"
                     });

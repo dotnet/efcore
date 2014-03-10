@@ -90,7 +90,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(
                 Strings.FormatArgumentIsEmpty("name"),
-                Assert.Throws<ArgumentException>(() => entityType.Property("")).Message);
+                Assert.Throws<ArgumentException>(() => entityType.TryGetProperty("")).Message);
+
+            Assert.Equal(
+                Strings.FormatArgumentIsEmpty("name"),
+                Assert.Throws<ArgumentException>(() => entityType.GetProperty("")).Message);
         }
 
         [Fact]
@@ -248,9 +252,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var entityType = new EntityType(typeof(Order));
             var idProperty = new Property(Order.CustomerIdProperty);
 
-            entityType.AddForeignKey(
-                new ForeignKey(
-                    entityType, new[] { new Property(Order.CustomerIdProperty) }));
+            entityType.AddForeignKey(new ForeignKey(entityType, new[] { idProperty }));
 
             Assert.True(entityType.Properties.Contains(idProperty));
         }
@@ -352,9 +354,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             entityType.AddProperty(new Property(Customer.IdProperty));
             entityType.AddProperty(new Property(Customer.ManeProperty));
 
-            Assert.Equal(0, entityType.PropertyIndex("Id"));
-            Assert.Equal(1, entityType.PropertyIndex("Mane"));
-            Assert.Equal(2, entityType.PropertyIndex("Name"));
+            Assert.Equal(0, entityType.TryGetProperty("Id").Index);
+            Assert.Equal(1, entityType.TryGetProperty("Mane").Index);
+            Assert.Equal(2, entityType.TryGetProperty("Name").Index);
         }
 
         [Fact]
@@ -365,14 +367,14 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             entityType.AddProperty(new Property(Customer.NameProperty));
             entityType.AddProperty(new Property(Customer.IdProperty));
 
-            Assert.Equal(0, entityType.PropertyIndex("Id"));
-            Assert.Equal(1, entityType.PropertyIndex("Name"));
+            Assert.Equal(0, entityType.TryGetProperty("Id").Index);
+            Assert.Equal(1, entityType.TryGetProperty("Name").Index);
 
             entityType.AddProperty(new Property(Customer.ManeProperty));
 
-            Assert.Equal(0, entityType.PropertyIndex("Id"));
-            Assert.Equal(1, entityType.PropertyIndex("Mane"));
-            Assert.Equal(2, entityType.PropertyIndex("Name"));
+            Assert.Equal(0, entityType.TryGetProperty("Id").Index);
+            Assert.Equal(1, entityType.TryGetProperty("Mane").Index);
+            Assert.Equal(2, entityType.TryGetProperty("Name").Index);
         }
     }
 }

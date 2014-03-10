@@ -17,58 +17,26 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Members_check_arguments()
         {
+            var entityTypeMock = CreateEntityTypeMock();
+            var entry = CreateStateEntry(CreateManagerMock(entityTypeMock).Object, entityTypeMock.Object, new Random());
+
             Assert.Equal(
-                "stateManager",
+                "property",
                 // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => new StateEntry(null, new Random())).ParamName);
+                Assert.Throws<ArgumentNullException>(() => entry.IsPropertyModified(null)).ParamName);
+
             Assert.Equal(
-                "entity",
+                "property",
                 // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => new StateEntry(new Mock<StateManager>().Object, null)).ParamName);
-
-            var entry = new StateEntry(CreateManagerMock().Object, new Random());
-
-            Assert.Equal(
-                Strings.FormatArgumentIsEmpty("propertyName"),
-                Assert.Throws<ArgumentException>(() => entry.IsPropertyModified("")).Message);
-
-            Assert.Equal(
-                Strings.FormatArgumentIsEmpty("propertyName"),
-                Assert.Throws<ArgumentException>(() => entry.SetPropertyModified("", true)).Message);
-        }
-
-        [Fact]
-        public void Constructor_throws_for_entity_not_in_the_model()
-        {
-            Assert.Equal(
-                Strings.FormatEntityTypeNotFound("System.Random"),
-                Assert.Throws<InvalidOperationException>(
-                    () =>
-                        new StateEntry(
-                            new StateManager(
-                                new Model(), new Mock<ActiveIdentityGenerators>().Object, Enumerable.Empty<IEntityStateListener>()),
-                            new Random())).Message);
-        }
-
-        [Fact]
-        public void Can_get_entity()
-        {
-            var entity = new Random();
-            Assert.Same(entity, new StateEntry(CreateManagerMock().Object, entity).Entity);
-        }
-
-        [Fact]
-        public void Can_get_entity_type()
-        {
-            var entityTypeMock = new Mock<IEntityType>();
-            Assert.Same(entityTypeMock.Object, new StateEntry(CreateManagerMock(entityTypeMock).Object, new Random()).EntityType);
+                Assert.Throws<ArgumentNullException>(() => entry.SetPropertyModified(null, true)).ParamName);
         }
 
         [Fact]
         public void Changing_state_from_Unknown_causes_entity_to_start_tracking()
         {
-            var managerMock = CreateManagerMock();
-            var entry = new StateEntry(managerMock.Object, new Random());
+            var entityTypeMock = CreateEntityTypeMock();
+            var managerMock = CreateManagerMock(entityTypeMock);
+            var entry = CreateStateEntry(managerMock.Object, entityTypeMock.Object, new Random());
 
             entry.SetEntityStateAsync(EntityState.Added, CancellationToken.None).Wait();
 
@@ -79,8 +47,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Changing_state_to_Unknown_causes_entity_to_stop_tracking()
         {
-            var managerMock = CreateManagerMock();
-            var entry = new StateEntry(managerMock.Object, new Random());
+            var entityTypeMock = CreateEntityTypeMock();
+            var managerMock = CreateManagerMock(entityTypeMock);
+            var entry = CreateStateEntry(managerMock.Object, entityTypeMock.Object, new Random());
 
             entry.SetEntityStateAsync(EntityState.Added, CancellationToken.None).Wait();
             entry.SetEntityStateAsync(EntityState.Unknown, CancellationToken.None).Wait();
@@ -92,27 +61,32 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Changing_state_to_Modified_or_Unchanged_causes_all_properties_to_be_marked_accordingly()
         {
-            var entry = new StateEntry(CreateManagerMock().Object, new Random());
+            var keyMock = new Mock<IProperty>();
+            var nonKeyMock = new Mock<IProperty>();
+            var entityTypeMock = CreateEntityTypeMock(keyMock, nonKeyMock);
+            var managerMock = CreateManagerMock(entityTypeMock);
+            var entry = CreateStateEntry(managerMock.Object, entityTypeMock.Object, new Random());
 
-            Assert.False(entry.IsPropertyModified("Foo"));
-            Assert.False(entry.IsPropertyModified("Goo"));
+            Assert.False(entry.IsPropertyModified(keyMock.Object));
+            Assert.False(entry.IsPropertyModified(nonKeyMock.Object));
 
             entry.SetEntityStateAsync(EntityState.Modified, CancellationToken.None).Wait();
 
-            Assert.True(entry.IsPropertyModified("Foo"));
-            Assert.True(entry.IsPropertyModified("Goo"));
+            Assert.True(entry.IsPropertyModified(keyMock.Object));
+            Assert.True(entry.IsPropertyModified(nonKeyMock.Object));
 
             entry.SetEntityStateAsync(EntityState.Unchanged, CancellationToken.None).Wait();
 
-            Assert.False(entry.IsPropertyModified("Foo"));
-            Assert.False(entry.IsPropertyModified("Goo"));
+            Assert.False(entry.IsPropertyModified(keyMock.Object));
+            Assert.False(entry.IsPropertyModified(nonKeyMock.Object));
         }
 
         [Fact]
         public void Changing_state_to_Added_triggers_key_generation()
         {
             var keyMock = new Mock<IProperty>();
-            var managerMock = CreateManagerMock(new Mock<IEntityType>(), keyMock);
+            var entityTypeMock = CreateEntityTypeMock(keyMock);
+            var managerMock = CreateManagerMock(entityTypeMock);
 
             var keyValue = new object();
             var generatorMock = new Mock<IIdentityGenerator>();
@@ -121,29 +95,61 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             managerMock.Setup(m => m.GetIdentityGenerator(keyMock.Object)).Returns(generatorMock.Object);
 
             var entity = new Random();
-            var entry = new StateEntry(managerMock.Object, entity);
+            var entry = CreateStateEntry(managerMock.Object, entityTypeMock.Object, entity);
             entry.SetEntityStateAsync(EntityState.Added, CancellationToken.None).Wait();
 
-            keyMock.Verify(m => m.SetValue(entity, keyValue));
+            if (keyMock.Object.HasClrProperty)
+            {
+                keyMock.Verify(m => m.SetValue(entity, keyValue));
+            }
+            else
+            {
+                Assert.Same(keyValue, entry.GetPropertyValue(keyMock.Object));
+            }
         }
 
-        private static Mock<StateManager> CreateManagerMock(Mock<IEntityType> entityTypeMock = null, Mock<IProperty> key = null)
+        [Fact]
+        public void Can_create_key()
         {
-            key = key ?? new Mock<IProperty>();
-            var keys = new[] { key.Object };
+            var entityTypeMock = CreateEntityTypeMock();
+            var managerMock = CreateManagerMock(entityTypeMock);
+            managerMock.Setup(m => m.GetKeyFactory(entityTypeMock.Object)).Returns(new SimpleEntityKeyFactory<string>());
 
-            entityTypeMock = entityTypeMock ?? new Mock<IEntityType>();
-            entityTypeMock.Setup(m => m.Key).Returns(keys);
-            entityTypeMock.Setup(m => m.Properties).Returns(keys.Concat(new[] { new Mock<IProperty>().Object }).ToArray());
-            entityTypeMock.Setup(m => m.PropertyIndex("Foo")).Returns(0);
-            entityTypeMock.Setup(m => m.PropertyIndex("Goo")).Returns(1);
+            var entry = CreateStateEntry(managerMock.Object, entityTypeMock.Object, new Random());
 
+            Assert.IsType<SimpleEntityKey<string>>(entry.CreateKey());
+        }
+
+        protected virtual StateEntry CreateStateEntry(StateManager stateManager, IEntityType entityType, object entity)
+        {
+            return new MixedStateEntry(stateManager, entityType, entity);
+        }
+
+        protected virtual Mock<StateManager> CreateManagerMock(Mock<IEntityType> entityTypeMock)
+        {
             var modelMock = new Mock<IModel>();
             modelMock.Setup(m => m.GetEntityType(typeof(Random))).Returns(entityTypeMock.Object);
 
             var managerMock = new Mock<StateManager>();
             managerMock.Setup(m => m.Model).Returns(modelMock.Object);
             return managerMock;
+        }
+
+        protected virtual Mock<IEntityType> CreateEntityTypeMock(Mock<IProperty> key = null, Mock<IProperty> nonKey = null)
+        {
+            key = key ?? new Mock<IProperty>();
+            key.Setup(m => m.Index).Returns(0);
+            key.Setup(m => m.HasClrProperty).Returns(true);
+            var keys = new[] { key.Object };
+            nonKey = nonKey ?? new Mock<IProperty>();
+            nonKey.Setup(m => m.Index).Returns(1);
+            nonKey.Setup(m => m.HasClrProperty).Returns(true);
+
+            var entityTypeMock = new Mock<IEntityType>();
+            entityTypeMock.Setup(m => m.Key).Returns(keys);
+            entityTypeMock.Setup(m => m.Properties).Returns(keys.Concat(new[] { nonKey.Object }).ToArray());
+
+            return entityTypeMock;
         }
 
         public class StateDataTest

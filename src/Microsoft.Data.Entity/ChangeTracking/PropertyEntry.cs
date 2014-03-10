@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking
@@ -8,7 +9,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
     public class PropertyEntry
     {
         private readonly StateEntry _stateEntry;
-        private readonly string _name;
+        private readonly IProperty _property;
 
         public PropertyEntry([NotNull] StateEntry stateEntry, [NotNull] string name)
         {
@@ -16,18 +17,18 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotEmpty(name, "name");
 
             _stateEntry = stateEntry;
-            _name = name;
+            _property = stateEntry.EntityType.GetProperty(name);
         }
 
         public virtual bool IsModified
         {
-            get { return _stateEntry.IsPropertyModified(_name); }
-            set { _stateEntry.SetPropertyModified(_name, value); }
+            get { return _stateEntry.IsPropertyModified(_property); }
+            set { _stateEntry.SetPropertyModified(_property, value); }
         }
 
         public virtual string Name
         {
-            get { return _name; }
+            get { return _property.Name; }
         }
     }
 }

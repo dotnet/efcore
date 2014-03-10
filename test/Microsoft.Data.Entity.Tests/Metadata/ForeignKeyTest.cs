@@ -12,8 +12,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Can_create_foreign_key()
         {
             var entityType = new EntityType("E");
-            var dependentProp = new Property("P", typeof(int));
-            var principalProp = new Property("Id", typeof(int));
+            var dependentProp = new Property("P", typeof(int), hasClrProperty: true);
+            var principalProp = new Property("Id", typeof(int), hasClrProperty: true);
             entityType.Key = new[] { principalProp };
 
             var foreignKey = new ForeignKey(entityType, new[] { dependentProp })
@@ -33,9 +33,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Can_create_foreign_key_with_non_PK_principal()
         {
             var entityType = new EntityType("E");
-            var keyProp = new Property("Id", typeof(int));
-            var dependentProp = new Property("P", typeof(int));
-            var principalProp = new Property("U", typeof(int));
+            var keyProp = new Property("Id", typeof(int), hasClrProperty: true);
+            var dependentProp = new Property("P", typeof(int), hasClrProperty: true);
+            var principalProp = new Property("U", typeof(int), hasClrProperty: true);
             entityType.Key = new[] { keyProp };
 
             var foreignKey = new ForeignKey(entityType, new[] { dependentProp })
@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void IsRequired_when_dependent_property_not_nullable()
         {
             var entityType = new EntityType("E");
-            var dependentProp = new Property("P", typeof(int));
+            var dependentProp = new Property("P", typeof(int), hasClrProperty: true);
 
             var foreignKey = new ForeignKey(entityType, new[] { dependentProp });
 
@@ -67,7 +67,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void IsRequired_when_dependent_property_nullable()
         {
             var entityType = new EntityType("E");
-            var dependentProp = new Property("P", typeof(int?));
+            var dependentProp = new Property("P", typeof(int?), hasClrProperty: true);
 
             var foreignKey = new ForeignKey(entityType, new[] { dependentProp });
 

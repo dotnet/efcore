@@ -30,11 +30,6 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
             get { return typeof(TProperty); }
         }
 
-        public Type DeclaringType
-        {
-            get { return typeof(TEntity); }
-        }
-
         public ValueGenerationStrategy ValueGenerationStrategy
         {
             get { return ValueGenerationStrategy.None; }
@@ -49,6 +44,24 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
         {
             // TODO
             get { return null; }
+        }
+
+        public int Index
+        {
+            // TODO
+            get { return 0; }
+        }
+
+        public int ShadowIndex
+        {
+            // TODO
+            get { return -1; }
+        }
+
+        public bool HasClrProperty
+        {
+            // TODO
+            get { return true; }
         }
     }
 }

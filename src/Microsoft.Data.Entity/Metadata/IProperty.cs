@@ -15,5 +15,8 @@ namespace Microsoft.Data.Entity.Metadata
         void SetValue([NotNull] object instance, [CanBeNull] object value);
         object GetValue([NotNull] object instance);
         ValueGenerationStrategy ValueGenerationStrategy { get; }
+        int Index { get; }
+        int ShadowIndex { get; }
+        bool HasClrProperty { get; }
     }
 }

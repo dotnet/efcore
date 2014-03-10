@@ -22,16 +22,23 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
             return EntityTypes.First(e => e.Type == type);
         }
 
+        public IEntityType TryGetEntityType([NotNull] string name)
+        {
+            // TODO
+            return EntityTypes.FirstOrDefault(e => e.Type.Name == name);
+        }
+
+        public IEntityType GetEntityType([NotNull] string  name)
+        {
+            // TODO
+            return EntityTypes.First(e => e.Type.Name == name);
+        }
+
         protected abstract IEntityType[] LoadEntityTypes();
 
         public IReadOnlyList<IEntityType> EntityTypes
         {
             get { return LazyInitializer.EnsureInitialized(ref _entityTypes, LoadEntityTypes); }
-        }
-
-        public virtual IEqualityComparer<object> EntityEqualityComparer
-        {
-            get { return null; } // TODO
         }
     }
 }

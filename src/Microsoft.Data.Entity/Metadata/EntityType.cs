@@ -15,14 +15,14 @@ namespace Microsoft.Data.Entity.Metadata
     {
         private readonly string _name;
         private readonly Type _type;
-        private readonly LazyRef<IDictionary<string, int>> _propertyIndexes;
         private readonly LazyRef<List<ForeignKey>> _foreignKeys = new LazyRef<List<ForeignKey>>(() => new List<ForeignKey>());
         private readonly LazyRef<List<Navigation>> _navigations = new LazyRef<List<Navigation>>(() => new List<Navigation>());
+        private readonly List<Property> _properties = new List<Property>();
 
-        private ImmutableSortedSet<Property> _properties = ImmutableSortedSet<Property>.Empty.WithComparer(new PropertyComparer());
         private IReadOnlyList<Property> _keyProperties;
         private string _storageName;
         public Func<object[], object> _activator;
+        private int _shadowPropertyCount;
 
         // Intended only for creation of test doubles
         internal EntityType()
@@ -49,7 +49,6 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotEmpty(name, "name");
 
             _name = name;
-            _propertyIndexes = new LazyRef<IDictionary<string, int>>(CreateIndexes);
         }
 
         public virtual string Name
@@ -201,19 +200,22 @@ namespace Microsoft.Data.Entity.Metadata
 
             // TODO: Consider if replace as opposed to throw/no-op is correct when prop with this name exists
 
-            Property currentProperty;
-            if (_properties.TryGetValue(property, out currentProperty))
+            var currentIndex = _properties.BinarySearch(property, PropertyComparer.Instance);
+            if (currentIndex >= 0)
             {
+                var currentProperty = _properties[currentIndex];
                 if (!ReferenceEquals(currentProperty, property))
                 {
-                    _properties = _properties.Remove(currentProperty).Add(property);
-                    _propertyIndexes.Reset(CreateIndexes);
+                    _properties[currentIndex] = property;
+                    property.Index = currentIndex;
+                    UpdateShadowIndexes(property);
                 }
             }
             else
             {
-                _properties = _properties.Add(property);
-                _propertyIndexes.Reset(CreateIndexes);
+                var newIndex = ~currentIndex;
+                _properties.Insert(newIndex, property);
+                UpdateIndexes(property, newIndex);
             }
 
             var currentOwner = property.EntityType;
@@ -227,15 +229,37 @@ namespace Microsoft.Data.Entity.Metadata
             return property;
         }
 
+        private void UpdateIndexes(Property addedOrRemovedProperty, int startingIndex)
+        {
+            for (var i = startingIndex; i < _properties.Count; i++)
+            {
+                _properties[i].Index = i;
+            }
+            UpdateShadowIndexes(addedOrRemovedProperty);
+        }
+
+        private void UpdateShadowIndexes(Property addedOrRemovedProperty)
+        {
+            if (!addedOrRemovedProperty.HasClrProperty)
+            {
+                var shadowIndex = 0;
+                foreach (var property in _properties.Where(p => !p.HasClrProperty))
+                {
+                    property.ShadowIndex = shadowIndex++;
+                }
+                _shadowPropertyCount = shadowIndex;
+            }
+        }
+
         public virtual void RemoveProperty([NotNull] Property property)
         {
             Check.NotNull(property, "property");
 
-            var updatedProperties = _properties.Remove(property);
-            if (updatedProperties != _properties)
+            var currentIndex = _properties.BinarySearch(property, PropertyComparer.Instance);
+            if (currentIndex >= 0)
             {
-                _properties = updatedProperties;
-                _propertyIndexes.Reset(CreateIndexes);
+                _properties.RemoveAt(currentIndex);
+                UpdateIndexes(property, currentIndex);
                 property.EntityType = null;
             }
 
@@ -250,28 +274,39 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        public virtual Property Property([NotNull] string name)
+        [CanBeNull]
+        public virtual Property TryGetProperty([NotNull] string name)
         {
             Check.NotEmpty(name, "name");
 
-            int index;
-            return _propertyIndexes.Value.TryGetValue(name, out index) ? _properties[index] : null;
+            // TODO: This should be O(n) but an additional index could be created
+            // TODO: if this is too slow or if creating the surrogate Property object is too expensive
+            var surrogate = new Property(name, typeof(object), false);
+            var index = _properties.BinarySearch(surrogate, PropertyComparer.Instance);
+            return index >= 0 ? _properties[index] : null;
         }
 
-        public virtual int PropertyIndex(string name)
+        [NotNull]
+        public virtual Property GetProperty([NotNull] string name)
         {
-            int index;
-            return _propertyIndexes.Value.TryGetValue(name, out index) ? index : -1;
-        }
+            Check.NotEmpty(name, "name");
 
-        private Dictionary<string, int> CreateIndexes()
-        {
-            var propertyIndexes = new Dictionary<string, int>(_properties.Count, StringComparer.Ordinal);
-            for (var i = 0; i < _properties.Count; i++)
+            var property = TryGetProperty(name);
+            if (property == null)
             {
-                propertyIndexes[_properties[i].Name] = i;
+                throw new InvalidOperationException(Strings.FormatPropertyNotFound(name, Name));
             }
-            return propertyIndexes;
+            return property;
+        }
+
+        public virtual int ShadowPropertyCount
+        {
+            get { return _shadowPropertyCount; }
+        }
+
+        public virtual bool HasClrType
+        {
+            get { return _type != null; }
         }
 
         public virtual IReadOnlyList<Property> Properties
@@ -284,9 +319,14 @@ namespace Microsoft.Data.Entity.Metadata
             get { return Key; }
         }
 
-        IProperty IEntityType.Property(string name)
+        IProperty IEntityType.TryGetProperty(string name)
         {
-            return Property(name);
+            return TryGetProperty(name);
+        }
+
+        IProperty IEntityType.GetProperty(string name)
+        {
+            return GetProperty(name);
         }
 
         IReadOnlyList<IProperty> IEntityType.Properties
@@ -306,6 +346,12 @@ namespace Microsoft.Data.Entity.Metadata
 
         private class PropertyComparer : IComparer<Property>
         {
+            public static readonly PropertyComparer Instance = new PropertyComparer();
+
+            private PropertyComparer()
+            {
+            }
+
             public int Compare(Property x, Property y)
             {
                 return StringComparer.Ordinal.Compare(x.Name, y.Name);

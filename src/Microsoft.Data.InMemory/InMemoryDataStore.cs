@@ -22,8 +22,8 @@ namespace Microsoft.Data.InMemory
 {
     public class InMemoryDataStore : DataStore
     {
-        private readonly ThreadSafeLazyRef<ImmutableDictionary<object, object[]>> _objectData
-            = new ThreadSafeLazyRef<ImmutableDictionary<object, object[]>>(() => ImmutableDictionary<object, object[]>.Empty);
+        private readonly ThreadSafeLazyRef<ImmutableDictionary<EntityKey, object[]>> _objectData
+            = new ThreadSafeLazyRef<ImmutableDictionary<EntityKey, object[]>>(() => ImmutableDictionary<EntityKey, object[]>.Empty);
 
         private readonly ILogger _logger;
 
@@ -72,10 +72,9 @@ namespace Microsoft.Data.InMemory
             }
 
             _objectData.ExchangeValue(
-                db => db.WithComparers(model.EntityEqualityComparer)
-                    .AddRange(added.Select(se => new KeyValuePair<object, object[]>(se.Entity, se.GetValueBuffer())))
-                    .SetItems(modified.Select(se => new KeyValuePair<object, object[]>(se.Entity, se.GetValueBuffer())))
-                    .RemoveRange(deleted.Select(se => se.Entity)));
+                db => db.AddRange(added.Select(se => new KeyValuePair<EntityKey, object[]>(se.CreateKey(), se.GetValueBuffer())))
+                    .SetItems(modified.Select(se => new KeyValuePair<EntityKey, object[]>(se.CreateKey(), se.GetValueBuffer())))
+                    .RemoveRange(deleted.Select(se => se.CreateKey())));
 
             if (_logger.IsEnabled(TraceType.Information))
             {
@@ -85,7 +84,7 @@ namespace Microsoft.Data.InMemory
                         string.Format(
                             CultureInfo.InvariantCulture,
                             "Saved entity of type: '{0}' [{1}]",
-                            stateEntry.Entity.GetType().Name,
+                            stateEntry.EntityType.Name,
                             stateEntry.EntityState));
                 }
             }
@@ -93,17 +92,15 @@ namespace Microsoft.Data.InMemory
             return Task.FromResult(added.Count + modified.Count + deleted.Count);
         }
 
-        public override IAsyncEnumerable<object[]> Read(Type type, IModel model)
+        public override IAsyncEnumerable<object[]> Read(IEntityType entityType)
         {
-            var entityType = model.GetEntityType(type);
-
             return new CompletedAsyncEnumerable<object[]>(
                 _objectData.Value
-                    .Where(kv => kv.Key.GetType() == entityType.Type)
+                    .Where(kv => kv.Key.EntityType == entityType)
                     .Select(kv => kv.Value));
         }
 
-        internal IDictionary<object, object[]> Objects
+        internal IDictionary<EntityKey, object[]> Objects
         {
             get { return _objectData.Value; }
         }
