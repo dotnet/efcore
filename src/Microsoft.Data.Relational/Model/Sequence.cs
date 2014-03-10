@@ -8,7 +8,6 @@ namespace Microsoft.Data.Relational.Model
     public class Sequence
     {
         private readonly SchemaQualifiedName _name;
-
         private int _incrementBy = 1;
         private string _dataType = "BIGINT";
 
@@ -33,6 +32,7 @@ namespace Microsoft.Data.Relational.Model
         public virtual string DataType
         {
             get { return _dataType; }
+
             [param: NotNull]
             set
             {
