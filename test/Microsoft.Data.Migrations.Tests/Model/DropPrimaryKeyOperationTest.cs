@@ -13,8 +13,10 @@ namespace Microsoft.Data.Migrations.Tests.Model
         [Fact]
         public void CreateAndInitializeOperation()
         {
-            var primaryKey = new PrimaryKey("PK");
             var table = new Table("foo.bar");
+            var column = new Column("C", "int");
+            table.AddColumn(column);
+            var primaryKey = new PrimaryKey("PK", column);
 
             var dropPrimaryKeyOperation = new DropPrimaryKeyOperation(primaryKey, table);
 
@@ -25,8 +27,11 @@ namespace Microsoft.Data.Migrations.Tests.Model
         [Fact]
         public void ObtainInverse()
         {
-            var primaryKey = new PrimaryKey("PK");
             var table = new Table("foo.bar");
+            var column = new Column("C", "int");
+            table.AddColumn(column);
+            var primaryKey = new PrimaryKey("PK", column);
+
             var dropPrimaryKeyOperation = new DropPrimaryKeyOperation(primaryKey, table);
 
             var inverse = dropPrimaryKeyOperation.Inverse;
@@ -38,7 +43,12 @@ namespace Microsoft.Data.Migrations.Tests.Model
         [Fact]
         public void DispatchesSqlGeneration()
         {
-            var dropPrimaryKeyOperation = new DropPrimaryKeyOperation(new PrimaryKey("PK"), new Table("foo.bar"));
+            var table = new Table("foo.bar");
+            var column = new Column("C", "int");
+            table.AddColumn(column);
+            var primaryKey = new PrimaryKey("PK", column);
+
+            var dropPrimaryKeyOperation = new DropPrimaryKeyOperation(primaryKey, table);
             var mockSqlGenerator = new Mock<MigrationOperationSqlGenerator>();
             var stringBuilder = new IndentedStringBuilder();
 

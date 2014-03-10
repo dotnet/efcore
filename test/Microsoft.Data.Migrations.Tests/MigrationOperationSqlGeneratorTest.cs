@@ -31,8 +31,12 @@ namespace Microsoft.Data.Migrations.Tests
         public void Generate_when_add_primary_key_operation()
         {
             var table = new Table("dbo.T");
-            var primaryKey = new PrimaryKey("pk");
-            primaryKey.Columns.AddRange(new[] { new Column("Foo", "int"), new Column("Bar", "int") });
+            var column0 = new Column("Foo", "int");
+            var column1 = new Column("Bar", "int");
+            table.AddColumn(column0);
+            table.AddColumn(column1);
+            var primaryKey = new PrimaryKey("pk", column0);
+            primaryKey.AddColumn(column1);
 
             Assert.Equal(
                 "ALTER TABLE \"dbo\".\"T\" ADD CONSTRAINT \"pk\" PRIMARY KEY (\"Foo\", \"Bar\")",
