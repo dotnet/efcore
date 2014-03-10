@@ -22,4 +22,3 @@ nuget.exe
 *.ncrunchsolution
 *.*sdf
 *.ipch
-sqlite3.dll
