@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNet.DependencyInjection;
 using Microsoft.Data.Entity.ChangeTracking;
@@ -63,7 +64,8 @@ namespace Microsoft.Data.Entity.Tests
 
         private class FakeDataStore : DataStore
         {
-            public override Task<int> SaveChangesAsync(IEnumerable<StateEntry> stateEntries, IModel model)
+            public override Task<int> SaveChangesAsync(
+                IEnumerable<StateEntry> stateEntries, IModel model, CancellationToken cancellationToken)
             {
                 return Task.FromResult(0);
             }

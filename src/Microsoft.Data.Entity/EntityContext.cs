@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity
 
         public virtual Task<int> SaveChangesAsync(CancellationToken cancellationToken)
         {
-            return _configuration.DataStore.SaveChangesAsync(_stateManager.Value.StateEntries, _model.Value);
+            return _configuration.DataStore.SaveChangesAsync(_stateManager.Value.StateEntries, _model.Value, cancellationToken);
         }
 
         public void Dispose()

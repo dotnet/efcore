@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 
 // TODO: This file should be shared
@@ -55,6 +57,36 @@ namespace Microsoft.Data.SqlServer.Tests
                   select t.Name + "." + m.Name + "[" + p.Name + "]";
 
             Assert.Equal("", string.Join("\r\n", parametersMissingAttribute));
+        }
+
+        [Fact]
+        public void Async_methods_should_have_overload_with_cancellation_token()
+        {
+            var asyncMethodsWithToken
+                = (from t in GetAllTypes(TargetAssembly.GetTypes())
+                   from m in t.GetMethods(PublicInstance)
+                   where typeof(Task).IsAssignableFrom(m.ReturnType)
+                         && m.GetParameters().Any(pi => pi.ParameterType == typeof(CancellationToken))
+                   select m).ToList();
+
+            var asyncMethodsWithoutToken
+                = (from t in GetAllTypes(TargetAssembly.GetTypes())
+                   from m in t.GetMethods(PublicInstance)
+                   where typeof(Task).IsAssignableFrom(m.ReturnType)
+                         && m.GetParameters().All(pi => pi.ParameterType != typeof(CancellationToken))
+                   select m).ToList();
+
+            var missingOverloads
+                = (from m1 in asyncMethodsWithoutToken
+                   where !asyncMethodsWithToken
+                       .Any(m2 => m1.Name == m2.Name
+                                  && m1.ReflectedType == m2.ReflectedType)
+                   // ReSharper disable once PossibleNullReferenceException
+                   select m1.DeclaringType.Name + "." + m1.Name).ToList();
+
+            Assert.False(
+                missingOverloads.Any(),
+                "\r\n-- Missing async overloads --\r\n" + string.Join("\r\n", missingOverloads));
         }
 
         protected abstract Assembly TargetAssembly { get; }

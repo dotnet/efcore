@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Microsoft.Data.Entity
@@ -23,7 +24,19 @@ namespace Microsoft.Data.Entity
             return Task.FromResult(false);
         }
 
+        public virtual Task CreateAsync(CancellationToken cancellationToken)
+        {
+            // TODO
+            return Task.FromResult(false);
+        }
+
         public virtual Task<bool> DeleteAsync()
+        {
+            // TODO
+            return Task.FromResult(false);
+        }
+
+        public virtual Task<bool> DeleteAsync(CancellationToken cancellationToken)
         {
             // TODO
             return Task.FromResult(false);

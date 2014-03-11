@@ -43,7 +43,8 @@ namespace Microsoft.Data.InMemory
             _logger = logger;
         }
 
-        public override Task<int> SaveChangesAsync(IEnumerable<StateEntry> stateEntries, IModel model)
+        public override Task<int> SaveChangesAsync(
+            IEnumerable<StateEntry> stateEntries, IModel model, CancellationToken cancellationToken)
         {
             Check.NotNull(stateEntries, "stateEntries");
             Check.NotNull(model, "model");
