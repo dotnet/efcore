@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity
     public class EntityContext : IDisposable
     {
         private readonly EntityConfiguration _configuration;
-        private readonly LazyRef<IModel> _model;
+        private readonly LazyRef<RuntimeModel> _model;
         private readonly LazyRef<StateManager> _stateManager;
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity
             Check.NotNull(configuration, "configuration");
 
             _configuration = configuration;
-            _model = new LazyRef<IModel>(() => _configuration.Model ?? _configuration.ModelSource.GetModel(this));
+            _model = new LazyRef<RuntimeModel>(() => _configuration.RuntimeModelFactory.Create(_configuration.Model ?? _configuration.ModelSource.GetModel(this)));
             _stateManager = new LazyRef<StateManager>(() => _configuration.StateManagerFactory.Create(_model.Value));
 
             _configuration.EntitySetInitializer.InitializeSets(this);
@@ -122,7 +122,7 @@ namespace Microsoft.Data.Entity
             get { return new ChangeTracker(_stateManager.Value); }
         }
 
-        public virtual IModel Model
+        public virtual RuntimeModel Model
         {
             get { return _model.Value; }
         }

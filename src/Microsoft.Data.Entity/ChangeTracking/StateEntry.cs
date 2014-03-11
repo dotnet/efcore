@@ -139,11 +139,25 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         public abstract void SetPropertyValue([NotNull] IProperty property, [CanBeNull] object value);
 
-        public virtual EntityKey CreateKey()
+        public virtual EntityKey GetPrimaryKeyValue()
         {
-            return _stateManager.GetKeyFactory(_entityType).Create(this);
+            return _stateManager.Model.GetKeyFactory(_entityType.Key).Create(_entityType, _entityType.Key, this);
         }
 
+        public virtual EntityKey GetDependentKeyValue([NotNull] IForeignKey foreignKey)
+        {
+            return _stateManager.Model
+                .GetKeyFactory(foreignKey.DependentProperties)
+                .Create(foreignKey.PrincipalType, foreignKey.DependentProperties, this);
+        }
+
+        public virtual EntityKey GetPrincipalKeyValue([NotNull] IForeignKey foreignKey)
+        {
+            return _stateManager.Model
+                .GetKeyFactory(foreignKey.PrincipalProperties)
+                .Create(foreignKey.PrincipalType, foreignKey.PrincipalProperties, this);
+        }
+        
         public virtual object[] GetValueBuffer()
         {
             return _entityType.Properties.Select(GetPropertyValue).ToArray();

@@ -72,9 +72,9 @@ namespace Microsoft.Data.InMemory
             }
 
             _objectData.ExchangeValue(
-                db => db.AddRange(added.Select(se => new KeyValuePair<EntityKey, object[]>(se.CreateKey(), se.GetValueBuffer())))
-                    .SetItems(modified.Select(se => new KeyValuePair<EntityKey, object[]>(se.CreateKey(), se.GetValueBuffer())))
-                    .RemoveRange(deleted.Select(se => se.CreateKey())));
+                db => db.AddRange(added.Select(se => new KeyValuePair<EntityKey, object[]>(se.GetPrimaryKeyValue(), se.GetValueBuffer())))
+                    .SetItems(modified.Select(se => new KeyValuePair<EntityKey, object[]>(se.GetPrimaryKeyValue(), se.GetValueBuffer())))
+                    .RemoveRange(deleted.Select(se => se.GetPrimaryKeyValue())));
 
             if (_logger.IsEnabled(TraceType.Information))
             {

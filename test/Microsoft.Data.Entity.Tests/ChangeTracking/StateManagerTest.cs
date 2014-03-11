@@ -28,31 +28,31 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 "identityGenerators",
                 // ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(
-                    () => new StateManager(new Model(), null, Enumerable.Empty<IEntityStateListener>(),
+                    () => new StateManager(Mock.Of<RuntimeModel>(), null, Enumerable.Empty<IEntityStateListener>(),
                         new Mock<EntityKeyFactorySource>().Object, new Mock<StateEntryFactory>().Object)).ParamName);
 
             Assert.Equal(
                 "entityStateListeners",
                 // ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(
-                    () => new StateManager(new Model(), new Mock<ActiveIdentityGenerators>().Object, null,
+                    () => new StateManager(Mock.Of<RuntimeModel>(), new Mock<ActiveIdentityGenerators>().Object, null,
                         new Mock<EntityKeyFactorySource>().Object, new Mock<StateEntryFactory>().Object)).ParamName);
 
             Assert.Equal(
                 "entityKeyFactorySource",
                 // ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(
-                    () => new StateManager(new Model(), new Mock<ActiveIdentityGenerators>().Object, Enumerable.Empty<IEntityStateListener>(),
+                    () => new StateManager(Mock.Of<RuntimeModel>(), new Mock<ActiveIdentityGenerators>().Object, Enumerable.Empty<IEntityStateListener>(),
                         null, new Mock<StateEntryFactory>().Object)).ParamName);
 
             Assert.Equal(
                 "stateEntryFactory",
                 // ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(
-                    () => new StateManager(new Model(), new Mock<ActiveIdentityGenerators>().Object, Enumerable.Empty<IEntityStateListener>(),
+                    () => new StateManager(Mock.Of<RuntimeModel>(), new Mock<ActiveIdentityGenerators>().Object, Enumerable.Empty<IEntityStateListener>(),
                         new Mock<EntityKeyFactorySource>().Object, null)).ParamName);
 
-            var stateManager = CreateStateManager(new Model());
+            var stateManager = CreateStateManager(Mock.Of<RuntimeModel>());
 
             Assert.Equal(
                 "entity",
@@ -75,7 +75,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 Assert.Throws<ArgumentNullException>(() => stateManager.GetIdentityGenerator(null)).ParamName);
         }
 
-        private static StateManager CreateStateManager(IModel model)
+        private static StateManager CreateStateManager(RuntimeModel model)
         {
             return new StateManager(
                 model,
@@ -300,16 +300,6 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             }
         }
 
-        [Fact]
-        public void Can_get_key_factory()
-        {
-            var model = BuildModel();
-            var stateManager = CreateStateManager(model);
-
-            Assert.IsType<SimpleEntityKeyFactory<int>>(stateManager.GetKeyFactory(model.GetEntityType(typeof(Category))));
-            Assert.IsType<SimpleEntityKeyFactory<Guid>>(stateManager.GetKeyFactory(model.GetEntityType(typeof(Product))));
-        }
-
         #region Fixture
 
         private class Category
@@ -325,7 +315,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             public decimal Price { get; set; }
         }
 
-        private static IModel BuildModel()
+        private static RuntimeModel BuildModel()
         {
             var model = new Model();
             var builder = new ModelBuilder(model);
@@ -340,7 +330,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             locationType.AddProperty(new Property("Planet", typeof(string), hasClrProperty: false));
             model.AddEntityType(locationType);
 
-            return model;
+            return new RuntimeModel(model, new EntityKeyFactorySource());
         }
 
         #endregion

@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
     // This is lower-level change tracking services used by the ChangeTracker and other parts of the system
     public class StateManager
     {
-        private readonly IModel _model;
+        private readonly RuntimeModel _model;
         private readonly ActiveIdentityGenerators _identityGenerators;
 
         private readonly Dictionary<object, StateEntry> _entityReferenceMap
@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         }
 
         public StateManager(
-            [NotNull] IModel model,
+            [NotNull] RuntimeModel model,
             [NotNull] ActiveIdentityGenerators identityGenerators,
             [NotNull] IEnumerable<IEntityStateListener> entityStateListeners,
             [NotNull] EntityKeyFactorySource entityKeyFactorySource,
@@ -89,9 +89,11 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             Check.NotNull(entry, "entry");
 
+            var entityType = entry.EntityType;
+
             if (entry.StateManager != this)
             {
-                throw new InvalidOperationException(Strings.FormatWrongStateManager(entry.EntityType.Name));
+                throw new InvalidOperationException(Strings.FormatWrongStateManager(entityType.Name));
             }
 
             StateEntry existingEntry;
@@ -103,11 +105,11 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 }
                 else if (existingEntry != entry)
                 {
-                    throw new InvalidOperationException(Strings.FormatMultipleStateEntries(entry.EntityType.Name));
+                    throw new InvalidOperationException(Strings.FormatMultipleStateEntries(entityType.Name));
                 }
             }
 
-            var keyValue = GetKeyFactory(entry.EntityType).Create(entry);
+            var keyValue = Model.GetKeyFactory(entityType.Key).Create(entityType, entityType.Key, entry);
 
             if (_identityMap.TryGetValue(keyValue, out existingEntry))
             {
@@ -115,7 +117,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 {
                     // TODO: Consider a hook for identity resolution
                     // TODO: Consider specialized exception types
-                    throw new InvalidOperationException(Strings.FormatIdentityConflict(entry.EntityType.Name));
+                    throw new InvalidOperationException(Strings.FormatIdentityConflict(entityType.Name));
                 }
             }
             else
@@ -133,7 +135,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 _entityReferenceMap.Remove(entry.Entity);
             }
 
-            var keyValue = GetKeyFactory(entry.EntityType).Create(entry);
+            var entityType = entry.EntityType;
+            var keyValue = Model.GetKeyFactory(entityType.Key).Create(entityType, entityType.Key, entry);
 
             StateEntry existingEntry;
             if (_identityMap.TryGetValue(keyValue, out existingEntry)
@@ -143,7 +146,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
         }
 
-        public virtual IModel Model
+        public virtual RuntimeModel Model
         {
             get { return _model; }
         }
@@ -186,12 +189,12 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotNull(dependentEntry, "dependentEntry");
             Check.NotNull(foreignKey, "foreignKey");
 
-            var dependentKeyValue = foreignKey.DependentProperties.Select(dependentEntry.GetPropertyValue).ToArray();
+            var dependentKeyValue = dependentEntry.GetDependentKeyValue(foreignKey);
 
             // TODO: Add additional indexes so that this isn't a linear lookup
             var principals = StateEntries.Where(
                 e => e.EntityType == foreignKey.PrincipalType
-                     && dependentKeyValue.SequenceEqual(foreignKey.PrincipalProperties.Select(e.GetPropertyValue))).ToArray();
+                     && dependentKeyValue.Equals(e.GetPrincipalKeyValue(foreignKey))).ToArray();
 
             if (principals.Length > 1)
             {
@@ -202,26 +205,17 @@ namespace Microsoft.Data.Entity.ChangeTracking
             return principals.FirstOrDefault();
         }
 
-        public virtual IEnumerable<StateEntry> GetDependents(
-            [NotNull] StateEntry principalEntry, [NotNull] IEntityType dependentType, [NotNull] IForeignKey foreignKey)
+        public virtual IEnumerable<StateEntry> GetDependents([NotNull] StateEntry principalEntry, [NotNull] IForeignKey foreignKey)
         {
             Check.NotNull(principalEntry, "principalEntry");
-            Check.NotNull(dependentType, "dependentType");
             Check.NotNull(foreignKey, "foreignKey");
 
-            var principalKeyValue = foreignKey.PrincipalProperties.Select(principalEntry.GetPropertyValue).ToArray();
+            var principalKeyValue = principalEntry.GetPrincipalKeyValue(foreignKey);
 
             // TODO: Add additional indexes so that this isn't a linear lookup
             return StateEntries.Where(
-                e => e.EntityType == dependentType
-                     && principalKeyValue.SequenceEqual(foreignKey.DependentProperties.Select(e.GetPropertyValue)));
-        }
-
-        public virtual EntityKeyFactory GetKeyFactory([NotNull] IEntityType entityType)
-        {
-            Check.NotNull(entityType, "entityType");
-
-            return _keyFactorySource.GetKeyFactory(entityType);
+                e => e.EntityType == foreignKey.DependentType
+                     && principalKeyValue.Equals(e.GetDependentKeyValue(foreignKey)));
         }
     }
 }

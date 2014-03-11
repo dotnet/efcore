@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -109,15 +110,95 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Can_create_key()
+        public void Can_create_primary_key()
         {
-            var entityTypeMock = CreateEntityTypeMock();
-            var managerMock = CreateManagerMock(entityTypeMock);
-            managerMock.Setup(m => m.GetKeyFactory(entityTypeMock.Object)).Returns(new SimpleEntityKeyFactory<string>());
+            var propertyMock1 = new Mock<IProperty>();
+            propertyMock1.Setup(m => m.GetValue(It.IsAny<object>())).Returns("Atmosphere");
+
+            var entityTypeMock = CreateEntityTypeMock(propertyMock1);
+
+            var modelMock = new Mock<RuntimeModel>();
+            modelMock.Setup(m => m.GetKeyFactory(entityTypeMock.Object.Key)).Returns(new SimpleEntityKeyFactory<string>());
+
+            var managerMock = new Mock<StateManager>();
+            managerMock.Setup(m => m.Model).Returns(modelMock.Object);
 
             var entry = CreateStateEntry(managerMock.Object, entityTypeMock.Object, new Random());
+            entry.SetPropertyValue(propertyMock1.Object, "Atmosphere");
 
-            Assert.IsType<SimpleEntityKey<string>>(entry.CreateKey());
+            var keyValue = entry.GetPrimaryKeyValue();
+            Assert.IsType<SimpleEntityKey<string>>(keyValue);
+            Assert.Equal("Atmosphere", keyValue.Value);
+        }
+
+        [Fact]
+        public void Can_create_foreign_key_value_based_on_dependent_values()
+        {
+            var principalProp = new Mock<IProperty>();
+            principalProp.Setup(m => m.GetValue(It.IsAny<object>())).Returns("Wax");
+
+            var dependentProp = new Mock<IProperty>();
+            dependentProp.Setup(m => m.GetValue(It.IsAny<object>())).Returns("On");
+
+            var principalProps = new[] { principalProp.Object };
+            var dependentProps = new[] { dependentProp.Object };
+
+            var principalTypeMock = CreateEntityTypeMock(new Mock<IProperty>(), principalProp);
+            var dependentTypeMock = CreateEntityTypeMock(new Mock<IProperty>(), dependentProp);
+
+            var modelMock = new Mock<RuntimeModel>();
+            modelMock.Setup(m => m.GetKeyFactory(It.IsAny<IReadOnlyList<IProperty>>())).Returns(new SimpleEntityKeyFactory<string>());
+
+            var managerMock = new Mock<StateManager>();
+            managerMock.Setup(m => m.Model).Returns(modelMock.Object);
+
+            var foreignKeyMock = new Mock<IForeignKey>();
+            foreignKeyMock.Setup(m => m.PrincipalType).Returns(principalTypeMock.Object);
+            foreignKeyMock.Setup(m => m.DependentType).Returns(dependentTypeMock.Object);
+            foreignKeyMock.Setup(m => m.PrincipalProperties).Returns(principalProps);
+            foreignKeyMock.Setup(m => m.DependentProperties).Returns(dependentProps);
+
+            var entry = CreateStateEntry(managerMock.Object, dependentTypeMock.Object, new Random());
+            entry.SetPropertyValue(dependentProp.Object, "On");
+
+            var keyValue = entry.GetDependentKeyValue(foreignKeyMock.Object);
+            Assert.IsType<SimpleEntityKey<string>>(keyValue);
+            Assert.Equal("On", keyValue.Value);
+        }
+
+        [Fact]
+        public void Can_create_foreign_key_value_based_on_principal_end_values()
+        {
+            var principalProp = new Mock<IProperty>();
+            principalProp.Setup(m => m.GetValue(It.IsAny<object>())).Returns("Wax");
+
+            var dependentProp = new Mock<IProperty>();
+            dependentProp.Setup(m => m.GetValue(It.IsAny<object>())).Returns("Off");
+
+            var principalProps = new[] { principalProp.Object };
+            var dependentProps = new[] { dependentProp.Object };
+
+            var principalTypeMock = CreateEntityTypeMock(new Mock<IProperty>(), principalProp);
+            var dependentTypeMock = CreateEntityTypeMock(new Mock<IProperty>(), dependentProp);
+
+            var modelMock = new Mock<RuntimeModel>();
+            modelMock.Setup(m => m.GetKeyFactory(It.IsAny<IReadOnlyList<IProperty>>())).Returns(new SimpleEntityKeyFactory<string>());
+
+            var managerMock = new Mock<StateManager>();
+            managerMock.Setup(m => m.Model).Returns(modelMock.Object);
+
+            var foreignKeyMock = new Mock<IForeignKey>();
+            foreignKeyMock.Setup(m => m.PrincipalType).Returns(principalTypeMock.Object);
+            foreignKeyMock.Setup(m => m.DependentType).Returns(dependentTypeMock.Object);
+            foreignKeyMock.Setup(m => m.PrincipalProperties).Returns(principalProps);
+            foreignKeyMock.Setup(m => m.DependentProperties).Returns(dependentProps);
+
+            var entry = CreateStateEntry(managerMock.Object, principalTypeMock.Object, new Random());
+            entry.SetPropertyValue(principalProp.Object, "Wax");
+
+            var keyValue = entry.GetPrincipalKeyValue(foreignKeyMock.Object);
+            Assert.IsType<SimpleEntityKey<string>>(keyValue);
+            Assert.Equal("Wax", keyValue.Value);
         }
 
         protected virtual StateEntry CreateStateEntry(StateManager stateManager, IEntityType entityType, object entity)
@@ -127,7 +208,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
         protected virtual Mock<StateManager> CreateManagerMock(Mock<IEntityType> entityTypeMock)
         {
-            var modelMock = new Mock<IModel>();
+            var modelMock = new Mock<RuntimeModel>();
             modelMock.Setup(m => m.GetEntityType(typeof(Random))).Returns(entityTypeMock.Object);
 
             var managerMock = new Mock<StateManager>();
