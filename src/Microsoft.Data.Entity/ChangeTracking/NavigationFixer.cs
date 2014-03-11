@@ -32,14 +32,12 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
 
             // Handle case where the new entity is the principal
-            foreach (var entityType in stateManager.Model.EntityTypes)
+            foreach (var foreignKey in stateManager.Model.EntityTypes.SelectMany(
+                e => e.ForeignKeys.Where(f => f.PrincipalType == entry.EntityType)))
             {
-                foreach (var foreignKey in entityType.ForeignKeys.Where(f => f.PrincipalType == entry.EntityType))
-                {
-                    var dependents = stateManager.GetDependents(entry, entityType, foreignKey).ToArray();
+                var dependents = stateManager.GetDependents(entry, foreignKey).ToArray();
 
-                    DoFixup(stateManager, foreignKey, entry, dependents);
-                }
+                DoFixup(stateManager, foreignKey, entry, dependents);
             }
         }
 

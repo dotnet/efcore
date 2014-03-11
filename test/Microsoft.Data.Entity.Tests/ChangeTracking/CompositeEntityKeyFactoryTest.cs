@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
     public class CompositeEntityKeyFactoryTest
     {
         [Fact]
-        public void Creates_a_new_key_for_key_values_in_the_given_entry()
+        public void Creates_a_new_primary_key_for_key_values_in_the_given_entry()
         {
             var keyPart1 = new Mock<IProperty>().Object;
             var keyPart2 = new Mock<IProperty>().Object;
@@ -27,9 +27,33 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entryMock.Setup(m => m.GetPropertyValue(keyPart3)).Returns(random);
             entryMock.Setup(m => m.EntityType).Returns(typeMock.Object);
 
-            var key = (CompositeEntityKey)new CompositeEntityKeyFactory().Create(entryMock.Object);
+            var key = (CompositeEntityKey)new CompositeEntityKeyFactory().Create(
+                typeMock.Object, typeMock.Object.Key, entryMock.Object);
 
             Assert.Equal(new Object[] { 7, "Ate", random }, key.Value);
+        }
+
+        [Fact]
+        public void Creates_a_new_key_for_non_primary_key_values_in_the_given_entry()
+        {
+            var keyProp = new Mock<IProperty>().Object;
+            var nonKeyPart1 = new Mock<IProperty>().Object;
+            var nonKeyPart2 = new Mock<IProperty>().Object;
+
+            var typeMock = new Mock<IEntityType>();
+            typeMock.Setup(m => m.Key).Returns(new[] { keyProp });
+
+            var random = new Random();
+            var entryMock = new Mock<StateEntry>();
+            entryMock.Setup(m => m.GetPropertyValue(keyProp)).Returns(7);
+            entryMock.Setup(m => m.GetPropertyValue(nonKeyPart1)).Returns("Ate");
+            entryMock.Setup(m => m.GetPropertyValue(nonKeyPart2)).Returns(random);
+            entryMock.Setup(m => m.EntityType).Returns(typeMock.Object);
+
+            var key = (CompositeEntityKey)new CompositeEntityKeyFactory().Create(
+                typeMock.Object, new[] { nonKeyPart2, nonKeyPart1 }, entryMock.Object);
+
+            Assert.Equal(new Object[] { random, "Ate" }, key.Value);
         }
     }
 }

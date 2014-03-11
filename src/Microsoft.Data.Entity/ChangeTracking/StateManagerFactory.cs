@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             _stateEntryFactory = stateEntryFactory;
         }
 
-        public virtual StateManager Create([NotNull] IModel model)
+        public virtual StateManager Create([NotNull] RuntimeModel model)
         {
             Check.NotNull(model, "model");
 

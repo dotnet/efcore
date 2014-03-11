@@ -5,6 +5,7 @@ using Microsoft.AspNet.DependencyInjection;
 using Microsoft.AspNet.Logging;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Identity;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Services;
 
 namespace Microsoft.Data.Entity
@@ -23,6 +24,7 @@ namespace Microsoft.Data.Entity
             yield return Service.Singleton<IEntityStateListener, NavigationFixer>();
             yield return Service.Singleton<EntityKeyFactorySource, EntityKeyFactorySource>();
             yield return Service.Singleton<StateEntryFactory, StateEntryFactory>();
+            yield return Service.Singleton<RuntimeModelFactory, RuntimeModelFactory>();
         }
     }
 }

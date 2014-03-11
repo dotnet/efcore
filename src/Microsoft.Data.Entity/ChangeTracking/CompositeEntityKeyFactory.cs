@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking
@@ -14,12 +16,13 @@ namespace Microsoft.Data.Entity.ChangeTracking
             get { return _instance; }
         }
 
-        public override EntityKey Create(StateEntry entry)
+        public override EntityKey Create(IEntityType entityType, IReadOnlyList<IProperty> properties, StateEntry entry)
         {
+            Check.NotNull(entityType, "entityType");
+            Check.NotNull(properties, "properties");
             Check.NotNull(entry, "entry");
 
-            var entityType = entry.EntityType;
-            return new CompositeEntityKey(entityType, entityType.Key.Select(entry.GetPropertyValue).ToArray());
+            return new CompositeEntityKey(entityType, properties.Select(entry.GetPropertyValue).ToArray());
         }
     }
 }

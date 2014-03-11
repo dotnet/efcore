@@ -109,7 +109,7 @@ namespace Microsoft.Data.InMemory.Tests
                 l => l.WriteCore(TraceType.Information, 0, null, null, It.IsAny<Func<object, Exception, string>>()), Times.Once);
         }
 
-        private static Model CreateModel()
+        private static RuntimeModel CreateModel()
         {
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
@@ -119,10 +119,10 @@ namespace Microsoft.Data.InMemory.Tests
                 .Key(c => c.Id)
                 .Properties(ps => ps.Property(c => c.Name));
 
-            return model;
+            return new RuntimeModel(model, new EntityKeyFactorySource());
         }
 
-        private static StateManager CreateStateManager(IModel model)
+        private static StateManager CreateStateManager(RuntimeModel model)
         {
             return new StateManager(
                 model,
