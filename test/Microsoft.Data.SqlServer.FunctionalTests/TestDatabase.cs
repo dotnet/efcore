@@ -130,7 +130,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
         {
             return new SqlConnectionStringBuilder
                 {
-                    DataSource = @".\SQLEXPRESS",
+                    DataSource = @"(localdb)\v11.0",
                     InitialCatalog = name,
                     IntegratedSecurity = true
                 }.ConnectionString;
