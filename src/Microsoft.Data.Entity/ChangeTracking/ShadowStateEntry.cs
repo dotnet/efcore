@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
-using System.Diagnostics;
+using System.Diagnostics.Contracts;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
@@ -13,9 +13,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
         private readonly object[] _propertyValues;
 
         /// <summary>
-        /// This constructor is intended only for use when creating test doubles that will override members
-        /// with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
-        /// behavior including but not limited to throwing <see cref="NullReferenceException"/>.
+        ///     This constructor is intended only for use when creating test doubles that will override members
+        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
+        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
         /// </summary>
         protected ShadowStateEntry()
         {
@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             Check.NotNull(property, "property");
 
-            Debug.Assert(!property.HasClrProperty);
+            Contract.Assert(!property.HasClrProperty);
 
             return _propertyValues[property.ShadowIndex];
         }

@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.Utilities
 {
@@ -15,19 +14,13 @@ namespace Microsoft.Data.Entity.Utilities
         public static IOrderedEnumerable<TSource> OrderByOrdinal<TSource>(
             this IEnumerable<TSource> source, Func<TSource, string> keySelector)
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(keySelector, "keySelector");
-
             return source.OrderBy(keySelector, StringComparer.Ordinal);
         }
 
         public static IEnumerable<T> Distinct<T>(
-            [NotNull] this IEnumerable<T> source, [NotNull] Func<T, T, bool> comparer)
+            this IEnumerable<T> source, Func<T, T, bool> comparer)
             where T : class
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(comparer, "comparer");
-
             return source.Distinct(new DynamicEqualityComparer<T>(comparer));
         }
 
@@ -52,19 +45,14 @@ namespace Microsoft.Data.Entity.Utilities
             }
         }
 
-        public static string Join([NotNull] this IEnumerable<object> source, string separator = ", ")
+        public static string Join(this IEnumerable<object> source, string separator = ", ")
         {
-            Check.NotNull(source, "source");
-
             return string.Join(separator, source);
         }
 
         public static async Task<IEnumerable<T>> SelectAsync<T>(
-            [NotNull] this IEnumerable<T> source, [NotNull] Func<T, Task<T>> selector)
+            this IEnumerable<T> source, Func<T, Task<T>> selector)
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(selector, "selector");
-
             var results = Enumerable.Empty<T>();
 
             foreach (var item in source)
@@ -76,11 +64,8 @@ namespace Microsoft.Data.Entity.Utilities
         }
 
         public static async Task<IEnumerable<T>> SelectManyAsync<T>(
-            [NotNull] this IEnumerable<T> source, [NotNull] Func<T, Task<IEnumerable<T>>> selector)
+            this IEnumerable<T> source, Func<T, Task<IEnumerable<T>>> selector)
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(selector, "selector");
-
             var results = Enumerable.Empty<T>();
 
             foreach (var item in source)
@@ -92,11 +77,8 @@ namespace Microsoft.Data.Entity.Utilities
         }
 
         public static async Task<IEnumerable<T>> WhereAsync<T>(
-            [NotNull] this IEnumerable<T> source, [NotNull] Func<T, Task<bool>> predicate)
+            this IEnumerable<T> source, Func<T, Task<bool>> predicate)
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(predicate, "predicate");
-
             var results = Enumerable.Empty<T>();
 
             foreach (var item in source)

@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
             return EntityTypes.FirstOrDefault(e => e.Type.Name == name);
         }
 
-        public IEntityType GetEntityType([NotNull] string  name)
+        public IEntityType GetEntityType([NotNull] string name)
         {
             // TODO
             return EntityTypes.First(e => e.Type.Name == name);

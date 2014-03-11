@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -14,7 +15,7 @@ namespace Microsoft.Data.Entity.Utilities
     {
         public static PropertyInfo GetPropertyAccess(this LambdaExpression propertyAccessExpression)
         {
-            Debug.Assert(propertyAccessExpression.Parameters.Count == 1);
+            Contract.Assert(propertyAccessExpression.Parameters.Count == 1);
 
             var propertyInfo
                 = propertyAccessExpression
@@ -34,7 +35,7 @@ namespace Microsoft.Data.Entity.Utilities
 
         public static IList<PropertyInfo> GetPropertyAccessList(this LambdaExpression propertyAccessExpression)
         {
-            Debug.Assert(propertyAccessExpression.Parameters.Count == 1);
+            Contract.Assert(propertyAccessExpression.Parameters.Count == 1);
 
             var propertyPaths
                 = MatchPropertyAccessList(propertyAccessExpression, (p, e) => e.MatchSimplePropertyAccess(p));
@@ -52,7 +53,7 @@ namespace Microsoft.Data.Entity.Utilities
         private static IList<PropertyInfo> MatchPropertyAccessList(
             this LambdaExpression lambdaExpression, Func<Expression, Expression, PropertyInfo> propertyMatcher)
         {
-            Debug.Assert(lambdaExpression.Body != null);
+            Contract.Assert(lambdaExpression.Body != null);
 
             var newExpression
                 = RemoveConvert(lambdaExpression.Body) as NewExpression;

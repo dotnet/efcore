@@ -31,12 +31,12 @@ namespace Microsoft.Data.Relational.Update
             var command = commandBatches.First().BatchCommands.Single();
             Assert.Equal(ModificationOperation.Insert, command.Operation);
             Assert.Equal(
-                new []
+                new[]
                     {
                         new KeyValuePair<string, object>("Id", 42),
                         new KeyValuePair<string, object>("Value", "Test"),
-                    }, 
-                    command.ColumnValues);
+                    },
+                command.ColumnValues);
         }
 
         [Fact]
@@ -60,14 +60,14 @@ namespace Microsoft.Data.Relational.Update
                     {
                         new KeyValuePair<string, object>("Value", "Test"),
                     },
-                    command.ColumnValues);
+                command.ColumnValues);
 
             Assert.Equal(
                 new[]
                     {
                         new KeyValuePair<string, object>("Id", 42),
                     },
-                    command.WhereClauses);
+                command.WhereClauses);
         }
 
         [Fact]
@@ -93,7 +93,7 @@ namespace Microsoft.Data.Relational.Update
                     {
                         new KeyValuePair<string, object>("Id", 42),
                     },
-                    command.WhereClauses);
+                command.WhereClauses);
         }
 
         private static Entity.Metadata.Model CreateModel()

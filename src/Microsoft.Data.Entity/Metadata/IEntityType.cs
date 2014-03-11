@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.Metadata
     {
         string Name { get; }
         string StorageName { get; }
-        
+
         [CanBeNull]
         Type Type { get; }
 

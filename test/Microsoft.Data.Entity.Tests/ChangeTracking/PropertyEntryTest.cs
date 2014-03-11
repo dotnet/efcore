@@ -67,7 +67,5 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             stateEntryMock.Setup(m => m.EntityType).Returns(entityTypeMock.Object);
             return stateEntryMock;
         }
-
-
     }
 }

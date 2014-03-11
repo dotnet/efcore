@@ -4,7 +4,7 @@ namespace Microsoft.Data.Relational.Update
 {
     internal enum ModificationOperation : byte
     {
-        Insert, 
+        Insert,
         Update,
         Delete
     }

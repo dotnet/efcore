@@ -25,16 +25,16 @@ namespace Microsoft.Data.Relational.Update
             var valuePairs = new KeyValuePair<string, object>[0];
 
             Assert.Equal(
-                ModificationOperation.Insert, 
+                ModificationOperation.Insert,
                 new ModificationCommand("T1", columnValues: valuePairs, whereClauses: null).Operation);
 
             Assert.Equal(
                 ModificationOperation.Update,
-                    new ModificationCommand("T1", columnValues: valuePairs, whereClauses: valuePairs).Operation);
+                new ModificationCommand("T1", columnValues: valuePairs, whereClauses: valuePairs).Operation);
 
             Assert.Equal(
                 ModificationOperation.Delete,
-                    new ModificationCommand("T1", columnValues: null, whereClauses: valuePairs).Operation);
+                new ModificationCommand("T1", columnValues: null, whereClauses: valuePairs).Operation);
         }
     }
 }

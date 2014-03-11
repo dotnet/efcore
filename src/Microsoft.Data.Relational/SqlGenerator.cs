@@ -2,7 +2,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Diagnostics.Contracts;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.Data.Relational.Utilities;
@@ -67,7 +67,7 @@ namespace Microsoft.Data.Relational
                 .AppendJoin(columnNames, ", ");
 
             // TODO: may be fine if all columns are database generated in which case we should not append brackets at all
-            Debug.Assert(commandStringBuilder[commandStringBuilder.Length - 1] != '(', "empty columnNames");
+            Contract.Assert(commandStringBuilder[commandStringBuilder.Length - 1] != '(', "empty columnNames");
 
             commandStringBuilder.Append(")");
         }
@@ -107,7 +107,7 @@ namespace Microsoft.Data.Relational
                 .AppendJoin(valueParameterNames, ", ")
                 .Append(")");
 
-            Debug.Assert(!commandStringBuilder.ToString().EndsWith("()"), "empty valueParameterNames");
+            Contract.Assert(!commandStringBuilder.ToString().EndsWith("()"), "empty valueParameterNames");
         }
 
         public virtual void AppendWhereClause(

@@ -1,10 +1,9 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text;
-using JetBrains.Annotations;
 
 namespace Microsoft.Data.Relational.Update
 {
@@ -12,22 +11,19 @@ namespace Microsoft.Data.Relational.Update
     {
         private readonly ModificationCommand[] _batchCommands;
 
-        public ModificationCommandBatch([NotNull] ModificationCommand[] batchCommands)
+        public ModificationCommandBatch(ModificationCommand[] batchCommands)
         {
-            Debug.Assert(batchCommands.Any(), "batchCommands array is empty");
+            Contract.Assert(batchCommands.Any(), "batchCommands array is empty");
 
             _batchCommands = batchCommands;
         }
 
         public IEnumerable<ModificationCommand> BatchCommands
         {
-            get
-            {
-                return _batchCommands;
-            }
+            get { return _batchCommands; }
         }
 
-        public string CompileBatch([NotNull] SqlGenerator sqlGenerator, out List<KeyValuePair<string, object>> parameters)
+        public string CompileBatch(SqlGenerator sqlGenerator, out List<KeyValuePair<string, object>> parameters)
         {
             var stringBuilder = new StringBuilder();
             parameters = new List<KeyValuePair<string, object>>();
@@ -55,26 +51,26 @@ namespace Microsoft.Data.Relational.Update
             return stringBuilder.ToString();
         }
 
-        private void AppendInsertCommand(ModificationCommand modificationCommand, SqlGenerator sqlGenerator, 
+        private void AppendInsertCommand(ModificationCommand modificationCommand, SqlGenerator sqlGenerator,
             StringBuilder stringBuilder, List<KeyValuePair<string, object>> parameters)
         {
             var commandParameters = CreateParameters(modificationCommand.ColumnValues, parameters);
 
             sqlGenerator.AppendInsertCommand(
-                stringBuilder, 
+                stringBuilder,
                 modificationCommand.TableName,
                 modificationCommand.ColumnValues.Select(c => c.Key),
                 commandParameters.Select(p => p.Key));
         }
 
-        private void AppendUpdateCommand(ModificationCommand modificationCommand, SqlGenerator sqlGenerator, 
+        private void AppendUpdateCommand(ModificationCommand modificationCommand, SqlGenerator sqlGenerator,
             StringBuilder stringBuilder, List<KeyValuePair<string, object>> parameters)
         {
             var updateParameters = CreateParameters(modificationCommand.ColumnValues, parameters);
             var whereClauseParameters = CreateParameters(modificationCommand.WhereClauses, parameters);
 
             sqlGenerator.AppendUpdateCommand(
-                stringBuilder, 
+                stringBuilder,
                 modificationCommand.TableName,
                 modificationCommand.ColumnValues.Zip(
                     updateParameters, (c, p) => new KeyValuePair<string, string>(c.Key, p.Key)),
@@ -88,14 +84,13 @@ namespace Microsoft.Data.Relational.Update
             var whereClauseParameters = CreateParameters(modificationCommand.WhereClauses, parameters);
 
             sqlGenerator.AppendDeleteCommand(
-                stringBuilder, 
+                stringBuilder,
                 modificationCommand.TableName,
                 modificationCommand.WhereClauses.Zip(
                     whereClauseParameters, (c, p) => new KeyValuePair<string, string>(c.Key, p.Key)));
-
         }
 
-        private IEnumerable<KeyValuePair<string, object>> CreateParameters(IEnumerable<KeyValuePair<string, object>> values, 
+        private IEnumerable<KeyValuePair<string, object>> CreateParameters(IEnumerable<KeyValuePair<string, object>> values,
             List<KeyValuePair<string, object>> parameters)
         {
             foreach (var parameter in values.Select(value => new KeyValuePair<string, object>("@p" + parameters.Count, value.Value)))

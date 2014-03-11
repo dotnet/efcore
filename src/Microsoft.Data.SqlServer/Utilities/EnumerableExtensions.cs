@@ -2,17 +2,14 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
-using JetBrains.Annotations;
 
 namespace Microsoft.Data.SqlServer.Utilities
 {
     [DebuggerStepThrough]
     internal static class EnumerableExtensions
     {
-        public static string Join([NotNull] this IEnumerable<object> source, string separator = ", ")
+        public static string Join(this IEnumerable<object> source, string separator = ", ")
         {
-            Check.NotNull(source, "source");
-
             return string.Join(separator, source);
         }
     }

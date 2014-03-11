@@ -85,9 +85,9 @@ namespace Microsoft.Data.InMemory.FunctionalTests
             var model = new Model();
 
             var customerType = new EntityType(typeof(Customer))
-            {
-                Key = new[] { new Property("Id", typeof(int), hasClrProperty: true) }
-            };
+                {
+                    Key = new[] { new Property("Id", typeof(int), hasClrProperty: true) }
+                };
 
             customerType.AddProperty(new Property("Name", typeof(string), hasClrProperty: false));
 
@@ -96,10 +96,10 @@ namespace Microsoft.Data.InMemory.FunctionalTests
             var inMemoryDataStore = new InMemoryDataStore();
 
             var entityConfiguration = new EntityConfiguration
-            {
-                DataStore = inMemoryDataStore,
-                Model = model
-            };
+                {
+                    DataStore = inMemoryDataStore,
+                    Model = model
+                };
 
             var customer = new Customer { Id = 42 };
 

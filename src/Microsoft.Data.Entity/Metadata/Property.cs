@@ -20,9 +20,9 @@ namespace Microsoft.Data.Entity.Metadata
         private int _index;
 
         /// <summary>
-        /// This constructor is intended only for use when creating test doubles that will override members
-        /// with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
-        /// behavior including but not limited to throwing <see cref="NullReferenceException"/>.
+        ///     This constructor is intended only for use when creating test doubles that will override members
+        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
+        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
         /// </summary>
         protected Property()
         {
@@ -101,10 +101,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual int ShadowIndex
         {
-            get
-            {
-                return _shadowIndex;
-            }
+            get { return _shadowIndex; }
             set
             {
                 if (value < 0 || HasClrProperty)

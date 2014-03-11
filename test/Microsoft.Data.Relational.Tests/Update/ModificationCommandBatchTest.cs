@@ -2,7 +2,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Text;
 using Moq;
 using Xunit;
@@ -19,7 +18,7 @@ namespace Microsoft.Data.Relational.Update
                     {
                         new ModificationCommand(
                             "Table",
-                            new Dictionary<string, object>{ { "Id", 42 }, { "Name", "Test"} },
+                            new Dictionary<string, object> { { "Id", 42 }, { "Name", "Test" } },
                             null)
                     });
 
@@ -38,8 +37,8 @@ namespace Microsoft.Data.Relational.Update
                     {
                         new ModificationCommand(
                             "Table",
-                            new Dictionary<string, object>{ { "Name", "Test"} }, 
-                            new Dictionary<string, object>{ { "Id1", 42}, {"Id2", 43} })
+                            new Dictionary<string, object> { { "Name", "Test" } },
+                            new Dictionary<string, object> { { "Id1", 42 }, { "Id2", 43 } })
                     });
 
             List<KeyValuePair<string, object>> parameters;
@@ -58,7 +57,7 @@ namespace Microsoft.Data.Relational.Update
                         new ModificationCommand(
                             "Table",
                             null,
-                            new Dictionary<string, object>{ { "Id1", 42}, {"Id2", 43} })
+                            new Dictionary<string, object> { { "Id1", 42 }, { "Id2", 43 } })
                     });
 
             List<KeyValuePair<string, object>> parameters;
@@ -79,11 +78,11 @@ namespace Microsoft.Data.Relational.Update
                         It.IsAny<IEnumerable<string>>(), It.IsAny<IEnumerable<string>>()))
                 .Callback(
                     (StringBuilder sb, string t, IEnumerable<string> c, IEnumerable<string> v)
-                        => 
+                        =>
                         sb.Append("INSERT").Append(";")
-                        .Append(t).Append(";")
-                        .Append(string.Join(",", c)).Append(";")
-                        .Append(string.Join(",", v)));
+                            .Append(t).Append(";")
+                            .Append(string.Join(",", c)).Append(";")
+                            .Append(string.Join(",", v)));
 
             mockSqlGen
                 .Setup(
@@ -92,11 +91,11 @@ namespace Microsoft.Data.Relational.Update
                         It.IsAny<IEnumerable<KeyValuePair<string, string>>>(), It.IsAny<IEnumerable<KeyValuePair<string, string>>>()))
                 .Callback(
                     (StringBuilder sb, string t, IEnumerable<KeyValuePair<string, string>> cols, IEnumerable<KeyValuePair<string, string>> wheres)
-                        => 
+                        =>
                         sb.Append("UPDATE").Append(";")
-                        .Append(t).Append(";")
-                        .Append(string.Join(",", cols.Select(c => c.Key + "=" + c.Value))).Append(";")
-                        .Append(string.Join(",", wheres.Select(c => c.Key + "=" + c.Value))));
+                            .Append(t).Append(";")
+                            .Append(string.Join(",", cols.Select(c => c.Key + "=" + c.Value))).Append(";")
+                            .Append(string.Join(",", wheres.Select(c => c.Key + "=" + c.Value))));
 
             mockSqlGen
                 .Setup(
@@ -104,11 +103,11 @@ namespace Microsoft.Data.Relational.Update
                         It.IsAny<StringBuilder>(), It.IsAny<string>(),
                         It.IsAny<IEnumerable<KeyValuePair<string, string>>>()))
                 .Callback(
-                    (StringBuilder sb, string t, IEnumerable<KeyValuePair<string, string>> wheres) 
+                    (StringBuilder sb, string t, IEnumerable<KeyValuePair<string, string>> wheres)
                         =>
                         sb.Append("DELETE").Append(";")
-                        .Append(t).Append(";")
-                        .Append(string.Join(",", wheres.Select(c => c.Key + "=" + c.Value))));
+                            .Append(t).Append(";")
+                            .Append(string.Join(",", wheres.Select(c => c.Key + "=" + c.Value))));
 
             mockSqlGen.Setup(g => g.BatchCommandSeparator).Returns("$");
 

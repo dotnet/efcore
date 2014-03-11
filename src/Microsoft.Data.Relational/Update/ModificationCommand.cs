@@ -1,9 +1,8 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Diagnostics.Contracts;
 using System.Linq;
-using JetBrains.Annotations;
 
 namespace Microsoft.Data.Relational.Update
 {
@@ -13,24 +12,25 @@ namespace Microsoft.Data.Relational.Update
         private readonly KeyValuePair<string, object>[] _columnValues;
         private readonly KeyValuePair<string, object>[] _whereClauses;
 
-        public ModificationCommand([NotNull] string tableName,
+        public ModificationCommand(string tableName,
             IEnumerable<KeyValuePair<string, object>> columnValues, IEnumerable<KeyValuePair<string, object>> whereClauses)
         {
-            Debug.Assert(columnValues != null || whereClauses != null, "both columnValues and whereClauses are null");
+            Contract.Assert(columnValues != null || whereClauses != null, "both columnValues and whereClauses are null");
 
             _tableName = tableName;
             _columnValues = columnValues != null ? columnValues.ToArray() : null;
             _whereClauses = whereClauses != null ? whereClauses.ToArray() : null;
         }
 
-        public ModificationOperation Operation {
+        public ModificationOperation Operation
+        {
             get
             {
                 return
                     _columnValues != null && _whereClauses != null
                         ? ModificationOperation.Update
                         : _columnValues != null
-                            ? ModificationOperation.Insert 
+                            ? ModificationOperation.Insert
                             : ModificationOperation.Delete;
             }
         }
@@ -45,12 +45,9 @@ namespace Microsoft.Data.Relational.Update
             get { return _columnValues; }
         }
 
-        public KeyValuePair<string, object>[] WhereClauses 
+        public KeyValuePair<string, object>[] WhereClauses
         {
-            get
-            {
-                return _whereClauses;
-            }
+            get { return _whereClauses; }
         }
     }
 }

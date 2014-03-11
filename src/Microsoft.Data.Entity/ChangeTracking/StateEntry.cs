@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
-using System.Diagnostics;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,9 +18,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
         private StateData _stateData;
 
         /// <summary>
-        /// This constructor is intended only for use when creating test doubles that will override members
-        /// with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
-        /// behavior including but not limited to throwing <see cref="NullReferenceException"/>.
+        ///     This constructor is intended only for use when creating test doubles that will override members
+        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
+        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
         /// </summary>
         protected StateEntry()
         {
@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             if (value == EntityState.Added)
             {
-                Debug.Assert(_entityType.Key.Count() <= 1, "Composite keys not implemented yet.");
+                Contract.Assert(_entityType.Key.Count() <= 1, "Composite keys not implemented yet.");
 
                 var keyProperty = _entityType.Key.First();
                 var identityGenerator = _stateManager.GetIdentityGenerator(keyProperty);
