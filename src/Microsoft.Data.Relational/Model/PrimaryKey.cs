@@ -1,8 +1,7 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
-using System;
+using System.Diagnostics.Contracts;
 using System.Collections.Generic;
-using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.Data.Relational.Utilities;
 
@@ -12,14 +11,21 @@ namespace Microsoft.Data.Relational.Model
     {
         private readonly SchemaQualifiedName _name;
         private readonly List<Column> _columns;
+        private readonly bool _isClustered;
 
-        public PrimaryKey(SchemaQualifiedName name, [NotNull] Column column)
+        public PrimaryKey(SchemaQualifiedName name, [NotNull] IReadOnlyList<Column> columns, bool isClustered)
         {
-            Check.NotNull(column, "column");
-            Debug.Assert(column.Table != null);
+            Check.NotNull(columns, "columns");
+            ValidateColumns(columns);
 
             _name = name;
-            _columns = new List<Column> { column };
+            _columns = new List<Column>(columns);
+            _isClustered = isClustered;
+        }
+
+        public PrimaryKey(SchemaQualifiedName name, [NotNull] IReadOnlyList<Column> columns)
+            : this(name, columns, false)
+        {
         }
 
         public virtual SchemaQualifiedName Name
@@ -27,26 +33,26 @@ namespace Microsoft.Data.Relational.Model
             get { return _name; }
         }
 
-        public virtual bool IsClustered { get; set; }
+        public virtual bool IsClustered 
+        {
+            get { return _isClustered; }
+        }
 
         public virtual IReadOnlyList<Column> Columns
         {
             get { return _columns; }
         }
 
-        public virtual void AddColumn([NotNull] Column column)
+        private static void ValidateColumns(IReadOnlyList<Column> columns)
         {
-            Check.NotNull(column, "column");
-            Debug.Assert(ReferenceEquals(_columns[0].Table, column.Table));
+            Contract.Assert(columns.Count > 0);
+            Contract.Assert(columns[0] != null);
 
-            _columns.Add(column);
-        }
-
-        public virtual bool RemoveColumn([NotNull] Column column)
-        {
-            Check.NotNull(column, "column");
-
-            return (_columns.Count > 1) ? _columns.Remove(column) : false;
+            for (var i = 1; i < columns.Count; i++)
+            {
+                Contract.Assert(columns[i] != null);
+                Contract.Assert(ReferenceEquals(columns[0].Table, columns[i].Table));
+            }
         }
     }
 }

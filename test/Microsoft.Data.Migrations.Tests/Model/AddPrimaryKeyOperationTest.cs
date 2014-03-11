@@ -16,7 +16,7 @@ namespace Microsoft.Data.Migrations.Tests.Model
             var table = new Table("T");
             var column = new Column("C", "int");
             table.AddColumn(column);
-            var primaryKey = new PrimaryKey("PK", column);
+            var primaryKey = new PrimaryKey("PK", new[] { column });
 
             var addPrimaryKeyOperation = new AddPrimaryKeyOperation(primaryKey, table);
 
@@ -30,7 +30,7 @@ namespace Microsoft.Data.Migrations.Tests.Model
             var table = new Table("T");
             var column = new Column("C", "int");
             table.AddColumn(column);
-            var primaryKey = new PrimaryKey("PK", column);
+            var primaryKey = new PrimaryKey("PK", new[] { column });
             var addPrimaryKeyOperation = new AddPrimaryKeyOperation(primaryKey, table);
 
             var inverse = addPrimaryKeyOperation.Inverse;
@@ -45,7 +45,7 @@ namespace Microsoft.Data.Migrations.Tests.Model
             var table = new Table("T");
             var column = new Column("C", "int");
             table.AddColumn(column);
-            var primaryKey = new PrimaryKey("PK", column);
+            var primaryKey = new PrimaryKey("PK", new[] { column });
 
             var addPrimaryKeyOperation = new AddPrimaryKeyOperation(primaryKey, table);
             var mockSqlGenerator = new Mock<MigrationOperationSqlGenerator>();

@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using Microsoft.Data.Migrations.Model;
 using Microsoft.Data.Relational.Model;
 using Xunit;
@@ -16,8 +17,7 @@ namespace Microsoft.Data.SqlServer.Tests
             var column1 = new Column("Bar", "int");
             table.AddColumn(column0);
             table.AddColumn(column1);
-            var primaryKey = new PrimaryKey("pk", column0);
-            primaryKey.AddColumn(column1);
+            var primaryKey = new PrimaryKey("pk", new[] { column0, column1 });
 
             Assert.Equal(
                 "ALTER TABLE \"dbo\".\"T\" ADD CONSTRAINT \"pk\" PRIMARY KEY NONCLUSTERED (\"Foo\", \"Bar\")",
@@ -30,10 +30,10 @@ namespace Microsoft.Data.SqlServer.Tests
             var table = new Table("dbo.T");
             var column = new Column("Foo", "int");
             table.AddColumn(column);
-            var primaryKey = new PrimaryKey("pk", column) { IsClustered = true };
+            var primaryKey = new PrimaryKey("pk", new[] { column });
 
             Assert.Equal(
-                "ALTER TABLE \"dbo\".\"T\" ADD CONSTRAINT \"pk\" PRIMARY KEY (\"Foo\")",
+                "ALTER TABLE \"dbo\".\"T\" ADD CONSTRAINT \"pk\" PRIMARY KEY NONCLUSTERED (\"Foo\")",
                 SqlServerMigrationOperationSqlGenerator.Generate(new AddPrimaryKeyOperation(primaryKey, table)));
         }
 

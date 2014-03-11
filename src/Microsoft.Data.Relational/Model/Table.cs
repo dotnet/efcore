@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Diagnostics.Contracts;
 using JetBrains.Annotations;
 using Microsoft.Data.Relational.Utilities;
 
@@ -26,7 +26,7 @@ namespace Microsoft.Data.Relational.Model
             [param: CanBeNull]
             internal set 
             {
-                Debug.Assert((value == null) != (_database == null));
+                Contract.Assert((value == null) != (_database == null));
                 _database = value; 
             }
         }
@@ -49,40 +49,6 @@ namespace Microsoft.Data.Relational.Model
             column.Table = this;
         }
 
-        public virtual bool RemoveColumn([NotNull] Column column)
-        {
-            Check.NotNull(column, "column");
-
-            if (_primaryKey == null)
-            {
-                return RemoveColumnFromList(column, _columns);
-            }
-
-            if (_primaryKey.Columns.Count > 1)
-            {
-                _primaryKey.RemoveColumn(column);
-                return RemoveColumnFromList(column, _columns);
-            }
-
-            if (!ReferenceEquals(_primaryKey.Columns[0], column))
-            {
-                return RemoveColumnFromList(column, _columns);
-            }
-
-            return false;
-        }
-
-        private static bool RemoveColumnFromList(Column column, List<Column> list)
-        {
-            if (list.Remove(column))
-            {
-                column.Table = null;
-                return true;
-            }
-
-            return false;
-        }
-
         public virtual PrimaryKey PrimaryKey
         {
             get { return _primaryKey; }
@@ -91,7 +57,7 @@ namespace Microsoft.Data.Relational.Model
             set
             {
                 Check.NotNull(value, "value");
-                Debug.Assert(ReferenceEquals(this, value.Columns[0].Table));
+                Contract.Assert(ReferenceEquals(this, value.Columns[0].Table));
 
                 _primaryKey = value;
             }

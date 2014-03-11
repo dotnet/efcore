@@ -13,7 +13,8 @@ namespace Microsoft.Data.Relational.Model
 
         public Database([NotNull] string name)
         {
-            Check.NotNull(name, "name");
+            Check.NotEmpty(name, "name");
+
             _name = name;
         }
 
@@ -33,19 +34,6 @@ namespace Microsoft.Data.Relational.Model
 
             _tables.Add(table);
             table.Database = this;
-        }
-
-        public virtual bool RemoveTable([NotNull] Table table)
-        {
-            Check.NotNull(table, "table");
-
-            if (_tables.Remove(table))
-            {
-                table.Database = null;
-                return true;
-            }
-
-            return false;
         }
     }
 }

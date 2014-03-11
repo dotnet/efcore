@@ -1,6 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
-using System.Diagnostics;
+using System.Diagnostics.Contracts;
 using JetBrains.Annotations;
 using Microsoft.Data.Relational.Utilities;
 
@@ -28,7 +28,7 @@ namespace Microsoft.Data.Relational.Model
             [param: CanBeNull]
             internal set 
             {
-                Debug.Assert((value == null) != (_table == null));
+                Contract.Assert((value == null) != (_table == null));
                 _table = value; 
             }
         }

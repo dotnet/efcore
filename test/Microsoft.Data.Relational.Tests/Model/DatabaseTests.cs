@@ -49,20 +49,5 @@ namespace Microsoft.Data.Relational.Model.Tests
             Assert.Same(database, table.Database);
             Assert.Same(table, database.Tables[0]);
         }
-
-        [Fact]
-        public void RemoveTable_removes_specified_table()
-        {
-            var database = new Database("Database");
-            var table = new Table("Table");
-            database.AddTable(table);
-
-            Assert.Equal(1, database.Tables.Count);
-
-            Assert.True(database.RemoveTable(table));
-
-            Assert.Equal(0, database.Tables.Count);
-            Assert.Null(table.Database);
-        }
     }
 }
