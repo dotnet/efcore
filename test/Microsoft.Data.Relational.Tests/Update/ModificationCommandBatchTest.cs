@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -25,7 +26,7 @@ namespace Microsoft.Data.Relational.Update
             List<KeyValuePair<string, object>> parameters;
             var sql = batch.CompileBatch(CreateMockSqlGenerator(), out parameters);
 
-            Assert.Equal("INSERT;Table;Id,Name;@p0,@p1$", sql.Trim());
+            Assert.Equal("BatchHeader$\r\nINSERT;Table;Id,Name;@p0,@p1$", sql.Trim());
             Assert.Equal(new Dictionary<string, object> { { "@p0", 42 }, { "@p1", "Test" } }, parameters);
         }
 
@@ -44,7 +45,7 @@ namespace Microsoft.Data.Relational.Update
             List<KeyValuePair<string, object>> parameters;
             var sql = batch.CompileBatch(CreateMockSqlGenerator(), out parameters);
 
-            Assert.Equal("UPDATE;Table;Name=@p0;Id1=@p1,Id2=@p2$", sql.Trim());
+            Assert.Equal("BatchHeader$\r\nUPDATE;Table;Name=@p0;Id1=@p1,Id2=@p2$", sql.Trim());
             Assert.Equal(new Dictionary<string, object> { { "@p0", "Test" }, { "@p1", 42 }, { "@p2", 43 } }, parameters);
         }
 
@@ -63,13 +64,33 @@ namespace Microsoft.Data.Relational.Update
             List<KeyValuePair<string, object>> parameters;
             var sql = batch.CompileBatch(CreateMockSqlGenerator(), out parameters);
 
-            Assert.Equal("DELETE;Table;Id1=@p0,Id2=@p1$", sql.Trim());
+            Assert.Equal("BatchHeader$\r\nDELETE;Table;Id1=@p0,Id2=@p1$", sql.Trim());
             Assert.Equal(new Dictionary<string, object> { { "@p0", 42 }, { "@p1", 43 } }, parameters);
+        }
+
+        [Fact]
+        public void Batch_seperator_not_appended_if_batch_header_empty()
+        {
+            var batch = new ModificationCommandBatch(
+                new[]
+                    {
+                        new ModificationCommand(
+                            "Table", null, new Dictionary<string, object>{ { "Id1", 42} })
+                    });
+
+            List<KeyValuePair<string, object>> parameters;
+            var sql = batch.CompileBatch(new SqlGenerator(), out parameters);
+
+            Assert.True(sql.StartsWith("DELETE"));
         }
 
         private static SqlGenerator CreateMockSqlGenerator()
         {
             var mockSqlGen = new Mock<SqlGenerator>();
+
+            mockSqlGen
+                .Setup(g => g.AppendBatchHeader(It.IsAny<StringBuilder>()))
+                .Callback((StringBuilder sb) => sb.Append("BatchHeader"));
 
             mockSqlGen
                 .Setup(

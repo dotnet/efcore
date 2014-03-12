@@ -28,6 +28,12 @@ namespace Microsoft.Data.Relational.Update
             var stringBuilder = new StringBuilder();
             parameters = new List<KeyValuePair<string, object>>();
 
+            sqlGenerator.AppendBatchHeader(stringBuilder);
+            if (stringBuilder.Length > 0)
+            {
+                stringBuilder.Append(sqlGenerator.BatchCommandSeparator).AppendLine();
+            }
+
             foreach (var command in _batchCommands)
             {
                 if (command.Operation == ModificationOperation.Insert)
