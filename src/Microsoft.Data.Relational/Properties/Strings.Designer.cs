@@ -58,6 +58,22 @@ namespace Microsoft.Data.Relational
             return string.Format(CultureInfo.CurrentCulture, GetString("InvalidSchemaQualifiedName", "name"), name);
         }
 
+        /// <summary>
+        /// Update failed. Expected rows affected '{expectedRowsAffected}'. Actual rows affected '{actualRowsAffected}'.
+        /// </summary>
+        internal static string UpdateConcurrencyException
+        {
+            get { return GetString("UpdateConcurrencyException"); }
+        }
+
+        /// <summary>
+        /// Update failed. Expected rows affected '{expectedRowsAffected}'. Actual rows affected '{actualRowsAffected}'.
+        /// </summary>
+        internal static string FormatUpdateConcurrencyException(object expectedRowsAffected, object actualRowsAffected)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("UpdateConcurrencyException", "expectedRowsAffected", "actualRowsAffected"), expectedRowsAffected, actualRowsAffected);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
