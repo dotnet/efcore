@@ -121,6 +121,10 @@ namespace Microsoft.Data.Relational
                 .AppendJoin(whereConditions, (sb, v) => sb.Append(v.Key).Append(" = ").Append(v.Value), " AND ");
         }
 
+        public virtual void AppendBatchHeader([NotNull] StringBuilder commandStringBuilder)
+        {
+        }
+
         public virtual string BatchCommandSeparator
         {
             get { return ";"; }
