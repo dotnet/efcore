@@ -11,7 +11,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
         [Fact]
         public async Task Can_get_next_values()
         {
-            using (var testDatabase = await TestDatabase.Create())
+            using (var testDatabase = await TestDatabase.Default())
             {
                 var sequenceIdentityGenerator
                     = new SequenceIdentityGenerator(testDatabase);

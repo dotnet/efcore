@@ -64,7 +64,7 @@ namespace Microsoft.Data.Relational
                 .Append("INSERT INTO ")
                 .Append(tableName)
                 .Append(" (")
-                .AppendJoin(columnNames, ", ");
+                .AppendJoin(columnNames);
 
             // TODO: may be fine if all columns are database generated in which case we should not append brackets at all
             Contract.Assert(commandStringBuilder[commandStringBuilder.Length - 1] != '(', "empty columnNames");
@@ -104,7 +104,7 @@ namespace Microsoft.Data.Relational
 
             commandStringBuilder
                 .Append("VALUES (")
-                .AppendJoin(valueParameterNames, ", ")
+                .AppendJoin(valueParameterNames)
                 .Append(")");
 
             Contract.Assert(!commandStringBuilder.ToString().EndsWith("()"), "empty valueParameterNames");

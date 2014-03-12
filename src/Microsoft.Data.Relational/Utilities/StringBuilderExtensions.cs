@@ -9,7 +9,7 @@ namespace Microsoft.Data.Relational.Utilities
     internal static class StringBuilderExtensions
     {
         public static StringBuilder AppendJoin(
-            this StringBuilder stringBuilder, IEnumerable<string> values, string separator)
+            this StringBuilder stringBuilder, IEnumerable<string> values, string separator = ", ")
         {
             return stringBuilder.AppendJoin(values, (sb, value) => sb.Append(value), separator);
         }

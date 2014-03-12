@@ -8,13 +8,13 @@ namespace Microsoft.Data.SqlServer.Tests
     public class ApiExtensionsTest
     {
         [Fact]
-        public void Can_create_context_with_name_or_connection_string()
+        public void Can_create_context_with_connection_string()
         {
             var entityConfiguration = new EntityConfiguration();
 
             entityConfiguration.CreateContext("Foo");
 
-            Assert.Equal("Foo", ((SqlServerDataStore)entityConfiguration.DataStore).NameOrConnectionString);
+            Assert.Equal("Foo", ((SqlServerDataStore)entityConfiguration.DataStore).ConnectionString);
         }
     }
 }
