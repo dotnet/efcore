@@ -60,7 +60,7 @@ namespace Microsoft.Data.Entity.Tests
         }
 
         [Fact]
-        public void Async_methods_should_have_overload_with_cancellation_token()
+        public void Async_methods_should_have_overload_with_cancellation_token_and_end_with_async_suffix()
         {
             var asyncMethodsWithToken
                 = (from t in GetAllTypes(TargetAssembly.GetTypes())
@@ -87,6 +87,13 @@ namespace Microsoft.Data.Entity.Tests
             Assert.False(
                 missingOverloads.Any(),
                 "\r\n-- Missing async overloads --\r\n" + string.Join("\r\n", missingOverloads));
+
+            var missingSuffixMethods
+                = asyncMethodsWithToken.Where(mi => !mi.Name.EndsWith("Async")).ToList();
+
+            Assert.False(
+                missingSuffixMethods.Any(),
+                "\r\n-- Missing async suffix --\r\n" + string.Join("\r\n", missingSuffixMethods));
         }
 
         protected abstract Assembly TargetAssembly { get; }
