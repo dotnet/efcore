@@ -13,6 +13,7 @@
     "xunit.core": "2.0.0-aspnet-*",
     "xunit.execution": "2.0.0-aspnet-*"
   },
+  "code": "**\\*.cs;..\\Shared\\*.cs",
   "commands": {
     "test": "Xunit.KRunner"
   },
