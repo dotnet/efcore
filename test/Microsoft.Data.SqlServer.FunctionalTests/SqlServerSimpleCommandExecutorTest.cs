@@ -11,7 +11,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
         [Fact]
         public async Task Can_execute_scalar_command()
         {
-            using (var testDatabase = await TestDatabase.Create())
+            using (var testDatabase = await TestDatabase.Default())
             {
                 var commandExecutor = new SqlServerSimpleCommandExecutor(testDatabase.Connection.ConnectionString);
 

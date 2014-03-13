@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Microsoft.Data.InMemory.FunctionalTests
 {
-    public class ShadowStateUpdateTests
+    public class ShadowStateUpdateTest
     {
         [Fact]
         public async Task Can_add_update_delete_end_to_end_using_only_shadow_state()

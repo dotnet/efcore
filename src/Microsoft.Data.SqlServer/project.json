@@ -8,7 +8,8 @@
     "Microsoft.Data.Relational": "",
     "Microsoft.Data.Migrations": "",
     "System.Data.Common": "0.1-alpha-*",
-    "Microsoft.AspNet.DependencyInjection": "0.1-alpha-*"
+    "Microsoft.AspNet.DependencyInjection": "0.1-alpha-*",
+    "Microsoft.AspNet.Logging" : "0.1-alpha-*"
   },
   "code": "**\\*.cs;..\\Shared\\*.cs",
   "configurations": {

@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Microsoft.Data.InMemory.FunctionalTests
 {
-    public class UpdateTests
+    public class InMemoryDataStoreTest
     {
         public class Customer
         {

@@ -94,7 +94,7 @@ namespace Microsoft.Data.InMemory
 
         public override IAsyncEnumerable<object[]> Read(IEntityType entityType)
         {
-            return new CompletedAsyncEnumerable<object[]>(
+            return new CompletedAsyncEnumerable(
                 _objectData.Value
                     .Where(kv => kv.Key.EntityType == entityType)
                     .Select(kv => kv.Value));
@@ -105,19 +105,18 @@ namespace Microsoft.Data.InMemory
             get { return _objectData.Value; }
         }
 
-        private class CompletedAsyncEnumerable<T> : IAsyncEnumerable<T>
-            where T : class
+        private sealed class CompletedAsyncEnumerable : IAsyncEnumerable<object[]>
         {
-            private readonly IEnumerable<T> _enumerable;
+            private readonly IEnumerable<object[]> _enumerable;
 
-            public CompletedAsyncEnumerable(IEnumerable<T> enumerable)
+            public CompletedAsyncEnumerable(IEnumerable<object[]> enumerable)
             {
                 _enumerable = enumerable;
             }
 
-            public IAsyncEnumerator<T> GetAsyncEnumerator()
+            public IAsyncEnumerator<object[]> GetAsyncEnumerator()
             {
-                return new CompletedAsyncEnumerator<T>(_enumerable.GetEnumerator());
+                return new CompletedAsyncEnumerator(_enumerable.GetEnumerator());
             }
 
             IAsyncEnumerator IAsyncEnumerable.GetAsyncEnumerator()
@@ -126,12 +125,11 @@ namespace Microsoft.Data.InMemory
             }
         }
 
-        private class CompletedAsyncEnumerator<T> : IAsyncEnumerator<T>
-            where T : class
+        private sealed class CompletedAsyncEnumerator : IAsyncEnumerator<object[]>
         {
-            private readonly IEnumerator<T> _enumerator;
+            private readonly IEnumerator<object[]> _enumerator;
 
-            public CompletedAsyncEnumerator(IEnumerator<T> enumerator)
+            public CompletedAsyncEnumerator(IEnumerator<object[]> enumerator)
             {
                 _enumerator = enumerator;
             }
@@ -141,7 +139,7 @@ namespace Microsoft.Data.InMemory
                 return Task.FromResult(_enumerator.MoveNext());
             }
 
-            public T Current
+            public object[] Current
             {
                 get { return _enumerator.Current; }
             }

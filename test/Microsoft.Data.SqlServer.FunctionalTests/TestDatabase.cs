@@ -1,10 +1,13 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Relational;
@@ -15,20 +18,80 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
     {
         public const int CommandTimeout = 1;
 
+        private static readonly HashSet<string> _createdDatabases = new HashSet<string>();
+
+        private static readonly ConcurrentDictionary<string, AsyncLock> _creationLocks
+            = new ConcurrentDictionary<string, AsyncLock>();
+
+        private static int _scratchCount;
+
+        /// <summary>
+        ///     A transactional test database, pre-populated with Northwind schema/data
+        /// </summary>
+        public static Task<TestDatabase> Northwind()
+        {
+            return new TestDatabase()
+                .CreateShared(name: "Northwind", scriptPath: @"..\..\..\Northwind.sql");
+        }
+
+        /// <summary>
+        ///     The default empty transactional test database.
+        /// </summary>
+        public static Task<TestDatabase> Default()
+        {
+            return new TestDatabase()
+                .CreateShared(name: "Microsoft.Data.SqlServer.FunctionalTest");
+        }
+
+        /// <summary>
+        ///     A non-transactional, transient, isolated test database. Use this in the case
+        ///     where transactions are not appropriate.
+        /// </summary>
+        public static Task<TestDatabase> Scratch()
+        {
+            return new TestDatabase()
+                .CreateScratch(name: "Microsoft.Data.SqlServer.Scratch_" + Interlocked.Increment(ref _scratchCount));
+        }
+
         private SqlConnection _connection;
         private SqlTransaction _transaction;
-
-        public static Task<TestDatabase> Create(string name = "Microsoft.Data.SqlServer.FunctionalTest", bool transactional = true)
-        {
-            return new TestDatabase().CreateInternal(name, transactional);
-        }
 
         private TestDatabase()
         {
             // Use async static factory method
         }
 
-        private async Task<TestDatabase> CreateInternal(string name, bool transactional)
+        private async Task<TestDatabase> CreateShared(string name, string scriptPath = null)
+        {
+            if (!_createdDatabases.Contains(name))
+            {
+                var asyncLock
+                    = _creationLocks.GetOrAdd(name, new AsyncLock());
+
+                using (await asyncLock.LockAsync())
+                {
+                    if (!_createdDatabases.Contains(name))
+                    {
+                        await CreateDatabaseIfNotExists(name, scriptPath);
+
+                        _createdDatabases.Add(name);
+
+                        AsyncLock _;
+                        _creationLocks.TryRemove(name, out _);
+                    }
+                }
+            }
+
+            _connection = new SqlConnection(CreateConnectionString(name));
+
+            await _connection.OpenAsync();
+
+            _transaction = _connection.BeginTransaction();
+
+            return this;
+        }
+
+        private static async Task CreateDatabaseIfNotExists(string name, string scriptPath)
         {
             using (var master = new SqlConnection(CreateConnectionString("master")))
             {
@@ -38,8 +101,61 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                 {
                     command.CommandTimeout = CommandTimeout;
                     command.CommandText
-                        = string.Format(@"IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = N'{0}')
-                                            CREATE DATABASE [{0}]", name);
+                        = string.Format(@"SELECT COUNT(*) FROM sys.databases WHERE name = N'{0}'", name);
+
+                    var exists = (int)await command.ExecuteScalarAsync() > 0;
+
+                    if (!exists)
+                    {
+                        if (scriptPath == null)
+                        {
+                            command.CommandText = string.Format(@"CREATE DATABASE [{0}]", name);
+
+                            await command.ExecuteNonQueryAsync();
+                        }
+                        else
+                        {
+                            // HACK: Probe for script file as current dir
+                            // is different between k build and VS run.
+
+                            if (!File.Exists(scriptPath))
+                            {
+                                scriptPath
+                                    = Path.Combine(
+                                        @"..\..\..\..\..\test\Microsoft.Data.SqlServer.FunctionalTests",
+                                        Path.GetFileName(scriptPath));
+                            }
+
+                            var script = File.ReadAllText(scriptPath);
+
+                            foreach (var batch 
+                                in new Regex("^GO", RegexOptions.IgnoreCase | RegexOptions.Multiline)
+                                    .Split(script))
+                            {
+                                command.CommandText = batch;
+
+                                await command.ExecuteNonQueryAsync();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private async Task<TestDatabase> CreateScratch(string name)
+        {
+            using (var master = new SqlConnection(CreateConnectionString("master")))
+            {
+                await master.OpenAsync();
+
+                using (var command = master.CreateCommand())
+                {
+                    command.CommandTimeout = CommandTimeout;
+
+                    command.CommandText
+                        = string.Format(@"IF EXISTS (SELECT * FROM sys.databases WHERE name = N'{0}')
+                                            DROP DATABASE [{0}]
+                                          CREATE DATABASE [{0}]", name);
 
                     await command.ExecuteNonQueryAsync();
                 }
@@ -48,11 +164,6 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
             _connection = new SqlConnection(CreateConnectionString(name));
 
             await _connection.OpenAsync();
-
-            if (transactional)
-            {
-                _transaction = _connection.BeginTransaction();
-            }
 
             return this;
         }
@@ -116,7 +227,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
             return command;
         }
 
-        public void Dispose()
+        void IDisposable.Dispose()
         {
             if (_transaction != null)
             {
@@ -132,8 +243,49 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                 {
                     DataSource = @"(localdb)\v11.0",
                     InitialCatalog = name,
-                    IntegratedSecurity = true
+                    IntegratedSecurity = true,
+                    ConnectTimeout = CommandTimeout
                 }.ConnectionString;
+        }
+
+        private sealed class AsyncLock
+        {
+            private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
+            private readonly Task<IDisposable> _releaser;
+
+            public AsyncLock()
+            {
+                _releaser = Task.FromResult<IDisposable>(new Releaser(this));
+            }
+
+            public Task<IDisposable> LockAsync()
+            {
+                var waitTask = _semaphore.WaitAsync();
+
+                return waitTask.IsCompleted
+                    ? _releaser
+                    : waitTask.ContinueWith(
+                        (_, state) => (IDisposable)state,
+                        _releaser.Result,
+                        CancellationToken.None,
+                        TaskContinuationOptions.ExecuteSynchronously,
+                        TaskScheduler.Default);
+            }
+
+            private sealed class Releaser : IDisposable
+            {
+                private readonly AsyncLock _asyncLock;
+
+                public Releaser(AsyncLock asyncLock)
+                {
+                    _asyncLock = asyncLock;
+                }
+
+                public void Dispose()
+                {
+                    _asyncLock._semaphore.Release();
+                }
+            }
         }
     }
 }

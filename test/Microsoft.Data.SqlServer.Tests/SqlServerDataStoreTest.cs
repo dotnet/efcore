@@ -7,11 +7,11 @@ namespace Microsoft.Data.SqlServer.Tests
     public class SqlServerDataStoreTest
     {
         [Fact]
-        public void Can_initialize_with_name_or_connection_string()
+        public void Can_initialize_with_connection_string()
         {
             var sqlServerDataStore = new SqlServerDataStore("Foo");
 
-            Assert.Equal("Foo", sqlServerDataStore.NameOrConnectionString);
+            Assert.Equal("Foo", sqlServerDataStore.ConnectionString);
         }
     }
 }
