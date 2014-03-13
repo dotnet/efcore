@@ -1,28 +1,17 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Compiled
 {
-    public class CompiledPropertyNoAnnotations<TEntity, TProperty>
+    public class CompiledPropertyNoAnnotations<TProperty> : NoAnnotations
     {
-        public IReadOnlyList<IAnnotation> Annotations
-        {
-            get { return ImmutableList<Annotation>.Empty; }
-        }
+        private readonly IEntityType _entityType;
 
-        public string this[[NotNull] string annotationName]
+        protected CompiledPropertyNoAnnotations(IEntityType entityType)
         {
-            get
-            {
-                Check.NotEmpty(annotationName, "annotationName");
-
-                return null;
-            }
+            _entityType = entityType;
         }
 
         public Type PropertyType
@@ -42,25 +31,11 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 
         public IEntityType EntityType
         {
-            // TODO
-            get { return null; }
-        }
-
-        public int Index
-        {
-            // TODO
-            get { return 0; }
-        }
-
-        public int ShadowIndex
-        {
-            // TODO
-            get { return -1; }
+            get { return _entityType; }
         }
 
         public bool HasClrProperty
         {
-            // TODO
             get { return true; }
         }
     }
