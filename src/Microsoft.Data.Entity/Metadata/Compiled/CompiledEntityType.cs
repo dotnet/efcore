@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using JetBrains.Annotations;
@@ -11,8 +10,16 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 {
     public abstract class CompiledEntityType<TEntity> : CompiledMetadataBase
     {
+        private readonly IModel _model;
         private IProperty[] _keys;
         private IProperty[] _properties;
+        private IForeignKey[] _foreignKeys;
+        private INavigation[] _navigations;
+
+        protected CompiledEntityType(IModel model)
+        {
+            _model = model;
+        }
 
         public IProperty TryGetProperty([NotNull] string name)
         {
@@ -37,6 +44,16 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
         protected abstract int[] LoadKey();
         protected abstract IProperty[] LoadProperties();
 
+        protected virtual IForeignKey[] LoadForeignKeys()
+        {
+            return Empty.ForeignKeys;
+        }
+
+        protected virtual INavigation[] LoadNavigations()
+        {
+            return Empty.Navigations;
+        }
+
         public IReadOnlyList<IProperty> Key
         {
             get { return LazyInitializer.EnsureInitialized(ref _keys, BuildKey); }
@@ -44,14 +61,12 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 
         public IReadOnlyList<IForeignKey> ForeignKeys
         {
-            // TODO: Implement FKs in the compiled model
-            get { return ImmutableList<IForeignKey>.Empty; }
+            get { return LazyInitializer.EnsureInitialized(ref _foreignKeys, LoadForeignKeys); }
         }
 
         public IReadOnlyList<INavigation> Navigations
         {
-            // TODO: Implement navigations in the compiled model
-            get { return ImmutableList<INavigation>.Empty; }
+            get { return LazyInitializer.EnsureInitialized(ref _navigations, LoadNavigations); }
         }
 
         public IReadOnlyList<IProperty> Properties
@@ -72,19 +87,22 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 
         public int ShadowPropertyCount
         {
-            // TODO: Implement
             get { return 0; }
         }
 
         public bool HasClrType
         {
-            // TODO: Implement
             get { return true; }
         }
 
         public object CreateInstance([NotNull] object[] values)
         {
             return null;
+        }
+
+        public IModel Model
+        {
+            get { return _model; }
         }
     }
 }

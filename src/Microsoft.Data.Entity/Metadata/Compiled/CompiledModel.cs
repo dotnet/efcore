@@ -24,14 +24,12 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 
         public IEntityType TryGetEntityType([NotNull] string name)
         {
-            // TODO
-            return EntityTypes.FirstOrDefault(e => e.Type.Name == name);
+            return EntityTypes.FirstOrDefault(e => e.Name == name);
         }
 
         public IEntityType GetEntityType([NotNull] string name)
         {
-            // TODO
-            return EntityTypes.First(e => e.Type.Name == name);
+            return EntityTypes.First(e => e.Name == name);
         }
 
         protected abstract IEntityType[] LoadEntityTypes();
