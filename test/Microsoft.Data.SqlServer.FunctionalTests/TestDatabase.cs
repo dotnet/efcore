@@ -31,7 +31,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
         public static Task<TestDatabase> Northwind()
         {
             return new TestDatabase()
-                .CreateShared(name: "Northwind", scriptPath: @"..\..\..\Northwind.sql");
+                .CreateShared(name: "Northwind", scriptPath: @"..\..\..\Northwind.sql"); // relative from bin/<config>
         }
 
         /// <summary>
@@ -120,10 +120,12 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
 
                             if (!File.Exists(scriptPath))
                             {
-                                scriptPath
-                                    = Path.Combine(
-                                        @"..\..\..\..\..\test\Microsoft.Data.SqlServer.FunctionalTests",
-                                        Path.GetFileName(scriptPath));
+                                var kAppBase = Environment.GetEnvironmentVariable("k_appbase");
+
+                                if (kAppBase != null)
+                                {
+                                    scriptPath = Path.Combine(kAppBase, Path.GetFileName(scriptPath));
+                                }
                             }
 
                             var script = File.ReadAllText(scriptPath);
