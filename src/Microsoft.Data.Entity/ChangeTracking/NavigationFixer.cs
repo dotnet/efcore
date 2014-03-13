@@ -28,7 +28,11 @@ namespace Microsoft.Data.Entity.ChangeTracking
             // Handle case where the new entity is the dependent
             foreach (var foreignKey in entry.EntityType.ForeignKeys)
             {
-                DoFixup(stateManager, foreignKey, stateManager.GetPrincipal(entry, foreignKey), new[] { entry });
+                var principalEntry = stateManager.GetPrincipal(entry, foreignKey);
+                if (principalEntry != null)
+                {
+                    DoFixup(stateManager, foreignKey, principalEntry, new[] { entry });
+                }
             }
 
             // Handle case where the new entity is the principal

@@ -5,8 +5,15 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Compiled
 {
-    public abstract class CompiledProperty<TEntity, TProperty> : CompiledMetadataBase
+    public abstract class CompiledProperty<TProperty> : CompiledMetadataBase
     {
+        private readonly IEntityType _entityType;
+
+        protected CompiledProperty(IEntityType entityType)
+        {
+            _entityType = entityType;
+        }
+
         public Type PropertyType
         {
             get { return typeof(TProperty); }
@@ -24,25 +31,11 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 
         public IEntityType EntityType
         {
-            // TODO
-            get { return null; }
-        }
-
-        public int Index
-        {
-            // TODO
-            get { return 0; }
-        }
-
-        public int ShadowIndex
-        {
-            // TODO
-            get { return -1; }
+            get { return _entityType; }
         }
 
         public bool HasClrProperty
         {
-            // TODO
             get { return true; }
         }
     }

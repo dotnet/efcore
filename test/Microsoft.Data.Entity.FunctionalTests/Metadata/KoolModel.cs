@@ -1,277 +1,225 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Compiled;
 
 namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 {
-    public class KoolEntityBase
+    public class KoolEntity1                                      // 0
+    {
+        public KoolEntity1()
+        {
+            NavTo2s = new List<KoolEntity2>();
+        }
+
+        public int Id1 { get; set; }                              // 2 ****
+        public Guid Id2 { get; set; }                             // 3 ****
+
+        public string Foo1 { get; set; }                          // 0 ****
+        public Guid Goo1 { get; set; }                            // 1 ****
+
+        public int KoolEntity2Id { get; set; }                    // 4 **** FK1 D:0.4 P:11.2
+        public KoolEntity2 NavTo2 { get; set; }                   // 0 **** Nav1 E:0 F:0.0
+
+        public ICollection<KoolEntity2> NavTo2s { get; set; }     // 1 **** Nav2 E:0 F:11.0
+    }
+
+    public class KoolEntity2                                      // 11
+    {
+        public KoolEntity2()
+        {
+            NavTo1s = new List<KoolEntity1>();
+        }
+
+        public int Id { get; set; }                               // 2 ****
+        public string Foo2 { get; set; }                          // 0 ****
+        public Guid Goo2 { get; set; }                            // 1 ****
+
+        public int KoolEntity1Id1 { get; set; }                   // 3 **** FK1 D:11.3/4 P:0.2/3
+        public Guid KoolEntity1Id2 { get; set; }                  // 4 **** FK1
+        public KoolEntity1 NavTo1 { get; set; }                   // 0 **** Nav1 E:11 F:11.0
+
+        public int KoolEntity3Id { get; set; }                    // 5 **** FK2 D:11.5 P:13.2
+        public KoolEntity3 NavTo3 { get; set; }                   // 1 **** Nav3 E:11 F:11.1
+
+        public ICollection<KoolEntity1> NavTo1s { get; set; }     // 2 **** Nav2 E:11 F:0.0
+    }
+
+    public class KoolEntity3                                      // 13
+    {
+        public KoolEntity3()
+        {
+            NavTo2s = new List<KoolEntity2>();
+        }
+
+        public int Id { get; set; }                               // 2 ****
+        public string Foo3 { get; set; }                          // 0 ****
+        public Guid Goo3 { get; set; }                            // 1 ****
+
+        public int KoolEntity4Id { get; set; }                    // 3 **** FK1 D:13.3 P14.2
+        public KoolEntity4 NavTo4 { get; set; }                   // 1 **** Nav2 E:13 F:13.0
+
+        public ICollection<KoolEntity2> NavTo2s { get; set; }     // 0 **** Nav1 E:13 F:11.1
+    }
+
+    public class KoolEntity4                                      // 14
+    {
+        public KoolEntity4()
+        {
+            NavTo3s = new List<KoolEntity3>();
+        }
+
+        public int Id { get; set; }                               // 2 ****
+        public string Foo4 { get; set; }                          // 0 ****
+        public Guid Goo4 { get; set; }                            // 1 ****
+
+        public ICollection<KoolEntity3> NavTo3s { get; set; }     // 0 **** Nav1 E:14 F:13.0
+    }
+
+    public class KoolEntity5
     {
         public int Id { get; set; }
-        public string Foo { get; set; }
-        public Guid Goo { get; set; }
+        public string Foo5 { get; set; }
+        public Guid Goo5 { get; set; }
     }
 
-    public class KoolEntity1 : KoolEntityBase
+    public class KoolEntity6
     {
+        public int Id { get; set; }
+        public string Foo6 { get; set; }
+        public Guid Goo6 { get; set; }
     }
 
-    public class KoolEntity2 : KoolEntityBase
+    public class KoolEntity7
     {
+        public int Id { get; set; }
+        public string Foo7 { get; set; }
+        public Guid Goo7 { get; set; }
     }
 
-    public class KoolEntity3 : KoolEntityBase
+    public class KoolEntity8
     {
+        public int Id { get; set; }
+        public string Foo8 { get; set; }
+        public Guid Goo8 { get; set; }
     }
 
-    public class KoolEntity4 : KoolEntityBase
+    public class KoolEntity9
     {
+        public int Id { get; set; }
+        public string Foo9 { get; set; }
+        public Guid Goo9 { get; set; }
     }
 
-    public class KoolEntity5 : KoolEntityBase
+    public class KoolEntity10
     {
+        public int Id { get; set; }
+        public string Foo10 { get; set; }
+        public Guid Goo10 { get; set; }
     }
 
-    public class KoolEntity6 : KoolEntityBase
+    public class KoolEntity11
     {
+        public int Id { get; set; }
+        public string Foo11 { get; set; }
+        public Guid Goo11 { get; set; }
     }
 
-    public class KoolEntity7 : KoolEntityBase
+    public class KoolEntity12
     {
+        public int Id { get; set; }
+        public string Foo12 { get; set; }
+        public Guid Goo12 { get; set; }
     }
 
-    public class KoolEntity8 : KoolEntityBase
+    public class KoolEntity13
     {
+        public int Id { get; set; }
+        public string Foo13 { get; set; }
+        public Guid Goo13 { get; set; }
     }
 
-    public class KoolEntity9 : KoolEntityBase
+    public class KoolEntity14
     {
+        public int Id { get; set; }
+        public string Foo14 { get; set; }
+        public Guid Goo14 { get; set; }
     }
 
-    public class KoolEntity10 : KoolEntityBase
+    public class KoolEntity15
     {
+        public int Id { get; set; }
+        public string Foo15 { get; set; }
+        public Guid Goo15 { get; set; }
     }
 
-    public class KoolEntity11 : KoolEntityBase
+    public class KoolEntity16
     {
+        public int Id { get; set; }
+        public string Foo16 { get; set; }
+        public Guid Goo16 { get; set; }
     }
 
-    public class KoolEntity12 : KoolEntityBase
+    public class KoolEntity17
     {
+        public int Id { get; set; }
+        public string Foo17 { get; set; }
+        public Guid Goo17 { get; set; }
     }
 
-    public class KoolEntity13 : KoolEntityBase
+    public class KoolEntity18
     {
+        public int Id { get; set; }
+        public string Foo18 { get; set; }
+        public Guid Goo18 { get; set; }
     }
 
-    public class KoolEntity14 : KoolEntityBase
+    public class KoolEntity19
     {
+        public int Id { get; set; }
+        public string Foo19 { get; set; }
+        public Guid Goo19 { get; set; }
     }
 
-    public class KoolEntity15 : KoolEntityBase
+    public class KoolEntity20
     {
-    }
-
-    public class KoolEntity16 : KoolEntityBase
-    {
-    }
-
-    public class KoolEntity17 : KoolEntityBase
-    {
-    }
-
-    public class KoolEntity18 : KoolEntityBase
-    {
-    }
-
-    public class KoolEntity19 : KoolEntityBase
-    {
-    }
-
-    public class KoolEntity20 : KoolEntityBase
-    {
-    }
-
-    public class KoolEntity21 : KoolEntityBase
-    {
-    }
-
-    public class KoolEntity22 : KoolEntityBase
-    {
-    }
-
-    public class KoolEntity23 : KoolEntityBase
-    {
-    }
-
-    public class KoolEntity24 : KoolEntityBase
-    {
-    }
-
-    public class KoolEntity25 : KoolEntityBase
-    {
-    }
-
-    public class KoolEntity26 : KoolEntityBase
-    {
-    }
-
-    public class KoolEntity27 : KoolEntityBase
-    {
-    }
-
-    public class KoolEntity28 : KoolEntityBase
-    {
-    }
-
-    public class KoolEntity29 : KoolEntityBase
-    {
-    }
-
-    public class KoolEntity30 : KoolEntityBase
-    {
-    }
-
-    public class KoolEntity31 : KoolEntityBase
-    {
-    }
-
-    public class KoolEntity32 : KoolEntityBase
-    {
-    }
-
-    public class KoolEntity33 : KoolEntityBase
-    {
-    }
-
-    public class KoolEntity34 : KoolEntityBase
-    {
-    }
-
-    public class KoolEntity35 : KoolEntityBase
-    {
-    }
-
-    public class KoolEntity36 : KoolEntityBase
-    {
-    }
-
-    public class KoolEntity37 : KoolEntityBase
-    {
-    }
-
-    public class KoolEntity38 : KoolEntityBase
-    {
-    }
-
-    public class KoolEntity39 : KoolEntityBase
-    {
-    }
-
-    public class KoolEntity40 : KoolEntityBase
-    {
-    }
-
-    public class KoolEntity41 : KoolEntityBase
-    {
-    }
-
-    public class KoolEntity42 : KoolEntityBase
-    {
-    }
-
-    public class KoolEntity43 : KoolEntityBase
-    {
-    }
-
-    public class KoolEntity44 : KoolEntityBase
-    {
-    }
-
-    public class KoolEntity45 : KoolEntityBase
-    {
-    }
-
-    public class KoolEntity46 : KoolEntityBase
-    {
-    }
-
-    public class KoolEntity47 : KoolEntityBase
-    {
-    }
-
-    public class KoolEntity48 : KoolEntityBase
-    {
-    }
-
-    public class KoolEntity49 : KoolEntityBase
-    {
-    }
-
-    public class KoolEntity50 : KoolEntityBase
-    {
+        public int Id { get; set; }
+        public string Foo20 { get; set; }
+        public Guid Goo20 { get; set; }
     }
 
     // Proposed generated code below
-// ReSharper disable InconsistentNaming
+    // ReSharper disable InconsistentNaming
+
     public class _OneTwoThreeContextModel : CompiledModel, IModel
     {
         protected override IEntityType[] LoadEntityTypes()
         {
             return new IEntityType[]
                 {
-                    new _KoolEntity1EntityType(),
-                    new _KoolEntity10EntityType(),
-                    new _KoolEntity11EntityType(),
-                    new _KoolEntity12EntityType(),
-                    new _KoolEntity13EntityType(),
-                    new _KoolEntity14EntityType(),
-                    new _KoolEntity15EntityType(),
-                    new _KoolEntity16EntityType(),
-                    new _KoolEntity17EntityType(),
-                    new _KoolEntity18EntityType(),
-                    new _KoolEntity19EntityType(),
-                    new _KoolEntity2EntityType(),
-                    new _KoolEntity20EntityType(),
-                    new _KoolEntity21EntityType(),
-                    new _KoolEntity22EntityType(),
-                    new _KoolEntity23EntityType(),
-                    new _KoolEntity24EntityType(),
-                    new _KoolEntity25EntityType(),
-                    new _KoolEntity26EntityType(),
-                    new _KoolEntity27EntityType(),
-                    new _KoolEntity28EntityType(),
-                    new _KoolEntity29EntityType(),
-                    new _KoolEntity3EntityType(),
-                    new _KoolEntity30EntityType(),
-                    new _KoolEntity31EntityType(),
-                    new _KoolEntity32EntityType(),
-                    new _KoolEntity33EntityType(),
-                    new _KoolEntity34EntityType(),
-                    new _KoolEntity35EntityType(),
-                    new _KoolEntity36EntityType(),
-                    new _KoolEntity37EntityType(),
-                    new _KoolEntity38EntityType(),
-                    new _KoolEntity39EntityType(),
-                    new _KoolEntity4EntityType(),
-                    new _KoolEntity40EntityType(),
-                    new _KoolEntity41EntityType(),
-                    new _KoolEntity42EntityType(),
-                    new _KoolEntity43EntityType(),
-                    new _KoolEntity44EntityType(),
-                    new _KoolEntity45EntityType(),
-                    new _KoolEntity46EntityType(),
-                    new _KoolEntity47EntityType(),
-                    new _KoolEntity48EntityType(),
-                    new _KoolEntity49EntityType(),
-                    new _KoolEntity5EntityType(),
-                    new _KoolEntity50EntityType(),
-                    new _KoolEntity6EntityType(),
-                    new _KoolEntity7EntityType(),
-                    new _KoolEntity8EntityType(),
-                    new _KoolEntity9EntityType()
+                    new _KoolEntity1EntityType(this),
+                    new _KoolEntity10EntityType(this),
+                    new _KoolEntity11EntityType(this),
+                    new _KoolEntity12EntityType(this),
+                    new _KoolEntity13EntityType(this),
+                    new _KoolEntity14EntityType(this),
+                    new _KoolEntity15EntityType(this),
+                    new _KoolEntity16EntityType(this),
+                    new _KoolEntity17EntityType(this),
+                    new _KoolEntity18EntityType(this),
+                    new _KoolEntity19EntityType(this),
+                    new _KoolEntity2EntityType(this),
+                    new _KoolEntity20EntityType(this),
+                    new _KoolEntity3EntityType(this),
+                    new _KoolEntity4EntityType(this),
+                    new _KoolEntity5EntityType(this),
+                    new _KoolEntity6EntityType(this),
+                    new _KoolEntity7EntityType(this),
+                    new _KoolEntity8EntityType(this),
+                    new _KoolEntity9EntityType(this)
                 };
         }
 
@@ -285,6 +233,11 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
     public class _KoolEntity1EntityType : CompiledEntityType<KoolEntity1>, IEntityType
     {
+        public _KoolEntity1EntityType(IModel model)
+            : base(model)
+        {
+        }
+
         public string Name
         {
             get { return "KoolEntity1"; }
@@ -302,7 +255,24 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         protected override IProperty[] LoadProperties()
         {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+            return new IProperty[]
+                {
+                    new _KoolEntity1Foo1Property(this), 
+                    new _KoolEntity1Goo1Property(this), 
+                    new _KoolEntity1Id1Property(this),
+                    new _KoolEntity1Id2Property(this),
+                    new _KoolEntity1KoolEntity2IdProperty(this)
+                };
+        }
+
+        protected override IForeignKey[] LoadForeignKeys()
+        {
+            return new IForeignKey[] { new _KoolEntity1Fk1(Model) };
+        }
+
+        protected override INavigation[] LoadNavigations()
+        {
+            return new INavigation[] { new _KoolEntity1NavTo2(Model), new _KoolEntity1NavTo2s(Model) };
         }
 
         protected override IAnnotation[] LoadAnnotations()
@@ -315,6 +285,11 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
     public class _KoolEntity2EntityType : CompiledEntityType<KoolEntity2>, IEntityType
     {
+        public _KoolEntity2EntityType(IModel model)
+            : base(model)
+        {
+        }
+
         public string Name
         {
             get { return "KoolEntity2"; }
@@ -332,7 +307,25 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         protected override IProperty[] LoadProperties()
         {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+            return new IProperty[]
+                {
+                    new _KoolEntity2Foo2Property(this), 
+                    new _KoolEntity2Goo2Property(this), 
+                    new _KoolEntity2IdProperty(this),
+                    new _KoolEntity2KoolEntity1Id1Property(this), 
+                    new _KoolEntity2KoolEntity1Id2operty(this), 
+                    new _KoolEntity2KoolEntity3IdProperty(this)
+                };
+        }
+
+        protected override IForeignKey[] LoadForeignKeys()
+        {
+            return new IForeignKey[] { new _KoolEntity2Fk1(Model), new _KoolEntity2Fk2(Model) };
+        }
+
+        protected override INavigation[] LoadNavigations()
+        {
+            return new INavigation[] { new _KoolEntity2NavTo1(Model), new _KoolEntity2NavTo1s(Model), new _KoolEntity2NavTo3(Model) };
         }
 
         protected override IAnnotation[] LoadAnnotations()
@@ -343,9 +336,13 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         }
     }
 
-    public class _KoolEntity3EntityType
-        : CompiledEntityType<KoolEntity3>, IEntityType
+    public class _KoolEntity3EntityType : CompiledEntityType<KoolEntity3>, IEntityType
     {
+        public _KoolEntity3EntityType(IModel model)
+            : base(model)
+        {
+        }
+
         public string Name
         {
             get { return "KoolEntity3"; }
@@ -363,7 +360,23 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         protected override IProperty[] LoadProperties()
         {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+            return new IProperty[]
+                {
+                    new _KoolEntity3Foo3Property(this), 
+                    new _KoolEntity3Goo3Property(this), 
+                    new _KoolEntity3IdProperty(this),
+                    new _KoolEntity3KoolEntity4IdProperty(this)
+                };
+        }
+
+        protected override IForeignKey[] LoadForeignKeys()
+        {
+            return new IForeignKey[] { new _KoolEntity3Fk1(Model) };
+        }
+
+        protected override INavigation[] LoadNavigations()
+        {
+            return new INavigation[] { new _KoolEntity3NavTo2s(Model), new _KoolEntity3NavTo4(Model) };
         }
 
         protected override IAnnotation[] LoadAnnotations()
@@ -374,9 +387,13 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         }
     }
 
-    public class _KoolEntity4EntityType
-        : CompiledEntityType<KoolEntity4>, IEntityType
+    public class _KoolEntity4EntityType : CompiledEntityType<KoolEntity4>, IEntityType
     {
+        public _KoolEntity4EntityType(IModel model)
+            : base(model)
+        {
+        }
+
         public string Name
         {
             get { return "KoolEntity4"; }
@@ -394,7 +411,12 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         protected override IProperty[] LoadProperties()
         {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+            return new IProperty[] { new _KoolEntity4Foo4Property(this), new _KoolEntity4Goo4Property(this), new _KoolEntity4IdProperty(this) };
+        }
+
+        protected override INavigation[] LoadNavigations()
+        {
+            return new INavigation[] { new _KoolEntity4NavTo3s(Model) };
         }
 
         protected override IAnnotation[] LoadAnnotations()
@@ -405,9 +427,13 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         }
     }
 
-    public class _KoolEntity5EntityType
-        : CompiledEntityType<KoolEntity5>, IEntityType
+    public class _KoolEntity5EntityType : CompiledEntityType<KoolEntity5>, IEntityType
     {
+        public _KoolEntity5EntityType(IModel model)
+            : base(model)
+        {
+        }
+
         public string Name
         {
             get { return "KoolEntity5"; }
@@ -425,7 +451,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         protected override IProperty[] LoadProperties()
         {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+            return new IProperty[] { new _KoolEntity5Foo5Property(this), new _KoolEntity5Goo5Property(this), new _KoolEntity5IdProperty(this) };
         }
 
         protected override IAnnotation[] LoadAnnotations()
@@ -436,9 +462,13 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         }
     }
 
-    public class _KoolEntity6EntityType
-        : CompiledEntityType<KoolEntity6>, IEntityType
+    public class _KoolEntity6EntityType : CompiledEntityType<KoolEntity6>, IEntityType
     {
+        public _KoolEntity6EntityType(IModel model)
+            : base(model)
+        {
+        }
+
         public string Name
         {
             get { return "KoolEntity6"; }
@@ -456,7 +486,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         protected override IProperty[] LoadProperties()
         {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+            return new IProperty[] { new _KoolEntity6Foo6Property(this), new _KoolEntity6Goo6Property(this), new _KoolEntity6IdProperty(this) };
         }
 
         protected override IAnnotation[] LoadAnnotations()
@@ -467,9 +497,13 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         }
     }
 
-    public class _KoolEntity7EntityType
-        : CompiledEntityType<KoolEntity7>, IEntityType
+    public class _KoolEntity7EntityType : CompiledEntityType<KoolEntity7>, IEntityType
     {
+        public _KoolEntity7EntityType(IModel model)
+            : base(model)
+        {
+        }
+
         public string Name
         {
             get { return "KoolEntity7"; }
@@ -487,7 +521,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         protected override IProperty[] LoadProperties()
         {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+            return new IProperty[] { new _KoolEntity7Foo7Property(this), new _KoolEntity7Goo7Property(this), new _KoolEntity7IdProperty(this) };
         }
 
         protected override IAnnotation[] LoadAnnotations()
@@ -498,9 +532,13 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         }
     }
 
-    public class _KoolEntity8EntityType
-        : CompiledEntityType<KoolEntity8>, IEntityType
+    public class _KoolEntity8EntityType : CompiledEntityType<KoolEntity8>, IEntityType
     {
+        public _KoolEntity8EntityType(IModel model)
+            : base(model)
+        {
+        }
+
         public string Name
         {
             get { return "KoolEntity8"; }
@@ -518,7 +556,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         protected override IProperty[] LoadProperties()
         {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+            return new IProperty[] { new _KoolEntity8Foo8Property(this), new _KoolEntity8Goo8Property(this), new _KoolEntity8IdProperty(this) };
         }
 
         protected override IAnnotation[] LoadAnnotations()
@@ -529,9 +567,13 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         }
     }
 
-    public class _KoolEntity9EntityType
-        : CompiledEntityType<KoolEntity9>, IEntityType
+    public class _KoolEntity9EntityType : CompiledEntityType<KoolEntity9>, IEntityType
     {
+        public _KoolEntity9EntityType(IModel model)
+            : base(model)
+        {
+        }
+
         public string Name
         {
             get { return "KoolEntity9"; }
@@ -549,7 +591,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         protected override IProperty[] LoadProperties()
         {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+            return new IProperty[] { new _KoolEntity9Foo9Property(this), new _KoolEntity9Goo9Property(this), new _KoolEntity9IdProperty(this) };
         }
 
         protected override IAnnotation[] LoadAnnotations()
@@ -560,9 +602,13 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         }
     }
 
-    public class _KoolEntity10EntityType
-        : CompiledEntityType<KoolEntity10>, IEntityType
+    public class _KoolEntity10EntityType : CompiledEntityType<KoolEntity10>, IEntityType
     {
+        public _KoolEntity10EntityType(IModel model)
+            : base(model)
+        {
+        }
+
         public string Name
         {
             get { return "KoolEntity10"; }
@@ -580,7 +626,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         protected override IProperty[] LoadProperties()
         {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+            return new IProperty[] { new _KoolEntity10Foo10Property(this), new _KoolEntity10Goo10Property(this), new _KoolEntity10IdProperty(this) };
         }
 
         protected override IAnnotation[] LoadAnnotations()
@@ -591,9 +637,13 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         }
     }
 
-    public class _KoolEntity11EntityType
-        : CompiledEntityType<KoolEntity11>, IEntityType
+    public class _KoolEntity11EntityType : CompiledEntityType<KoolEntity11>, IEntityType
     {
+        public _KoolEntity11EntityType(IModel model)
+            : base(model)
+        {
+        }
+
         public string Name
         {
             get { return "KoolEntity11"; }
@@ -611,7 +661,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         protected override IProperty[] LoadProperties()
         {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+            return new IProperty[] { new _KoolEntity11Foo11Property(this), new _KoolEntity11Goo11Property(this), new _KoolEntity11IdProperty(this) };
         }
 
         protected override IAnnotation[] LoadAnnotations()
@@ -622,9 +672,13 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         }
     }
 
-    public class _KoolEntity12EntityType
-        : CompiledEntityType<KoolEntity12>, IEntityType
+    public class _KoolEntity12EntityType : CompiledEntityType<KoolEntity12>, IEntityType
     {
+        public _KoolEntity12EntityType(IModel model)
+            : base(model)
+        {
+        }
+
         public string Name
         {
             get { return "KoolEntity12"; }
@@ -642,7 +696,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         protected override IProperty[] LoadProperties()
         {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+            return new IProperty[] { new _KoolEntity12Foo12Property(this), new _KoolEntity12Goo12Property(this), new _KoolEntity12IdProperty(this) };
         }
 
         protected override IAnnotation[] LoadAnnotations()
@@ -653,9 +707,13 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         }
     }
 
-    public class _KoolEntity13EntityType
-        : CompiledEntityType<KoolEntity13>, IEntityType
+    public class _KoolEntity13EntityType : CompiledEntityType<KoolEntity13>, IEntityType
     {
+        public _KoolEntity13EntityType(IModel model)
+            : base(model)
+        {
+        }
+
         public string Name
         {
             get { return "KoolEntity13"; }
@@ -673,7 +731,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         protected override IProperty[] LoadProperties()
         {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+            return new IProperty[] { new _KoolEntity13Foo13Property(this), new _KoolEntity13Goo13Property(this), new _KoolEntity13IdProperty(this) };
         }
 
         protected override IAnnotation[] LoadAnnotations()
@@ -684,9 +742,13 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         }
     }
 
-    public class _KoolEntity14EntityType
-        : CompiledEntityType<KoolEntity14>, IEntityType
+    public class _KoolEntity14EntityType : CompiledEntityType<KoolEntity14>, IEntityType
     {
+        public _KoolEntity14EntityType(IModel model)
+            : base(model)
+        {
+        }
+
         public string Name
         {
             get { return "KoolEntity14"; }
@@ -704,7 +766,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         protected override IProperty[] LoadProperties()
         {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+            return new IProperty[] { new _KoolEntity14Foo14Property(this), new _KoolEntity14Goo14Property(this), new _KoolEntity14IdProperty(this) };
         }
 
         protected override IAnnotation[] LoadAnnotations()
@@ -715,9 +777,13 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         }
     }
 
-    public class _KoolEntity15EntityType
-        : CompiledEntityType<KoolEntity15>, IEntityType
+    public class _KoolEntity15EntityType : CompiledEntityType<KoolEntity15>, IEntityType
     {
+        public _KoolEntity15EntityType(IModel model)
+            : base(model)
+        {
+        }
+
         public string Name
         {
             get { return "KoolEntity15"; }
@@ -735,7 +801,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         protected override IProperty[] LoadProperties()
         {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+            return new IProperty[] { new _KoolEntity15Foo15Property(this), new _KoolEntity15Goo15Property(this), new _KoolEntity15IdProperty(this) };
         }
 
         protected override IAnnotation[] LoadAnnotations()
@@ -746,9 +812,13 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         }
     }
 
-    public class _KoolEntity16EntityType
-        : CompiledEntityType<KoolEntity16>, IEntityType
+    public class _KoolEntity16EntityType : CompiledEntityType<KoolEntity16>, IEntityType
     {
+        public _KoolEntity16EntityType(IModel model)
+            : base(model)
+        {
+        }
+
         public string Name
         {
             get { return "KoolEntity16"; }
@@ -766,7 +836,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         protected override IProperty[] LoadProperties()
         {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+            return new IProperty[] { new _KoolEntity16Foo16Property(this), new _KoolEntity16Goo16Property(this), new _KoolEntity16IdProperty(this) };
         }
 
         protected override IAnnotation[] LoadAnnotations()
@@ -777,9 +847,13 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         }
     }
 
-    public class _KoolEntity17EntityType
-        : CompiledEntityType<KoolEntity17>, IEntityType
+    public class _KoolEntity17EntityType : CompiledEntityType<KoolEntity17>, IEntityType
     {
+        public _KoolEntity17EntityType(IModel model)
+            : base(model)
+        {
+        }
+
         public string Name
         {
             get { return "KoolEntity17"; }
@@ -797,7 +871,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         protected override IProperty[] LoadProperties()
         {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+            return new IProperty[] { new _KoolEntity17Foo17Property(this), new _KoolEntity17Goo17Property(this), new _KoolEntity17IdProperty(this) };
         }
 
         protected override IAnnotation[] LoadAnnotations()
@@ -808,9 +882,13 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         }
     }
 
-    public class _KoolEntity18EntityType
-        : CompiledEntityType<KoolEntity18>, IEntityType
+    public class _KoolEntity18EntityType : CompiledEntityType<KoolEntity18>, IEntityType
     {
+        public _KoolEntity18EntityType(IModel model)
+            : base(model)
+        {
+        }
+
         public string Name
         {
             get { return "KoolEntity18"; }
@@ -828,7 +906,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         protected override IProperty[] LoadProperties()
         {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+            return new IProperty[] { new _KoolEntity18Foo18Property(this), new _KoolEntity18Goo18Property(this), new _KoolEntity18IdProperty(this) };
         }
 
         protected override IAnnotation[] LoadAnnotations()
@@ -839,9 +917,13 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         }
     }
 
-    public class _KoolEntity19EntityType
-        : CompiledEntityType<KoolEntity19>, IEntityType
+    public class _KoolEntity19EntityType : CompiledEntityType<KoolEntity19>, IEntityType
     {
+        public _KoolEntity19EntityType(IModel model)
+            : base(model)
+        {
+        }
+
         public string Name
         {
             get { return "KoolEntity19"; }
@@ -859,7 +941,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         protected override IProperty[] LoadProperties()
         {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+            return new IProperty[] { new _KoolEntity19Foo19Property(this), new _KoolEntity19Goo19Property(this), new _KoolEntity19IdProperty(this) };
         }
 
         protected override IAnnotation[] LoadAnnotations()
@@ -870,9 +952,13 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         }
     }
 
-    public class _KoolEntity20EntityType
-        : CompiledEntityType<KoolEntity20>, IEntityType
+    public class _KoolEntity20EntityType : CompiledEntityType<KoolEntity20>, IEntityType
     {
+        public _KoolEntity20EntityType(IModel model)
+            : base(model)
+        {
+        }
+
         public string Name
         {
             get { return "KoolEntity20"; }
@@ -890,7 +976,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         protected override IProperty[] LoadProperties()
         {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+            return new IProperty[] { new _KoolEntity20Foo20Property(this), new _KoolEntity20Goo20Property(this), new _KoolEntity20IdProperty(this) };
         }
 
         protected override IAnnotation[] LoadAnnotations()
@@ -901,943 +987,210 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         }
     }
 
-    public class _KoolEntity21EntityType
-        : CompiledEntityType<KoolEntity21>, IEntityType
+    public class _KoolEntity1Id1Property : CompiledPropertyNoAnnotations<int>, IProperty
     {
+        public _KoolEntity1Id1Property(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
         public string Name
         {
-            get { return "KoolEntity21"; }
+            get { return "Id1"; }
         }
 
         public string StorageName
         {
-            get { return "KoolEntity21Table"; }
+            get { return "MyKey1"; }
         }
 
-        protected override int[] LoadKey()
+        public void SetValue(object instance, object value)
         {
-            return new[] { 2 };
+            ((KoolEntity1)instance).Id1 = (int)value;
         }
 
-        protected override IProperty[] LoadProperties()
+        public object GetValue(object instance)
         {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+            return ((KoolEntity1)instance).Id1;
         }
 
-        protected override IAnnotation[] LoadAnnotations()
+        public int Index
         {
-            return ZipAnnotations(
-                new[] { "Annotation1", "Annotation2" },
-                new[] { "Value1", "Value2" }).ToArray();
+            get { return 2; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
         }
     }
 
-    public class _KoolEntity22EntityType
-        : CompiledEntityType<KoolEntity22>, IEntityType
+    public class _KoolEntity1Id2Property : CompiledPropertyNoAnnotations<Guid>, IProperty
     {
+        public _KoolEntity1Id2Property(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
         public string Name
         {
-            get { return "KoolEntity22"; }
+            get { return "Id2"; }
         }
 
         public string StorageName
         {
-            get { return "KoolEntity22Table"; }
+            get { return "MyKey2"; }
         }
 
-        protected override int[] LoadKey()
+        public void SetValue(object instance, object value)
         {
-            return new[] { 2 };
+            ((KoolEntity1)instance).Id2 = (Guid)value;
         }
 
-        protected override IProperty[] LoadProperties()
+        public object GetValue(object instance)
         {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+            return ((KoolEntity1)instance).Id2;
         }
 
-        protected override IAnnotation[] LoadAnnotations()
+        public int Index
         {
-            return ZipAnnotations(
-                new[] { "Annotation1", "Annotation2" },
-                new[] { "Value1", "Value2" }).ToArray();
+            get { return 3; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
         }
     }
 
-    public class _KoolEntity23EntityType
-        : CompiledEntityType<KoolEntity23>, IEntityType
+    public class _KoolEntity1Foo1Property : CompiledProperty<string>, IProperty
     {
+        public _KoolEntity1Foo1Property(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
         public string Name
         {
-            get { return "KoolEntity23"; }
+            get { return "Foo1"; }
         }
 
         public string StorageName
         {
-            get { return "KoolEntity23Table"; }
+            get { return "Foo1"; }
         }
 
-        protected override int[] LoadKey()
+        public void SetValue(object instance, object value)
         {
-            return new[] { 2 };
+            ((KoolEntity1)instance).Foo1 = (string)value;
         }
 
-        protected override IProperty[] LoadProperties()
+        public object GetValue(object instance)
         {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+            return ((KoolEntity1)instance).Foo1;
         }
 
         protected override IAnnotation[] LoadAnnotations()
         {
             return ZipAnnotations(
-                new[] { "Annotation1", "Annotation2" },
-                new[] { "Value1", "Value2" }).ToArray();
+                new[] { "Foo1Annotation1", "Foo1Annotation2" },
+                new[] { "Foo1Value1", "Foo1Value2" }).ToArray();
+        }
+
+        public int Index
+        {
+            get { return 0; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
         }
     }
 
-    public class _KoolEntity24EntityType
-        : CompiledEntityType<KoolEntity24>, IEntityType
+    public class _KoolEntity1Goo1Property : CompiledPropertyNoAnnotations<Guid>, IProperty
     {
+        public _KoolEntity1Goo1Property(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
         public string Name
         {
-            get { return "KoolEntity24"; }
+            get { return "Goo1"; }
         }
 
         public string StorageName
         {
-            get { return "KoolEntity24Table"; }
+            get { return "Goo1"; }
         }
 
-        protected override int[] LoadKey()
+        public void SetValue(object instance, object value)
         {
-            return new[] { 2 };
+            ((KoolEntity1)instance).Goo1 = (Guid)value;
         }
 
-        protected override IProperty[] LoadProperties()
+        public object GetValue(object instance)
         {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+            return ((KoolEntity1)instance).Goo1;
         }
 
-        protected override IAnnotation[] LoadAnnotations()
+        public int Index
         {
-            return ZipAnnotations(
-                new[] { "Annotation1", "Annotation2" },
-                new[] { "Value1", "Value2" }).ToArray();
+            get { return 1; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
         }
     }
 
-    public class _KoolEntity25EntityType
-        : CompiledEntityType<KoolEntity25>, IEntityType
+    public class _KoolEntity1KoolEntity2IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
     {
+        public _KoolEntity1KoolEntity2IdProperty(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
         public string Name
         {
-            get { return "KoolEntity25"; }
+            get { return "KoolEntity2Id"; }
         }
 
         public string StorageName
         {
-            get { return "KoolEntity25Table"; }
+            get { return "KoolEntity2Id"; }
         }
 
-        protected override int[] LoadKey()
+        public void SetValue(object instance, object value)
         {
-            return new[] { 2 };
+            ((KoolEntity1)instance).KoolEntity2Id = (int)value;
         }
 
-        protected override IProperty[] LoadProperties()
+        public object GetValue(object instance)
         {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
+            return ((KoolEntity1)instance).KoolEntity2Id;
         }
 
-        protected override IAnnotation[] LoadAnnotations()
+        public int Index
         {
-            return ZipAnnotations(
-                new[] { "Annotation1", "Annotation2" },
-                new[] { "Value1", "Value2" }).ToArray();
-        }
-    }
-
-    public class _KoolEntity26EntityType
-        : CompiledEntityType<KoolEntity26>, IEntityType
-    {
-        public string Name
-        {
-            get { return "KoolEntity26"; }
+            get { return 4; }
         }
 
-        public string StorageName
+        public int ShadowIndex
         {
-            get { return "KoolEntity26Table"; }
-        }
-
-        protected override int[] LoadKey()
-        {
-            return new[] { 2 };
-        }
-
-        protected override IProperty[] LoadProperties()
-        {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
-        }
-
-        protected override IAnnotation[] LoadAnnotations()
-        {
-            return ZipAnnotations(
-                new[] { "Annotation1", "Annotation2" },
-                new[] { "Value1", "Value2" }).ToArray();
+            get { return -1; }
         }
     }
 
-    public class _KoolEntity27EntityType
-        : CompiledEntityType<KoolEntity27>, IEntityType
+    public class _KoolEntity2IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
     {
-        public string Name
+        public _KoolEntity2IdProperty(IEntityType entityType)
+            : base(entityType)
         {
-            get { return "KoolEntity27"; }
         }
 
-        public string StorageName
-        {
-            get { return "KoolEntity27Table"; }
-        }
-
-        protected override int[] LoadKey()
-        {
-            return new[] { 2 };
-        }
-
-        protected override IProperty[] LoadProperties()
-        {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
-        }
-
-        protected override IAnnotation[] LoadAnnotations()
-        {
-            return ZipAnnotations(
-                new[] { "Annotation1", "Annotation2" },
-                new[] { "Value1", "Value2" }).ToArray();
-        }
-    }
-
-    public class _KoolEntity28EntityType
-        : CompiledEntityType<KoolEntity28>, IEntityType
-    {
-        public string Name
-        {
-            get { return "KoolEntity28"; }
-        }
-
-        public string StorageName
-        {
-            get { return "KoolEntity28Table"; }
-        }
-
-        protected override int[] LoadKey()
-        {
-            return new[] { 2 };
-        }
-
-        protected override IProperty[] LoadProperties()
-        {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
-        }
-
-        protected override IAnnotation[] LoadAnnotations()
-        {
-            return ZipAnnotations(
-                new[] { "Annotation1", "Annotation2" },
-                new[] { "Value1", "Value2" }).ToArray();
-        }
-    }
-
-    public class _KoolEntity29EntityType
-        : CompiledEntityType<KoolEntity29>, IEntityType
-    {
-        public string Name
-        {
-            get { return "KoolEntity29"; }
-        }
-
-        public string StorageName
-        {
-            get { return "KoolEntity29Table"; }
-        }
-
-        protected override int[] LoadKey()
-        {
-            return new[] { 2 };
-        }
-
-        protected override IProperty[] LoadProperties()
-        {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
-        }
-
-        protected override IAnnotation[] LoadAnnotations()
-        {
-            return ZipAnnotations(
-                new[] { "Annotation1", "Annotation2" },
-                new[] { "Value1", "Value2" }).ToArray();
-        }
-    }
-
-    public class _KoolEntity30EntityType
-        : CompiledEntityType<KoolEntity30>, IEntityType
-    {
-        public string Name
-        {
-            get { return "KoolEntity30"; }
-        }
-
-        public string StorageName
-        {
-            get { return "KoolEntity30Table"; }
-        }
-
-        protected override int[] LoadKey()
-        {
-            return new[] { 2 };
-        }
-
-        protected override IProperty[] LoadProperties()
-        {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
-        }
-
-        protected override IAnnotation[] LoadAnnotations()
-        {
-            return ZipAnnotations(
-                new[] { "Annotation1", "Annotation2" },
-                new[] { "Value1", "Value2" }).ToArray();
-        }
-    }
-
-    public class _KoolEntity31EntityType
-        : CompiledEntityType<KoolEntity31>, IEntityType
-    {
-        public string Name
-        {
-            get { return "KoolEntity31"; }
-        }
-
-        public string StorageName
-        {
-            get { return "KoolEntity31Table"; }
-        }
-
-        protected override int[] LoadKey()
-        {
-            return new[] { 2 };
-        }
-
-        protected override IProperty[] LoadProperties()
-        {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
-        }
-
-        protected override IAnnotation[] LoadAnnotations()
-        {
-            return ZipAnnotations(
-                new[] { "Annotation1", "Annotation2" },
-                new[] { "Value1", "Value2" }).ToArray();
-        }
-    }
-
-    public class _KoolEntity32EntityType
-        : CompiledEntityType<KoolEntity32>, IEntityType
-    {
-        public string Name
-        {
-            get { return "KoolEntity32"; }
-        }
-
-        public string StorageName
-        {
-            get { return "KoolEntity32Table"; }
-        }
-
-        protected override int[] LoadKey()
-        {
-            return new[] { 2 };
-        }
-
-        protected override IProperty[] LoadProperties()
-        {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
-        }
-
-        protected override IAnnotation[] LoadAnnotations()
-        {
-            return ZipAnnotations(
-                new[] { "Annotation1", "Annotation2" },
-                new[] { "Value1", "Value2" }).ToArray();
-        }
-    }
-
-    public class _KoolEntity33EntityType
-        : CompiledEntityType<KoolEntity33>, IEntityType
-    {
-        public string Name
-        {
-            get { return "KoolEntity33"; }
-        }
-
-        public string StorageName
-        {
-            get { return "KoolEntity33Table"; }
-        }
-
-        protected override int[] LoadKey()
-        {
-            return new[] { 2 };
-        }
-
-        protected override IProperty[] LoadProperties()
-        {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
-        }
-
-        protected override IAnnotation[] LoadAnnotations()
-        {
-            return ZipAnnotations(
-                new[] { "Annotation1", "Annotation2" },
-                new[] { "Value1", "Value2" }).ToArray();
-        }
-    }
-
-    public class _KoolEntity34EntityType
-        : CompiledEntityType<KoolEntity34>, IEntityType
-    {
-        public string Name
-        {
-            get { return "KoolEntity34"; }
-        }
-
-        public string StorageName
-        {
-            get { return "KoolEntity34Table"; }
-        }
-
-        protected override int[] LoadKey()
-        {
-            return new[] { 2 };
-        }
-
-        protected override IProperty[] LoadProperties()
-        {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
-        }
-
-        protected override IAnnotation[] LoadAnnotations()
-        {
-            return ZipAnnotations(
-                new[] { "Annotation1", "Annotation2" },
-                new[] { "Value1", "Value2" }).ToArray();
-        }
-    }
-
-    public class _KoolEntity35EntityType
-        : CompiledEntityType<KoolEntity35>, IEntityType
-    {
-        public string Name
-        {
-            get { return "KoolEntity35"; }
-        }
-
-        public string StorageName
-        {
-            get { return "KoolEntity35Table"; }
-        }
-
-        protected override int[] LoadKey()
-        {
-            return new[] { 2 };
-        }
-
-        protected override IProperty[] LoadProperties()
-        {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
-        }
-
-        protected override IAnnotation[] LoadAnnotations()
-        {
-            return ZipAnnotations(
-                new[] { "Annotation1", "Annotation2" },
-                new[] { "Value1", "Value2" }).ToArray();
-        }
-    }
-
-    public class _KoolEntity36EntityType
-        : CompiledEntityType<KoolEntity36>, IEntityType
-    {
-        public string Name
-        {
-            get { return "KoolEntity36"; }
-        }
-
-        public string StorageName
-        {
-            get { return "KoolEntity36Table"; }
-        }
-
-        protected override int[] LoadKey()
-        {
-            return new[] { 2 };
-        }
-
-        protected override IProperty[] LoadProperties()
-        {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
-        }
-
-        protected override IAnnotation[] LoadAnnotations()
-        {
-            return ZipAnnotations(
-                new[] { "Annotation1", "Annotation2" },
-                new[] { "Value1", "Value2" }).ToArray();
-        }
-    }
-
-    public class _KoolEntity37EntityType
-        : CompiledEntityType<KoolEntity37>, IEntityType
-    {
-        public string Name
-        {
-            get { return "KoolEntity37"; }
-        }
-
-        public string StorageName
-        {
-            get { return "KoolEntity37Table"; }
-        }
-
-        protected override int[] LoadKey()
-        {
-            return new[] { 2 };
-        }
-
-        protected override IProperty[] LoadProperties()
-        {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
-        }
-
-        protected override IAnnotation[] LoadAnnotations()
-        {
-            return ZipAnnotations(
-                new[] { "Annotation1", "Annotation2" },
-                new[] { "Value1", "Value2" }).ToArray();
-        }
-    }
-
-    public class _KoolEntity38EntityType
-        : CompiledEntityType<KoolEntity38>, IEntityType
-    {
-        public string Name
-        {
-            get { return "KoolEntity38"; }
-        }
-
-        public string StorageName
-        {
-            get { return "KoolEntity38Table"; }
-        }
-
-        protected override int[] LoadKey()
-        {
-            return new[] { 2 };
-        }
-
-        protected override IProperty[] LoadProperties()
-        {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
-        }
-
-        protected override IAnnotation[] LoadAnnotations()
-        {
-            return ZipAnnotations(
-                new[] { "Annotation1", "Annotation2" },
-                new[] { "Value1", "Value2" }).ToArray();
-        }
-    }
-
-    public class _KoolEntity39EntityType
-        : CompiledEntityType<KoolEntity39>, IEntityType
-    {
-        public string Name
-        {
-            get { return "KoolEntity39"; }
-        }
-
-        public string StorageName
-        {
-            get { return "KoolEntity39Table"; }
-        }
-
-        protected override int[] LoadKey()
-        {
-            return new[] { 2 };
-        }
-
-        protected override IProperty[] LoadProperties()
-        {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
-        }
-
-        protected override IAnnotation[] LoadAnnotations()
-        {
-            return ZipAnnotations(
-                new[] { "Annotation1", "Annotation2" },
-                new[] { "Value1", "Value2" }).ToArray();
-        }
-    }
-
-    public class _KoolEntity40EntityType
-        : CompiledEntityType<KoolEntity40>, IEntityType
-    {
-        public string Name
-        {
-            get { return "KoolEntity40"; }
-        }
-
-        public string StorageName
-        {
-            get { return "KoolEntity40Table"; }
-        }
-
-        protected override int[] LoadKey()
-        {
-            return new[] { 2 };
-        }
-
-        protected override IProperty[] LoadProperties()
-        {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
-        }
-
-        protected override IAnnotation[] LoadAnnotations()
-        {
-            return ZipAnnotations(
-                new[] { "Annotation1", "Annotation2" },
-                new[] { "Value1", "Value2" }).ToArray();
-        }
-    }
-
-    public class _KoolEntity41EntityType
-        : CompiledEntityType<KoolEntity41>, IEntityType
-    {
-        public string Name
-        {
-            get { return "KoolEntity41"; }
-        }
-
-        public string StorageName
-        {
-            get { return "KoolEntity41Table"; }
-        }
-
-        protected override int[] LoadKey()
-        {
-            return new[] { 2 };
-        }
-
-        protected override IProperty[] LoadProperties()
-        {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
-        }
-
-        protected override IAnnotation[] LoadAnnotations()
-        {
-            return ZipAnnotations(
-                new[] { "Annotation1", "Annotation2" },
-                new[] { "Value1", "Value2" }).ToArray();
-        }
-    }
-
-    public class _KoolEntity42EntityType
-        : CompiledEntityType<KoolEntity42>, IEntityType
-    {
-        public string Name
-        {
-            get { return "KoolEntity42"; }
-        }
-
-        public string StorageName
-        {
-            get { return "KoolEntity42Table"; }
-        }
-
-        protected override int[] LoadKey()
-        {
-            return new[] { 2 };
-        }
-
-        protected override IProperty[] LoadProperties()
-        {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
-        }
-
-        protected override IAnnotation[] LoadAnnotations()
-        {
-            return ZipAnnotations(
-                new[] { "Annotation1", "Annotation2" },
-                new[] { "Value1", "Value2" }).ToArray();
-        }
-    }
-
-    public class _KoolEntity43EntityType
-        : CompiledEntityType<KoolEntity43>, IEntityType
-    {
-        public string Name
-        {
-            get { return "KoolEntity43"; }
-        }
-
-        public string StorageName
-        {
-            get { return "KoolEntity43Table"; }
-        }
-
-        protected override int[] LoadKey()
-        {
-            return new[] { 2 };
-        }
-
-        protected override IProperty[] LoadProperties()
-        {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
-        }
-
-        protected override IAnnotation[] LoadAnnotations()
-        {
-            return ZipAnnotations(
-                new[] { "Annotation1", "Annotation2" },
-                new[] { "Value1", "Value2" }).ToArray();
-        }
-    }
-
-    public class _KoolEntity44EntityType
-        : CompiledEntityType<KoolEntity44>, IEntityType
-    {
-        public string Name
-        {
-            get { return "KoolEntity44"; }
-        }
-
-        public string StorageName
-        {
-            get { return "KoolEntity44Table"; }
-        }
-
-        protected override int[] LoadKey()
-        {
-            return new[] { 2 };
-        }
-
-        protected override IProperty[] LoadProperties()
-        {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
-        }
-
-        protected override IAnnotation[] LoadAnnotations()
-        {
-            return ZipAnnotations(
-                new[] { "Annotation1", "Annotation2" },
-                new[] { "Value1", "Value2" }).ToArray();
-        }
-    }
-
-    public class _KoolEntity45EntityType
-        : CompiledEntityType<KoolEntity45>, IEntityType
-    {
-        public string Name
-        {
-            get { return "KoolEntity45"; }
-        }
-
-        public string StorageName
-        {
-            get { return "KoolEntity45Table"; }
-        }
-
-        protected override int[] LoadKey()
-        {
-            return new[] { 2 };
-        }
-
-        protected override IProperty[] LoadProperties()
-        {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
-        }
-
-        protected override IAnnotation[] LoadAnnotations()
-        {
-            return ZipAnnotations(
-                new[] { "Annotation1", "Annotation2" },
-                new[] { "Value1", "Value2" }).ToArray();
-        }
-    }
-
-    public class _KoolEntity46EntityType
-        : CompiledEntityType<KoolEntity46>, IEntityType
-    {
-        public string Name
-        {
-            get { return "KoolEntity46"; }
-        }
-
-        public string StorageName
-        {
-            get { return "KoolEntity46Table"; }
-        }
-
-        protected override int[] LoadKey()
-        {
-            return new[] { 2 };
-        }
-
-        protected override IProperty[] LoadProperties()
-        {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
-        }
-
-        protected override IAnnotation[] LoadAnnotations()
-        {
-            return ZipAnnotations(
-                new[] { "Annotation1", "Annotation2" },
-                new[] { "Value1", "Value2" }).ToArray();
-        }
-    }
-
-    public class _KoolEntity47EntityType
-        : CompiledEntityType<KoolEntity47>, IEntityType
-    {
-        public string Name
-        {
-            get { return "KoolEntity47"; }
-        }
-
-        public string StorageName
-        {
-            get { return "KoolEntity47Table"; }
-        }
-
-        protected override int[] LoadKey()
-        {
-            return new[] { 2 };
-        }
-
-        protected override IProperty[] LoadProperties()
-        {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
-        }
-
-        protected override IAnnotation[] LoadAnnotations()
-        {
-            return ZipAnnotations(
-                new[] { "Annotation1", "Annotation2" },
-                new[] { "Value1", "Value2" }).ToArray();
-        }
-    }
-
-    public class _KoolEntity48EntityType
-        : CompiledEntityType<KoolEntity48>, IEntityType
-    {
-        public string Name
-        {
-            get { return "KoolEntity48"; }
-        }
-
-        public string StorageName
-        {
-            get { return "KoolEntity48Table"; }
-        }
-
-        protected override int[] LoadKey()
-        {
-            return new[] { 2 };
-        }
-
-        protected override IProperty[] LoadProperties()
-        {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
-        }
-
-        protected override IAnnotation[] LoadAnnotations()
-        {
-            return ZipAnnotations(
-                new[] { "Annotation1", "Annotation2" },
-                new[] { "Value1", "Value2" }).ToArray();
-        }
-    }
-
-    public class _KoolEntity49EntityType
-        : CompiledEntityType<KoolEntity49>, IEntityType
-    {
-        public string Name
-        {
-            get { return "KoolEntity49"; }
-        }
-
-        public string StorageName
-        {
-            get { return "KoolEntity49Table"; }
-        }
-
-        protected override int[] LoadKey()
-        {
-            return new[] { 2 };
-        }
-
-        protected override IProperty[] LoadProperties()
-        {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
-        }
-
-        protected override IAnnotation[] LoadAnnotations()
-        {
-            return ZipAnnotations(
-                new[] { "Annotation1", "Annotation2" },
-                new[] { "Value1", "Value2" }).ToArray();
-        }
-    }
-
-    public class _KoolEntity50EntityType
-        : CompiledEntityType<KoolEntity50>, IEntityType
-    {
-        public string Name
-        {
-            get { return "KoolEntity50"; }
-        }
-
-        public string StorageName
-        {
-            get { return "KoolEntity50Table"; }
-        }
-
-        protected override int[] LoadKey()
-        {
-            return new[] { 2 };
-        }
-
-        protected override IProperty[] LoadProperties()
-        {
-            return new IProperty[] { new _KoolEntityFooProperty(), new _KoolEntityGooProperty(), new _KoolEntityIdProperty() };
-        }
-
-        protected override IAnnotation[] LoadAnnotations()
-        {
-            return ZipAnnotations(
-                new[] { "Annotation1", "Annotation2" },
-                new[] { "Value1", "Value2" }).ToArray();
-        }
-    }
-
-    // The code below is shared by all entity types above to avoid having to have lots of hand-written
-    // proposed code checked in. This sharing should not significantly impact functionality or managed
-    // heap memory usage, except that there will be more than the usual amount of string interning
-    // due to the similarity of all entity types
-
-    public class _KoolEntityIdProperty : CompiledProperty<KoolEntityBase, int>, IProperty
-    {
         public string Name
         {
             get { return "Id"; }
@@ -1850,74 +1203,2685 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public void SetValue(object instance, object value)
         {
-            ((KoolEntityBase)instance).Id = (int)value;
+            ((KoolEntity2)instance).Id = (int)value;
         }
 
         public object GetValue(object instance)
         {
-            return ((KoolEntityBase)instance).Id;
+            return ((KoolEntity2)instance).Id;
+        }
+
+        public int Index
+        {
+            get { return 2; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -2; }
+        }
+    }
+
+    public class _KoolEntity2Foo2Property : CompiledProperty<string>, IProperty
+    {
+        public _KoolEntity2Foo2Property(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Foo2"; }
+        }
+
+        public string StorageName
+        {
+            get { return "Foo2"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity2)instance).Foo2 = (string)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity2)instance).Foo2;
         }
 
         protected override IAnnotation[] LoadAnnotations()
         {
             return ZipAnnotations(
-                new[] { "IdAnnotation1", "IdAnnotation2" },
-                new[] { "IdValue1", "IdValue2" }).ToArray();
+                new[] { "Foo2Annotation1", "Foo2Annotation2" },
+                new[] { "Foo2Value1", "Foo2Value2" }).ToArray();
+        }
+
+        public int Index
+        {
+            get { return 0; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
         }
     }
 
-    public class _KoolEntityFooProperty : CompiledProperty<KoolEntityBase, string>, IProperty
+    public class _KoolEntity2Goo2Property : CompiledPropertyNoAnnotations<Guid>, IProperty
     {
+        public _KoolEntity2Goo2Property(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
         public string Name
         {
-            get { return "Foo"; }
+            get { return "Goo2"; }
         }
 
         public string StorageName
         {
-            get { return "Foo"; }
+            get { return "Goo2"; }
         }
 
         public void SetValue(object instance, object value)
         {
-            ((KoolEntityBase)instance).Foo = (string)value;
+            ((KoolEntity2)instance).Goo2 = (Guid)value;
         }
 
         public object GetValue(object instance)
         {
-            return ((KoolEntityBase)instance).Foo;
+            return ((KoolEntity2)instance).Goo2;
+        }
+
+        public int Index
+        {
+            get { return 1; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
+        }
+    }
+
+    public class _KoolEntity2KoolEntity1Id1Property : CompiledPropertyNoAnnotations<int>, IProperty
+    {
+        public _KoolEntity2KoolEntity1Id1Property(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "KoolEntity1Id1"; }
+        }
+
+        public string StorageName
+        {
+            get { return "KoolEntity1Id1"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity2)instance).KoolEntity1Id1 = (int)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity2)instance).KoolEntity1Id1;
+        }
+
+        public int Index
+        {
+            get { return 3; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
+        }
+    }
+
+    public class _KoolEntity2KoolEntity1Id2operty : CompiledPropertyNoAnnotations<Guid>, IProperty
+    {
+        public _KoolEntity2KoolEntity1Id2operty(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "KoolEntity1Id2"; }
+        }
+
+        public string StorageName
+        {
+            get { return "KoolEntity1Id2"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity2)instance).KoolEntity1Id2 = (Guid)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity2)instance).KoolEntity1Id2;
+        }
+
+        public int Index
+        {
+            get { return 4; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
+        }
+    }
+
+    public class _KoolEntity2KoolEntity3IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
+    {
+        public _KoolEntity2KoolEntity3IdProperty(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "KoolEntity3Id"; }
+        }
+
+        public string StorageName
+        {
+            get { return "KoolEntity3Id"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity2)instance).KoolEntity3Id = (int)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity2)instance).KoolEntity3Id;
+        }
+
+        public int Index
+        {
+            get { return 5; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
+        }
+    }
+
+    public class _KoolEntity3IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
+    {
+        public _KoolEntity3IdProperty(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Id"; }
+        }
+
+        public string StorageName
+        {
+            get { return "MyKey"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity3)instance).Id = (int)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity3)instance).Id;
+        }
+
+        public int Index
+        {
+            get { return 2; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -2; }
+        }
+    }
+
+    public class _KoolEntity3Foo3Property : CompiledProperty<string>, IProperty
+    {
+        public _KoolEntity3Foo3Property(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Foo3"; }
+        }
+
+        public string StorageName
+        {
+            get { return "Foo3"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity3)instance).Foo3 = (string)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity3)instance).Foo3;
         }
 
         protected override IAnnotation[] LoadAnnotations()
         {
             return ZipAnnotations(
-                new[] { "FooAnnotation1", "FooAnnotation2" },
-                new[] { "FooValue1", "FooValue2" }).ToArray();
+                new[] { "Foo3Annotation1", "Foo3Annotation2" },
+                new[] { "Foo3Value1", "Foo3Value2" }).ToArray();
+        }
+
+        public int Index
+        {
+            get { return 0; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
         }
     }
 
-    public class _KoolEntityGooProperty : CompiledPropertyNoAnnotations<KoolEntityBase, Guid>, IProperty
+    public class _KoolEntity3Goo3Property : CompiledPropertyNoAnnotations<Guid>, IProperty
     {
+        public _KoolEntity3Goo3Property(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
         public string Name
         {
-            get { return "Goo"; }
+            get { return "Goo3"; }
         }
 
         public string StorageName
         {
-            get { return "Goo"; }
+            get { return "Goo3"; }
         }
 
         public void SetValue(object instance, object value)
         {
-            ((KoolEntityBase)instance).Goo = (Guid)value;
+            ((KoolEntity3)instance).Goo3 = (Guid)value;
         }
 
         public object GetValue(object instance)
         {
-            return ((KoolEntityBase)instance).Goo;
+            return ((KoolEntity3)instance).Goo3;
+        }
+
+        public int Index
+        {
+            get { return 1; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
         }
     }
 
-// ReSharper restore InconsistentNaming
+    public class _KoolEntity3KoolEntity4IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
+    {
+        public _KoolEntity3KoolEntity4IdProperty(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "KoolEntity4Id"; }
+        }
+
+        public string StorageName
+        {
+            get { return "KoolEntity4Id"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity3)instance).KoolEntity4Id = (int)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity3)instance).KoolEntity4Id;
+        }
+
+        public int Index
+        {
+            get { return 3; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -2; }
+        }
+    }
+
+    public class _KoolEntity4IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
+    {
+        public _KoolEntity4IdProperty(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Id"; }
+        }
+
+        public string StorageName
+        {
+            get { return "MyKey"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity4)instance).Id = (int)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity4)instance).Id;
+        }
+
+        public int Index
+        {
+            get { return 2; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -2; }
+        }
+    }
+
+    public class _KoolEntity4Foo4Property : CompiledProperty<string>, IProperty
+    {
+        public _KoolEntity4Foo4Property(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Foo4"; }
+        }
+
+        public string StorageName
+        {
+            get { return "Foo4"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity4)instance).Foo4 = (string)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity4)instance).Foo4;
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Foo4Annotation1", "Foo4Annotation2" },
+                new[] { "Foo4Value1", "Foo4Value2" }).ToArray();
+        }
+
+        public int Index
+        {
+            get { return 0; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
+        }
+    }
+
+    public class _KoolEntity4Goo4Property : CompiledPropertyNoAnnotations<Guid>, IProperty
+    {
+        public _KoolEntity4Goo4Property(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Goo4"; }
+        }
+
+        public string StorageName
+        {
+            get { return "Goo4"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity4)instance).Goo4 = (Guid)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity4)instance).Goo4;
+        }
+
+        public int Index
+        {
+            get { return 1; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
+        }
+    }
+
+    public class _KoolEntity5IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
+    {
+        public _KoolEntity5IdProperty(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Id"; }
+        }
+
+        public string StorageName
+        {
+            get { return "MyKey"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity5)instance).Id = (int)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity5)instance).Id;
+        }
+
+        public int Index
+        {
+            get { return 2; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -2; }
+        }
+    }
+
+    public class _KoolEntity5Foo5Property : CompiledProperty<string>, IProperty
+    {
+        public _KoolEntity5Foo5Property(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Foo5"; }
+        }
+
+        public string StorageName
+        {
+            get { return "Foo5"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity5)instance).Foo5 = (string)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity5)instance).Foo5;
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Foo5Annotation1", "Foo5Annotation2" },
+                new[] { "Foo5Value1", "Foo5Value2" }).ToArray();
+        }
+
+        public int Index
+        {
+            get { return 0; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
+        }
+    }
+
+    public class _KoolEntity5Goo5Property : CompiledPropertyNoAnnotations<Guid>, IProperty
+    {
+        public _KoolEntity5Goo5Property(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Goo5"; }
+        }
+
+        public string StorageName
+        {
+            get { return "Goo5"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity5)instance).Goo5 = (Guid)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity5)instance).Goo5;
+        }
+
+        public int Index
+        {
+            get { return 1; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
+        }
+    }
+
+    public class _KoolEntity6IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
+    {
+        public _KoolEntity6IdProperty(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Id"; }
+        }
+
+        public string StorageName
+        {
+            get { return "MyKey"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity6)instance).Id = (int)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity6)instance).Id;
+        }
+
+        public int Index
+        {
+            get { return 2; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -2; }
+        }
+    }
+
+    public class _KoolEntity6Foo6Property : CompiledProperty<string>, IProperty
+    {
+        public _KoolEntity6Foo6Property(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Foo6"; }
+        }
+
+        public string StorageName
+        {
+            get { return "Foo6"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity6)instance).Foo6 = (string)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity6)instance).Foo6;
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Foo6Annotation1", "Foo6Annotation2" },
+                new[] { "Foo6Value1", "Foo6Value2" }).ToArray();
+        }
+
+        public int Index
+        {
+            get { return 0; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
+        }
+    }
+
+    public class _KoolEntity6Goo6Property : CompiledPropertyNoAnnotations<Guid>, IProperty
+    {
+        public _KoolEntity6Goo6Property(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Goo6"; }
+        }
+
+        public string StorageName
+        {
+            get { return "Goo6"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity6)instance).Goo6 = (Guid)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity6)instance).Goo6;
+        }
+
+        public int Index
+        {
+            get { return 1; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
+        }
+    }
+
+    public class _KoolEntity7IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
+    {
+        public _KoolEntity7IdProperty(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Id"; }
+        }
+
+        public string StorageName
+        {
+            get { return "MyKey"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity7)instance).Id = (int)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity7)instance).Id;
+        }
+
+        public int Index
+        {
+            get { return 2; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -2; }
+        }
+    }
+
+    public class _KoolEntity7Foo7Property : CompiledProperty<string>, IProperty
+    {
+        public _KoolEntity7Foo7Property(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Foo7"; }
+        }
+
+        public string StorageName
+        {
+            get { return "Foo7"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity7)instance).Foo7 = (string)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity7)instance).Foo7;
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Foo7Annotation1", "Foo7Annotation2" },
+                new[] { "Foo7Value1", "Foo7Value2" }).ToArray();
+        }
+
+        public int Index
+        {
+            get { return 0; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
+        }
+    }
+
+    public class _KoolEntity7Goo7Property : CompiledPropertyNoAnnotations<Guid>, IProperty
+    {
+        public _KoolEntity7Goo7Property(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Goo7"; }
+        }
+
+        public string StorageName
+        {
+            get { return "Goo7"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity7)instance).Goo7 = (Guid)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity7)instance).Goo7;
+        }
+
+        public int Index
+        {
+            get { return 1; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
+        }
+    }
+
+    public class _KoolEntity8IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
+    {
+        public _KoolEntity8IdProperty(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Id"; }
+        }
+
+        public string StorageName
+        {
+            get { return "MyKey"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity8)instance).Id = (int)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity8)instance).Id;
+        }
+
+        public int Index
+        {
+            get { return 2; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -2; }
+        }
+    }
+
+    public class _KoolEntity8Foo8Property : CompiledProperty<string>, IProperty
+    {
+        public _KoolEntity8Foo8Property(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Foo8"; }
+        }
+
+        public string StorageName
+        {
+            get { return "Foo8"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity8)instance).Foo8 = (string)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity8)instance).Foo8;
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Foo8Annotation1", "Foo8Annotation2" },
+                new[] { "Foo8Value1", "Foo8Value2" }).ToArray();
+        }
+
+        public int Index
+        {
+            get { return 0; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
+        }
+    }
+
+    public class _KoolEntity8Goo8Property : CompiledPropertyNoAnnotations<Guid>, IProperty
+    {
+        public _KoolEntity8Goo8Property(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Goo8"; }
+        }
+
+        public string StorageName
+        {
+            get { return "Goo8"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity8)instance).Goo8 = (Guid)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity8)instance).Goo8;
+        }
+
+        public int Index
+        {
+            get { return 1; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
+        }
+    }
+
+    public class _KoolEntity9IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
+    {
+        public _KoolEntity9IdProperty(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Id"; }
+        }
+
+        public string StorageName
+        {
+            get { return "MyKey"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity9)instance).Id = (int)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity9)instance).Id;
+        }
+
+        public int Index
+        {
+            get { return 2; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -2; }
+        }
+    }
+
+    public class _KoolEntity9Foo9Property : CompiledProperty<string>, IProperty
+    {
+        public _KoolEntity9Foo9Property(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Foo9"; }
+        }
+
+        public string StorageName
+        {
+            get { return "Foo9"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity9)instance).Foo9 = (string)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity9)instance).Foo9;
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Foo9Annotation1", "Foo9Annotation2" },
+                new[] { "Foo9Value1", "Foo9Value2" }).ToArray();
+        }
+
+        public int Index
+        {
+            get { return 0; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
+        }
+    }
+
+    public class _KoolEntity9Goo9Property : CompiledPropertyNoAnnotations<Guid>, IProperty
+    {
+        public _KoolEntity9Goo9Property(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Goo9"; }
+        }
+
+        public string StorageName
+        {
+            get { return "Goo9"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity9)instance).Goo9 = (Guid)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity9)instance).Goo9;
+        }
+
+        public int Index
+        {
+            get { return 1; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
+        }
+    }
+
+    public class _KoolEntity10IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
+    {
+        public _KoolEntity10IdProperty(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Id"; }
+        }
+
+        public string StorageName
+        {
+            get { return "MyKey"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity10)instance).Id = (int)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity10)instance).Id;
+        }
+
+        public int Index
+        {
+            get { return 2; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -2; }
+        }
+    }
+
+    public class _KoolEntity10Foo10Property : CompiledProperty<string>, IProperty
+    {
+        public _KoolEntity10Foo10Property(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Foo10"; }
+        }
+
+        public string StorageName
+        {
+            get { return "Foo10"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity10)instance).Foo10 = (string)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity10)instance).Foo10;
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Foo10Annotation1", "Foo10Annotation2" },
+                new[] { "Foo10Value1", "Foo10Value2" }).ToArray();
+        }
+
+        public int Index
+        {
+            get { return 0; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
+        }
+    }
+
+    public class _KoolEntity10Goo10Property : CompiledPropertyNoAnnotations<Guid>, IProperty
+    {
+        public _KoolEntity10Goo10Property(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Goo10"; }
+        }
+
+        public string StorageName
+        {
+            get { return "Goo10"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity10)instance).Goo10 = (Guid)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity10)instance).Goo10;
+        }
+
+        public int Index
+        {
+            get { return 1; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
+        }
+    }
+
+    public class _KoolEntity11IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
+    {
+        public _KoolEntity11IdProperty(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Id"; }
+        }
+
+        public string StorageName
+        {
+            get { return "MyKey"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity11)instance).Id = (int)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity11)instance).Id;
+        }
+
+        public int Index
+        {
+            get { return 2; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -2; }
+        }
+    }
+
+    public class _KoolEntity11Foo11Property : CompiledProperty<string>, IProperty
+    {
+        public _KoolEntity11Foo11Property(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Foo11"; }
+        }
+
+        public string StorageName
+        {
+            get { return "Foo11"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity11)instance).Foo11 = (string)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity11)instance).Foo11;
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Foo11Annotation1", "Foo11Annotation2" },
+                new[] { "Foo11Value1", "Foo11Value2" }).ToArray();
+        }
+
+        public int Index
+        {
+            get { return 0; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
+        }
+    }
+
+    public class _KoolEntity11Goo11Property : CompiledPropertyNoAnnotations<Guid>, IProperty
+    {
+        public _KoolEntity11Goo11Property(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Goo11"; }
+        }
+
+        public string StorageName
+        {
+            get { return "Goo11"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity11)instance).Goo11 = (Guid)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity11)instance).Goo11;
+        }
+
+        public int Index
+        {
+            get { return 1; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
+        }
+    }
+
+    public class _KoolEntity12IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
+    {
+        public _KoolEntity12IdProperty(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Id"; }
+        }
+
+        public string StorageName
+        {
+            get { return "MyKey"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity12)instance).Id = (int)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity12)instance).Id;
+        }
+
+        public int Index
+        {
+            get { return 2; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -2; }
+        }
+    }
+
+    public class _KoolEntity12Foo12Property : CompiledProperty<string>, IProperty
+    {
+        public _KoolEntity12Foo12Property(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Foo12"; }
+        }
+
+        public string StorageName
+        {
+            get { return "Foo12"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity12)instance).Foo12 = (string)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity12)instance).Foo12;
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Foo12Annotation1", "Foo12Annotation2" },
+                new[] { "Foo12Value1", "Foo12Value2" }).ToArray();
+        }
+
+        public int Index
+        {
+            get { return 0; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
+        }
+    }
+
+    public class _KoolEntity12Goo12Property : CompiledPropertyNoAnnotations<Guid>, IProperty
+    {
+        public _KoolEntity12Goo12Property(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Goo12"; }
+        }
+
+        public string StorageName
+        {
+            get { return "Goo12"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity12)instance).Goo12 = (Guid)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity12)instance).Goo12;
+        }
+
+        public int Index
+        {
+            get { return 1; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
+        }
+    }
+
+    public class _KoolEntity13IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
+    {
+        public _KoolEntity13IdProperty(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Id"; }
+        }
+
+        public string StorageName
+        {
+            get { return "MyKey"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity13)instance).Id = (int)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity13)instance).Id;
+        }
+
+        public int Index
+        {
+            get { return 2; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -2; }
+        }
+    }
+
+    public class _KoolEntity13Foo13Property : CompiledProperty<string>, IProperty
+    {
+        public _KoolEntity13Foo13Property(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Foo13"; }
+        }
+
+        public string StorageName
+        {
+            get { return "Foo13"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity13)instance).Foo13 = (string)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity13)instance).Foo13;
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Foo13Annotation1", "Foo13Annotation2" },
+                new[] { "Foo13Value1", "Foo13Value2" }).ToArray();
+        }
+
+        public int Index
+        {
+            get { return 0; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
+        }
+    }
+
+    public class _KoolEntity13Goo13Property : CompiledPropertyNoAnnotations<Guid>, IProperty
+    {
+        public _KoolEntity13Goo13Property(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Goo13"; }
+        }
+
+        public string StorageName
+        {
+            get { return "Goo13"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity13)instance).Goo13 = (Guid)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity13)instance).Goo13;
+        }
+
+        public int Index
+        {
+            get { return 1; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
+        }
+    }
+
+    public class _KoolEntity14IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
+    {
+        public _KoolEntity14IdProperty(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Id"; }
+        }
+
+        public string StorageName
+        {
+            get { return "MyKey"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity14)instance).Id = (int)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity14)instance).Id;
+        }
+
+        public int Index
+        {
+            get { return 2; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -2; }
+        }
+    }
+
+    public class _KoolEntity14Foo14Property : CompiledProperty<string>, IProperty
+    {
+        public _KoolEntity14Foo14Property(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Foo14"; }
+        }
+
+        public string StorageName
+        {
+            get { return "Foo14"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity14)instance).Foo14 = (string)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity14)instance).Foo14;
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Foo14Annotation1", "Foo14Annotation2" },
+                new[] { "Foo14Value1", "Foo14Value2" }).ToArray();
+        }
+
+        public int Index
+        {
+            get { return 0; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
+        }
+    }
+
+    public class _KoolEntity14Goo14Property : CompiledPropertyNoAnnotations<Guid>, IProperty
+    {
+        public _KoolEntity14Goo14Property(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Goo14"; }
+        }
+
+        public string StorageName
+        {
+            get { return "Goo14"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity14)instance).Goo14 = (Guid)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity14)instance).Goo14;
+        }
+
+        public int Index
+        {
+            get { return 1; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
+        }
+    }
+
+    public class _KoolEntity15IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
+    {
+        public _KoolEntity15IdProperty(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Id"; }
+        }
+
+        public string StorageName
+        {
+            get { return "MyKey"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity15)instance).Id = (int)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity15)instance).Id;
+        }
+
+        public int Index
+        {
+            get { return 2; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -2; }
+        }
+    }
+
+    public class _KoolEntity15Foo15Property : CompiledProperty<string>, IProperty
+    {
+        public _KoolEntity15Foo15Property(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Foo15"; }
+        }
+
+        public string StorageName
+        {
+            get { return "Foo15"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity15)instance).Foo15 = (string)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity15)instance).Foo15;
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Foo15Annotation1", "Foo15Annotation2" },
+                new[] { "Foo15Value1", "Foo15Value2" }).ToArray();
+        }
+
+        public int Index
+        {
+            get { return 0; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
+        }
+    }
+
+    public class _KoolEntity15Goo15Property : CompiledPropertyNoAnnotations<Guid>, IProperty
+    {
+        public _KoolEntity15Goo15Property(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Goo15"; }
+        }
+
+        public string StorageName
+        {
+            get { return "Goo15"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity15)instance).Goo15 = (Guid)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity15)instance).Goo15;
+        }
+
+        public int Index
+        {
+            get { return 1; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
+        }
+    }
+
+    public class _KoolEntity16IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
+    {
+        public _KoolEntity16IdProperty(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Id"; }
+        }
+
+        public string StorageName
+        {
+            get { return "MyKey"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity16)instance).Id = (int)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity16)instance).Id;
+        }
+
+        public int Index
+        {
+            get { return 2; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -2; }
+        }
+    }
+
+    public class _KoolEntity16Foo16Property : CompiledProperty<string>, IProperty
+    {
+        public _KoolEntity16Foo16Property(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Foo16"; }
+        }
+
+        public string StorageName
+        {
+            get { return "Foo16"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity16)instance).Foo16 = (string)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity16)instance).Foo16;
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Foo16Annotation1", "Foo16Annotation2" },
+                new[] { "Foo16Value1", "Foo16Value2" }).ToArray();
+        }
+
+        public int Index
+        {
+            get { return 0; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
+        }
+    }
+
+    public class _KoolEntity16Goo16Property : CompiledPropertyNoAnnotations<Guid>, IProperty
+    {
+        public _KoolEntity16Goo16Property(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Goo16"; }
+        }
+
+        public string StorageName
+        {
+            get { return "Goo16"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity16)instance).Goo16 = (Guid)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity16)instance).Goo16;
+        }
+
+        public int Index
+        {
+            get { return 1; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
+        }
+    }
+
+    public class _KoolEntity17IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
+    {
+        public _KoolEntity17IdProperty(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Id"; }
+        }
+
+        public string StorageName
+        {
+            get { return "MyKey"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity17)instance).Id = (int)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity17)instance).Id;
+        }
+
+        public int Index
+        {
+            get { return 2; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -2; }
+        }
+    }
+
+    public class _KoolEntity17Foo17Property : CompiledProperty<string>, IProperty
+    {
+        public _KoolEntity17Foo17Property(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Foo17"; }
+        }
+
+        public string StorageName
+        {
+            get { return "Foo17"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity17)instance).Foo17 = (string)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity17)instance).Foo17;
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Foo17Annotation1", "Foo17Annotation2" },
+                new[] { "Foo17Value1", "Foo17Value2" }).ToArray();
+        }
+
+        public int Index
+        {
+            get { return 0; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
+        }
+    }
+
+    public class _KoolEntity17Goo17Property : CompiledPropertyNoAnnotations<Guid>, IProperty
+    {
+        public _KoolEntity17Goo17Property(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Goo17"; }
+        }
+
+        public string StorageName
+        {
+            get { return "Goo17"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity17)instance).Goo17 = (Guid)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity17)instance).Goo17;
+        }
+
+        public int Index
+        {
+            get { return 1; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
+        }
+    }
+
+    public class _KoolEntity18IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
+    {
+        public _KoolEntity18IdProperty(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Id"; }
+        }
+
+        public string StorageName
+        {
+            get { return "MyKey"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity18)instance).Id = (int)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity18)instance).Id;
+        }
+
+        public int Index
+        {
+            get { return 2; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -2; }
+        }
+    }
+
+    public class _KoolEntity18Foo18Property : CompiledProperty<string>, IProperty
+    {
+        public _KoolEntity18Foo18Property(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Foo18"; }
+        }
+
+        public string StorageName
+        {
+            get { return "Foo18"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity18)instance).Foo18 = (string)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity18)instance).Foo18;
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Foo18Annotation1", "Foo18Annotation2" },
+                new[] { "Foo18Value1", "Foo18Value2" }).ToArray();
+        }
+
+        public int Index
+        {
+            get { return 0; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
+        }
+    }
+
+    public class _KoolEntity18Goo18Property : CompiledPropertyNoAnnotations<Guid>, IProperty
+    {
+        public _KoolEntity18Goo18Property(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Goo18"; }
+        }
+
+        public string StorageName
+        {
+            get { return "Goo18"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity18)instance).Goo18 = (Guid)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity18)instance).Goo18;
+        }
+
+        public int Index
+        {
+            get { return 1; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
+        }
+    }
+
+    public class _KoolEntity19IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
+    {
+        public _KoolEntity19IdProperty(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Id"; }
+        }
+
+        public string StorageName
+        {
+            get { return "MyKey"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity19)instance).Id = (int)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity19)instance).Id;
+        }
+
+        public int Index
+        {
+            get { return 2; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -2; }
+        }
+    }
+
+    public class _KoolEntity19Foo19Property : CompiledProperty<string>, IProperty
+    {
+        public _KoolEntity19Foo19Property(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Foo19"; }
+        }
+
+        public string StorageName
+        {
+            get { return "Foo19"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity19)instance).Foo19 = (string)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity19)instance).Foo19;
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Foo19Annotation1", "Foo19Annotation2" },
+                new[] { "Foo19Value1", "Foo19Value2" }).ToArray();
+        }
+
+        public int Index
+        {
+            get { return 0; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
+        }
+    }
+
+    public class _KoolEntity19Goo19Property : CompiledPropertyNoAnnotations<Guid>, IProperty
+    {
+        public _KoolEntity19Goo19Property(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Goo19"; }
+        }
+
+        public string StorageName
+        {
+            get { return "Goo19"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity19)instance).Goo19 = (Guid)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity19)instance).Goo19;
+        }
+
+        public int Index
+        {
+            get { return 1; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
+        }
+    }
+
+    public class _KoolEntity20IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
+    {
+        public _KoolEntity20IdProperty(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Id"; }
+        }
+
+        public string StorageName
+        {
+            get { return "MyKey"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity20)instance).Id = (int)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity20)instance).Id;
+        }
+
+        public int Index
+        {
+            get { return 2; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -2; }
+        }
+    }
+
+    public class _KoolEntity20Foo20Property : CompiledProperty<string>, IProperty
+    {
+        public _KoolEntity20Foo20Property(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Foo20"; }
+        }
+
+        public string StorageName
+        {
+            get { return "Foo20"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity20)instance).Foo20 = (string)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity20)instance).Foo20;
+        }
+
+        protected override IAnnotation[] LoadAnnotations()
+        {
+            return ZipAnnotations(
+                new[] { "Foo20Annotation1", "Foo20Annotation2" },
+                new[] { "Foo20Value1", "Foo20Value2" }).ToArray();
+        }
+
+        public int Index
+        {
+            get { return 0; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
+        }
+    }
+
+    public class _KoolEntity20Goo20Property : CompiledPropertyNoAnnotations<Guid>, IProperty
+    {
+        public _KoolEntity20Goo20Property(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Goo20"; }
+        }
+
+        public string StorageName
+        {
+            get { return "Goo20"; }
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            ((KoolEntity20)instance).Goo20 = (Guid)value;
+        }
+
+        public object GetValue(object instance)
+        {
+            return ((KoolEntity20)instance).Goo20;
+        }
+
+        public int Index
+        {
+            get { return 1; }
+        }
+
+        public int ShadowIndex
+        {
+            get { return -1; }
+        }
+    }
+
+    public class _KoolEntity1Fk1 : CompiledSimpleForeignKey, IForeignKey
+    {
+        public _KoolEntity1Fk1(IModel model)
+            : base(model)
+        {
+        }
+
+        protected override ForeignKeyDefinition Definition
+        {
+            get { return new ForeignKeyDefinition(0, 4, 11); }
+        }
+    }
+
+    public class _KoolEntity2Fk1 : CompiledForeignKey, IForeignKey
+    {
+        public _KoolEntity2Fk1(IModel model)
+            : base(model)
+        {
+        }
+
+        protected override ForeignKeyDefinition Definition
+        {
+            get { return new ForeignKeyDefinition(11, new short[] { 3, 4 }, 0, new short[] { 2, 3 }); }
+        }
+    }
+
+    public class _KoolEntity2Fk2 : CompiledSimpleForeignKey, IForeignKey
+    {
+        public _KoolEntity2Fk2(IModel model)
+            : base(model)
+        {
+        }
+
+        protected override ForeignKeyDefinition Definition
+        {
+            get { return new ForeignKeyDefinition(11, 2, 13); }
+        }
+    }
+
+    public class _KoolEntity3Fk1 : CompiledSimpleForeignKey, IForeignKey
+    {
+        public _KoolEntity3Fk1(IModel model)
+            : base(model)
+        {
+        }
+
+        protected override ForeignKeyDefinition Definition
+        {
+            get { return new ForeignKeyDefinition(13, 3, 14); }
+        }
+    }
+
+    public class _KoolEntity1NavTo2 : CompiledNavigation, INavigation
+    {
+        public _KoolEntity1NavTo2(IModel model)
+            : base(model)
+        {
+        }
+
+        public string Name
+        {
+            get { return "NavTo2"; }
+        }
+
+        protected override NavigationDefinition Definition
+        {
+            get { return new NavigationDefinition(0, 0, 0); }
+        }
+
+        public void SetOrAddEntity(object ownerEntity, object relatedEntity)
+        {
+            // TODO: This is currently just the same implementation as is in the built model
+            EntityType.Type.GetProperty(Name).SetValue(ownerEntity, relatedEntity);
+        }
+    }
+
+    public class _KoolEntity1NavTo2s : CompiledNavigation, INavigation
+    {
+        public _KoolEntity1NavTo2s(IModel model)
+            : base(model)
+        {
+        }
+
+        public string Name
+        {
+            get { return "NavTo2s"; }
+        }
+
+        protected override NavigationDefinition Definition
+        {
+            get { return new NavigationDefinition(0, 11, 0); }
+        }
+
+        public void SetOrAddEntity(object ownerEntity, object relatedEntity)
+        {
+            // TODO: This is currently just the same implementation as is in the built model
+            var collection = EntityType.Type.GetProperty(Name).GetValue(ownerEntity);
+            collection.GetType().GetMethod("Add").Invoke(collection, new[] { relatedEntity });
+        }
+    }
+
+    public class _KoolEntity2NavTo1 : CompiledNavigation, INavigation
+    {
+        public _KoolEntity2NavTo1(IModel model)
+            : base(model)
+        {
+        }
+
+        public string Name
+        {
+            get { return "NavTo1"; }
+        }
+
+        protected override NavigationDefinition Definition
+        {
+            get { return new NavigationDefinition(11, 11, 0); }
+        }
+
+        public void SetOrAddEntity(object ownerEntity, object relatedEntity)
+        {
+            // TODO: This is currently just the same implementation as is in the built model
+            EntityType.Type.GetProperty(Name).SetValue(ownerEntity, relatedEntity);
+        }
+    }
+
+    public class _KoolEntity2NavTo1s : CompiledNavigation, INavigation
+    {
+        public _KoolEntity2NavTo1s(IModel model)
+            : base(model)
+        {
+        }
+
+        public string Name
+        {
+            get { return "NavTo1s"; }
+        }
+
+        protected override NavigationDefinition Definition
+        {
+            get { return new NavigationDefinition(11, 0, 0); }
+        }
+
+        public void SetOrAddEntity(object ownerEntity, object relatedEntity)
+        {
+            // TODO: This is currently just the same implementation as is in the built model
+            var collection = EntityType.Type.GetProperty(Name).GetValue(ownerEntity);
+            collection.GetType().GetMethod("Add").Invoke(collection, new[] { relatedEntity });
+        }
+    }
+
+    public class _KoolEntity2NavTo3 : CompiledNavigation, INavigation
+    {
+        public _KoolEntity2NavTo3(IModel model)
+            : base(model)
+        {
+        }
+
+        public string Name
+        {
+            get { return "NavTo3"; }
+        }
+
+        protected override NavigationDefinition Definition
+        {
+            get { return new NavigationDefinition(11, 11, 1); }
+        }
+
+        public void SetOrAddEntity(object ownerEntity, object relatedEntity)
+        {
+            // TODO: This is currently just the same implementation as is in the built model
+            EntityType.Type.GetProperty(Name).SetValue(ownerEntity, relatedEntity);
+        }
+    }
+
+    public class _KoolEntity3NavTo2s : CompiledNavigation, INavigation
+    {
+        public _KoolEntity3NavTo2s(IModel model)
+            : base(model)
+        {
+        }
+
+        public string Name
+        {
+            get { return "NavTo2s"; }
+        }
+
+        protected override NavigationDefinition Definition
+        {
+            get { return new NavigationDefinition(13, 11, 1); }
+        }
+
+        public void SetOrAddEntity(object ownerEntity, object relatedEntity)
+        {
+            // TODO: This is currently just the same implementation as is in the built model
+            var collection = EntityType.Type.GetProperty(Name).GetValue(ownerEntity);
+            collection.GetType().GetMethod("Add").Invoke(collection, new[] { relatedEntity });
+        }
+    }
+
+    public class _KoolEntity3NavTo4 : CompiledNavigation, INavigation
+    {
+        public _KoolEntity3NavTo4(IModel model)
+            : base(model)
+        {
+        }
+
+        public string Name
+        {
+            get { return "NavTo4"; }
+        }
+
+        protected override NavigationDefinition Definition
+        {
+            get { return new NavigationDefinition(13, 13, 0); }
+        }
+
+        public void SetOrAddEntity(object ownerEntity, object relatedEntity)
+        {
+            // TODO: This is currently just the same implementation as is in the built model
+            EntityType.Type.GetProperty(Name).SetValue(ownerEntity, relatedEntity);
+        }
+    }
+
+    public class _KoolEntity4NavTo3s : CompiledNavigation, INavigation
+    {
+        public _KoolEntity4NavTo3s(IModel model)
+            : base(model)
+        {
+        }
+
+        public string Name
+        {
+            get { return "NavTo3s"; }
+        }
+
+        protected override NavigationDefinition Definition
+        {
+            get { return new NavigationDefinition(14, 13, 0); }
+        }
+
+        public void SetOrAddEntity(object ownerEntity, object relatedEntity)
+        {
+            // TODO: This is currently just the same implementation as is in the built model
+            var collection = EntityType.Type.GetProperty(Name).GetValue(ownerEntity);
+            collection.GetType().GetMethod("Add").Invoke(collection, new[] { relatedEntity });
+        }
+    }
+
+    // ReSharper restore InconsistentNaming
 }
