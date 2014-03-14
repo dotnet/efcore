@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Metadata
         private readonly LazyRef<List<Navigation>> _navigations = new LazyRef<List<Navigation>>(() => new List<Navigation>());
         private readonly List<Property> _properties = new List<Property>();
 
-        private IReadOnlyList<Property> _keyProperties;
+        private Key _key;
 
         public Func<object[], object> _activator;
         private int _shadowPropertyCount;
@@ -77,16 +77,28 @@ namespace Microsoft.Data.Entity.Metadata
             return _activator(values);
         }
 
-        public virtual IReadOnlyList<Property> Key
+        public virtual Key GetKey()
         {
-            get { return _keyProperties ?? ImmutableList<Property>.Empty; }
-            [param: NotNull]
-            set
+            if (_key == null)
             {
-                Check.NotNull(value, "value");
+                throw new ModelItemNotFoundException(Strings.FormatEntityRequiresKey(Name));
+            }
 
-                _keyProperties = value;
-                foreach (var property in value)
+            return _key;
+        }
+
+        public virtual Key TryGetKey()
+        {
+            return _key;
+        }
+
+        public virtual void SetKey([NotNull] Key key)
+        {
+            _key = key;
+
+            if (_key != null)
+            {
+                foreach (var property in _key.Properties)
                 {
                     // TODO: Consider if this should be replace/throw/no-op when prop with this name exists
                     AddProperty(property);
@@ -249,12 +261,13 @@ namespace Microsoft.Data.Entity.Metadata
 
             // TODO: Consider if it is okay to take properties out of the key, which may not be empty
             // TODO: Consider what to do with FKs that contain this property
-            if (_keyProperties != null
-                && _keyProperties.Contains(property))
+            if (_key != null
+                && _key.Properties.Contains(property))
             {
-                var newList = _keyProperties.ToList();
-                newList.Remove(property);
-                _keyProperties = newList;
+                _key = new Key(_key.Properties.Except(new[] { property }).ToArray())
+                {
+                    StorageName = _key.StorageName
+                };
             }
         }
 
@@ -298,9 +311,9 @@ namespace Microsoft.Data.Entity.Metadata
             get { return _properties; }
         }
 
-        IReadOnlyList<IProperty> IEntityType.Key
+        IKey IEntityType.GetKey()
         {
-            get { return Key; }
+            return GetKey();
         }
 
         IProperty IEntityType.TryGetProperty(string name)

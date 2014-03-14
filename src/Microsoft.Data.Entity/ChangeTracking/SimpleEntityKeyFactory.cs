@@ -14,6 +14,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotNull(properties, "properties");
             Check.NotNull(entry, "entry");
 
+            // TODO: What happens if we get a null property value?
             return new SimpleEntityKey<TKey>(entityType, (TKey)entry.GetPropertyValue(properties[0]));
         }
     }

@@ -282,6 +282,22 @@ namespace Microsoft.Data.Entity
             return string.Format(CultureInfo.CurrentCulture, GetString("InconsistentEntityType", "argumentName"), argumentName);
         }
 
+        /// <summary>
+        /// The entity type '{entityType}' requires a key to be defined.
+        /// </summary>
+        internal static string EntityRequiresKey
+        {
+            get { return GetString("EntityRequiresKey"); }
+        }
+
+        /// <summary>
+        /// The entity type '{entityType}' requires a key to be defined.
+        /// </summary>
+        internal static string FormatEntityRequiresKey(object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("EntityRequiresKey", "entityType"), entityType);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

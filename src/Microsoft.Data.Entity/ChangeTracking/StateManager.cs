@@ -109,7 +109,10 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 }
             }
 
-            var keyValue = Model.GetKeyFactory(entityType.Key).Create(entityType, entityType.Key, entry);
+            var keyValue
+                = Model
+                    .GetKeyFactory(entityType.GetKey().Properties)
+                    .Create(entityType, entityType.GetKey().Properties, entry);
 
             if (_identityMap.TryGetValue(keyValue, out existingEntry))
             {
@@ -136,7 +139,11 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
 
             var entityType = entry.EntityType;
-            var keyValue = Model.GetKeyFactory(entityType.Key).Create(entityType, entityType.Key, entry);
+
+            var keyValue
+                = Model
+                    .GetKeyFactory(entityType.GetKey().Properties)
+                    .Create(entityType, entityType.GetKey().Properties, entry);
 
             StateEntry existingEntry;
             if (_identityMap.TryGetValue(keyValue, out existingEntry)

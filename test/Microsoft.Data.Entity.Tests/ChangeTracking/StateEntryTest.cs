@@ -118,7 +118,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entityTypeMock = CreateEntityTypeMock(propertyMock1);
 
             var modelMock = new Mock<RuntimeModel>();
-            modelMock.Setup(m => m.GetKeyFactory(entityTypeMock.Object.Key)).Returns(new SimpleEntityKeyFactory<string>());
+            modelMock.Setup(m => m.GetKeyFactory(entityTypeMock.Object.GetKey().Properties)).Returns(new SimpleEntityKeyFactory<string>());
 
             var managerMock = new Mock<StateManager>();
             managerMock.Setup(m => m.Model).Returns(modelMock.Object);
@@ -227,7 +227,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             nonKey.Setup(m => m.HasClrProperty).Returns(true);
 
             var entityTypeMock = new Mock<IEntityType>();
-            entityTypeMock.Setup(m => m.Key).Returns(keys);
+            entityTypeMock.Setup(m => m.GetKey().Properties).Returns(keys);
             entityTypeMock.Setup(m => m.Properties).Returns(keys.Concat(new[] { nonKey.Object }).ToArray());
 
             return entityTypeMock;

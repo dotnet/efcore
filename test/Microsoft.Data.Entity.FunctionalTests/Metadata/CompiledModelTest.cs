@@ -34,8 +34,8 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
                     .SequenceEqual(builtModel.EntityTypes.Select(a => a.Type)));
 
             Assert.True(
-                compiledModel.EntityTypes.First().Key.Select(p => p.Name)
-                    .SequenceEqual(builtModel.EntityTypes.First().Key.Select(p => p.Name)));
+                compiledModel.EntityTypes.First().GetKey().Properties.Select(p => p.Name)
+                    .SequenceEqual(builtModel.EntityTypes.First().GetKey().Properties.Select(p => p.Name)));
 
             Assert.True(
                 compiledModel.EntityTypes.First().Properties.Select(p => p.Name)
@@ -239,7 +239,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             var navigations = entities.SelectMany(e => e.Navigations);
             memory.Add(Tuple.Create(navigations.Count(), GetMemory(), "All navigations"));
 
-            var keys = entities.SelectMany(e => e.Key);
+            var keys = entities.SelectMany(e => e.GetKey().Properties);
             memory.Add(Tuple.Create(keys.Count(), GetMemory(), "All keys"));
 
             var properties = entities.SelectMany(e => e.Properties).ToList();
@@ -263,7 +263,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             builder.Annotation("ModelAnnotation2", "ModelValue2");
 
             var entityType1 = new EntityType(typeof(KoolEntity1));
-            entityType1.Key = new[] { new Property("Id1", typeof(int), true) { StorageName = "MyKey1" } };
+            entityType1.SetKey(new Key(new[] { new Property("Id1", typeof(int), true) { StorageName = "MyKey1" } }));
             entityType1.AddProperty(new Property("Id2", typeof(Guid), true) { StorageName = "MyKey2" });
             entityType1.AddProperty(new Property("KoolEntity2Id", typeof(int), true));
             model.AddEntityType(entityType1);
@@ -296,7 +296,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
                 var entityType = model.GetEntityType(type);
                 var id = new Property(entityType.Type.GetProperty("Id")) { StorageName = "MyKey" };
-                entityType.Key = new[] { id };
+                entityType.SetKey(new Key(new[] { id }));
             }
 
             for (var i = 1; i <= 20; i++)

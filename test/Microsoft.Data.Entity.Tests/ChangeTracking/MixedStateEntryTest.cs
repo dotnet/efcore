@@ -99,7 +99,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             nonKey.Setup(m => m.HasClrProperty).Returns(true);
 
             var entityTypeMock = new Mock<IEntityType>();
-            entityTypeMock.Setup(m => m.Key).Returns(keys);
+            entityTypeMock.Setup(m => m.GetKey().Properties).Returns(keys);
             entityTypeMock.Setup(m => m.Properties).Returns(keys.Concat(new[] { nonKey.Object }).ToArray());
             entityTypeMock.Setup(m => m.ShadowPropertyCount).Returns(2);
 

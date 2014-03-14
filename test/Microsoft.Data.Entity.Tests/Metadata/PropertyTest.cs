@@ -37,10 +37,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var property = new Property(Customer.NameProperty);
 
             Assert.Equal(
-                Strings.FormatArgumentIsEmpty("value"),
-                Assert.Throws<ArgumentException>(() => property.StorageName = "").Message);
-
-            Assert.Equal(
                 "instance",
                 // ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(() => property.GetValue(null)).ParamName);

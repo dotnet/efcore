@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual IReadOnlyList<Property> PrincipalProperties
         {
-            get { return _principalProperties ?? _principalType.Key; }
+            get { return _principalProperties ?? _principalType.GetKey().Properties; }
             [param: NotNull]
             set
             {

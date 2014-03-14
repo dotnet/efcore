@@ -106,8 +106,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var model = BuildModel();
             var stateManager = CreateStateManager(model);
-
-            var stateEntry = stateManager.CreateNewEntry(model.GetEntityType("Location"));
+            var entityType = model.GetEntityType("Location");
+            var stateEntry = stateManager.CreateNewEntry(entityType);
+            stateEntry.SetPropertyValue(entityType.GetKey().Properties.Single(), 42);
 
             Assert.Equal(EntityState.Unknown, stateEntry.EntityState);
             Assert.Null(stateEntry.Entity);
@@ -326,8 +327,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             new SimpleTemporaryConvention().Apply(model);
 
             var locationType = new EntityType("Location");
-            locationType.AddProperty(new Property("Id", typeof(int), hasClrProperty: false));
+            var idProperty = new Property("Id", typeof(int), hasClrProperty: false);
+            locationType.AddProperty(idProperty);
             locationType.AddProperty(new Property("Planet", typeof(string), hasClrProperty: false));
+            locationType.SetKey(new Key(new []{ idProperty }));
             model.AddEntityType(locationType);
 
             return new RuntimeModel(model, new EntityKeyFactorySource());

@@ -22,6 +22,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotNull(properties, "properties");
             Check.NotNull(entry, "entry");
 
+            // TODO: What happens if we get a null property value?
             return new CompositeEntityKey(entityType, properties.Select(entry.GetPropertyValue).ToArray());
         }
     }

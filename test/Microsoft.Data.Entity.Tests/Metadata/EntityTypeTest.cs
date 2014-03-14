@@ -71,14 +71,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var entityType = new EntityType(typeof(Random));
 
             Assert.Equal(
-                Strings.FormatArgumentIsEmpty("value"),
-                Assert.Throws<ArgumentException>(() => entityType.StorageName = "").Message);
-
-            Assert.Equal(
-                "value",
-                Assert.Throws<ArgumentNullException>(() => entityType.Key = null).ParamName);
-
-            Assert.Equal(
                 "property",
                 // ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(() => entityType.AddProperty(null)).ParamName);
@@ -184,19 +176,19 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var property1 = new Property(Customer.IdProperty);
             var property2 = new Property(Customer.NameProperty);
 
-            entityType.Key = new[] { property1, property2 };
+            entityType.SetKey(new Key(new[] { property1, property2 }));
 
-            Assert.True(new[] { property1, property2 }.SequenceEqual(entityType.Key));
+            Assert.True(new[] { property1, property2 }.SequenceEqual(entityType.GetKey().Properties));
             Assert.True(new[] { property1, property2 }.SequenceEqual(entityType.Properties));
 
             entityType.RemoveProperty(property1);
 
-            Assert.True(new[] { property2 }.SequenceEqual(entityType.Key));
+            Assert.True(new[] { property2 }.SequenceEqual(entityType.GetKey().Properties));
             Assert.True(new[] { property2 }.SequenceEqual(entityType.Properties));
 
-            entityType.Key = new[] { property1 };
+            entityType.SetKey(new Key(new[] { property1 }));
 
-            Assert.True(new[] { property1 }.SequenceEqual(entityType.Key));
+            Assert.True(new[] { property1 }.SequenceEqual(entityType.GetKey().Properties));
             Assert.True(new[] { property1, property2 }.SequenceEqual(entityType.Properties));
         }
 
@@ -211,7 +203,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var property2 = new Property(Customer.NameProperty);
 
-            entityType.Key = new[] { newIdProperty, property2 };
+            entityType.SetKey(new Key(new[] { newIdProperty, property2 }));
 
             Assert.True(new[] { newIdProperty, property2 }.SequenceEqual(entityType.Properties));
         }
@@ -224,13 +216,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var property1 = new Property(Customer.IdProperty);
             var property2 = new Property(Customer.NameProperty);
 
-            entityType.Key = new[] { property1, property2 };
+            entityType.SetKey(new Key(new[] { property1, property2 }));
 
-            Assert.Equal(2, entityType.Key.Count());
+            Assert.Equal(2, entityType.GetKey().Properties.Count());
 
-            entityType.Key = new Property[] { };
+            entityType.SetKey(null);
 
-            Assert.Equal(0, entityType.Key.Count());
+            Assert.Null(entityType.TryGetKey());
         }
 
         [Fact]

@@ -200,26 +200,26 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         {
             return new IEntityType[]
                 {
-                    new _KoolEntity1EntityType(this),
-                    new _KoolEntity10EntityType(this),
-                    new _KoolEntity11EntityType(this),
-                    new _KoolEntity12EntityType(this),
-                    new _KoolEntity13EntityType(this),
-                    new _KoolEntity14EntityType(this),
-                    new _KoolEntity15EntityType(this),
-                    new _KoolEntity16EntityType(this),
-                    new _KoolEntity17EntityType(this),
-                    new _KoolEntity18EntityType(this),
-                    new _KoolEntity19EntityType(this),
-                    new _KoolEntity2EntityType(this),
-                    new _KoolEntity20EntityType(this),
-                    new _KoolEntity3EntityType(this),
-                    new _KoolEntity4EntityType(this),
-                    new _KoolEntity5EntityType(this),
-                    new _KoolEntity6EntityType(this),
-                    new _KoolEntity7EntityType(this),
-                    new _KoolEntity8EntityType(this),
-                    new _KoolEntity9EntityType(this)
+                    new _KoolEntity1EntityType(this),   // 0
+                    new _KoolEntity10EntityType(this),  // 1
+                    new _KoolEntity11EntityType(this),  // 2
+                    new _KoolEntity12EntityType(this),  // 3
+                    new _KoolEntity13EntityType(this),  // 4
+                    new _KoolEntity14EntityType(this),  // 5
+                    new _KoolEntity15EntityType(this),  // 6
+                    new _KoolEntity16EntityType(this),  // 7 
+                    new _KoolEntity17EntityType(this),  // 8
+                    new _KoolEntity18EntityType(this),  // 9
+                    new _KoolEntity19EntityType(this),  // 10
+                    new _KoolEntity2EntityType(this),   // 11
+                    new _KoolEntity20EntityType(this),  // 12
+                    new _KoolEntity3EntityType(this),   // 13
+                    new _KoolEntity4EntityType(this),   // 14
+                    new _KoolEntity5EntityType(this),   // 15
+                    new _KoolEntity6EntityType(this),   // 16
+                    new _KoolEntity7EntityType(this),   // 17
+                    new _KoolEntity8EntityType(this),   // 18
+                    new _KoolEntity9EntityType(this)    // 19
                 };
         }
 
@@ -248,9 +248,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity1Table"; }
         }
 
-        protected override int[] LoadKey()
+        protected override IKey LoadKey()
         {
-            return new[] { 2 };
+            return new _KoolEntity1Key(Model);
         }
 
         protected override IProperty[] LoadProperties()
@@ -282,6 +282,19 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
                 new[] { "Value1", "Value2" }).ToArray();
         }
     }
+    
+    public class _KoolEntity1Key : CompiledKey, IKey
+    {
+        public _KoolEntity1Key(IModel model)
+            : base(model)
+        {
+        }
+
+        protected override KeyDefinition Definition
+        {
+            get { return new KeyDefinition(0, new short[] { 2 }); }
+        }
+    }
 
     public class _KoolEntity2EntityType : CompiledEntityType<KoolEntity2>, IEntityType
     {
@@ -300,9 +313,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity2Table"; }
         }
 
-        protected override int[] LoadKey()
+        protected override IKey LoadKey()
         {
-            return new[] { 2 };
+            return new _KoolEntity2Key(Model);
         }
 
         protected override IProperty[] LoadProperties()
@@ -336,6 +349,19 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         }
     }
 
+    public class _KoolEntity2Key : CompiledKey, IKey
+    {
+        public _KoolEntity2Key(IModel model)
+            : base(model)
+        {
+        }
+
+        protected override KeyDefinition Definition
+        {
+            get { return new KeyDefinition(11, new short[] { 2 }); }
+        }
+    }
+
     public class _KoolEntity3EntityType : CompiledEntityType<KoolEntity3>, IEntityType
     {
         public _KoolEntity3EntityType(IModel model)
@@ -353,9 +379,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity3Table"; }
         }
 
-        protected override int[] LoadKey()
+        protected override IKey LoadKey()
         {
-            return new[] { 2 };
+            return new _KoolEntity3Key(Model);
         }
 
         protected override IProperty[] LoadProperties()
@@ -387,6 +413,19 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         }
     }
 
+    public class _KoolEntity3Key : CompiledKey, IKey
+    {
+        public _KoolEntity3Key(IModel model)
+            : base(model)
+        {
+        }
+
+        protected override KeyDefinition Definition
+        {
+            get { return new KeyDefinition(13, new short[] { 2 }); }
+        }
+    }
+
     public class _KoolEntity4EntityType : CompiledEntityType<KoolEntity4>, IEntityType
     {
         public _KoolEntity4EntityType(IModel model)
@@ -404,9 +443,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity4Table"; }
         }
 
-        protected override int[] LoadKey()
+        protected override IKey LoadKey()
         {
-            return new[] { 2 };
+            return new _KoolEntity4Key(Model);
         }
 
         protected override IProperty[] LoadProperties()
@@ -427,6 +466,19 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         }
     }
 
+    public class _KoolEntity4Key : CompiledKey, IKey
+    {
+        public _KoolEntity4Key(IModel model)
+            : base(model)
+        {
+        }
+
+        protected override KeyDefinition Definition
+        {
+            get { return new KeyDefinition(14, new short[] { 2 }); }
+        }
+    }
+
     public class _KoolEntity5EntityType : CompiledEntityType<KoolEntity5>, IEntityType
     {
         public _KoolEntity5EntityType(IModel model)
@@ -444,9 +496,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity5Table"; }
         }
 
-        protected override int[] LoadKey()
+        protected override IKey LoadKey()
         {
-            return new[] { 2 };
+            return new _KoolEntity5Key(Model);
         }
 
         protected override IProperty[] LoadProperties()
@@ -459,6 +511,19 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             return ZipAnnotations(
                 new[] { "Annotation1", "Annotation2" },
                 new[] { "Value1", "Value2" }).ToArray();
+        }
+    }
+
+    public class _KoolEntity5Key : CompiledKey, IKey
+    {
+        public _KoolEntity5Key(IModel model)
+            : base(model)
+        {
+        }
+
+        protected override KeyDefinition Definition
+        {
+            get { return new KeyDefinition(15, new short[] { 2 }); }
         }
     }
 
@@ -479,9 +544,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity6Table"; }
         }
 
-        protected override int[] LoadKey()
+        protected override IKey LoadKey()
         {
-            return new[] { 2 };
+            return new _KoolEntity6Key(Model);
         }
 
         protected override IProperty[] LoadProperties()
@@ -494,6 +559,19 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             return ZipAnnotations(
                 new[] { "Annotation1", "Annotation2" },
                 new[] { "Value1", "Value2" }).ToArray();
+        }
+    }
+
+    public class _KoolEntity6Key : CompiledKey, IKey
+    {
+        public _KoolEntity6Key(IModel model)
+            : base(model)
+        {
+        }
+
+        protected override KeyDefinition Definition
+        {
+            get { return new KeyDefinition(16, new short[] { 2 }); }
         }
     }
 
@@ -514,9 +592,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity7Table"; }
         }
 
-        protected override int[] LoadKey()
+        protected override IKey LoadKey()
         {
-            return new[] { 2 };
+            return new _KoolEntity7Key(Model);
         }
 
         protected override IProperty[] LoadProperties()
@@ -529,6 +607,19 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             return ZipAnnotations(
                 new[] { "Annotation1", "Annotation2" },
                 new[] { "Value1", "Value2" }).ToArray();
+        }
+    }
+
+    public class _KoolEntity7Key : CompiledKey, IKey
+    {
+        public _KoolEntity7Key(IModel model)
+            : base(model)
+        {
+        }
+
+        protected override KeyDefinition Definition
+        {
+            get { return new KeyDefinition(17, new short[] { 2 }); }
         }
     }
 
@@ -549,9 +640,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity8Table"; }
         }
 
-        protected override int[] LoadKey()
+        protected override IKey LoadKey()
         {
-            return new[] { 2 };
+            return new _KoolEntity8Key(Model);
         }
 
         protected override IProperty[] LoadProperties()
@@ -564,6 +655,19 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             return ZipAnnotations(
                 new[] { "Annotation1", "Annotation2" },
                 new[] { "Value1", "Value2" }).ToArray();
+        }
+    }
+
+    public class _KoolEntity8Key : CompiledKey, IKey
+    {
+        public _KoolEntity8Key(IModel model)
+            : base(model)
+        {
+        }
+
+        protected override KeyDefinition Definition
+        {
+            get { return new KeyDefinition(18, new short[] { 2 }); }
         }
     }
 
@@ -584,9 +688,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity9Table"; }
         }
 
-        protected override int[] LoadKey()
+        protected override IKey LoadKey()
         {
-            return new[] { 2 };
+            return new _KoolEntity9Key(Model);
         }
 
         protected override IProperty[] LoadProperties()
@@ -599,6 +703,19 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             return ZipAnnotations(
                 new[] { "Annotation1", "Annotation2" },
                 new[] { "Value1", "Value2" }).ToArray();
+        }
+    }
+
+    public class _KoolEntity9Key : CompiledKey, IKey
+    {
+        public _KoolEntity9Key(IModel model)
+            : base(model)
+        {
+        }
+
+        protected override KeyDefinition Definition
+        {
+            get { return new KeyDefinition(19, new short[] { 2 }); }
         }
     }
 
@@ -619,9 +736,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity10Table"; }
         }
 
-        protected override int[] LoadKey()
+        protected override IKey LoadKey()
         {
-            return new[] { 2 };
+            return new _KoolEntity10Key(Model);
         }
 
         protected override IProperty[] LoadProperties()
@@ -634,6 +751,19 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             return ZipAnnotations(
                 new[] { "Annotation1", "Annotation2" },
                 new[] { "Value1", "Value2" }).ToArray();
+        }
+    }
+
+    public class _KoolEntity10Key : CompiledKey, IKey
+    {
+        public _KoolEntity10Key(IModel model)
+            : base(model)
+        {
+        }
+
+        protected override KeyDefinition Definition
+        {
+            get { return new KeyDefinition(1, new short[] { 2 }); }
         }
     }
 
@@ -654,9 +784,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity11Table"; }
         }
 
-        protected override int[] LoadKey()
+        protected override IKey LoadKey()
         {
-            return new[] { 2 };
+            return new _KoolEntity11Key(Model);
         }
 
         protected override IProperty[] LoadProperties()
@@ -669,6 +799,19 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             return ZipAnnotations(
                 new[] { "Annotation1", "Annotation2" },
                 new[] { "Value1", "Value2" }).ToArray();
+        }
+    }
+
+    public class _KoolEntity11Key : CompiledKey, IKey
+    {
+        public _KoolEntity11Key(IModel model)
+            : base(model)
+        {
+        }
+
+        protected override KeyDefinition Definition
+        {
+            get { return new KeyDefinition(2, new short[] { 2 }); }
         }
     }
 
@@ -689,9 +832,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity12Table"; }
         }
 
-        protected override int[] LoadKey()
+        protected override IKey LoadKey()
         {
-            return new[] { 2 };
+            return new _KoolEntity12Key(Model);
         }
 
         protected override IProperty[] LoadProperties()
@@ -704,6 +847,19 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             return ZipAnnotations(
                 new[] { "Annotation1", "Annotation2" },
                 new[] { "Value1", "Value2" }).ToArray();
+        }
+    }
+
+    public class _KoolEntity12Key : CompiledKey, IKey
+    {
+        public _KoolEntity12Key(IModel model)
+            : base(model)
+        {
+        }
+
+        protected override KeyDefinition Definition
+        {
+            get { return new KeyDefinition(3, new short[] { 2 }); }
         }
     }
 
@@ -724,9 +880,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity13Table"; }
         }
 
-        protected override int[] LoadKey()
+        protected override IKey LoadKey()
         {
-            return new[] { 2 };
+            return new _KoolEntity13Key(Model);
         }
 
         protected override IProperty[] LoadProperties()
@@ -739,6 +895,19 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             return ZipAnnotations(
                 new[] { "Annotation1", "Annotation2" },
                 new[] { "Value1", "Value2" }).ToArray();
+        }
+    }
+
+    public class _KoolEntity13Key : CompiledKey, IKey
+    {
+        public _KoolEntity13Key(IModel model)
+            : base(model)
+        {
+        }
+
+        protected override KeyDefinition Definition
+        {
+            get { return new KeyDefinition(4, new short[] { 2 }); }
         }
     }
 
@@ -759,9 +928,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity14Table"; }
         }
 
-        protected override int[] LoadKey()
+        protected override IKey LoadKey()
         {
-            return new[] { 2 };
+            return new _KoolEntity14Key(Model);
         }
 
         protected override IProperty[] LoadProperties()
@@ -774,6 +943,19 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             return ZipAnnotations(
                 new[] { "Annotation1", "Annotation2" },
                 new[] { "Value1", "Value2" }).ToArray();
+        }
+    }
+
+    public class _KoolEntity14Key : CompiledKey, IKey
+    {
+        public _KoolEntity14Key(IModel model)
+            : base(model)
+        {
+        }
+
+        protected override KeyDefinition Definition
+        {
+            get { return new KeyDefinition(5, new short[] { 2 }); }
         }
     }
 
@@ -794,9 +976,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity15Table"; }
         }
 
-        protected override int[] LoadKey()
+        protected override IKey LoadKey()
         {
-            return new[] { 2 };
+            return new _KoolEntity15Key(Model);
         }
 
         protected override IProperty[] LoadProperties()
@@ -809,6 +991,19 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             return ZipAnnotations(
                 new[] { "Annotation1", "Annotation2" },
                 new[] { "Value1", "Value2" }).ToArray();
+        }
+    }
+
+    public class _KoolEntity15Key : CompiledKey, IKey
+    {
+        public _KoolEntity15Key(IModel model)
+            : base(model)
+        {
+        }
+
+        protected override KeyDefinition Definition
+        {
+            get { return new KeyDefinition(6, new short[] { 2 }); }
         }
     }
 
@@ -829,9 +1024,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity16Table"; }
         }
 
-        protected override int[] LoadKey()
+        protected override IKey LoadKey()
         {
-            return new[] { 2 };
+            return new _KoolEntity16Key(Model);
         }
 
         protected override IProperty[] LoadProperties()
@@ -844,6 +1039,19 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             return ZipAnnotations(
                 new[] { "Annotation1", "Annotation2" },
                 new[] { "Value1", "Value2" }).ToArray();
+        }
+    }
+
+    public class _KoolEntity16Key : CompiledKey, IKey
+    {
+        public _KoolEntity16Key(IModel model)
+            : base(model)
+        {
+        }
+
+        protected override KeyDefinition Definition
+        {
+            get { return new KeyDefinition(7, new short[] { 2 }); }
         }
     }
 
@@ -864,9 +1072,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity17Table"; }
         }
 
-        protected override int[] LoadKey()
+        protected override IKey LoadKey()
         {
-            return new[] { 2 };
+            return new _KoolEntity17Key(Model);
         }
 
         protected override IProperty[] LoadProperties()
@@ -879,6 +1087,19 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             return ZipAnnotations(
                 new[] { "Annotation1", "Annotation2" },
                 new[] { "Value1", "Value2" }).ToArray();
+        }
+    }
+
+    public class _KoolEntity17Key : CompiledKey, IKey
+    {
+        public _KoolEntity17Key(IModel model)
+            : base(model)
+        {
+        }
+
+        protected override KeyDefinition Definition
+        {
+            get { return new KeyDefinition(8, new short[] { 2 }); }
         }
     }
 
@@ -899,9 +1120,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity18Table"; }
         }
 
-        protected override int[] LoadKey()
+        protected override IKey LoadKey()
         {
-            return new[] { 2 };
+            return new _KoolEntity18Key(Model);
         }
 
         protected override IProperty[] LoadProperties()
@@ -917,6 +1138,19 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         }
     }
 
+    public class _KoolEntity18Key : CompiledKey, IKey
+    {
+        public _KoolEntity18Key(IModel model)
+            : base(model)
+        {
+        }
+
+        protected override KeyDefinition Definition
+        {
+            get { return new KeyDefinition(9, new short[] { 2 }); }
+        }
+    }
+    
     public class _KoolEntity19EntityType : CompiledEntityType<KoolEntity19>, IEntityType
     {
         public _KoolEntity19EntityType(IModel model)
@@ -934,9 +1168,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity19Table"; }
         }
 
-        protected override int[] LoadKey()
+        protected override IKey LoadKey()
         {
-            return new[] { 2 };
+            return new _KoolEntity19Key(Model);
         }
 
         protected override IProperty[] LoadProperties()
@@ -949,6 +1183,19 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             return ZipAnnotations(
                 new[] { "Annotation1", "Annotation2" },
                 new[] { "Value1", "Value2" }).ToArray();
+        }
+    }
+
+    public class _KoolEntity19Key : CompiledKey, IKey
+    {
+        public _KoolEntity19Key(IModel model)
+            : base(model)
+        {
+        }
+
+        protected override KeyDefinition Definition
+        {
+            get { return new KeyDefinition(10, new short[] { 2 }); }
         }
     }
 
@@ -969,9 +1216,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity20Table"; }
         }
 
-        protected override int[] LoadKey()
+        protected override IKey LoadKey()
         {
-            return new[] { 2 };
+            return new _KoolEntity20Key(Model);
         }
 
         protected override IProperty[] LoadProperties()
@@ -984,6 +1231,19 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             return ZipAnnotations(
                 new[] { "Annotation1", "Annotation2" },
                 new[] { "Value1", "Value2" }).ToArray();
+        }
+    }
+
+    public class _KoolEntity20Key : CompiledKey, IKey
+    {
+        public _KoolEntity20Key(IModel model)
+            : base(model)
+        {
+        }
+
+        protected override KeyDefinition Definition
+        {
+            get { return new KeyDefinition(12, new short[] { 2 }); }
         }
     }
 

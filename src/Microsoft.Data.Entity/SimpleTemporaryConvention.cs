@@ -18,20 +18,23 @@ namespace Microsoft.Data.Entity
 
             foreach (var entityType in model.EntityTypes)
             {
-                foreach (var entityProperty in entityType.Type.GetRuntimeProperties()
+                foreach (var propertyInfo in entityType.Type.GetRuntimeProperties()
                     .Where(p => !p.IsStatic() && !p.GetIndexParameters().Any()))
                 {
-                    if (entityProperty.Name.Equals("Id", StringComparison.OrdinalIgnoreCase))
+                    var property = new Property(propertyInfo);
+
+                    if (propertyInfo.Name.Equals("Id", StringComparison.OrdinalIgnoreCase))
                     {
-                        entityType.Key = new[] { new Property(entityProperty) };
-                        if (entityProperty.PropertyType == typeof(Guid))
+                        entityType.SetKey(new Key(new[] { property }));
+
+                        if (property.PropertyType == typeof(Guid))
                         {
-                            entityType.Key.Single().ValueGenerationStrategy = ValueGenerationStrategy.Client;
+                            property.ValueGenerationStrategy = ValueGenerationStrategy.Client;
                         }
                     }
                     else
                     {
-                        entityType.AddProperty(new Property(entityProperty));
+                        entityType.AddProperty(property);
                     }
                 }
             }

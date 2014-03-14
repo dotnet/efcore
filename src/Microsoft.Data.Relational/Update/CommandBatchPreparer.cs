@@ -44,7 +44,7 @@ namespace Microsoft.Data.Relational.Update
                 .Where(p =>
                     p.ValueGenerationStrategy != ValueGenerationStrategy.StoreComputed &&
                     p.ValueGenerationStrategy != ValueGenerationStrategy.StoreIdentity &&
-                    (includeKeys || !entityType.Key.Contains(p)))
+                    (includeKeys || !entityType.GetKey().Properties.Contains(p)))
                 .Select(p => new KeyValuePair<string, object>(p.StorageName, p.GetValue(stateEntry.Entity)));
         }
 
@@ -52,9 +52,8 @@ namespace Microsoft.Data.Relational.Update
         {
             return
                 stateEntry
-                    .EntityType
-                    .Key
-                    .Select(k => new KeyValuePair<string, object>(k.Name, k.GetValue(stateEntry.Entity)));
+                    .EntityType.GetKey().Properties
+                        .Select(k => new KeyValuePair<string, object>(k.Name, k.GetValue(stateEntry.Entity)));
         }
     }
 }
