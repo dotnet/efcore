@@ -250,6 +250,38 @@ namespace Microsoft.Data.Entity
             return GetString("NoMatch");
         }
 
+        /// <summary>
+        /// The collection argument '{argumentName}' must contain at least one element.
+        /// </summary>
+        internal static string CollectionArgumentIsEmpty
+        {
+            get { return GetString("CollectionArgumentIsEmpty"); }
+        }
+
+        /// <summary>
+        /// The collection argument '{argumentName}' must contain at least one element.
+        /// </summary>
+        internal static string FormatCollectionArgumentIsEmpty(object argumentName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("CollectionArgumentIsEmpty", "argumentName"), argumentName);
+        }
+
+        /// <summary>
+        /// The properties provided for the argument '{argumentName}' are declared on different entity types.
+        /// </summary>
+        internal static string InconsistentEntityType
+        {
+            get { return GetString("InconsistentEntityType"); }
+        }
+
+        /// <summary>
+        /// The properties provided for the argument '{argumentName}' are declared on different entity types.
+        /// </summary>
+        internal static string FormatInconsistentEntityType(object argumentName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("InconsistentEntityType", "argumentName"), argumentName);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

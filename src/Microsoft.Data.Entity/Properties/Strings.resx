@@ -162,4 +162,10 @@
   <data name="NoMatch" xml:space="preserve">
     <value>Sequence contains no matching element.</value>
   </data>
+  <data name="CollectionArgumentIsEmpty" xml:space="preserve">
+    <value>The collection argument '{argumentName}' must contain at least one element.</value>
+  </data>
+  <data name="InconsistentEntityType" xml:space="preserve">
+    <value>The properties provided for the argument '{argumentName}' are declared on different entity types.</value>
+  </data>
 </root>
