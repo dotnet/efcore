@@ -33,18 +33,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 "propertyInfo",
                 // ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(() => new Property(null)).ParamName);
-
-            var property = new Property(Customer.NameProperty);
-
-            Assert.Equal(
-                "instance",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => property.GetValue(null)).ParamName);
-
-            Assert.Equal(
-                "instance",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => property.SetValue(null, "Kake")).ParamName);
         }
 
         [Fact]
@@ -71,19 +59,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal("Name", property.Name);
             Assert.Same(typeof(string), property.PropertyType);
             Assert.True(property.IsNullable);
-        }
-
-        [Fact]
-        public void Can_get_and_set_property_value()
-        {
-            var entityType = new EntityType(typeof(Customer));
-            var property = new Property(Customer.NameProperty);
-            entityType.AddProperty(property);
-            var entity = new Customer();
-
-            Assert.Null(property.GetValue(entity));
-            property.SetValue(entity, "There is no kake");
-            Assert.Equal("There is no kake", property.GetValue(entity));
         }
 
         [Fact]

@@ -65,12 +65,26 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         [Fact]
         public void Property_values_can_be_read_and_set_using_compiled_metadata_without_reflection()
         {
-            var entity = new KoolEntity15();
-            var property = new _OneTwoThreeContextModel().GetEntityType(entity.GetType()).TryGetProperty("Id");
+            var configuration = new EntityConfiguration { Model = new _OneTwoThreeContextModel() };
 
-            Assert.Equal(0, property.GetValue(entity));
-            property.SetValue(entity, 777);
-            Assert.Equal(777, property.GetValue(entity));
+            using (var context = new EntityContext(configuration))
+            {
+                var entity = new KoolEntity15();
+                var property = (_KoolEntity15IdProperty)context.Model.GetEntityType(entity.GetType()).TryGetProperty("Id");
+
+                var stateEntry = context.ChangeTracker.Entry(entity).StateEntry;
+
+                Assert.False(property.GetterCalled);
+                Assert.False(property.SetterCalled);
+
+                Assert.Equal(0, stateEntry.GetPropertyValue(property));
+                Assert.True(property.GetterCalled);
+
+                stateEntry.SetPropertyValue(property, 777);
+
+                Assert.True(property.SetterCalled);
+                Assert.Equal(777, stateEntry.GetPropertyValue(property));
+            }
         }
 
         [Fact]

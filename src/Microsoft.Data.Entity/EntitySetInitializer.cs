@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity
@@ -9,6 +11,7 @@ namespace Microsoft.Data.Entity
     public class EntitySetInitializer
     {
         private readonly EntitySetFinder _setFinder;
+        private readonly ClrPropertySetterSource _entitySetSetters;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -19,11 +22,13 @@ namespace Microsoft.Data.Entity
         {
         }
 
-        public EntitySetInitializer([NotNull] EntitySetFinder setFinder)
+        public EntitySetInitializer([NotNull] EntitySetFinder setFinder, [NotNull] ClrPropertySetterSource entitySetSetters)
         {
             Check.NotNull(setFinder, "setFinder");
+            Check.NotNull(entitySetSetters, "entitySetSetters");
 
             _setFinder = setFinder;
+            _entitySetSetters = entitySetSetters;
         }
 
         public virtual void InitializeSets([NotNull] EntityContext context)
@@ -32,12 +37,11 @@ namespace Microsoft.Data.Entity
 
             // TODO: Consider caching and/or compiled model support for initializing, possibly by rewriting the
             // context EntitySet properties to include in-line initialization
-            foreach (var setProperty in _setFinder.FindSets(context))
+            foreach (var setProperty in _setFinder.FindSets(context).Where(s => s.SetMethod != null))
             {
-                if (setProperty.SetMethod != null)
-                {
-                    setProperty.SetMethod.Invoke(context, new[] { Activator.CreateInstance(setProperty.PropertyType, context) });
-                }
+                _entitySetSetters.GetAccessor(setProperty.DeclaringType, setProperty.Name)
+                    .SetClrValue(context, Activator.CreateInstance(setProperty.PropertyType, context));
+
             }
         }
     }

@@ -38,14 +38,14 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             Check.NotNull(property, "property");
 
-            return property.GetValue(_entity);
+            return StateManager.GetClrPropertyGetter(property).GetClrValue(_entity);
         }
 
         public override void SetPropertyValue(IProperty property, object value)
         {
             Check.NotNull(property, "property");
 
-            property.SetValue(_entity, value);
+            StateManager.GetClrPropertySetter(property).SetClrValue(_entity, value);
         }
     }
 }

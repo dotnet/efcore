@@ -129,7 +129,9 @@ namespace Microsoft.Data.InMemory.Tests
                 new Mock<ActiveIdentityGenerators>().Object,
                 Enumerable.Empty<IEntityStateListener>(),
                 new EntityKeyFactorySource(),
-                new StateEntryFactory());
+                new StateEntryFactory(),
+                new ClrPropertyGetterSource(), 
+                new ClrPropertySetterSource());
         }
     }
 }

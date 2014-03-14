@@ -92,22 +92,6 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        // TODO: Move these off IProperty
-        public virtual void SetValue(object instance, object value)
-        {
-            Check.NotNull(instance, "instance");
-
-            EntityType.Type.GetAnyProperty(Name).SetValue(instance, value);
-        }
-
-        // TODO: Move these off IProperty
-        public virtual object GetValue(object instance)
-        {
-            Check.NotNull(instance, "instance");
-
-            return EntityType.Type.GetAnyProperty(Name).GetValue(instance);
-        }
-
         IEntityType IProperty.EntityType
         {
             get { return EntityType; }

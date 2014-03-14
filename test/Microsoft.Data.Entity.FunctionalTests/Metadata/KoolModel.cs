@@ -3169,7 +3169,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         }
     }
 
-    public class _KoolEntity15IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
+    public class _KoolEntity15IdProperty : CompiledPropertyNoAnnotations<int>, IProperty, IClrPropertyGetter, IClrPropertySetter
     {
         public _KoolEntity15IdProperty(IEntityType entityType)
             : base(entityType)
@@ -3204,6 +3204,21 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         public int ShadowIndex
         {
             get { return -2; }
+        }
+
+        public bool GetterCalled { get; set; }
+        public bool SetterCalled { get; set; }
+
+        public object GetClrValue(object instance)
+        {
+            GetterCalled = true;
+            return ((KoolEntity15)instance).Id;
+        }
+
+        public void SetClrValue(object instance, object value)
+        {
+            SetterCalled = true;
+            ((KoolEntity15)instance).Id = (int)value;
         }
     }
 
