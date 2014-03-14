@@ -3,6 +3,7 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.AspNet.DependencyInjection;
+using Microsoft.AspNet.DependencyInjection.Fallback;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
@@ -26,7 +27,7 @@ namespace Microsoft.Data.Entity
         private RuntimeModelFactory _runtimeModelFactory;
 
         public EntityConfiguration()
-            : this(new ServiceProvider().Add(EntityServices.GetDefaultServices()))
+            : this(EntityServices.GetDefaultServices().BuildServiceProvider())
         {
         }
 

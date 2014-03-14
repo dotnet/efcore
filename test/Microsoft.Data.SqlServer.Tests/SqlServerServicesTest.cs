@@ -2,6 +2,7 @@
 
 using System.Linq;
 using Microsoft.AspNet.DependencyInjection;
+using Microsoft.AspNet.DependencyInjection.Fallback;
 using Microsoft.Data.Entity.Identity;
 using Xunit;
 
@@ -20,7 +21,7 @@ namespace Microsoft.Data.SqlServer.Tests
         [Fact]
         public void Services_wire_up_correctly()
         {
-            var serviceProvider = new ServiceProvider().Add(SqlServerServices.GetDefaultServices());
+            var serviceProvider = SqlServerServices.GetDefaultServices().BuildServiceProvider();
 
             Assert.NotNull(serviceProvider.GetService<IdentityGeneratorFactory>());
         }

@@ -3,6 +3,7 @@
 using System;
 using System.Linq;
 using Microsoft.AspNet.DependencyInjection;
+using Microsoft.AspNet.DependencyInjection.Fallback;
 using Microsoft.AspNet.Logging;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Identity;
@@ -33,7 +34,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Services_wire_up_correctly()
         {
-            var serviceProvider = new ServiceProvider().Add(EntityServices.GetDefaultServices());
+            var serviceProvider = EntityServices.GetDefaultServices().BuildServiceProvider();
 
             var loggerFactory = serviceProvider.GetService<ILoggerFactory>();
             Assert.NotNull(loggerFactory);
@@ -69,7 +70,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void ActiveIdentityGenerators_is_configured_with_IdentityGeneratorFactory()
         {
-            var serviceProvider = new ServiceProvider().Add(EntityServices.GetDefaultServices());
+            var serviceProvider = EntityServices.GetDefaultServices().BuildServiceProvider();
 
             var generators = serviceProvider.GetService<ActiveIdentityGenerators>();
 

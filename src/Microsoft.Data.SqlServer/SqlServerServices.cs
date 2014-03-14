@@ -1,17 +1,16 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
 using Microsoft.AspNet.DependencyInjection;
 using Microsoft.Data.Entity.Identity;
-using Microsoft.Data.Entity.Services;
 
 namespace Microsoft.Data.SqlServer
 {
     public static class SqlServerServices
     {
-        public static IEnumerable<IServiceDescriptor> GetDefaultServices()
+        public static ServiceCollection GetDefaultServices()
         {
-            yield return Service.Singleton<IdentityGeneratorFactory, SqlServerIdentityGeneratorFactory>();
+            return new ServiceCollection()
+                .AddSingleton<IdentityGeneratorFactory, SqlServerIdentityGeneratorFactory>();
         }
     }
 }

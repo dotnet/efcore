@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNet.DependencyInjection;
+using Microsoft.AspNet.DependencyInjection.Fallback;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
@@ -83,10 +84,10 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_provide_data_store_from_service_provider()
         {
-            var serviceProvider = new ServiceProvider();
+            var collection = new ServiceCollection();
             var dataStore = new FakeDataStore();
-            serviceProvider.AddInstance<DataStore>(dataStore);
-            var entityConfiguration = new EntityConfiguration(serviceProvider);
+            collection.AddInstance<DataStore>(dataStore);
+            var entityConfiguration = new EntityConfiguration(collection.BuildServiceProvider());
 
             Assert.Same(dataStore, entityConfiguration.DataStore);
         }
@@ -97,17 +98,16 @@ namespace Microsoft.Data.Entity.Tests
             Assert.Equal(
                 Strings.FormatMissingConfigurationItem(typeof(IdentityGeneratorFactory)),
                 Assert.Throws<InvalidOperationException>(
-                    () => new EntityConfiguration(new ServiceProvider()).IdentityGeneratorFactory).Message);
+                    () => new EntityConfiguration(new ServiceCollection().BuildServiceProvider()).IdentityGeneratorFactory).Message);
         }
 
         [Fact]
         public void Can_provide_IdentityGeneratorFactory_from_service_provider()
         {
-            var serviceProvider = new ServiceProvider();
-            var configuration = new EntityConfiguration(serviceProvider);
-
+            var serviceCollection = new ServiceCollection();
             var factory = new Mock<IdentityGeneratorFactory>().Object;
-            serviceProvider.AddInstance<IdentityGeneratorFactory>(factory);
+            serviceCollection.AddInstance<IdentityGeneratorFactory>(factory);
+            var configuration = new EntityConfiguration(serviceCollection.BuildServiceProvider());
 
             Assert.Same(factory, configuration.IdentityGeneratorFactory);
         }
@@ -126,9 +126,9 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_set_IdentityGeneratorFactory_to_override_service_provider_default()
         {
-            var serviceProvider = new ServiceProvider();
-            var configuration = new EntityConfiguration(serviceProvider);
-            serviceProvider.AddInstance<IdentityGeneratorFactory>(new Mock<IdentityGeneratorFactory>().Object);
+            var serviceCollection = new ServiceCollection();
+            var configuration = new EntityConfiguration(serviceCollection.BuildServiceProvider());
+            serviceCollection.AddInstance<IdentityGeneratorFactory>(new Mock<IdentityGeneratorFactory>().Object);
 
             var factory = new Mock<IdentityGeneratorFactory>().Object;
             configuration.IdentityGeneratorFactory = factory;
@@ -139,17 +139,18 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_set_IdentityGeneratorFactory_but_fallback_to_service_provider_default()
         {
-            var serviceProvider = new ServiceProvider();
-            var configuration = new EntityConfiguration(serviceProvider);
+            var serviceCollection = new ServiceCollection();
 
             var generator1 = new Mock<IIdentityGenerator>().Object;
             var defaultFactoryMock = new Mock<IdentityGeneratorFactory>();
             defaultFactoryMock.Setup(m => m.Create(It.Is<IProperty>(p => p.Name == "Foo"))).Returns(generator1);
-            serviceProvider.AddInstance<IdentityGeneratorFactory>(defaultFactoryMock.Object);
+            serviceCollection.AddInstance<IdentityGeneratorFactory>(defaultFactoryMock.Object);
 
             var generator2 = new Mock<IIdentityGenerator>().Object;
             var customFactoryMock = new Mock<IdentityGeneratorFactory>();
             customFactoryMock.Setup(m => m.Create(It.Is<IProperty>(p => p.Name == "Goo"))).Returns(generator2);
+
+            var configuration = new EntityConfiguration(serviceCollection.BuildServiceProvider());
 
             configuration.IdentityGeneratorFactory = new OverridingIdentityGeneratorFactory(
                 customFactoryMock.Object, configuration.IdentityGeneratorFactory);
@@ -171,17 +172,16 @@ namespace Microsoft.Data.Entity.Tests
             Assert.Equal(
                 Strings.FormatMissingConfigurationItem(typeof(StateManagerFactory)),
                 Assert.Throws<InvalidOperationException>(
-                    () => new EntityConfiguration(new ServiceProvider()).StateManagerFactory).Message);
+                    () => new EntityConfiguration(new ServiceCollection().BuildServiceProvider()).StateManagerFactory).Message);
         }
 
         [Fact]
         public void Can_provide_StateManagerFactory_from_service_provider()
         {
-            var serviceProvider = new ServiceProvider();
-            var configuration = new EntityConfiguration(serviceProvider);
-
+            var serviceCollection = new ServiceCollection();
             var factory = new Mock<StateManagerFactory>().Object;
-            serviceProvider.AddInstance<StateManagerFactory>(factory);
+            serviceCollection.AddInstance<StateManagerFactory>(factory);
+            var configuration = new EntityConfiguration(serviceCollection.BuildServiceProvider());
 
             Assert.Same(factory, configuration.StateManagerFactory);
         }
@@ -203,17 +203,16 @@ namespace Microsoft.Data.Entity.Tests
             Assert.Equal(
                 Strings.FormatMissingConfigurationItem(typeof(ActiveIdentityGenerators)),
                 Assert.Throws<InvalidOperationException>(
-                    () => new EntityConfiguration(new ServiceProvider()).ActiveIdentityGenerators).Message);
+                    () => new EntityConfiguration(new ServiceCollection().BuildServiceProvider()).ActiveIdentityGenerators).Message);
         }
 
         [Fact]
         public void Can_provide_ActiveIdentityGenerators_from_service_provider()
         {
-            var serviceProvider = new ServiceProvider();
-            var configuration = new EntityConfiguration(serviceProvider);
-
+            var serviceCollection = new ServiceCollection();
             var factory = new Mock<ActiveIdentityGenerators>().Object;
-            serviceProvider.AddInstance<ActiveIdentityGenerators>(factory);
+            serviceCollection.AddInstance<ActiveIdentityGenerators>(factory);
+            var configuration = new EntityConfiguration(serviceCollection.BuildServiceProvider());
 
             Assert.Same(factory, configuration.ActiveIdentityGenerators);
         }
@@ -232,17 +231,16 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Model_returns_null_if_no_ModelSource_registered()
         {
-            Assert.Null(new EntityConfiguration(new ServiceProvider()).Model);
+            Assert.Null(new EntityConfiguration(new ServiceCollection().BuildServiceProvider()).Model);
         }
 
         [Fact]
         public void Can_provide_Model_from_service_provider()
         {
-            var serviceProvider = new ServiceProvider();
-            var configuration = new EntityConfiguration(serviceProvider);
-
+            var serviceCollection = new ServiceCollection();
             var model = new Mock<IModel>().Object;
-            serviceProvider.AddInstance<IModel>(model);
+            serviceCollection.AddInstance<IModel>(model);
+            var configuration = new EntityConfiguration(serviceCollection.BuildServiceProvider());
 
             Assert.Same(model, configuration.Model);
         }
@@ -264,17 +262,16 @@ namespace Microsoft.Data.Entity.Tests
             Assert.Equal(
                 Strings.FormatMissingConfigurationItem(typeof(IModelSource)),
                 Assert.Throws<InvalidOperationException>(
-                    () => new EntityConfiguration(new ServiceProvider()).ModelSource).Message);
+                    () => new EntityConfiguration(new ServiceCollection().BuildServiceProvider()).ModelSource).Message);
         }
 
         [Fact]
         public void Can_provide_ModelSource_from_service_provider()
         {
-            var serviceProvider = new ServiceProvider();
-            var configuration = new EntityConfiguration(serviceProvider);
-
+            var serviceCollection = new ServiceCollection();
             var factory = new Mock<IModelSource>().Object;
-            serviceProvider.AddInstance<IModelSource>(factory);
+            serviceCollection.AddInstance<IModelSource>(factory);
+            var configuration = new EntityConfiguration(serviceCollection.BuildServiceProvider());
 
             Assert.Same(factory, configuration.ModelSource);
         }
@@ -296,17 +293,16 @@ namespace Microsoft.Data.Entity.Tests
             Assert.Equal(
                 Strings.FormatMissingConfigurationItem(typeof(EntitySetInitializer)),
                 Assert.Throws<InvalidOperationException>(
-                    () => new EntityConfiguration(new ServiceProvider()).EntitySetInitializer).Message);
+                    () => new EntityConfiguration(new ServiceCollection().BuildServiceProvider()).EntitySetInitializer).Message);
         }
 
         [Fact]
         public void Can_provide_EntitySetInitializer_from_service_provider()
         {
-            var serviceProvider = new ServiceProvider();
-            var configuration = new EntityConfiguration(serviceProvider);
-
+            var serviceCollection = new ServiceCollection();
             var service = new Mock<EntitySetInitializer>().Object;
-            serviceProvider.AddInstance<EntitySetInitializer>(service);
+            serviceCollection.AddInstance<EntitySetInitializer>(service);
+            var configuration = new EntityConfiguration(serviceCollection.BuildServiceProvider());
 
             Assert.Same(service, configuration.EntitySetInitializer);
         }
@@ -328,18 +324,17 @@ namespace Microsoft.Data.Entity.Tests
             Assert.Equal(
                 Strings.FormatMissingConfigurationItem(typeof(EntitySetFinder)),
                 Assert.Throws<InvalidOperationException>(
-                    () => new EntityConfiguration(new ServiceProvider()).EntitySetFinder).Message);
+                    () => new EntityConfiguration(new ServiceCollection().BuildServiceProvider()).EntitySetFinder).Message);
         }
 
         [Fact]
         public void Can_provide_EntitySetFinder_from_service_provider()
         {
-            var serviceProvider = new ServiceProvider();
-            var configuration = new EntityConfiguration(serviceProvider);
-
+            var serviceCollection = new ServiceCollection();
             var service = new Mock<EntitySetFinder>().Object;
-            serviceProvider.AddInstance<EntitySetFinder>(service);
-
+            serviceCollection.AddInstance<EntitySetFinder>(service);
+            var configuration = new EntityConfiguration(serviceCollection.BuildServiceProvider());
+            
             Assert.Same(service, configuration.EntitySetFinder);
         }
 
