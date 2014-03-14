@@ -1,6 +1,5 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,14 +13,11 @@ namespace Microsoft.Data.Relational.Update
         [Fact]
         public void CompileBatch_compiles_inserts()
         {
-            var batch = new ModificationCommandBatch(
-                new[]
-                    {
-                        new ModificationCommand(
-                            "Table",
-                            new Dictionary<string, object> { { "Id", 42 }, { "Name", "Test" } },
-                            null)
-                    });
+            var batch = 
+                CreateCommandBatch(
+                    "Table",
+                    new Dictionary<string, object> { { "Id", 42 }, { "Name", "Test" } }.ToArray(),
+                    null);
 
             List<KeyValuePair<string, object>> parameters;
             var sql = batch.CompileBatch(CreateMockSqlGenerator(), out parameters);
@@ -33,14 +29,11 @@ namespace Microsoft.Data.Relational.Update
         [Fact]
         public void CompileBatch_compiles_updates()
         {
-            var batch = new ModificationCommandBatch(
-                new[]
-                    {
-                        new ModificationCommand(
-                            "Table",
-                            new Dictionary<string, object> { { "Name", "Test" } },
-                            new Dictionary<string, object> { { "Id1", 42 }, { "Id2", 43 } })
-                    });
+            var batch = 
+                CreateCommandBatch(
+                    "Table",
+                    new Dictionary<string, object> { { "Name", "Test" } }.ToArray(),
+                    new Dictionary<string, object> { { "Id1", 42 }, { "Id2", 43 } }.ToArray());
 
             List<KeyValuePair<string, object>> parameters;
             var sql = batch.CompileBatch(CreateMockSqlGenerator(), out parameters);
@@ -52,14 +45,11 @@ namespace Microsoft.Data.Relational.Update
         [Fact]
         public void CompileBatch_compiles_deletes()
         {
-            var batch = new ModificationCommandBatch(
-                new[]
-                    {
-                        new ModificationCommand(
-                            "Table",
-                            null,
-                            new Dictionary<string, object> { { "Id1", 42 }, { "Id2", 43 } })
-                    });
+            var batch =
+                CreateCommandBatch(
+                    "Table",
+                    null,
+                    new Dictionary<string, object> { { "Id1", 42 }, { "Id2", 43 } }.ToArray());
 
             List<KeyValuePair<string, object>> parameters;
             var sql = batch.CompileBatch(CreateMockSqlGenerator(), out parameters);
@@ -69,14 +59,11 @@ namespace Microsoft.Data.Relational.Update
         }
 
         [Fact]
-        public void Batch_seperator_not_appended_if_batch_header_empty()
+        public void Batch_separator_not_appended_if_batch_header_empty()
         {
-            var batch = new ModificationCommandBatch(
-                new[]
-                    {
-                        new ModificationCommand(
-                            "Table", null, new Dictionary<string, object>{ { "Id1", 42} })
-                    });
+            var batch =
+                CreateCommandBatch(
+                    "Table", null, new Dictionary<string, object> { { "Id1", 42 } }.ToArray());
 
             List<KeyValuePair<string, object>> parameters;
             var sql = batch.CompileBatch(new SqlGenerator(), out parameters);
@@ -133,6 +120,35 @@ namespace Microsoft.Data.Relational.Update
             mockSqlGen.Setup(g => g.BatchCommandSeparator).Returns("$");
 
             return mockSqlGen.Object;
+        }
+
+        private static ModificationCommandBatch CreateCommandBatch(string tableName,
+            KeyValuePair<string, object>[] columnValues, KeyValuePair<string, object>[] whereClauses)
+        {
+            var mockModificationCommand = new Mock<ModificationCommand>();
+            mockModificationCommand
+                .Setup(c => c.TableName)
+                .Returns(tableName);
+
+            mockModificationCommand
+                .Setup(c => c.ColumnValues)
+                .Returns(columnValues);
+
+            mockModificationCommand
+                .Setup(c => c.WhereClauses)
+                .Returns(whereClauses);
+
+            mockModificationCommand
+                .Setup(c => c.Operation)
+                .Returns(
+                    columnValues == null
+                        ? ModificationOperation.Delete
+                        : whereClauses == null
+                            ? ModificationOperation.Insert
+                            : ModificationOperation.Update);
+
+            return
+                new ModificationCommandBatch(new[] { mockModificationCommand.Object });
         }
     }
 }

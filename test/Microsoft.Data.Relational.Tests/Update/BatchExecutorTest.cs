@@ -16,12 +16,12 @@ namespace Microsoft.Data.Relational.Update
         [Fact]
         public async void ExecuteAsync_executes_batch_commands_and_consumes_reader()
         {
-            var batch = 
-                new ModificationCommandBatch(
-                    new[]
-                        {
-                            new ModificationCommand("table", new[] { new KeyValuePair<string, object>("Id", 1) }, null)
-                        });
+            var mockModificationCommand = new Mock<ModificationCommand>();
+            mockModificationCommand.Setup(c => c.TableName).Returns("table");
+            mockModificationCommand.Setup(c => c.ColumnValues).Returns(new[] { new KeyValuePair<string, object>("Id", 1) });
+            mockModificationCommand.Setup(c => c.WhereClauses).Returns(new KeyValuePair<string, object>[0]);
+
+            var batch = new ModificationCommandBatch(new[] { mockModificationCommand.Object });
 
             var executor = new BatchExecutor(new[] { batch }, new SqlGenerator());
 
@@ -41,12 +41,12 @@ namespace Microsoft.Data.Relational.Update
         [Fact]
         public async void ExecuteAsync_throws_if_records_affected_and_command_count_dont_match()
         {
-            var batch =
-                new ModificationCommandBatch(
-                    new[]
-                        {
-                            new ModificationCommand("table", new[] { new KeyValuePair<string, object>("Id", 1) }, null)
-                        });
+            var mockModificationCommand = new Mock<ModificationCommand>();
+            mockModificationCommand.Setup(c => c.TableName).Returns("table");
+            mockModificationCommand.Setup(c => c.ColumnValues).Returns(new[] { new KeyValuePair<string, object>("Id", 1) });
+            mockModificationCommand.Setup(c => c.WhereClauses).Returns(new KeyValuePair<string, object>[0]);
+
+            var batch = new ModificationCommandBatch( new[] { mockModificationCommand.Object });
 
             var executor = new BatchExecutor(new[] { batch }, new SqlGenerator());
 
