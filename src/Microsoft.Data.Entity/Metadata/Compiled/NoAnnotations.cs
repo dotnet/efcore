@@ -23,5 +23,10 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
                 return null;
             }
         }
+
+        public virtual string StorageName
+        {
+            get { return null; }
+        }
     }
 }

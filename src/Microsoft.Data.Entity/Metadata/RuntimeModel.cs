@@ -48,6 +48,11 @@ namespace Microsoft.Data.Entity.Metadata
             get { return _model.Annotations; }
         }
 
+        public virtual string StorageName
+        {
+            get { return _model.StorageName; }
+        }
+
         public virtual IEntityType TryGetEntityType(Type type)
         {
             return _model.TryGetEntityType(type);

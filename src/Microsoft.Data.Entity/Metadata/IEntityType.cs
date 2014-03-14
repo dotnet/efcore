@@ -9,7 +9,6 @@ namespace Microsoft.Data.Entity.Metadata
     public interface IEntityType : IMetadata
     {
         string Name { get; }
-        string StorageName { get; }
 
         [CanBeNull]
         Type Type { get; }

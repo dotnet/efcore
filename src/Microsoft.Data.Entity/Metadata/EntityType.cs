@@ -11,16 +11,15 @@ using Microsoft.Data.Entity.Utilities;
 namespace Microsoft.Data.Entity.Metadata
 {
     [DebuggerDisplay("{Name},nq")]
-    public class EntityType : MetadataBase, IEntityType
+    public class EntityType : NamedMetadataBase, IEntityType
     {
-        private readonly string _name;
         private readonly Type _type;
         private readonly LazyRef<List<ForeignKey>> _foreignKeys = new LazyRef<List<ForeignKey>>(() => new List<ForeignKey>());
         private readonly LazyRef<List<Navigation>> _navigations = new LazyRef<List<Navigation>>(() => new List<Navigation>());
         private readonly List<Property> _properties = new List<Property>();
 
         private IReadOnlyList<Property> _keyProperties;
-        private string _storageName;
+
         public Func<object[], object> _activator;
         private int _shadowPropertyCount;
 
@@ -49,27 +48,8 @@ namespace Microsoft.Data.Entity.Metadata
         /// </summary>
         /// <param name="name">The name of the shadow-state entity type.</param>
         public EntityType([NotNull] string name)
+            : base(Check.NotEmpty(name, "name"))
         {
-            Check.NotEmpty(name, "name");
-
-            _name = name;
-        }
-
-        public virtual string Name
-        {
-            get { return _name; }
-        }
-
-        public virtual string StorageName
-        {
-            get { return _storageName ?? _name; }
-            [param: NotNull]
-            set
-            {
-                Check.NotEmpty(value, "value");
-
-                _storageName = value;
-            }
         }
 
         public virtual Type Type

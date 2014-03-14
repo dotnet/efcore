@@ -46,11 +46,6 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
             get { return false; }
         }
 
-        public string StorageName
-        {
-            get { return null; }
-        }
-
         protected struct ForeignKeyDefinition
         {
             public short DependentIndex;

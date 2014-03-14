@@ -8,7 +8,6 @@ namespace Microsoft.Data.Entity.Metadata
     public interface IProperty : IMetadata
     {
         string Name { get; }
-        string StorageName { get; }
         Type PropertyType { get; }
         IEntityType EntityType { get; }
         bool IsNullable { get; }

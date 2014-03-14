@@ -31,5 +31,10 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
         {
             return names.Zip(values, (n, v) => new Annotation(n, v)).ToArray();
         }
+
+        public virtual string StorageName
+        {
+            get { return null; }
+        }
     }
 }

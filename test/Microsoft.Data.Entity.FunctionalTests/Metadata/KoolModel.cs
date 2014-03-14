@@ -243,7 +243,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity1"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "KoolEntity1Table"; }
         }
@@ -295,7 +295,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity2"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "KoolEntity2Table"; }
         }
@@ -348,7 +348,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity3"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "KoolEntity3Table"; }
         }
@@ -399,7 +399,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity4"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "KoolEntity4Table"; }
         }
@@ -439,7 +439,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity5"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "KoolEntity5Table"; }
         }
@@ -474,7 +474,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity6"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "KoolEntity6Table"; }
         }
@@ -509,7 +509,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity7"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "KoolEntity7Table"; }
         }
@@ -544,7 +544,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity8"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "KoolEntity8Table"; }
         }
@@ -579,7 +579,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity9"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "KoolEntity9Table"; }
         }
@@ -614,7 +614,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity10"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "KoolEntity10Table"; }
         }
@@ -649,7 +649,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity11"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "KoolEntity11Table"; }
         }
@@ -684,7 +684,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity12"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "KoolEntity12Table"; }
         }
@@ -719,7 +719,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity13"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "KoolEntity13Table"; }
         }
@@ -754,7 +754,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity14"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "KoolEntity14Table"; }
         }
@@ -789,7 +789,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity15"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "KoolEntity15Table"; }
         }
@@ -824,7 +824,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity16"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "KoolEntity16Table"; }
         }
@@ -859,7 +859,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity17"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "KoolEntity17Table"; }
         }
@@ -894,7 +894,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity18"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "KoolEntity18Table"; }
         }
@@ -929,7 +929,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity19"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "KoolEntity19Table"; }
         }
@@ -964,7 +964,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity20"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "KoolEntity20Table"; }
         }
@@ -999,7 +999,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Id1"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "MyKey1"; }
         }
@@ -1037,7 +1037,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Id2"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "MyKey2"; }
         }
@@ -1075,7 +1075,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Foo1"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "Foo1"; }
         }
@@ -1120,7 +1120,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Goo1"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "Goo1"; }
         }
@@ -1158,7 +1158,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity2Id"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "KoolEntity2Id"; }
         }
@@ -1196,7 +1196,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Id"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "MyKey"; }
         }
@@ -1234,7 +1234,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Foo2"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "Foo2"; }
         }
@@ -1279,7 +1279,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Goo2"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "Goo2"; }
         }
@@ -1317,7 +1317,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity1Id1"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "KoolEntity1Id1"; }
         }
@@ -1355,7 +1355,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity1Id2"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "KoolEntity1Id2"; }
         }
@@ -1393,7 +1393,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity3Id"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "KoolEntity3Id"; }
         }
@@ -1431,7 +1431,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Id"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "MyKey"; }
         }
@@ -1469,7 +1469,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Foo3"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "Foo3"; }
         }
@@ -1514,7 +1514,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Goo3"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "Goo3"; }
         }
@@ -1552,7 +1552,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity4Id"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "KoolEntity4Id"; }
         }
@@ -1590,7 +1590,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Id"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "MyKey"; }
         }
@@ -1628,7 +1628,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Foo4"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "Foo4"; }
         }
@@ -1673,7 +1673,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Goo4"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "Goo4"; }
         }
@@ -1711,7 +1711,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Id"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "MyKey"; }
         }
@@ -1749,7 +1749,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Foo5"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "Foo5"; }
         }
@@ -1794,7 +1794,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Goo5"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "Goo5"; }
         }
@@ -1832,7 +1832,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Id"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "MyKey"; }
         }
@@ -1870,7 +1870,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Foo6"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "Foo6"; }
         }
@@ -1915,7 +1915,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Goo6"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "Goo6"; }
         }
@@ -1953,7 +1953,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Id"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "MyKey"; }
         }
@@ -1991,7 +1991,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Foo7"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "Foo7"; }
         }
@@ -2036,7 +2036,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Goo7"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "Goo7"; }
         }
@@ -2074,7 +2074,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Id"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "MyKey"; }
         }
@@ -2112,7 +2112,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Foo8"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "Foo8"; }
         }
@@ -2157,7 +2157,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Goo8"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "Goo8"; }
         }
@@ -2195,7 +2195,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Id"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "MyKey"; }
         }
@@ -2233,7 +2233,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Foo9"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "Foo9"; }
         }
@@ -2278,7 +2278,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Goo9"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "Goo9"; }
         }
@@ -2316,7 +2316,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Id"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "MyKey"; }
         }
@@ -2354,7 +2354,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Foo10"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "Foo10"; }
         }
@@ -2399,7 +2399,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Goo10"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "Goo10"; }
         }
@@ -2437,7 +2437,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Id"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "MyKey"; }
         }
@@ -2475,7 +2475,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Foo11"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "Foo11"; }
         }
@@ -2520,7 +2520,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Goo11"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "Goo11"; }
         }
@@ -2558,7 +2558,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Id"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "MyKey"; }
         }
@@ -2596,7 +2596,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Foo12"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "Foo12"; }
         }
@@ -2641,7 +2641,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Goo12"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "Goo12"; }
         }
@@ -2679,7 +2679,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Id"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "MyKey"; }
         }
@@ -2717,7 +2717,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Foo13"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "Foo13"; }
         }
@@ -2762,7 +2762,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Goo13"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "Goo13"; }
         }
@@ -2800,7 +2800,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Id"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "MyKey"; }
         }
@@ -2838,7 +2838,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Foo14"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "Foo14"; }
         }
@@ -2883,7 +2883,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Goo14"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "Goo14"; }
         }
@@ -2921,7 +2921,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Id"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "MyKey"; }
         }
@@ -2959,7 +2959,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Foo15"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "Foo15"; }
         }
@@ -3004,7 +3004,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Goo15"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "Goo15"; }
         }
@@ -3042,7 +3042,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Id"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "MyKey"; }
         }
@@ -3080,7 +3080,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Foo16"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "Foo16"; }
         }
@@ -3125,7 +3125,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Goo16"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "Goo16"; }
         }
@@ -3163,7 +3163,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Id"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "MyKey"; }
         }
@@ -3201,7 +3201,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Foo17"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "Foo17"; }
         }
@@ -3246,7 +3246,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Goo17"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "Goo17"; }
         }
@@ -3284,7 +3284,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Id"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "MyKey"; }
         }
@@ -3322,7 +3322,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Foo18"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "Foo18"; }
         }
@@ -3367,7 +3367,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Goo18"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "Goo18"; }
         }
@@ -3405,7 +3405,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Id"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "MyKey"; }
         }
@@ -3443,7 +3443,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Foo19"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "Foo19"; }
         }
@@ -3488,7 +3488,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Goo19"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "Goo19"; }
         }
@@ -3526,7 +3526,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Id"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "MyKey"; }
         }
@@ -3564,7 +3564,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Foo20"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "Foo20"; }
         }
@@ -3609,7 +3609,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Goo20"; }
         }
 
-        public string StorageName
+        public override string StorageName
         {
             get { return "Goo20"; }
         }
