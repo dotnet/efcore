@@ -14,7 +14,6 @@ namespace Microsoft.Data.Entity.Metadata
         private readonly IReadOnlyList<Property> _dependentProperties;
 
         private Property[] _principalProperties;
-        private string _storageName;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -43,7 +42,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual IReadOnlyList<Property> PrincipalProperties
         {
-            get { return _principalProperties ?? _principalType.Key; }
+            get { return _principalProperties ?? _principalType.GetKey().Properties; }
             [param: NotNull]
             set
             {
@@ -63,18 +62,6 @@ namespace Microsoft.Data.Entity.Metadata
         public virtual bool IsRequired
         {
             get { return DependentProperties.Any(p => !p.IsNullable); }
-        }
-
-        public virtual string StorageName
-        {
-            get { return _storageName; }
-            [param: NotNull]
-            set
-            {
-                Check.NotEmpty(value, "value");
-
-                _storageName = value;
-            }
         }
 
         public virtual EntityType DependentType { get; [param: CanBeNull] set; }

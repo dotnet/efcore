@@ -99,9 +99,8 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 Check.NotNull(keyExpression, "keyExpression");
 
-                Metadata.Key
-                    = keyExpression.GetPropertyAccessList()
-                        .Select(pi => Metadata.TryGetProperty(pi.Name) ?? new Property(pi)).ToArray();
+                Metadata.SetKey(new Key(keyExpression.GetPropertyAccessList()
+                    .Select(pi => Metadata.TryGetProperty(pi.Name) ?? new Property(pi)).ToArray()));
 
                 return this;
             }

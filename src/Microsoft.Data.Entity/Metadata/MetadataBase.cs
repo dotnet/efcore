@@ -14,6 +14,8 @@ namespace Microsoft.Data.Entity.Metadata
             = new LazyRef<ImmutableSortedSet<Annotation>>(
                 () => ImmutableSortedSet<Annotation>.Empty.WithComparer(new AnnotationComparer()));
 
+        public virtual string StorageName { get; [param: CanBeNull] set; }
+
         public virtual void AddAnnotation([NotNull] Annotation annotation)
         {
             Check.NotNull(annotation, "annotation");

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using JetBrains.Annotations;
 
@@ -21,6 +22,21 @@ namespace Microsoft.Data.Entity.Utilities
 
             return value;
         }
+
+        [ContractAnnotation("value:null => halt")]
+        public static IReadOnlyList<T> NotEmpty<T>(IReadOnlyList<T> value, [InvokerParameterName] [NotNull] string parameterName)
+        {
+            NotEmpty(parameterName, "parameterName");
+            NotNull(value, parameterName);
+
+            if (value.Count == 0)
+            {
+                throw new ArgumentException(Strings.FormatCollectionArgumentIsEmpty(parameterName));
+            }
+
+            return value;
+        }
+
 
         [ContractAnnotation("value:null => halt")]
         public static string NotEmpty(string value, [InvokerParameterName] [NotNull] string parameterName)

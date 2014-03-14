@@ -9,12 +9,10 @@ using Microsoft.Data.Entity.Utilities;
 namespace Microsoft.Data.Entity.Metadata
 {
     [DebuggerDisplay("{PropertyType.Name,nq} {Name,nq}")]
-    public class Property : MetadataBase, IProperty
+    public class Property : NamedMetadataBase, IProperty
     {
-        private readonly string _name;
         private readonly Type _propertyType;
 
-        private string _storageName;
         private bool _isNullable = true;
         private int _shadowIndex;
         private int _index;
@@ -38,31 +36,13 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         public Property([NotNull] string name, [NotNull] Type propertyType, bool hasClrProperty)
+            : base(Check.NotEmpty(name, "name"))
         {
-            Check.NotEmpty(name, "name");
             Check.NotNull(propertyType, "propertyType");
 
-            _name = name;
             _propertyType = propertyType;
             _shadowIndex = hasClrProperty ? -1 : 0;
             _isNullable = propertyType.IsNullableType();
-        }
-
-        public virtual string Name
-        {
-            get { return _name; }
-        }
-
-        public virtual string StorageName
-        {
-            get { return _storageName ?? _name; }
-            [param: NotNull]
-            set
-            {
-                Check.NotEmpty(value, "value");
-
-                _storageName = value;
-            }
         }
 
         public virtual Type PropertyType

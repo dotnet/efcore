@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
     public abstract class CompiledEntityType<TEntity> : CompiledMetadataBase
     {
         private readonly IModel _model;
-        private IProperty[] _keys;
+        private IKey _key;
         private IProperty[] _properties;
         private IForeignKey[] _foreignKeys;
         private INavigation[] _navigations;
@@ -41,7 +41,8 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
             get { return typeof(TEntity); }
         }
 
-        protected abstract int[] LoadKey();
+        protected abstract IKey LoadKey();
+        
         protected abstract IProperty[] LoadProperties();
 
         protected virtual IForeignKey[] LoadForeignKeys()
@@ -54,9 +55,9 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
             return Empty.Navigations;
         }
 
-        public IReadOnlyList<IProperty> Key
+        public IKey GetKey()
         {
-            get { return LazyInitializer.EnsureInitialized(ref _keys, BuildKey); }
+            return LazyInitializer.EnsureInitialized(ref _key, LoadKey);
         }
 
         public IReadOnlyList<IForeignKey> ForeignKeys
@@ -72,12 +73,6 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
         public IReadOnlyList<IProperty> Properties
         {
             get { return EnsurePropertiesInitialized(); }
-        }
-
-        private IProperty[] BuildKey()
-        {
-            var properties = EnsurePropertiesInitialized();
-            return LoadKey().Select(k => properties[k]).ToArray();
         }
 
         private IProperty[] EnsurePropertiesInitialized()

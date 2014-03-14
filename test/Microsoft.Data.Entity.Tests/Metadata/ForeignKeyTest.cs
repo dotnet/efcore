@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var entityType = new EntityType("E");
             var dependentProp = new Property("P", typeof(int), hasClrProperty: true);
             var principalProp = new Property("Id", typeof(int), hasClrProperty: true);
-            entityType.Key = new[] { principalProp };
+            entityType.SetKey(new Key(new[] { principalProp }));
 
             var foreignKey = new ForeignKey(entityType, new[] { dependentProp })
                 {
@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var keyProp = new Property("Id", typeof(int), hasClrProperty: true);
             var dependentProp = new Property("P", typeof(int), hasClrProperty: true);
             var principalProp = new Property("U", typeof(int), hasClrProperty: true);
-            entityType.Key = new[] { keyProp };
+            entityType.SetKey(new Key(new[] { keyProp }));
 
             var foreignKey = new ForeignKey(entityType, new[] { dependentProp })
                 {

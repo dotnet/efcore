@@ -69,9 +69,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             if (value == EntityState.Added)
             {
-                Contract.Assert(_entityType.Key.Count() <= 1, "Composite keys not implemented yet.");
-
-                var keyProperty = _entityType.Key.First();
+                var keyProperty = _entityType.GetKey().Properties.Single(); // TODO: Composite keys not implemented yet.
                 var identityGenerator = _stateManager.GetIdentityGenerator(keyProperty);
 
                 if (identityGenerator != null)
@@ -141,7 +139,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         public virtual EntityKey GetPrimaryKeyValue()
         {
-            return _stateManager.Model.GetKeyFactory(_entityType.Key).Create(_entityType, _entityType.Key, this);
+            return _stateManager.Model
+                .GetKeyFactory(_entityType.GetKey().Properties)
+                .Create(_entityType, _entityType.GetKey().Properties, this);
         }
 
         public virtual EntityKey GetDependentKeyValue([NotNull] IForeignKey foreignKey)

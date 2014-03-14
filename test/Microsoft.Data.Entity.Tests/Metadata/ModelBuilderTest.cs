@@ -51,8 +51,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var entity = model.GetEntityType(typeof(Customer));
 
-            Assert.Equal(1, entity.Key.Count());
-            Assert.Equal("Id", entity.Key.First().Name);
+            Assert.Equal(1, entity.GetKey().Properties.Count());
+            Assert.Equal("Id", entity.GetKey().Properties.First().Name);
         }
 
         [Fact]
@@ -67,9 +67,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var entity = model.GetEntityType(typeof(Customer));
 
-            Assert.Equal(2, entity.Key.Count());
-            Assert.Equal("Id", entity.Key.First().Name);
-            Assert.Equal("Name", entity.Key.Last().Name);
+            Assert.Equal(2, entity.GetKey().Properties.Count());
+            Assert.Equal("Id", entity.GetKey().Properties.First().Name);
+            Assert.Equal("Name", entity.GetKey().Properties.Last().Name);
         }
 
         [Fact]

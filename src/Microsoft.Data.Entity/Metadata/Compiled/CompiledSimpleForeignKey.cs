@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 
         public IReadOnlyList<IProperty> PrincipalProperties
         {
-            get { return PrincipalType.Key; }
+            get { return PrincipalType.GetKey().Properties; }
         }
 
         public IEntityType PrincipalType
@@ -44,11 +44,6 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
         public bool IsUnique
         {
             get { return false; }
-        }
-
-        public string StorageName
-        {
-            get { return null; }
         }
 
         protected struct ForeignKeyDefinition

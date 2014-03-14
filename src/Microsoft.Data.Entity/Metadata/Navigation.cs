@@ -5,23 +5,16 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public class Navigation : INavigation
+    public class Navigation : NamedMetadataBase, INavigation
     {
-        private readonly string _name;
         private readonly ForeignKey _foreignKey;
 
         public Navigation([NotNull] ForeignKey foreignKey, [NotNull] string name)
+            : base(Check.NotEmpty(name, "name"))
         {
             Check.NotNull(foreignKey, "foreignKey");
-            Check.NotEmpty(name, "name");
 
             _foreignKey = foreignKey;
-            _name = name;
-        }
-
-        public virtual string Name
-        {
-            get { return _name; }
         }
 
         public virtual EntityType EntityType { get; [param: CanBeNull] set; }

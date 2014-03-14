@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var keyPart3 = new Mock<IProperty>().Object;
 
             var typeMock = new Mock<IEntityType>();
-            typeMock.Setup(m => m.Key).Returns(new[] { keyPart1, keyPart2, keyPart3 });
+            typeMock.Setup(m => m.GetKey().Properties).Returns(new[] { keyPart1, keyPart2, keyPart3 });
 
             var random = new Random();
             var entryMock = new Mock<StateEntry>();
@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entryMock.Setup(m => m.EntityType).Returns(typeMock.Object);
 
             var key = (CompositeEntityKey)new CompositeEntityKeyFactory().Create(
-                typeMock.Object, typeMock.Object.Key, entryMock.Object);
+                typeMock.Object, typeMock.Object.GetKey().Properties, entryMock.Object);
 
             Assert.Equal(new Object[] { 7, "Ate", random }, key.Value);
         }
@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var nonKeyPart2 = new Mock<IProperty>().Object;
 
             var typeMock = new Mock<IEntityType>();
-            typeMock.Setup(m => m.Key).Returns(new[] { keyProp });
+            typeMock.Setup(m => m.GetKey().Properties).Returns(new[] { keyProp });
 
             var random = new Random();
             var entryMock = new Mock<StateEntry>();

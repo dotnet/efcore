@@ -12,6 +12,5 @@ namespace Microsoft.Data.Entity.Metadata
         IEntityType DependentType { get; }
         bool IsUnique { get; }
         bool IsRequired { get; }
-        string StorageName { get; }
     }
 }
