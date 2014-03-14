@@ -60,16 +60,24 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var propertyMock = new Mock<IProperty>();
             var entityTypeMock = CreateEntityTypeMock(new Mock<IProperty>(), propertyMock);
+            var managerMock = CreateManagerMock(entityTypeMock);
+
+            var getterMock = new Mock<IClrPropertyGetter>();
+            managerMock.Setup(m => m.GetClrPropertyGetter(propertyMock.Object)).Returns(getterMock.Object);
+
+            var setterMock = new Mock<IClrPropertySetter>();
+            managerMock.Setup(m => m.GetClrPropertySetter(propertyMock.Object)).Returns(setterMock.Object);
+
             var entity = new Random();
-            var entry = new MixedStateEntry(CreateManagerMock(entityTypeMock).Object, entityTypeMock.Object, entity);
+            var entry = new MixedStateEntry(managerMock.Object, entityTypeMock.Object, entity);
 
             Assert.Equal(null, entry.GetPropertyValue(propertyMock.Object));
 
-            propertyMock.Verify(m => m.GetValue(entity));
+            getterMock.Verify(m => m.GetClrValue(entity));
 
             entry.SetPropertyValue(propertyMock.Object, "Magic Tree House");
 
-            propertyMock.Verify(m => m.SetValue(entity, "Magic Tree House"));
+            setterMock.Verify(m => m.SetClrValue(entity, "Magic Tree House"));
         }
 
         [Fact]
@@ -78,11 +86,18 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var propertyMock1 = new Mock<IProperty>();
             var propertyMock2 = new Mock<IProperty>();
             var entityTypeMock = CreateEntityTypeMock(propertyMock1, propertyMock2);
-            var entry = new MixedStateEntry(CreateManagerMock(entityTypeMock).Object, entityTypeMock.Object, new Random());
+            var managerMock = CreateManagerMock(entityTypeMock);
+
+            var getterMock2 = new Mock<IClrPropertyGetter>();
+            getterMock2.Setup(m => m.GetClrValue(It.IsAny<object>())).Returns("Tree House");
+            managerMock.Setup(m => m.GetClrPropertyGetter(propertyMock2.Object)).Returns(getterMock2.Object);
+
+            var entry = new MixedStateEntry(managerMock.Object, entityTypeMock.Object, new Random());
 
             entry.SetPropertyValue(propertyMock1.Object, "Magic");
-            propertyMock2.Setup(m => m.GetValue(It.IsAny<object>())).Returns("Tree House");
 
+            Assert.Equal(new object[] { "Magic", "Tree House" }, entry.GetValueBuffer());
+            
             Assert.Equal(new object[] { "Magic", "Tree House" }, entry.GetValueBuffer());
         }
 

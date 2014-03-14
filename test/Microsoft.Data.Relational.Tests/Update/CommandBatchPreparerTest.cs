@@ -20,7 +20,11 @@ namespace Microsoft.Data.Relational.Update
         {
             var model = CreateModel();
             var stateManager =
-                new StateManager(model, Mock.Of<ActiveIdentityGenerators>(), new IEntityStateListener[0], new EntityKeyFactorySource(), new StateEntryFactory());
+                new StateManager(
+                    model, Mock.Of<ActiveIdentityGenerators>(),
+                    new IEntityStateListener[0], new EntityKeyFactorySource(),
+                    new StateEntryFactory(), new ClrPropertyGetterSource(), new ClrPropertySetterSource());
+
             var stateEntry = new MixedStateEntry(stateManager, model.GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
             await stateEntry.SetEntityStateAsync(EntityState.Added, new CancellationToken());
 
@@ -44,7 +48,11 @@ namespace Microsoft.Data.Relational.Update
         {
             var model = CreateModel();
             var stateManager =
-                new StateManager(model, Mock.Of<ActiveIdentityGenerators>(), new IEntityStateListener[0], new EntityKeyFactorySource(), new StateEntryFactory());
+                new StateManager(
+                    model, Mock.Of<ActiveIdentityGenerators>(),
+                    new IEntityStateListener[0], new EntityKeyFactorySource(),
+                    new StateEntryFactory(), new ClrPropertyGetterSource(), new ClrPropertySetterSource());
+
             var stateEntry = new MixedStateEntry(stateManager, model.GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
             await stateEntry.SetEntityStateAsync(EntityState.Modified, new CancellationToken());
 
@@ -75,7 +83,11 @@ namespace Microsoft.Data.Relational.Update
         {
             var model = CreateModel();
             var stateManager =
-                new StateManager(model, Mock.Of<ActiveIdentityGenerators>(), new IEntityStateListener[0], new EntityKeyFactorySource(), new StateEntryFactory());
+                new StateManager(
+                    model, Mock.Of<ActiveIdentityGenerators>(),
+                    new IEntityStateListener[0], new EntityKeyFactorySource(),
+                    new StateEntryFactory(), new ClrPropertyGetterSource(), new ClrPropertySetterSource());
+
             var stateEntry = new MixedStateEntry(stateManager, model.GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
             await stateEntry.SetEntityStateAsync(EntityState.Deleted, new CancellationToken());
 
@@ -96,7 +108,7 @@ namespace Microsoft.Data.Relational.Update
                 command.WhereClauses);
         }
 
-        private static Entity.Metadata.RuntimeModel CreateModel()
+        private static RuntimeModel CreateModel()
         {
             var model = new Entity.Metadata.Model();
             var modelBuilder = new ModelBuilder(model);

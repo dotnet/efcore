@@ -95,13 +95,16 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             managerMock.Setup(m => m.GetIdentityGenerator(keyMock.Object)).Returns(generatorMock.Object);
 
+            var setterMock = new Mock<IClrPropertySetter>();
+            managerMock.Setup(m => m.GetClrPropertySetter(keyMock.Object)).Returns(setterMock.Object);
+
             var entity = new Random();
             var entry = CreateStateEntry(managerMock.Object, entityTypeMock.Object, entity);
             entry.SetEntityStateAsync(EntityState.Added, CancellationToken.None).Wait();
 
             if (keyMock.Object.HasClrProperty)
             {
-                keyMock.Verify(m => m.SetValue(entity, keyValue));
+                setterMock.Verify(m => m.SetClrValue(entity, keyValue));
             }
             else
             {
@@ -113,7 +116,6 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         public void Can_create_primary_key()
         {
             var propertyMock1 = new Mock<IProperty>();
-            propertyMock1.Setup(m => m.GetValue(It.IsAny<object>())).Returns("Atmosphere");
 
             var entityTypeMock = CreateEntityTypeMock(propertyMock1);
 
@@ -122,6 +124,13 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var managerMock = new Mock<StateManager>();
             managerMock.Setup(m => m.Model).Returns(modelMock.Object);
+
+            var getterMock = new Mock<IClrPropertyGetter>();
+            getterMock.Setup(m => m.GetClrValue(It.IsAny<object>())).Returns("Atmosphere");
+            managerMock.Setup(m => m.GetClrPropertyGetter(propertyMock1.Object)).Returns(getterMock.Object);
+
+            var setterMock = new Mock<IClrPropertySetter>();
+            managerMock.Setup(m => m.GetClrPropertySetter(propertyMock1.Object)).Returns(setterMock.Object);
 
             var entry = CreateStateEntry(managerMock.Object, entityTypeMock.Object, new Random());
             entry.SetPropertyValue(propertyMock1.Object, "Atmosphere");
@@ -135,10 +144,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         public void Can_create_foreign_key_value_based_on_dependent_values()
         {
             var principalProp = new Mock<IProperty>();
-            principalProp.Setup(m => m.GetValue(It.IsAny<object>())).Returns("Wax");
-
             var dependentProp = new Mock<IProperty>();
-            dependentProp.Setup(m => m.GetValue(It.IsAny<object>())).Returns("On");
 
             var principalProps = new[] { principalProp.Object };
             var dependentProps = new[] { dependentProp.Object };
@@ -151,6 +157,19 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var managerMock = new Mock<StateManager>();
             managerMock.Setup(m => m.Model).Returns(modelMock.Object);
+
+            var getterMock1 = new Mock<IClrPropertyGetter>();
+            getterMock1.Setup(m => m.GetClrValue(It.IsAny<object>())).Returns("Wax");
+
+            var getterMock2 = new Mock<IClrPropertyGetter>();
+            getterMock2.Setup(m => m.GetClrValue(It.IsAny<object>())).Returns("On");
+
+            managerMock.Setup(m => m.GetClrPropertyGetter(principalProp.Object)).Returns(getterMock1.Object);
+            managerMock.Setup(m => m.GetClrPropertyGetter(dependentProp.Object)).Returns(getterMock2.Object);
+
+            var setterMock = new Mock<IClrPropertySetter>();
+            managerMock.Setup(m => m.GetClrPropertySetter(principalProp.Object)).Returns(setterMock.Object);
+            managerMock.Setup(m => m.GetClrPropertySetter(dependentProp.Object)).Returns(setterMock.Object);
 
             var foreignKeyMock = new Mock<IForeignKey>();
             foreignKeyMock.Setup(m => m.PrincipalType).Returns(principalTypeMock.Object);
@@ -170,10 +189,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         public void Can_create_foreign_key_value_based_on_principal_end_values()
         {
             var principalProp = new Mock<IProperty>();
-            principalProp.Setup(m => m.GetValue(It.IsAny<object>())).Returns("Wax");
-
             var dependentProp = new Mock<IProperty>();
-            dependentProp.Setup(m => m.GetValue(It.IsAny<object>())).Returns("Off");
 
             var principalProps = new[] { principalProp.Object };
             var dependentProps = new[] { dependentProp.Object };
@@ -186,6 +202,19 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var managerMock = new Mock<StateManager>();
             managerMock.Setup(m => m.Model).Returns(modelMock.Object);
+
+            var getterMock1 = new Mock<IClrPropertyGetter>();
+            getterMock1.Setup(m => m.GetClrValue(It.IsAny<object>())).Returns("Wax");
+
+            var getterMock2 = new Mock<IClrPropertyGetter>();
+            getterMock2.Setup(m => m.GetClrValue(It.IsAny<object>())).Returns("Off");
+
+            managerMock.Setup(m => m.GetClrPropertyGetter(principalProp.Object)).Returns(getterMock1.Object);
+            managerMock.Setup(m => m.GetClrPropertyGetter(dependentProp.Object)).Returns(getterMock2.Object);
+
+            var setterMock = new Mock<IClrPropertySetter>();
+            managerMock.Setup(m => m.GetClrPropertySetter(principalProp.Object)).Returns(setterMock.Object);
+            managerMock.Setup(m => m.GetClrPropertySetter(dependentProp.Object)).Returns(setterMock.Object);
 
             var foreignKeyMock = new Mock<IForeignKey>();
             foreignKeyMock.Setup(m => m.PrincipalType).Returns(principalTypeMock.Object);

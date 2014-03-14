@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 using Moq;
 using Xunit;
@@ -15,9 +16,9 @@ namespace Microsoft.Data.Entity.Tests
             Assert.Equal(
                 "setFinder",
                 // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => new EntitySetInitializer(null)).ParamName);
+                Assert.Throws<ArgumentNullException>(() => new EntitySetInitializer(null, new ClrPropertySetterSource())).ParamName);
 
-            var initializer = new EntitySetInitializer(new Mock<EntitySetFinder>().Object);
+            var initializer = new EntitySetInitializer(new Mock<EntitySetFinder>().Object, new ClrPropertySetterSource());
 
             Assert.Equal(
                 "context",
@@ -40,7 +41,7 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = new JustAContext())
             {
-                new EntitySetInitializer(setFinderMock.Object).InitializeSets(context);
+                new EntitySetInitializer(setFinderMock.Object, new ClrPropertySetterSource()).InitializeSets(context);
 
                 Assert.NotNull(context.One);
                 Assert.NotNull(context.GetTwo());

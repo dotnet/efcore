@@ -45,7 +45,7 @@ namespace Microsoft.Data.Relational.Update
                     p.ValueGenerationStrategy != ValueGenerationStrategy.StoreComputed &&
                     p.ValueGenerationStrategy != ValueGenerationStrategy.StoreIdentity &&
                     (includeKeys || !entityType.GetKey().Properties.Contains(p)))
-                .Select(p => new KeyValuePair<string, object>(p.StorageName, p.GetValue(stateEntry.Entity)));
+                .Select(p => new KeyValuePair<string, object>(p.StorageName, stateEntry.GetPropertyValue(p)));
         }
 
         private static IEnumerable<KeyValuePair<string, object>> GetWhereClauses(StateEntry stateEntry)
@@ -53,7 +53,7 @@ namespace Microsoft.Data.Relational.Update
             return
                 stateEntry
                     .EntityType.GetKey().Properties
-                        .Select(k => new KeyValuePair<string, object>(k.Name, k.GetValue(stateEntry.Entity)));
+                        .Select(k => new KeyValuePair<string, object>(k.Name, stateEntry.GetPropertyValue(k)));
         }
     }
 }

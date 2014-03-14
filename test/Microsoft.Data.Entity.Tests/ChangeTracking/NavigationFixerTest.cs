@@ -87,7 +87,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 new Mock<ActiveIdentityGenerators>().Object,
                 Enumerable.Empty<IEntityStateListener>(),
                 new EntityKeyFactorySource(),
-                new StateEntryFactory());
+                new StateEntryFactory(),
+                new ClrPropertyGetterSource(), 
+                new ClrPropertySetterSource());
         }
 
         #region Fixture
