@@ -7,25 +7,28 @@ using Microsoft.Data.Relational.Model;
 
 namespace Microsoft.Data.Migrations.Model
 {
-    public class DropPrimaryKeyOperation : MigrationOperation
+    public class AddColumnOperation : MigrationOperation
     {
-        private readonly PrimaryKey _primaryKey;
+        private readonly Column _column;
+        private readonly Table _table;
 
-        public DropPrimaryKeyOperation([NotNull] PrimaryKey primaryKey)
+        public AddColumnOperation([NotNull] Column column, [NotNull] Table table)
         {
-            Check.NotNull(primaryKey, "primaryKey");
+            Check.NotNull(column, "column");
+            Check.NotNull(table, "table");
 
-            _primaryKey = primaryKey;
+            _column = column;
+            _table = table;
         }
 
-        public virtual PrimaryKey PrimaryKey
+        public virtual Column Column
         {
-            get { return _primaryKey; }
+            get { return _column; }
         }
 
-        public override bool IsDestructiveChange
+        public virtual Table Table
         {
-            get { return true; }
+            get { return _table; }
         }
 
         public override void GenerateOperationSql(

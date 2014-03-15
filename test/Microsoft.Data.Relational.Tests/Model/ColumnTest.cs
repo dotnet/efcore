@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Microsoft.Data.Relational.Tests.Model
 {
-    public class ColumnTests
+    public class ColumnTest
     {
         [Fact]
         public void Table_gets_parent_table()

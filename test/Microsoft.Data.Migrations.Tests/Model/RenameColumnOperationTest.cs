@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Microsoft.Data.Migrations.Tests.Model
 {
-    public class AddPrimaryKeyOperationTest
+    public class RenameColumnOperationTest
     {
         [Fact]
         public void Create_and_initialize_operation()
@@ -16,12 +16,11 @@ namespace Microsoft.Data.Migrations.Tests.Model
             var table = new Table("foo.bar");
             var column = new Column("C", "int");
             table.AddColumn(column);
-            var primaryKey = new PrimaryKey("PK", new[] { column });
 
-            var addPrimaryKeyOperation = new AddPrimaryKeyOperation(primaryKey, table);
+            var renameColumnOperation = new RenameColumnOperation(column, "D");
 
-            Assert.Same(primaryKey, addPrimaryKeyOperation.PrimaryKey);
-            Assert.Same(table, addPrimaryKeyOperation.Table);
+            Assert.Same(column, renameColumnOperation.Column);
+            Assert.Equal("D", renameColumnOperation.ColumnName);
         }
 
         [Fact]
@@ -30,11 +29,10 @@ namespace Microsoft.Data.Migrations.Tests.Model
             var table = new Table("foo.bar");
             var column = new Column("C", "int");
             table.AddColumn(column);
-            var primaryKey = new PrimaryKey("PK", new[] { column });
 
-            var addPrimaryKeyOperation = new AddPrimaryKeyOperation(primaryKey, table);
+            var renameColumnOperation = new RenameColumnOperation(column, "D");
 
-            Assert.False(addPrimaryKeyOperation.IsDestructiveChange);
+            Assert.False(renameColumnOperation.IsDestructiveChange);
         }
 
         [Fact]
@@ -43,16 +41,15 @@ namespace Microsoft.Data.Migrations.Tests.Model
             var table = new Table("foo.bar");
             var column = new Column("C", "int");
             table.AddColumn(column);
-            var primaryKey = new PrimaryKey("PK", new[] { column });
 
-            var addPrimaryKeyOperation = new AddPrimaryKeyOperation(primaryKey, table);
+            var renameColumnOperation = new RenameColumnOperation(column, "D");
             var mockSqlGenerator = new Mock<MigrationOperationSqlGenerator>();
             var stringBuilder = new IndentedStringBuilder();
 
-            addPrimaryKeyOperation.GenerateOperationSql(mockSqlGenerator.Object, stringBuilder, true);
+            renameColumnOperation.GenerateOperationSql(mockSqlGenerator.Object, stringBuilder, true);
 
             mockSqlGenerator.Verify(
-                g => g.Generate(addPrimaryKeyOperation, stringBuilder, true), Times.Once());
+                g => g.Generate(renameColumnOperation, stringBuilder, true), Times.Once());
         }
     }
 }

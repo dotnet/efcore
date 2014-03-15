@@ -7,24 +7,31 @@ using Microsoft.Data.Relational.Model;
 
 namespace Microsoft.Data.Migrations.Model
 {
-    public class CreateSequenceOperation : MigrationOperation<Sequence, DropSequenceOperation>
+    public class CreateSequenceOperation : MigrationOperation
     {
+        private readonly Sequence _sequence;
+
         public CreateSequenceOperation([NotNull] Sequence sequence)
-            : base(Check.NotNull(sequence, "sequence"))
         {
+            Check.NotNull(sequence, "sequence");
+
+            _sequence = sequence;
+        }
+
+        public virtual Sequence Sequence
+        {
+            get { return _sequence; }
         }
 
         public override void GenerateOperationSql(
-            MigrationOperationSqlGenerator migrationOperationSqlGenerator,
-            IndentedStringBuilder stringBuilder,
+            [NotNull] MigrationOperationSqlGenerator migrationOperationSqlGenerator,
+            [NotNull] IndentedStringBuilder stringBuilder,
             bool generateIdempotentSql)
         {
-            migrationOperationSqlGenerator.Generate(this, stringBuilder, generateIdempotentSql);
-        }
+            Check.NotNull(migrationOperationSqlGenerator, "migrationOperationSqlGenerator");
+            Check.NotNull(stringBuilder, "stringBuilder");
 
-        public override DropSequenceOperation Inverse
-        {
-            get { return new DropSequenceOperation(Target); }
+            migrationOperationSqlGenerator.Generate(this, stringBuilder, generateIdempotentSql);
         }
     }
 }

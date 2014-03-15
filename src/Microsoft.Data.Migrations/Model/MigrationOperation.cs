@@ -8,11 +8,6 @@ namespace Microsoft.Data.Migrations.Model
 {
     public abstract class MigrationOperation
     {
-        public virtual MigrationOperation Inverse
-        {
-            get { return null; }
-        }
-
         public virtual bool IsDestructiveChange
         {
             get { return false; }

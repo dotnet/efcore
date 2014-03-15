@@ -11,31 +11,27 @@ namespace Microsoft.Data.Migrations.Tests.Model
     public class CreateSequenceOperationTest
     {
         [Fact]
-        public void CreateAndInitializeOperation()
+        public void Create_and_initialize_operation()
         {
             var sequence = new Sequence("foo.bar");
 
             var createSequenceOperation = new CreateSequenceOperation(sequence);
 
-            Assert.Same(sequence, createSequenceOperation.Target);
+            Assert.Same(sequence, createSequenceOperation.Sequence);
         }
 
         [Fact]
-        public void ObtainInverse()
+        public void Is_not_destructive_change()
         {
-            var sequence = new Sequence("foo.bar");
-            var createSequenceOperation = new CreateSequenceOperation(sequence);
+            var createSequenceOperation = new CreateSequenceOperation(new Sequence("foo.bar"));
 
-            var inverse = createSequenceOperation.Inverse;
-
-            Assert.Same(sequence, inverse.Target);
+            Assert.False(createSequenceOperation.IsDestructiveChange);
         }
 
         [Fact]
-        public void DispatchesSqlGeneration()
+        public void Dispatches_sql_generation()
         {
-            var sequence = new Sequence("foo.bar");
-            var createSequenceOperation = new CreateSequenceOperation(sequence);
+            var createSequenceOperation = new CreateSequenceOperation(new Sequence("foo.bar"));
             var mockSqlGenerator = new Mock<MigrationOperationSqlGenerator>();
             var stringBuilder = new IndentedStringBuilder();
 

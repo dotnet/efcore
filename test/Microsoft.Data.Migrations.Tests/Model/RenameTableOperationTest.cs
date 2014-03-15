@@ -8,37 +8,38 @@ using Xunit;
 
 namespace Microsoft.Data.Migrations.Tests.Model
 {
-    public class CreateTableOperationTest
+    public class RenameTableOperationTest
     {
         [Fact]
         public void Create_and_initialize_operation()
         {
             var table = new Table("foo.bar");
 
-            var createTableOperation = new CreateTableOperation(table);
+            var renameTableOperation = new RenameTableOperation(table, "bar2");
 
-            Assert.Same(table, createTableOperation.Table);
+            Assert.Same(table, renameTableOperation.Table);
+            Assert.Equal("bar2", renameTableOperation.TableName);
         }
 
         [Fact]
         public void Is_not_destructive_change()
         {
-            var createTableOperation = new CreateTableOperation(new Table("foo.bar"));
+            var renameTableOperation = new RenameTableOperation(new Table("foo.bar"), "bar2");
 
-            Assert.False(createTableOperation.IsDestructiveChange);
+            Assert.False(renameTableOperation.IsDestructiveChange);
         }
 
         [Fact]
         public void Dispatches_sql_generation()
         {
-            var createTableOperation = new CreateTableOperation(new Table("foo.bar"));
+            var renameTableOperation = new RenameTableOperation(new Table("foo.bar"), "bar2");
             var mockSqlGenerator = new Mock<MigrationOperationSqlGenerator>();
             var stringBuilder = new IndentedStringBuilder();
 
-            createTableOperation.GenerateOperationSql(mockSqlGenerator.Object, stringBuilder, true);
+            renameTableOperation.GenerateOperationSql(mockSqlGenerator.Object, stringBuilder, true);
 
             mockSqlGenerator.Verify(
-                g => g.Generate(createTableOperation, stringBuilder, true), Times.Once());
+                g => g.Generate(renameTableOperation, stringBuilder, true), Times.Once());
         }
     }
 }

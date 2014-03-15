@@ -11,28 +11,25 @@ namespace Microsoft.Data.Migrations.Tests.Model
     public class DropSequenceOperationTest
     {
         [Fact]
-        public void CreateAndInitializeOperation()
+        public void Create_and_initialize_operation()
         {
             var sequence = new Sequence("foo.bar");
 
             var dropSequenceOperation = new DropSequenceOperation(sequence);
 
-            Assert.Same(sequence, dropSequenceOperation.Target);
+            Assert.Same(sequence, dropSequenceOperation.Sequence);
         }
 
         [Fact]
-        public void ObtainInverse()
+        public void Is_destructive_change()
         {
-            var sequence = new Sequence("foo.bar");
-            var dropSequenceOperation = new DropSequenceOperation(sequence);
+            var dropSequenceOperation = new DropSequenceOperation(new Sequence("foo.bar"));
 
-            var inverse = dropSequenceOperation.Inverse;
-
-            Assert.Same(sequence, inverse.Target);
+            Assert.True(dropSequenceOperation.IsDestructiveChange);
         }
 
         [Fact]
-        public void DispatchesSqlGeneration()
+        public void Dispatches_sql_generation()
         {
             var dropSequenceOperation = new DropSequenceOperation(new Sequence("foo.bar"));
             var mockSqlGenerator = new Mock<MigrationOperationSqlGenerator>();
