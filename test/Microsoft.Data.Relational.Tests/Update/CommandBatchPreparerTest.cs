@@ -108,7 +108,7 @@ namespace Microsoft.Data.Relational.Update
                 command.WhereClauses);
         }
 
-        private static RuntimeModel CreateModel()
+        private static IModel CreateModel()
         {
             var model = new Entity.Metadata.Model();
             var modelBuilder = new ModelBuilder(model);
@@ -118,7 +118,7 @@ namespace Microsoft.Data.Relational.Update
                 .Key(c => c.Id)
                 .Properties(ps => ps.Property(c => c.Value));
 
-            return new RuntimeModel(model, new EntityKeyFactorySource());
+            return model;
         }
 
         public class FakeEntity

@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 "identityGenerators",
                 // ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(
-                    () => new StateManager(Mock.Of<RuntimeModel>(), null, Enumerable.Empty<IEntityStateListener>(),
+                    () => new StateManager(Mock.Of<IModel>(), null, Enumerable.Empty<IEntityStateListener>(),
                         Mock.Of<EntityKeyFactorySource>(), Mock.Of<StateEntryFactory>(),
                         Mock.Of<ClrPropertyGetterSource>(), Mock.Of<ClrPropertySetterSource>())).ParamName);
 
@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 "entityStateListeners",
                 // ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(
-                    () => new StateManager(Mock.Of<RuntimeModel>(), Mock.Of<ActiveIdentityGenerators>(), null,
+                    () => new StateManager(Mock.Of<IModel>(), Mock.Of<ActiveIdentityGenerators>(), null,
                         Mock.Of<EntityKeyFactorySource>(), Mock.Of<StateEntryFactory>(),
                         Mock.Of<ClrPropertyGetterSource>(), Mock.Of<ClrPropertySetterSource>())).ParamName);
 
@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 "entityKeyFactorySource",
                 // ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(
-                    () => new StateManager(Mock.Of<RuntimeModel>(), Mock.Of<ActiveIdentityGenerators>(),
+                    () => new StateManager(Mock.Of<IModel>(), Mock.Of<ActiveIdentityGenerators>(),
                         Enumerable.Empty<IEntityStateListener>(), null, Mock.Of<StateEntryFactory>(),
                         Mock.Of<ClrPropertyGetterSource>(), Mock.Of<ClrPropertySetterSource>())).ParamName);
 
@@ -53,11 +53,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 "stateEntryFactory",
                 // ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(
-                    () => new StateManager(Mock.Of<RuntimeModel>(), Mock.Of<ActiveIdentityGenerators>(),
+                    () => new StateManager(Mock.Of<IModel>(), Mock.Of<ActiveIdentityGenerators>(),
                         Enumerable.Empty<IEntityStateListener>(), Mock.Of<EntityKeyFactorySource>(), null,
                         Mock.Of<ClrPropertyGetterSource>(), Mock.Of<ClrPropertySetterSource>())).ParamName);
 
-            var stateManager = CreateStateManager(Mock.Of<RuntimeModel>());
+            var stateManager = CreateStateManager(Mock.Of<IModel>());
 
             Assert.Equal(
                 "entity",
@@ -80,7 +80,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 Assert.Throws<ArgumentNullException>(() => stateManager.GetIdentityGenerator(null)).ParamName);
         }
 
-        private static StateManager CreateStateManager(RuntimeModel model)
+        private static StateManager CreateStateManager(IModel model)
         {
             return new StateManager(
                 model,
@@ -325,7 +325,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             public decimal Price { get; set; }
         }
 
-        private static RuntimeModel BuildModel()
+        private static IModel BuildModel()
         {
             var model = new Model();
             var builder = new ModelBuilder(model);
@@ -342,7 +342,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             locationType.SetKey(new Key(new []{ idProperty }));
             model.AddEntityType(locationType);
 
-            return new RuntimeModel(model, new EntityKeyFactorySource());
+            return model;
         }
 
         #endregion

@@ -24,7 +24,6 @@ namespace Microsoft.Data.Entity
         private ActiveIdentityGenerators _activeIdentityGenerators;
         private IModel _model;
         private IModelSource _modelSource;
-        private RuntimeModelFactory _runtimeModelFactory;
 
         public EntityConfiguration()
             : this(EntityServices.GetDefaultServices().BuildServiceProvider())
@@ -59,18 +58,6 @@ namespace Microsoft.Data.Entity
                 Check.NotNull(value, "value");
 
                 _modelSource = value;
-            }
-        }
-
-        public virtual RuntimeModelFactory RuntimeModelFactory
-        {
-            get { return _runtimeModelFactory ?? GetRequiredService<RuntimeModelFactory>(); }
-            [param: NotNull]
-            set
-            {
-                Check.NotNull(value, "value");
-
-                _runtimeModelFactory = value;
             }
         }
 
