@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
     // This is lower-level change tracking services used by the ChangeTracker and other parts of the system
     public class StateManager
     {
-        private readonly RuntimeModel _model;
+        private readonly IModel _model;
         private readonly ActiveIdentityGenerators _identityGenerators;
 
         private readonly Dictionary<object, StateEntry> _entityReferenceMap
@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         }
 
         public StateManager(
-            [NotNull] RuntimeModel model,
+            [NotNull] IModel model,
             [NotNull] ActiveIdentityGenerators identityGenerators,
             [NotNull] IEnumerable<IEntityStateListener> entityStateListeners,
             [NotNull] EntityKeyFactorySource entityKeyFactorySource,
@@ -117,10 +117,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 }
             }
 
-            var keyValue
-                = Model
-                    .GetKeyFactory(entityType.GetKey().Properties)
-                    .Create(entityType, entityType.GetKey().Properties, entry);
+            var keyValue = CreateKey(entityType, entityType.GetKey().Properties, entry);
 
             if (_identityMap.TryGetValue(keyValue, out existingEntry))
             {
@@ -148,10 +145,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             var entityType = entry.EntityType;
 
-            var keyValue
-                = Model
-                    .GetKeyFactory(entityType.GetKey().Properties)
-                    .Create(entityType, entityType.GetKey().Properties, entry);
+            var keyValue = CreateKey(entityType, entityType.GetKey().Properties, entry);
 
             StateEntry existingEntry;
             if (_identityMap.TryGetValue(keyValue, out existingEntry)
@@ -161,7 +155,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
         }
 
-        public virtual RuntimeModel Model
+        public virtual IModel Model
         {
             get { return _model; }
         }
@@ -243,5 +237,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
             return _setterSource.GetAccessor(property);
         }
 
+        internal virtual EntityKey CreateKey(IEntityType entityType, IReadOnlyList<IProperty> properties, StateEntry entry)
+        {
+            return _keyFactorySource.GetKeyFactory(properties).Create(entityType, properties, entry);
+        }
     }
 }

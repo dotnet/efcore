@@ -114,7 +114,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             public Category Category { get; set; }
         }
 
-        private static RuntimeModel BuildModel()
+        private static IModel BuildModel()
         {
             var model = new Model();
             var builder = new ModelBuilder(model);
@@ -136,7 +136,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             categoryType.AddNavigation(new CollectionNavigation(categoryIdFk, "Products"));
             productType.AddNavigation(new Navigation(categoryIdFk, "Category"));
 
-            return new RuntimeModel(model, new EntityKeyFactorySource());
+            return model;
         }
 
         #endregion

@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             _setterSource = setterSource;
         }
 
-        public virtual StateManager Create([NotNull] RuntimeModel model)
+        public virtual StateManager Create([NotNull] IModel model)
         {
             Check.NotNull(model, "model");
 

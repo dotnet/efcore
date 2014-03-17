@@ -24,7 +24,6 @@ namespace Microsoft.Data.Entity
                 .AddSingleton<IEntityStateListener, NavigationFixer>()
                 .AddSingleton<EntityKeyFactorySource, EntityKeyFactorySource>()
                 .AddSingleton<StateEntryFactory, StateEntryFactory>()
-                .AddSingleton<RuntimeModelFactory, RuntimeModelFactory>()
                 .AddSingleton<ClrPropertyGetterSource, ClrPropertyGetterSource>()
                 .AddSingleton<ClrPropertySetterSource, ClrPropertySetterSource>();
         }
