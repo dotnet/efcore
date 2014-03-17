@@ -2,7 +2,6 @@
 
 using System;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Utilities;
 using Moq;
 using Xunit;
 
@@ -27,22 +26,25 @@ namespace Microsoft.Data.Entity.Tests
         }
 
         [Fact]
-        public void Adds_all_entity_sets_with_setters_are_entities_based_on_all_distinct_entity_types_found()
+        public void Initializes_all_entity_set_properties_with_setters()
         {
             var setFinderMock = new Mock<EntitySetFinder>();
             setFinderMock.Setup(m => m.FindSets(It.IsAny<EntityContext>())).Returns(
                 new[]
                     {
-                        typeof(JustAContext).GetAnyProperty("One"),
-                        typeof(JustAContext).GetAnyProperty("Two"),
-                        typeof(JustAContext).GetAnyProperty("Three"),
-                        typeof(JustAContext).GetAnyProperty("Four")
+                        new EntitySetFinder.EntitySetProperty(typeof(JustAContext), "One", typeof(string), hasSetter: true),
+                        new EntitySetFinder.EntitySetProperty(typeof(JustAContext), "Two", typeof(object), hasSetter: true),
+                        new EntitySetFinder.EntitySetProperty(typeof(JustAContext), "Three", typeof(string), hasSetter: true),
+                        new EntitySetFinder.EntitySetProperty(typeof(JustAContext), "Four", typeof(string), hasSetter: false)
                     });
 
-            using (var context = new JustAContext())
-            {
-                new EntitySetInitializer(setFinderMock.Object, new ClrPropertySetterSource()).InitializeSets(context);
+            var configuration = new EntityConfiguration
+                {
+                    EntitySetInitializer = new EntitySetInitializer(setFinderMock.Object, new ClrPropertySetterSource())
+                };
 
+            using (var context = new JustAContext(configuration))
+            {
                 Assert.NotNull(context.One);
                 Assert.NotNull(context.GetTwo());
                 Assert.NotNull(context.Three);
@@ -52,8 +54,13 @@ namespace Microsoft.Data.Entity.Tests
 
         public class JustAContext : EntityContext
         {
+            public JustAContext(EntityConfiguration configuration)
+                : base(configuration)
+            {
+            }
+
             public EntitySet<string> One { get; set; }
-            private EntitySet<string> Two { get; set; }
+            private EntitySet<object> Two { get; set; }
             public EntitySet<string> Three { get; private set; }
 
             public EntitySet<string> Four
@@ -61,7 +68,7 @@ namespace Microsoft.Data.Entity.Tests
                 get { return null; }
             }
 
-            public EntitySet<string> GetTwo()
+            public EntitySet<object> GetTwo()
             {
                 return Two;
             }

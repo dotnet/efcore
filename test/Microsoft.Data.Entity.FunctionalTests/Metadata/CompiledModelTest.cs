@@ -214,7 +214,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
                     Tuple.Create(0.1, 0.3), // All keys
                     Tuple.Create(0.1, 0.3), // All properties
                     Tuple.Create(0.1, 0.3), // All entity type annotations
-                    Tuple.Create(0.2, 0.4) // All property annotations
+                    Tuple.Create(0.2, 0.42) // All property annotations
                 };
 
             for (var i = 1; i < expected.Length; i++)
@@ -264,6 +264,18 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
             var propertyAnnotations = properties.SelectMany(e => e.Annotations);
             memory.Add(Tuple.Create(propertyAnnotations.Count(), GetMemory(), "All property annotations"));
+
+            // Do something with created objects otherwise in Release build the garbage collection
+            // happens before memory numbers are collected.
+            Assert.NotNull(annotations);
+            Assert.NotNull(entities);
+            Assert.NotNull(propertiesOneEntity);
+            Assert.NotNull(fks);
+            Assert.NotNull(navigations);
+            Assert.NotNull(keys);
+            Assert.NotNull(properties);
+            Assert.NotNull(entityAnnotations);
+            Assert.NotNull(propertyAnnotations);
 
             return memory;
         }

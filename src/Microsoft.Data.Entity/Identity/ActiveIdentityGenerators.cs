@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Immutable;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
@@ -12,9 +11,8 @@ namespace Microsoft.Data.Entity.Identity
     {
         private readonly IdentityGeneratorFactory _factory;
 
-        private readonly ThreadSafeLazyRef<ImmutableDictionary<IProperty, IIdentityGenerator>> _identityGenerators
-            = new ThreadSafeLazyRef<ImmutableDictionary<IProperty, IIdentityGenerator>>(
-                () => ImmutableDictionary<IProperty, IIdentityGenerator>.Empty);
+        private readonly ThreadSafeDictionaryCache<IProperty, IIdentityGenerator> _cache
+            = new ThreadSafeDictionaryCache<IProperty, IIdentityGenerator>();
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -36,16 +34,7 @@ namespace Microsoft.Data.Entity.Identity
         {
             Check.NotNull(property, "property");
 
-            IIdentityGenerator generator;
-            if (_identityGenerators.Value.TryGetValue(property, out generator))
-            {
-                return generator;
-            }
-
-            _identityGenerators.ExchangeValue(
-                d => !d.ContainsKey(property) ? d.Add(property, _factory.Create(property)) : d);
-
-            return _identityGenerators.Value[property];
+            return _cache.GetOrAdd(property, _factory.Create);
         }
     }
 }

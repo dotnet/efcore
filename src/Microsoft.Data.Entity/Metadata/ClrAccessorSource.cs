@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -15,8 +14,8 @@ namespace Microsoft.Data.Entity.Metadata
         private static readonly MethodInfo _genericCreate
             = typeof(ClrAccessorSource<TAccessor>).GetTypeInfo().GetDeclaredMethods("CreateGeneric").Single();
 
-        private readonly ThreadSafeLazyRef<ImmutableDictionary<Tuple<Type, string>, TAccessor>> _setters
-            = new ThreadSafeLazyRef<ImmutableDictionary<Tuple<Type, string>, TAccessor>>(() => ImmutableDictionary<Tuple<Type, string>, TAccessor>.Empty);
+        private readonly ThreadSafeDictionaryCache<Tuple<Type, string>, TAccessor> _cache
+            = new ThreadSafeDictionaryCache<Tuple<Type, string>, TAccessor>();
 
         public virtual TAccessor GetAccessor([NotNull] IProperty property)
         {
@@ -32,22 +31,12 @@ namespace Microsoft.Data.Entity.Metadata
             return GetAccessor(property.EntityType.Type, property.Name);
         }
 
-        public virtual TAccessor GetAccessor([NotNull] Type propertyType, [NotNull] string propertyName)
+        public virtual TAccessor GetAccessor([NotNull] Type declaringType, [NotNull] string propertyName)
         {
-            Check.NotNull(propertyType, "propertyType");
+            Check.NotNull(declaringType, "declaringType");
             Check.NotEmpty(propertyName, "propertyName");
 
-            var key = Tuple.Create(propertyType, propertyName);
-
-            TAccessor clrPropertySetter;
-            if (!_setters.Value.TryGetValue(key, out clrPropertySetter))
-            {
-                var accessor = Create(propertyType.GetAnyProperty(propertyName));
-                _setters.ExchangeValue(d => d.ContainsKey(key) ? d : d.Add(key, accessor));
-                clrPropertySetter = _setters.Value[key];
-            }
-
-            return clrPropertySetter;
+            return _cache.GetOrAdd(Tuple.Create(declaringType, propertyName), k => Create(k.Item1.GetAnyProperty(k.Item2)));
         }
 
         private TAccessor Create(PropertyInfo property)

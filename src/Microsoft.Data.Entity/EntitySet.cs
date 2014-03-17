@@ -2,18 +2,14 @@
 
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Threading;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity
 {
-    public class EntitySet<TEntity> : IQueryable<TEntity>
-        where TEntity : class
+    public abstract class EntitySet : IQueryable
     {
         private readonly EntityContext _context;
 
@@ -26,114 +22,29 @@ namespace Microsoft.Data.Entity
         {
         }
 
-        public EntitySet([NotNull] EntityContext context)
+        protected EntitySet([NotNull] EntityContext context)
         {
             Check.NotNull(context, "context");
 
             _context = context;
         }
 
-        public IEnumerator<TEntity> GetEnumerator()
+        protected internal EntityContext Context
         {
-            // TODO
-            throw new NotImplementedException();
+            get { return _context; }
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return GetEnumerator();
+            // TODO: Consider something better here
+            return ((IEnumerable)this).GetEnumerator();
         }
 
-        // TODO
-        public Type ElementType
-        {
-            get { return null; }
-        }
+        public abstract Expression Expression { get; }
+        public abstract Type ElementType { get; }
+        public abstract IQueryProvider Provider { get; }
 
-        // TODO
-        public Expression Expression
-        {
-            get { return null; }
-        }
-
-        // TODO
-        public IQueryProvider Provider
-        {
-            get { return null; }
-        }
-
-        public virtual TEntity Add([NotNull] TEntity entity)
-        {
-            Check.NotNull(entity, "entity");
-
-            return _context.Add(entity);
-        }
-
-        public virtual Task<TEntity> AddAsync([NotNull] TEntity entity)
-        {
-            Check.NotNull(entity, "entity");
-
-            return _context.AddAsync(entity, CancellationToken.None);
-        }
-
-        public virtual Task<TEntity> AddAsync([NotNull] TEntity entity, CancellationToken cancellationToken)
-        {
-            Check.NotNull(entity, "entity");
-
-            return _context.AddAsync(entity, cancellationToken);
-        }
-
-        public virtual TEntity Remove([NotNull] TEntity entity)
-        {
-            Check.NotNull(entity, "entity");
-
-            // TODO
-            return entity;
-        }
-
-        public virtual TEntity Update([NotNull] TEntity entity)
-        {
-            Check.NotNull(entity, "entity");
-
-            return _context.Update(entity);
-        }
-
-        public virtual Task<TEntity> UpdateAsync([NotNull] TEntity entity)
-        {
-            Check.NotNull(entity, "entity");
-
-            return _context.UpdateAsync(entity, CancellationToken.None);
-        }
-
-        public virtual Task<TEntity> UpdateAsync([NotNull] TEntity entity, CancellationToken cancellationToken)
-        {
-            Check.NotNull(entity, "entity");
-
-            return _context.UpdateAsync(entity, cancellationToken);
-        }
-
-        public virtual IEnumerable<TEntity> AddRange([NotNull] IEnumerable<TEntity> entities)
-        {
-            Check.NotNull(entities, "entities");
-
-            // TODO
-            return entities;
-        }
-
-        public virtual IEnumerable<TEntity> RemoveRange([NotNull] IEnumerable<TEntity> entities)
-        {
-            Check.NotNull(entities, "entities");
-
-            // TODO
-            return entities;
-        }
-
-        public virtual IEnumerable<TEntity> UpdateRange([NotNull] IEnumerable<TEntity> entities)
-        {
-            Check.NotNull(entities, "entities");
-
-            // TODO
-            return entities;
-        }
+        // TODO: Decide whether/how to implement non-generic API
+        // TODO: Consider the role of EntitySet when entity is in shadow
     }
 }

@@ -25,9 +25,23 @@ namespace Microsoft.Data.Entity.Tests
         {
             using (var context = new The())
             {
+                var sets = new EntitySetFinder().FindSets(context);
+
                 Assert.Equal(
                     new[] { "Betters", "Brandies", "Drinkings", "Stops", "Yous" },
-                    new EntitySetFinder().FindSets(context).Select(e => e.Name).ToArray());
+                    sets.Select(s => s.Name).ToArray());
+
+                Assert.Equal(
+                    new[] { typeof(Streets), typeof(The), typeof(The), typeof(Streets), typeof(Streets) },
+                    sets.Select(s => s.ContextType).ToArray());
+
+                Assert.Equal(
+                    new[] { typeof(Better), typeof(Brandy), typeof(Drinking), typeof(Stop), typeof(You) },
+                    sets.Select(s => s.EntityType).ToArray());
+
+                Assert.Equal(
+                    new[] { true, true, true, false, true },
+                    sets.Select(s => s.HasSetter).ToArray());
             }
         }
 
@@ -42,7 +56,7 @@ namespace Microsoft.Data.Entity.Tests
 
             public EntitySet<You> Yous { get; set; }
             protected EntitySet<Better> Betters { get; set; }
-            internal EntitySet<Stop> Stops { get; set; }
+            internal EntitySet<Stop> Stops { get { return null; } }
         }
 
         public class The : Streets
