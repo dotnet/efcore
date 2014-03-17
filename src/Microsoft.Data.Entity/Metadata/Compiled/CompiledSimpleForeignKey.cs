@@ -16,29 +16,29 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 
         protected abstract ForeignKeyDefinition Definition { get; }
 
-        public IReadOnlyList<IProperty> DependentProperties
+        public IReadOnlyList<IProperty> Properties
         {
-            get { return new[] { DependentType.Properties[Definition.DependentPropertyIndex] }; }
+            get { return new[] { EntityType.Properties[Definition.DependentPropertyIndex] }; }
         }
 
-        public IReadOnlyList<IProperty> PrincipalProperties
+        public IReadOnlyList<IProperty> ReferencedProperties
         {
-            get { return PrincipalType.GetKey().Properties; }
+            get { return ReferencedEntityType.GetKey().Properties; }
         }
 
-        public IEntityType PrincipalType
+        public IEntityType ReferencedEntityType
         {
             get { return _model.EntityTypes[Definition.PrincipalIndex]; }
         }
 
-        public IEntityType DependentType
+        public IEntityType EntityType
         {
             get { return _model.EntityTypes[Definition.DependentIndex]; }
         }
 
         public bool IsRequired
         {
-            get { return DependentProperties.Any(p => !p.IsNullable); }
+            get { return Properties.Any(p => !p.IsNullable); }
         }
 
         public bool IsUnique

@@ -144,12 +144,12 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         public virtual EntityKey GetDependentKeyValue([NotNull] IForeignKey foreignKey)
         {
-            return _stateManager.CreateKey(foreignKey.PrincipalType, foreignKey.DependentProperties, this);
+            return _stateManager.CreateKey(foreignKey.ReferencedEntityType, foreignKey.Properties, this);
         }
 
         public virtual EntityKey GetPrincipalKeyValue([NotNull] IForeignKey foreignKey)
         {
-            return _stateManager.CreateKey(foreignKey.PrincipalType, foreignKey.PrincipalProperties, this);
+            return _stateManager.CreateKey(foreignKey.ReferencedEntityType, foreignKey.ReferencedProperties, this);
         }
         
         public virtual object[] GetValueBuffer()

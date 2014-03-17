@@ -71,9 +71,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var entityType = new EntityType(typeof(Random));
 
             Assert.Equal(
-                "property",
+                "propertyInfo",
                 // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => entityType.AddProperty(null)).ParamName);
+                Assert.Throws<ArgumentNullException>(() => entityType.AddProperty((PropertyInfo)null)).ParamName);
 
             Assert.Equal(
                 "property",
@@ -119,11 +119,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var entityType = new EntityType(typeof(Customer));
 
-            var property1 = new Property(Customer.IdProperty);
-            var property2 = new Property(Customer.NameProperty);
-
-            Assert.Same(property1, entityType.AddProperty(property1));
-            Assert.Same(property2, entityType.AddProperty(property2));
+            var property1 = entityType.AddProperty(Customer.IdProperty);
+            var property2 = entityType.AddProperty(Customer.NameProperty);
 
             Assert.True(new[] { property1, property2 }.SequenceEqual(entityType.Properties));
 
@@ -136,21 +133,14 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Property_back_pointer_is_fixed_up_as_property_is_added_and_removed()
         {
             var entityType1 = new EntityType(typeof(Customer));
-            var entityType2 = new EntityType(typeof(Customer));
-
-            var property = new Property(Customer.IdProperty);
-            entityType1.AddProperty(property);
+            
+            var property = entityType1.AddProperty(Customer.IdProperty);
 
             Assert.Same(entityType1, property.EntityType);
 
-            entityType2.AddProperty(property);
+            entityType1.RemoveProperty(property);
 
-            Assert.Same(entityType2, property.EntityType);
             Assert.Empty(entityType1.Properties);
-
-            entityType2.RemoveProperty(property);
-
-            Assert.Empty(entityType2.Properties);
             Assert.Null(property.EntityType);
         }
 
@@ -159,11 +149,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var entityType = new EntityType(typeof(Customer));
 
-            var property1 = new Property(Customer.IdProperty);
-            var property2 = new Property(Customer.NameProperty);
-
-            entityType.AddProperty(property2);
-            entityType.AddProperty(property1);
+            var property1 = entityType.AddProperty(Customer.IdProperty);
+            var property2 = entityType.AddProperty(Customer.NameProperty);
 
             Assert.True(new[] { property1, property2 }.SequenceEqual(entityType.Properties));
         }
@@ -173,10 +160,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var entityType = new EntityType(typeof(Customer));
 
-            var property1 = new Property(Customer.IdProperty);
-            var property2 = new Property(Customer.NameProperty);
+            var property1 = entityType.AddProperty(Customer.IdProperty);
+            var property2 = entityType.AddProperty(Customer.NameProperty);
 
-            entityType.SetKey(new Key(new[] { property1, property2 }));
+            entityType.SetKey(property1, property2);
 
             Assert.True(new[] { property1, property2 }.SequenceEqual(entityType.GetKey().Properties));
             Assert.True(new[] { property1, property2 }.SequenceEqual(entityType.Properties));
@@ -186,7 +173,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.True(new[] { property2 }.SequenceEqual(entityType.GetKey().Properties));
             Assert.True(new[] { property2 }.SequenceEqual(entityType.Properties));
 
-            entityType.SetKey(new Key(new[] { property1 }));
+            property1 = entityType.AddProperty(Customer.IdProperty);
+
+            entityType.SetKey(property1);
 
             Assert.True(new[] { property1 }.SequenceEqual(entityType.GetKey().Properties));
             Assert.True(new[] { property1, property2 }.SequenceEqual(entityType.Properties));
@@ -197,13 +186,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var entityType = new EntityType(typeof(Customer));
 
-            entityType.AddProperty(new Property(Customer.IdProperty));
+            entityType.AddProperty(Customer.IdProperty);
 
-            var newIdProperty = new Property(Customer.IdProperty);
+            var newIdProperty = entityType.AddProperty(Customer.IdProperty);
+            var property2 = entityType.AddProperty(Customer.NameProperty);
 
-            var property2 = new Property(Customer.NameProperty);
-
-            entityType.SetKey(new Key(new[] { newIdProperty, property2 }));
+            entityType.SetKey(newIdProperty, property2);
 
             Assert.True(new[] { newIdProperty, property2 }.SequenceEqual(entityType.Properties));
         }
@@ -213,10 +201,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var entityType = new EntityType(typeof(Customer));
 
-            var property1 = new Property(Customer.IdProperty);
-            var property2 = new Property(Customer.NameProperty);
+            var property1 = entityType.AddProperty(Customer.IdProperty);
+            var property2 = entityType.AddProperty(Customer.NameProperty);
 
-            entityType.SetKey(new Key(new[] { property1, property2 }));
+            entityType.SetKey(property1, property2);
 
             Assert.Equal(2, entityType.GetKey().Properties.Count());
 
@@ -229,69 +217,49 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Add_foreign_key()
         {
             var entityType = new EntityType(typeof(Order));
+            entityType.SetKey(entityType.AddProperty(Order.IdProperty));
 
-            var foreignKey = new ForeignKey(
-                entityType, new[] { new Property(Order.CustomerUniqueProperty) });
-
-            Assert.Same(foreignKey, entityType.AddForeignKey(foreignKey));
+            var foreignKey
+                = entityType.AddForeignKey(
+                    entityType.GetKey(),
+                    new[] { entityType.AddProperty(Order.CustomerUniqueProperty) });
 
             Assert.True(entityType.ForeignKeys.Contains(foreignKey));
-        }
-
-        [Fact]
-        public void Adding_foreign_key_should_add_properties()
-        {
-            var entityType = new EntityType(typeof(Order));
-            var idProperty = new Property(Order.CustomerIdProperty);
-
-            entityType.AddForeignKey(new ForeignKey(entityType, new[] { idProperty }));
-
-            Assert.True(entityType.Properties.Contains(idProperty));
         }
 
         [Fact]
         public void Setting_foreign_key_properties_should_update_existing_properties()
         {
             var entityType = new EntityType(typeof(Order));
-            entityType.AddProperty(new Property(Order.CustomerIdProperty));
+            entityType.SetKey(entityType.AddProperty(Order.CustomerIdProperty));
 
-            var newIdProperty = new Property(Order.CustomerIdProperty);
-            var property2 = new Property(Order.CustomerUniqueProperty);
+            var newIdProperty = entityType.AddProperty(Order.CustomerIdProperty);
+            var property2 = entityType.AddProperty(Order.CustomerUniqueProperty);
 
-            entityType.AddForeignKey(
-                new ForeignKey(
-                    entityType, new[] { newIdProperty, property2 }));
+            entityType.AddForeignKey(entityType.GetKey(), new[] { newIdProperty, property2 });
 
             Assert.Equal(new[] { newIdProperty, property2 }, entityType.Properties.ToArray());
         }
 
         [Fact]
-        public void FK_back_pointer_is_fixed_up_as_FK_is_added_and_removed()
+        public void FK_back_pointer_is_fixed_up_as_FK_is_added()
         {
-            var entityType1 = new EntityType(typeof(Customer));
-            var entityType2 = new EntityType(typeof(Customer));
+            var entityType = new EntityType(typeof(Customer));
+            var property = entityType.AddProperty(Customer.IdProperty);
+            entityType.SetKey(property);
+            var foreignKey 
+                = entityType.AddForeignKey(entityType.GetKey(), property);
 
-            var property = new Property(Customer.IdProperty);
-            var foreignKey = new ForeignKey(entityType1, new[] { property });
-            entityType1.AddForeignKey(foreignKey);
+            Assert.Same(entityType, foreignKey.EntityType);
+            Assert.Same(entityType, property.EntityType);
 
-            Assert.Same(entityType1, foreignKey.DependentType);
-            Assert.Same(entityType1, property.EntityType);
-
-            entityType2.AddForeignKey(foreignKey);
-
-            Assert.Same(entityType2, foreignKey.DependentType);
-            Assert.Same(entityType2, property.EntityType);
-            Assert.Empty(entityType1.ForeignKeys);
-            Assert.Empty(entityType1.Properties);
-
-            entityType2.RemoveForeignKey(foreignKey);
+            entityType.RemoveForeignKey(foreignKey);
 
             // Currently property is not removed when FK is removed
-            Assert.Empty(entityType2.ForeignKeys);
-            Assert.Same(property, entityType2.Properties.Single());
-            Assert.Null(foreignKey.DependentType);
-            Assert.Same(entityType2, property.EntityType);
+            Assert.Empty(entityType.ForeignKeys);
+            Assert.Same(property, entityType.Properties.Single());
+            Assert.Same(entityType, foreignKey.EntityType); // TODO: Throw here?
+            Assert.Same(entityType, property.EntityType);
         }
 
         [Fact]
@@ -311,10 +279,14 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Navigation_back_pointer_is_fixed_up_as_navigation_is_added_and_removed()
         {
             var entityType1 = new EntityType(typeof(Customer));
+            entityType1.SetKey(entityType1.AddProperty(Customer.IdProperty));
             var entityType2 = new EntityType(typeof(Customer));
 
-            var navigation = new Navigation(
-                new ForeignKey(entityType1, new[] { new Property(Customer.IdProperty) }), "Nav");
+            var navigation
+                = new Navigation(
+                    new ForeignKey(
+                        entityType1.GetKey(),
+                        new[] { entityType1.AddProperty(Customer.IdProperty) }), "Nav");
 
             entityType1.AddNavigation(navigation);
 
@@ -341,7 +313,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Can_get_property_and_can_try_get_property()
         {
             var entityType = new EntityType(typeof(Customer));
-            entityType.AddProperty(new Property(Customer.IdProperty));
+            entityType.AddProperty(Customer.IdProperty);
 
             Assert.Equal("Id", entityType.TryGetProperty("Id").Name);
             Assert.Equal("Id", entityType.GetProperty("Id").Name);
@@ -358,13 +330,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var entityType = new EntityType(typeof(Customer));
 
-            entityType.AddProperty(new Property(Customer.NameProperty));
-            entityType.AddProperty(new Property("Id", typeof(int), hasClrProperty: true));
-            entityType.AddProperty(new Property("Mane", typeof(int), hasClrProperty: false));
+            entityType.AddProperty(Customer.NameProperty);
+            entityType.AddProperty("Id", typeof(int), shadowProperty: false);
+            entityType.AddProperty("Mane", typeof(int), shadowProperty: true);
 
-            Assert.True(entityType.GetProperty("Name").HasClrProperty);
-            Assert.True(entityType.GetProperty("Id").HasClrProperty);
-            Assert.False(entityType.GetProperty("Mane").HasClrProperty);
+            Assert.True(entityType.GetProperty("Name").IsClrProperty);
+            Assert.True(entityType.GetProperty("Id").IsClrProperty);
+            Assert.False(entityType.GetProperty("Mane").IsClrProperty);
         }
 
         [Fact]
@@ -372,9 +344,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var entityType = new EntityType(typeof(Customer));
 
-            entityType.AddProperty(new Property(Customer.NameProperty));
-            entityType.AddProperty(new Property("Id", typeof(int), hasClrProperty: false));
-            entityType.AddProperty(new Property("Mane", typeof(int), hasClrProperty: false));
+            entityType.AddProperty(Customer.NameProperty);
+            entityType.AddProperty("Id", typeof(int), shadowProperty: true);
+            entityType.AddProperty("Mane", typeof(int), shadowProperty: true);
 
             Assert.Equal(0, entityType.GetProperty("Id").Index);
             Assert.Equal(1, entityType.GetProperty("Mane").Index);
@@ -392,8 +364,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var entityType = new EntityType(typeof(Customer));
 
-            entityType.AddProperty(new Property(Customer.NameProperty));
-            entityType.AddProperty(new Property("Id", typeof(int), hasClrProperty: false));
+            entityType.AddProperty(Customer.NameProperty);
+            entityType.AddProperty("Id", typeof(int), shadowProperty: true);
 
             Assert.Equal(0, entityType.GetProperty("Id").Index);
             Assert.Equal(1, entityType.GetProperty("Name").Index);
@@ -403,8 +375,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(1, entityType.ShadowPropertyCount);
 
-            entityType.AddProperty(new Property("Game", typeof(int), hasClrProperty: false));
-            entityType.AddProperty(new Property("Mane", typeof(int), hasClrProperty: false));
+            entityType.AddProperty("Game", typeof(int), shadowProperty: true);
+            entityType.AddProperty("Mane", typeof(int), shadowProperty: true);
 
             Assert.Equal(0, entityType.GetProperty("Game").Index);
             Assert.Equal(1, entityType.GetProperty("Id").Index);

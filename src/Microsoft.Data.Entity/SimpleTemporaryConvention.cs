@@ -21,20 +21,16 @@ namespace Microsoft.Data.Entity
                 foreach (var propertyInfo in entityType.Type.GetRuntimeProperties()
                     .Where(p => !p.IsStatic() && !p.GetIndexParameters().Any()))
                 {
-                    var property = new Property(propertyInfo);
+                    var property = entityType.AddProperty(propertyInfo);
 
-                    if (propertyInfo.Name.Equals("Id", StringComparison.OrdinalIgnoreCase))
+                    if (property.Name.Equals("Id", StringComparison.OrdinalIgnoreCase))
                     {
-                        entityType.SetKey(new Key(new[] { property }));
+                        entityType.SetKey(property);
 
                         if (property.PropertyType == typeof(Guid))
                         {
                             property.ValueGenerationStrategy = ValueGenerationStrategy.Client;
                         }
-                    }
-                    else
-                    {
-                        entityType.AddProperty(property);
                     }
                 }
             }

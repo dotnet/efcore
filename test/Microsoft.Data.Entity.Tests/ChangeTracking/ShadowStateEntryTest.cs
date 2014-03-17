@@ -74,12 +74,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             key = key ?? new Mock<IProperty>();
             key.Setup(m => m.Index).Returns(0);
             key.Setup(m => m.ShadowIndex).Returns(0);
-            key.Setup(m => m.HasClrProperty).Returns(false);
+            key.Setup(m => m.IsClrProperty).Returns(false);
             var keys = new[] { key.Object };
             nonKey = nonKey ?? new Mock<IProperty>();
             nonKey.Setup(m => m.Index).Returns(1);
             nonKey.Setup(m => m.ShadowIndex).Returns(1);
-            nonKey.Setup(m => m.HasClrProperty).Returns(false);
+            nonKey.Setup(m => m.IsClrProperty).Returns(false);
 
             var entityTypeMock = new Mock<IEntityType>();
             entityTypeMock.Setup(m => m.GetKey().Properties).Returns(keys);

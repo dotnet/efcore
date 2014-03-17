@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             // Handle case where the new entity is the principal
             foreach (var foreignKey in stateManager.Model.EntityTypes.SelectMany(
-                e => e.ForeignKeys.Where(f => f.PrincipalType == entry.EntityType)))
+                e => e.ForeignKeys.Where(f => f.ReferencedEntityType == entry.EntityType)))
             {
                 var dependents = stateManager.GetDependents(entry, foreignKey).ToArray();
 

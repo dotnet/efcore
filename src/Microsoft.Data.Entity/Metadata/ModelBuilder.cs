@@ -99,8 +99,11 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 Check.NotNull(keyExpression, "keyExpression");
 
-                Metadata.SetKey(new Key(keyExpression.GetPropertyAccessList()
-                    .Select(pi => Metadata.TryGetProperty(pi.Name) ?? new Property(pi)).ToArray()));
+                Metadata.SetKey(
+                    keyExpression.GetPropertyAccessList()
+                        .Select(pi => Metadata.TryGetProperty(pi.Name)
+                                      ?? Metadata.AddProperty(pi))
+                        .ToArray());
 
                 return this;
             }
@@ -126,12 +129,10 @@ namespace Microsoft.Data.Entity.Metadata
                 public virtual PropertyBuilder Property([NotNull] Expression<Func<TEntity, object>> propertyExpression)
                 {
                     var propertyInfo = propertyExpression.GetPropertyAccess();
-                    var property = _entityType.TryGetProperty(propertyInfo.Name);
 
-                    if (property == null)
-                    {
-                        _entityType.AddProperty(property = new Property(propertyInfo));
-                    }
+                    var property
+                        = _entityType.TryGetProperty(propertyInfo.Name)
+                          ?? _entityType.AddProperty(propertyInfo);
 
                     return new PropertyBuilder(property);
                 }
@@ -179,13 +180,14 @@ namespace Microsoft.Data.Entity.Metadata
 
                     var principalType = _modelBuilder.Entity<TReferencedEntityType>().Metadata;
 
-                    var dependentProperties = foreignKeyExpression.GetPropertyAccessList()
-                        .Select(pi => _entityType.TryGetProperty(pi.Name) ?? new Property(pi)).ToArray();
+                    var dependentProperties
+                        = foreignKeyExpression.GetPropertyAccessList()
+                            .Select(pi => _entityType.TryGetProperty(pi.Name) ?? _entityType.AddProperty(pi))
+                            .ToArray();
 
                     // TODO: This code currently assumes that the FK maps to a PK on the principal end
-                    var foreignKey = new ForeignKey(principalType, dependentProperties);
-
-                    _entityType.AddForeignKey(foreignKey);
+                    var foreignKey 
+                        = _entityType.AddForeignKey(principalType.GetKey(), dependentProperties);
 
                     return new ForeignKeyBuilder(foreignKey);
                 }

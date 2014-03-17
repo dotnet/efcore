@@ -298,6 +298,38 @@ namespace Microsoft.Data.Entity
             return string.Format(CultureInfo.CurrentCulture, GetString("EntityRequiresKey", "entityType"), entityType);
         }
 
+        /// <summary>
+        /// The specified key properties are not declared on the entity type '{entityType}'. Ensure key properties are declared on the target entity type.
+        /// </summary>
+        internal static string KeyPropertiesWrongEntity
+        {
+            get { return GetString("KeyPropertiesWrongEntity"); }
+        }
+
+        /// <summary>
+        /// The specified key properties are not declared on the entity type '{entityType}'. Ensure key properties are declared on the target entity type.
+        /// </summary>
+        internal static string FormatKeyPropertiesWrongEntity(object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("KeyPropertiesWrongEntity", "entityType"), entityType);
+        }
+
+        /// <summary>
+        /// The specified foreign key properties are not declared on the entity type '{entityType}'. Ensure foreign key properties are declared on the target entity type.
+        /// </summary>
+        internal static string ForeignKeyPropertiesWrongEntity
+        {
+            get { return GetString("ForeignKeyPropertiesWrongEntity"); }
+        }
+
+        /// <summary>
+        /// The specified foreign key properties are not declared on the entity type '{entityType}'. Ensure foreign key properties are declared on the target entity type.
+        /// </summary>
+        internal static string FormatForeignKeyPropertiesWrongEntity(object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyPropertiesWrongEntity", "entityType"), entityType);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

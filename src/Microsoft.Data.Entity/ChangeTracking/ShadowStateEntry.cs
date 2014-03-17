@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             Check.NotNull(property, "property");
 
-            Contract.Assert(!property.HasClrProperty);
+            Contract.Assert(!property.IsClrProperty);
 
             return _propertyValues[property.ShadowIndex];
         }

@@ -127,12 +127,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var categoryType = model.GetEntityType(typeof(Category));
             var productType = model.GetEntityType(typeof(Product));
 
-            var categoryIdFk = productType.AddForeignKey(
-                new ForeignKey(categoryType, new[] { productType.GetProperty("CategoryId") })
-                    {
-                        StorageName = "Category_Products"
-                    });
+            var categoryIdFk 
+                = productType.AddForeignKey(categoryType.GetKey(), productType.GetProperty("CategoryId"));
 
+            categoryIdFk.StorageName = "Category_Products";
+                    
             categoryType.AddNavigation(new CollectionNavigation(categoryIdFk, "Products"));
             productType.AddNavigation(new Navigation(categoryIdFk, "Category"));
 

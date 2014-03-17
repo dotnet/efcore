@@ -6,6 +6,7 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public interface IKey : IMetadata
     {
-        IReadOnlyList<IProperty> Properties { get; } 
+        IReadOnlyList<IProperty> Properties { get; }
+        IEntityType EntityType { get; }
     }
 }

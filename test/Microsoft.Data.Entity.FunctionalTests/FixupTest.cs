@@ -133,17 +133,15 @@ namespace Microsoft.Data.Entity.FunctionalTests
             var productType = model.GetEntityType(typeof(Product));
             var offerType = model.GetEntityType(typeof(SpecialOffer));
 
-            var categoryIdFk = productType.AddForeignKey(
-                new ForeignKey(categoryType, new[] { productType.GetProperty("CategoryId") })
-                    {
-                        StorageName = "Category_Products"
-                    });
+            var categoryIdFk
+                = productType.AddForeignKey(
+                    categoryType.GetKey(), new[] { productType.GetProperty("CategoryId") });
+            categoryIdFk.StorageName = "Category_Products";
 
-            var productIdFk = offerType.AddForeignKey(
-                new ForeignKey(productType, new[] { offerType.GetProperty("ProductId") })
-                    {
-                        StorageName = "Product_Offers"
-                    });
+            var productIdFk
+                = offerType.AddForeignKey(
+                    productType.GetKey(), new[] { offerType.GetProperty("ProductId") });
+            productIdFk.StorageName = "Product_Offers";
 
             categoryType.AddNavigation(new CollectionNavigation(categoryIdFk, "Products"));
             productType.AddNavigation(new Navigation(categoryIdFk, "Category"));

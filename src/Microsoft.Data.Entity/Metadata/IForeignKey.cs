@@ -4,12 +4,10 @@ using System.Collections.Generic;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public interface IForeignKey : IMetadata
+    public interface IForeignKey : IKey
     {
-        IReadOnlyList<IProperty> DependentProperties { get; }
-        IReadOnlyList<IProperty> PrincipalProperties { get; }
-        IEntityType PrincipalType { get; }
-        IEntityType DependentType { get; }
+        IReadOnlyList<IProperty> ReferencedProperties { get; }
+        IEntityType ReferencedEntityType { get; }
         bool IsUnique { get; }
         bool IsRequired { get; }
     }

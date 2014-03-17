@@ -102,7 +102,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entry = CreateStateEntry(managerMock.Object, entityTypeMock.Object, entity);
             entry.SetEntityStateAsync(EntityState.Added, CancellationToken.None).Wait();
 
-            if (keyMock.Object.HasClrProperty)
+            if (keyMock.Object.IsClrProperty)
             {
                 setterMock.Verify(m => m.SetClrValue(entity, keyValue));
             }
@@ -174,10 +174,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             managerMock.Setup(m => m.GetClrPropertySetter(dependentProp.Object)).Returns(setterMock.Object);
 
             var foreignKeyMock = new Mock<IForeignKey>();
-            foreignKeyMock.Setup(m => m.PrincipalType).Returns(principalTypeMock.Object);
-            foreignKeyMock.Setup(m => m.DependentType).Returns(dependentTypeMock.Object);
-            foreignKeyMock.Setup(m => m.PrincipalProperties).Returns(principalProps);
-            foreignKeyMock.Setup(m => m.DependentProperties).Returns(dependentProps);
+            foreignKeyMock.Setup(m => m.ReferencedEntityType).Returns(principalTypeMock.Object);
+            foreignKeyMock.Setup(m => m.EntityType).Returns(dependentTypeMock.Object);
+            foreignKeyMock.Setup(m => m.ReferencedProperties).Returns(principalProps);
+            foreignKeyMock.Setup(m => m.Properties).Returns(dependentProps);
 
             var entry = CreateStateEntry(managerMock.Object, dependentTypeMock.Object, new Random());
             entry.SetPropertyValue(dependentProp.Object, "On");
@@ -186,7 +186,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.IsType<SimpleEntityKey<string>>(keyValue);
             Assert.Equal("On", keyValue.Value);
 
-            managerMock.Verify(m => m.CreateKey(principalTypeMock.Object, foreignKeyMock.Object.DependentProperties, entry));
+            managerMock.Verify(m => m.CreateKey(principalTypeMock.Object, foreignKeyMock.Object.Properties, entry));
         }
 
         [Fact]
@@ -221,10 +221,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             managerMock.Setup(m => m.GetClrPropertySetter(dependentProp.Object)).Returns(setterMock.Object);
 
             var foreignKeyMock = new Mock<IForeignKey>();
-            foreignKeyMock.Setup(m => m.PrincipalType).Returns(principalTypeMock.Object);
-            foreignKeyMock.Setup(m => m.DependentType).Returns(dependentTypeMock.Object);
-            foreignKeyMock.Setup(m => m.PrincipalProperties).Returns(principalProps);
-            foreignKeyMock.Setup(m => m.DependentProperties).Returns(dependentProps);
+            foreignKeyMock.Setup(m => m.ReferencedEntityType).Returns(principalTypeMock.Object);
+            foreignKeyMock.Setup(m => m.EntityType).Returns(dependentTypeMock.Object);
+            foreignKeyMock.Setup(m => m.ReferencedProperties).Returns(principalProps);
+            foreignKeyMock.Setup(m => m.Properties).Returns(dependentProps);
 
             var entry = CreateStateEntry(managerMock.Object, principalTypeMock.Object, new Random());
             entry.SetPropertyValue(principalProp.Object, "Wax");
@@ -233,7 +233,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.IsType<SimpleEntityKey<string>>(keyValue);
             Assert.Equal("Wax", keyValue.Value);
 
-            managerMock.Verify(m => m.CreateKey(principalTypeMock.Object, foreignKeyMock.Object.PrincipalProperties, entry));
+            managerMock.Verify(m => m.CreateKey(principalTypeMock.Object, foreignKeyMock.Object.ReferencedProperties, entry));
         }
 
         protected virtual StateEntry CreateStateEntry(StateManager stateManager, IEntityType entityType, object entity)
@@ -255,11 +255,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             key = key ?? new Mock<IProperty>();
             key.Setup(m => m.Index).Returns(0);
-            key.Setup(m => m.HasClrProperty).Returns(true);
+            key.Setup(m => m.IsClrProperty).Returns(true);
             var keys = new[] { key.Object };
             nonKey = nonKey ?? new Mock<IProperty>();
             nonKey.Setup(m => m.Index).Returns(1);
-            nonKey.Setup(m => m.HasClrProperty).Returns(true);
+            nonKey.Setup(m => m.IsClrProperty).Returns(true);
 
             var entityTypeMock = new Mock<IEntityType>();
             entityTypeMock.Setup(m => m.GetKey().Properties).Returns(keys);

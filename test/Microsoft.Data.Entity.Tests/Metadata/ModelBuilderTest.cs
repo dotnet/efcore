@@ -147,7 +147,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
-
+            modelBuilder.Entity<Customer>().Key(c => c.Id);
             modelBuilder
                 .Entity<Order>()
                 .ForeignKeys(fks => fks.ForeignKey<Customer>(c => c.CustomerId));
@@ -162,6 +162,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
+
+            modelBuilder.Entity<Customer>().Key(c => c.Id);
 
             modelBuilder
                 .Entity<Order>()

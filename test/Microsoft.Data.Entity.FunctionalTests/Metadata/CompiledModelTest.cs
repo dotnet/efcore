@@ -289,19 +289,21 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             builder.Annotation("ModelAnnotation2", "ModelValue2");
 
             var entityType1 = new EntityType(typeof(KoolEntity1));
-            entityType1.SetKey(new Key(new[] { new Property("Id1", typeof(int), true) { StorageName = "MyKey1" } }));
-            entityType1.AddProperty(new Property("Id2", typeof(Guid), true) { StorageName = "MyKey2" });
-            entityType1.AddProperty(new Property("KoolEntity2Id", typeof(int), true));
+            var property = entityType1.AddProperty("Id1", typeof(int), shadowProperty: false);
+            property.StorageName = "MyKey1";
+            entityType1.SetKey(property);
+            entityType1.AddProperty("Id2", typeof(Guid), shadowProperty: false).StorageName = "MyKey2";
+            entityType1.AddProperty("KoolEntity2Id", typeof(int), shadowProperty: false);
             model.AddEntityType(entityType1);
 
             var entityType2 = new EntityType(typeof(KoolEntity2));
-            entityType2.AddProperty(new Property("KoolEntity1Id1", typeof(int), true));
-            entityType2.AddProperty(new Property("KoolEntity1Id2", typeof(Guid), true));
-            entityType2.AddProperty(new Property("KoolEntity3Id", typeof(int), true));
+            entityType2.AddProperty("KoolEntity1Id1", typeof(int), shadowProperty: false);
+            entityType2.AddProperty("KoolEntity1Id2", typeof(Guid), shadowProperty: false);
+            entityType2.AddProperty("KoolEntity3Id", typeof(int), shadowProperty: false);
             model.AddEntityType(entityType2);
 
             var entityType3 = new EntityType(typeof(KoolEntity3));
-            entityType3.AddProperty(new Property("KoolEntity4Id", typeof(int), true));
+            entityType3.AddProperty("KoolEntity4Id", typeof(int), shadowProperty: false);
             model.AddEntityType(entityType3);
 
             var entityType4 = new EntityType(typeof(KoolEntity4));
@@ -321,8 +323,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
                 var type = Type.GetType("Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity" + i);
 
                 var entityType = model.GetEntityType(type);
-                var id = new Property(entityType.Type.GetProperty("Id")) { StorageName = "MyKey" };
-                entityType.SetKey(new Key(new[] { id }));
+                var id = entityType.AddProperty(entityType.Type.GetProperty("Id"));
+                id.StorageName = "MyKey";
+                entityType.SetKey(id);
             }
 
             for (var i = 1; i <= 20; i++)
@@ -335,23 +338,18 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
                 entityType.AddAnnotation(new Annotation("Annotation1", "Value1"));
                 entityType.AddAnnotation(new Annotation("Annotation2", "Value2"));
 
-                var foo = new Property(entityType.Type.GetProperty("Foo" + i));
+                var foo = entityType.AddProperty(entityType.Type.GetProperty("Foo" + i));
 
                 foo.AddAnnotation(new Annotation("Foo" + i + "Annotation1", "Foo" + i + "Value1"));
                 foo.AddAnnotation(new Annotation("Foo" + i + "Annotation2", "Foo" + i + "Value2"));
 
-                entityType.AddProperty(foo);
-
-                var goo = new Property(entityType.Type.GetProperty("Goo" + i));
-
-                entityType.AddProperty(goo);
+                var goo = entityType.AddProperty(entityType.Type.GetProperty("Goo" + i));
             }
 
-            var fk11 = entityType1.AddForeignKey(new ForeignKey(entityType2, new[] { entityType1.GetProperty("KoolEntity2Id") }));
-            var fk21 = entityType2.AddForeignKey(new ForeignKey(entityType1, new[] { entityType2.GetProperty("KoolEntity1Id1"), entityType2.GetProperty("KoolEntity1Id2") }));
-            fk21.PrincipalProperties = new[] { entityType1.GetProperty("Id1"), entityType1.GetProperty("Id2") };
-            var fk22 = entityType2.AddForeignKey(new ForeignKey(entityType3, new[] { entityType2.GetProperty("KoolEntity3Id") }));
-            var fk31 = entityType3.AddForeignKey(new ForeignKey(entityType4, new[] { entityType3.GetProperty("KoolEntity4Id") }));
+            var fk11 = entityType1.AddForeignKey(entityType2.GetKey(), new[] { entityType1.GetProperty("KoolEntity2Id") });
+            var fk21 = entityType2.AddForeignKey(entityType1.GetKey(), new[] { entityType2.GetProperty("KoolEntity1Id1") });
+            var fk22 = entityType2.AddForeignKey(entityType3.GetKey(), new[] { entityType2.GetProperty("KoolEntity3Id") });
+            var fk31 = entityType3.AddForeignKey(entityType4.GetKey(), new[] { entityType3.GetProperty("KoolEntity4Id") });
 
             entityType1.AddNavigation(new Navigation(fk11, "NavTo2"));
             entityType1.AddNavigation(new CollectionNavigation(fk21, "NavTo2s"));

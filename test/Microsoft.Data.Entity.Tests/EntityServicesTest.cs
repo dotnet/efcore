@@ -74,7 +74,7 @@ namespace Microsoft.Data.Entity.Tests
 
             var generators = serviceProvider.GetService<ActiveIdentityGenerators>();
 
-            var property = new Property("Foo", typeof(Guid), hasClrProperty: true) { ValueGenerationStrategy = ValueGenerationStrategy.Client };
+            var property = new Property("Foo", typeof(Guid), shadowProperty: false) { ValueGenerationStrategy = ValueGenerationStrategy.Client };
 
             Assert.IsType<GuidIdentityGenerator>(generators.GetOrAdd(property));
         }
