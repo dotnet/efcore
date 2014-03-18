@@ -23,7 +23,7 @@ namespace Microsoft.Data.Relational.Update
 
             var batch = new ModificationCommandBatch(new[] { mockModificationCommand.Object });
 
-            var executor = new BatchExecutor(new[] { batch }, new SqlGenerator());
+            var executor = new BatchExecutor(new[] { batch }, new Mock<SqlGenerator> { CallBase = true }.Object);
 
             var connection = SetupMockConnection(1);
 
@@ -48,7 +48,7 @@ namespace Microsoft.Data.Relational.Update
 
             var batch = new ModificationCommandBatch(new[] { mockModificationCommand.Object });
 
-            var executor = new BatchExecutor(new[] { batch }, new SqlGenerator());
+            var executor = new BatchExecutor(new[] { batch }, new Mock<SqlGenerator> { CallBase = true }.Object);
 
             Assert.Equal(
                 Strings.FormatUpdateConcurrencyException(1, 0),
