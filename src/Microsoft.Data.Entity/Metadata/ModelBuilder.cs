@@ -186,7 +186,7 @@ namespace Microsoft.Data.Entity.Metadata
                             .ToArray();
 
                     // TODO: This code currently assumes that the FK maps to a PK on the principal end
-                    var foreignKey 
+                    var foreignKey
                         = _entityType.AddForeignKey(principalType.GetKey(), dependentProperties);
 
                     return new ForeignKeyBuilder(foreignKey);

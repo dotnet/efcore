@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Moq;
-using System.Collections.Generic;
-using System.Linq;
 using Xunit;
 
 namespace Microsoft.Data.Relational.Update
@@ -16,7 +16,7 @@ namespace Microsoft.Data.Relational.Update
         public void ModificationCommand_initialized_correctly_for_added_entities_with_identity_key()
         {
             var properties = new Dictionary<string, object> { { "Col1", 1 }, { "Col2", "Test" } };
-            var stateEntry = CreateMockStateEntry( "T1", EntityState.Added, properties, new[] { "Col1" });
+            var stateEntry = CreateMockStateEntry("T1", EntityState.Added, properties, new[] { "Col1" });
 
             var modificationCommand = new ModificationCommand(stateEntry);
 
@@ -85,10 +85,10 @@ namespace Microsoft.Data.Relational.Update
         private static StateEntry CreateMockStateEntry(string tableName, EntityState entityState,
             ICollection<KeyValuePair<string, object>> propertyValues, IEnumerable<string> keyProperties)
         {
-            var entityType = 
+            var entityType =
                 CreateMockEntityType(
                     tableName,
-                    propertyValues.Select(p => CreateProperty(p, keyProperties.Contains(p.Key))).ToArray(), 
+                    propertyValues.Select(p => CreateProperty(p, keyProperties.Contains(p.Key))).ToArray(),
                     keyProperties);
 
             var mockStateEntry = new Mock<StateEntry>();
@@ -120,8 +120,8 @@ namespace Microsoft.Data.Relational.Update
             mockProperty.Setup(p => p.Name).Returns(propertyValue.Key);
             mockProperty.Setup(p => p.StorageName).Returns(propertyValue.Key);
             mockProperty.Setup(p => p.ValueGenerationStrategy)
-                .Returns(isKey && propertyValue.Value is int 
-                    ? ValueGenerationStrategy.StoreIdentity 
+                .Returns(isKey && propertyValue.Value is int
+                    ? ValueGenerationStrategy.StoreIdentity
                     : ValueGenerationStrategy.None);
 
             return mockProperty.Object;

@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System.Data.Common;
-#if NET45
-using System.Data.SqlClient;
-#endif
 using JetBrains.Annotations;
 using Microsoft.AspNet.Logging;
 using Microsoft.Data.Entity.Services;
 using Microsoft.Data.Relational;
 using Microsoft.Data.SqlServer.Utilities;
+#if NET45
+using System.Data.SqlClient;
+#endif
 
 namespace Microsoft.Data.SqlServer
 {

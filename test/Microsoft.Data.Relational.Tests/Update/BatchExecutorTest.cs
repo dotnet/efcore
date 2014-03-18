@@ -46,12 +46,12 @@ namespace Microsoft.Data.Relational.Update
             mockModificationCommand.Setup(c => c.ColumnValues).Returns(new[] { new KeyValuePair<string, object>("Id", 1) });
             mockModificationCommand.Setup(c => c.WhereClauses).Returns(new KeyValuePair<string, object>[0]);
 
-            var batch = new ModificationCommandBatch( new[] { mockModificationCommand.Object });
+            var batch = new ModificationCommandBatch(new[] { mockModificationCommand.Object });
 
             var executor = new BatchExecutor(new[] { batch }, new SqlGenerator());
 
             Assert.Equal(
-                Strings.FormatUpdateConcurrencyException(1, 0), 
+                Strings.FormatUpdateConcurrencyException(1, 0),
                 (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(async () =>
                     await executor.ExecuteAsync(SetupMockConnection(0), CancellationToken.None))).Message);
         }

@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
-using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -151,7 +150,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             return _stateManager.CreateKey(foreignKey.ReferencedEntityType, foreignKey.ReferencedProperties, this);
         }
-        
+
         public virtual object[] GetValueBuffer()
         {
             return _entityType.Properties.Select(GetPropertyValue).ToArray();

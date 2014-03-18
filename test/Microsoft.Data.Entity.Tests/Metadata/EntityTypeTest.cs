@@ -133,7 +133,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Property_back_pointer_is_fixed_up_as_property_is_added_and_removed()
         {
             var entityType1 = new EntityType(typeof(Customer));
-            
+
             var property = entityType1.AddProperty(Customer.IdProperty);
 
             Assert.Same(entityType1, property.EntityType);
@@ -247,7 +247,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var entityType = new EntityType(typeof(Customer));
             var property = entityType.AddProperty(Customer.IdProperty);
             entityType.SetKey(property);
-            var foreignKey 
+            var foreignKey
                 = entityType.AddForeignKey(entityType.GetKey(), property);
 
             Assert.Same(entityType, foreignKey.EntityType);

@@ -1,6 +1,5 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
 using Microsoft.Data.Migrations.Model;
 using Microsoft.Data.Relational.Model;
 using Xunit;

@@ -56,7 +56,11 @@ namespace Microsoft.Data.Entity.Tests
 
             public EntitySet<You> Yous { get; set; }
             protected EntitySet<Better> Betters { get; set; }
-            internal EntitySet<Stop> Stops { get { return null; } }
+
+            internal EntitySet<Stop> Stops
+            {
+                get { return null; }
+            }
         }
 
         public class The : Streets

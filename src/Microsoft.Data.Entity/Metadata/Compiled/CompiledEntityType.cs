@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
         }
 
         protected abstract IKey LoadKey();
-        
+
         protected abstract IProperty[] LoadProperties();
 
         protected virtual IForeignKey[] LoadForeignKeys()

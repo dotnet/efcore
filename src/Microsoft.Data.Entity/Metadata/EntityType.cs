@@ -227,16 +227,16 @@ namespace Microsoft.Data.Entity.Metadata
                     _properties[currentIndex] = property;
 
                     property.Index = currentIndex;
-                    
+
                     UpdateShadowIndexes(property);
                 }
             }
             else
             {
                 var newIndex = ~currentIndex;
-                
+
                 _properties.Insert(newIndex, property);
-                
+
                 UpdateIndexes(property, newIndex);
             }
 
@@ -291,9 +291,9 @@ namespace Microsoft.Data.Entity.Metadata
                 && _key.Properties.Contains(property))
             {
                 _key = new Key(_key.Properties.Except(new[] { property }).ToArray())
-                {
-                    StorageName = _key.StorageName
-                };
+                    {
+                        StorageName = _key.StorageName
+                    };
             }
         }
 

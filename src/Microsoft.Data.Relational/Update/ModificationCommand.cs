@@ -30,7 +30,7 @@ namespace Microsoft.Data.Relational.Update
         public ModificationCommand([NotNull] StateEntry stateEntry)
         {
             Contract.Assert(
-                stateEntry.EntityState == EntityState.Added || stateEntry.EntityState == EntityState.Modified || 
+                stateEntry.EntityState == EntityState.Added || stateEntry.EntityState == EntityState.Modified ||
                 stateEntry.EntityState == EntityState.Deleted, "Unexpected entity state");
 
             _stateEntry = stateEntry;

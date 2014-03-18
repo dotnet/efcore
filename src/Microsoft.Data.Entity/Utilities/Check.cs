@@ -37,7 +37,6 @@ namespace Microsoft.Data.Entity.Utilities
             return value;
         }
 
-
         [ContractAnnotation("value:null => halt")]
         public static string NotEmpty(string value, [InvokerParameterName] [NotNull] string parameterName)
         {

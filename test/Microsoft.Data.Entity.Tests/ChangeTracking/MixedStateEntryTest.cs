@@ -97,7 +97,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entry.SetPropertyValue(propertyMock1.Object, "Magic");
 
             Assert.Equal(new object[] { "Magic", "Tree House" }, entry.GetValueBuffer());
-            
+
             Assert.Equal(new object[] { "Magic", "Tree House" }, entry.GetValueBuffer());
         }
 

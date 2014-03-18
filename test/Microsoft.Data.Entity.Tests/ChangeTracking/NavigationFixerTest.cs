@@ -88,7 +88,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 Enumerable.Empty<IEntityStateListener>(),
                 new EntityKeyFactorySource(),
                 new StateEntryFactory(),
-                new ClrPropertyGetterSource(), 
+                new ClrPropertyGetterSource(),
                 new ClrPropertySetterSource());
         }
 
@@ -127,11 +127,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var categoryType = model.GetEntityType(typeof(Category));
             var productType = model.GetEntityType(typeof(Product));
 
-            var categoryIdFk 
+            var categoryIdFk
                 = productType.AddForeignKey(categoryType.GetKey(), productType.GetProperty("CategoryId"));
 
             categoryIdFk.StorageName = "Category_Products";
-                    
+
             categoryType.AddNavigation(new CollectionNavigation(categoryIdFk, "Products"));
             productType.AddNavigation(new Navigation(categoryIdFk, "Category"));
 

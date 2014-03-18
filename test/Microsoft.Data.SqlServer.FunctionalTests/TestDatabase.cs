@@ -246,7 +246,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                     DataSource = @"(localdb)\v11.0",
                     InitialCatalog = name,
                     IntegratedSecurity = true,
-                    ConnectTimeout = 5
+                    ConnectTimeout = 15
                 }.ConnectionString;
         }
 

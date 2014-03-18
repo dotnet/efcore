@@ -26,10 +26,10 @@ namespace Microsoft.Data.Relational.Model
             get { return _table; }
 
             [param: CanBeNull]
-            internal set 
+            internal set
             {
                 Contract.Assert((value == null) != (_table == null));
-                _table = value; 
+                _table = value;
             }
         }
 

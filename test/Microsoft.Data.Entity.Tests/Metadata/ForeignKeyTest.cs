@@ -16,12 +16,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var principalProp = entityType.AddProperty("Id", typeof(int), shadowProperty: false);
             entityType.SetKey(principalProp);
 
-            var foreignKey 
+            var foreignKey
                 = new ForeignKey(entityType.GetKey(), new[] { dependentProp })
-                {
-                    IsUnique = true,
-                    StorageName = "FK_Foo"
-                };
+                    {
+                        IsUnique = true,
+                        StorageName = "FK_Foo"
+                    };
 
             Assert.Same(entityType, foreignKey.ReferencedEntityType);
             Assert.Same(principalProp, foreignKey.ReferencedProperties.Single());
@@ -39,12 +39,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var principalProp = entityType.AddProperty("U", typeof(int), shadowProperty: false);
             entityType.SetKey(keyProp);
 
-            var foreignKey 
+            var foreignKey
                 = new ForeignKey(new Key(new[] { principalProp }), new[] { dependentProp })
-                {
-                    IsUnique = true,
-                    StorageName = "FK_Foo"
-                };
+                    {
+                        IsUnique = true,
+                        StorageName = "FK_Foo"
+                    };
 
             Assert.Same(entityType, foreignKey.ReferencedEntityType);
             Assert.Same(principalProp, foreignKey.ReferencedProperties.Single());

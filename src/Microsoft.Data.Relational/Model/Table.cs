@@ -24,10 +24,10 @@ namespace Microsoft.Data.Relational.Model
             get { return _database; }
 
             [param: CanBeNull]
-            internal set 
+            internal set
             {
                 Contract.Assert((value == null) != (_database == null));
-                _database = value; 
+                _database = value;
             }
         }
 

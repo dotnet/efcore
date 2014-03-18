@@ -130,7 +130,7 @@ namespace Microsoft.Data.InMemory.Tests
                 Enumerable.Empty<IEntityStateListener>(),
                 new EntityKeyFactorySource(),
                 new StateEntryFactory(),
-                new ClrPropertyGetterSource(), 
+                new ClrPropertyGetterSource(),
                 new ClrPropertySetterSource());
         }
     }

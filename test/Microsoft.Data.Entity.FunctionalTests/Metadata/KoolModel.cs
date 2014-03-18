@@ -8,75 +8,75 @@ using Microsoft.Data.Entity.Metadata.Compiled;
 
 namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 {
-    public class KoolEntity1                                      // 0
+    public class KoolEntity1 // 0
     {
         public KoolEntity1()
         {
             NavTo2s = new List<KoolEntity2>();
         }
 
-        public int Id1 { get; set; }                              // 2 ****
-        public Guid Id2 { get; set; }                             // 3 ****
+        public int Id1 { get; set; } // 2 ****
+        public Guid Id2 { get; set; } // 3 ****
 
-        public string Foo1 { get; set; }                          // 0 ****
-        public Guid Goo1 { get; set; }                            // 1 ****
+        public string Foo1 { get; set; } // 0 ****
+        public Guid Goo1 { get; set; } // 1 ****
 
-        public int KoolEntity2Id { get; set; }                    // 4 **** FK1 D:0.4 P:11.2
-        public KoolEntity2 NavTo2 { get; set; }                   // 0 **** Nav1 E:0 F:0.0
+        public int KoolEntity2Id { get; set; } // 4 **** FK1 D:0.4 P:11.2
+        public KoolEntity2 NavTo2 { get; set; } // 0 **** Nav1 E:0 F:0.0
 
-        public ICollection<KoolEntity2> NavTo2s { get; set; }     // 1 **** Nav2 E:0 F:11.0
+        public ICollection<KoolEntity2> NavTo2s { get; set; } // 1 **** Nav2 E:0 F:11.0
     }
 
-    public class KoolEntity2                                      // 11
+    public class KoolEntity2 // 11
     {
         public KoolEntity2()
         {
             NavTo1s = new List<KoolEntity1>();
         }
 
-        public int Id { get; set; }                               // 2 ****
-        public string Foo2 { get; set; }                          // 0 ****
-        public Guid Goo2 { get; set; }                            // 1 ****
+        public int Id { get; set; } // 2 ****
+        public string Foo2 { get; set; } // 0 ****
+        public Guid Goo2 { get; set; } // 1 ****
 
-        public int KoolEntity1Id1 { get; set; }                   // 3 **** FK1 D:11.3/4 P:0.2/3
-        public Guid KoolEntity1Id2 { get; set; }                  // 4 **** FK1
-        public KoolEntity1 NavTo1 { get; set; }                   // 0 **** Nav1 E:11 F:11.0
+        public int KoolEntity1Id1 { get; set; } // 3 **** FK1 D:11.3/4 P:0.2/3
+        public Guid KoolEntity1Id2 { get; set; } // 4 **** FK1
+        public KoolEntity1 NavTo1 { get; set; } // 0 **** Nav1 E:11 F:11.0
 
-        public int KoolEntity3Id { get; set; }                    // 5 **** FK2 D:11.5 P:13.2
-        public KoolEntity3 NavTo3 { get; set; }                   // 1 **** Nav3 E:11 F:11.1
+        public int KoolEntity3Id { get; set; } // 5 **** FK2 D:11.5 P:13.2
+        public KoolEntity3 NavTo3 { get; set; } // 1 **** Nav3 E:11 F:11.1
 
-        public ICollection<KoolEntity1> NavTo1s { get; set; }     // 2 **** Nav2 E:11 F:0.0
+        public ICollection<KoolEntity1> NavTo1s { get; set; } // 2 **** Nav2 E:11 F:0.0
     }
 
-    public class KoolEntity3                                      // 13
+    public class KoolEntity3 // 13
     {
         public KoolEntity3()
         {
             NavTo2s = new List<KoolEntity2>();
         }
 
-        public int Id { get; set; }                               // 2 ****
-        public string Foo3 { get; set; }                          // 0 ****
-        public Guid Goo3 { get; set; }                            // 1 ****
+        public int Id { get; set; } // 2 ****
+        public string Foo3 { get; set; } // 0 ****
+        public Guid Goo3 { get; set; } // 1 ****
 
-        public int KoolEntity4Id { get; set; }                    // 3 **** FK1 D:13.3 P14.2
-        public KoolEntity4 NavTo4 { get; set; }                   // 1 **** Nav2 E:13 F:13.0
+        public int KoolEntity4Id { get; set; } // 3 **** FK1 D:13.3 P14.2
+        public KoolEntity4 NavTo4 { get; set; } // 1 **** Nav2 E:13 F:13.0
 
-        public ICollection<KoolEntity2> NavTo2s { get; set; }     // 0 **** Nav1 E:13 F:11.1
+        public ICollection<KoolEntity2> NavTo2s { get; set; } // 0 **** Nav1 E:13 F:11.1
     }
 
-    public class KoolEntity4                                      // 14
+    public class KoolEntity4 // 14
     {
         public KoolEntity4()
         {
             NavTo3s = new List<KoolEntity3>();
         }
 
-        public int Id { get; set; }                               // 2 ****
-        public string Foo4 { get; set; }                          // 0 ****
-        public Guid Goo4 { get; set; }                            // 1 ****
+        public int Id { get; set; } // 2 ****
+        public string Foo4 { get; set; } // 0 ****
+        public Guid Goo4 { get; set; } // 1 ****
 
-        public ICollection<KoolEntity3> NavTo3s { get; set; }     // 0 **** Nav1 E:14 F:13.0
+        public ICollection<KoolEntity3> NavTo3s { get; set; } // 0 **** Nav1 E:14 F:13.0
     }
 
     public class KoolEntity5
@@ -200,26 +200,26 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         {
             return new IEntityType[]
                 {
-                    new _KoolEntity1EntityType(this),   // 0
-                    new _KoolEntity10EntityType(this),  // 1
-                    new _KoolEntity11EntityType(this),  // 2
-                    new _KoolEntity12EntityType(this),  // 3
-                    new _KoolEntity13EntityType(this),  // 4
-                    new _KoolEntity14EntityType(this),  // 5
-                    new _KoolEntity15EntityType(this),  // 6
-                    new _KoolEntity16EntityType(this),  // 7 
-                    new _KoolEntity17EntityType(this),  // 8
-                    new _KoolEntity18EntityType(this),  // 9
-                    new _KoolEntity19EntityType(this),  // 10
-                    new _KoolEntity2EntityType(this),   // 11
-                    new _KoolEntity20EntityType(this),  // 12
-                    new _KoolEntity3EntityType(this),   // 13
-                    new _KoolEntity4EntityType(this),   // 14
-                    new _KoolEntity5EntityType(this),   // 15
-                    new _KoolEntity6EntityType(this),   // 16
-                    new _KoolEntity7EntityType(this),   // 17
-                    new _KoolEntity8EntityType(this),   // 18
-                    new _KoolEntity9EntityType(this)    // 19
+                    new _KoolEntity1EntityType(this), // 0
+                    new _KoolEntity10EntityType(this), // 1
+                    new _KoolEntity11EntityType(this), // 2
+                    new _KoolEntity12EntityType(this), // 3
+                    new _KoolEntity13EntityType(this), // 4
+                    new _KoolEntity14EntityType(this), // 5
+                    new _KoolEntity15EntityType(this), // 6
+                    new _KoolEntity16EntityType(this), // 7 
+                    new _KoolEntity17EntityType(this), // 8
+                    new _KoolEntity18EntityType(this), // 9
+                    new _KoolEntity19EntityType(this), // 10
+                    new _KoolEntity2EntityType(this), // 11
+                    new _KoolEntity20EntityType(this), // 12
+                    new _KoolEntity3EntityType(this), // 13
+                    new _KoolEntity4EntityType(this), // 14
+                    new _KoolEntity5EntityType(this), // 15
+                    new _KoolEntity6EntityType(this), // 16
+                    new _KoolEntity7EntityType(this), // 17
+                    new _KoolEntity8EntityType(this), // 18
+                    new _KoolEntity9EntityType(this) // 19
                 };
         }
 
@@ -257,8 +257,8 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         {
             return new IProperty[]
                 {
-                    new _KoolEntity1Foo1Property(this), 
-                    new _KoolEntity1Goo1Property(this), 
+                    new _KoolEntity1Foo1Property(this),
+                    new _KoolEntity1Goo1Property(this),
                     new _KoolEntity1Id1Property(this),
                     new _KoolEntity1Id2Property(this),
                     new _KoolEntity1KoolEntity2IdProperty(this)
@@ -282,7 +282,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
                 new[] { "Value1", "Value2" }).ToArray();
         }
     }
-    
+
     public class _KoolEntity1Key : CompiledKey, IKey
     {
         public _KoolEntity1Key(IModel model)
@@ -322,11 +322,11 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         {
             return new IProperty[]
                 {
-                    new _KoolEntity2Foo2Property(this), 
-                    new _KoolEntity2Goo2Property(this), 
+                    new _KoolEntity2Foo2Property(this),
+                    new _KoolEntity2Goo2Property(this),
                     new _KoolEntity2IdProperty(this),
-                    new _KoolEntity2KoolEntity1Id1Property(this), 
-                    new _KoolEntity2KoolEntity1Id2operty(this), 
+                    new _KoolEntity2KoolEntity1Id1Property(this),
+                    new _KoolEntity2KoolEntity1Id2operty(this),
                     new _KoolEntity2KoolEntity3IdProperty(this)
                 };
         }
@@ -388,8 +388,8 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         {
             return new IProperty[]
                 {
-                    new _KoolEntity3Foo3Property(this), 
-                    new _KoolEntity3Goo3Property(this), 
+                    new _KoolEntity3Foo3Property(this),
+                    new _KoolEntity3Goo3Property(this),
                     new _KoolEntity3IdProperty(this),
                     new _KoolEntity3KoolEntity4IdProperty(this)
                 };
@@ -1150,7 +1150,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return new KeyDefinition(9, new short[] { 2 }); }
         }
     }
-    
+
     public class _KoolEntity19EntityType : CompiledEntityType<KoolEntity19>, IEntityType
     {
         public _KoolEntity19EntityType(IModel model)

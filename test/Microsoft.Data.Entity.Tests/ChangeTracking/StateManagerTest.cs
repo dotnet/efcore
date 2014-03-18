@@ -88,7 +88,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 Enumerable.Empty<IEntityStateListener>(),
                 new EntityKeyFactorySource(),
                 new StateEntryFactory(),
-                new ClrPropertyGetterSource(), 
+                new ClrPropertyGetterSource(),
                 new ClrPropertySetterSource());
         }
 
@@ -283,7 +283,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 listeners.Select(m => m.Object),
                 new EntityKeyFactorySource(),
                 new StateEntryFactory(),
-                new ClrPropertyGetterSource(), 
+                new ClrPropertyGetterSource(),
                 new ClrPropertySetterSource());
 
             var entry = stateManager.GetOrCreateEntry(new Category { Id = 77 });

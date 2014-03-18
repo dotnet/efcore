@@ -1,6 +1,5 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
-using System.Diagnostics.Contracts;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Relational.Utilities;
@@ -16,7 +15,7 @@ namespace Microsoft.Data.Relational.Model
         public PrimaryKey(SchemaQualifiedName name, [NotNull] IReadOnlyList<Column> columns, bool isClustered)
         {
             Check.NotNull(columns, "columns");
-            
+
             // TODO: Validate input.
 
             _name = name;
@@ -34,7 +33,7 @@ namespace Microsoft.Data.Relational.Model
             get { return _name; }
         }
 
-        public virtual bool IsClustered 
+        public virtual bool IsClustered
         {
             get { return _isClustered; }
         }

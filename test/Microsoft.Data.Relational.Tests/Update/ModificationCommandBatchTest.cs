@@ -13,7 +13,7 @@ namespace Microsoft.Data.Relational.Update
         [Fact]
         public void CompileBatch_compiles_inserts()
         {
-            var batch = 
+            var batch =
                 CreateCommandBatch(
                     "Table",
                     new Dictionary<string, object> { { "Id", 42 }, { "Name", "Test" } }.ToArray(),
@@ -29,7 +29,7 @@ namespace Microsoft.Data.Relational.Update
         [Fact]
         public void CompileBatch_compiles_updates()
         {
-            var batch = 
+            var batch =
                 CreateCommandBatch(
                     "Table",
                     new Dictionary<string, object> { { "Name", "Test" } }.ToArray(),
