@@ -13,6 +13,6 @@ namespace Microsoft.Data.Entity.Metadata
         ValueGenerationStrategy ValueGenerationStrategy { get; }
         int Index { get; }
         int ShadowIndex { get; }
-        bool HasClrProperty { get; }
+        bool IsClrProperty { get; }
     }
 }

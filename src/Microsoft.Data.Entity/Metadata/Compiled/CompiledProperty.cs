@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
             get { return _entityType; }
         }
 
-        public bool HasClrProperty
+        public bool IsClrProperty
         {
             get { return true; }
         }

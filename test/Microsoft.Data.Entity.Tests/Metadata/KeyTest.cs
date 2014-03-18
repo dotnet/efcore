@@ -26,8 +26,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_create_key_from_properties()
         {
-            var property1 = new Property(Customer.IdProperty);
-            var property2 = new Property(Customer.NameProperty);
+            var entityType = new EntityType("E");
+            var property1 = entityType.AddProperty(Customer.IdProperty);
+            var property2 = entityType.AddProperty(Customer.NameProperty);
 
             var key = new Key(new[] { property1, property2 });
 
@@ -37,8 +38,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Validates_properties_from_same_entity()
         {
-            var property1 = new Property(Customer.IdProperty);
-            var property2 = new Property(Customer.NameProperty);
+            var entityType = new EntityType("E");
+            var property1 = entityType.AddProperty(Customer.IdProperty);
+            var property2 = entityType.AddProperty(Customer.NameProperty);
 
             property1.EntityType = new EntityType("E1");
             property2.EntityType = new EntityType("E2");

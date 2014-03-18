@@ -8,12 +8,9 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public class ForeignKey : MetadataBase, IForeignKey
+    public class ForeignKey : Key, IForeignKey
     {
-        private readonly EntityType _principalType;
-        private readonly IReadOnlyList<Property> _dependentProperties;
-
-        private Property[] _principalProperties;
+        private readonly Key _referencedKey;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -24,66 +21,39 @@ namespace Microsoft.Data.Entity.Metadata
         {
         }
 
-        public ForeignKey(
-            [NotNull] EntityType principalType,
-            [NotNull] IReadOnlyList<Property> dependentProperties)
+        internal ForeignKey([NotNull] Key referencedKey, [NotNull] IReadOnlyList<Property> dependentProperties)
+            : base(Check.NotNull(dependentProperties, "dependentProperties"))
         {
-            Check.NotNull(principalType, "principalType");
-            Check.NotNull(dependentProperties, "dependentProperties");
+            Check.NotNull(referencedKey, "referencedKey");
 
-            _principalType = principalType;
-            _dependentProperties = dependentProperties;
+            _referencedKey = referencedKey;
         }
 
-        public virtual IReadOnlyList<Property> DependentProperties
+        public virtual IReadOnlyList<Property> ReferencedProperties
         {
-            get { return _dependentProperties; }
+            get { return _referencedKey.Properties; }
         }
 
-        public virtual IReadOnlyList<Property> PrincipalProperties
+        public virtual EntityType ReferencedEntityType
         {
-            get { return _principalProperties ?? _principalType.GetKey().Properties; }
-            [param: NotNull]
-            set
-            {
-                Check.NotNull(value, "value");
-
-                _principalProperties = value.ToArray();
-            }
-        }
-
-        public virtual EntityType PrincipalType
-        {
-            get { return _principalType; }
+            get { return _referencedKey.EntityType; }
         }
 
         public virtual bool IsUnique { get; set; }
 
         public virtual bool IsRequired
         {
-            get { return DependentProperties.Any(p => !p.IsNullable); }
+            get { return Properties.Any(p => !p.IsNullable); }
         }
 
-        public virtual EntityType DependentType { get; [param: CanBeNull] set; }
-
-        IReadOnlyList<IProperty> IForeignKey.DependentProperties
+        IReadOnlyList<IProperty> IForeignKey.ReferencedProperties
         {
-            get { return _dependentProperties; }
+            get { return ReferencedProperties; }
         }
 
-        IReadOnlyList<IProperty> IForeignKey.PrincipalProperties
+        IEntityType IForeignKey.ReferencedEntityType
         {
-            get { return PrincipalProperties; }
-        }
-
-        IEntityType IForeignKey.PrincipalType
-        {
-            get { return _principalType; }
-        }
-
-        IEntityType IForeignKey.DependentType
-        {
-            get { return DependentType; }
+            get { return ReferencedEntityType; }
         }
     }
 }

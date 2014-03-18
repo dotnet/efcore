@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             Check.NotNull(property, "property");
 
-            return property.HasClrProperty 
+            return property.IsClrProperty 
                 ? StateManager.GetClrPropertyGetter(property).GetClrValue(_entity) 
                 : _propertyValues[property.ShadowIndex];
         }
@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             Check.NotNull(property, "property");
 
-            if (property.HasClrProperty)
+            if (property.IsClrProperty)
             {
                 StateManager.GetClrPropertySetter(property).SetClrValue(_entity, value);
             }

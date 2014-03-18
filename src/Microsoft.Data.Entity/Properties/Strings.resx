@@ -171,4 +171,10 @@
   <data name="EntityRequiresKey" xml:space="preserve">
     <value>The entity type '{entityType}' requires a key to be defined.</value>
   </data>
+  <data name="KeyPropertiesWrongEntity" xml:space="preserve">
+    <value>The specified key properties are not declared on the entity type '{entityType}'. Ensure key properties are declared on the target entity type.</value>
+  </data>
+  <data name="ForeignKeyPropertiesWrongEntity" xml:space="preserve">
+    <value>The specified foreign key properties are not declared on the entity type '{entityType}'. Ensure foreign key properties are declared on the target entity type.</value>
+  </data>
 </root>

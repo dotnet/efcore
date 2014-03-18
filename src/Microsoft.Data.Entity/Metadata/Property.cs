@@ -2,7 +2,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
@@ -17,31 +16,13 @@ namespace Microsoft.Data.Entity.Metadata
         private int _shadowIndex;
         private int _index;
 
-        /// <summary>
-        ///     This constructor is intended only for use when creating test doubles that will override members
-        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
-        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
-        /// </summary>
-        protected Property()
-        {
-        }
-
-        /// <summary>
-        ///     Creates a new metadata object representing a .NET property.
-        /// </summary>
-        /// <param name="propertyInfo">The .NET property that this metadata object represents.</param>
-        public Property([NotNull] PropertyInfo propertyInfo)
-            : this(Check.NotNull(propertyInfo, "propertyInfo").Name, propertyInfo.PropertyType, hasClrProperty: true)
-        {
-        }
-
-        public Property([NotNull] string name, [NotNull] Type propertyType, bool hasClrProperty)
+        internal Property([NotNull] string name, [NotNull] Type propertyType, bool shadowProperty)
             : base(Check.NotEmpty(name, "name"))
         {
             Check.NotNull(propertyType, "propertyType");
 
             _propertyType = propertyType;
-            _shadowIndex = hasClrProperty ? -1 : 0;
+            _shadowIndex = shadowProperty ? 0 : -1;
             _isNullable = propertyType.IsNullableType();
         }
 
@@ -51,7 +32,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         // TODO: Consider properties that are part of some complex/value type
-        public virtual EntityType EntityType { get; [param: CanBeNull] set; }
+        public virtual EntityType EntityType { get; internal set; }
 
         public virtual bool IsNullable
         {
@@ -61,9 +42,14 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual ValueGenerationStrategy ValueGenerationStrategy { get; [param: NotNull] set; }
 
-        public virtual bool HasClrProperty
+        public virtual bool IsClrProperty
         {
             get { return _shadowIndex < 0; }
+        }
+
+        public virtual bool IsShadowProperty
+        {
+            get { return !IsClrProperty; }
         }
 
         public virtual int Index
@@ -84,10 +70,11 @@ namespace Microsoft.Data.Entity.Metadata
             get { return _shadowIndex; }
             set
             {
-                if (value < 0 || HasClrProperty)
+                if (value < 0 || IsClrProperty)
                 {
                     throw new ArgumentOutOfRangeException("value");
                 }
+
                 _shadowIndex = value;
             }
         }

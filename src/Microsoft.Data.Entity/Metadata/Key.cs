@@ -11,22 +11,41 @@ namespace Microsoft.Data.Entity.Metadata
     {
         private readonly IReadOnlyList<Property> _properties;
 
-        public Key([NotNull] IReadOnlyList<Property> properties)
+        /// <summary>
+        ///     This constructor is intended only for use when creating test doubles that will override members
+        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
+        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
+        /// </summary>
+        protected Key()
+        {
+        }
+
+        internal Key([NotNull] IReadOnlyList<Property> properties)
         {
             Check.NotEmpty(properties, "properties");
             CheckSameEntityType(properties, "properties");
 
             _properties = properties;
         }
-        
+
         public virtual IReadOnlyList<Property> Properties
         {
             get { return _properties; }
         }
 
+        public virtual EntityType EntityType
+        {
+            get { return Properties[0].EntityType; }
+        }
+
         IReadOnlyList<IProperty> IKey.Properties
         {
             get { return Properties; }
+        }
+
+        IEntityType IKey.EntityType
+        {
+            get { return EntityType; }
         }
 
         internal static void CheckSameEntityType(IReadOnlyList<Property> properties, string argumentName)

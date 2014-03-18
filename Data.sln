@@ -32,9 +32,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.SqlServer.net45", "src\Microsoft.Data.SqlServer\Microsoft.Data.SqlServer.net45.csproj", "{04E6620B-5B41-45FE-981A-F40EB7686B0E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "net45", "net45", "{13FEFC36-1C4B-47FC-9086-8D922285D8C4}"
-	ProjectSection(SolutionItems) = preProject
-		test\Microsoft.Data.SqlServer.FunctionalTests\Northwind.sql = test\Microsoft.Data.SqlServer.FunctionalTests\Northwind.sql
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Entity.Tests.net45", "test\Microsoft.Data.Entity.Tests\Microsoft.Data.Entity.Tests.net45.csproj", "{EF361118-7D0D-453E-ADA4-2F24FBEE196C}"
 EndProject

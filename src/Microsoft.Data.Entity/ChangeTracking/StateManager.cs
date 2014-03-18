@@ -202,7 +202,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             // TODO: Add additional indexes so that this isn't a linear lookup
             var principals = StateEntries.Where(
-                e => e.EntityType == foreignKey.PrincipalType
+                e => e.EntityType == foreignKey.ReferencedEntityType
                      && dependentKeyValue.Equals(e.GetPrincipalKeyValue(foreignKey))).ToArray();
 
             if (principals.Length > 1)
@@ -223,7 +223,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             // TODO: Add additional indexes so that this isn't a linear lookup
             return StateEntries.Where(
-                e => e.EntityType == foreignKey.DependentType
+                e => e.EntityType == foreignKey.EntityType
                      && principalKeyValue.Equals(e.GetDependentKeyValue(foreignKey)));
         }
 

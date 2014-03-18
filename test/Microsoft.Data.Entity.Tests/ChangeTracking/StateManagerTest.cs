@@ -336,10 +336,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             new SimpleTemporaryConvention().Apply(model);
 
             var locationType = new EntityType("Location");
-            var idProperty = new Property("Id", typeof(int), hasClrProperty: false);
-            locationType.AddProperty(idProperty);
-            locationType.AddProperty(new Property("Planet", typeof(string), hasClrProperty: false));
-            locationType.SetKey(new Key(new []{ idProperty }));
+            var idProperty = locationType.AddProperty("Id", typeof(int), shadowProperty: true);
+            locationType.AddProperty("Planet", typeof(string), shadowProperty: true);
+            locationType.SetKey(idProperty);
             model.AddEntityType(locationType);
 
             return model;

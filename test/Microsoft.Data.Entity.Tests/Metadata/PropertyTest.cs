@@ -30,15 +30,15 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Members_check_arguments()
         {
             Assert.Equal(
-                "propertyInfo",
+                "name",
                 // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => new Property(null)).ParamName);
+                Assert.Throws<ArgumentNullException>(() => new Property(null, null, shadowProperty: true)).ParamName);
         }
 
         [Fact]
         public void Storage_name_defaults_to_name()
         {
-            var property = new Property(Customer.NameProperty);
+            var property = new Property("Name", typeof(string), shadowProperty: true);
 
             Assert.Equal("Name", property.StorageName);
         }
@@ -46,7 +46,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Storage_name_can_be_different_from_name()
         {
-            var property = new Property(Customer.NameProperty) { StorageName = "CustomerName" };
+            var property = new Property("Name", typeof(string), shadowProperty: true)
+                {
+                    StorageName = "CustomerName"
+                };
 
             Assert.Equal("CustomerName", property.StorageName);
         }
@@ -54,7 +57,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_create_property_from_property_info()
         {
-            var property = new Property(Customer.NameProperty);
+            var property = new Property("Name", typeof(string), shadowProperty: true);
 
             Assert.Equal("Name", property.Name);
             Assert.Same(typeof(string), property.PropertyType);
@@ -64,15 +67,14 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void HasClrProperty_is_set_appropriately()
         {
-            Assert.True(new Property(Customer.NameProperty).HasClrProperty);
-            Assert.True(new Property("Kake", typeof(int), hasClrProperty: true).HasClrProperty);
-            Assert.False(new Property("Kake", typeof(int), hasClrProperty: false).HasClrProperty);
+            Assert.True(new Property("Kake", typeof(int), shadowProperty: false).IsClrProperty);
+            Assert.False(new Property("Kake", typeof(int), shadowProperty: true).IsClrProperty);
         }
 
         [Fact]
         public void Can_get_and_set_property_index_for_normal_property()
         {
-            var property = new Property("Kake", typeof(int), hasClrProperty: true);
+            var property = new Property("Kake", typeof(int), shadowProperty: false);
 
             Assert.Equal(0, property.Index);
             Assert.Equal(-1, property.ShadowIndex);
@@ -98,7 +100,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_get_and_set_property_and_shadow_index_for_shadow_property()
         {
-            var property = new Property("Kake", typeof(int), hasClrProperty: false);
+            var property = new Property("Kake", typeof(int), shadowProperty: true);
 
             Assert.Equal(0, property.Index);
             Assert.Equal(0, property.ShadowIndex);

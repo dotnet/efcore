@@ -19,6 +19,7 @@ namespace Microsoft.Data.Relational.Update
             var stateEntry = CreateMockStateEntry( "T1", EntityState.Added, properties, new[] { "Col1" });
 
             var modificationCommand = new ModificationCommand(stateEntry);
+
             Assert.Equal("T1", modificationCommand.TableName);
             Assert.Equal(ModificationOperation.Insert, modificationCommand.Operation);
             Assert.Equal(properties.Where(p => p.Key != "Col1"), modificationCommand.ColumnValues);
@@ -32,6 +33,7 @@ namespace Microsoft.Data.Relational.Update
             var stateEntry = CreateMockStateEntry("T1", EntityState.Added, properties, new[] { "Col1" });
 
             var modificationCommand = new ModificationCommand(stateEntry);
+
             Assert.Equal("T1", modificationCommand.TableName);
             Assert.Equal(ModificationOperation.Insert, modificationCommand.Operation);
             Assert.Equal(properties, modificationCommand.ColumnValues);
@@ -45,6 +47,7 @@ namespace Microsoft.Data.Relational.Update
             var stateEntry = CreateMockStateEntry("T1", EntityState.Modified, properties, new[] { "Col1" });
 
             var modificationCommand = new ModificationCommand(stateEntry);
+
             Assert.Equal("T1", modificationCommand.TableName);
             Assert.Equal(ModificationOperation.Update, modificationCommand.Operation);
             Assert.Equal(properties.Where(p => p.Key == "Col2"), modificationCommand.ColumnValues);
@@ -58,6 +61,7 @@ namespace Microsoft.Data.Relational.Update
             var stateEntry = CreateMockStateEntry("T1", EntityState.Modified, properties, new[] { "Col1" });
 
             var modificationCommand = new ModificationCommand(stateEntry);
+
             Assert.Equal("T1", modificationCommand.TableName);
             Assert.Equal(ModificationOperation.Update, modificationCommand.Operation);
             Assert.Equal(properties.Where(p => p.Key == "Col2"), modificationCommand.ColumnValues);
@@ -71,6 +75,7 @@ namespace Microsoft.Data.Relational.Update
             var stateEntry = CreateMockStateEntry("T1", EntityState.Deleted, properties, new[] { "Col1" });
 
             var modificationCommand = new ModificationCommand(stateEntry);
+
             Assert.Equal("T1", modificationCommand.TableName);
             Assert.Equal(ModificationOperation.Delete, modificationCommand.Operation);
             Assert.Null(modificationCommand.ColumnValues);
@@ -78,7 +83,7 @@ namespace Microsoft.Data.Relational.Update
         }
 
         private static StateEntry CreateMockStateEntry(string tableName, EntityState entityState,
-            IEnumerable<KeyValuePair<string, object>> propertyValues, IEnumerable<string> keyProperties)
+            ICollection<KeyValuePair<string, object>> propertyValues, IEnumerable<string> keyProperties)
         {
             var entityType = 
                 CreateMockEntityType(
@@ -90,8 +95,8 @@ namespace Microsoft.Data.Relational.Update
             mockStateEntry.Setup(e => e.EntityState).Returns(entityState);
             mockStateEntry.Setup(e => e.EntityType).Returns(entityType);
             mockStateEntry
-                .Setup(e => e.GetPropertyValue(It.IsAny<Property>()))
-                .Returns((Property p) => propertyValues.Single(v => p.Name == v.Key).Value);
+                .Setup(e => e.GetPropertyValue(It.IsAny<IProperty>()))
+                .Returns((IProperty p) => propertyValues.Single(v => p.Name == v.Key).Value);
 
             return mockStateEntry.Object;
         }
@@ -111,7 +116,7 @@ namespace Microsoft.Data.Relational.Update
 
         private static IProperty CreateProperty(KeyValuePair<string, object> propertyValue, bool isKey)
         {
-            var mockProperty = new Mock<Property>();
+            var mockProperty = new Mock<IProperty>();
             mockProperty.Setup(p => p.Name).Returns(propertyValue.Key);
             mockProperty.Setup(p => p.StorageName).Returns(propertyValue.Key);
             mockProperty.Setup(p => p.ValueGenerationStrategy)

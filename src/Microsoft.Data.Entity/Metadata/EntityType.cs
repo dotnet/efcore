@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
@@ -92,39 +93,42 @@ namespace Microsoft.Data.Entity.Metadata
             return _key;
         }
 
-        public virtual void SetKey([NotNull] Key key)
+        public virtual void SetKey([CanBeNull] params Property[] properties)
         {
-            _key = key;
+            _key = null;
 
-            if (_key != null)
+            if (properties != null)
             {
-                foreach (var property in _key.Properties)
+                Check.NotEmpty(properties, "properties");
+
+                var key = new Key(properties);
+
+                if (key.EntityType != this)
                 {
-                    // TODO: Consider if this should be replace/throw/no-op when prop with this name exists
-                    AddProperty(property);
+                    throw new ArgumentException(
+                        Strings.FormatKeyPropertiesWrongEntity(Name));
                 }
+
+                _key = key;
             }
         }
 
-        public virtual ForeignKey AddForeignKey([NotNull] ForeignKey foreignKey)
+        public virtual ForeignKey AddForeignKey(
+            [NotNull] Key referencedKey, [NotNull] params Property[] properties)
         {
-            Check.NotNull(foreignKey, "foreignKey");
+            Check.NotNull(referencedKey, "referencedKey");
+            Check.NotNull(properties, "properties");
+            Check.NotEmpty(properties, "properties");
 
-            // TODO: Consider ordering of FKs
+            var foreignKey = new ForeignKey(referencedKey, properties);
+
+            if (foreignKey.EntityType != this)
+            {
+                throw new ArgumentException(
+                    Strings.FormatForeignKeyPropertiesWrongEntity(Name));
+            }
+
             _foreignKeys.Value.Add(foreignKey);
-            foreach (var property in foreignKey.DependentProperties)
-            {
-                // TODO: Consider if this should be replace/throw/no-op when prop with this name exists
-                AddProperty(property);
-            }
-
-            var currentOwner = foreignKey.DependentType;
-            if (currentOwner != null
-                && !ReferenceEquals(currentOwner, this))
-            {
-                currentOwner.RemoveForeignKey(foreignKey);
-            }
-            foreignKey.DependentType = this;
 
             return foreignKey;
         }
@@ -133,12 +137,9 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(foreignKey, "foreignKey");
 
-            if (_foreignKeys.HasValue
-                && _foreignKeys.Value.Remove(foreignKey))
+            if (_foreignKeys.HasValue)
             {
-                foreignKey.DependentType = null;
-
-                // TODO: Consider--should the property also be removed?
+                _foreignKeys.Value.Remove(foreignKey);
             }
         }
 
@@ -190,39 +191,64 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        public virtual Property AddProperty([NotNull] Property property)
+        public virtual Property AddProperty([NotNull] PropertyInfo propertyInfo)
+        {
+            Check.NotNull(propertyInfo, "propertyInfo");
+
+            return AddProperty(propertyInfo.Name, propertyInfo.PropertyType, shadowProperty: false);
+        }
+
+        public virtual Property AddProperty([NotNull] string name, [NotNull] Type propertyType, bool shadowProperty)
+        {
+            Check.NotEmpty(name, "name");
+            Check.NotNull(propertyType, "propertyType");
+
+            var property = new Property(name, propertyType, shadowProperty);
+
+            AddProperty(property);
+
+            return property;
+        }
+
+        private void AddProperty([NotNull] Property property)
         {
             Check.NotNull(property, "property");
 
             // TODO: Consider if replace as opposed to throw/no-op is correct when prop with this name exists
 
             var currentIndex = _properties.BinarySearch(property, PropertyComparer.Instance);
+
             if (currentIndex >= 0)
             {
                 var currentProperty = _properties[currentIndex];
+
                 if (!ReferenceEquals(currentProperty, property))
                 {
                     _properties[currentIndex] = property;
+
                     property.Index = currentIndex;
+                    
                     UpdateShadowIndexes(property);
                 }
             }
             else
             {
                 var newIndex = ~currentIndex;
+                
                 _properties.Insert(newIndex, property);
+                
                 UpdateIndexes(property, newIndex);
             }
 
+            // TODO: Remove this
             var currentOwner = property.EntityType;
             if (currentOwner != null
                 && !ReferenceEquals(currentOwner, this))
             {
                 currentOwner.RemoveProperty(property);
             }
-            property.EntityType = this;
 
-            return property;
+            property.EntityType = this;
         }
 
         private void UpdateIndexes(Property addedOrRemovedProperty, int startingIndex)
@@ -236,10 +262,10 @@ namespace Microsoft.Data.Entity.Metadata
 
         private void UpdateShadowIndexes(Property addedOrRemovedProperty)
         {
-            if (!addedOrRemovedProperty.HasClrProperty)
+            if (!addedOrRemovedProperty.IsClrProperty)
             {
                 var shadowIndex = 0;
-                foreach (var property in _properties.Where(p => !p.HasClrProperty))
+                foreach (var property in _properties.Where(p => !p.IsClrProperty))
                 {
                     property.ShadowIndex = shadowIndex++;
                 }
@@ -278,7 +304,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             // TODO: This should be O(n) but an additional index could be created
             // TODO: if this is too slow or if creating the surrogate Property object is too expensive
-            var surrogate = new Property(name, typeof(object), false);
+            var surrogate = new Property(name, typeof(object), shadowProperty: true);
             var index = _properties.BinarySearch(surrogate, PropertyComparer.Instance);
             return index >= 0 ? _properties[index] : null;
         }
