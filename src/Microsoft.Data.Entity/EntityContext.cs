@@ -15,6 +15,7 @@ namespace Microsoft.Data.Entity
         private readonly EntityConfiguration _configuration;
         private readonly LazyRef<IModel> _model;
         private readonly LazyRef<StateManager> _stateManager;
+        private readonly LazyRef<ContextEntitySets> _sets;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -32,6 +33,7 @@ namespace Microsoft.Data.Entity
             _configuration = configuration;
             _model = new LazyRef<IModel>(() => _configuration.Model ?? _configuration.ModelSource.GetModel(this));
             _stateManager = new LazyRef<StateManager>(() => _configuration.StateManagerFactory.Create(_model.Value));
+            _sets = new LazyRef<ContextEntitySets>(() => new ContextEntitySets(this, _configuration.EntitySetSource));
 
             _configuration.EntitySetInitializer.InitializeSets(this);
         }
@@ -127,10 +129,20 @@ namespace Microsoft.Data.Entity
             get { return _model.Value; }
         }
 
+        public virtual EntitySet Set([NotNull] Type entityType)
+        {
+            Check.NotNull(entityType, "entityType");
+
+            // Note: Creating sets needs to be fast because it is done eagerly when a context instance
+            // is created so we avoid loading metadata to validate the type here.
+            return _sets.Value.GetEntitySet(entityType);
+        }
+
         public virtual EntitySet<TEntity> Set<TEntity>() where TEntity : class
         {
-            // TODO: Check that the type is actually in the model
-            return new EntitySet<TEntity>(this);
+            // Note: Creating sets needs to be fast because it is done eagerly when a context instance
+            // is created so we avoid loading metadata to validate the type here.
+            return _sets.Value.GetEntitySet<TEntity>();
         }
     }
 }

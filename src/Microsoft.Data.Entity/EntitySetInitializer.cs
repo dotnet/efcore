@@ -35,13 +35,11 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(context, "context");
 
-            // TODO: Consider caching and/or compiled model support for initializing, possibly by rewriting the
-            // context EntitySet properties to include in-line initialization
-            foreach (var setProperty in _setFinder.FindSets(context).Where(s => s.SetMethod != null))
+            foreach (var setInfo in _setFinder.FindSets(context).Where(p => p.HasSetter))
             {
-                _entitySetSetters.GetAccessor(setProperty.DeclaringType, setProperty.Name)
-                    .SetClrValue(context, Activator.CreateInstance(setProperty.PropertyType, context));
-
+                _entitySetSetters
+                    .GetAccessor(setInfo.ContextType, setInfo.Name)
+                    .SetClrValue(context, context.Set(setInfo.EntityType));
             }
         }
     }

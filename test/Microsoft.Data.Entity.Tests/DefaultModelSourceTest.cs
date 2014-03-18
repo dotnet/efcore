@@ -2,7 +2,6 @@
 
 using System;
 using System.Linq;
-using Microsoft.Data.Entity.Utilities;
 using Moq;
 using Xunit;
 
@@ -33,10 +32,10 @@ namespace Microsoft.Data.Entity.Tests
             setFinderMock.Setup(m => m.FindSets(It.IsAny<EntityContext>())).Returns(
                 new[]
                     {
-                        typeof(JustAClass).GetAnyProperty("One"),
-                        typeof(JustAClass).GetAnyProperty("Two"),
-                        typeof(JustAClass).GetAnyProperty("Three"),
-                        typeof(JustAClass).GetAnyProperty("Four")
+                        new EntitySetFinder.EntitySetProperty(typeof(JustAClass), "One", typeof(Random), hasSetter: true),
+                        new EntitySetFinder.EntitySetProperty(typeof(JustAClass), "Two", typeof(object), hasSetter: true),
+                        new EntitySetFinder.EntitySetProperty(typeof(JustAClass), "Three", typeof(string), hasSetter: true),
+                        new EntitySetFinder.EntitySetProperty(typeof(JustAClass), "Four", typeof(string), hasSetter: true)
                     });
 
             var model = new DefaultModelSource(setFinderMock.Object).GetModel(new Mock<EntityContext>().Object);

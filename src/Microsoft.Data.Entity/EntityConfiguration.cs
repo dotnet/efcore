@@ -18,8 +18,8 @@ namespace Microsoft.Data.Entity
 
         private DataStore _dataStore;
         private StateManagerFactory _stateManagerFactory;
-        private EntitySetFinder _entitySetFinder;
         private EntitySetInitializer _entitySetInitializer;
+        private EntitySetSource _entitySetSource;
         private IdentityGeneratorFactory _identityGeneratorFactory;
         private ActiveIdentityGenerators _activeIdentityGenerators;
         private IModel _model;
@@ -61,27 +61,29 @@ namespace Microsoft.Data.Entity
             }
         }
 
-        public virtual EntitySetFinder EntitySetFinder
-        {
-            get { return _entitySetFinder ?? GetRequiredService<EntitySetFinder>(); }
-            [param: NotNull]
-            set
-            {
-                Check.NotNull(value, "value");
-
-                _entitySetFinder = value;
-            }
-        }
-
         public virtual EntitySetInitializer EntitySetInitializer
         {
-            get { return _entitySetInitializer ?? GetRequiredService<EntitySetInitializer>(); }
+            // TODO: Remove this once the service provider correctly returns singleton instances
+            get { return _entitySetInitializer ?? (_entitySetInitializer = GetRequiredService<EntitySetInitializer>()); }
             [param: NotNull]
             set
             {
                 Check.NotNull(value, "value");
 
                 _entitySetInitializer = value;
+            }
+        }
+
+        public virtual EntitySetSource EntitySetSource
+        {
+            // TODO: Remove this once the service provider correctly returns singleton instances
+            get { return _entitySetSource ?? (_entitySetSource = GetRequiredService<EntitySetSource>()); }
+            [param: NotNull]
+            set
+            {
+                Check.NotNull(value, "value");
+
+                _entitySetSource = value;
             }
         }
 

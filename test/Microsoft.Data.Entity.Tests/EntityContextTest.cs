@@ -233,11 +233,15 @@ namespace Microsoft.Data.Entity.Tests
         }
 
         [Fact]
-        public void Set_returns_a_new_EntitySet_for_the_given_type()
+        public void Set_and_non_generic_set_always_return_same_instance_returns_a_new_EntitySet_for_the_given_type()
         {
             using (var context = new ContextWithSets())
             {
-                Assert.NotNull(context.Set<Product>());
+                var entitySet = context.Set<Product>();
+                Assert.NotNull(entitySet);
+                Assert.Same(entitySet, context.Set<Product>());
+                Assert.Same(entitySet, context.Set(typeof(Product)));
+                Assert.Same(entitySet, context.Products);
             }
         }
 

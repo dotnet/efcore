@@ -49,10 +49,6 @@ namespace Microsoft.Data.Entity.Tests
             Assert.Equal(
                 "value",
                 Assert.Throws<ArgumentNullException>(() => configuration.EntitySetInitializer = null).ParamName);
-
-            Assert.Equal(
-                "value",
-                Assert.Throws<ArgumentNullException>(() => configuration.EntitySetFinder = null).ParamName);
         }
 
         [Fact]
@@ -316,37 +312,6 @@ namespace Microsoft.Data.Entity.Tests
             configuration.EntitySetInitializer = service;
 
             Assert.Same(service, configuration.EntitySetInitializer);
-        }
-
-        [Fact]
-        public void Throws_if_no_EntitySetFinder_registered()
-        {
-            Assert.Equal(
-                Strings.FormatMissingConfigurationItem(typeof(EntitySetFinder)),
-                Assert.Throws<InvalidOperationException>(
-                    () => new EntityConfiguration(new ServiceCollection().BuildServiceProvider()).EntitySetFinder).Message);
-        }
-
-        [Fact]
-        public void Can_provide_EntitySetFinder_from_service_provider()
-        {
-            var serviceCollection = new ServiceCollection();
-            var service = new Mock<EntitySetFinder>().Object;
-            serviceCollection.AddInstance<EntitySetFinder>(service);
-            var configuration = new EntityConfiguration(serviceCollection.BuildServiceProvider());
-            
-            Assert.Same(service, configuration.EntitySetFinder);
-        }
-
-        [Fact]
-        public void Can_set_EntitySetFinder()
-        {
-            var configuration = new EntityConfiguration();
-
-            var service = new Mock<EntitySetFinder>().Object;
-            configuration.EntitySetFinder = service;
-
-            Assert.Same(service, configuration.EntitySetFinder);
         }
     }
 }

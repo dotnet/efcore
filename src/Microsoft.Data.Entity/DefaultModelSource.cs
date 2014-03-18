@@ -25,13 +25,11 @@ namespace Microsoft.Data.Entity
 
             var model = new Model();
 
-            foreach (var setProperty in _setFinder.FindSets(context))
+            foreach (var setInfo in _setFinder.FindSets(context))
             {
-                var type = setProperty.PropertyType.GetTypeInfo().GenericTypeArguments.Single();
-
-                if (model.TryGetEntityType(type) == null)
+                if (model.TryGetEntityType(setInfo.EntityType) == null)
                 {
-                    model.AddEntityType(new EntityType(type));
+                    model.AddEntityType(new EntityType(setInfo.EntityType));
                 }
             }
 
