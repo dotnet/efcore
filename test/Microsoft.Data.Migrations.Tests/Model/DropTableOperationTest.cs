@@ -11,28 +11,25 @@ namespace Microsoft.Data.Migrations.Tests.Model
     public class DropTableOperationTest
     {
         [Fact]
-        public void CreateAndInitializeOperation()
+        public void Create_and_initialize_operation()
         {
             var table = new Table("foo.bar");
 
             var dropTableOperation = new DropTableOperation(table);
 
-            Assert.Same(table, dropTableOperation.Target);
+            Assert.Same(table, dropTableOperation.Table);
         }
 
         [Fact]
-        public void ObtainInverse()
+        public void Is_destructive_change()
         {
-            var table = new Table("foo.bar");
-            var dropTableOperation = new DropTableOperation(table);
+            var dropTableOperation = new DropTableOperation(new Table("foo.bar"));
 
-            var inverse = dropTableOperation.Inverse;
-
-            Assert.Same(table, inverse.Target);
+            Assert.True(dropTableOperation.IsDestructiveChange);
         }
 
         [Fact]
-        public void DispatchesSqlGeneration()
+        public void Dispatches_sql_generation()
         {
             var dropTableOperation = new DropTableOperation(new Table("foo.bar"));
             var mockSqlGenerator = new Mock<MigrationOperationSqlGenerator>();

@@ -7,25 +7,28 @@ using Microsoft.Data.Relational.Model;
 
 namespace Microsoft.Data.Migrations.Model
 {
-    public class DropPrimaryKeyOperation : MigrationOperation
+    public class RenameColumnOperation : MigrationOperation
     {
-        private readonly PrimaryKey _primaryKey;
+        private readonly Column _column;
+        private readonly string _columnName;
 
-        public DropPrimaryKeyOperation([NotNull] PrimaryKey primaryKey)
+        public RenameColumnOperation([NotNull] Column column, [NotNull] string columnName)
         {
-            Check.NotNull(primaryKey, "primaryKey");
+            Check.NotNull(column, "column");
+            Check.NotEmpty(columnName, "columnName");
 
-            _primaryKey = primaryKey;
+            _column = column;
+            _columnName = columnName;
         }
 
-        public virtual PrimaryKey PrimaryKey
+        public virtual Column Column
         {
-            get { return _primaryKey; }
+            get { return _column; }
         }
 
-        public override bool IsDestructiveChange
+        public virtual string ColumnName
         {
-            get { return true; }
+            get { return _columnName; }
         }
 
         public override void GenerateOperationSql(

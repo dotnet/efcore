@@ -38,16 +38,16 @@ namespace Microsoft.Data.SqlServer
             stringBuilder.Append("ALTER TABLE ");
             stringBuilder.Append(DelimitIdentifier(addPrimaryKeyOperation.Table.Name));
             stringBuilder.Append(" ADD CONSTRAINT ");
-            stringBuilder.Append(DelimitIdentifier(addPrimaryKeyOperation.Target.Name));
+            stringBuilder.Append(DelimitIdentifier(addPrimaryKeyOperation.PrimaryKey.Name));
             stringBuilder.Append(" PRIMARY KEY ");
 
-            if (!addPrimaryKeyOperation.Target.IsClustered) // TODO: Use annotation
+            if (!addPrimaryKeyOperation.PrimaryKey.IsClustered) // TODO: Use annotation
             {
                 stringBuilder.Append("NONCLUSTERED ");
             }
 
             stringBuilder.Append("(");
-            stringBuilder.Append(addPrimaryKeyOperation.Target.Columns.Select(c => DelimitIdentifier(c.Name)).Join());
+            stringBuilder.Append(addPrimaryKeyOperation.PrimaryKey.Columns.Select(c => DelimitIdentifier(c.Name)).Join());
             stringBuilder.Append(")");
         }
 
@@ -63,14 +63,14 @@ namespace Microsoft.Data.SqlServer
             {
                 stringBuilder
                     .Append(@"IF NOT EXISTS (SELECT * FROM sys.sequences WHERE name = ")
-                    .Append(DelimitLiteral(createSequenceOperation.Target.Name.Name))
+                    .Append(DelimitLiteral(createSequenceOperation.Sequence.Name.Name))
                     .Append(")");
 
-                if (createSequenceOperation.Target.Name.IsSchemaQualified)
+                if (createSequenceOperation.Sequence.Name.IsSchemaQualified)
                 {
                     stringBuilder
                         .Append(" AND schema_id = SCHEMA_ID(")
-                        .Append(DelimitLiteral(createSequenceOperation.Target.Name.Schema))
+                        .Append(DelimitLiteral(createSequenceOperation.Sequence.Name.Schema))
                         .Append(")");
                 }
 

@@ -30,24 +30,6 @@ namespace Microsoft.Data.Migrations
         }
 
         public virtual void Generate(
-            [NotNull] AddPrimaryKeyOperation addPrimaryKeyOperation,
-            [NotNull] IndentedStringBuilder stringBuilder,
-            bool generateIdempotentSql)
-        {
-            Check.NotNull(addPrimaryKeyOperation, "addPrimaryKeyOperation");
-            Check.NotNull(stringBuilder, "stringBuilder");
-
-            stringBuilder.Append("ALTER TABLE ");
-            stringBuilder.Append(DelimitIdentifier(addPrimaryKeyOperation.Table.Name));
-            stringBuilder.Append(" ADD CONSTRAINT ");
-            stringBuilder.Append(DelimitIdentifier(addPrimaryKeyOperation.Target.Name));
-            stringBuilder.Append(" PRIMARY KEY ");
-            stringBuilder.Append("(");
-            stringBuilder.Append(addPrimaryKeyOperation.Target.Columns.Select(c => DelimitIdentifier(c.Name)).Join());
-            stringBuilder.Append(")");
-        }
-
-        public virtual void Generate(
             [NotNull] CreateSequenceOperation createSequenceOperation,
             [NotNull] IndentedStringBuilder stringBuilder,
             bool generateIdempotentSql)
@@ -57,13 +39,131 @@ namespace Microsoft.Data.Migrations
 
             stringBuilder
                 .Append("CREATE SEQUENCE ")
-                .Append(DelimitIdentifier(createSequenceOperation.Target.Name))
+                .Append(DelimitIdentifier(createSequenceOperation.Sequence.Name))
                 .Append(" AS ")
-                .Append(createSequenceOperation.Target.DataType)
+                .Append(createSequenceOperation.Sequence.DataType)
                 .Append(" START WITH ")
-                .Append(createSequenceOperation.Target.StartWith)
+                .Append(createSequenceOperation.Sequence.StartWith)
                 .Append(" INCREMENT BY ")
-                .Append(createSequenceOperation.Target.IncrementBy);
+                .Append(createSequenceOperation.Sequence.IncrementBy);
+        }
+
+        public virtual void Generate(
+            [NotNull] DropSequenceOperation dropSequenceOperation,
+            [NotNull] IndentedStringBuilder stringBuilder,
+            bool generateIdempotentSql)
+        {
+            Check.NotNull(dropSequenceOperation, "dropSequenceOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
+
+            // TODO: Not implemented.
+        }
+
+        public virtual void Generate(
+            [NotNull] CreateTableOperation createTableOperation,
+            [NotNull] IndentedStringBuilder stringBuilder,
+            bool generateIdempotentSql)
+        {
+            Check.NotNull(createTableOperation, "createTableOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
+
+            // TODO: Not implemented.
+        }
+
+        public virtual void Generate(
+            [NotNull] DropTableOperation dropTableOperation,
+            [NotNull] IndentedStringBuilder stringBuilder,
+            bool generateIdempotentSql)
+        {
+            Check.NotNull(dropTableOperation, "dropTableOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
+
+            // TODO: Not implemented.
+        }
+
+        public virtual void Generate(
+            [NotNull] RenameTableOperation renameTableOperation,
+            [NotNull] IndentedStringBuilder stringBuilder,
+            bool generateIdempotentSql)
+        {
+            Check.NotNull(renameTableOperation, "renameTableOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
+
+            // TODO: Not implemented.
+        }
+
+        public virtual void Generate(
+            [NotNull] MoveTableOperation moveTableOperation,
+            [NotNull] IndentedStringBuilder stringBuilder,
+            bool generateIdempotentSql)
+        {
+            Check.NotNull(moveTableOperation, "moveTableOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
+
+            // TODO: Not implemented.
+        }
+
+        public virtual void Generate(
+            [NotNull] AddColumnOperation addColumnOperation,
+            [NotNull] IndentedStringBuilder stringBuilder,
+            bool generateIdempotentSql)
+        {
+            Check.NotNull(addColumnOperation, "addColumnOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
+
+            // TODO: Not implemented.
+        }
+
+        public virtual void Generate(
+            [NotNull] DropColumnOperation dropColumnOperation,
+            [NotNull] IndentedStringBuilder stringBuilder,
+            bool generateIdempotentSql)
+        {
+            Check.NotNull(dropColumnOperation, "dropColumnOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
+
+            // TODO: Not implemented.
+        }
+
+        public virtual void Generate(
+            [NotNull] RenameColumnOperation renameColumnOperation,
+            [NotNull] IndentedStringBuilder stringBuilder,
+            bool generateIdempotentSql)
+        {
+            Check.NotNull(renameColumnOperation, "renameColumnOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
+
+            // TODO: Not implemented.
+        }
+
+        public virtual void Generate(
+            [NotNull] AddPrimaryKeyOperation addPrimaryKeyOperation,
+            [NotNull] IndentedStringBuilder stringBuilder,
+            bool generateIdempotentSql)
+        {
+            Check.NotNull(addPrimaryKeyOperation, "addPrimaryKeyOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
+
+            stringBuilder
+                .Append("ALTER TABLE ")
+                .Append(DelimitIdentifier(addPrimaryKeyOperation.Table.Name))
+                .Append(" ADD CONSTRAINT ")
+                .Append(DelimitIdentifier(addPrimaryKeyOperation.PrimaryKey.Name))
+                .Append(" PRIMARY KEY ")
+                .Append("(")
+                .Append(addPrimaryKeyOperation.PrimaryKey.Columns.Select(c => DelimitIdentifier(c.Name)).Join())
+                .Append(")");
+        }
+
+        public virtual void Generate(
+            [NotNull] DropPrimaryKeyOperation dropPrimaryKeyOperation,
+            [NotNull] IndentedStringBuilder stringBuilder,
+            bool generateIdempotentSql)
+        {
+            Check.NotNull(dropPrimaryKeyOperation, "dropPrimaryKeyOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
+
+            // TODO: Not implemented.
         }
 
         public virtual void Generate(

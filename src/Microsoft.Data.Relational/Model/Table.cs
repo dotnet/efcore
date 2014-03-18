@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Relational.Utilities;
 
@@ -41,6 +42,13 @@ namespace Microsoft.Data.Relational.Model
             get { return _columns; }
         }
 
+        public virtual Column GetColumn([NotNull] string columnName)
+        {
+            Check.NotEmpty(columnName, "columnName");
+
+            return _columns.Single(c => c.Name.EqualsOrdinal(columnName));
+        }
+
         public virtual void AddColumn([NotNull] Column column)
         {
             Check.NotNull(column, "column");
@@ -62,6 +70,7 @@ namespace Microsoft.Data.Relational.Model
 
                 // TODO: Validate input.
 
+                value.FixupColumns(this);
                 _primaryKey = value;
             }
         }

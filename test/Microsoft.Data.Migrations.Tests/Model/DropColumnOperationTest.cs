@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Microsoft.Data.Migrations.Tests.Model
 {
-    public class AddPrimaryKeyOperationTest
+    public class DropColumnOperationTest
     {
         [Fact]
         public void Create_and_initialize_operation()
@@ -16,25 +16,22 @@ namespace Microsoft.Data.Migrations.Tests.Model
             var table = new Table("foo.bar");
             var column = new Column("C", "int");
             table.AddColumn(column);
-            var primaryKey = new PrimaryKey("PK", new[] { column });
 
-            var addPrimaryKeyOperation = new AddPrimaryKeyOperation(primaryKey, table);
+            var dropColumnOperation = new DropColumnOperation(column);
 
-            Assert.Same(primaryKey, addPrimaryKeyOperation.PrimaryKey);
-            Assert.Same(table, addPrimaryKeyOperation.Table);
+            Assert.Same(column, dropColumnOperation.Column);
         }
 
         [Fact]
-        public void Is_not_destructive_change()
+        public void Is_destructive_change()
         {
             var table = new Table("foo.bar");
             var column = new Column("C", "int");
             table.AddColumn(column);
-            var primaryKey = new PrimaryKey("PK", new[] { column });
 
-            var addPrimaryKeyOperation = new AddPrimaryKeyOperation(primaryKey, table);
+            var dropColumnOperation = new DropColumnOperation(column);
 
-            Assert.False(addPrimaryKeyOperation.IsDestructiveChange);
+            Assert.True(dropColumnOperation.IsDestructiveChange);
         }
 
         [Fact]
@@ -43,16 +40,15 @@ namespace Microsoft.Data.Migrations.Tests.Model
             var table = new Table("foo.bar");
             var column = new Column("C", "int");
             table.AddColumn(column);
-            var primaryKey = new PrimaryKey("PK", new[] { column });
 
-            var addPrimaryKeyOperation = new AddPrimaryKeyOperation(primaryKey, table);
+            var dropColumnOperation = new DropColumnOperation(column);
             var mockSqlGenerator = new Mock<MigrationOperationSqlGenerator>();
             var stringBuilder = new IndentedStringBuilder();
 
-            addPrimaryKeyOperation.GenerateOperationSql(mockSqlGenerator.Object, stringBuilder, true);
+            dropColumnOperation.GenerateOperationSql(mockSqlGenerator.Object, stringBuilder, true);
 
             mockSqlGenerator.Verify(
-                g => g.Generate(addPrimaryKeyOperation, stringBuilder, true), Times.Once());
+                g => g.Generate(dropColumnOperation, stringBuilder, true), Times.Once());
         }
     }
 }
