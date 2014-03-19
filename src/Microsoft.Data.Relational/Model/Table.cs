@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
@@ -58,7 +59,7 @@ namespace Microsoft.Data.Relational.Model
         {
             Check.NotEmpty(columnName, "columnName");
 
-            return _columns.First(c => c.Name.Equals(columnName));
+            return _columns.First(c => c.Name.Equals(columnName, StringComparison.Ordinal));
         }
 
         public virtual void AddColumn([NotNull] Column column)
