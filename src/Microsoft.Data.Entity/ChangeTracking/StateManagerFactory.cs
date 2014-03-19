@@ -17,6 +17,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         private readonly StateEntryFactory _stateEntryFactory;
         private readonly ClrPropertyGetterSource _getterSource;
         private readonly ClrPropertySetterSource _setterSource;
+        private readonly EntityMaterializerSource _materializerSource;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -33,8 +34,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
             [NotNull] EntityKeyFactorySource entityKeyFactorySource,
             [NotNull] StateEntryFactory stateEntryFactory,
             [NotNull] ClrPropertyGetterSource getterSource,
-            [NotNull] ClrPropertySetterSource setterSource)
-
+            [NotNull] ClrPropertySetterSource setterSource,
+            [NotNull] EntityMaterializerSource materializerSource)
         {
             Check.NotNull(identityGenerators, "identityGenerators");
             Check.NotNull(entityStateListeners, "entityStateListeners");
@@ -42,6 +43,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotNull(stateEntryFactory, "stateEntryFactory");
             Check.NotNull(getterSource, "getterSource");
             Check.NotNull(setterSource, "setterSource");
+            Check.NotNull(materializerSource, "materializerSource");
 
             _identityGenerators = identityGenerators;
             _entityStateListeners = entityStateListeners;
@@ -49,13 +51,16 @@ namespace Microsoft.Data.Entity.ChangeTracking
             _stateEntryFactory = stateEntryFactory;
             _getterSource = getterSource;
             _setterSource = setterSource;
+            _materializerSource = materializerSource;
         }
 
         public virtual StateManager Create([NotNull] IModel model)
         {
             Check.NotNull(model, "model");
 
-            return new StateManager(model, _identityGenerators, _entityStateListeners, _keyFactorySource, _stateEntryFactory, _getterSource, _setterSource);
+            return new StateManager(
+                model,  _identityGenerators,  _entityStateListeners, 
+                _keyFactorySource, _stateEntryFactory, _getterSource, _setterSource, _materializerSource);
         }
     }
 }

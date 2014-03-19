@@ -25,6 +25,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         private readonly StateEntryFactory _stateEntryFactory;
         private readonly ClrPropertyGetterSource _getterSource;
         private readonly ClrPropertySetterSource _setterSource;
+        private readonly EntityMaterializerSource _materializerSource;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -42,7 +43,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
             [NotNull] EntityKeyFactorySource entityKeyFactorySource,
             [NotNull] StateEntryFactory stateEntryFactory,
             [NotNull] ClrPropertyGetterSource getterSource,
-            [NotNull] ClrPropertySetterSource setterSource)
+            [NotNull] ClrPropertySetterSource setterSource,
+            [NotNull] EntityMaterializerSource materializerSource)
         {
             Check.NotNull(model, "model");
             Check.NotNull(identityGenerators, "identityGenerators");
@@ -51,6 +53,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotNull(stateEntryFactory, "stateEntryFactory");
             Check.NotNull(getterSource, "getterSource");
             Check.NotNull(setterSource, "setterSource");
+            Check.NotNull(materializerSource, "materializerSource");
 
             _model = model;
             _identityGenerators = identityGenerators;
@@ -58,6 +61,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             _stateEntryFactory = stateEntryFactory;
             _getterSource = getterSource;
             _setterSource = setterSource;
+            _materializerSource = materializerSource;
 
             var stateListeners = entityStateListeners.ToArray();
             _entityStateListeners = stateListeners.Length == 0 ? null : stateListeners;
@@ -86,6 +90,32 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 _entityReferenceMap[entity] = stateEntry;
             }
             return stateEntry;
+        }
+
+        public virtual StateEntry GetOrMaterializeEntry([NotNull] IEntityType entityType, [NotNull] object[] valueBuffer)
+        {
+            Check.NotNull(entityType, "entityType");
+            Check.NotNull(valueBuffer, "valueBuffer");
+
+            var keyProperties = entityType.GetKey().Properties;
+            var keyValue = _keyFactorySource.GetKeyFactory(keyProperties).Create(entityType, keyProperties, valueBuffer);
+
+            StateEntry existingEntry;
+            if (_identityMap.TryGetValue(keyValue, out existingEntry))
+            {
+                return existingEntry;
+            }
+
+            var newEntry = _stateEntryFactory.Create(this, entityType, valueBuffer);
+            _identityMap.Add(keyValue, newEntry);
+            newEntry.SetAttached();
+
+            return newEntry;
+        }
+
+        internal virtual void EntityMaterialized(StateEntry entry)
+        {
+            _entityReferenceMap[entry.Entity] = entry;
         }
 
         public virtual IEnumerable<StateEntry> StateEntries
@@ -235,6 +265,11 @@ namespace Microsoft.Data.Entity.ChangeTracking
         internal virtual IClrPropertySetter GetClrPropertySetter(IProperty property)
         {
             return _setterSource.GetAccessor(property);
+        }
+
+        internal virtual Func<object[], object> GetEntityMaterializer(IEntityType entityType)
+        {
+            return _materializerSource.GetMaterializer(entityType);
         }
 
         internal virtual EntityKey CreateKey(IEntityType entityType, IReadOnlyList<IProperty> properties, StateEntry entry)

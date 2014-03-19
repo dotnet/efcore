@@ -20,22 +20,22 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.Equal(
                 "stateManager",
                 // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => new MixedStateEntry(null, entityTypeMock.Object, new Random())).ParamName);
+                Assert.Throws<ArgumentNullException>(() => new MixedStateEntry(null, entityTypeMock.Object, new SomeEntity())).ParamName);
             Assert.Equal(
                 "entityType",
                 // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => new MixedStateEntry(stateManager, null, new Random())).ParamName);
+                Assert.Throws<ArgumentNullException>(() => new MixedStateEntry(stateManager, null, new SomeEntity())).ParamName);
             Assert.Equal(
                 "entity",
                 // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => new MixedStateEntry(stateManager, entityTypeMock.Object, null)).ParamName);
+                Assert.Throws<ArgumentNullException>(() => new MixedStateEntry(stateManager, entityTypeMock.Object, (object)null)).ParamName);
         }
 
         [Fact]
         public void Can_get_entity()
         {
             var entityTypeMock = CreateEntityTypeMock();
-            var entity = new Random();
+            var entity = new SomeEntity();
             var entry = new MixedStateEntry(CreateManagerMock(entityTypeMock).Object, entityTypeMock.Object, entity);
 
             Assert.Same(entity, entry.Entity);
@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var propertyMock = new Mock<IProperty>();
             var entityTypeMock = CreateEntityTypeMock(propertyMock);
-            var entry = new MixedStateEntry(CreateManagerMock(entityTypeMock).Object, entityTypeMock.Object, new Random());
+            var entry = new MixedStateEntry(CreateManagerMock(entityTypeMock).Object, entityTypeMock.Object, new SomeEntity());
 
             Assert.Equal(null, entry.GetPropertyValue(propertyMock.Object));
 
@@ -68,7 +68,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var setterMock = new Mock<IClrPropertySetter>();
             managerMock.Setup(m => m.GetClrPropertySetter(propertyMock.Object)).Returns(setterMock.Object);
 
-            var entity = new Random();
+            var entity = new SomeEntity();
             var entry = new MixedStateEntry(managerMock.Object, entityTypeMock.Object, entity);
 
             Assert.Equal(null, entry.GetPropertyValue(propertyMock.Object));
@@ -92,13 +92,36 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             getterMock2.Setup(m => m.GetClrValue(It.IsAny<object>())).Returns("Tree House");
             managerMock.Setup(m => m.GetClrPropertyGetter(propertyMock2.Object)).Returns(getterMock2.Object);
 
-            var entry = new MixedStateEntry(managerMock.Object, entityTypeMock.Object, new Random());
+            var entry = new MixedStateEntry(managerMock.Object, entityTypeMock.Object, new SomeEntity());
 
             entry.SetPropertyValue(propertyMock1.Object, "Magic");
 
             Assert.Equal(new object[] { "Magic", "Tree House" }, entry.GetValueBuffer());
 
             Assert.Equal(new object[] { "Magic", "Tree House" }, entry.GetValueBuffer());
+        }
+
+        [Fact]
+        public void Shadow_and_CLR_properties_are_separated_on_entity_materialization()
+        {
+            var propertyMock1 = new Mock<IProperty>();
+            var propertyMock2 = new Mock<IProperty>();
+            var entityTypeMock = CreateEntityTypeMock(propertyMock1, propertyMock2);
+            var managerMock = CreateManagerMock(entityTypeMock);
+
+            var getterMock2 = new Mock<IClrPropertyGetter>();
+            getterMock2.Setup(m => m.GetClrValue(It.IsAny<object>())).Returns("Tree House");
+            managerMock.Setup(m => m.GetClrPropertyGetter(propertyMock2.Object)).Returns(getterMock2.Object);
+
+            var entry = new MixedStateEntry(managerMock.Object, entityTypeMock.Object, new object[] { 77, "Kool" });
+
+            Assert.Equal(77, entry.GetPropertyValue(propertyMock1.Object));
+            Assert.Equal("Kool", entry.GetPropertyValue(propertyMock2.Object));
+
+            Assert.IsType<SomeEntity>(entry.Entity);
+
+            Assert.Equal(77, entry.GetPropertyValue(propertyMock1.Object));
+            Assert.Equal("Tree House", entry.GetPropertyValue(propertyMock2.Object));
         }
 
         protected override Mock<IEntityType> CreateEntityTypeMock(Mock<IProperty> key = null, Mock<IProperty> nonKey = null)
@@ -116,7 +139,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entityTypeMock = new Mock<IEntityType>();
             entityTypeMock.Setup(m => m.GetKey().Properties).Returns(keys);
             entityTypeMock.Setup(m => m.Properties).Returns(keys.Concat(new[] { nonKey.Object }).ToArray());
-            entityTypeMock.Setup(m => m.ShadowPropertyCount).Returns(2);
+            entityTypeMock.Setup(m => m.ShadowPropertyCount).Returns(1);
 
             return entityTypeMock;
         }

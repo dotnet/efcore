@@ -23,7 +23,7 @@ namespace Microsoft.Data.Relational.Update
                 new StateManager(
                     model, Mock.Of<ActiveIdentityGenerators>(),
                     new IEntityStateListener[0], new EntityKeyFactorySource(),
-                    new StateEntryFactory(), new ClrPropertyGetterSource(), new ClrPropertySetterSource());
+                    new StateEntryFactory(), new ClrPropertyGetterSource(), new ClrPropertySetterSource(), new EntityMaterializerSource());
 
             var stateEntry = new MixedStateEntry(stateManager, model.GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
             await stateEntry.SetEntityStateAsync(EntityState.Added, new CancellationToken());
@@ -51,7 +51,7 @@ namespace Microsoft.Data.Relational.Update
                 new StateManager(
                     model, Mock.Of<ActiveIdentityGenerators>(),
                     new IEntityStateListener[0], new EntityKeyFactorySource(),
-                    new StateEntryFactory(), new ClrPropertyGetterSource(), new ClrPropertySetterSource());
+                    new StateEntryFactory(), new ClrPropertyGetterSource(), new ClrPropertySetterSource(), new EntityMaterializerSource());
 
             var stateEntry = new MixedStateEntry(stateManager, model.GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
             await stateEntry.SetEntityStateAsync(EntityState.Modified, new CancellationToken());
@@ -86,7 +86,7 @@ namespace Microsoft.Data.Relational.Update
                 new StateManager(
                     model, Mock.Of<ActiveIdentityGenerators>(),
                     new IEntityStateListener[0], new EntityKeyFactorySource(),
-                    new StateEntryFactory(), new ClrPropertyGetterSource(), new ClrPropertySetterSource());
+                    new StateEntryFactory(), new ClrPropertyGetterSource(), new ClrPropertySetterSource(), new EntityMaterializerSource());
 
             var stateEntry = new MixedStateEntry(stateManager, model.GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
             await stateEntry.SetEntityStateAsync(EntityState.Deleted, new CancellationToken());

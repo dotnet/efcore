@@ -49,6 +49,53 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
+        [Fact]
+        public void Navigation_fixup_happens_when_entities_are_materialized()
+        {
+            var model = BuildModel();
+            var configuration = new EntityConfiguration { Model = model };
+
+            var categoryType = model.GetEntityType(typeof(Category));
+            var productType = model.GetEntityType(typeof(Product));
+            var offerType = model.GetEntityType(typeof(SpecialOffer));
+
+            using (var context = new EntityContext(configuration))
+            {
+                var stateManager = context.ChangeTracker.StateManager;
+
+                stateManager.GetOrMaterializeEntry(categoryType, new object[] { 11 });
+                stateManager.GetOrMaterializeEntry(categoryType, new object[] { 12 });
+                stateManager.GetOrMaterializeEntry(categoryType, new object[] { 13 });
+
+
+                stateManager.GetOrMaterializeEntry(productType, new object[] { 11, 21 });
+                AssertAllFixedUp(context);
+                stateManager.GetOrMaterializeEntry(productType, new object[] { 11, 22 });
+                AssertAllFixedUp(context);
+                stateManager.GetOrMaterializeEntry(productType, new object[] { 11, 23 });
+                AssertAllFixedUp(context);
+                stateManager.GetOrMaterializeEntry(productType, new object[] { 12, 24 });
+                AssertAllFixedUp(context);
+                stateManager.GetOrMaterializeEntry(productType, new object[] { 12, 25 });
+                AssertAllFixedUp(context);
+
+                stateManager.GetOrMaterializeEntry(offerType, new object[] { 31, 22});
+                AssertAllFixedUp(context);
+                stateManager.GetOrMaterializeEntry(offerType, new object[] { 32, 22 });
+                AssertAllFixedUp(context);
+                stateManager.GetOrMaterializeEntry(offerType, new object[] { 33, 24 });
+                AssertAllFixedUp(context);
+                stateManager.GetOrMaterializeEntry(offerType, new object[] { 34, 24 });
+                AssertAllFixedUp(context);
+                stateManager.GetOrMaterializeEntry(offerType, new object[] { 35, 24 });
+                AssertAllFixedUp(context);
+
+                Assert.Equal(3, context.ChangeTracker.Entries<Category>().Count());
+                Assert.Equal(5, context.ChangeTracker.Entries<Product>().Count());
+                Assert.Equal(5, context.ChangeTracker.Entries<SpecialOffer>().Count());
+            }
+        }
+
         public void AssertAllFixedUp(EntityContext context)
         {
             foreach (var entry in context.ChangeTracker.Entries<Product>())

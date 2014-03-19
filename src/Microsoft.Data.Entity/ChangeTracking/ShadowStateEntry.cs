@@ -35,6 +35,14 @@ namespace Microsoft.Data.Entity.ChangeTracking
             _propertyValues = new object[entityType.ShadowPropertyCount];
         }
 
+        public ShadowStateEntry([NotNull] StateManager stateManager, [NotNull] IEntityType entityType, [NotNull] object[] valueBuffer)
+            : base(stateManager, entityType)
+        {
+            Check.NotNull(valueBuffer, "valueBuffer");
+
+            _propertyValues = valueBuffer;
+        }
+
         public override object GetPropertyValue(IProperty property)
         {
             Check.NotNull(property, "property");

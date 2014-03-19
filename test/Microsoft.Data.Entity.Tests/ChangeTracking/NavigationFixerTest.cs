@@ -88,8 +88,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 Enumerable.Empty<IEntityStateListener>(),
                 new EntityKeyFactorySource(),
                 new StateEntryFactory(),
-                new ClrPropertyGetterSource(),
-                new ClrPropertySetterSource());
+                new ClrPropertyGetterSource(), 
+                new ClrPropertySetterSource(),
+                new EntityMaterializerSource());
         }
 
         #region Fixture

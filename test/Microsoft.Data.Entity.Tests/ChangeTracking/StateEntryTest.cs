@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         public void Members_check_arguments()
         {
             var entityTypeMock = CreateEntityTypeMock();
-            var entry = CreateStateEntry(CreateManagerMock(entityTypeMock).Object, entityTypeMock.Object, new Random());
+            var entry = CreateStateEntry(CreateManagerMock(entityTypeMock).Object, entityTypeMock.Object, new SomeEntity());
 
             Assert.Equal(
                 "property",
@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var entityTypeMock = CreateEntityTypeMock();
             var managerMock = CreateManagerMock(entityTypeMock);
-            var entry = CreateStateEntry(managerMock.Object, entityTypeMock.Object, new Random());
+            var entry = CreateStateEntry(managerMock.Object, entityTypeMock.Object, new SomeEntity());
 
             entry.SetEntityStateAsync(EntityState.Added, CancellationToken.None).Wait();
 
@@ -50,7 +50,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var entityTypeMock = CreateEntityTypeMock();
             var managerMock = CreateManagerMock(entityTypeMock);
-            var entry = CreateStateEntry(managerMock.Object, entityTypeMock.Object, new Random());
+            var entry = CreateStateEntry(managerMock.Object, entityTypeMock.Object, new SomeEntity());
 
             entry.SetEntityStateAsync(EntityState.Added, CancellationToken.None).Wait();
             entry.SetEntityStateAsync(EntityState.Unknown, CancellationToken.None).Wait();
@@ -66,7 +66,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var nonKeyMock = new Mock<IProperty>();
             var entityTypeMock = CreateEntityTypeMock(keyMock, nonKeyMock);
             var managerMock = CreateManagerMock(entityTypeMock);
-            var entry = CreateStateEntry(managerMock.Object, entityTypeMock.Object, new Random());
+            var entry = CreateStateEntry(managerMock.Object, entityTypeMock.Object, new SomeEntity());
 
             Assert.False(entry.IsPropertyModified(keyMock.Object));
             Assert.False(entry.IsPropertyModified(nonKeyMock.Object));
@@ -98,7 +98,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var setterMock = new Mock<IClrPropertySetter>();
             managerMock.Setup(m => m.GetClrPropertySetter(keyMock.Object)).Returns(setterMock.Object);
 
-            var entity = new Random();
+            var entity = new SomeEntity();
             var entry = CreateStateEntry(managerMock.Object, entityTypeMock.Object, entity);
             entry.SetEntityStateAsync(EntityState.Added, CancellationToken.None).Wait();
 
@@ -132,7 +132,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var setterMock = new Mock<IClrPropertySetter>();
             managerMock.Setup(m => m.GetClrPropertySetter(propertyMock1.Object)).Returns(setterMock.Object);
 
-            var entry = CreateStateEntry(managerMock.Object, entityTypeMock.Object, new Random());
+            var entry = CreateStateEntry(managerMock.Object, entityTypeMock.Object, new SomeEntity());
             entry.SetPropertyValue(propertyMock1.Object, "Atmosphere");
 
             var keyValue = entry.GetPrimaryKeyValue();
@@ -179,7 +179,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             foreignKeyMock.Setup(m => m.ReferencedProperties).Returns(principalProps);
             foreignKeyMock.Setup(m => m.Properties).Returns(dependentProps);
 
-            var entry = CreateStateEntry(managerMock.Object, dependentTypeMock.Object, new Random());
+            var entry = CreateStateEntry(managerMock.Object, dependentTypeMock.Object, new SomeEntity());
             entry.SetPropertyValue(dependentProp.Object, "On");
 
             var keyValue = entry.GetDependentKeyValue(foreignKeyMock.Object);
@@ -226,7 +226,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             foreignKeyMock.Setup(m => m.ReferencedProperties).Returns(principalProps);
             foreignKeyMock.Setup(m => m.Properties).Returns(dependentProps);
 
-            var entry = CreateStateEntry(managerMock.Object, principalTypeMock.Object, new Random());
+            var entry = CreateStateEntry(managerMock.Object, principalTypeMock.Object, new SomeEntity());
             entry.SetPropertyValue(principalProp.Object, "Wax");
 
             var keyValue = entry.GetPrincipalKeyValue(foreignKeyMock.Object);
@@ -236,18 +236,70 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             managerMock.Verify(m => m.CreateKey(principalTypeMock.Object, foreignKeyMock.Object.ReferencedProperties, entry));
         }
 
+        [Fact]
+        public void Asking_for_entity_instance_causes_it_to_be_materialized()
+        {
+            var entityTypeMock = CreateEntityTypeMock();
+            var managerMock = CreateManagerMock(entityTypeMock);
+            var entry = CreateStateEntry(managerMock.Object, entityTypeMock.Object, new object[] { 1, "Kool" });
+
+            managerMock.Verify(m => m.GetEntityMaterializer(It.IsAny<IEntityType>()), Times.Never);
+
+            var entity = (SomeEntity)entry.Entity;
+
+            managerMock.Verify(m => m.GetEntityMaterializer(entityTypeMock.Object), Times.Once);
+
+            Assert.Equal(1, entity.Id);
+            Assert.Equal("Kool", entity.Kool);
+        }
+
+        [Fact]
+        public void Can_get_property_value_without_materializing_entity()
+        {
+            var propertyMock = new Mock<IProperty>();
+            var entityTypeMock = CreateEntityTypeMock(propertyMock);
+            var managerMock = CreateManagerMock(entityTypeMock);
+            var entry = CreateStateEntry(managerMock.Object, entityTypeMock.Object, new object[] { 1, "Kool" });
+
+            Assert.Equal(1, entry.GetPropertyValue(propertyMock.Object));
+
+            managerMock.Verify(m => m.GetEntityMaterializer(It.IsAny<IEntityType>()), Times.Never);
+        }
+
+        [Fact]
+        public void Can_set_property_value_without_materializing_entity()
+        {
+            var propertyMock = new Mock<IProperty>();
+            var entityTypeMock = CreateEntityTypeMock(propertyMock);
+            var managerMock = CreateManagerMock(entityTypeMock);
+            var entry = CreateStateEntry(managerMock.Object, entityTypeMock.Object, new object[] { 1, "Kool" });
+
+            entry.SetPropertyValue(propertyMock.Object, 77);
+
+            managerMock.Verify(m => m.GetEntityMaterializer(It.IsAny<IEntityType>()), Times.Never);
+
+            Assert.Equal(77, entry.GetPropertyValue(propertyMock.Object));
+        }
+
         protected virtual StateEntry CreateStateEntry(StateManager stateManager, IEntityType entityType, object entity)
         {
             return new MixedStateEntry(stateManager, entityType, entity);
         }
 
+        protected virtual StateEntry CreateStateEntry(StateManager stateManager, IEntityType entityType, object[] valueBuffer)
+        {
+            return new MixedStateEntry(stateManager, entityType, valueBuffer);
+        }
+
         protected virtual Mock<StateManager> CreateManagerMock(Mock<IEntityType> entityTypeMock)
         {
             var modelMock = new Mock<IModel>();
-            modelMock.Setup(m => m.GetEntityType(typeof(Random))).Returns(entityTypeMock.Object);
+            modelMock.Setup(m => m.GetEntityType(typeof(SomeEntity))).Returns(entityTypeMock.Object);
 
             var managerMock = new Mock<StateManager>();
             managerMock.Setup(m => m.Model).Returns(modelMock.Object);
+            managerMock.Setup(m => m.GetEntityMaterializer(entityTypeMock.Object))
+                .Returns(b => new SomeEntity { Id = (int)b[0], Kool = (string)b[1] });
             return managerMock;
         }
 
@@ -266,6 +318,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entityTypeMock.Setup(m => m.Properties).Returns(keys.Concat(new[] { nonKey.Object }).ToArray());
 
             return entityTypeMock;
+        }
+
+        protected class SomeEntity
+        {
+            public int Id { get; set; }
+            public string Kool { get; set; }
         }
 
         public class StateDataTest

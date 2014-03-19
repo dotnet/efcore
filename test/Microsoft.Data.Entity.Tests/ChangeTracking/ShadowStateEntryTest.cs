@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var propertyMock = new Mock<IProperty>();
             var entityTypeMock = CreateEntityTypeMock(propertyMock);
-            var entry = new MixedStateEntry(CreateManagerMock(entityTypeMock).Object, entityTypeMock.Object, new Random());
+            var entry = new MixedStateEntry(CreateManagerMock(entityTypeMock).Object, entityTypeMock.Object, new SomeEntity());
 
             Assert.Equal(null, entry.GetPropertyValue(propertyMock.Object));
 
@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var propertyMock1 = new Mock<IProperty>();
             var propertyMock2 = new Mock<IProperty>();
             var entityTypeMock = CreateEntityTypeMock(propertyMock1, propertyMock2);
-            var entry = new MixedStateEntry(CreateManagerMock(entityTypeMock).Object, entityTypeMock.Object, new Random());
+            var entry = new MixedStateEntry(CreateManagerMock(entityTypeMock).Object, entityTypeMock.Object, new SomeEntity());
 
             entry.SetPropertyValue(propertyMock1.Object, "Magic");
             entry.SetPropertyValue(propertyMock2.Object, "Tree House");

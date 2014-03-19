@@ -67,5 +67,65 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.Same(entityTypeMock.Object, entry.EntityType);
             Assert.Same(entity, entry.Entity);
         }
+
+        [Fact]
+        public void Creates_shadow_state_only_entry_from_value_buffer_when_entity_is_fully_shadow_state()
+        {
+            var property = new Mock<IProperty>().Object;
+            var entityTypeMock = new Mock<IEntityType>();
+            entityTypeMock.Setup(m => m.HasClrType).Returns(false);
+            entityTypeMock.Setup(m => m.Properties).Returns(new[] { property });
+
+            var stateManager = new Mock<StateManager>().Object;
+
+            var entry = new StateEntryFactory().Create(stateManager, entityTypeMock.Object, new object[] { 77 });
+
+            Assert.IsType<ShadowStateEntry>(entry);
+
+            Assert.Same(stateManager, entry.StateManager);
+            Assert.Same(entityTypeMock.Object, entry.EntityType);
+            Assert.Equal(77, entry.GetPropertyValue(property));
+            Assert.Null(entry.Entity);
+        }
+
+        [Fact]
+        public void Creates_CLR_only_entry_from_value_buffer_when_entity_has_no_shadow_properties()
+        {
+            var property = new Mock<IProperty>().Object;
+            var entityTypeMock = new Mock<IEntityType>();
+            entityTypeMock.Setup(m => m.HasClrType).Returns(true);
+            entityTypeMock.Setup(m => m.Properties).Returns(new[] { property });
+            entityTypeMock.Setup(m => m.ShadowPropertyCount).Returns(0);
+
+            var stateManager = new Mock<StateManager>().Object;
+
+            var entry = new StateEntryFactory().Create(stateManager, entityTypeMock.Object, new object[] { 77 });
+
+            Assert.IsType<ClrStateEntry>(entry);
+
+            Assert.Same(stateManager, entry.StateManager);
+            Assert.Same(entityTypeMock.Object, entry.EntityType);
+            Assert.Equal(77, entry.GetPropertyValue(property));
+        }
+
+        [Fact]
+        public void Creates_mixed_entry_from_value_buffer_when_entity_CLR_entity_type_and_shadow_properties()
+        {
+            var property = new Mock<IProperty>().Object;
+            var entityTypeMock = new Mock<IEntityType>();
+            entityTypeMock.Setup(m => m.HasClrType).Returns(true);
+            entityTypeMock.Setup(m => m.Properties).Returns(new[] { property });
+            entityTypeMock.Setup(m => m.ShadowPropertyCount).Returns(1);
+
+            var stateManager = new Mock<StateManager>().Object;
+
+            var entry = new StateEntryFactory().Create(stateManager, entityTypeMock.Object, new object[] { 77 });
+
+            Assert.IsType<MixedStateEntry>(entry);
+
+            Assert.Same(stateManager, entry.StateManager);
+            Assert.Same(entityTypeMock.Object, entry.EntityType);
+            Assert.Equal(77, entry.GetPropertyValue(property));
+        }
     }
 }

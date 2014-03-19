@@ -25,5 +25,22 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 ? (StateEntry)new MixedStateEntry(stateManager, entityType, entity)
                 : new ClrStateEntry(stateManager, entityType, entity);
         }
+
+        public virtual StateEntry Create(
+            [NotNull] StateManager stateManager, [NotNull] IEntityType entityType, [NotNull] object[] valueBuffer)
+        {
+            Check.NotNull(stateManager, "stateManager");
+            Check.NotNull(entityType, "entityType");
+            Check.NotNull(valueBuffer, "valueBuffer");
+
+            if (!entityType.HasClrType)
+            {
+                return new ShadowStateEntry(stateManager, entityType, valueBuffer);
+            }
+
+            return entityType.ShadowPropertyCount > 0
+                ? (StateEntry)new MixedStateEntry(stateManager, entityType, valueBuffer)
+                : new ClrStateEntry(stateManager, entityType, valueBuffer);
+        }
     }
 }

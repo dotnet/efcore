@@ -131,7 +131,8 @@ namespace Microsoft.Data.InMemory.Tests
                 new EntityKeyFactorySource(),
                 new StateEntryFactory(),
                 new ClrPropertyGetterSource(),
-                new ClrPropertySetterSource());
+                new ClrPropertySetterSource(),
+                new EntityMaterializerSource());
         }
     }
 }

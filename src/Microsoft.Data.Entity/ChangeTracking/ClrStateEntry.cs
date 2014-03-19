@@ -9,7 +9,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 {
     public class ClrStateEntry : StateEntry
     {
-        private readonly object _entity;
+        private object _entityOrValues;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -25,27 +25,63 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             Check.NotNull(entity, "entity");
 
-            _entity = entity;
+            _entityOrValues = entity;
+        }
+
+        public ClrStateEntry([NotNull] StateManager stateManager, [NotNull] IEntityType entityType, [NotNull] object[] valueBuffer)
+            : base(stateManager, entityType)
+        {
+            Check.NotNull(valueBuffer, "valueBuffer");
+
+            _entityOrValues = valueBuffer;
         }
 
         [NotNull]
         public override object Entity
         {
-            get { return _entity; }
+            get
+            {
+                // TODO: Consider: will we ever allow an entity type of object[]?
+                var asValues = _entityOrValues as object[];
+
+                if (asValues != null)
+                {
+                    _entityOrValues = StateManager.GetEntityMaterializer(EntityType)(asValues);
+                    StateManager.EntityMaterialized(this);
+                }
+
+                return _entityOrValues;
+            }
         }
 
         public override object GetPropertyValue(IProperty property)
         {
             Check.NotNull(property, "property");
 
-            return StateManager.GetClrPropertyGetter(property).GetClrValue(_entity);
+            var asValues = _entityOrValues as object[];
+
+            if (asValues != null)
+            {
+                return asValues[property.Index];
+            }
+
+            return StateManager.GetClrPropertyGetter(property).GetClrValue(_entityOrValues);
         }
 
         public override void SetPropertyValue(IProperty property, object value)
         {
             Check.NotNull(property, "property");
 
-            StateManager.GetClrPropertySetter(property).SetClrValue(_entity, value);
+            var asValues = _entityOrValues as object[];
+
+            if (asValues != null)
+            {
+                asValues[property.Index] = value;
+            }
+            else
+            {
+                StateManager.GetClrPropertySetter(property).SetClrValue(_entityOrValues, value);
+            }
         }
     }
 }
