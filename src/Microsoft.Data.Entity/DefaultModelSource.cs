@@ -34,6 +34,8 @@ namespace Microsoft.Data.Entity
             // TODO: Use conventions/builder appropriately
             new SimpleTemporaryConvention().Apply(model);
 
+            context.CallOnModelCreating(new ModelBuilder(model));
+
             return model;
         }
     }

@@ -38,10 +38,9 @@ namespace Microsoft.Data.Entity.Tests
                         new EntitySetFinder.EntitySetProperty(typeof(JustAContext), "Four", typeof(string), hasSetter: false)
                     });
 
-            var configuration = new EntityConfiguration
-                {
-                    EntitySetInitializer = new EntitySetInitializer(setFinderMock.Object, new ClrPropertySetterSource())
-                };
+            var configuration = new EntityConfigurationBuilder()
+                .UseEntitySetInitializer(new EntitySetInitializer(setFinderMock.Object, new ClrPropertySetterSource()))
+                .BuildConfiguration();
 
             using (var context = new JustAContext(configuration))
             {

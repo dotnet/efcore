@@ -13,17 +13,16 @@ namespace Microsoft.Data.Entity
     public class EntityContext : IDisposable
     {
         private readonly EntityConfiguration _configuration;
-        private readonly LazyRef<IModel> _model;
-        private readonly LazyRef<StateManager> _stateManager;
-        private readonly LazyRef<ContextEntitySets> _sets;
 
-        /// <summary>
-        ///     This constructor is intended only for use when creating test doubles that will override members
-        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
-        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
-        /// </summary>
+        private LazyRef<IModel> _model;
+        private LazyRef<StateManager> _stateManager;
+        private ContextEntitySets _sets;
+
         protected EntityContext()
         {
+            _configuration = EntityConfigurationCache.Instance.GetOrAddConfiguration(this);
+
+            Initialize();
         }
 
         public EntityContext([NotNull] EntityConfiguration configuration)
@@ -31,11 +30,35 @@ namespace Microsoft.Data.Entity
             Check.NotNull(configuration, "configuration");
 
             _configuration = configuration;
+
+            Initialize();
+        }
+
+        private void Initialize()
+        {
+            _sets = new ContextEntitySets(this, _configuration.EntitySetSource);
+            _configuration.EntitySetInitializer.InitializeSets(this);
+
             _model = new LazyRef<IModel>(() => _configuration.Model ?? _configuration.ModelSource.GetModel(this));
             _stateManager = new LazyRef<StateManager>(() => _configuration.StateManagerFactory.Create(_model.Value));
-            _sets = new LazyRef<ContextEntitySets>(() => new ContextEntitySets(this, _configuration.EntitySetSource));
+        }
 
-            _configuration.EntitySetInitializer.InitializeSets(this);
+        internal void CallOnConfiguring(EntityConfigurationBuilder builder)
+        {
+            OnConfiguring(builder);
+        }
+
+        protected virtual void OnConfiguring([NotNull] EntityConfigurationBuilder builder)
+        {
+        }
+
+        internal void CallOnModelCreating(ModelBuilder builder)
+        {
+            OnModelCreating(builder);
+        }
+
+        protected virtual void OnModelCreating([NotNull] ModelBuilder builder)
+        {
         }
 
         public virtual int SaveChanges()
@@ -51,7 +74,7 @@ namespace Microsoft.Data.Entity
 
         public virtual Task<int> SaveChangesAsync(CancellationToken cancellationToken)
         {
-            return _configuration.DataStore.SaveChangesAsync(_stateManager.Value.StateEntries, _model.Value, cancellationToken);
+            return _configuration.DataStore.SaveChangesAsync(_stateManager.Value.StateEntries, Model, cancellationToken);
         }
 
         public void Dispose()
@@ -140,14 +163,14 @@ namespace Microsoft.Data.Entity
 
             // Note: Creating sets needs to be fast because it is done eagerly when a context instance
             // is created so we avoid loading metadata to validate the type here.
-            return _sets.Value.GetEntitySet(entityType);
+            return _sets.GetEntitySet(entityType);
         }
 
         public virtual EntitySet<TEntity> Set<TEntity>() where TEntity : class
         {
             // Note: Creating sets needs to be fast because it is done eagerly when a context instance
             // is created so we avoid loading metadata to validate the type here.
-            return _sets.Value.GetEntitySet<TEntity>();
+            return _sets.GetEntitySet<TEntity>();
         }
     }
 }

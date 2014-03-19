@@ -19,6 +19,12 @@ namespace Microsoft.Data.Entity.Metadata
             _model = model;
         }
 
+        // TODO: Consider whether this is needed/desirable; currently builder is not full-fidelity
+        public virtual Model Model
+        {
+            get { return _model; }
+        }
+
         public virtual EntityBuilder<T> Entity<T>()
         {
             var type = typeof(T);

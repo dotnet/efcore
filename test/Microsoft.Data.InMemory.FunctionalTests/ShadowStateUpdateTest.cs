@@ -24,13 +24,12 @@ namespace Microsoft.Data.InMemory.FunctionalTests
 
             var inMemoryDataStore = new InMemoryDataStore();
 
-            var entityConfiguration = new EntityConfiguration
-                {
-                    DataStore = inMemoryDataStore,
-                    Model = model
-                };
-
-            using (var context = entityConfiguration.CreateContext())
+            var configuration = new EntityConfigurationBuilder()
+                .UseModel(model)
+                .UseDataStore(inMemoryDataStore)
+                .BuildConfiguration(); 
+            
+            using (var context = new EntityContext(configuration))
             {
                 // TODO: Better API for shadow state access
                 var customerEntry = context.ChangeTracker.StateManager.CreateNewEntry(customerType);
@@ -48,7 +47,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
 
             Assert.Equal(new object[] { 42, "Daenerys" }, customerFromStore);
 
-            using (var context = entityConfiguration.CreateContext())
+            using (var context = new EntityContext(configuration))
             {
                 var customerEntry = context.ChangeTracker.StateManager.CreateNewEntry(customerType);
                 customerEntry.SetPropertyValue(customerType.GetProperty("Id"), 42);
@@ -63,7 +62,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
 
             Assert.Equal(new object[] { 42, "Daenerys Targaryen" }, customerFromStore);
 
-            using (var context = entityConfiguration.CreateContext())
+            using (var context = new EntityContext(configuration))
             {
                 var customerEntry = context.ChangeTracker.StateManager.CreateNewEntry(customerType);
                 customerEntry.SetPropertyValue(customerType.GetProperty("Id"), 42);
@@ -89,15 +88,14 @@ namespace Microsoft.Data.InMemory.FunctionalTests
 
             var inMemoryDataStore = new InMemoryDataStore();
 
-            var entityConfiguration = new EntityConfiguration
-                {
-                    DataStore = inMemoryDataStore,
-                    Model = model
-                };
+            var configuration = new EntityConfigurationBuilder()
+                .UseModel(model)
+                .UseDataStore(inMemoryDataStore)
+                .BuildConfiguration();
 
             var customer = new Customer { Id = 42 };
 
-            using (var context = entityConfiguration.CreateContext())
+            using (var context = new EntityContext(configuration))
             {
                 context.Add(customer);
 
@@ -114,7 +112,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
 
             Assert.Equal(new object[] { 42, "Daenerys" }, customerFromStore);
 
-            using (var context = entityConfiguration.CreateContext())
+            using (var context = new EntityContext(configuration))
             {
                 var customerEntry = context.ChangeTracker.Entry(customer).StateEntry;
                 customerEntry.SetPropertyValue(customerType.GetProperty("Name"), "Daenerys Targaryen");
@@ -128,7 +126,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
 
             Assert.Equal(new object[] { 42, "Daenerys Targaryen" }, customerFromStore);
 
-            using (var context = entityConfiguration.CreateContext())
+            using (var context = new EntityContext(configuration))
             {
                 context.Delete(customer);
 

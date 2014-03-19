@@ -10,11 +10,20 @@ namespace Microsoft.Data.SqlServer.Tests
         [Fact]
         public void Can_create_context_with_connection_string()
         {
-            var entityConfiguration = new EntityConfiguration();
+            using (var context = new MySqlServerContext())
+            {
+                var dataStore = (SqlServerDataStore)context.Configuration.DataStore;
 
-            entityConfiguration.CreateContext("Foo");
+                Assert.Equal("Foo", dataStore.ConnectionString);
+            }
+        }
 
-            Assert.Equal("Foo", ((SqlServerDataStore)entityConfiguration.DataStore).ConnectionString);
+        private class MySqlServerContext : EntityContext
+        {
+            protected override void OnConfiguring(EntityConfigurationBuilder builder)
+            {
+                builder.UseSqlServer(connectionString: "Foo");
+            }
         }
     }
 }
