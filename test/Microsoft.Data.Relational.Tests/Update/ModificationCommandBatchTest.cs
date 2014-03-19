@@ -66,7 +66,7 @@ namespace Microsoft.Data.Relational.Update
                     "Table", null, new Dictionary<string, object> { { "Id1", 42 } }.ToArray());
 
             List<KeyValuePair<string, object>> parameters;
-            var sql = batch.CompileBatch(new SqlGenerator(), out parameters);
+            var sql = batch.CompileBatch(new Mock<SqlGenerator> { CallBase = true }.Object, out parameters);
 
             Assert.True(sql.StartsWith("DELETE"));
         }
@@ -83,14 +83,14 @@ namespace Microsoft.Data.Relational.Update
                 .Setup(
                     g => g.AppendInsertCommand(
                         It.IsAny<StringBuilder>(), It.IsAny<string>(),
-                        It.IsAny<IEnumerable<string>>(), It.IsAny<IEnumerable<string>>()))
+                        It.IsAny<IEnumerable<KeyValuePair<string, string>>>()))
                 .Callback(
-                    (StringBuilder sb, string t, IEnumerable<string> c, IEnumerable<string> v)
+                    (StringBuilder sb, string t, IEnumerable<KeyValuePair<string, string>> colParams)
                         =>
                         sb.Append("INSERT").Append(";")
                             .Append(t).Append(";")
-                            .Append(string.Join(",", c)).Append(";")
-                            .Append(string.Join(",", v)));
+                            .Append(string.Join(",", colParams.Select(c => c.Key))).Append(";")
+                            .Append(string.Join(",", colParams.Select(c => c.Value))));
 
             mockSqlGen
                 .Setup(

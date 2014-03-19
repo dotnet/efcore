@@ -1,28 +1,51 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Relational.Utilities;
 
 namespace Microsoft.Data.Relational
 {
-    public class SqlGenerator
+    public abstract class SqlGenerator
     {
-        public virtual void AppendInsertCommand(
-            [NotNull] StringBuilder commandStringBuilder, [NotNull] string tableName, [NotNull] IEnumerable<String> columnNames,
-            [NotNull] IEnumerable<string> valueParameterNames)
+        public virtual void AppendInsertOperation([NotNull] StringBuilder commandStringBuilder, [NotNull] string tableName,
+            [NotNull] string[] keyColumnNames, [NotNull] KeyValuePair<string, string>[] columnsToParameters,
+            [NotNull] KeyValuePair<string, ValueGenerationStrategy>[] storeGeneratedColumns)
         {
             Check.NotNull(commandStringBuilder, "commandStringBuilder");
-            Check.NotNull(tableName, "tableName");
-            Check.NotNull(columnNames, "columnNames");
-            Check.NotNull(valueParameterNames, "valueParameterNames");
+            Check.NotEmpty(tableName, "tableName");
+            Check.NotNull(keyColumnNames, "keyColumnNames");
+            Check.NotNull(columnsToParameters, "columnsToParameters");
+            Check.NotNull(storeGeneratedColumns, "storeGeneratedColumns");
 
-            AppendInsertCommandHeader(commandStringBuilder, tableName, columnNames);
+            Contract.Assert(keyColumnNames.Any(), "keyColumnNames is empty");
+
+            AppendInsertCommand(commandStringBuilder, tableName, columnsToParameters);
+            if (storeGeneratedColumns.Any())
+            {
+                commandStringBuilder.Append(BatchCommandSeparator).AppendLine();
+                AppendModificationOperationSelectCommand(commandStringBuilder, tableName, keyColumnNames, 
+                    storeGeneratedColumns, columnsToParameters);
+            }
+        }
+
+        public virtual void AppendInsertCommand(
+            [NotNull] StringBuilder commandStringBuilder, [NotNull] string tableName, 
+            [NotNull] IEnumerable<KeyValuePair<string, string>> columnsToParameters)
+        {
+            Check.NotNull(commandStringBuilder, "commandStringBuilder");
+            Check.NotEmpty(tableName, "tableName");
+            Check.NotNull(columnsToParameters, "columnsToParameters");
+
+            var columnsToParametersArray = columnsToParameters.ToArray();
+
+            AppendInsertCommandHeader(commandStringBuilder, tableName, columnsToParametersArray.Select(c => c.Key));
             commandStringBuilder.Append(" ");
-            AppendValues(commandStringBuilder, valueParameterNames);
+            AppendValues(commandStringBuilder, columnsToParametersArray.Select(c => c.Value));
         }
 
         public virtual void AppendDeleteCommand(
@@ -44,7 +67,7 @@ namespace Microsoft.Data.Relational
             [NotNull] IEnumerable<KeyValuePair<string, string>> whereConditions)
         {
             Check.NotNull(commandStringBuilder, "commandStringBuilder");
-            Check.NotNull(tableName, "tableName");
+            Check.NotEmpty(tableName, "tableName");
             Check.NotNull(columnValues, "columnValues");
             Check.NotNull(whereConditions, "whereConditions");
 
@@ -53,11 +76,31 @@ namespace Microsoft.Data.Relational
             AppendWhereClause(commandStringBuilder, whereConditions);
         }
 
+        public virtual void AppendModificationOperationSelectCommand([NotNull] StringBuilder commandStringBuilder, [NotNull] string tableName, 
+            [NotNull] string[] keyColumnNames, [NotNull] KeyValuePair<string, ValueGenerationStrategy>[] storeGeneratedColumns,
+            [NotNull] KeyValuePair<string, string>[] columnsToParameters)
+        {
+            Check.NotNull(commandStringBuilder, "commandStringBuilder");
+            Check.NotEmpty(tableName, "tableName");
+            Check.NotNull(keyColumnNames, "keyColumnNames");
+            Check.NotNull(storeGeneratedColumns, "storeGeneratedColumns");
+            Check.NotNull(columnsToParameters, "columnsToParameters");
+
+            AppendSelectCommandHeader(commandStringBuilder, storeGeneratedColumns.Select(c => c.Key));
+            commandStringBuilder.Append(" ");
+            AppendFromClause(commandStringBuilder, tableName);
+            commandStringBuilder.Append(" ");
+
+            var knownKeyValues = columnsToParameters.Where(c => keyColumnNames.Contains(c.Key));
+            var generatedKeys = storeGeneratedColumns.Where(c => keyColumnNames.Contains(c.Key));
+            AppendModificationOperationSelectWhereClause(commandStringBuilder, knownKeyValues, generatedKeys);
+        }
+
         public virtual void AppendInsertCommandHeader(
             [NotNull] StringBuilder commandStringBuilder, [NotNull] string tableName, [NotNull] IEnumerable<string> columnNames)
         {
             Check.NotNull(commandStringBuilder, "commandStringBuilder");
-            Check.NotNull(tableName, "tableName");
+            Check.NotEmpty(tableName, "tableName");
             Check.NotNull(columnNames, "columnNames");
 
             commandStringBuilder
@@ -75,7 +118,7 @@ namespace Microsoft.Data.Relational
         public virtual void AppendDeleteCommandHeader([NotNull] StringBuilder commandStringBuilder, [NotNull] string tableName)
         {
             Check.NotNull(commandStringBuilder, "commandStringBuilder");
-            Check.NotNull(tableName, "tableName");
+            Check.NotEmpty(tableName, "tableName");
 
             commandStringBuilder
                 .Append("DELETE FROM ")
@@ -87,7 +130,7 @@ namespace Microsoft.Data.Relational
             [NotNull] IEnumerable<KeyValuePair<string, string>> columnValues)
         {
             Check.NotNull(commandStringBuilder, "commandStringBuilder");
-            Check.NotNull(tableName, "tableName");
+            Check.NotEmpty(tableName, "tableName");
             Check.NotNull(columnValues, "columnValues");
 
             commandStringBuilder
@@ -96,6 +139,30 @@ namespace Microsoft.Data.Relational
                 .Append(" SET ")
                 .AppendJoin(columnValues, (sb, v) => sb.Append(v.Key).Append(" = ").Append(v.Value), ", ");
         }
+
+        public virtual void AppendSelectCommandHeader([NotNull] StringBuilder commandStringBuilder, [NotNull] IEnumerable<string> columnNames)
+        {
+            Check.NotNull(commandStringBuilder, "commandStringBuilder");
+            Check.NotNull(columnNames, "columnNames");
+
+            commandStringBuilder
+                .Append("SELECT ")
+                .AppendJoin(columnNames);
+        }
+
+        public virtual void AppendFromClause([NotNull] StringBuilder commandStringBuilder, [NotNull] string tableName)
+        {
+            Check.NotNull(commandStringBuilder, "commandStringBuilder");
+            Check.NotEmpty(tableName, "tableName");
+
+            commandStringBuilder
+                .Append("FROM ")
+                .Append(tableName);
+        }
+
+        public abstract void AppendModificationOperationSelectWhereClause([NotNull] StringBuilder commandStringBuilder,
+            [NotNull] IEnumerable<KeyValuePair<string, string>> knownKeyValues,
+            [NotNull] IEnumerable<KeyValuePair<string, ValueGenerationStrategy>> generatedKeys);
 
         public virtual void AppendValues([NotNull] StringBuilder commandStringBuilder, [NotNull] IEnumerable<string> valueParameterNames)
         {

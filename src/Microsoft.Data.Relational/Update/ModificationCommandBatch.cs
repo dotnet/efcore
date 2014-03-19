@@ -65,8 +65,9 @@ namespace Microsoft.Data.Relational.Update
             sqlGenerator.AppendInsertCommand(
                 stringBuilder,
                 modificationCommand.TableName,
-                modificationCommand.ColumnValues.Select(c => c.Key),
-                commandParameters.Select(p => p.Key));
+                modificationCommand.ColumnValues.Zip(
+                    commandParameters, 
+                    (c, p) => new KeyValuePair<string, string>(c.Key, p.Key)));                
         }
 
         private void AppendUpdateCommand(ModificationCommand modificationCommand, SqlGenerator sqlGenerator,
@@ -96,14 +97,18 @@ namespace Microsoft.Data.Relational.Update
                     whereClauseParameters, (c, p) => new KeyValuePair<string, string>(c.Key, p.Key)));
         }
 
-        private IEnumerable<KeyValuePair<string, object>> CreateParameters(IEnumerable<KeyValuePair<string, object>> values,
+        private List<KeyValuePair<string, object>> CreateParameters(IEnumerable<KeyValuePair<string, object>> values,
             List<KeyValuePair<string, object>> parameters)
         {
+            var newParameters = new List<KeyValuePair<string, object>>();
+
             foreach (var parameter in values.Select(value => new KeyValuePair<string, object>("@p" + parameters.Count, value.Value)))
             {
                 parameters.Add(parameter);
-                yield return parameter;
+                newParameters.Add(parameter);
             }
+
+            return newParameters;
         }
     }
 }
