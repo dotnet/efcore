@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
@@ -9,8 +10,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
 {
     public class MixedStateEntry : StateEntry
     {
-        private readonly object[] _propertyValues;
-        private readonly object _entity;
+        private object[] _propertyValues;
+        private object _entity;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -30,18 +31,52 @@ namespace Microsoft.Data.Entity.ChangeTracking
             _propertyValues = new object[entityType.ShadowPropertyCount];
         }
 
+        public MixedStateEntry([NotNull] StateManager stateManager, [NotNull] IEntityType entityType, [NotNull] object[] valueBuffer)
+            : base(stateManager, entityType)
+        {
+            Check.NotNull(valueBuffer, "valueBuffer");
+
+            _propertyValues = valueBuffer;
+        }
+
         [NotNull]
         public override object Entity
         {
-            get { return _entity; }
+            get { return _entity ?? MaterializeEntity(); }
+        }
+
+        private object MaterializeEntity()
+        {
+            _entity = StateManager.GetEntityMaterializer(EntityType)(_propertyValues);
+
+            var properties = EntityType.Properties;
+            var shadowValues = new object[EntityType.ShadowPropertyCount];
+            for (var i = 0; i < _propertyValues.Length; i++)
+            {
+                var property = properties[i];
+                if (!property.IsClrProperty)
+                {
+                    shadowValues[property.ShadowIndex] = _propertyValues[i];
+                }
+            }
+            _propertyValues = shadowValues;
+
+            StateManager.EntityMaterialized(this);
+
+            return _entity;
         }
 
         public override object GetPropertyValue(IProperty property)
         {
             Check.NotNull(property, "property");
 
-            return property.IsClrProperty
-                ? StateManager.GetClrPropertyGetter(property).GetClrValue(_entity)
+            if (_entity == null)
+            {
+                return _propertyValues[property.Index];
+            }
+
+            return property.IsClrProperty 
+                ? StateManager.GetClrPropertyGetter(property).GetClrValue(_entity) 
                 : _propertyValues[property.ShadowIndex];
         }
 
@@ -49,7 +84,11 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             Check.NotNull(property, "property");
 
-            if (property.IsClrProperty)
+            if (_entity == null)
+            {
+                _propertyValues[property.Index] = value;
+            }
+            else if (property.IsClrProperty)
             {
                 StateManager.GetClrPropertySetter(property).SetClrValue(_entity, value);
             }

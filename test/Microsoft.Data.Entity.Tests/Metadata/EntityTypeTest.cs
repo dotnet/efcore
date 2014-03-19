@@ -21,11 +21,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             public static PropertyInfo ManeProperty = typeof(Customer).GetProperty("Mane");
             public static PropertyInfo UniqueProperty = typeof(Customer).GetProperty("Unique");
 
-            public Customer(object[] values)
-            {
-                Id = (int)values[0];
-            }
-
             public int Id { get; set; }
             public Guid Unique { get; set; }
             public string Name { get; set; }
@@ -44,16 +39,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         #endregion
-
-        [Fact]
-        public void CreateInstance_should_use_values_ctor()
-        {
-            var entityType = new EntityType(typeof(Customer));
-
-            var instance = (Customer)entityType.CreateInstance(new object[] { 42 });
-
-            Assert.Equal(42, instance.Id);
-        }
 
         [Fact]
         public void Members_check_arguments()

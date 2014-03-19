@@ -90,11 +90,6 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
             get { return true; }
         }
 
-        public object CreateInstance([NotNull] object[] values)
-        {
-            return null;
-        }
-
         public IModel Model
         {
             get { return _model; }

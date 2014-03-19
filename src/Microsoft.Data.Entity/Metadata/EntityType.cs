@@ -58,26 +58,6 @@ namespace Microsoft.Data.Entity.Metadata
             get { return _type; }
         }
 
-        public object CreateInstance(object[] values)
-        {
-            Check.NotNull(values, "values");
-
-            if (_activator == null)
-            {
-                var ctor = Type.GetDeclaredConstructor(new[] { typeof(object[]) });
-
-                if (ctor == null)
-                {
-                    // TODO: Fallback to slow path
-                    throw new InvalidOperationException();
-                }
-
-                _activator = vs => ctor.Invoke(new object[] { vs });
-            }
-
-            return _activator(values);
-        }
-
         public virtual Key GetKey()
         {
             if (_key == null)

@@ -25,5 +25,15 @@ namespace Microsoft.Data.Entity.ChangeTracking
             // TODO: What happens if we get a null property value?
             return new CompositeEntityKey(entityType, properties.Select(entry.GetPropertyValue).ToArray());
         }
+
+        public override EntityKey Create(IEntityType entityType, IReadOnlyList<IProperty> properties, object[] valueBuffer)
+        {
+            Check.NotNull(entityType, "entityType");
+            Check.NotNull(properties, "properties");
+            Check.NotNull(valueBuffer, "valueBuffer");
+
+            // TODO: What happens if we get a null property value?
+            return new CompositeEntityKey(entityType, properties.Select(p => valueBuffer[p.Index]).ToArray());
+        }
     }
 }

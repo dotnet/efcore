@@ -151,9 +151,38 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
     public class KoolEntity15
     {
-        public int Id { get; set; }
-        public string Foo15 { get; set; }
-        public Guid Goo15 { get; set; }
+        private int _id;
+        private string _foo15;
+        private Guid _goo15;
+
+        public int Id
+        {
+            get { return _id; }
+            set { _id = value; }
+        }
+
+        public string Foo15
+        {
+            get { return _foo15; }
+            set { _foo15 = value; }
+        }
+
+        public Guid Goo15
+        {
+            get { return _goo15; }
+            set { _goo15 = value; }
+        }
+
+        // ReSharper disable once InconsistentNaming
+        public static KoolEntity15 _EntityFramework_Create(object[] valueBuffer)
+        {
+            return new KoolEntity15
+                {
+                    _id = (int)valueBuffer[2],
+                    _foo15 = (string)valueBuffer[0],
+                    _goo15 = (Guid)valueBuffer[1]
+                };
+        }
     }
 
     public class KoolEntity16
@@ -959,7 +988,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         }
     }
 
-    public class _KoolEntity15EntityType : CompiledEntityType<KoolEntity15>, IEntityType
+    public class _KoolEntity15EntityType : CompiledEntityType<KoolEntity15>, IEntityType, IEntityMaterializer
     {
         public _KoolEntity15EntityType(IModel model)
             : base(model)
@@ -991,6 +1020,14 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             return ZipAnnotations(
                 new[] { "Annotation1", "Annotation2" },
                 new[] { "Value1", "Value2" }).ToArray();
+        }
+
+        public bool CreateEntityWasUsed { get; set; }
+
+        public object CreatEntity(object[] valueBuffer)
+        {
+            CreateEntityWasUsed = true;
+            return KoolEntity15._EntityFramework_Create(valueBuffer);
         }
     }
 

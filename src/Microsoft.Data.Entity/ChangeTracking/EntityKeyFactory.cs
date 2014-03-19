@@ -10,5 +10,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
     {
         public abstract EntityKey Create(
             [NotNull] IEntityType entityType, [NotNull] IReadOnlyList<IProperty> properties, [NotNull] StateEntry entry);
+
+        public abstract EntityKey Create(
+            [NotNull] IEntityType entityType, [NotNull] IReadOnlyList<IProperty> properties, [NotNull] object[] valueBuffer);
     }
 }

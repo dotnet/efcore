@@ -19,24 +19,22 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.Equal(
                 "stateManager",
                 // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => new ClrStateEntry(null, entityTypeMock.Object, new Random())).ParamName);
+                Assert.Throws<ArgumentNullException>(() => new ClrStateEntry(null, entityTypeMock.Object, new SomeEntity())).ParamName);
             Assert.Equal(
                 "entityType",
                 // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(
-                    () => new ClrStateEntry(stateManager, null, new Random())).ParamName);
+                Assert.Throws<ArgumentNullException>(() => new ClrStateEntry(stateManager, null, new SomeEntity())).ParamName);
             Assert.Equal(
                 "entity",
                 // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(
-                    () => new ClrStateEntry(stateManager, entityTypeMock.Object, null)).ParamName);
+                Assert.Throws<ArgumentNullException>(() => new ClrStateEntry(stateManager, entityTypeMock.Object, (object)null)).ParamName);
         }
 
         [Fact]
         public void Can_get_entity()
         {
             var entityTypeMock = CreateEntityTypeMock();
-            var entity = new Random();
+            var entity = new SomeEntity();
             var entry = new ClrStateEntry(CreateManagerMock(entityTypeMock).Object, entityTypeMock.Object, entity);
 
             Assert.Same(entity, entry.Entity);
@@ -55,7 +53,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var setterMock = new Mock<IClrPropertySetter>();
             managerMock.Setup(m => m.GetClrPropertySetter(propertyMock.Object)).Returns(setterMock.Object);
 
-            var entity = new Random();
+            var entity = new SomeEntity();
             var entry = new ClrStateEntry(managerMock.Object, entityTypeMock.Object, entity);
 
             Assert.Equal(null, entry.GetPropertyValue(propertyMock.Object));
@@ -84,7 +82,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             managerMock.Setup(m => m.GetClrPropertyGetter(propertyMock1.Object)).Returns(getterMock1.Object);
             managerMock.Setup(m => m.GetClrPropertyGetter(propertyMock2.Object)).Returns(getterMock2.Object);
 
-            var entry = new ClrStateEntry(managerMock.Object, entityTypeMock.Object, new Random());
+            var entry = new ClrStateEntry(managerMock.Object, entityTypeMock.Object, new SomeEntity());
 
             Assert.Equal(new object[] { "Magic", "Tree House" }, entry.GetValueBuffer());
         }

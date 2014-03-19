@@ -24,7 +24,6 @@ namespace Microsoft.Data.Entity.Metadata
         IReadOnlyList<IProperty> Properties { get; }
         IReadOnlyList<IForeignKey> ForeignKeys { get; }
         IReadOnlyList<INavigation> Navigations { get; }
-        object CreateInstance([NotNull] object[] values);
         int ShadowPropertyCount { get; }
         bool HasClrType { get; }
     }

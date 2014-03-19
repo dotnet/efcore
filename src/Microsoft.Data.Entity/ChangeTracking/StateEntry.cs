@@ -132,6 +132,13 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
         }
 
+        internal virtual void SetAttached()
+        {
+            _stateManager.StateChanging(this, EntityState.Unchanged);
+            _stateData.EntityState = EntityState.Unchanged;
+            _stateManager.StateChanged(this, EntityState.Unknown);
+        }
+
         public abstract object GetPropertyValue([NotNull] IProperty property);
 
         public abstract void SetPropertyValue([NotNull] IProperty property, [CanBeNull] object value);

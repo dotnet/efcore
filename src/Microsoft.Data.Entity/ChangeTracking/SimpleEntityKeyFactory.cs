@@ -17,5 +17,15 @@ namespace Microsoft.Data.Entity.ChangeTracking
             // TODO: What happens if we get a null property value?
             return new SimpleEntityKey<TKey>(entityType, (TKey)entry.GetPropertyValue(properties[0]));
         }
+
+        public override EntityKey Create(IEntityType entityType, IReadOnlyList<IProperty> properties, object[] valueBuffer)
+        {
+            Check.NotNull(entityType, "entityType");
+            Check.NotNull(properties, "properties");
+            Check.NotNull(valueBuffer, "valueBuffer");
+
+            // TODO: What happens if we get a null property value?
+            return new SimpleEntityKey<TKey>(entityType, (TKey)valueBuffer[properties[0].Index]);
+        }
     }
 }
