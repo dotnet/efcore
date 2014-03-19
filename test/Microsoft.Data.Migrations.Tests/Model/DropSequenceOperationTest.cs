@@ -1,6 +1,5 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
-using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Migrations.Model;
 using Microsoft.Data.Relational.Model;
 using Moq;
@@ -11,37 +10,23 @@ namespace Microsoft.Data.Migrations.Tests.Model
     public class DropSequenceOperationTest
     {
         [Fact]
-        public void CreateAndInitializeOperation()
+        public void Create_and_initialize_operation()
         {
-            var sequence = new Sequence("foo.bar");
+            var dropSequenceOperation = new DropSequenceOperation("dbo.MySequence");
 
-            var dropSequenceOperation = new DropSequenceOperation(sequence);
-
-            Assert.Same(sequence, dropSequenceOperation.Target);
+            Assert.Equal("dbo.MySequence", dropSequenceOperation.SequenceName);
+            Assert.True(dropSequenceOperation.IsDestructiveChange);
         }
 
         [Fact]
-        public void ObtainInverse()
+        public void Dispatches_visitor()
         {
-            var sequence = new Sequence("foo.bar");
-            var dropSequenceOperation = new DropSequenceOperation(sequence);
+            var dropSequenceOperation = new DropSequenceOperation("dbo.MySequence");
+            var mockVisitor = new Mock<MigrationOperationVisitor>();
 
-            var inverse = dropSequenceOperation.Inverse;
+            dropSequenceOperation.Accept(mockVisitor.Object);
 
-            Assert.Same(sequence, inverse.Target);
-        }
-
-        [Fact]
-        public void DispatchesSqlGeneration()
-        {
-            var dropSequenceOperation = new DropSequenceOperation(new Sequence("foo.bar"));
-            var mockSqlGenerator = new Mock<MigrationOperationSqlGenerator>();
-            var stringBuilder = new IndentedStringBuilder();
-
-            dropSequenceOperation.GenerateOperationSql(mockSqlGenerator.Object, stringBuilder, true);
-
-            mockSqlGenerator.Verify(
-                g => g.Generate(dropSequenceOperation, stringBuilder, true), Times.Once());
+            mockVisitor.Verify(g => g.Visit(dropSequenceOperation), Times.Once());
         }
     }
 }

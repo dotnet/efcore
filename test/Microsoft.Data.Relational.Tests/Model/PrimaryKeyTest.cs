@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Microsoft.Data.Relational.Tests.Model
 {
-    public class PrimaryKeyTests
+    public class PrimaryKeyTest
     {
         [Fact]
         public void Constructor_checks_arguments()
@@ -15,7 +15,7 @@ namespace Microsoft.Data.Relational.Tests.Model
             Assert.Equal(
                 "columns",
                 Assert.Throws<ArgumentNullException>(
-                    () => new PrimaryKey("PrimaryKey", null)).ParamName);
+                    () => new PrimaryKey("PrimaryKey", (IReadOnlyList<Column>)null)).ParamName);
         }
 
         [Fact]

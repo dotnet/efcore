@@ -1,23 +1,22 @@
-﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
 using Microsoft.Data.Migrations.Utilities;
 using Microsoft.Data.Relational;
-using Microsoft.Data.Relational.Model;
 
 namespace Microsoft.Data.Migrations.Model
 {
-    public class AddPrimaryKeyOperation : MigrationOperation
+    public class MoveTableOperation : MigrationOperation
     {
         private readonly SchemaQualifiedName _tableName;
-        private readonly PrimaryKey _primaryKey;
+        private readonly string _newSchema;
 
-        public AddPrimaryKeyOperation(SchemaQualifiedName tableName, [NotNull] PrimaryKey primaryKey)
+        public MoveTableOperation(SchemaQualifiedName tableName, [NotNull] string newSchema)
         {
-            Check.NotNull(primaryKey, "primaryKey");
+            Check.NotEmpty(newSchema, "newSchema");
 
             _tableName = tableName;
-            _primaryKey = primaryKey;
+            _newSchema = newSchema;
         }
 
         public virtual SchemaQualifiedName TableName
@@ -25,9 +24,9 @@ namespace Microsoft.Data.Migrations.Model
             get { return _tableName; }
         }
 
-        public virtual PrimaryKey PrimaryKey
+        public virtual string NewSchema
         {
-            get { return _primaryKey; }
+            get { return _newSchema; }
         }
 
         public override void Accept([NotNull] MigrationOperationVisitor visitor)

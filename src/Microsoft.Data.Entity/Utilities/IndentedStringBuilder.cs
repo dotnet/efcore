@@ -48,9 +48,7 @@ namespace Microsoft.Data.Entity.Utilities
 
         public virtual IDisposable Indent()
         {
-            _indent++;
-
-            return new Outdenter(this);
+            return new Indenter(this);
         }
 
         public override string ToString()
@@ -68,13 +66,15 @@ namespace Microsoft.Data.Entity.Utilities
             _indentPending = false;
         }
 
-        private class Outdenter : IDisposable
+        private class Indenter : IDisposable
         {
             private readonly IndentedStringBuilder _stringBuilder;
 
-            public Outdenter(IndentedStringBuilder stringBuilder)
+            public Indenter(IndentedStringBuilder stringBuilder)
             {
                 _stringBuilder = stringBuilder;
+
+                _stringBuilder._indent++;
             }
 
             public void Dispose()

@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Relational.Utilities;
 
@@ -17,6 +18,18 @@ namespace Microsoft.Data.Relational.Model
         public Table(SchemaQualifiedName name)
         {
             _name = name;
+        }
+
+        public Table(SchemaQualifiedName name, [NotNull] IReadOnlyList<Column> columns)
+        {
+            Check.NotNull(columns, "columns");
+
+            _name = name;
+
+            foreach (var column in columns)
+            {
+                AddColumn(column);
+            }
         }
 
         public virtual Database Database
@@ -39,6 +52,13 @@ namespace Microsoft.Data.Relational.Model
         public virtual IReadOnlyList<Column> Columns
         {
             get { return _columns; }
+        }
+
+        public virtual Column GetColumn([NotNull] string columnName)
+        {
+            Check.NotEmpty(columnName, "columnName");
+
+            return _columns.First(c => c.Name.EqualsOrdinal(columnName));
         }
 
         public virtual void AddColumn([NotNull] Column column)

@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System.Diagnostics.Contracts;
 using JetBrains.Annotations;
 using Microsoft.Data.Relational.Utilities;
 
@@ -7,6 +8,7 @@ namespace Microsoft.Data.Relational.Model
 {
     public class Sequence
     {
+        private Database _database;
         private readonly SchemaQualifiedName _name;
         private int _incrementBy = 1;
         private string _dataType = "BIGINT";
@@ -14,6 +16,28 @@ namespace Microsoft.Data.Relational.Model
         public Sequence(SchemaQualifiedName name)
         {
             _name = name;
+        }
+
+        public Sequence(SchemaQualifiedName name, [NotNull] string dataType, int startWith, int incrementBy)
+        {
+            Check.NotEmpty(dataType, "dataType");
+
+            _name = name;
+            _dataType = dataType;
+            StartWith = startWith;
+            _incrementBy = incrementBy;
+        }
+
+        public virtual Database Database
+        {
+            get { return _database; }
+
+            [param: CanBeNull]
+            internal set
+            {
+                Contract.Assert((value == null) != (_database == null));
+                _database = value;
+            }
         }
 
         public virtual SchemaQualifiedName Name

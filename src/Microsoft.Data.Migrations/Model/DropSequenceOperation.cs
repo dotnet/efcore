@@ -2,20 +2,34 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Migrations.Utilities;
-using Microsoft.Data.Relational.Model;
+using Microsoft.Data.Relational;
 
 namespace Microsoft.Data.Migrations.Model
 {
-    public class DropSequenceOperation : MigrationOperation<Sequence, CreateSequenceOperation>
+    public class DropSequenceOperation : MigrationOperation
     {
-        public DropSequenceOperation([NotNull] Sequence sequence)
-            : base(Check.NotNull(sequence, "sequence"))
+        private readonly SchemaQualifiedName _sequenceName;
+
+        public DropSequenceOperation(SchemaQualifiedName sequenceName)
         {
+            _sequenceName = sequenceName;
         }
 
-        public override CreateSequenceOperation Inverse
+        public virtual SchemaQualifiedName SequenceName
         {
-            get { return new CreateSequenceOperation(Target); }
+            get { return _sequenceName; }
+        }
+
+        public override bool IsDestructiveChange
+        {
+            get { return true; }
+        }
+
+        public override void Accept([NotNull] MigrationOperationVisitor visitor)
+        {
+            Check.NotNull(visitor, "visitor");
+
+            visitor.Visit(this);
         }
     }
 }
