@@ -9,7 +9,7 @@ namespace Microsoft.Data.Relational.Model
     public class Column
     {
         private Table _table;
-        private readonly string _name;
+        private string _name;
         private string _dataType;
 
         public Column([NotNull] string name, [NotNull] string dataType)
@@ -42,7 +42,7 @@ namespace Microsoft.Data.Relational.Model
             {
                 Check.NotEmpty(value, "value");
 
-                _dataType = value;
+                _name = value;
             }
         }
 
@@ -61,6 +61,6 @@ namespace Microsoft.Data.Relational.Model
 
         public virtual bool IsNullable { get; set; }
 
-        public virtual object DefaultValue { get; [param: CanBeNull] set; }
+        public virtual string DefaultValue { get; [param: CanBeNull] set; }
     }
 }

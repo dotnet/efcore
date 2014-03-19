@@ -1,0 +1,32 @@
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
+
+using Microsoft.Data.Migrations.Model;
+using Moq;
+using Xunit;
+
+namespace Microsoft.Data.Migrations.Tests.Model
+{
+    public class DropColumnOperationTest
+    {
+        [Fact]
+        public void Create_and_initialize_operation()
+        {
+            var dropColumnOperation = new DropColumnOperation("dbo.MyTable", "Foo");
+
+            Assert.Equal("dbo.MyTable", dropColumnOperation.TableName);
+            Assert.Equal("Foo", dropColumnOperation.ColumnName);
+            Assert.True(dropColumnOperation.IsDestructiveChange);
+        }
+
+        [Fact]
+        public void Dispatches_visitor()
+        {
+            var dropColumnOperation = new DropColumnOperation("dbo.MyTable", "Foo");
+            var mockVisitor = new Mock<MigrationOperationVisitor>();
+
+            dropColumnOperation.Accept(mockVisitor.Object);
+
+            mockVisitor.Verify(g => g.Visit(dropColumnOperation), Times.Once());
+        }
+    }
+}

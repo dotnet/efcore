@@ -8,25 +8,11 @@ namespace Microsoft.Data.Migrations.Model
 {
     public abstract class MigrationOperation
     {
-        public virtual MigrationOperation Inverse
-        {
-            get { return null; }
-        }
-
         public virtual bool IsDestructiveChange
         {
             get { return false; }
         }
 
-        public virtual void GenerateOperationSql(
-            [NotNull] MigrationOperationSqlGenerator migrationOperationSqlGenerator,
-            [NotNull] IndentedStringBuilder stringBuilder,
-            bool generateIdempotentSql)
-        {
-            Check.NotNull(migrationOperationSqlGenerator, "migrationOperationSqlGenerator");
-            Check.NotNull(stringBuilder, "stringBuilder");
-
-            migrationOperationSqlGenerator.Generate(this, stringBuilder, generateIdempotentSql);
-        }
+        public abstract void Accept([NotNull] MigrationOperationVisitor visitor);
     }
 }

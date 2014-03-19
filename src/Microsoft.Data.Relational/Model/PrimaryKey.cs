@@ -33,14 +33,14 @@ namespace Microsoft.Data.Relational.Model
             get { return _name; }
         }
 
-        public virtual bool IsClustered
-        {
-            get { return _isClustered; }
-        }
-
         public virtual IReadOnlyList<Column> Columns
         {
             get { return _columns; }
+        }
+
+        public virtual bool IsClustered
+        {
+            get { return _isClustered; }
         }
     }
 }

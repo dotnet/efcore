@@ -1,30 +1,32 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Migrations.Utilities;
 using Microsoft.Data.Relational.Model;
 
 namespace Microsoft.Data.Migrations.Model
 {
-    public class CreateSequenceOperation : MigrationOperation<Sequence, DropSequenceOperation>
+    public class CreateSequenceOperation : MigrationOperation
     {
+        private readonly Sequence _sequence;
+
         public CreateSequenceOperation([NotNull] Sequence sequence)
-            : base(Check.NotNull(sequence, "sequence"))
         {
+            Check.NotNull(sequence, "sequence");
+
+            _sequence = sequence;
         }
 
-        public override void GenerateOperationSql(
-            MigrationOperationSqlGenerator migrationOperationSqlGenerator,
-            IndentedStringBuilder stringBuilder,
-            bool generateIdempotentSql)
+        public virtual Sequence Sequence
         {
-            migrationOperationSqlGenerator.Generate(this, stringBuilder, generateIdempotentSql);
+            get { return _sequence; }
         }
 
-        public override DropSequenceOperation Inverse
+        public override void Accept([NotNull] MigrationOperationVisitor visitor)
         {
-            get { return new DropSequenceOperation(Target); }
+            Check.NotNull(visitor, "visitor");
+
+            visitor.Visit(this);
         }
     }
 }

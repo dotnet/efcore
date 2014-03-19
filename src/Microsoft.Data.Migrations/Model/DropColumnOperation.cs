@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
 using Microsoft.Data.Migrations.Utilities;
@@ -6,17 +6,17 @@ using Microsoft.Data.Relational;
 
 namespace Microsoft.Data.Migrations.Model
 {
-    public class DropPrimaryKeyOperation : MigrationOperation
+    public class DropColumnOperation : MigrationOperation
     {
         private readonly SchemaQualifiedName _tableName;
-        private readonly string _primaryKeyName;
+        private readonly string _columnName;
 
-        public DropPrimaryKeyOperation(SchemaQualifiedName tableName, [NotNull] string primaryKeyName)
+        public DropColumnOperation(SchemaQualifiedName tableName, [NotNull] string columnName)
         {
-            Check.NotEmpty(primaryKeyName, "primaryKeyName");
+            Check.NotEmpty(columnName, "columnName");
 
             _tableName = tableName;
-            _primaryKeyName = primaryKeyName;
+            _columnName = columnName;
         }
 
         public virtual SchemaQualifiedName TableName
@@ -24,9 +24,9 @@ namespace Microsoft.Data.Migrations.Model
             get { return _tableName; }
         }
 
-        public virtual string PrimaryKeyName
+        public virtual string ColumnName
         {
-            get { return _primaryKeyName; }
+            get { return _columnName; }
         }
 
         public override bool IsDestructiveChange

@@ -6,16 +6,27 @@ using Microsoft.Data.Relational.Model;
 
 namespace Microsoft.Data.Migrations.Model
 {
-    public class CreateTableOperation : MigrationOperation<Table, DropTableOperation>
+    public class CreateTableOperation : MigrationOperation
     {
+        private readonly Table _table;
+
         public CreateTableOperation([NotNull] Table table)
-            : base(Check.NotNull(table, "table"))
         {
+            Check.NotNull(table, "table");
+
+            _table = table;
         }
 
-        public override DropTableOperation Inverse
+        public virtual Table Table
         {
-            get { return new DropTableOperation(Target); }
+            get { return _table; }
+        }
+
+        public override void Accept([NotNull] MigrationOperationVisitor visitor)
+        {
+            Check.NotNull(visitor, "visitor");
+
+            visitor.Visit(this);
         }
     }
 }

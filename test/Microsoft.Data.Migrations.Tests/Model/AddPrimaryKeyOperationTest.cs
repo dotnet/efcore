@@ -1,6 +1,5 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
-using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Migrations.Model;
 using Microsoft.Data.Relational.Model;
 using Moq;
@@ -11,50 +10,26 @@ namespace Microsoft.Data.Migrations.Tests.Model
     public class AddPrimaryKeyOperationTest
     {
         [Fact]
-        public void CreateAndInitializeOperation()
+        public void Create_and_initialize_operation()
         {
-            var table = new Table("T");
-            var column = new Column("C", "int");
-            table.AddColumn(column);
-            var primaryKey = new PrimaryKey("PK", new[] { column });
+            var primaryKey = new PrimaryKey("MyPK", new[] { new Column("Foo", "int") });
+            var addPrimaryKeyOperation = new AddPrimaryKeyOperation("dbo.MyTable", primaryKey);
 
-            var addPrimaryKeyOperation = new AddPrimaryKeyOperation(primaryKey, table);
-
-            Assert.Same(primaryKey, addPrimaryKeyOperation.Target);
-            Assert.Same(table, addPrimaryKeyOperation.Table);
+            Assert.Equal("dbo.MyTable", addPrimaryKeyOperation.TableName);
+            Assert.Same(primaryKey, addPrimaryKeyOperation.PrimaryKey);
+            Assert.False(addPrimaryKeyOperation.IsDestructiveChange);
         }
 
         [Fact]
-        public void ObtainInverse()
+        public void Dispatches_visitor()
         {
-            var table = new Table("T");
-            var column = new Column("C", "int");
-            table.AddColumn(column);
-            var primaryKey = new PrimaryKey("PK", new[] { column });
-            var addPrimaryKeyOperation = new AddPrimaryKeyOperation(primaryKey, table);
+            var primaryKey = new PrimaryKey("MyPK", new[] { new Column("Foo", "int") });
+            var addPrimaryKeyOperation = new AddPrimaryKeyOperation("dbo.MyTable", primaryKey);
+            var mockVisitor = new Mock<MigrationOperationVisitor>();
 
-            var inverse = addPrimaryKeyOperation.Inverse;
+            addPrimaryKeyOperation.Accept(mockVisitor.Object);
 
-            Assert.Same(primaryKey, inverse.Target);
-            Assert.Same(table, inverse.Table);
-        }
-
-        [Fact]
-        public void DispatchesSqlGeneration()
-        {
-            var table = new Table("T");
-            var column = new Column("C", "int");
-            table.AddColumn(column);
-            var primaryKey = new PrimaryKey("PK", new[] { column });
-
-            var addPrimaryKeyOperation = new AddPrimaryKeyOperation(primaryKey, table);
-            var mockSqlGenerator = new Mock<MigrationOperationSqlGenerator>();
-            var stringBuilder = new IndentedStringBuilder();
-
-            addPrimaryKeyOperation.GenerateOperationSql(mockSqlGenerator.Object, stringBuilder, true);
-
-            mockSqlGenerator.Verify(
-                g => g.Generate(addPrimaryKeyOperation, stringBuilder, true), Times.Once());
+            mockVisitor.Verify(g => g.Visit(addPrimaryKeyOperation), Times.Once());
         }
     }
 }
