@@ -58,7 +58,7 @@ namespace Microsoft.Data.Relational.Model
         {
             Check.NotEmpty(columnName, "columnName");
 
-            return _columns.First(c => c.Name.EqualsOrdinal(columnName));
+            return _columns.First(c => c.Name.Equals(columnName));
         }
 
         public virtual void AddColumn([NotNull] Column column)
