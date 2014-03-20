@@ -9,12 +9,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity
 {
     public class EntitySet<TEntity> : EntitySet, IQueryable<TEntity>
         where TEntity : class
     {
+        private readonly IQueryProvider _provider;
+
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
         ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
@@ -27,12 +31,13 @@ namespace Microsoft.Data.Entity
         public EntitySet([NotNull] EntityContext context)
             : base(context)
         {
+            _provider = new List<TEntity>().AsQueryable().Provider;
         }
 
         public virtual IEnumerator<TEntity> GetEnumerator()
         {
-            // TODO
-            throw new NotImplementedException();
+            // TODO Replace with real implementation
+            return GetDataAsList().GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -130,6 +135,50 @@ namespace Microsoft.Data.Entity
 
             // TODO
             return entities;
+        }
+
+        Type IQueryable.ElementType
+        {
+            get
+            {
+                // TODO Replace with real implementation
+                return typeof(TEntity);
+            }
+        }
+
+        Expression IQueryable.Expression
+        {
+            get
+            {
+                // TODO Replace with real implementation
+                return GetDataAsList().AsQueryable().Expression;
+            }
+        }
+
+        IQueryProvider IQueryable.Provider
+        {
+            get
+            {
+                // TODO Replace with real implementation
+                return _provider;
+            }
+        }
+
+        private List<TEntity> GetDataAsList()
+        {
+            var clrType = typeof(TEntity);
+            var modelType = Context.Model.GetEntityType(clrType);
+            var result = new List<TEntity>();
+
+            var data = Context.Configuration.DataStore.Read(clrType, Context.Model);
+            var enumerator = data.GetAsyncEnumerator();
+            var factory = Context.Configuration.EntityMaterializerSource.GetMaterializer(modelType);
+            while (enumerator.MoveNextAsync(CancellationToken.None).Result)
+            {
+                result.Add((TEntity)factory(enumerator.Current));
+            }
+
+            return result;
         }
     }
 }
