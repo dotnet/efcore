@@ -49,11 +49,6 @@ namespace Microsoft.Data.Entity.Tests
 
         public class Streets : EntityContext
         {
-            public Streets()
-                : base(new EntityConfiguration())
-            {
-            }
-
             public EntitySet<You> Yous { get; set; }
             protected EntitySet<Better> Betters { get; set; }
 

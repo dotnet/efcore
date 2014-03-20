@@ -8,15 +8,15 @@ namespace Microsoft.Data.SqlServer
 {
     public static class ApiExtensions
     {
-        public static EntityContext CreateContext(
-            [NotNull] this EntityConfiguration entityConfiguration, [NotNull] string nameOrConnectionString)
+        public static EntityConfigurationBuilder UseSqlServer(
+            [NotNull] this EntityConfigurationBuilder builder, [NotNull] string connectionString)
         {
-            Check.NotNull(entityConfiguration, "entityConfiguration");
-            Check.NotEmpty(nameOrConnectionString, "nameOrConnectionString");
+            Check.NotNull(builder, "builder");
+            Check.NotEmpty(connectionString, "connectionString");
 
-            entityConfiguration.DataStore = new SqlServerDataStore(nameOrConnectionString);
+            builder.UseDataStore(new SqlServerDataStore(connectionString));
 
-            return new EntityContext(entityConfiguration);
+            return builder;
         }
     }
 }

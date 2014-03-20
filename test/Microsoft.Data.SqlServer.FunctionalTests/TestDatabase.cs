@@ -17,6 +17,8 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
     public class TestDatabase : IDisposable, IDbCommandExecutor
     {
         public const int CommandTimeout = 1;
+        private const string DefaultDatabaseName = "Microsoft.Data.SqlServer.FunctionalTest";
+        private const string NorthwindDatabaseName = "Northwind";
 
         private static readonly HashSet<string> _createdDatabases = new HashSet<string>();
 
@@ -31,7 +33,12 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
         public static Task<TestDatabase> Northwind()
         {
             return new TestDatabase()
-                .CreateShared(name: "Northwind", scriptPath: @"..\..\..\Northwind.sql"); // relative from bin/<config>
+                .CreateShared(name: NorthwindDatabaseName, scriptPath: @"..\..\..\Northwind.sql"); // relative from bin/<config>
+        }
+
+        public static string NorthwindConnectionString
+        {
+            get { return CreateConnectionString(NorthwindDatabaseName); }
         }
 
         /// <summary>
@@ -40,7 +47,12 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
         public static Task<TestDatabase> Default()
         {
             return new TestDatabase()
-                .CreateShared(name: "Microsoft.Data.SqlServer.FunctionalTest");
+                .CreateShared(name: DefaultDatabaseName);
+        }
+
+        public static string DefaultConnectionString
+        {
+            get { return CreateConnectionString(DefaultDatabaseName); }
         }
 
         /// <summary>

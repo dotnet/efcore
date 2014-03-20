@@ -12,10 +12,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public void Navigation_fixup_happens_when_new_entities_are_tracked()
         {
-            var model = BuildModel();
-            var configuration = new EntityConfiguration { Model = model };
-
-            using (var context = new EntityContext(configuration))
+            using (var context = new FixupContext())
             {
                 context.Add(new Category { Id = 11 });
                 context.Add(new Category { Id = 12 });
@@ -52,15 +49,12 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public void Navigation_fixup_happens_when_entities_are_materialized()
         {
-            var model = BuildModel();
-            var configuration = new EntityConfiguration { Model = model };
-
-            var categoryType = model.GetEntityType(typeof(Category));
-            var productType = model.GetEntityType(typeof(Product));
-            var offerType = model.GetEntityType(typeof(SpecialOffer));
-
-            using (var context = new EntityContext(configuration))
+            using (var context = new FixupContext())
             {
+                var categoryType = context.Model.GetEntityType(typeof(Category));
+                var productType = context.Model.GetEntityType(typeof(Product));
+                var offerType = context.Model.GetEntityType(typeof(SpecialOffer));
+
                 var stateManager = context.ChangeTracker.StateManager;
 
                 stateManager.GetOrMaterializeEntry(categoryType, new object[] { 11 });
@@ -165,37 +159,37 @@ namespace Microsoft.Data.Entity.FunctionalTests
             public Product Product { get; set; }
         }
 
-        private static IModel BuildModel()
+        private class FixupContext : EntityContext
         {
-            var model = new Model();
-            var builder = new ModelBuilder(model);
+            protected override void OnModelCreating(ModelBuilder builder)
+            {
+                var model = builder.Model;
 
-            builder.Entity<Product>();
-            builder.Entity<Category>();
-            builder.Entity<SpecialOffer>();
+                builder.Entity<Product>();
+                builder.Entity<Category>();
+                builder.Entity<SpecialOffer>();
 
-            new SimpleTemporaryConvention().Apply(model);
+                new SimpleTemporaryConvention().Apply(model);
 
-            var categoryType = model.GetEntityType(typeof(Category));
-            var productType = model.GetEntityType(typeof(Product));
-            var offerType = model.GetEntityType(typeof(SpecialOffer));
+                var categoryType = model.GetEntityType(typeof(Category));
+                var productType = model.GetEntityType(typeof(Product));
+                var offerType = model.GetEntityType(typeof(SpecialOffer));
 
-            var categoryIdFk
-                = productType.AddForeignKey(
-                    categoryType.GetKey(), new[] { productType.GetProperty("CategoryId") });
-            categoryIdFk.StorageName = "Category_Products";
+                var categoryIdFk
+                    = productType.AddForeignKey(
+                        categoryType.GetKey(), new[] { productType.GetProperty("CategoryId") });
+                categoryIdFk.StorageName = "Category_Products";
 
-            var productIdFk
-                = offerType.AddForeignKey(
-                    productType.GetKey(), new[] { offerType.GetProperty("ProductId") });
-            productIdFk.StorageName = "Product_Offers";
+                var productIdFk
+                    = offerType.AddForeignKey(
+                        productType.GetKey(), new[] { offerType.GetProperty("ProductId") });
+                productIdFk.StorageName = "Product_Offers";
 
-            categoryType.AddNavigation(new CollectionNavigation(categoryIdFk, "Products"));
-            productType.AddNavigation(new Navigation(categoryIdFk, "Category"));
-            productType.AddNavigation(new CollectionNavigation(productIdFk, "SpecialOffers"));
-            offerType.AddNavigation(new Navigation(productIdFk, "Product"));
-
-            return model;
+                categoryType.AddNavigation(new CollectionNavigation(categoryIdFk, "Products"));
+                productType.AddNavigation(new Navigation(categoryIdFk, "Category"));
+                productType.AddNavigation(new CollectionNavigation(productIdFk, "SpecialOffers"));
+                offerType.AddNavigation(new Navigation(productIdFk, "Product"));
+            }
         }
 
         #endregion

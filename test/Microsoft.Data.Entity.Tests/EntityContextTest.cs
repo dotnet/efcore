@@ -188,7 +188,11 @@ namespace Microsoft.Data.Entity.Tests
             var model = new Model();
             model.AddEntityType(new EntityType(typeof(TheGu)));
 
-            using (var context = new EarlyLearningCenter(new EntityConfiguration { Model = model }))
+            var configuration = new EntityConfigurationBuilder()
+                .UseModel(model)
+                .BuildConfiguration(); 
+
+            using (var context = new EarlyLearningCenter(configuration))
             {
                 Assert.Equal(
                     new[] { "TheGu" },
@@ -211,11 +215,6 @@ namespace Microsoft.Data.Entity.Tests
         public class ContextWithSets : EntityContext
         {
             private readonly EntitySet<Random> _noSetter = null;
-
-            public ContextWithSets()
-                : base(new EntityConfiguration())
-            {
-            }
 
             public EntitySet<Product> Products { get; set; }
             public EntitySet<Category> Categories { get; private set; }
@@ -274,7 +273,6 @@ namespace Microsoft.Data.Entity.Tests
             }
 
             public EarlyLearningCenter()
-                : this(new EntityConfiguration())
             {
             }
 

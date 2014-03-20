@@ -65,7 +65,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         [Fact]
         public void Property_values_can_be_read_and_set_using_compiled_metadata_without_reflection()
         {
-            var configuration = new EntityConfiguration { Model = new _OneTwoThreeContextModel() };
+            var configuration = new EntityConfigurationBuilder()
+                .UseModel(new _OneTwoThreeContextModel())
+                .BuildConfiguration();
 
             using (var context = new EntityContext(configuration))
             {
@@ -90,7 +92,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         [Fact]
         public void Entity_can_be_materialized_using_compiled_metadata_without_reflection()
         {
-            var configuration = new EntityConfiguration { Model = new _OneTwoThreeContextModel() };
+            var configuration = new EntityConfigurationBuilder()
+                .UseModel(new _OneTwoThreeContextModel())
+                .BuildConfiguration();
 
             using (var context = new EntityContext(configuration))
             {
@@ -126,7 +130,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         private static void FixupTest(IModel model)
         {
-            var configuration = new EntityConfiguration { Model = model };
+            var configuration = new EntityConfigurationBuilder()
+                .UseModel(new _OneTwoThreeContextModel())
+                .BuildConfiguration();
 
             using (var context = new EntityContext(configuration))
             {

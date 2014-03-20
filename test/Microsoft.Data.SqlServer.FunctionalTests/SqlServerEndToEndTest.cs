@@ -1,13 +1,12 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
-using System.Threading.Tasks;
-using System.Linq;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Query;
-using Xunit;
-using Microsoft.Data.Entity;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Metadata;
+using Xunit;
 
 namespace Microsoft.Data.SqlServer.FunctionalTests
 {
@@ -16,17 +15,9 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
         [Fact]
         public async Task Can_run_linq_query_on_entity_set()
         {
-            var model = CreateNorthwindModel();
-
-            using (var testDatabase = await TestDatabase.Northwind())
+            using (await TestDatabase.Northwind())
             {
-                var config = new EntityConfiguration
-                {
-                    DataStore = new SqlServerDataStore(testDatabase.Connection.ConnectionString),
-                    Model = CreateNorthwindModel()
-                };
-
-                using (var db = new NorthwindContext(config))
+                using (var db = new NorthwindContext())
                 {
                     var results = db.Customers
                         .Where(c => c.CompanyName.StartsWith("A"))
@@ -38,7 +29,6 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                     Assert.Equal("ANTON", results[1].CustomerID);
                     Assert.Equal("ANATR", results[2].CustomerID);
                     Assert.Equal("ALFKI", results[3].CustomerID);
-
                 }
             }
         }
@@ -46,17 +36,9 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
         [Fact]
         public async Task Can_enumerate_entity_set()
         {
-            var model = CreateNorthwindModel();
-
-            using (var testDatabase = await TestDatabase.Northwind())
+            using (await TestDatabase.Northwind())
             {
-                var config = new EntityConfiguration
-                {
-                    DataStore = new SqlServerDataStore(testDatabase.Connection.ConnectionString),
-                    Model = CreateNorthwindModel()
-                };
-
-                using (var db = new NorthwindContext(config))
+                using (var db = new NorthwindContext())
                 {
                     var results = new List<Customer>();
                     foreach (var item in db.Customers)
@@ -77,7 +59,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
             using (var testDatabase = await TestDatabase.Scratch())
             {
                 await testDatabase.ExecuteNonQueryAsync(
-@"CREATE TABLE [dbo].[Blog](
+                    @"CREATE TABLE [dbo].[Blog](
 	[Id] [int] NOT NULL,
 	[Name] [nvarchar](max) NULL,
     CONSTRAINT [PK_Blogging] PRIMARY KEY CLUSTERED ( [Id] ASC ))");
@@ -85,10 +67,9 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                 await testDatabase.ExecuteNonQueryAsync(@"INSERT INTO [dbo].[Blog] (Id, Name) VALUES (1, 'Blog to Update')");
                 await testDatabase.ExecuteNonQueryAsync(@"INSERT INTO [dbo].[Blog] (Id, Name) VALUES (2, 'Blog to Delete')");
 
-                var config = new EntityConfiguration
-                {
-                    DataStore = new SqlServerDataStore(testDatabase.Connection.ConnectionString),
-                };
+                var config = new EntityConfigurationBuilder()
+                    .UseSqlServer(testDatabase.Connection.ConnectionString)
+                    .BuildConfiguration();
 
                 using (var db = new BloggingContext(config))
                 {
@@ -114,18 +95,23 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                         CancellationToken.None);
 
                     Assert.Equal(1, rows);
-
                 }
             }
         }
 
         private class NorthwindContext : EntityContext
         {
-            public NorthwindContext(EntityConfiguration config)
-                : base(config)
-            { }
-
             public EntitySet<Customer> Customers { get; set; }
+
+            protected override void OnConfiguring(EntityConfigurationBuilder builder)
+            {
+                builder.UseSqlServer(TestDatabase.NorthwindConnectionString);
+            }
+
+            protected override void OnModelCreating(ModelBuilder builder)
+            {
+                builder.Entity<Customer>().StorageName("Customers");
+            }
         }
 
         private class Customer
@@ -134,28 +120,12 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
             public string CompanyName { get; set; }
         }
 
-        private static Model CreateNorthwindModel()
-        {
-            var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
-
-            modelBuilder
-                .Entity<Customer>()
-                .StorageName("Customers")
-                .Properties(ps =>
-                    {
-                        ps.Property(c => c.CustomerID);
-                        ps.Property(c => c.CompanyName);
-                    });
-
-            return model;
-        }
-
         private class BloggingContext : EntityContext
         {
             public BloggingContext(EntityConfiguration config)
                 : base(config)
-            { }
+            {
+            }
 
             public EntitySet<Blog> Blogs { get; set; }
         }
