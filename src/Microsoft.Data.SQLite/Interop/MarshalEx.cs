@@ -33,11 +33,21 @@ namespace Microsoft.Data.SQLite.Interop
 
         public static IntPtr StringToHGlobalUTF8(string s)
         {
+            int size;
+            return StringToHGlobalUTF8(s, out size);
+        }
+
+        public static IntPtr StringToHGlobalUTF8(string s, out int size)
+        {
             if (s == null)
+            {
+                size = 0;
                 return IntPtr.Zero;
+            }
 
             var bytes = Encoding.UTF8.GetBytes(s);
-            var ptr = Marshal.AllocHGlobal(bytes.Length + 1);
+            size = bytes.Length + 1;
+            var ptr = Marshal.AllocHGlobal(size);
             Marshal.Copy(bytes, 0, ptr, bytes.Length);
             Marshal.WriteByte(ptr, bytes.Length, 0);
 

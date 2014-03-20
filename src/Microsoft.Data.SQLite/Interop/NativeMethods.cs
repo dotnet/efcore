@@ -5,8 +5,72 @@ using System.Runtime.InteropServices;
 
 namespace Microsoft.Data.SQLite.Interop
 {
+    // TODO: Consider using UTF-16 overloads #Perf
+    // TODO: Consider using function pointers instead of SQLITE_TRANSIENT #Perf
     internal static class NativeMethods
     {
+        [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        private static extern int sqlite3_bind_blob(StatementHandle pStmt, int i, IntPtr zData, int nData, IntPtr xDel);
+
+        public static int sqlite3_bind_blob(StatementHandle pStmt, int i, byte[] zData)
+        {
+            var zDataPtr = Marshal.AllocHGlobal(zData.Length);
+            try
+            {
+                Marshal.Copy(zData, 0, zDataPtr, zData.Length);
+
+                return sqlite3_bind_blob(pStmt, i, zDataPtr, zData.Length, Constants.SQLITE_TRANSIENT);
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(zDataPtr);
+            }
+        }
+
+        [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        public static extern int sqlite3_bind_double(StatementHandle pStmt, int i, double rValue);
+
+        [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        public static extern int sqlite3_bind_int64(StatementHandle pStmt, int i, long iValue);
+
+        [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        public static extern int sqlite3_bind_null(StatementHandle pStmt, int i);
+
+        [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        private static extern int sqlite3_bind_parameter_index(StatementHandle pStmt, IntPtr zName);
+
+        public static int sqlite3_bind_parameter_index(StatementHandle pStmt, string zName)
+        {
+            var ptr = MarshalEx.StringToHGlobalUTF8(zName);
+            try
+            {
+                return sqlite3_bind_parameter_index(pStmt, ptr);
+            }
+            finally
+            {
+                if (ptr != IntPtr.Zero)
+                    Marshal.FreeHGlobal(ptr);
+            }
+        }
+
+        [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        private static extern int sqlite3_bind_text(StatementHandle pStmt, int i, IntPtr zData, int n, IntPtr xDel);
+
+        public static int sqlite3_bind_text(StatementHandle pStmt, int i, string zData)
+        {
+            int n;
+            var ptr = MarshalEx.StringToHGlobalUTF8(zData, out n);
+            try
+            {
+                return sqlite3_bind_text(pStmt, i, ptr, n, Constants.SQLITE_TRANSIENT);
+            }
+            finally
+            {
+                if (ptr != IntPtr.Zero)
+                    Marshal.FreeHGlobal(ptr);
+            }
+        }
+
         [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         public static extern int sqlite3_changes(DatabaseHandle db);
 
@@ -106,11 +170,11 @@ namespace Microsoft.Data.SQLite.Interop
         public static int sqlite3_prepare_v2(
             DatabaseHandle db,
             string zSql,
-            int nByte,
             out StatementHandle ppStmt,
             out string pzTail)
         {
-            var zSqlPtr = MarshalEx.StringToHGlobalUTF8(zSql);
+            int nByte;
+            var zSqlPtr = MarshalEx.StringToHGlobalUTF8(zSql, out nByte);
             try
             {
                 IntPtr pzTailPtr;

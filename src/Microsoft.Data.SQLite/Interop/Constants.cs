@@ -1,5 +1,7 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System;
+
 namespace Microsoft.Data.SQLite.Interop
 {
     internal static class Constants
@@ -24,5 +26,7 @@ namespace Microsoft.Data.SQLite.Interop
         public const int SQLITE_TEXT = 3;
         public const int SQLITE_BLOB = 4;
         public const int SQLITE_NULL = 5;
+
+        public static readonly IntPtr SQLITE_TRANSIENT = new IntPtr(-1);
     }
 }

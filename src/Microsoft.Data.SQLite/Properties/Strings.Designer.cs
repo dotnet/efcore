@@ -59,6 +59,38 @@ namespace Microsoft.Data.SQLite
         }
 
         /// <summary>
+        /// The SQLiteParameter is already contained by another SQLiteParameterCollection.
+        /// </summary>
+        internal static string CollectionIsNotParent
+        {
+            get { return GetString("CollectionIsNotParent"); }
+        }
+
+        /// <summary>
+        /// The SQLiteParameter is already contained by another SQLiteParameterCollection.
+        /// </summary>
+        internal static string FormatCollectionIsNotParent()
+        {
+            return GetString("CollectionIsNotParent");
+        }
+
+        /// <summary>
+        /// The SQLiteParameter is already contained by this SQLiteParameterCollection.
+        /// </summary>
+        internal static string CollectionIsParent
+        {
+            get { return GetString("CollectionIsParent"); }
+        }
+
+        /// <summary>
+        /// The SQLiteParameter is already contained by this SQLiteParameterCollection.
+        /// </summary>
+        internal static string FormatCollectionIsParent()
+        {
+            return GetString("CollectionIsParent");
+        }
+
+        /// <summary>
         /// ConnectionString cannot be set when the connection is open.
         /// </summary>
         internal static string ConnectionStringRequiresClosedConnection
@@ -123,6 +155,22 @@ namespace Microsoft.Data.SQLite
         }
 
         /// <summary>
+        /// The ParameterDirection '{direction}' is invalid.
+        /// </summary>
+        internal static string InvalidParameterDirection
+        {
+            get { return GetString("InvalidParameterDirection"); }
+        }
+
+        /// <summary>
+        /// The ParameterDirection '{direction}' is invalid.
+        /// </summary>
+        internal static string FormatInvalidParameterDirection(object direction)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidParameterDirection", "direction"), direction);
+        }
+
+        /// <summary>
         /// Keyword not supported: '{keyword}'.
         /// </summary>
         internal static string KeywordNotSupported
@@ -152,6 +200,54 @@ namespace Microsoft.Data.SQLite
         internal static string FormatOpenRequiresSetConnectionString()
         {
             return GetString("OpenRequiresSetConnectionString");
+        }
+
+        /// <summary>
+        /// A SQLiteParameter with ParameterName '{parameterName}' is not contained by this SQLiteParameterCollection.
+        /// </summary>
+        internal static string ParameterNotFound
+        {
+            get { return GetString("ParameterNotFound"); }
+        }
+
+        /// <summary>
+        /// A SQLiteParameter with ParameterName '{parameterName}' is not contained by this SQLiteParameterCollection.
+        /// </summary>
+        internal static string FormatParameterNotFound(object parameterName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ParameterNotFound", "parameterName"), parameterName);
+        }
+
+        /// <summary>
+        /// {propertyName} must be set.
+        /// </summary>
+        internal static string RequiresSet
+        {
+            get { return GetString("RequiresSet"); }
+        }
+
+        /// <summary>
+        /// {propertyName} must be set.
+        /// </summary>
+        internal static string FormatRequiresSet(object propertyName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("RequiresSet", "propertyName"), propertyName);
+        }
+
+        /// <summary>
+        /// No mapping exists from object type {typeName} to a known managed provider native type.
+        /// </summary>
+        internal static string UnknownDataType
+        {
+            get { return GetString("UnknownDataType"); }
+        }
+
+        /// <summary>
+        /// No mapping exists from object type {typeName} to a known managed provider native type.
+        /// </summary>
+        internal static string FormatUnknownDataType(object typeName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("UnknownDataType", "typeName"), typeName);
         }
 
         private static string GetString(string name, params string[] formatterNames)

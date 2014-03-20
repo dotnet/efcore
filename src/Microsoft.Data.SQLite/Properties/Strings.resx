@@ -126,6 +126,12 @@
   <data name="CallRequiresSetCommandText" xml:space="preserve">
     <value>CommandText must be set before {methodName} can be called.</value>
   </data>
+  <data name="CollectionIsNotParent" xml:space="preserve">
+    <value>The SQLiteParameter is already contained by another SQLiteParameterCollection.</value>
+  </data>
+  <data name="CollectionIsParent" xml:space="preserve">
+    <value>The SQLiteParameter is already contained by this SQLiteParameterCollection.</value>
+  </data>
   <data name="ConnectionStringRequiresClosedConnection" xml:space="preserve">
     <value>ConnectionString cannot be set when the connection is open.</value>
   </data>
@@ -138,10 +144,22 @@
   <data name="InvalidIsolationLevel" xml:space="preserve">
     <value>The IsolationLevel '{isolationLevel}' is invalid.</value>
   </data>
+  <data name="InvalidParameterDirection" xml:space="preserve">
+    <value>The ParameterDirection '{direction}' is invalid.</value>
+  </data>
   <data name="KeywordNotSupported" xml:space="preserve">
     <value>Keyword not supported: '{keyword}'.</value>
   </data>
   <data name="OpenRequiresSetConnectionString" xml:space="preserve">
     <value>ConnectionString must be set before Open can be called.</value>
+  </data>
+  <data name="ParameterNotFound" xml:space="preserve">
+    <value>A SQLiteParameter with ParameterName '{parameterName}' is not contained by this SQLiteParameterCollection.</value>
+  </data>
+  <data name="RequiresSet" xml:space="preserve">
+    <value>{propertyName} must be set.</value>
+  </data>
+  <data name="UnknownDataType" xml:space="preserve">
+    <value>No mapping exists from object type {typeName} to a known managed provider native type.</value>
   </data>
 </root>

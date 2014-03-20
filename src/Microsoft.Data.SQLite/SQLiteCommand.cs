@@ -4,7 +4,6 @@ using System;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
-using System.Text;
 using JetBrains.Annotations;
 using Microsoft.Data.SQLite.Interop;
 using Microsoft.Data.SQLite.Utilities;
@@ -18,6 +17,7 @@ namespace Microsoft.Data.SQLite
         private string _commandText;
         private bool _prepared;
         private StatementHandle _handle;
+        private SQLiteParameterCollection _parameters = null;
 
         public SQLiteCommand()
         {
@@ -115,23 +115,34 @@ namespace Microsoft.Data.SQLite
             set { Transaction = (SQLiteTransaction)value; }
         }
 
-        protected override DbParameterCollection DbParameterCollection
+        public new SQLiteParameterCollection Parameters
         {
             get
             {
-                // TODO
-                throw new NotImplementedException();
+                if (_parameters == null)
+                    _parameters = new SQLiteParameterCollection();
+
+                return _parameters;
             }
+        }
+
+        protected override DbParameterCollection DbParameterCollection
+        {
+            get { return Parameters; }
         }
 
         public override int CommandTimeout { get; set; }
         public override bool DesignTimeVisible { get; set; }
         public override UpdateRowSource UpdatedRowSource { get; set; }
 
+        public new SQLiteParameter CreateParameter()
+        {
+            return new SQLiteParameter();
+        }
+
         protected override DbParameter CreateDbParameter()
         {
-            // TODO
-            throw new NotImplementedException();
+            return CreateParameter();
         }
 
         public override void Prepare()
@@ -150,7 +161,6 @@ namespace Microsoft.Data.SQLite
             var rc = NativeMethods.sqlite3_prepare_v2(
                 _connection.Handle,
                 _commandText,
-                Encoding.UTF8.GetByteCount(_commandText) + 1,
                 out _handle,
                 out tail);
             MarshalEx.ThrowExceptionForRC(rc);
@@ -170,6 +180,7 @@ namespace Microsoft.Data.SQLite
                 throw new InvalidOperationException(Strings.FormatCallRequiresSetCommandText("ExecuteDbDataReader"));
 
             Prepare();
+            Bind();
 
             // TODO
             throw new NotImplementedException();
@@ -183,6 +194,7 @@ namespace Microsoft.Data.SQLite
                 throw new InvalidOperationException(Strings.FormatCallRequiresSetCommandText("ExecuteNonQuery"));
 
             Prepare();
+            Bind();
 
             NativeMethods.sqlite3_step(_handle);
             var rc = NativeMethods.sqlite3_reset(_handle);
@@ -201,6 +213,7 @@ namespace Microsoft.Data.SQLite
                 throw new InvalidOperationException(Strings.FormatCallRequiresSetCommandText("ExecuteScalar"));
 
             Prepare();
+            Bind();
 
             var rc = NativeMethods.sqlite3_step(_handle);
             try
@@ -255,6 +268,19 @@ namespace Microsoft.Data.SQLite
             ReleaseNativeObjects();
 
             base.Dispose(disposing);
+        }
+
+        private void Bind()
+        {
+            Debug.Assert(_prepared, "_prepared is false.");
+            Debug.Assert(_handle != null && !_handle.IsInvalid, "_connection.Handle is null.");
+            if (_parameters == null || _parameters.Bound)
+                return;
+
+            var rc = NativeMethods.sqlite3_reset(_handle);
+            MarshalEx.ThrowExceptionForRC(rc);
+
+            _parameters.Bind(_handle);
         }
 
         private void ReleaseNativeObjects()

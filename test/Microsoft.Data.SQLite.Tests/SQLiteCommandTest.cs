@@ -67,6 +67,27 @@ namespace Microsoft.Data.SQLite
         }
 
         [Fact]
+        public void Parameters_works()
+        {
+            using (var command = new SQLiteCommand())
+            {
+                var result = command.Parameters;
+
+                Assert.NotNull(result);
+                Assert.Same(result, command.Parameters);
+            }
+        }
+
+        [Fact]
+        public void CreateParameter_works()
+        {
+            using (var command = new SQLiteCommand())
+            {
+                Assert.NotNull(command.CreateParameter());
+            }
+        }
+
+        [Fact]
         public void Prepare_can_be_called_when_disposed()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
@@ -247,7 +268,24 @@ namespace Microsoft.Data.SQLite
                 Assert.Equal(DBNull.Value, command.ExecuteScalar());
             }
         }
-        
+
+        [Fact]
+        public void ExecuteScalar_binds_parameters()
+        {
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT @Parameter";
+                command.Parameters.AddWithValue("@Parameter", 1);
+                connection.Open();
+
+                var result = command.ExecuteScalar();
+
+                Assert.True(command.Parameters.Bound);
+                Assert.Equal(1L, result);
+            }
+        }
+
         [Fact]
         public void ExecuteScalar_can_be_called_more_than_once()
         {
@@ -261,7 +299,20 @@ namespace Microsoft.Data.SQLite
                 Assert.Equal(1L, command.ExecuteScalar());
             }
         }
-                
+
+        [Fact]
+        public void ExecuteScalar_can_be_called_when_parameter_unset()
+        {
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT @Parameter";
+                connection.Open();
+
+                Assert.Equal(DBNull.Value, command.ExecuteScalar());
+            }
+        }
+
         [Fact]
         public void ExecuteNonQuery_throws_when_no_connection()
         {
@@ -305,11 +356,13 @@ namespace Microsoft.Data.SQLite
             using (var connection = new SQLiteConnection("Filename=:memory:"))
             using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT 1";
+                command.CommandText = "SELECT @Parameter";
+                command.Parameters.AddWithValue("@Parameter", 1);
                 connection.Open();
 
                 var result = command.ExecuteNonQuery();
 
+                Assert.True(command.Parameters.Bound);
                 Assert.Equal(0, result);
             }
         }

@@ -19,6 +19,14 @@
                 "System.Runtime": ""
             }
         },
-        "k10": {}
+        "k10": {
+            "dependencies": {
+                "System.IO": "4.0.0.0",
+                "System.IO.FileSystem": "4.0.0.0",
+                "System.Runtime": "4.0.20.0",
+                "System.Runtime.InteropServices": "4.0.10.0",
+                "System.Threading.Tasks": "4.0.0.0"
+            }
+        }
     }
 }
