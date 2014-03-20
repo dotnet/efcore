@@ -129,6 +129,11 @@ namespace Microsoft.Data.Entity
             get { return _model.Value; }
         }
 
+        public virtual EntityConfiguration Configuration
+        {
+            get { return _configuration; }
+        }
+
         public virtual EntitySet Set([NotNull] Type entityType)
         {
             Check.NotNull(entityType, "entityType");

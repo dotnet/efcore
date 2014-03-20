@@ -14,14 +14,23 @@ namespace Microsoft.Data.SqlServer
 {
     public class SqlServerDataStore : RelationalDataStore
     {
+        private readonly SqlGenerator _sqlGenerator;
+
         public SqlServerDataStore([NotNull] string connectionString)
-            : this(Check.NotEmpty(connectionString, "connectionString"), NullLogger.Instance)
+            : this(Check.NotEmpty(connectionString, "connectionString"), NullLogger.Instance, new SqlServerSqlGenerator())
         {
         }
 
-        public SqlServerDataStore([NotNull] string connectionString, [NotNull] ILogger logger)
+        public SqlServerDataStore([NotNull] string connectionString, [NotNull] ILogger logger, [NotNull] SqlGenerator sqlGenerator)
             : base(Check.NotEmpty(connectionString, "connectionString"), Check.NotNull(logger, "logger"))
         {
+            Check.NotNull(sqlGenerator, "sqlGenerator");
+            _sqlGenerator = sqlGenerator;
+        }
+
+        protected override SqlGenerator SqlGenerator
+        {
+            get {return _sqlGenerator; }
         }
 
         public override DbConnection CreateConnection(string connectionString)

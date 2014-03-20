@@ -20,6 +20,7 @@ namespace Microsoft.Data.Entity
         private StateManagerFactory _stateManagerFactory;
         private EntitySetInitializer _entitySetInitializer;
         private EntitySetSource _entitySetSource;
+        private EntityMaterializerSource _entityMaterializerSource;
         private IdentityGeneratorFactory _identityGeneratorFactory;
         private ActiveIdentityGenerators _activeIdentityGenerators;
         private IModel _model;
@@ -71,6 +72,19 @@ namespace Microsoft.Data.Entity
                 Check.NotNull(value, "value");
 
                 _entitySetInitializer = value;
+            }
+        }
+
+        public virtual EntityMaterializerSource EntityMaterializerSource
+        {
+            // TODO: Remove this once the service provider correctly returns singleton instances
+            get { return _entityMaterializerSource ?? (_entityMaterializerSource = GetRequiredService<EntityMaterializerSource>()); }
+            [param: NotNull]
+            set
+            {
+                Check.NotNull(value, "value");
+
+                _entityMaterializerSource = value;
             }
         }
 

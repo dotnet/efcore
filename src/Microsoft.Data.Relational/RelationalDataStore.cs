@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,7 @@ using Microsoft.AspNet.Logging;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Relational.Update;
 using Microsoft.Data.Relational.Utilities;
 
 namespace Microsoft.Data.Relational
@@ -29,21 +31,38 @@ namespace Microsoft.Data.Relational
             _logger = logger;
         }
 
+        protected abstract SqlGenerator SqlGenerator { get; }
+
         public virtual string ConnectionString
         {
             get { return _connectionString; }
         }
 
-        public override IAsyncEnumerable<object[]> Read(Type type, IModel model)
+        public override async Task<int> SaveChangesAsync(IEnumerable<Entity.ChangeTracking.StateEntry> stateEntries, IModel model, CancellationToken cancellationToken)
         {
-            var entityType = model.GetEntityType(type);
+            var commands = new CommandBatchPreparer().BatchCommands(stateEntries);
+
+            using (var connection = CreateConnection(_connectionString))
+            {
+                await connection.OpenAsync(cancellationToken);
+
+                var executor = new BatchExecutor(commands, SqlGenerator);
+                await executor.ExecuteAsync(connection, cancellationToken);
+            }
+
+            // TODO Return the actual results once we can get them
+            return stateEntries.Count();
+        }
+
+        public override IAsyncEnumerable<object[]> Read(IEntityType type)
+        {
             var sql = new StringBuilder();
 
             sql.Append("SELECT ")
-                .AppendJoin(entityType.Properties.Select(p => p.StorageName))
+                .AppendJoin(type.Properties.Select(p => p.StorageName))
                 .AppendLine()
                 .Append("FROM ")
-                .AppendLine(entityType.StorageName);
+                .AppendLine(type.StorageName);
 
             return new DbAsyncEnumerable(() => CreateConnection(_connectionString), sql.ToString(), _logger);
         }
