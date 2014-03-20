@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System.Text;
-using Microsoft.Data.Relational.Utilities;
+using Microsoft.Data.Entity;
 using Xunit;
 
 namespace Microsoft.Data.Relational.Tests.Utilities

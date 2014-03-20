@@ -5,6 +5,7 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Relational.Utilities;
 
@@ -13,22 +14,22 @@ namespace Microsoft.Data.Relational
     public abstract class SqlGenerator
     {
         public virtual void AppendInsertOperation([NotNull] StringBuilder commandStringBuilder, [NotNull] string tableName,
-            [NotNull] string[] keyColumnNames, [NotNull] KeyValuePair<string, string>[] columnsToParameters,
+            [NotNull] KeyValuePair<string, string>[] keyColumns, [NotNull] KeyValuePair<string, string>[] columnsToParameters,
             [NotNull] KeyValuePair<string, ValueGenerationStrategy>[] storeGeneratedColumns)
         {
             Check.NotNull(commandStringBuilder, "commandStringBuilder");
             Check.NotEmpty(tableName, "tableName");
-            Check.NotNull(keyColumnNames, "keyColumnNames");
+            Check.NotNull(keyColumns, "keyColumns");
             Check.NotNull(columnsToParameters, "columnsToParameters");
             Check.NotNull(storeGeneratedColumns, "storeGeneratedColumns");
 
-            Contract.Assert(keyColumnNames.Any(), "keyColumnNames is empty");
+            Contract.Assert(keyColumns.Any(), "keyColumnNames is empty");
 
             AppendInsertCommand(commandStringBuilder, tableName, columnsToParameters);
             if (storeGeneratedColumns.Any())
             {
                 commandStringBuilder.Append(BatchCommandSeparator).AppendLine();
-                AppendModificationOperationSelectCommand(commandStringBuilder, tableName, keyColumnNames, 
+                AppendModificationOperationSelectCommand(commandStringBuilder, tableName, keyColumns, 
                     storeGeneratedColumns, columnsToParameters);
             }
         }
@@ -76,13 +77,13 @@ namespace Microsoft.Data.Relational
             AppendWhereClause(commandStringBuilder, whereConditions);
         }
 
-        public virtual void AppendModificationOperationSelectCommand([NotNull] StringBuilder commandStringBuilder, [NotNull] string tableName, 
-            [NotNull] string[] keyColumnNames, [NotNull] KeyValuePair<string, ValueGenerationStrategy>[] storeGeneratedColumns,
+        public virtual void AppendModificationOperationSelectCommand([NotNull] StringBuilder commandStringBuilder, [NotNull] string tableName,
+            [NotNull] KeyValuePair<string, string>[] keyColumns, [NotNull] KeyValuePair<string, ValueGenerationStrategy>[] storeGeneratedColumns,
             [NotNull] KeyValuePair<string, string>[] columnsToParameters)
         {
             Check.NotNull(commandStringBuilder, "commandStringBuilder");
             Check.NotEmpty(tableName, "tableName");
-            Check.NotNull(keyColumnNames, "keyColumnNames");
+            Check.NotNull(keyColumns, "keyColumns");
             Check.NotNull(storeGeneratedColumns, "storeGeneratedColumns");
             Check.NotNull(columnsToParameters, "columnsToParameters");
 
@@ -91,8 +92,8 @@ namespace Microsoft.Data.Relational
             AppendFromClause(commandStringBuilder, tableName);
             commandStringBuilder.Append(" ");
 
-            var knownKeyValues = columnsToParameters.Where(c => keyColumnNames.Contains(c.Key));
-            var generatedKeys = storeGeneratedColumns.Where(c => keyColumnNames.Contains(c.Key));
+            var knownKeyValues = columnsToParameters.Where(c => keyColumns.Select(k => k.Key).Contains(c.Key));
+            var generatedKeys = storeGeneratedColumns.Where(c => keyColumns.Select(k => k.Key).Contains(c.Key));
             AppendModificationOperationSelectWhereClause(commandStringBuilder, knownKeyValues, generatedKeys);
         }
 
