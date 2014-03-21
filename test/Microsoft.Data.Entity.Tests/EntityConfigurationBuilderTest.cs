@@ -75,7 +75,7 @@ namespace Microsoft.Data.Entity.Tests
 
             Assert.Equal(
                 new[] { myService.GetType(), typeof(NavigationFixer) },
-                configuration.EntityStateListeners.Select(l => l.GetType()).ToArray());
+                configuration.EntityStateListeners.Select(l => l.GetType()).OrderBy(t => t.Name).ToArray());
         }
 
         [Fact]
