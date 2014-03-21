@@ -30,6 +30,7 @@ namespace Microsoft.Data.Entity.Tests
             Assert.IsType<EntitySetInitializer>(configuration.EntitySetInitializer);
             Assert.IsType<EntityKeyFactorySource>(configuration.EntityKeyFactorySource);
             Assert.IsType<StateEntryFactory>(configuration.StateEntryFactory);
+            Assert.IsType<ClrCollectionAccessorSource>(configuration.ClrCollectionAccessorSource);
             Assert.IsType<ClrPropertyGetterSource>(configuration.ClrPropertyGetterSource);
             Assert.IsType<ClrPropertySetterSource>(configuration.ClrPropertySetterSource);
             Assert.IsType<EntitySetSource>(configuration.EntitySetSource);
@@ -92,6 +93,7 @@ namespace Microsoft.Data.Entity.Tests
         public void Can_set_known_services_using_sugar()
         {
             var identityGenerators = Mock.Of<ActiveIdentityGenerators>();
+            var collectionSource = Mock.Of<ClrCollectionAccessorSource>();
             var getterSource = Mock.Of<ClrPropertyGetterSource>();
             var setterSource = Mock.Of<ClrPropertySetterSource>();
             var dataStore = Mock.Of<DataStore>();
@@ -110,6 +112,7 @@ namespace Microsoft.Data.Entity.Tests
 
             var configuration = new EntityConfigurationBuilder()
                 .UseActiveIdentityGenerators(identityGenerators)
+                .UseClrCollectionAccessorSource(collectionSource)
                 .UseClrPropertyGetterSource(getterSource)
                 .UseClrPropertySetterSource(setterSource)
                 .UseDataStore(dataStore)
@@ -128,6 +131,7 @@ namespace Microsoft.Data.Entity.Tests
                 .BuildConfiguration();
 
             Assert.Same(identityGenerators, configuration.ActiveIdentityGenerators);
+            Assert.Same(collectionSource, configuration.ClrCollectionAccessorSource);
             Assert.Same(getterSource, configuration.ClrPropertyGetterSource);
             Assert.Same(setterSource, configuration.ClrPropertySetterSource);
             Assert.Same(dataStore, configuration.DataStore);
@@ -150,6 +154,7 @@ namespace Microsoft.Data.Entity.Tests
         {
             var configuration = new EntityConfigurationBuilder()
                 .UseActiveIdentityGenerators<FakeActiveIdentityGenerators>()
+                .UseClrCollectionAccessorSource<FakeClrCollectionAccessorSource>()
                 .UseClrPropertyGetterSource<FakeClrPropertyGetterSource>()
                 .UseClrPropertySetterSource<FakeClrPropertySetterSource>()
                 .UseDataStore<FakeDataStore>()
@@ -168,6 +173,7 @@ namespace Microsoft.Data.Entity.Tests
                 .BuildConfiguration();
 
             Assert.IsType<FakeActiveIdentityGenerators>(configuration.ActiveIdentityGenerators);
+            Assert.IsType<FakeClrCollectionAccessorSource>(configuration.ClrCollectionAccessorSource);
             Assert.IsType<FakeClrPropertyGetterSource>(configuration.ClrPropertyGetterSource);
             Assert.IsType<FakeClrPropertySetterSource>(configuration.ClrPropertySetterSource);
             Assert.IsType<FakeDataStore>(configuration.DataStore);
@@ -230,6 +236,10 @@ namespace Microsoft.Data.Entity.Tests
         }
 
         private class FakeActiveIdentityGenerators : ActiveIdentityGenerators
+        {
+        }
+
+        private class FakeClrCollectionAccessorSource : ClrCollectionAccessorSource
         {
         }
 

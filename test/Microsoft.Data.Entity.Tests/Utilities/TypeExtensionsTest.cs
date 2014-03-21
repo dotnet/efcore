@@ -1,7 +1,9 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Data.Entity.Utilities;
@@ -54,13 +56,6 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             Assert.False(typeof(int).IsNullableType());
             Assert.False(typeof(Guid).IsNullableType());
             Assert.True(typeof(int?).IsNullableType());
-        }
-
-        [Fact]
-        public void Element_type_should_return_element_type_from_sequence_type()
-        {
-            Assert.Equal(typeof(string), typeof(IEnumerable<string>).ElementType());
-            Assert.Equal(typeof(string), typeof(IQueryable<string>).ElementType());
         }
 
         [Fact]
@@ -223,6 +218,141 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             public override int Mistakes { get; set; }
             public override int VertrauenIII { get; set; }
             public new static int SleepySong { get; set; }
+        }
+
+        [Fact]
+        public void TryGetElementType_returns_element_type_for_given_interface()
+        {
+            Assert.Same(typeof(string), typeof(ICollection<string>).TryGetElementType(typeof(ICollection<>)));
+            Assert.Same(typeof(Random), typeof(IObservable<Random>).TryGetElementType(typeof(IObservable<>)));
+            Assert.Same(typeof(int), typeof(List<int>).TryGetElementType(typeof(IList<>)));
+            Assert.Same(
+                typeof(Random), typeof(MultipleImplementor<Random, string>).TryGetElementType(typeof(IObservable<>)));
+            Assert.Same(typeof(string), typeof(MultipleImplementor<Random, string>).TryGetElementType(typeof(IEnumerable<>)));
+        }
+
+        public void TryGetElementType_returns_element_type_for_given_class()
+        {
+            Assert.Same(typeof(string), typeof(Collection<string>).TryGetElementType(typeof(Collection<>)));
+            Assert.Same(typeof(int), typeof(List<int>).TryGetElementType(typeof(List<>)));
+        }
+
+        [Fact]
+        public void TryGetElementType_returns_null_if_type_is_generic_type_definition()
+        {
+            Assert.Null(typeof(ICollection<>).TryGetElementType(typeof(ICollection<>)));
+        }
+
+        [Fact]
+        public void TryGetElementType_returns_null_if_type_doesnt_implement_interface()
+        {
+            Assert.Null(typeof(ICollection<string>).TryGetElementType(typeof(IObservable<>)));
+            Assert.Null(typeof(Random).TryGetElementType(typeof(IObservable<>)));
+        }
+
+        [Fact]
+        public void TryGetElementType_returns_null_if_type_doesnt_implement_class()
+        {
+            Assert.Null(typeof(ICollection<string>).TryGetElementType(typeof(List<>)));
+            Assert.Null(typeof(Random).TryGetElementType(typeof(Collection<>)));
+        }
+
+        // CodePlex 2014
+        [Fact]
+        public void TryGetElementType_returns_null_when_ICollection_implemented_more_than_once()
+        {
+            Assert.Null(typeof(RoleCollection2014).TryGetElementType(typeof(ICollection<>)));
+        }
+
+        private class MultipleImplementor<TRandom, TElement> : IObservable<TRandom>, IEnumerable<TElement>
+            where TRandom : Random
+        {
+            public IEnumerator<TElement> GetEnumerator()
+            {
+                throw new NotImplementedException();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
+
+            public IDisposable Subscribe(IObserver<TRandom> observer)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        private interface IRole2014
+        {
+            string Permissions { get; set; }
+        }
+
+        private interface IRoleCollection2014 : ICollection<IRole2014>
+        {
+        }
+
+        private class RoleCollection2014 : List<Role2014>, IRoleCollection2014
+        {
+            public new IEnumerator<IRole2014> GetEnumerator()
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Add(IRole2014 item)
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool Contains(IRole2014 item)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void CopyTo(IRole2014[] array, int arrayIndex)
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool Remove(IRole2014 item)
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool IsReadOnly { get; private set; }
+        }
+
+        private class Role2014 : IRole2014
+        {
+            public int RoleId { get; set; }
+            public string Permissions { get; set; }
+        }
+
+        [Fact]
+        public void GetBaseTypes_return_all_base_types()
+        {
+            Assert.Equal(3, typeof(MultipleHierarchy).GetBaseTypes().Count());
+            Assert.True(typeof(MultipleHierarchy).GetBaseTypes().Contains(typeof(Some)));
+            Assert.True(typeof(MultipleHierarchy).GetBaseTypes().Contains(typeof(Base)));
+            Assert.True(typeof(MultipleHierarchy).GetBaseTypes().Contains(typeof(object)));
+        }
+
+        [Fact]
+        public void GetBaseTypes_return_empty_if_no_base_type_exists()
+        {
+            Assert.False(typeof(object).GetBaseTypes().Any());
+        }
+
+        private class MultipleHierarchy : Some
+        {
+        }
+
+        private class Some : Base
+        {
+        }
+
+        private class Base
+        {
         }
 
         // ReSharper restore InconsistentNaming

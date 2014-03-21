@@ -90,6 +90,84 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
+        [Fact]
+        public void Navigation_fixup_is_non_destructive_to_existing_graphs()
+        {
+            using (var context = new FixupContext())
+            {
+                var category11 = new Category { Id = 11 };
+                var category12 = new Category { Id = 12 };
+                var category13 = new Category { Id = 13 };
+
+                var product21 = new Product { Id = 21, CategoryId = 11, Category = category11 };
+                var product22 = new Product { Id = 22, CategoryId = 11, Category = category11 };
+                var product23 = new Product { Id = 23, CategoryId = 11, Category = category11 };
+                var product24 = new Product { Id = 24, CategoryId = 12, Category = category12 };
+                var product25 = new Product { Id = 25, CategoryId = 12, Category = category12 };
+
+                category11.Products.Add(product21);
+                category11.Products.Add(product22);
+                category11.Products.Add(product23);
+                category12.Products.Add(product24);
+                category12.Products.Add(product25);
+
+                var specialOffer31 = new SpecialOffer { Id = 31, ProductId = 22, Product = product22 };
+                var specialOffer32 = new SpecialOffer { Id = 32, ProductId = 22, Product = product22 };
+                var specialOffer33 = new SpecialOffer { Id = 33, ProductId = 24, Product = product24 };
+                var specialOffer34 = new SpecialOffer { Id = 34, ProductId = 24, Product = product24 };
+                var specialOffer35 = new SpecialOffer { Id = 35, ProductId = 24, Product = product24 };
+
+                product22.SpecialOffers.Add(specialOffer31);
+                product22.SpecialOffers.Add(specialOffer32);
+                product24.SpecialOffers.Add(specialOffer33);
+                product24.SpecialOffers.Add(specialOffer34);
+                product24.SpecialOffers.Add(specialOffer35);
+
+                context.Add(category11);
+                AssertAllFixedUp(context);
+                context.Add(category12);
+                AssertAllFixedUp(context);
+                context.Add(category13);
+                AssertAllFixedUp(context);
+
+                context.Add(product21);
+                AssertAllFixedUp(context);
+                context.Add(product22);
+                AssertAllFixedUp(context);
+                context.Add(product23);
+                AssertAllFixedUp(context);
+                context.Add(product24);
+                AssertAllFixedUp(context);
+                context.Add(product25);
+                AssertAllFixedUp(context);
+
+                context.Add(specialOffer31);
+                AssertAllFixedUp(context);
+                context.Add(specialOffer32);
+                AssertAllFixedUp(context);
+                context.Add(specialOffer33);
+                AssertAllFixedUp(context);
+                context.Add(specialOffer34);
+                AssertAllFixedUp(context);
+                context.Add(specialOffer35);
+                AssertAllFixedUp(context);
+
+                Assert.Equal(3, category11.Products.Count);
+                Assert.Equal(2, category12.Products.Count);
+                Assert.Equal(0, category13.Products.Count);
+
+                Assert.Equal(0, product21.SpecialOffers.Count);
+                Assert.Equal(2, product22.SpecialOffers.Count);
+                Assert.Equal(0, product23.SpecialOffers.Count);
+                Assert.Equal(3, product24.SpecialOffers.Count);
+                Assert.Equal(0, product25.SpecialOffers.Count);
+
+                Assert.Equal(3, context.ChangeTracker.Entries<Category>().Count());
+                Assert.Equal(5, context.ChangeTracker.Entries<Product>().Count());
+                Assert.Equal(5, context.ChangeTracker.Entries<SpecialOffer>().Count());
+            }
+        }
+
         public void AssertAllFixedUp(EntityContext context)
         {
             foreach (var entry in context.ChangeTracker.Entries<Product>())
@@ -185,9 +263,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         productType.GetKey(), new[] { offerType.GetProperty("ProductId") });
                 productIdFk.StorageName = "Product_Offers";
 
-                categoryType.AddNavigation(new CollectionNavigation(categoryIdFk, "Products"));
+                categoryType.AddNavigation(new Navigation(categoryIdFk, "Products"));
                 productType.AddNavigation(new Navigation(categoryIdFk, "Category"));
-                productType.AddNavigation(new CollectionNavigation(productIdFk, "SpecialOffers"));
+                productType.AddNavigation(new Navigation(productIdFk, "SpecialOffers"));
                 offerType.AddNavigation(new Navigation(productIdFk, "Product"));
             }
         }

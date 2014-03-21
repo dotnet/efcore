@@ -24,19 +24,7 @@ namespace Microsoft.Data.Entity.Metadata
             get { return _foreignKey; }
         }
 
-        public virtual void SetOrAddEntity(object ownerEntity, object relatedEntity)
-        {
-            Check.NotNull(ownerEntity, "ownerEntity");
-            Check.NotNull(relatedEntity, "relatedEntity");
-
-            // TODO: Check if value already set before setting again
-            // TODO: Handle o/c mapping mechanisms for patterns other than read/write property
-            // TODO: Handle shadow state
-            // TODO: Handle nulls/removals
-            EntityType.Type.GetAnyProperty(Name).SetValue(ownerEntity, relatedEntity);
-        }
-
-        IEntityType INavigation.EntityType
+        IEntityType IPropertyBase.EntityType
         {
             get { return EntityType; }
         }

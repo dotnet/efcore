@@ -4,11 +4,9 @@ using System;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public interface IProperty : IMetadata
+    public interface IProperty : IPropertyBase
     {
-        string Name { get; }
         Type PropertyType { get; }
-        IEntityType EntityType { get; }
         bool IsNullable { get; }
         ValueGenerationStrategy ValueGenerationStrategy { get; }
         int Index { get; }

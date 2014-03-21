@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Metadata
         private readonly ThreadSafeDictionaryCache<Tuple<Type, string>, TAccessor> _cache
             = new ThreadSafeDictionaryCache<Tuple<Type, string>, TAccessor>();
 
-        public virtual TAccessor GetAccessor([NotNull] IProperty property)
+        public virtual TAccessor GetAccessor([NotNull] IPropertyBase property)
         {
             Check.NotNull(property, "property");
 

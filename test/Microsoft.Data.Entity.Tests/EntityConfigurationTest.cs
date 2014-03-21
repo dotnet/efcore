@@ -21,6 +21,7 @@ namespace Microsoft.Data.Entity.Tests
             RequiredServiceTest(c => c.EntitySetFinder);
             RequiredServiceTest(c => c.EntityKeyFactorySource);
             RequiredServiceTest(c => c.StateEntryFactory);
+            RequiredServiceTest(c => c.ClrCollectionAccessorSource);
             RequiredServiceTest(c => c.ClrPropertyGetterSource);
             RequiredServiceTest(c => c.ClrPropertySetterSource);
             RequiredServiceTest(c => c.EntityMaterializerSource);
@@ -56,6 +57,7 @@ namespace Microsoft.Data.Entity.Tests
             Assert.Same(configuration.EntitySetFinder, configuration.EntitySetFinder);
             Assert.Same(configuration.EntityKeyFactorySource, configuration.EntityKeyFactorySource);
             Assert.Same(configuration.StateEntryFactory, configuration.StateEntryFactory);
+            Assert.Same(configuration.ClrCollectionAccessorSource, configuration.ClrCollectionAccessorSource);
             Assert.Same(configuration.ClrPropertyGetterSource, configuration.ClrPropertyGetterSource);
             Assert.Same(configuration.ClrPropertySetterSource, configuration.ClrPropertySetterSource);
             Assert.Same(configuration.EntityMaterializerSource, configuration.EntityMaterializerSource);

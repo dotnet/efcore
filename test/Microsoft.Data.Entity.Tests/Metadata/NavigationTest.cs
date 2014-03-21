@@ -19,18 +19,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(
                 Strings.FormatArgumentIsEmpty("name"),
                 Assert.Throws<ArgumentException>(() => new Navigation(new Mock<ForeignKey>().Object, "")).Message);
-
-            var navigation = new Navigation(new Mock<ForeignKey>().Object, "Handlebars");
-
-            Assert.Equal(
-                "ownerEntity",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => navigation.SetOrAddEntity(null, new Random())).ParamName);
-
-            Assert.Equal(
-                "relatedEntity",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => navigation.SetOrAddEntity(new Random(), null)).ParamName);
         }
 
         [Fact]
@@ -58,25 +46,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Same(entityType, navigation.EntityType);
             Assert.Same(entityType, ((INavigation)navigation).EntityType);
-        }
-
-        [Fact]
-        public void Can_set_value()
-        {
-            var entityTypeMock = new Mock<EntityType>();
-            entityTypeMock.Setup(m => m.Type).Returns(typeof(CutChemist));
-
-            var navigation = new Navigation(new Mock<ForeignKey>().Object, "BigBreak") { EntityType = entityTypeMock.Object };
-            var entity = new CutChemist();
-
-            navigation.SetOrAddEntity(entity, "In case of nuclear attack, protection of records is essential.");
-
-            Assert.Equal("In case of nuclear attack, protection of records is essential.", entity.BigBreak);
-        }
-
-        private class CutChemist
-        {
-            internal string BigBreak { get; set; }
         }
     }
 }

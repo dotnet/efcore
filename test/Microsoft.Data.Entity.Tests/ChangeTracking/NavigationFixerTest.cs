@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Members_check_arguments()
         {
-            var fixer = new NavigationFixer();
+            var fixer = new NavigationFixer(new ClrCollectionAccessorSource(), new ClrPropertySetterSource());
 
             Assert.Equal(
                 "entry",
@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var dependentEntry = manager.GetOrCreateEntry(dependent);
             manager.StartTracking(dependentEntry);
 
-            var fixer = new NavigationFixer();
+            var fixer = new NavigationFixer(new ClrCollectionAccessorSource(), new ClrPropertySetterSource());
             fixer.StateChanged(dependentEntry, EntityState.Unknown);
 
             Assert.Same(dependent.Category, principal2);
@@ -68,7 +68,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var principalEntry = manager.GetOrCreateEntry(principal);
             manager.StartTracking(principalEntry);
 
-            var fixer = new NavigationFixer();
+            var fixer = new NavigationFixer(new ClrCollectionAccessorSource(), new ClrPropertySetterSource());
             fixer.StateChanged(principalEntry, EntityState.Unknown);
 
             Assert.Same(dependent1.Category, principal);
@@ -88,7 +88,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 Enumerable.Empty<IEntityStateListener>(),
                 new EntityKeyFactorySource(),
                 new StateEntryFactory(),
-                new ClrPropertyGetterSource(), 
+                new ClrPropertyGetterSource(),
                 new ClrPropertySetterSource(),
                 new EntityMaterializerSource());
         }
@@ -133,7 +133,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             categoryIdFk.StorageName = "Category_Products";
 
-            categoryType.AddNavigation(new CollectionNavigation(categoryIdFk, "Products"));
+            categoryType.AddNavigation(new Navigation(categoryIdFk, "Products"));
             productType.AddNavigation(new Navigation(categoryIdFk, "Category"));
 
             return model;

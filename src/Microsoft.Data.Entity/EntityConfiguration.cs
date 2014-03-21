@@ -77,6 +77,11 @@ namespace Microsoft.Data.Entity
             get { return GetRequiredService<StateEntryFactory>(); }
         }
 
+        public virtual ClrCollectionAccessorSource ClrCollectionAccessorSource
+        {
+            get { return GetRequiredService<ClrCollectionAccessorSource>(); }
+        }
+
         public virtual ClrPropertyGetterSource ClrPropertyGetterSource
         {
             get { return GetRequiredService<ClrPropertyGetterSource>(); }

@@ -79,7 +79,7 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        IEntityType IProperty.EntityType
+        IEntityType IPropertyBase.EntityType
         {
             get { return EntityType; }
         }
