@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Tests
             var configuration = new EntityConfigurationBuilder().BuildConfiguration();
 
             Assert.IsType<DefaultIdentityGeneratorFactory>(configuration.IdentityGeneratorFactory);
-            Assert.IsType<ConsoleLoggerFactory>(configuration.LoggerFactory);
+            Assert.IsType<NullLoggerFactory>(configuration.LoggerFactory);
             Assert.IsType<ActiveIdentityGenerators>(configuration.ActiveIdentityGenerators);
             Assert.IsType<StateManagerFactory>(configuration.StateManagerFactory);
             Assert.IsType<EntitySetFinder>(configuration.EntitySetFinder);
@@ -41,14 +41,14 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_start_with_custom_services_by_passing_in_service_collection()
         {
-            var model = Mock.Of<IModel>();
+            var identityGeneratorFactory = Mock.Of<IdentityGeneratorFactory>();
 
             var serviceCollection = new ServiceCollection()
-                .AddInstance<IModel>(model);
+                .AddInstance<IdentityGeneratorFactory>(identityGeneratorFactory);
 
             var configuration = new EntityConfigurationBuilder(serviceCollection).BuildConfiguration();
 
-            Assert.Same(model, configuration.Model);
+            Assert.Same(identityGeneratorFactory, configuration.IdentityGeneratorFactory);
             Assert.Null(configuration.LoggerFactory);
         }
 
@@ -74,7 +74,7 @@ namespace Microsoft.Data.Entity.Tests
                 .BuildConfiguration();
 
             Assert.Equal(
-                new[] { myService.GetType(), typeof(NavigationFixer) },
+                new[] { typeof(NavigationFixer), myService.GetType() },
                 configuration.EntityStateListeners.Select(l => l.GetType()).ToArray());
         }
 
@@ -140,7 +140,6 @@ namespace Microsoft.Data.Entity.Tests
             Assert.Same(setSource, configuration.EntitySetSource);
             Assert.Same(generatorFactory, configuration.IdentityGeneratorFactory);
             Assert.Same(loggerFactory, configuration.LoggerFactory);
-            Assert.Same(model, configuration.Model);
             Assert.Same(modelSource, configuration.ModelSource);
             Assert.Same(entryFactory, configuration.StateEntryFactory);
             Assert.Same(managerFactory, configuration.StateManagerFactory);
@@ -181,7 +180,6 @@ namespace Microsoft.Data.Entity.Tests
             Assert.IsType<FakeEntitySetSource>(configuration.EntitySetSource);
             Assert.IsType<FakeIdentityGeneratorFactory>(configuration.IdentityGeneratorFactory);
             Assert.IsType<FakeLoggerFactory>(configuration.LoggerFactory);
-            Assert.IsType<FakeModel>(configuration.Model);
             Assert.IsType<FakeModelSource>(configuration.ModelSource);
             Assert.IsType<FakeStateEntryFactory>(configuration.StateEntryFactory);
             Assert.IsType<FakeStateManagerFactory>(configuration.StateManagerFactory);

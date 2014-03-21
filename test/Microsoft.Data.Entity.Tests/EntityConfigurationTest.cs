@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using Microsoft.AspNet.DependencyInjection;
 using Microsoft.AspNet.DependencyInjection.Fallback;
 using Xunit;
@@ -38,7 +37,6 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Optional_services_return_null_when_not_registered()
         {
-            OptionalServiceTest(c => c.Model);
             OptionalServiceTest(c => c.LoggerFactory);
         }
 
@@ -50,12 +48,9 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Optional_multi_services_return_empty_list_when_not_registered()
         {
-            OptionalMultiServiceTest(c => c.EntityStateListeners);
-        }
+            var entityConfiguration = new EntityConfiguration(new ServiceCollection().BuildServiceProvider());
 
-        private static void OptionalMultiServiceTest<TService>(Func<EntityConfiguration, IEnumerable<TService>> test)
-        {
-            Assert.Empty(test(new EntityConfiguration(new ServiceCollection().BuildServiceProvider())));
+            Assert.Empty(entityConfiguration.EntityStateListeners);
         }
 
         [Fact]

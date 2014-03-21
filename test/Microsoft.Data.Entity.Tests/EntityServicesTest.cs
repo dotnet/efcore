@@ -38,33 +38,26 @@ namespace Microsoft.Data.Entity.Tests
 
             var loggerFactory = serviceProvider.GetService<ILoggerFactory>();
             Assert.NotNull(loggerFactory);
-
-            // TODO: Currently Singleton returns a new instance each time
-            //Assert.Same(loggerFactory, serviceProvider.GetService<ILoggerFactory>());
+            Assert.Same(loggerFactory, serviceProvider.GetService<ILoggerFactory>());
 
             var identityGeneratorFactory = serviceProvider.GetService<IdentityGeneratorFactory>();
             Assert.NotNull(identityGeneratorFactory);
-            // TODO: Currently Singleton returns a new instance each time
-            //Assert.Same(identityGeneratorFactory, serviceProvider.GetService<IdentityGeneratorFactory>());
+            Assert.Same(identityGeneratorFactory, serviceProvider.GetService<IdentityGeneratorFactory>());
 
             var activeIdentityGenerators = serviceProvider.GetService<ActiveIdentityGenerators>();
             Assert.NotNull(activeIdentityGenerators);
-            // TODO: Currently Singleton returns a new instance each time
-            //Assert.Same(activeIdentityGenerators, serviceProvider.GetService<ActiveIdentityGenerators>());
+            Assert.Same(activeIdentityGenerators, serviceProvider.GetService<ActiveIdentityGenerators>());
 
-            var changeTrackerFactory = serviceProvider.GetService<StateManagerFactory>();
-            Assert.NotNull(changeTrackerFactory);
-            // TODO: Currently Scoped returns a new instance each time
-            //Assert.Same(changeTrackerFactory, serviceProvider.GetService<StateManagerFactory>());
+            var stateManagerFactory = serviceProvider.GetService<StateManagerFactory>();
+            Assert.NotNull(stateManagerFactory);
+            Assert.Same(stateManagerFactory, serviceProvider.GetService<StateManagerFactory>());
 
-            var scaoped = serviceProvider.GetService<IServiceProvider>();
-            Assert.NotNull(scaoped);
-
-            // TODO: Currently scoping not working
-            //Assert.Same(loggerFactory, scaoped.GetService<ILoggerFactory>());
-            //Assert.Same(identityGeneratorFactory, scaoped.GetService<IdentityGeneratorFactory>());
-            //Assert.Same(activeIdentityGenerators, scaoped.GetService<ActiveIdentityGenerators>());
-            Assert.NotSame(changeTrackerFactory, scaoped.GetService<StateManagerFactory>());
+            var scoped = serviceProvider.GetService<IServiceProvider>();
+            Assert.NotNull(scoped);
+            Assert.Same(loggerFactory, scoped.GetService<ILoggerFactory>());
+            Assert.Same(identityGeneratorFactory, scoped.GetService<IdentityGeneratorFactory>());
+            Assert.Same(activeIdentityGenerators, scoped.GetService<ActiveIdentityGenerators>());
+            Assert.Same(stateManagerFactory, scoped.GetService<StateManagerFactory>());
         }
 
         [Fact]

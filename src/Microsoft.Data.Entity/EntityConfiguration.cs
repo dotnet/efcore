@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.AspNet.DependencyInjection;
 using Microsoft.AspNet.Logging;
@@ -17,24 +18,6 @@ namespace Microsoft.Data.Entity
     {
         private readonly IServiceProvider _serviceProvider;
 
-        // TODO: Remove these once the service provider correctly returns singleton instances
-        private IModelSource _modelSource;
-        private EntitySetInitializer _entitySetInitializer;
-        private EntitySetSource _entitySetSource;
-        private DataStore _dataStore;
-        private IdentityGeneratorFactory _identityGeneratorFactory;
-        private ActiveIdentityGenerators _activeIdentityGenerators;
-        private StateManagerFactory _stateManagerFactory;
-        private EntitySetFinder _entitySetFinder;
-        private EntityKeyFactorySource _entityKeyFactorySource;
-        private StateEntryFactory _stateEntryFactory;
-        private ClrPropertyGetterSource _clrPropertyGetterSource;
-        private ClrPropertySetterSource _clrPropertySetterSource;
-        private EntityMaterializerSource _entityMaterializerSource;
-        private IModel _model;
-        private ILoggerFactory _loggerFactory;
-        private IEnumerable<IEntityStateListener> _entityStateListeners;
-
         public EntityConfiguration([NotNull] IServiceProvider serviceProvider)
         {
             Check.NotNull(serviceProvider, "serviceProvider");
@@ -42,84 +25,69 @@ namespace Microsoft.Data.Entity
             _serviceProvider = serviceProvider;
         }
 
-        // Required services
-
         public virtual IModelSource ModelSource
         {
-            // TODO: Remove the caching here once the service provider correctly returns singleton instances
-            get { return _modelSource ?? (_modelSource = GetRequiredService<IModelSource>()); }
+            get { return GetRequiredService<IModelSource>(); }
         }
 
         public virtual EntitySetInitializer EntitySetInitializer
         {
-            // TODO: Remove the caching here once the service provider correctly returns singleton instances
-            get { return _entitySetInitializer ?? (_entitySetInitializer = GetRequiredService<EntitySetInitializer>()); }
+            get { return GetRequiredService<EntitySetInitializer>(); }
         }
 
         public virtual EntitySetSource EntitySetSource
         {
-            // TODO: Remove the caching here once the service provider correctly returns singleton instances
-            get { return _entitySetSource ?? (_entitySetSource = GetRequiredService<EntitySetSource>()); }
+            get { return GetRequiredService<EntitySetSource>(); }
         }
 
         public virtual DataStore DataStore
         {
-            // TODO: Remove the caching here once the service provider correctly returns singleton instances
-            get { return _dataStore ?? (_dataStore = GetRequiredService<DataStore>()); }
+            get { return GetRequiredService<DataStore>(); }
         }
 
         public virtual IdentityGeneratorFactory IdentityGeneratorFactory
         {
-            // TODO: Remove the caching here once the service provider correctly returns singleton instances
-            get { return _identityGeneratorFactory ?? (_identityGeneratorFactory = GetRequiredService<IdentityGeneratorFactory>()); }
+            get { return GetRequiredService<IdentityGeneratorFactory>(); }
         }
 
         public virtual ActiveIdentityGenerators ActiveIdentityGenerators
         {
-            // TODO: Remove the caching here once the service provider correctly returns singleton instances
-            get { return _activeIdentityGenerators ?? (_activeIdentityGenerators = GetRequiredService<ActiveIdentityGenerators>()); }
+            get { return GetRequiredService<ActiveIdentityGenerators>(); }
         }
 
         public virtual StateManagerFactory StateManagerFactory
         {
-            // TODO: Remove the caching here once the service provider correctly returns singleton instances
-            get { return _stateManagerFactory ?? (_stateManagerFactory = GetRequiredService<StateManagerFactory>()); }
+            get { return GetRequiredService<StateManagerFactory>(); }
         }
 
         public virtual EntitySetFinder EntitySetFinder
         {
-            // TODO: Remove the caching here once the service provider correctly returns singleton instances
-            get { return _entitySetFinder ?? (_entitySetFinder = GetRequiredService<EntitySetFinder>()); }
+            get { return GetRequiredService<EntitySetFinder>(); }
         }
 
         public virtual EntityKeyFactorySource EntityKeyFactorySource
         {
-            // TODO: Remove the caching here once the service provider correctly returns singleton instances
-            get { return _entityKeyFactorySource ?? (_entityKeyFactorySource = GetRequiredService<EntityKeyFactorySource>()); }
+            get { return GetRequiredService<EntityKeyFactorySource>(); }
         }
 
         public virtual StateEntryFactory StateEntryFactory
         {
-            // TODO: Remove the caching here once the service provider correctly returns singleton instances
-            get { return _stateEntryFactory ?? (_stateEntryFactory = GetRequiredService<StateEntryFactory>()); }
+            get { return GetRequiredService<StateEntryFactory>(); }
         }
 
         public virtual ClrPropertyGetterSource ClrPropertyGetterSource
         {
-            // TODO: Remove the caching here once the service provider correctly returns singleton instances
-            get { return _clrPropertyGetterSource ?? (_clrPropertyGetterSource = GetRequiredService<ClrPropertyGetterSource>()); }
+            get { return GetRequiredService<ClrPropertyGetterSource>(); }
         }
 
         public virtual ClrPropertySetterSource ClrPropertySetterSource
         {
-            // TODO: Remove the caching here once the service provider correctly returns singleton instances
-            get { return _clrPropertySetterSource ?? (_clrPropertySetterSource = GetRequiredService<ClrPropertySetterSource>()); }
+            get { return GetRequiredService<ClrPropertySetterSource>(); }
         }
 
         public virtual EntityMaterializerSource EntityMaterializerSource
         {
-            // TODO: Remove the caching here once the service provider correctly returns singleton instances
-            get { return _entityMaterializerSource ?? (_entityMaterializerSource = GetRequiredService<EntityMaterializerSource>()); }
+            get { return GetRequiredService<EntityMaterializerSource>(); }
         }
 
         private TService GetRequiredService<TService>() where TService : class
@@ -134,24 +102,18 @@ namespace Microsoft.Data.Entity
             throw new InvalidOperationException(Strings.FormatMissingConfigurationItem(typeof(TService)));
         }
 
-        // Optional services
-
-        public virtual IModel Model
-        {
-            // TODO: Remove the caching here once the service provider correctly returns singleton instances
-            get { return _model ?? (_model = _serviceProvider.GetService<IModel>()); }
-        }
-
         public virtual ILoggerFactory LoggerFactory
         {
-            // TODO: Remove the caching here once the service provider correctly returns singleton instances
-            get { return _loggerFactory ?? (_loggerFactory = _serviceProvider.GetService<ILoggerFactory>()); }
+            get { return _serviceProvider.GetService<ILoggerFactory>(); }
         }
 
         public virtual IEnumerable<IEntityStateListener> EntityStateListeners
         {
-            // TODO: Remove the caching here once the service provider correctly returns singleton instances
-            get { return _entityStateListeners ?? (_entityStateListeners = _serviceProvider.GetService<IEnumerable<IEntityStateListener>>()); }
+            get
+            {
+                return _serviceProvider.GetService<IEnumerable<IEntityStateListener>>()
+                       ?? Enumerable.Empty<IEntityStateListener>();
+            }
         }
     }
 }

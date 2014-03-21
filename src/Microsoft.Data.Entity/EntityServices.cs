@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity
         public static ServiceCollection GetDefaultServices()
         {
             return new ServiceCollection()
-                .AddSingleton<ILoggerFactory, ConsoleLoggerFactory>()
+                .AddSingleton<ILoggerFactory, NullLoggerFactory>()
                 .AddSingleton<IModelSource, DefaultModelSource>()
                 .AddSingleton<IdentityGeneratorFactory, DefaultIdentityGeneratorFactory>()
                 .AddSingleton<ActiveIdentityGenerators, ActiveIdentityGenerators>()
