@@ -10,7 +10,7 @@ namespace Microsoft.Data.InMemory
     {
         private static long _current;
 
-        public Task<long> NextAsync(CancellationToken cancellationToken)
+        public Task<long> NextAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             return Task.FromResult(Interlocked.Increment(ref _current));
         }

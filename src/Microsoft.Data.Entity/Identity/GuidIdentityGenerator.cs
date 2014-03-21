@@ -8,7 +8,7 @@ namespace Microsoft.Data.Entity.Identity
 {
     public class GuidIdentityGenerator : IIdentityGenerator<Guid>
     {
-        public virtual Task<Guid> NextAsync(CancellationToken cancellationToken)
+        public virtual Task<Guid> NextAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             return Task.FromResult(Guid.NewGuid());
         }

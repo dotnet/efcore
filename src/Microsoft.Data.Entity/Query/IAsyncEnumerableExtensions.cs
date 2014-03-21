@@ -10,15 +10,8 @@ namespace Microsoft.Data.Entity.Query
 {
     public static class IAsyncEnumerableExtensions
     {
-        public static Task<TSource> SingleAsync<TSource>([NotNull] this IAsyncEnumerable<TSource> source)
-        {
-            Check.NotNull(source, "source");
-
-            return source.SingleAsync(CancellationToken.None);
-        }
-
         public static async Task<TSource> SingleAsync<TSource>(
-            [NotNull] this IAsyncEnumerable<TSource> source, CancellationToken cancellationToken)
+            [NotNull] this IAsyncEnumerable<TSource> source, CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
 
@@ -44,20 +37,10 @@ namespace Microsoft.Data.Entity.Query
             throw new InvalidOperationException(Strings.MoreThanOneElement);
         }
 
-        public static Task<TSource> SingleAsync<TSource>(
-            [NotNull] this IAsyncEnumerable<TSource> source,
-            [NotNull] Func<TSource, bool> predicate)
-        {
-            Check.NotNull(source, "source");
-            Check.NotNull(predicate, "predicate");
-
-            return source.SingleAsync(predicate, CancellationToken.None);
-        }
-
         public static async Task<TSource> SingleAsync<TSource>(
             [NotNull] this IAsyncEnumerable<TSource> source,
             [NotNull] Func<TSource, bool> predicate,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
             Check.NotNull(predicate, "predicate");
@@ -94,15 +77,8 @@ namespace Microsoft.Data.Entity.Query
             throw new InvalidOperationException(Strings.MoreThanOneMatch);
         }
 
-        public static Task<int> CountAsync<TSource>([NotNull] this IAsyncEnumerable<TSource> source)
-        {
-            Check.NotNull(source, "source");
-
-            return source.CountAsync(CancellationToken.None);
-        }
-
         public static async Task<int> CountAsync<TSource>(
-            [NotNull] this IAsyncEnumerable<TSource> source, CancellationToken cancellationToken)
+            [NotNull] this IAsyncEnumerable<TSource> source, CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
 

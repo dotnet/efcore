@@ -39,7 +39,8 @@ namespace Microsoft.Data.Relational
             get { return _connectionString; }
         }
 
-        public override async Task<int> SaveChangesAsync(IEnumerable<Entity.ChangeTracking.StateEntry> stateEntries, IModel model, CancellationToken cancellationToken)
+        public override async Task<int> SaveChangesAsync(
+            IEnumerable<Entity.ChangeTracking.StateEntry> stateEntries, IModel model, CancellationToken cancellationToken = default(CancellationToken))
         {
             var commands = new CommandBatchPreparer().BatchCommands(stateEntries);
 
@@ -111,14 +112,14 @@ namespace Microsoft.Data.Relational
                 _logger = logger;
             }
 
-            public Task<bool> MoveNextAsync(CancellationToken cancellationToken)
+            public Task<bool> MoveNextAsync(CancellationToken cancellationToken = default(CancellationToken))
             {
                 return _reader == null
                     ? InitializeAndReadAsync(cancellationToken)
                     : _reader.ReadAsync(cancellationToken);
             }
 
-            private async Task<bool> InitializeAndReadAsync(CancellationToken cancellationToken)
+            private async Task<bool> InitializeAndReadAsync(CancellationToken cancellationToken = default(CancellationToken))
             {
                 _connection = _connectionFactory();
 

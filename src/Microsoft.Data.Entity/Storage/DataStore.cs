@@ -13,14 +13,9 @@ namespace Microsoft.Data.Entity.Storage
 {
     public abstract class DataStore
     {
-        public Task<int> SaveChangesAsync(
-            [NotNull] IEnumerable<StateEntry> stateEntries, [NotNull] IModel model)
-        {
-            return SaveChangesAsync(stateEntries, model, CancellationToken.None);
-        }
-
         public virtual Task<int> SaveChangesAsync(
-            [NotNull] IEnumerable<StateEntry> stateEntries, [NotNull] IModel model, CancellationToken cancellationToken)
+            [NotNull] IEnumerable<StateEntry> stateEntries, [NotNull] IModel model,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }

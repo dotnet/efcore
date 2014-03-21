@@ -8,7 +8,7 @@ namespace Microsoft.Data.Entity.Query
 {
     public interface IAsyncEnumerator : IDisposable
     {
-        Task<bool> MoveNextAsync(CancellationToken cancellationToken);
+        Task<bool> MoveNextAsync(CancellationToken cancellationToken = default(CancellationToken));
 
         object Current { get; }
     }

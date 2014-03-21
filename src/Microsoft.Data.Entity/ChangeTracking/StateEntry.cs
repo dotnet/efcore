@@ -48,7 +48,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
             get { return _stateManager; }
         }
 
-        public virtual async Task SetEntityStateAsync(EntityState value, CancellationToken cancellationToken)
+        public virtual async Task SetEntityStateAsync(
+            EntityState value, CancellationToken cancellationToken = default(CancellationToken))
         {
             // The entity state can be Modified even if some properties are not modified so always
             // set all properties to modified if the entity state is explicitly set to Modified.

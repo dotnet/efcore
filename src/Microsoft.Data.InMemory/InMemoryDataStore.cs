@@ -44,7 +44,7 @@ namespace Microsoft.Data.InMemory
         }
 
         public override Task<int> SaveChangesAsync(
-            IEnumerable<StateEntry> stateEntries, IModel model, CancellationToken cancellationToken)
+            IEnumerable<StateEntry> stateEntries, IModel model, CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(stateEntries, "stateEntries");
             Check.NotNull(model, "model");
@@ -134,7 +134,7 @@ namespace Microsoft.Data.InMemory
                 _enumerator = enumerator;
             }
 
-            public Task<bool> MoveNextAsync(CancellationToken cancellationToken)
+            public Task<bool> MoveNextAsync(CancellationToken cancellationToken = default(CancellationToken))
             {
                 return Task.FromResult(_enumerator.MoveNext());
             }
