@@ -18,25 +18,13 @@ namespace Microsoft.Data.Entity
             return false;
         }
 
-        public virtual Task CreateAsync()
+        public virtual Task CreateAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             // TODO
             return Task.FromResult(false);
         }
 
-        public virtual Task CreateAsync(CancellationToken cancellationToken)
-        {
-            // TODO
-            return Task.FromResult(false);
-        }
-
-        public virtual Task<bool> DeleteAsync()
-        {
-            // TODO
-            return Task.FromResult(false);
-        }
-
-        public virtual Task<bool> DeleteAsync(CancellationToken cancellationToken)
+        public virtual Task<bool> DeleteAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             // TODO
             return Task.FromResult(false);

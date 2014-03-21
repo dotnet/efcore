@@ -21,7 +21,8 @@ namespace Microsoft.Data.Relational.Update
             _sqlGenerator = sqlGenerator;
         }
 
-        public async Task ExecuteAsync(DbConnection connection, CancellationToken cancellationToken)
+        public async Task ExecuteAsync(
+            DbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
         {
             foreach (var commandbatch in _commandBatches)
             {
@@ -29,7 +30,9 @@ namespace Microsoft.Data.Relational.Update
             }
         }
 
-        private async Task ExecuteBatchAsync([NotNull] DbConnection connection, [NotNull] ModificationCommandBatch commandBatch, CancellationToken cancellationToken)
+        private async Task ExecuteBatchAsync(
+            [NotNull] DbConnection connection, [NotNull] ModificationCommandBatch commandBatch,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             using (var cmd = CreateCommand(connection, commandBatch))
             {

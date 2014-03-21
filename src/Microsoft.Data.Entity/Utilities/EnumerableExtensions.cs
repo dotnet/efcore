@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Microsoft.Data.Entity.Utilities
@@ -51,7 +52,8 @@ namespace Microsoft.Data.Entity.Utilities
         }
 
         public static async Task<IEnumerable<T>> SelectAsync<T>(
-            this IEnumerable<T> source, Func<T, Task<T>> selector)
+            this IEnumerable<T> source, Func<T, Task<T>> selector,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             var results = Enumerable.Empty<T>();
 
@@ -64,7 +66,8 @@ namespace Microsoft.Data.Entity.Utilities
         }
 
         public static async Task<IEnumerable<T>> SelectManyAsync<T>(
-            this IEnumerable<T> source, Func<T, Task<IEnumerable<T>>> selector)
+            this IEnumerable<T> source, Func<T, Task<IEnumerable<T>>> selector,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             var results = Enumerable.Empty<T>();
 
@@ -77,7 +80,8 @@ namespace Microsoft.Data.Entity.Utilities
         }
 
         public static async Task<IEnumerable<T>> WhereAsync<T>(
-            this IEnumerable<T> source, Func<T, Task<bool>> predicate)
+            this IEnumerable<T> source, Func<T, Task<bool>> predicate,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             var results = Enumerable.Empty<T>();
 

@@ -70,14 +70,8 @@ namespace Microsoft.Data.Entity
             return Context.Add(entity);
         }
 
-        public virtual Task<TEntity> AddAsync([NotNull] TEntity entity)
-        {
-            Check.NotNull(entity, "entity");
-
-            return Context.AddAsync(entity, CancellationToken.None);
-        }
-
-        public virtual Task<TEntity> AddAsync([NotNull] TEntity entity, CancellationToken cancellationToken)
+        public virtual Task<TEntity> AddAsync(
+            [NotNull] TEntity entity, CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(entity, "entity");
 
@@ -99,14 +93,8 @@ namespace Microsoft.Data.Entity
             return Context.Update(entity);
         }
 
-        public virtual Task<TEntity> UpdateAsync([NotNull] TEntity entity)
-        {
-            Check.NotNull(entity, "entity");
-
-            return Context.UpdateAsync(entity, CancellationToken.None);
-        }
-
-        public virtual Task<TEntity> UpdateAsync([NotNull] TEntity entity, CancellationToken cancellationToken)
+        public virtual Task<TEntity> UpdateAsync(
+            [NotNull] TEntity entity, CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(entity, "entity");
 

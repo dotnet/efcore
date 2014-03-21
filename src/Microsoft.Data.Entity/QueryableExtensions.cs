@@ -19,125 +19,71 @@ namespace Microsoft.Data.Entity
             return source;
         }
 
-        public static Task<bool> AnyAsync<TSource>([NotNull] this IQueryable<TSource> source)
-        {
-            // TODO
-            return source.AnyAsync(CancellationToken.None);
-        }
-
-        public static Task<bool> AnyAsync<TSource>([NotNull] this IQueryable<TSource> source, CancellationToken cancellationToken)
+        public static Task<bool> AnyAsync<TSource>(
+            [NotNull] this IQueryable<TSource> source, CancellationToken cancellationToken = default(CancellationToken))
         {
             // TODO
             return Task.FromResult(false);
-        }
-
-        public static Task<bool> AnyAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source, [NotNull] Expression<Func<TSource, bool>> predicate)
-        {
-            // TODO
-            return source.AnyAsync(predicate, CancellationToken.None);
         }
 
         public static Task<bool> AnyAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, bool>> predicate,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             // TODO
             return Task.FromResult(false);
         }
 
-        public static Task<List<TSource>> ToListAsync<TSource>([NotNull] this IQueryable<TSource> source)
-        {
-            // TODO
-            return ToListAsync(source, CancellationToken.None);
-        }
-
         public static Task<List<TSource>> ToListAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             // TODO
             return Task.FromResult<List<TSource>>(null);
         }
 
-        public static Task<TSource> SingleAsync<TSource>([NotNull] this IQueryable<TSource> source)
-        {
-            // TODO
-            return source.SingleAsync(CancellationToken.None);
-        }
-
         public static Task<TSource> SingleAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             // TODO
             return Task.FromResult(default(TSource));
-        }
-
-        public static Task<TSource> SingleAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source, [NotNull] Expression<Func<TSource, bool>> predicate)
-        {
-            // TODO
-            return source.SingleAsync(predicate, CancellationToken.None);
         }
 
         public static Task<TSource> SingleAsync<TSource>(
             [NotNull] this IQueryable<TSource> source, [NotNull] Expression<Func<TSource, bool>> predicate,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             // TODO
             return Task.FromResult(default(TSource));
-        }
-
-        public static Task<TSource> SingleOrDefaultAsync<TSource>([NotNull] this IQueryable<TSource> source)
-        {
-            // TODO
-            return source.SingleOrDefaultAsync(CancellationToken.None);
         }
 
         public static Task<TSource> SingleOrDefaultAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             // TODO
             return Task.FromResult(default(TSource));
-        }
-
-        public static Task<TSource> SingleOrDefaultAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source, [NotNull] Expression<Func<TSource, bool>> predicate)
-        {
-            // TODO
-            return source.SingleOrDefaultAsync(predicate, CancellationToken.None);
         }
 
         public static Task<TSource> SingleOrDefaultAsync<TSource>(
             [NotNull] this IQueryable<TSource> source, [NotNull] Expression<Func<TSource, bool>> predicate,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             // TODO
             return Task.FromResult(default(TSource));
         }
 
-        public static Task<decimal> SumAsync([NotNull] this IQueryable<decimal> source)
-        {
-            // TODO
-            return source.SumAsync(CancellationToken.None);
-        }
-
-        public static Task<decimal> SumAsync([NotNull] this IQueryable<decimal> source, CancellationToken cancellationToken)
+        public static Task<decimal> SumAsync(
+            [NotNull] this IQueryable<decimal> source, CancellationToken cancellationToken = default(CancellationToken))
         {
             // TODO
             return Task.FromResult(default(decimal));
         }
 
-        public static Task<int> SumAsync([NotNull] this IQueryable<int> source)
-        {
-            // TODO
-            return source.SumAsync(CancellationToken.None);
-        }
-
-        public static Task<int> SumAsync([NotNull] this IQueryable<int> source, CancellationToken cancellationToken)
+        public static Task<int> SumAsync(
+            [NotNull] this IQueryable<int> source, CancellationToken cancellationToken = default(CancellationToken))
         {
             // TODO
             return Task.FromResult(0);

@@ -54,7 +54,7 @@ namespace Microsoft.Data.SqlServer
                     new SqlServerMigrationOperationSqlGenerator().DelimitIdentifier(_sequenceName));
         }
 
-        public virtual async Task<long> NextAsync(CancellationToken cancellationToken)
+        public virtual async Task<long> NextAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             if (_current == _max)
             {

@@ -7,6 +7,6 @@ namespace Microsoft.Data.Entity.Identity
 {
     public interface IIdentityGenerator
     {
-        Task<object> NextAsync(CancellationToken cancellationToken);
+        Task<object> NextAsync(CancellationToken cancellationToken = default(CancellationToken));
     }
 }

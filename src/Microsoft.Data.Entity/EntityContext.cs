@@ -67,12 +67,7 @@ namespace Microsoft.Data.Entity
             return SaveChangesAsync().Result;
         }
 
-        public virtual Task<int> SaveChangesAsync()
-        {
-            return SaveChangesAsync(CancellationToken.None);
-        }
-
-        public virtual Task<int> SaveChangesAsync(CancellationToken cancellationToken)
+        public virtual Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             return _configuration.DataStore.SaveChangesAsync(_stateManager.Value.StateEntries, Model, cancellationToken);
         }
@@ -89,14 +84,8 @@ namespace Microsoft.Data.Entity
             return AddAsync(entity, CancellationToken.None).Result;
         }
 
-        public virtual Task<TEntity> AddAsync<TEntity>([NotNull] TEntity entity)
-        {
-            Check.NotNull(entity, "entity");
-
-            return AddAsync(entity, CancellationToken.None);
-        }
-
-        public virtual async Task<TEntity> AddAsync<TEntity>([NotNull] TEntity entity, CancellationToken cancellationToken)
+        public virtual async Task<TEntity> AddAsync<TEntity>(
+            [NotNull] TEntity entity, CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(entity, "entity");
 
@@ -114,14 +103,7 @@ namespace Microsoft.Data.Entity
             return entity;
         }
 
-        public virtual Task<TEntity> UpdateAsync<TEntity>([NotNull] TEntity entity)
-        {
-            Check.NotNull(entity, "entity");
-
-            return UpdateAsync(entity, CancellationToken.None);
-        }
-
-        public virtual Task<TEntity> UpdateAsync<TEntity>([NotNull] TEntity entity, CancellationToken cancellationToken)
+        public virtual Task<TEntity> UpdateAsync<TEntity>([NotNull] TEntity entity, CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(entity, "entity");
 
