@@ -42,9 +42,24 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(model, "model");
 
-            _serviceCollection.AddInstance<IModel>(model);
+            UseModelSource(new InstanceModelSource(model));
 
             return this;
+        }
+
+        private class InstanceModelSource : IModelSource
+        {
+            private readonly IModel _model;
+
+            public InstanceModelSource(IModel model)
+            {
+                _model = model;
+            }
+
+            public IModel GetModel(EntityContext _)
+            {
+                return _model;
+            }
         }
 
         public virtual EntityConfigurationBuilder UseModelSource([NotNull] IModelSource modelSource)

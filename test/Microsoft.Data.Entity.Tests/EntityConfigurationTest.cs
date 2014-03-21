@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using Microsoft.AspNet.DependencyInjection;
 using Microsoft.AspNet.DependencyInjection.Fallback;
 using Xunit;
@@ -25,6 +24,7 @@ namespace Microsoft.Data.Entity.Tests
             RequiredServiceTest(c => c.ClrPropertyGetterSource);
             RequiredServiceTest(c => c.ClrPropertySetterSource);
             RequiredServiceTest(c => c.EntityMaterializerSource);
+            RequiredServiceTest(c => c.LoggerFactory);
         }
 
         private static void RequiredServiceTest<TService>(Func<EntityConfiguration, TService> test)
@@ -36,26 +36,11 @@ namespace Microsoft.Data.Entity.Tests
         }
 
         [Fact]
-        public void Optional_services_return_null_when_not_registered()
-        {
-            OptionalServiceTest(c => c.Model);
-            OptionalServiceTest(c => c.LoggerFactory);
-        }
-
-        private static void OptionalServiceTest<TService>(Func<EntityConfiguration, TService> test)
-        {
-            Assert.Null(test(new EntityConfiguration(new ServiceCollection().BuildServiceProvider())));
-        }
-
-        [Fact]
         public void Optional_multi_services_return_empty_list_when_not_registered()
         {
-            OptionalMultiServiceTest(c => c.EntityStateListeners);
-        }
+            var entityConfiguration = new EntityConfiguration(new ServiceCollection().BuildServiceProvider());
 
-        private static void OptionalMultiServiceTest<TService>(Func<EntityConfiguration, IEnumerable<TService>> test)
-        {
-            Assert.Empty(test(new EntityConfiguration(new ServiceCollection().BuildServiceProvider())));
+            Assert.Empty(entityConfiguration.EntityStateListeners);
         }
 
         [Fact]

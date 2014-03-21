@@ -5,6 +5,14 @@ using Microsoft.AspNet.Logging;
 
 namespace Microsoft.Data.Entity.Services
 {
+    public sealed class NullLoggerFactory : ILoggerFactory
+    {
+        public ILogger Create(string _)
+        {
+            return NullLogger.Instance;
+        }
+    }
+
     public sealed class NullLogger : ILogger
     {
         public static readonly ILogger Instance = new NullLogger();
