@@ -161,6 +161,15 @@ namespace Microsoft.Data.Entity
             return this;
         }
 
+        public virtual EntityConfigurationBuilder UseClrCollectionAccessorSource([NotNull] ClrCollectionAccessorSource source)
+        {
+            Check.NotNull(source, "source");
+
+            _serviceCollection.AddInstance<ClrCollectionAccessorSource>(source);
+
+            return this;
+        }
+
         public virtual EntityConfigurationBuilder UseClrPropertyGetterSource([NotNull] ClrPropertyGetterSource source)
         {
             Check.NotNull(source, "source");
@@ -289,6 +298,14 @@ namespace Microsoft.Data.Entity
             where TService : StateEntryFactory
         {
             _serviceCollection.AddSingleton<StateEntryFactory, TService>();
+
+            return this;
+        }
+
+        public virtual EntityConfigurationBuilder UseClrCollectionAccessorSource<TService>()
+            where TService : ClrCollectionAccessorSource
+        {
+            _serviceCollection.AddSingleton<ClrCollectionAccessorSource, TService>();
 
             return this;
         }

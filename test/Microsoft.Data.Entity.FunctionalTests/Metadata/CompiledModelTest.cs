@@ -131,7 +131,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         private static void FixupTest(IModel model)
         {
             var configuration = new EntityConfigurationBuilder()
-                .UseModel(new _OneTwoThreeContextModel())
+                .UseModel(model)
                 .BuildConfiguration();
 
             using (var context = new EntityContext(configuration))
@@ -175,6 +175,37 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
                     Assert.Equal(entity.KoolEntity1Id1, entity.NavTo1.Id1);
                     Assert.Equal(entity.KoolEntity1Id2, entity.NavTo1.Id2);
                     Assert.Contains(entity, entity.NavTo1.NavTo2s);
+                }
+            }
+        }
+
+        [Fact]
+        public void Navigation_fixup_happens_with_compiled_metadata_using_non_standard_collection_access()
+        {
+            var configuration = new EntityConfigurationBuilder()
+                .UseModel(new _OneTwoThreeContextModel())
+                .BuildConfiguration();
+
+            using (var context = new EntityContext(configuration))
+            {
+                context.Add(new KoolEntity6 { Id = 11, Kool5Id = 24 });
+                context.Add(new KoolEntity5 { Id = 21 });
+                context.Add(new KoolEntity6 { Id = 12, Kool5Id = 24 });
+                context.Add(new KoolEntity5 { Id = 22 });
+                context.Add(new KoolEntity5 { Id = 23 });
+                context.Add(new KoolEntity6 { Id = 13, Kool5Id = 25 });
+                context.Add(new KoolEntity5 { Id = 24 });
+                context.Add(new KoolEntity5 { Id = 25 });
+
+                Assert.Equal(3, context.ChangeTracker.Entries<KoolEntity6>().Count());
+                Assert.Equal(5, context.ChangeTracker.Entries<KoolEntity5>().Count());
+
+                foreach (var entry in context.ChangeTracker.Entries<KoolEntity6>())
+                {
+                    var entity = entry.Entity;
+
+                    Assert.Equal(entity.Kool5Id, entity.Kool5.Id);
+                    Assert.Contains(entity, entity.Kool5.Kool6s);
                 }
             }
         }
@@ -340,7 +371,14 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             var entityType4 = new EntityType(typeof(KoolEntity4));
             model.AddEntityType(entityType4);
 
-            for (var i = 5; i <= 20; i++)
+            var entityType5 = new EntityType(typeof(KoolEntity5));
+            model.AddEntityType(entityType5);
+            
+            var entityType6 = new EntityType(typeof(KoolEntity6));
+            entityType6.AddProperty("Kool5Id", typeof(int), shadowProperty: false);
+            model.AddEntityType(entityType6);
+
+            for (var i = 7; i <= 20; i++)
             {
                 var type = Type.GetType("Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity" + i);
 
@@ -381,15 +419,18 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             var fk21 = entityType2.AddForeignKey(entityType1.GetKey(), new[] { entityType2.GetProperty("KoolEntity1Id1") });
             var fk22 = entityType2.AddForeignKey(entityType3.GetKey(), new[] { entityType2.GetProperty("KoolEntity3Id") });
             var fk31 = entityType3.AddForeignKey(entityType4.GetKey(), new[] { entityType3.GetProperty("KoolEntity4Id") });
+            var fk61 = entityType6.AddForeignKey(entityType5.GetKey(), new[] { entityType6.GetProperty("Kool5Id") });
 
             entityType1.AddNavigation(new Navigation(fk11, "NavTo2"));
-            entityType1.AddNavigation(new CollectionNavigation(fk21, "NavTo2s"));
+            entityType1.AddNavigation(new Navigation(fk21, "NavTo2s"));
             entityType2.AddNavigation(new Navigation(fk21, "NavTo1"));
-            entityType2.AddNavigation(new CollectionNavigation(fk11, "NavTo1s"));
+            entityType2.AddNavigation(new Navigation(fk11, "NavTo1s"));
             entityType2.AddNavigation(new Navigation(fk22, "NavTo3"));
-            entityType3.AddNavigation(new CollectionNavigation(fk22, "NavTo2s"));
+            entityType3.AddNavigation(new Navigation(fk22, "NavTo2s"));
             entityType3.AddNavigation(new Navigation(fk31, "NavTo4"));
-            entityType4.AddNavigation(new CollectionNavigation(fk31, "NavTo3s"));
+            entityType4.AddNavigation(new Navigation(fk31, "NavTo3s"));
+            entityType5.AddNavigation(new Navigation(fk61, "Kool6s"));
+            entityType6.AddNavigation(new Navigation(fk61, "Kool5"));
 
             return model;
         }

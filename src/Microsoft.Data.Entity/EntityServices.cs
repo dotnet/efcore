@@ -27,6 +27,7 @@ namespace Microsoft.Data.Entity
                 .AddSingleton<ClrPropertyGetterSource, ClrPropertyGetterSource>()
                 .AddSingleton<ClrPropertySetterSource, ClrPropertySetterSource>()
                 .AddSingleton<EntitySetSource, EntitySetSource>()
+                .AddSingleton<ClrCollectionAccessorSource, ClrCollectionAccessorSource>()
                 .AddSingleton<EntityMaterializerSource, EntityMaterializerSource>();
         }
     }

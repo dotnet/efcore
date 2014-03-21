@@ -79,18 +79,38 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         public ICollection<KoolEntity3> NavTo3s { get; set; } // 0 **** Nav1 E:14 F:13.0
     }
 
-    public class KoolEntity5
+    public class KoolEntity5 // 15
     {
-        public int Id { get; set; }
-        public string Foo5 { get; set; }
-        public Guid Goo5 { get; set; }
+        private readonly ISet<KoolEntity6> _kool6s = new HashSet<KoolEntity6>();
+
+        public int Id { get; set; } // 2 ****
+        public string Foo5 { get; set; } // 0 ****
+        public Guid Goo5 { get; set; } // 1 ****
+
+        public void AddKool6(KoolEntity6 kool6)
+        {
+            _kool6s.Add(kool6);
+        }
+
+        public void RemoveKool6(KoolEntity6 kool6)
+        {
+            _kool6s.Remove(kool6);
+        }
+
+        public IEnumerable<KoolEntity6> Kool6s // 0 **** Nav1 E:15 F16.0
+        {
+            get { return _kool6s; }
+        }
     }
 
-    public class KoolEntity6
+    public class KoolEntity6 // 16
     {
-        public int Id { get; set; }
-        public string Foo6 { get; set; }
-        public Guid Goo6 { get; set; }
+        public int Id { get; set; } // 2 ****
+        public string Foo6 { get; set; } // 0 ****
+        public Guid Goo6 { get; set; } // 1 ****
+
+        public int Kool5Id { get; set; } // 3 **** FK1 D:16.3 P15.2
+        public KoolEntity5 Kool5 { get; set; } // 0 **** Nav1 E:16 F16.0
     }
 
     public class KoolEntity7
@@ -535,6 +555,11 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             return new IProperty[] { new _KoolEntity5Foo5Property(this), new _KoolEntity5Goo5Property(this), new _KoolEntity5IdProperty(this) };
         }
 
+        protected override INavigation[] LoadNavigations()
+        {
+            return new INavigation[] { new _KoolEntity5NavTo6s(Model) };
+        }
+
         protected override IAnnotation[] LoadAnnotations()
         {
             return ZipAnnotations(
@@ -580,7 +605,23 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         protected override IProperty[] LoadProperties()
         {
-            return new IProperty[] { new _KoolEntity6Foo6Property(this), new _KoolEntity6Goo6Property(this), new _KoolEntity6IdProperty(this) };
+            return new IProperty[]
+                {
+                    new _KoolEntity6Foo6Property(this), 
+                    new _KoolEntity6Goo6Property(this), 
+                    new _KoolEntity6IdProperty(this), 
+                    new _KoolEntity6Kool5IdProperty(this)
+                };
+        }
+
+        protected override IForeignKey[] LoadForeignKeys()
+        {
+            return new IForeignKey[] { new _KoolEntity6Fk1(Model) };
+        }
+
+        protected override INavigation[] LoadNavigations()
+        {
+            return new INavigation[] { new _KoolEntity6NavTo5(Model) };
         }
 
         protected override IAnnotation[] LoadAnnotations()
@@ -1301,16 +1342,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "MyKey1"; }
         }
 
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity1)instance).Id1 = (int)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity1)instance).Id1;
-        }
-
         public int Index
         {
             get { return 2; }
@@ -1339,16 +1370,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "MyKey2"; }
         }
 
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity1)instance).Id2 = (Guid)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity1)instance).Id2;
-        }
-
         public int Index
         {
             get { return 3; }
@@ -1375,16 +1396,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         public override string StorageName
         {
             get { return "Foo1"; }
-        }
-
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity1)instance).Foo1 = (string)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity1)instance).Foo1;
         }
 
         protected override IAnnotation[] LoadAnnotations()
@@ -1422,16 +1433,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Goo1"; }
         }
 
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity1)instance).Goo1 = (Guid)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity1)instance).Goo1;
-        }
-
         public int Index
         {
             get { return 1; }
@@ -1458,16 +1459,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         public override string StorageName
         {
             get { return "KoolEntity2Id"; }
-        }
-
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity1)instance).KoolEntity2Id = (int)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity1)instance).KoolEntity2Id;
         }
 
         public int Index
@@ -1498,16 +1489,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "MyKey"; }
         }
 
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity2)instance).Id = (int)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity2)instance).Id;
-        }
-
         public int Index
         {
             get { return 2; }
@@ -1534,16 +1515,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         public override string StorageName
         {
             get { return "Foo2"; }
-        }
-
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity2)instance).Foo2 = (string)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity2)instance).Foo2;
         }
 
         protected override IAnnotation[] LoadAnnotations()
@@ -1581,16 +1552,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Goo2"; }
         }
 
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity2)instance).Goo2 = (Guid)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity2)instance).Goo2;
-        }
-
         public int Index
         {
             get { return 1; }
@@ -1617,16 +1578,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         public override string StorageName
         {
             get { return "KoolEntity1Id1"; }
-        }
-
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity2)instance).KoolEntity1Id1 = (int)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity2)instance).KoolEntity1Id1;
         }
 
         public int Index
@@ -1657,16 +1608,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "KoolEntity1Id2"; }
         }
 
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity2)instance).KoolEntity1Id2 = (Guid)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity2)instance).KoolEntity1Id2;
-        }
-
         public int Index
         {
             get { return 4; }
@@ -1693,16 +1634,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         public override string StorageName
         {
             get { return "KoolEntity3Id"; }
-        }
-
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity2)instance).KoolEntity3Id = (int)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity2)instance).KoolEntity3Id;
         }
 
         public int Index
@@ -1733,16 +1664,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "MyKey"; }
         }
 
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity3)instance).Id = (int)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity3)instance).Id;
-        }
-
         public int Index
         {
             get { return 2; }
@@ -1769,16 +1690,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         public override string StorageName
         {
             get { return "Foo3"; }
-        }
-
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity3)instance).Foo3 = (string)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity3)instance).Foo3;
         }
 
         protected override IAnnotation[] LoadAnnotations()
@@ -1816,16 +1727,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Goo3"; }
         }
 
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity3)instance).Goo3 = (Guid)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity3)instance).Goo3;
-        }
-
         public int Index
         {
             get { return 1; }
@@ -1852,16 +1753,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         public override string StorageName
         {
             get { return "KoolEntity4Id"; }
-        }
-
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity3)instance).KoolEntity4Id = (int)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity3)instance).KoolEntity4Id;
         }
 
         public int Index
@@ -1892,16 +1783,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "MyKey"; }
         }
 
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity4)instance).Id = (int)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity4)instance).Id;
-        }
-
         public int Index
         {
             get { return 2; }
@@ -1928,16 +1809,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         public override string StorageName
         {
             get { return "Foo4"; }
-        }
-
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity4)instance).Foo4 = (string)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity4)instance).Foo4;
         }
 
         protected override IAnnotation[] LoadAnnotations()
@@ -1975,16 +1846,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Goo4"; }
         }
 
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity4)instance).Goo4 = (Guid)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity4)instance).Goo4;
-        }
-
         public int Index
         {
             get { return 1; }
@@ -2013,16 +1874,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "MyKey"; }
         }
 
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity5)instance).Id = (int)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity5)instance).Id;
-        }
-
         public int Index
         {
             get { return 2; }
@@ -2049,16 +1900,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         public override string StorageName
         {
             get { return "Foo5"; }
-        }
-
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity5)instance).Foo5 = (string)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity5)instance).Foo5;
         }
 
         protected override IAnnotation[] LoadAnnotations()
@@ -2096,16 +1937,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Goo5"; }
         }
 
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity5)instance).Goo5 = (Guid)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity5)instance).Goo5;
-        }
-
         public int Index
         {
             get { return 1; }
@@ -2134,16 +1965,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "MyKey"; }
         }
 
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity6)instance).Id = (int)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity6)instance).Id;
-        }
-
         public int Index
         {
             get { return 2; }
@@ -2170,16 +1991,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         public override string StorageName
         {
             get { return "Foo6"; }
-        }
-
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity6)instance).Foo6 = (string)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity6)instance).Foo6;
         }
 
         protected override IAnnotation[] LoadAnnotations()
@@ -2217,19 +2028,37 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Goo6"; }
         }
 
-        public void SetValue(object instance, object value)
+        public int Index
         {
-            ((KoolEntity6)instance).Goo6 = (Guid)value;
+            get { return 1; }
         }
 
-        public object GetValue(object instance)
+        public int ShadowIndex
         {
-            return ((KoolEntity6)instance).Goo6;
+            get { return -1; }
+        }
+    }
+
+    public class _KoolEntity6Kool5IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
+    {
+        public _KoolEntity6Kool5IdProperty(IEntityType entityType)
+            : base(entityType)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Kool5Id"; }
+        }
+
+        public override string StorageName
+        {
+            get { return "Kool5Id"; }
         }
 
         public int Index
         {
-            get { return 1; }
+            get { return 3; }
         }
 
         public int ShadowIndex
@@ -2253,16 +2082,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         public override string StorageName
         {
             get { return "MyKey"; }
-        }
-
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity7)instance).Id = (int)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity7)instance).Id;
         }
 
         public int Index
@@ -2291,16 +2110,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         public override string StorageName
         {
             get { return "Foo7"; }
-        }
-
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity7)instance).Foo7 = (string)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity7)instance).Foo7;
         }
 
         protected override IAnnotation[] LoadAnnotations()
@@ -2338,16 +2147,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Goo7"; }
         }
 
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity7)instance).Goo7 = (Guid)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity7)instance).Goo7;
-        }
-
         public int Index
         {
             get { return 1; }
@@ -2376,16 +2175,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "MyKey"; }
         }
 
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity8)instance).Id = (int)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity8)instance).Id;
-        }
-
         public int Index
         {
             get { return 2; }
@@ -2412,16 +2201,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         public override string StorageName
         {
             get { return "Foo8"; }
-        }
-
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity8)instance).Foo8 = (string)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity8)instance).Foo8;
         }
 
         protected override IAnnotation[] LoadAnnotations()
@@ -2459,16 +2238,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Goo8"; }
         }
 
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity8)instance).Goo8 = (Guid)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity8)instance).Goo8;
-        }
-
         public int Index
         {
             get { return 1; }
@@ -2497,16 +2266,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "MyKey"; }
         }
 
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity9)instance).Id = (int)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity9)instance).Id;
-        }
-
         public int Index
         {
             get { return 2; }
@@ -2533,16 +2292,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         public override string StorageName
         {
             get { return "Foo9"; }
-        }
-
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity9)instance).Foo9 = (string)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity9)instance).Foo9;
         }
 
         protected override IAnnotation[] LoadAnnotations()
@@ -2580,16 +2329,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Goo9"; }
         }
 
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity9)instance).Goo9 = (Guid)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity9)instance).Goo9;
-        }
-
         public int Index
         {
             get { return 1; }
@@ -2618,16 +2357,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "MyKey"; }
         }
 
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity10)instance).Id = (int)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity10)instance).Id;
-        }
-
         public int Index
         {
             get { return 2; }
@@ -2654,16 +2383,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         public override string StorageName
         {
             get { return "Foo10"; }
-        }
-
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity10)instance).Foo10 = (string)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity10)instance).Foo10;
         }
 
         protected override IAnnotation[] LoadAnnotations()
@@ -2701,16 +2420,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Goo10"; }
         }
 
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity10)instance).Goo10 = (Guid)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity10)instance).Goo10;
-        }
-
         public int Index
         {
             get { return 1; }
@@ -2739,16 +2448,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "MyKey"; }
         }
 
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity11)instance).Id = (int)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity11)instance).Id;
-        }
-
         public int Index
         {
             get { return 2; }
@@ -2775,16 +2474,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         public override string StorageName
         {
             get { return "Foo11"; }
-        }
-
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity11)instance).Foo11 = (string)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity11)instance).Foo11;
         }
 
         protected override IAnnotation[] LoadAnnotations()
@@ -2822,16 +2511,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Goo11"; }
         }
 
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity11)instance).Goo11 = (Guid)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity11)instance).Goo11;
-        }
-
         public int Index
         {
             get { return 1; }
@@ -2860,16 +2539,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "MyKey"; }
         }
 
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity12)instance).Id = (int)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity12)instance).Id;
-        }
-
         public int Index
         {
             get { return 2; }
@@ -2896,16 +2565,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         public override string StorageName
         {
             get { return "Foo12"; }
-        }
-
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity12)instance).Foo12 = (string)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity12)instance).Foo12;
         }
 
         protected override IAnnotation[] LoadAnnotations()
@@ -2943,16 +2602,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Goo12"; }
         }
 
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity12)instance).Goo12 = (Guid)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity12)instance).Goo12;
-        }
-
         public int Index
         {
             get { return 1; }
@@ -2981,16 +2630,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "MyKey"; }
         }
 
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity13)instance).Id = (int)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity13)instance).Id;
-        }
-
         public int Index
         {
             get { return 2; }
@@ -3017,16 +2656,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         public override string StorageName
         {
             get { return "Foo13"; }
-        }
-
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity13)instance).Foo13 = (string)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity13)instance).Foo13;
         }
 
         protected override IAnnotation[] LoadAnnotations()
@@ -3064,16 +2693,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Goo13"; }
         }
 
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity13)instance).Goo13 = (Guid)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity13)instance).Goo13;
-        }
-
         public int Index
         {
             get { return 1; }
@@ -3102,16 +2721,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "MyKey"; }
         }
 
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity14)instance).Id = (int)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity14)instance).Id;
-        }
-
         public int Index
         {
             get { return 2; }
@@ -3138,16 +2747,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         public override string StorageName
         {
             get { return "Foo14"; }
-        }
-
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity14)instance).Foo14 = (string)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity14)instance).Foo14;
         }
 
         protected override IAnnotation[] LoadAnnotations()
@@ -3185,16 +2784,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Goo14"; }
         }
 
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity14)instance).Goo14 = (Guid)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity14)instance).Goo14;
-        }
-
         public int Index
         {
             get { return 1; }
@@ -3221,16 +2810,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         public override string StorageName
         {
             get { return "MyKey"; }
-        }
-
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity15)instance).Id = (int)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity15)instance).Id;
         }
 
         public int Index
@@ -3276,16 +2855,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Foo15"; }
         }
 
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity15)instance).Foo15 = (string)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity15)instance).Foo15;
-        }
-
         protected override IAnnotation[] LoadAnnotations()
         {
             return ZipAnnotations(
@@ -3321,16 +2890,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Goo15"; }
         }
 
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity15)instance).Goo15 = (Guid)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity15)instance).Goo15;
-        }
-
         public int Index
         {
             get { return 1; }
@@ -3359,16 +2918,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "MyKey"; }
         }
 
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity16)instance).Id = (int)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity16)instance).Id;
-        }
-
         public int Index
         {
             get { return 2; }
@@ -3395,16 +2944,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         public override string StorageName
         {
             get { return "Foo16"; }
-        }
-
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity16)instance).Foo16 = (string)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity16)instance).Foo16;
         }
 
         protected override IAnnotation[] LoadAnnotations()
@@ -3442,16 +2981,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Goo16"; }
         }
 
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity16)instance).Goo16 = (Guid)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity16)instance).Goo16;
-        }
-
         public int Index
         {
             get { return 1; }
@@ -3480,16 +3009,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "MyKey"; }
         }
 
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity17)instance).Id = (int)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity17)instance).Id;
-        }
-
         public int Index
         {
             get { return 2; }
@@ -3516,16 +3035,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         public override string StorageName
         {
             get { return "Foo17"; }
-        }
-
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity17)instance).Foo17 = (string)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity17)instance).Foo17;
         }
 
         protected override IAnnotation[] LoadAnnotations()
@@ -3563,16 +3072,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Goo17"; }
         }
 
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity17)instance).Goo17 = (Guid)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity17)instance).Goo17;
-        }
-
         public int Index
         {
             get { return 1; }
@@ -3601,16 +3100,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "MyKey"; }
         }
 
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity18)instance).Id = (int)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity18)instance).Id;
-        }
-
         public int Index
         {
             get { return 2; }
@@ -3637,16 +3126,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         public override string StorageName
         {
             get { return "Foo18"; }
-        }
-
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity18)instance).Foo18 = (string)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity18)instance).Foo18;
         }
 
         protected override IAnnotation[] LoadAnnotations()
@@ -3684,16 +3163,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Goo18"; }
         }
 
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity18)instance).Goo18 = (Guid)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity18)instance).Goo18;
-        }
-
         public int Index
         {
             get { return 1; }
@@ -3722,16 +3191,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "MyKey"; }
         }
 
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity19)instance).Id = (int)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity19)instance).Id;
-        }
-
         public int Index
         {
             get { return 2; }
@@ -3758,16 +3217,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         public override string StorageName
         {
             get { return "Foo19"; }
-        }
-
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity19)instance).Foo19 = (string)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity19)instance).Foo19;
         }
 
         protected override IAnnotation[] LoadAnnotations()
@@ -3805,16 +3254,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "Goo19"; }
         }
 
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity19)instance).Goo19 = (Guid)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity19)instance).Goo19;
-        }
-
         public int Index
         {
             get { return 1; }
@@ -3843,16 +3282,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return "MyKey"; }
         }
 
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity20)instance).Id = (int)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity20)instance).Id;
-        }
-
         public int Index
         {
             get { return 2; }
@@ -3879,16 +3308,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         public override string StorageName
         {
             get { return "Foo20"; }
-        }
-
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity20)instance).Foo20 = (string)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity20)instance).Foo20;
         }
 
         protected override IAnnotation[] LoadAnnotations()
@@ -3924,16 +3343,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         public override string StorageName
         {
             get { return "Goo20"; }
-        }
-
-        public void SetValue(object instance, object value)
-        {
-            ((KoolEntity20)instance).Goo20 = (Guid)value;
-        }
-
-        public object GetValue(object instance)
-        {
-            return ((KoolEntity20)instance).Goo20;
         }
 
         public int Index
@@ -3999,7 +3408,20 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         }
     }
 
-    public class _KoolEntity1NavTo2 : CompiledNavigation, INavigation
+    public class _KoolEntity6Fk1 : CompiledSimpleForeignKey, IForeignKey
+    {
+        public _KoolEntity6Fk1(IModel model)
+            : base(model)
+        {
+        }
+
+        protected override ForeignKeyDefinition Definition
+        {
+            get { return new ForeignKeyDefinition(16, 3, 15); }
+        }
+    }
+
+    public class _KoolEntity1NavTo2 : CompiledNavigation, INavigation, IClrPropertyGetter, IClrPropertySetter
     {
         public _KoolEntity1NavTo2(IModel model)
             : base(model)
@@ -4016,14 +3438,18 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return new NavigationDefinition(0, 0, 0); }
         }
 
-        public void SetOrAddEntity(object ownerEntity, object relatedEntity)
+        public object GetClrValue(object instance)
         {
-            // TODO: This is currently just the same implementation as is in the built model
-            EntityType.Type.GetProperty(Name).SetValue(ownerEntity, relatedEntity);
+            return ((KoolEntity1)instance).NavTo2;
+        }
+
+        public void SetClrValue(object instance, object value)
+        {
+            ((KoolEntity1)instance).NavTo2 = (KoolEntity2)value;
         }
     }
 
-    public class _KoolEntity1NavTo2s : CompiledNavigation, INavigation
+    public class _KoolEntity1NavTo2s : CompiledNavigation, INavigation, IClrCollectionAccessor
     {
         public _KoolEntity1NavTo2s(IModel model)
             : base(model)
@@ -4040,11 +3466,19 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             get { return new NavigationDefinition(0, 11, 0); }
         }
 
-        public void SetOrAddEntity(object ownerEntity, object relatedEntity)
+        public void Add(object instance, object value)
         {
-            // TODO: This is currently just the same implementation as is in the built model
-            var collection = EntityType.Type.GetProperty(Name).GetValue(ownerEntity);
-            collection.GetType().GetMethod("Add").Invoke(collection, new[] { relatedEntity });
+            ((KoolEntity1)instance).NavTo2s.Add((KoolEntity2)value);
+        }
+
+        public bool Contains(object instance, object value)
+        {
+            return ((KoolEntity1)instance).NavTo2s.Contains((KoolEntity2)value);
+        }
+
+        public void Remove(object instance, object value)
+        {
+            ((KoolEntity1)instance).NavTo2s.Remove((KoolEntity2)value);
         }
     }
 
@@ -4064,12 +3498,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         {
             get { return new NavigationDefinition(11, 11, 0); }
         }
-
-        public void SetOrAddEntity(object ownerEntity, object relatedEntity)
-        {
-            // TODO: This is currently just the same implementation as is in the built model
-            EntityType.Type.GetProperty(Name).SetValue(ownerEntity, relatedEntity);
-        }
     }
 
     public class _KoolEntity2NavTo1s : CompiledNavigation, INavigation
@@ -4087,13 +3515,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         protected override NavigationDefinition Definition
         {
             get { return new NavigationDefinition(11, 0, 0); }
-        }
-
-        public void SetOrAddEntity(object ownerEntity, object relatedEntity)
-        {
-            // TODO: This is currently just the same implementation as is in the built model
-            var collection = EntityType.Type.GetProperty(Name).GetValue(ownerEntity);
-            collection.GetType().GetMethod("Add").Invoke(collection, new[] { relatedEntity });
         }
     }
 
@@ -4113,12 +3534,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         {
             get { return new NavigationDefinition(11, 11, 1); }
         }
-
-        public void SetOrAddEntity(object ownerEntity, object relatedEntity)
-        {
-            // TODO: This is currently just the same implementation as is in the built model
-            EntityType.Type.GetProperty(Name).SetValue(ownerEntity, relatedEntity);
-        }
     }
 
     public class _KoolEntity3NavTo2s : CompiledNavigation, INavigation
@@ -4136,13 +3551,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         protected override NavigationDefinition Definition
         {
             get { return new NavigationDefinition(13, 11, 1); }
-        }
-
-        public void SetOrAddEntity(object ownerEntity, object relatedEntity)
-        {
-            // TODO: This is currently just the same implementation as is in the built model
-            var collection = EntityType.Type.GetProperty(Name).GetValue(ownerEntity);
-            collection.GetType().GetMethod("Add").Invoke(collection, new[] { relatedEntity });
         }
     }
 
@@ -4162,12 +3570,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         {
             get { return new NavigationDefinition(13, 13, 0); }
         }
-
-        public void SetOrAddEntity(object ownerEntity, object relatedEntity)
-        {
-            // TODO: This is currently just the same implementation as is in the built model
-            EntityType.Type.GetProperty(Name).SetValue(ownerEntity, relatedEntity);
-        }
     }
 
     public class _KoolEntity4NavTo3s : CompiledNavigation, INavigation
@@ -4186,12 +3588,66 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         {
             get { return new NavigationDefinition(14, 13, 0); }
         }
+    }
 
-        public void SetOrAddEntity(object ownerEntity, object relatedEntity)
+    public class _KoolEntity5NavTo6s : CompiledNavigation, INavigation, IClrCollectionAccessor
+    {
+        public _KoolEntity5NavTo6s(IModel model)
+            : base(model)
         {
-            // TODO: This is currently just the same implementation as is in the built model
-            var collection = EntityType.Type.GetProperty(Name).GetValue(ownerEntity);
-            collection.GetType().GetMethod("Add").Invoke(collection, new[] { relatedEntity });
+        }
+
+        public string Name
+        {
+            get { return "Kool6s"; }
+        }
+
+        protected override NavigationDefinition Definition
+        {
+            get { return new NavigationDefinition(15, 16, 0); }
+        }
+
+        public void Add(object instance, object value)
+        {
+            ((KoolEntity5)instance).AddKool6((KoolEntity6)value);
+        }
+
+        public bool Contains(object instance, object value)
+        {
+            return ((KoolEntity5)instance).Kool6s.Contains((KoolEntity6)value);
+        }
+
+        public void Remove(object instance, object value)
+        {
+            ((KoolEntity5)instance).RemoveKool6((KoolEntity6)value);
+        }
+    }
+
+    public class _KoolEntity6NavTo5 : CompiledNavigation, INavigation, IClrPropertyGetter, IClrPropertySetter
+    {
+        public _KoolEntity6NavTo5(IModel model)
+            : base(model)
+        {
+        }
+
+        public string Name
+        {
+            get { return "Kool5"; }
+        }
+
+        protected override NavigationDefinition Definition
+        {
+            get { return new NavigationDefinition(16, 16, 0); }
+        }
+
+        public object GetClrValue(object instance)
+        {
+            return ((KoolEntity6)instance).Kool5;
+        }
+
+        public void SetClrValue(object instance, object value)
+        {
+            ((KoolEntity6)instance).Kool5 = (KoolEntity5)value;
         }
     }
 

@@ -2,7 +2,7 @@
 
 namespace Microsoft.Data.Entity.Metadata.Compiled
 {
-    public abstract class CompiledNavigation
+    public abstract class CompiledNavigation : NoAnnotations
     {
         private readonly IModel _model;
 

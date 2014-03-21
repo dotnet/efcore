@@ -11,18 +11,43 @@ namespace Microsoft.Data.Entity.Utilities
     [DebuggerStepThrough]
     internal static class TypeExtensions
     {
-        public static Type ElementType(this Type type)
+        public static Type TryGetElementType(this Type type, Type interfaceOrBaseType)
         {
-            var typeInfo = type.GetTypeInfo();
-
-            if (typeInfo.IsGenericType
-                && (type.GetGenericTypeDefinition() == typeof(IQueryable<>)
-                    || type.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
+            if (!type.GetTypeInfo().IsGenericTypeDefinition)
             {
-                return typeInfo.GenericTypeArguments.Single();
+                var types = GetGenericTypeImplementations(type, interfaceOrBaseType).ToArray();
+
+                return types.Length == 1 ? types[0].GetTypeInfo().GenericTypeArguments.FirstOrDefault() : null;
             }
 
-            return type;
+            return null;
+        }
+
+        public static IEnumerable<Type> GetGenericTypeImplementations(this Type type, Type interfaceOrBaseType)
+        {
+            var typeInfo = type.GetTypeInfo();
+            if (!typeInfo.IsGenericTypeDefinition)
+            {
+                return (interfaceOrBaseType.GetTypeInfo().IsInterface ? typeInfo.ImplementedInterfaces : type.GetBaseTypes())
+                    .Union(new[] { type })
+                    .Where(
+                        t => t.GetTypeInfo().IsGenericType
+                             && t.GetGenericTypeDefinition() == interfaceOrBaseType);
+            }
+
+            return Enumerable.Empty<Type>();
+        }
+
+        public static IEnumerable<Type> GetBaseTypes(this Type type)
+        {
+            type = type.GetTypeInfo().BaseType;
+
+            while (type != null)
+            {
+                yield return type;
+
+                type = type.GetTypeInfo().BaseType;
+            }
         }
 
         public static bool IsNullableType(this Type type)
