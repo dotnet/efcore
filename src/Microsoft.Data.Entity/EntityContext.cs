@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity
             _sets = new ContextEntitySets(this, _configuration.EntitySetSource);
             _configuration.EntitySetInitializer.InitializeSets(this);
 
-            _model = new LazyRef<IModel>(() => _configuration.Model ?? _configuration.ModelSource.GetModel(this));
+            _model = new LazyRef<IModel>(() => _configuration.ModelSource.GetModel(this));
             _stateManager = new LazyRef<StateManager>(() => _configuration.StateManagerFactory.Create(_model.Value));
         }
 

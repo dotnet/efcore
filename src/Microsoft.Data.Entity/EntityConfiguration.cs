@@ -92,6 +92,20 @@ namespace Microsoft.Data.Entity
             get { return GetRequiredService<EntityMaterializerSource>(); }
         }
 
+        public virtual ILoggerFactory LoggerFactory
+        {
+            get { return GetRequiredService<ILoggerFactory>(); }
+        }
+
+        public virtual IEnumerable<IEntityStateListener> EntityStateListeners
+        {
+            get
+            {
+                return _serviceProvider.GetService<IEnumerable<IEntityStateListener>>()
+                       ?? Enumerable.Empty<IEntityStateListener>();
+            }
+        }
+
         private TService GetRequiredService<TService>() where TService : class
         {
             var service = _serviceProvider.GetService<TService>();
@@ -102,24 +116,6 @@ namespace Microsoft.Data.Entity
             }
 
             throw new InvalidOperationException(Strings.FormatMissingConfigurationItem(typeof(TService)));
-        }
-
-        // Optional services
-
-        public virtual IModel Model
-        {
-            get { return _serviceProvider.GetService<IModel>(); }
-        }
-
-        public virtual ILoggerFactory LoggerFactory
-        {
-            get { return _serviceProvider.GetService<ILoggerFactory>(); }
-        }
-
-        public virtual IEnumerable<IEntityStateListener> EntityStateListeners
-        {
-            get { return _serviceProvider.GetService<IEnumerable<IEntityStateListener>>() 
-                ?? Enumerable.Empty<IEntityStateListener>(); }
         }
     }
 }
