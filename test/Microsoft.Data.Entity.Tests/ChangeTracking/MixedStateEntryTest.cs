@@ -1,10 +1,6 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
-using System;
-using System.Linq;
-using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
-using Moq;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.ChangeTracking
@@ -12,136 +8,71 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
     public class MixedStateEntryTest : StateEntryTest
     {
         [Fact]
-        public void Constructors_check_arguments()
-        {
-            var entityTypeMock = CreateEntityTypeMock();
-            var stateManager = CreateManagerMock(entityTypeMock).Object;
-
-            Assert.Equal(
-                "stateManager",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => new MixedStateEntry(null, entityTypeMock.Object, new SomeEntity())).ParamName);
-            Assert.Equal(
-                "entityType",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => new MixedStateEntry(stateManager, null, new SomeEntity())).ParamName);
-            Assert.Equal(
-                "entity",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => new MixedStateEntry(stateManager, entityTypeMock.Object, (object)null)).ParamName);
-        }
-
-        [Fact]
         public void Can_get_entity()
         {
-            var entityTypeMock = CreateEntityTypeMock();
+            var model = BuildModel();
+            var configuration = CreateConfiguration(model);
+
             var entity = new SomeEntity();
-            var entry = new MixedStateEntry(CreateManagerMock(entityTypeMock).Object, entityTypeMock.Object, entity);
+            var entry = CreateStateEntry(configuration, model.GetEntityType("SomeEntity"), entity);
 
             Assert.Same(entity, entry.Entity);
         }
 
         [Fact]
-        public void Can_set_and_get_property_value_from_shadow_state()
-        {
-            var propertyMock = new Mock<IProperty>();
-            var entityTypeMock = CreateEntityTypeMock(propertyMock);
-            var entry = new MixedStateEntry(CreateManagerMock(entityTypeMock).Object, entityTypeMock.Object, new SomeEntity());
-
-            Assert.Equal(null, entry.GetPropertyValue(propertyMock.Object));
-
-            entry.SetPropertyValue(propertyMock.Object, "Magic Tree House");
-
-            Assert.Equal("Magic Tree House", entry.GetPropertyValue(propertyMock.Object));
-        }
-
-        [Fact]
         public void Can_set_and_get_property_value_from_CLR_object()
         {
-            var propertyMock = new Mock<IProperty>();
-            var entityTypeMock = CreateEntityTypeMock(new Mock<IProperty>(), propertyMock);
-            var managerMock = CreateManagerMock(entityTypeMock);
+            var model = BuildModel();
+            var entityType = model.GetEntityType("SomeEntity");
+            var keyProperty = entityType.GetProperty("Id");
+            var nonKeyProperty = entityType.GetProperty("Kool");
+            var configuration = CreateConfiguration(model);
 
-            var getterMock = new Mock<IClrPropertyGetter>();
-            managerMock.Setup(m => m.GetClrPropertyGetter(propertyMock.Object)).Returns(getterMock.Object);
+            var entity = new SomeEntity { Id = 77, Kool = "Magic Tree House" };
+            var entry = CreateStateEntry(configuration, entityType, entity);
 
-            var setterMock = new Mock<IClrPropertySetter>();
-            managerMock.Setup(m => m.GetClrPropertySetter(propertyMock.Object)).Returns(setterMock.Object);
+            Assert.Null(entry.GetPropertyValue(keyProperty)); // In shadow
+            Assert.Equal("Magic Tree House", entry.GetPropertyValue(nonKeyProperty));
 
-            var entity = new SomeEntity();
-            var entry = new MixedStateEntry(managerMock.Object, entityTypeMock.Object, entity);
+            entry.SetPropertyValue(keyProperty, 78);
+            entry.SetPropertyValue(nonKeyProperty, "Normal Tree House");
 
-            Assert.Equal(null, entry.GetPropertyValue(propertyMock.Object));
-
-            getterMock.Verify(m => m.GetClrValue(entity));
-
-            entry.SetPropertyValue(propertyMock.Object, "Magic Tree House");
-
-            setterMock.Verify(m => m.SetClrValue(entity, "Magic Tree House"));
+            Assert.Equal(77, entity.Id); // In shadow
+            Assert.Equal("Normal Tree House", entity.Kool);
         }
 
         [Fact]
-        public void Can_get_value_buffer_from_mix_of_shadow_and_CLR_properties()
+        public void Asking_for_entity_instance_causes_it_to_be_materialized()
         {
-            var propertyMock1 = new Mock<IProperty>();
-            var propertyMock2 = new Mock<IProperty>();
-            var entityTypeMock = CreateEntityTypeMock(propertyMock1, propertyMock2);
-            var managerMock = CreateManagerMock(entityTypeMock);
+            var model = BuildModel();
+            var entityType = model.GetEntityType("SomeEntity");
+            var configuration = CreateConfiguration(model);
 
-            var getterMock2 = new Mock<IClrPropertyGetter>();
-            getterMock2.Setup(m => m.GetClrValue(It.IsAny<object>())).Returns("Tree House");
-            managerMock.Setup(m => m.GetClrPropertyGetter(propertyMock2.Object)).Returns(getterMock2.Object);
+            var entry = CreateStateEntry(configuration, entityType, new object[] { 1, "Kool" });
 
-            var entry = new MixedStateEntry(managerMock.Object, entityTypeMock.Object, new SomeEntity());
+            var entity = (SomeEntity)entry.Entity;
 
-            entry.SetPropertyValue(propertyMock1.Object, "Magic");
-
-            Assert.Equal(new object[] { "Magic", "Tree House" }, entry.GetValueBuffer());
-
-            Assert.Equal(new object[] { "Magic", "Tree House" }, entry.GetValueBuffer());
+            Assert.Equal("Kool", entity.Kool);
         }
 
-        [Fact]
-        public void Shadow_and_CLR_properties_are_separated_on_entity_materialization()
+        protected override IModel BuildModel()
         {
-            var propertyMock1 = new Mock<IProperty>();
-            var propertyMock2 = new Mock<IProperty>();
-            var entityTypeMock = CreateEntityTypeMock(propertyMock1, propertyMock2);
-            var managerMock = CreateManagerMock(entityTypeMock);
+            var model = new Model();
 
-            var getterMock2 = new Mock<IClrPropertyGetter>();
-            getterMock2.Setup(m => m.GetClrValue(It.IsAny<object>())).Returns("Tree House");
-            managerMock.Setup(m => m.GetClrPropertyGetter(propertyMock2.Object)).Returns(getterMock2.Object);
+            var entityType1 = new EntityType(typeof(SomeEntity));
+            model.AddEntityType(entityType1);
+            var key1 = entityType1.AddProperty("Id", typeof(int), shadowProperty: true);
+            entityType1.SetKey(key1);
+            entityType1.AddProperty("Kool", typeof(string), shadowProperty: false);
 
-            var entry = new MixedStateEntry(managerMock.Object, entityTypeMock.Object, new object[] { 77, "Kool" });
+            var entityType2 = new EntityType(typeof(SomeDependentEntity));
+            model.AddEntityType(entityType2);
+            var key2 = entityType2.AddProperty("Id", typeof(int), shadowProperty: false);
+            entityType2.SetKey(key2);
+            var fk = entityType2.AddProperty("SomeEntityId", typeof(int), shadowProperty: true);
+            entityType2.AddForeignKey(entityType1.GetKey(), new[] { fk });
 
-            Assert.Equal(77, entry.GetPropertyValue(propertyMock1.Object));
-            Assert.Equal("Kool", entry.GetPropertyValue(propertyMock2.Object));
-
-            Assert.IsType<SomeEntity>(entry.Entity);
-
-            Assert.Equal(77, entry.GetPropertyValue(propertyMock1.Object));
-            Assert.Equal("Tree House", entry.GetPropertyValue(propertyMock2.Object));
-        }
-
-        protected override Mock<IEntityType> CreateEntityTypeMock(Mock<IProperty> key = null, Mock<IProperty> nonKey = null)
-        {
-            key = key ?? new Mock<IProperty>();
-            key.Setup(m => m.Index).Returns(0);
-            key.Setup(m => m.ShadowIndex).Returns(0);
-            key.Setup(m => m.IsClrProperty).Returns(false);
-            var keys = new[] { key.Object };
-            nonKey = nonKey ?? new Mock<IProperty>();
-            nonKey.Setup(m => m.Index).Returns(1);
-            nonKey.Setup(m => m.ShadowIndex).Returns(-1);
-            nonKey.Setup(m => m.IsClrProperty).Returns(true);
-
-            var entityTypeMock = new Mock<IEntityType>();
-            entityTypeMock.Setup(m => m.GetKey().Properties).Returns(keys);
-            entityTypeMock.Setup(m => m.Properties).Returns(keys.Concat(new[] { nonKey.Object }).ToArray());
-            entityTypeMock.Setup(m => m.ShadowPropertyCount).Returns(1);
-
-            return entityTypeMock;
+            return model;
         }
     }
 }

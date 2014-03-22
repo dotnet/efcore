@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,7 +13,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 {
     public abstract class StateEntry
     {
-        private readonly StateManager _stateManager;
+        private readonly ContextConfiguration _configuration;
         private readonly IEntityType _entityType;
         private StateData _stateData;
 
@@ -25,12 +26,12 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
         }
 
-        protected StateEntry([NotNull] StateManager stateManager, [NotNull] IEntityType entityType)
+        protected StateEntry([NotNull] ContextConfiguration configuration, [NotNull] IEntityType entityType)
         {
-            Check.NotNull(stateManager, "stateManager");
+            Check.NotNull(configuration, "configuration");
             Check.NotNull(entityType, "entityType");
 
-            _stateManager = stateManager;
+            _configuration = configuration;
             _entityType = entityType;
             _stateData = new StateData(entityType.Properties.Count);
         }
@@ -43,9 +44,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
             get { return _entityType; }
         }
 
-        public virtual StateManager StateManager
+        public virtual ContextConfiguration Configuration
         {
-            get { return _stateManager; }
+            get { return _configuration; }
         }
 
         public virtual async Task SetEntityStateAsync(
@@ -64,13 +65,14 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 return;
             }
 
-            _stateManager.StateChanging(this, value);
+            _configuration.StateEntryNotifier.StateChanging(this, value);
+
             _stateData.EntityState = value;
 
             if (value == EntityState.Added)
             {
                 var keyProperty = _entityType.GetKey().Properties.Single(); // TODO: Composite keys not implemented yet.
-                var identityGenerator = _stateManager.GetIdentityGenerator(keyProperty);
+                var identityGenerator = _configuration.ActiveIdentityGenerators.GetOrAdd(keyProperty);
 
                 if (identityGenerator != null)
                 {
@@ -80,15 +82,15 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             if (oldState == EntityState.Unknown)
             {
-                _stateManager.StartTracking(this);
+                _configuration.StateManager.StartTracking(this);
             }
             else if (value == EntityState.Unknown)
             {
                 // TODO: Does changing to Unknown really mean stop tracking?
-                _stateManager.StopTracking(this);
+                _configuration.StateManager.StopTracking(this);
             }
 
-            _stateManager.StateChanged(this, oldState);
+            _configuration.StateEntryNotifier.StateChanged(this, oldState);
         }
 
         public virtual EntityState EntityState
@@ -120,24 +122,27 @@ namespace Microsoft.Data.Entity.ChangeTracking
             var currentState = _stateData.EntityState;
             if (isModified && currentState == EntityState.Unchanged)
             {
-                _stateManager.StateChanging(this, EntityState.Modified);
+                var notifier = _configuration.StateEntryNotifier;
+                notifier.StateChanging(this, EntityState.Modified);
                 _stateData.EntityState = EntityState.Modified;
-                _stateManager.StateChanged(this, currentState);
+                notifier.StateChanged(this, currentState);
             }
             else if (!isModified
                      && !_stateData.AnyPropertiesModified())
             {
-                _stateManager.StateChanging(this, EntityState.Unchanged);
+                var notifier = _configuration.StateEntryNotifier;
+                notifier.StateChanging(this, EntityState.Unchanged);
                 _stateData.EntityState = EntityState.Unchanged;
-                _stateManager.StateChanged(this, currentState);
+                notifier.StateChanged(this, currentState);
             }
         }
 
         internal virtual void SetAttached()
         {
-            _stateManager.StateChanging(this, EntityState.Unchanged);
+            var notifier = _configuration.StateEntryNotifier;
+            notifier.StateChanging(this, EntityState.Unchanged);
             _stateData.EntityState = EntityState.Unchanged;
-            _stateManager.StateChanged(this, EntityState.Unknown);
+            notifier.StateChanged(this, EntityState.Unknown);
         }
 
         public abstract object GetPropertyValue([NotNull] IProperty property);
@@ -146,17 +151,24 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         public virtual EntityKey GetPrimaryKeyValue()
         {
-            return _stateManager.CreateKey(_entityType, _entityType.GetKey().Properties, this);
+            return CreateKey(_entityType, _entityType.GetKey().Properties, this);
         }
 
         public virtual EntityKey GetDependentKeyValue([NotNull] IForeignKey foreignKey)
         {
-            return _stateManager.CreateKey(foreignKey.ReferencedEntityType, foreignKey.Properties, this);
+            return CreateKey(foreignKey.ReferencedEntityType, foreignKey.Properties, this);
         }
 
         public virtual EntityKey GetPrincipalKeyValue([NotNull] IForeignKey foreignKey)
         {
-            return _stateManager.CreateKey(foreignKey.ReferencedEntityType, foreignKey.ReferencedProperties, this);
+            return CreateKey(foreignKey.ReferencedEntityType, foreignKey.ReferencedProperties, this);
+        }
+
+        private EntityKey CreateKey(IEntityType entityType, IReadOnlyList<IProperty> properties, StateEntry entry)
+        {
+            return _configuration.EntityKeyFactorySource
+                .GetKeyFactory(properties)
+                .Create(entityType, properties, entry);
         }
 
         public virtual object[] GetValueBuffer()

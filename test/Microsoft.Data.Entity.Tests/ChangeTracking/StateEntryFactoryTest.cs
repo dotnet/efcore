@@ -17,13 +17,13 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entityTypeMock.Setup(m => m.HasClrType).Returns(false);
             entityTypeMock.Setup(m => m.Properties).Returns(new[] { new Mock<IProperty>().Object });
 
-            var stateManager = new Mock<StateManager>().Object;
+            var configuration = Mock.Of<ContextConfiguration>();
 
-            var entry = new StateEntryFactory().Create(stateManager, entityTypeMock.Object, new Random());
+            var entry = new StateEntryFactory(configuration).Create(entityTypeMock.Object, new Random());
 
             Assert.IsType<ShadowStateEntry>(entry);
 
-            Assert.Same(stateManager, entry.StateManager);
+            Assert.Same(configuration, entry.Configuration);
             Assert.Same(entityTypeMock.Object, entry.EntityType);
             Assert.Null(entry.Entity);
         }
@@ -36,14 +36,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entityTypeMock.Setup(m => m.Properties).Returns(new[] { new Mock<IProperty>().Object });
             entityTypeMock.Setup(m => m.ShadowPropertyCount).Returns(0);
 
-            var stateManager = new Mock<StateManager>().Object;
+            var configuration = Mock.Of<ContextConfiguration>();
             var entity = new Random();
 
-            var entry = new StateEntryFactory().Create(stateManager, entityTypeMock.Object, entity);
+            var entry = new StateEntryFactory(configuration).Create(entityTypeMock.Object, entity);
 
             Assert.IsType<ClrStateEntry>(entry);
 
-            Assert.Same(stateManager, entry.StateManager);
+            Assert.Same(configuration, entry.Configuration);
             Assert.Same(entityTypeMock.Object, entry.EntityType);
             Assert.Same(entity, entry.Entity);
         }
@@ -56,14 +56,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entityTypeMock.Setup(m => m.Properties).Returns(new[] { new Mock<IProperty>().Object });
             entityTypeMock.Setup(m => m.ShadowPropertyCount).Returns(1);
 
-            var stateManager = new Mock<StateManager>().Object;
+            var configuration = Mock.Of<ContextConfiguration>();
             var entity = new Random();
 
-            var entry = new StateEntryFactory().Create(stateManager, entityTypeMock.Object, entity);
+            var entry = new StateEntryFactory(configuration).Create(entityTypeMock.Object, entity);
 
             Assert.IsType<MixedStateEntry>(entry);
 
-            Assert.Same(stateManager, entry.StateManager);
+            Assert.Same(configuration, entry.Configuration);
             Assert.Same(entityTypeMock.Object, entry.EntityType);
             Assert.Same(entity, entry.Entity);
         }
@@ -76,13 +76,13 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entityTypeMock.Setup(m => m.HasClrType).Returns(false);
             entityTypeMock.Setup(m => m.Properties).Returns(new[] { property });
 
-            var stateManager = new Mock<StateManager>().Object;
+            var configuration = Mock.Of<ContextConfiguration>();
 
-            var entry = new StateEntryFactory().Create(stateManager, entityTypeMock.Object, new object[] { 77 });
+            var entry = new StateEntryFactory(configuration).Create(entityTypeMock.Object, new object[] { 77 });
 
             Assert.IsType<ShadowStateEntry>(entry);
 
-            Assert.Same(stateManager, entry.StateManager);
+            Assert.Same(configuration, entry.Configuration);
             Assert.Same(entityTypeMock.Object, entry.EntityType);
             Assert.Equal(77, entry.GetPropertyValue(property));
             Assert.Null(entry.Entity);
@@ -97,13 +97,13 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entityTypeMock.Setup(m => m.Properties).Returns(new[] { property });
             entityTypeMock.Setup(m => m.ShadowPropertyCount).Returns(0);
 
-            var stateManager = new Mock<StateManager>().Object;
+            var configuration = Mock.Of<ContextConfiguration>();
 
-            var entry = new StateEntryFactory().Create(stateManager, entityTypeMock.Object, new object[] { 77 });
+            var entry = new StateEntryFactory(configuration).Create(entityTypeMock.Object, new object[] { 77 });
 
             Assert.IsType<ClrStateEntry>(entry);
 
-            Assert.Same(stateManager, entry.StateManager);
+            Assert.Same(configuration, entry.Configuration);
             Assert.Same(entityTypeMock.Object, entry.EntityType);
             Assert.Equal(77, entry.GetPropertyValue(property));
         }
@@ -117,13 +117,13 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entityTypeMock.Setup(m => m.Properties).Returns(new[] { property });
             entityTypeMock.Setup(m => m.ShadowPropertyCount).Returns(1);
 
-            var stateManager = new Mock<StateManager>().Object;
+            var configuration = Mock.Of<ContextConfiguration>();
 
-            var entry = new StateEntryFactory().Create(stateManager, entityTypeMock.Object, new object[] { 77 });
+            var entry = new StateEntryFactory(configuration).Create(entityTypeMock.Object, new object[] { 77 });
 
             Assert.IsType<MixedStateEntry>(entry);
 
-            Assert.Same(stateManager, entry.StateManager);
+            Assert.Same(configuration, entry.Configuration);
             Assert.Same(entityTypeMock.Object, entry.EntityType);
             Assert.Equal(77, entry.GetPropertyValue(property));
         }

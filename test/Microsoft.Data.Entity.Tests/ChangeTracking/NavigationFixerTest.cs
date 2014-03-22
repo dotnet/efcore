@@ -2,9 +2,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Data.Entity.ChangeTracking;
-using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
 using Moq;
 using Xunit;
@@ -16,7 +14,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Members_check_arguments()
         {
-            var fixer = new NavigationFixer(new ClrCollectionAccessorSource(), new ClrPropertySetterSource());
+            var fixer = new NavigationFixer(
+                Mock.Of<StateManager>(), new ClrCollectionAccessorSource(), new ClrPropertySetterSource());
 
             Assert.Equal(
                 "entry",
@@ -42,7 +41,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var dependentEntry = manager.GetOrCreateEntry(dependent);
             manager.StartTracking(dependentEntry);
 
-            var fixer = new NavigationFixer(new ClrCollectionAccessorSource(), new ClrPropertySetterSource());
+            var fixer = new NavigationFixer(manager, new ClrCollectionAccessorSource(), new ClrPropertySetterSource());
             fixer.StateChanged(dependentEntry, EntityState.Unknown);
 
             Assert.Same(dependent.Category, principal2);
@@ -68,7 +67,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var principalEntry = manager.GetOrCreateEntry(principal);
             manager.StartTracking(principalEntry);
 
-            var fixer = new NavigationFixer(new ClrCollectionAccessorSource(), new ClrPropertySetterSource());
+            var fixer = new NavigationFixer(manager, new ClrCollectionAccessorSource(), new ClrPropertySetterSource());
             fixer.StateChanged(principalEntry, EntityState.Unknown);
 
             Assert.Same(dependent1.Category, principal);
@@ -82,15 +81,18 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
         private static StateManager CreateStateManager()
         {
-            return new StateManager(
-                BuildModel(),
-                new Mock<ActiveIdentityGenerators>().Object,
-                Enumerable.Empty<IEntityStateListener>(),
-                new EntityKeyFactorySource(),
-                new StateEntryFactory(),
-                new ClrPropertyGetterSource(),
-                new ClrPropertySetterSource(),
-                new EntityMaterializerSource());
+            var configMock = new Mock<ContextConfiguration> { CallBase = true };
+            configMock.Object.Initialize(new EntityConfigurationBuilder().BuildConfiguration().ServiceProvider);
+            configMock.Setup(m => m.Model).Returns(BuildModel());
+
+            var stateManager = new StateManager(
+                configMock.Object,
+                new StateEntryFactory(configMock.Object),
+                new EntityKeyFactorySource());
+
+            configMock.Setup(m => m.StateManager).Returns(stateManager);
+
+            return stateManager;
         }
 
         #region Fixture

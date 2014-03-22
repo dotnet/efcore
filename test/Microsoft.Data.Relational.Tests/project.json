@@ -3,6 +3,7 @@
   "dependencies": {
     "Microsoft.Data.Entity" : "",
     "Microsoft.Data.Relational" : "",
+    "Microsoft.AspNet.ConfigurationModel" : "0.1-alpha-*",
     "Microsoft.AspNet.DependencyInjection" : "0.1-alpha-*",
     "Microsoft.AspNet.Logging" : "0.1-alpha-*",
     "System.Data.Common": "0.1-alpha-*",

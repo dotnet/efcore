@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
@@ -9,15 +10,29 @@ namespace Microsoft.Data.Entity.ChangeTracking
 {
     public class NavigationFixer : IEntityStateListener
     {
+        private readonly StateManager _stateManager;
         private readonly ClrCollectionAccessorSource _collectionAccessorSource;
         private readonly ClrPropertySetterSource _setterSource;
 
-        public NavigationFixer(
-            [NotNull] ClrCollectionAccessorSource collectionAccessorSource, [NotNull] ClrPropertySetterSource setterSource)
+        /// <summary>
+        ///     This constructor is intended only for use when creating test doubles that will override members
+        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
+        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
+        /// </summary>
+        protected NavigationFixer()
         {
+        }
+
+        public NavigationFixer(
+            [NotNull] StateManager stateManager,
+            [NotNull] ClrCollectionAccessorSource collectionAccessorSource, 
+            [NotNull] ClrPropertySetterSource setterSource)
+        {
+            Check.NotNull(stateManager, "stateManager");
             Check.NotNull(collectionAccessorSource, "collectionAccessorSource");
             Check.NotNull(setterSource, "setterSource");
 
+            _stateManager = stateManager;
             _collectionAccessorSource = collectionAccessorSource;
             _setterSource = setterSource;
         }
@@ -37,35 +52,32 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 return;
             }
 
-            var stateManager = entry.StateManager;
-
             // Handle case where the new entity is the dependent
             foreach (var foreignKey in entry.EntityType.ForeignKeys)
             {
-                var principalEntry = stateManager.GetPrincipal(entry, foreignKey);
+                var principalEntry = _stateManager.GetPrincipal(entry, foreignKey);
                 if (principalEntry != null)
                 {
-                    DoFixup(stateManager, foreignKey, principalEntry, new[] { entry });
+                    DoFixup(foreignKey, principalEntry, new[] { entry });
                 }
             }
 
             // Handle case where the new entity is the principal
-            foreach (var foreignKey in stateManager.Model.EntityTypes.SelectMany(
+            foreach (var foreignKey in _stateManager.Model.EntityTypes.SelectMany(
                 e => e.ForeignKeys.Where(f => f.ReferencedEntityType == entry.EntityType)))
             {
-                var dependents = stateManager.GetDependents(entry, foreignKey).ToArray();
+                var dependents = _stateManager.GetDependents(entry, foreignKey).ToArray();
 
                 if (dependents.Length > 0)
                 {
-                    DoFixup(stateManager, foreignKey, entry, dependents);
+                    DoFixup(foreignKey, entry, dependents);
                 }
             }
         }
 
-        private void DoFixup(
-            StateManager stateManager, IForeignKey foreignKey, StateEntry principalEntry, StateEntry[] dependentEntries)
+        private void DoFixup(IForeignKey foreignKey, StateEntry principalEntry, StateEntry[] dependentEntries)
         {
-            foreach (var navigation in stateManager.Model.GetNavigations(foreignKey))
+            foreach (var navigation in _stateManager.Model.GetNavigations(foreignKey))
             {
                 if (navigation.EntityType == principalEntry.EntityType)
                 {

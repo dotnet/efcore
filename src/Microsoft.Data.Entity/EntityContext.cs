@@ -4,6 +4,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.AspNet.DependencyInjection;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
@@ -12,52 +13,45 @@ namespace Microsoft.Data.Entity
 {
     public class EntityContext : IDisposable
     {
-        private readonly EntityConfiguration _configuration;
-
-        private LazyRef<IModel> _model;
-        private LazyRef<StateManager> _stateManager;
+        private ContextConfiguration _configuration; 
         private ContextEntitySets _sets;
 
         protected EntityContext()
         {
-            _configuration = EntityConfigurationCache.Instance.GetOrAddConfiguration(this);
-
-            Initialize();
+            Initialize(EntityConfigurationCache.Instance.GetOrAddConfiguration(this));
         }
 
         public EntityContext([NotNull] EntityConfiguration configuration)
         {
             Check.NotNull(configuration, "configuration");
 
-            _configuration = configuration;
-
-            Initialize();
+            Initialize(configuration);
         }
 
-        private void Initialize()
+        private void Initialize(EntityConfiguration configuration)
         {
-            _sets = new ContextEntitySets(this, _configuration.EntitySetSource);
-            _configuration.EntitySetInitializer.InitializeSets(this);
+            var scopedProvider = configuration
+                .ServiceProvider.GetService<IServiceScopeFactory>()
+                .CreateScope().ServiceProvider;
 
-            _model = new LazyRef<IModel>(() => _configuration.ModelSource.GetModel(this));
-            _stateManager = new LazyRef<StateManager>(() => _configuration.StateManagerFactory.Create(_model.Value));
+            _configuration = scopedProvider
+                .GetService<ContextConfiguration>()
+                .Initialize(scopedProvider, this);
+
+            _sets = _configuration.ContextEntitySets;
+            _sets.InitializeSets(this);
         }
 
-        internal void CallOnConfiguring(EntityConfigurationBuilder builder)
+        public virtual ContextConfiguration Configuration
         {
-            OnConfiguring(builder);
+            get { return _configuration; }
         }
 
-        protected virtual void OnConfiguring([NotNull] EntityConfigurationBuilder builder)
+        protected internal virtual void OnConfiguring([NotNull] EntityConfigurationBuilder builder)
         {
         }
 
-        internal void CallOnModelCreating(ModelBuilder builder)
-        {
-            OnModelCreating(builder);
-        }
-
-        protected virtual void OnModelCreating([NotNull] ModelBuilder builder)
+        protected internal virtual void OnModelCreating([NotNull] ModelBuilder builder)
         {
         }
 
@@ -69,7 +63,8 @@ namespace Microsoft.Data.Entity
 
         public virtual Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            return _configuration.DataStore.SaveChangesAsync(_stateManager.Value.StateEntries, Model, cancellationToken);
+            return _configuration.DataStore.SaveChangesAsync(
+                _configuration.StateManager.StateEntries, Model, cancellationToken);
         }
 
         public void Dispose()
@@ -89,7 +84,7 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(entity, "entity");
 
-            await _stateManager.Value.GetOrCreateEntry(entity).SetEntityStateAsync(EntityState.Added, cancellationToken).ConfigureAwait(false);
+            await _configuration.StateManager.GetOrCreateEntry(entity).SetEntityStateAsync(EntityState.Added, cancellationToken).ConfigureAwait(false);
 
             return entity;
         }
@@ -126,17 +121,12 @@ namespace Microsoft.Data.Entity
 
         public virtual ChangeTracker ChangeTracker
         {
-            get { return new ChangeTracker(_stateManager.Value); }
+            get { return new ChangeTracker(_configuration.StateManager); }
         }
 
         public virtual IModel Model
         {
-            get { return _model.Value; }
-        }
-
-        public virtual EntityConfiguration Configuration
-        {
-            get { return _configuration; }
+            get { return _configuration.Model; }
         }
 
         public virtual EntitySet Set([NotNull] Type entityType)
@@ -145,14 +135,14 @@ namespace Microsoft.Data.Entity
 
             // Note: Creating sets needs to be fast because it is done eagerly when a context instance
             // is created so we avoid loading metadata to validate the type here.
-            return _sets.GetEntitySet(entityType);
+            return _sets.GetEntitySet(this, entityType);
         }
 
         public virtual EntitySet<TEntity> Set<TEntity>() where TEntity : class
         {
             // Note: Creating sets needs to be fast because it is done eagerly when a context instance
             // is created so we avoid loading metadata to validate the type here.
-            return _sets.GetEntitySet<TEntity>();
+            return _sets.GetEntitySet<TEntity>(this);
         }
     }
 }

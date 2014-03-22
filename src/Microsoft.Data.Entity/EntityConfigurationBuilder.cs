@@ -35,8 +35,10 @@ namespace Microsoft.Data.Entity
 
         public virtual EntityConfiguration BuildConfiguration()
         {
-            return new EntityConfiguration(_serviceCollection.BuildServiceProvider());
+            return new EntityConfiguration().Initialize(_serviceCollection.BuildServiceProvider());
         }
+
+        // Dingletons
 
         public virtual EntityConfigurationBuilder UseModel([NotNull] IModel model)
         {
@@ -89,15 +91,6 @@ namespace Microsoft.Data.Entity
             return this;
         }
 
-        public virtual EntityConfigurationBuilder UseEntityStateListener([NotNull] IEntityStateListener listener)
-        {
-            Check.NotNull(listener, "listener");
-
-            _serviceCollection.AddInstance<IEntityStateListener>(listener);
-
-            return this;
-        }
-
         public virtual EntityConfigurationBuilder UseEntitySetSource([NotNull] EntitySetSource source)
         {
             Check.NotNull(source, "source");
@@ -125,15 +118,6 @@ namespace Microsoft.Data.Entity
             return this;
         }
 
-        public virtual EntityConfigurationBuilder UseStateManagerFactory([NotNull] StateManagerFactory factory)
-        {
-            Check.NotNull(factory, "factory");
-
-            _serviceCollection.AddInstance<StateManagerFactory>(factory);
-
-            return this;
-        }
-
         public virtual EntityConfigurationBuilder UseEntitySetFinder([NotNull] EntitySetFinder finder)
         {
             Check.NotNull(finder, "finder");
@@ -148,15 +132,6 @@ namespace Microsoft.Data.Entity
             Check.NotNull(source, "source");
 
             _serviceCollection.AddInstance<EntityKeyFactorySource>(source);
-
-            return this;
-        }
-
-        public virtual EntityConfigurationBuilder UseStateEntryFactory([NotNull] StateEntryFactory factory)
-        {
-            Check.NotNull(factory, "factory");
-
-            _serviceCollection.AddInstance<StateEntryFactory>(factory);
 
             return this;
         }
@@ -206,14 +181,6 @@ namespace Microsoft.Data.Entity
             return this;
         }
 
-        public virtual EntityConfigurationBuilder UseModel<TService>()
-    where TService : IModel
-        {
-            _serviceCollection.AddSingleton<IModel, TService>();
-
-            return this;
-        }
-
         public virtual EntityConfigurationBuilder UseModelSource<TService>()
             where TService : IModelSource
         {
@@ -234,14 +201,6 @@ namespace Microsoft.Data.Entity
             where TService : EntitySetInitializer
         {
             _serviceCollection.AddSingleton<EntitySetInitializer, TService>();
-
-            return this;
-        }
-
-        public virtual EntityConfigurationBuilder UseEntityStateListener<TService>()
-            where TService : IEntityStateListener
-        {
-            _serviceCollection.AddSingleton<IEntityStateListener, TService>();
 
             return this;
         }
@@ -270,14 +229,6 @@ namespace Microsoft.Data.Entity
             return this;
         }
 
-        public virtual EntityConfigurationBuilder UseStateManagerFactory<TService>()
-            where TService : StateManagerFactory
-        {
-            _serviceCollection.AddSingleton<StateManagerFactory, TService>();
-
-            return this;
-        }
-
         public virtual EntityConfigurationBuilder UseEntitySetFinder<TService>()
             where TService : EntitySetFinder
         {
@@ -290,14 +241,6 @@ namespace Microsoft.Data.Entity
             where TService : EntityKeyFactorySource
         {
             _serviceCollection.AddSingleton<EntityKeyFactorySource, TService>();
-
-            return this;
-        }
-
-        public virtual EntityConfigurationBuilder UseStateEntryFactory<TService>()
-            where TService : StateEntryFactory
-        {
-            _serviceCollection.AddSingleton<StateEntryFactory, TService>();
 
             return this;
         }
@@ -338,6 +281,48 @@ namespace Microsoft.Data.Entity
             where TService : ILoggerFactory
         {
             _serviceCollection.AddSingleton<ILoggerFactory, TService>();
+
+            return this;
+        }
+
+        // Scoped by context
+
+        public virtual EntityConfigurationBuilder UseEntityStateListener<TService>()
+            where TService : IEntityStateListener
+        {
+            _serviceCollection.AddScoped<IEntityStateListener, TService>();
+
+            return this;
+        }
+
+        public virtual EntityConfigurationBuilder UseStateEntryFactory<TService>()
+            where TService : StateEntryFactory
+        {
+            _serviceCollection.AddScoped<StateEntryFactory, TService>();
+
+            return this;
+        }
+
+        public virtual EntityConfigurationBuilder UseStateEntryNotifier<TService>()
+            where TService : StateEntryNotifier
+        {
+            _serviceCollection.AddScoped<StateEntryNotifier, TService>();
+
+            return this;
+        }
+
+        public virtual EntityConfigurationBuilder UseContextEntitySets<TService>()
+            where TService : ContextEntitySets
+        {
+            _serviceCollection.AddScoped<ContextEntitySets, TService>();
+
+            return this;
+        }
+
+        public virtual EntityConfigurationBuilder UseStateManager<TService>()
+            where TService : StateManager
+        {
+            _serviceCollection.AddScoped<StateManager, TService>();
 
             return this;
         }

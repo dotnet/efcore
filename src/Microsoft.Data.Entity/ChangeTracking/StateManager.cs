@@ -13,19 +13,13 @@ namespace Microsoft.Data.Entity.ChangeTracking
     // This is lower-level change tracking services used by the ChangeTracker and other parts of the system
     public class StateManager
     {
-        private readonly IModel _model;
-        private readonly ActiveIdentityGenerators _identityGenerators;
-
         private readonly Dictionary<object, StateEntry> _entityReferenceMap
             = new Dictionary<object, StateEntry>(ReferenceEqualityComparer.Instance);
 
         private readonly Dictionary<EntityKey, StateEntry> _identityMap = new Dictionary<EntityKey, StateEntry>();
-        private readonly IEntityStateListener[] _entityStateListeners;
         private readonly EntityKeyFactorySource _keyFactorySource;
         private readonly StateEntryFactory _stateEntryFactory;
-        private readonly ClrPropertyGetterSource _getterSource;
-        private readonly ClrPropertySetterSource _setterSource;
-        private readonly EntityMaterializerSource _materializerSource;
+        private readonly IModel _model;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -37,34 +31,17 @@ namespace Microsoft.Data.Entity.ChangeTracking
         }
 
         public StateManager(
-            [NotNull] IModel model,
-            [NotNull] ActiveIdentityGenerators identityGenerators,
-            [NotNull] IEnumerable<IEntityStateListener> entityStateListeners,
-            [NotNull] EntityKeyFactorySource entityKeyFactorySource,
+            [NotNull] ContextConfiguration contextConfiguration,
             [NotNull] StateEntryFactory stateEntryFactory,
-            [NotNull] ClrPropertyGetterSource getterSource,
-            [NotNull] ClrPropertySetterSource setterSource,
-            [NotNull] EntityMaterializerSource materializerSource)
+            [NotNull] EntityKeyFactorySource entityKeyFactorySource)
         {
-            Check.NotNull(model, "model");
-            Check.NotNull(identityGenerators, "identityGenerators");
-            Check.NotNull(entityStateListeners, "entityStateListeners");
             Check.NotNull(entityKeyFactorySource, "entityKeyFactorySource");
             Check.NotNull(stateEntryFactory, "stateEntryFactory");
-            Check.NotNull(getterSource, "getterSource");
-            Check.NotNull(setterSource, "setterSource");
-            Check.NotNull(materializerSource, "materializerSource");
+            Check.NotNull(entityKeyFactorySource, "entityKeyFactorySource");
 
-            _model = model;
-            _identityGenerators = identityGenerators;
             _keyFactorySource = entityKeyFactorySource;
             _stateEntryFactory = stateEntryFactory;
-            _getterSource = getterSource;
-            _setterSource = setterSource;
-            _materializerSource = materializerSource;
-
-            var stateListeners = entityStateListeners.ToArray();
-            _entityStateListeners = stateListeners.Length == 0 ? null : stateListeners;
+            _model = contextConfiguration.Model;
         }
 
         public virtual StateEntry CreateNewEntry([NotNull] IEntityType entityType)
@@ -74,7 +51,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             // TODO: Consider entities without parameterless constructor--use o/c mapping info?
             var entity = entityType.HasClrType ? Activator.CreateInstance(entityType.Type) : null;
 
-            return _stateEntryFactory.Create(this, entityType, entity);
+            return _stateEntryFactory.Create(entityType, entity);
         }
 
         public virtual StateEntry GetOrCreateEntry([NotNull] object entity)
@@ -86,7 +63,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             StateEntry stateEntry;
             if (!_entityReferenceMap.TryGetValue(entity, out stateEntry))
             {
-                stateEntry = _stateEntryFactory.Create(this, Model.GetEntityType(entity.GetType()), entity);
+                stateEntry = _stateEntryFactory.Create(Model.GetEntityType(entity.GetType()), entity);
                 _entityReferenceMap[entity] = stateEntry;
             }
             return stateEntry;
@@ -106,7 +83,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 return existingEntry;
             }
 
-            var newEntry = _stateEntryFactory.Create(this, entityType, valueBuffer);
+            var newEntry = _stateEntryFactory.Create(entityType, valueBuffer);
             _identityMap.Add(keyValue, newEntry);
             newEntry.SetAttached();
 
@@ -129,7 +106,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             var entityType = entry.EntityType;
 
-            if (entry.StateManager != this)
+            if (entry.Configuration.StateManager != this)
             {
                 throw new InvalidOperationException(Strings.FormatWrongStateManager(entityType.Name));
             }
@@ -190,39 +167,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
             get { return _model; }
         }
 
-        public virtual IIdentityGenerator GetIdentityGenerator([NotNull] IProperty property)
-        {
-            Check.NotNull(property, "property");
-
-            return _identityGenerators.GetOrAdd(property);
-        }
-
-        internal void StateChanging(StateEntry entry, EntityState newState)
-        {
-            if (_entityStateListeners == null)
-            {
-                return;
-            }
-
-            foreach (var listener in _entityStateListeners)
-            {
-                listener.StateChanging(entry, newState);
-            }
-        }
-
-        internal void StateChanged(StateEntry entry, EntityState oldState)
-        {
-            if (_entityStateListeners == null)
-            {
-                return;
-            }
-
-            foreach (var listener in _entityStateListeners)
-            {
-                listener.StateChanged(entry, oldState);
-            }
-        }
-
         public virtual StateEntry GetPrincipal([NotNull] StateEntry dependentEntry, [NotNull] IForeignKey foreignKey)
         {
             Check.NotNull(dependentEntry, "dependentEntry");
@@ -257,22 +201,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                      && principalKeyValue.Equals(e.GetDependentKeyValue(foreignKey)));
         }
 
-        internal virtual IClrPropertyGetter GetClrPropertyGetter(IProperty property)
-        {
-            return _getterSource.GetAccessor(property);
-        }
-
-        internal virtual IClrPropertySetter GetClrPropertySetter(IProperty property)
-        {
-            return _setterSource.GetAccessor(property);
-        }
-
-        internal virtual Func<object[], object> GetEntityMaterializer(IEntityType entityType)
-        {
-            return _materializerSource.GetMaterializer(entityType);
-        }
-
-        internal virtual EntityKey CreateKey(IEntityType entityType, IReadOnlyList<IProperty> properties, StateEntry entry)
+        private EntityKey CreateKey(IEntityType entityType, IReadOnlyList<IProperty> properties, StateEntry entry)
         {
             return _keyFactorySource.GetKeyFactory(properties).Create(entityType, properties, entry);
         }

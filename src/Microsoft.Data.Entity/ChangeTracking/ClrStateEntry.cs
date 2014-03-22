@@ -20,16 +20,16 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
         }
 
-        public ClrStateEntry([NotNull] StateManager stateManager, [NotNull] IEntityType entityType, [NotNull] object entity)
-            : base(stateManager, entityType)
+        public ClrStateEntry([NotNull] ContextConfiguration configuration, [NotNull] IEntityType entityType, [NotNull] object entity)
+            : base(configuration, entityType)
         {
             Check.NotNull(entity, "entity");
 
             _entityOrValues = entity;
         }
 
-        public ClrStateEntry([NotNull] StateManager stateManager, [NotNull] IEntityType entityType, [NotNull] object[] valueBuffer)
-            : base(stateManager, entityType)
+        public ClrStateEntry([NotNull] ContextConfiguration configuration, [NotNull] IEntityType entityType, [NotNull] object[] valueBuffer)
+            : base(configuration, entityType)
         {
             Check.NotNull(valueBuffer, "valueBuffer");
 
@@ -46,8 +46,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
                 if (asValues != null)
                 {
-                    _entityOrValues = StateManager.GetEntityMaterializer(EntityType)(asValues);
-                    StateManager.EntityMaterialized(this);
+                    _entityOrValues = Configuration.EntityMaterializerSource.GetMaterializer(EntityType)(asValues);
+                    Configuration.StateManager.EntityMaterialized(this);
                 }
 
                 return _entityOrValues;
@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 return asValues[property.Index];
             }
 
-            return StateManager.GetClrPropertyGetter(property).GetClrValue(_entityOrValues);
+            return Configuration.ClrPropertyGetterSource.GetAccessor(property).GetClrValue(_entityOrValues);
         }
 
         public override void SetPropertyValue(IProperty property, object value)
@@ -80,7 +80,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
             else
             {
-                StateManager.GetClrPropertySetter(property).SetClrValue(_entityOrValues, value);
+                Configuration.ClrPropertySetterSource.GetAccessor(property).SetClrValue(_entityOrValues, value);
             }
         }
     }

@@ -9,8 +9,8 @@ namespace Microsoft.Data.Entity
 {
     public class ContextEntitySets
     {
-        private readonly EntityContext _context;
         private readonly EntitySetSource _source;
+        private readonly EntitySetInitializer _setInitializer;
         private readonly Dictionary<Type, EntitySet> _sets = new Dictionary<Type, EntitySet>();
 
         /// <summary>
@@ -22,34 +22,44 @@ namespace Microsoft.Data.Entity
         {
         }
 
-        public ContextEntitySets([NotNull] EntityContext context, [NotNull] EntitySetSource source)
+        public ContextEntitySets([NotNull] EntitySetSource source, [NotNull] EntitySetInitializer setInitializer)
         {
-            Check.NotNull(context, "context");
             Check.NotNull(source, "source");
+            Check.NotNull(setInitializer, "setInitializer");
 
-            _context = context;
             _source = source;
+            _setInitializer = setInitializer;
         }
 
-        public virtual EntitySet GetEntitySet([NotNull] Type entityType)
+        public virtual void InitializeSets([NotNull] EntityContext context)
         {
+            Check.NotNull(context, "context");
+
+            _setInitializer.InitializeSets(context);
+        }
+
+        public virtual EntitySet GetEntitySet([NotNull] EntityContext context, [NotNull] Type entityType)
+        {
+            Check.NotNull(context, "context");
             Check.NotNull(entityType, "entityType");
 
             EntitySet entitySet;
             if (!_sets.TryGetValue(entityType, out entitySet))
             {
-                entitySet = _source.Create(_context, entityType);
+                entitySet = _source.Create(context, entityType);
                 _sets.Add(entityType, entitySet);
             }
             return entitySet;
         }
 
-        public virtual EntitySet<TEntity> GetEntitySet<TEntity>() where TEntity : class
+        public virtual EntitySet<TEntity> GetEntitySet<TEntity>([NotNull] EntityContext context) where TEntity : class
         {
+            Check.NotNull(context, "context");
+
             EntitySet entitySet;
             if (!_sets.TryGetValue(typeof(TEntity), out entitySet))
             {
-                entitySet = _source.Create(_context, typeof(TEntity));
+                entitySet = _source.Create(context, typeof(TEntity));
                 _sets.Add(typeof(TEntity), entitySet);
             }
             return (EntitySet<TEntity>)entitySet;

@@ -6,9 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.ChangeTracking;
-using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
-using Moq;
 using Xunit;
 
 namespace Microsoft.Data.Relational.Update
@@ -19,13 +17,11 @@ namespace Microsoft.Data.Relational.Update
         public async Task BatchCommands_creates_valid_batch_for_added_entities()
         {
             var model = CreateModel();
-            var stateManager =
-                new StateManager(
-                    model, Mock.Of<ActiveIdentityGenerators>(),
-                    new IEntityStateListener[0], new EntityKeyFactorySource(),
-                    new StateEntryFactory(), new ClrPropertyGetterSource(), new ClrPropertySetterSource(), new EntityMaterializerSource());
 
-            var stateEntry = new MixedStateEntry(stateManager, model.GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
+            var stateEntry = new MixedStateEntry(
+                CreateConfiguration(),
+                model.GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
+
             await stateEntry.SetEntityStateAsync(EntityState.Added, new CancellationToken());
 
             var commandBatches = new CommandBatchPreparer().BatchCommands(new[] { stateEntry }).ToArray();
@@ -47,13 +43,11 @@ namespace Microsoft.Data.Relational.Update
         public async Task BatchCommands_creates_valid_batch_for_updated_entities()
         {
             var model = CreateModel();
-            var stateManager =
-                new StateManager(
-                    model, Mock.Of<ActiveIdentityGenerators>(),
-                    new IEntityStateListener[0], new EntityKeyFactorySource(),
-                    new StateEntryFactory(), new ClrPropertyGetterSource(), new ClrPropertySetterSource(), new EntityMaterializerSource());
 
-            var stateEntry = new MixedStateEntry(stateManager, model.GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
+            var stateEntry = new MixedStateEntry(
+                CreateConfiguration(),
+                model.GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
+
             await stateEntry.SetEntityStateAsync(EntityState.Modified, new CancellationToken());
 
             var commandBatches = new CommandBatchPreparer().BatchCommands(new[] { stateEntry }).ToArray();
@@ -82,13 +76,11 @@ namespace Microsoft.Data.Relational.Update
         public async Task BatchCommands_creates_valid_batch_for_deleted_entities()
         {
             var model = CreateModel();
-            var stateManager =
-                new StateManager(
-                    model, Mock.Of<ActiveIdentityGenerators>(),
-                    new IEntityStateListener[0], new EntityKeyFactorySource(),
-                    new StateEntryFactory(), new ClrPropertyGetterSource(), new ClrPropertySetterSource(), new EntityMaterializerSource());
 
-            var stateEntry = new MixedStateEntry(stateManager, model.GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
+            var stateEntry = new MixedStateEntry(
+                CreateConfiguration(),
+                model.GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
+
             await stateEntry.SetEntityStateAsync(EntityState.Deleted, new CancellationToken());
 
             var commandBatches = new CommandBatchPreparer().BatchCommands(new[] { stateEntry }).ToArray();
@@ -108,6 +100,11 @@ namespace Microsoft.Data.Relational.Update
                 command.WhereClauses);
         }
 
+        private static ContextConfiguration CreateConfiguration()
+        {
+            return new EntityContext(new EntityConfigurationBuilder().BuildConfiguration()).Configuration;
+        }
+
         private static IModel CreateModel()
         {
             var model = new Entity.Metadata.Model();
@@ -121,7 +118,7 @@ namespace Microsoft.Data.Relational.Update
             return model;
         }
 
-        public class FakeEntity
+        private class FakeEntity
         {
             public int Id { get; set; }
             public string Value { get; set; }
