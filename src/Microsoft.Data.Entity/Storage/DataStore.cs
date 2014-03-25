@@ -14,18 +14,16 @@ namespace Microsoft.Data.Entity.Storage
     public abstract class DataStore
     {
         public virtual Task<int> SaveChangesAsync(
-            [NotNull] IEnumerable<StateEntry> stateEntries, [NotNull] IModel model,
+            [NotNull] IEnumerable<StateEntry> stateEntries,
+            [NotNull] IModel model,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        public virtual IAsyncEnumerable<object[]> Read([NotNull] Type type, [NotNull] IModel model)
-        {
-            return Read(model.GetEntityType(type));
-        }
-
-        public virtual IAsyncEnumerable<object[]> Read([NotNull] IEntityType type)
+        public virtual IAsyncEnumerable<TResult> Query<TResult>(
+            [NotNull] IModel model,
+            [NotNull] StateManager stateManager)
         {
             throw new NotImplementedException();
         }

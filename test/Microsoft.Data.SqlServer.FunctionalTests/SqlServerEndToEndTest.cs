@@ -115,7 +115,10 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
 
             protected override void OnModelCreating(ModelBuilder builder)
             {
-                builder.Entity<Customer>().StorageName("Customers");
+                builder
+                    .Entity<Customer>()
+                    .Key(c => c.CustomerID)
+                    .StorageName("Customers");
             }
         }
 

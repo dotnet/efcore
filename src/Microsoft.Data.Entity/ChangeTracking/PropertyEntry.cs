@@ -30,5 +30,10 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             get { return _property.Name; }
         }
+
+        public virtual object CurrentValue
+        {
+            get { return _stateEntry.GetPropertyValue(_property); }
+        }
     }
 }

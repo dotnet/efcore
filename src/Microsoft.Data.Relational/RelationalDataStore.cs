@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNet.Logging;
 using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Storage;
@@ -40,8 +42,13 @@ namespace Microsoft.Data.Relational
         }
 
         public override async Task<int> SaveChangesAsync(
-            IEnumerable<Entity.ChangeTracking.StateEntry> stateEntries, IModel model, CancellationToken cancellationToken = default(CancellationToken))
+            IEnumerable<StateEntry> stateEntries,
+            IModel model,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
+            Check.NotNull(stateEntries, "stateEntries");
+            Check.NotNull(model, "model");
+
             var commands = new CommandBatchPreparer().BatchCommands(stateEntries);
 
             using (var connection = CreateConnection(_connectionString))
@@ -56,60 +63,98 @@ namespace Microsoft.Data.Relational
             return stateEntries.Count();
         }
 
-        public override IAsyncEnumerable<object[]> Read(IEntityType type)
+        public override IAsyncEnumerable<TResult> Query<TResult>(
+            IModel model, StateManager stateManager)
         {
+            Check.NotNull(model, "model");
+            Check.NotNull(stateManager, "stateManager");
+
+            var entityType = model.GetEntityType(typeof(TResult));
             var sql = new StringBuilder();
 
             sql.Append("SELECT ")
-                .AppendJoin(type.Properties.Select(p => p.StorageName))
+                .AppendJoin(entityType.Properties.Select(p => p.StorageName))
                 .AppendLine()
                 .Append("FROM ")
-                .AppendLine(type.StorageName);
+                .AppendLine(entityType.StorageName);
 
-            return new DbAsyncEnumerable(() => CreateConnection(_connectionString), sql.ToString(), _logger);
+            return new Enumerable<TResult>(
+                () => CreateConnection(_connectionString),
+                sql.ToString(),
+                _logger,
+                entityType,
+                stateManager);
         }
 
         public abstract DbConnection CreateConnection([NotNull] string connectionString);
 
-        private sealed class DbAsyncEnumerable : IAsyncEnumerable<object[]>
+        private sealed class Enumerable<T> : IAsyncEnumerable<T>
         {
             private readonly Func<DbConnection> _connectionFactory;
             private readonly string _sql;
             private readonly ILogger _logger;
+            private readonly IEntityType _entityType;
+            private readonly StateManager _stateManager;
 
-            public DbAsyncEnumerable(Func<DbConnection> connectionFactory, string sql, ILogger logger)
+            public Enumerable(
+                Func<DbConnection> connectionFactory,
+                string sql,
+                ILogger logger,
+                IEntityType entityType,
+                StateManager stateManager)
             {
                 _connectionFactory = connectionFactory;
                 _sql = sql;
                 _logger = logger;
+                _entityType = entityType;
+                _stateManager = stateManager;
             }
 
-            public IAsyncEnumerator<object[]> GetAsyncEnumerator()
+            public IAsyncEnumerator<T> GetAsyncEnumerator()
             {
-                return new DbAsyncEnumerator(_connectionFactory, _sql, _logger);
+                return new Enumerator<T>(_connectionFactory, _sql, _logger, _entityType, _stateManager);
             }
 
             IAsyncEnumerator IAsyncEnumerable.GetAsyncEnumerator()
             {
                 return GetAsyncEnumerator();
             }
+
+            public IEnumerator<T> GetEnumerator()
+            {
+                return GetAsyncEnumerator();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
         }
 
-        private sealed class DbAsyncEnumerator : IAsyncEnumerator<object[]>
+        private sealed class Enumerator<T> : IAsyncEnumerator<T>
         {
+            private readonly Func<DbConnection> _connectionFactory;
             private readonly string _sql;
             private readonly ILogger _logger;
-            private readonly Func<DbConnection> _connectionFactory;
+            private readonly IEntityType _entityType;
+            private readonly StateManager _stateManager;
 
             private DbConnection _connection;
             private DbCommand _command;
             private DbDataReader _reader;
 
-            public DbAsyncEnumerator(Func<DbConnection> connectionFactory, string sql, ILogger logger)
+            public Enumerator(
+                Func<DbConnection> connectionFactory,
+                string sql,
+                ILogger logger,
+                IEntityType entityType,
+                StateManager stateManager)
             {
                 _connectionFactory = connectionFactory;
                 _sql = sql;
                 _logger = logger;
+                _entityType = entityType;
+                _stateManager = stateManager;
             }
 
             public Task<bool> MoveNextAsync(CancellationToken cancellationToken = default(CancellationToken))
@@ -135,20 +180,43 @@ namespace Microsoft.Data.Relational
                 return await _reader.ReadAsync(cancellationToken);
             }
 
-            public object[] Current
+            public bool MoveNext()
+            {
+                if (_reader == null)
+                {
+                    _connection = _connectionFactory();
+                    _connection.Open();
+
+                    _command = _connection.CreateCommand();
+                    _command.CommandText = _sql;
+
+                    _logger.WriteSql(_sql);
+
+                    _reader = _command.ExecuteReader();
+                }
+
+                return _reader.Read();
+            }
+
+            public T Current
             {
                 get
                 {
+                    if (_reader == null)
+                    {
+                        return default(T);
+                    }
+
                     var values = new object[_reader.FieldCount];
 
                     // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
                     _reader.GetValues(values);
 
-                    return values;
+                    return (T)_stateManager.GetOrMaterializeEntry(_entityType, values).Entity;
                 }
             }
 
-            object IAsyncEnumerator.Current
+            object IEnumerator.Current
             {
                 get { return Current; }
             }
@@ -169,6 +237,11 @@ namespace Microsoft.Data.Relational
                 {
                     _connection.Dispose();
                 }
+            }
+
+            public void Reset()
+            {
+                throw new NotImplementedException();
             }
         }
     }

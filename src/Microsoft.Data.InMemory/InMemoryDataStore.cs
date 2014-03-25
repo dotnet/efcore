@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
@@ -44,7 +45,9 @@ namespace Microsoft.Data.InMemory
         }
 
         public override Task<int> SaveChangesAsync(
-            IEnumerable<StateEntry> stateEntries, IModel model, CancellationToken cancellationToken = default(CancellationToken))
+            IEnumerable<StateEntry> stateEntries,
+            IModel model,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(stateEntries, "stateEntries");
             Check.NotNull(model, "model");
@@ -92,67 +95,92 @@ namespace Microsoft.Data.InMemory
             return Task.FromResult(added.Count + modified.Count + deleted.Count);
         }
 
-        public override IAsyncEnumerable<object[]> Read(IEntityType entityType)
+        public override IAsyncEnumerable<TResult> Query<TResult>(IModel model, StateManager stateManager)
         {
-            return new CompletedAsyncEnumerable(
+            Check.NotNull(model, "model");
+            Check.NotNull(stateManager, "stateManager");
+
+            var entityType = model.GetEntityType(typeof(TResult));
+
+            return new Enumerable<TResult>(
                 _objectData.Value
                     .Where(kv => kv.Key.EntityType == entityType)
-                    .Select(kv => kv.Value));
+                    .Select(kv => (TResult)stateManager.GetOrMaterializeEntry(entityType, kv.Value).Entity));
         }
 
-        internal IDictionary<EntityKey, object[]> Objects
+        private sealed class Enumerable<T> : IAsyncEnumerable<T>
         {
-            get { return _objectData.Value; }
-        }
+            private readonly IEnumerable<T> _enumerable;
 
-        private sealed class CompletedAsyncEnumerable : IAsyncEnumerable<object[]>
-        {
-            private readonly IEnumerable<object[]> _enumerable;
-
-            public CompletedAsyncEnumerable(IEnumerable<object[]> enumerable)
+            public Enumerable(IEnumerable<T> enumerable)
             {
                 _enumerable = enumerable;
             }
 
-            public IAsyncEnumerator<object[]> GetAsyncEnumerator()
+            public IAsyncEnumerator<T> GetAsyncEnumerator()
             {
-                return new CompletedAsyncEnumerator(_enumerable.GetEnumerator());
+                return new Enumerator<T>(_enumerable.GetEnumerator());
             }
 
             IAsyncEnumerator IAsyncEnumerable.GetAsyncEnumerator()
             {
                 return GetAsyncEnumerator();
             }
+
+            public IEnumerator<T> GetEnumerator()
+            {
+                return _enumerable.GetEnumerator();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
         }
 
-        private sealed class CompletedAsyncEnumerator : IAsyncEnumerator<object[]>
+        private sealed class Enumerator<T> : IAsyncEnumerator<T>
         {
-            private readonly IEnumerator<object[]> _enumerator;
+            private readonly IEnumerator<T> _enumerator;
 
-            public CompletedAsyncEnumerator(IEnumerator<object[]> enumerator)
+            public Enumerator(IEnumerator<T> enumerator)
             {
                 _enumerator = enumerator;
             }
 
             public Task<bool> MoveNextAsync(CancellationToken cancellationToken = default(CancellationToken))
             {
-                return Task.FromResult(_enumerator.MoveNext());
+                return Task.FromResult(MoveNext());
             }
 
-            public object[] Current
+            public bool MoveNext()
             {
-                get { return _enumerator.Current; }
+                return _enumerator.MoveNext();
             }
 
-            object IAsyncEnumerator.Current
+            public void Reset()
+            {
+                _enumerator.Reset();
+            }
+
+            object IEnumerator.Current
             {
                 get { return Current; }
+            }
+
+            public T Current
+            {
+                get { return _enumerator.Current; }
             }
 
             public void Dispose()
             {
                 _enumerator.Dispose();
             }
+        }
+
+        internal IDictionary<EntityKey, object[]> Objects
+        {
+            get { return _objectData.Value; }
         }
     }
 }

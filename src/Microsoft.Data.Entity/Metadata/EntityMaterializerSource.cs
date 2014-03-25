@@ -28,6 +28,7 @@ namespace Microsoft.Data.Entity.Metadata
                 return materializer.CreatEntity;
             }
 
+            // TODO: Shadow state
             return _cache.GetOrAdd(entityType.Type, k => BuildDelegate(entityType));
         }
 
