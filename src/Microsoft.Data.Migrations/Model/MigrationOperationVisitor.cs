@@ -16,11 +16,16 @@ namespace Microsoft.Data.Migrations.Model
         public abstract void Visit([NotNull] MoveTableOperation moveTableOperation);
         public abstract void Visit([NotNull] AddColumnOperation addColumnOperation);
         public abstract void Visit([NotNull] DropColumnOperation dropColumnOperation);
-        public abstract void Visit([NotNull] RenameColumnOperation renameColumnOperation);
+        public abstract void Visit([NotNull] AddDefaultConstraintOperation addDefaultConstraintOperation);
+        public abstract void Visit([NotNull] DropDefaultConstraintOperation dropDefaultConstraintOperation);
         public abstract void Visit([NotNull] AlterColumnOperation alterColumnOperation);
+        public abstract void Visit([NotNull] RenameColumnOperation renameColumnOperation);
         public abstract void Visit([NotNull] AddPrimaryKeyOperation addPrimaryKeyOperation);
         public abstract void Visit([NotNull] DropPrimaryKeyOperation dropPrimaryKeyOperation);
         public abstract void Visit([NotNull] AddForeignKeyOperation addForeignKeyOperation);
         public abstract void Visit([NotNull] DropForeignKeyOperation dropForeignKeyOperation);
+        public abstract void Visit([NotNull] CreateIndexOperation addIndexOperation);
+        public abstract void Visit([NotNull] DropIndexOperation dropIndexOperation);
+        public abstract void Visit([NotNull] RenameIndexOperation renameIndexOperation);
     }
 }

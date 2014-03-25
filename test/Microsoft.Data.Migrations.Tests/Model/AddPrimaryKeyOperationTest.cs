@@ -12,19 +12,20 @@ namespace Microsoft.Data.Migrations.Tests.Model
         [Fact]
         public void Create_and_initialize_operation()
         {
-            var primaryKey = new PrimaryKey("MyPK", new[] { new Column("Foo", "int") });
-            var addPrimaryKeyOperation = new AddPrimaryKeyOperation("dbo.MyTable", primaryKey);
+            var addPrimaryKeyOperation = new AddPrimaryKeyOperation(
+                "dbo.MyTable", "MyPK", new[] { "Foo", "Bar" }, isClustered: true);
 
             Assert.Equal("dbo.MyTable", addPrimaryKeyOperation.TableName);
-            Assert.Same(primaryKey, addPrimaryKeyOperation.PrimaryKey);
-            Assert.False(addPrimaryKeyOperation.IsDestructiveChange);
+            Assert.Equal("MyPK", addPrimaryKeyOperation.PrimaryKeyName);
+            Assert.Equal(new[] { "Foo", "Bar" }, addPrimaryKeyOperation.ColumnNames);
+            Assert.True(addPrimaryKeyOperation.IsClustered);
         }
 
         [Fact]
         public void Dispatches_visitor()
         {
-            var primaryKey = new PrimaryKey("MyPK", new[] { new Column("Foo", "int") });
-            var addPrimaryKeyOperation = new AddPrimaryKeyOperation("dbo.MyTable", primaryKey);
+            var addPrimaryKeyOperation = new AddPrimaryKeyOperation(
+                "dbo.MyTable", "MyPK", new[] { "Foo", "Bar" }, isClustered: true);
             var mockVisitor = new Mock<MigrationOperationVisitor>();
 
             addPrimaryKeyOperation.Accept(mockVisitor.Object);

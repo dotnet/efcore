@@ -15,6 +15,8 @@ namespace Microsoft.Data.Relational.Model
         private readonly SchemaQualifiedName _name;
         private readonly List<Column> _columns = new List<Column>();
         private PrimaryKey _primaryKey;
+        private readonly List<ForeignKey> _foreignKeys = new List<ForeignKey>();
+        private readonly List<Index> _indexes = new List<Index>();
 
         public Table(SchemaQualifiedName name)
         {
@@ -85,6 +87,41 @@ namespace Microsoft.Data.Relational.Model
 
                 _primaryKey = value;
             }
+        }
+
+        public virtual IReadOnlyList<ForeignKey> ForeignKeys
+        {
+            get { return _foreignKeys; }
+        }
+
+        public virtual void AddForeignKey([NotNull] ForeignKey foreignKey)
+        {
+            Check.NotNull(foreignKey, "foreignKey");
+
+            // TODO: Validate input.
+
+            _foreignKeys.Add(foreignKey);
+        }
+
+        public virtual IReadOnlyList<Index> Indexes
+        {
+            get { return _indexes; }
+        }
+
+        public virtual Index GetIndex([NotNull] string indexName)
+        {
+            Check.NotEmpty(indexName, "indexName");
+
+            return _indexes.First(c => c.Name.Equals(indexName, StringComparison.Ordinal));
+        }
+
+        public virtual void AddIndex([NotNull] Index index)
+        {
+            Check.NotNull(index, "index");
+
+            // TODO: Validate input.
+
+            _indexes.Add(index);
         }
     }
 }

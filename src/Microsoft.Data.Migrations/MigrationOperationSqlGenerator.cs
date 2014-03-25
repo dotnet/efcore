@@ -1,21 +1,33 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Migrations.Model;
 using Microsoft.Data.Migrations.Utilities;
 using Microsoft.Data.Relational;
 using Microsoft.Data.Relational.Model;
+using System.Globalization;
 
 namespace Microsoft.Data.Migrations
 {
     /// <summary>
     /// Default migration operation SQL generator, outputs best-effort ANSI-99 compliant SQL.
     /// </summary>
+    // TODO: Include idempotent generation logic here. Can use the presence checks methods
+    // similar to ones in the generator for SqlServer but implemented over INFORMATION_SCHEMA.
+    // Also consider adding flag for opting between presence checks and "IF [NOT] EXISTS" 
+    // constructs where possible.
     public class MigrationOperationSqlGenerator : MigrationOperationVisitor
     {
+        // TODO: Check whether the following formats ar SqlServer specific or not and move
+        // to SqlServer provider if they are.
+        internal const string DateTimeFormat = "yyyy-MM-ddTHH:mm:ss.fffK";
+        internal const string DateTimeOffsetFormat = "yyyy-MM-ddTHH:mm:ss.fffzzz";
+
         private readonly IndentedStringBuilder _stringBuilder = new IndentedStringBuilder();
         private Database _database;
 
@@ -121,13 +133,18 @@ namespace Microsoft.Data.Migrations
 
             using (StringBuilder.Indent())
             {
-                Generate(table.Columns);
+                GenerateColumns(table.Columns);
 
-                if (table.PrimaryKey != null)
+                var primaryKey = table.PrimaryKey;
+
+                if (primaryKey != null)
                 {
                     StringBuilder.AppendLine();
 
-                    Generate(table.PrimaryKey);
+                    GeneratePrimaryKey(
+                        primaryKey.Name, 
+                        primaryKey.Columns.Select(c => c.Name).ToArray(),
+                        primaryKey.IsClustered);
                 }
             }
 
@@ -179,7 +196,7 @@ namespace Microsoft.Data.Migrations
                 .Append(DelimitIdentifier(addColumnOperation.TableName))
                 .Append(" ADD ");
 
-            Generate(addColumnOperation.Column);
+            GenerateColumn(addColumnOperation.Column);
         }
 
         public override void Visit([NotNull] DropColumnOperation dropColumnOperation)
@@ -191,6 +208,53 @@ namespace Microsoft.Data.Migrations
                 .Append(DelimitIdentifier(dropColumnOperation.TableName))
                 .Append(" DROP COLUMN ")
                 .Append(DelimitIdentifier(dropColumnOperation.ColumnName));
+        }
+
+        public override void Visit([NotNull] AlterColumnOperation alterColumnOperation)
+        {
+            Check.NotNull(alterColumnOperation, "alterColumnOperation");
+
+            StringBuilder
+                .Append("ALTER TABLE ")
+                .Append(DelimitIdentifier(alterColumnOperation.TableName))
+                .Append(" ALTER COLUMN ")
+                .Append(DelimitIdentifier(alterColumnOperation.ColumnName))
+                .Append(" ")
+                .Append(alterColumnOperation.DataType)
+                .Append(alterColumnOperation.IsNullable ? " NULL" : " NOT NULL");
+        }
+
+        public override void Visit([NotNull] AddDefaultConstraintOperation addDefaultConstraintOperation)
+        {
+            Check.NotNull(addDefaultConstraintOperation, "addDefaultConstraintOperation");
+
+            StringBuilder
+                .Append("ALTER TABLE ")
+                .Append(DelimitIdentifier(addDefaultConstraintOperation.TableName))
+                .Append(" ALTER COLUMN ")
+                .Append(DelimitIdentifier(addDefaultConstraintOperation.ColumnName))
+                .Append(" SET DEFAULT ");
+
+            if (addDefaultConstraintOperation.DefaultSql != null)
+            {
+                StringBuilder.Append(addDefaultConstraintOperation.DefaultSql);
+            }
+            else 
+            {
+                StringBuilder.Append(GenerateLiteral((dynamic)addDefaultConstraintOperation.DefaultValue));
+            }
+        }
+
+        public override void Visit([NotNull] DropDefaultConstraintOperation dropDefaultConstraintOperation)
+        {
+            Check.NotNull(dropDefaultConstraintOperation, "dropDefaultConstraintOperation");
+
+            StringBuilder
+                .Append("ALTER TABLE ")
+                .Append(DelimitIdentifier(dropDefaultConstraintOperation.TableName))
+                .Append(" ALTER COLUMN ")
+                .Append(DelimitIdentifier(dropDefaultConstraintOperation.ColumnName))
+                .Append(" DROP DEFAULT");
         }
 
         public override void Visit([NotNull] RenameColumnOperation renameColumnOperation)
@@ -209,13 +273,6 @@ namespace Microsoft.Data.Migrations
                 .Append(", @objtype = N'COLUMN'");
         }
 
-        public override void Visit([NotNull] AlterColumnOperation alterColumnOperation)
-        {
-            Check.NotNull(alterColumnOperation, "alterColumnOperation");
-
-            // TODO: Not implemented.
-        }
-
         public override void Visit([NotNull] AddPrimaryKeyOperation addPrimaryKeyOperation)
         {
             Check.NotNull(addPrimaryKeyOperation, "addPrimaryKeyOperation");
@@ -225,7 +282,10 @@ namespace Microsoft.Data.Migrations
                 .Append(DelimitIdentifier(addPrimaryKeyOperation.TableName))
                 .Append(" ADD ");
 
-            Generate(addPrimaryKeyOperation.PrimaryKey);
+            GeneratePrimaryKey(
+                addPrimaryKeyOperation.PrimaryKeyName,
+                addPrimaryKeyOperation.ColumnNames,
+                addPrimaryKeyOperation.IsClustered);
         }
 
         public override void Visit([NotNull] DropPrimaryKeyOperation dropPrimaryKeyOperation)
@@ -245,15 +305,15 @@ namespace Microsoft.Data.Migrations
 
             StringBuilder
                 .Append("ALTER TABLE ")
-                .Append(DelimitIdentifier(addForeignKeyOperation.DependentTableName))
+                .Append(DelimitIdentifier(addForeignKeyOperation.TableName))
                 .Append(" ADD CONSTRAINT ")
                 .Append(DelimitIdentifier(addForeignKeyOperation.ForeignKeyName))
                 .Append(" FOREIGN KEY (")
-                .Append(addForeignKeyOperation.DependentColumnNames.Select(n => DelimitIdentifier(n)).Join())
+                .Append(addForeignKeyOperation.ColumnNames.Select(n => DelimitIdentifier(n)).Join())
                 .Append(") REFERENCES ")
-                .Append(DelimitIdentifier(addForeignKeyOperation.PrincipalTableName))
+                .Append(DelimitIdentifier(addForeignKeyOperation.ReferencedTableName))
                 .Append(" (")
-                .Append(addForeignKeyOperation.PrincipalColumnNames.Select(n => DelimitIdentifier(n)).Join())
+                .Append(addForeignKeyOperation.ReferencedColumnNames.Select(n => DelimitIdentifier(n)).Join())
                 .Append(")");
 
             if (addForeignKeyOperation.CascadeDelete)
@@ -273,62 +333,115 @@ namespace Microsoft.Data.Migrations
                 .Append(DelimitIdentifier(dropForeignKeyOperation.ForeignKeyName));
         }
 
-        internal virtual void Generate([NotNull] IReadOnlyList<Column> columns)
+        public override void Visit([NotNull] CreateIndexOperation createIndexOperation)
         {
-            Check.NotNull(columns, "columns");
-            
-            // TODO: Table must enforce having at least one column.
+            Check.NotNull(createIndexOperation, "createIndexOperation");
 
-            Generate(columns[0]);
+            StringBuilder.Append("CREATE");
 
-            for (var i = 1; i < columns.Count; i++)
+            if (createIndexOperation.IsUnique)
             {
-                StringBuilder.AppendLine(",");
-
-                Generate(columns[i]);
-            }
-        }
-
-        internal protected virtual void Generate([NotNull] Column column)
-        {
-            Check.NotNull(column, "column");
-
-            StringBuilder
-                .Append(DelimitIdentifier(column.Name))
-                .Append(" ")
-                .Append(column.DataType);
-
-            if (!column.IsNullable)
-            {
-                StringBuilder.Append(" NOT NULL");
+                StringBuilder.Append(" UNIQUE");
             }
 
-            if (!string.IsNullOrWhiteSpace(column.DefaultValue))
+            if (createIndexOperation.IsClustered)
             {
-                StringBuilder
-                    .Append(" DEFAULT ")
-                    .Append(column.DefaultValue);
-            }
-        }
-
-        internal protected virtual void Generate([NotNull] PrimaryKey primaryKey)
-        {
-            Check.NotNull(primaryKey, "primaryKey");
-
-            StringBuilder
-                .Append("CONSTRAINT ")
-                .Append(DelimitIdentifier(primaryKey.Name.Name))
-                .Append(" PRIMARY KEY");
-
-            if (!primaryKey.IsClustered)
-            {
-                StringBuilder.Append(" NONCLUSTERED");
+                StringBuilder.Append(" CLUSTERED");
             }
 
             StringBuilder
+                .Append(" INDEX ")
+                .Append(DelimitIdentifier(createIndexOperation.IndexName))
+                .Append(" ON ")
+                .Append(DelimitIdentifier(createIndexOperation.TableName))
                 .Append(" (")
-                .Append(primaryKey.Columns.Select(c => DelimitIdentifier(c.Name)).Join())
+                .Append(createIndexOperation.ColumnNames.Select(n => DelimitIdentifier(n)).Join())
                 .Append(")");
+        }
+
+        public override void Visit([NotNull] DropIndexOperation dropIndexOperation)
+        {
+            Check.NotNull(dropIndexOperation, "dropIndexOperation");
+
+            StringBuilder
+                .Append("DROP INDEX ")
+                .Append(DelimitIdentifier(dropIndexOperation.IndexName))
+                .Append(" ON ")
+                .Append(DelimitIdentifier(dropIndexOperation.TableName));
+        }
+
+        public override void Visit([NotNull] RenameIndexOperation renameIndexOperation)
+        {
+            Check.NotNull(renameIndexOperation, "renameIndexOperation");
+
+            // TODO: Not ANSI-99.
+
+            StringBuilder
+                .Append("EXECUTE sp_rename @objname = N'")
+                .Append(EscapeLiteral(renameIndexOperation.TableName))
+                .Append(".")
+                .Append(EscapeLiteral(renameIndexOperation.IndexName))
+                .Append("', @newname = N")
+                .Append(DelimitLiteral(renameIndexOperation.NewIndexName))
+                .Append(", @objtype = N'INDEX'");
+        }
+
+        public virtual string GenerateDataType([NotNull] Type clrType)
+        {
+            Check.NotNull(clrType, "clrType");
+
+            throw new NotImplementedException();
+        }
+
+        public virtual string GenerateLiteral([NotNull] object value)
+        {
+            return string.Format(CultureInfo.InvariantCulture, "{0}", value);
+        }
+
+        public virtual string GenerateLiteral(bool value)
+        {
+            return value ? "1" : "0";
+        }
+
+        public virtual string GenerateLiteral([NotNull] string value)
+        {
+            Check.NotNull(value, "value");
+
+            return "'" + value + "'";
+        }
+
+        public virtual string GenerateLiteral(Guid value)
+        {
+            return "'" + value + "'";
+        }
+
+        public virtual string GenerateLiteral(DateTime value)
+        {
+            return "'" + value.ToString(DateTimeFormat, CultureInfo.InvariantCulture) + "'";
+        }
+
+        public virtual string GenerateLiteral(DateTimeOffset value)
+        {
+            return "'" + value.ToString(DateTimeOffsetFormat, CultureInfo.InvariantCulture) + "'";
+        }
+
+        public virtual string GenerateLiteral(TimeSpan value)
+        {
+            return "'" + value + "'";
+        }
+
+        public virtual string GenerateLiteral([NotNull] byte[] value)
+        {
+            Check.NotNull(value, "value");
+
+            var stringBuilder = new StringBuilder("0x");
+
+            foreach (var @byte in value)
+            {
+                stringBuilder.Append(@byte.ToString("X2", CultureInfo.InvariantCulture));
+            }
+
+            return stringBuilder.ToString();
         }
 
         public virtual string DelimitIdentifier(SchemaQualifiedName schemaQualifiedName)
@@ -366,6 +479,85 @@ namespace Microsoft.Data.Migrations
             Check.NotNull(literal, "literal");
 
             return literal.Replace("'", "''");
+        }
+
+        protected virtual void GenerateColumns([NotNull] IReadOnlyList<Column> columns)
+        {
+            Check.NotNull(columns, "columns");
+
+            if (columns.Count == 0)
+            {
+                return;
+            }
+
+            GenerateColumn(columns[0]);
+
+            for (var i = 1; i < columns.Count; i++)
+            {
+                StringBuilder.AppendLine(",");
+
+                GenerateColumn(columns[i]);
+            }
+        }
+
+        protected virtual void GenerateColumn([NotNull] Column column)
+        {
+            Check.NotNull(column, "column");
+
+            StringBuilder
+                .Append(DelimitIdentifier(column.Name))
+                .Append(" ");
+
+            if (column.DataType != null)
+            {
+                StringBuilder.Append(column.DataType);
+            }
+            else
+            {
+                StringBuilder.Append(GenerateDataType(column.ClrType));
+            }
+
+            if (!column.IsNullable)
+            {
+                StringBuilder.Append(" NOT NULL");
+            }
+
+            if (column.DefaultSql != null)
+            {
+                StringBuilder
+                    .Append(" DEFAULT ")
+                    .Append(column.DefaultSql);
+            }
+            else if (column.DefaultValue != null)
+            {
+                StringBuilder
+                    .Append(" DEFAULT ")
+                    .Append(GenerateLiteral(column.DefaultValue));
+            }
+        }
+
+        protected virtual void GeneratePrimaryKey(
+            [NotNull] string primaryKeyName,
+            [NotNull] IReadOnlyList<string> columnNames,
+            bool isClustered)
+        {
+            Check.NotNull(primaryKeyName, "primaryKeyName");
+            Check.NotNull(columnNames, "columnNames");
+
+            StringBuilder
+                .Append("CONSTRAINT ")
+                .Append(DelimitIdentifier(primaryKeyName))
+                .Append(" PRIMARY KEY");
+
+            if (!isClustered)
+            {
+                StringBuilder.Append(" NONCLUSTERED");
+            }
+
+            StringBuilder
+                .Append(" (")
+                .Append(columnNames.Select(n => DelimitIdentifier(n)).Join())
+                .Append(")");
         }
     }
 }

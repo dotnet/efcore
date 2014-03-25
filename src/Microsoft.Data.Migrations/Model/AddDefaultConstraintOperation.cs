@@ -7,29 +7,29 @@ using Microsoft.Data.Relational.Model;
 
 namespace Microsoft.Data.Migrations.Model
 {
-    public class AlterColumnOperation : MigrationOperation
+    public class AddDefaultConstraintOperation : MigrationOperation
     {
         private readonly SchemaQualifiedName _tableName;
         private readonly string _columnName;
-        private readonly string _dataType;
-        private readonly bool _isNullable;
-        private readonly bool _isDestructiveChange;
+        // TODO: Consider grouping these into struct with object and boolean
+        // that indicates whether it is value or sql.
+        private readonly object _defaultValue;
+        private readonly string _defaultSql;
 
-        public AlterColumnOperation(
-            SchemaQualifiedName tableName, 
-            [NotNull] string columnName, 
-            [NotNull] string dataType,
-            bool isNullable, 
-            bool isDestructiveChange)
+        public AddDefaultConstraintOperation(
+            SchemaQualifiedName tableName,
+            [NotNull] string columnName,
+            [CanBeNull] object defaultValue,
+            [CanBeNull] string defaultSql)
         {
-            Check.NotNull(columnName, "columnName");
-            Check.NotNull(dataType, "dataType");
+            Check.NotEmpty(columnName, "columnName");
+
+            // TODO: Validate input. Either defaultValue or defaultSql must not be null, but not both.
 
             _tableName = tableName;
             _columnName = columnName;
-            _dataType = dataType;
-            _isNullable = isNullable;
-            _isDestructiveChange = isDestructiveChange;
+            _defaultValue = defaultValue;
+            _defaultSql = defaultSql;
         }
 
         public virtual SchemaQualifiedName TableName
@@ -42,19 +42,14 @@ namespace Microsoft.Data.Migrations.Model
             get { return _columnName; }
         }
 
-        public virtual string DataType
+        public virtual object DefaultValue
         {
-            get { return _dataType; }
+            get { return _defaultValue; }
         }
 
-        public virtual bool IsNullable
+        public virtual object DefaultSql
         {
-            get { return _isNullable; }
-        }
-
-        public override bool IsDestructiveChange
-        {
-            get { return _isDestructiveChange; }
+            get { return _defaultSql; }
         }
 
         public override void Accept([NotNull] MigrationOperationVisitor visitor)

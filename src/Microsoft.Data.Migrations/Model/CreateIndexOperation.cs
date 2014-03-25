@@ -1,31 +1,34 @@
-﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Migrations.Utilities;
 using Microsoft.Data.Relational;
-using System.Collections.Generic;
 
 namespace Microsoft.Data.Migrations.Model
 {
-    public class AddPrimaryKeyOperation : MigrationOperation
+    public class CreateIndexOperation : MigrationOperation
     {
         private readonly SchemaQualifiedName _tableName;
-        private readonly string _primaryKeyName;
+        private readonly string _indexName;
         private readonly IReadOnlyList<string> _columnNames;
+        private readonly bool _isUnique;
         private readonly bool _isClustered;
 
-        public AddPrimaryKeyOperation(
+        public CreateIndexOperation(
             SchemaQualifiedName tableName,
-            [NotNull] string primaryKeyName,
+            [NotNull] string indexName,
             [NotNull] IReadOnlyList<string> columnNames,
+            bool isUnique,
             bool isClustered)
         {
-            Check.NotEmpty(primaryKeyName, "primaryKeyName");
+            Check.NotEmpty(indexName, "indexName");
             Check.NotNull(columnNames, "columnNames");
 
             _tableName = tableName;
-            _primaryKeyName = primaryKeyName;
+            _indexName = indexName;
             _columnNames = columnNames;
+            _isUnique = isUnique;
             _isClustered = isClustered;
         }
 
@@ -34,14 +37,19 @@ namespace Microsoft.Data.Migrations.Model
             get { return _tableName; }
         }
 
-        public virtual string PrimaryKeyName
+        public virtual string IndexName
         {
-            get { return _primaryKeyName; }
+            get { return _indexName; }
         }
 
         public virtual IReadOnlyList<string> ColumnNames
         {
             get { return _columnNames; }
+        }
+
+        public virtual bool IsUnique
+        {
+            get { return _isUnique; }
         }
 
         public virtual bool IsClustered

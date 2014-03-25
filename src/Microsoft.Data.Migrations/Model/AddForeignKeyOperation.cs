@@ -10,29 +10,29 @@ namespace Microsoft.Data.Migrations.Model
     public class AddForeignKeyOperation : MigrationOperation
     {
         private readonly string _foreignKeyName;
-        private readonly SchemaQualifiedName _principalTableName; 
-        private readonly SchemaQualifiedName _dependentTableName;
-        private readonly IReadOnlyList<string> _principalColumnNames;
-        private readonly IReadOnlyList<string> _dependentColumnNames;
+        private readonly SchemaQualifiedName _tableName;
+        private readonly SchemaQualifiedName _referencedTableName; 
+        private readonly IReadOnlyList<string> _columnNames;
+        private readonly IReadOnlyList<string> _referencedColumnNames;
         private readonly bool _cascadeDelete;
 
         public AddForeignKeyOperation(
             [NotNull] string foreignKeyName,
-            SchemaQualifiedName principalTableName, 
-            SchemaQualifiedName dependentTableName,
-            [NotNull] IReadOnlyList<string> principalColumnNames,
-            [NotNull] IReadOnlyList<string> dependentColumnNames,
+            SchemaQualifiedName tableName,
+            SchemaQualifiedName referencedTableName,
+            [NotNull] IReadOnlyList<string> columnNames,
+            [NotNull] IReadOnlyList<string> referencedColumnNames,
             bool cascadeDelete)
         {
             Check.NotEmpty(foreignKeyName, "foreignKeyName");
-            Check.NotNull(principalColumnNames, "principalColumnNames");
-            Check.NotNull(dependentColumnNames, "dependentColumnNames");
+            Check.NotNull(columnNames, "columnNames");
+            Check.NotNull(referencedColumnNames, "referencedColumnNames");
 
             _foreignKeyName = foreignKeyName;
-            _principalTableName = principalTableName;
-            _dependentTableName = dependentTableName;
-            _principalColumnNames = principalColumnNames;
-            _dependentColumnNames = dependentColumnNames;
+            _tableName = tableName;
+            _referencedTableName = referencedTableName;
+            _columnNames = columnNames;
+            _referencedColumnNames = referencedColumnNames;
             _cascadeDelete = cascadeDelete;
         }
 
@@ -41,24 +41,24 @@ namespace Microsoft.Data.Migrations.Model
             get { return _foreignKeyName; }
         }
 
-        public virtual SchemaQualifiedName PrincipalTableName
+        public virtual SchemaQualifiedName TableName
         {
-            get { return _principalTableName; }
+            get { return _tableName; }
         }
 
-        public virtual SchemaQualifiedName DependentTableName
+        public virtual SchemaQualifiedName ReferencedTableName
         {
-            get { return _dependentTableName; }
+            get { return _referencedTableName; }
         }
 
-        public virtual IReadOnlyList<string> PrincipalColumnNames
+        public virtual IReadOnlyList<string> ColumnNames
         {
-            get { return _principalColumnNames; }
+            get { return _columnNames; }
         }
 
-        public virtual IReadOnlyList<string> DependentColumnNames
+        public virtual IReadOnlyList<string> ReferencedColumnNames
         {
-            get { return _dependentColumnNames; }
+            get { return _referencedColumnNames; }
         }
 
         public virtual bool CascadeDelete
