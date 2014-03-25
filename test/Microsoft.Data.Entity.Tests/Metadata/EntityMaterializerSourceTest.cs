@@ -40,6 +40,23 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
+        public void DBNulls_are_converted_to_nulls()
+        {
+            var entityType = new EntityType(typeof(SomeEntity));
+            entityType.AddProperty("Id", typeof(int), shadowProperty: false);
+            entityType.AddProperty("Foo", typeof(string), shadowProperty: false);
+            entityType.AddProperty("Goo", typeof(Guid?), shadowProperty: false);
+
+            var factory = new EntityMaterializerSource().GetMaterializer(entityType);
+
+            var entity = (SomeEntity)factory(new object[] { DBNull.Value, DBNull.Value, 77 });
+
+            Assert.Equal(77, entity.Id);
+            Assert.Null(entity.Foo);
+            Assert.Null(entity.Goo);
+        }
+
+        [Fact]
         public void Can_create_materializer_for_entity_ignoring_shadow_fields()
         {
             var entityType = new EntityType(typeof(SomeEntity));
@@ -64,7 +81,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             public int Id { get; set; }
             public string Foo { get; set; }
-            public Guid Goo { get; set; }
+            public Guid? Goo { get; set; }
         }
     }
 }

@@ -12,6 +12,9 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public class EntityMaterializerSource
     {
+        private static readonly MethodInfo _convert
+            = typeof(EntityMaterializerSource).GetTypeInfo().GetDeclaredMethods("Convert").Single();
+
         private readonly ThreadSafeDictionaryCache<Type, Func<object[], object>> _cache
             = new ThreadSafeDictionaryCache<Type, Func<object[], object>>();
 
@@ -45,7 +48,11 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 blockExpressions.Add(
                     Expression.Assign(Expression.Field(instanceVariable, field.Item2),
-                        Expression.Convert(Expression.ArrayAccess(bufferParameter, Expression.Constant(field.Item1.Index)), field.Item2.FieldType)));
+                        Expression.Convert(
+                            Expression.Call(
+                                _convert,
+                                Expression.ArrayAccess(bufferParameter, Expression.Constant(field.Item1.Index))),
+                            field.Item2.FieldType)));
             }
 
             blockExpressions.Add(instanceVariable);
@@ -63,6 +70,13 @@ namespace Microsoft.Data.Entity.Metadata
             return entityType.Properties
                 .Where(p => p.IsClrProperty)
                 .Select(p => Tuple.Create(p, allFields.Single(f => f.Name == "<" + p.Name + ">k__BackingField")));
+        }
+
+        // TODO: This is a temporary workaround for conveting DBNull into null
+        // TODO: It is probably just an example of type conversions such that it can be handled more generally
+        private static object Convert(object value)
+        {
+            return value is DBNull ? null : value;
         }
     }
 }

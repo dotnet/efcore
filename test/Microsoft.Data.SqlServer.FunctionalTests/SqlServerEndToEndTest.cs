@@ -29,6 +29,11 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                     Assert.Equal("ANTON", results[1].CustomerID);
                     Assert.Equal("ANATR", results[2].CustomerID);
                     Assert.Equal("ALFKI", results[3].CustomerID);
+
+                    Assert.Equal("(171) 555-6750", results[0].Fax);
+                    Assert.Null(results[1].Fax);
+                    Assert.Equal("(5) 555-3745", results[2].Fax);
+                    Assert.Equal("030-0076545", results[3].Fax);
                 }
             }
         }
@@ -118,6 +123,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
         {
             public string CustomerID { get; set; }
             public string CompanyName { get; set; }
+            public string Fax { get; set; }
         }
 
         private class BloggingContext : EntityContext

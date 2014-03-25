@@ -45,12 +45,33 @@ namespace Microsoft.Data.Entity.Tests
                 model.EntityTypes.Select(e => e.Name).ToArray());
         }
 
-        public class JustAClass
+        private class JustAClass
         {
             public EntitySet<Random> One { get; set; }
             protected EntitySet<object> Two { get; set; }
             private EntitySet<string> Three { get; set; }
             private EntitySet<string> Four { get; set; }
+        }
+
+        [Fact]
+        public void Caches_model_by_context_type()
+        {
+            var modelSource = new DefaultModelSource(new EntitySetFinder());
+
+            var model1 = modelSource.GetModel(new Context1());
+            var model2 = modelSource.GetModel(new Context2());
+
+            Assert.NotSame(model1, model2);
+            Assert.Same(model1, modelSource.GetModel(new Context1()));
+            Assert.Same(model2, modelSource.GetModel(new Context2()));
+        }
+
+        private class Context1 : EntityContext
+        {
+        }
+
+        private class Context2 : EntityContext
+        {
         }
     }
 }
