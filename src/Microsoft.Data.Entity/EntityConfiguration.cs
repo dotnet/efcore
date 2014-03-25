@@ -1,10 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.AspNet.DependencyInjection;
 using Microsoft.AspNet.Logging;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Identity;
@@ -16,111 +13,94 @@ namespace Microsoft.Data.Entity
 {
     public class EntityConfiguration
     {
-        private readonly IServiceProvider _serviceProvider;
+        private IServiceProvider _serviceProvider;
 
-        public EntityConfiguration([NotNull] IServiceProvider serviceProvider)
+        /// <summary>
+        ///     This constructor is intended only for use when creating test doubles that will override members
+        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
+        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
+        /// </summary>
+        protected internal EntityConfiguration()
+        {
+        }
+
+        public virtual EntityConfiguration Initialize([NotNull] IServiceProvider serviceProvider)
         {
             Check.NotNull(serviceProvider, "serviceProvider");
 
             _serviceProvider = serviceProvider;
+
+            return this;
         }
 
-        // Required services
+        public virtual IServiceProvider ServiceProvider
+        {
+            get { return _serviceProvider; }
+        }
 
         public virtual IModelSource ModelSource
         {
-            get { return GetRequiredService<IModelSource>(); }
+            get { return _serviceProvider.GetRequiredService<IModelSource>(); }
         }
 
         public virtual EntitySetInitializer EntitySetInitializer
         {
-            get { return GetRequiredService<EntitySetInitializer>(); }
+            get { return _serviceProvider.GetRequiredService<EntitySetInitializer>(); }
         }
 
         public virtual EntitySetSource EntitySetSource
         {
-            get { return GetRequiredService<EntitySetSource>(); }
+            get { return _serviceProvider.GetRequiredService<EntitySetSource>(); }
         }
 
         public virtual DataStore DataStore
         {
-            get { return GetRequiredService<DataStore>(); }
+            get { return _serviceProvider.GetRequiredService<DataStore>(); }
         }
 
         public virtual IdentityGeneratorFactory IdentityGeneratorFactory
         {
-            get { return GetRequiredService<IdentityGeneratorFactory>(); }
+            get { return _serviceProvider.GetRequiredService<IdentityGeneratorFactory>(); }
         }
 
         public virtual ActiveIdentityGenerators ActiveIdentityGenerators
         {
-            get { return GetRequiredService<ActiveIdentityGenerators>(); }
-        }
-
-        public virtual StateManagerFactory StateManagerFactory
-        {
-            get { return GetRequiredService<StateManagerFactory>(); }
+            get { return _serviceProvider.GetRequiredService<ActiveIdentityGenerators>(); }
         }
 
         public virtual EntitySetFinder EntitySetFinder
         {
-            get { return GetRequiredService<EntitySetFinder>(); }
+            get { return _serviceProvider.GetRequiredService<EntitySetFinder>(); }
         }
 
         public virtual EntityKeyFactorySource EntityKeyFactorySource
         {
-            get { return GetRequiredService<EntityKeyFactorySource>(); }
-        }
-
-        public virtual StateEntryFactory StateEntryFactory
-        {
-            get { return GetRequiredService<StateEntryFactory>(); }
+            get { return _serviceProvider.GetRequiredService<EntityKeyFactorySource>(); }
         }
 
         public virtual ClrCollectionAccessorSource ClrCollectionAccessorSource
         {
-            get { return GetRequiredService<ClrCollectionAccessorSource>(); }
+            get { return _serviceProvider.GetRequiredService<ClrCollectionAccessorSource>(); }
         }
 
         public virtual ClrPropertyGetterSource ClrPropertyGetterSource
         {
-            get { return GetRequiredService<ClrPropertyGetterSource>(); }
+            get { return _serviceProvider.GetRequiredService<ClrPropertyGetterSource>(); }
         }
 
         public virtual ClrPropertySetterSource ClrPropertySetterSource
         {
-            get { return GetRequiredService<ClrPropertySetterSource>(); }
+            get { return _serviceProvider.GetRequiredService<ClrPropertySetterSource>(); }
         }
 
         public virtual EntityMaterializerSource EntityMaterializerSource
         {
-            get { return GetRequiredService<EntityMaterializerSource>(); }
+            get { return _serviceProvider.GetRequiredService<EntityMaterializerSource>(); }
         }
 
         public virtual ILoggerFactory LoggerFactory
         {
-            get { return GetRequiredService<ILoggerFactory>(); }
-        }
-
-        public virtual IEnumerable<IEntityStateListener> EntityStateListeners
-        {
-            get
-            {
-                return _serviceProvider.GetService<IEnumerable<IEntityStateListener>>()
-                       ?? Enumerable.Empty<IEntityStateListener>();
-            }
-        }
-
-        private TService GetRequiredService<TService>() where TService : class
-        {
-            var service = _serviceProvider.GetService<TService>();
-
-            if (service != null)
-            {
-                return service;
-            }
-
-            throw new InvalidOperationException(Strings.FormatMissingConfigurationItem(typeof(TService)));
+            get { return _serviceProvider.GetRequiredService<ILoggerFactory>(); }
         }
     }
 }

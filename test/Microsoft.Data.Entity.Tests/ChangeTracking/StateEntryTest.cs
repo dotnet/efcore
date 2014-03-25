@@ -1,7 +1,5 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,314 +14,252 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
     public class StateEntryTest
     {
         [Fact]
-        public void Members_check_arguments()
-        {
-            var entityTypeMock = CreateEntityTypeMock();
-            var entry = CreateStateEntry(CreateManagerMock(entityTypeMock).Object, entityTypeMock.Object, new SomeEntity());
-
-            Assert.Equal(
-                "property",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => entry.IsPropertyModified(null)).ParamName);
-
-            Assert.Equal(
-                "property",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => entry.SetPropertyModified(null, true)).ParamName);
-        }
-
-        [Fact]
         public void Changing_state_from_Unknown_causes_entity_to_start_tracking()
         {
-            var entityTypeMock = CreateEntityTypeMock();
-            var managerMock = CreateManagerMock(entityTypeMock);
-            var entry = CreateStateEntry(managerMock.Object, entityTypeMock.Object, new SomeEntity());
+            var model = BuildModel();
+            var entityType = model.GetEntityType("SomeEntity");
+            var keyProperty = entityType.GetProperty("Id");
+
+            var configuration = CreateConfiguration(model);
+
+            var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
+            entry.SetPropertyValue(keyProperty, 1);
 
             entry.SetEntityStateAsync(EntityState.Added, CancellationToken.None).Wait();
 
-            managerMock.Verify(m => m.StartTracking(entry));
             Assert.Equal(EntityState.Added, entry.EntityState);
+            Assert.Contains(entry, configuration.StateManager.StateEntries);
         }
 
         [Fact]
         public void Changing_state_to_Unknown_causes_entity_to_stop_tracking()
         {
-            var entityTypeMock = CreateEntityTypeMock();
-            var managerMock = CreateManagerMock(entityTypeMock);
-            var entry = CreateStateEntry(managerMock.Object, entityTypeMock.Object, new SomeEntity());
+            var model = BuildModel();
+            var entityType = model.GetEntityType("SomeEntity");
+            var keyProperty = entityType.GetProperty("Id");
+            
+            var configuration = CreateConfiguration(model);
+
+            var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
+            entry.SetPropertyValue(keyProperty, 1);
 
             entry.SetEntityStateAsync(EntityState.Added, CancellationToken.None).Wait();
             entry.SetEntityStateAsync(EntityState.Unknown, CancellationToken.None).Wait();
 
-            managerMock.Verify(m => m.StopTracking(entry));
             Assert.Equal(EntityState.Unknown, entry.EntityState);
+            Assert.DoesNotContain(entry, configuration.StateManager.StateEntries);
         }
 
         [Fact]
         public void Changing_state_to_Modified_or_Unchanged_causes_all_properties_to_be_marked_accordingly()
         {
-            var keyMock = new Mock<IProperty>();
-            var nonKeyMock = new Mock<IProperty>();
-            var entityTypeMock = CreateEntityTypeMock(keyMock, nonKeyMock);
-            var managerMock = CreateManagerMock(entityTypeMock);
-            var entry = CreateStateEntry(managerMock.Object, entityTypeMock.Object, new SomeEntity());
+            var model = BuildModel();
+            var entityType = model.GetEntityType("SomeEntity");
+            var keyProperty = entityType.GetProperty("Id");
+            var nonKeyProperty = entityType.GetProperty("Kool");
+            var configuration = CreateConfiguration(model);
 
-            Assert.False(entry.IsPropertyModified(keyMock.Object));
-            Assert.False(entry.IsPropertyModified(nonKeyMock.Object));
+            var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
+            entry.SetPropertyValue(keyProperty, 1);
+
+            Assert.False(entry.IsPropertyModified(keyProperty));
+            Assert.False(entry.IsPropertyModified(nonKeyProperty));
 
             entry.SetEntityStateAsync(EntityState.Modified, CancellationToken.None).Wait();
 
-            Assert.True(entry.IsPropertyModified(keyMock.Object));
-            Assert.True(entry.IsPropertyModified(nonKeyMock.Object));
+            Assert.True(entry.IsPropertyModified(keyProperty));
+            Assert.True(entry.IsPropertyModified(nonKeyProperty));
 
             entry.SetEntityStateAsync(EntityState.Unchanged, CancellationToken.None).Wait();
 
-            Assert.False(entry.IsPropertyModified(keyMock.Object));
-            Assert.False(entry.IsPropertyModified(nonKeyMock.Object));
+            Assert.False(entry.IsPropertyModified(keyProperty));
+            Assert.False(entry.IsPropertyModified(nonKeyProperty));
         }
 
         [Fact]
         public void Changing_state_to_Added_triggers_key_generation()
         {
-            var keyMock = new Mock<IProperty>();
-            var entityTypeMock = CreateEntityTypeMock(keyMock);
-            var managerMock = CreateManagerMock(entityTypeMock);
+            var model = BuildModel();
+            var entityType = model.GetEntityType("SomeEntity");
+            var keyProperty = entityType.GetProperty("Id");
 
-            var keyValue = new object();
             var generatorMock = new Mock<IIdentityGenerator>();
-            generatorMock.Setup(m => m.NextAsync(CancellationToken.None)).Returns(Task.FromResult(keyValue));
+            generatorMock.Setup(m => m.NextAsync(CancellationToken.None)).Returns(Task.FromResult((object)77));
 
-            managerMock.Setup(m => m.GetIdentityGenerator(keyMock.Object)).Returns(generatorMock.Object);
+            var generatorFactory = new Mock<IdentityGeneratorFactory>();
+            generatorFactory.Setup(m => m.Create(keyProperty)).Returns(generatorMock.Object);
 
-            var setterMock = new Mock<IClrPropertySetter>();
-            managerMock.Setup(m => m.GetClrPropertySetter(keyMock.Object)).Returns(setterMock.Object);
+            var configuration = new EntityContext(
+                new EntityConfigurationBuilder()
+                    .UseModel(model)
+                    .UseIdentityGeneratorFactory(generatorFactory.Object)
+                    .BuildConfiguration()).Configuration;
 
-            var entity = new SomeEntity();
-            var entry = CreateStateEntry(managerMock.Object, entityTypeMock.Object, entity);
+            var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
+
             entry.SetEntityStateAsync(EntityState.Added, CancellationToken.None).Wait();
 
-            if (keyMock.Object.IsClrProperty)
-            {
-                setterMock.Verify(m => m.SetClrValue(entity, keyValue));
-            }
-            else
-            {
-                Assert.Same(keyValue, entry.GetPropertyValue(keyMock.Object));
-            }
+            Assert.Equal(77, entry.GetPropertyValue(keyProperty));
         }
 
         [Fact]
         public void Can_create_primary_key()
         {
-            var propertyMock1 = new Mock<IProperty>();
+            var model = BuildModel();
+            var entityType = model.GetEntityType("SomeEntity");
+            var keyProperty = entityType.GetProperty("Id");
+            var configuration = CreateConfiguration(model);
 
-            var entityTypeMock = CreateEntityTypeMock(propertyMock1);
-
-            var managerMock = new Mock<StateManager>();
-            managerMock.Setup(m => m.Model).Returns(Mock.Of<IModel>());
-            managerMock
-                .Setup(m => m.CreateKey(It.IsAny<IEntityType>(), It.IsAny<IReadOnlyList<IProperty>>(), It.IsAny<StateEntry>()))
-                .Returns(new SimpleEntityKey<string>(entityTypeMock.Object, "Atmosphere"));
-
-            var getterMock = new Mock<IClrPropertyGetter>();
-            getterMock.Setup(m => m.GetClrValue(It.IsAny<object>())).Returns("Atmosphere");
-            managerMock.Setup(m => m.GetClrPropertyGetter(propertyMock1.Object)).Returns(getterMock.Object);
-
-            var setterMock = new Mock<IClrPropertySetter>();
-            managerMock.Setup(m => m.GetClrPropertySetter(propertyMock1.Object)).Returns(setterMock.Object);
-
-            var entry = CreateStateEntry(managerMock.Object, entityTypeMock.Object, new SomeEntity());
-            entry.SetPropertyValue(propertyMock1.Object, "Atmosphere");
+            var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
+            entry.SetPropertyValue(keyProperty, 77);
 
             var keyValue = entry.GetPrimaryKeyValue();
-            Assert.IsType<SimpleEntityKey<string>>(keyValue);
-            Assert.Equal("Atmosphere", keyValue.Value);
-
-            managerMock.Verify(m => m.CreateKey(entityTypeMock.Object, entityTypeMock.Object.GetKey().Properties, entry));
+            Assert.IsType<SimpleEntityKey<int>>(keyValue);
+            Assert.Equal(77, keyValue.Value);
         }
 
         [Fact]
         public void Can_create_foreign_key_value_based_on_dependent_values()
         {
-            var principalProp = new Mock<IProperty>();
-            var dependentProp = new Mock<IProperty>();
+            var model = BuildModel();
+            var entityType = model.GetEntityType("SomeDependentEntity");
+            var fkProperty = entityType.GetProperty("SomeEntityId");
+            var configuration = CreateConfiguration(model);
 
-            var principalProps = new[] { principalProp.Object };
-            var dependentProps = new[] { dependentProp.Object };
+            var entry = CreateStateEntry(configuration, entityType, new SomeDependentEntity());
+            entry.SetPropertyValue(fkProperty, 77);
 
-            var principalTypeMock = CreateEntityTypeMock(new Mock<IProperty>(), principalProp);
-            var dependentTypeMock = CreateEntityTypeMock(new Mock<IProperty>(), dependentProp);
-
-            var managerMock = new Mock<StateManager>();
-            managerMock.Setup(m => m.Model).Returns(Mock.Of<IModel>());
-            managerMock
-                .Setup(m => m.CreateKey(principalTypeMock.Object, It.IsAny<IReadOnlyList<IProperty>>(), It.IsAny<StateEntry>()))
-                .Returns(new SimpleEntityKey<string>(principalTypeMock.Object, "On"));
-
-            var getterMock1 = new Mock<IClrPropertyGetter>();
-            getterMock1.Setup(m => m.GetClrValue(It.IsAny<object>())).Returns("Wax");
-
-            var getterMock2 = new Mock<IClrPropertyGetter>();
-            getterMock2.Setup(m => m.GetClrValue(It.IsAny<object>())).Returns("On");
-
-            managerMock.Setup(m => m.GetClrPropertyGetter(principalProp.Object)).Returns(getterMock1.Object);
-            managerMock.Setup(m => m.GetClrPropertyGetter(dependentProp.Object)).Returns(getterMock2.Object);
-
-            var setterMock = new Mock<IClrPropertySetter>();
-            managerMock.Setup(m => m.GetClrPropertySetter(principalProp.Object)).Returns(setterMock.Object);
-            managerMock.Setup(m => m.GetClrPropertySetter(dependentProp.Object)).Returns(setterMock.Object);
-
-            var foreignKeyMock = new Mock<IForeignKey>();
-            foreignKeyMock.Setup(m => m.ReferencedEntityType).Returns(principalTypeMock.Object);
-            foreignKeyMock.Setup(m => m.EntityType).Returns(dependentTypeMock.Object);
-            foreignKeyMock.Setup(m => m.ReferencedProperties).Returns(principalProps);
-            foreignKeyMock.Setup(m => m.Properties).Returns(dependentProps);
-
-            var entry = CreateStateEntry(managerMock.Object, dependentTypeMock.Object, new SomeEntity());
-            entry.SetPropertyValue(dependentProp.Object, "On");
-
-            var keyValue = entry.GetDependentKeyValue(foreignKeyMock.Object);
-            Assert.IsType<SimpleEntityKey<string>>(keyValue);
-            Assert.Equal("On", keyValue.Value);
-
-            managerMock.Verify(m => m.CreateKey(principalTypeMock.Object, foreignKeyMock.Object.Properties, entry));
+            var keyValue = entry.GetDependentKeyValue(entityType.ForeignKeys.Single());
+            Assert.IsType<SimpleEntityKey<int>>(keyValue);
+            Assert.Equal(77, keyValue.Value);
         }
 
         [Fact]
         public void Can_create_foreign_key_value_based_on_principal_end_values()
         {
-            var principalProp = new Mock<IProperty>();
-            var dependentProp = new Mock<IProperty>();
+            var model = BuildModel();
+            var principalType = model.GetEntityType("SomeEntity");
+            var dependentType = model.GetEntityType("SomeDependentEntity");
+            var key = principalType.GetProperty("Id");
+            var configuration = CreateConfiguration(model);
 
-            var principalProps = new[] { principalProp.Object };
-            var dependentProps = new[] { dependentProp.Object };
+            var entry = CreateStateEntry(configuration, principalType, new SomeEntity());
+            entry.SetPropertyValue(key, 77);
 
-            var principalTypeMock = CreateEntityTypeMock(new Mock<IProperty>(), principalProp);
-            var dependentTypeMock = CreateEntityTypeMock(new Mock<IProperty>(), dependentProp);
-
-            var managerMock = new Mock<StateManager>();
-            managerMock.Setup(m => m.Model).Returns(Mock.Of<IModel>());
-            managerMock
-                .Setup(m => m.CreateKey(principalTypeMock.Object, It.IsAny<IReadOnlyList<IProperty>>(), It.IsAny<StateEntry>()))
-                .Returns(new SimpleEntityKey<string>(dependentTypeMock.Object, "Wax"));
-
-            var getterMock1 = new Mock<IClrPropertyGetter>();
-            getterMock1.Setup(m => m.GetClrValue(It.IsAny<object>())).Returns("Wax");
-
-            var getterMock2 = new Mock<IClrPropertyGetter>();
-            getterMock2.Setup(m => m.GetClrValue(It.IsAny<object>())).Returns("Off");
-
-            managerMock.Setup(m => m.GetClrPropertyGetter(principalProp.Object)).Returns(getterMock1.Object);
-            managerMock.Setup(m => m.GetClrPropertyGetter(dependentProp.Object)).Returns(getterMock2.Object);
-
-            var setterMock = new Mock<IClrPropertySetter>();
-            managerMock.Setup(m => m.GetClrPropertySetter(principalProp.Object)).Returns(setterMock.Object);
-            managerMock.Setup(m => m.GetClrPropertySetter(dependentProp.Object)).Returns(setterMock.Object);
-
-            var foreignKeyMock = new Mock<IForeignKey>();
-            foreignKeyMock.Setup(m => m.ReferencedEntityType).Returns(principalTypeMock.Object);
-            foreignKeyMock.Setup(m => m.EntityType).Returns(dependentTypeMock.Object);
-            foreignKeyMock.Setup(m => m.ReferencedProperties).Returns(principalProps);
-            foreignKeyMock.Setup(m => m.Properties).Returns(dependentProps);
-
-            var entry = CreateStateEntry(managerMock.Object, principalTypeMock.Object, new SomeEntity());
-            entry.SetPropertyValue(principalProp.Object, "Wax");
-
-            var keyValue = entry.GetPrincipalKeyValue(foreignKeyMock.Object);
-            Assert.IsType<SimpleEntityKey<string>>(keyValue);
-            Assert.Equal("Wax", keyValue.Value);
-
-            managerMock.Verify(m => m.CreateKey(principalTypeMock.Object, foreignKeyMock.Object.ReferencedProperties, entry));
-        }
-
-        [Fact]
-        public void Asking_for_entity_instance_causes_it_to_be_materialized()
-        {
-            var entityTypeMock = CreateEntityTypeMock();
-            var managerMock = CreateManagerMock(entityTypeMock);
-            var entry = CreateStateEntry(managerMock.Object, entityTypeMock.Object, new object[] { 1, "Kool" });
-
-            managerMock.Verify(m => m.GetEntityMaterializer(It.IsAny<IEntityType>()), Times.Never);
-
-            var entity = (SomeEntity)entry.Entity;
-
-            managerMock.Verify(m => m.GetEntityMaterializer(entityTypeMock.Object), Times.Once);
-
-            Assert.Equal(1, entity.Id);
-            Assert.Equal("Kool", entity.Kool);
+            var keyValue = entry.GetPrincipalKeyValue(dependentType.ForeignKeys.Single());
+            Assert.IsType<SimpleEntityKey<int>>(keyValue);
+            Assert.Equal(77, keyValue.Value);
         }
 
         [Fact]
         public void Can_get_property_value_without_materializing_entity()
         {
-            var propertyMock = new Mock<IProperty>();
-            var entityTypeMock = CreateEntityTypeMock(propertyMock);
-            var managerMock = CreateManagerMock(entityTypeMock);
-            var entry = CreateStateEntry(managerMock.Object, entityTypeMock.Object, new object[] { 1, "Kool" });
+            var model = BuildModel();
+            var entityType = model.GetEntityType("SomeEntity");
+            var keyProperty = entityType.GetProperty("Id");
+            var configuration = CreateConfiguration(model);
 
-            Assert.Equal(1, entry.GetPropertyValue(propertyMock.Object));
+            var entry = CreateStateEntry(configuration, entityType, new object[] { 1, "Kool" });
 
-            managerMock.Verify(m => m.GetEntityMaterializer(It.IsAny<IEntityType>()), Times.Never);
+            Assert.Equal(1, entry.GetPropertyValue(keyProperty));
         }
 
         [Fact]
         public void Can_set_property_value_without_materializing_entity()
         {
-            var propertyMock = new Mock<IProperty>();
-            var entityTypeMock = CreateEntityTypeMock(propertyMock);
-            var managerMock = CreateManagerMock(entityTypeMock);
-            var entry = CreateStateEntry(managerMock.Object, entityTypeMock.Object, new object[] { 1, "Kool" });
+            var model = BuildModel();
+            var entityType = model.GetEntityType("SomeEntity");
+            var keyProperty = entityType.GetProperty("Id");
+            var configuration = CreateConfiguration(model);
 
-            entry.SetPropertyValue(propertyMock.Object, 77);
+            var entry = CreateStateEntry(configuration, entityType, new object[] { 1, "Kool" });
 
-            managerMock.Verify(m => m.GetEntityMaterializer(It.IsAny<IEntityType>()), Times.Never);
+            entry.SetPropertyValue(keyProperty, 77);
 
-            Assert.Equal(77, entry.GetPropertyValue(propertyMock.Object));
+            Assert.Equal(77, entry.GetPropertyValue(keyProperty));
         }
 
-        protected virtual StateEntry CreateStateEntry(StateManager stateManager, IEntityType entityType, object entity)
+        [Fact]
+        public void Can_set_and_get_property_values()
+        {
+            var model = BuildModel();
+            var entityType = model.GetEntityType("SomeEntity");
+            var keyProperty = entityType.GetProperty("Id");
+            var nonKeyProperty = entityType.GetProperty("Kool");
+            var configuration = CreateConfiguration(model);
+
+            var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
+
+            entry.SetPropertyValue(keyProperty, 77);
+            entry.SetPropertyValue(nonKeyProperty, "Magic Tree House");
+
+            Assert.Equal(77, entry.GetPropertyValue(keyProperty));
+            Assert.Equal("Magic Tree House", entry.GetPropertyValue(nonKeyProperty));
+        }
+
+        [Fact]
+        public void Can_get_value_buffer_from_properties()
+        {
+            var model = BuildModel();
+            var entityType = model.GetEntityType("SomeEntity");
+            var keyProperty = entityType.GetProperty("Id");
+            var nonKeyProperty = entityType.GetProperty("Kool");
+            var configuration = CreateConfiguration(model);
+
+            var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
+
+            entry.SetPropertyValue(keyProperty, 77);
+            entry.SetPropertyValue(nonKeyProperty, "Magic Tree House");
+
+            Assert.Equal(new object[] { 77, "Magic Tree House" }, entry.GetValueBuffer());
+        }
+
+        protected virtual StateEntry CreateStateEntry(ContextConfiguration stateManager, IEntityType entityType, object entity)
         {
             return new MixedStateEntry(stateManager, entityType, entity);
         }
 
-        protected virtual StateEntry CreateStateEntry(StateManager stateManager, IEntityType entityType, object[] valueBuffer)
+        protected virtual StateEntry CreateStateEntry(ContextConfiguration stateManager, IEntityType entityType, object[] valueBuffer)
         {
             return new MixedStateEntry(stateManager, entityType, valueBuffer);
         }
 
-        protected virtual Mock<StateManager> CreateManagerMock(Mock<IEntityType> entityTypeMock)
+        protected virtual ContextConfiguration CreateConfiguration(IModel model)
         {
-            var modelMock = new Mock<IModel>();
-            modelMock.Setup(m => m.GetEntityType(typeof(SomeEntity))).Returns(entityTypeMock.Object);
-
-            var managerMock = new Mock<StateManager>();
-            managerMock.Setup(m => m.Model).Returns(modelMock.Object);
-            managerMock.Setup(m => m.GetEntityMaterializer(entityTypeMock.Object))
-                .Returns(b => new SomeEntity { Id = (int)b[0], Kool = (string)b[1] });
-            return managerMock;
+            return new EntityContext(
+                new EntityConfigurationBuilder().UseModel(model).BuildConfiguration()).Configuration;
         }
 
-        protected virtual Mock<IEntityType> CreateEntityTypeMock(Mock<IProperty> key = null, Mock<IProperty> nonKey = null)
+        protected virtual IModel BuildModel()
         {
-            key = key ?? new Mock<IProperty>();
-            key.Setup(m => m.Index).Returns(0);
-            key.Setup(m => m.IsClrProperty).Returns(true);
-            var keys = new[] { key.Object };
-            nonKey = nonKey ?? new Mock<IProperty>();
-            nonKey.Setup(m => m.Index).Returns(1);
-            nonKey.Setup(m => m.IsClrProperty).Returns(true);
+            var model = new Model();
 
-            var entityTypeMock = new Mock<IEntityType>();
-            entityTypeMock.Setup(m => m.GetKey().Properties).Returns(keys);
-            entityTypeMock.Setup(m => m.Properties).Returns(keys.Concat(new[] { nonKey.Object }).ToArray());
+            var entityType1 = new EntityType(typeof(SomeEntity));
+            model.AddEntityType(entityType1);
+            var key1 = entityType1.AddProperty("Id", typeof(int), shadowProperty: false);
+            entityType1.SetKey(key1);
+            entityType1.AddProperty("Kool", typeof(string), shadowProperty: false);
 
-            return entityTypeMock;
+            var entityType2 = new EntityType(typeof(SomeDependentEntity));
+            model.AddEntityType(entityType2);
+            var key2 = entityType2.AddProperty("Id", typeof(int), shadowProperty: false);
+            entityType2.SetKey(key2);
+            var fk = entityType2.AddProperty("SomeEntityId", typeof(int), shadowProperty: false);
+            entityType2.AddForeignKey(entityType1.GetKey(), new[] { fk });
+
+            return model;
         }
 
         protected class SomeEntity
         {
             public int Id { get; set; }
             public string Kool { get; set; }
+        }
+
+        protected class SomeDependentEntity
+        {
+            public int Id { get; set; }
+            public int SomeEntityId { get; set; }
         }
 
         public class StateDataTest

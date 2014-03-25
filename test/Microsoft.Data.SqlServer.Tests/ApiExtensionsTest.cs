@@ -20,7 +20,8 @@ namespace Microsoft.Data.SqlServer.Tests
 
         private class MySqlServerContext : EntityContext
         {
-            protected override void OnConfiguring(EntityConfigurationBuilder builder)
+            // This is protected _internal_ because of InternalsVisibleTo
+            protected internal override void OnConfiguring(EntityConfigurationBuilder builder)
             {
                 builder.UseSqlServer(connectionString: "Foo");
             }

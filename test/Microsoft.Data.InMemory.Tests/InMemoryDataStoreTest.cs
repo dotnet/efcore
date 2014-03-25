@@ -1,13 +1,11 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Logging;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.ChangeTracking;
-using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
 using Moq;
 using Xunit;
@@ -18,7 +16,7 @@ namespace Microsoft.Data.InMemory.Tests
     {
         #region Fixture
 
-        public class Customer
+        private class Customer
         {
             public int Id { get; set; }
             public string Name { get; set; }
@@ -30,11 +28,11 @@ namespace Microsoft.Data.InMemory.Tests
         public async Task Save_changes_adds_new_objects_to_store()
         {
             var model = CreateModel();
-            var stateManager = CreateStateManager(model);
+            var configuration = CreateConfiguration();
             var entityType = model.GetEntityType(typeof(Customer));
 
             var customer = new Customer { Id = 42, Name = "Unikorn" };
-            var entityEntry = new ClrStateEntry(stateManager, entityType, customer);
+            var entityEntry = new ClrStateEntry(configuration, entityType, customer);
             await entityEntry.SetEntityStateAsync(EntityState.Added, CancellationToken.None);
             var inMemoryDataStore = new InMemoryDataStore();
 
@@ -49,11 +47,11 @@ namespace Microsoft.Data.InMemory.Tests
         public async Task Save_changes_updates_changed_objects_in_store()
         {
             var model = CreateModel();
-            var stateManager = CreateStateManager(model);
+            var configuration = CreateConfiguration();
             var entityType = model.GetEntityType(typeof(Customer));
 
             var customer = new Customer { Id = 42, Name = "Unikorn" };
-            var entityEntry = new ClrStateEntry(stateManager, entityType, customer);
+            var entityEntry = new ClrStateEntry(configuration, entityType, customer);
             await entityEntry.SetEntityStateAsync(EntityState.Added, CancellationToken.None);
             var inMemoryDataStore = new InMemoryDataStore();
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry }, model);
@@ -72,11 +70,11 @@ namespace Microsoft.Data.InMemory.Tests
         public async Task Save_changes_removes_deleted_objects_from_store()
         {
             var model = CreateModel();
-            var stateManager = CreateStateManager(model);
+            var configuration = CreateConfiguration();
             var entityType = model.GetEntityType(typeof(Customer));
 
             var customer = new Customer { Id = 42, Name = "Unikorn" };
-            var entityEntry = new ClrStateEntry(stateManager, entityType, customer);
+            var entityEntry = new ClrStateEntry(configuration, entityType, customer);
             await entityEntry.SetEntityStateAsync(EntityState.Added, CancellationToken.None);
             var inMemoryDataStore = new InMemoryDataStore();
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry }, model);
@@ -93,11 +91,11 @@ namespace Microsoft.Data.InMemory.Tests
         public async Task Should_log_writes()
         {
             var model = CreateModel();
-            var stateManager = CreateStateManager(model);
+            var configuration = CreateConfiguration();
             var entityType = model.GetEntityType(typeof(Customer));
 
             var customer = new Customer { Id = 42, Name = "Unikorn" };
-            var entityEntry = new ClrStateEntry(stateManager, entityType, customer);
+            var entityEntry = new ClrStateEntry(configuration, entityType, customer);
             await entityEntry.SetEntityStateAsync(EntityState.Added, CancellationToken.None);
 
             var mockLogger = new Mock<ILogger>();
@@ -122,17 +120,9 @@ namespace Microsoft.Data.InMemory.Tests
             return model;
         }
 
-        private static StateManager CreateStateManager(IModel model)
+        private static ContextConfiguration CreateConfiguration()
         {
-            return new StateManager(
-                model,
-                new Mock<ActiveIdentityGenerators>().Object,
-                Enumerable.Empty<IEntityStateListener>(),
-                new EntityKeyFactorySource(),
-                new StateEntryFactory(),
-                new ClrPropertyGetterSource(),
-                new ClrPropertySetterSource(),
-                new EntityMaterializerSource());
+            return new EntityContext(new EntityConfigurationBuilder().BuildConfiguration()).Configuration;
         }
     }
 }

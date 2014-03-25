@@ -3,6 +3,7 @@
 using System;
 using System.Linq;
 using System.Threading;
+using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
@@ -40,6 +41,48 @@ namespace Microsoft.Data.Entity.Tests
                     "entity",
                     // ReSharper disable once AssignNullToNotNullAttribute
                     Assert.ThrowsAsync<ArgumentNullException>(() => context.UpdateAsync<Random>(null, new CancellationToken())).Result.ParamName);
+            }
+        }
+
+        [Fact]
+        public void Each_context_gets_new_scoped_context_configuration()
+        {
+            var configuration = new EntityConfigurationBuilder().BuildConfiguration();
+
+            ContextConfiguration config1;
+            using (var context = new EntityContext(configuration))
+            {
+                config1 = context.Configuration;
+                Assert.Same(config1, context.Configuration);
+            }
+
+            using (var context = new EntityContext(configuration))
+            {
+                var config2 = context.Configuration;
+                Assert.Same(config2, context.Configuration);
+
+                Assert.NotSame(config1, config2);
+            }
+        }
+
+        [Fact]
+        public void Each_context_gets_new_scoped_StateManager()
+        {
+            var configuration = new EntityConfigurationBuilder().BuildConfiguration();
+
+            StateManager stateManager1;
+            using (var context = new EntityContext(configuration))
+            {
+                stateManager1 = context.ChangeTracker.StateManager;
+                Assert.Same(stateManager1, context.ChangeTracker.StateManager);
+            }
+
+            using (var context = new EntityContext(configuration))
+            {
+                var stateManager2 = context.ChangeTracker.StateManager;
+                Assert.Same(stateManager2, context.ChangeTracker.StateManager);
+
+                Assert.NotSame(stateManager1, stateManager2);
             }
         }
 
@@ -190,7 +233,7 @@ namespace Microsoft.Data.Entity.Tests
 
             var configuration = new EntityConfigurationBuilder()
                 .UseModel(model)
-                .BuildConfiguration(); 
+                .BuildConfiguration();
 
             using (var context = new EarlyLearningCenter(configuration))
             {

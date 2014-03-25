@@ -108,15 +108,15 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             #region Fixture
 
-            public class A
+            private class A
             {
             }
 
-            public class B
+            private class B
             {
             }
 
-            public class C
+            private class C
             {
             }
 

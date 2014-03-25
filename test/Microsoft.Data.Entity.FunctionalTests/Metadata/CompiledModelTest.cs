@@ -230,16 +230,16 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             // Numbers are not 100% consistent due to other threads running and GC.GetTotalMemory not 
             // necessarily returning an accurate number. At the time of check in the numbers are:
             //
-            // Compiled: 2120 (50)  Built: 1588832 (50) Ratio: 0.00133431350828785 (Just model)
-            // Compiled: 8320 (100)  Built: 1589112 (100) Ratio: 0.00523562845161323 (Model annotations)
-            // Compiled: 90320 (1000)  Built: 1597528 (1000) Ratio: 0.0565373502060684 (All entity types)
-            // Compiled: 97488 (150)  Built: 1597776 (150) Ratio: 0.0610148105867155 (Properties one entity)
-            // Compiled: 109056 (200)  Built: 1598152 (200) Ratio: 0.0682388158322863 (All FKs)
-            // Compiled: 128528 (400)  Built: 1598496 (400) Ratio: 0.0804055812463716 (All navigations)
-            // Compiled: 307600 (1000)  Built: 1598784 (1000) Ratio: 0.192396221128057 (All keys)
-            // Compiled: 340576 (3300)  Built: 1631664 (3300) Ratio: 0.208729248178547 (All properties)
-            // Compiled: 453088 (2000)  Built: 1631976 (2000) Ratio: 0.277631533797066 (All entity type annotations)
-            // Compiled: 569920 (2000)  Built: 1632240 (2000) Ratio: 0.34916433857766 (All property annotations)
+            // Compiled: 2176 (50)  Built: 1912408 (50) Ratio: 0.00113783251272741 (Just model)
+            // Compiled: 13344 (100)  Built: 1912688 (100) Ratio: 0.00697656910065834 (Model annotations)
+            // Compiled: 95744 (1000)  Built: 1921104 (1000) Ratio: 0.0498380098110253 (All entity types)
+            // Compiled: 102912 (150)  Built: 1921352 (150) Ratio: 0.053562283225562 (Properties one entity)
+            // Compiled: 117680 (250)  Built: 1921728 (250) Ratio: 0.0612365537682752 (All FKs)
+            // Compiled: 143552 (500)  Built: 1922072 (500) Ratio: 0.0746860679516688 (All navigations)
+            // Compiled: 308664 (1000)  Built: 1922280 (1000) Ratio: 0.160571820962607 (All keys)
+            // Compiled: 341640 (3350)  Built: 1955160 (3350) Ratio: 0.174737617381698 (All properties)
+            // Compiled: 550152 (2000)  Built: 1955472 (2000) Ratio: 0.281339748152876 (All entity type annotations)
+            // Compiled: 762984 (2000)  Built: 1955736 (2000) Ratio: 0.390126274711924 (All property annotations)
             //
             // Uncomment to get new numbers:
             //using (var writer = File.CreateText(@"C:\Stuff\MemNumbers.txt"))
@@ -275,8 +275,8 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
                     Tuple.Create(0.01, 0.1), // All navigations
                     Tuple.Create(0.1, 0.3), // All keys
                     Tuple.Create(0.1, 0.3), // All properties
-                    Tuple.Create(0.1, 0.3), // All entity type annotations
-                    Tuple.Create(0.2, 0.42) // All property annotations
+                    Tuple.Create(0.1, 0.4), // All entity type annotations
+                    Tuple.Create(0.2, 0.45) // All property annotations
                 };
 
             for (var i = 1; i < expected.Length; i++)
@@ -373,7 +373,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
             var entityType5 = new EntityType(typeof(KoolEntity5));
             model.AddEntityType(entityType5);
-            
+
             var entityType6 = new EntityType(typeof(KoolEntity6));
             entityType6.AddProperty("Kool5Id", typeof(int), shadowProperty: false);
             model.AddEntityType(entityType6);

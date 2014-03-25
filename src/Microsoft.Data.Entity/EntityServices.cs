@@ -18,17 +18,20 @@ namespace Microsoft.Data.Entity
                 .AddSingleton<IModelSource, DefaultModelSource>()
                 .AddSingleton<IdentityGeneratorFactory, DefaultIdentityGeneratorFactory>()
                 .AddSingleton<ActiveIdentityGenerators, ActiveIdentityGenerators>()
-                .AddSingleton<StateManagerFactory, StateManagerFactory>()
                 .AddSingleton<EntitySetFinder, EntitySetFinder>()
                 .AddSingleton<EntitySetInitializer, EntitySetInitializer>()
-                .AddSingleton<IEntityStateListener, NavigationFixer>()
                 .AddSingleton<EntityKeyFactorySource, EntityKeyFactorySource>()
-                .AddSingleton<StateEntryFactory, StateEntryFactory>()
                 .AddSingleton<ClrPropertyGetterSource, ClrPropertyGetterSource>()
                 .AddSingleton<ClrPropertySetterSource, ClrPropertySetterSource>()
                 .AddSingleton<EntitySetSource, EntitySetSource>()
                 .AddSingleton<ClrCollectionAccessorSource, ClrCollectionAccessorSource>()
-                .AddSingleton<EntityMaterializerSource, EntityMaterializerSource>();
+                .AddSingleton<EntityMaterializerSource, EntityMaterializerSource>()
+                .AddScoped<StateEntryFactory, StateEntryFactory>()
+                .AddScoped<IEntityStateListener, NavigationFixer>()
+                .AddScoped<StateEntryNotifier, StateEntryNotifier>()
+                .AddScoped<ContextConfiguration, ContextConfiguration>()
+                .AddScoped<ContextEntitySets, ContextEntitySets>()
+                .AddScoped<StateManager, StateManager>();
         }
     }
 }

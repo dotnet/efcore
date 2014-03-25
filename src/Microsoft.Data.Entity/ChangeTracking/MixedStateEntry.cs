@@ -22,8 +22,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
         }
 
-        public MixedStateEntry([NotNull] StateManager stateManager, [NotNull] IEntityType entityType, [NotNull] object entity)
-            : base(stateManager, entityType)
+        public MixedStateEntry([NotNull] ContextConfiguration configuration, [NotNull] IEntityType entityType, [NotNull] object entity)
+            : base(configuration, entityType)
         {
             Check.NotNull(entity, "entity");
 
@@ -31,8 +31,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
             _propertyValues = new object[entityType.ShadowPropertyCount];
         }
 
-        public MixedStateEntry([NotNull] StateManager stateManager, [NotNull] IEntityType entityType, [NotNull] object[] valueBuffer)
-            : base(stateManager, entityType)
+        public MixedStateEntry([NotNull] ContextConfiguration configuration, [NotNull] IEntityType entityType, [NotNull] object[] valueBuffer)
+            : base(configuration, entityType)
         {
             Check.NotNull(valueBuffer, "valueBuffer");
 
@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         private object MaterializeEntity()
         {
-            _entity = StateManager.GetEntityMaterializer(EntityType)(_propertyValues);
+            _entity = Configuration.EntityMaterializerSource.GetMaterializer(EntityType)(_propertyValues);
 
             var properties = EntityType.Properties;
             var shadowValues = new object[EntityType.ShadowPropertyCount];
@@ -61,7 +61,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
             _propertyValues = shadowValues;
 
-            StateManager.EntityMaterialized(this);
+            Configuration.StateManager.EntityMaterialized(this);
 
             return _entity;
         }
@@ -76,7 +76,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
 
             return property.IsClrProperty 
-                ? StateManager.GetClrPropertyGetter(property).GetClrValue(_entity) 
+                ? Configuration.ClrPropertyGetterSource.GetAccessor(property).GetClrValue(_entity) 
                 : _propertyValues[property.ShadowIndex];
         }
 
@@ -90,7 +90,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
             else if (property.IsClrProperty)
             {
-                StateManager.GetClrPropertySetter(property).SetClrValue(_entity, value);
+                Configuration.ClrPropertySetterSource.GetAccessor(property).SetClrValue(_entity, value);
             }
             else
             {

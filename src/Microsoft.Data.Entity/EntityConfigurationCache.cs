@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity
         private static EntityConfiguration CreateConfiguration(EntityContext context)
         {
             var builder = new EntityConfigurationBuilder();
-            context.CallOnConfiguring(builder);
+            context.OnConfiguring(builder);
             return builder.BuildConfiguration();
         }
     }

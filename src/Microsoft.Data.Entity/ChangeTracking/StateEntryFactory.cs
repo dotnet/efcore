@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
@@ -8,39 +9,53 @@ namespace Microsoft.Data.Entity.ChangeTracking
 {
     public class StateEntryFactory
     {
-        public virtual StateEntry Create(
-            [NotNull] StateManager stateManager, [NotNull] IEntityType entityType, [CanBeNull] object entity)
+        private readonly ContextConfiguration _configuration;
+
+        /// <summary>
+        ///     This constructor is intended only for use when creating test doubles that will override members
+        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
+        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
+        /// </summary>
+        protected StateEntryFactory()
         {
-            Check.NotNull(stateManager, "stateManager");
+        }
+
+        public StateEntryFactory([NotNull] ContextConfiguration configuration)
+        {
+            Check.NotNull(configuration, "configuration");
+
+            _configuration = configuration;
+        }
+
+        public virtual StateEntry Create([NotNull] IEntityType entityType, [CanBeNull] object entity)
+        {
             Check.NotNull(entityType, "entityType");
 
             if (!entityType.HasClrType)
             {
-                return new ShadowStateEntry(stateManager, entityType);
+                return new ShadowStateEntry(_configuration, entityType);
             }
 
             Check.NotNull(entity, "entity");
 
             return entityType.ShadowPropertyCount > 0
-                ? (StateEntry)new MixedStateEntry(stateManager, entityType, entity)
-                : new ClrStateEntry(stateManager, entityType, entity);
+                ? (StateEntry)new MixedStateEntry(_configuration, entityType, entity)
+                : new ClrStateEntry(_configuration, entityType, entity);
         }
 
-        public virtual StateEntry Create(
-            [NotNull] StateManager stateManager, [NotNull] IEntityType entityType, [NotNull] object[] valueBuffer)
+        public virtual StateEntry Create([NotNull] IEntityType entityType, [NotNull] object[] valueBuffer)
         {
-            Check.NotNull(stateManager, "stateManager");
             Check.NotNull(entityType, "entityType");
             Check.NotNull(valueBuffer, "valueBuffer");
 
             if (!entityType.HasClrType)
             {
-                return new ShadowStateEntry(stateManager, entityType, valueBuffer);
+                return new ShadowStateEntry(_configuration, entityType, valueBuffer);
             }
 
             return entityType.ShadowPropertyCount > 0
-                ? (StateEntry)new MixedStateEntry(stateManager, entityType, valueBuffer)
-                : new ClrStateEntry(stateManager, entityType, valueBuffer);
+                ? (StateEntry)new MixedStateEntry(_configuration, entityType, valueBuffer)
+                : new ClrStateEntry(_configuration, entityType, valueBuffer);
         }
     }
 }

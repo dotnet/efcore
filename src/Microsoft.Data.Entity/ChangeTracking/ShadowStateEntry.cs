@@ -26,17 +26,16 @@ namespace Microsoft.Data.Entity.ChangeTracking
             get { return null; }
         }
 
-        public ShadowStateEntry([NotNull] StateManager stateManager, [NotNull] IEntityType entityType)
-            : base(stateManager, entityType)
+        public ShadowStateEntry([NotNull] ContextConfiguration configuration, [NotNull] IEntityType entityType)
+            : base(configuration, entityType)
         {
-            Check.NotNull(stateManager, "stateManager");
             Check.NotNull(entityType, "entityType");
 
             _propertyValues = new object[entityType.ShadowPropertyCount];
         }
 
-        public ShadowStateEntry([NotNull] StateManager stateManager, [NotNull] IEntityType entityType, [NotNull] object[] valueBuffer)
-            : base(stateManager, entityType)
+        public ShadowStateEntry([NotNull] ContextConfiguration configuration, [NotNull] IEntityType entityType, [NotNull] object[] valueBuffer)
+            : base(configuration, entityType)
         {
             Check.NotNull(valueBuffer, "valueBuffer");
 
