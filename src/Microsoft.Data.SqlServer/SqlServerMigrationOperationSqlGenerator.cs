@@ -13,6 +13,7 @@ namespace Microsoft.Data.SqlServer
     public class SqlServerMigrationOperationSqlGenerator : MigrationOperationSqlGenerator
     {
         private readonly bool _generateIdempotentSql;
+        private int _variableCount;
 
         public SqlServerMigrationOperationSqlGenerator()
         {
@@ -232,6 +233,87 @@ namespace Microsoft.Data.SqlServer
             }
         }
 
+        public override void Visit([NotNull] AlterColumnOperation alterColumnOperation)
+        {
+            Check.NotNull(alterColumnOperation, "alterColumnOperation");
+
+            if (_generateIdempotentSql)
+            {
+                GenerateColumnPresenceCheck(
+                    alterColumnOperation.TableName,
+                    alterColumnOperation.ColumnName,
+                    negative: false);
+
+                using (StringBuilder.AppendLine().Indent())
+                {
+                    base.Visit(alterColumnOperation);
+                }
+            }
+            else
+            {
+                base.Visit(alterColumnOperation);
+            }
+        }
+
+        public override void Visit([NotNull] AddDefaultConstraintOperation addDefaultConstraintOperation)
+        {
+            Check.NotNull(addDefaultConstraintOperation, "addDefaultConstraintOperation");
+
+            if (_generateIdempotentSql)
+            {
+                GenerateColumnDefaultPresenceCheck(
+                    addDefaultConstraintOperation.TableName,
+                    addDefaultConstraintOperation.ColumnName,
+                    negative: true);
+
+                using (StringBuilder.AppendLine().Indent())
+                {
+                    Generate(addDefaultConstraintOperation);
+                }
+            }
+            else
+            {
+                Generate(addDefaultConstraintOperation);
+            }
+        }
+
+        public override void Visit([NotNull] DropDefaultConstraintOperation dropDefaultConstraintOperation)
+        {
+            Check.NotNull(dropDefaultConstraintOperation, "dropDefaultConstraintOperation");
+
+            var constraintNameVariable = "@var" + _variableCount++;
+
+            StringBuilder
+                .Append("DECLARE ")
+                .Append(constraintNameVariable)
+                .AppendLine(" nvarchar(128)");
+
+            StringBuilder
+                .Append("SELECT ")
+                .Append(constraintNameVariable)
+                .Append(" = name FROM sys.default_constraints WHERE parent_object_id = OBJECT_ID(N")
+                .Append(DelimitLiteral(dropDefaultConstraintOperation.TableName))
+                .Append(") AND COL_NAME(parent_object_id, parent_column_id) = N")
+                .AppendLine(DelimitLiteral(dropDefaultConstraintOperation.ColumnName));
+
+            if (_generateIdempotentSql)
+            {
+                StringBuilder
+                    .Append("IF ")
+                    .Append(constraintNameVariable)
+                    .AppendLine(" IS NOT NULL");
+
+                using (StringBuilder.Indent())
+                {
+                    GenerateExecuteDropConstraint(dropDefaultConstraintOperation.TableName, constraintNameVariable);
+                }
+            }
+            else
+            {
+                GenerateExecuteDropConstraint(dropDefaultConstraintOperation.TableName, constraintNameVariable);
+            }
+        }
+
         public override void Visit([NotNull] RenameColumnOperation renameColumnOperation)
         {
             Check.NotNull(renameColumnOperation, "renameColumnOperation");
@@ -254,28 +336,6 @@ namespace Microsoft.Data.SqlServer
             }
         }
 
-        public override void Visit([NotNull] AlterColumnOperation alterColumnOperation)
-        {
-            Check.NotNull(alterColumnOperation, "alterColumnOperation");
-
-            if (_generateIdempotentSql)
-            {
-                GenerateColumnPresenceCheck(
-                    alterColumnOperation.TableName,
-                    alterColumnOperation.Column.Name,
-                    negative: false);
-
-                using (StringBuilder.AppendLine().Indent())
-                {
-                    base.Visit(alterColumnOperation);
-                }
-            }
-            else
-            {
-                base.Visit(alterColumnOperation);
-            }
-        }
-
         public override void Visit([NotNull] AddPrimaryKeyOperation addPrimaryKeyOperation)
         {
             Check.NotNull(addPrimaryKeyOperation, "addPrimaryKeyOperation");
@@ -284,7 +344,7 @@ namespace Microsoft.Data.SqlServer
             {
                 GeneratePrimaryKeyPresenceCheck(
                     addPrimaryKeyOperation.TableName,
-                    addPrimaryKeyOperation.PrimaryKey.Name.Name, 
+                    addPrimaryKeyOperation.PrimaryKeyName, 
                     negative: true);
 
                 using (StringBuilder.AppendLine().Indent())
@@ -327,7 +387,7 @@ namespace Microsoft.Data.SqlServer
             if (_generateIdempotentSql)
             {
                 GenerateForeignKeyPresenceCheck(
-                    addForeignKeyOperation.DependentTableName,
+                    addForeignKeyOperation.TableName,
                     addForeignKeyOperation.ForeignKeyName,
                     negative: true);
 
@@ -364,24 +424,90 @@ namespace Microsoft.Data.SqlServer
             }
         }
 
-        protected virtual void GenerateDatabasePresenceCheck([NotNull] string databaseName, bool negative)
+        public override void Visit([NotNull] CreateIndexOperation createIndexOperation)
         {
-            Check.NotNull(databaseName, "databaseName");
+            Check.NotNull(createIndexOperation, "createIndexOperation");
+
+            if (_generateIdempotentSql)
+            {
+                GenerateIndexPresenceCheck(
+                    createIndexOperation.TableName,
+                    createIndexOperation.IndexName,
+                    negative: true);
+
+                using (StringBuilder.AppendLine().Indent())
+                {
+                    base.Visit(createIndexOperation);
+                }
+            }
+            else
+            {
+                base.Visit(createIndexOperation);
+            }
+        }
+
+        public override void Visit([NotNull] DropIndexOperation dropIndexOperation)
+        {
+            Check.NotNull(dropIndexOperation, "dropIndexOperation");
+
+            if (_generateIdempotentSql)
+            {
+                GenerateIndexPresenceCheck(
+                    dropIndexOperation.TableName,
+                    dropIndexOperation.IndexName,
+                    negative: false);
+
+                using (StringBuilder.AppendLine().Indent())
+                {
+                    base.Visit(dropIndexOperation);
+                }
+            }
+            else
+            {
+                base.Visit(dropIndexOperation);
+            }
+        }
+
+        public override void Visit([NotNull] RenameIndexOperation renameIndexOperation)
+        {
+            Check.NotNull(renameIndexOperation, "renameIndexOperation");
+
+            if (_generateIdempotentSql)
+            {
+                GenerateIndexPresenceCheck(
+                    renameIndexOperation.TableName,
+                    renameIndexOperation.IndexName,
+                    negative: false);
+
+                using (StringBuilder.AppendLine().Indent())
+                {
+                    base.Visit(renameIndexOperation);
+                }
+            }
+            else
+            {
+                base.Visit(renameIndexOperation);
+            }
+        }
+
+        internal protected virtual void GenerateDatabasePresenceCheck([NotNull] string databaseName, bool negative)
+        {
+            Check.NotEmpty(databaseName, "databaseName");
 
             StringBuilder
                 .Append("IF")
                 .Append(negative ? " NOT" : string.Empty)
-                .Append(" EXISTS (SELECT * FROM sys.databases WHERE name = ")
+                .Append(" EXISTS (SELECT * FROM sys.databases WHERE name = N")
                 .Append(DelimitLiteral(databaseName))
                 .Append(")");
         }
 
-        protected virtual void GenerateSequencePresenceCheck(SchemaQualifiedName sequenceName, bool negative)
+        internal protected virtual void GenerateSequencePresenceCheck(SchemaQualifiedName sequenceName, bool negative)
         {
             StringBuilder
                 .Append("IF")
                 .Append(negative ? " NOT" : string.Empty)
-                .Append(" EXISTS (SELECT * FROM sys.sequences WHERE name = ")
+                .Append(" EXISTS (SELECT * FROM sys.sequences WHERE name = N")
                 .Append(DelimitLiteral(sequenceName.Name));
 
             if (sequenceName.IsSchemaQualified)
@@ -395,12 +521,12 @@ namespace Microsoft.Data.SqlServer
             StringBuilder.Append(")");
         }
 
-        protected virtual void GenerateTablePresenceCheck(SchemaQualifiedName tableName, bool negative)
+        internal protected virtual void GenerateTablePresenceCheck(SchemaQualifiedName tableName, bool negative)
         {
             StringBuilder
                 .Append("IF")
                 .Append(negative ? " NOT" : string.Empty)
-                .Append(" EXISTS (SELECT * FROM sys.tables WHERE name = ")
+                .Append(" EXISTS (SELECT * FROM sys.tables WHERE name = N")
                 .Append(DelimitLiteral(tableName.Name));
 
             if (tableName.IsSchemaQualified)
@@ -414,57 +540,126 @@ namespace Microsoft.Data.SqlServer
             StringBuilder.Append(")");
         }
 
-        protected virtual void GenerateColumnPresenceCheck(
+        internal protected virtual void GenerateColumnPresenceCheck(
             SchemaQualifiedName tableName, [NotNull] string columnName, bool negative)
         {
-            Check.NotNull(columnName, "columnName");
+            Check.NotEmpty(columnName, "columnName");
 
             StringBuilder
                 .Append("IF")
                 .Append(negative ? " NOT" : string.Empty)
-                .Append(" EXISTS (SELECT * FROM sys.columns WHERE name = ")
+                .Append(" EXISTS (SELECT * FROM sys.columns WHERE name = N")
                 .Append(DelimitLiteral(columnName))
                 .Append(" AND object_id = OBJECT_ID(N")
                 .Append(DelimitLiteral(tableName))
                 .Append("))");
         }
 
-        protected virtual void GeneratePrimaryKeyPresenceCheck(
+        internal protected virtual void GeneratePrimaryKeyPresenceCheck(
             SchemaQualifiedName tableName, [NotNull] string primaryKeyName, bool negative)
         {
-            Check.NotNull(primaryKeyName, "primaryKeyName");
+            Check.NotEmpty(primaryKeyName, "primaryKeyName");
 
             StringBuilder
                 .Append("IF")
                 .Append(negative ? " NOT" : string.Empty)
-                .Append(" EXISTS (SELECT * FROM sys.key_constraints WHERE type = 'PK' AND parent_object_id = OBJECT_ID(N")
-                .Append(DelimitLiteral(tableName))
-                .Append(")");
-
+                .Append(" EXISTS (SELECT * FROM sys.key_constraints WHERE type = 'PK'");
+            
             if (!negative)
             {
                 StringBuilder
-                    .Append(" AND name = ")
+                    .Append(" AND name = N")
                     .Append(DelimitLiteral(primaryKeyName));
             }
+            
+            StringBuilder
+                .Append(" AND parent_object_id = OBJECT_ID(N")
+                .Append(DelimitLiteral(tableName))
+                .Append(")");
 
             StringBuilder.Append(")");
         }
 
-        protected virtual void GenerateForeignKeyPresenceCheck(
+        internal protected virtual void GenerateForeignKeyPresenceCheck(
             SchemaQualifiedName tableName, [NotNull] string foreignKeyName, bool negative)
         {
-            Check.NotNull(foreignKeyName, "foreignKeyName");
+            Check.NotEmpty(foreignKeyName, "foreignKeyName");
 
             StringBuilder
                 .Append("IF")
                 .Append(negative ? " NOT" : string.Empty)
-                .Append(" EXISTS (SELECT * FROM sys.foreign_keys WHERE parent_object_id = OBJECT_ID(N")
-                .Append(DelimitLiteral(tableName))
-                .Append(")")
-                .Append(" AND name = ")
+                .Append(" EXISTS (SELECT * FROM sys.foreign_keys WHERE name = N")
                 .Append(DelimitLiteral(foreignKeyName))
+                .Append(" AND parent_object_id = OBJECT_ID(N")
+                .Append(DelimitLiteral(tableName))
+                .Append("))");
+        }
+
+        internal protected virtual void GenerateColumnDefaultPresenceCheck(
+            SchemaQualifiedName tableName, [NotNull] string columnName, bool negative)
+        {
+            Check.NotEmpty(columnName, "columnName");
+
+            StringBuilder
+                .Append("IF")
+                .Append(negative ? " NOT" : string.Empty)
+                .Append(" EXISTS (SELECT * FROM sys.default_constraints WHERE parent_object_id = OBJECT_ID(N")
+                .Append(DelimitLiteral(tableName))
+                .Append(") AND COL_NAME(parent_object_id, parent_column_id) = N")
+                .Append(DelimitLiteral(columnName))
                 .Append(")");
+        }
+
+        internal protected virtual void GenerateIndexPresenceCheck(
+            SchemaQualifiedName tableName, [NotNull] string indexName, bool negative)
+        {
+            Check.NotEmpty(indexName, "indexName");
+
+            StringBuilder
+                .Append("IF")
+                .Append(negative ? " NOT" : string.Empty)
+                .Append(" EXISTS (SELECT * FROM sys.indexes WHERE name = N")
+                .Append(DelimitLiteral(indexName))
+                .Append(" AND object_id = OBJECT_ID(N")
+                .Append(DelimitLiteral(tableName))
+                .Append("))");
+        }
+
+        private void Generate(AddDefaultConstraintOperation addDefaultConstraintOperation)
+        {
+            var tableName = addDefaultConstraintOperation.TableName;
+            var columnName = addDefaultConstraintOperation.ColumnName;
+
+            StringBuilder
+                .Append("ALTER TABLE ")
+                .Append(DelimitIdentifier(tableName))
+                .Append(" ADD CONSTRAINT ")
+                .Append(DelimitIdentifier("DF_" + tableName + "_" + columnName))
+                .Append(" DEFAULT ");
+
+            if (addDefaultConstraintOperation.DefaultSql != null)
+            {
+                StringBuilder.Append(addDefaultConstraintOperation.DefaultSql);
+            }
+            else
+            {
+                StringBuilder.Append(GenerateLiteral(addDefaultConstraintOperation.DefaultValue));
+            }
+
+            StringBuilder
+                .Append(" FOR ")
+                .Append(DelimitIdentifier(columnName));
+        }
+
+        private void GenerateExecuteDropConstraint(
+            SchemaQualifiedName tableName, [NotNull] string constraintNameVariable)
+        {
+            StringBuilder
+                .Append("EXECUTE('ALTER TABLE ")
+                .Append(DelimitIdentifier(tableName))
+                .Append(" DROP CONSTRAINT \"' + ")
+                .Append(constraintNameVariable)
+                .Append(" + '\"')");
         }
     }
 }

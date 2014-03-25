@@ -17,10 +17,10 @@ namespace Microsoft.Data.Migrations.Tests.Model
                 cascadeDelete: true);
 
             Assert.Equal("MyFK", addForeignKeyOperation.ForeignKeyName);
-            Assert.Equal("dbo.MyTable", addForeignKeyOperation.PrincipalTableName);
-            Assert.Equal("dbo.MyTable2", addForeignKeyOperation.DependentTableName);
-            Assert.Equal(new[] { "Foo", "Bar" }, addForeignKeyOperation.PrincipalColumnNames);
-            Assert.Equal(new[] { "Foo2", "Bar2" }, addForeignKeyOperation.DependentColumnNames);
+            Assert.Equal("dbo.MyTable", addForeignKeyOperation.TableName);
+            Assert.Equal("dbo.MyTable2", addForeignKeyOperation.ReferencedTableName);
+            Assert.Equal(new[] { "Foo", "Bar" }, addForeignKeyOperation.ColumnNames);
+            Assert.Equal(new[] { "Foo2", "Bar2" }, addForeignKeyOperation.ReferencedColumnNames);
             Assert.True(addForeignKeyOperation.CascadeDelete);
             Assert.False(addForeignKeyOperation.IsDestructiveChange);
         }

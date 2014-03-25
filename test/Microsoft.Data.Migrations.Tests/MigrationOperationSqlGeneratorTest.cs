@@ -51,11 +51,11 @@ namespace Microsoft.Data.Migrations.Tests
                 "dbo.MyTable",
                 new[]
                 {
-                    foo = new Column("Foo", "int") { IsNullable = false, DefaultValue = "5" },
+                    foo = new Column("Foo", "int") { IsNullable = false, DefaultValue = 5 },
                     bar = new Column("Bar", "int") { IsNullable = true }
                 })
                 {
-                    PrimaryKey = new PrimaryKey("MyPK", new[] { foo, bar })
+                    PrimaryKey = new PrimaryKey("MyPK", new[] { foo, bar }, isClustered: false)
                 };
 
             Assert.Equal(
@@ -96,7 +96,7 @@ namespace Microsoft.Data.Migrations.Tests
         [Fact]
         public void Generate_when_add_column_operation()
         {
-            var column = new Column("Bar", "int") { IsNullable = false, DefaultValue = "5" };
+            var column = new Column("Bar", "int") { IsNullable = false, DefaultValue = 5 };
 
             Assert.Equal(
                 @"ALTER TABLE ""dbo"".""MyTable"" ADD ""Bar"" int NOT NULL DEFAULT 5",
@@ -114,6 +114,53 @@ namespace Microsoft.Data.Migrations.Tests
         }
 
         [Fact]
+        public void Generate_when_alter_column_operation_with_nullable()
+        {
+            Assert.Equal(
+                @"ALTER TABLE ""dbo"".""MyTable"" ALTER COLUMN ""Foo"" int NULL",
+                MigrationOperationSqlGenerator.Generate(
+                    new AlterColumnOperation("dbo.MyTable", "Foo", "int",
+                        isNullable: true, isDestructiveChange: false)));
+        }
+
+        [Fact]
+        public void Generate_when_alter_column_operation_with_not_nullable()
+        {
+            Assert.Equal(
+                @"ALTER TABLE ""dbo"".""MyTable"" ALTER COLUMN ""Foo"" int NOT NULL",
+                MigrationOperationSqlGenerator.Generate(
+                    new AlterColumnOperation("dbo.MyTable", "Foo", "int", 
+                        isNullable: false, isDestructiveChange: false)));
+        }
+
+        [Fact]
+        public void Generate_when_add_default_constraint_operation_with_default_value()
+        {
+            Assert.Equal(
+                @"ALTER TABLE ""dbo"".""MyTable"" ALTER COLUMN ""Foo"" SET DEFAULT 'MyDefault'",
+                MigrationOperationSqlGenerator.Generate(
+                    new AddDefaultConstraintOperation("dbo.MyTable", "Foo", "MyDefault", null)));
+        }
+
+        [Fact]
+        public void Generate_when_add_default_constraint_operation_with_default_sql()
+        {
+            Assert.Equal(
+                @"ALTER TABLE ""dbo"".""MyTable"" ALTER COLUMN ""Foo"" SET DEFAULT GETDATE()",
+                MigrationOperationSqlGenerator.Generate(
+                    new AddDefaultConstraintOperation("dbo.MyTable", "Foo", null, "GETDATE()")));
+        }
+
+        [Fact]
+        public void Generate_when_drop_default_constraint_operation()
+        {
+            Assert.Equal(
+                @"ALTER TABLE ""dbo"".""MyTable"" ALTER COLUMN ""Foo"" DROP DEFAULT",
+                MigrationOperationSqlGenerator.Generate(
+                    new DropDefaultConstraintOperation("dbo.MyTable", "Foo")));
+        }
+
+        [Fact]
         public void Generate_when_rename_column_operation()
         {
             Assert.Equal(
@@ -125,18 +172,10 @@ namespace Microsoft.Data.Migrations.Tests
         [Fact]
         public void Generate_when_add_primary_key_operation()
         {
-            Column foo, bar;
-            var table = new Table("dbo.MyTable",
-                new[]
-                {
-                    foo = new Column("Foo", "int"),
-                    bar = new Column("Bar", "int")
-                });
-            var primaryKey = new PrimaryKey("MyPK", new[] { foo, bar });
-
             Assert.Equal(
                 @"ALTER TABLE ""dbo"".""MyTable"" ADD CONSTRAINT ""MyPK"" PRIMARY KEY NONCLUSTERED (""Foo"", ""Bar"")",
-                MigrationOperationSqlGenerator.Generate(new AddPrimaryKeyOperation("dbo.MyTable", primaryKey)));
+                MigrationOperationSqlGenerator.Generate(
+                    new AddPrimaryKeyOperation("dbo.MyTable", "MyPK", new[] { "Foo", "Bar" }, isClustered: false)));
         }
 
         [Fact]
@@ -151,7 +190,7 @@ namespace Microsoft.Data.Migrations.Tests
         public void Generate_when_add_foreign_key_operation()
         {
             Assert.Equal(
-                @"ALTER TABLE ""dbo"".""MyTable2"" ADD CONSTRAINT ""MyFK"" FOREIGN KEY (""Foo2"", ""Bar2"") REFERENCES ""dbo"".""MyTable"" (""Foo"", ""Bar"") ON DELETE CASCADE",
+                @"ALTER TABLE ""dbo"".""MyTable"" ADD CONSTRAINT ""MyFK"" FOREIGN KEY (""Foo"", ""Bar"") REFERENCES ""dbo"".""MyTable2"" (""Foo2"", ""Bar2"") ON DELETE CASCADE",
                 MigrationOperationSqlGenerator.Generate(
                     new AddForeignKeyOperation("MyFK", "dbo.MyTable", "dbo.MyTable2", 
                         new [] { "Foo", "Bar" }, new [] { "Foo2", "Bar2" }, cascadeDelete: true)));
@@ -161,8 +200,35 @@ namespace Microsoft.Data.Migrations.Tests
         public void Generate_when_drop_foreign_key_operation()
         {
             Assert.Equal(
-                @"ALTER TABLE ""dbo"".""MyTable2"" DROP CONSTRAINT ""MyFK""",
-                MigrationOperationSqlGenerator.Generate(new DropForeignKeyOperation("dbo.MyTable2", "MyFK")));
+                @"ALTER TABLE ""dbo"".""MyTable"" DROP CONSTRAINT ""MyFK""",
+                MigrationOperationSqlGenerator.Generate(new DropForeignKeyOperation("dbo.MyTable", "MyFK")));
+        }
+
+        [Fact]
+        public void Generate_when_create_index_operation()
+        {
+            Assert.Equal(
+                @"CREATE UNIQUE CLUSTERED INDEX ""MyIndex"" ON ""dbo"".""MyTable"" (""Foo"", ""Bar"")",
+                MigrationOperationSqlGenerator.Generate(
+                    new CreateIndexOperation("dbo.MyTable", "MyIndex", new[] { "Foo", "Bar" }, 
+                        isUnique: true, isClustered: true)));
+        }
+
+        [Fact]
+        public void Generate_when_drop_index_operation()
+        {
+            Assert.Equal(
+                @"DROP INDEX ""MyIndex"" ON ""dbo"".""MyTable""",
+                MigrationOperationSqlGenerator.Generate(new DropIndexOperation("dbo.MyTable", "MyIndex")));
+        }
+
+        [Fact]
+        public void Generate_when_rename_index_operation()
+        {
+            Assert.Equal(
+                @"EXECUTE sp_rename @objname = N'dbo.MyTable.MyIndex', @newname = N'MyIndex2', @objtype = N'INDEX'",
+                MigrationOperationSqlGenerator.Generate(
+                    new RenameIndexOperation("dbo.MyTable", "MyIndex", "MyIndex2")));
         }
 
         [Fact]
