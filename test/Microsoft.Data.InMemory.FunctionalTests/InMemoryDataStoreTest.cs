@@ -98,5 +98,43 @@ namespace Microsoft.Data.InMemory.FunctionalTests
 
             return model;
         }
+
+        [Fact]
+        public async Task Can_share_instance_between_contexts_with_sugar_experience()
+        {
+            using (var db = new SimpleContext())
+            {
+                db.Artists.Add(new SimpleContext.Artist { Name = "John Doe" });
+                await db.SaveChangesAsync();
+            }
+
+            using (var db = new SimpleContext())
+            {
+                var data = db.Artists.ToList();
+                Assert.Equal(1, data.Count);
+                Assert.Equal("John Doe", data[0].Name);
+            }
+        }
+
+        private class SimpleContext : EntityContext
+        {
+            public EntitySet<Artist> Artists { get; set; }
+
+            protected override void OnConfiguring(EntityConfigurationBuilder builder)
+            {
+                builder.UseDataStore(new InMemoryDataStore());
+            }
+
+            protected override void OnModelCreating(ModelBuilder builder)
+            {
+                builder.Entity<Artist>().Key(a => a.ArtistId);
+            }
+
+            public class Artist
+            {
+                public int ArtistId { get; set; }
+                public string Name { get; set; }
+            }
+        }
     }
 }
