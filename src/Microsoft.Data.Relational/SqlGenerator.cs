@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
@@ -29,8 +30,40 @@ namespace Microsoft.Data.Relational
             if (storeGeneratedColumns.Any())
             {
                 commandStringBuilder.Append(BatchCommandSeparator).AppendLine();
-                AppendModificationOperationSelectCommand(commandStringBuilder, tableName, keyColumns, 
-                    storeGeneratedColumns, columnsToParameters);
+
+                var whereConditions =
+                    columnsToParameters.Where(c => keyColumns.Select(k => k.Key).Contains(c.Key));
+
+                var generatedKeys = storeGeneratedColumns.Where(c => keyColumns.Select(k => k.Key).Contains(c.Key));
+                if (generatedKeys.Any())
+                {
+                    whereConditions = whereConditions.Concat(
+                        CreateWhereConditionsForStoreGeneratedKeys(
+                            storeGeneratedColumns.Where(c => keyColumns.Select(k => k.Key).Contains(c.Key))));
+                }
+
+                AppendSelectCommand(commandStringBuilder, tableName, storeGeneratedColumns.Select(c => c.Key), whereConditions);
+            }
+        }
+
+        public abstract IEnumerable<KeyValuePair<string, string>> CreateWhereConditionsForStoreGeneratedKeys(
+            [NotNull] IEnumerable<KeyValuePair<string, ValueGenerationStrategy>> storeGeneratedKeys);
+
+        public virtual void AppendUpdateOperation([NotNull] StringBuilder commandStringBuilder, [NotNull] string tableName,
+            [NotNull] KeyValuePair<string, string>[] columnValues, [NotNull] KeyValuePair<string, string>[] whereConditions, 
+            [NotNull] string[] storeGeneratedNonKeyColumns)
+        {
+            Check.NotNull(commandStringBuilder, "commandStringBuilder");
+            Check.NotEmpty(tableName, "tableName");
+            Check.NotNull(columnValues, "columnValues");
+            Check.NotNull(whereConditions, "whereConditions");
+            Check.NotNull(storeGeneratedNonKeyColumns, "storeGeneratedNonKeyColumns");
+
+            AppendUpdateCommand(commandStringBuilder, tableName, columnValues, whereConditions);
+            if (storeGeneratedNonKeyColumns.Any())
+            {
+                commandStringBuilder.Append(BatchCommandSeparator).AppendLine();
+                AppendSelectCommand(commandStringBuilder, tableName, storeGeneratedNonKeyColumns, whereConditions);
             }
         }
 
@@ -77,24 +110,20 @@ namespace Microsoft.Data.Relational
             AppendWhereClause(commandStringBuilder, whereConditions);
         }
 
-        public virtual void AppendModificationOperationSelectCommand([NotNull] StringBuilder commandStringBuilder, [NotNull] string tableName,
-            [NotNull] KeyValuePair<string, string>[] keyColumns, [NotNull] KeyValuePair<string, ValueGenerationStrategy>[] storeGeneratedColumns,
-            [NotNull] KeyValuePair<string, string>[] columnsToParameters)
+        public virtual void AppendSelectCommand([NotNull] StringBuilder commandStringBuilder, [NotNull] string tableName,
+            [NotNull] IEnumerable<string> columnNames, [NotNull] IEnumerable<KeyValuePair<string, string>> whereConditions)
         {
             Check.NotNull(commandStringBuilder, "commandStringBuilder");
             Check.NotEmpty(tableName, "tableName");
-            Check.NotNull(keyColumns, "keyColumns");
-            Check.NotNull(storeGeneratedColumns, "storeGeneratedColumns");
-            Check.NotNull(columnsToParameters, "columnsToParameters");
+            Check.NotNull(columnNames, "columnNames");
+            Check.NotNull(whereConditions, "whereConditions");
 
-            AppendSelectCommandHeader(commandStringBuilder, storeGeneratedColumns.Select(c => c.Key));
+            AppendSelectCommandHeader(commandStringBuilder, columnNames);
             commandStringBuilder.Append(" ");
             AppendFromClause(commandStringBuilder, tableName);
             commandStringBuilder.Append(" ");
-
-            var knownKeyValues = columnsToParameters.Where(c => keyColumns.Select(k => k.Key).Contains(c.Key));
-            var generatedKeys = storeGeneratedColumns.Where(c => keyColumns.Select(k => k.Key).Contains(c.Key));
-            AppendModificationOperationSelectWhereClause(commandStringBuilder, knownKeyValues, generatedKeys);
+            // TODO: there is no notion of operator - currently all the where conditions check equality
+            AppendWhereClause(commandStringBuilder, whereConditions);
         }
 
         public virtual void AppendInsertCommandHeader(
@@ -160,10 +189,6 @@ namespace Microsoft.Data.Relational
                 .Append("FROM ")
                 .Append(tableName);
         }
-
-        public abstract void AppendModificationOperationSelectWhereClause([NotNull] StringBuilder commandStringBuilder,
-            [NotNull] IEnumerable<KeyValuePair<string, string>> knownKeyValues,
-            [NotNull] IEnumerable<KeyValuePair<string, ValueGenerationStrategy>> generatedKeys);
 
         public virtual void AppendValues([NotNull] StringBuilder commandStringBuilder, [NotNull] IEnumerable<string> valueParameterNames)
         {

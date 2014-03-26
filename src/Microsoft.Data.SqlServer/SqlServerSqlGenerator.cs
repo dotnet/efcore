@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text;
 using Microsoft.Data.Entity;
@@ -75,19 +76,19 @@ namespace Microsoft.Data.SqlServer
             }
         }
 
-        public override void AppendModificationOperationSelectWhereClause(StringBuilder commandStringBuilder,
-            IEnumerable<KeyValuePair<string, string>> knownKeyValues,
-            IEnumerable<KeyValuePair<string, ValueGenerationStrategy>> generatedKeys)
+        public override IEnumerable<KeyValuePair<string, string>> CreateWhereConditionsForStoreGeneratedKeys(
+            IEnumerable<KeyValuePair<string, ValueGenerationStrategy>> storeGeneratedKeys)
         {
-            Check.NotNull(commandStringBuilder, "commandStringBuilder");
-            Check.NotNull(knownKeyValues, "knownKeyValues");
-            Check.NotNull(generatedKeys, "generatedKeys");
+            Check.NotNull(storeGeneratedKeys, "storeGeneratedKeys");
 
-            AppendWhereClause(
-                commandStringBuilder,
-                knownKeyValues.Concat(
-                    generatedKeys.Where(k => k.Value == ValueGenerationStrategy.StoreIdentity)
-                        .Select(k => new KeyValuePair<string, string>(k.Key, "scope_identity()"))));
+            var storeGeneratedKeysArray = storeGeneratedKeys.ToArray();
+
+            Contract.Assert(
+                storeGeneratedKeysArray.All(k => k.Value == ValueGenerationStrategy.StoreIdentity),
+                "Non-identity store generated keys should be handled elsewhere");
+
+            return storeGeneratedKeysArray.Where(k => k.Value == ValueGenerationStrategy.StoreIdentity)
+                .Select(k => new KeyValuePair<string, string>(k.Key, "scope_identity()"));
         }
 
         private static string CreateTableVariableName(string tableName)

@@ -91,6 +91,7 @@ namespace Microsoft.Data.Relational.Update
 
         private static IEnumerable<KeyValuePair<string, object>> GetWhereClauses(StateEntry stateEntry)
         {
+            // TODO: Concurrency columns
             return
                 stateEntry
                     .EntityType

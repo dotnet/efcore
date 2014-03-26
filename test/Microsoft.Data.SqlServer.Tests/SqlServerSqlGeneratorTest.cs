@@ -141,28 +141,13 @@ namespace Microsoft.Data.SqlServer
             }
 
             [Fact]
-            public void AppendModificationOperationSelectWhereClause_validates_parameters()
+            public void CreateWhereConditionsForStoreGeneratedKeys_validates_parameters()
             {
                 Assert.Equal(
-                    "commandStringBuilder",
+                    "storeGeneratedKeys",
                     Assert.Throws<ArgumentNullException>(
                         () => new SqlServerSqlGenerator()
-                            .AppendModificationOperationSelectWhereClause(null, new Dictionary<string, string>(),
-                                new Dictionary<string, ValueGenerationStrategy>())).ParamName);
-
-                Assert.Equal(
-                    "knownKeyValues",
-                    Assert.Throws<ArgumentNullException>(
-                        () => new SqlServerSqlGenerator()
-                            .AppendModificationOperationSelectWhereClause(new StringBuilder(), null,
-                                new Dictionary<string, ValueGenerationStrategy>())).ParamName);
-
-                Assert.Equal(
-                    "generatedKeys",
-                    Assert.Throws<ArgumentNullException>(
-                        () => new SqlServerSqlGenerator()
-                            .AppendModificationOperationSelectWhereClause(new StringBuilder(), 
-                                new Dictionary<string, string>(), null)).ParamName);
+                            .CreateWhereConditionsForStoreGeneratedKeys(null)).ParamName);
             }
         }
     }
