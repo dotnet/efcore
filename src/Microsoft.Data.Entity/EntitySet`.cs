@@ -9,8 +9,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
-using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity
 {
@@ -31,13 +29,13 @@ namespace Microsoft.Data.Entity
         public EntitySet([NotNull] EntityContext context)
             : base(context)
         {
-            _provider = new List<TEntity>().AsQueryable().Provider;
+            _provider = new EnumerableQuery<TEntity>(this);
         }
 
         public virtual IEnumerator<TEntity> GetEnumerator()
         {
             // TODO Replace with real implementation
-            return GetDataAsList().GetEnumerator();
+            return ExecuteQuery().GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -45,10 +43,9 @@ namespace Microsoft.Data.Entity
             return GetEnumerator();
         }
 
-        // TODO
         public override Type ElementType
         {
-            get { return null; }
+            get { return typeof(TEntity); }
         }
 
         // TODO
@@ -139,7 +136,7 @@ namespace Microsoft.Data.Entity
             get
             {
                 // TODO Replace with real implementation
-                return GetDataAsList().AsQueryable().Expression;
+                return ExecuteQuery().AsQueryable().Expression;
             }
         }
 
@@ -152,21 +149,10 @@ namespace Microsoft.Data.Entity
             }
         }
 
-        private List<TEntity> GetDataAsList()
+        private IEnumerable<TEntity> ExecuteQuery()
         {
-            var clrType = typeof(TEntity);
-            var modelType = Context.Model.GetEntityType(clrType);
-            var result = new List<TEntity>();
-
-            var data = Context.Configuration.DataStore.Read(clrType, Context.Model);
-            var enumerator = data.GetAsyncEnumerator();
-            var factory = Context.Configuration.EntityMaterializerSource.GetMaterializer(modelType);
-            while (enumerator.MoveNextAsync(CancellationToken.None).Result)
-            {
-                result.Add((TEntity)factory(enumerator.Current));
-            }
-
-            return result;
+            return Context.Configuration.DataStore
+                .Query<TEntity>(Context.Model, Context.Configuration.StateManager);
         }
     }
 }

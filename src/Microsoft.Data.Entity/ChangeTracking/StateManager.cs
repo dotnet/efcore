@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
@@ -74,6 +73,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotNull(entityType, "entityType");
             Check.NotNull(valueBuffer, "valueBuffer");
 
+            // TODO: Pre-compute this for speed
             var keyProperties = entityType.GetKey().Properties;
             var keyValue = _keyFactorySource.GetKeyFactory(keyProperties).Create(entityType, keyProperties, valueBuffer);
 

@@ -1,9 +1,9 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Query;
 using Xunit;
 
 namespace Microsoft.Data.InMemory.FunctionalTests
@@ -32,9 +32,13 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                 customer.Name = "Changed!";
             }
 
-            var customerFromStore = await inMemoryDataStore.Read(typeof(Customer), model).SingleAsync();
+            using (var context = new EntityContext(configuration))
+            {
+                var customerFromStore = context.Set<Customer>().Single();
 
-            Assert.Equal(new object[] { 42, "Theon" }, customerFromStore);
+                Assert.Equal(42, customerFromStore.Id);
+                Assert.Equal("Theon", customerFromStore.Name);
+            }
 
             using (var context = new EntityContext(configuration))
             {
@@ -44,9 +48,13 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                 await context.SaveChangesAsync();
             }
 
-            customerFromStore = await inMemoryDataStore.Read(typeof(Customer), model).SingleAsync();
+            using (var context = new EntityContext(configuration))
+            {
+                var customerFromStore = context.Set<Customer>().Single();
 
-            Assert.Equal(new object[] { 42, "Theon Greyjoy" }, customerFromStore);
+                Assert.Equal(42, customerFromStore.Id);
+                Assert.Equal("Theon Greyjoy", customerFromStore.Name);
+            }
 
             using (var context = new EntityContext(configuration))
             {
@@ -55,7 +63,10 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                 await context.SaveChangesAsync();
             }
 
-            Assert.Equal(0, await inMemoryDataStore.Read(typeof(Customer), model).CountAsync());
+            using (var context = new EntityContext(configuration))
+            {
+                Assert.Equal(0, context.Set<Customer>().Count());
+            }
         }
 
         private class Customer

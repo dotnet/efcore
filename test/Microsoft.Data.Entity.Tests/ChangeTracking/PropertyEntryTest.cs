@@ -38,6 +38,15 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.Equal("Monkey", new PropertyEntry(stateEntryMock.Object, "Monkey").Name);
             Assert.Equal("Monkey", new PropertyEntry<Random, string>(stateEntryMock.Object, "Monkey").Name);
         }
+        
+        [Fact]
+        public void Can_get_current_value()
+        {
+            var stateEntryMock = CreateStateEntryMock(new Mock<IProperty>());
+            stateEntryMock.Setup(m => m.GetPropertyValue(It.IsAny<IProperty>())).Returns("Chimp");
+
+            Assert.Equal("Chimp", new PropertyEntry(stateEntryMock.Object, "Monkey").CurrentValue);
+        }
 
         [Fact]
         public void IsModified_delegates_to_state_object()

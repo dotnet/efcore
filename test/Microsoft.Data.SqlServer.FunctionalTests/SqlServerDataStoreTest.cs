@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Xunit;
@@ -34,8 +35,12 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                 var sqlServerDataStore
                     = new SqlServerDataStore(testDatabase.Connection.ConnectionString);
 
-                Assert.Equal(91, await sqlServerDataStore.Read(typeof(Customer), model).CountAsync());
+                Assert.Equal(91, await sqlServerDataStore.Query<Customer>(model, new FakeStateManager()).CountAsync());
             }
+        }
+
+        private class FakeStateManager : StateManager
+        {
         }
 
         private static Model CreateModel()
