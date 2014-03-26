@@ -241,7 +241,7 @@ namespace Microsoft.Data.Migrations
             }
             else 
             {
-                StringBuilder.Append(GenerateLiteral(addDefaultConstraintOperation.DefaultValue));
+                StringBuilder.Append(GenerateLiteral((dynamic)addDefaultConstraintOperation.DefaultValue));
             }
         }
 
@@ -395,34 +395,7 @@ namespace Microsoft.Data.Migrations
 
         public virtual string GenerateLiteral([NotNull] object value)
         {
-            Check.NotNull(value, "value");
-
-            switch (value.GetType().FullName)
-            {
-                case "System.Boolean":
-                    return GenerateLiteral((bool)value);
-
-                case "System.String":
-                    return GenerateLiteral((string)value);
-
-                case "System.Guid":
-                    return GenerateLiteral((Guid)value);
-
-                case "System.DateTime":
-                    return GenerateLiteral((DateTime)value);
-
-                case "System.DateTimeOffset":
-                    return GenerateLiteral((DateTimeOffset)value);
-
-                case "System.TimeSpan":
-                    return GenerateLiteral((TimeSpan)value);
-
-                case "System.Byte[]":
-                    return GenerateLiteral((byte[])value);
-
-                default:
-                    return string.Format(CultureInfo.InvariantCulture, "{0}", value);
-            }
+            return string.Format(CultureInfo.InvariantCulture, "{0}", value);
         }
 
         public virtual string GenerateLiteral(bool value)

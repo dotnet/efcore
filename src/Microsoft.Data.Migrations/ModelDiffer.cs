@@ -26,6 +26,7 @@ namespace Microsoft.Data.Migrations
             throw new NotImplementedException();
         }
 
+        // TODO: Rename this method because it is not suggestive of what it does.
         public virtual IReadOnlyList<MigrationOperation> DiffSource([NotNull] IModel model)
         {
             Check.NotNull(model, "model");
@@ -61,6 +62,7 @@ namespace Microsoft.Data.Migrations
                 .ToArray();
         }
 
+        // TODO: Rename this method because it is not suggestive of what it does.
         public virtual IReadOnlyList<MigrationOperation> DiffTarget([NotNull] IModel model)
         {
             Check.NotNull(model, "model");
