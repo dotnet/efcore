@@ -13,10 +13,11 @@ namespace Microsoft.Data.Migrations.Tests.Model
         public void Create_and_initialize_operation()
         {
             var alterColumnOperation = new AlterColumnOperation(
-                "dbo.MyTable", "Foo", "int", isNullable: true, isDestructiveChange: true);
+                "dbo.MyTable", "Foo", typeof(int), "int", isNullable: true, isDestructiveChange: true);
 
             Assert.Equal("dbo.MyTable", alterColumnOperation.TableName);
             Assert.Equal("Foo", alterColumnOperation.ColumnName);
+            Assert.Equal(typeof(int), alterColumnOperation.ClrType);
             Assert.Equal("int", alterColumnOperation.DataType);
             Assert.True(alterColumnOperation.IsNullable);
             Assert.True(alterColumnOperation.IsDestructiveChange);
@@ -26,7 +27,7 @@ namespace Microsoft.Data.Migrations.Tests.Model
         public void Dispatches_visitor()
         {
             var alterColumnOperation = new AlterColumnOperation(
-                "dbo.MyTable", "Foo", "int", isNullable: true, isDestructiveChange: true);
+                "dbo.MyTable", "Foo", typeof(int), "int", isNullable: true, isDestructiveChange: true);
             var mockVisitor = new Mock<MigrationOperationSqlGenerator>();
             var builder = new Mock<IndentedStringBuilder>();
             alterColumnOperation.GenerateSql(mockVisitor.Object, builder.Object, false);

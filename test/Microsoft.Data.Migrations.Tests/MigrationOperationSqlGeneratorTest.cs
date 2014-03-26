@@ -118,7 +118,7 @@ namespace Microsoft.Data.Migrations.Tests
             Assert.Equal(
                 @"ALTER TABLE ""dbo"".""MyTable"" ALTER COLUMN ""Foo"" int NULL",
                 MigrationOperationSqlGenerator.Generate(
-                    new AlterColumnOperation("dbo.MyTable", "Foo", "int",
+                    new AlterColumnOperation("dbo.MyTable", "Foo", typeof(int), "int",
                         isNullable: true, isDestructiveChange: false), 
                     generateIdempotentSql: false).Sql);
         }
@@ -129,7 +129,7 @@ namespace Microsoft.Data.Migrations.Tests
             Assert.Equal(
                 @"ALTER TABLE ""dbo"".""MyTable"" ALTER COLUMN ""Foo"" int NOT NULL",
                 MigrationOperationSqlGenerator.Generate(
-                    new AlterColumnOperation("dbo.MyTable", "Foo", "int",
+                    new AlterColumnOperation("dbo.MyTable", "Foo", typeof(int), "int",
                         isNullable: false, isDestructiveChange: false), 
                     generateIdempotentSql: false).Sql);
         }

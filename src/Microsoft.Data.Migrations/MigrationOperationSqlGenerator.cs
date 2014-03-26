@@ -321,7 +321,7 @@ namespace Microsoft.Data.Migrations
 
             stringBuilder
                 .Append("ALTER TABLE ")
-                .Append(DelimitIdentifier(dropForeignKeyOperation.DependentTableName))
+                .Append(DelimitIdentifier(dropForeignKeyOperation.TableName))
                 .Append(" DROP CONSTRAINT ")
                 .Append(DelimitIdentifier(dropForeignKeyOperation.ForeignKeyName));
         }

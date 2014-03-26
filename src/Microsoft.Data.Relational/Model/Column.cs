@@ -63,7 +63,11 @@ namespace Microsoft.Data.Relational.Model
         public virtual object DefaultValue { get; [param: CanBeNull] set; }
 
         public virtual string DefaultSql { get; [param: CanBeNull] set; }
-
         public virtual StoreValueGenerationStrategy ValueGenerationStrategy { get; set; }
+
+        public virtual bool HasDefault
+        {
+            get { return DefaultValue != null || DefaultSql != null; }
+        }
     }
 }

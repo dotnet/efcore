@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Migrations.Utilities;
@@ -11,6 +12,7 @@ namespace Microsoft.Data.Migrations.Model
     {
         private readonly SchemaQualifiedName _tableName;
         private readonly string _columnName;
+        private readonly Type _clrType;
         private readonly string _dataType;
         private readonly bool _isNullable;
         private readonly bool _isDestructiveChange;
@@ -18,15 +20,16 @@ namespace Microsoft.Data.Migrations.Model
         public AlterColumnOperation(
             SchemaQualifiedName tableName,
             [NotNull] string columnName,
-            [NotNull] string dataType,
+            [CanBeNull] Type clrType,
+            [CanBeNull] string dataType,
             bool isNullable,
             bool isDestructiveChange)
         {
             Check.NotNull(columnName, "columnName");
-            Check.NotNull(dataType, "dataType");
 
             _tableName = tableName;
             _columnName = columnName;
+            _clrType = clrType;
             _dataType = dataType;
             _isNullable = isNullable;
             _isDestructiveChange = isDestructiveChange;
@@ -40,6 +43,11 @@ namespace Microsoft.Data.Migrations.Model
         public virtual string ColumnName
         {
             get { return _columnName; }
+        }
+
+        public virtual Type ClrType
+        {
+            get { return _clrType; }
         }
 
         public virtual string DataType

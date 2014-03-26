@@ -122,7 +122,7 @@ namespace Microsoft.Data.SqlServer.Tests
                 @"IF EXISTS (SELECT * FROM sys.columns WHERE name = N'Foo' AND object_id = OBJECT_ID(N'dbo.MyTable'))
     ALTER TABLE ""dbo"".""MyTable"" ALTER COLUMN ""Foo"" int NOT NULL",
                 SqlServerMigrationOperationSqlGenerator.Generate(
-                    new AlterColumnOperation("dbo.MyTable", "Foo", "int",
+                    new AlterColumnOperation("dbo.MyTable", "Foo", typeof(int), "int",
                         isNullable: false, isDestructiveChange: false), generateIdempotentSql: true).Sql);
         }
 

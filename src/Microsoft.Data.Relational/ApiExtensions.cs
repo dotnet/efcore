@@ -82,21 +82,29 @@ namespace Microsoft.Data.Entity.Metadata
 
         public static string ColumnType([NotNull] this IProperty property)
         {
+            Check.NotNull(property, "property");
+
             return property[Annotations.StorageTypeName];
         }
 
         public static object ColumnDefaultValue([NotNull] this IProperty property)
         {
+            Check.NotNull(property, "property");
+
             return property[Annotations.ColumnDefaultValue];
         }
 
         public static string ColumnDefaultSql([NotNull] this IProperty property)
         {
+            Check.NotNull(property, "property");
+
             return property[Annotations.ColumnDefaultSql];
         }
 
         public static bool IsClustered([NotNull] this IKey primaryKey)
         {
+            Check.NotNull(primaryKey, "primaryKey");
+
             var isClusteredString = primaryKey[Annotations.IsClustered];
 
             bool isClustered;
@@ -111,6 +119,8 @@ namespace Microsoft.Data.Entity.Metadata
 
         public static bool CascadeDelete([NotNull] this IForeignKey foreignKey)
         {
+            Check.NotNull(foreignKey, "foreignKey");
+
             var cascadeDeleteString = foreignKey[Annotations.CascadeDelete];
 
             bool cascadeDelete;
