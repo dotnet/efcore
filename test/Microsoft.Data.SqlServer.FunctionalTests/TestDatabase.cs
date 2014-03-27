@@ -16,7 +16,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
 {
     public class TestDatabase : IDisposable, IDbCommandExecutor
     {
-        public const int CommandTimeout = 1;
+        public const int CommandTimeout = 5;
         private const string DefaultDatabaseName = "Microsoft.Data.SqlServer.FunctionalTest";
         private const string NorthwindDatabaseName = "Northwind";
 

@@ -48,7 +48,10 @@ namespace Microsoft.Data.Relational
             Check.NotNull(stateEntries, "stateEntries");
             Check.NotNull(model, "model");
 
-            var commands = new CommandBatchPreparer().BatchCommands(stateEntries);
+            //TODO: this should be cached
+            var database = new DatabaseBuilder().Build(model);
+
+            var commands = new CommandBatchPreparer().BatchCommands(stateEntries, database);
 
             using (var connection = CreateConnection(_connectionString))
             {
