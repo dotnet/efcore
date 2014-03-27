@@ -2,26 +2,140 @@
 
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Query;
+using Microsoft.Data.Entity.Utilities;
 
 namespace System.Linq
 {
     public static class QueryableExtensions
     {
+        #region Any
+
+        private static readonly MethodInfo _any
+            = GetMethod("Any", t => new[] { typeof(IQueryable<>).MakeGenericType(t) });
+
+        public static Task<bool> AnyAsync<TSource>(
+            [NotNull] this IQueryable<TSource> source,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Check.NotNull(source, "source");
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var provider = source.Provider as IAsyncQueryProvider;
+
+            if (provider != null)
+            {
+                return provider.ExecuteAsync<bool>(
+                    Expression.Call(
+                        null,
+                        _any.MakeGenericMethod(typeof(TSource)),
+                        new[] { source.Expression }
+                        ),
+                    cancellationToken);
+            }
+
+            throw new InvalidOperationException(Strings.FormatIQueryableProviderNotAsync());
+        }
+
+        #endregion
+
+        #region Count
+
+        private static readonly MethodInfo _count
+            = GetMethod("Count", t => new[] { typeof(IQueryable<>).MakeGenericType(t) });
+
+        public static Task<int> CountAsync<TSource>(
+            [NotNull] this IQueryable<TSource> source,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Check.NotNull(source, "source");
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var provider = source.Provider as IAsyncQueryProvider;
+            if (provider != null)
+            {
+                return provider.ExecuteAsync<int>(
+                    Expression.Call(
+                        null,
+                        _count.MakeGenericMethod(typeof(TSource)),
+                        new[] { source.Expression }
+                        ),
+                    cancellationToken);
+            }
+
+            throw new InvalidOperationException(Strings.FormatIQueryableProviderNotAsync());
+        }
+
+        #endregion
+
+        #region Single
+
+        private static readonly MethodInfo _single
+            = GetMethod("Single", t => new[] { typeof(IQueryable<>).MakeGenericType(t) });
+
+        public static Task<TSource> SingleAsync<TSource>(
+            [NotNull] this IQueryable<TSource> source,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Check.NotNull(source, "source");
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var provider = source.Provider as IAsyncQueryProvider;
+
+            if (provider != null)
+            {
+                return provider.ExecuteAsync<TSource>(
+                    Expression.Call(
+                        null,
+                        _single.MakeGenericMethod(typeof(TSource)),
+                        new[] { source.Expression }
+                        ),
+                    cancellationToken);
+            }
+
+            throw new InvalidOperationException(Strings.FormatIQueryableProviderNotAsync());
+        }
+
+        #endregion
+
+        #region ToList
+
+        public static Task<List<object>> ToListAsync(
+            [NotNull] this IQueryable source,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Check.NotNull(source, "source");
+
+            return source.AsAsyncEnumerable().ToListAsync<object>(cancellationToken);
+        }
+
+        public static Task<List<TSource>> ToListAsync<TSource>(
+            [NotNull] this IQueryable<TSource> source,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Check.NotNull(source, "source");
+
+            return source.AsAsyncEnumerable().ToListAsync(cancellationToken);
+        }
+
+        #endregion
+
+        #region TODO
+
         public static IQueryable<T> Include<T, TProperty>(
-            [NotNull] this IQueryable<T> source, [NotNull] Expression<Func<T, TProperty>> path)
+            [NotNull] this IQueryable<T> source,
+            [NotNull] Expression<Func<T, TProperty>> path)
         {
             // TODO
             return source;
-        }
-
-        public static Task<bool> AnyAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            // TODO
-            return Task.FromResult(false);
         }
 
         public static Task<bool> AnyAsync<TSource>(
@@ -33,24 +147,9 @@ namespace System.Linq
             return Task.FromResult(false);
         }
 
-        public static Task<List<TSource>> ToListAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
-            // TODO
-            return Task.FromResult<List<TSource>>(null);
-        }
-
         public static Task<TSource> SingleAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
-            // TODO
-            return Task.FromResult(default(TSource));
-        }
-
-        public static Task<TSource> SingleAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source, [NotNull] Expression<Func<TSource, bool>> predicate,
+            [NotNull] Expression<Func<TSource, bool>> predicate,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             // TODO
@@ -66,7 +165,8 @@ namespace System.Linq
         }
 
         public static Task<TSource> SingleOrDefaultAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source, [NotNull] Expression<Func<TSource, bool>> predicate,
+            [NotNull] this IQueryable<TSource> source,
+            [NotNull] Expression<Func<TSource, bool>> predicate,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             // TODO
@@ -74,17 +174,70 @@ namespace System.Linq
         }
 
         public static Task<decimal> SumAsync(
-            [NotNull] this IQueryable<decimal> source, CancellationToken cancellationToken = default(CancellationToken))
+            [NotNull] this IQueryable<decimal> source,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             // TODO
             return Task.FromResult(default(decimal));
         }
 
         public static Task<int> SumAsync(
-            [NotNull] this IQueryable<int> source, CancellationToken cancellationToken = default(CancellationToken))
+            [NotNull] this IQueryable<int> source,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             // TODO
             return Task.FromResult(0);
+        }
+
+        #endregion
+
+        private static IAsyncEnumerable AsAsyncEnumerable(this IQueryable source)
+        {
+            var enumerable = source as IAsyncEnumerable;
+
+            if (enumerable != null)
+            {
+                return enumerable;
+            }
+
+            throw new InvalidOperationException(Strings.FormatIQueryableNotAsync(string.Empty));
+        }
+
+        // ReSharper disable once ParameterTypeCanBeEnumerable.Local
+        private static IAsyncEnumerable<T> AsAsyncEnumerable<T>(this IQueryable<T> source)
+        {
+            var enumerable = source as IAsyncEnumerable<T>;
+
+            if (enumerable != null)
+            {
+                return enumerable;
+            }
+
+            throw new InvalidOperationException(Strings.FormatIQueryableNotAsync("<" + typeof(T) + ">"));
+        }
+
+        private static MethodInfo GetMethod(string methodName, Func<Type, Type[]> getParameterTypes)
+        {
+            return GetMethod(methodName, getParameterTypes.GetMethodInfo(), 1);
+        }
+
+        private static MethodInfo GetMethod(string methodName, MethodInfo getParameterTypesMethod, int genericArgumentsCount)
+        {
+            var candidates = typeof(Queryable).GetTypeInfo().GetDeclaredMethods(methodName);
+
+            foreach (var candidate in candidates)
+            {
+                var genericArguments = candidate.GetGenericArguments();
+
+                if (genericArguments.Length == genericArgumentsCount
+                    && candidate.GetParameters().Select(p => p.ParameterType)
+                        .SequenceEqual((Type[])getParameterTypesMethod.Invoke(null, genericArguments)))
+                {
+                    return candidate;
+                }
+            }
+
+            return null;
         }
     }
 }

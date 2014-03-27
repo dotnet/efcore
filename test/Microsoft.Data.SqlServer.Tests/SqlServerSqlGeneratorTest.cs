@@ -7,7 +7,7 @@ using System.Text;
 using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
-namespace Microsoft.Data.SqlServer
+namespace Microsoft.Data.SqlServer.Tests
 {
     public class SqlServerSqlGeneratorTest
     {

@@ -7,9 +7,10 @@ using System.Threading.Tasks;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Relational.Update;
 using Xunit;
 
-namespace Microsoft.Data.Relational.Update
+namespace Microsoft.Data.Relational.Tests.Update
 {
     public class CommandBatchPreparerTest
     {

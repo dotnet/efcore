@@ -8,14 +8,15 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity
 {
-    public class EntitySet<TEntity> : EntitySet, IQueryable<TEntity>
+    public class EntitySet<TEntity> : EntitySet, IOrderedQueryable<TEntity>, IAsyncEnumerable<TEntity>
         where TEntity : class
     {
-        private readonly IQueryProvider _provider;
+        private readonly EntityQueryable<TEntity> _entityQueryable;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -27,15 +28,24 @@ namespace Microsoft.Data.Entity
         }
 
         public EntitySet([NotNull] EntityContext context)
-            : base(context)
+            : base(Check.NotNull(context, "context"))
         {
-            _provider = new EnumerableQuery<TEntity>(this);
+            _entityQueryable = new EntityQueryable<TEntity>(context);
+        }
+
+        public IAsyncEnumerator<TEntity> GetAsyncEnumerator()
+        {
+            return _entityQueryable.GetAsyncEnumerator();
         }
 
         public virtual IEnumerator<TEntity> GetEnumerator()
         {
-            // TODO Replace with real implementation
-            return ExecuteQuery().GetEnumerator();
+            return _entityQueryable.GetEnumerator();
+        }
+
+        IAsyncEnumerator IAsyncEnumerable.GetAsyncEnumerator()
+        {
+            return GetAsyncEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -45,19 +55,17 @@ namespace Microsoft.Data.Entity
 
         public override Type ElementType
         {
-            get { return typeof(TEntity); }
+            get { return _entityQueryable.ElementType; }
         }
 
-        // TODO
         public override Expression Expression
         {
-            get { return null; }
+            get { return _entityQueryable.Expression; }
         }
 
-        // TODO
         public override IQueryProvider Provider
         {
-            get { return null; }
+            get { return _entityQueryable.Provider; }
         }
 
         public virtual TEntity Add([NotNull] TEntity entity)
@@ -79,8 +87,7 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(entity, "entity");
 
-            // TODO
-            return entity;
+            return Context.Delete(entity);
         }
 
         public virtual TEntity Update([NotNull] TEntity entity)
@@ -102,57 +109,21 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(entities, "entities");
 
-            // TODO
-            return entities;
+            return entities.Select(Add);
         }
 
         public virtual IEnumerable<TEntity> RemoveRange([NotNull] IEnumerable<TEntity> entities)
         {
             Check.NotNull(entities, "entities");
 
-            // TODO
-            return entities;
+            return entities.Select(Remove);
         }
 
         public virtual IEnumerable<TEntity> UpdateRange([NotNull] IEnumerable<TEntity> entities)
         {
             Check.NotNull(entities, "entities");
 
-            // TODO
-            return entities;
-        }
-
-        Type IQueryable.ElementType
-        {
-            get
-            {
-                // TODO Replace with real implementation
-                return typeof(TEntity);
-            }
-        }
-
-        Expression IQueryable.Expression
-        {
-            get
-            {
-                // TODO Replace with real implementation
-                return ExecuteQuery().AsQueryable().Expression;
-            }
-        }
-
-        IQueryProvider IQueryable.Provider
-        {
-            get
-            {
-                // TODO Replace with real implementation
-                return _provider;
-            }
-        }
-
-        private IEnumerable<TEntity> ExecuteQuery()
-        {
-            return Context.Configuration.DataStore
-                .Query<TEntity>(Context.Model, Context.Configuration.StateManager);
+            return entities.Select(Update);
         }
     }
 }

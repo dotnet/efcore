@@ -48,6 +48,54 @@ namespace JetBrains.Annotations
             ForceFullStates = forceFullStates;
         }
     }
+
+    [AttributeUsage(AttributeTargets.All, AllowMultiple = false, Inherited = true)]
+    internal sealed class UsedImplicitlyAttribute : Attribute
+    {
+        public UsedImplicitlyAttribute()
+            : this(ImplicitUseKindFlags.Default, ImplicitUseTargetFlags.Default)
+        {
+        }
+
+        public UsedImplicitlyAttribute(ImplicitUseKindFlags useKindFlags)
+            : this(useKindFlags, ImplicitUseTargetFlags.Default)
+        {
+        }
+
+        public UsedImplicitlyAttribute(ImplicitUseTargetFlags targetFlags)
+            : this(ImplicitUseKindFlags.Default, targetFlags)
+        {
+        }
+
+        public UsedImplicitlyAttribute(
+            ImplicitUseKindFlags useKindFlags, ImplicitUseTargetFlags targetFlags)
+        {
+            UseKindFlags = useKindFlags;
+            TargetFlags = targetFlags;
+        }
+
+        public ImplicitUseKindFlags UseKindFlags { get; private set; }
+        public ImplicitUseTargetFlags TargetFlags { get; private set; }
+    }
+
+    [Flags]
+    internal enum ImplicitUseKindFlags
+    {
+        Default = Access | Assign | InstantiatedWithFixedConstructorSignature,
+        Access = 1,
+        Assign = 2,
+        InstantiatedWithFixedConstructorSignature = 4,
+        InstantiatedNoFixedConstructorSignature = 8,
+    }
+
+    [Flags]
+    internal enum ImplicitUseTargetFlags
+    {
+        Default = Itself,
+        Itself = 1,
+        Members = 2,
+        WithMembers = Itself | Members
+    }
 }
 
 namespace Microsoft.Data.Relational.Utilities

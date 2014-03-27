@@ -28,6 +28,7 @@ namespace Microsoft.Data.Entity
             return factory(context);
         }
 
+        [UsedImplicitly]
         private static Func<EntityContext, EntitySet> CreateConstructor<TEntity>() where TEntity : class
         {
             return c => new EntitySet<TEntity>(c);

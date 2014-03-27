@@ -9,7 +9,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity
 {
-    public abstract class EntitySet : IQueryable
+    public abstract class EntitySet : IOrderedQueryable
     {
         private readonly EntityContext _context;
 
