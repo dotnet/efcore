@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.Data.Relational.Utilities;
+using Microsoft.Data.Relational.Model;
 
 namespace Microsoft.Data.Relational.Update
 {
@@ -68,12 +69,12 @@ namespace Microsoft.Data.Relational.Update
         {
             var commandParameters = CreateParameters(modificationCommand.ColumnValues, parameters);
 
-            sqlGenerator.AppendInsertCommand(
+            sqlGenerator.AppendInsertOperation(
                 stringBuilder,
-                modificationCommand.TableName,
+                modificationCommand.Table,
                 modificationCommand.ColumnValues.Zip(
                     commandParameters,
-                    (c, p) => new KeyValuePair<string, string>(c.Key, p.Key)));
+                    (c, p) => new KeyValuePair<Column, string>(c.Key, p.Key)).ToArray());
         }
 
         private void AppendUpdateCommand(ModificationCommand modificationCommand, SqlGenerator sqlGenerator,
@@ -82,13 +83,11 @@ namespace Microsoft.Data.Relational.Update
             var updateParameters = CreateParameters(modificationCommand.ColumnValues, parameters);
             var whereClauseParameters = CreateParameters(modificationCommand.WhereClauses, parameters);
 
-            sqlGenerator.AppendUpdateCommand(
-                stringBuilder,
-                modificationCommand.TableName,
+            sqlGenerator.AppendUpdateOperation(stringBuilder, modificationCommand.Table,
                 modificationCommand.ColumnValues.Zip(
-                    updateParameters, (c, p) => new KeyValuePair<string, string>(c.Key, p.Key)),
+                    updateParameters, (c, p) => new KeyValuePair<Column, string>(c.Key, p.Key)).ToArray(),
                 modificationCommand.WhereClauses.Zip(
-                    whereClauseParameters, (c, p) => new KeyValuePair<string, string>(c.Key, p.Key)));
+                    whereClauseParameters, (c, p) => new KeyValuePair<Column, string>(c.Key, p.Key)).ToArray());
         }
 
         private void AppendDeleteCommand(ModificationCommand modificationCommand, SqlGenerator sqlGenerator,
@@ -98,12 +97,12 @@ namespace Microsoft.Data.Relational.Update
 
             sqlGenerator.AppendDeleteCommand(
                 stringBuilder,
-                modificationCommand.TableName,
+                modificationCommand.Table,
                 modificationCommand.WhereClauses.Zip(
-                    whereClauseParameters, (c, p) => new KeyValuePair<string, string>(c.Key, p.Key)));
+                    whereClauseParameters, (c, p) => new KeyValuePair<Column, string>(c.Key, p.Key)));
         }
 
-        private List<KeyValuePair<string, object>> CreateParameters(IEnumerable<KeyValuePair<string, object>> values,
+        private static List<KeyValuePair<string, object>> CreateParameters(IEnumerable<KeyValuePair<Column, object>> values,
             List<KeyValuePair<string, object>> parameters)
         {
             var newParameters = new List<KeyValuePair<string, object>>();

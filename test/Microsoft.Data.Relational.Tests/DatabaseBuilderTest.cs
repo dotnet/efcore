@@ -6,6 +6,7 @@ using Microsoft.Data.Entity.Metadata;
 using Moq;
 using Xunit;
 using Microsoft.Data.Relational.Model;
+using Metadata = Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Relational.Tests
 {
@@ -26,6 +27,7 @@ namespace Microsoft.Data.Relational.Tests
             Assert.Equal(1, table0.Columns.Count);
             Assert.Equal("Id", table0.Columns[0].Name);
             Assert.Equal("int", table0.Columns[0].DataType);
+            Assert.Equal(StoreValueGenerationStrategy.None, table0.Columns[0].GenerationStrategy);
             Assert.NotNull(table1.PrimaryKey.Name);
             Assert.Equal("MyPK0", table0.PrimaryKey.Name);
             Assert.Same(table0.Columns[0], table0.PrimaryKey.Columns[0]);
@@ -35,6 +37,7 @@ namespace Microsoft.Data.Relational.Tests
             Assert.Equal(1, table1.Columns.Count);
             Assert.Equal("Id", table1.Columns[0].Name);
             Assert.Equal("int", table1.Columns[0].DataType);
+            Assert.Equal(StoreValueGenerationStrategy.Identity, table1.Columns[0].GenerationStrategy);
             Assert.NotNull(table1.PrimaryKey.Name);
             Assert.Equal("MyPK1", table1.PrimaryKey.Name);
             Assert.Same(table1.Columns[0], table1.PrimaryKey.Columns[0]);
@@ -168,12 +171,14 @@ namespace Microsoft.Data.Relational.Tests
 
         private static IModel CreateModel()
         {
-            var model = new Entity.Metadata.Model() { StorageName = "MyDatabase" };
+            var model = new Metadata.Model { StorageName = "MyDatabase" };
 
             var dependentEntityType = new EntityType("Dependent") { StorageName = "dbo.MyTable0" };
             var principalEntityType = new EntityType("Principal") { StorageName = "dbo.MyTable1" };
+
             var dependentProperty = dependentEntityType.AddProperty("Id", typeof(int));
             var principalProperty = principalEntityType.AddProperty("Id", typeof(int));
+            principalProperty.ValueGenerationStrategy = ValueGenerationStrategy.StoreIdentity;
 
             model.AddEntityType(principalEntityType);
             model.AddEntityType(dependentEntityType);

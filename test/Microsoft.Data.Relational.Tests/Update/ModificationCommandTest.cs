@@ -7,6 +7,7 @@ using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Relational.Update;
+using Microsoft.Data.Relational.Model;
 using Moq;
 using Xunit;
 
@@ -19,12 +20,19 @@ namespace Microsoft.Data.Relational.Tests.Update
         {
             var properties = new Dictionary<string, object> { { "Col1", 1 }, { "Col2", "Test" } };
             var stateEntry = CreateMockStateEntry("T1", EntityState.Added, properties, new[] { "Col1" });
+            var table = new Table("T1", 
+                new[]
+                    {
+                        new Column("Col1", "_") { GenerationStrategy = StoreValueGenerationStrategy.Identity}, 
+                        new Column("Col2", "_")
+                    });
 
-            var modificationCommand = new ModificationCommand(stateEntry);
+            var modificationCommand = new ModificationCommand(stateEntry, table);
 
-            Assert.Equal("T1", modificationCommand.TableName);
+            Assert.Equal("T1", modificationCommand.Table.Name);
             Assert.Equal(ModificationOperation.Insert, modificationCommand.Operation);
-            Assert.Equal(properties.Where(p => p.Key != "Col1"), modificationCommand.ColumnValues);
+            Assert.Equal("Col2", modificationCommand.ColumnValues.Single().Key.Name);
+            Assert.Equal("Test", modificationCommand.ColumnValues.Single().Value);
             Assert.Null(modificationCommand.WhereClauses);
         }
 
@@ -33,12 +41,15 @@ namespace Microsoft.Data.Relational.Tests.Update
         {
             var properties = new Dictionary<string, object> { { "Col1", "ALFKI" }, { "Col2", "Test" } };
             var stateEntry = CreateMockStateEntry("T1", EntityState.Added, properties, new[] { "Col1" });
+            var table = new Table("T1", new[] { new Column("Col1", "_"), new Column("Col2", "_") });
 
-            var modificationCommand = new ModificationCommand(stateEntry);
+            var modificationCommand = new ModificationCommand(stateEntry, table);
 
-            Assert.Equal("T1", modificationCommand.TableName);
+            Assert.Equal("T1", modificationCommand.Table.Name);
             Assert.Equal(ModificationOperation.Insert, modificationCommand.Operation);
-            Assert.Equal(properties, modificationCommand.ColumnValues);
+            Assert.Equal(
+                properties, 
+                modificationCommand.ColumnValues.Select(v => new KeyValuePair<string, object>(v.Key.Name, v.Value)));
             Assert.Null(modificationCommand.WhereClauses);
         }
 
@@ -47,13 +58,22 @@ namespace Microsoft.Data.Relational.Tests.Update
         {
             var properties = new Dictionary<string, object> { { "Col1", 1 }, { "Col2", "Test" } };
             var stateEntry = CreateMockStateEntry("T1", EntityState.Modified, properties, new[] { "Col1" });
+            var table = new Table("T1",
+                new[]
+                    {
+                        new Column("Col1", "_") { GenerationStrategy = StoreValueGenerationStrategy.Identity}, 
+                        new Column("Col2", "_")
+                    });
+            table.PrimaryKey = new PrimaryKey("PK", table.Columns.Where(c => c.Name == "Col1").ToArray());
 
-            var modificationCommand = new ModificationCommand(stateEntry);
+            var modificationCommand = new ModificationCommand(stateEntry, table);
 
-            Assert.Equal("T1", modificationCommand.TableName);
+            Assert.Equal("T1", modificationCommand.Table.Name);
             Assert.Equal(ModificationOperation.Update, modificationCommand.Operation);
-            Assert.Equal(properties.Where(p => p.Key == "Col2"), modificationCommand.ColumnValues);
-            Assert.Equal(properties.Where(p => p.Key == "Col1"), modificationCommand.WhereClauses);
+            Assert.Equal(1, modificationCommand.ColumnValues.Count());
+            Assert.True(modificationCommand.ColumnValues.Any(v => v.Key.Name == "Col2" && (string)v.Value == "Test"));
+            Assert.Equal(1, modificationCommand.WhereClauses.Count());
+            Assert.True(modificationCommand.WhereClauses.Any(v => v.Key.Name == "Col1" && (int)v.Value == 1));
         }
 
         [Fact]
@@ -61,13 +81,19 @@ namespace Microsoft.Data.Relational.Tests.Update
         {
             var properties = new Dictionary<string, object> { { "Col1", "ALFKI" }, { "Col2", "Test" } };
             var stateEntry = CreateMockStateEntry("T1", EntityState.Modified, properties, new[] { "Col1" });
+            var table = new Table("T1", new[] { new Column("Col1", "_"), new Column("Col2", "_") });
+            table.PrimaryKey = new PrimaryKey("PK", table.Columns.Where(c => c.Name == "Col1").ToArray());
 
-            var modificationCommand = new ModificationCommand(stateEntry);
+            var modificationCommand = new ModificationCommand(stateEntry, table);
 
-            Assert.Equal("T1", modificationCommand.TableName);
+            Assert.Equal("T1", modificationCommand.Table.Name);
             Assert.Equal(ModificationOperation.Update, modificationCommand.Operation);
-            Assert.Equal(properties.Where(p => p.Key == "Col2"), modificationCommand.ColumnValues);
-            Assert.Equal(properties.Where(p => p.Key == "Col1"), modificationCommand.WhereClauses);
+
+            Assert.Equal(1, modificationCommand.ColumnValues.Count());
+            Assert.True(modificationCommand.ColumnValues.Any(v => v.Key.Name == "Col2" && (string)v.Value == "Test"));
+
+            Assert.Equal(1, modificationCommand.WhereClauses.Count());
+            Assert.True(modificationCommand.WhereClauses.Any(v => v.Key.Name == "Col1" && (string)v.Value == "ALFKI"));
         }
 
         [Fact]
@@ -75,13 +101,17 @@ namespace Microsoft.Data.Relational.Tests.Update
         {
             var properties = new Dictionary<string, object> { { "Col1", 1 }, { "Col2", "Test" } };
             var stateEntry = CreateMockStateEntry("T1", EntityState.Deleted, properties, new[] { "Col1" });
+            var table = new Table("T1", new[] { new Column("Col1", "_"), new Column("Col2", "_") });
+            table.PrimaryKey = new PrimaryKey("PK", table.Columns.Where(c => c.Name == "Col1").ToArray());
 
-            var modificationCommand = new ModificationCommand(stateEntry);
+            var modificationCommand = new ModificationCommand(stateEntry, table);
 
-            Assert.Equal("T1", modificationCommand.TableName);
+            Assert.Equal("T1", modificationCommand.Table.Name);
             Assert.Equal(ModificationOperation.Delete, modificationCommand.Operation);
             Assert.Null(modificationCommand.ColumnValues);
-            Assert.Equal(properties.Where(p => p.Key == "Col1"), modificationCommand.WhereClauses);
+
+            Assert.Equal(1, modificationCommand.WhereClauses.Count());
+            Assert.True(modificationCommand.WhereClauses.Any(v => v.Key.Name == "Col1" && (int)v.Value == 1));
         }
 
         [Fact]
@@ -89,7 +119,7 @@ namespace Microsoft.Data.Relational.Tests.Update
         {
             var stateEntry = CreateMockStateEntry("T1", EntityState.Unchanged, new Dictionary<string, object>(), new string[0]);
 
-            Assert.Throws<NotSupportedException>(() => new ModificationCommand(stateEntry));
+            Assert.Throws<NotSupportedException>(() => new ModificationCommand(stateEntry, new Table("Table")));
         }
 
         [Fact]
@@ -97,7 +127,7 @@ namespace Microsoft.Data.Relational.Tests.Update
         {
             var stateEntry = CreateMockStateEntry("T1", EntityState.Unknown, new Dictionary<string, object>(), new string[0]);
 
-            Assert.Throws<NotSupportedException>(() => new ModificationCommand(stateEntry));
+            Assert.Throws<NotSupportedException>(() => new ModificationCommand(stateEntry, new Table("Table")));
         }
 
         private static StateEntry CreateMockStateEntry(string tableName, EntityState entityState,

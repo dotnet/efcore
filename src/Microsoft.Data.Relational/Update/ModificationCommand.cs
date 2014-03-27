@@ -9,14 +9,16 @@ using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Relational.Utilities;
+using Microsoft.Data.Relational.Model;
 
 namespace Microsoft.Data.Relational.Update
 {
     public class ModificationCommand
     {
         private readonly StateEntry _stateEntry;
-        private readonly KeyValuePair<string, object>[] _columnValues;
-        private readonly KeyValuePair<string, object>[] _whereClauses;
+        private readonly Table _table;
+        private readonly KeyValuePair<Column, object>[] _columnValues;
+        private readonly KeyValuePair<Column, object>[] _whereClauses;
         private readonly ModificationOperation _operation;
 
         /// <summary>
@@ -28,7 +30,7 @@ namespace Microsoft.Data.Relational.Update
         {
         }
 
-        public ModificationCommand([NotNull] StateEntry stateEntry)
+        public ModificationCommand([NotNull] StateEntry stateEntry, [NotNull] Table table)
         {
             Check.NotNull(stateEntry, "stateEntry");
             
@@ -38,6 +40,8 @@ namespace Microsoft.Data.Relational.Update
             }
 
             _stateEntry = stateEntry;
+            _table = table;
+
             _operation =
                 stateEntry.EntityState == EntityState.Added
                     ? ModificationOperation.Insert
@@ -45,18 +49,20 @@ namespace Microsoft.Data.Relational.Update
                         ? ModificationOperation.Update
                         : ModificationOperation.Delete;
 
+            // TODO: this will need to be done lazily because the result can be different when 
+            // the results are propagated to state entries for which commands have not been executed
             if (_operation == ModificationOperation.Insert)
             {
-                _columnValues = GetColumnValues(stateEntry, true).ToArray();
+                _columnValues = GetColumnValues(table, stateEntry, true).ToArray();
             }
             else
             {
                 if (_operation == ModificationOperation.Update)
                 {
-                    _columnValues = GetColumnValues(stateEntry, false).ToArray();
+                    _columnValues = GetColumnValues(table, stateEntry, false).ToArray();
                 }
 
-                _whereClauses = GetWhereClauses(stateEntry).ToArray();
+                _whereClauses = GetWhereClauses(table, stateEntry).ToArray();
             }
         }
 
@@ -65,42 +71,46 @@ namespace Microsoft.Data.Relational.Update
             get { return _operation; }
         }
 
-        public virtual string TableName
+        public virtual Table Table
         {
-            get { return _stateEntry.EntityType.StorageName; }
+            get { return _table; }
         }
 
-        public virtual KeyValuePair<string, object>[] ColumnValues
+        public virtual KeyValuePair<Column, object>[] ColumnValues
         {
             get { return _columnValues; }
         }
 
-        public virtual KeyValuePair<string, object>[] WhereClauses
+        public virtual KeyValuePair<Column, object>[] WhereClauses
         {
             get { return _whereClauses; }
         }
 
-        private static IEnumerable<KeyValuePair<string, object>> GetColumnValues(StateEntry stateEntry, bool includeKeys)
+        private static IEnumerable<KeyValuePair<Column, object>> GetColumnValues(Table table, StateEntry stateEntry, bool includeKeys)
         {
-            var entityType = stateEntry.EntityType;
-
-            return entityType
-                .Properties
-                .Where(p =>
-                    p.ValueGenerationStrategy != ValueGenerationStrategy.StoreComputed &&
-                    p.ValueGenerationStrategy != ValueGenerationStrategy.StoreIdentity &&
-                    (includeKeys || !entityType.GetKey().Properties.Contains(p)))
-                .Select(p => new KeyValuePair<string, object>(p.StorageName, stateEntry.GetPropertyValue(p)));
+            return table.Columns
+                .Where(c =>
+                    c.GenerationStrategy != StoreValueGenerationStrategy.Computed &&
+                    c.GenerationStrategy != StoreValueGenerationStrategy.Identity &&
+                    (includeKeys || !table.PrimaryKey.Columns.Contains(c)))
+                .Select(c => new KeyValuePair<Column, object>(c, GetPropertyValue(stateEntry, c)));
+                    
         }
 
-        private static IEnumerable<KeyValuePair<string, object>> GetWhereClauses(StateEntry stateEntry)
+        private static IEnumerable<KeyValuePair<Column, object>> GetWhereClauses(Table table, StateEntry stateEntry)
         {
             // TODO: Concurrency columns
             return
-                stateEntry
-                    .EntityType
-                    .GetKey().Properties
-                    .Select(k => new KeyValuePair<string, object>(k.Name, stateEntry.GetPropertyValue(k)));
+                table
+                .PrimaryKey.Columns
+                .Select(c => new KeyValuePair<Column, object>(c, GetPropertyValue(stateEntry, c)));
+        }
+
+        private static object GetPropertyValue(StateEntry stateEntry, Column column)
+        {
+            // TODO: poor man's model to store mapping
+            return 
+                stateEntry.GetPropertyValue(stateEntry.EntityType.Properties.Single(p => p.StorageName == column.Name));
         }
     }
 }
