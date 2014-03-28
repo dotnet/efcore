@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
-using Microsoft.Data.Entity.Utilities;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.Utilities

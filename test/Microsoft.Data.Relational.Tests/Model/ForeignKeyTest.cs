@@ -1,6 +1,5 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using Microsoft.Data.Relational.Model;
 using Xunit;
@@ -27,7 +26,7 @@ namespace Microsoft.Data.Relational.Tests.Model
             referencedTable.AddColumn(referencedColumn1);
 
             var foreignKey = new ForeignKey(
-                "MyForeignKey", 
+                "MyForeignKey",
                 new[] { column0, column1 },
                 new[] { referencedColumn0, referencedColumn1 },
                 cascadeDelete: true);

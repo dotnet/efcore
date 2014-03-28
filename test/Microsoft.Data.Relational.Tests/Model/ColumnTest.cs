@@ -10,7 +10,7 @@ namespace Microsoft.Data.Relational.Tests.Model
         [Fact]
         public void Create_and_initialize_column()
         {
-            var column = new Column("Foo", "int") 
+            var column = new Column("Foo", "int")
                 { IsNullable = true, DefaultValue = 5 };
 
             Assert.Equal("Foo", column.Name);
@@ -20,7 +20,7 @@ namespace Microsoft.Data.Relational.Tests.Model
             Assert.Equal(5, column.DefaultValue);
             Assert.Null(column.DefaultSql);
 
-            column = new Column("Bar", typeof(int), null) 
+            column = new Column("Bar", typeof(int), null)
                 { IsNullable = false, DefaultSql = "GETDATE()" };
 
             Assert.Equal("Bar", column.Name);

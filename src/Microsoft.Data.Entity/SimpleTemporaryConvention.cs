@@ -19,10 +19,10 @@ namespace Microsoft.Data.Entity
             foreach (var entityType in model.EntityTypes)
             {
                 foreach (var propertyInfo in entityType.Type.GetRuntimeProperties()
-                    .Where(p => !p.IsStatic() 
-                        && !p.GetIndexParameters().Any() 
-                        && p.PropertyType.Namespace.StartsWith("System")
-                        && !p.PropertyType.Namespace.StartsWith("System.Collections")))
+                    .Where(p => !p.IsStatic()
+                                && !p.GetIndexParameters().Any()
+                                && p.PropertyType.Namespace.StartsWith("System")
+                                && !p.PropertyType.Namespace.StartsWith("System.Collections")))
                 {
                     var property = entityType.AddProperty(propertyInfo);
 

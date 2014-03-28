@@ -11,7 +11,7 @@ namespace Microsoft.Data.Migrations.Model
     {
         private readonly string _foreignKeyName;
         private readonly SchemaQualifiedName _tableName;
-        private readonly SchemaQualifiedName _referencedTableName; 
+        private readonly SchemaQualifiedName _referencedTableName;
         private readonly IReadOnlyList<string> _columnNames;
         private readonly IReadOnlyList<string> _referencedColumnNames;
         private readonly bool _cascadeDelete;

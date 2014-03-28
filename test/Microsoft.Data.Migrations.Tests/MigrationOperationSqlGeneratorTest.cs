@@ -1,6 +1,5 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
-using System;
 using Microsoft.Data.Migrations.Model;
 using Microsoft.Data.Relational;
 using Microsoft.Data.Relational.Model;
@@ -50,16 +49,16 @@ namespace Microsoft.Data.Migrations.Tests
             var table = new Table(
                 "dbo.MyTable",
                 new[]
-                {
-                    foo = new Column("Foo", "int") { IsNullable = false, DefaultValue = 5 },
-                    bar = new Column("Bar", "int") { IsNullable = true }
-                })
+                    {
+                        foo = new Column("Foo", "int") { IsNullable = false, DefaultValue = 5 },
+                        bar = new Column("Bar", "int") { IsNullable = true }
+                    })
                 {
                     PrimaryKey = new PrimaryKey("MyPK", new[] { foo, bar }, isClustered: false)
                 };
 
             Assert.Equal(
-@"CREATE TABLE ""dbo"".""MyTable"" (
+                @"CREATE TABLE ""dbo"".""MyTable"" (
     ""Foo"" int NOT NULL DEFAULT 5,
     ""Bar"" int
     CONSTRAINT ""MyPK"" PRIMARY KEY NONCLUSTERED (""Foo"", ""Bar"")
@@ -129,7 +128,7 @@ namespace Microsoft.Data.Migrations.Tests
             Assert.Equal(
                 @"ALTER TABLE ""dbo"".""MyTable"" ALTER COLUMN ""Foo"" int NOT NULL",
                 MigrationOperationSqlGenerator.Generate(
-                    new AlterColumnOperation("dbo.MyTable", "Foo", "int", 
+                    new AlterColumnOperation("dbo.MyTable", "Foo", "int",
                         isNullable: false, isDestructiveChange: false)));
         }
 
@@ -192,8 +191,8 @@ namespace Microsoft.Data.Migrations.Tests
             Assert.Equal(
                 @"ALTER TABLE ""dbo"".""MyTable"" ADD CONSTRAINT ""MyFK"" FOREIGN KEY (""Foo"", ""Bar"") REFERENCES ""dbo"".""MyTable2"" (""Foo2"", ""Bar2"") ON DELETE CASCADE",
                 MigrationOperationSqlGenerator.Generate(
-                    new AddForeignKeyOperation("MyFK", "dbo.MyTable", "dbo.MyTable2", 
-                        new [] { "Foo", "Bar" }, new [] { "Foo2", "Bar2" }, cascadeDelete: true)));
+                    new AddForeignKeyOperation("MyFK", "dbo.MyTable", "dbo.MyTable2",
+                        new[] { "Foo", "Bar" }, new[] { "Foo2", "Bar2" }, cascadeDelete: true)));
         }
 
         [Fact]
@@ -210,7 +209,7 @@ namespace Microsoft.Data.Migrations.Tests
             Assert.Equal(
                 @"CREATE UNIQUE CLUSTERED INDEX ""MyIndex"" ON ""dbo"".""MyTable"" (""Foo"", ""Bar"")",
                 MigrationOperationSqlGenerator.Generate(
-                    new CreateIndexOperation("dbo.MyTable", "MyIndex", new[] { "Foo", "Bar" }, 
+                    new CreateIndexOperation("dbo.MyTable", "MyIndex", new[] { "Foo", "Bar" },
                         isUnique: true, isClustered: true)));
         }
 

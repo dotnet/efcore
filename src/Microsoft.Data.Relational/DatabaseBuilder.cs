@@ -3,16 +3,16 @@
 using System;
 using System.Linq;
 using JetBrains.Annotations;
-using Metadata = Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Relational.Model;
 using Microsoft.Data.Relational.Utilities;
-using System.Collections.Generic;
+using ForeignKey = Microsoft.Data.Relational.Model.ForeignKey;
 
 namespace Microsoft.Data.Relational
 {
     public class DatabaseBuilder
     {
-        public virtual Database Build([NotNull] Metadata.IModel model)
+        public virtual Database Build([NotNull] IModel model)
         {
             Check.NotNull(model, "model");
 
@@ -35,7 +35,7 @@ namespace Microsoft.Data.Relational
             return database;
         }
 
-        private static void BuildTable(Database database, Metadata.IEntityType entityType)
+        private static void BuildTable(Database database, IEntityType entityType)
         {
             var table = new Table(entityType.StorageName);
 
@@ -47,18 +47,18 @@ namespace Microsoft.Data.Relational
             database.AddTable(table);
         }
 
-        private static void BuildColumn(Table table, Metadata.IProperty property)
+        private static void BuildColumn(Table table, IProperty property)
         {
             table.AddColumn(
                 new Column(property.StorageName, property.PropertyType, property.ColumnType())
-                {
-                    IsNullable = property.IsNullable,
-                    DefaultValue = property.ColumnDefaultValue(),
-                    DefaultSql = property.ColumnDefaultSql()
-                });
+                    {
+                        IsNullable = property.IsNullable,
+                        DefaultValue = property.ColumnDefaultValue(),
+                        DefaultSql = property.ColumnDefaultSql()
+                    });
         }
 
-        private static void BuildPrimaryKey(Database database, Metadata.IKey primaryKey)
+        private static void BuildPrimaryKey(Database database, IKey primaryKey)
         {
             Check.NotNull(primaryKey, "primaryKey");
 
@@ -71,7 +71,7 @@ namespace Microsoft.Data.Relational
                 primaryKey.StorageName, columns, isClustered);
         }
 
-        private static void BuildForeignKey(Database database, Metadata.IForeignKey foreignKey)
+        private static void BuildForeignKey(Database database, IForeignKey foreignKey)
         {
             Check.NotNull(foreignKey, "foreignKey");
 
@@ -87,7 +87,7 @@ namespace Microsoft.Data.Relational
                 foreignKey.StorageName, columns, referenceColumns, cascadeDelete));
         }
 
-        private static void BuildIndex(Database database, Metadata.IEntityType entityType)
+        private static void BuildIndex(Database database, IEntityType entityType)
         {
             // TODO: Not implemented.
 

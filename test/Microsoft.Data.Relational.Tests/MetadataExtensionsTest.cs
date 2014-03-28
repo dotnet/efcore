@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Microsoft.Data.Relational.Tests
 {
-    public class ApiExtensionsTest
+    public class MetadataExtensionsTest
     {
         #region Fixture
 
@@ -47,7 +47,7 @@ namespace Microsoft.Data.Relational.Tests
 
             modelBuilder.Entity<Customer>().Properties(ps => ps.Property(c => c.Id).ColumnType("bigint"));
 
-            Assert.Equal("bigint", model.EntityTypes.Single().Properties.Single()[ApiExtensions.Annotations.StorageTypeName]);
+            Assert.Equal("bigint", model.EntityTypes.Single().Properties.Single()[MetadataExtensions.Annotations.StorageTypeName]);
         }
     }
 }

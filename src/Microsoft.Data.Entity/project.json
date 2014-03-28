@@ -4,7 +4,7 @@
     "warningsAsErrors": true
   },
   "dependencies": {
-    "Microsoft.Bcl.Immutable": "1.1.17-beta",
+    "Microsoft.Bcl.Immutable": "1.1.18-beta-*",
     "Microsoft.AspNet.ConfigurationModel": "0.1-alpha-*",
     "Microsoft.AspNet.DependencyInjection": "0.1-alpha-*",
     "Microsoft.AspNet.Logging": "0.1-alpha-*",
@@ -36,7 +36,7 @@
         "System.Runtime": "4.0.20.0",
         "System.Runtime.Extensions": "4.0.10.0",
         "System.Threading": "4.0.0.0",
-        "System.Threading.Tasks": "4.0.0.0"
+        "System.Threading.Tasks": "4.0.10.0"
       }
     }
   }

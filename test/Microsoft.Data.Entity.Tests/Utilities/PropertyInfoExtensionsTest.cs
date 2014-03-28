@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
-using Microsoft.Data.Entity.Utilities;
+using System;
+using System.Reflection;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.Utilities

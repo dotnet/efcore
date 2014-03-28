@@ -607,9 +607,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         {
             return new IProperty[]
                 {
-                    new _KoolEntity6Foo6Property(this), 
-                    new _KoolEntity6Goo6Property(this), 
-                    new _KoolEntity6IdProperty(this), 
+                    new _KoolEntity6Foo6Property(this),
+                    new _KoolEntity6Goo6Property(this),
+                    new _KoolEntity6IdProperty(this),
                     new _KoolEntity6Kool5IdProperty(this)
                 };
         }

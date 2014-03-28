@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
-using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
@@ -75,8 +74,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 return _propertyValues[property.Index];
             }
 
-            return property.IsClrProperty 
-                ? Configuration.ClrPropertyGetterSource.GetAccessor(property).GetClrValue(_entity) 
+            return property.IsClrProperty
+                ? Configuration.ClrPropertyGetterSource.GetAccessor(property).GetClrValue(_entity)
                 : _propertyValues[property.ShadowIndex];
         }
 

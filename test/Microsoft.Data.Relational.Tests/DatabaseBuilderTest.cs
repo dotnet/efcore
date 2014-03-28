@@ -1,8 +1,7 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
-using Metadata = Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata;
 using Xunit;
-using Microsoft.Data.Relational;
 
 namespace Microsoft.Data.Relational
 {
@@ -48,32 +47,32 @@ namespace Microsoft.Data.Relational
             Assert.True(foreignKey.CascadeDelete);
         }
 
-        private static Metadata.IModel CreateModel()
+        private static IModel CreateModel()
         {
-            var model = new Metadata.Model() { StorageName = "MyDatabase" };
+            var model = new Entity.Metadata.Model() { StorageName = "MyDatabase" };
 
-            var dependentEntityType = new Metadata.EntityType("Dependent") { StorageName = "dbo.MyTable0" };
-            var principalEntityType = new Metadata.EntityType("Principal") { StorageName = "dbo.MyTable1" };
+            var dependentEntityType = new EntityType("Dependent") { StorageName = "dbo.MyTable0" };
+            var principalEntityType = new EntityType("Principal") { StorageName = "dbo.MyTable1" };
             var dependentProperty = dependentEntityType.AddProperty("Id", typeof(int), shadowProperty: false);
             var principalProperty = principalEntityType.AddProperty("Id", typeof(int), shadowProperty: false);
 
             model.AddEntityType(principalEntityType);
             model.AddEntityType(dependentEntityType);
 
-            principalProperty.AddAnnotation(new Metadata.Annotation(
-                ApiExtensions.Annotations.StorageTypeName, "int"));
-            dependentProperty.AddAnnotation(new Metadata.Annotation(
-                ApiExtensions.Annotations.StorageTypeName, "int"));
+            principalProperty.AddAnnotation(new Annotation(
+                MetadataExtensions.Annotations.StorageTypeName, "int"));
+            dependentProperty.AddAnnotation(new Annotation(
+                MetadataExtensions.Annotations.StorageTypeName, "int"));
 
             dependentEntityType.SetKey(dependentProperty);
             principalEntityType.SetKey(principalProperty);
             dependentEntityType.GetKey().StorageName = "MyPK0";
-            principalEntityType.GetKey().StorageName = "MyPK1";            
+            principalEntityType.GetKey().StorageName = "MyPK1";
 
             var foreignKey = dependentEntityType.AddForeignKey(principalEntityType.GetKey(), dependentProperty);
             foreignKey.StorageName = "MyFK";
-            foreignKey.AddAnnotation(new Metadata.Annotation(
-                ApiExtensions.Annotations.CascadeDelete, "True"));
+            foreignKey.AddAnnotation(new Annotation(
+                MetadataExtensions.Annotations.CascadeDelete, "True"));
 
             return model;
         }

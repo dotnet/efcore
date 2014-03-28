@@ -61,7 +61,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 stateManager.GetOrMaterializeEntry(categoryType, new object[] { 12 });
                 stateManager.GetOrMaterializeEntry(categoryType, new object[] { 13 });
 
-
                 stateManager.GetOrMaterializeEntry(productType, new object[] { 11, 21 });
                 AssertAllFixedUp(context);
                 stateManager.GetOrMaterializeEntry(productType, new object[] { 11, 22 });
@@ -73,7 +72,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 stateManager.GetOrMaterializeEntry(productType, new object[] { 12, 25 });
                 AssertAllFixedUp(context);
 
-                stateManager.GetOrMaterializeEntry(offerType, new object[] { 31, 22});
+                stateManager.GetOrMaterializeEntry(offerType, new object[] { 31, 22 });
                 AssertAllFixedUp(context);
                 stateManager.GetOrMaterializeEntry(offerType, new object[] { 32, 22 });
                 AssertAllFixedUp(context);

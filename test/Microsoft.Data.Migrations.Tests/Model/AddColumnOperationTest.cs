@@ -18,7 +18,6 @@ namespace Microsoft.Data.Migrations.Tests.Model
             Assert.Equal("dbo.MyTable", addColumnOperation.TableName);
             Assert.Same(column, addColumnOperation.Column);
             Assert.False(addColumnOperation.IsDestructiveChange);
-
         }
 
         [Fact]

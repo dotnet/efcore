@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.Data.Entity;
+using Microsoft.Data.SqlServer;
 using Microsoft.Data.SqlServer.Utilities;
 
-namespace Microsoft.Data.SqlServer
+namespace Microsoft.Data.Entity
 {
-    public static class ApiExtensions
+    public static class ConfigurationExtensions
     {
         public static EntityConfigurationBuilder UseSqlServer(
             [NotNull] this EntityConfigurationBuilder builder, [NotNull] string connectionString)

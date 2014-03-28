@@ -1,13 +1,12 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Relational;
 using Microsoft.Data.Relational.Utilities;
-using System;
 
-namespace Microsoft.Data.Relational
+namespace Microsoft.Data.Entity.Metadata
 {
-    public static class ApiExtensions
+    public static class MetadataExtensions
     {
         public static class Annotations
         {
@@ -68,7 +67,7 @@ namespace Microsoft.Data.Relational
 
         public static ModelBuilder.EntityBuilder<TEntity>.ForeignKeysBuilder.ForeignKeyBuilder CascadeDelete<TEntity>(
             [NotNull] this ModelBuilder.EntityBuilder<TEntity>.ForeignKeysBuilder.ForeignKeyBuilder foreignKeyBuilder,
-            [NotNull] bool cascadeDelete)
+            bool cascadeDelete)
             where TEntity : class
         {
             Check.NotNull(foreignKeyBuilder, "foreignKeyBuilder");
@@ -80,22 +79,22 @@ namespace Microsoft.Data.Relational
 
         public static string ColumnType([NotNull] this IProperty property)
         {
-            return property[ApiExtensions.Annotations.StorageTypeName];
+            return property[Annotations.StorageTypeName];
         }
 
         public static object ColumnDefaultValue([NotNull] this IProperty property)
         {
-            return property[ApiExtensions.Annotations.ColumnDefaultValue];
+            return property[Annotations.ColumnDefaultValue];
         }
 
         public static string ColumnDefaultSql([NotNull] this IProperty property)
         {
-            return property[ApiExtensions.Annotations.ColumnDefaultSql];
+            return property[Annotations.ColumnDefaultSql];
         }
 
         public static bool IsClustered([NotNull] this IKey primaryKey)
         {
-            var isClusteredString = primaryKey[ApiExtensions.Annotations.IsClustered];
+            var isClusteredString = primaryKey[Annotations.IsClustered];
 
             bool isClustered;
             if (isClusteredString == null
@@ -109,7 +108,7 @@ namespace Microsoft.Data.Relational
 
         public static bool CascadeDelete([NotNull] this IForeignKey foreignKey)
         {
-            var cascadeDeleteString = foreignKey[ApiExtensions.Annotations.CascadeDelete];
+            var cascadeDeleteString = foreignKey[Annotations.CascadeDelete];
 
             bool cascadeDelete;
             if (cascadeDeleteString == null

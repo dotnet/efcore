@@ -222,7 +222,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             configMock.Setup(m => m.EntityStateListeners).Returns(listeners.Select(m => m.Object));
             configMock.Setup(m => m.StateEntryNotifier).Returns(new StateEntryNotifier(listeners.Select(m => m.Object)));
-            
+
             var entry = stateManager.GetOrCreateEntry(new Category { Id = 77 });
             entry.SetEntityStateAsync(EntityState.Added, CancellationToken.None).Wait();
 

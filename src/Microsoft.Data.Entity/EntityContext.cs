@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity
 {
     public class EntityContext : IDisposable
     {
-        private ContextConfiguration _configuration; 
+        private ContextConfiguration _configuration;
         private ContextEntitySets _sets;
 
         protected EntityContext()

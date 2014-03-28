@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = BuildModel();
             var entityType = model.GetEntityType("SomeEntity");
             var keyProperty = entityType.GetProperty("Id");
-            
+
             var configuration = CreateConfiguration(model);
 
             var entry = CreateStateEntry(configuration, entityType, new SomeEntity());

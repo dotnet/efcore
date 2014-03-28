@@ -44,11 +44,11 @@ namespace Microsoft.Data.SqlServer
 
             new SqlServerSqlGenerator()
                 .AppendInsertOperation(sb, "table",
-                    new [] { new KeyValuePair<string, string>( "Id1", "int" ) },
+                    new[] { new KeyValuePair<string, string>("Id1", "int") },
                     new Dictionary<string, string> { { "Name", "@p0" } }.ToArray(),
                     new Dictionary<string, ValueGenerationStrategy>
                         {
-                            { "Id1", ValueGenerationStrategy.StoreIdentity }, 
+                            { "Id1", ValueGenerationStrategy.StoreIdentity },
                             { "Inserted", ValueGenerationStrategy.StoreComputed }
                         }.ToArray());
 
@@ -128,7 +128,7 @@ namespace Microsoft.Data.SqlServer
 
             Assert.Equal(expected, sb.ToString());
         }
-        
+
         public class ParameterValidation
         {
             [Fact]

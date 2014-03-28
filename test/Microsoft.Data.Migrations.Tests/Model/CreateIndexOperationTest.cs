@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using Microsoft.Data.Migrations.Model;
-using Microsoft.Data.Relational.Model;
 using Moq;
 using Xunit;
 
@@ -13,8 +12,8 @@ namespace Microsoft.Data.Migrations.Tests.Model
         public void Create_and_initialize_operation()
         {
             var createIndexOperation = new CreateIndexOperation(
-                "dbo.MyTable", "MyIndex", new[] { "Foo", "Bar" }, 
-                isUnique: true , isClustered: true);
+                "dbo.MyTable", "MyIndex", new[] { "Foo", "Bar" },
+                isUnique: true, isClustered: true);
 
             Assert.Equal("dbo.MyTable", createIndexOperation.TableName);
             Assert.Equal("MyIndex", createIndexOperation.IndexName);

@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
@@ -10,12 +11,11 @@ using Microsoft.Data.Migrations.Model;
 using Microsoft.Data.Migrations.Utilities;
 using Microsoft.Data.Relational;
 using Microsoft.Data.Relational.Model;
-using System.Globalization;
 
 namespace Microsoft.Data.Migrations
 {
     /// <summary>
-    /// Default migration operation SQL generator, outputs best-effort ANSI-99 compliant SQL.
+    ///     Default migration operation SQL generator, outputs best-effort ANSI-99 compliant SQL.
     /// </summary>
     // TODO: Include idempotent generation logic here. Can use the presence checks methods
     // similar to ones in the generator for SqlServer but implemented over INFORMATION_SCHEMA.
@@ -33,10 +33,10 @@ namespace Microsoft.Data.Migrations
 
         public virtual string GeneratedSql
         {
-            get { return StringBuilder.ToString();  }
+            get { return StringBuilder.ToString(); }
         }
 
-        public virtual Database Database 
+        public virtual Database Database
         {
             get { return _database; }
 
@@ -142,7 +142,7 @@ namespace Microsoft.Data.Migrations
                     StringBuilder.AppendLine();
 
                     GeneratePrimaryKey(
-                        primaryKey.Name, 
+                        primaryKey.Name,
                         primaryKey.Columns.Select(c => c.Name).ToArray(),
                         primaryKey.IsClustered);
                 }
@@ -239,7 +239,7 @@ namespace Microsoft.Data.Migrations
             {
                 StringBuilder.Append(addDefaultConstraintOperation.DefaultSql);
             }
-            else 
+            else
             {
                 StringBuilder.Append(GenerateLiteral((dynamic)addDefaultConstraintOperation.DefaultValue));
             }

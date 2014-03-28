@@ -66,8 +66,8 @@ namespace Microsoft.Data.Relational.Update
                 stringBuilder,
                 modificationCommand.TableName,
                 modificationCommand.ColumnValues.Zip(
-                    commandParameters, 
-                    (c, p) => new KeyValuePair<string, string>(c.Key, p.Key)));                
+                    commandParameters,
+                    (c, p) => new KeyValuePair<string, string>(c.Key, p.Key)));
         }
 
         private void AppendUpdateCommand(ModificationCommand modificationCommand, SqlGenerator sqlGenerator,

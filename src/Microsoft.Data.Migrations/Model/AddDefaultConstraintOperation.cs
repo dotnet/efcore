@@ -3,7 +3,6 @@
 using JetBrains.Annotations;
 using Microsoft.Data.Migrations.Utilities;
 using Microsoft.Data.Relational;
-using Microsoft.Data.Relational.Model;
 
 namespace Microsoft.Data.Migrations.Model
 {

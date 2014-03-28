@@ -3,7 +3,6 @@
 using JetBrains.Annotations;
 using Microsoft.Data.Migrations.Utilities;
 using Microsoft.Data.Relational;
-using Microsoft.Data.Relational.Model;
 
 namespace Microsoft.Data.Migrations.Model
 {
@@ -16,10 +15,10 @@ namespace Microsoft.Data.Migrations.Model
         private readonly bool _isDestructiveChange;
 
         public AlterColumnOperation(
-            SchemaQualifiedName tableName, 
-            [NotNull] string columnName, 
+            SchemaQualifiedName tableName,
+            [NotNull] string columnName,
             [NotNull] string dataType,
-            bool isNullable, 
+            bool isNullable,
             bool isDestructiveChange)
         {
             Check.NotNull(columnName, "columnName");

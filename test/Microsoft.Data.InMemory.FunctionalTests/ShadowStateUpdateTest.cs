@@ -117,7 +117,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
 
                 Assert.Equal(42, customerFromStore.Id);
                 Assert.Equal(
-                    "Daenerys", 
+                    "Daenerys",
                     (string)context.ChangeTracker.Entry(customerFromStore).Property("Name").CurrentValue);
             }
 
@@ -137,7 +137,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
 
                 Assert.Equal(42, customerFromStore.Id);
                 Assert.Equal(
-                    "Daenerys Targaryen", 
+                    "Daenerys Targaryen",
                     (string)context.ChangeTracker.Entry(customerFromStore).Property("Name").CurrentValue);
             }
 

@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.Equal("Monkey", new PropertyEntry(stateEntryMock.Object, "Monkey").Name);
             Assert.Equal("Monkey", new PropertyEntry<Random, string>(stateEntryMock.Object, "Monkey").Name);
         }
-        
+
         [Fact]
         public void Can_get_current_value()
         {

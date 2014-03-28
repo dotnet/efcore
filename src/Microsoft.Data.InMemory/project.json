@@ -7,7 +7,7 @@
     "Microsoft.Data.Entity": "",
     "Microsoft.AspNet.DependencyInjection": "0.1-alpha-*",
     "Microsoft.AspNet.Logging": "0.1-alpha-*",
-    "Microsoft.Bcl.Immutable": "1.1.17-beta"
+    "Microsoft.Bcl.Immutable": "1.1.18-beta-*"
   },
   "code": "**\\*.cs;..\\Shared\\*.cs",
   "configurations": {
@@ -27,7 +27,7 @@
         "System.Runtime": "4.0.20.0",
         "System.Runtime.Extensions": "4.0.10.0",
         "System.Threading": "4.0.0.0",
-        "System.Threading.Tasks": "4.0.0.0"
+        "System.Threading.Tasks": "4.0.10.0"
       }
     }
   }

@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         public NavigationFixer(
             [NotNull] StateManager stateManager,
-            [NotNull] ClrCollectionAccessorSource collectionAccessorSource, 
+            [NotNull] ClrCollectionAccessorSource collectionAccessorSource,
             [NotNull] ClrPropertySetterSource setterSource)
         {
             Check.NotNull(stateManager, "stateManager");

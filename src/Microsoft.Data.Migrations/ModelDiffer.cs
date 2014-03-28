@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Migrations.Model;
@@ -56,10 +56,10 @@ namespace Microsoft.Data.Migrations
 
             return
                 ((IEnumerable<MigrationOperation>)createSequenceOperations)
-                .Union(createTableOperations)
-                .Union(addForeignKeyOperations)
-                .Union(createIndexOperations)
-                .ToArray();
+                    .Union(createTableOperations)
+                    .Union(addForeignKeyOperations)
+                    .Union(createIndexOperations)
+                    .ToArray();
         }
 
         // TODO: Rename this method because it is not suggestive of what it does.
@@ -81,9 +81,9 @@ namespace Microsoft.Data.Migrations
 
             return
                 ((IEnumerable<MigrationOperation>)dropSequenceOperations)
-                .Union(dropForeignKeyOperations)
-                .Union(dropTableOperations)
-                .ToArray();
+                    .Union(dropForeignKeyOperations)
+                    .Union(dropTableOperations)
+                    .ToArray();
         }
     }
 }

@@ -13,7 +13,7 @@ namespace Microsoft.Data.Migrations.Model
         private readonly string _newIndexName;
 
         public RenameIndexOperation(
-            SchemaQualifiedName tableName, 
+            SchemaQualifiedName tableName,
             [NotNull] string indexName,
             [NotNull] string newIndexName)
         {

@@ -117,6 +117,5 @@ namespace Microsoft.Data.Relational.Tests.Model
             Assert.Same(index0, table.GetIndex("MyIndex0"));
             Assert.Same(index1, table.GetIndex("MyIndex1"));
         }
-
     }
 }

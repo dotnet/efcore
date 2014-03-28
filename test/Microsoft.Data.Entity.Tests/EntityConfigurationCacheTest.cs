@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var someContext = new SomeContext2())
             {
-                Assert.Same(config,  cache.GetOrAddConfiguration(someContext));
+                Assert.Same(config, cache.GetOrAddConfiguration(someContext));
             }
         }
 

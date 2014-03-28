@@ -13,8 +13,8 @@ namespace Microsoft.Data.Relational.Model
         private readonly bool _isClustered;
 
         public PrimaryKey(
-            [NotNull] string name, 
-            [NotNull] IReadOnlyList<Column> columns, 
+            [NotNull] string name,
+            [NotNull] IReadOnlyList<Column> columns,
             bool isClustered)
         {
             Check.NotEmpty(name, "name");
@@ -28,7 +28,7 @@ namespace Microsoft.Data.Relational.Model
         }
 
         public PrimaryKey(
-            [NotNull] string name, 
+            [NotNull] string name,
             [NotNull] IReadOnlyList<Column> columns)
             : this(name, columns, isClustered: true)
         {

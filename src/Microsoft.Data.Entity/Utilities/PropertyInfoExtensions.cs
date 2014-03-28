@@ -1,9 +1,8 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System.Diagnostics;
-using System.Reflection;
 
-namespace Microsoft.Data.Entity.Utilities
+namespace System.Reflection
 {
     [DebuggerStepThrough]
     internal static class PropertyInfoExtensions

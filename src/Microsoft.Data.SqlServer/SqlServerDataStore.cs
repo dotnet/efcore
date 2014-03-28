@@ -8,6 +8,7 @@ using Microsoft.Data.Relational;
 using Microsoft.Data.SqlServer.Utilities;
 #if NET45
 using System.Data.SqlClient;
+
 #endif
 
 namespace Microsoft.Data.SqlServer
@@ -30,7 +31,7 @@ namespace Microsoft.Data.SqlServer
 
         protected override SqlGenerator SqlGenerator
         {
-            get {return _sqlGenerator; }
+            get { return _sqlGenerator; }
         }
 
         public override DbConnection CreateConnection(string connectionString)

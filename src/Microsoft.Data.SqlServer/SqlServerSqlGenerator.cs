@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text;
-using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Relational;
 using Microsoft.Data.SqlServer.Utilities;
@@ -20,10 +19,10 @@ namespace Microsoft.Data.SqlServer
             commandStringBuilder.Append("SET NOCOUNT OFF");
         }
 
-        public override void AppendInsertOperation(StringBuilder commandStringBuilder, string tableName, KeyValuePair<string, string>[] keyColumns, 
+        public override void AppendInsertOperation(StringBuilder commandStringBuilder, string tableName, KeyValuePair<string, string>[] keyColumns,
             KeyValuePair<string, string>[] columnsToParameters, KeyValuePair<string, ValueGenerationStrategy>[] storeGeneratedColumns)
         {
-            var dbGeneratedNonIdentityKeys = 
+            var dbGeneratedNonIdentityKeys =
                 storeGeneratedColumns.Where(
                     c => keyColumns.Select(k => k.Key).Contains(c.Key) && c.Value == ValueGenerationStrategy.StoreComputed);
 
@@ -57,7 +56,7 @@ namespace Microsoft.Data.SqlServer
 
                 commandStringBuilder
                     .Append("SELECT ")
-                    .AppendJoin(storeGeneratedColumns.Select(c=>c.Key), (sb, c) => sb.Append("t.").Append(c), ", ");
+                    .AppendJoin(storeGeneratedColumns.Select(c => c.Key), (sb, c) => sb.Append("t.").Append(c), ", ");
 
                 commandStringBuilder
                     .Append(" FROM ")
@@ -95,6 +94,5 @@ namespace Microsoft.Data.SqlServer
         {
             return string.Format("@generated_keys_{0}", tableName);
         }
-
     }
 }

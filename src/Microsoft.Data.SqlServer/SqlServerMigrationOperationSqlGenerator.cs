@@ -1,11 +1,9 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
-using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Migrations;
 using Microsoft.Data.Migrations.Model;
 using Microsoft.Data.Relational;
-using Microsoft.Data.Relational.Model;
 using Microsoft.Data.SqlServer.Utilities;
 
 namespace Microsoft.Data.SqlServer
@@ -196,8 +194,8 @@ namespace Microsoft.Data.SqlServer
             if (_generateIdempotentSql)
             {
                 GenerateColumnPresenceCheck(
-                    addColumnOperation.TableName, 
-                    addColumnOperation.Column.Name, 
+                    addColumnOperation.TableName,
+                    addColumnOperation.Column.Name,
                     negative: true);
 
                 using (StringBuilder.AppendLine().Indent())
@@ -218,8 +216,8 @@ namespace Microsoft.Data.SqlServer
             if (_generateIdempotentSql)
             {
                 GenerateColumnPresenceCheck(
-                    dropColumnOperation.TableName, 
-                    dropColumnOperation.ColumnName, 
+                    dropColumnOperation.TableName,
+                    dropColumnOperation.ColumnName,
                     negative: false);
 
                 using (StringBuilder.AppendLine().Indent())
@@ -321,8 +319,8 @@ namespace Microsoft.Data.SqlServer
             if (_generateIdempotentSql)
             {
                 GenerateColumnPresenceCheck(
-                    renameColumnOperation.TableName, 
-                    renameColumnOperation.ColumnName, 
+                    renameColumnOperation.TableName,
+                    renameColumnOperation.ColumnName,
                     negative: false);
 
                 using (StringBuilder.AppendLine().Indent())
@@ -344,7 +342,7 @@ namespace Microsoft.Data.SqlServer
             {
                 GeneratePrimaryKeyPresenceCheck(
                     addPrimaryKeyOperation.TableName,
-                    addPrimaryKeyOperation.PrimaryKeyName, 
+                    addPrimaryKeyOperation.PrimaryKeyName,
                     negative: true);
 
                 using (StringBuilder.AppendLine().Indent())
@@ -366,7 +364,7 @@ namespace Microsoft.Data.SqlServer
             {
                 GeneratePrimaryKeyPresenceCheck(
                     dropPrimaryKeyOperation.TableName,
-                    dropPrimaryKeyOperation.PrimaryKeyName, 
+                    dropPrimaryKeyOperation.PrimaryKeyName,
                     negative: false);
 
                 using (StringBuilder.AppendLine().Indent())
@@ -490,7 +488,7 @@ namespace Microsoft.Data.SqlServer
             }
         }
 
-        internal protected virtual void GenerateDatabasePresenceCheck([NotNull] string databaseName, bool negative)
+        protected internal virtual void GenerateDatabasePresenceCheck([NotNull] string databaseName, bool negative)
         {
             Check.NotEmpty(databaseName, "databaseName");
 
@@ -502,7 +500,7 @@ namespace Microsoft.Data.SqlServer
                 .Append(")");
         }
 
-        internal protected virtual void GenerateSequencePresenceCheck(SchemaQualifiedName sequenceName, bool negative)
+        protected internal virtual void GenerateSequencePresenceCheck(SchemaQualifiedName sequenceName, bool negative)
         {
             StringBuilder
                 .Append("IF")
@@ -521,7 +519,7 @@ namespace Microsoft.Data.SqlServer
             StringBuilder.Append(")");
         }
 
-        internal protected virtual void GenerateTablePresenceCheck(SchemaQualifiedName tableName, bool negative)
+        protected internal virtual void GenerateTablePresenceCheck(SchemaQualifiedName tableName, bool negative)
         {
             StringBuilder
                 .Append("IF")
@@ -540,7 +538,7 @@ namespace Microsoft.Data.SqlServer
             StringBuilder.Append(")");
         }
 
-        internal protected virtual void GenerateColumnPresenceCheck(
+        protected internal virtual void GenerateColumnPresenceCheck(
             SchemaQualifiedName tableName, [NotNull] string columnName, bool negative)
         {
             Check.NotEmpty(columnName, "columnName");
@@ -555,7 +553,7 @@ namespace Microsoft.Data.SqlServer
                 .Append("))");
         }
 
-        internal protected virtual void GeneratePrimaryKeyPresenceCheck(
+        protected internal virtual void GeneratePrimaryKeyPresenceCheck(
             SchemaQualifiedName tableName, [NotNull] string primaryKeyName, bool negative)
         {
             Check.NotEmpty(primaryKeyName, "primaryKeyName");
@@ -564,14 +562,14 @@ namespace Microsoft.Data.SqlServer
                 .Append("IF")
                 .Append(negative ? " NOT" : string.Empty)
                 .Append(" EXISTS (SELECT * FROM sys.key_constraints WHERE type = 'PK'");
-            
+
             if (!negative)
             {
                 StringBuilder
                     .Append(" AND name = N")
                     .Append(DelimitLiteral(primaryKeyName));
             }
-            
+
             StringBuilder
                 .Append(" AND parent_object_id = OBJECT_ID(N")
                 .Append(DelimitLiteral(tableName))
@@ -580,7 +578,7 @@ namespace Microsoft.Data.SqlServer
             StringBuilder.Append(")");
         }
 
-        internal protected virtual void GenerateForeignKeyPresenceCheck(
+        protected internal virtual void GenerateForeignKeyPresenceCheck(
             SchemaQualifiedName tableName, [NotNull] string foreignKeyName, bool negative)
         {
             Check.NotEmpty(foreignKeyName, "foreignKeyName");
@@ -595,7 +593,7 @@ namespace Microsoft.Data.SqlServer
                 .Append("))");
         }
 
-        internal protected virtual void GenerateColumnDefaultPresenceCheck(
+        protected internal virtual void GenerateColumnDefaultPresenceCheck(
             SchemaQualifiedName tableName, [NotNull] string columnName, bool negative)
         {
             Check.NotEmpty(columnName, "columnName");
@@ -610,7 +608,7 @@ namespace Microsoft.Data.SqlServer
                 .Append(")");
         }
 
-        internal protected virtual void GenerateIndexPresenceCheck(
+        protected internal virtual void GenerateIndexPresenceCheck(
             SchemaQualifiedName tableName, [NotNull] string indexName, bool negative)
         {
             Check.NotEmpty(indexName, "indexName");

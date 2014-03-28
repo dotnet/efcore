@@ -1,12 +1,10 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Relational.Utilities;
 
@@ -50,7 +48,7 @@ namespace Microsoft.Data.Relational
             [NotNull] IEnumerable<KeyValuePair<string, ValueGenerationStrategy>> storeGeneratedKeys);
 
         public virtual void AppendUpdateOperation([NotNull] StringBuilder commandStringBuilder, [NotNull] string tableName,
-            [NotNull] KeyValuePair<string, string>[] columnValues, [NotNull] KeyValuePair<string, string>[] whereConditions, 
+            [NotNull] KeyValuePair<string, string>[] columnValues, [NotNull] KeyValuePair<string, string>[] whereConditions,
             [NotNull] string[] storeGeneratedNonKeyColumns)
         {
             Check.NotNull(commandStringBuilder, "commandStringBuilder");
@@ -68,7 +66,7 @@ namespace Microsoft.Data.Relational
         }
 
         public virtual void AppendInsertCommand(
-            [NotNull] StringBuilder commandStringBuilder, [NotNull] string tableName, 
+            [NotNull] StringBuilder commandStringBuilder, [NotNull] string tableName,
             [NotNull] IEnumerable<KeyValuePair<string, string>> columnsToParameters)
         {
             Check.NotNull(commandStringBuilder, "commandStringBuilder");

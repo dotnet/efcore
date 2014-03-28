@@ -2,6 +2,7 @@
 
 using System;
 using JetBrains.Annotations;
+using Microsoft.AspNet.DependencyInjection;
 using Microsoft.AspNet.Logging;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Identity;

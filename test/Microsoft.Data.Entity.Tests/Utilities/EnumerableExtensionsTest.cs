@@ -1,8 +1,8 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.Utilities;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.Utilities
