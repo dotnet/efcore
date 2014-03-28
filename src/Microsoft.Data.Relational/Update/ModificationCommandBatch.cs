@@ -4,27 +4,33 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text;
+using JetBrains.Annotations;
+using Microsoft.Data.Relational.Utilities;
 
 namespace Microsoft.Data.Relational.Update
 {
-    internal class ModificationCommandBatch
+    public class ModificationCommandBatch
     {
         private readonly ModificationCommand[] _batchCommands;
 
-        public ModificationCommandBatch(ModificationCommand[] batchCommands)
+        public ModificationCommandBatch([NotNull] ModificationCommand[] batchCommands)
         {
+            Check.NotNull(batchCommands, "batchCommands");
+
             Contract.Assert(batchCommands.Any(), "batchCommands array is empty");
 
             _batchCommands = batchCommands;
         }
 
-        public IEnumerable<ModificationCommand> BatchCommands
+        public virtual IEnumerable<ModificationCommand> BatchCommands
         {
             get { return _batchCommands; }
         }
 
-        public string CompileBatch(SqlGenerator sqlGenerator, out List<KeyValuePair<string, object>> parameters)
+        public virtual string CompileBatch([NotNull] SqlGenerator sqlGenerator, [NotNull] out List<KeyValuePair<string, object>> parameters)
         {
+            Check.NotNull(sqlGenerator, "sqlGenerator");
+
             var stringBuilder = new StringBuilder();
             parameters = new List<KeyValuePair<string, object>>();
 

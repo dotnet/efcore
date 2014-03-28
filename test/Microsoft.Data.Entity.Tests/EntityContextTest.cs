@@ -1,10 +1,14 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Storage;
+using Moq;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests
@@ -285,6 +289,59 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Same(entitySet, context.Set(typeof(Product)));
                 Assert.Same(entitySet, context.Products);
             }
+        }
+
+        [Fact]
+        public void SaveChanges_doesnt_call_DataStore_when_nothing_is_dirty()
+        {
+            var store = new Mock<DataStore>();
+            var config = new EntityConfigurationBuilder()
+                .UseDataStore(store.Object)
+                .BuildConfiguration();
+
+            using (var context = new EarlyLearningCenter(config))
+            {
+                context.ChangeTracker.Entry(new Category { Id = 1 }).State = EntityState.Unchanged;
+                context.ChangeTracker.Entry(new Category { Id = 2 }).State = EntityState.Unchanged;
+                Assert.Equal(2, context.ChangeTracker.Entries().Count());
+
+                context.SaveChanges();
+            }
+
+            store.Verify(
+                s => s.SaveChangesAsync(It.IsAny<IEnumerable<StateEntry>>(), It.IsAny<IModel>(), It.IsAny<CancellationToken>()),
+                Times.Never);
+        }
+
+        [Fact]
+        public void SaveChanges_only_passes_dirty_entries_to_DatStore()
+        {
+            var passedEntries = new List<StateEntry>();
+            var store = new Mock<DataStore>();
+            store.Setup(s => s.SaveChangesAsync(It.IsAny<IEnumerable<StateEntry>>(), It.IsAny<IModel>(), It.IsAny<CancellationToken>()))
+                .Callback<IEnumerable<StateEntry>, IModel, CancellationToken>((e, m, c) => passedEntries.AddRange(e))
+                .Returns(Task.FromResult(3));
+
+            var config = new EntityConfigurationBuilder()
+                .UseDataStore(store.Object)
+                .BuildConfiguration();
+
+            using (var context = new EarlyLearningCenter(config))
+            {
+                context.ChangeTracker.Entry(new Category { Id = 1 }).State = EntityState.Unchanged;
+                context.ChangeTracker.Entry(new Category { Id = 2 }).State = EntityState.Modified;
+                context.ChangeTracker.Entry(new Category { Id = 3 }).State = EntityState.Added;
+                context.ChangeTracker.Entry(new Category { Id = 4 }).State = EntityState.Deleted;
+                Assert.Equal(4, context.ChangeTracker.Entries().Count());
+
+                context.SaveChanges();
+            }
+
+            Assert.Equal(3, passedEntries.Count);
+
+            store.Verify(
+                s => s.SaveChangesAsync(It.IsAny<IEnumerable<StateEntry>>(), It.IsAny<IModel>(), It.IsAny<CancellationToken>()),
+                Times.Once);
         }
 
         #region Fixture

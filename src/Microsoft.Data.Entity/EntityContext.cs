@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -63,8 +64,12 @@ namespace Microsoft.Data.Entity
 
         public virtual Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            return _configuration.DataStore.SaveChangesAsync(
-                _configuration.StateManager.StateEntries, Model, cancellationToken);
+            var entriesToSave = _configuration.StateManager.StateEntries.Where(e => e.EntityState.IsDirty());
+
+            return entriesToSave.Any()
+                ?_configuration.DataStore.SaveChangesAsync(
+                    entriesToSave, Model, cancellationToken)
+                : Task.FromResult(0);
         }
 
         public void Dispose()

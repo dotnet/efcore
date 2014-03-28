@@ -2,7 +2,7 @@
 
 namespace Microsoft.Data.Relational.Update
 {
-    internal enum ModificationOperation : byte
+    public enum ModificationOperation : byte
     {
         Insert,
         Update,
