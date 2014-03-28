@@ -2,7 +2,6 @@
 
 using System;
 using System.Data;
-using System.IO;
 using Xunit;
 
 namespace Microsoft.Data.SQLite
@@ -40,12 +39,12 @@ namespace Microsoft.Data.SQLite
         [Fact]
         public void ConnectionString_setter_throws_when_open()
         {
-            using (var connection = new SQLiteConnection("Filename=test.db"))
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
             {
                 connection.Open();
 
                 var ex = Assert.Throws<InvalidOperationException>(
-                    () => connection.ConnectionString = "Filename=new.db");
+                    () => connection.ConnectionString = "Filename=test.db");
 
                 Assert.Equal(Strings.ConnectionStringRequiresClosedConnection, ex.Message);
             }
@@ -102,7 +101,7 @@ namespace Microsoft.Data.SQLite
         [Fact]
         public void Open_can_be_called_when_disposed()
         {
-            using (var connection = new SQLiteConnection("Filename=test.db"))
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
             {
                 connection.Dispose();
 
@@ -135,9 +134,7 @@ namespace Microsoft.Data.SQLite
         [Fact]
         public void Open_works()
         {
-            File.Delete("test.db");
-
-            using (var connection = new SQLiteConnection("Filename=test.db"))
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
             {
                 var raised = false;
                 StateChangeEventHandler handler = (sender, e) =>
@@ -156,7 +153,6 @@ namespace Microsoft.Data.SQLite
 
                     Assert.True(raised);
                     Assert.Equal(ConnectionState.Open, connection.State);
-                    Assert.True(File.Exists("test.db"));
                 }
                 finally
                 {
@@ -168,7 +164,7 @@ namespace Microsoft.Data.SQLite
         [Fact]
         public void Open_can_be_called_more_than_once()
         {
-            using (var connection = new SQLiteConnection("Filename=test.db"))
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
             {
                 connection.Open();
                 connection.Open();
@@ -178,7 +174,7 @@ namespace Microsoft.Data.SQLite
         [Fact]
         public void Close_works()
         {
-            using (var connection = new SQLiteConnection("Filename=test.db"))
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
             {
                 connection.Open();
 
@@ -219,7 +215,7 @@ namespace Microsoft.Data.SQLite
         [Fact]
         public void Close_can_be_called_more_than_once()
         {
-            using (var connection = new SQLiteConnection("Filename=test.db"))
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
             {
                 connection.Open();
                 connection.Close();
@@ -230,7 +226,7 @@ namespace Microsoft.Data.SQLite
         [Fact]
         public void Dispose_closes_connection()
         {
-            var connection = new SQLiteConnection("Filename=test.db");
+            var connection = new SQLiteConnection("Filename=:memory:");
             connection.Open();
 
             var raised = false;
@@ -260,7 +256,7 @@ namespace Microsoft.Data.SQLite
         [Fact]
         public void Dispose_can_be_called_more_than_once()
         {
-            var connection = new SQLiteConnection("Filename=test.db");
+            var connection = new SQLiteConnection("Filename=:memory:");
             connection.Open();
 
             connection.Dispose();
@@ -281,7 +277,7 @@ namespace Microsoft.Data.SQLite
         [Fact]
         public void BeginTransaction_validates_argument()
         {
-            using (var connection = new SQLiteConnection("Filename=test.db"))
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
             {
                 connection.Open();
 
@@ -305,7 +301,7 @@ namespace Microsoft.Data.SQLite
         [Fact]
         public void BeginTransaction_works()
         {
-            using (var connection = new SQLiteConnection("Filename=test.db"))
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
             {
                 connection.Open();
 

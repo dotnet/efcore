@@ -11,9 +11,9 @@ use-standard-lifecycle
 k-standard-goals
 
 -// TODO: Include this in the nupkg
-var sqliteDllPath='src/Microsoft.Data.SQLite/bin/net45/sqlite3.dll'
-#sqlite-download target='compile' if='!File.Exists(sqliteDllPath)'
-    var sqliteUri='http://sqlite.org/2014/sqlite-dll-win32-x86-3080301.zip'
+var sqliteDllPath='test/Microsoft.Data.SQLite.Tests/sqlite3.dll'
+#sqlite-download target='test-compile' if='!File.Exists(sqliteDllPath)'
+    var sqliteUri='http://sqlite.org/2014/sqlite-dll-win32-x86-3080402.zip'
     @{
         using (var client = new HttpClient())
         using (var archiveStream = client.GetStreamAsync(sqliteUri).Result)

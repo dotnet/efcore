@@ -409,7 +409,7 @@ namespace Microsoft.Data.SQLite
                     command.ExecuteNonQuery();
                 }
 
-                using (var connection = new SQLiteConnection("Filename=new.db"))
+                using (var connection = new SQLiteConnection("Filename=:memory:"))
                 {
                     command.Connection = connection;
                     connection.Open();
