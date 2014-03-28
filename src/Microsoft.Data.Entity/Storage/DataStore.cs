@@ -22,6 +22,7 @@ namespace Microsoft.Data.Entity.Storage
         }
 
         public virtual IAsyncEnumerable<TResult> Query<TResult>(
+            [NotNull] Type type, // TODO: re-linq
             [NotNull] IModel model,
             [NotNull] StateManager stateManager)
         {

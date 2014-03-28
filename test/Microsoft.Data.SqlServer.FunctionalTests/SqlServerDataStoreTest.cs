@@ -35,7 +35,10 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                 var sqlServerDataStore
                     = new SqlServerDataStore(testDatabase.Connection.ConnectionString);
 
-                Assert.Equal(91, await sqlServerDataStore.Query<Customer>(model, new FakeStateManager()).CountAsync());
+                Assert.Equal(
+                    91,
+                    await sqlServerDataStore.Query<Customer>(
+                        typeof(Customer), model, new FakeStateManager()).CountAsync());
             }
         }
 

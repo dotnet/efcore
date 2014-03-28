@@ -5,11 +5,12 @@ using System.Data;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Data.Relational.Update;
 using Moq;
 using Moq.Protected;
 using Xunit;
 
-namespace Microsoft.Data.Relational.Update
+namespace Microsoft.Data.Relational.Tests.Update
 {
     public class BatchExecutorTest
     {

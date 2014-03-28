@@ -8,8 +8,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-// TODO: This file should be shared
-
 namespace Microsoft.Data.Entity.Tests
 {
     public abstract class ApiConsistencyTestBase
@@ -21,42 +19,48 @@ namespace Microsoft.Data.Entity.Tests
         public void Public_inheritable_apis_should_be_virtual()
         {
             var nonVirtualMethods
-                = from t in GetAllTypes(TargetAssembly.GetTypes())
-                  where t.IsVisible
-                        && !t.IsSealed
-                        && t.GetConstructors(PublicInstance).Any()
-                        && t.Namespace != null
-                        && !t.Namespace.EndsWith(".Compiled")
-                  from m in t.GetMethods(PublicInstance)
-                  where m.DeclaringType != null
-                        && m.DeclaringType.Assembly == TargetAssembly
-                        && !m.IsVirtual
-                  select t.Name + "." + m.Name;
+                = (from t in GetAllTypes(TargetAssembly.GetTypes())
+                   where t.IsVisible
+                         && !t.IsSealed
+                         && t.GetConstructors(PublicInstance).Any()
+                         && t.Namespace != null
+                         && !t.Namespace.EndsWith(".Compiled")
+                   from m in t.GetMethods(PublicInstance)
+                   where m.DeclaringType != null
+                         && m.DeclaringType.Assembly == TargetAssembly
+                         && !m.IsVirtual
+                   select t.Name + "." + m.Name)
+                    .ToList();
 
-            Assert.Equal("", string.Join("\r\n", nonVirtualMethods));
+            Assert.False(
+                nonVirtualMethods.Any(),
+                "\r\n-- Missing virtual APIs --\r\n" + string.Join("\r\n", nonVirtualMethods));
         }
 
         [Fact]
         public void Public_api_arguments_should_have_not_null_annotation()
         {
             var parametersMissingAttribute
-                = from t in GetAllTypes(TargetAssembly.GetTypes())
-                  where t.IsVisible
-                  let ims = t.GetInterfaces().Select(t.GetInterfaceMap)
-                  from m in t.GetMethods(PublicInstance | BindingFlags.Static)
-                      .Concat<MethodBase>(t.GetConstructors())
-                  where m.DeclaringType != null
-                        && m.DeclaringType.Assembly == TargetAssembly
-                  where t.IsInterface || !ims.Any(im => im.TargetMethods.Contains(m))
-                  from p in m.GetParameters()
-                  where !p.ParameterType.IsValueType
-                        && !p.GetCustomAttributes()
-                            .Any(
-                                a => a.GetType().Name == "NotNullAttribute"
-                                     || a.GetType().Name == "CanBeNullAttribute")
-                  select t.Name + "." + m.Name + "[" + p.Name + "]";
+                = (from t in GetAllTypes(TargetAssembly.GetTypes())
+                   where t.IsVisible
+                   let ims = t.GetInterfaces().Select(t.GetInterfaceMap)
+                   from m in t.GetMethods(PublicInstance | BindingFlags.Static)
+                       .Concat<MethodBase>(t.GetConstructors())
+                   where m.DeclaringType != null
+                         && m.DeclaringType.Assembly == TargetAssembly
+                   where t.IsInterface || !ims.Any(im => im.TargetMethods.Contains(m))
+                   from p in m.GetParameters()
+                   where !p.ParameterType.IsValueType
+                         && !p.GetCustomAttributes()
+                             .Any(
+                                 a => a.GetType().Name == "NotNullAttribute"
+                                      || a.GetType().Name == "CanBeNullAttribute")
+                   select t.Name + "." + m.Name + "[" + p.Name + "]")
+                    .ToList();
 
-            Assert.Equal("", string.Join("\r\n", parametersMissingAttribute));
+            Assert.False(
+                parametersMissingAttribute.Any(),
+                "\r\n-- Missing NotNull annotations --\r\n" + string.Join("\r\n", parametersMissingAttribute));
         }
 
         [Fact]

@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -95,12 +96,12 @@ namespace Microsoft.Data.InMemory
             return Task.FromResult(added.Count + modified.Count + deleted.Count);
         }
 
-        public override IAsyncEnumerable<TResult> Query<TResult>(IModel model, StateManager stateManager)
+        public override IAsyncEnumerable<TResult> Query<TResult>(Type type, IModel model, StateManager stateManager)
         {
             Check.NotNull(model, "model");
             Check.NotNull(stateManager, "stateManager");
 
-            var entityType = model.GetEntityType(typeof(TResult));
+            var entityType = model.GetEntityType(type);
 
             return new Enumerable<TResult>(
                 _objectData.Value

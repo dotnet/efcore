@@ -63,12 +63,12 @@ namespace Microsoft.Data.Relational
         }
 
         public override IAsyncEnumerable<TResult> Query<TResult>(
-            IModel model, StateManager stateManager)
+            Type type, IModel model, StateManager stateManager)
         {
             Check.NotNull(model, "model");
             Check.NotNull(stateManager, "stateManager");
 
-            var entityType = model.GetEntityType(typeof(TResult));
+            var entityType = model.GetEntityType(type);
             var sql = new StringBuilder();
 
             sql.Append("SELECT ")

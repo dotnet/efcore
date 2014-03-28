@@ -3,10 +3,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Microsoft.Data.Relational.Update;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Relational.Update
+namespace Microsoft.Data.Relational.Tests.Update
 {
     public class ModificationCommandBatchTest
     {

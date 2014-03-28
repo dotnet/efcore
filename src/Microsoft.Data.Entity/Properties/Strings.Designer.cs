@@ -330,6 +330,38 @@ namespace Microsoft.Data.Entity
             return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyPropertiesWrongEntity", "entityType"), entityType);
         }
 
+        /// <summary>
+        /// The source IQueryable doesn't implement IAsyncEnumerable{genericParameter}. Only sources that implement IAsyncEnumerable can be used for Entity Framework asynchronous operations.
+        /// </summary>
+        internal static string IQueryableNotAsync
+        {
+            get { return GetString("IQueryableNotAsync"); }
+        }
+
+        /// <summary>
+        /// The source IQueryable doesn't implement IAsyncEnumerable{genericParameter}. Only sources that implement IAsyncEnumerable can be used for Entity Framework asynchronous operations.
+        /// </summary>
+        internal static string FormatIQueryableNotAsync(object genericParameter)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("IQueryableNotAsync", "genericParameter"), genericParameter);
+        }
+
+        /// <summary>
+        /// The provider for the source IQueryable doesn't implement IAsyncQueryProvider. Only providers that implement IEntityQueryProvider can be used for Entity Framework asynchronous operations.
+        /// </summary>
+        internal static string IQueryableProviderNotAsync
+        {
+            get { return GetString("IQueryableProviderNotAsync"); }
+        }
+
+        /// <summary>
+        /// The provider for the source IQueryable doesn't implement IAsyncQueryProvider. Only providers that implement IEntityQueryProvider can be used for Entity Framework asynchronous operations.
+        /// </summary>
+        internal static string FormatIQueryableProviderNotAsync()
+        {
+            return GetString("IQueryableProviderNotAsync");
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

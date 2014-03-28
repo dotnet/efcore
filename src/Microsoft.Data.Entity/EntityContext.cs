@@ -138,7 +138,8 @@ namespace Microsoft.Data.Entity
             return _sets.GetEntitySet(this, entityType);
         }
 
-        public virtual EntitySet<TEntity> Set<TEntity>() where TEntity : class
+        public virtual EntitySet<TEntity> Set<TEntity>()
+            where TEntity : class
         {
             // Note: Creating sets needs to be fast because it is done eagerly when a context instance
             // is created so we avoid loading metadata to validate the type here.
