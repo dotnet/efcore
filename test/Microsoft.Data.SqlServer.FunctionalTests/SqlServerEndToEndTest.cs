@@ -81,10 +81,10 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
             {
             }
 
-            protected override IValueReader CreateValueReader(DbDataReader dataReader)
-            {
-                return new RelationalObjectArrayValueReader(dataReader);
-            }
+//            protected override IValueReader CreateValueReader(DbDataReader dataReader)
+//            {
+//                return new RelationalObjectArrayValueReader(dataReader);
+//            }
         }
 
         [Fact]

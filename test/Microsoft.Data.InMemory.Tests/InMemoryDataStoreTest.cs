@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Logging;
@@ -38,9 +39,8 @@ namespace Microsoft.Data.InMemory.Tests
 
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry }, model);
 
-            var key = new SimpleEntityKey<int>(entityType, 42);
-            Assert.Equal(1, inMemoryDataStore.Objects.Count);
-            Assert.Equal(new object[] { 42, "Unikorn" }, inMemoryDataStore.Objects[key]);
+            Assert.Equal(1, inMemoryDataStore.Database.SelectMany(t => t).Count());
+            Assert.Equal(new object[] { 42, "Unikorn" }, inMemoryDataStore.Database.Single().Single());
         }
 
         [Fact]
@@ -61,9 +61,8 @@ namespace Microsoft.Data.InMemory.Tests
 
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry }, model);
 
-            var key = new SimpleEntityKey<int>(entityType, 42);
-            Assert.Equal(1, inMemoryDataStore.Objects.Count);
-            Assert.Equal(new object[] { 42, "Unikorn, The Return" }, inMemoryDataStore.Objects[key]);
+            Assert.Equal(1, inMemoryDataStore.Database.SelectMany(t => t).Count());
+            Assert.Equal(new object[] { 42, "Unikorn, The Return" }, inMemoryDataStore.Database.Single().Single());
         }
 
         [Fact]
@@ -84,7 +83,7 @@ namespace Microsoft.Data.InMemory.Tests
 
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry }, model);
 
-            Assert.Equal(0, inMemoryDataStore.Objects.Count);
+            Assert.Equal(0, inMemoryDataStore.Database.SelectMany(t => t).Count());
         }
 
         [Fact]
@@ -104,7 +103,13 @@ namespace Microsoft.Data.InMemory.Tests
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry }, model);
 
             mockLogger.Verify(
-                l => l.WriteCore(TraceType.Information, 0, null, null, It.IsAny<Func<object, Exception, string>>()), Times.Once);
+                l => l.WriteCore(
+                    TraceType.Information,
+                    0,
+                    It.IsAny<string>(),
+                    null,
+                    It.IsAny<Func<object, Exception, string>>()),
+                Times.Once);
         }
 
         private static IModel CreateModel()

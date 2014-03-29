@@ -2,8 +2,6 @@
 
 using System.Diagnostics;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace System.Collections.Generic
 {
@@ -47,51 +45,6 @@ namespace System.Collections.Generic
         public static string Join(this IEnumerable<object> source, string separator = ", ")
         {
             return string.Join(separator, source);
-        }
-
-        public static async Task<IEnumerable<T>> SelectAsync<T>(
-            this IEnumerable<T> source, Func<T, Task<T>> selector,
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
-            var results = Enumerable.Empty<T>();
-
-            foreach (var item in source)
-            {
-                results = results.Concat(new[] { await selector(item).ConfigureAwait(false) });
-            }
-
-            return results;
-        }
-
-        public static async Task<IEnumerable<T>> SelectManyAsync<T>(
-            this IEnumerable<T> source, Func<T, Task<IEnumerable<T>>> selector,
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
-            var results = Enumerable.Empty<T>();
-
-            foreach (var item in source)
-            {
-                results = results.Concat(await selector(item).ConfigureAwait(false));
-            }
-
-            return results;
-        }
-
-        public static async Task<IEnumerable<T>> WhereAsync<T>(
-            this IEnumerable<T> source, Func<T, Task<bool>> predicate,
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
-            var results = Enumerable.Empty<T>();
-
-            foreach (var item in source)
-            {
-                if (await predicate(item).ConfigureAwait(false))
-                {
-                    results = results.Concat(new[] { item });
-                }
-            }
-
-            return results;
         }
     }
 }

@@ -8,6 +8,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
+using Remotion.Linq;
 
 namespace Microsoft.Data.Entity.Storage
 {
@@ -22,8 +23,8 @@ namespace Microsoft.Data.Entity.Storage
         }
 
         public virtual IAsyncEnumerable<TResult> Query<TResult>(
-            [NotNull] Type type, // TODO: re-linq
-            [NotNull] IModel model,
+            [NotNull] QueryModel queryModel,
+            [NotNull] IModel model, 
             [NotNull] StateManager stateManager)
         {
             throw new NotImplementedException();

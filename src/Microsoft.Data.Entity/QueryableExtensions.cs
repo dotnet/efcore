@@ -106,28 +106,6 @@ namespace System.Linq
 
         #endregion
 
-        #region ToList
-
-        public static Task<List<object>> ToListAsync(
-            [NotNull] this IQueryable source,
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Check.NotNull(source, "source");
-
-            return source.AsAsyncEnumerable().ToListAsync<object>(cancellationToken);
-        }
-
-        public static Task<List<TSource>> ToListAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Check.NotNull(source, "source");
-
-            return source.AsAsyncEnumerable().ToListAsync(cancellationToken);
-        }
-
-        #endregion
-
         #region TODO
 
         public static IQueryable<T> Include<T, TProperty>(
@@ -190,31 +168,6 @@ namespace System.Linq
         }
 
         #endregion
-
-        private static IAsyncEnumerable AsAsyncEnumerable(this IQueryable source)
-        {
-            var enumerable = source as IAsyncEnumerable;
-
-            if (enumerable != null)
-            {
-                return enumerable;
-            }
-
-            throw new InvalidOperationException(Strings.FormatIQueryableNotAsync(string.Empty));
-        }
-
-        // ReSharper disable once ParameterTypeCanBeEnumerable.Local
-        private static IAsyncEnumerable<T> AsAsyncEnumerable<T>(this IQueryable<T> source)
-        {
-            var enumerable = source as IAsyncEnumerable<T>;
-
-            if (enumerable != null)
-            {
-                return enumerable;
-            }
-
-            throw new InvalidOperationException(Strings.FormatIQueryableNotAsync("<" + typeof(T) + ">"));
-        }
 
         private static MethodInfo GetMethod(string methodName, Func<Type, Type[]> getParameterTypes)
         {

@@ -7,7 +7,8 @@
     "Microsoft.Data.Entity": "",
     "Microsoft.AspNet.DependencyInjection": "0.1-alpha-*",
     "Microsoft.AspNet.Logging": "0.1-alpha-*",
-    "Microsoft.Bcl.Immutable": "1.1.18-beta-*"
+    "Microsoft.Bcl.Immutable": "1.1.18-beta-*",
+    "Remotion.Linq": "1.15.11"
   },
   "code": "**\\*.cs;..\\Shared\\*.cs",
   "configurations": {
