@@ -25,6 +25,8 @@ namespace Microsoft.Data.Entity.Metadata
         IReadOnlyList<IForeignKey> ForeignKeys { get; }
         IReadOnlyList<INavigation> Navigations { get; }
         int ShadowPropertyCount { get; }
+        int OriginalValueCount { get; }
         bool HasClrType { get; }
+        bool UseLazyOriginalValues { get; }
     }
 }

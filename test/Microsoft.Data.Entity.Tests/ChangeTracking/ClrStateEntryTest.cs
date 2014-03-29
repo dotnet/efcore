@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
-using Microsoft.Data.Entity.ChangeTracking;
-using Microsoft.Data.Entity.Metadata;
+using System;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.ChangeTracking
@@ -26,10 +25,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = BuildModel();
             var entityType = model.GetEntityType("SomeEntity");
             var keyProperty = entityType.GetProperty("Id");
-            var nonKeyProperty = entityType.GetProperty("Kool");
+            var nonKeyProperty = entityType.GetProperty("Name");
             var configuration = CreateConfiguration(model);
 
-            var entity = new SomeEntity { Id = 77, Kool = "Magic Tree House" };
+            var entity = new SomeEntity { Id = 77, Name = "Magic Tree House" };
             var entry = CreateStateEntry(configuration, entityType, entity);
 
             Assert.Equal(77, entry.GetPropertyValue(keyProperty));
@@ -39,7 +38,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entry.SetPropertyValue(nonKeyProperty, "Normal Tree House");
 
             Assert.Equal(78, entity.Id);
-            Assert.Equal("Normal Tree House", entity.Kool);
+            Assert.Equal("Normal Tree House", entity.Name);
         }
 
         [Fact]
@@ -54,17 +53,62 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entity = (SomeEntity)entry.Entity;
 
             Assert.Equal(1, entity.Id);
-            Assert.Equal("Kool", entity.Kool);
+            Assert.Equal("Kool", entity.Name);
         }
 
-        protected override StateEntry CreateStateEntry(ContextConfiguration stateManager, IEntityType entityType, object entity)
+        [Fact]
+        public void All_original_values_can_be_accessed_for_entity_that_does_no_notifiction()
         {
-            return new ClrStateEntry(stateManager, entityType, entity);
+            var model = BuildModel();
+            var entityType = model.GetEntityType("SomeEntity");
+
+            AllOriginalValuesTest(model, entityType);
         }
 
-        protected override StateEntry CreateStateEntry(ContextConfiguration stateManager, IEntityType entityType, object[] valueBuffer)
+        [Fact]
+        public void All_original_values_can_be_accessed_for_entity_that_does_changed_only_notifictions()
         {
-            return new ClrStateEntry(stateManager, entityType, valueBuffer);
+            var model = BuildModel();
+            var entityType = model.GetEntityType("ChangedOnlyEntity");
+
+            AllOriginalValuesTest(model, entityType);
+        }
+
+        [Fact]
+        public void Setting_CLR_property_with_snapshot_change_tracking_requires_DetectChanges()
+        {
+            SetPropertyClrTest<SomeEntity>(needsDetectChanges: true);
+        }
+
+        [Fact]
+        public void Setting_CLR_property_with_changed_only_notifications_does_not_require_DetectChanges()
+        {
+            SetPropertyClrTest<ChangedOnlyEntity>(needsDetectChanges: false);
+        }
+
+        [Fact]
+        public void Setting_CLR_property_with_full_notifications_does_not_require_DetectChanges()
+        {
+            SetPropertyClrTest<FullNotificationEntity>(needsDetectChanges: false);
+        }
+
+        [Fact]
+        public void Original_values_are_not_tracked_unless_needed_by_default_for_properties_of_full_notifications_entity()
+        {
+            var model = BuildModel();
+            var entityType = model.GetEntityType("FullNotificationEntity");
+            var idProperty = entityType.GetProperty("Id");
+            var configuration = CreateConfiguration(model);
+
+            var entry = CreateStateEntry(configuration, entityType, new object[] { 1, "Kool" });
+
+            Assert.Equal(
+                Strings.FormatOriginalValueNotTracked("Id", "FullNotificationEntity"),
+                Assert.Throws<InvalidOperationException>(() => entry.SetPropertyOriginalValue(idProperty, 1)).Message);
+
+            Assert.Equal(
+                Strings.FormatOriginalValueNotTracked("Id", "FullNotificationEntity"),
+                Assert.Throws<InvalidOperationException>(() => entry.GetPropertyOriginalValue(idProperty)).Message);
         }
     }
 }

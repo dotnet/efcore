@@ -82,7 +82,20 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 
         public int ShadowPropertyCount
         {
+            // TODO:
             get { return 0; }
+        }
+
+        public int OriginalValueCount
+        {
+            // TODO:
+            get { return 0; }
+        }
+
+        public bool UseLazyOriginalValues
+        {
+            // TODO:
+            get { return true; }
         }
 
         public bool HasClrType

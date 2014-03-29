@@ -126,13 +126,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             public void Sort_simple()
             {
                 var entityTypeA = new EntityType(typeof(A));
-                entityTypeA.SetKey(entityTypeA.AddProperty("Id", typeof(int), shadowProperty: true));
+                entityTypeA.SetKey(entityTypeA.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
 
                 var entityTypeB = new EntityType(typeof(B));
-                entityTypeB.SetKey(entityTypeB.AddProperty("Id", typeof(int), shadowProperty: true));
+                entityTypeB.SetKey(entityTypeB.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
 
                 var entityTypeC = new EntityType(typeof(C));
-                entityTypeC.SetKey(entityTypeC.AddProperty("Id", typeof(int), shadowProperty: true));
+                entityTypeC.SetKey(entityTypeC.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
 
                 var model = new Model();
 
@@ -141,8 +141,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 model.AddEntityType(entityTypeC);
 
                 // B -> A -> C
-                entityTypeC.AddForeignKey(entityTypeA.GetKey(), entityTypeC.AddProperty("P", typeof(int), shadowProperty: false));
-                entityTypeA.AddForeignKey(entityTypeB.GetKey(), entityTypeA.AddProperty("P", typeof(int), shadowProperty: false));
+                entityTypeC.AddForeignKey(entityTypeA.GetKey(), entityTypeC.AddProperty("P", typeof(int)));
+                entityTypeA.AddForeignKey(entityTypeB.GetKey(), entityTypeA.AddProperty("P", typeof(int)));
 
                 Assert.Equal(
                     new IEntityType[] { entityTypeB, entityTypeA, entityTypeC },
@@ -153,13 +153,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             public void Sort_reverse()
             {
                 var entityTypeA = new EntityType(typeof(A));
-                entityTypeA.SetKey(entityTypeA.AddProperty("Id", typeof(int), shadowProperty: true));
+                entityTypeA.SetKey(entityTypeA.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
 
                 var entityTypeB = new EntityType(typeof(B));
-                entityTypeB.SetKey(entityTypeB.AddProperty("Id", typeof(int), shadowProperty: true));
+                entityTypeB.SetKey(entityTypeB.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
 
                 var entityTypeC = new EntityType(typeof(C));
-                entityTypeC.SetKey(entityTypeC.AddProperty("Id", typeof(int), shadowProperty: true));
+                entityTypeC.SetKey(entityTypeC.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
 
                 var model = new Model();
 
@@ -168,8 +168,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 model.AddEntityType(entityTypeC);
 
                 // C -> B -> A
-                entityTypeA.AddForeignKey(entityTypeB.GetKey(), entityTypeA.AddProperty("P", typeof(int), shadowProperty: false));
-                entityTypeB.AddForeignKey(entityTypeC.GetKey(), entityTypeB.AddProperty("P", typeof(int), shadowProperty: false));
+                entityTypeA.AddForeignKey(entityTypeB.GetKey(), entityTypeA.AddProperty("P", typeof(int)));
+                entityTypeB.AddForeignKey(entityTypeC.GetKey(), entityTypeB.AddProperty("P", typeof(int)));
 
                 Assert.Equal(
                     new IEntityType[] { entityTypeC, entityTypeB, entityTypeA },
@@ -180,13 +180,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             public void Sort_tree()
             {
                 var entityTypeA = new EntityType(typeof(A));
-                entityTypeA.SetKey(entityTypeA.AddProperty("Id", typeof(int), shadowProperty: true));
+                entityTypeA.SetKey(entityTypeA.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
 
                 var entityTypeB = new EntityType(typeof(B));
-                entityTypeB.SetKey(entityTypeB.AddProperty("Id", typeof(int), shadowProperty: true));
+                entityTypeB.SetKey(entityTypeB.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
 
                 var entityTypeC = new EntityType(typeof(C));
-                entityTypeC.SetKey(entityTypeC.AddProperty("Id", typeof(int), shadowProperty: true));
+                entityTypeC.SetKey(entityTypeC.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
 
                 var model = new Model();
 
@@ -195,9 +195,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 model.AddEntityType(entityTypeC);
 
                 // A -> B, C -> B
-                entityTypeB.AddForeignKey(entityTypeA.GetKey(), entityTypeB.AddProperty("P", typeof(int), shadowProperty: false));
-                entityTypeC.AddForeignKey(entityTypeA.GetKey(), entityTypeC.AddProperty("P", typeof(int), shadowProperty: false));
-                entityTypeB.AddForeignKey(entityTypeC.GetKey(), entityTypeB.AddProperty("P", typeof(int), shadowProperty: false));
+                entityTypeB.AddForeignKey(entityTypeA.GetKey(), entityTypeB.AddProperty("P", typeof(int)));
+                entityTypeC.AddForeignKey(entityTypeA.GetKey(), entityTypeC.AddProperty("P", typeof(int)));
+                entityTypeB.AddForeignKey(entityTypeC.GetKey(), entityTypeB.AddProperty("P", typeof(int)));
 
                 Assert.Equal(
                     new IEntityType[] { entityTypeA, entityTypeC, entityTypeB },
@@ -208,13 +208,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             public void Sort_no_edges()
             {
                 var entityTypeA = new EntityType(typeof(A));
-                entityTypeA.SetKey(entityTypeA.AddProperty("Id", typeof(int), shadowProperty: true));
+                entityTypeA.SetKey(entityTypeA.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
 
                 var entityTypeB = new EntityType(typeof(B));
-                entityTypeB.SetKey(entityTypeB.AddProperty("Id", typeof(int), shadowProperty: true));
+                entityTypeB.SetKey(entityTypeB.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
 
                 var entityTypeC = new EntityType(typeof(C));
-                entityTypeC.SetKey(entityTypeC.AddProperty("Id", typeof(int), shadowProperty: true));
+                entityTypeC.SetKey(entityTypeC.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
 
                 var model = new Model();
 
@@ -232,14 +232,14 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             public void Sort_self_ref()
             {
                 var entityTypeA = new EntityType(typeof(A));
-                entityTypeA.SetKey(entityTypeA.AddProperty("Id", typeof(int), shadowProperty: true));
+                entityTypeA.SetKey(entityTypeA.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
 
                 var model = new Model();
 
                 model.AddEntityType(entityTypeA);
 
                 // A -> A
-                entityTypeA.AddForeignKey(entityTypeA.GetKey(), entityTypeA.AddProperty("P", typeof(int), shadowProperty: false));
+                entityTypeA.AddForeignKey(entityTypeA.GetKey(), entityTypeA.AddProperty("P", typeof(int)));
 
                 Assert.Equal(
                     Strings.FormatCircularDependency("A -> A"),
@@ -250,10 +250,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             public void Sort_circular_direct()
             {
                 var entityTypeA = new EntityType(typeof(A));
-                entityTypeA.SetKey(entityTypeA.AddProperty("Id", typeof(int), shadowProperty: true));
+                entityTypeA.SetKey(entityTypeA.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
 
                 var entityTypeB = new EntityType(typeof(B));
-                entityTypeB.SetKey(entityTypeB.AddProperty("Id", typeof(int), shadowProperty: true));
+                entityTypeB.SetKey(entityTypeB.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
 
                 var model = new Model();
 
@@ -261,8 +261,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 model.AddEntityType(entityTypeB);
 
                 // A -> B -> A
-                entityTypeA.AddForeignKey(entityTypeB.GetKey(), entityTypeA.AddProperty("P", typeof(int), shadowProperty: false));
-                entityTypeB.AddForeignKey(entityTypeA.GetKey(), entityTypeB.AddProperty("P", typeof(int), shadowProperty: false));
+                entityTypeA.AddForeignKey(entityTypeB.GetKey(), entityTypeA.AddProperty("P", typeof(int)));
+                entityTypeB.AddForeignKey(entityTypeA.GetKey(), entityTypeB.AddProperty("P", typeof(int)));
 
                 Assert.Equal(
                     Strings.FormatCircularDependency("A -> B -> A"),
@@ -273,13 +273,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             public void Sort_circular_transitive()
             {
                 var entityTypeA = new EntityType(typeof(A));
-                entityTypeA.SetKey(entityTypeA.AddProperty("Id", typeof(int), shadowProperty: true));
+                entityTypeA.SetKey(entityTypeA.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
 
                 var entityTypeB = new EntityType(typeof(B));
-                entityTypeB.SetKey(entityTypeB.AddProperty("Id", typeof(int), shadowProperty: true));
+                entityTypeB.SetKey(entityTypeB.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
 
                 var entityTypeC = new EntityType(typeof(C));
-                entityTypeC.SetKey(entityTypeC.AddProperty("Id", typeof(int), shadowProperty: true));
+                entityTypeC.SetKey(entityTypeC.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
 
                 var model = new Model();
 
@@ -288,9 +288,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 model.AddEntityType(entityTypeC);
 
                 // A -> B -> C -> A
-                entityTypeA.AddForeignKey(entityTypeB.GetKey(), entityTypeA.AddProperty("P", typeof(int), shadowProperty: false));
-                entityTypeB.AddForeignKey(entityTypeC.GetKey(), entityTypeB.AddProperty("P", typeof(int), shadowProperty: false));
-                entityTypeC.AddForeignKey(entityTypeA.GetKey(), entityTypeC.AddProperty("P", typeof(int), shadowProperty: false));
+                entityTypeA.AddForeignKey(entityTypeB.GetKey(), entityTypeA.AddProperty("P", typeof(int)));
+                entityTypeB.AddForeignKey(entityTypeC.GetKey(), entityTypeB.AddProperty("P", typeof(int)));
+                entityTypeC.AddForeignKey(entityTypeA.GetKey(), entityTypeC.AddProperty("P", typeof(int)));
 
                 Assert.Equal(
                     Strings.FormatCircularDependency("A -> B -> C -> A"),

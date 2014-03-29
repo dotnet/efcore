@@ -375,7 +375,7 @@ namespace Microsoft.Data.Entity.Tests
             // Should get overridden generator
             Assert.Same(
                 generator2,
-                configuration.IdentityGeneratorFactory.Create(new Property("Goo", typeof(int), shadowProperty: false)));
+                configuration.IdentityGeneratorFactory.Create(new Property("Goo", typeof(int))));
 
             customFactoryMock.Verify(m => m.Create(It.IsAny<IProperty>()), Times.Once);
             defaultFactoryMock.Verify(m => m.Create(It.IsAny<IProperty>()), Times.Never);
@@ -383,7 +383,7 @@ namespace Microsoft.Data.Entity.Tests
             // Should fall back to the service provider
             Assert.Same(
                 generator1,
-                configuration.IdentityGeneratorFactory.Create(new Property("Foo", typeof(int), shadowProperty: false)));
+                configuration.IdentityGeneratorFactory.Create(new Property("Foo", typeof(int))));
 
             customFactoryMock.Verify(m => m.Create(It.IsAny<IProperty>()), Times.Exactly(2));
             defaultFactoryMock.Verify(m => m.Create(It.IsAny<IProperty>()), Times.Once);

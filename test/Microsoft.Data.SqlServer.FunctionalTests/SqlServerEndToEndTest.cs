@@ -1,7 +1,10 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity;
@@ -63,14 +66,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
         {
             using (var testDatabase = await TestDatabase.Scratch())
             {
-                await testDatabase.ExecuteNonQueryAsync(
-                    @"CREATE TABLE [dbo].[Blog](
-	[Id] [int] NOT NULL,
-	[Name] [nvarchar](max) NULL,
-    CONSTRAINT [PK_Blogging] PRIMARY KEY CLUSTERED ( [Id] ASC ))");
-
-                await testDatabase.ExecuteNonQueryAsync(@"INSERT INTO [dbo].[Blog] (Id, Name) VALUES (1, 'Blog to Update')");
-                await testDatabase.ExecuteNonQueryAsync(@"INSERT INTO [dbo].[Blog] (Id, Name) VALUES (2, 'Blog to Delete')");
+                await CreateBlogDatabase(testDatabase);
 
                 var config = new EntityConfigurationBuilder()
                     .UseSqlServer(testDatabase.Connection.ConnectionString)
@@ -81,7 +77,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                     db.ChangeTracker.Entry(new Blog { Id = 1, Name = "Blog is Updated" }).State = EntityState.Modified;
                     db.ChangeTracker.Entry(new Blog { Id = 2, Name = "Blog to Delete" }).State = EntityState.Deleted;
                     db.Blogs.Add(new Blog { Id = 3, Name = "Blog to Insert" });
-                    db.SaveChanges();
+                    await db.SaveChangesAsync();
 
                     var rows = await testDatabase.ExecuteScalarAsync<int>(
                         @"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = 1 AND Name = 'Blog is Updated'",
@@ -102,6 +98,114 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                     Assert.Equal(1, rows);
                 }
             }
+        }
+
+        [Fact]
+        public async Task Can_round_trip_changes_with_snapshot_change_tracking()
+        {
+            using (var testDatabase = await TestDatabase.Scratch())
+            {
+                await CreateBlogDatabase(testDatabase);
+
+                var config = new EntityConfigurationBuilder()
+                    .UseSqlServer(testDatabase.Connection.ConnectionString)
+                    .BuildConfiguration();
+
+                using (var context = new BloggingContext<Blog>(config))
+                {
+                    var blogs = context.Blogs.ToList();
+                    Assert.Equal(2, blogs.Count);
+
+                    blogs.Single(b => b.Id == 1).Name = "New Name";
+                    
+                    await context.SaveChangesAsync();
+                }
+
+                using (var context = new BloggingContext<Blog>(config))
+                {
+                    var blogs = context.Blogs.ToList();
+                    Assert.Equal(2, blogs.Count);
+
+                    Assert.Equal("New Name", blogs.Single(b => b.Id == 1).Name);
+                    Assert.Equal("Blog2", blogs.Single(b => b.Id == 2).Name);
+                }
+            }
+        }
+
+        [Fact]
+        public async Task Can_round_trip_changes_with_full_notification_entities()
+        {
+            using (var testDatabase = await TestDatabase.Scratch())
+            {
+                await CreateBlogDatabase(testDatabase);
+
+                var config = new EntityConfigurationBuilder()
+                    .UseSqlServer(testDatabase.Connection.ConnectionString)
+                    .BuildConfiguration();
+
+                using (var context = new BloggingContext<ChangedChangingBlog>(config))
+                {
+                    var blogs = context.Blogs.ToList();
+                    Assert.Equal(2, blogs.Count);
+
+                    blogs.Single(b => b.Id == 1).Name = "New Name";
+
+                    await context.SaveChangesAsync();
+                }
+
+                using (var context = new BloggingContext<ChangedChangingBlog>(config))
+                {
+                    var blogs = context.Blogs.ToList();
+                    Assert.Equal(2, blogs.Count);
+
+                    Assert.Equal("New Name", blogs.Single(b => b.Id == 1).Name);
+                    Assert.Equal("Blog2", blogs.Single(b => b.Id == 2).Name);
+                }
+            }
+        }
+
+        [Fact]
+        public async Task Can_round_trip_changes_with_changed_only_notification_entities()
+        {
+            using (var testDatabase = await TestDatabase.Scratch())
+            {
+                await CreateBlogDatabase(testDatabase);
+
+                var config = new EntityConfigurationBuilder()
+                    .UseSqlServer(testDatabase.Connection.ConnectionString)
+                    .BuildConfiguration();
+
+                using (var context = new BloggingContext<ChangedOnlyBlog>(config))
+                {
+                    var blogs = context.Blogs.ToList();
+                    Assert.Equal(2, blogs.Count);
+
+                    blogs.Single(b => b.Id == 1).Name = "New Name";
+
+                    await context.SaveChangesAsync();
+                }
+
+                using (var context = new BloggingContext<ChangedOnlyBlog>(config))
+                {
+                    var blogs = context.Blogs.ToList();
+                    Assert.Equal(2, blogs.Count);
+
+                    Assert.Equal("New Name", blogs.Single(b => b.Id == 1).Name);
+                    Assert.Equal("Blog2", blogs.Single(b => b.Id == 2).Name);
+                }
+            }
+        }
+
+        private static async Task CreateBlogDatabase(TestDatabase testDatabase)
+        {
+            await testDatabase.ExecuteNonQueryAsync(
+                @"CREATE TABLE [dbo].[Blog](
+                      [Id] [int] NOT NULL,
+                      [Name] [nvarchar](max) NULL,
+                      CONSTRAINT [PK_Blogging] PRIMARY KEY CLUSTERED ( [Id] ASC ))");
+
+            await testDatabase.ExecuteNonQueryAsync(@"INSERT INTO [dbo].[Blog] (Id, Name) VALUES (1, 'Blog1')");
+            await testDatabase.ExecuteNonQueryAsync(@"INSERT INTO [dbo].[Blog] (Id, Name) VALUES (2, 'Blog2')");
         }
 
         private class NorthwindContext : EntityContext
@@ -129,20 +233,129 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
             public string Fax { get; set; }
         }
 
-        private class BloggingContext : EntityContext
+        private class BloggingContext : BloggingContext<Blog>
         {
             public BloggingContext(EntityConfiguration config)
                 : base(config)
             {
             }
-
-            public EntitySet<Blog> Blogs { get; set; }
         }
 
         private class Blog
         {
             public int Id { get; set; }
             public string Name { get; set; }
+        }
+
+        private class BloggingContext<TBlog> : EntityContext
+            where TBlog : class
+        {
+            public BloggingContext(EntityConfiguration config)
+                : base(config)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder builder)
+            {
+                builder.Entity<TBlog>().StorageName("Blog");
+            }
+
+            public EntitySet<TBlog> Blogs { get; set; }
+        }
+
+        private class ChangedChangingBlog : INotifyPropertyChanging, INotifyPropertyChanged
+        {
+            private int _id;
+            private string _name;
+
+            public int Id
+            {
+                get { return _id; }
+                set
+                {
+                    if (_id != value)
+                    {
+                        NotifyChanging();
+                        _id = value;
+                        NotifyChanged();
+                    }
+                }
+            }
+
+            public string Name
+            {
+                get { return _name; }
+                set
+                {
+                    if (_name != value)
+                    {
+                        NotifyChanging();
+                        _name = value;
+                        NotifyChanged();
+                    }
+                }
+            }
+
+            public event PropertyChangingEventHandler PropertyChanging;
+            public event PropertyChangedEventHandler PropertyChanged;
+
+            private void NotifyChanged([CallerMemberName] String propertyName = "")
+            {
+                if (PropertyChanged != null)
+                {
+                    PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                }
+            }
+
+            private void NotifyChanging([CallerMemberName] String propertyName = "")
+            {
+                if (PropertyChanging != null)
+                {
+                    PropertyChanging(this, new PropertyChangingEventArgs(propertyName));
+                }
+            }
+        }
+
+        private class ChangedOnlyBlog : INotifyPropertyChanged
+        {
+            private int _id;
+            private string _name;
+
+            public int Id
+            {
+                get { return _id; }
+                set
+                {
+                    if (_id != value)
+                    {
+                        _id = value;
+                        NotifyChanged();
+                    }
+                }
+            }
+
+            public string Name
+            {
+                get { return _name; }
+                set
+                {
+                    if (_name != value)
+                    {
+                        _name = value;
+                        NotifyChanged();
+                    }
+                }
+            }
+
+            public event PropertyChangedEventHandler PropertyChanged;
+
+            private void NotifyChanged([CallerMemberName] String propertyName = "")
+            {
+                if (PropertyChanged != null)
+                {
+                    PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                }
+            }
         }
     }
 }

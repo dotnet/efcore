@@ -26,6 +26,7 @@ namespace Microsoft.Data.Entity
                 .AddSingleton<EntitySetSource, EntitySetSource>()
                 .AddSingleton<ClrCollectionAccessorSource, ClrCollectionAccessorSource>()
                 .AddSingleton<EntityMaterializerSource, EntityMaterializerSource>()
+                .AddSingleton<StateEntrySubscriber, StateEntrySubscriber>()
                 .AddScoped<StateEntryFactory, StateEntryFactory>()
                 .AddScoped<IEntityStateListener, NavigationFixer>()
                 .AddScoped<StateEntryNotifier, StateEntryNotifier>()

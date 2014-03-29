@@ -12,8 +12,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Can_create_foreign_key()
         {
             var entityType = new EntityType("E");
-            var dependentProp = entityType.AddProperty("P", typeof(int), shadowProperty: false);
-            var principalProp = entityType.AddProperty("Id", typeof(int), shadowProperty: false);
+            var dependentProp = entityType.AddProperty("P", typeof(int));
+            var principalProp = entityType.AddProperty("Id", typeof(int));
             entityType.SetKey(principalProp);
 
             var foreignKey
@@ -34,9 +34,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Can_create_foreign_key_with_non_pk_principal()
         {
             var entityType = new EntityType("E");
-            var keyProp = entityType.AddProperty("Id", typeof(int), shadowProperty: false);
-            var dependentProp = entityType.AddProperty("P", typeof(int), shadowProperty: false);
-            var principalProp = entityType.AddProperty("U", typeof(int), shadowProperty: false);
+            var keyProp = entityType.AddProperty("Id", typeof(int));
+            var dependentProp = entityType.AddProperty("P", typeof(int));
+            var principalProp = entityType.AddProperty("U", typeof(int));
             entityType.SetKey(keyProp);
 
             var foreignKey
@@ -57,8 +57,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void IsRequired_when_dependent_property_not_nullable()
         {
             var entityType = new EntityType("E");
-            entityType.SetKey(entityType.AddProperty("Id", typeof(int), shadowProperty: false));
-            var dependentProp = entityType.AddProperty("P", typeof(int), shadowProperty: false);
+            entityType.SetKey(entityType.AddProperty("Id", typeof(int)));
+            var dependentProp = entityType.AddProperty("P", typeof(int));
 
             var foreignKey = new ForeignKey(entityType.GetKey(), new[] { dependentProp });
 
@@ -69,8 +69,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void IsRequired_when_dependent_property_nullable()
         {
             var entityType = new EntityType("E");
-            entityType.SetKey(entityType.AddProperty("Id", typeof(int), shadowProperty: false));
-            var dependentProp = entityType.AddProperty("P", typeof(int?), shadowProperty: false);
+            entityType.SetKey(entityType.AddProperty("Id", typeof(int)));
+            var dependentProp = entityType.AddProperty("P", typeof(int?));
 
             var foreignKey = new ForeignKey(entityType.GetKey(), new[] { dependentProp });
 

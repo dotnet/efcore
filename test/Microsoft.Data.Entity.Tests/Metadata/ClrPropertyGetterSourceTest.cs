@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Delegate_getter_is_returned_for_IProperty_property()
         {
             var entityType = new EntityType(typeof(Customer));
-            var idProperty = entityType.AddProperty("Id", typeof(int), shadowProperty: false);
+            var idProperty = entityType.AddProperty("Id", typeof(int));
 
             Assert.Equal(7, new ClrPropertyGetterSource().GetAccessor(idProperty).GetClrValue(new Customer { Id = 7 }));
         }
@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Delegate_getter_is_cached_by_type_and_property_name()
         {
             var entityType = new EntityType(typeof(Customer));
-            var idProperty = entityType.AddProperty("Id", typeof(int), shadowProperty: false);
+            var idProperty = entityType.AddProperty("Id", typeof(int));
 
             var source = new ClrPropertyGetterSource();
 

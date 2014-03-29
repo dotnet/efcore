@@ -9,7 +9,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 {
     public class ClrStateEntry : StateEntry
     {
-        private object _entityOrValues;
+        private readonly object _entity;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -20,68 +20,48 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
         }
 
-        public ClrStateEntry([NotNull] ContextConfiguration configuration, [NotNull] IEntityType entityType, [NotNull] object entity)
-            : base(configuration, entityType)
+        public ClrStateEntry(
+            [NotNull] ContextConfiguration configuration,
+            [NotNull] IEntityType entityType,
+            [NotNull] object entity)
+            : base(configuration, entityType, null)
         {
             Check.NotNull(entity, "entity");
 
-            _entityOrValues = entity;
+            _entity = entity;
         }
 
-        public ClrStateEntry([NotNull] ContextConfiguration configuration, [NotNull] IEntityType entityType, [NotNull] object[] valueBuffer)
-            : base(configuration, entityType)
+        public ClrStateEntry(
+            [NotNull] ContextConfiguration configuration,
+            [NotNull] IEntityType entityType,
+            [NotNull] object entity,
+            [NotNull] object[] valueBuffer)
+            : base(configuration, entityType, valueBuffer)
         {
+            Check.NotNull(entity, "entity");
             Check.NotNull(valueBuffer, "valueBuffer");
 
-            _entityOrValues = valueBuffer;
+            _entity = entity;
         }
 
         [NotNull]
         public override object Entity
         {
-            get
-            {
-                // TODO: Consider: will we ever allow an entity type of object[]?
-                var asValues = _entityOrValues as object[];
-
-                if (asValues != null)
-                {
-                    _entityOrValues = Configuration.EntityMaterializerSource.GetMaterializer(EntityType)(asValues);
-                    Configuration.StateManager.EntityMaterialized(this);
-                }
-
-                return _entityOrValues;
-            }
+            get { return _entity; }
         }
 
         public override object GetPropertyValue(IProperty property)
         {
             Check.NotNull(property, "property");
 
-            var asValues = _entityOrValues as object[];
-
-            if (asValues != null)
-            {
-                return asValues[property.Index];
-            }
-
-            return Configuration.ClrPropertyGetterSource.GetAccessor(property).GetClrValue(_entityOrValues);
+            return Configuration.ClrPropertyGetterSource.GetAccessor(property).GetClrValue(_entity);
         }
 
-        public override void SetPropertyValue(IProperty property, object value)
+        protected override void WritePropertyValue(IProperty property, object value)
         {
             Check.NotNull(property, "property");
 
-            var asValues = _entityOrValues as object[];
-
-            if (asValues != null)
-            {
-                asValues[property.Index] = value;
-            }
-            else
-            {
-                Configuration.ClrPropertySetterSource.GetAccessor(property).SetClrValue(_entityOrValues, value);
-            }
+            Configuration.ClrPropertySetterSource.GetAccessor(property).SetClrValue(_entity, value);
         }
     }
 }

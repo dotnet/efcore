@@ -37,5 +37,17 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
         {
             get { return true; }
         }
+
+        public bool IsConcurrencyToken
+        {
+            // TODO:
+            get { return true; }
+        }
+
+        public int OriginalValueIndex
+        {
+            // TODO:
+            get { return -1; }
+        }
     }
 }
