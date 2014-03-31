@@ -75,6 +75,9 @@ namespace Microsoft.Data.SQLite.Interop
         public static extern int sqlite3_changes(DatabaseHandle db);
 
         [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        public static extern int sqlite3_clear_bindings(StatementHandle pStmt);
+
+        [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         public static extern int sqlite3_close_v2(IntPtr db);
 
         [DllImport("sqlite3", EntryPoint = "sqlite3_column_blob", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
@@ -107,7 +110,6 @@ namespace Microsoft.Data.SQLite.Interop
         {
             return MarshalEx.PtrToStringUTF8(sqlite3_column_text_raw(pStmt, iCol));
         }
-
 
         [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         public static extern int sqlite3_column_type(StatementHandle pStmt, int iCol);

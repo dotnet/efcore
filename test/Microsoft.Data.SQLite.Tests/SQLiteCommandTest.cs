@@ -14,14 +14,12 @@ namespace Microsoft.Data.SQLite
             var ex = Assert.Throws<ArgumentException>(() => new SQLiteCommand(null));
             Assert.Equal(Strings.FormatArgumentIsNullOrWhitespace("commandText"), ex.Message);
 
-            ex = Assert.Throws<ArgumentNullException>(() => new SQLiteCommand("SELECT 1", null));
-            Assert.Equal("connection", ex.ParamName);
+            Assert.Throws<ArgumentNullException>("connection", () => new SQLiteCommand("SELECT 1", null));
 
             using (var connection = new SQLiteConnection())
-            {
-                ex = Assert.Throws<ArgumentNullException>(() => new SQLiteCommand("SELECT 1", connection, null));
-                Assert.Equal("transaction", ex.ParamName);
-            }
+                Assert.Throws<ArgumentNullException>(
+                    "transaction",
+                    () => new SQLiteCommand("SELECT 1", connection, null));
         }
 
         [Fact]
@@ -59,11 +57,7 @@ namespace Microsoft.Data.SQLite
         public void Connection_validates_value()
         {
             using (var command = new SQLiteCommand())
-            {
-                var ex = Assert.Throws<ArgumentNullException>(() => command.Connection = null);
-
-                Assert.Equal("value", ex.ParamName);
-            }
+                Assert.Throws<ArgumentNullException>("value", () => command.Connection = null);
         }
 
         [Fact]
@@ -283,6 +277,22 @@ namespace Microsoft.Data.SQLite
 
                 Assert.True(command.Parameters.Bound);
                 Assert.Equal(1L, result);
+            }
+        }
+
+        [Fact]
+        public void ExecuteScalar_unbinds_parameters()
+        {
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT @Parameter";
+                var parameter = command.Parameters.AddWithValue("@Parameter", 1);
+                connection.Open();
+                command.ExecuteNonQuery();
+                command.Parameters.Remove(parameter);
+
+                Assert.Equal(DBNull.Value, command.ExecuteScalar());
             }
         }
 

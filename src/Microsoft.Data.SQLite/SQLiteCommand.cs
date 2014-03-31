@@ -165,8 +165,8 @@ namespace Microsoft.Data.SQLite
                 out tail);
             MarshalEx.ThrowExceptionForRC(rc);
 
-            // TODO: Handle this. Only the only first statement is compiled. This is what
-            //       remains uncompiled.
+            // TODO: Handle this. Only the first statement is compiled. This is what remains
+            //       uncompiled.
             Debug.Assert(string.IsNullOrEmpty(tail), "CommandText contains more than one statement.");
 
             _prepared = true;
@@ -277,7 +277,7 @@ namespace Microsoft.Data.SQLite
             if (_parameters == null || _parameters.Bound)
                 return;
 
-            var rc = NativeMethods.sqlite3_reset(_handle);
+            var rc = NativeMethods.sqlite3_clear_bindings(_handle);
             MarshalEx.ThrowExceptionForRC(rc);
 
             _parameters.Bind(_handle);

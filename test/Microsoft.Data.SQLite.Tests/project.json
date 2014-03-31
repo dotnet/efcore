@@ -1,5 +1,4 @@
 {
-    "version": "0.1-alpha-*",
     "dependencies": {
         "Microsoft.Data.SQLite": "",
         "System.Data.Common": "0.1-alpha-*",

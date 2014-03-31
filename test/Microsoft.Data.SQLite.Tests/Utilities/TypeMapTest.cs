@@ -26,14 +26,14 @@ namespace Microsoft.Data.SQLite.Utilities
         }
 
         [Theory]
-        [InlineData(3.0)]
-        [InlineData(3.0f)]
+        [InlineData(3.14)]
+        [InlineData(3.14f)]
         public void FromClrType_maps_floats(object value)
         {
             var map = TypeMap.FromClrType(value);
 
             Assert.Equal(SQLiteType.Float, map.SQLiteType);
-            Assert.Equal(3.0, map.ToInterop(value));
+            Assert.Equal(3.14, (double)map.ToInterop(value), precision: 6);
         }
 
         [Fact]
