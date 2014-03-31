@@ -97,6 +97,25 @@ namespace Microsoft.Data.SQLite
         }
 
         [Fact]
+        public void Prepare_throws_when_open_reader()
+        {
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT 1";
+                connection.Open();
+
+                using (command.ExecuteReader())
+                {
+                    command.CommandText = "SELECT 2";
+
+                    var ex = Assert.Throws<InvalidOperationException>(() => command.Prepare());
+                    Assert.Equal(Strings.OpenReaderExists, ex.Message);
+                }
+            }
+        }
+
+        [Fact]
         public void Prepare_throws_when_no_connection()
         {
             using (var command = new SQLiteCommand())
@@ -145,6 +164,23 @@ namespace Microsoft.Data.SQLite
                 var ex = Assert.Throws<SQLiteException>(() => command.Prepare());
 
                 Assert.Equal(1, ex.ErrorCode);
+            }
+        }
+
+        [Fact]
+        public void ExecuteScalar_throws_when_open_reader()
+        {
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT 1";
+                connection.Open();
+
+                using (command.ExecuteReader())
+                {
+                    var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteScalar());
+                    Assert.Equal(Strings.OpenReaderExists, ex.Message);
+                }
             }
         }
 
@@ -324,6 +360,23 @@ namespace Microsoft.Data.SQLite
         }
 
         [Fact]
+        public void ExecuteNonQuery_throws_when_open_reader()
+        {
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT 1";
+                connection.Open();
+
+                using (command.ExecuteReader())
+                {
+                    var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteNonQuery());
+                    Assert.Equal(Strings.OpenReaderExists, ex.Message);
+                }
+            }
+        }
+
+        [Fact]
         public void ExecuteNonQuery_throws_when_no_connection()
         {
             using (var command = new SQLiteCommand())
@@ -430,11 +483,103 @@ namespace Microsoft.Data.SQLite
         }
 
         [Fact]
+        public void ExecuteReader_throws_when_open_reader()
+        {
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT 1";
+                connection.Open();
+
+                using (command.ExecuteReader())
+                {
+                    var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteReader());
+                    Assert.Equal(Strings.OpenReaderExists, ex.Message);
+                }
+            }
+        }
+
+        [Fact]
+        public void ExecuteReader_throws_when_no_connection()
+        {
+            using (var command = new SQLiteCommand())
+            {
+                var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteReader());
+
+                Assert.Equal(Strings.FormatCallRequiresOpenConnection("ExecuteReader"), ex.Message);
+            }
+        }
+
+        [Fact]
+        public void ExecuteReader_throws_when_connection_closed()
+        {
+            using (var connection = new SQLiteConnection())
+            using (var command = connection.CreateCommand())
+            {
+                var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteReader());
+
+                Assert.Equal(Strings.FormatCallRequiresOpenConnection("ExecuteReader"), ex.Message);
+            }
+        }
+
+        [Fact]
+        public void ExecuteReader_throws_when_no_command_text()
+        {
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
+            using (var command = connection.CreateCommand())
+            {
+                connection.Open();
+
+                var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteReader());
+
+                Assert.Equal(Strings.FormatCallRequiresSetCommandText("ExecuteReader"), ex.Message);
+            }
+        }
+
+        [Fact]
+        public void ExecuteReader_works()
+        {
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT @Parameter";
+                command.Parameters.AddWithValue("@Parameter", 1);
+                connection.Open();
+
+                using (var reader = command.ExecuteReader())
+                {
+                    Assert.True(command.Parameters.Bound);
+                    Assert.NotNull(command.OpenReader);
+                    Assert.NotNull(reader);
+                }
+            }
+        }
+
+        [Fact]
         public void Cancel_not_supported()
         {
             using (var command = new SQLiteCommand())
             {
                 Assert.Throws<NotSupportedException>(() => command.Cancel());
+            }
+        }
+
+        [Fact]
+        public void Dispose_closes_open_reader()
+        {
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT @Parameter";
+                command.Parameters.AddWithValue("@Parameter", 1);
+                connection.Open();
+
+                using (var reader = command.ExecuteReader())
+                {
+                    command.Dispose();
+
+                    Assert.True(reader.IsClosed);
+                }
             }
         }
     }

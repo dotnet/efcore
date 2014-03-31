@@ -1,43 +1,77 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 
 namespace Microsoft.Data.SQLite.Utilities
 {
+    // TODO: Make this configurable
+    // TODO: Avoid boxing #Perf
+    // TODO: Compute and cache lookups #Perf
     internal class TypeMap
     {
-        private static readonly TypeMap _bool = Create(o => (bool)o ? 1L : 0L);
-        private static readonly TypeMap _byte = Create(o => (long)(byte)o);
-        private static readonly TypeMap _byteArray = Create(o => (byte[])o);
-        private static readonly TypeMap _dbNull = Create(o => DBNull.Value);
-        private static readonly TypeMap _sbyte = Create(o => (long)(sbyte)o);
-        private static readonly TypeMap _char = Create(o => ((char)o).ToString());
-        private static readonly TypeMap _dateTime = Create(o => ((DateTime)o).ToString("o"));
-        private static readonly TypeMap _dateTimeOffset = Create(o => ((DateTimeOffset)o).ToString("o"));
-        private static readonly TypeMap _decimal = Create(o => ((decimal)o).ToString(CultureInfo.InvariantCulture));
-        private static readonly TypeMap _double = Create(o => (double)o);
-        private static readonly TypeMap _float = Create(o => (double)(float)o);
-        private static readonly TypeMap _guid = Create(o => ((Guid)o).ToByteArray());
-        private static readonly TypeMap _int = Create(o => (long)(int)o);
-        private static readonly TypeMap _uint = Create(o => (long)(uint)o);
-        private static readonly TypeMap _long = Create(o => (long)o);
-        private static readonly TypeMap _ulong = Create(o => unchecked((long)(ulong)o));
-        private static readonly TypeMap _short = Create(o => (long)(short)o);
-        private static readonly TypeMap _timeSpan = Create(o => ((TimeSpan)o).ToString("c"));
-        private static readonly TypeMap _ushort = Create(o => (long)(ushort)o);
-        private static readonly TypeMap _string = Create(o => (string)o);
+        private static readonly ICollection<TypeMap> _typeMaps = new List<TypeMap>();
+        private static readonly TypeMap _null = Add<DBNull>(Enumerable.Empty<string>());
+        private static readonly TypeMap _integer = Add<long>(new[] { "INTEGER" });
+        private static readonly TypeMap _real = Add<double>(new[] { "FLOAT", "REAL" });
+        private static readonly TypeMap _text = Add<string>(new[] { "CHAR", "NCHAR", "NVARCHAR", "VARCHAR" });
+        private static readonly TypeMap _blob = Add<byte[]>(new[] { "BLOB" });
 
+        private readonly Type _clrType;
         private readonly SQLiteType _sqliteType;
         private readonly Func<object, object> _toInterop;
+        private readonly Func<object, object> _fromInterop;
+        private readonly IEnumerable<string> _declaredTypes;
 
-        private TypeMap(SQLiteType sqliteType, Func<object, object> toInterop)
+        static TypeMap()
+        {
+            Add((bool b) => b ? 1L : 0L, l => l != 0, new[] { "BIT" });
+            Add((byte b) => (long)b, l => (byte)l, new[] { "TINYINT" });
+            Add((DateTime d) => d.ToString("o"), DateTime.Parse, new[] { "DATETIME" });
+            Add((DateTimeOffset d) => d.ToString("o"), DateTimeOffset.Parse, new[] { "DATETIMEOFFSET" });
+            Add((decimal d) => d.ToString(CultureInfo.InvariantCulture), decimal.Parse, new[] { "DECIMAL" });
+            Add((float f) => (double)f, d => (float)d, new[] { "SINGLE" });
+            Add((Guid g) => g.ToByteArray(), b => new Guid(b), new[] { "UNIQUEIDENTIFIER" });
+            Add((int i) => (long)i, l => (int)l, new[] { "INT" });
+            Add((sbyte b) => (long)b, l => (sbyte)l, new[] { "INT8" });
+            Add((short s) => (long)s, l => (short)l, new[] { "SMALLINT" });
+            Add((TimeSpan t) => t.ToString("c"), TimeSpan.Parse, new[] { "INTERVAL" });
+            Add((uint i) => (long)i, l => (uint)l, new[] { "UINT" });
+            Add((ushort s) => (long)s, l => (ushort)l, new[] { "UINT16" });
+            Add((ulong l) => unchecked((long)l), l => unchecked((ulong)l), new[] { "ULONG" });
+        }
+
+        private TypeMap(Type clrType, SQLiteType sqliteType, IEnumerable<string> declaredTypes)
+        {
+            Debug.Assert(clrType != null, "clrType is null.");
+            Debug.Assert(declaredTypes != null, "declaredTypes is null.");
+
+            _clrType = clrType;
+            _sqliteType = sqliteType;
+            _declaredTypes = declaredTypes;
+        }
+
+        private TypeMap(
+                Type clrType,
+                SQLiteType sqliteType,
+                Func<object, object> toInterop,
+                Func<object, object> fromInterop,
+                IEnumerable<string> declaredTypes)
+            : this(clrType, sqliteType, declaredTypes)
         {
             Debug.Assert(toInterop != null, "toInterop is null.");
+            Debug.Assert(fromInterop != null, "fromInterop is null.");
 
-            _sqliteType = sqliteType;
             _toInterop = toInterop;
+            _fromInterop = fromInterop;
+        }
+
+        public Type ClrType
+        {
+            get { return _clrType; }
         }
 
         public SQLiteType SQLiteType
@@ -45,81 +79,124 @@ namespace Microsoft.Data.SQLite.Utilities
             get { return _sqliteType; }
         }
 
-        private static TypeMap Create<TInterop>(Func<object, TInterop> toInterop)
+        public static TypeMap Add<T>(IEnumerable<string> declaredTypes)
         {
-            Debug.Assert(toInterop != null, "toInterop is null.");
+            var map = new TypeMap(
+                typeof(T),
+                GetSQLiteType<T>(),
+                declaredTypes);
+            _typeMaps.Add(map);
 
-            SQLiteType sqliteType = 0;
-            if (typeof(TInterop) == typeof(long))
-                sqliteType = SQLiteType.Integer;
-            else if (typeof(TInterop) == typeof(double))
-                sqliteType = SQLiteType.Float;
-            else if (typeof(TInterop) == typeof(string))
-                sqliteType = SQLiteType.Text;
-            else if (typeof(TInterop) == typeof(byte[]))
-                sqliteType = SQLiteType.Blob;
-            else if (typeof(TInterop) == typeof(DBNull))
-                sqliteType = SQLiteType.Null;
-            else
-                Debug.Fail("Unexpected type.");
-
-            return new TypeMap(sqliteType, o => toInterop(o));
+            return map;
         }
 
-        public static TypeMap FromClrType(object value)
+        public static TypeMap Add<T, TInterop>(Func<T, TInterop> toInterop, Func<TInterop, T> fromInterop, IEnumerable<string> declaredTypes)
         {
-            Debug.Assert(value != null, "value is null.");
+            Debug.Assert(toInterop != null, "toInterop is null.");
+            Debug.Assert(fromInterop != null, "fromInterop is null.");
+            Debug.Assert(declaredTypes != null, "declaredTypes is null.");
 
-            if (value is bool)
-                return _bool;
-            if (value is byte)
-                return _byte;
-            if (value is byte[])
-                return _byteArray;
-            if (value is DBNull)
-                return _dbNull;
-            if (value is sbyte)
-                return _sbyte;
-            if (value is char)
-                return _char;
-            if (value is DateTime)
-                return _dateTime;
-            if (value is DateTimeOffset)
-                return _dateTimeOffset;
-            if (value is decimal)
-                return _decimal;
-            if (value is double)
-                return _double;
-            if (value is float)
-                return _float;
-            if (value is Guid)
-                return _guid;
-            if (value is int)
-                return _int;
-            if (value is uint)
-                return _uint;
-            if (value is long)
-                return _long;
-            if (value is ulong)
-                return _ulong;
-            if (value is short)
-                return _short;
-            if (value is TimeSpan)
-                return _timeSpan;
-            if (value is ushort)
-                return _ushort;
-            if (value is string)
-                return _string;
+            var map = new TypeMap(
+                typeof(T),
+                GetSQLiteType<TInterop>(),
+                o => toInterop((T)o),
+                o => fromInterop((TInterop)o),
+                declaredTypes);
+            _typeMaps.Add(map);
 
-            throw new ArgumentException(Strings.FormatUnknownDataType(value.GetType()));
+            return map;
+        }
+
+        private static SQLiteType GetSQLiteType<T>()
+        {
+            if (typeof(T) == typeof(DBNull))
+                return SQLiteType.Null;
+            if (typeof(T) == typeof(long))
+                return SQLiteType.Integer;
+            if (typeof(T) == typeof(double))
+                return SQLiteType.Float;
+            if (typeof(T) == typeof(string))
+                return SQLiteType.Text;
+
+            Debug.Assert(typeof(T) == typeof(byte[]), "T is not byte[]");
+
+            return SQLiteType.Blob;
+        }
+
+        public static TypeMap FromClrType<T>()
+        {
+            return FromClrType(typeof(T));
+        }
+
+        public static TypeMap FromClrType(Type type)
+        {
+            // TODO: Consider derived types
+            var map = _typeMaps.FirstOrDefault(m => m._clrType == type);
+            if (map == null)
+                throw new ArgumentException(Strings.FormatUnknownDataType(type));
+
+            return map;
+        }
+
+        public static TypeMap FromDeclaredType(string declaredType, SQLiteType sqliteType)
+        {
+            TypeMap map = null;
+            if (declaredType != null)
+            {
+                // Strip length, precision & scale
+                var i = declaredType.IndexOf('(');
+                if (i != -1)
+                    declaredType = declaredType.Substring(0, i).TrimEnd();
+
+                map = _typeMaps.FirstOrDefault(m => m._declaredTypes.Contains(declaredType));
+            }
+
+            if (map == null)
+                map = FromSQLiteType(sqliteType);
+
+            return map;
+        }
+
+        public static TypeMap FromSQLiteType(SQLiteType type)
+        {
+            switch (type)
+            {
+                case SQLiteType.Null:
+                    return _null;
+
+                case SQLiteType.Integer:
+                    return _integer;
+
+                case SQLiteType.Float:
+                    return _real;
+
+                case SQLiteType.Text:
+                    return _text;
+
+                default:
+                    Debug.Assert(type == SQLiteType.Blob, "type is not Blob.");
+                    return _blob;
+            }
         }
 
         public object ToInterop(object value)
         {
             Debug.Assert(value != null, "value is null.");
 
-            // TODO: Avoid boxing the result #Perf
+            if (_toInterop == null)
+                return value;
+
             return _toInterop(value);
+        }
+
+        public object FromInterop(object value)
+        {
+            Debug.Assert(value != null, "value is null.");
+
+            if (_fromInterop == null)
+                return value;
+
+            return _fromInterop(value);
         }
     }
 }

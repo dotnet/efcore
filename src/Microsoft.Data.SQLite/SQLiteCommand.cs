@@ -135,6 +135,13 @@ namespace Microsoft.Data.SQLite
         public override bool DesignTimeVisible { get; set; }
         public override UpdateRowSource UpdatedRowSource { get; set; }
 
+        internal StatementHandle Handle
+        {
+            get { return _handle; }
+        }
+
+        internal SQLiteDataReader OpenReader { get; set; }
+
         public new SQLiteParameter CreateParameter()
         {
             return new SQLiteParameter();
@@ -147,6 +154,8 @@ namespace Microsoft.Data.SQLite
 
         public override void Prepare()
         {
+            if (OpenReader != null)
+                throw new InvalidOperationException(Strings.OpenReaderExists);
             if (_connection == null || _connection.State != ConnectionState.Open)
                 throw new InvalidOperationException(Strings.FormatCallRequiresOpenConnection("Prepare"));
             if (string.IsNullOrWhiteSpace(_commandText))
@@ -172,22 +181,38 @@ namespace Microsoft.Data.SQLite
             _prepared = true;
         }
 
-        protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
+        public new SQLiteDataReader ExecuteReader()
         {
+            return ExecuteReader(CommandBehavior.Default);
+        }
+
+        // TODO: Honor behavior
+        public new SQLiteDataReader ExecuteReader(CommandBehavior behavior)
+        {
+            if (OpenReader != null)
+                throw new InvalidOperationException(Strings.OpenReaderExists);
             if (_connection == null || _connection.State != ConnectionState.Open)
-                throw new InvalidOperationException(Strings.FormatCallRequiresOpenConnection("ExecuteDbDataReader"));
+                throw new InvalidOperationException(Strings.FormatCallRequiresOpenConnection("ExecuteReader"));
             if (string.IsNullOrWhiteSpace(_commandText))
-                throw new InvalidOperationException(Strings.FormatCallRequiresSetCommandText("ExecuteDbDataReader"));
+                throw new InvalidOperationException(Strings.FormatCallRequiresSetCommandText("ExecuteReader"));
 
             Prepare();
             Bind();
 
-            // TODO
-            throw new NotImplementedException();
+            OpenReader = new SQLiteDataReader(this);
+
+            return OpenReader;
+        }
+
+        protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
+        {
+            return ExecuteReader(behavior);
         }
 
         public override int ExecuteNonQuery()
         {
+            if (OpenReader != null)
+                throw new InvalidOperationException(Strings.OpenReaderExists);
             if (_connection == null || _connection.State != ConnectionState.Open)
                 throw new InvalidOperationException(Strings.FormatCallRequiresOpenConnection("ExecuteNonQuery"));
             if (string.IsNullOrWhiteSpace(_commandText))
@@ -207,6 +232,8 @@ namespace Microsoft.Data.SQLite
 
         public override object ExecuteScalar()
         {
+            if (OpenReader != null)
+                throw new InvalidOperationException(Strings.OpenReaderExists);
             if (_connection == null || _connection.State != ConnectionState.Open)
                 throw new InvalidOperationException(Strings.FormatCallRequiresOpenConnection("ExecuteScalar"));
             if (string.IsNullOrWhiteSpace(_commandText))
@@ -215,39 +242,24 @@ namespace Microsoft.Data.SQLite
             Prepare();
             Bind();
 
-            var rc = NativeMethods.sqlite3_step(_handle);
             try
             {
+                var rc = NativeMethods.sqlite3_step(_handle);
                 if (rc == Constants.SQLITE_DONE)
                     return null;
                 if (rc != Constants.SQLITE_ROW)
                     MarshalEx.ThrowExceptionForRC(rc);
 
-                switch (NativeMethods.sqlite3_column_type(_handle, 0))
-                {
-                    case Constants.SQLITE_INTEGER:
-                        return NativeMethods.sqlite3_column_int64(_handle, 0);
+                var declaredType = NativeMethods.sqlite3_column_decltype(_handle, 0);
+                var sqliteType = (SQLiteType)NativeMethods.sqlite3_column_type(_handle, 0);
+                var map = TypeMap.FromDeclaredType(declaredType, sqliteType);
+                var value = ColumnReader.Read(map.SQLiteType, _handle, 0);
 
-                    case Constants.SQLITE_FLOAT:
-                        return NativeMethods.sqlite3_column_double(_handle, 0);
-
-                    case Constants.SQLITE_TEXT:
-                        return NativeMethods.sqlite3_column_text(_handle, 0);
-
-                    case Constants.SQLITE_BLOB:
-                        return NativeMethods.sqlite3_column_blob(_handle, 0);
-
-                    case Constants.SQLITE_NULL:
-                        return DBNull.Value;
-
-                    default:
-                        Debug.Assert(false, "Unexpected value.");
-                        return DBNull.Value;
-                }
+                return map.FromInterop(value);
             }
             finally
             {
-                rc = NativeMethods.sqlite3_reset(_handle);
+                var rc = NativeMethods.sqlite3_reset(_handle);
                 MarshalEx.ThrowExceptionForRC(rc);
             }
         }
@@ -263,6 +275,9 @@ namespace Microsoft.Data.SQLite
             {
                 _connection = null;
                 _prepared = false;
+
+                if (OpenReader != null)
+                    OpenReader.Close();
             }
 
             ReleaseNativeObjects();
@@ -274,6 +289,7 @@ namespace Microsoft.Data.SQLite
         {
             Debug.Assert(_prepared, "_prepared is false.");
             Debug.Assert(_handle != null && !_handle.IsInvalid, "_connection.Handle is null.");
+            Debug.Assert(OpenReader == null, "ActiveReader is not null.");
             if (_parameters == null || _parameters.Bound)
                 return;
 

@@ -86,6 +86,9 @@ namespace Microsoft.Data.SQLite.Interop
         public static byte[] sqlite3_column_blob(StatementHandle pStmt, int iCol)
         {
             var ptr = sqlite3_column_blob_raw(pStmt, iCol);
+            if (ptr == IntPtr.Zero)
+                return null;
+
             var bytes = sqlite3_column_bytes(pStmt, iCol);
 
             var result = new byte[bytes];
@@ -98,10 +101,29 @@ namespace Microsoft.Data.SQLite.Interop
         private static extern int sqlite3_column_bytes(StatementHandle pStmt, int iCol);
 
         [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        public static extern int sqlite3_column_count(StatementHandle pStmt);
+
+        [DllImport("sqlite3", EntryPoint = "sqlite3_column_decltype", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        private static extern IntPtr sqlite3_column_decltype_raw(StatementHandle pStmt, int N);
+
+        public static string sqlite3_column_decltype(StatementHandle pStmt, int N)
+        {
+            return MarshalEx.PtrToStringUTF8(sqlite3_column_decltype_raw(pStmt, N));
+        }
+
+        [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         public static extern double sqlite3_column_double(StatementHandle pStmt, int iCol);
 
         [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         public static extern long sqlite3_column_int64(StatementHandle pStmt, int iCol);
+
+        [DllImport("sqlite3", EntryPoint = "sqlite3_column_name", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        private static extern IntPtr sqlite3_column_name_raw(StatementHandle pStmt, int N);
+
+        public static string sqlite3_column_name(StatementHandle pStmt, int N)
+        {
+            return MarshalEx.PtrToStringUTF8(sqlite3_column_name_raw(pStmt, N));
+        }
 
         [DllImport("sqlite3", EntryPoint = "sqlite3_column_text", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         private static extern IntPtr sqlite3_column_text_raw(StatementHandle pStmt, int iCol);

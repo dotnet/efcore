@@ -135,6 +135,9 @@
   <data name="ConnectionStringRequiresClosedConnection" xml:space="preserve">
     <value>ConnectionString cannot be set when the connection is open.</value>
   </data>
+  <data name="DataReaderClosed" xml:space="preserve">
+    <value>Invalid attempt to {operation} when reader is closed.</value>
+  </data>
   <data name="InvalidCommandType" xml:space="preserve">
     <value>The CommandType '{commandType}' is invalid.</value>
   </data>
@@ -149,6 +152,9 @@
   </data>
   <data name="KeywordNotSupported" xml:space="preserve">
     <value>Keyword not supported: '{keyword}'.</value>
+  </data>
+  <data name="OpenReaderExists" xml:space="preserve">
+    <value>There is already an open DataReader associated with this Command which must be closed first.</value>
   </data>
   <data name="OpenRequiresSetConnectionString" xml:space="preserve">
     <value>ConnectionString must be set before Open can be called.</value>
