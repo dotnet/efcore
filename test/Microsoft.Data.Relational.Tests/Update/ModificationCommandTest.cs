@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity;
@@ -81,6 +82,22 @@ namespace Microsoft.Data.Relational.Tests.Update
             Assert.Equal(ModificationOperation.Delete, modificationCommand.Operation);
             Assert.Null(modificationCommand.ColumnValues);
             Assert.Equal(properties.Where(p => p.Key == "Col1"), modificationCommand.WhereClauses);
+        }
+
+        [Fact]
+        public void ModificationCommand_throws_for_unchanged_entities()
+        {
+            var stateEntry = CreateMockStateEntry("T1", EntityState.Unchanged, new Dictionary<string, object>(), new string[0]);
+
+            Assert.Throws<NotSupportedException>(() => new ModificationCommand(stateEntry));
+        }
+
+        [Fact]
+        public void ModificationCommand_throws_for_unknown_entities()
+        {
+            var stateEntry = CreateMockStateEntry("T1", EntityState.Unknown, new Dictionary<string, object>(), new string[0]);
+
+            Assert.Throws<NotSupportedException>(() => new ModificationCommand(stateEntry));
         }
 
         private static StateEntry CreateMockStateEntry(string tableName, EntityState entityState,

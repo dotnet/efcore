@@ -126,6 +126,9 @@
   <data name="InvalidSchemaQualifiedName" xml:space="preserve">
     <value>The schema qualified name '{name}' is invalid. Schema qualified names must be of the form [&lt;schema_name&gt;.]&lt;object_name&gt;.</value>
   </data>
+  <data name="ModificationFunctionInvalidEntityState" xml:space="preserve">
+    <value>Can not create a ModificationFunction for an entity in state '{entityState}'.</value>
+  </data>
   <data name="UpdateConcurrencyException" xml:space="preserve">
     <value>Update failed. Expected rows affected '{expectedRowsAffected}'. Actual rows affected '{actualRowsAffected}'.</value>
   </data>

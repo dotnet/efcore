@@ -59,6 +59,22 @@ namespace Microsoft.Data.Relational
         }
 
         /// <summary>
+        /// Can not create a ModificationFunction for an entity in state '{entityState}'.
+        /// </summary>
+        internal static string ModificationFunctionInvalidEntityState
+        {
+            get { return GetString("ModificationFunctionInvalidEntityState"); }
+        }
+
+        /// <summary>
+        /// Can not create a ModificationFunction for an entity in state '{entityState}'.
+        /// </summary>
+        internal static string FormatModificationFunctionInvalidEntityState(object entityState)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ModificationFunctionInvalidEntityState", "entityState"), entityState);
+        }
+
+        /// <summary>
         /// Update failed. Expected rows affected '{expectedRowsAffected}'. Actual rows affected '{actualRowsAffected}'.
         /// </summary>
         internal static string UpdateConcurrencyException

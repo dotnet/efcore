@@ -8,10 +8,11 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Relational.Utilities;
 
 namespace Microsoft.Data.Relational.Update
 {
-    internal class ModificationCommand
+    public class ModificationCommand
     {
         private readonly StateEntry _stateEntry;
         private readonly KeyValuePair<string, object>[] _columnValues;
@@ -29,9 +30,12 @@ namespace Microsoft.Data.Relational.Update
 
         public ModificationCommand([NotNull] StateEntry stateEntry)
         {
-            Contract.Assert(
-                stateEntry.EntityState == EntityState.Added || stateEntry.EntityState == EntityState.Modified ||
-                stateEntry.EntityState == EntityState.Deleted, "Unexpected entity state");
+            Check.NotNull(stateEntry, "stateEntry");
+            
+            if(!(stateEntry.EntityState.IsDirty()))
+            {
+                throw new NotSupportedException(Strings.FormatModificationFunctionInvalidEntityState(stateEntry.EntityState));
+            }
 
             _stateEntry = stateEntry;
             _operation =
