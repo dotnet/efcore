@@ -9,21 +9,8 @@ namespace Microsoft.Data.Relational.Model
 {
     public class Database
     {
-        private readonly string _name;
         private readonly List<Sequence> _sequences = new List<Sequence>();
         private readonly List<Table> _tables = new List<Table>();
-
-        public Database([NotNull] string name)
-        {
-            Check.NotEmpty(name, "name");
-
-            _name = name;
-        }
-
-        public virtual string Name
-        {
-            get { return _name; }
-        }
 
         public virtual IReadOnlyList<Sequence> Sequences
         {
