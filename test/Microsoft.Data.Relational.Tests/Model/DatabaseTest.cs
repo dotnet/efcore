@@ -11,15 +11,15 @@ namespace Microsoft.Data.Relational.Tests.Model
         [Fact]
         public void Create_and_initialize_database()
         {
-            var database = new Database("MyDatabase");
+            var database = new Database();
 
-            Assert.Equal("MyDatabase", database.Name);
+            Assert.NotNull(database.Tables);
         }
 
         [Fact]
         public void Sequences_gets_read_only_list_of_sequences()
         {
-            var database = new Database("MyDatabase");
+            var database = new Database();
             var sequence0 = new Sequence("dbo.MySequence0");
             var sequence1 = new Sequence("dbo.MySequence1");
 
@@ -35,7 +35,7 @@ namespace Microsoft.Data.Relational.Tests.Model
         [Fact]
         public void AddSequence_adds_specified_sequence()
         {
-            var database = new Database("MyDatabase");
+            var database = new Database();
 
             Assert.Equal(0, database.Sequences.Count);
 
@@ -50,7 +50,7 @@ namespace Microsoft.Data.Relational.Tests.Model
         [Fact]
         public void GetSequence_finds_sequence_by_name()
         {
-            var database = new Database("MyDatabase");
+            var database = new Database();
             var sequence0 = new Sequence("dbo.MySequence0");
             var sequence1 = new Sequence("dbo.MySequence1");
 
@@ -64,7 +64,7 @@ namespace Microsoft.Data.Relational.Tests.Model
         [Fact]
         public void Tables_gets_read_only_list_of_tables()
         {
-            var database = new Database("MyDatabase");
+            var database = new Database();
             var table0 = new Table("dbo.MyTable0");
             var table1 = new Table("dbo.MyTable1");
 
@@ -80,7 +80,7 @@ namespace Microsoft.Data.Relational.Tests.Model
         [Fact]
         public void AddTable_adds_specified_table()
         {
-            var database = new Database("MyDatabase");
+            var database = new Database();
 
             Assert.Equal(0, database.Tables.Count);
 
@@ -95,7 +95,7 @@ namespace Microsoft.Data.Relational.Tests.Model
         [Fact]
         public void GetTable_finds_table_by_name()
         {
-            var database = new Database("MyDatabase");
+            var database = new Database();
             var table0 = new Table("dbo.MyTable0");
             var table1 = new Table("dbo.MyTable1");
 
