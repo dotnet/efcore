@@ -91,6 +91,36 @@ namespace Microsoft.Data.Entity.Tests
         }
 
         [Fact]
+        public void SaveChanges_calls_DetectChanges()
+        {
+            var configuration = new EntityConfigurationBuilder()
+                .UseStateManager<FakeStateManager>()
+                .BuildConfiguration();
+
+            using (var context = new EntityContext(configuration))
+            {
+                var stateManager = (FakeStateManager)context.Configuration.StateManager;
+                
+                Assert.False(stateManager.DetectChangesCalled);
+
+                context.SaveChanges();
+
+                Assert.True(stateManager.DetectChangesCalled);
+            }
+        }
+
+        private class FakeStateManager : StateManager
+        {
+            public bool DetectChangesCalled { get; set; }
+
+            public override bool DetectChanges()
+            {
+                DetectChangesCalled = true;
+                return false;
+            }
+        }
+
+        [Fact]
         public void Can_add_new_entities_to_context()
         {
             TrackEntitiesTest((c, e) => c.Add(e), (c, e) => c.Add(e), EntityState.Added);

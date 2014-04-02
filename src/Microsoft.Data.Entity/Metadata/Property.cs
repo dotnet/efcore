@@ -11,12 +11,19 @@ namespace Microsoft.Data.Entity.Metadata
     public class Property : NamedMetadataBase, IProperty
     {
         private readonly Type _propertyType;
+        private readonly bool _isConcurrencyToken;
 
         private bool _isNullable = true;
         private int _shadowIndex;
+        private int _originalValueIndex = -1;
         private int _index;
 
-        internal Property([NotNull] string name, [NotNull] Type propertyType, bool shadowProperty)
+        internal Property([NotNull] string name, [NotNull] Type propertyType)
+            : this(name, propertyType, shadowProperty: false, concurrencyToken: false)
+        {
+        }
+
+        internal Property([NotNull] string name, [NotNull] Type propertyType, bool shadowProperty, bool concurrencyToken)
             : base(Check.NotEmpty(name, "name"))
         {
             Check.NotNull(propertyType, "propertyType");
@@ -24,6 +31,7 @@ namespace Microsoft.Data.Entity.Metadata
             _propertyType = propertyType;
             _shadowIndex = shadowProperty ? 0 : -1;
             _isNullable = propertyType.IsNullableType();
+            _isConcurrencyToken = concurrencyToken;
         }
 
         public virtual Type PropertyType
@@ -52,6 +60,11 @@ namespace Microsoft.Data.Entity.Metadata
             get { return !IsClrProperty; }
         }
 
+        public virtual bool IsConcurrencyToken
+        {
+            get { return _isConcurrencyToken; }
+        }
+
         public virtual int Index
         {
             get { return _index; }
@@ -76,6 +89,20 @@ namespace Microsoft.Data.Entity.Metadata
                 }
 
                 _shadowIndex = value;
+            }
+        }
+
+        public virtual int OriginalValueIndex
+        {
+            get { return _originalValueIndex; }
+            set
+            {
+                if (value < -1)
+                {
+                    throw new ArgumentOutOfRangeException("value");
+                }
+
+                _originalValueIndex = value;
             }
         }
 

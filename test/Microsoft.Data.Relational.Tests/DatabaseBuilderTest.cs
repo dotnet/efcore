@@ -172,8 +172,8 @@ namespace Microsoft.Data.Relational.Tests
 
             var dependentEntityType = new EntityType("Dependent") { StorageName = "dbo.MyTable0" };
             var principalEntityType = new EntityType("Principal") { StorageName = "dbo.MyTable1" };
-            var dependentProperty = dependentEntityType.AddProperty("Id", typeof(int), shadowProperty: false);
-            var principalProperty = principalEntityType.AddProperty("Id", typeof(int), shadowProperty: false);
+            var dependentProperty = dependentEntityType.AddProperty("Id", typeof(int));
+            var principalProperty = principalEntityType.AddProperty("Id", typeof(int));
 
             model.AddEntityType(principalEntityType);
             model.AddEntityType(dependentEntityType);

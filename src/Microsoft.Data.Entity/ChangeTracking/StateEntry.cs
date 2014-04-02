@@ -2,7 +2,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -16,6 +18,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         private readonly ContextConfiguration _configuration;
         private readonly IEntityType _entityType;
         private StateData _stateData;
+        private object[] _originalValues;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -26,7 +29,10 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
         }
 
-        protected StateEntry([NotNull] ContextConfiguration configuration, [NotNull] IEntityType entityType)
+        protected StateEntry(
+            [NotNull] ContextConfiguration configuration,
+            [NotNull] IEntityType entityType,
+            [CanBeNull] object[] valueBuffer)
         {
             Check.NotNull(configuration, "configuration");
             Check.NotNull(entityType, "entityType");
@@ -34,6 +40,22 @@ namespace Microsoft.Data.Entity.ChangeTracking
             _configuration = configuration;
             _entityType = entityType;
             _stateData = new StateData(entityType.Properties.Count);
+
+            // Optimization to use value buffer for original values when possible
+            if (valueBuffer != null
+                && !_entityType.UseLazyOriginalValues
+                && valueBuffer.Length == _entityType.OriginalValueCount)
+            {
+                _originalValues = valueBuffer;
+
+                for (var i = 0; i < _originalValues.Length; i++)
+                {
+                    if (_originalValues[i] == null)
+                    {
+                        _originalValues[i] = NullSentinel.Value;
+                    }
+                }
+            }
         }
 
         [CanBeNull]
@@ -147,7 +169,23 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         public abstract object GetPropertyValue([NotNull] IProperty property);
 
-        public abstract void SetPropertyValue([NotNull] IProperty property, [CanBeNull] object value);
+        protected abstract void WritePropertyValue([NotNull] IProperty property, [CanBeNull] object value);
+
+        public virtual void SetPropertyValue([NotNull] IProperty property, [CanBeNull] object value)
+        {
+            Check.NotNull(property, "property");
+
+            var currentValue = GetPropertyValue(property);
+
+            if (!Equals(currentValue, value))
+            {
+                PropertyChanging(property);
+
+                WritePropertyValue(property, value);
+
+                PropertyChanged(property);
+            }
+        }
 
         public virtual EntityKey GetPrimaryKeyValue()
         {
@@ -174,6 +212,117 @@ namespace Microsoft.Data.Entity.ChangeTracking
         public virtual object[] GetValueBuffer()
         {
             return _entityType.Properties.Select(GetPropertyValue).ToArray();
+        }
+
+        public virtual void SnapshotOriginalValues()
+        {
+            if (_originalValues != null)
+            {
+                return;
+            }
+
+            _originalValues = new object[_entityType.OriginalValueCount];
+            foreach (var property in _entityType.Properties)
+            {
+                var index = property.OriginalValueIndex;
+                if (index != -1)
+                {
+                    _originalValues[index] = GetPropertyValue(property) ?? NullSentinel.Value;
+                }
+            }
+        }
+
+        public virtual void PropertyChanging([NotNull] IProperty property)
+        {
+            Check.NotNull(property, "property");
+
+            if (!_entityType.UseLazyOriginalValues)
+            {
+                return;
+            }
+
+            var index = property.OriginalValueIndex;
+            if (index != -1)
+            {
+                var originalValue = GetPropertyOriginalValue(index);
+                if (originalValue == null)
+                {
+                    SetPropertyOriginalValue(index, GetPropertyValue(property));
+                }
+            }
+        }
+
+        public virtual void PropertyChanged([NotNull] IProperty property)
+        {
+            Check.NotNull(property, "property");
+
+            SetPropertyModified(property, true);
+        }
+
+        public virtual void SetPropertyOriginalValue([NotNull] IProperty property, [CanBeNull] object value)
+        {
+            Check.NotNull(property, "property");
+
+            SetPropertyOriginalValue(GetOriginalValueIndexChecked(property), value);
+        }
+
+        public virtual object GetPropertyOriginalValue([NotNull] IProperty property)
+        {
+            Check.NotNull(property, "property");
+
+            var value = GetPropertyOriginalValue(GetOriginalValueIndexChecked(property));
+
+            return value != null
+                ? (ReferenceEquals(value, NullSentinel.Value) ? null : value)
+                : GetPropertyValue(property);
+        }
+
+        private void SetPropertyOriginalValue(int index, object value)
+        {
+            if (_originalValues == null)
+            {
+                _originalValues = new object[EntityType.OriginalValueCount];
+            }
+
+            _originalValues[index] = value ?? NullSentinel.Value;
+        }
+
+        private int GetOriginalValueIndexChecked(IProperty property)
+        {
+            var index = property.OriginalValueIndex;
+            if (index == -1)
+            {
+                throw new InvalidOperationException(Strings.FormatOriginalValueNotTracked(property.Name, _entityType.Name));
+            }
+            return index;
+        }
+
+        private object GetPropertyOriginalValue(int index)
+        {
+            return _originalValues != null ? _originalValues[index] : null;
+        }
+
+        public virtual bool DetectChanges()
+        {
+            // TODO: Consider more efficient/higher-level/abstract mechanism for checking if DetectChanges is needed
+            if (_entityType.Type == null
+                || typeof(INotifyPropertyChanged).GetTypeInfo().IsAssignableFrom(_entityType.Type.GetTypeInfo()))
+            {
+                return false;
+            }
+
+            var foundChanges = false;
+            foreach (var property in EntityType.Properties)
+            {
+                // TODO: Perf: don't lookup accessor twice
+                if (!Equals(GetPropertyValue(property), GetPropertyOriginalValue(property)))
+                {
+                    SetPropertyModified(property, true);
+                    foundChanges = true;
+                }
+            }
+
+            return foundChanges;
         }
 
         internal struct StateData
@@ -255,6 +404,15 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
                 // TODO: Remove keys/readonly indexes from the mask to avoid setting them to modified
                 return mask;
+            }
+        }
+
+        protected sealed class NullSentinel
+        {
+            public static readonly NullSentinel Value = new NullSentinel();
+
+            private NullSentinel()
+            {
             }
         }
     }

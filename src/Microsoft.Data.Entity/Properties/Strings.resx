@@ -183,4 +183,10 @@
   <data name="IQueryableProviderNotAsync" xml:space="preserve">
     <value>The provider for the source IQueryable doesn't implement IAsyncQueryProvider. Only providers that implement IEntityQueryProvider can be used for Entity Framework asynchronous operations.</value>
   </data>
+  <data name="EagerOriginalValuesRequired" xml:space="preserve">
+    <value>Lazy original value tracking cannot be turned on for entity type '{entityType}'. Entities that do not implement both INotifyPropertyChanging and INotifyPropertyChanged require original values to be stored eagerly in order to correct detect changes made to entities.</value>
+  </data>
+  <data name="OriginalValueNotTracked" xml:space="preserve">
+    <value>The original value for property '{property}' of entity type '{entityType}' cannot be accessed because it is not being tracked. To access all original values set 'UseLazyOriginalValues' to false on the entity type.</value>
+  </data>
 </root>

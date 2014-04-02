@@ -104,12 +104,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
                 var stateEntry = context.ChangeTracker.StateManager.GetOrMaterializeEntry(
                     entityType, new object[] { "Foo", gu, 77 });
 
-                Assert.False(entityType.CreateEntityWasUsed);
-
                 var entity = (KoolEntity15)stateEntry.Entity;
 
                 Assert.True(entityType.CreateEntityWasUsed);
-
                 Assert.Equal(77, entity.Id);
                 Assert.Equal("Foo", entity.Foo15);
                 Assert.Equal(gu, entity.Goo15);
@@ -351,21 +348,21 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             builder.Annotation("ModelAnnotation2", "ModelValue2");
 
             var entityType1 = new EntityType(typeof(KoolEntity1));
-            var property = entityType1.AddProperty("Id1", typeof(int), shadowProperty: false);
+            var property = entityType1.AddProperty("Id1", typeof(int));
             property.StorageName = "MyKey1";
             entityType1.SetKey(property);
-            entityType1.AddProperty("Id2", typeof(Guid), shadowProperty: false).StorageName = "MyKey2";
-            entityType1.AddProperty("KoolEntity2Id", typeof(int), shadowProperty: false);
+            entityType1.AddProperty("Id2", typeof(Guid)).StorageName = "MyKey2";
+            entityType1.AddProperty("KoolEntity2Id", typeof(int));
             model.AddEntityType(entityType1);
 
             var entityType2 = new EntityType(typeof(KoolEntity2));
-            entityType2.AddProperty("KoolEntity1Id1", typeof(int), shadowProperty: false);
-            entityType2.AddProperty("KoolEntity1Id2", typeof(Guid), shadowProperty: false);
-            entityType2.AddProperty("KoolEntity3Id", typeof(int), shadowProperty: false);
+            entityType2.AddProperty("KoolEntity1Id1", typeof(int));
+            entityType2.AddProperty("KoolEntity1Id2", typeof(Guid));
+            entityType2.AddProperty("KoolEntity3Id", typeof(int));
             model.AddEntityType(entityType2);
 
             var entityType3 = new EntityType(typeof(KoolEntity3));
-            entityType3.AddProperty("KoolEntity4Id", typeof(int), shadowProperty: false);
+            entityType3.AddProperty("KoolEntity4Id", typeof(int));
             model.AddEntityType(entityType3);
 
             var entityType4 = new EntityType(typeof(KoolEntity4));
@@ -375,7 +372,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             model.AddEntityType(entityType5);
 
             var entityType6 = new EntityType(typeof(KoolEntity6));
-            entityType6.AddProperty("Kool5Id", typeof(int), shadowProperty: false);
+            entityType6.AddProperty("Kool5Id", typeof(int));
             model.AddEntityType(entityType6);
 
             for (var i = 7; i <= 20; i++)

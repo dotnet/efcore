@@ -32,13 +32,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(
                 "name",
                 // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => new Property(null, null, shadowProperty: true)).ParamName);
+                Assert.Throws<ArgumentNullException>(() => new Property(null, null)).ParamName);
         }
 
         [Fact]
         public void Storage_name_defaults_to_name()
         {
-            var property = new Property("Name", typeof(string), shadowProperty: true);
+            var property = new Property("Name", typeof(string));
 
             Assert.Equal("Name", property.StorageName);
         }
@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Storage_name_can_be_different_from_name()
         {
-            var property = new Property("Name", typeof(string), shadowProperty: true)
+            var property = new Property("Name", typeof(string))
                 {
                     StorageName = "CustomerName"
                 };
@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_create_property_from_property_info()
         {
-            var property = new Property("Name", typeof(string), shadowProperty: true);
+            var property = new Property("Name", typeof(string));
 
             Assert.Equal("Name", property.Name);
             Assert.Same(typeof(string), property.PropertyType);
@@ -67,14 +67,27 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void HasClrProperty_is_set_appropriately()
         {
-            Assert.True(new Property("Kake", typeof(int), shadowProperty: false).IsClrProperty);
-            Assert.False(new Property("Kake", typeof(int), shadowProperty: true).IsClrProperty);
+            Assert.True(new Property("Kake", typeof(int)).IsClrProperty);
+            Assert.True(new Property("Kake", typeof(int), shadowProperty: false, concurrencyToken: false).IsClrProperty);
+            Assert.False(new Property("Kake", typeof(int), shadowProperty: true, concurrencyToken: false).IsClrProperty);
+        }
+
+        [Fact]
+        public void Property_is_not_concurrency_token_by_default()
+        {
+            Assert.False(new Property("Name", typeof(string)).IsConcurrencyToken);
+        }
+
+        [Fact]
+        public void Can_mark_property_as_concurrency_token()
+        {
+            Assert.True(new Property("Name", typeof(string), shadowProperty: false, concurrencyToken: true).IsConcurrencyToken);
         }
 
         [Fact]
         public void Can_get_and_set_property_index_for_normal_property()
         {
-            var property = new Property("Kake", typeof(int), shadowProperty: false);
+            var property = new Property("Kake", typeof(int));
 
             Assert.Equal(0, property.Index);
             Assert.Equal(-1, property.ShadowIndex);
@@ -100,7 +113,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_get_and_set_property_and_shadow_index_for_shadow_property()
         {
-            var property = new Property("Kake", typeof(int), shadowProperty: true);
+            var property = new Property("Kake", typeof(int), shadowProperty: true, concurrencyToken: false);
 
             Assert.Equal(0, property.Index);
             Assert.Equal(0, property.ShadowIndex);

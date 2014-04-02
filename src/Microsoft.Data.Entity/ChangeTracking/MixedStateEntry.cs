@@ -9,8 +9,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
 {
     public class MixedStateEntry : StateEntry
     {
-        private object[] _propertyValues;
-        private object _entity;
+        private readonly object[] _shadowValues;
+        private readonly object _entity;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -21,80 +21,77 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
         }
 
-        public MixedStateEntry([NotNull] ContextConfiguration configuration, [NotNull] IEntityType entityType, [NotNull] object entity)
-            : base(configuration, entityType)
+        public MixedStateEntry(
+            [NotNull] ContextConfiguration configuration,
+            [NotNull] IEntityType entityType,
+            [NotNull] object entity)
+            : base(configuration, entityType, null)
         {
             Check.NotNull(entity, "entity");
 
             _entity = entity;
-            _propertyValues = new object[entityType.ShadowPropertyCount];
+            _shadowValues = new object[entityType.ShadowPropertyCount];
         }
 
-        public MixedStateEntry([NotNull] ContextConfiguration configuration, [NotNull] IEntityType entityType, [NotNull] object[] valueBuffer)
-            : base(configuration, entityType)
+        public MixedStateEntry(
+            [NotNull] ContextConfiguration configuration,
+            [NotNull] IEntityType entityType,
+            [NotNull] object entity,
+            [NotNull] object[] valueBuffer)
+            : base(configuration, entityType, valueBuffer)
         {
+            Check.NotNull(entity, "entity");
             Check.NotNull(valueBuffer, "valueBuffer");
 
-            _propertyValues = valueBuffer;
+            _entity = entity;
+            _shadowValues = ExtractShadowValues(valueBuffer);
         }
 
         [NotNull]
         public override object Entity
         {
-            get { return _entity ?? MaterializeEntity(); }
-        }
-
-        private object MaterializeEntity()
-        {
-            _entity = Configuration.EntityMaterializerSource.GetMaterializer(EntityType)(_propertyValues);
-
-            var properties = EntityType.Properties;
-            var shadowValues = new object[EntityType.ShadowPropertyCount];
-            for (var i = 0; i < _propertyValues.Length; i++)
-            {
-                var property = properties[i];
-                if (!property.IsClrProperty)
-                {
-                    shadowValues[property.ShadowIndex] = _propertyValues[i];
-                }
-            }
-            _propertyValues = shadowValues;
-
-            Configuration.StateManager.EntityMaterialized(this);
-
-            return _entity;
+            get { return _entity; }
         }
 
         public override object GetPropertyValue(IProperty property)
         {
             Check.NotNull(property, "property");
 
-            if (_entity == null)
-            {
-                return _propertyValues[property.Index];
-            }
-
             return property.IsClrProperty
                 ? Configuration.ClrPropertyGetterSource.GetAccessor(property).GetClrValue(_entity)
-                : _propertyValues[property.ShadowIndex];
+                : _shadowValues[property.ShadowIndex];
         }
 
-        public override void SetPropertyValue(IProperty property, object value)
+        protected override void WritePropertyValue(IProperty property, object value)
         {
             Check.NotNull(property, "property");
 
-            if (_entity == null)
-            {
-                _propertyValues[property.Index] = value;
-            }
-            else if (property.IsClrProperty)
+            if (property.IsClrProperty)
             {
                 Configuration.ClrPropertySetterSource.GetAccessor(property).SetClrValue(_entity, value);
             }
             else
             {
-                _propertyValues[property.ShadowIndex] = value;
+                _shadowValues[property.ShadowIndex] = value;
             }
+        }
+
+        private object[] ExtractShadowValues(object[] valueBuffer)
+        {
+            var shadowValues = new object[EntityType.ShadowPropertyCount];
+
+            var properties = EntityType.Properties;
+            for (var i = 0; i < valueBuffer.Length; i++)
+            {
+                var property = properties[i];
+                if (!property.IsClrProperty)
+                {
+                    var value = valueBuffer[i];
+                    shadowValues[property.ShadowIndex] = value == NullSentinel.Value ? null : value;
+                }
+            }
+
+            return shadowValues;
         }
     }
 }

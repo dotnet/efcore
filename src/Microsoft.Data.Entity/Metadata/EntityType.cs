@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -23,6 +24,8 @@ namespace Microsoft.Data.Entity.Metadata
 
         public Func<object[], object> _activator;
         private int _shadowPropertyCount;
+        private int _originalValueCount;
+        private bool _useLazyOriginalValues = true;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -41,6 +44,7 @@ namespace Microsoft.Data.Entity.Metadata
             : this(Check.NotNull(type, "type").Name)
         {
             _type = type;
+            _useLazyOriginalValues = CanUseLazyOriginalValues();
         }
 
         /// <summary>
@@ -110,6 +114,8 @@ namespace Microsoft.Data.Entity.Metadata
 
             _foreignKeys.Value.Add(foreignKey);
 
+            UpdateOriginalValueIndexes();
+
             return foreignKey;
         }
 
@@ -175,15 +181,27 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(propertyInfo, "propertyInfo");
 
-            return AddProperty(propertyInfo.Name, propertyInfo.PropertyType, shadowProperty: false);
+            return AddProperty(propertyInfo.Name, propertyInfo.PropertyType, shadowProperty: false, concurrencyToken: false);
         }
 
-        public virtual Property AddProperty([NotNull] string name, [NotNull] Type propertyType, bool shadowProperty)
+        public virtual Property AddProperty([NotNull] string name, [NotNull] Type propertyType)
         {
             Check.NotEmpty(name, "name");
             Check.NotNull(propertyType, "propertyType");
 
-            var property = new Property(name, propertyType, shadowProperty);
+            var property = new Property(name, propertyType, shadowProperty: false, concurrencyToken: false);
+
+            AddProperty(property);
+
+            return property;
+        }
+
+        public virtual Property AddProperty([NotNull] string name, [NotNull] Type propertyType, bool shadowProperty, bool concurrencyToken)
+        {
+            Check.NotEmpty(name, "name");
+            Check.NotNull(propertyType, "propertyType");
+
+            var property = new Property(name, propertyType, shadowProperty, concurrencyToken);
 
             AddProperty(property);
 
@@ -209,6 +227,7 @@ namespace Microsoft.Data.Entity.Metadata
                     property.Index = currentIndex;
 
                     UpdateShadowIndexes(property);
+                    UpdateOriginalValueIndexes(property);
                 }
             }
             else
@@ -238,6 +257,7 @@ namespace Microsoft.Data.Entity.Metadata
                 _properties[i].Index = i;
             }
             UpdateShadowIndexes(addedOrRemovedProperty);
+            UpdateOriginalValueIndexes(addedOrRemovedProperty);
         }
 
         private void UpdateShadowIndexes(Property addedOrRemovedProperty)
@@ -251,6 +271,31 @@ namespace Microsoft.Data.Entity.Metadata
                 }
                 _shadowPropertyCount = shadowIndex;
             }
+        }
+
+        private void UpdateOriginalValueIndexes(Property addedOrRemovedProperty)
+        {
+            if (RequiresOriginalValue(addedOrRemovedProperty))
+            {
+                UpdateOriginalValueIndexes();
+            }
+        }
+
+        private void UpdateOriginalValueIndexes()
+        {
+            var originalValueIndex = 0;
+            foreach (var property in _properties)
+            {
+                property.OriginalValueIndex = RequiresOriginalValue(property) ? originalValueIndex++ : -1;
+            }
+            _originalValueCount = originalValueIndex;
+        }
+
+        private bool RequiresOriginalValue(Property addedOrRemovedProperty)
+        {
+            return !_useLazyOriginalValues
+                   || addedOrRemovedProperty.IsConcurrencyToken
+                   || ForeignKeys.SelectMany(k => k.Properties).Contains(addedOrRemovedProperty);
         }
 
         public virtual void RemoveProperty([NotNull] Property property)
@@ -282,9 +327,9 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotEmpty(name, "name");
 
-            // TODO: This should be O(n) but an additional index could be created
+            // TODO: This should be O(log(n)) but an additional index could be created
             // TODO: if this is too slow or if creating the surrogate Property object is too expensive
-            var surrogate = new Property(name, typeof(object), shadowProperty: true);
+            var surrogate = new Property(name, typeof(object));
             var index = _properties.BinarySearch(surrogate, PropertyComparer.Instance);
             return index >= 0 ? _properties[index] : null;
         }
@@ -307,9 +352,36 @@ namespace Microsoft.Data.Entity.Metadata
             get { return _shadowPropertyCount; }
         }
 
+        public virtual int OriginalValueCount
+        {
+            get { return _originalValueCount; }
+        }
+
         public virtual bool HasClrType
         {
             get { return _type != null; }
+        }
+
+        public virtual bool UseLazyOriginalValues
+        {
+            get { return _useLazyOriginalValues; }
+            set
+            {
+                if (value && !CanUseLazyOriginalValues())
+                {
+                    throw new InvalidOperationException(Strings.FormatEagerOriginalValuesRequired(Name));
+                }
+
+                _useLazyOriginalValues = value;
+                UpdateOriginalValueIndexes();
+            }
+        }
+
+        private bool CanUseLazyOriginalValues()
+        {
+            return _type == null
+                   || (typeof(INotifyPropertyChanging).GetTypeInfo().IsAssignableFrom(_type.GetTypeInfo())
+                       && typeof(INotifyPropertyChanged).GetTypeInfo().IsAssignableFrom(_type.GetTypeInfo()));
         }
 
         public virtual IReadOnlyList<Property> Properties

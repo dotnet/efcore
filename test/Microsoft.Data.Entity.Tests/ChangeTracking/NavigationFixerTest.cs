@@ -87,8 +87,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var stateManager = new StateManager(
                 configMock.Object,
-                new StateEntryFactory(configMock.Object),
-                new EntityKeyFactorySource());
+                new StateEntryFactory(configMock.Object, new EntityMaterializerSource()),
+                new EntityKeyFactorySource(),
+                new StateEntrySubscriber());
 
             configMock.Setup(m => m.StateManager).Returns(stateManager);
 

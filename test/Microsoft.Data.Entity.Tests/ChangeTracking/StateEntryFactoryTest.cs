@@ -13,119 +13,138 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Creates_shadow_state_only_entry_when_entity_is_fully_shadow_state()
         {
-            var entityTypeMock = new Mock<IEntityType>();
-            entityTypeMock.Setup(m => m.HasClrType).Returns(false);
-            entityTypeMock.Setup(m => m.Properties).Returns(new[] { new Mock<IProperty>().Object });
+            var entityType = new EntityType("RedHook");
+            entityType.AddProperty("Long", typeof(int), shadowProperty: true, concurrencyToken: false);
+            entityType.AddProperty("Hammer", typeof(string), shadowProperty: true, concurrencyToken: false);
 
-            var configuration = Mock.Of<ContextConfiguration>();
+            var configurationMock = new Mock<ContextConfiguration>();
+            configurationMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());
 
-            var entry = new StateEntryFactory(configuration).Create(entityTypeMock.Object, new Random());
+            var entry = new StateEntryFactory(configurationMock.Object, new EntityMaterializerSource()).Create(entityType, new Random());
 
             Assert.IsType<ShadowStateEntry>(entry);
 
-            Assert.Same(configuration, entry.Configuration);
-            Assert.Same(entityTypeMock.Object, entry.EntityType);
+            Assert.Same(configurationMock.Object, entry.Configuration);
+            Assert.Same(entityType, entry.EntityType);
             Assert.Null(entry.Entity);
         }
 
         [Fact]
         public void Creates_CLR_only_entry_when_entity_has_no_shadow_properties()
         {
-            var entityTypeMock = new Mock<IEntityType>();
-            entityTypeMock.Setup(m => m.HasClrType).Returns(true);
-            entityTypeMock.Setup(m => m.Properties).Returns(new[] { new Mock<IProperty>().Object });
-            entityTypeMock.Setup(m => m.ShadowPropertyCount).Returns(0);
+            var entityType = new EntityType(typeof(RedHook));
+            entityType.AddProperty("Long", typeof(int));
+            entityType.AddProperty("Hammer", typeof(string));
 
-            var configuration = Mock.Of<ContextConfiguration>();
-            var entity = new Random();
+            var configurationMock = new Mock<ContextConfiguration>();
+            configurationMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());
 
-            var entry = new StateEntryFactory(configuration).Create(entityTypeMock.Object, entity);
+            var entity = new RedHook();
+            var entry = new StateEntryFactory(configurationMock.Object, new EntityMaterializerSource()).Create(entityType, entity);
 
             Assert.IsType<ClrStateEntry>(entry);
 
-            Assert.Same(configuration, entry.Configuration);
-            Assert.Same(entityTypeMock.Object, entry.EntityType);
+            Assert.Same(configurationMock.Object, entry.Configuration);
+            Assert.Same(entityType, entry.EntityType);
             Assert.Same(entity, entry.Entity);
         }
 
         [Fact]
         public void Creates_mixed_entry_when_entity_CLR_entity_type_and_shadow_properties()
         {
-            var entityTypeMock = new Mock<IEntityType>();
-            entityTypeMock.Setup(m => m.HasClrType).Returns(true);
-            entityTypeMock.Setup(m => m.Properties).Returns(new[] { new Mock<IProperty>().Object });
-            entityTypeMock.Setup(m => m.ShadowPropertyCount).Returns(1);
+            var entityType = new EntityType(typeof(RedHook));
+            entityType.AddProperty("Long", typeof(int));
+            entityType.AddProperty("Hammer", typeof(string), shadowProperty: true, concurrencyToken: false);
 
-            var configuration = Mock.Of<ContextConfiguration>();
-            var entity = new Random();
+            var configurationMock = new Mock<ContextConfiguration>();
+            configurationMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());
 
-            var entry = new StateEntryFactory(configuration).Create(entityTypeMock.Object, entity);
+            var entity = new RedHook();
+            var entry = new StateEntryFactory(configurationMock.Object, new EntityMaterializerSource()).Create(entityType, entity);
 
             Assert.IsType<MixedStateEntry>(entry);
 
-            Assert.Same(configuration, entry.Configuration);
-            Assert.Same(entityTypeMock.Object, entry.EntityType);
+            Assert.Same(configurationMock.Object, entry.Configuration);
+            Assert.Same(entityType, entry.EntityType);
             Assert.Same(entity, entry.Entity);
         }
 
         [Fact]
         public void Creates_shadow_state_only_entry_from_value_buffer_when_entity_is_fully_shadow_state()
         {
-            var property = new Mock<IProperty>().Object;
-            var entityTypeMock = new Mock<IEntityType>();
-            entityTypeMock.Setup(m => m.HasClrType).Returns(false);
-            entityTypeMock.Setup(m => m.Properties).Returns(new[] { property });
+            var entityType = new EntityType("RedHook");
+            var property1 = entityType.AddProperty("Long", typeof(int), shadowProperty: true, concurrencyToken: false);
+            var property2 = entityType.AddProperty("Hammer", typeof(string), shadowProperty: true, concurrencyToken: false);
 
-            var configuration = Mock.Of<ContextConfiguration>();
+            var configurationMock = new Mock<ContextConfiguration>();
+            configurationMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());
 
-            var entry = new StateEntryFactory(configuration).Create(entityTypeMock.Object, new object[] { 77 });
+            var entry = new StateEntryFactory(configurationMock.Object, new EntityMaterializerSource())
+                .Create(entityType, new object[] { "Green", 77 });
 
             Assert.IsType<ShadowStateEntry>(entry);
 
-            Assert.Same(configuration, entry.Configuration);
-            Assert.Same(entityTypeMock.Object, entry.EntityType);
-            Assert.Equal(77, entry.GetPropertyValue(property));
+            Assert.Same(configurationMock.Object, entry.Configuration);
+            Assert.Same(entityType, entry.EntityType);
+            Assert.Equal(77, entry.GetPropertyValue(property1));
+            Assert.Equal("Green", entry.GetPropertyValue(property2));
             Assert.Null(entry.Entity);
         }
 
         [Fact]
         public void Creates_CLR_only_entry_from_value_buffer_when_entity_has_no_shadow_properties()
         {
-            var property = new Mock<IProperty>().Object;
-            var entityTypeMock = new Mock<IEntityType>();
-            entityTypeMock.Setup(m => m.HasClrType).Returns(true);
-            entityTypeMock.Setup(m => m.Properties).Returns(new[] { property });
-            entityTypeMock.Setup(m => m.ShadowPropertyCount).Returns(0);
+            var entityType = new EntityType(typeof(RedHook));
+            var property1 = entityType.AddProperty("Long", typeof(int));
+            var property2 = entityType.AddProperty("Hammer", typeof(string));
 
-            var configuration = Mock.Of<ContextConfiguration>();
+            var configurationMock = new Mock<ContextConfiguration>();
+            configurationMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());
 
-            var entry = new StateEntryFactory(configuration).Create(entityTypeMock.Object, new object[] { 77 });
+            var entry = new StateEntryFactory(configurationMock.Object, new EntityMaterializerSource())
+                .Create(entityType, new object[] { "Green", 77 });
 
             Assert.IsType<ClrStateEntry>(entry);
 
-            Assert.Same(configuration, entry.Configuration);
-            Assert.Same(entityTypeMock.Object, entry.EntityType);
-            Assert.Equal(77, entry.GetPropertyValue(property));
+            Assert.Same(configurationMock.Object, entry.Configuration);
+            Assert.Same(entityType, entry.EntityType);
+            Assert.Equal(77, entry.GetPropertyValue(property1));
+            Assert.Equal("Green", entry.GetPropertyValue(property2));
+
+            var entity = (RedHook)entry.Entity;
+            Assert.Equal(77, entity.Long);
+            Assert.Equal("Green", entity.Hammer);
         }
 
         [Fact]
         public void Creates_mixed_entry_from_value_buffer_when_entity_CLR_entity_type_and_shadow_properties()
         {
-            var property = new Mock<IProperty>().Object;
-            var entityTypeMock = new Mock<IEntityType>();
-            entityTypeMock.Setup(m => m.HasClrType).Returns(true);
-            entityTypeMock.Setup(m => m.Properties).Returns(new[] { property });
-            entityTypeMock.Setup(m => m.ShadowPropertyCount).Returns(1);
+            var entityType = new EntityType(typeof(RedHook));
+            var property1 = entityType.AddProperty("Long", typeof(int));
+            var property2 = entityType.AddProperty("Hammer", typeof(string), shadowProperty: true, concurrencyToken: false);
 
-            var configuration = Mock.Of<ContextConfiguration>();
+            var configurationMock = new Mock<ContextConfiguration>();
+            configurationMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());
 
-            var entry = new StateEntryFactory(configuration).Create(entityTypeMock.Object, new object[] { 77 });
+            var entry = new StateEntryFactory(configurationMock.Object, new EntityMaterializerSource())
+                .Create(entityType, new object[] { "Green", 77 });
 
             Assert.IsType<MixedStateEntry>(entry);
 
-            Assert.Same(configuration, entry.Configuration);
-            Assert.Same(entityTypeMock.Object, entry.EntityType);
-            Assert.Equal(77, entry.GetPropertyValue(property));
+            Assert.Same(configurationMock.Object, entry.Configuration);
+            Assert.Same(entityType, entry.EntityType);
+            Assert.Equal(77, entry.GetPropertyValue(property1));
+            Assert.Equal("Green", entry.GetPropertyValue(property2));
+
+            var entity = (RedHook)entry.Entity;
+            Assert.Equal(77, entity.Long);
+            Assert.Null(entity.Hammer);
+        }
+
+        private class RedHook
+        {
+            public int Long { get; set; }
+            public string Hammer { get; set; }
         }
     }
 }

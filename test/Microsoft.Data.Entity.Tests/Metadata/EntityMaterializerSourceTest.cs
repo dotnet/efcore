@@ -25,9 +25,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Can_create_materializer_for_entity()
         {
             var entityType = new EntityType(typeof(SomeEntity));
-            entityType.AddProperty("Id", typeof(int), shadowProperty: false);
-            entityType.AddProperty("Foo", typeof(string), shadowProperty: false);
-            entityType.AddProperty("Goo", typeof(Guid), shadowProperty: false);
+            entityType.AddProperty("Id", typeof(int));
+            entityType.AddProperty("Foo", typeof(string));
+            entityType.AddProperty("Goo", typeof(Guid));
 
             var factory = new EntityMaterializerSource().GetMaterializer(entityType);
 
@@ -43,9 +43,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void DBNulls_are_converted_to_nulls()
         {
             var entityType = new EntityType(typeof(SomeEntity));
-            entityType.AddProperty("Id", typeof(int), shadowProperty: false);
-            entityType.AddProperty("Foo", typeof(string), shadowProperty: false);
-            entityType.AddProperty("Goo", typeof(Guid?), shadowProperty: false);
+            entityType.AddProperty("Id", typeof(int));
+            entityType.AddProperty("Foo", typeof(string));
+            entityType.AddProperty("Goo", typeof(Guid?));
 
             var factory = new EntityMaterializerSource().GetMaterializer(entityType);
 
@@ -60,12 +60,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Can_create_materializer_for_entity_ignoring_shadow_fields()
         {
             var entityType = new EntityType(typeof(SomeEntity));
-            entityType.AddProperty("Id", typeof(int), shadowProperty: false);
-            entityType.AddProperty("IdShadow", typeof(int), shadowProperty: true);
-            entityType.AddProperty("Foo", typeof(string), shadowProperty: false);
-            entityType.AddProperty("FooShadow", typeof(string), shadowProperty: true);
-            entityType.AddProperty("Goo", typeof(Guid), shadowProperty: false);
-            entityType.AddProperty("GooShadow", typeof(Guid), shadowProperty: true);
+            entityType.AddProperty("Id", typeof(int));
+            entityType.AddProperty("IdShadow", typeof(int), shadowProperty: true, concurrencyToken: false);
+            entityType.AddProperty("Foo", typeof(string));
+            entityType.AddProperty("FooShadow", typeof(string), shadowProperty: true, concurrencyToken: false);
+            entityType.AddProperty("Goo", typeof(Guid));
+            entityType.AddProperty("GooShadow", typeof(Guid), shadowProperty: true, concurrencyToken: false);
 
             var factory = new EntityMaterializerSource().GetMaterializer(entityType);
 

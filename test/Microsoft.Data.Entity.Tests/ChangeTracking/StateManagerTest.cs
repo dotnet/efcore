@@ -247,6 +247,53 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             }
         }
 
+        [Fact]
+        public void DetectChanges_is_called_for_all_tracked_entities_and_returns_true_if_any_changes_detected()
+        {
+            var model = BuildModel();
+            var configMock = new Mock<ContextConfiguration> { CallBase = true };
+            var stateManager = CreateStateManager(model, configMock);
+
+            var entryMock1 = CreateEntryMock(model, configMock, changes: false, key: 1);
+            var entryMock2 = CreateEntryMock(model, configMock, changes: false, key: 2);
+            var entryMock3 = CreateEntryMock(model, configMock, changes: false, key: 3);
+
+            stateManager.StartTracking(entryMock1.Object);
+            stateManager.StartTracking(entryMock2.Object);
+            stateManager.StartTracking(entryMock3.Object);
+
+            Assert.False(stateManager.DetectChanges());
+
+            entryMock1.Verify(m => m.DetectChanges());
+            entryMock2.Verify(m => m.DetectChanges());
+            entryMock3.Verify(m => m.DetectChanges());
+
+            var entryMock4 = CreateEntryMock(model, configMock, changes: true, key: 4);
+            var entryMock5 = CreateEntryMock(model, configMock, changes: false, key: 5);
+
+            stateManager.StartTracking(entryMock4.Object);
+            stateManager.StartTracking(entryMock5.Object);
+
+            Assert.True(stateManager.DetectChanges());
+
+            entryMock1.Verify(m => m.DetectChanges());
+            entryMock2.Verify(m => m.DetectChanges());
+            entryMock3.Verify(m => m.DetectChanges());
+            entryMock4.Verify(m => m.DetectChanges());
+            entryMock5.Verify(m => m.DetectChanges());
+        }
+
+        private static Mock<StateEntry> CreateEntryMock(IModel model, Mock<ContextConfiguration> configMock, bool changes, int key)
+        {
+            var entryMock = new Mock<StateEntry>();
+            entryMock.Setup(m => m.Configuration).Returns(configMock.Object);
+            entryMock.Setup(m => m.EntityType).Returns(model.GetEntityType("Location"));
+            entryMock.Setup(m => m.GetPropertyValue(It.IsAny<IProperty>())).Returns(key);
+            entryMock.Setup(m => m.DetectChanges()).Returns(changes);
+
+            return entryMock;
+        }
+
         private static StateManager CreateStateManager(IModel model, Mock<ContextConfiguration> configMock = null)
         {
             configMock = configMock ?? new Mock<ContextConfiguration> { CallBase = true };
@@ -257,8 +304,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var stateManager = new StateManager(
                 configMock.Object,
-                new StateEntryFactory(configMock.Object),
-                new EntityKeyFactorySource());
+                new StateEntryFactory(configMock.Object, new EntityMaterializerSource()),
+                new EntityKeyFactorySource(),
+                new StateEntrySubscriber());
 
             configMock.Setup(m => m.StateManager).Returns(stateManager);
 
@@ -291,8 +339,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             new SimpleTemporaryConvention().Apply(model);
 
             var locationType = new EntityType("Location");
-            var idProperty = locationType.AddProperty("Id", typeof(int), shadowProperty: true);
-            locationType.AddProperty("Planet", typeof(string), shadowProperty: true);
+            var idProperty = locationType.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false);
+            locationType.AddProperty("Planet", typeof(string), shadowProperty: true, concurrencyToken: false);
             locationType.SetKey(idProperty);
             model.AddEntityType(locationType);
 

@@ -10,6 +10,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
     public class StateEntryFactory
     {
         private readonly ContextConfiguration _configuration;
+        private readonly EntityMaterializerSource _materializerSource;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -20,17 +21,34 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
         }
 
-        public StateEntryFactory([NotNull] ContextConfiguration configuration)
+        public StateEntryFactory(
+            [NotNull] ContextConfiguration configuration,
+            [NotNull] EntityMaterializerSource materializerSource)
         {
             Check.NotNull(configuration, "configuration");
+            Check.NotNull(materializerSource, "materializerSource");
 
             _configuration = configuration;
+            _materializerSource = materializerSource;
         }
 
         public virtual StateEntry Create([NotNull] IEntityType entityType, [CanBeNull] object entity)
         {
             Check.NotNull(entityType, "entityType");
 
+            return NewStateEntry(entityType, entity);
+        }
+
+        public virtual StateEntry Create([NotNull] IEntityType entityType, [NotNull] object[] valueBuffer)
+        {
+            Check.NotNull(entityType, "entityType");
+            Check.NotNull(valueBuffer, "valueBuffer");
+
+            return NewStateEntry(entityType, valueBuffer);
+        }
+
+        private StateEntry NewStateEntry(IEntityType entityType, object entity)
+        {
             if (!entityType.HasClrType)
             {
                 return new ShadowStateEntry(_configuration, entityType);
@@ -43,19 +61,18 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 : new ClrStateEntry(_configuration, entityType, entity);
         }
 
-        public virtual StateEntry Create([NotNull] IEntityType entityType, [NotNull] object[] valueBuffer)
+        private StateEntry NewStateEntry(IEntityType entityType, object[] valueBuffer)
         {
-            Check.NotNull(entityType, "entityType");
-            Check.NotNull(valueBuffer, "valueBuffer");
-
             if (!entityType.HasClrType)
             {
                 return new ShadowStateEntry(_configuration, entityType, valueBuffer);
             }
 
+            var entity = _materializerSource.GetMaterializer(entityType)(valueBuffer);
+
             return entityType.ShadowPropertyCount > 0
-                ? (StateEntry)new MixedStateEntry(_configuration, entityType, valueBuffer)
-                : new ClrStateEntry(_configuration, entityType, valueBuffer);
+                ? (StateEntry)new MixedStateEntry(_configuration, entityType, entity, valueBuffer)
+                : new ClrStateEntry(_configuration, entityType, entity, valueBuffer);
         }
     }
 }

@@ -362,6 +362,38 @@ namespace Microsoft.Data.Entity
             return GetString("IQueryableProviderNotAsync");
         }
 
+        /// <summary>
+        /// Lazy original value tracking cannot be turned on for entity type '{entityType}'. Entities that do not implement both INotifyPropertyChanging and INotifyPropertyChanged require original values to be stored eagerly in order to correct detect changes made to entities.
+        /// </summary>
+        internal static string EagerOriginalValuesRequired
+        {
+            get { return GetString("EagerOriginalValuesRequired"); }
+        }
+
+        /// <summary>
+        /// Lazy original value tracking cannot be turned on for entity type '{entityType}'. Entities that do not implement both INotifyPropertyChanging and INotifyPropertyChanged require original values to be stored eagerly in order to correct detect changes made to entities.
+        /// </summary>
+        internal static string FormatEagerOriginalValuesRequired(object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("EagerOriginalValuesRequired", "entityType"), entityType);
+        }
+
+        /// <summary>
+        /// The original value for property '{property}' of entity type '{entityType}' cannot be accessed because it is not being tracked. To access all original values set 'UseLazyOriginalValues' to false on the entity type.
+        /// </summary>
+        internal static string OriginalValueNotTracked
+        {
+            get { return GetString("OriginalValueNotTracked"); }
+        }
+
+        /// <summary>
+        /// The original value for property '{property}' of entity type '{entityType}' cannot be accessed because it is not being tracked. To access all original values set 'UseLazyOriginalValues' to false on the entity type.
+        /// </summary>
+        internal static string FormatOriginalValueNotTracked(object property, object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("OriginalValueNotTracked", "property", "entityType"), property, entityType);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

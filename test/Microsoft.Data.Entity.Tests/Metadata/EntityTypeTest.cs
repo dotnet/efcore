@@ -2,8 +2,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Microsoft.Data.Entity.Metadata;
 using Moq;
 using Xunit;
@@ -12,34 +14,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 {
     public class EntityTypeTest
     {
-        #region Fixture
-
-        public class Customer
-        {
-            public static PropertyInfo IdProperty = typeof(Customer).GetProperty("Id");
-            public static PropertyInfo NameProperty = typeof(Customer).GetProperty("Name");
-            public static PropertyInfo ManeProperty = typeof(Customer).GetProperty("Mane");
-            public static PropertyInfo UniqueProperty = typeof(Customer).GetProperty("Unique");
-
-            public int Id { get; set; }
-            public Guid Unique { get; set; }
-            public string Name { get; set; }
-            public string Mane { get; set; }
-        }
-
-        public class Order
-        {
-            public static PropertyInfo IdProperty = typeof(Order).GetProperty("Id");
-            public static PropertyInfo CustomerIdProperty = typeof(Order).GetProperty("CustomerId");
-            public static PropertyInfo CustomerUniqueProperty = typeof(Order).GetProperty("CustomerUnique");
-
-            public int Id { get; set; }
-            public int CustomerId { get; set; }
-            public Guid CustomerUnique { get; set; }
-        }
-
-        #endregion
-
         [Fact]
         public void Members_check_arguments()
         {
@@ -316,8 +290,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var entityType = new EntityType(typeof(Customer));
 
             entityType.AddProperty(Customer.NameProperty);
-            entityType.AddProperty("Id", typeof(int), shadowProperty: false);
-            entityType.AddProperty("Mane", typeof(int), shadowProperty: true);
+            entityType.AddProperty("Id", typeof(int));
+            entityType.AddProperty("Mane", typeof(int), shadowProperty: true, concurrencyToken: false);
 
             Assert.True(entityType.GetProperty("Name").IsClrProperty);
             Assert.True(entityType.GetProperty("Id").IsClrProperty);
@@ -330,8 +304,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var entityType = new EntityType(typeof(Customer));
 
             entityType.AddProperty(Customer.NameProperty);
-            entityType.AddProperty("Id", typeof(int), shadowProperty: true);
-            entityType.AddProperty("Mane", typeof(int), shadowProperty: true);
+            entityType.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false);
+            entityType.AddProperty("Mane", typeof(int), shadowProperty: true, concurrencyToken: false);
 
             Assert.Equal(0, entityType.GetProperty("Id").Index);
             Assert.Equal(1, entityType.GetProperty("Mane").Index);
@@ -347,10 +321,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Indexes_are_rebuilt_when_more_properties_added()
         {
-            var entityType = new EntityType(typeof(Customer));
+            var entityType = new EntityType(typeof(FullNotificationEntity));
 
-            entityType.AddProperty(Customer.NameProperty);
-            entityType.AddProperty("Id", typeof(int), shadowProperty: true);
+            entityType.AddProperty("Name", typeof(string));
+            entityType.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: true);
 
             Assert.Equal(0, entityType.GetProperty("Id").Index);
             Assert.Equal(1, entityType.GetProperty("Name").Index);
@@ -358,10 +332,14 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(0, entityType.GetProperty("Id").ShadowIndex);
             Assert.Equal(-1, entityType.GetProperty("Name").ShadowIndex);
 
-            Assert.Equal(1, entityType.ShadowPropertyCount);
+            Assert.Equal(0, entityType.GetProperty("Id").OriginalValueIndex);
+            Assert.Equal(-1, entityType.GetProperty("Name").OriginalValueIndex);
 
-            entityType.AddProperty("Game", typeof(int), shadowProperty: true);
-            entityType.AddProperty("Mane", typeof(int), shadowProperty: true);
+            Assert.Equal(1, entityType.ShadowPropertyCount);
+            Assert.Equal(1, entityType.OriginalValueCount);
+
+            entityType.AddProperty("Game", typeof(int), shadowProperty: true, concurrencyToken: true);
+            entityType.AddProperty("Mane", typeof(int), shadowProperty: true, concurrencyToken: true);
 
             Assert.Equal(0, entityType.GetProperty("Game").Index);
             Assert.Equal(1, entityType.GetProperty("Id").Index);
@@ -373,7 +351,217 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(2, entityType.GetProperty("Mane").ShadowIndex);
             Assert.Equal(-1, entityType.GetProperty("Name").ShadowIndex);
 
+            Assert.Equal(0, entityType.GetProperty("Game").OriginalValueIndex);
+            Assert.Equal(1, entityType.GetProperty("Id").OriginalValueIndex);
+            Assert.Equal(2, entityType.GetProperty("Mane").OriginalValueIndex);
+            Assert.Equal(-1, entityType.GetProperty("Name").OriginalValueIndex);
+
             Assert.Equal(3, entityType.ShadowPropertyCount);
+            Assert.Equal(3, entityType.OriginalValueCount);
         }
+
+        [Fact]
+        public void Lazy_original_values_are_used_for_full_notification_and_shadow_enties()
+        {
+            Assert.True(new EntityType(typeof(FullNotificationEntity)).UseLazyOriginalValues);
+        }
+
+        [Fact]
+        public void Lazy_original_values_are_used_for_shadow_enties()
+        {
+            Assert.True(new EntityType("Z'ha'dum").UseLazyOriginalValues);
+        }
+
+        [Fact]
+        public void Eager_original_values_are_used_for_enties_that_only_implement_INotifyPropertyChanged()
+        {
+            Assert.False(new EntityType(typeof(ChangedOnlyEntity)).UseLazyOriginalValues);
+        }
+
+        [Fact]
+        public void Eager_original_values_are_used_for_enties_that_do_no_notification()
+        {
+            Assert.False(new EntityType(typeof(Customer)).UseLazyOriginalValues);
+        }
+
+        [Fact]
+        public void Lazy_original_values_can_be_switched_off()
+        {
+            Assert.False(new EntityType(typeof(FullNotificationEntity)) { UseLazyOriginalValues = false }.UseLazyOriginalValues);
+        }
+
+        [Fact]
+        public void Lazy_original_values_can_be_switched_on_but_only_if_entity_does_not_require_eager_values()
+        {
+            var entityType = new EntityType(typeof(FullNotificationEntity)) { UseLazyOriginalValues = false };
+            entityType.UseLazyOriginalValues = true;
+            Assert.True(entityType.UseLazyOriginalValues);
+
+            Assert.Equal(
+                Strings.FormatEagerOriginalValuesRequired("ChangedOnlyEntity"),
+                Assert.Throws<InvalidOperationException>(() => new EntityType(typeof(ChangedOnlyEntity)) { UseLazyOriginalValues = true }).Message);
+        }
+
+        [Fact]
+        public void All_properties_have_original_value_indexes_when_using_eager_original_values()
+        {
+            var entityType = new EntityType(typeof(FullNotificationEntity)) { UseLazyOriginalValues = false };
+
+            entityType.AddProperty("Name", typeof(string));
+            entityType.AddProperty("Id", typeof(int));
+
+            Assert.Equal(0, entityType.GetProperty("Id").OriginalValueIndex);
+            Assert.Equal(1, entityType.GetProperty("Name").OriginalValueIndex);
+
+            Assert.Equal(2, entityType.OriginalValueCount);
+        }
+
+        [Fact]
+        public void Only_required_properties_have_original_value_indexes_when_using_lazy_original_values()
+        {
+            var entityType = new EntityType(typeof(FullNotificationEntity));
+
+            entityType.AddProperty("Name", typeof(string), shadowProperty: false, concurrencyToken: true);
+            entityType.AddProperty("Id", typeof(int));
+
+            Assert.Equal(-1, entityType.GetProperty("Id").OriginalValueIndex);
+            Assert.Equal(0, entityType.GetProperty("Name").OriginalValueIndex);
+
+            Assert.Equal(1, entityType.OriginalValueCount);
+        }
+
+        [Fact]
+        public void FK_properties_are_marked_as_requiring_original_values()
+        {
+            var entityType = new EntityType(typeof(FullNotificationEntity));
+            entityType.SetKey(entityType.AddProperty("Id", typeof(int)));
+
+            Assert.Equal(-1, entityType.GetProperty("Id").OriginalValueIndex);
+
+            entityType.AddForeignKey(entityType.GetKey(), new[] { entityType.AddProperty("Id", typeof(int)) });
+
+            Assert.Equal(0, entityType.GetProperty("Id").OriginalValueIndex);
+        }
+
+        #region Fixture
+
+        private class Customer
+        {
+            public static readonly PropertyInfo IdProperty = typeof(Customer).GetProperty("Id");
+            public static readonly PropertyInfo NameProperty = typeof(Customer).GetProperty("Name");
+
+            public int Id { get; set; }
+            public Guid Unique { get; set; }
+            public string Name { get; set; }
+            public string Mane { get; set; }
+        }
+
+        private class Order
+        {
+            public static readonly PropertyInfo IdProperty = typeof(Order).GetProperty("Id");
+            public static readonly PropertyInfo CustomerIdProperty = typeof(Order).GetProperty("CustomerId");
+            public static readonly PropertyInfo CustomerUniqueProperty = typeof(Order).GetProperty("CustomerUnique");
+
+            public int Id { get; set; }
+            public int CustomerId { get; set; }
+            public Guid CustomerUnique { get; set; }
+        }
+
+        private class FullNotificationEntity : INotifyPropertyChanging, INotifyPropertyChanged
+        {
+            private int _id;
+            private string _name;
+
+            public int Id
+            {
+                get { return _id; }
+                set
+                {
+                    if (_id != value)
+                    {
+                        NotifyChanging();
+                        _id = value;
+                        NotifyChanged();
+                    }
+                }
+            }
+
+            public string Name
+            {
+                get { return _name; }
+                set
+                {
+                    if (_name != value)
+                    {
+                        NotifyChanging();
+                        _name = value;
+                        NotifyChanged();
+                    }
+                }
+            }
+
+            public event PropertyChangingEventHandler PropertyChanging;
+            public event PropertyChangedEventHandler PropertyChanged;
+
+            private void NotifyChanged([CallerMemberName] String propertyName = "")
+            {
+                if (PropertyChanged != null)
+                {
+                    PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                }
+            }
+
+            private void NotifyChanging([CallerMemberName] String propertyName = "")
+            {
+                if (PropertyChanging != null)
+                {
+                    PropertyChanging(this, new PropertyChangingEventArgs(propertyName));
+                }
+            }
+        }
+
+        private class ChangedOnlyEntity : INotifyPropertyChanged
+        {
+            private int _id;
+            private string _name;
+
+            public int Id
+            {
+                get { return _id; }
+                set
+                {
+                    if (_id != value)
+                    {
+                        _id = value;
+                        NotifyChanged();
+                    }
+                }
+            }
+
+            public string Name
+            {
+                get { return _name; }
+                set
+                {
+                    if (_name != value)
+                    {
+                        _name = value;
+                        NotifyChanged();
+                    }
+                }
+            }
+
+            public event PropertyChangedEventHandler PropertyChanged;
+
+            private void NotifyChanged([CallerMemberName] String propertyName = "")
+            {
+                if (PropertyChanged != null)
+                {
+                    PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                }
+            }
+        }
+
+        #endregion
     }
 }

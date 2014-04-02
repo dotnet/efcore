@@ -70,7 +70,8 @@ namespace Microsoft.Data.Entity.Metadata
             var allFields = entityType.Type.GetRuntimeFields().ToArray();
             return entityType.Properties
                 .Where(p => p.IsClrProperty)
-                .Select(p => Tuple.Create(p, allFields.Single(f => f.Name == "<" + p.Name + ">k__BackingField")));
+                .Select(p => Tuple.Create(p, allFields.Single(f => f.Name == "<" + p.Name + ">k__BackingField"
+                                                                   || f.Name.ToUpperInvariant() == "_" + p.Name.ToUpperInvariant())));
         }
 
         // TODO: This is a temporary workaround for conveting DBNull into null

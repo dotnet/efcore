@@ -1,6 +1,9 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking;
@@ -56,7 +59,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = BuildModel();
             var entityType = model.GetEntityType("SomeEntity");
             var keyProperty = entityType.GetProperty("Id");
-            var nonKeyProperty = entityType.GetProperty("Kool");
+            var nonKeyProperty = entityType.GetProperty("Name");
             var configuration = CreateConfiguration(model);
 
             var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
@@ -152,7 +155,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Can_get_property_value_without_materializing_entity()
+        public void Can_get_property_value_after_creation_from_value_buffer()
         {
             var model = BuildModel();
             var entityType = model.GetEntityType("SomeEntity");
@@ -165,7 +168,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Can_set_property_value_without_materializing_entity()
+        public void Can_set_property_value_after_creation_from_value_buffer()
         {
             var model = BuildModel();
             var entityType = model.GetEntityType("SomeEntity");
@@ -185,7 +188,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = BuildModel();
             var entityType = model.GetEntityType("SomeEntity");
             var keyProperty = entityType.GetProperty("Id");
-            var nonKeyProperty = entityType.GetProperty("Kool");
+            var nonKeyProperty = entityType.GetProperty("Name");
             var configuration = CreateConfiguration(model);
 
             var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
@@ -203,7 +206,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = BuildModel();
             var entityType = model.GetEntityType("SomeEntity");
             var keyProperty = entityType.GetProperty("Id");
-            var nonKeyProperty = entityType.GetProperty("Kool");
+            var nonKeyProperty = entityType.GetProperty("Name");
             var configuration = CreateConfiguration(model);
 
             var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
@@ -214,14 +217,217 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.Equal(new object[] { 77, "Magic Tree House" }, entry.GetValueBuffer());
         }
 
-        protected virtual StateEntry CreateStateEntry(ContextConfiguration stateManager, IEntityType entityType, object entity)
+        [Fact]
+        public void All_original_values_can_be_accessed_for_entity_that_does_full_change_tracking_if_eager_values_on()
         {
-            return new MixedStateEntry(stateManager, entityType, entity);
+            var model = BuildModel();
+            var entityType = model.GetEntityType("FullNotificationEntity");
+            entityType.UseLazyOriginalValues = false;
+
+            AllOriginalValuesTest(model, entityType);
         }
 
-        protected virtual StateEntry CreateStateEntry(ContextConfiguration stateManager, IEntityType entityType, object[] valueBuffer)
+        protected void AllOriginalValuesTest(IModel model, IEntityType entityType)
         {
-            return new MixedStateEntry(stateManager, entityType, valueBuffer);
+            var idProperty = entityType.GetProperty("Id");
+            var nameProperty = entityType.GetProperty("Name");
+            var configuration = CreateConfiguration(model);
+
+            var entry = CreateStateEntry(configuration, entityType, new object[] { 1, "Kool" });
+
+            Assert.Equal(1, entry.GetPropertyOriginalValue(idProperty));
+            Assert.Equal("Kool", entry.GetPropertyOriginalValue(nameProperty));
+            Assert.Equal(1, entry.GetPropertyValue(idProperty));
+            Assert.Equal("Kool", entry.GetPropertyValue(nameProperty));
+
+            entry.SetPropertyValue(idProperty, 2);
+            entry.SetPropertyValue(nameProperty, "Beans");
+
+            Assert.Equal(1, entry.GetPropertyOriginalValue(idProperty));
+            Assert.Equal("Kool", entry.GetPropertyOriginalValue(nameProperty));
+            Assert.Equal(2, entry.GetPropertyValue(idProperty));
+            Assert.Equal("Beans", entry.GetPropertyValue(nameProperty));
+
+            entry.SetPropertyOriginalValue(idProperty, 3);
+            entry.SetPropertyOriginalValue(nameProperty, "Franks");
+
+            Assert.Equal(3, entry.GetPropertyOriginalValue(idProperty));
+            Assert.Equal("Franks", entry.GetPropertyOriginalValue(nameProperty));
+            Assert.Equal(2, entry.GetPropertyValue(idProperty));
+            Assert.Equal("Beans", entry.GetPropertyValue(nameProperty));
+        }
+
+        [Fact]
+        public void Required_original_values_can_be_accessed_for_entity_that_does_full_change_tracking()
+        {
+            var model = BuildModel();
+            OriginalValuesTest(model, model.GetEntityType("FullNotificationEntity"));
+        }
+
+        [Fact]
+        public void Required_original_values_can_be_accessed_for_entity_that_does_changed_only_notification()
+        {
+            var model = BuildModel();
+            OriginalValuesTest(model, model.GetEntityType("ChangedOnlyEntity"));
+        }
+
+        [Fact]
+        public void Required_original_values_can_be_accessed_for_entity_that_does_no_notification()
+        {
+            var model = BuildModel();
+            OriginalValuesTest(model, model.GetEntityType("SomeEntity"));
+        }
+
+        protected void OriginalValuesTest(IModel model, IEntityType entityType)
+        {
+            var nameProperty = entityType.GetProperty("Name");
+            var configuration = CreateConfiguration(model);
+
+            var entry = CreateStateEntry(configuration, entityType, new object[] { 1, "Kool" });
+
+            Assert.Equal("Kool", entry.GetPropertyOriginalValue(nameProperty));
+            Assert.Equal("Kool", entry.GetPropertyValue(nameProperty));
+
+            entry.SetPropertyValue(nameProperty, "Beans");
+
+            Assert.Equal("Kool", entry.GetPropertyOriginalValue(nameProperty));
+            Assert.Equal("Beans", entry.GetPropertyValue(nameProperty));
+
+            entry.SetPropertyOriginalValue(nameProperty, "Franks");
+
+            Assert.Equal("Franks", entry.GetPropertyOriginalValue(nameProperty));
+            Assert.Equal("Beans", entry.GetPropertyValue(nameProperty));
+        }
+
+        [Fact]
+        public void Null_original_values_are_handled_for_entity_that_does_full_change_tracking()
+        {
+            var model = BuildModel();
+            NullOriginalValuesTest(model, model.GetEntityType("FullNotificationEntity"));
+        }
+
+        [Fact]
+        public void Null_original_values_are_handled_for_entity_that_does_changed_only_notification()
+        {
+            var model = BuildModel();
+            NullOriginalValuesTest(model, model.GetEntityType("ChangedOnlyEntity"));
+        }
+
+        [Fact]
+        public void Null_original_values_are_handled_for_entity_that_does_no_notification()
+        {
+            var model = BuildModel();
+            NullOriginalValuesTest(model, model.GetEntityType("SomeEntity"));
+        }
+
+        protected void NullOriginalValuesTest(IModel model, IEntityType entityType)
+        {
+            var nameProperty = entityType.GetProperty("Name");
+            var configuration = CreateConfiguration(model);
+
+            var entry = CreateStateEntry(configuration, entityType, new object[] { 1, null });
+
+            Assert.Null(entry.GetPropertyOriginalValue(nameProperty));
+            Assert.Null(entry.GetPropertyValue(nameProperty));
+
+            entry.SetPropertyValue(nameProperty, "Beans");
+
+            Assert.Null(entry.GetPropertyOriginalValue(nameProperty));
+            Assert.Equal("Beans", entry.GetPropertyValue(nameProperty));
+
+            entry.SetPropertyOriginalValue(nameProperty, "Franks");
+
+            Assert.Equal("Franks", entry.GetPropertyOriginalValue(nameProperty));
+            Assert.Equal("Beans", entry.GetPropertyValue(nameProperty));
+
+            entry.SetPropertyOriginalValue(nameProperty, null);
+
+            Assert.Null(entry.GetPropertyOriginalValue(nameProperty));
+            Assert.Equal("Beans", entry.GetPropertyValue(nameProperty));
+        }
+
+        [Fact]
+        public void Setting_property_using_state_entry_always_marks_as_modified()
+        {
+            var model = BuildModel();
+
+            SetPropertyStateEntryTest(model, model.GetEntityType("FullNotificationEntity"));
+            SetPropertyStateEntryTest(model, model.GetEntityType("ChangedOnlyEntity"));
+            SetPropertyStateEntryTest(model, model.GetEntityType("SomeEntity"));
+        }
+
+        protected void SetPropertyStateEntryTest(IModel model, IEntityType entityType)
+        {
+            var idProperty = entityType.GetProperty("Id");
+            var nameProperty = entityType.GetProperty("Name");
+            var configuration = CreateConfiguration(model);
+
+            var entry = CreateStateEntry(configuration, entityType, new object[] { 1, "Kool" });
+            entry.SetAttached();
+
+            Assert.False(entry.IsPropertyModified(idProperty));
+            Assert.False(entry.IsPropertyModified(nameProperty));
+            Assert.Equal(EntityState.Unchanged, entry.EntityState);
+
+            entry.SetPropertyValue(idProperty, 1);
+            entry.SetPropertyValue(nameProperty, "Kool");
+
+            Assert.False(entry.IsPropertyModified(idProperty));
+            Assert.False(entry.IsPropertyModified(nameProperty));
+            Assert.Equal(EntityState.Unchanged, entry.EntityState);
+
+            entry.SetPropertyValue(idProperty, 2);
+            entry.SetPropertyValue(nameProperty, "Beans");
+
+            Assert.True(entry.IsPropertyModified(idProperty));
+            Assert.True(entry.IsPropertyModified(nameProperty));
+            Assert.Equal(EntityState.Modified, entry.EntityState);
+        }
+
+        protected void SetPropertyClrTest<TEntity>(bool needsDetectChanges)
+            where TEntity : ISomeEntity
+        {
+            var model = BuildModel();
+            var entityType = model.GetEntityType(typeof(TEntity));
+            var nameProperty = entityType.GetProperty("Name");
+            var configuration = CreateConfiguration(model);
+
+            var entry = CreateStateEntry(configuration, entityType, new object[] { 1, "Kool" });
+            entry.SetAttached();
+            var entity = (TEntity)entry.Entity;
+
+            Assert.False(entry.IsPropertyModified(nameProperty));
+            Assert.Equal(EntityState.Unchanged, entry.EntityState);
+
+            entity.Name = "Kool";
+
+            Assert.False(entry.IsPropertyModified(nameProperty));
+            Assert.Equal(EntityState.Unchanged, entry.EntityState);
+
+            entity.Name = "Beans";
+
+            if (needsDetectChanges)
+            {
+                Assert.False(entry.IsPropertyModified(nameProperty));
+                Assert.Equal(EntityState.Unchanged, entry.EntityState);
+
+                entry.DetectChanges();
+            }
+
+            Assert.True(entry.IsPropertyModified(nameProperty));
+            Assert.Equal(EntityState.Modified, entry.EntityState);
+        }
+
+        protected virtual StateEntry CreateStateEntry(ContextConfiguration configuration, IEntityType entityType, object entity)
+        {
+            return new StateEntrySubscriber().SnapshotAndSubscribe(
+                new StateEntryFactory(configuration, new EntityMaterializerSource()).Create(entityType, entity));
+        }
+
+        protected virtual StateEntry CreateStateEntry(ContextConfiguration configuration, IEntityType entityType, object[] valueBuffer)
+        {
+            return new StateEntrySubscriber().SnapshotAndSubscribe(
+                new StateEntryFactory(configuration, new EntityMaterializerSource()).Create(entityType, valueBuffer));
         }
 
         protected virtual ContextConfiguration CreateConfiguration(IModel model)
@@ -230,36 +436,147 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 new EntityConfigurationBuilder().UseModel(model).BuildConfiguration()).Configuration;
         }
 
-        protected virtual IModel BuildModel()
+        protected virtual Model BuildModel()
         {
             var model = new Model();
 
             var entityType1 = new EntityType(typeof(SomeEntity));
             model.AddEntityType(entityType1);
-            var key1 = entityType1.AddProperty("Id", typeof(int), shadowProperty: false);
+            var key1 = entityType1.AddProperty("Id", typeof(int));
             entityType1.SetKey(key1);
-            entityType1.AddProperty("Kool", typeof(string), shadowProperty: false);
+            entityType1.AddProperty("Name", typeof(string), shadowProperty: false, concurrencyToken: true);
 
             var entityType2 = new EntityType(typeof(SomeDependentEntity));
             model.AddEntityType(entityType2);
-            var key2 = entityType2.AddProperty("Id", typeof(int), shadowProperty: false);
+            var key2 = entityType2.AddProperty("Id", typeof(int));
             entityType2.SetKey(key2);
-            var fk = entityType2.AddProperty("SomeEntityId", typeof(int), shadowProperty: false);
+            var fk = entityType2.AddProperty("SomeEntityId", typeof(int));
             entityType2.AddForeignKey(entityType1.GetKey(), new[] { fk });
+
+            var entityType3 = new EntityType(typeof(FullNotificationEntity));
+            model.AddEntityType(entityType3);
+            entityType3.SetKey(entityType3.AddProperty("Id", typeof(int)));
+            entityType3.AddProperty("Name", typeof(string), shadowProperty: false, concurrencyToken: true);
+
+            var entityType4 = new EntityType(typeof(ChangedOnlyEntity));
+            model.AddEntityType(entityType4);
+            entityType4.SetKey(entityType4.AddProperty("Id", typeof(int)));
+            entityType4.AddProperty("Name", typeof(string), shadowProperty: false, concurrencyToken: true);
 
             return model;
         }
 
-        protected class SomeEntity
+        protected interface ISomeEntity
+        {
+            int Id { get; set; }
+            string Name { get; set; }
+        }
+
+        protected class SomeEntity : ISomeEntity
         {
             public int Id { get; set; }
-            public string Kool { get; set; }
+            public string Name { get; set; }
         }
 
         protected class SomeDependentEntity
         {
             public int Id { get; set; }
             public int SomeEntityId { get; set; }
+        }
+
+        protected class FullNotificationEntity : INotifyPropertyChanging, INotifyPropertyChanged, ISomeEntity
+        {
+            private int _id;
+            private string _name;
+
+            public int Id
+            {
+                get { return _id; }
+                set
+                {
+                    if (_id != value)
+                    {
+                        NotifyChanging();
+                        _id = value;
+                        NotifyChanged();
+                    }
+                }
+            }
+
+            public string Name
+            {
+                get { return _name; }
+                set
+                {
+                    if (_name != value)
+                    {
+                        NotifyChanging();
+                        _name = value;
+                        NotifyChanged();
+                    }
+                }
+            }
+
+            public event PropertyChangingEventHandler PropertyChanging;
+            public event PropertyChangedEventHandler PropertyChanged;
+
+            private void NotifyChanged([CallerMemberName] String propertyName = "")
+            {
+                if (PropertyChanged != null)
+                {
+                    PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                }
+            }
+
+            private void NotifyChanging([CallerMemberName] String propertyName = "")
+            {
+                if (PropertyChanging != null)
+                {
+                    PropertyChanging(this, new PropertyChangingEventArgs(propertyName));
+                }
+            }
+        }
+
+        protected class ChangedOnlyEntity : INotifyPropertyChanged, ISomeEntity
+        {
+            private int _id;
+            private string _name;
+
+            public int Id
+            {
+                get { return _id; }
+                set
+                {
+                    if (_id != value)
+                    {
+                        _id = value;
+                        NotifyChanged();
+                    }
+                }
+            }
+
+            public string Name
+            {
+                get { return _name; }
+                set
+                {
+                    if (_name != value)
+                    {
+                        _name = value;
+                        NotifyChanged();
+                    }
+                }
+            }
+
+            public event PropertyChangedEventHandler PropertyChanged;
+
+            private void NotifyChanged([CallerMemberName] String propertyName = "")
+            {
+                if (PropertyChanged != null)
+                {
+                    PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                }
+            }
         }
 
         public class StateDataTest

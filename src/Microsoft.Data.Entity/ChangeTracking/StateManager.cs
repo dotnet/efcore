@@ -17,7 +17,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         private readonly Dictionary<EntityKey, StateEntry> _identityMap = new Dictionary<EntityKey, StateEntry>();
         private readonly EntityKeyFactorySource _keyFactorySource;
-        private readonly StateEntryFactory _stateEntryFactory;
+        private readonly StateEntryFactory _factory;
+        private readonly StateEntrySubscriber _subscriber;
         private readonly IModel _model;
 
         /// <summary>
@@ -31,16 +32,18 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         public StateManager(
             [NotNull] ContextConfiguration contextConfiguration,
-            [NotNull] StateEntryFactory stateEntryFactory,
-            [NotNull] EntityKeyFactorySource entityKeyFactorySource)
+            [NotNull] StateEntryFactory factory,
+            [NotNull] EntityKeyFactorySource entityKeyFactorySource,
+            [NotNull] StateEntrySubscriber subscriber)
         {
             Check.NotNull(entityKeyFactorySource, "entityKeyFactorySource");
-            Check.NotNull(stateEntryFactory, "stateEntryFactory");
+            Check.NotNull(factory, "factory");
             Check.NotNull(entityKeyFactorySource, "entityKeyFactorySource");
 
             _keyFactorySource = entityKeyFactorySource;
-            _stateEntryFactory = stateEntryFactory;
+            _factory = factory;
             _model = contextConfiguration.Model;
+            _subscriber = subscriber;
         }
 
         public virtual StateEntry CreateNewEntry([NotNull] IEntityType entityType)
@@ -50,7 +53,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             // TODO: Consider entities without parameterless constructor--use o/c mapping info?
             var entity = entityType.HasClrType ? Activator.CreateInstance(entityType.Type) : null;
 
-            return _stateEntryFactory.Create(entityType, entity);
+            return _subscriber.SnapshotAndSubscribe(_factory.Create(entityType, entity));
         }
 
         public virtual StateEntry GetOrCreateEntry([NotNull] object entity)
@@ -62,7 +65,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             StateEntry stateEntry;
             if (!_entityReferenceMap.TryGetValue(entity, out stateEntry))
             {
-                stateEntry = _stateEntryFactory.Create(Model.GetEntityType(entity.GetType()), entity);
+                stateEntry = _subscriber.SnapshotAndSubscribe(_factory.Create(Model.GetEntityType(entity.GetType()), entity));
                 _entityReferenceMap[entity] = stateEntry;
             }
             return stateEntry;
@@ -83,21 +86,38 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 return existingEntry;
             }
 
-            var newEntry = _stateEntryFactory.Create(entityType, valueBuffer);
+            var newEntry = _subscriber.SnapshotAndSubscribe(_factory.Create(entityType, valueBuffer));
+
             _identityMap.Add(keyValue, newEntry);
+
+            var entity = newEntry.Entity;
+            if (entity != null)
+            {
+                _entityReferenceMap[entity] = newEntry;
+            }
+
             newEntry.SetAttached();
 
             return newEntry;
         }
 
-        internal virtual void EntityMaterialized(StateEntry entry)
-        {
-            _entityReferenceMap[entry.Entity] = entry;
-        }
-
         public virtual IEnumerable<StateEntry> StateEntries
         {
             get { return _identityMap.Values; }
+        }
+
+        public virtual bool DetectChanges()
+        {
+            var foundChanges = false;
+            foreach (var entry in _identityMap.Values)
+            {
+                if (entry.DetectChanges())
+                {
+                    foundChanges = true;
+                }
+            }
+
+            return foundChanges;
         }
 
         public virtual void StartTracking([NotNull] StateEntry entry)
