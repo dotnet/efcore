@@ -98,8 +98,22 @@ namespace Microsoft.Data.Relational
                 {
                     IsNullable = property.IsNullable,
                     DefaultValue = property.ColumnDefaultValue(),
-                    DefaultSql = property.ColumnDefaultSql()
+                    DefaultSql = property.ColumnDefaultSql(),
+                    GenerationStrategy = TranslateValueGenerationStrategy(property.ValueGenerationStrategy)
                 });
+        }
+
+        private static StoreValueGenerationStrategy TranslateValueGenerationStrategy(ValueGenerationStrategy generationStrategy)
+        {
+            switch (generationStrategy)
+            {
+                case ValueGenerationStrategy.StoreComputed:
+                    return StoreValueGenerationStrategy.Computed;
+                case ValueGenerationStrategy.StoreIdentity:
+                    return StoreValueGenerationStrategy.Identity;
+                default:
+                    return StoreValueGenerationStrategy.None;
+            }
         }
 
         private void BuildPrimaryKey(Database database, IKey primaryKey)

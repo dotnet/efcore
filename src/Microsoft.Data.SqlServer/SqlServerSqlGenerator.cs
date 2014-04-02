@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Relational;
+using Microsoft.Data.Relational.Model;
 using Microsoft.Data.SqlServer.Utilities;
 
 namespace Microsoft.Data.SqlServer
@@ -19,33 +19,31 @@ namespace Microsoft.Data.SqlServer
             commandStringBuilder.Append("SET NOCOUNT OFF");
         }
 
-        public override void AppendInsertOperation(StringBuilder commandStringBuilder, string tableName, KeyValuePair<string, string>[] keyColumns,
-            KeyValuePair<string, string>[] columnsToParameters, KeyValuePair<string, ValueGenerationStrategy>[] storeGeneratedColumns)
+        public override void AppendInsertOperation(StringBuilder commandStringBuilder, Table table, 
+            KeyValuePair<Column, string>[] columnsToParameters)
         {
-            var dbGeneratedNonIdentityKeys =
-                storeGeneratedColumns.Where(
-                    c => keyColumns.Select(k => k.Key).Contains(c.Key) && c.Value == ValueGenerationStrategy.StoreComputed);
+            var dbGeneratedNonIdentityKeys = 
+                table.PrimaryKey.Columns.Where(c => c.GenerationStrategy == StoreValueGenerationStrategy.Computed);
 
             if (dbGeneratedNonIdentityKeys.Any())
             {
-                var tableVariableName = CreateTableVariableName(tableName);
-                var keyColumnNames = keyColumns.Select(c => c.Key).ToArray();
+                var tableVariableName = CreateTableVariableName(table.Name);
 
                 // TODO: do not create the variable multiple times (multiple inserts to the same table in a batch)
                 commandStringBuilder
                     .Append("DECLARE ")
                     .Append(tableVariableName)
-                    .Append(" table(")
-                    .AppendJoin(keyColumns, (sb, k) => sb.Append(k.Key).Append(" ").Append(k.Value), ", ")
+                    .Append(" TABLE(")
+                    .AppendJoin(table.PrimaryKey.Columns, (sb, k) => sb.Append(k.Name).Append(" ").Append(k.DataType), ", ")
                     .Append(")")
                     .Append(BatchCommandSeparator)
                     .AppendLine();
 
-                AppendInsertCommandHeader(commandStringBuilder, tableName, columnsToParameters.Select(c => c.Key));
+                AppendInsertCommandHeader(commandStringBuilder, table, columnsToParameters.Select(c => c.Key));
                 commandStringBuilder
                     .AppendLine()
                     .Append("OUTPUT ")
-                    .AppendJoin(keyColumnNames, (sb, k) => sb.Append("inserted.").Append(k), ", ")
+                    .AppendJoin(table.PrimaryKey.Columns, (sb, k) => sb.Append("inserted.").Append(k.Name), ", ")
                     .Append(" INTO ")
                     .Append(tableVariableName)
                     .AppendLine();
@@ -56,38 +54,34 @@ namespace Microsoft.Data.SqlServer
 
                 commandStringBuilder
                     .Append("SELECT ")
-                    .AppendJoin(storeGeneratedColumns.Select(c => c.Key), (sb, c) => sb.Append("t.").Append(c), ", ");
+                    .AppendJoin(GetStoreGeneratedColumns(table), (sb, c) => sb.Append("t.").Append(c.Name), ", ");
 
                 commandStringBuilder
                     .Append(" FROM ")
                     .Append(tableVariableName)
                     .Append(" AS g JOIN ")
-                    .Append(tableName)
+                    .Append(table.Name)
                     .Append(" AS t ON ")
                     .AppendJoin(
-                        keyColumnNames,
-                        (sb, c) => sb.Append("g.").Append(c).Append(" = ").Append("t.").Append(c),
-                        " AND ");
+                        table.PrimaryKey.Columns,
+                        (sb, c) => sb.Append("g.").Append(c.Name).Append(" = ").Append("t.").Append(c.Name), " AND ");
             }
             else
             {
-                base.AppendInsertOperation(commandStringBuilder, tableName, keyColumns, columnsToParameters, storeGeneratedColumns);
+                base.AppendInsertOperation(commandStringBuilder, table, columnsToParameters);
             }
         }
 
-        public override IEnumerable<KeyValuePair<string, string>> CreateWhereConditionsForStoreGeneratedKeys(
-            IEnumerable<KeyValuePair<string, ValueGenerationStrategy>> storeGeneratedKeys)
+        public override IEnumerable<KeyValuePair<Column, string>> CreateWhereConditionsForStoreGeneratedKeys(Column[] storeGeneratedKeyColumns)        
         {
-            Check.NotNull(storeGeneratedKeys, "storeGeneratedKeys");
-
-            var storeGeneratedKeysArray = storeGeneratedKeys.ToArray();
+            Check.NotNull(storeGeneratedKeyColumns, "storeGeneratedKeyColumns");
 
             Contract.Assert(
-                storeGeneratedKeysArray.All(k => k.Value == ValueGenerationStrategy.StoreIdentity),
+                storeGeneratedKeyColumns.All(k => k.GenerationStrategy == StoreValueGenerationStrategy.Identity),
                 "Non-identity store generated keys should be handled elsewhere");
 
-            return storeGeneratedKeysArray.Where(k => k.Value == ValueGenerationStrategy.StoreIdentity)
-                .Select(k => new KeyValuePair<string, string>(k.Key, "scope_identity()"));
+            return storeGeneratedKeyColumns.Where(k => k.GenerationStrategy == StoreValueGenerationStrategy.Identity)
+                .Select(k => new KeyValuePair<Column, string>(k, "scope_identity()"));
         }
 
         private static string CreateTableVariableName(string tableName)

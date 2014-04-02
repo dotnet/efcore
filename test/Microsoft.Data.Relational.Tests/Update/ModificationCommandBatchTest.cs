@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Data.Relational.Update;
+using Microsoft.Data.Relational.Model;
 using Moq;
 using Xunit;
 
@@ -16,8 +17,11 @@ namespace Microsoft.Data.Relational.Tests.Update
         {
             var batch =
                 CreateCommandBatch(
-                    "Table",
-                    new Dictionary<string, object> { { "Id", 42 }, { "Name", "Test" } }.ToArray(),
+                    new Table("Table"),
+                    new Dictionary<Column, object>
+                        {
+                            { new Column("Id", "_"), 42 }, { new Column("Name", "_"), "Test" }
+                        }.ToArray(),
                     null);
 
             List<KeyValuePair<string, object>> parameters;
@@ -32,9 +36,12 @@ namespace Microsoft.Data.Relational.Tests.Update
         {
             var batch =
                 CreateCommandBatch(
-                    "Table",
-                    new Dictionary<string, object> { { "Name", "Test" } }.ToArray(),
-                    new Dictionary<string, object> { { "Id1", 42 }, { "Id2", 43 } }.ToArray());
+                    new Table("Table"),
+                    new Dictionary<Column, object> { { new Column("Name", "_"), "Test" } }.ToArray(),
+                    new Dictionary<Column, object>
+                        {
+                            { new Column("Id1", "_"), 42 }, { new Column("Id2", "_"), 43 }
+                        }.ToArray());
 
             List<KeyValuePair<string, object>> parameters;
             var sql = batch.CompileBatch(CreateMockSqlGenerator(), out parameters);
@@ -48,9 +55,12 @@ namespace Microsoft.Data.Relational.Tests.Update
         {
             var batch =
                 CreateCommandBatch(
-                    "Table",
+                    new Table("Table"),
                     null,
-                    new Dictionary<string, object> { { "Id1", 42 }, { "Id2", 43 } }.ToArray());
+                    new Dictionary<Column, object>
+                        {
+                            { new Column("Id1", "_"), 42 }, { new Column("Id2", "_"), 43 }
+                        }.ToArray());
 
             List<KeyValuePair<string, object>> parameters;
             var sql = batch.CompileBatch(CreateMockSqlGenerator(), out parameters);
@@ -64,7 +74,7 @@ namespace Microsoft.Data.Relational.Tests.Update
         {
             var batch =
                 CreateCommandBatch(
-                    "Table", null, new Dictionary<string, object> { { "Id1", 42 } }.ToArray());
+                    new Table("Table"), null, new Dictionary<Column, object> { { new Column("Id1", "_"), 42 } }.ToArray());
 
             List<KeyValuePair<string, object>> parameters;
             var sql = batch.CompileBatch(new Mock<SqlGenerator> { CallBase = true }.Object, out parameters);
@@ -74,62 +84,62 @@ namespace Microsoft.Data.Relational.Tests.Update
 
         private static SqlGenerator CreateMockSqlGenerator()
         {
-            var mockSqlGen = new Mock<SqlGenerator>();
+            var mockSqlGen = new Mock<SqlGenerator>() { CallBase = true };
 
             mockSqlGen
                 .Setup(g => g.AppendBatchHeader(It.IsAny<StringBuilder>()))
-                .Callback((StringBuilder sb) => sb.Append("BatchHeader"));
+                .Callback((StringBuilder sb) => sb.Append("BatchHeader"));                 
 
             mockSqlGen
                 .Setup(
                     g => g.AppendInsertCommand(
-                        It.IsAny<StringBuilder>(), It.IsAny<string>(),
-                        It.IsAny<IEnumerable<KeyValuePair<string, string>>>()))
+                        It.IsAny<StringBuilder>(), It.IsAny<Table>(),
+                        It.IsAny<IEnumerable<KeyValuePair<Column, string>>>()))
                 .Callback(
-                    (StringBuilder sb, string t, IEnumerable<KeyValuePair<string, string>> colParams)
+                    (StringBuilder sb, Table t, IEnumerable<KeyValuePair<Column, string>> colParams)
                         =>
                         sb.Append("INSERT").Append(";")
-                            .Append(t).Append(";")
-                            .Append(string.Join(",", colParams.Select(c => c.Key))).Append(";")
+                            .Append(t.Name).Append(";")
+                            .Append(string.Join(",", colParams.Select(c => c.Key.Name))).Append(";")
                             .Append(string.Join(",", colParams.Select(c => c.Value))));
 
             mockSqlGen
                 .Setup(
                     g => g.AppendUpdateCommand(
-                        It.IsAny<StringBuilder>(), It.IsAny<string>(),
-                        It.IsAny<IEnumerable<KeyValuePair<string, string>>>(), It.IsAny<IEnumerable<KeyValuePair<string, string>>>()))
+                        It.IsAny<StringBuilder>(), It.IsAny<Table>(),
+                        It.IsAny<IEnumerable<KeyValuePair<Column, string>>>(), It.IsAny<IEnumerable<KeyValuePair<Column, string>>>()))
                 .Callback(
-                    (StringBuilder sb, string t, IEnumerable<KeyValuePair<string, string>> cols, IEnumerable<KeyValuePair<string, string>> wheres)
+                    (StringBuilder sb, Table t, IEnumerable<KeyValuePair<Column, string>> cols, IEnumerable<KeyValuePair<Column, string>> wheres)
                         =>
                         sb.Append("UPDATE").Append(";")
-                            .Append(t).Append(";")
-                            .Append(string.Join(",", cols.Select(c => c.Key + "=" + c.Value))).Append(";")
-                            .Append(string.Join(",", wheres.Select(c => c.Key + "=" + c.Value))));
+                            .Append(t.Name).Append(";")
+                            .Append(string.Join(",", cols.Select(c => c.Key.Name + "=" + c.Value))).Append(";")
+                            .Append(string.Join(",", wheres.Select(c => c.Key.Name + "=" + c.Value))));
 
             mockSqlGen
                 .Setup(
                     g => g.AppendDeleteCommand(
-                        It.IsAny<StringBuilder>(), It.IsAny<string>(),
-                        It.IsAny<IEnumerable<KeyValuePair<string, string>>>()))
+                        It.IsAny<StringBuilder>(), It.IsAny<Table>(),
+                        It.IsAny<IEnumerable<KeyValuePair<Column, string>>>()))
                 .Callback(
-                    (StringBuilder sb, string t, IEnumerable<KeyValuePair<string, string>> wheres)
+                    (StringBuilder sb, Table t, IEnumerable<KeyValuePair<Column, string>> wheres)
                         =>
                         sb.Append("DELETE").Append(";")
-                            .Append(t).Append(";")
-                            .Append(string.Join(",", wheres.Select(c => c.Key + "=" + c.Value))));
+                            .Append(t.Name).Append(";")
+                            .Append(string.Join(",", wheres.Select(c => c.Key.Name + "=" + c.Value))));
 
             mockSqlGen.Setup(g => g.BatchCommandSeparator).Returns("$");
 
             return mockSqlGen.Object;
         }
 
-        private static ModificationCommandBatch CreateCommandBatch(string tableName,
-            KeyValuePair<string, object>[] columnValues, KeyValuePair<string, object>[] whereClauses)
+        private static ModificationCommandBatch CreateCommandBatch(Table table,
+            KeyValuePair<Column, object>[] columnValues, KeyValuePair<Column, object>[] whereClauses)
         {
             var mockModificationCommand = new Mock<ModificationCommand>();
             mockModificationCommand
-                .Setup(c => c.TableName)
-                .Returns(tableName);
+                .Setup(c => c.Table)
+                .Returns(table);
 
             mockModificationCommand
                 .Setup(c => c.ColumnValues)

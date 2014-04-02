@@ -9,6 +9,7 @@ using Microsoft.Data.Relational.Update;
 using Moq;
 using Moq.Protected;
 using Xunit;
+using Microsoft.Data.Relational.Model;
 
 namespace Microsoft.Data.Relational.Tests.Update
 {
@@ -18,9 +19,10 @@ namespace Microsoft.Data.Relational.Tests.Update
         public async void ExecuteAsync_executes_batch_commands_and_consumes_reader()
         {
             var mockModificationCommand = new Mock<ModificationCommand>();
-            mockModificationCommand.Setup(c => c.TableName).Returns("table");
-            mockModificationCommand.Setup(c => c.ColumnValues).Returns(new[] { new KeyValuePair<string, object>("Id", 1) });
-            mockModificationCommand.Setup(c => c.WhereClauses).Returns(new KeyValuePair<string, object>[0]);
+            mockModificationCommand.Setup(c => c.Table).Returns(new Table("table"));
+            mockModificationCommand.Setup(c => c.ColumnValues)
+                .Returns(new[] { new KeyValuePair<Column, object>(new Column("Id", "_"), 1) });
+            mockModificationCommand.Setup(c => c.WhereClauses).Returns(new KeyValuePair<Column, object>[0]);
 
             var batch = new ModificationCommandBatch(new[] { mockModificationCommand.Object });
 
@@ -43,9 +45,10 @@ namespace Microsoft.Data.Relational.Tests.Update
         public async void ExecuteAsync_throws_if_records_affected_and_command_count_dont_match()
         {
             var mockModificationCommand = new Mock<ModificationCommand>();
-            mockModificationCommand.Setup(c => c.TableName).Returns("table");
-            mockModificationCommand.Setup(c => c.ColumnValues).Returns(new[] { new KeyValuePair<string, object>("Id", 1) });
-            mockModificationCommand.Setup(c => c.WhereClauses).Returns(new KeyValuePair<string, object>[0]);
+            mockModificationCommand.Setup(c => c.Table).Returns(new Table("table"));
+            mockModificationCommand.Setup(c => c.ColumnValues)
+                .Returns(new[] { new KeyValuePair<Column, object>(new Column("Id", "_"), 1) });
+            mockModificationCommand.Setup(c => c.WhereClauses).Returns(new KeyValuePair<Column, object>[0]);
 
             var batch = new ModificationCommandBatch(new[] { mockModificationCommand.Object });
 
