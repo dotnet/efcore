@@ -37,7 +37,7 @@ namespace Microsoft.Data.SqlServer
             _statementExecutor = statementExecutor;
         }
 
-        public async override Task CreateIfNotExistsAsync(IModel model, CancellationToken cancellationToken = default(CancellationToken))
+        public async override Task CreateAsync(IModel model, CancellationToken cancellationToken = default(CancellationToken))
         {
             using (var connection = _dataStore.CreateConnection())
             {

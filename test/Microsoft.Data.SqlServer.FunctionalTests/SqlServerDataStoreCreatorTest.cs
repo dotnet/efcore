@@ -43,7 +43,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                     new SqlServerMigrationOperationSqlGenerator(),
                     new SqlStatementExecutor());
 
-                await migrator.CreateIfNotExistsAsync(context.Model);
+                await migrator.CreateAsync(context.Model);
 
                 if (testDatabase.Connection.State != System.Data.ConnectionState.Open)
                 {

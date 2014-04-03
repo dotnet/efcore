@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.Storage
 {
     public abstract class DataStoreCreator
     {
-        public virtual Task CreateIfNotExistsAsync([NotNull] IModel model, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task CreateAsync([NotNull] IModel model, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
