@@ -1,7 +1,9 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Relational.Model;
 using Xunit;
 
 namespace Microsoft.Data.Relational.Tests
@@ -48,6 +50,27 @@ namespace Microsoft.Data.Relational.Tests
             modelBuilder.Entity<Customer>().Properties(ps => ps.Property(c => c.Id).ColumnType("bigint"));
 
             Assert.Equal("bigint", model.EntityTypes.Single().Properties.Single()[MetadataExtensions.Annotations.StorageTypeName]);
+        }
+
+        [Fact]
+        public void GetStoreGeneratedColumns_returns_store_generated_columns()
+        {
+            var table = new Table("table", 
+                new[]
+                    {
+                        new Column("Id", "storetype") { ValueGenerationStrategy = StoreValueGenerationStrategy.Identity },
+                        new Column("Name", "_"), 
+                        new Column("LastUpdate", "_") { ValueGenerationStrategy = StoreValueGenerationStrategy.Computed }
+                    });
+
+            Assert.Equal(table.Columns.Where(c => c.Name != "Name"), table.GetStoreGeneratedColumns());
+        }
+
+        [Fact]
+        public void GetStoreGeneratedColumns_validates_parameter_not_null()
+        {
+            Assert.Equal("table",
+                Assert.Throws<ArgumentNullException>(() => MetadataExtensions.GetStoreGeneratedColumns(null)).ParamName);
         }
     }
 }

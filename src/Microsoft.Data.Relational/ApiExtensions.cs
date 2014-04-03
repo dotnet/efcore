@@ -1,7 +1,10 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Relational;
+using Microsoft.Data.Relational.Model;
 using Microsoft.Data.Relational.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
@@ -118,6 +121,15 @@ namespace Microsoft.Data.Entity.Metadata
             }
 
             return cascadeDelete;
+        }
+
+        public static IEnumerable<Column> GetStoreGeneratedColumns([NotNull] this Table table)
+        {
+            Check.NotNull(table, "table");
+
+            return table.Columns.Where(
+                c => c.ValueGenerationStrategy == StoreValueGenerationStrategy.Identity ||
+                     c.ValueGenerationStrategy == StoreValueGenerationStrategy.Computed);
         }
     }
 }

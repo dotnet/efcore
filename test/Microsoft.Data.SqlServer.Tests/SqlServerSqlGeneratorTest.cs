@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Relational.Model;
 using Xunit;
 
@@ -25,7 +24,7 @@ namespace Microsoft.Data.SqlServer.Tests
         [Fact]
         public void AppendInsertOperation_test_appends_Select_for_insert_operation_with_identity_key()
         {
-            var id1Column = new Column("Id1", "int") { GenerationStrategy = StoreValueGenerationStrategy.Identity };
+            var id1Column = new Column("Id1", "int") { ValueGenerationStrategy = StoreValueGenerationStrategy.Identity };
             var id2Column = new Column("Id2", "nvarchar(max)");
             var nameColumn = new Column("Name", "nvarchar(30)");
             var table = new Table("table", new[] { id1Column, id2Column, nameColumn });
@@ -44,8 +43,8 @@ namespace Microsoft.Data.SqlServer.Tests
         [Fact]
         public void AppendInsertOperation_test_appends_valid_Select_for_insert_operation_with_identity_key_and_computed_non_key_column()
         {
-            var id1Column = new Column("Id1", "int") { GenerationStrategy = StoreValueGenerationStrategy.Identity };
-            var insertedColumn = new Column("Inserted", "int") { GenerationStrategy = StoreValueGenerationStrategy.Computed };
+            var id1Column = new Column("Id1", "int") { ValueGenerationStrategy = StoreValueGenerationStrategy.Identity };
+            var insertedColumn = new Column("Inserted", "int") { ValueGenerationStrategy = StoreValueGenerationStrategy.Computed };
             var nameColumn = new Column("Name", "nvarchar(30)");
             var table = new Table("table", new[] { id1Column, nameColumn, insertedColumn });
             table.PrimaryKey = new PrimaryKey("PK", new[] { id1Column });
@@ -63,7 +62,7 @@ namespace Microsoft.Data.SqlServer.Tests
         [Fact]
         public void AppendInsertOperation_test_appends_valid_statement_for_non_identity_auto_generated_keys()
         {
-            var id1Column = new Column("Id1", "int") { GenerationStrategy = StoreValueGenerationStrategy.Computed };
+            var id1Column = new Column("Id1", "int") { ValueGenerationStrategy = StoreValueGenerationStrategy.Computed };
             var id2Column = new Column("Id2", "nvarchar(max)");
             var nameColumn = new Column("Name", "nvarchar(30)");
             var table = new Table("Customers", new[] { id1Column, id2Column, nameColumn });
@@ -88,8 +87,8 @@ namespace Microsoft.Data.SqlServer.Tests
         [Fact]
         public void AppendInsertOperation_test_appends_valid_statement_for_computed_and_identity_composite_key()
         {
-            var id1Column = new Column("Id1", "int") { GenerationStrategy = StoreValueGenerationStrategy.Computed };
-            var id2Column = new Column("Id2", "nvarchar(max)") { GenerationStrategy = StoreValueGenerationStrategy.Identity };
+            var id1Column = new Column("Id1", "int") { ValueGenerationStrategy = StoreValueGenerationStrategy.Computed };
+            var id2Column = new Column("Id2", "nvarchar(max)") { ValueGenerationStrategy = StoreValueGenerationStrategy.Identity };
             var nameColumn = new Column("Name", "nvarchar(30)");
             var table = new Table("Customers", new[] { id1Column, id2Column, nameColumn });
             table.PrimaryKey = new PrimaryKey("PK", new[] { id1Column, id2Column });
@@ -112,9 +111,9 @@ namespace Microsoft.Data.SqlServer.Tests
         [Fact]
         public void AppendInsertOperation_test_appends_valid_statement_for_computed_and_identity_composite_key_and_computed_non_key_column()
         {
-            var id1Column = new Column("Id1", "int") { GenerationStrategy = StoreValueGenerationStrategy.Computed };
-            var id2Column = new Column("Id2", "nvarchar(max)") { GenerationStrategy = StoreValueGenerationStrategy.Identity };
-            var insertedColumn = new Column("Inserted", "int") { GenerationStrategy = StoreValueGenerationStrategy.Computed };
+            var id1Column = new Column("Id1", "int") { ValueGenerationStrategy = StoreValueGenerationStrategy.Computed };
+            var id2Column = new Column("Id2", "nvarchar(max)") { ValueGenerationStrategy = StoreValueGenerationStrategy.Identity };
+            var insertedColumn = new Column("Inserted", "int") { ValueGenerationStrategy = StoreValueGenerationStrategy.Computed };
             var nameColumn = new Column("Name", "nvarchar(30)");
             var table = new Table("Customers", new[] { id1Column, id2Column, insertedColumn, nameColumn });
             table.PrimaryKey = new PrimaryKey("PK", new[] { id1Column, id2Column });

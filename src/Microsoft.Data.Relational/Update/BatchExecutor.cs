@@ -3,57 +3,91 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Relational.Utilities;
 
 namespace Microsoft.Data.Relational.Update
 {
-    internal class BatchExecutor
+    public class BatchExecutor
     {
         private readonly IEnumerable<ModificationCommandBatch> _commandBatches;
         private readonly SqlGenerator _sqlGenerator;
 
         public BatchExecutor([NotNull] IEnumerable<ModificationCommandBatch> commandBatches, [NotNull] SqlGenerator sqlGenerator)
         {
+            Check.NotNull(commandBatches, "commandBatches");
+            Check.NotNull(sqlGenerator, "sqlGenerator");
+
             _commandBatches = commandBatches;
             _sqlGenerator = sqlGenerator;
         }
 
-        public async Task ExecuteAsync(
-            DbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task ExecuteAsync([NotNull] DbConnection connection, 
+            CancellationToken cancellationToken = default(CancellationToken))
         {
+            Check.NotNull(connection, "connection");
+
             foreach (var commandbatch in _commandBatches)
             {
                 await ExecuteBatchAsync(connection, commandbatch, cancellationToken).ConfigureAwait(false);
             }
         }
 
-        private async Task ExecuteBatchAsync(
+        protected virtual async Task ExecuteBatchAsync(
             [NotNull] DbConnection connection, [NotNull] ModificationCommandBatch commandBatch,
             CancellationToken cancellationToken = default(CancellationToken))
         {
+            Check.NotNull(connection, "connection");
+            Check.NotNull(commandBatch, "commandBatch");
+
             using (var cmd = CreateCommand(connection, commandBatch))
             {
                 using (var reader = await cmd.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false))
                 {
+                    var resultSetIdx = -1;
+
                     do
                     {
-                        while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+                        resultSetIdx++;
+
+                        if (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
                         {
-                            // TODO: propagate results
+                            if (!commandBatch.CommandRequiresResultPropagation(resultSetIdx))
+                            {
+                                throw new DbUpdateConcurrencyException(string.Format(Strings.FormatUpdateConcurrencyException(0, 1)));
+                            }
+
+                            SaveStoreGeneratedValues(commandBatch, reader, resultSetIdx);
+
+                            if (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+                            {
+                                throw new DbUpdateException(Strings.TooManyRowsForModificationCommand);
+                            }
+                        }
+                        else
+                        {
+                            if (commandBatch.CommandRequiresResultPropagation(resultSetIdx))
+                            {
+                                throw new DbUpdateConcurrencyException(string.Format(Strings.FormatUpdateConcurrencyException(1, 0)));
+                            }
                         }
                     }
                     while (await reader.NextResultAsync(cancellationToken).ConfigureAwait(false));
-
-                    if (reader.RecordsAffected != commandBatch.BatchCommands.Count())
-                    {
-                        throw new DbUpdateConcurrencyException(
-                            Strings.FormatUpdateConcurrencyException(commandBatch.BatchCommands.Count(), reader.RecordsAffected));
-                    }
                 }
             }
+        }
+
+        private static void SaveStoreGeneratedValues([NotNull] ModificationCommandBatch commandBatch, [NotNull] DbDataReader reader, int commandIndex)
+        {
+            var results = new KeyValuePair<string, object>[reader.FieldCount];
+            for (var ordinal = 0; ordinal < results.Length; ordinal++)
+            {
+                results[ordinal] = new KeyValuePair<string, object>(reader.GetName(ordinal), reader.GetValue(ordinal));
+            }
+
+            commandBatch.SaveStoreGeneratedValues(commandIndex, results);
         }
 
         private DbCommand CreateCommand([NotNull] DbConnection connection, [NotNull] ModificationCommandBatch commandBatch)
@@ -74,6 +108,14 @@ namespace Microsoft.Data.Relational.Update
             }
 
             return command;
+        }
+
+        public virtual void PropagateResults()
+        {
+            foreach (var commandbatch in _commandBatches)
+            {
+                commandbatch.PropagateResults();
+            }            
         }
     }
 }

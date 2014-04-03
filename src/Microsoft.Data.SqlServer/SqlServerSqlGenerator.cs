@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Relational;
 using Microsoft.Data.Relational.Model;
 using Microsoft.Data.SqlServer.Utilities;
@@ -23,7 +24,7 @@ namespace Microsoft.Data.SqlServer
             KeyValuePair<Column, string>[] columnsToParameters)
         {
             var dbGeneratedNonIdentityKeys = 
-                table.PrimaryKey.Columns.Where(c => c.GenerationStrategy == StoreValueGenerationStrategy.Computed);
+                table.PrimaryKey.Columns.Where(c => c.ValueGenerationStrategy == StoreValueGenerationStrategy.Computed);
 
             if (dbGeneratedNonIdentityKeys.Any())
             {
@@ -54,7 +55,7 @@ namespace Microsoft.Data.SqlServer
 
                 commandStringBuilder
                     .Append("SELECT ")
-                    .AppendJoin(GetStoreGeneratedColumns(table), (sb, c) => sb.Append("t.").Append(c.Name), ", ");
+                    .AppendJoin(table.GetStoreGeneratedColumns(), (sb, c) => sb.Append("t.").Append(c.Name), ", ");
 
                 commandStringBuilder
                     .Append(" FROM ")
@@ -77,10 +78,10 @@ namespace Microsoft.Data.SqlServer
             Check.NotNull(storeGeneratedKeyColumns, "storeGeneratedKeyColumns");
 
             Contract.Assert(
-                storeGeneratedKeyColumns.All(k => k.GenerationStrategy == StoreValueGenerationStrategy.Identity),
+                storeGeneratedKeyColumns.All(k => k.ValueGenerationStrategy == StoreValueGenerationStrategy.Identity),
                 "Non-identity store generated keys should be handled elsewhere");
 
-            return storeGeneratedKeyColumns.Where(k => k.GenerationStrategy == StoreValueGenerationStrategy.Identity)
+            return storeGeneratedKeyColumns.Where(k => k.ValueGenerationStrategy == StoreValueGenerationStrategy.Identity)
                 .Select(k => new KeyValuePair<Column, string>(k, "scope_identity()"));
         }
 
