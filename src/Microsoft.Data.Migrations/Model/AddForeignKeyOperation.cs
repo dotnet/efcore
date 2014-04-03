@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Migrations.Utilities;
 using Microsoft.Data.Relational;
 
@@ -66,11 +67,12 @@ namespace Microsoft.Data.Migrations.Model
             get { return _cascadeDelete; }
         }
 
-        public override void Accept([NotNull] MigrationOperationVisitor visitor)
+        public override void GenerateSql([NotNull] MigrationOperationSqlGenerator visitor, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
             Check.NotNull(visitor, "visitor");
+            Check.NotNull(stringBuilder, "stringBuilder");
 
-            visitor.Visit(this);
+            visitor.Generate(this, stringBuilder, generateIdempotentSql);
         }
     }
 }

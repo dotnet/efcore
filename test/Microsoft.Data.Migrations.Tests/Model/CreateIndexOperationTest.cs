@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Migrations.Model;
 using Moq;
 using Xunit;
@@ -29,11 +30,11 @@ namespace Microsoft.Data.Migrations.Tests.Model
             var createIndexOperation = new CreateIndexOperation(
                 "dbo.MyTable", "MyIndex", new[] { "Foo", "Bar" },
                 isUnique: true, isClustered: true);
-            var mockVisitor = new Mock<MigrationOperationVisitor>();
+            var mockVisitor = new Mock<MigrationOperationSqlGenerator>();
+            var builder = new Mock<IndentedStringBuilder>();
+            createIndexOperation.GenerateSql(mockVisitor.Object, builder.Object, false);
 
-            createIndexOperation.Accept(mockVisitor.Object);
-
-            mockVisitor.Verify(g => g.Visit(createIndexOperation), Times.Once());
+            mockVisitor.Verify(g => g.Generate(createIndexOperation, builder.Object, false), Times.Once());
         }
     }
 }

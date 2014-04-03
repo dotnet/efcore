@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Migrations.Model;
 using Moq;
 using Xunit;
@@ -35,11 +36,11 @@ namespace Microsoft.Data.Migrations.Tests.Model
         {
             var addDefaultConstraintOperation = new AddDefaultConstraintOperation(
                 "dbo.MyTable", "Foo", "MyDefault", null);
-            var mockVisitor = new Mock<MigrationOperationVisitor>();
+            var mockVisitor = new Mock<MigrationOperationSqlGenerator>();
+            var builder = new Mock<IndentedStringBuilder>();
+            addDefaultConstraintOperation.GenerateSql(mockVisitor.Object, builder.Object, false);
 
-            addDefaultConstraintOperation.Accept(mockVisitor.Object);
-
-            mockVisitor.Verify(g => g.Visit(addDefaultConstraintOperation), Times.Once());
+            mockVisitor.Verify(g => g.Generate(addDefaultConstraintOperation, builder.Object, false), Times.Once());
         }
     }
 }

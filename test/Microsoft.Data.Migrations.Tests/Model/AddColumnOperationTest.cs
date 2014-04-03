@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Migrations.Model;
 using Microsoft.Data.Relational.Model;
 using Moq;
@@ -24,11 +25,11 @@ namespace Microsoft.Data.Migrations.Tests.Model
         public void Dispatches_visitor()
         {
             var addColumnOperation = new AddColumnOperation("dbo.MyTable", new Column("Foo", "int"));
-            var mockVisitor = new Mock<MigrationOperationVisitor>();
+            var mockVisitor = new Mock<MigrationOperationSqlGenerator>();
+            var builder = new Mock<IndentedStringBuilder>();
+            addColumnOperation.GenerateSql(mockVisitor.Object, builder.Object, false);
 
-            addColumnOperation.Accept(mockVisitor.Object);
-
-            mockVisitor.Verify(g => g.Visit(addColumnOperation), Times.Once());
+            mockVisitor.Verify(g => g.Generate(addColumnOperation, builder.Object, false), Times.Once());
         }
     }
 }

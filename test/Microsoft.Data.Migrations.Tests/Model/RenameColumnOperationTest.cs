@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Migrations.Model;
 using Moq;
 using Xunit;
@@ -23,11 +24,11 @@ namespace Microsoft.Data.Migrations.Tests.Model
         public void Dispatches_visitor()
         {
             var renameColumnOperation = new RenameColumnOperation("dbo.MyTable", "Foo", "Foo2");
-            var mockVisitor = new Mock<MigrationOperationVisitor>();
+            var mockVisitor = new Mock<MigrationOperationSqlGenerator>();
+            var builder = new Mock<IndentedStringBuilder>();
+            renameColumnOperation.GenerateSql(mockVisitor.Object, builder.Object, false);
 
-            renameColumnOperation.Accept(mockVisitor.Object);
-
-            mockVisitor.Verify(g => g.Visit(renameColumnOperation), Times.Once());
+            mockVisitor.Verify(g => g.Generate(renameColumnOperation, builder.Object, false), Times.Once());
         }
     }
 }

@@ -14,7 +14,7 @@ namespace Microsoft.Data.SqlServer.Tests
             Assert.Equal(
                 @"IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = N'MyDatabase')
     CREATE DATABASE ""MyDatabase""",
-                SqlServerMigrationOperationSqlGenerator.Generate(new CreateDatabaseOperation("MyDatabase")));
+                SqlServerMigrationOperationSqlGenerator.Generate(new CreateDatabaseOperation("MyDatabase"), generateIdempotentSql: true).Sql);
         }
 
         [Fact]
@@ -23,7 +23,7 @@ namespace Microsoft.Data.SqlServer.Tests
             Assert.Equal(
                 @"IF EXISTS (SELECT * FROM sys.databases WHERE name = N'MyDatabase')
     DROP DATABASE ""MyDatabase""",
-                SqlServerMigrationOperationSqlGenerator.Generate(new DropDatabaseOperation("MyDatabase")));
+                SqlServerMigrationOperationSqlGenerator.Generate(new DropDatabaseOperation("MyDatabase"), generateIdempotentSql: true).Sql);
         }
 
         [Fact]
@@ -32,7 +32,7 @@ namespace Microsoft.Data.SqlServer.Tests
             Assert.Equal(
                 @"IF NOT EXISTS (SELECT * FROM sys.sequences WHERE name = N'MySequence' AND schema_id = SCHEMA_ID(N'dbo'))
     CREATE SEQUENCE ""dbo"".""MySequence"" AS BIGINT START WITH 0 INCREMENT BY 1",
-                SqlServerMigrationOperationSqlGenerator.Generate(new CreateSequenceOperation(new Sequence("dbo.MySequence"))));
+                SqlServerMigrationOperationSqlGenerator.Generate(new CreateSequenceOperation(new Sequence("dbo.MySequence")), generateIdempotentSql: true).Sql);
         }
 
         [Fact]
@@ -41,7 +41,7 @@ namespace Microsoft.Data.SqlServer.Tests
             Assert.Equal(
                 @"IF EXISTS (SELECT * FROM sys.sequences WHERE name = N'MySequence' AND schema_id = SCHEMA_ID(N'dbo'))
     DROP SEQUENCE ""dbo"".""MySequence""",
-                SqlServerMigrationOperationSqlGenerator.Generate(new DropSequenceOperation("dbo.MySequence")));
+                SqlServerMigrationOperationSqlGenerator.Generate(new DropSequenceOperation("dbo.MySequence"), generateIdempotentSql: true).Sql);
         }
 
         [Fact]
@@ -65,7 +65,7 @@ namespace Microsoft.Data.SqlServer.Tests
         ""Bar"" int
         CONSTRAINT ""MyPK"" PRIMARY KEY NONCLUSTERED (""Foo"", ""Bar"")
     )",
-                SqlServerMigrationOperationSqlGenerator.Generate(new CreateTableOperation(table)));
+                SqlServerMigrationOperationSqlGenerator.Generate(new CreateTableOperation(table), generateIdempotentSql: true).Sql);
         }
 
         [Fact]
@@ -74,7 +74,7 @@ namespace Microsoft.Data.SqlServer.Tests
             Assert.Equal(
                 @"IF EXISTS (SELECT * FROM sys.tables WHERE name = N'MyTable' AND schema_id = SCHEMA_ID(N'dbo'))
     DROP TABLE ""dbo"".""MyTable""",
-                SqlServerMigrationOperationSqlGenerator.Generate(new DropTableOperation("dbo.MyTable")));
+                SqlServerMigrationOperationSqlGenerator.Generate(new DropTableOperation("dbo.MyTable"), generateIdempotentSql: true).Sql);
         }
 
         [Fact]
@@ -83,7 +83,7 @@ namespace Microsoft.Data.SqlServer.Tests
             Assert.Equal(
                 @"IF EXISTS (SELECT * FROM sys.tables WHERE name = N'MyTable' AND schema_id = SCHEMA_ID(N'dbo'))
     EXECUTE sp_rename @objname = N'dbo.MyTable', @newname = N'MyTable2', @objtype = N'OBJECT'",
-                SqlServerMigrationOperationSqlGenerator.Generate(new RenameTableOperation("dbo.MyTable", "MyTable2")));
+                SqlServerMigrationOperationSqlGenerator.Generate(new RenameTableOperation("dbo.MyTable", "MyTable2"), generateIdempotentSql: true).Sql);
         }
 
         [Fact]
@@ -92,7 +92,7 @@ namespace Microsoft.Data.SqlServer.Tests
             Assert.Equal(
                 @"IF EXISTS (SELECT * FROM sys.tables WHERE name = N'MyTable' AND schema_id = SCHEMA_ID(N'dbo'))
     ALTER SCHEMA ""dbo2"" TRANSFER ""dbo"".""MyTable""",
-                SqlServerMigrationOperationSqlGenerator.Generate(new MoveTableOperation("dbo.MyTable", "dbo2")));
+                SqlServerMigrationOperationSqlGenerator.Generate(new MoveTableOperation("dbo.MyTable", "dbo2"), generateIdempotentSql: true).Sql);
         }
 
         [Fact]
@@ -103,7 +103,7 @@ namespace Microsoft.Data.SqlServer.Tests
             Assert.Equal(
                 @"IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = N'Bar' AND object_id = OBJECT_ID(N'dbo.MyTable'))
     ALTER TABLE ""dbo"".""MyTable"" ADD ""Bar"" int NOT NULL DEFAULT 5",
-                SqlServerMigrationOperationSqlGenerator.Generate(new AddColumnOperation("dbo.MyTable", column)));
+                SqlServerMigrationOperationSqlGenerator.Generate(new AddColumnOperation("dbo.MyTable", column), generateIdempotentSql: true).Sql);
         }
 
         [Fact]
@@ -112,7 +112,7 @@ namespace Microsoft.Data.SqlServer.Tests
             Assert.Equal(
                 @"IF EXISTS (SELECT * FROM sys.columns WHERE name = N'Foo' AND object_id = OBJECT_ID(N'dbo.MyTable'))
     ALTER TABLE ""dbo"".""MyTable"" DROP COLUMN ""Foo""",
-                SqlServerMigrationOperationSqlGenerator.Generate(new DropColumnOperation("dbo.MyTable", "Foo")));
+                SqlServerMigrationOperationSqlGenerator.Generate(new DropColumnOperation("dbo.MyTable", "Foo"), generateIdempotentSql: true).Sql);
         }
 
         [Fact]
@@ -123,7 +123,7 @@ namespace Microsoft.Data.SqlServer.Tests
     ALTER TABLE ""dbo"".""MyTable"" ALTER COLUMN ""Foo"" int NOT NULL",
                 SqlServerMigrationOperationSqlGenerator.Generate(
                     new AlterColumnOperation("dbo.MyTable", "Foo", "int",
-                        isNullable: false, isDestructiveChange: false)));
+                        isNullable: false, isDestructiveChange: false), generateIdempotentSql: true).Sql);
         }
 
         [Fact]
@@ -133,7 +133,7 @@ namespace Microsoft.Data.SqlServer.Tests
                 @"IF NOT EXISTS (SELECT * FROM sys.default_constraints WHERE parent_object_id = OBJECT_ID(N'dbo.MyTable') AND COL_NAME(parent_object_id, parent_column_id) = N'Foo')
     ALTER TABLE ""dbo"".""MyTable"" ADD CONSTRAINT ""DF_dbo.MyTable_Foo"" DEFAULT 5 FOR ""Foo""",
                 SqlServerMigrationOperationSqlGenerator.Generate(
-                    new AddDefaultConstraintOperation("dbo.MyTable", "Foo", 5, null)));
+                    new AddDefaultConstraintOperation("dbo.MyTable", "Foo", 5, null), generateIdempotentSql: true).Sql);
         }
 
         [Fact]
@@ -145,7 +145,7 @@ SELECT @var0 = name FROM sys.default_constraints WHERE parent_object_id = OBJECT
 IF @var0 IS NOT NULL
     EXECUTE('ALTER TABLE ""dbo"".""MyTable"" DROP CONSTRAINT ""' + @var0 + '""')",
                 SqlServerMigrationOperationSqlGenerator.Generate(
-                    new DropDefaultConstraintOperation("dbo.MyTable", "Foo")));
+                    new DropDefaultConstraintOperation("dbo.MyTable", "Foo"), generateIdempotentSql: true).Sql);
         }
 
         [Fact]
@@ -155,7 +155,7 @@ IF @var0 IS NOT NULL
                 @"IF EXISTS (SELECT * FROM sys.columns WHERE name = N'Foo' AND object_id = OBJECT_ID(N'dbo.MyTable'))
     EXECUTE sp_rename @objname = N'dbo.MyTable.Foo', @newname = N'Foo2', @objtype = N'COLUMN'",
                 SqlServerMigrationOperationSqlGenerator.Generate(
-                    new RenameColumnOperation("dbo.MyTable", "Foo", "Foo2")));
+                    new RenameColumnOperation("dbo.MyTable", "Foo", "Foo2"), generateIdempotentSql: true).Sql);
         }
 
         [Fact]
@@ -165,7 +165,8 @@ IF @var0 IS NOT NULL
                 @"IF NOT EXISTS (SELECT * FROM sys.key_constraints WHERE type = 'PK' AND parent_object_id = OBJECT_ID(N'dbo.MyTable'))
     ALTER TABLE ""dbo"".""MyTable"" ADD CONSTRAINT ""MyPK"" PRIMARY KEY NONCLUSTERED (""Foo"", ""Bar"")",
                 SqlServerMigrationOperationSqlGenerator.Generate(
-                    new AddPrimaryKeyOperation("dbo.MyTable", "MyPK", new[] { "Foo", "Bar" }, isClustered: false)));
+                    new AddPrimaryKeyOperation("dbo.MyTable", "MyPK", new[] { "Foo", "Bar" }, isClustered: false),
+                    generateIdempotentSql: true).Sql);
         }
 
         [Fact]
@@ -174,7 +175,7 @@ IF @var0 IS NOT NULL
             Assert.Equal(
                 @"IF EXISTS (SELECT * FROM sys.key_constraints WHERE type = 'PK' AND name = N'MyPK' AND parent_object_id = OBJECT_ID(N'dbo.MyTable'))
     ALTER TABLE ""dbo"".""MyTable"" DROP CONSTRAINT ""MyPK""",
-                SqlServerMigrationOperationSqlGenerator.Generate(new DropPrimaryKeyOperation("dbo.MyTable", "MyPK")));
+                SqlServerMigrationOperationSqlGenerator.Generate(new DropPrimaryKeyOperation("dbo.MyTable", "MyPK"), generateIdempotentSql: true).Sql);
         }
 
         [Fact]
@@ -185,7 +186,8 @@ IF @var0 IS NOT NULL
     ALTER TABLE ""dbo"".""MyTable"" ADD CONSTRAINT ""MyFK"" FOREIGN KEY (""Foo"", ""Bar"") REFERENCES ""dbo"".""MyTable2"" (""Foo2"", ""Bar2"") ON DELETE CASCADE",
                 SqlServerMigrationOperationSqlGenerator.Generate(
                     new AddForeignKeyOperation("MyFK", "dbo.MyTable", "dbo.MyTable2",
-                        new[] { "Foo", "Bar" }, new[] { "Foo2", "Bar2" }, cascadeDelete: true)));
+                        new[] { "Foo", "Bar" }, new[] { "Foo2", "Bar2" }, cascadeDelete: true),
+                    generateIdempotentSql: true).Sql);
         }
 
         [Fact]
@@ -194,7 +196,7 @@ IF @var0 IS NOT NULL
             Assert.Equal(
                 @"IF EXISTS (SELECT * FROM sys.foreign_keys WHERE name = N'MyFK' AND parent_object_id = OBJECT_ID(N'dbo.MyTable2'))
     ALTER TABLE ""dbo"".""MyTable2"" DROP CONSTRAINT ""MyFK""",
-                SqlServerMigrationOperationSqlGenerator.Generate(new DropForeignKeyOperation("dbo.MyTable2", "MyFK")));
+                SqlServerMigrationOperationSqlGenerator.Generate(new DropForeignKeyOperation("dbo.MyTable2", "MyFK"), generateIdempotentSql: true).Sql);
         }
 
         [Fact]
@@ -205,7 +207,7 @@ IF @var0 IS NOT NULL
     CREATE UNIQUE CLUSTERED INDEX ""MyIndex"" ON ""dbo"".""MyTable"" (""Foo"", ""Bar"")",
                 SqlServerMigrationOperationSqlGenerator.Generate(
                     new CreateIndexOperation("dbo.MyTable", "MyIndex", new[] { "Foo", "Bar" },
-                        isUnique: true, isClustered: true)));
+                        isUnique: true, isClustered: true), generateIdempotentSql: true).Sql);
         }
 
         [Fact]
@@ -214,7 +216,7 @@ IF @var0 IS NOT NULL
             Assert.Equal(
                 @"IF EXISTS (SELECT * FROM sys.indexes WHERE name = N'MyIndex' AND object_id = OBJECT_ID(N'dbo.MyTable'))
     DROP INDEX ""MyIndex"" ON ""dbo"".""MyTable""",
-                SqlServerMigrationOperationSqlGenerator.Generate(new DropIndexOperation("dbo.MyTable", "MyIndex")));
+                SqlServerMigrationOperationSqlGenerator.Generate(new DropIndexOperation("dbo.MyTable", "MyIndex"), generateIdempotentSql: true).Sql);
         }
 
         [Fact]
@@ -224,7 +226,7 @@ IF @var0 IS NOT NULL
                 @"IF EXISTS (SELECT * FROM sys.indexes WHERE name = N'MyIndex' AND object_id = OBJECT_ID(N'dbo.MyTable'))
     EXECUTE sp_rename @objname = N'dbo.MyTable.MyIndex', @newname = N'MyIndex2', @objtype = N'INDEX'",
                 SqlServerMigrationOperationSqlGenerator.Generate(
-                    new RenameIndexOperation("dbo.MyTable", "MyIndex", "MyIndex2")));
+                    new RenameIndexOperation("dbo.MyTable", "MyIndex", "MyIndex2"), generateIdempotentSql: true).Sql);
         }
 
         [Fact]

@@ -59,10 +59,10 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
         ///     A non-transactional, transient, isolated test database. Use this in the case
         ///     where transactions are not appropriate.
         /// </summary>
-        public static Task<TestDatabase> Scratch()
+        public static Task<TestDatabase> Scratch(bool createDatabase = true)
         {
             return new TestDatabase()
-                .CreateScratch(name: "Microsoft.Data.SqlServer.Scratch_" + Interlocked.Increment(ref _scratchCount));
+                .CreateScratch(name: "Microsoft.Data.SqlServer.Scratch_" + Interlocked.Increment(ref _scratchCount), createDatabase: createDatabase);
         }
 
         private SqlConnection _connection;
@@ -142,7 +142,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
 
                             var script = File.ReadAllText(scriptPath);
 
-                            foreach (var batch 
+                            foreach (var batch
                                 in new Regex("^GO", RegexOptions.IgnoreCase | RegexOptions.Multiline)
                                     .Split(script))
                             {
@@ -156,7 +156,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
             }
         }
 
-        private async Task<TestDatabase> CreateScratch(string name)
+        private async Task<TestDatabase> CreateScratch(string name, bool createDatabase)
         {
             using (var master = new SqlConnection(CreateConnectionString("master")))
             {
@@ -164,12 +164,20 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
 
                 using (var command = master.CreateCommand())
                 {
-                    command.CommandTimeout = CommandTimeout;
+                    command.CommandTimeout = 5; // Query will take a few seconds if (and only if) there are active connections
 
+                    // SET SINGLE_USER will close any open connections that would prevent the drop
                     command.CommandText
                         = string.Format(@"IF EXISTS (SELECT * FROM sys.databases WHERE name = N'{0}')
-                                            DROP DATABASE [{0}]
-                                          CREATE DATABASE [{0}]", name);
+                                          BEGIN
+	                                          ALTER DATABASE [{0}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+	                                          DROP DATABASE [{0}];
+                                          END", name);
+
+                    if(createDatabase)
+                    {
+                        command.CommandText += string.Format("{0}CREATE DATABASE [{1}]", Environment.NewLine, name);
+                    }
 
                     await command.ExecuteNonQueryAsync();
                 }
@@ -177,7 +185,10 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
 
             _connection = new SqlConnection(CreateConnectionString(name));
 
-            await _connection.OpenAsync();
+            if (createDatabase)
+            {
+                await _connection.OpenAsync();
+            }
 
             return this;
         }
