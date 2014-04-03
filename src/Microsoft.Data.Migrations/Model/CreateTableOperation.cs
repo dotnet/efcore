@@ -1,8 +1,10 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Migrations.Utilities;
+using Microsoft.Data.Relational;
 using Microsoft.Data.Relational.Model;
 
 namespace Microsoft.Data.Migrations.Model
@@ -23,12 +25,20 @@ namespace Microsoft.Data.Migrations.Model
             get { return _table; }
         }
 
-        public override void GenerateSql([NotNull] MigrationOperationSqlGenerator visitor, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
+        public override void GenerateSql([NotNull] MigrationOperationSqlGenerator generator, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
-            Check.NotNull(visitor, "visitor");
+            Check.NotNull(generator, "generator");
             Check.NotNull(stringBuilder, "stringBuilder");
 
-            visitor.Generate(this, stringBuilder, generateIdempotentSql);
+            generator.Generate(this, stringBuilder, generateIdempotentSql);
+        }
+
+        public override void GenerateCode([NotNull] MigrationCodeGenerator generator, [NotNull] IndentedStringBuilder stringBuilder)
+        {
+            Check.NotNull(generator, "generator");
+            Check.NotNull(stringBuilder, "stringBuilder");
+
+            generator.Generate(this, stringBuilder);
         }
     }
 }

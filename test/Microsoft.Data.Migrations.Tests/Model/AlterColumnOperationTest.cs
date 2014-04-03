@@ -2,6 +2,7 @@
 
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Migrations.Model;
+using Microsoft.Data.Relational.Model;
 using Moq;
 using Xunit;
 
@@ -12,22 +13,21 @@ namespace Microsoft.Data.Migrations.Tests.Model
         [Fact]
         public void Create_and_initialize_operation()
         {
+            var newColumn = new Column("Foo", "int") { IsNullable = true };
             var alterColumnOperation = new AlterColumnOperation(
-                "dbo.MyTable", "Foo", typeof(int), "int", isNullable: true, isDestructiveChange: true);
+                "dbo.MyTable", newColumn, isDestructiveChange: true);
 
             Assert.Equal("dbo.MyTable", alterColumnOperation.TableName);
-            Assert.Equal("Foo", alterColumnOperation.ColumnName);
-            Assert.Equal(typeof(int), alterColumnOperation.ClrType);
-            Assert.Equal("int", alterColumnOperation.DataType);
-            Assert.True(alterColumnOperation.IsNullable);
+            Assert.Same(newColumn, alterColumnOperation.NewColumn);
             Assert.True(alterColumnOperation.IsDestructiveChange);
         }
 
         [Fact]
         public void Dispatches_visitor()
         {
+            var newColumn = new Column("Foo", "int") { IsNullable = true };
             var alterColumnOperation = new AlterColumnOperation(
-                "dbo.MyTable", "Foo", typeof(int), "int", isNullable: true, isDestructiveChange: true);
+                "dbo.MyTable", newColumn, isDestructiveChange: true);
             var mockVisitor = new Mock<MigrationOperationSqlGenerator>();
             var builder = new Mock<IndentedStringBuilder>();
             alterColumnOperation.GenerateSql(mockVisitor.Object, builder.Object, false);

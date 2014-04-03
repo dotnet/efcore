@@ -205,14 +205,16 @@ namespace Microsoft.Data.Migrations
         {
             Check.NotNull(alterColumnOperation, "alterColumnOperation");
 
+            var newColumn = alterColumnOperation.NewColumn;
+
             stringBuilder
                 .Append("ALTER TABLE ")
                 .Append(DelimitIdentifier(alterColumnOperation.TableName))
                 .Append(" ALTER COLUMN ")
-                .Append(DelimitIdentifier(alterColumnOperation.ColumnName))
+                .Append(DelimitIdentifier(newColumn.Name))
                 .Append(" ")
-                .Append(alterColumnOperation.DataType)
-                .Append(alterColumnOperation.IsNullable ? " NULL" : " NOT NULL");
+                .Append(GenerateDataType(newColumn))
+                .Append(newColumn.IsNullable ? " NULL" : " NOT NULL");  
         }
 
         public virtual void Generate([NotNull] AddDefaultConstraintOperation addDefaultConstraintOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
@@ -382,6 +384,11 @@ namespace Microsoft.Data.Migrations
         public virtual string GenerateDataType([NotNull] Column column)
         {
             Check.NotNull(column, "column");
+
+            if (column.DataType != null)
+            {
+                return column.DataType;
+            }
 
             throw new NotImplementedException();
         }

@@ -241,8 +241,8 @@ namespace Microsoft.Data.Migrations.Tests
             var alterColumnOperation = (AlterColumnOperation)operations[0];
 
             Assert.Equal("dbo.MyTable0", alterColumnOperation.TableName);
-            Assert.Equal("MyColumn", alterColumnOperation.ColumnName);
-            Assert.False(alterColumnOperation.IsNullable);
+            Assert.Equal("MyColumn", alterColumnOperation.NewColumn.Name);
+            Assert.False(alterColumnOperation.NewColumn.IsNullable);
         }
 
         [Fact]
@@ -266,8 +266,8 @@ namespace Microsoft.Data.Migrations.Tests
             var alterColumnOperation = (AlterColumnOperation)operations[0];
 
             Assert.Equal("dbo.MyTable0", alterColumnOperation.TableName);
-            Assert.Equal("MyColumn", alterColumnOperation.ColumnName);
-            Assert.Equal(typeof(double), alterColumnOperation.ClrType);
+            Assert.Equal("MyColumn", alterColumnOperation.NewColumn.Name);
+            Assert.Equal(typeof(double), alterColumnOperation.NewColumn.ClrType);
         }
 
         [Fact]
@@ -288,8 +288,8 @@ namespace Microsoft.Data.Migrations.Tests
             var alterColumnOperation = (AlterColumnOperation)operations[0];
 
             Assert.Equal("dbo.MyTable0", alterColumnOperation.TableName);
-            Assert.Equal("MyColumn", alterColumnOperation.ColumnName);
-            Assert.Equal("nvarchar(10)", alterColumnOperation.DataType);
+            Assert.Equal("MyColumn", alterColumnOperation.NewColumn.Name);
+            Assert.Equal("nvarchar(10)", alterColumnOperation.NewColumn.DataType);
         }
 
         [Fact]

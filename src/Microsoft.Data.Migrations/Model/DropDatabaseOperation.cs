@@ -27,12 +27,20 @@ namespace Microsoft.Data.Migrations.Model
             get { return true; }
         }
 
-        public override void GenerateSql([NotNull] MigrationOperationSqlGenerator visitor, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
+        public override void GenerateSql([NotNull] MigrationOperationSqlGenerator generator, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
-            Check.NotNull(visitor, "visitor");
+            Check.NotNull(generator, "generator");
             Check.NotNull(stringBuilder, "stringBuilder");
 
-            visitor.Generate(this, stringBuilder, generateIdempotentSql);
+            generator.Generate(this, stringBuilder, generateIdempotentSql);
+        }
+
+        public override void GenerateCode([NotNull] MigrationCodeGenerator generator, [NotNull] IndentedStringBuilder stringBuilder)
+        {
+            Check.NotNull(generator, "generator");
+            Check.NotNull(stringBuilder, "stringBuilder");
+
+            generator.Generate(this, stringBuilder);
         }
     }
 }
