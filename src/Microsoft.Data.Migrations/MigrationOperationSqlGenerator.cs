@@ -21,20 +21,14 @@ namespace Microsoft.Data.Migrations
     // similar to ones in the generator for SqlServer but implemented over INFORMATION_SCHEMA.
     // Also consider adding flag for opting between presence checks and "IF [NOT] EXISTS" 
     // constructs where possible.
-    public class MigrationOperationSqlGenerator : MigrationOperationVisitor
+    public class MigrationOperationSqlGenerator
     {
         // TODO: Check whether the following formats ar SqlServer specific or not and move
         // to SqlServer provider if they are.
         internal const string DateTimeFormat = "yyyy-MM-ddTHH:mm:ss.fffK";
         internal const string DateTimeOffsetFormat = "yyyy-MM-ddTHH:mm:ss.fffzzz";
 
-        private readonly IndentedStringBuilder _stringBuilder = new IndentedStringBuilder();
         private Database _database;
-
-        public virtual string GeneratedSql
-        {
-            get { return StringBuilder.ToString(); }
-        }
 
         public virtual Database Database
         {
@@ -49,58 +43,53 @@ namespace Microsoft.Data.Migrations
             }
         }
 
-        protected IndentedStringBuilder StringBuilder
-        {
-            get { return _stringBuilder; }
-        }
-
-        public static string Generate<T>([NotNull] T migrationOperation)
-            where T : MigrationOperation
+        public static SqlStatement Generate([NotNull] MigrationOperation migrationOperation, bool generateIdempotentSql)
         {
             Check.NotNull(migrationOperation, "migrationOperation");
 
             var sqlGenerator = new MigrationOperationSqlGenerator();
 
-            migrationOperation.Accept(sqlGenerator);
-
-            return sqlGenerator.GeneratedSql;
+            return sqlGenerator.Generate(new MigrationOperation[] { migrationOperation }, generateIdempotentSql).Single();
         }
 
-        public virtual void Generate([NotNull] IReadOnlyList<MigrationOperation> migrationOperations)
+        public virtual IEnumerable<SqlStatement> Generate([NotNull] IReadOnlyList<MigrationOperation> migrationOperations, bool generateIdempotentSql)
         {
             Check.NotNull(migrationOperations, "migrationOperations");
 
             foreach (var operation in migrationOperations)
             {
-                operation.Accept(this);
+                var builder = new IndentedStringBuilder();
+                operation.GenerateSql(this, builder, generateIdempotentSql);
+                yield return new SqlStatement(builder.ToString());
             }
         }
 
-        public override void Visit([NotNull] CreateDatabaseOperation createDatabaseOperation)
+        public virtual void Generate([NotNull] CreateDatabaseOperation createDatabaseOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
             Check.NotNull(createDatabaseOperation, "createDatabaseOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
 
-            StringBuilder
+            stringBuilder
                 .Append("CREATE DATABASE ")
                 .Append(DelimitIdentifier(createDatabaseOperation.DatabaseName));
         }
 
-        public override void Visit([NotNull] DropDatabaseOperation dropDatabaseOperation)
+        public virtual void Generate([NotNull] DropDatabaseOperation dropDatabaseOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
             Check.NotNull(dropDatabaseOperation, "dropDatabaseOperation");
 
-            StringBuilder
+            stringBuilder
                 .Append("DROP DATABASE ")
                 .Append(DelimitIdentifier(dropDatabaseOperation.DatabaseName));
         }
 
-        public override void Visit([NotNull] CreateSequenceOperation createSequenceOperation)
+        public virtual void Generate([NotNull] CreateSequenceOperation createSequenceOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
             Check.NotNull(createSequenceOperation, "createSequenceOperation");
 
             var sequence = createSequenceOperation.Sequence;
 
-            StringBuilder
+            stringBuilder
                 .Append("CREATE SEQUENCE ")
                 .Append(DelimitIdentifier(sequence.Name))
                 .Append(" AS ")
@@ -111,64 +100,65 @@ namespace Microsoft.Data.Migrations
                 .Append(sequence.IncrementBy);
         }
 
-        public override void Visit([NotNull] DropSequenceOperation dropSequenceOperation)
+        public virtual void Generate([NotNull] DropSequenceOperation dropSequenceOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
             Check.NotNull(dropSequenceOperation, "dropSequenceOperation");
 
-            StringBuilder
+            stringBuilder
                 .Append("DROP SEQUENCE ")
                 .Append(DelimitIdentifier(dropSequenceOperation.SequenceName));
         }
 
-        public override void Visit([NotNull] CreateTableOperation createTableOperation)
+        public virtual void Generate([NotNull] CreateTableOperation createTableOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
             Check.NotNull(createTableOperation, "createTableOperation");
 
             var table = createTableOperation.Table;
 
-            StringBuilder
+            stringBuilder
                 .Append("CREATE TABLE ")
                 .Append(DelimitIdentifier(table.Name))
                 .AppendLine(" (");
 
-            using (StringBuilder.Indent())
+            using (stringBuilder.Indent())
             {
-                GenerateColumns(table.Columns);
+                GenerateColumns(table.Columns, stringBuilder);
 
                 var primaryKey = table.PrimaryKey;
 
                 if (primaryKey != null)
                 {
-                    StringBuilder.AppendLine();
+                    stringBuilder.AppendLine();
 
                     GeneratePrimaryKey(
                         primaryKey.Name,
                         primaryKey.Columns.Select(c => c.Name).ToArray(),
-                        primaryKey.IsClustered);
+                        primaryKey.IsClustered,
+                        stringBuilder);
                 }
             }
 
-            StringBuilder
+            stringBuilder
                 .AppendLine()
                 .Append(")");
         }
 
-        public override void Visit([NotNull] DropTableOperation dropTableOperation)
+        public virtual void Generate([NotNull] DropTableOperation dropTableOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
             Check.NotNull(dropTableOperation, "dropTableOperation");
 
-            StringBuilder
+            stringBuilder
                 .Append("DROP TABLE ")
                 .Append(DelimitIdentifier(dropTableOperation.TableName));
         }
 
-        public override void Visit([NotNull] RenameTableOperation renameTableOperation)
+        public virtual void Generate([NotNull] RenameTableOperation renameTableOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
             Check.NotNull(renameTableOperation, "renameTableOperation");
 
             // TODO: Not ANSI-99.
 
-            StringBuilder
+            stringBuilder
                 .Append("EXECUTE sp_rename @objname = N")
                 .Append(DelimitLiteral(renameTableOperation.TableName))
                 .Append(", @newname = N")
@@ -176,45 +166,46 @@ namespace Microsoft.Data.Migrations
                 .Append(", @objtype = N'OBJECT'");
         }
 
-        public override void Visit([NotNull] MoveTableOperation moveTableOperation)
+        public virtual void Generate([NotNull] MoveTableOperation moveTableOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
             Check.NotNull(moveTableOperation, "moveTableOperation");
 
-            StringBuilder
+            stringBuilder
                 .Append("ALTER SCHEMA ")
                 .Append(DelimitIdentifier(moveTableOperation.NewSchema))
                 .Append(" TRANSFER ")
                 .Append(DelimitIdentifier(moveTableOperation.TableName));
         }
 
-        public override void Visit([NotNull] AddColumnOperation addColumnOperation)
+        public virtual void Generate([NotNull] AddColumnOperation addColumnOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
             Check.NotNull(addColumnOperation, "addColumnOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
 
-            StringBuilder
+            stringBuilder
                 .Append("ALTER TABLE ")
                 .Append(DelimitIdentifier(addColumnOperation.TableName))
                 .Append(" ADD ");
 
-            GenerateColumn(addColumnOperation.Column);
+            GenerateColumn(addColumnOperation.Column, stringBuilder);
         }
 
-        public override void Visit([NotNull] DropColumnOperation dropColumnOperation)
+        public virtual void Generate([NotNull] DropColumnOperation dropColumnOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
             Check.NotNull(dropColumnOperation, "dropColumnOperation");
 
-            StringBuilder
+            stringBuilder
                 .Append("ALTER TABLE ")
                 .Append(DelimitIdentifier(dropColumnOperation.TableName))
                 .Append(" DROP COLUMN ")
                 .Append(DelimitIdentifier(dropColumnOperation.ColumnName));
         }
 
-        public override void Visit([NotNull] AlterColumnOperation alterColumnOperation)
+        public virtual void Generate([NotNull] AlterColumnOperation alterColumnOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
             Check.NotNull(alterColumnOperation, "alterColumnOperation");
 
-            StringBuilder
+            stringBuilder
                 .Append("ALTER TABLE ")
                 .Append(DelimitIdentifier(alterColumnOperation.TableName))
                 .Append(" ALTER COLUMN ")
@@ -224,11 +215,11 @@ namespace Microsoft.Data.Migrations
                 .Append(alterColumnOperation.IsNullable ? " NULL" : " NOT NULL");
         }
 
-        public override void Visit([NotNull] AddDefaultConstraintOperation addDefaultConstraintOperation)
+        public virtual void Generate([NotNull] AddDefaultConstraintOperation addDefaultConstraintOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
             Check.NotNull(addDefaultConstraintOperation, "addDefaultConstraintOperation");
 
-            StringBuilder
+            stringBuilder
                 .Append("ALTER TABLE ")
                 .Append(DelimitIdentifier(addDefaultConstraintOperation.TableName))
                 .Append(" ALTER COLUMN ")
@@ -237,19 +228,19 @@ namespace Microsoft.Data.Migrations
 
             if (addDefaultConstraintOperation.DefaultSql != null)
             {
-                StringBuilder.Append(addDefaultConstraintOperation.DefaultSql);
+                stringBuilder.Append(addDefaultConstraintOperation.DefaultSql);
             }
             else
             {
-                StringBuilder.Append(GenerateLiteral((dynamic)addDefaultConstraintOperation.DefaultValue));
+                stringBuilder.Append(GenerateLiteral((dynamic)addDefaultConstraintOperation.DefaultValue));
             }
         }
 
-        public override void Visit([NotNull] DropDefaultConstraintOperation dropDefaultConstraintOperation)
+        public virtual void Generate([NotNull] DropDefaultConstraintOperation dropDefaultConstraintOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
             Check.NotNull(dropDefaultConstraintOperation, "dropDefaultConstraintOperation");
 
-            StringBuilder
+            stringBuilder
                 .Append("ALTER TABLE ")
                 .Append(DelimitIdentifier(dropDefaultConstraintOperation.TableName))
                 .Append(" ALTER COLUMN ")
@@ -257,27 +248,28 @@ namespace Microsoft.Data.Migrations
                 .Append(" DROP DEFAULT");
         }
 
-        public override void Visit([NotNull] RenameColumnOperation renameColumnOperation)
+        public virtual void Generate([NotNull] RenameColumnOperation renameColumnOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
             Check.NotNull(renameColumnOperation, "renameColumnOperation");
 
             // TODO: Not ANSI-99.
 
-            StringBuilder
+            stringBuilder
                 .Append("EXECUTE sp_rename @objname = N'")
                 .Append(EscapeLiteral(renameColumnOperation.TableName))
                 .Append(".")
                 .Append(EscapeLiteral(renameColumnOperation.ColumnName))
                 .Append("', @newname = N")
                 .Append(DelimitLiteral(renameColumnOperation.NewColumnName))
-                .Append(", @objtype = N'COLUMN'");
+                .Append(", @objtype = N'COLUMN'")
+                .ToString();
         }
 
-        public override void Visit([NotNull] AddPrimaryKeyOperation addPrimaryKeyOperation)
+        public virtual void Generate([NotNull] AddPrimaryKeyOperation addPrimaryKeyOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
             Check.NotNull(addPrimaryKeyOperation, "addPrimaryKeyOperation");
 
-            StringBuilder
+            stringBuilder
                 .Append("ALTER TABLE ")
                 .Append(DelimitIdentifier(addPrimaryKeyOperation.TableName))
                 .Append(" ADD ");
@@ -285,25 +277,26 @@ namespace Microsoft.Data.Migrations
             GeneratePrimaryKey(
                 addPrimaryKeyOperation.PrimaryKeyName,
                 addPrimaryKeyOperation.ColumnNames,
-                addPrimaryKeyOperation.IsClustered);
+                addPrimaryKeyOperation.IsClustered,
+                stringBuilder);
         }
 
-        public override void Visit([NotNull] DropPrimaryKeyOperation dropPrimaryKeyOperation)
+        public virtual void Generate([NotNull] DropPrimaryKeyOperation dropPrimaryKeyOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
             Check.NotNull(dropPrimaryKeyOperation, "dropPrimaryKeyOperation");
 
-            StringBuilder
+            stringBuilder
                 .Append("ALTER TABLE ")
                 .Append(DelimitIdentifier(dropPrimaryKeyOperation.TableName))
                 .Append(" DROP CONSTRAINT ")
                 .Append(DelimitIdentifier(dropPrimaryKeyOperation.PrimaryKeyName));
         }
 
-        public override void Visit([NotNull] AddForeignKeyOperation addForeignKeyOperation)
+        public virtual void Generate([NotNull] AddForeignKeyOperation addForeignKeyOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
             Check.NotNull(addForeignKeyOperation, "addForeignKeyOperation");
 
-            StringBuilder
+            stringBuilder
                 .Append("ALTER TABLE ")
                 .Append(DelimitIdentifier(addForeignKeyOperation.TableName))
                 .Append(" ADD CONSTRAINT ")
@@ -318,38 +311,38 @@ namespace Microsoft.Data.Migrations
 
             if (addForeignKeyOperation.CascadeDelete)
             {
-                StringBuilder.Append(" ON DELETE CASCADE");
+                stringBuilder.Append(" ON DELETE CASCADE");
             }
         }
 
-        public override void Visit([NotNull] DropForeignKeyOperation dropForeignKeyOperation)
+        public virtual void Generate([NotNull] DropForeignKeyOperation dropForeignKeyOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
             Check.NotNull(dropForeignKeyOperation, "dropForeignKeyOperation");
 
-            StringBuilder
+            stringBuilder
                 .Append("ALTER TABLE ")
                 .Append(DelimitIdentifier(dropForeignKeyOperation.DependentTableName))
                 .Append(" DROP CONSTRAINT ")
                 .Append(DelimitIdentifier(dropForeignKeyOperation.ForeignKeyName));
         }
 
-        public override void Visit([NotNull] CreateIndexOperation createIndexOperation)
+        public virtual void Generate([NotNull] CreateIndexOperation createIndexOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
             Check.NotNull(createIndexOperation, "createIndexOperation");
 
-            StringBuilder.Append("CREATE");
+            stringBuilder.Append("CREATE");
 
             if (createIndexOperation.IsUnique)
             {
-                StringBuilder.Append(" UNIQUE");
+                stringBuilder.Append(" UNIQUE");
             }
 
             if (createIndexOperation.IsClustered)
             {
-                StringBuilder.Append(" CLUSTERED");
+                stringBuilder.Append(" CLUSTERED");
             }
 
-            StringBuilder
+            stringBuilder
                 .Append(" INDEX ")
                 .Append(DelimitIdentifier(createIndexOperation.IndexName))
                 .Append(" ON ")
@@ -359,24 +352,24 @@ namespace Microsoft.Data.Migrations
                 .Append(")");
         }
 
-        public override void Visit([NotNull] DropIndexOperation dropIndexOperation)
+        public virtual void Generate([NotNull] DropIndexOperation dropIndexOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
             Check.NotNull(dropIndexOperation, "dropIndexOperation");
 
-            StringBuilder
-                .Append("DROP INDEX ")
-                .Append(DelimitIdentifier(dropIndexOperation.IndexName))
-                .Append(" ON ")
-                .Append(DelimitIdentifier(dropIndexOperation.TableName));
+            stringBuilder
+                 .Append("DROP INDEX ")
+                 .Append(DelimitIdentifier(dropIndexOperation.IndexName))
+                 .Append(" ON ")
+                 .Append(DelimitIdentifier(dropIndexOperation.TableName));
         }
 
-        public override void Visit([NotNull] RenameIndexOperation renameIndexOperation)
+        public virtual void Generate([NotNull] RenameIndexOperation renameIndexOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
             Check.NotNull(renameIndexOperation, "renameIndexOperation");
 
             // TODO: Not ANSI-99.
 
-            StringBuilder
+            stringBuilder
                 .Append("EXECUTE sp_rename @objname = N'")
                 .Append(EscapeLiteral(renameIndexOperation.TableName))
                 .Append(".")
@@ -386,9 +379,9 @@ namespace Microsoft.Data.Migrations
                 .Append(", @objtype = N'INDEX'");
         }
 
-        public virtual string GenerateDataType([NotNull] Type clrType)
+        public virtual string GenerateDataType([NotNull] Column column)
         {
-            Check.NotNull(clrType, "clrType");
+            Check.NotNull(column, "column");
 
             throw new NotImplementedException();
         }
@@ -481,56 +474,58 @@ namespace Microsoft.Data.Migrations
             return literal.Replace("'", "''");
         }
 
-        protected virtual void GenerateColumns([NotNull] IReadOnlyList<Column> columns)
+        protected virtual void GenerateColumns([NotNull] IReadOnlyList<Column> columns, [NotNull] IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(columns, "columns");
+            Check.NotNull(stringBuilder, "stringBuilder");
 
             if (columns.Count == 0)
             {
                 return;
             }
 
-            GenerateColumn(columns[0]);
+            GenerateColumn(columns[0], stringBuilder);
 
             for (var i = 1; i < columns.Count; i++)
             {
-                StringBuilder.AppendLine(",");
+                stringBuilder.AppendLine(",");
 
-                GenerateColumn(columns[i]);
+                GenerateColumn(columns[i], stringBuilder);
             }
         }
 
-        protected virtual void GenerateColumn([NotNull] Column column)
+        protected virtual void GenerateColumn([NotNull] Column column, [NotNull] IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(column, "column");
+            Check.NotNull(stringBuilder, "stringBuilder");
 
-            StringBuilder
+            stringBuilder
                 .Append(DelimitIdentifier(column.Name))
                 .Append(" ");
 
             if (column.DataType != null)
             {
-                StringBuilder.Append(column.DataType);
+                stringBuilder.Append(column.DataType);
             }
             else
             {
-                StringBuilder.Append(GenerateDataType(column.ClrType));
+                stringBuilder.Append(GenerateDataType(column));
             }
 
             if (!column.IsNullable)
             {
-                StringBuilder.Append(" NOT NULL");
+                stringBuilder.Append(" NOT NULL");
             }
 
             if (column.DefaultSql != null)
             {
-                StringBuilder
+                stringBuilder
                     .Append(" DEFAULT ")
                     .Append(column.DefaultSql);
             }
             else if (column.DefaultValue != null)
             {
-                StringBuilder
+                stringBuilder
                     .Append(" DEFAULT ")
                     .Append(GenerateLiteral(column.DefaultValue));
             }
@@ -539,22 +534,24 @@ namespace Microsoft.Data.Migrations
         protected virtual void GeneratePrimaryKey(
             [NotNull] string primaryKeyName,
             [NotNull] IReadOnlyList<string> columnNames,
-            bool isClustered)
+            bool isClustered,
+            [NotNull]IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(primaryKeyName, "primaryKeyName");
             Check.NotNull(columnNames, "columnNames");
+            Check.NotNull(stringBuilder, "stringBuilder");
 
-            StringBuilder
+            stringBuilder
                 .Append("CONSTRAINT ")
                 .Append(DelimitIdentifier(primaryKeyName))
                 .Append(" PRIMARY KEY");
 
             if (!isClustered)
             {
-                StringBuilder.Append(" NONCLUSTERED");
+                stringBuilder.Append(" NONCLUSTERED");
             }
 
-            StringBuilder
+            stringBuilder
                 .Append(" (")
                 .Append(columnNames.Select(n => DelimitIdentifier(n)).Join())
                 .Append(")");

@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Migrations.Model;
 using Moq;
 using Xunit;
@@ -25,11 +26,11 @@ namespace Microsoft.Data.Migrations.Tests.Model
         {
             var addPrimaryKeyOperation = new AddPrimaryKeyOperation(
                 "dbo.MyTable", "MyPK", new[] { "Foo", "Bar" }, isClustered: true);
-            var mockVisitor = new Mock<MigrationOperationVisitor>();
+            var mockVisitor = new Mock<MigrationOperationSqlGenerator>();
+            var builder = new Mock<IndentedStringBuilder>();
+            addPrimaryKeyOperation.GenerateSql(mockVisitor.Object, builder.Object, false);
 
-            addPrimaryKeyOperation.Accept(mockVisitor.Object);
-
-            mockVisitor.Verify(g => g.Visit(addPrimaryKeyOperation), Times.Once());
+            mockVisitor.Verify(g => g.Generate(addPrimaryKeyOperation, builder.Object, false), Times.Once());
         }
     }
 }

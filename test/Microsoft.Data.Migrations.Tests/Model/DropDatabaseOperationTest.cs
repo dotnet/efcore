@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Migrations.Model;
 using Moq;
 using Xunit;
@@ -21,11 +22,11 @@ namespace Microsoft.Data.Migrations.Tests.Model
         public void Dispatches_visitor()
         {
             var dropDatabaseOperation = new DropDatabaseOperation("MyDatabase");
-            var mockVisitor = new Mock<MigrationOperationVisitor>();
+            var mockVisitor = new Mock<MigrationOperationSqlGenerator>();
+            var builder = new Mock<IndentedStringBuilder>();
+            dropDatabaseOperation.GenerateSql(mockVisitor.Object, builder.Object, false);
 
-            dropDatabaseOperation.Accept(mockVisitor.Object);
-
-            mockVisitor.Verify(g => g.Visit(dropDatabaseOperation), Times.Once());
+            mockVisitor.Verify(g => g.Generate(dropDatabaseOperation, builder.Object, false), Times.Once());
         }
     }
 }

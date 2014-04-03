@@ -4,6 +4,7 @@ using System.Data.Common;
 using JetBrains.Annotations;
 using Microsoft.AspNet.Logging;
 using Microsoft.Data.Entity.Services;
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Relational;
 using Microsoft.Data.SqlServer.Utilities;
 #if NET45
@@ -16,6 +17,7 @@ namespace Microsoft.Data.SqlServer
     public class SqlServerDataStore : RelationalDataStore
     {
         private readonly SqlGenerator _sqlGenerator;
+        private readonly ThreadSafeLazyRef<string> _masterConnectionString;
 
         public SqlServerDataStore([NotNull] string connectionString)
             : this(Check.NotEmpty(connectionString, "connectionString"), NullLogger.Instance, new SqlServerSqlGenerator())
@@ -27,6 +29,14 @@ namespace Microsoft.Data.SqlServer
         {
             Check.NotNull(sqlGenerator, "sqlGenerator");
             _sqlGenerator = sqlGenerator;
+
+            _masterConnectionString = new ThreadSafeLazyRef<string>(() => 
+                {
+                    var builder = new DbConnectionStringBuilder();
+                    builder.ConnectionString = connectionString;
+                    builder.Add("Initial Catalog", "master");
+                    return builder.ConnectionString;
+                });
         }
 
         protected override SqlGenerator SqlGenerator
@@ -43,6 +53,11 @@ namespace Microsoft.Data.SqlServer
 #else
             throw new System.NotImplementedException();
 #endif
+        }
+
+        public virtual DbConnection CreateMasterConnection()
+        {
+            return CreateConnection(_masterConnectionString.Value);
         }
     }
 }

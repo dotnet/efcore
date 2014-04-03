@@ -90,6 +90,11 @@ namespace Microsoft.Data.Relational
 
         public abstract DbConnection CreateConnection([NotNull] string connectionString);
 
+        public virtual DbConnection CreateConnection()
+        {
+            return CreateConnection(_connectionString);
+        }
+
         private sealed class Enumerable<T> : IAsyncEnumerable<T>
         {
             private readonly Func<DbConnection> _connectionFactory;

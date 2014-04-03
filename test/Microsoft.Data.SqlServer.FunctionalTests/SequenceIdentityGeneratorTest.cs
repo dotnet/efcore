@@ -17,7 +17,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                     = new SequenceIdentityGenerator(testDatabase);
 
                 await testDatabase.ExecuteNonQueryAsync(
-                    SqlServerMigrationOperationSqlGenerator.Generate(sequenceIdentityGenerator.CreateMigrationOperation()));
+                    SqlServerMigrationOperationSqlGenerator.Generate(sequenceIdentityGenerator.CreateMigrationOperation(), generateIdempotentSql: true).Sql);
 
                 var next = sequenceIdentityGenerator.NextAsync(CancellationToken.None).Result;
 
