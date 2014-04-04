@@ -12,7 +12,7 @@ namespace Microsoft.Data.Relational
 {
     public class SqlStatementExecutor
     {
-        public virtual async Task ExecuteAsync([NotNull] DbConnection connection, [NotNull] IEnumerable<SqlStatement> statements, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task ExecuteNonQueryAsync([NotNull] DbConnection connection, [NotNull] IEnumerable<SqlStatement> statements, CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(connection, "connection");
             Check.NotNull(statements, "statements");
@@ -22,7 +22,7 @@ namespace Microsoft.Data.Relational
             var closeConnection = false;
             if (connection.State != ConnectionState.Open)
             {
-                await connection.OpenAsync();
+                await connection.OpenAsync(cancellationToken);
                 closeConnection = true;
             }
             
@@ -32,7 +32,7 @@ namespace Microsoft.Data.Relational
                 {
                     var command = connection.CreateCommand();
                     command.CommandText = item.Sql;
-                    await command.ExecuteNonQueryAsync();
+                    await command.ExecuteNonQueryAsync(cancellationToken);
                 }
             }
             finally

@@ -14,5 +14,15 @@ namespace Microsoft.Data.Entity.Storage
         {
             throw new NotImplementedException();
         }
+
+        public virtual Task<bool> ExistsAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual Task DeleteAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
     }
 }
