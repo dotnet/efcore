@@ -99,7 +99,7 @@ namespace Microsoft.Data.Relational
                     IsNullable = property.IsNullable,
                     DefaultValue = property.ColumnDefaultValue(),
                     DefaultSql = property.ColumnDefaultSql(),
-                    GenerationStrategy = TranslateValueGenerationStrategy(property.ValueGenerationStrategy)
+                    ValueGenerationStrategy = TranslateValueGenerationStrategy(property.ValueGenerationStrategy)
                 });
         }
 

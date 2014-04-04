@@ -59,6 +59,9 @@ namespace Microsoft.Data.Relational
 
                 var executor = new BatchExecutor(commands, SqlGenerator);
                 await executor.ExecuteAsync(connection, cancellationToken);
+
+                // TODO: this should happen when the transaction is being commited
+                executor.PropagateResults();
             }
 
             // TODO Return the actual results once we can get them

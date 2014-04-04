@@ -170,7 +170,7 @@ namespace Microsoft.Data.Relational.Tests
                     {
                         new Column("Id", "storetype"),
                         new Column("Name", "_"),
-                        new Column("Timestamp", "_") { GenerationStrategy = StoreValueGenerationStrategy.Computed }
+                        new Column("Timestamp", "_") { ValueGenerationStrategy = StoreValueGenerationStrategy.Computed }
                     });
             table.PrimaryKey = new PrimaryKey("PK", table.Columns.Where(c => c.Name == "Id").ToArray());
 
@@ -204,7 +204,7 @@ namespace Microsoft.Data.Relational.Tests
             var table = new Table("table",
                 new[]
                     {
-                        new Column("Id", "storetype") { GenerationStrategy = StoreValueGenerationStrategy.Computed}, 
+                        new Column("Id", "storetype") { ValueGenerationStrategy = StoreValueGenerationStrategy.Computed}, 
                         new Column("Name", "_")
                     });
             table.PrimaryKey = new PrimaryKey("PK", table.Columns.Where(c => c.Name == "Id").ToArray());
@@ -280,7 +280,7 @@ namespace Microsoft.Data.Relational.Tests
                     {
                         new Column("Id", "storetype"), 
                         new Column("Name", "_"), 
-                        new Column("LastUpdate", "_") { GenerationStrategy = StoreValueGenerationStrategy.Computed }
+                        new Column("LastUpdate", "_") { ValueGenerationStrategy = StoreValueGenerationStrategy.Computed }
                     });
 
             table.PrimaryKey = new PrimaryKey("PK", table.Columns.Where(c => c.Name == "Id").ToArray());

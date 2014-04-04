@@ -75,7 +75,7 @@ namespace Microsoft.Data.Relational
         }
 
         /// <summary>
-        /// Update failed. Expected rows affected '{expectedRowsAffected}'. Actual rows affected '{actualRowsAffected}'.
+        /// Update failed. Expected {expectedRows} row(s) but {actualRows} row(s) returned.
         /// </summary>
         internal static string UpdateConcurrencyException
         {
@@ -83,11 +83,75 @@ namespace Microsoft.Data.Relational
         }
 
         /// <summary>
-        /// Update failed. Expected rows affected '{expectedRowsAffected}'. Actual rows affected '{actualRowsAffected}'.
+        /// Update failed. Expected {expectedRows} row(s) but {actualRows} row(s) returned.
         /// </summary>
-        internal static string FormatUpdateConcurrencyException(object expectedRowsAffected, object actualRowsAffected)
+        internal static string FormatUpdateConcurrencyException(object expectedRows, object actualRows)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("UpdateConcurrencyException", "expectedRowsAffected", "actualRowsAffected"), expectedRowsAffected, actualRowsAffected);
+            return string.Format(CultureInfo.CurrentCulture, GetString("UpdateConcurrencyException", "expectedRows", "actualRows"), expectedRows, actualRows);
+        }
+
+        /// <summary>
+        /// Propagating results failed. The table '{tableName}' has no columns with store generated values but store generated values were returned by a modification command.
+        /// </summary>
+        internal static string NoStoreGenColumnsToPropagateResults
+        {
+            get { return GetString("NoStoreGenColumnsToPropagateResults"); }
+        }
+
+        /// <summary>
+        /// Propagating results failed. The table '{tableName}' has no columns with store generated values but store generated values were returned by a modification command.
+        /// </summary>
+        internal static string FormatNoStoreGenColumnsToPropagateResults(object tableName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NoStoreGenColumnsToPropagateResults", "tableName"), tableName);
+        }
+
+        /// <summary>
+        /// Propagating results failed. The table '{tableName}' has columns with store generated values but no store generated values were returned by a modification command.
+        /// </summary>
+        internal static string ResultsNotPropagatedForStoreGenColumns
+        {
+            get { return GetString("ResultsNotPropagatedForStoreGenColumns"); }
+        }
+
+        /// <summary>
+        /// Propagating results failed. The table '{tableName}' has columns with store generated values but no store generated values were returned by a modification command.
+        /// </summary>
+        internal static string FormatResultsNotPropagatedForStoreGenColumns(object tableName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ResultsNotPropagatedForStoreGenColumns", "tableName"), tableName);
+        }
+
+        /// <summary>
+        /// A modification command returned more than one row. Each modification command must return at most one row.
+        /// </summary>
+        internal static string TooManyRowsForModificationCommand
+        {
+            get { return GetString("TooManyRowsForModificationCommand"); }
+        }
+
+        /// <summary>
+        /// A modification command returned more than one row. Each modification command must return at most one row.
+        /// </summary>
+        internal static string FormatTooManyRowsForModificationCommand()
+        {
+            return GetString("TooManyRowsForModificationCommand");
+        }
+
+        /// <summary>
+        /// Store generated values has already been saved for this command.
+        /// </summary>
+        internal static string StoreGenValuesSavedMultipleTimesForCommand
+        {
+            get { return GetString("StoreGenValuesSavedMultipleTimesForCommand"); }
+        }
+
+        /// <summary>
+        /// Store generated values has already been saved for this command.
+        /// </summary>
+        internal static string FormatStoreGenValuesSavedMultipleTimesForCommand()
+        {
+            return GetString("StoreGenValuesSavedMultipleTimesForCommand");
         }
 
         private static string GetString(string name, params string[] formatterNames)

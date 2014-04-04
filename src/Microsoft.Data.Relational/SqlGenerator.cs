@@ -5,6 +5,7 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Relational.Model;
 using Microsoft.Data.Relational.Utilities;
 
@@ -21,7 +22,7 @@ namespace Microsoft.Data.Relational
 
             AppendInsertCommand(commandStringBuilder, table, columnsToParameters);
 
-            var storeGeneratedColumns = GetStoreGeneratedColumns(table).ToArray();
+            var storeGeneratedColumns = table.GetStoreGeneratedColumns().ToArray();
 
             if (storeGeneratedColumns.Any())
             {
@@ -30,7 +31,7 @@ namespace Microsoft.Data.Relational
                 var primaryKeyColumns = table.PrimaryKey.Columns;
 
                 var whereConditions =
-                    columnsToParameters.Where(c => primaryKeyColumns.Contains(c.Key));
+                    columnsToParameters.Where(p => primaryKeyColumns.Contains(p.Key));
 
                 var storeGeneratedKeyColumns = storeGeneratedColumns.Where(primaryKeyColumns.Contains).ToArray();
                 if (storeGeneratedKeyColumns.Any())
@@ -57,7 +58,7 @@ namespace Microsoft.Data.Relational
             AppendUpdateCommand(commandStringBuilder, table, columnValues, whereConditions);
 
             var storeGeneratedNonKeyColumns =
-                GetStoreGeneratedColumns(table).Where(c => !table.PrimaryKey.Columns.Contains(c)).ToArray();
+                table.GetStoreGeneratedColumns().Except(table.PrimaryKey.Columns).ToArray();
 
             if (storeGeneratedNonKeyColumns.Any())
             {
@@ -221,12 +222,5 @@ namespace Microsoft.Data.Relational
         {
             get { return ";"; }
         }
-
-        protected IEnumerable<Column> GetStoreGeneratedColumns(Table table)
-        {
-            return table.Columns.Where(
-                c => c.GenerationStrategy == StoreValueGenerationStrategy.Identity ||
-                     c.GenerationStrategy == StoreValueGenerationStrategy.Computed);
-        }        
     }
 }

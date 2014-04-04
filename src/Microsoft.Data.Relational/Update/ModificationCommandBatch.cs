@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
@@ -13,6 +14,8 @@ namespace Microsoft.Data.Relational.Update
     public class ModificationCommandBatch
     {
         private readonly ModificationCommand[] _batchCommands;
+        private readonly Dictionary<ModificationCommand, KeyValuePair<string, object>[]> _storeGeneratedValues = 
+            new Dictionary<ModificationCommand, KeyValuePair<string, object>[]>();
 
         public ModificationCommandBatch([NotNull] ModificationCommand[] batchCommands)
         {
@@ -114,6 +117,48 @@ namespace Microsoft.Data.Relational.Update
             }
 
             return newParameters;
+        }
+
+        public virtual void SaveStoreGeneratedValues(int commandIndex, [NotNull] KeyValuePair<string, object>[] storeGeneratedValues)
+        {
+            Check.NotNull(storeGeneratedValues, "storeGeneratedValues");
+
+            if (_storeGeneratedValues.ContainsKey(_batchCommands[commandIndex]))
+            {
+                throw new InvalidOperationException(Strings.StoreGenValuesSavedMultipleTimesForCommand);
+            }
+
+            _storeGeneratedValues[_batchCommands[commandIndex]] = storeGeneratedValues;
+        }
+
+        public virtual bool CommandRequiresResultPropagation(int commandIndex)
+        {
+            return _batchCommands[commandIndex].RequiresResultPropagation;
+        }
+
+        public virtual void PropagateResults()
+        {
+            foreach (var command in _batchCommands)
+            {
+                KeyValuePair<string, object>[] storeGeneratedValues;
+
+                if (_storeGeneratedValues.TryGetValue(command, out storeGeneratedValues))
+                {
+                    if (!command.RequiresResultPropagation)
+                    {
+                        throw new InvalidOperationException(Strings.FormatNoStoreGenColumnsToPropagateResults(command.Table.Name));
+                    }
+
+                    command.PropagateResults(storeGeneratedValues);
+                }
+                else
+                {
+                    if (command.RequiresResultPropagation)
+                    {
+                        throw new InvalidOperationException(Strings.FormatResultsNotPropagatedForStoreGenColumns(command.Table.Name));
+                    }
+                }
+            }
         }
     }
 }

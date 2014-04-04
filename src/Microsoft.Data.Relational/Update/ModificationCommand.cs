@@ -86,15 +86,42 @@ namespace Microsoft.Data.Relational.Update
             get { return _whereClauses; }
         }
 
-        private static IEnumerable<KeyValuePair<Column, object>> GetColumnValues(Table table, StateEntry stateEntry, bool includeKeys)
+        internal virtual bool RequiresResultPropagation
         {
-            return table.Columns
-                .Where(c =>
-                    c.GenerationStrategy != StoreValueGenerationStrategy.Computed &&
-                    c.GenerationStrategy != StoreValueGenerationStrategy.Identity &&
-                    (includeKeys || !table.PrimaryKey.Columns.Contains(c)))
-                .Select(c => new KeyValuePair<Column, object>(c, GetPropertyValue(stateEntry, c)));
-                    
+            get
+            {
+                if (Operation != ModificationOperation.Delete)
+                {
+                    var storeGeneratedColumns = _table.GetStoreGeneratedColumns();
+
+                    return (Operation == ModificationOperation.Update
+                               ? storeGeneratedColumns.Except(_table.PrimaryKey.Columns)
+                               : storeGeneratedColumns).Any();
+                }
+
+                return false;
+            }
+        }
+
+        internal virtual void PropagateResults([NotNull] KeyValuePair<string, object>[] storeGeneratedValues)
+        {
+            Contract.Assert(RequiresResultPropagation, "no columns to propagate results to");
+
+            // TODO: Consider invalidating command
+
+            foreach (var value in storeGeneratedValues)
+            {
+                SetPropertyValue(_stateEntry, value.Key, value.Value);
+            }           
+        }
+
+        private static IEnumerable<KeyValuePair<Column, object>> GetColumnValues(Table table, StateEntry stateEntry, bool includeKeyColumns)
+        {
+            var nonStoreGeneratedColumns = table.Columns.Except(table.GetStoreGeneratedColumns());
+
+            return 
+                (includeKeyColumns ? nonStoreGeneratedColumns : nonStoreGeneratedColumns.Except(table.PrimaryKey.Columns))
+                    .Select(c => new KeyValuePair<Column, object>(c, GetPropertyValue(stateEntry, c)));
         }
 
         private static IEnumerable<KeyValuePair<Column, object>> GetWhereClauses(Table table, StateEntry stateEntry)
@@ -108,9 +135,18 @@ namespace Microsoft.Data.Relational.Update
 
         private static object GetPropertyValue(StateEntry stateEntry, Column column)
         {
+            return stateEntry.GetPropertyValue(GetProperty(stateEntry, column.Name));
+        }
+
+        private static void SetPropertyValue(StateEntry stateEntry, string columnName, object value)
+        {
+            stateEntry.SetPropertyValue(GetProperty(stateEntry, columnName), value);
+        }
+
+        private static IProperty GetProperty(StateEntry stateEntry, string columnName)
+        {
             // TODO: poor man's model to store mapping
-            return 
-                stateEntry.GetPropertyValue(stateEntry.EntityType.Properties.Single(p => p.StorageName == column.Name));
+            return stateEntry.EntityType.Properties.Single(p => p.StorageName == columnName);
         }
     }
 }

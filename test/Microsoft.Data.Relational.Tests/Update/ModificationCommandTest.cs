@@ -23,7 +23,7 @@ namespace Microsoft.Data.Relational.Tests.Update
             var table = new Table("T1", 
                 new[]
                     {
-                        new Column("Col1", "_") { GenerationStrategy = StoreValueGenerationStrategy.Identity}, 
+                        new Column("Col1", "_") { ValueGenerationStrategy = StoreValueGenerationStrategy.Identity}, 
                         new Column("Col2", "_")
                     });
 
@@ -61,7 +61,7 @@ namespace Microsoft.Data.Relational.Tests.Update
             var table = new Table("T1",
                 new[]
                     {
-                        new Column("Col1", "_") { GenerationStrategy = StoreValueGenerationStrategy.Identity}, 
+                        new Column("Col1", "_") { ValueGenerationStrategy = StoreValueGenerationStrategy.Identity}, 
                         new Column("Col2", "_")
                     });
             table.PrimaryKey = new PrimaryKey("PK", table.Columns.Where(c => c.Name == "Col1").ToArray());
@@ -128,6 +128,97 @@ namespace Microsoft.Data.Relational.Tests.Update
             var stateEntry = CreateMockStateEntry("T1", EntityState.Unknown, new Dictionary<string, object>(), new string[0]);
 
             Assert.Throws<NotSupportedException>(() => new ModificationCommand(stateEntry, new Table("Table")));
+        }
+
+        [Fact]
+        public void RequiresResultPropagation_false_for_Delete_operation()
+        {
+            var properties = new Dictionary<string, object> { { "Col1", 1 }, { "Col2", "Test" } };
+            var stateEntry = CreateMockStateEntry("T1", EntityState.Deleted, properties, new[] { "Col1" });
+            var table = new Table("T1", 
+                new[] {
+                    new Column("Col1", "_") { ValueGenerationStrategy = StoreValueGenerationStrategy.Identity }, 
+                    new Column("Col2", "_") { ValueGenerationStrategy = StoreValueGenerationStrategy.Computed } 
+                });
+            table.PrimaryKey = new PrimaryKey("PK", table.Columns.Where(c => c.Name == "Col1").ToArray());
+
+            Assert.False(new ModificationCommand(stateEntry, table).RequiresResultPropagation);
+        }
+
+        [Fact]
+        public void RequiresResultPropagation_true_for_Insert_operation_if_store_generated_columns_exist()
+        {
+            var properties = new Dictionary<string, object> { { "Col1", 1 }, { "Col2", "Test" } };
+            var stateEntry = CreateMockStateEntry("T1", EntityState.Added, properties, new[] { "Col1" });
+            var table = new Table("T1",
+                new[] {
+                    new Column("Col1", "_") { ValueGenerationStrategy = StoreValueGenerationStrategy.Identity }, 
+                    new Column("Col2", "_") { ValueGenerationStrategy = StoreValueGenerationStrategy.Computed } 
+                });
+            table.PrimaryKey = new PrimaryKey("PK", table.Columns.Where(c => c.Name == "Col1").ToArray());
+
+            Assert.True(new ModificationCommand(stateEntry, table).RequiresResultPropagation);
+        }
+
+        [Fact]
+        public void RequiresResultPropagation_false_for_Insert_operation_if_no_store_generated_columns_exist()
+        {
+            var properties = new Dictionary<string, object> { { "Col1", 1 }, { "Col2", "Test" } };
+            var stateEntry = CreateMockStateEntry("T1", EntityState.Added, properties, new[] { "Col1" });
+            var table = new Table("T1", new[] { new Column("Col1", "_"), new Column("Col2", "_") });
+            table.PrimaryKey = new PrimaryKey("PK", table.Columns.Where(c => c.Name == "Col1").ToArray());
+
+            Assert.False(new ModificationCommand(stateEntry, table).RequiresResultPropagation);
+        }
+
+        [Fact]
+        public void RequiresResultPropagation_true_for_Update_operation_if_non_key_store_generated_columns_exist()
+        {
+            var properties = new Dictionary<string, object> { { "Col1", 1 }, { "Col2", "Test" } };
+            var stateEntry = CreateMockStateEntry("T1", EntityState.Modified, properties, new[] { "Col1" });
+            var table = new Table("T1",
+                new[] {
+                    new Column("Col1", "_") { ValueGenerationStrategy = StoreValueGenerationStrategy.Identity }, 
+                    new Column("Col2", "_") { ValueGenerationStrategy = StoreValueGenerationStrategy.Computed } 
+                });
+            table.PrimaryKey = new PrimaryKey("PK", table.Columns.Where(c => c.Name == "Col1").ToArray());
+
+            Assert.True(new ModificationCommand(stateEntry, table).RequiresResultPropagation);
+        }
+
+        [Fact]
+        public void RequiresResultPropagation_false_for_Update_operation_if_no_non_key_store_generated_columns_exist()
+        {
+            var properties = new Dictionary<string, object> { { "Col1", 1 }, { "Col2", "Test" } };
+            var stateEntry = CreateMockStateEntry("T1", EntityState.Modified, properties, new[] { "Col1" });
+            var table = new Table("T1",
+                new[] {
+                    new Column("Col1", "_") { ValueGenerationStrategy = StoreValueGenerationStrategy.Identity }, 
+                    new Column("Col2", "_") 
+                });
+            table.PrimaryKey = new PrimaryKey("PK", table.Columns.Where(c => c.Name == "Col1").ToArray());
+
+            Assert.False(new ModificationCommand(stateEntry, table).RequiresResultPropagation);
+        }
+
+        [Fact]
+        public void PropagateResults_propagate_results_to_stateEntry()
+        {
+            var properties = new Dictionary<string, object> { { "Col1", 1 }, { "Col2", "Test" } };
+            var stateEntry = CreateMockStateEntry("T1", EntityState.Added, properties, new[] { "Col1" });
+            var table = new Table("T1",
+                new[] {
+                    new Column("Col1", "_") { ValueGenerationStrategy = StoreValueGenerationStrategy.Identity }, 
+                    new Column("Col2", "_") 
+                });
+            table.PrimaryKey = new PrimaryKey("PK", table.Columns.Where(c => c.Name == "Col1").ToArray());
+            
+            new ModificationCommand(stateEntry, table)
+                .PropagateResults(new [] { new KeyValuePair<string, object>("Col1", 42) });
+
+            var targetProperty = stateEntry.EntityType.Properties.Single(p => p.StorageName == "Col1");
+            Mock.Get(stateEntry)
+                .Verify(e => e.SetPropertyValue(targetProperty, 42), Times.Once);
         }
 
         private static StateEntry CreateMockStateEntry(string tableName, EntityState entityState,
