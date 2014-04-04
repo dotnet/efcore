@@ -3,6 +3,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Migrations;
 using Microsoft.Data.Relational;
 using Xunit;
@@ -11,6 +12,84 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
 {
     public class SqlServerDataStoreCreatorTest
     {
+        [Fact]
+        public async Task Exists_returns_false_when_database_doesnt_exist()
+        {
+            using (var testDatabase = await TestDatabase.Scratch(createDatabase: false))
+            {
+                var store = new SqlServerDataStore(testDatabase.Connection.ConnectionString);
+
+                var creator = new SqlServerDataStoreCreator(
+                    store,
+                    new ModelDiffer(),
+                    new SqlServerMigrationOperationSqlGenerator(),
+                    new SqlStatementExecutor());
+
+                Assert.False(await creator.ExistsAsync());
+            }
+        }
+
+        [Fact]
+        public async Task Exists_returns_true_when_database_exists()
+        {
+            using (var testDatabase = await TestDatabase.Scratch(createDatabase: true))
+            {
+                var store = new SqlServerDataStore(testDatabase.Connection.ConnectionString);
+
+                var creator = new SqlServerDataStoreCreator(
+                    store,
+                    new ModelDiffer(),
+                    new SqlServerMigrationOperationSqlGenerator(),
+                    new SqlStatementExecutor());
+
+                Assert.True(await creator.ExistsAsync());
+            }
+        }
+
+        [Fact]
+        public async Task Delete_will_delete_database()
+        {
+            using (var testDatabase = await TestDatabase.Scratch(createDatabase: true))
+            {
+                testDatabase.Connection.Close();
+
+                var store = new SqlServerDataStore(testDatabase.Connection.ConnectionString);
+
+                var creator = new SqlServerDataStoreCreator(
+                    store,
+                    new ModelDiffer(),
+                    new SqlServerMigrationOperationSqlGenerator(),
+                    new SqlStatementExecutor());
+
+                Assert.True(await creator.ExistsAsync());
+
+                await creator.DeleteAsync();
+
+                Assert.False(await creator.ExistsAsync());
+            }
+        }
+
+        [Fact]
+        public async Task Delete_noop_when_database_doesnt_exist()
+        {
+            using (var testDatabase = await TestDatabase.Scratch(createDatabase: false))
+            {
+                var store = new SqlServerDataStore(testDatabase.Connection.ConnectionString);
+
+                var creator = new SqlServerDataStoreCreator(
+                    store,
+                    new ModelDiffer(),
+                    new SqlServerMigrationOperationSqlGenerator(),
+                    new SqlStatementExecutor());
+
+                Assert.False(await creator.ExistsAsync());
+
+                await creator.DeleteAsync();
+
+                Assert.False(await creator.ExistsAsync());
+            }
+        }
+
         [Fact]
         public async Task Can_create_schema_in_existing_database()
         {
@@ -37,13 +116,13 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
 
             using (var context = new BloggingContext(config))
             {
-                var migrator = new SqlServerDataStoreCreator(
+                var creator = new SqlServerDataStoreCreator(
                     (SqlServerDataStore)config.DataStore,
                     new ModelDiffer(),
                     new SqlServerMigrationOperationSqlGenerator(),
                     new SqlStatementExecutor());
 
-                await migrator.CreateAsync(context.Model);
+                await creator.CreateAsync(context.Model);
 
                 if (testDatabase.Connection.State != System.Data.ConnectionState.Open)
                 {
