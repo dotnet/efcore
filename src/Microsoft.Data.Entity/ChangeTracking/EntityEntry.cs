@@ -1,6 +1,5 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
-using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
@@ -29,7 +28,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             {
                 Check.IsDefined(value, "value");
 
-                _stateEntry.SetEntityStateAsync(value, CancellationToken.None).Wait();
+                _stateEntry.EntityState = value;
             }
         }
 

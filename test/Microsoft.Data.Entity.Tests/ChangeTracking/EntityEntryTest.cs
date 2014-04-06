@@ -67,7 +67,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             new EntityEntry<Random>(stateEntryMock.Object) { State = EntityState.Added };
 
-            stateEntryMock.Verify(m => m.SetEntityStateAsync(EntityState.Added, CancellationToken.None));
+            stateEntryMock.VerifySet(m => m.EntityState = EntityState.Added);
         }
 
         [Fact]

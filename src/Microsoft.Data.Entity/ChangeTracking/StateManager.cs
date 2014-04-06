@@ -96,7 +96,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 _entityReferenceMap[entity] = newEntry;
             }
 
-            newEntry.SetAttached();
+            newEntry.EntityState = EntityState.Unchanged;
 
             return newEntry;
         }
@@ -224,6 +224,14 @@ namespace Microsoft.Data.Entity.ChangeTracking
         private EntityKey CreateKey(IEntityType entityType, IReadOnlyList<IProperty> properties, StateEntry entry)
         {
             return _keyFactorySource.GetKeyFactory(properties).Create(entityType, properties, entry);
+        }
+
+        public virtual void AcceptAllChanges()
+        {
+            foreach (var entry in _identityMap.Values.ToList())
+            {
+                entry.AcceptChanges();
+            }
         }
     }
 }

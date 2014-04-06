@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
             entry.SetPropertyValue(keyProperty, 1);
 
-            entry.SetEntityStateAsync(EntityState.Added, CancellationToken.None).Wait();
+            entry.EntityState = EntityState.Added;
 
             Assert.Equal(EntityState.Added, entry.EntityState);
             Assert.Contains(entry, configuration.StateManager.StateEntries);
@@ -46,8 +46,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
             entry.SetPropertyValue(keyProperty, 1);
 
-            entry.SetEntityStateAsync(EntityState.Added, CancellationToken.None).Wait();
-            entry.SetEntityStateAsync(EntityState.Unknown, CancellationToken.None).Wait();
+            entry.EntityState = EntityState.Added;
+            entry.EntityState = EntityState.Unknown;
 
             Assert.Equal(EntityState.Unknown, entry.EntityState);
             Assert.DoesNotContain(entry, configuration.StateManager.StateEntries);
@@ -68,12 +68,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.False(entry.IsPropertyModified(keyProperty));
             Assert.False(entry.IsPropertyModified(nonKeyProperty));
 
-            entry.SetEntityStateAsync(EntityState.Modified, CancellationToken.None).Wait();
+            entry.EntityState = EntityState.Modified;
 
             Assert.True(entry.IsPropertyModified(keyProperty));
             Assert.True(entry.IsPropertyModified(nonKeyProperty));
 
-            entry.SetEntityStateAsync(EntityState.Unchanged, CancellationToken.None).Wait();
+            entry.EntityState = EntityState.Unchanged;
 
             Assert.False(entry.IsPropertyModified(keyProperty));
             Assert.False(entry.IsPropertyModified(nonKeyProperty));
@@ -100,7 +100,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
 
-            entry.SetEntityStateAsync(EntityState.Added, CancellationToken.None).Wait();
+            entry.EntityState = EntityState.Added;
 
             Assert.Equal(77, entry.GetPropertyValue(keyProperty));
         }
@@ -363,7 +363,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var configuration = CreateConfiguration(model);
 
             var entry = CreateStateEntry(configuration, entityType, new object[] { 1, "Kool" });
-            entry.SetAttached();
+            entry.EntityState = EntityState.Unchanged;
 
             Assert.False(entry.IsPropertyModified(idProperty));
             Assert.False(entry.IsPropertyModified(nameProperty));
@@ -393,7 +393,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var configuration = CreateConfiguration(model);
 
             var entry = CreateStateEntry(configuration, entityType, new object[] { 1, "Kool" });
-            entry.SetAttached();
+            entry.EntityState = EntityState.Unchanged;
             var entity = (TEntity)entry.Entity;
 
             Assert.False(entry.IsPropertyModified(nameProperty));
@@ -416,6 +416,99 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             Assert.True(entry.IsPropertyModified(nameProperty));
             Assert.Equal(EntityState.Modified, entry.EntityState);
+        }
+
+        [Fact]
+        public void AcceptChanges_does_nothing_for_unchanged_entities()
+        {
+            AcceptChangesNoop(EntityState.Unchanged);
+        }
+
+        [Fact]
+        public void AcceptChanges_does_nothing_for_unknown_entities()
+        {
+            AcceptChangesNoop(EntityState.Unknown);
+        }
+
+        private void AcceptChangesNoop(EntityState entityState)
+        {
+            var model = BuildModel();
+            var entityType = model.GetEntityType("SomeEntity");
+            var configuration = CreateConfiguration(model);
+
+            var entry = CreateStateEntry(configuration, entityType, new object[] { 1, "Kool" });
+            entry.EntityState = entityState;
+
+            entry.AcceptChanges();
+
+            Assert.Equal(entityState, entry.EntityState);
+        }
+
+        [Fact]
+        public void AcceptChanges_makes_Modified_entities_Unchanged_and_resets_used_original_values()
+        {
+            AcceptChangesKeep(EntityState.Modified);
+        }
+
+        [Fact]
+        public void AcceptChanges_makes_Added_entities_Unchanged()
+        {
+            AcceptChangesKeep(EntityState.Added);
+        }
+
+        private void AcceptChangesKeep(EntityState entityState)
+        {
+            var model = BuildModel();
+            var entityType = model.GetEntityType("SomeEntity");
+            var nameProperty = entityType.GetProperty("Name");
+            var configuration = CreateConfiguration(model);
+
+            var entry = CreateStateEntry(configuration, entityType, new object[] { 1, "Kool" });
+            entry.EntityState = entityState;
+
+            entry.SetPropertyValue(nameProperty, "Pickle");
+            entry.SetPropertyOriginalValue(nameProperty, "Cheese");
+
+            entry.AcceptChanges();
+
+            Assert.Equal(EntityState.Unchanged, entry.EntityState);
+            Assert.Equal("Pickle", entry.GetPropertyValue(nameProperty));
+            Assert.Equal("Pickle", entry.GetPropertyOriginalValue(nameProperty));
+        }
+
+        [Fact]
+        public void AcceptChanges_makes_Modified_entities_Unchanged_and_effectively_resets_unused_original_values()
+        {
+            var model = BuildModel();
+            var entityType = model.GetEntityType("SomeEntity");
+            var nameProperty = entityType.GetProperty("Name");
+            var configuration = CreateConfiguration(model);
+
+            var entry = CreateStateEntry(configuration, entityType, new object[] { 1, "Kool" });
+            entry.EntityState = EntityState.Modified;
+
+            entry.SetPropertyValue(nameProperty, "Pickle");
+
+            entry.AcceptChanges();
+
+            Assert.Equal(EntityState.Unchanged, entry.EntityState);
+            Assert.Equal("Pickle", entry.GetPropertyValue(nameProperty));
+            Assert.Equal("Pickle", entry.GetPropertyOriginalValue(nameProperty));
+        }
+
+        [Fact]
+        public void AcceptChanges_detaches_Deleted_entities()
+        {
+            var model = BuildModel();
+            var entityType = model.GetEntityType("SomeEntity");
+            var configuration = CreateConfiguration(model);
+
+            var entry = CreateStateEntry(configuration, entityType, new object[] { 1, "Kool" });
+            entry.EntityState = EntityState.Deleted;
+
+            entry.AcceptChanges();
+
+            Assert.Equal(EntityState.Unknown, entry.EntityState);
         }
 
         protected virtual StateEntry CreateStateEntry(ContextConfiguration configuration, IEntityType entityType, object entity)

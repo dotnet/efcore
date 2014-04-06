@@ -74,10 +74,18 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
 
                 using (var db = new BloggingContext(config))
                 {
-                    db.ChangeTracker.Entry(new Blog { Id = 1, Name = "Blog is Updated" }).State = EntityState.Modified;
-                    db.ChangeTracker.Entry(new Blog { Id = 2, Name = "Blog to Delete" }).State = EntityState.Deleted;
-                    db.Blogs.Add(new Blog { Id = 3, Name = "Blog to Insert" });
+                    var toUpdate = new Blog { Id = 1, Name = "Blog is Updated" };
+                    var toDelete = new Blog { Id = 2, Name = "Blog to Delete" };
+
+                    db.ChangeTracker.Entry(toUpdate).State = EntityState.Modified;
+                    db.ChangeTracker.Entry(toDelete).State = EntityState.Deleted;
+                    var toAdd = db.Blogs.Add(new Blog { Id = 3, Name = "Blog to Insert" });
+                    
                     await db.SaveChangesAsync();
+
+                    Assert.Equal(EntityState.Unchanged, db.ChangeTracker.Entry(toUpdate).State);
+                    Assert.Equal(EntityState.Unchanged, db.ChangeTracker.Entry(toAdd).State);
+                    Assert.DoesNotContain(toDelete, db.ChangeTracker.Entries().Select(e => e.Entity));
 
                     var rows = await testDatabase.ExecuteScalarAsync<int>(
                         @"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = 1 AND Name = 'Blog is Updated'",
@@ -103,69 +111,22 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
         [Fact]
         public async Task Can_round_trip_changes_with_snapshot_change_tracking()
         {
-            using (var testDatabase = await TestDatabase.Scratch())
-            {
-                await CreateBlogDatabase(testDatabase);
-
-                var config = new EntityConfigurationBuilder()
-                    .UseSqlServer(testDatabase.Connection.ConnectionString)
-                    .BuildConfiguration();
-
-                using (var context = new BloggingContext<Blog>(config))
-                {
-                    var blogs = context.Blogs.ToList();
-                    Assert.Equal(2, blogs.Count);
-
-                    blogs.Single(b => b.Id == 1).Name = "New Name";
-                    
-                    await context.SaveChangesAsync();
-                }
-
-                using (var context = new BloggingContext<Blog>(config))
-                {
-                    var blogs = context.Blogs.ToList();
-                    Assert.Equal(2, blogs.Count);
-
-                    Assert.Equal("New Name", blogs.Single(b => b.Id == 1).Name);
-                    Assert.Equal("Blog2", blogs.Single(b => b.Id == 2).Name);
-                }
-            }
+            await RoundTripChanges<Blog>();
         }
 
         [Fact]
         public async Task Can_round_trip_changes_with_full_notification_entities()
         {
-            using (var testDatabase = await TestDatabase.Scratch())
-            {
-                await CreateBlogDatabase(testDatabase);
-
-                var config = new EntityConfigurationBuilder()
-                    .UseSqlServer(testDatabase.Connection.ConnectionString)
-                    .BuildConfiguration();
-
-                using (var context = new BloggingContext<ChangedChangingBlog>(config))
-                {
-                    var blogs = context.Blogs.ToList();
-                    Assert.Equal(2, blogs.Count);
-
-                    blogs.Single(b => b.Id == 1).Name = "New Name";
-
-                    await context.SaveChangesAsync();
-                }
-
-                using (var context = new BloggingContext<ChangedChangingBlog>(config))
-                {
-                    var blogs = context.Blogs.ToList();
-                    Assert.Equal(2, blogs.Count);
-
-                    Assert.Equal("New Name", blogs.Single(b => b.Id == 1).Name);
-                    Assert.Equal("Blog2", blogs.Single(b => b.Id == 2).Name);
-                }
-            }
+            await RoundTripChanges<ChangedChangingBlog>();
         }
 
         [Fact]
         public async Task Can_round_trip_changes_with_changed_only_notification_entities()
+        {
+            await RoundTripChanges<ChangedOnlyBlog>();
+        }
+
+        private async Task RoundTripChanges<TBlog>() where TBlog : class, IBlog
         {
             using (var testDatabase = await TestDatabase.Scratch())
             {
@@ -175,7 +136,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                     .UseSqlServer(testDatabase.Connection.ConnectionString)
                     .BuildConfiguration();
 
-                using (var context = new BloggingContext<ChangedOnlyBlog>(config))
+                using (var context = new BloggingContext<TBlog>(config))
                 {
                     var blogs = context.Blogs.ToList();
                     Assert.Equal(2, blogs.Count);
@@ -185,7 +146,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                     await context.SaveChangesAsync();
                 }
 
-                using (var context = new BloggingContext<ChangedOnlyBlog>(config))
+                using (var context = new BloggingContext<TBlog>(config))
                 {
                     var blogs = context.Blogs.ToList();
                     Assert.Equal(2, blogs.Count);
@@ -241,7 +202,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
             }
         }
 
-        private class Blog
+        private class Blog : IBlog
         {
             public int Id { get; set; }
             public string Name { get; set; }
@@ -263,7 +224,13 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
             public EntitySet<TBlog> Blogs { get; set; }
         }
 
-        private class ChangedChangingBlog : INotifyPropertyChanging, INotifyPropertyChanged
+        private interface IBlog
+        {
+            int Id { get; set; }
+            string Name { get; set; }
+        }
+
+        private class ChangedChangingBlog : INotifyPropertyChanging, INotifyPropertyChanged, IBlog
         {
             private int _id;
             private string _name;
@@ -316,7 +283,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
             }
         }
 
-        private class ChangedOnlyBlog : INotifyPropertyChanged
+        private class ChangedOnlyBlog : INotifyPropertyChanged, IBlog
         {
             private int _id;
             private string _name;
