@@ -304,7 +304,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var stateManager = new StateManager(
                 configMock.Object,
-                new StateEntryFactory(configMock.Object, new EntityMaterializerSource()),
+                new StateEntryFactory(configMock.Object, new EntityMaterializerSource(new MemberMapper(new FieldMatcher()))),
                 new EntityKeyFactorySource(),
                 new StateEntrySubscriber());
 

@@ -20,7 +20,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var configurationMock = new Mock<ContextConfiguration>();
             configurationMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());
 
-            var entry = new StateEntryFactory(configurationMock.Object, new EntityMaterializerSource()).Create(entityType, new Random());
+            var entry = new StateEntryFactory(
+                configurationMock.Object,
+                new EntityMaterializerSource(new MemberMapper(new FieldMatcher()))).Create(entityType, new Random());
 
             Assert.IsType<ShadowStateEntry>(entry);
 
@@ -40,7 +42,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             configurationMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());
 
             var entity = new RedHook();
-            var entry = new StateEntryFactory(configurationMock.Object, new EntityMaterializerSource()).Create(entityType, entity);
+            var entry = new StateEntryFactory(
+                configurationMock.Object,
+                new EntityMaterializerSource(new MemberMapper(new FieldMatcher()))).Create(entityType, entity);
 
             Assert.IsType<ClrStateEntry>(entry);
 
@@ -60,7 +64,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             configurationMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());
 
             var entity = new RedHook();
-            var entry = new StateEntryFactory(configurationMock.Object, new EntityMaterializerSource()).Create(entityType, entity);
+            var entry = new StateEntryFactory(
+                configurationMock.Object,
+                new EntityMaterializerSource(new MemberMapper(new FieldMatcher()))).Create(entityType, entity);
 
             Assert.IsType<MixedStateEntry>(entry);
 
@@ -79,7 +85,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var configurationMock = new Mock<ContextConfiguration>();
             configurationMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());
 
-            var entry = new StateEntryFactory(configurationMock.Object, new EntityMaterializerSource())
+            var entry = new StateEntryFactory(configurationMock.Object, new EntityMaterializerSource(new MemberMapper(new FieldMatcher())))
                 .Create(entityType, new object[] { "Green", 77 });
 
             Assert.IsType<ShadowStateEntry>(entry);
@@ -101,7 +107,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var configurationMock = new Mock<ContextConfiguration>();
             configurationMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());
 
-            var entry = new StateEntryFactory(configurationMock.Object, new EntityMaterializerSource())
+            var entry = new StateEntryFactory(configurationMock.Object, new EntityMaterializerSource(new MemberMapper(new FieldMatcher())))
                 .Create(entityType, new object[] { "Green", 77 });
 
             Assert.IsType<ClrStateEntry>(entry);
@@ -126,7 +132,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var configurationMock = new Mock<ContextConfiguration>();
             configurationMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());
 
-            var entry = new StateEntryFactory(configurationMock.Object, new EntityMaterializerSource())
+            var entry = new StateEntryFactory(configurationMock.Object, new EntityMaterializerSource(new MemberMapper(new FieldMatcher())))
                 .Create(entityType, new object[] { "Green", 77 });
 
             Assert.IsType<MixedStateEntry>(entry);

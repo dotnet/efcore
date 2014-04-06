@@ -78,5 +78,19 @@ namespace System
                     c => !c.IsStatic
                          && c.GetParameters().Select(p => p.ParameterType).SequenceEqual(types));
         }
+
+        public static IEnumerable<PropertyInfo> GetPropertiesInHierarchy(this Type type, string name)
+        {
+            do
+            {
+                var typeInfo = type.GetTypeInfo();
+                var propertyInfo = typeInfo.GetDeclaredProperty(name);
+                if (propertyInfo != null && !(propertyInfo.GetMethod ?? propertyInfo.SetMethod).IsStatic)
+                {
+                    yield return propertyInfo;
+                }
+                type = typeInfo.BaseType;
+            } while (type != null);
+        }
     }
 }

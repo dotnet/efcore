@@ -189,4 +189,16 @@
   <data name="OriginalValueNotTracked" xml:space="preserve">
     <value>The original value for property '{property}' of entity type '{entityType}' cannot be accessed because it is not being tracked. To access all original values set 'UseLazyOriginalValues' to false on the entity type.</value>
   </data>
+  <data name="MissingBackingField" xml:space="preserve">
+    <value>The property '{entityType}.{property}' is annotated with backing field '{field}' but that field cannot be found.</value>
+  </data>
+  <data name="BadBackingFieldType" xml:space="preserve">
+    <value>The annotated backing field '{field}' of type '{fieldType}' cannot be used for the property '{entityType}.{property}' of type '{propertyType}'. Only backing fields of types that are assignable from the property type can be used.</value>
+  </data>
+  <data name="NoFieldOrSetter" xml:space="preserve">
+    <value>No backing field could be discovered for property '{entityType}.{property}' and the property does not have a setter. Either use a backing field name that can be matched by convention, annotate the property with a backing field, or define a property setter.</value>
+  </data>
+  <data name="NoClrType" xml:space="preserve">
+    <value>The CLR entity materializer cannot be used for entity type '{entityType}' because it is a shadow-state entity type.  Materialization to a CLR type is only possible for entity types that have a corresponding CLR type.</value>
+  </data>
 </root>

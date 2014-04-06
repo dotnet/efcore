@@ -421,13 +421,13 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         protected virtual StateEntry CreateStateEntry(ContextConfiguration configuration, IEntityType entityType, object entity)
         {
             return new StateEntrySubscriber().SnapshotAndSubscribe(
-                new StateEntryFactory(configuration, new EntityMaterializerSource()).Create(entityType, entity));
+                new StateEntryFactory(configuration, new EntityMaterializerSource(new MemberMapper(new FieldMatcher()))).Create(entityType, entity));
         }
 
         protected virtual StateEntry CreateStateEntry(ContextConfiguration configuration, IEntityType entityType, object[] valueBuffer)
         {
             return new StateEntrySubscriber().SnapshotAndSubscribe(
-                new StateEntryFactory(configuration, new EntityMaterializerSource()).Create(entityType, valueBuffer));
+                new StateEntryFactory(configuration, new EntityMaterializerSource(new MemberMapper(new FieldMatcher()))).Create(entityType, valueBuffer));
         }
 
         protected virtual ContextConfiguration CreateConfiguration(IModel model)

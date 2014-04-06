@@ -18,6 +18,24 @@ namespace Microsoft.Data.Entity.Metadata
         private readonly ThreadSafeDictionaryCache<Type, Func<object[], object>> _cache
             = new ThreadSafeDictionaryCache<Type, Func<object[], object>>();
 
+        private readonly MemberMapper _memberMapper;
+
+        /// <summary>
+        ///     This constructor is intended only for use when creating test doubles that will override members
+        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
+        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
+        /// </summary>
+        protected EntityMaterializerSource()
+        {
+        }
+
+        public EntityMaterializerSource([NotNull] MemberMapper memberMapper)
+        {
+            Check.NotNull(memberMapper, "memberMapper");
+
+            _memberMapper = memberMapper;
+        }
+
         public virtual Func<object[], object> GetMaterializer([NotNull] IEntityType entityType)
         {
             Check.NotNull(entityType, "entityType");
@@ -28,50 +46,57 @@ namespace Microsoft.Data.Entity.Metadata
                 return materializer.CreatEntity;
             }
 
-            // TODO: Shadow state
+            if (!entityType.HasClrType)
+            {
+                throw new InvalidOperationException(Strings.FormatNoClrType(entityType.Name));
+            }
+
             return _cache.GetOrAdd(entityType.Type, k => BuildDelegate(entityType));
         }
 
-        private static Func<object[], object> BuildDelegate(IEntityType entityType)
+        private Func<object[], object> BuildDelegate(IEntityType entityType)
         {
-            // TODO: assumes no inheritance hierarchy for entity
-
-            var fields = FindFields(entityType);
+            var memberMappings = _memberMapper.MapPropertiesToMembers(entityType);
             var clrType = entityType.Type;
 
             var bufferParameter = Expression.Parameter(typeof(object[]), "valueBuffer");
             var instanceVariable = Expression.Variable(clrType, "instance");
 
-            var blockExpressions = new List<Expression>();
-            blockExpressions.Add(Expression.Assign(instanceVariable, Expression.New(clrType.GetDeclaredConstructor(null))));
+            var blockExpressions = new List<Expression>
+                {
+                    Expression.Assign(instanceVariable, Expression.New(clrType.GetDeclaredConstructor(null)))
+                };
 
-            foreach (var field in fields)
+            foreach (var mapping in memberMappings)
             {
-                blockExpressions.Add(
-                    Expression.Assign(Expression.Field(instanceVariable, field.Item2),
-                        Expression.Convert(
-                            Expression.Call(
-                                _convert,
-                                Expression.ArrayAccess(bufferParameter, Expression.Constant(field.Item1.Index))),
-                            field.Item2.FieldType)));
+                var callConvertExpression = Expression.Call(
+                    _convert,
+                    Expression.ArrayAccess(bufferParameter, Expression.Constant(mapping.Item1.Index)));
+
+                var propertyInfo = mapping.Item2 as PropertyInfo;
+                if (propertyInfo != null)
+                {
+                    blockExpressions.Add(
+                        Expression.Assign(Expression.Property(instanceVariable, propertyInfo),
+                            Expression.Convert(
+                                callConvertExpression,
+                                propertyInfo.PropertyType)));
+                }
+                else
+                {
+                    var fieldInfo = (FieldInfo)mapping.Item2;
+
+                    blockExpressions.Add(
+                        Expression.Assign(Expression.Field(instanceVariable, fieldInfo),
+                            Expression.Convert(
+                                callConvertExpression,
+                                fieldInfo.FieldType)));
+                }
             }
 
             blockExpressions.Add(instanceVariable);
 
             return Expression.Lambda<Func<object[], object>>(Expression.Block(new[] { instanceVariable }, blockExpressions), bufferParameter).Compile();
-        }
-
-        private static IEnumerable<Tuple<IProperty, FieldInfo>> FindFields(IEntityType entityType)
-        {
-            // TODO: This currently assumes auto-properties with current compiler naming
-            // TODO: Need better way to find field name and/or annotation in model for field name
-            // TODO: Also assumes no inheritance hierarchy for entity
-
-            var allFields = entityType.Type.GetRuntimeFields().ToArray();
-            return entityType.Properties
-                .Where(p => p.IsClrProperty)
-                .Select(p => Tuple.Create(p, allFields.Single(f => f.Name == "<" + p.Name + ">k__BackingField"
-                                                                   || f.Name.ToUpperInvariant() == "_" + p.Name.ToUpperInvariant())));
         }
 
         // TODO: This is a temporary workaround for conveting DBNull into null
