@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         public ShadowStateEntry(
             [NotNull] ContextConfiguration configuration,
             [NotNull] IEntityType entityType)
-            : base(configuration, entityType, null)
+            : base(configuration, entityType)
         {
             _propertyValues = new object[entityType.ShadowPropertyCount];
         }
@@ -37,13 +37,18 @@ namespace Microsoft.Data.Entity.ChangeTracking
         public ShadowStateEntry(
             [NotNull] ContextConfiguration configuration,
             [NotNull] IEntityType entityType,
-            [NotNull] object[] valueBuffer)
-            // Can't use valueBuffer optimization for original values because using for current values
-            : base(configuration, entityType, null)
+            [NotNull] IValueReader valueReader)
+            : base(configuration, entityType)
         {
-            Check.NotNull(valueBuffer, "valueBuffer");
+            Check.NotNull(valueReader, "valueReader");
 
-            _propertyValues = valueBuffer;
+            _propertyValues = new object[valueReader.Count];
+
+            for (var i = 0; i < valueReader.Count; i++)
+            {
+                // TODO: Consider using strongly typed ReadValue instead of always object
+                _propertyValues[i] = valueReader.IsNull(i) ? null : valueReader.ReadValue<object>(i);
+            }
         }
 
         public override object GetPropertyValue(IProperty property)

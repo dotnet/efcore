@@ -24,22 +24,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
             [NotNull] ContextConfiguration configuration,
             [NotNull] IEntityType entityType,
             [NotNull] object entity)
-            : base(configuration, entityType, null)
+            : base(configuration, entityType)
         {
             Check.NotNull(entity, "entity");
-
-            _entity = entity;
-        }
-
-        public ClrStateEntry(
-            [NotNull] ContextConfiguration configuration,
-            [NotNull] IEntityType entityType,
-            [NotNull] object entity,
-            [NotNull] object[] valueBuffer)
-            : base(configuration, entityType, valueBuffer)
-        {
-            Check.NotNull(entity, "entity");
-            Check.NotNull(valueBuffer, "valueBuffer");
 
             _entity = entity;
         }

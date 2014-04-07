@@ -102,7 +102,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
                 var gu = Guid.NewGuid();
                 var stateEntry = context.ChangeTracker.StateManager.GetOrMaterializeEntry(
-                    entityType, new object[] { "Foo", gu, 77 });
+                    entityType, new ObjectArrayValueReader(new object[] { "Foo", gu, 77 }));
 
                 var entity = (KoolEntity15)stateEntry.Entity;
 

@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             [NotNull] ContextConfiguration configuration,
             [NotNull] IEntityType entityType,
             [NotNull] object entity)
-            : base(configuration, entityType, null)
+            : base(configuration, entityType)
         {
             Check.NotNull(entity, "entity");
 
@@ -37,14 +37,14 @@ namespace Microsoft.Data.Entity.ChangeTracking
             [NotNull] ContextConfiguration configuration,
             [NotNull] IEntityType entityType,
             [NotNull] object entity,
-            [NotNull] object[] valueBuffer)
-            : base(configuration, entityType, valueBuffer)
+            [NotNull] IValueReader valueReader)
+            : base(configuration, entityType)
         {
             Check.NotNull(entity, "entity");
-            Check.NotNull(valueBuffer, "valueBuffer");
+            Check.NotNull(valueReader, "valueReader");
 
             _entity = entity;
-            _shadowValues = ExtractShadowValues(valueBuffer);
+            _shadowValues = ExtractShadowValues(valueReader);
         }
 
         [NotNull]
@@ -76,18 +76,18 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
         }
 
-        private object[] ExtractShadowValues(object[] valueBuffer)
+        private object[] ExtractShadowValues(IValueReader valueReader)
         {
             var shadowValues = new object[EntityType.ShadowPropertyCount];
 
             var properties = EntityType.Properties;
-            for (var i = 0; i < valueBuffer.Length; i++)
+            for (var i = 0; i < properties.Count; i++)
             {
                 var property = properties[i];
                 if (!property.IsClrProperty)
                 {
-                    var value = valueBuffer[i];
-                    shadowValues[property.ShadowIndex] = value == NullSentinel.Value ? null : value;
+                    // TODO: Consider using strongly typed ReadValue instead of always object
+                    shadowValues[property.ShadowIndex] = valueReader.IsNull(i) ? null : valueReader.ReadValue<object>(i);
                 }
             }
 

@@ -26,14 +26,15 @@ namespace Microsoft.Data.Entity.ChangeTracking
             return new CompositeEntityKey(entityType, properties.Select(entry.GetPropertyValue).ToArray());
         }
 
-        public override EntityKey Create(IEntityType entityType, IReadOnlyList<IProperty> properties, object[] valueBuffer)
+        public override EntityKey Create(IEntityType entityType, IReadOnlyList<IProperty> properties, IValueReader valueReader)
         {
             Check.NotNull(entityType, "entityType");
             Check.NotNull(properties, "properties");
-            Check.NotNull(valueBuffer, "valueBuffer");
+            Check.NotNull(valueReader, "valueReader");
 
             // TODO: What happens if we get a null property value?
-            return new CompositeEntityKey(entityType, properties.Select(p => valueBuffer[p.Index]).ToArray());
+            // TODO: Consider using strongly typed ReadValue instead of always object
+            return new CompositeEntityKey(entityType, properties.Select(p => valueReader.ReadValue<object>(p.Index)).ToArray());
         }
     }
 }

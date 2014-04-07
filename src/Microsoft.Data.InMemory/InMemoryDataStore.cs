@@ -106,7 +106,7 @@ namespace Microsoft.Data.InMemory
             return new Enumerable<TResult>(
                 _objectData.Value
                     .Where(kv => kv.Key.EntityType == entityType)
-                    .Select(kv => (TResult)stateManager.GetOrMaterializeEntry(entityType, kv.Value).Entity));
+                    .Select(kv => (TResult)stateManager.GetOrMaterializeEntry(entityType, new ObjectArrayValueReader(kv.Value)).Entity));
         }
 
         private sealed class Enumerable<T> : IAsyncEnumerable<T>

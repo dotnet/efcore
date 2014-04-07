@@ -72,7 +72,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var random = new Random();
 
             var key = (CompositeEntityKey)new CompositeEntityKeyFactory().Create(
-                typeMock.Object, typeMock.Object.GetKey().Properties, new object[] { 7, "Ate", random });
+                typeMock.Object, typeMock.Object.GetKey().Properties, new ObjectArrayValueReader(new object[] { 7, "Ate", random }));
 
             Assert.Equal(new Object[] { 7, "Ate", random }, key.Value);
         }
@@ -93,7 +93,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var random = new Random();
 
             var key = (CompositeEntityKey)new CompositeEntityKeyFactory().Create(
-                typeMock.Object, new[] { nonKeyPart2Mock.Object, nonKeyPart1Mock.Object }, new object[] { 7, "Ate", random });
+                typeMock.Object, new[] { nonKeyPart2Mock.Object, nonKeyPart1Mock.Object }, new ObjectArrayValueReader(new object[] { 7, "Ate", random }));
 
             Assert.Equal(new Object[] { random, "Ate" }, key.Value);
         }

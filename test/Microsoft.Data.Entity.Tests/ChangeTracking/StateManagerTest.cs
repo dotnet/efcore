@@ -34,17 +34,17 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var categoryType = model.GetEntityType(typeof(Category));
             var stateManager = CreateStateManager(model);
 
-            var stateEntry = stateManager.GetOrMaterializeEntry(categoryType, new object[] { 77, "Bjork" });
+            var stateEntry = stateManager.GetOrMaterializeEntry(categoryType, new ObjectArrayValueReader(new object[] { 77, "Bjork" }));
 
             Assert.Equal(EntityState.Unchanged, stateEntry.EntityState);
-            Assert.Same(stateEntry, stateManager.GetOrMaterializeEntry(categoryType, new object[] { 77, "Bjork" }));
+            Assert.Same(stateEntry, stateManager.GetOrMaterializeEntry(categoryType, new ObjectArrayValueReader(new object[] { 77, "Bjork" })));
 
             stateEntry.EntityState = EntityState.Modified;
 
-            Assert.Same(stateEntry, stateManager.GetOrMaterializeEntry(categoryType, new object[] { 77, "Bjork" }));
+            Assert.Same(stateEntry, stateManager.GetOrMaterializeEntry(categoryType, new ObjectArrayValueReader(new object[] { 77, "Bjork" })));
             Assert.Equal(EntityState.Modified, stateEntry.EntityState);
 
-            Assert.NotSame(stateEntry, stateManager.GetOrMaterializeEntry(categoryType, new object[] { 78, "Bjork" }));
+            Assert.NotSame(stateEntry, stateManager.GetOrMaterializeEntry(categoryType, new ObjectArrayValueReader(new object[] { 78, "Bjork" })));
         }
 
         [Fact]
