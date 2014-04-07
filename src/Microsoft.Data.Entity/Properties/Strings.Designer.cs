@@ -394,6 +394,70 @@ namespace Microsoft.Data.Entity
             return string.Format(CultureInfo.CurrentCulture, GetString("OriginalValueNotTracked", "property", "entityType"), property, entityType);
         }
 
+        /// <summary>
+        /// The property '{entityType}.{property}' is annotated with backing field '{field}' but that field cannot be found.
+        /// </summary>
+        internal static string MissingBackingField
+        {
+            get { return GetString("MissingBackingField"); }
+        }
+
+        /// <summary>
+        /// The property '{entityType}.{property}' is annotated with backing field '{field}' but that field cannot be found.
+        /// </summary>
+        internal static string FormatMissingBackingField(object entityType, object property, object field)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("MissingBackingField", "entityType", "property", "field"), entityType, property, field);
+        }
+
+        /// <summary>
+        /// The annotated backing field '{field}' of type '{fieldType}' cannot be used for the property '{entityType}.{property}' of type '{propertyType}'. Only backing fields of types that are assignable from the property type can be used.
+        /// </summary>
+        internal static string BadBackingFieldType
+        {
+            get { return GetString("BadBackingFieldType"); }
+        }
+
+        /// <summary>
+        /// The annotated backing field '{field}' of type '{fieldType}' cannot be used for the property '{entityType}.{property}' of type '{propertyType}'. Only backing fields of types that are assignable from the property type can be used.
+        /// </summary>
+        internal static string FormatBadBackingFieldType(object field, object fieldType, object entityType, object property, object propertyType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("BadBackingFieldType", "field", "fieldType", "entityType", "property", "propertyType"), field, fieldType, entityType, property, propertyType);
+        }
+
+        /// <summary>
+        /// No backing field could be discovered for property '{entityType}.{property}' and the property does not have a setter. Either use a backing field name that can be matched by convention, annotate the property with a backing field, or define a property setter.
+        /// </summary>
+        internal static string NoFieldOrSetter
+        {
+            get { return GetString("NoFieldOrSetter"); }
+        }
+
+        /// <summary>
+        /// No backing field could be discovered for property '{entityType}.{property}' and the property does not have a setter. Either use a backing field name that can be matched by convention, annotate the property with a backing field, or define a property setter.
+        /// </summary>
+        internal static string FormatNoFieldOrSetter(object entityType, object property)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NoFieldOrSetter", "entityType", "property"), entityType, property);
+        }
+
+        /// <summary>
+        /// The CLR entity materializer cannot be used for entity type '{entityType}' because it is a shadow-state entity type.  Materialization to a CLR type is only possible for entity types that have a corresponding CLR type.
+        /// </summary>
+        internal static string NoClrType
+        {
+            get { return GetString("NoClrType"); }
+        }
+
+        /// <summary>
+        /// The CLR entity materializer cannot be used for entity type '{entityType}' because it is a shadow-state entity type.  Materialization to a CLR type is only possible for entity types that have a corresponding CLR type.
+        /// </summary>
+        internal static string FormatNoClrType(object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NoClrType", "entityType"), entityType);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

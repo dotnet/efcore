@@ -10,29 +10,58 @@ namespace Microsoft.Data.Entity.Tests.Metadata
     public class EntityMaterializerSourceTest
     {
         [Fact]
+        public void Throws_for_shadow_entity_type()
+        {
+            var entityType = new EntityType("SomeEntity");
+
+            Assert.Equal(
+                Strings.FormatNoClrType("SomeEntity"),
+                Assert.Throws<InvalidOperationException>(
+                    () => new EntityMaterializerSource(new MemberMapper(new FieldMatcher())).GetMaterializer(entityType)).Message);
+        }
+
+        [Fact]
         public void Delegate_from_entity_type_is_returned_if_it_implements_IEntityMaterializer()
         {
             var materializerMock = new Mock<IEntityMaterializer>();
             var typeMock = materializerMock.As<IEntityType>();
 
             var valueBuffer = new object[0];
-            new EntityMaterializerSource().GetMaterializer(typeMock.Object)(valueBuffer);
+            new EntityMaterializerSource(new MemberMapper(new FieldMatcher())).GetMaterializer(typeMock.Object)(valueBuffer);
 
             materializerMock.Verify(m => m.CreatEntity(valueBuffer));
         }
 
         [Fact]
-        public void Can_create_materializer_for_entity()
+        public void Can_create_materializer_for_entity_with_auto_properties()
         {
             var entityType = new EntityType(typeof(SomeEntity));
             entityType.AddProperty("Id", typeof(int));
             entityType.AddProperty("Foo", typeof(string));
             entityType.AddProperty("Goo", typeof(Guid));
 
-            var factory = new EntityMaterializerSource().GetMaterializer(entityType);
+            var factory = new EntityMaterializerSource(new MemberMapper(new FieldMatcher())).GetMaterializer(entityType);
 
             var gu = Guid.NewGuid();
             var entity = (SomeEntity)factory(new object[] { "Fu", gu, 77 });
+
+            Assert.Equal(77, entity.Id);
+            Assert.Equal("Fu", entity.Foo);
+            Assert.Equal(gu, entity.Goo);
+        }
+
+        [Fact]
+        public void Can_create_materializer_for_entity_with_fields()
+        {
+            var entityType = new EntityType(typeof(SomeEntityWithFields));
+            entityType.AddProperty("Id", typeof(int));
+            entityType.AddProperty("Foo", typeof(string));
+            entityType.AddProperty("Goo", typeof(Guid));
+
+            var factory = new EntityMaterializerSource(new MemberMapper(new FieldMatcher())).GetMaterializer(entityType);
+
+            var gu = Guid.NewGuid();
+            var entity = (SomeEntityWithFields)factory(new object[] { "Fu", gu, 77 });
 
             Assert.Equal(77, entity.Id);
             Assert.Equal("Fu", entity.Foo);
@@ -47,7 +76,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             entityType.AddProperty("Foo", typeof(string));
             entityType.AddProperty("Goo", typeof(Guid?));
 
-            var factory = new EntityMaterializerSource().GetMaterializer(entityType);
+            var factory = new EntityMaterializerSource(new MemberMapper(new FieldMatcher())).GetMaterializer(entityType);
 
             var entity = (SomeEntity)factory(new object[] { DBNull.Value, DBNull.Value, 77 });
 
@@ -67,7 +96,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             entityType.AddProperty("Goo", typeof(Guid));
             entityType.AddProperty("GooShadow", typeof(Guid), shadowProperty: true, concurrencyToken: false);
 
-            var factory = new EntityMaterializerSource().GetMaterializer(entityType);
+            var factory = new EntityMaterializerSource(new MemberMapper(new FieldMatcher())).GetMaterializer(entityType);
 
             var gu = Guid.NewGuid();
             var entity = (SomeEntity)factory(new object[] { "Fu", "FuS", gu, Guid.NewGuid(), 77, 777 });
@@ -82,6 +111,30 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             public int Id { get; set; }
             public string Foo { get; set; }
             public Guid? Goo { get; set; }
+        }
+
+        private class SomeEntityWithFields
+        {
+#pragma warning disable 649
+            private int _id;
+            private string _foo;
+            private Guid? _goo;
+#pragma warning restore 649
+
+            public int Id
+            {
+                get { return _id; }
+            }
+
+            public string Foo
+            {
+                get { return _foo; }
+            }
+
+            public Guid? Goo
+            {
+                get { return _goo; }
+            }
         }
     }
 }

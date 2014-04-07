@@ -130,9 +130,13 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                 builder.Entity<Artist>().Key(a => a.ArtistId);
             }
 
-            public class Artist
+            public class Artist : ArtistBase<string>
             {
-                public int ArtistId { get; set; }
+            }
+
+            public class ArtistBase<TKey>
+            {
+                public TKey ArtistId { get; set; }
                 public string Name { get; set; }
             }
         }
