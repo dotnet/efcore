@@ -159,11 +159,23 @@
   <data name="OpenRequiresSetConnectionString" xml:space="preserve">
     <value>ConnectionString must be set before Open can be called.</value>
   </data>
+  <data name="ParallelTransactionsNotSupported" xml:space="preserve">
+    <value>SQLiteConnection does not support nested transactions.</value>
+  </data>
   <data name="ParameterNotFound" xml:space="preserve">
     <value>A SQLiteParameter with ParameterName '{parameterName}' is not contained by this SQLiteParameterCollection.</value>
   </data>
   <data name="RequiresSet" xml:space="preserve">
     <value>{propertyName} must be set.</value>
+  </data>
+  <data name="TransactionCompleted" xml:space="preserve">
+    <value>This SQLiteTransaction has completed; it is no longer usable.</value>
+  </data>
+  <data name="TransactionConnectionMismatch" xml:space="preserve">
+    <value>The transaction object is not associated with the connection object.</value>
+  </data>
+  <data name="TransactionRequired" xml:space="preserve">
+    <value>Execute requires the command to have a transaction object when the connection assigned to the command is in a pending local transaction.  The Transaction property of the command has not been initialized.</value>
   </data>
   <data name="UnknownDataType" xml:space="preserve">
     <value>No mapping exists from object type {typeName} to a known managed provider native type.</value>

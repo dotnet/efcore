@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.Data.SQLite.Utilities;
 using Xunit;
 
 namespace Microsoft.Data.SQLite
@@ -776,36 +777,29 @@ namespace Microsoft.Data.SQLite
 
         private static void CreateTestTable(SQLiteConnection connection)
         {
-            using (var command = connection.CreateCommand())
-            {
-                connection.Open();
-
-                command.CommandText = @"
-                    CREATE TABLE TestTable (
-                        BooleanColumn BIT,
-                        ByteColumn TINYINT,
-                        DateTimeColumn DATETIME,
-                        DecimalColumn DECIMAL,
-                        FloatColumn SINGLE,
-                        GuidColumn UNIQUEIDENTIFIER,
-                        Int16Column SMALLINT,
-                        Int32Column INT
-                    )";
-                command.ExecuteNonQuery();
-
-                command.CommandText = @"
-                    INSERT INTO TestTable VALUES (
-                        1,
-                        1,
-                        '2014-04-01 14:45:00',
-                        '3.14',
-                        3.14,
-                        x'1cb113dcfbe69f44a8925e2a47b05350',
-                        1,
-                        1
-                    )";
-                command.ExecuteNonQuery();
-            }
+            connection.Open();
+            connection.ExecuteNonQuery(@"
+                CREATE TABLE TestTable (
+                    BooleanColumn BIT,
+                    ByteColumn TINYINT,
+                    DateTimeColumn DATETIME,
+                    DecimalColumn DECIMAL,
+                    FloatColumn SINGLE,
+                    GuidColumn UNIQUEIDENTIFIER,
+                    Int16Column SMALLINT,
+                    Int32Column INT
+                )");
+            connection.ExecuteNonQuery(@"
+                INSERT INTO TestTable VALUES (
+                    1,
+                    1,
+                    '2014-04-01 14:45:00',
+                    '3.14',
+                    3.14,
+                    x'1cb113dcfbe69f44a8925e2a47b05350',
+                    1,
+                    1
+                )");
         }
     }
 }

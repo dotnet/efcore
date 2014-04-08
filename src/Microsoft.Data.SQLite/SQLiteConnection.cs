@@ -69,6 +69,8 @@ namespace Microsoft.Data.SQLite
             get { return _state; }
         }
 
+        internal SQLiteTransaction Transaction { get; set; }
+
         private void SetState(ConnectionState value)
         {
             if (_state == value)
@@ -89,6 +91,7 @@ namespace Microsoft.Data.SQLite
             Debug.Assert(_handle == null, "_handle is not null.");
             Debug.Assert(_connectionOptions != null, "_connectionOptions is null.");
 
+            // TODO: Register transaction hooks
             var rc = NativeMethods.sqlite3_open_v2(
                 _connectionOptions.Filename,
                 out _handle,
@@ -128,7 +131,7 @@ namespace Microsoft.Data.SQLite
 
         public new SQLiteCommand CreateCommand()
         {
-            return new SQLiteCommand { Connection = this };
+            return new SQLiteCommand { Connection = this, Transaction = Transaction };
         }
 
         protected override DbCommand CreateDbCommand()
@@ -138,7 +141,7 @@ namespace Microsoft.Data.SQLite
 
         public new SQLiteTransaction BeginTransaction()
         {
-            return BeginTransaction(IsolationLevel.Serializable);
+            return BeginTransaction(IsolationLevel.Unspecified);
         }
 
         protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel)
@@ -148,12 +151,12 @@ namespace Microsoft.Data.SQLite
 
         public new SQLiteTransaction BeginTransaction(IsolationLevel isolationLevel)
         {
-            if (isolationLevel != IsolationLevel.ReadUncommitted && isolationLevel != IsolationLevel.Serializable)
-                throw new ArgumentException(Strings.FormatInvalidIsolationLevel(isolationLevel));
             if (_state != ConnectionState.Open)
                 throw new InvalidOperationException(Strings.FormatCallRequiresOpenConnection("BeginTransaction"));
+            if (Transaction != null)
+                throw new InvalidOperationException(Strings.ParallelTransactionsNotSupported);
 
-            return new SQLiteTransaction(this, isolationLevel);
+            return Transaction = new SQLiteTransaction(this, isolationLevel);
         }
 
         public override void ChangeDatabase(string databaseName)

@@ -14,6 +14,7 @@ namespace Microsoft.Data.SQLite
         private readonly SQLiteCommand _command;
         private bool _closed;
 
+        // TODO: Step once
         internal SQLiteDataReader(SQLiteCommand command)
         {
             Debug.Assert(command != null, "command is null.");
@@ -60,7 +61,6 @@ namespace Microsoft.Data.SQLite
                         && !_command.Connection.Handle.IsInvalid,
                     "_command.Connection.Handle is null.");
 
-                // TODO: Handle the case where this is called before Read
                 return NativeMethods.sqlite3_changes(_command.Connection.Handle);
             }
         }
@@ -255,13 +255,11 @@ namespace Microsoft.Data.SQLite
 
         public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length)
         {
-            // TODO: Use BLOB I/O?
             throw new NotSupportedException();
         }
 
         public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length)
         {
-            // TODO: Use BLOB I/O?
             throw new NotSupportedException();
         }
 

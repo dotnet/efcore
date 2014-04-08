@@ -196,12 +196,11 @@ namespace Microsoft.Data.SQLite
             if (string.IsNullOrWhiteSpace(_commandText))
                 throw new InvalidOperationException(Strings.FormatCallRequiresSetCommandText("ExecuteReader"));
 
+            ValidateTransaction();
             Prepare();
             Bind();
 
-            OpenReader = new SQLiteDataReader(this);
-
-            return OpenReader;
+            return OpenReader = new SQLiteDataReader(this);
         }
 
         protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
@@ -218,6 +217,7 @@ namespace Microsoft.Data.SQLite
             if (string.IsNullOrWhiteSpace(_commandText))
                 throw new InvalidOperationException(Strings.FormatCallRequiresSetCommandText("ExecuteNonQuery"));
 
+            ValidateTransaction();
             Prepare();
             Bind();
 
@@ -239,6 +239,7 @@ namespace Microsoft.Data.SQLite
             if (string.IsNullOrWhiteSpace(_commandText))
                 throw new InvalidOperationException(Strings.FormatCallRequiresSetCommandText("ExecuteScalar"));
 
+            ValidateTransaction();
             Prepare();
             Bind();
 
@@ -306,6 +307,17 @@ namespace Microsoft.Data.SQLite
 
             _handle.Dispose();
             _handle = null;
+        }
+
+        private void ValidateTransaction()
+        {
+            if (Transaction != _connection.Transaction)
+            {
+                if (Transaction == null)
+                    throw new InvalidOperationException(Strings.TransactionRequired);
+
+                throw new InvalidOperationException(Strings.TransactionConnectionMismatch);
+            }
         }
     }
 }

@@ -1,49 +1,93 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
+using Microsoft.Data.SQLite.Utilities;
 
 namespace Microsoft.Data.SQLite
 {
     public class SQLiteTransaction : DbTransaction
     {
-        private readonly SQLiteConnection _connection;
-        private readonly IsolationLevel _isolationLevel;
+        private SQLiteConnection _connection;
+        private IsolationLevel _isolationLevel;
 
         internal SQLiteTransaction(SQLiteConnection connection, IsolationLevel isolationLevel)
         {
             Debug.Assert(connection != null, "connection is null.");
-            Debug.Assert(
-                isolationLevel == IsolationLevel.ReadUncommitted || isolationLevel == IsolationLevel.Serializable,
-                "isolationLevel is not ReadUncommitted or Serializable");
             Debug.Assert(connection.State == ConnectionState.Open, "connection.State is not Open.");
 
             _connection = connection;
             _isolationLevel = isolationLevel;
 
-            // TODO: Consider nested transactions
-            // TODO: BEGIN TRANSACTION
+            if (_isolationLevel == IsolationLevel.ReadUncommitted)
+                _connection.ExecuteNonQuery("PRAGMA read_uncommitted = 1");
+            else if (_isolationLevel == IsolationLevel.Serializable)
+                _connection.ExecuteNonQuery("PRAGMA read_uncommitted = 0");
+            else if (_isolationLevel != IsolationLevel.Unspecified)
+                throw new ArgumentException(Strings.FormatInvalidIsolationLevel(isolationLevel));
+
+            _connection.ExecuteNonQuery("BEGIN");
         }
 
-        public override void Commit()
-        {
-            // TODO: COMMIT
-        }
-
-        protected override DbConnection DbConnection
+        public new SQLiteConnection Connection
         {
             get { return _connection; }
         }
 
+        protected override DbConnection DbConnection
+        {
+            get { return Connection; }
+        }
+
         public override IsolationLevel IsolationLevel
         {
-            get { return _isolationLevel; }
+            get
+            {
+                CheckCompleted();
+
+                if (_isolationLevel == IsolationLevel.Unspecified)
+                    _isolationLevel = _connection.ExecuteScalar<long>("PRAGMA read_uncommitted") != 0
+                        ? IsolationLevel.ReadUncommitted
+                        : IsolationLevel.Serializable;
+
+                return _isolationLevel;
+            }
+        }
+
+        public override void Commit()
+        {
+            CheckCompleted();
+
+            _connection.ExecuteNonQuery("COMMIT");
+            _connection.Transaction = null;
+            _connection = null;
         }
 
         public override void Rollback()
         {
-            // TODO: ROLLBACK
+            CheckCompleted();
+
+            Dispose();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (!disposing || _connection == null)
+                return;
+
+            if (_connection.State == ConnectionState.Open)
+                _connection.ExecuteNonQuery("ROLLBACK");
+
+            _connection.Transaction = null;
+            _connection = null;
+        }
+
+        private void CheckCompleted()
+        {
+            if (_connection == null || _connection.State != ConnectionState.Open)
+                throw new InvalidOperationException(Strings.TransactionCompleted);
         }
     }
 }

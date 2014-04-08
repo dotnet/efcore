@@ -208,6 +208,24 @@ namespace Microsoft.Data.SQLite
         }
 
         [Fact]
+        public void ExecuteScalar_throws_when_transaction_required()
+        {
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT 1";
+                connection.Open();
+
+                using (connection.BeginTransaction())
+                {
+                    var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteScalar());
+
+                    Assert.Equal(Strings.TransactionRequired, ex.Message);
+                }
+            }
+        }
+
+        [Fact]
         public void ExecuteScalar_throws_when_no_command_text()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
@@ -414,6 +432,49 @@ namespace Microsoft.Data.SQLite
         }
 
         [Fact]
+        public void ExecuteNonQuery_throws_when_transaction_required()
+        {
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT 1";
+                connection.Open();
+
+                using (connection.BeginTransaction())
+                {
+                    var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteNonQuery());
+
+                    Assert.Equal(Strings.TransactionRequired, ex.Message);
+                }
+            }
+        }
+
+        [Fact]
+        public void ExecuteNonQuery_throws_when_transaction_mismatched()
+        {
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT 1";
+                connection.Open();
+
+                using (var otherConnection = new SQLiteConnection("Filename=:memory:"))
+                {
+                    otherConnection.Open();
+
+                    using (var transction = otherConnection.BeginTransaction())
+                    {
+                        command.Transaction = transction;
+
+                        var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteNonQuery());
+
+                        Assert.Equal(Strings.TransactionConnectionMismatch, ex.Message);
+                    }
+                }
+            }
+        }
+
+        [Fact]
         public void ExecuteNonQuery_works()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
@@ -533,6 +594,24 @@ namespace Microsoft.Data.SQLite
                 var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteReader());
 
                 Assert.Equal(Strings.FormatCallRequiresSetCommandText("ExecuteReader"), ex.Message);
+            }
+        }
+
+        [Fact]
+        public void ExecuteReader_throws_when_transaction_required()
+        {
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT 1";
+                connection.Open();
+
+                using (connection.BeginTransaction())
+                {
+                    var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteReader());
+
+                    Assert.Equal(Strings.TransactionRequired, ex.Message);
+                }
             }
         }
 

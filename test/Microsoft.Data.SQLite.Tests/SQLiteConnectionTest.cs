@@ -275,19 +275,6 @@ namespace Microsoft.Data.SQLite
         }
 
         [Fact]
-        public void BeginTransaction_validates_argument()
-        {
-            using (var connection = new SQLiteConnection("Filename=:memory:"))
-            {
-                connection.Open();
-
-                var ex = Assert.Throws<ArgumentException>(() => connection.BeginTransaction(0));
-
-                Assert.Equal(Strings.FormatInvalidIsolationLevel(0), ex.Message);
-            }
-        }
-
-        [Fact]
         public void BeginTransaction_throws_when_closed()
         {
             using (var connection = new SQLiteConnection())
@@ -295,6 +282,22 @@ namespace Microsoft.Data.SQLite
                 var ex = Assert.Throws<InvalidOperationException>(() => connection.BeginTransaction());
 
                 Assert.Equal(Strings.FormatCallRequiresOpenConnection("BeginTransaction"), ex.Message);
+            }
+        }
+
+        [Fact]
+        public void BeginTransaction_throws_when_parallel_transaction()
+        {
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
+            {
+                connection.Open();
+
+                using (connection.BeginTransaction())
+                {
+                    var ex = Assert.Throws<InvalidOperationException>(() => connection.BeginTransaction());
+
+                    Assert.Equal(Strings.ParallelTransactionsNotSupported, ex.Message);
+                }
             }
         }
 
@@ -308,6 +311,7 @@ namespace Microsoft.Data.SQLite
                 using (var transaction = connection.BeginTransaction())
                 {
                     Assert.NotNull(transaction);
+                    Assert.Same(transaction, connection.Transaction);
                     Assert.Equal(connection, transaction.Connection);
                     Assert.Equal(IsolationLevel.Serializable, transaction.IsolationLevel);
                 }
