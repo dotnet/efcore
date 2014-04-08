@@ -13,11 +13,21 @@ namespace Microsoft.Data.Relational
 {
     public class DatabaseBuilder
     {
+        private ModelDatabaseMapping _mapping;
+
         public virtual Database Build([NotNull] IModel model)
         {
             Check.NotNull(model, "model");
 
+            return BuildMapping(model).Database;
+        }
+
+        public virtual ModelDatabaseMapping BuildMapping([NotNull] IModel model)
+        {
+            Check.NotNull(model, "model");
+
             var database = new Database();
+            _mapping = new ModelDatabaseMapping(model, database);
 
             foreach (var entityType in model.EntityTypes)
             {
@@ -33,7 +43,7 @@ namespace Microsoft.Data.Relational
                 }
             }
 
-            return database;
+            return _mapping;
         }
 
         public virtual string TableName([NotNull] IEntityType type)
@@ -89,18 +99,22 @@ namespace Microsoft.Data.Relational
             }
 
             database.AddTable(table);
+            _mapping.Map(entityType, table);
         }
 
         private void BuildColumn(Table table, IProperty property)
         {
-            table.AddColumn(
+            var column =
                 new Column(ColumnName(property), property.PropertyType, property.ColumnType())
-                {
-                    IsNullable = property.IsNullable,
-                    DefaultValue = property.ColumnDefaultValue(),
-                    DefaultSql = property.ColumnDefaultSql(),
-                    ValueGenerationStrategy = TranslateValueGenerationStrategy(property.ValueGenerationStrategy)
-                });
+                    {
+                        IsNullable = property.IsNullable,
+                        DefaultValue = property.ColumnDefaultValue(),
+                        DefaultSql = property.ColumnDefaultSql(),
+                        ValueGenerationStrategy = TranslateValueGenerationStrategy(property.ValueGenerationStrategy)
+                    };
+
+            table.AddColumn(column);
+            _mapping.Map(property, column);
         }
 
         private static StoreValueGenerationStrategy TranslateValueGenerationStrategy(ValueGenerationStrategy generationStrategy)
@@ -126,6 +140,7 @@ namespace Microsoft.Data.Relational
             var isClustered = primaryKey.IsClustered();
 
             table.PrimaryKey = new PrimaryKey(PrimaryKeyName(primaryKey), columns, isClustered);
+            _mapping.Map(primaryKey, table.PrimaryKey);
         }
 
         private void BuildForeignKey(Database database, IForeignKey foreignKey)
@@ -140,8 +155,11 @@ namespace Microsoft.Data.Relational
                 p => referencedTable.GetColumn(ColumnName(p))).ToArray();
             var cascadeDelete = foreignKey.CascadeDelete();
 
-            table.AddForeignKey(new ForeignKey(
-                ForeignKeyName(foreignKey), columns, referenceColumns, cascadeDelete));
+            var storeForeignKey = new ForeignKey(
+                ForeignKeyName(foreignKey), columns, referenceColumns, cascadeDelete);
+            
+            table.AddForeignKey(storeForeignKey);
+            _mapping.Map(foreignKey, table.ForeignKeys.Last());
         }
 
         private static void BuildIndex(Database database, IEntityType entityType)

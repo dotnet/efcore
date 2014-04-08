@@ -424,7 +424,7 @@ namespace Microsoft.Data.SqlServer
             if (generateIdempotentSql)
             {
                 GenerateForeignKeyPresenceCheck(
-                    dropForeignKeyOperation.DependentTableName,
+                    dropForeignKeyOperation.TableName,
                     dropForeignKeyOperation.ForeignKeyName,
                     negative: false,
                     builder: stringBuilder);

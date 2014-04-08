@@ -9,20 +9,20 @@ namespace Microsoft.Data.Migrations.Model
 {
     public class DropForeignKeyOperation : MigrationOperation
     {
-        private readonly SchemaQualifiedName _dependentTableName;
+        private readonly SchemaQualifiedName _tableName;
         private readonly string _foreignKeyName;
 
-        public DropForeignKeyOperation(SchemaQualifiedName dependentTableName, [NotNull] string foreignKeyName)
+        public DropForeignKeyOperation(SchemaQualifiedName tableName, [NotNull] string foreignKeyName)
         {
             Check.NotEmpty(foreignKeyName, "foreignKeyName");
 
-            _dependentTableName = dependentTableName;
+            _tableName = tableName;
             _foreignKeyName = foreignKeyName;
         }
 
-        public virtual SchemaQualifiedName DependentTableName
+        public virtual SchemaQualifiedName TableName
         {
-            get { return _dependentTableName; }
+            get { return _tableName; }
         }
 
         public virtual string ForeignKeyName

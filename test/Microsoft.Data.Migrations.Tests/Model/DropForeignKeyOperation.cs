@@ -14,7 +14,7 @@ namespace Microsoft.Data.Migrations.Tests.Model
         {
             var dropForeignKeyOperation = new DropForeignKeyOperation("dbo.MyTable", "MyFK");
 
-            Assert.Equal("dbo.MyTable", dropForeignKeyOperation.DependentTableName);
+            Assert.Equal("dbo.MyTable", dropForeignKeyOperation.TableName);
             Assert.Equal("MyFK", dropForeignKeyOperation.ForeignKeyName);
             Assert.True(dropForeignKeyOperation.IsDestructiveChange);
         }
