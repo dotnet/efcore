@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.ChangeTracking
@@ -48,7 +49,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entityType = model.GetEntityType("SomeEntity");
             var configuration = CreateConfiguration(model);
 
-            var entry = CreateStateEntry(configuration, entityType, new object[] { 1, "Kool" });
+            var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
 
             var entity = (SomeEntity)entry.Entity;
 
@@ -100,7 +101,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var idProperty = entityType.GetProperty("Id");
             var configuration = CreateConfiguration(model);
 
-            var entry = CreateStateEntry(configuration, entityType, new object[] { 1, "Kool" });
+            var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
 
             Assert.Equal(
                 Strings.FormatOriginalValueNotTracked("Id", "FullNotificationEntity"),

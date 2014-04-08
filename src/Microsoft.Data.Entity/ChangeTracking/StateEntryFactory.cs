@@ -39,12 +39,12 @@ namespace Microsoft.Data.Entity.ChangeTracking
             return NewStateEntry(entityType, entity);
         }
 
-        public virtual StateEntry Create([NotNull] IEntityType entityType, [NotNull] object[] valueBuffer)
+        public virtual StateEntry Create([NotNull] IEntityType entityType, [NotNull] IValueReader valueReader)
         {
             Check.NotNull(entityType, "entityType");
-            Check.NotNull(valueBuffer, "valueBuffer");
+            Check.NotNull(valueReader, "valueReader");
 
-            return NewStateEntry(entityType, valueBuffer);
+            return NewStateEntry(entityType, valueReader);
         }
 
         private StateEntry NewStateEntry(IEntityType entityType, object entity)
@@ -61,18 +61,18 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 : new ClrStateEntry(_configuration, entityType, entity);
         }
 
-        private StateEntry NewStateEntry(IEntityType entityType, object[] valueBuffer)
+        private StateEntry NewStateEntry(IEntityType entityType, IValueReader valueReader)
         {
             if (!entityType.HasClrType)
             {
-                return new ShadowStateEntry(_configuration, entityType, valueBuffer);
+                return new ShadowStateEntry(_configuration, entityType, valueReader);
             }
 
-            var entity = _materializerSource.GetMaterializer(entityType)(valueBuffer);
+            var entity = _materializerSource.GetMaterializer(entityType)(valueReader);
 
             return entityType.ShadowPropertyCount > 0
-                ? (StateEntry)new MixedStateEntry(_configuration, entityType, entity, valueBuffer)
-                : new ClrStateEntry(_configuration, entityType, entity, valueBuffer);
+                ? (StateEntry)new MixedStateEntry(_configuration, entityType, entity, valueReader)
+                : new ClrStateEntry(_configuration, entityType, entity);
         }
     }
 }

@@ -57,30 +57,30 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 var stateManager = context.ChangeTracker.StateManager;
 
-                stateManager.GetOrMaterializeEntry(categoryType, new object[] { 11 });
-                stateManager.GetOrMaterializeEntry(categoryType, new object[] { 12 });
-                stateManager.GetOrMaterializeEntry(categoryType, new object[] { 13 });
+                stateManager.GetOrMaterializeEntry(categoryType, new ObjectArrayValueReader(new object[] { 11 }));
+                stateManager.GetOrMaterializeEntry(categoryType, new ObjectArrayValueReader(new object[] { 12 }));
+                stateManager.GetOrMaterializeEntry(categoryType, new ObjectArrayValueReader(new object[] { 13 }));
 
-                stateManager.GetOrMaterializeEntry(productType, new object[] { 11, 21 });
+                stateManager.GetOrMaterializeEntry(productType, new ObjectArrayValueReader(new object[] { 11, 21 }));
                 AssertAllFixedUp(context);
-                stateManager.GetOrMaterializeEntry(productType, new object[] { 11, 22 });
+                stateManager.GetOrMaterializeEntry(productType, new ObjectArrayValueReader(new object[] { 11, 22 }));
                 AssertAllFixedUp(context);
-                stateManager.GetOrMaterializeEntry(productType, new object[] { 11, 23 });
+                stateManager.GetOrMaterializeEntry(productType, new ObjectArrayValueReader(new object[] { 11, 23 }));
                 AssertAllFixedUp(context);
-                stateManager.GetOrMaterializeEntry(productType, new object[] { 12, 24 });
+                stateManager.GetOrMaterializeEntry(productType, new ObjectArrayValueReader(new object[] { 12, 24 }));
                 AssertAllFixedUp(context);
-                stateManager.GetOrMaterializeEntry(productType, new object[] { 12, 25 });
+                stateManager.GetOrMaterializeEntry(productType, new ObjectArrayValueReader(new object[] { 12, 25 }));
                 AssertAllFixedUp(context);
 
-                stateManager.GetOrMaterializeEntry(offerType, new object[] { 31, 22 });
+                stateManager.GetOrMaterializeEntry(offerType, new ObjectArrayValueReader(new object[] { 31, 22 }));
                 AssertAllFixedUp(context);
-                stateManager.GetOrMaterializeEntry(offerType, new object[] { 32, 22 });
+                stateManager.GetOrMaterializeEntry(offerType, new ObjectArrayValueReader(new object[] { 32, 22 }));
                 AssertAllFixedUp(context);
-                stateManager.GetOrMaterializeEntry(offerType, new object[] { 33, 24 });
+                stateManager.GetOrMaterializeEntry(offerType, new ObjectArrayValueReader(new object[] { 33, 24 }));
                 AssertAllFixedUp(context);
-                stateManager.GetOrMaterializeEntry(offerType, new object[] { 34, 24 });
+                stateManager.GetOrMaterializeEntry(offerType, new ObjectArrayValueReader(new object[] { 34, 24 }));
                 AssertAllFixedUp(context);
-                stateManager.GetOrMaterializeEntry(offerType, new object[] { 35, 24 });
+                stateManager.GetOrMaterializeEntry(offerType, new ObjectArrayValueReader(new object[] { 35, 24 }));
                 AssertAllFixedUp(context);
 
                 Assert.Equal(3, context.ChangeTracker.Entries<Category>().Count());

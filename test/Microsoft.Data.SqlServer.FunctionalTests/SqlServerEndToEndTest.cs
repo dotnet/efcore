@@ -3,12 +3,15 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data.Common;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNet.Logging;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Relational;
 using Xunit;
 
 namespace Microsoft.Data.SqlServer.FunctionalTests
@@ -38,6 +41,49 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                     Assert.Equal("(5) 555-3745", results[2].Fax);
                     Assert.Equal("030-0076545", results[3].Fax);
                 }
+            }
+        }
+
+        [Fact]
+        public async Task Can_run_linq_query_on_entity_set_with_value_buffer_reader()
+        {
+            using (await TestDatabase.Northwind())
+            {
+                var config = new EntityConfigurationBuilder()
+                    .UseDataStore(new SqlStoreWithBufferReader(TestDatabase.NorthwindConnectionString))
+                    .BuildConfiguration();
+
+                using (var db = new NorthwindContext(config))
+                {
+                    var results = db.Customers
+                        .Where(c => c.CompanyName.StartsWith("A"))
+                        .OrderByDescending(c => c.CustomerID)
+                        .ToList();
+
+                    Assert.Equal(4, results.Count);
+                    Assert.Equal("AROUT", results[0].CustomerID);
+                    Assert.Equal("ANTON", results[1].CustomerID);
+                    Assert.Equal("ANATR", results[2].CustomerID);
+                    Assert.Equal("ALFKI", results[3].CustomerID);
+
+                    Assert.Equal("(171) 555-6750", results[0].Fax);
+                    Assert.Null(results[1].Fax);
+                    Assert.Equal("(5) 555-3745", results[2].Fax);
+                    Assert.Equal("030-0076545", results[3].Fax);
+                }
+            }
+        }
+
+        private class SqlStoreWithBufferReader : SqlServerDataStore
+        {
+            public SqlStoreWithBufferReader(string connectionString)
+                : base(connectionString)
+            {
+            }
+
+            protected override IValueReader CreateValueReader(DbDataReader dataReader)
+            {
+                return new RelationalObjectArrayValueReader(dataReader);
             }
         }
 
@@ -171,6 +217,15 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
 
         private class NorthwindContext : EntityContext
         {
+            public NorthwindContext()
+            {
+            }
+
+            public NorthwindContext(EntityConfiguration configuration)
+                : base(configuration)
+            {
+            }
+
             public EntitySet<Customer> Customers { get; set; }
 
             protected override void OnConfiguring(EntityConfigurationBuilder builder)

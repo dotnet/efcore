@@ -26,10 +26,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var materializerMock = new Mock<IEntityMaterializer>();
             var typeMock = materializerMock.As<IEntityType>();
 
-            var valueBuffer = new object[0];
-            new EntityMaterializerSource(new MemberMapper(new FieldMatcher())).GetMaterializer(typeMock.Object)(valueBuffer);
+            var reader = Mock.Of<IValueReader>();
+            new EntityMaterializerSource(new MemberMapper(new FieldMatcher())).GetMaterializer(typeMock.Object)(reader);
 
-            materializerMock.Verify(m => m.CreatEntity(valueBuffer));
+            materializerMock.Verify(m => m.CreatEntity(reader));
         }
 
         [Fact]
@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var factory = new EntityMaterializerSource(new MemberMapper(new FieldMatcher())).GetMaterializer(entityType);
 
             var gu = Guid.NewGuid();
-            var entity = (SomeEntity)factory(new object[] { "Fu", gu, 77 });
+            var entity = (SomeEntity)factory(new ObjectArrayValueReader(new object[] { "Fu", gu, 77 }));
 
             Assert.Equal(77, entity.Id);
             Assert.Equal("Fu", entity.Foo);
@@ -61,7 +61,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var factory = new EntityMaterializerSource(new MemberMapper(new FieldMatcher())).GetMaterializer(entityType);
 
             var gu = Guid.NewGuid();
-            var entity = (SomeEntityWithFields)factory(new object[] { "Fu", gu, 77 });
+            var entity = (SomeEntityWithFields)factory(new ObjectArrayValueReader(new object[] { "Fu", gu, 77 }));
 
             Assert.Equal(77, entity.Id);
             Assert.Equal("Fu", entity.Foo);
@@ -69,8 +69,16 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
-        public void DBNulls_are_converted_to_nulls()
+        public void Fields_flagged_as_null_are_converted_to_nulls()
         {
+            var valueReaderMock = new Mock<IValueReader>();
+            valueReaderMock.Setup(m => m.ReadValue<int>(2)).Returns(77);
+            valueReaderMock.Setup(m => m.ReadValue<string>(0)).Throws(new InvalidCastException("Attempt to cast DBNull value."));
+            valueReaderMock.Setup(m => m.ReadValue<Guid?>(1)).Throws(new InvalidCastException("Attempt to cast DBNull value."));
+            valueReaderMock.Setup(m => m.IsNull(2)).Returns(false);
+            valueReaderMock.Setup(m => m.IsNull(0)).Returns(true);
+            valueReaderMock.Setup(m => m.IsNull(1)).Returns(true);
+
             var entityType = new EntityType(typeof(SomeEntity));
             entityType.AddProperty("Id", typeof(int));
             entityType.AddProperty("Foo", typeof(string));
@@ -78,7 +86,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var factory = new EntityMaterializerSource(new MemberMapper(new FieldMatcher())).GetMaterializer(entityType);
 
-            var entity = (SomeEntity)factory(new object[] { DBNull.Value, DBNull.Value, 77 });
+            var entity = (SomeEntity)factory(valueReaderMock.Object);
 
             Assert.Equal(77, entity.Id);
             Assert.Null(entity.Foo);
@@ -99,7 +107,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var factory = new EntityMaterializerSource(new MemberMapper(new FieldMatcher())).GetMaterializer(entityType);
 
             var gu = Guid.NewGuid();
-            var entity = (SomeEntity)factory(new object[] { "Fu", "FuS", gu, Guid.NewGuid(), 77, 777 });
+            var entity = (SomeEntity)factory(new ObjectArrayValueReader(new object[] { "Fu", "FuS", gu, Guid.NewGuid(), 77, 777 }));
 
             Assert.Equal(77, entity.Id);
             Assert.Equal("Fu", entity.Foo);

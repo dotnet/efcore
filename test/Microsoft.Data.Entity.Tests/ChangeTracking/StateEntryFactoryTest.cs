@@ -86,7 +86,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             configurationMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());
 
             var entry = new StateEntryFactory(configurationMock.Object, new EntityMaterializerSource(new MemberMapper(new FieldMatcher())))
-                .Create(entityType, new object[] { "Green", 77 });
+                .Create(entityType, new ObjectArrayValueReader(new object[] { "Green", 77 }));
 
             Assert.IsType<ShadowStateEntry>(entry);
 
@@ -108,7 +108,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             configurationMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());
 
             var entry = new StateEntryFactory(configurationMock.Object, new EntityMaterializerSource(new MemberMapper(new FieldMatcher())))
-                .Create(entityType, new object[] { "Green", 77 });
+                .Create(entityType, new ObjectArrayValueReader(new object[] { "Green", 77 }));
 
             Assert.IsType<ClrStateEntry>(entry);
 
@@ -133,7 +133,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             configurationMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());
 
             var entry = new StateEntryFactory(configurationMock.Object, new EntityMaterializerSource(new MemberMapper(new FieldMatcher())))
-                .Create(entityType, new object[] { "Green", 77 });
+                .Create(entityType, new ObjectArrayValueReader(new object[] { "Green", 77 }));
 
             Assert.IsType<MixedStateEntry>(entry);
 

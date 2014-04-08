@@ -12,11 +12,14 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public class EntityMaterializerSource
     {
-        private static readonly MethodInfo _convert
-            = typeof(EntityMaterializerSource).GetTypeInfo().GetDeclaredMethods("Convert").Single();
+        private static readonly MethodInfo _readValue
+            = typeof(IValueReader).GetTypeInfo().GetDeclaredMethods("ReadValue").Single();
 
-        private readonly ThreadSafeDictionaryCache<Type, Func<object[], object>> _cache
-            = new ThreadSafeDictionaryCache<Type, Func<object[], object>>();
+        private static readonly MethodInfo _isNull
+            = typeof(IValueReader).GetTypeInfo().GetDeclaredMethods("IsNull").Single();
+
+        private readonly ThreadSafeDictionaryCache<Type, Func<IValueReader, object>> _cache
+            = new ThreadSafeDictionaryCache<Type, Func<IValueReader, object>>();
 
         private readonly MemberMapper _memberMapper;
 
@@ -36,7 +39,7 @@ namespace Microsoft.Data.Entity.Metadata
             _memberMapper = memberMapper;
         }
 
-        public virtual Func<object[], object> GetMaterializer([NotNull] IEntityType entityType)
+        public virtual Func<IValueReader, object> GetMaterializer([NotNull] IEntityType entityType)
         {
             Check.NotNull(entityType, "entityType");
 
@@ -54,12 +57,12 @@ namespace Microsoft.Data.Entity.Metadata
             return _cache.GetOrAdd(entityType.Type, k => BuildDelegate(entityType));
         }
 
-        private Func<object[], object> BuildDelegate(IEntityType entityType)
+        private Func<IValueReader, object> BuildDelegate(IEntityType entityType)
         {
             var memberMappings = _memberMapper.MapPropertiesToMembers(entityType);
             var clrType = entityType.Type;
 
-            var bufferParameter = Expression.Parameter(typeof(object[]), "valueBuffer");
+            var readerParameter = Expression.Parameter(typeof(IValueReader), "valueReader");
             var instanceVariable = Expression.Variable(clrType, "instance");
 
             var blockExpressions = new List<Expression>
@@ -69,41 +72,45 @@ namespace Microsoft.Data.Entity.Metadata
 
             foreach (var mapping in memberMappings)
             {
-                var callConvertExpression = Expression.Call(
-                    _convert,
-                    Expression.ArrayAccess(bufferParameter, Expression.Constant(mapping.Item1.Index)));
-
                 var propertyInfo = mapping.Item2 as PropertyInfo;
+                var fieldInfo = mapping.Item2 as FieldInfo;
+
+                var targetType = propertyInfo != null
+                    ? propertyInfo.PropertyType
+                    : fieldInfo.FieldType;
+
+                var indexExpression = Expression.Constant(mapping.Item1.Index);
+
+                Expression callReaderExpression = Expression.Call(
+                    readerParameter,
+                    _readValue.MakeGenericMethod(targetType),
+                    indexExpression);
+
+                if (targetType.IsNullableType())
+                {
+                    callReaderExpression = Expression.Condition(
+                        Expression.Call(readerParameter, _isNull, indexExpression),
+                        Expression.Constant(null, targetType),
+                        callReaderExpression);
+                }
+
                 if (propertyInfo != null)
                 {
                     blockExpressions.Add(
                         Expression.Assign(Expression.Property(instanceVariable, propertyInfo),
-                            Expression.Convert(
-                                callConvertExpression,
-                                propertyInfo.PropertyType)));
+                            callReaderExpression));
                 }
                 else
                 {
-                    var fieldInfo = (FieldInfo)mapping.Item2;
-
                     blockExpressions.Add(
                         Expression.Assign(Expression.Field(instanceVariable, fieldInfo),
-                            Expression.Convert(
-                                callConvertExpression,
-                                fieldInfo.FieldType)));
+                            callReaderExpression));
                 }
             }
 
             blockExpressions.Add(instanceVariable);
 
-            return Expression.Lambda<Func<object[], object>>(Expression.Block(new[] { instanceVariable }, blockExpressions), bufferParameter).Compile();
-        }
-
-        // TODO: This is a temporary workaround for conveting DBNull into null
-        // TODO: It is probably just an example of type conversions such that it can be handled more generally
-        private static object Convert(object value)
-        {
-            return value is DBNull ? null : value;
+            return Expression.Lambda<Func<IValueReader, object>>(Expression.Block(new[] { instanceVariable }, blockExpressions), readerParameter).Compile();
         }
     }
 }

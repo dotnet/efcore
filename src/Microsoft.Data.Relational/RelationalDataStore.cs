@@ -84,6 +84,7 @@ namespace Microsoft.Data.Relational
                 .AppendLine(entityType.StorageName);
 
             return new Enumerable<TResult>(
+                this,
                 () => CreateConnection(_connectionString),
                 sql.ToString(),
                 _logger,
@@ -98,8 +99,14 @@ namespace Microsoft.Data.Relational
             return CreateConnection(_connectionString);
         }
 
+        protected virtual IValueReader CreateValueReader(DbDataReader dataReader)
+        {
+            return new RelationalTypedValueReader(dataReader);
+        }
+
         private sealed class Enumerable<T> : IAsyncEnumerable<T>
         {
+            private readonly RelationalDataStore _dataStore;
             private readonly Func<DbConnection> _connectionFactory;
             private readonly string _sql;
             private readonly ILogger _logger;
@@ -107,12 +114,14 @@ namespace Microsoft.Data.Relational
             private readonly StateManager _stateManager;
 
             public Enumerable(
+                RelationalDataStore dataStore,
                 Func<DbConnection> connectionFactory,
                 string sql,
                 ILogger logger,
                 IEntityType entityType,
                 StateManager stateManager)
             {
+                _dataStore = dataStore;
                 _connectionFactory = connectionFactory;
                 _sql = sql;
                 _logger = logger;
@@ -122,7 +131,7 @@ namespace Microsoft.Data.Relational
 
             public IAsyncEnumerator<T> GetAsyncEnumerator()
             {
-                return new Enumerator<T>(_connectionFactory, _sql, _logger, _entityType, _stateManager);
+                return new Enumerator<T>(_dataStore, _connectionFactory, _sql, _logger, _entityType, _stateManager);
             }
 
             IAsyncEnumerator IAsyncEnumerable.GetAsyncEnumerator()
@@ -143,6 +152,7 @@ namespace Microsoft.Data.Relational
 
         private sealed class Enumerator<T> : IAsyncEnumerator<T>
         {
+            private readonly RelationalDataStore _dataStore;
             private readonly Func<DbConnection> _connectionFactory;
             private readonly string _sql;
             private readonly ILogger _logger;
@@ -154,12 +164,14 @@ namespace Microsoft.Data.Relational
             private DbDataReader _reader;
 
             public Enumerator(
+                RelationalDataStore dataStore,
                 Func<DbConnection> connectionFactory,
                 string sql,
                 ILogger logger,
                 IEntityType entityType,
                 StateManager stateManager)
             {
+                _dataStore = dataStore;
                 _connectionFactory = connectionFactory;
                 _sql = sql;
                 _logger = logger;
@@ -217,12 +229,8 @@ namespace Microsoft.Data.Relational
                         return default(T);
                     }
 
-                    var values = new object[_reader.FieldCount];
-
-                    // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
-                    _reader.GetValues(values);
-
-                    return (T)_stateManager.GetOrMaterializeEntry(_entityType, values).Entity;
+                    return (T)_stateManager.GetOrMaterializeEntry(
+                        _entityType, _dataStore.CreateValueReader(_reader)).Entity;
                 }
             }
 

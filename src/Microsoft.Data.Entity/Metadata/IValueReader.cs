@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
-
 namespace Microsoft.Data.Entity.Metadata
 {
-    public interface IEntityMaterializer
+    public interface IValueReader
     {
-        object CreatEntity([NotNull] IValueReader valueReader);
+        bool IsNull(int index);
+        T ReadValue<T>(int index);
+        int Count { get; }
     }
 }

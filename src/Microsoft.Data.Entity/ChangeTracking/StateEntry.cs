@@ -31,8 +31,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         protected StateEntry(
             [NotNull] ContextConfiguration configuration,
-            [NotNull] IEntityType entityType,
-            [CanBeNull] object[] valueBuffer)
+            [NotNull] IEntityType entityType)
         {
             Check.NotNull(configuration, "configuration");
             Check.NotNull(entityType, "entityType");
@@ -40,22 +39,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
             _configuration = configuration;
             _entityType = entityType;
             _stateData = new StateData(entityType.Properties.Count);
-
-            // Optimization to use value buffer for original values when possible
-            if (valueBuffer != null
-                && !_entityType.UseLazyOriginalValues
-                && valueBuffer.Length == _entityType.OriginalValueCount)
-            {
-                _originalValues = valueBuffer;
-
-                for (var i = 0; i < _originalValues.Length; i++)
-                {
-                    if (_originalValues[i] == null)
-                    {
-                        _originalValues[i] = NullSentinel.Value;
-                    }
-                }
-            }
         }
 
         [CanBeNull]

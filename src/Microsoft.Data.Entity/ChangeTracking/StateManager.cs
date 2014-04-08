@@ -71,14 +71,14 @@ namespace Microsoft.Data.Entity.ChangeTracking
             return stateEntry;
         }
 
-        public virtual StateEntry GetOrMaterializeEntry([NotNull] IEntityType entityType, [NotNull] object[] valueBuffer)
+        public virtual StateEntry GetOrMaterializeEntry([NotNull] IEntityType entityType, [NotNull] IValueReader valueReader)
         {
             Check.NotNull(entityType, "entityType");
-            Check.NotNull(valueBuffer, "valueBuffer");
+            Check.NotNull(valueReader, "valueReader");
 
             // TODO: Pre-compute this for speed
             var keyProperties = entityType.GetKey().Properties;
-            var keyValue = _keyFactorySource.GetKeyFactory(keyProperties).Create(entityType, keyProperties, valueBuffer);
+            var keyValue = _keyFactorySource.GetKeyFactory(keyProperties).Create(entityType, keyProperties, valueReader);
 
             StateEntry existingEntry;
             if (_identityMap.TryGetValue(keyValue, out existingEntry))
@@ -86,7 +86,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 return existingEntry;
             }
 
-            var newEntry = _subscriber.SnapshotAndSubscribe(_factory.Create(entityType, valueBuffer));
+            var newEntry = _subscriber.SnapshotAndSubscribe(_factory.Create(entityType, valueReader));
 
             _identityMap.Add(keyValue, newEntry);
 

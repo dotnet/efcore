@@ -194,13 +194,13 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         }
 
         // ReSharper disable once InconsistentNaming
-        public static KoolEntity15 _EntityFramework_Create(object[] valueBuffer)
+        public static KoolEntity15 _EntityFramework_Create(IValueReader valueReader)
         {
             return new KoolEntity15
                 {
-                    _id = (int)valueBuffer[2],
-                    _foo15 = (string)valueBuffer[0],
-                    _goo15 = (Guid)valueBuffer[1]
+                    _id = valueReader.ReadValue<int>(2),
+                    _foo15 = valueReader.IsNull(0) ? null : valueReader.ReadValue<string>(0),
+                    _goo15 = valueReader.ReadValue<Guid>(1)
                 };
         }
     }
@@ -1065,10 +1065,10 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public bool CreateEntityWasUsed { get; set; }
 
-        public object CreatEntity(object[] valueBuffer)
+        public object CreatEntity(IValueReader valueReader)
         {
             CreateEntityWasUsed = true;
-            return KoolEntity15._EntityFramework_Create(valueBuffer);
+            return KoolEntity15._EntityFramework_Create(valueReader);
         }
     }
 

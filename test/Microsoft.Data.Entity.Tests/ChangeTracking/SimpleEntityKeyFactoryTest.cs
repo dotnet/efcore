@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             typeMock.Setup(m => m.GetKey().Properties).Returns(new[] { keyPropMock.Object });
 
             var key = (SimpleEntityKey<int>)new SimpleEntityKeyFactory<int>().Create(
-                typeMock.Object, typeMock.Object.GetKey().Properties, new object[] { 7 });
+                typeMock.Object, typeMock.Object.GetKey().Properties, new ObjectArrayValueReader(new object[] { 7 }));
 
             Assert.Equal(7, key.Value);
         }
@@ -76,7 +76,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             typeMock.Setup(m => m.GetKey().Properties).Returns(new[] { keyPropMock.Object });
 
             var key = (SimpleEntityKey<string>)new SimpleEntityKeyFactory<string>().Create(
-                typeMock.Object, new[] { nonKeyPropMock.Object }, new object[] { 7, "Ate" });
+                typeMock.Object, new[] { nonKeyPropMock.Object }, new ObjectArrayValueReader(new object[] { 7, "Ate" }));
 
             Assert.Equal("Ate", key.Value);
         }

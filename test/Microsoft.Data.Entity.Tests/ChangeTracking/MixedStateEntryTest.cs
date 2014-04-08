@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entityType = model.GetEntityType("SomeEntity");
             var configuration = CreateConfiguration(model);
 
-            var entry = CreateStateEntry(configuration, entityType, new object[] { 1, "Kool" });
+            var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
 
             var entity = (SomeEntity)entry.Entity;
 
@@ -101,7 +101,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var idProperty = entityType.GetProperty("Id");
             var configuration = CreateConfiguration(model);
 
-            var entry = CreateStateEntry(configuration, entityType, new object[] { 1, "Kool" });
+            var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
 
             Assert.Equal(
                 Strings.FormatOriginalValueNotTracked("Id", "FullNotificationEntity"),
