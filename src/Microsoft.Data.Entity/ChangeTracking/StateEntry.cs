@@ -71,8 +71,37 @@ namespace Microsoft.Data.Entity.ChangeTracking
             get { return _configuration; }
         }
 
+        private void SetEntityState(EntityState value)
+        {
+            // TODO: Decide what to do here when we decide what to do with sync/async paths in general
+            var generatedValue = value == EntityState.Added && EntityState != EntityState.Added
+                ? GenerateKeyValue().Result
+                : null;
+
+            SetEntityState(value, generatedValue);
+        }
+
         public virtual async Task SetEntityStateAsync(
             EntityState value, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var generatedValue = value == EntityState.Added && EntityState != EntityState.Added
+                ? await GenerateKeyValue(cancellationToken).ConfigureAwait(false)
+                : null;
+
+            SetEntityState(value, generatedValue);
+        }
+
+        private Task<object> GenerateKeyValue(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var keyProperty = _entityType.GetKey().Properties.Single(); // TODO: Composite keys not implemented yet.
+            var identityGenerator = _configuration.ActiveIdentityGenerators.GetOrAdd(keyProperty);
+
+            return identityGenerator != null
+                ? identityGenerator.NextAsync(cancellationToken)
+                : Task.FromResult<object>(null);
+        }
+
+        private void SetEntityState(EntityState value, object generatedValue)
         {
             // The entity state can be Modified even if some properties are not modified so always
             // set all properties to modified if the entity state is explicitly set to Modified.
@@ -91,15 +120,10 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             _stateData.EntityState = value;
 
-            if (value == EntityState.Added)
+            if (value == EntityState.Added
+                && generatedValue != null)
             {
-                var keyProperty = _entityType.GetKey().Properties.Single(); // TODO: Composite keys not implemented yet.
-                var identityGenerator = _configuration.ActiveIdentityGenerators.GetOrAdd(keyProperty);
-
-                if (identityGenerator != null)
-                {
-                    SetPropertyValue(keyProperty, await identityGenerator.NextAsync(cancellationToken).ConfigureAwait(false));
-                }
+                SetPropertyValue(_entityType.GetKey().Properties.Single(), generatedValue); // TODO: Composite keys not implemented yet.
             }
 
             if (oldState == EntityState.Unknown)
@@ -118,6 +142,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         public virtual EntityState EntityState
         {
             get { return _stateData.EntityState; }
+            set { SetEntityState(value); }
         }
 
         public virtual bool IsPropertyModified([NotNull] IProperty property)
@@ -157,14 +182,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 _stateData.EntityState = EntityState.Unchanged;
                 notifier.StateChanged(this, currentState);
             }
-        }
-
-        internal virtual void SetAttached()
-        {
-            var notifier = _configuration.StateEntryNotifier;
-            notifier.StateChanging(this, EntityState.Unchanged);
-            _stateData.EntityState = EntityState.Unchanged;
-            notifier.StateChanged(this, EntityState.Unknown);
         }
 
         public abstract object GetPropertyValue([NotNull] IProperty property);
@@ -323,6 +340,42 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
 
             return foundChanges;
+        }
+
+        public virtual void AcceptChanges()
+        {
+            var currentState = EntityState;
+            if (currentState == EntityState.Unchanged
+                || currentState == EntityState.Unknown)
+            {
+                return;
+            }
+
+            if (currentState == EntityState.Added
+                || currentState == EntityState.Modified)
+            {
+                foreach (var property in EntityType.Properties)
+                {
+                    var index = property.OriginalValueIndex;
+                    if (index != -1)
+                    {
+                        var originalValue = GetPropertyOriginalValue(index);
+
+                        // Only update original values we are actually tracking. If we have a slot for an original value
+                        // that is not being used due to lazy, then that lazy behavior is still valid.
+                        if (originalValue != null)
+                        {
+                            SetPropertyOriginalValue(index, GetPropertyValue(property));
+                        }
+                    }
+                }
+
+                EntityState = EntityState.Unchanged;
+            }
+            else if (currentState == EntityState.Deleted)
+            {
+                EntityState = EntityState.Unknown;
+            }
         }
 
         internal struct StateData

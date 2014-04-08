@@ -109,14 +109,69 @@ namespace Microsoft.Data.Entity.Tests
             }
         }
 
+        [Fact]
+        public void SaveChanges_calls_AcceptAllChanges_if_there_was_work_to_do()
+        {
+            var configuration = new EntityConfigurationBuilder()
+                .UseStateManager<FakeStateManager>()
+                .UseDataStore(Mock.Of<DataStore>())
+                .BuildConfiguration();
+
+            using (var context = new EntityContext(configuration))
+            {
+                var stateManager = (FakeStateManager)context.Configuration.StateManager;
+
+                var entryMock = new Mock<StateEntry>();
+                entryMock.Setup(m => m.EntityState).Returns(EntityState.Modified);
+                stateManager.Entries = new[] { entryMock.Object };
+
+                Assert.False(stateManager.AcceptChangesCalled);
+
+                context.SaveChanges();
+
+                Assert.True(stateManager.AcceptChangesCalled);
+            }
+        }
+
+        [Fact]
+        public void SaveChanges_does_not_call_AcceptAllChanges_if_there_was_nothing_to_do()
+        {
+            var configuration = new EntityConfigurationBuilder()
+                .UseStateManager<FakeStateManager>()
+                .BuildConfiguration();
+
+            using (var context = new EntityContext(configuration))
+            {
+                var stateManager = (FakeStateManager)context.Configuration.StateManager;
+
+                Assert.False(stateManager.AcceptChangesCalled);
+
+                context.SaveChanges();
+
+                Assert.False(stateManager.AcceptChangesCalled);
+            }
+        }
+
         private class FakeStateManager : StateManager
         {
+            public IEnumerable<StateEntry> Entries { get; set; }
             public bool DetectChangesCalled { get; set; }
+            public bool AcceptChangesCalled { get; set; }
 
             public override bool DetectChanges()
             {
                 DetectChangesCalled = true;
                 return false;
+            }
+
+            public override void AcceptAllChanges()
+            {
+                AcceptChangesCalled = true;
+            }
+
+            public override IEnumerable<StateEntry> StateEntries
+            {
+                get { return Entries ?? Enumerable.Empty<StateEntry>(); }
             }
         }
 

@@ -2,7 +2,6 @@
 
 using System;
 using System.Linq;
-using System.Threading;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Moq;
@@ -40,7 +39,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.Equal(EntityState.Unchanged, stateEntry.EntityState);
             Assert.Same(stateEntry, stateManager.GetOrMaterializeEntry(categoryType, new object[] { 77, "Bjork" }));
 
-            stateEntry.SetEntityStateAsync(EntityState.Modified, CancellationToken.None).Wait();
+            stateEntry.EntityState = EntityState.Modified;
 
             Assert.Same(stateEntry, stateManager.GetOrMaterializeEntry(categoryType, new object[] { 77, "Bjork" }));
             Assert.Equal(EntityState.Modified, stateEntry.EntityState);
@@ -224,7 +223,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             configMock.Setup(m => m.StateEntryNotifier).Returns(new StateEntryNotifier(listeners.Select(m => m.Object)));
 
             var entry = stateManager.GetOrCreateEntry(new Category { Id = 77 });
-            entry.SetEntityStateAsync(EntityState.Added, CancellationToken.None).Wait();
+            entry.EntityState = EntityState.Added;
 
             foreach (var listener in listeners)
             {
@@ -235,7 +234,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 listener.Verify(m => m.StateChanged(entry, EntityState.Unknown), Times.Once);
             }
 
-            entry.SetEntityStateAsync(EntityState.Modified, CancellationToken.None).Wait();
+            entry.EntityState = EntityState.Modified;
 
             foreach (var listener in listeners)
             {
@@ -281,6 +280,36 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entryMock3.Verify(m => m.DetectChanges());
             entryMock4.Verify(m => m.DetectChanges());
             entryMock5.Verify(m => m.DetectChanges());
+        }
+
+        [Fact]
+        public void AcceptAllChanges_processes_all_tracked_entities()
+        {
+            var stateManager = CreateStateManager(BuildModel());
+
+            var productId1 = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
+            var productId2 = new Guid("0edc9136-7eed-463b-9b97-bdb9648ab877");
+
+            var entry1 = stateManager.GetOrCreateEntry(new Category { Id = 77 });
+            var entry2 = stateManager.GetOrCreateEntry(new Category { Id = 78 });
+            var entry3 = stateManager.GetOrCreateEntry(new Product { Id = productId1 });
+            var entry4 = stateManager.GetOrCreateEntry(new Product { Id = productId2 });
+
+            entry1.EntityState = EntityState.Added;
+            entry2.EntityState = EntityState.Modified;
+            entry3.EntityState = EntityState.Unchanged;
+            entry4.EntityState = EntityState.Deleted;
+
+            stateManager.AcceptAllChanges();
+
+            Assert.Equal(3, stateManager.StateEntries.Count());
+            Assert.Contains(entry1, stateManager.StateEntries);
+            Assert.Contains(entry2, stateManager.StateEntries);
+            Assert.Contains(entry3, stateManager.StateEntries);
+
+            Assert.Equal(EntityState.Unchanged, entry1.EntityState);
+            Assert.Equal(EntityState.Unchanged, entry2.EntityState);
+            Assert.Equal(EntityState.Unchanged, entry3.EntityState);
         }
 
         private static Mock<StateEntry> CreateEntryMock(IModel model, Mock<ContextConfiguration> configMock, bool changes, int key)
