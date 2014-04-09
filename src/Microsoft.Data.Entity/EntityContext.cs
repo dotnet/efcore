@@ -62,29 +62,14 @@ namespace Microsoft.Data.Entity
             return SaveChangesAsync().Result;
         }
 
-        public virtual async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var stateManager = _configuration.StateManager;
 
+            // TODO: Allow auto-detect changes to be switched off
             stateManager.DetectChanges();
 
-            var entriesToSave = stateManager.StateEntries
-                .Where(e => e.EntityState.IsDirty())
-                .ToList();
-
-            if (!entriesToSave.Any())
-            {
-                return 0;
-            }
-
-            var result = await _configuration
-                .DataStore
-                .SaveChangesAsync(entriesToSave, Model, cancellationToken)
-                .ConfigureAwait(false);
-
-            stateManager.AcceptAllChanges();
-
-            return result;
+            return stateManager.SaveChangesAsync(_configuration.DataStore, cancellationToken);
         }
 
         public void Dispose()

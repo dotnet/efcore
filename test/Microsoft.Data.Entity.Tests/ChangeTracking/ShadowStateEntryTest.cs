@@ -31,11 +31,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             Assert.Equal(
                 Strings.FormatOriginalValueNotTracked("Id", "SomeEntity"),
-                Assert.Throws<InvalidOperationException>(() => entry.SetPropertyOriginalValue(idProperty, 1)).Message);
+                Assert.Throws<InvalidOperationException>(() => entry.OriginalValues[idProperty] = 1).Message);
 
             Assert.Equal(
                 Strings.FormatOriginalValueNotTracked("Id", "SomeEntity"),
-                Assert.Throws<InvalidOperationException>(() => entry.GetPropertyOriginalValue(idProperty)).Message);
+                Assert.Throws<InvalidOperationException>(() => entry.OriginalValues[idProperty]).Message);
         }
 
         protected override Model BuildModel()
@@ -45,6 +45,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entityType1 = new EntityType("SomeEntity");
             model.AddEntityType(entityType1);
             var key1 = entityType1.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false);
+            key1.ValueGenerationStrategy = ValueGenerationStrategy.StoreIdentity;
             entityType1.SetKey(key1);
             entityType1.AddProperty("Name", typeof(string), shadowProperty: true, concurrencyToken: true);
 

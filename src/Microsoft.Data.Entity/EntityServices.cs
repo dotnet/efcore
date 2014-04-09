@@ -29,6 +29,8 @@ namespace Microsoft.Data.Entity
                 .AddSingleton<MemberMapper, MemberMapper>()
                 .AddSingleton<StateEntrySubscriber, StateEntrySubscriber>()
                 .AddSingleton<FieldMatcher, FieldMatcher>()
+                .AddSingleton<OriginalValuesFactory, OriginalValuesFactory>()
+                .AddSingleton<StoreGeneratedValuesFactory, StoreGeneratedValuesFactory>()
                 .AddScoped<StateEntryFactory, StateEntryFactory>()
                 .AddScoped<IEntityStateListener, NavigationFixer>()
                 .AddScoped<StateEntryNotifier, StateEntryNotifier>()

@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         public void Can_get_current_value()
         {
             var stateEntryMock = CreateStateEntryMock(new Mock<IProperty>());
-            stateEntryMock.Setup(m => m.GetPropertyValue(It.IsAny<IProperty>())).Returns("Chimp");
+            stateEntryMock.Setup(m => m[It.IsAny<IProperty>()]).Returns("Chimp");
 
             Assert.Equal("Chimp", new PropertyEntry(stateEntryMock.Object, "Monkey").CurrentValue);
         }

@@ -13,6 +13,8 @@ namespace Microsoft.Data.Entity.Identity
             {
                 case ValueGenerationStrategy.None:
                     return null;
+                case ValueGenerationStrategy.StoreIdentity:
+                    return null;
                 case ValueGenerationStrategy.Client:
                     if (property.PropertyType == typeof(Guid))
                     {

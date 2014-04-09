@@ -79,13 +79,13 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
                 Assert.False(property.GetterCalled);
                 Assert.False(property.SetterCalled);
 
-                Assert.Equal(0, stateEntry.GetPropertyValue(property));
+                Assert.Equal(0, stateEntry[property]);
                 Assert.True(property.GetterCalled);
 
-                stateEntry.SetPropertyValue(property, 777);
+                stateEntry[property] = 777;
 
                 Assert.True(property.SetterCalled);
-                Assert.Equal(777, stateEntry.GetPropertyValue(property));
+                Assert.Equal(777, stateEntry[property]);
             }
         }
 

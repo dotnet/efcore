@@ -15,29 +15,33 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Snapshot_is_performed_when_not_using_eager_original_values()
         {
-            var mockEntityType = new Mock<IEntityType>();
-            mockEntityType.Setup(m => m.UseLazyOriginalValues).Returns(false);
+            var entityTypeMock = new Mock<IEntityType>();
+            entityTypeMock.Setup(m => m.UseLazyOriginalValues).Returns(false);
 
+            var originalValuesMock = new Mock<OriginalValues>();
             var entryMock = new Mock<StateEntry>();
-            entryMock.Setup(m => m.EntityType).Returns(mockEntityType.Object);
+            entryMock.Setup(m => m.EntityType).Returns(entityTypeMock.Object);
+            entryMock.Setup(m => m.OriginalValues).Returns(originalValuesMock.Object);
 
             new StateEntrySubscriber().SnapshotAndSubscribe(entryMock.Object);
 
-            entryMock.Verify(m => m.SnapshotOriginalValues());
+            originalValuesMock.Verify(m => m.TakeSnapshot());
         }
 
         [Fact]
         public void Snapshot_is_not_performed_when_not_using_lazy_original_values()
         {
-            var mockEntityType = new Mock<IEntityType>();
-            mockEntityType.Setup(m => m.UseLazyOriginalValues).Returns(true);
+            var entityTypeMock = new Mock<IEntityType>();
+            entityTypeMock.Setup(m => m.UseLazyOriginalValues).Returns(true);
 
+            var originalValuesMock = new Mock<OriginalValues>();
             var entryMock = new Mock<StateEntry>();
-            entryMock.Setup(m => m.EntityType).Returns(mockEntityType.Object);
+            entryMock.Setup(m => m.EntityType).Returns(entityTypeMock.Object);
+            entryMock.Setup(m => m.OriginalValues).Returns(originalValuesMock.Object);
 
             new StateEntrySubscriber().SnapshotAndSubscribe(entryMock.Object);
 
-            entryMock.Verify(m => m.SnapshotOriginalValues(), Times.Never);
+            originalValuesMock.Verify(m => m.TakeSnapshot(), Times.Never);
         }
 
         [Fact]

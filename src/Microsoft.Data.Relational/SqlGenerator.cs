@@ -133,16 +133,19 @@ namespace Microsoft.Data.Relational
             Check.NotNull(table, "table");
             Check.NotNull(columns, "columns");
 
+            columns = columns.ToArray();
+
             commandStringBuilder
                 .Append("INSERT INTO ")
-                .Append(table.Name)
-                .Append(" (")
-                .AppendJoin(columns.Select(c => c.Name));
+                .Append(table.Name);
 
-            // TODO: may be fine if all columns are database generated in which case we should not append brackets at all
-            Contract.Assert(commandStringBuilder[commandStringBuilder.Length - 1] != '(', "empty columnNames");
-
-            commandStringBuilder.Append(")");
+            if (columns.Any())
+            {
+                commandStringBuilder
+                    .Append(" (")
+                    .AppendJoin(columns.Select(c => c.Name))
+                    .Append(")");
+            }
         }
 
         public virtual void AppendDeleteCommandHeader([NotNull] StringBuilder commandStringBuilder, [NotNull] Table table)
@@ -195,12 +198,20 @@ namespace Microsoft.Data.Relational
             Check.NotNull(commandStringBuilder, "commandStringBuilder");
             Check.NotNull(valueParameterNames, "valueParameterNames");
 
-            commandStringBuilder
-                .Append("VALUES (")
-                .AppendJoin(valueParameterNames)
-                .Append(")");
+            valueParameterNames = valueParameterNames.ToArray();
 
-            Contract.Assert(!commandStringBuilder.ToString().EndsWith("()"), "empty valueParameterNames");
+            if (valueParameterNames.Any())
+            {
+                commandStringBuilder
+                    .Append("VALUES (")
+                    .AppendJoin(valueParameterNames)
+                    .Append(")");
+            }
+            else
+            {
+                commandStringBuilder
+                    .Append("DEFAULT VALUES");
+            }
         }
 
         public virtual void AppendWhereClause(

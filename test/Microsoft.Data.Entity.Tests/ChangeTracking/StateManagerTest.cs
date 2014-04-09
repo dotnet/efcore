@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Storage;
 using Moq;
 using Xunit;
 
@@ -54,7 +55,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var stateManager = CreateStateManager(model);
             var entityType = model.GetEntityType("Location");
             var stateEntry = stateManager.CreateNewEntry(entityType);
-            stateEntry.SetPropertyValue(entityType.GetKey().Properties.Single(), 42);
+            stateEntry[entityType.GetKey().Properties.Single()] = 42;
 
             Assert.Equal(EntityState.Unknown, stateEntry.EntityState);
             Assert.Null(stateEntry.Entity);
@@ -283,7 +284,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void AcceptAllChanges_processes_all_tracked_entities()
+        public void SaveChanges_processes_all_tracked_entities()
         {
             var stateManager = CreateStateManager(BuildModel());
 
@@ -300,7 +301,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entry3.EntityState = EntityState.Unchanged;
             entry4.EntityState = EntityState.Deleted;
 
-            stateManager.AcceptAllChanges();
+            stateManager.SaveChangesAsync(Mock.Of<DataStore>()).Wait();
 
             Assert.Equal(3, stateManager.StateEntries.Count());
             Assert.Contains(entry1, stateManager.StateEntries);
@@ -317,7 +318,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entryMock = new Mock<StateEntry>();
             entryMock.Setup(m => m.Configuration).Returns(configMock.Object);
             entryMock.Setup(m => m.EntityType).Returns(model.GetEntityType("Location"));
-            entryMock.Setup(m => m.GetPropertyValue(It.IsAny<IProperty>())).Returns(key);
+            entryMock.Setup(m => m[It.IsAny<IProperty>()]).Returns(key);
             entryMock.Setup(m => m.DetectChanges()).Returns(changes);
 
             return entryMock;

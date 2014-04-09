@@ -99,6 +99,16 @@ namespace Microsoft.Data.Entity
             get { return _serviceProvider.GetRequiredService<EntityMaterializerSource>(); }
         }
 
+        public virtual StoreGeneratedValuesFactory StoreGeneratedValuesFactory
+        {
+            get { return _serviceProvider.GetRequiredService<StoreGeneratedValuesFactory>(); }
+        }
+
+        public virtual OriginalValuesFactory OriginalValuesFactory
+        {
+            get { return _serviceProvider.GetRequiredService<OriginalValuesFactory>(); }
+        }
+
         public virtual ILoggerFactory LoggerFactory
         {
             get { return _serviceProvider.GetRequiredService<ILoggerFactory>(); }

@@ -1,11 +1,13 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
@@ -26,7 +28,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var configuration = CreateConfiguration(model);
 
             var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
-            entry.SetPropertyValue(keyProperty, 1);
+            entry[keyProperty] = 1;
 
             entry.EntityState = EntityState.Added;
 
@@ -44,7 +46,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var configuration = CreateConfiguration(model);
 
             var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
-            entry.SetPropertyValue(keyProperty, 1);
+            entry[keyProperty] = 1;
 
             entry.EntityState = EntityState.Added;
             entry.EntityState = EntityState.Unknown;
@@ -63,7 +65,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var configuration = CreateConfiguration(model);
 
             var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
-            entry.SetPropertyValue(keyProperty, 1);
+            entry[keyProperty] = 1;
 
             Assert.False(entry.IsPropertyModified(keyProperty));
             Assert.False(entry.IsPropertyModified(nonKeyProperty));
@@ -102,7 +104,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             entry.EntityState = EntityState.Added;
 
-            Assert.Equal(77, entry.GetPropertyValue(keyProperty));
+            Assert.Equal(77, entry[keyProperty]);
         }
 
         [Fact]
@@ -114,7 +116,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var configuration = CreateConfiguration(model);
 
             var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
-            entry.SetPropertyValue(keyProperty, 77);
+            entry[keyProperty] = 77;
 
             var keyValue = entry.GetPrimaryKeyValue();
             Assert.IsType<SimpleEntityKey<int>>(keyValue);
@@ -130,7 +132,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var configuration = CreateConfiguration(model);
 
             var entry = CreateStateEntry(configuration, entityType, new SomeDependentEntity());
-            entry.SetPropertyValue(fkProperty, 77);
+            entry[fkProperty] = 77;
 
             var keyValue = entry.GetDependentKeyValue(entityType.ForeignKeys.Single());
             Assert.IsType<SimpleEntityKey<int>>(keyValue);
@@ -147,7 +149,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var configuration = CreateConfiguration(model);
 
             var entry = CreateStateEntry(configuration, principalType, new SomeEntity());
-            entry.SetPropertyValue(key, 77);
+            entry[key] = 77;
 
             var keyValue = entry.GetPrincipalKeyValue(dependentType.ForeignKeys.Single());
             Assert.IsType<SimpleEntityKey<int>>(keyValue);
@@ -164,7 +166,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
 
-            Assert.Equal(1, entry.GetPropertyValue(keyProperty));
+            Assert.Equal(1, entry[keyProperty]);
         }
 
         [Fact]
@@ -177,9 +179,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
 
-            entry.SetPropertyValue(keyProperty, 77);
+            entry[keyProperty] = 77;
 
-            Assert.Equal(77, entry.GetPropertyValue(keyProperty));
+            Assert.Equal(77, entry[keyProperty]);
         }
 
         [Fact]
@@ -193,11 +195,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
 
-            entry.SetPropertyValue(keyProperty, 77);
-            entry.SetPropertyValue(nonKeyProperty, "Magic Tree House");
+            entry[keyProperty] = 77;
+            entry[nonKeyProperty] = "Magic Tree House";
 
-            Assert.Equal(77, entry.GetPropertyValue(keyProperty));
-            Assert.Equal("Magic Tree House", entry.GetPropertyValue(nonKeyProperty));
+            Assert.Equal(77, entry[keyProperty]);
+            Assert.Equal("Magic Tree House", entry[nonKeyProperty]);
         }
 
         [Fact]
@@ -211,8 +213,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
 
-            entry.SetPropertyValue(keyProperty, 77);
-            entry.SetPropertyValue(nonKeyProperty, "Magic Tree House");
+            entry[keyProperty] = 77;
+            entry[nonKeyProperty] = "Magic Tree House";
 
             Assert.Equal(new object[] { 77, "Magic Tree House" }, entry.GetValueBuffer());
         }
@@ -235,26 +237,26 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
 
-            Assert.Equal(1, entry.GetPropertyOriginalValue(idProperty));
-            Assert.Equal("Kool", entry.GetPropertyOriginalValue(nameProperty));
-            Assert.Equal(1, entry.GetPropertyValue(idProperty));
-            Assert.Equal("Kool", entry.GetPropertyValue(nameProperty));
+            Assert.Equal(1, entry.OriginalValues[idProperty]);
+            Assert.Equal("Kool", entry.OriginalValues[nameProperty]);
+            Assert.Equal(1, entry[idProperty]);
+            Assert.Equal("Kool", entry[nameProperty]);
 
-            entry.SetPropertyValue(idProperty, 2);
-            entry.SetPropertyValue(nameProperty, "Beans");
+            entry[idProperty] = 2;
+            entry[nameProperty] = "Beans";
 
-            Assert.Equal(1, entry.GetPropertyOriginalValue(idProperty));
-            Assert.Equal("Kool", entry.GetPropertyOriginalValue(nameProperty));
-            Assert.Equal(2, entry.GetPropertyValue(idProperty));
-            Assert.Equal("Beans", entry.GetPropertyValue(nameProperty));
+            Assert.Equal(1, entry.OriginalValues[idProperty]);
+            Assert.Equal("Kool", entry.OriginalValues[nameProperty]);
+            Assert.Equal(2, entry[idProperty]);
+            Assert.Equal("Beans", entry[nameProperty]);
 
-            entry.SetPropertyOriginalValue(idProperty, 3);
-            entry.SetPropertyOriginalValue(nameProperty, "Franks");
+            entry.OriginalValues[idProperty] = 3;
+            entry.OriginalValues[nameProperty] = "Franks";
 
-            Assert.Equal(3, entry.GetPropertyOriginalValue(idProperty));
-            Assert.Equal("Franks", entry.GetPropertyOriginalValue(nameProperty));
-            Assert.Equal(2, entry.GetPropertyValue(idProperty));
-            Assert.Equal("Beans", entry.GetPropertyValue(nameProperty));
+            Assert.Equal(3, entry.OriginalValues[idProperty]);
+            Assert.Equal("Franks", entry.OriginalValues[nameProperty]);
+            Assert.Equal(2, entry[idProperty]);
+            Assert.Equal("Beans", entry[nameProperty]);
         }
 
         [Fact]
@@ -285,18 +287,18 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
 
-            Assert.Equal("Kool", entry.GetPropertyOriginalValue(nameProperty));
-            Assert.Equal("Kool", entry.GetPropertyValue(nameProperty));
+            Assert.Equal("Kool", entry.OriginalValues[nameProperty]);
+            Assert.Equal("Kool", entry[nameProperty]);
 
-            entry.SetPropertyValue(nameProperty, "Beans");
+            entry[nameProperty] = "Beans";
 
-            Assert.Equal("Kool", entry.GetPropertyOriginalValue(nameProperty));
-            Assert.Equal("Beans", entry.GetPropertyValue(nameProperty));
+            Assert.Equal("Kool", entry.OriginalValues[nameProperty]);
+            Assert.Equal("Beans", entry[nameProperty]);
 
-            entry.SetPropertyOriginalValue(nameProperty, "Franks");
+            entry.OriginalValues[nameProperty] = "Franks";
 
-            Assert.Equal("Franks", entry.GetPropertyOriginalValue(nameProperty));
-            Assert.Equal("Beans", entry.GetPropertyValue(nameProperty));
+            Assert.Equal("Franks", entry.OriginalValues[nameProperty]);
+            Assert.Equal("Beans", entry[nameProperty]);
         }
 
         [Fact]
@@ -327,23 +329,23 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, null }));
 
-            Assert.Null(entry.GetPropertyOriginalValue(nameProperty));
-            Assert.Null(entry.GetPropertyValue(nameProperty));
+            Assert.Null(entry.OriginalValues[nameProperty]);
+            Assert.Null(entry[nameProperty]);
 
-            entry.SetPropertyValue(nameProperty, "Beans");
+            entry[nameProperty] = "Beans";
 
-            Assert.Null(entry.GetPropertyOriginalValue(nameProperty));
-            Assert.Equal("Beans", entry.GetPropertyValue(nameProperty));
+            Assert.Null(entry.OriginalValues[nameProperty]);
+            Assert.Equal("Beans", entry[nameProperty]);
 
-            entry.SetPropertyOriginalValue(nameProperty, "Franks");
+            entry.OriginalValues[nameProperty] = "Franks";
 
-            Assert.Equal("Franks", entry.GetPropertyOriginalValue(nameProperty));
-            Assert.Equal("Beans", entry.GetPropertyValue(nameProperty));
+            Assert.Equal("Franks", entry.OriginalValues[nameProperty]);
+            Assert.Equal("Beans", entry[nameProperty]);
 
-            entry.SetPropertyOriginalValue(nameProperty, null);
+            entry.OriginalValues[nameProperty] = null;
 
-            Assert.Null(entry.GetPropertyOriginalValue(nameProperty));
-            Assert.Equal("Beans", entry.GetPropertyValue(nameProperty));
+            Assert.Null(entry.OriginalValues[nameProperty]);
+            Assert.Equal("Beans", entry[nameProperty]);
         }
 
         [Fact]
@@ -369,15 +371,15 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.False(entry.IsPropertyModified(nameProperty));
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
 
-            entry.SetPropertyValue(idProperty, 1);
-            entry.SetPropertyValue(nameProperty, "Kool");
+            entry[idProperty] = 1;
+            entry[nameProperty] = "Kool";
 
             Assert.False(entry.IsPropertyModified(idProperty));
             Assert.False(entry.IsPropertyModified(nameProperty));
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
 
-            entry.SetPropertyValue(idProperty, 2);
-            entry.SetPropertyValue(nameProperty, "Beans");
+            entry[idProperty] = 2;
+            entry[nameProperty] = "Beans";
 
             Assert.True(entry.IsPropertyModified(idProperty));
             Assert.True(entry.IsPropertyModified(nameProperty));
@@ -467,14 +469,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
             entry.EntityState = entityState;
 
-            entry.SetPropertyValue(nameProperty, "Pickle");
-            entry.SetPropertyOriginalValue(nameProperty, "Cheese");
+            entry[nameProperty] = "Pickle";
+            entry.OriginalValues[nameProperty] = "Cheese";
 
             entry.AcceptChanges();
 
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
-            Assert.Equal("Pickle", entry.GetPropertyValue(nameProperty));
-            Assert.Equal("Pickle", entry.GetPropertyOriginalValue(nameProperty));
+            Assert.Equal("Pickle", entry[nameProperty]);
+            Assert.Equal("Pickle", entry.OriginalValues[nameProperty]);
         }
 
         [Fact]
@@ -488,13 +490,13 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
             entry.EntityState = EntityState.Modified;
 
-            entry.SetPropertyValue(nameProperty, "Pickle");
+            entry[nameProperty] = "Pickle";
 
             entry.AcceptChanges();
 
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
-            Assert.Equal("Pickle", entry.GetPropertyValue(nameProperty));
-            Assert.Equal("Pickle", entry.GetPropertyOriginalValue(nameProperty));
+            Assert.Equal("Pickle", entry[nameProperty]);
+            Assert.Equal("Pickle", entry.OriginalValues[nameProperty]);
         }
 
         [Fact]
@@ -512,16 +514,296 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.Equal(EntityState.Unknown, entry.EntityState);
         }
 
+        [Fact]
+        public void Can_add_and_remove_sidecars()
+        {
+            var model = BuildModel();
+            var entry = CreateStateEntry(
+                CreateConfiguration(model), 
+                model.GetEntityType("SomeEntity"), 
+                new ObjectArrayValueReader(new object[] { 1, "Kool" }));
+
+            var sidecarMock1 = new Mock<Sidecar>();
+            sidecarMock1.Setup(m => m.Name).Returns("IMZ-Ural");
+            sidecarMock1.Setup(m => m.AutoCommit).Returns(true);
+
+            var sidecarMock2 = new Mock<Sidecar>();
+            sidecarMock2.Setup(m => m.Name).Returns("GG Duetto");
+
+            var originalValues = entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues);
+
+            Assert.True(entry.EntityType.HasClrType == (originalValues != null));
+            Assert.Null(entry.TryGetSidecar("IMZ-Ural"));
+            Assert.Null(entry.TryGetSidecar("GG Duetto"));
+
+            entry.AddSidecar(sidecarMock1.Object);
+            entry.AddSidecar(sidecarMock2.Object);
+
+            Assert.Same(originalValues, entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues));
+            Assert.Same(sidecarMock1.Object, entry.TryGetSidecar("IMZ-Ural"));
+            Assert.Same(sidecarMock2.Object, entry.TryGetSidecar("GG Duetto"));
+
+            entry.RemoveSidecar("IMZ-Ural");
+            entry.RemoveSidecar("GG Duetto");
+
+            Assert.Same(originalValues, entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues));
+            Assert.Null(entry.TryGetSidecar("IMZ-Ural"));
+            Assert.Null(entry.TryGetSidecar("GG Duetto"));
+
+            entry.RemoveSidecar("IMZ-Ural");
+            entry.RemoveSidecar("GG Duetto");
+
+            Assert.Same(originalValues, entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues));
+            Assert.Null(entry.TryGetSidecar("IMZ-Ural"));
+            Assert.Null(entry.TryGetSidecar("GG Duetto"));
+
+            entry.RemoveSidecar(Sidecar.WellKnownNames.OriginalValues);
+
+            Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues));
+            Assert.Null(entry.TryGetSidecar("IMZ-Ural"));
+            Assert.Null(entry.TryGetSidecar("GG Duetto"));
+
+            entry.RemoveSidecar("IMZ-Ural");
+            entry.RemoveSidecar("GG Duetto");
+
+            Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues));
+            Assert.Null(entry.TryGetSidecar("IMZ-Ural"));
+            Assert.Null(entry.TryGetSidecar("GG Duetto"));
+
+            entry.AddSidecar(sidecarMock1.Object);
+
+            Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues));
+            Assert.Same(sidecarMock1.Object, entry.TryGetSidecar("IMZ-Ural"));
+            Assert.Null(entry.TryGetSidecar("GG Duetto"));
+        }
+
+        [Fact]
+        public void Non_transparent_sidecar_does_not_intercept_normal_property_read_and_write()
+        {
+            var model = BuildModel();
+            var entityType = model.GetEntityType("SomeEntity");
+            var idProperty = entityType.GetProperty("Id");
+            var nameProperty = entityType.GetProperty("Name");
+
+            var entry = CreateStateEntry(
+                CreateConfiguration(model), 
+                entityType, 
+                new ObjectArrayValueReader(new object[] { 1, "Kool" }));
+
+            var sidecar = entry.AddSidecar(new TheWasp(entry, new[] { idProperty }));
+
+            Assert.Equal(1, entry[idProperty]);
+            Assert.Equal("Kool", entry[nameProperty]);
+
+            sidecar[idProperty] = 7;
+
+            Assert.Equal(1, entry[idProperty]);
+            Assert.Equal("Kool", entry[nameProperty]);
+
+            entry[idProperty] = 77;
+
+            Assert.Equal(77, entry[idProperty]);
+            Assert.Equal("Kool", entry[nameProperty]);
+        }
+
+        [Fact]
+        public void Can_read_values_from_sidecar_transparently()
+        {
+            var model = BuildModel();
+            var entityType = model.GetEntityType("SomeEntity");
+            var idProperty = entityType.GetProperty("Id");
+            var nameProperty = entityType.GetProperty("Name");
+
+            var entry = CreateStateEntry(
+                CreateConfiguration(model),
+                entityType,
+                new ObjectArrayValueReader(new object[] { 1, "Kool" }));
+
+            var sidecar = entry.AddSidecar(new TheWasp(entry, new[] { idProperty }, transparentRead: true));
+
+            Assert.Equal(1, entry[idProperty]);
+            Assert.Equal(1, sidecar[idProperty]);
+            Assert.Equal("Kool", entry[nameProperty]);
+
+            sidecar[idProperty] = 7;
+
+            Assert.Equal(7, entry[idProperty]);
+            Assert.Equal(7, sidecar[idProperty]);
+            Assert.Equal("Kool", entry[nameProperty]);
+
+            entry[idProperty] = 77;
+
+            Assert.Equal(7, entry[idProperty]);
+            Assert.Equal(7, sidecar[idProperty]);
+            Assert.Equal("Kool", entry[nameProperty]);
+
+            entry.RemoveSidecar(sidecar.Name);
+
+            Assert.Equal(77, entry[idProperty]);
+            Assert.Equal("Kool", entry[nameProperty]);
+        }
+
+        [Fact]
+        public void Can_write_values_to_sidecar_transparently()
+        {
+            var model = BuildModel();
+            var entityType = model.GetEntityType("SomeEntity");
+            var idProperty = entityType.GetProperty("Id");
+            var nameProperty = entityType.GetProperty("Name");
+
+            var entry = CreateStateEntry(
+                CreateConfiguration(model),
+                entityType,
+                new ObjectArrayValueReader(new object[] { 1, "Kool" }));
+
+            var sidecar = entry.AddSidecar(new TheWasp(entry, new[] { idProperty }, transparentWrite: true));
+
+            Assert.Equal(1, entry[idProperty]);
+            Assert.Equal("Kool", entry[nameProperty]);
+
+            entry[idProperty] = 7;
+
+            Assert.Equal(1, entry[idProperty]);
+            Assert.Equal(7, sidecar[idProperty]);
+            Assert.Equal("Kool", entry[nameProperty]);
+
+            sidecar[idProperty] = 77;
+
+            Assert.Equal(1, entry[idProperty]);
+            Assert.Equal(77, sidecar[idProperty]);
+            Assert.Equal("Kool", entry[nameProperty]);
+
+            entry.RemoveSidecar(sidecar.Name);
+
+            Assert.Equal(1, entry[idProperty]);
+            Assert.Equal("Kool", entry[nameProperty]);
+        }
+
+        [Fact]
+        public void Can_auto_commit_sidecars()
+        {
+            var model = BuildModel();
+            var entityType = model.GetEntityType("SomeEntity");
+            var idProperty = entityType.GetProperty("Id");
+            var nameProperty = entityType.GetProperty("Name");
+
+            var entry = CreateStateEntry(
+                CreateConfiguration(model),
+                entityType,
+                new ObjectArrayValueReader(new object[] { 1, "Kool" }));
+
+            var sidecar = entry.AddSidecar(new TheWasp(entry, new[] { idProperty }, autoCommit: true));
+
+            sidecar[idProperty] = 77;
+
+            Assert.Equal(1, entry[idProperty]);
+            Assert.Equal(77, sidecar[idProperty]);
+            Assert.Equal("Kool", entry[nameProperty]);
+
+            entry.AutoCommitSidecars();
+            
+            Assert.Equal(77, entry[idProperty]);
+
+            Assert.Null(entry.TryGetSidecar(sidecar.Name));
+        }
+
+        [Fact]
+        public void Can_auto_rollback_sidecars()
+        {
+            var model = BuildModel();
+            var entityType = model.GetEntityType("SomeEntity");
+            var idProperty = entityType.GetProperty("Id");
+            var nameProperty = entityType.GetProperty("Name");
+
+            var entry = CreateStateEntry(
+                CreateConfiguration(model),
+                entityType,
+                new ObjectArrayValueReader(new object[] { 1, "Kool" }));
+
+            var sidecar = entry.AddSidecar(new TheWasp(entry, new[] { idProperty }, autoCommit: true));
+
+            sidecar[idProperty] = 77;
+
+            Assert.Equal(1, entry[idProperty]);
+            Assert.Equal(77, sidecar[idProperty]);
+            Assert.Equal("Kool", entry[nameProperty]);
+
+            entry.AutoRollbackSidecars();
+
+            Assert.Equal(1, entry[idProperty]);
+
+            Assert.Null(entry.TryGetSidecar(sidecar.Name));
+        }
+
+        private class TheWasp : DictionarySidecar
+        {
+            private readonly bool _transparentRead;
+            private readonly bool _transparentWrite;
+            private readonly bool _autoCommit;
+
+            public TheWasp(
+                StateEntry stateEntry, IEnumerable<IProperty> properties, 
+                bool transparentRead = false, bool transparentWrite = false, bool autoCommit = false)
+                : base(stateEntry, properties)
+            {
+                _transparentRead = transparentRead;
+                _transparentWrite = transparentWrite;
+                _autoCommit = autoCommit;
+            }
+
+            public override string Name
+            {
+                get { return "Wasp Motorcycles"; }
+            }
+
+            public override bool TransparentRead
+            {
+                get { return _transparentRead; }
+            }
+
+            public override bool TransparentWrite
+            {
+                get { return _transparentWrite; }
+            }
+
+            public override bool AutoCommit
+            {
+                get { return _autoCommit; }
+            }
+        }
+
+        [Fact]
+        public void Sidecars_are_added_for_store_generated_values_when_preparing_to_save()
+        {
+            var model = BuildModel();
+            var entityType = model.GetEntityType("SomeEntity");
+            var idProperty = entityType.GetProperty("Id");
+            var nameProperty = entityType.GetProperty("Name");
+
+            var entry = CreateStateEntry(
+                CreateConfiguration(model),
+                entityType,
+                new ObjectArrayValueReader(new object[] { 1, "Kool" }));
+
+            entry.PrepareToSave();
+
+            var storeGenValues = entry.TryGetSidecar(Sidecar.WellKnownNames.StoreGeneratedValues);
+
+            Assert.NotNull(storeGenValues);
+            Assert.True(storeGenValues.CanStoreValue(idProperty));
+            Assert.False(storeGenValues.CanStoreValue(nameProperty));
+        }
+
         protected virtual StateEntry CreateStateEntry(ContextConfiguration configuration, IEntityType entityType, object entity)
         {
             return new StateEntrySubscriber().SnapshotAndSubscribe(
-                new StateEntryFactory(configuration, new EntityMaterializerSource(new MemberMapper(new FieldMatcher()))).Create(entityType, entity));
+                new StateEntryFactory(configuration, configuration.EntityMaterializerSource).Create(entityType, entity));
         }
 
         protected virtual StateEntry CreateStateEntry(ContextConfiguration configuration, IEntityType entityType, IValueReader valueReader)
         {
             return new StateEntrySubscriber().SnapshotAndSubscribe(
-                new StateEntryFactory(configuration, new EntityMaterializerSource(new MemberMapper(new FieldMatcher()))).Create(entityType, valueReader));
+                new StateEntryFactory(configuration, configuration.EntityMaterializerSource).Create(entityType, valueReader));
         }
 
         protected virtual ContextConfiguration CreateConfiguration(IModel model)
@@ -537,9 +819,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entityType1 = new EntityType(typeof(SomeEntity));
             model.AddEntityType(entityType1);
             var key1 = entityType1.AddProperty("Id", typeof(int));
+            key1.ValueGenerationStrategy = ValueGenerationStrategy.StoreIdentity;
             entityType1.SetKey(key1);
             entityType1.AddProperty("Name", typeof(string), shadowProperty: false, concurrencyToken: true);
-
+            
             var entityType2 = new EntityType(typeof(SomeDependentEntity));
             model.AddEntityType(entityType2);
             var key2 = entityType2.AddProperty("Id", typeof(int));
@@ -670,99 +953,6 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 {
                     PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
                 }
-            }
-        }
-
-        public class StateDataTest
-        {
-            [Fact]
-            public void Can_read_and_manipulate_property_state()
-            {
-                for (var i = 0; i < 70; i++)
-                {
-                    PropertyManipulation(i);
-                }
-            }
-
-            public void PropertyManipulation(int propertyCount)
-            {
-                var data = new StateEntry.StateData(propertyCount);
-
-                Assert.False(data.AnyPropertiesModified());
-
-                for (var i = 0; i < propertyCount; i++)
-                {
-                    data.SetPropertyModified(i, true);
-
-                    for (var j = 0; j < propertyCount; j++)
-                    {
-                        Assert.Equal(j <= i, data.IsPropertyModified(j));
-                    }
-
-                    Assert.True(data.AnyPropertiesModified());
-                }
-
-                for (var i = 0; i < propertyCount; i++)
-                {
-                    data.SetPropertyModified(i, false);
-
-                    for (var j = 0; j < propertyCount; j++)
-                    {
-                        Assert.Equal(j > i, data.IsPropertyModified(j));
-                    }
-
-                    Assert.Equal(i < propertyCount - 1, data.AnyPropertiesModified());
-                }
-
-                for (var i = 0; i < propertyCount; i++)
-                {
-                    Assert.False(data.IsPropertyModified(i));
-                }
-
-                data.SetAllPropertiesModified(propertyCount);
-
-                Assert.Equal(propertyCount > 0, data.AnyPropertiesModified());
-
-                for (var i = 0; i < propertyCount; i++)
-                {
-                    Assert.True(data.IsPropertyModified(i));
-                }
-            }
-
-            [Fact]
-            public void Can_get_and_set_EntityState()
-            {
-                var data = new StateEntry.StateData(70);
-
-                Assert.Equal(EntityState.Unknown, data.EntityState);
-
-                data.EntityState = EntityState.Unchanged;
-                Assert.Equal(EntityState.Unchanged, data.EntityState);
-
-                data.EntityState = EntityState.Modified;
-                Assert.Equal(EntityState.Modified, data.EntityState);
-
-                data.EntityState = EntityState.Added;
-                Assert.Equal(EntityState.Added, data.EntityState);
-
-                data.EntityState = EntityState.Deleted;
-                Assert.Equal(EntityState.Deleted, data.EntityState);
-
-                data.SetAllPropertiesModified(70);
-
-                Assert.Equal(EntityState.Deleted, data.EntityState);
-
-                data.EntityState = EntityState.Unchanged;
-                Assert.Equal(EntityState.Unchanged, data.EntityState);
-
-                data.EntityState = EntityState.Modified;
-                Assert.Equal(EntityState.Modified, data.EntityState);
-
-                data.EntityState = EntityState.Added;
-                Assert.Equal(EntityState.Added, data.EntityState);
-
-                data.EntityState = EntityState.Unknown;
-                Assert.Equal(EntityState.Unknown, data.EntityState);
             }
         }
     }

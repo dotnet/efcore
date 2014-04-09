@@ -92,8 +92,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             Assert.Same(configurationMock.Object, entry.Configuration);
             Assert.Same(entityType, entry.EntityType);
-            Assert.Equal(77, entry.GetPropertyValue(property1));
-            Assert.Equal("Green", entry.GetPropertyValue(property2));
+            Assert.Equal(77, entry[property1]);
+            Assert.Equal("Green", entry[property2]);
             Assert.Null(entry.Entity);
         }
 
@@ -114,8 +114,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             Assert.Same(configurationMock.Object, entry.Configuration);
             Assert.Same(entityType, entry.EntityType);
-            Assert.Equal(77, entry.GetPropertyValue(property1));
-            Assert.Equal("Green", entry.GetPropertyValue(property2));
+            Assert.Equal(77, entry[property1]);
+            Assert.Equal("Green", entry[property2]);
 
             var entity = (RedHook)entry.Entity;
             Assert.Equal(77, entity.Long);
@@ -139,8 +139,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             Assert.Same(configurationMock.Object, entry.Configuration);
             Assert.Same(entityType, entry.EntityType);
-            Assert.Equal(77, entry.GetPropertyValue(property1));
-            Assert.Equal("Green", entry.GetPropertyValue(property2));
+            Assert.Equal(77, entry[property1]);
+            Assert.Equal("Green", entry[property2]);
 
             var entity = (RedHook)entry.Entity;
             Assert.Equal(77, entity.Long);

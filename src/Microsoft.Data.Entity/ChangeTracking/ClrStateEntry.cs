@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             get { return _entity; }
         }
 
-        public override object GetPropertyValue(IProperty property)
+        protected override object ReadPropertyValue(IProperty property)
         {
             Check.NotNull(property, "property");
 
