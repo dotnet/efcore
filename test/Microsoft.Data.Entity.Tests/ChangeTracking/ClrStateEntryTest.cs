@@ -32,11 +32,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entity = new SomeEntity { Id = 77, Name = "Magic Tree House" };
             var entry = CreateStateEntry(configuration, entityType, entity);
 
-            Assert.Equal(77, entry.GetPropertyValue(keyProperty));
-            Assert.Equal("Magic Tree House", entry.GetPropertyValue(nonKeyProperty));
+            Assert.Equal(77, entry[keyProperty]);
+            Assert.Equal("Magic Tree House", entry[nonKeyProperty]);
 
-            entry.SetPropertyValue(keyProperty, 78);
-            entry.SetPropertyValue(nonKeyProperty, "Normal Tree House");
+            entry[keyProperty] = 78;
+            entry[nonKeyProperty] = "Normal Tree House";
 
             Assert.Equal(78, entity.Id);
             Assert.Equal("Normal Tree House", entity.Name);
@@ -105,11 +105,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             Assert.Equal(
                 Strings.FormatOriginalValueNotTracked("Id", "FullNotificationEntity"),
-                Assert.Throws<InvalidOperationException>(() => entry.SetPropertyOriginalValue(idProperty, 1)).Message);
+                Assert.Throws<InvalidOperationException>(() => entry.OriginalValues[idProperty] = 1).Message);
 
             Assert.Equal(
                 Strings.FormatOriginalValueNotTracked("Id", "FullNotificationEntity"),
-                Assert.Throws<InvalidOperationException>(() => entry.GetPropertyOriginalValue(idProperty)).Message);
+                Assert.Throws<InvalidOperationException>(() => entry.OriginalValues[idProperty]).Message);
         }
     }
 }

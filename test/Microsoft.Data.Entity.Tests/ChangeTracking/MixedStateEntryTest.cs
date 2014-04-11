@@ -32,11 +32,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entity = new SomeEntity { Id = 77, Name = "Magic Tree House" };
             var entry = CreateStateEntry(configuration, entityType, entity);
 
-            Assert.Null(entry.GetPropertyValue(keyProperty)); // In shadow
-            Assert.Equal("Magic Tree House", entry.GetPropertyValue(nonKeyProperty));
+            Assert.Null(entry[keyProperty]); // In shadow
+            Assert.Equal("Magic Tree House", entry[nonKeyProperty]);
 
-            entry.SetPropertyValue(keyProperty, 78);
-            entry.SetPropertyValue(nonKeyProperty, "Normal Tree House");
+            entry[keyProperty] = 78;
+            entry[nonKeyProperty] = "Normal Tree House";
 
             Assert.Equal(77, entity.Id); // In shadow
             Assert.Equal("Normal Tree House", entity.Name);
@@ -105,11 +105,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             Assert.Equal(
                 Strings.FormatOriginalValueNotTracked("Id", "FullNotificationEntity"),
-                Assert.Throws<InvalidOperationException>(() => entry.SetPropertyOriginalValue(idProperty, 1)).Message);
+                Assert.Throws<InvalidOperationException>(() => entry.OriginalValues[idProperty] = 1).Message);
 
             Assert.Equal(
                 Strings.FormatOriginalValueNotTracked("Id", "FullNotificationEntity"),
-                Assert.Throws<InvalidOperationException>(() => entry.GetPropertyOriginalValue(idProperty)).Message);
+                Assert.Throws<InvalidOperationException>(() => entry.OriginalValues[idProperty]).Message);
         }
 
         protected override Model BuildModel()
@@ -119,6 +119,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entityType1 = new EntityType(typeof(SomeEntity));
             model.AddEntityType(entityType1);
             var key1 = entityType1.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false);
+            key1.ValueGenerationStrategy = ValueGenerationStrategy.StoreIdentity;
             entityType1.SetKey(key1);
             entityType1.AddProperty("Name", typeof(string));
 

@@ -132,16 +132,7 @@
   <data name="UpdateConcurrencyException" xml:space="preserve">
     <value>Update failed. Expected {expectedRows} row(s) but {actualRows} row(s) returned.</value>
   </data>
-  <data name="NoStoreGenColumnsToPropagateResults" xml:space="preserve">
-    <value>Propagating results failed. The table '{tableName}' has no columns with store generated values but store generated values were returned by a modification command.</value>
-  </data>
-  <data name="ResultsNotPropagatedForStoreGenColumns" xml:space="preserve">
-    <value>Propagating results failed. The table '{tableName}' has columns with store generated values but no store generated values were returned by a modification command.</value>
-  </data>
   <data name="TooManyRowsForModificationCommand" xml:space="preserve">
     <value>A modification command returned more than one row. Each modification command must return at most one row.</value>
-  </data>
-  <data name="StoreGenValuesSavedMultipleTimesForCommand" xml:space="preserve">
-    <value>Store generated values has already been saved for this command.</value>
   </data>
 </root>

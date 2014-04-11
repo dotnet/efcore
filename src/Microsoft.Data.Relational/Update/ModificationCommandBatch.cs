@@ -1,21 +1,20 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
-using Microsoft.Data.Relational.Utilities;
+using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Relational.Model;
+using Microsoft.Data.Relational.Utilities;
 
 namespace Microsoft.Data.Relational.Update
 {
     public class ModificationCommandBatch
     {
         private readonly ModificationCommand[] _batchCommands;
-        private readonly Dictionary<ModificationCommand, KeyValuePair<string, object>[]> _storeGeneratedValues = 
-            new Dictionary<ModificationCommand, KeyValuePair<string, object>[]>();
 
         public ModificationCommandBatch([NotNull] ModificationCommand[] batchCommands)
         {
@@ -119,46 +118,31 @@ namespace Microsoft.Data.Relational.Update
             return newParameters;
         }
 
-        public virtual void SaveStoreGeneratedValues(int commandIndex, [NotNull] KeyValuePair<string, object>[] storeGeneratedValues)
+        public virtual void SaveStoreGeneratedValues(
+            int commandIndex, [NotNull] IReadOnlyList<string> columnNames, [NotNull] IValueReader reader)
         {
-            Check.NotNull(storeGeneratedValues, "storeGeneratedValues");
+            Check.NotNull(columnNames, "columnNames");
+            Check.NotNull(reader, "reader");
 
-            if (_storeGeneratedValues.ContainsKey(_batchCommands[commandIndex]))
+            var stateEntry = _batchCommands[commandIndex].StateEntry;
+            for (var i = 0; i < columnNames.Count; i++)
             {
-                throw new InvalidOperationException(Strings.StoreGenValuesSavedMultipleTimesForCommand);
+                // TODO: Consider using strongly typed ReadValue instead of just <object>
+                // Note that this call sets the value into a sidecar and will only commit to the actual entity
+                // if SaveChanges is successful.
+                stateEntry[GetProperty(stateEntry, columnNames[i])] = reader.ReadValue<object>(i);
             }
+        }
 
-            _storeGeneratedValues[_batchCommands[commandIndex]] = storeGeneratedValues;
+        private static IProperty GetProperty(StateEntry stateEntry, string columnName)
+        {
+            // TODO: poor man's model to store mapping
+            return stateEntry.EntityType.Properties.Single(p => p.StorageName == columnName);
         }
 
         public virtual bool CommandRequiresResultPropagation(int commandIndex)
         {
             return _batchCommands[commandIndex].RequiresResultPropagation;
-        }
-
-        public virtual void PropagateResults()
-        {
-            foreach (var command in _batchCommands)
-            {
-                KeyValuePair<string, object>[] storeGeneratedValues;
-
-                if (_storeGeneratedValues.TryGetValue(command, out storeGeneratedValues))
-                {
-                    if (!command.RequiresResultPropagation)
-                    {
-                        throw new InvalidOperationException(Strings.FormatNoStoreGenColumnsToPropagateResults(command.Table.Name));
-                    }
-
-                    command.PropagateResults(storeGeneratedValues);
-                }
-                else
-                {
-                    if (command.RequiresResultPropagation)
-                    {
-                        throw new InvalidOperationException(Strings.FormatResultsNotPropagatedForStoreGenColumns(command.Table.Name));
-                    }
-                }
-            }
         }
     }
 }

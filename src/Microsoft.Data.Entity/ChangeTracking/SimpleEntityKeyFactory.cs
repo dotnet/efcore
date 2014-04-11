@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotNull(entry, "entry");
 
             // TODO: What happens if we get a null property value?
-            return new SimpleEntityKey<TKey>(entityType, (TKey)entry.GetPropertyValue(properties[0]));
+            return new SimpleEntityKey<TKey>(entityType, (TKey)entry[properties[0]]);
         }
 
         public override EntityKey Create(IEntityType entityType, IReadOnlyList<IProperty> properties, IValueReader valueReader)

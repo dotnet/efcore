@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             typeMock.Setup(m => m.GetKey().Properties).Returns(new[] { keyProp });
 
             var entryMock = new Mock<StateEntry>();
-            entryMock.Setup(m => m.GetPropertyValue(keyProp)).Returns(7);
+            entryMock.Setup(m => m[keyProp]).Returns(7);
             entryMock.Setup(m => m.EntityType).Returns(typeMock.Object);
 
             var key = (SimpleEntityKey<int>)new SimpleEntityKeyFactory<int>().Create(
@@ -39,8 +39,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var random = new Random();
             var entryMock = new Mock<StateEntry>();
-            entryMock.Setup(m => m.GetPropertyValue(keyProp)).Returns(7);
-            entryMock.Setup(m => m.GetPropertyValue(nonKeyProp)).Returns("Ate");
+            entryMock.Setup(m => m[keyProp]).Returns(7);
+            entryMock.Setup(m => m[nonKeyProp]).Returns("Ate");
             entryMock.Setup(m => m.EntityType).Returns(typeMock.Object);
 
             var key = (SimpleEntityKey<string>)new SimpleEntityKeyFactory<string>().Create(

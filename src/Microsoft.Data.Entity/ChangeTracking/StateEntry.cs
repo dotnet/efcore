@@ -13,12 +13,12 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking
 {
-    public abstract class StateEntry
+    public abstract partial class StateEntry
     {
         private readonly ContextConfiguration _configuration;
         private readonly IEntityType _entityType;
         private StateData _stateData;
-        private object[] _originalValues;
+        private Sidecar[] _sidecars;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -54,24 +54,86 @@ namespace Microsoft.Data.Entity.ChangeTracking
             get { return _configuration; }
         }
 
-        private void SetEntityState(EntityState value)
+        public virtual Sidecar OriginalValues
+        {
+            get
+            {
+                return TryGetSidecar(Sidecar.WellKnownNames.OriginalValues)
+                       ?? AddSidecar(_configuration.OriginalValuesFactory.Create(this));
+            }
+        }
+
+        public virtual Sidecar AddSidecar([NotNull] Sidecar sidecar)
+        {
+            Check.NotNull(sidecar, "sidecar");
+
+            var newArray = new[] { sidecar };
+            _sidecars = _sidecars == null
+                ? newArray
+                : newArray.Concat(_sidecars).ToArray();
+
+            if (sidecar.TransparentRead
+                || sidecar.TransparentWrite
+                || sidecar.AutoCommit)
+            {
+                _stateData.TransparentSidecarInUse = true;
+            }
+
+            return sidecar;
+        }
+
+        public virtual Sidecar TryGetSidecar([NotNull] string name)
+        {
+            Check.NotEmpty(name, "name");
+
+            return _sidecars == null
+                ? null
+                : _sidecars.FirstOrDefault(s => s.Name == name);
+        }
+
+        public virtual void RemoveSidecar([NotNull] string name)
+        {
+            Check.NotEmpty(name, "name");
+
+            if (_sidecars == null)
+            {
+                return;
+            }
+
+            _sidecars = _sidecars.Where(v => v.Name != name).ToArray();
+
+            if (_sidecars.Length == 0)
+            {
+                _sidecars = null;
+                _stateData.TransparentSidecarInUse = false;
+            }
+            else
+            {
+                _stateData.TransparentSidecarInUse
+                    = _sidecars.Any(s => s.TransparentRead || s.TransparentWrite || s.AutoCommit);
+            }
+        }
+
+        private void SetEntityState(EntityState entityState)
         {
             // TODO: Decide what to do here when we decide what to do with sync/async paths in general
-            var generatedValue = value == EntityState.Added && EntityState != EntityState.Added
+            var generatedValue = entityState == EntityState.Added && EntityState != EntityState.Added
                 ? GenerateKeyValue().Result
                 : null;
 
-            SetEntityState(value, generatedValue);
+            SetEntityState(entityState, generatedValue);
         }
 
         public virtual async Task SetEntityStateAsync(
-            EntityState value, CancellationToken cancellationToken = default(CancellationToken))
+            EntityState entityState, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var generatedValue = value == EntityState.Added && EntityState != EntityState.Added
+            Check.IsDefined(entityState, "entityState");
+
+            var generatedValue = entityState == EntityState.Added && EntityState != EntityState.Added
                 ? await GenerateKeyValue(cancellationToken).ConfigureAwait(false)
                 : null;
 
-            SetEntityState(value, generatedValue);
+            SetEntityState(entityState, generatedValue);
         }
 
         private Task<object> GenerateKeyValue(CancellationToken cancellationToken = default(CancellationToken))
@@ -84,36 +146,36 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 : Task.FromResult<object>(null);
         }
 
-        private void SetEntityState(EntityState value, object generatedValue)
+        private void SetEntityState(EntityState entityState, object generatedValue)
         {
             // The entity state can be Modified even if some properties are not modified so always
             // set all properties to modified if the entity state is explicitly set to Modified.
-            if (value == EntityState.Modified)
+            if (entityState == EntityState.Modified)
             {
                 _stateData.SetAllPropertiesModified(_entityType.Properties.Count());
             }
 
             var oldState = _stateData.EntityState;
-            if (oldState == value)
+            if (oldState == entityState)
             {
                 return;
             }
 
-            _configuration.StateEntryNotifier.StateChanging(this, value);
+            _configuration.StateEntryNotifier.StateChanging(this, entityState);
 
-            _stateData.EntityState = value;
+            _stateData.EntityState = entityState;
 
-            if (value == EntityState.Added
+            if (entityState == EntityState.Added
                 && generatedValue != null)
             {
-                SetPropertyValue(_entityType.GetKey().Properties.Single(), generatedValue); // TODO: Composite keys not implemented yet.
+                this[_entityType.GetKey().Properties.Single()] = generatedValue; // TODO: Composite keys not implemented yet.
             }
 
             if (oldState == EntityState.Unknown)
             {
                 _configuration.StateManager.StartTracking(this);
             }
-            else if (value == EntityState.Unknown)
+            else if (entityState == EntityState.Unknown)
             {
                 // TODO: Does changing to Unknown really mean stop tracking?
                 _configuration.StateManager.StopTracking(this);
@@ -125,7 +187,12 @@ namespace Microsoft.Data.Entity.ChangeTracking
         public virtual EntityState EntityState
         {
             get { return _stateData.EntityState; }
-            set { SetEntityState(value); }
+            set
+            {
+                Check.IsDefined(value, "value");
+
+                SetEntityState(value);
+            }
         }
 
         public virtual bool IsPropertyModified([NotNull] IProperty property)
@@ -167,23 +234,61 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
         }
 
-        public abstract object GetPropertyValue([NotNull] IProperty property);
-
+        protected abstract object ReadPropertyValue([NotNull] IProperty property);
         protected abstract void WritePropertyValue([NotNull] IProperty property, [CanBeNull] object value);
 
-        public virtual void SetPropertyValue([NotNull] IProperty property, [CanBeNull] object value)
+        public virtual object this[[param: NotNull] IProperty property]
         {
-            Check.NotNull(property, "property");
-
-            var currentValue = GetPropertyValue(property);
-
-            if (!Equals(currentValue, value))
+            get
             {
-                PropertyChanging(property);
+                Check.NotNull(property, "property");
 
-                WritePropertyValue(property, value);
+                if (_stateData.TransparentSidecarInUse)
+                {
+                    foreach (var sidecar in _sidecars)
+                    {
+                        if (sidecar.TransparentRead
+                            && sidecar.HasValue(property))
+                        {
+                            return sidecar[property];
+                        }
+                    }
+                }
+                return ReadPropertyValue(property);
+            }
+            [param: CanBeNull]
+            set
+            {
+                Check.NotNull(property, "property");
 
-                PropertyChanged(property);
+                if (_stateData.TransparentSidecarInUse)
+                {
+                    var wrote = false;
+                    foreach (var sidecar in _sidecars)
+                    {
+                        if (sidecar.TransparentWrite
+                            && sidecar.CanStoreValue(property))
+                        {
+                            sidecar[property] = value;
+                            wrote = true;
+                        }
+                    }
+                    if (wrote)
+                    {
+                        return;
+                    }
+                }
+
+                var currentValue = this[property];
+
+                if (!Equals(currentValue, value))
+                {
+                    PropertyChanging(property);
+
+                    WritePropertyValue(property, value);
+
+                    PropertyChanged(property);
+                }
             }
         }
 
@@ -211,25 +316,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         public virtual object[] GetValueBuffer()
         {
-            return _entityType.Properties.Select(GetPropertyValue).ToArray();
-        }
-
-        public virtual void SnapshotOriginalValues()
-        {
-            if (_originalValues != null)
-            {
-                return;
-            }
-
-            _originalValues = new object[_entityType.OriginalValueCount];
-            foreach (var property in _entityType.Properties)
-            {
-                var index = property.OriginalValueIndex;
-                if (index != -1)
-                {
-                    _originalValues[index] = GetPropertyValue(property) ?? NullSentinel.Value;
-                }
-            }
+            return _entityType.Properties.Select(p => this[p]).ToArray();
         }
 
         public virtual void PropertyChanging([NotNull] IProperty property)
@@ -241,15 +328,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 return;
             }
 
-            var index = property.OriginalValueIndex;
-            if (index != -1)
-            {
-                var originalValue = GetPropertyOriginalValue(index);
-                if (originalValue == null)
-                {
-                    SetPropertyOriginalValue(index, GetPropertyValue(property));
-                }
-            }
+            OriginalValues.EnsureSnapshot(property);
         }
 
         public virtual void PropertyChanged([NotNull] IProperty property)
@@ -259,53 +338,13 @@ namespace Microsoft.Data.Entity.ChangeTracking
             SetPropertyModified(property, true);
         }
 
-        public virtual void SetPropertyOriginalValue([NotNull] IProperty property, [CanBeNull] object value)
-        {
-            Check.NotNull(property, "property");
-
-            SetPropertyOriginalValue(GetOriginalValueIndexChecked(property), value);
-        }
-
-        public virtual object GetPropertyOriginalValue([NotNull] IProperty property)
-        {
-            Check.NotNull(property, "property");
-
-            var value = GetPropertyOriginalValue(GetOriginalValueIndexChecked(property));
-
-            return value != null
-                ? (ReferenceEquals(value, NullSentinel.Value) ? null : value)
-                : GetPropertyValue(property);
-        }
-
-        private void SetPropertyOriginalValue(int index, object value)
-        {
-            if (_originalValues == null)
-            {
-                _originalValues = new object[EntityType.OriginalValueCount];
-            }
-
-            _originalValues[index] = value ?? NullSentinel.Value;
-        }
-
-        private int GetOriginalValueIndexChecked(IProperty property)
-        {
-            var index = property.OriginalValueIndex;
-            if (index == -1)
-            {
-                throw new InvalidOperationException(Strings.FormatOriginalValueNotTracked(property.Name, _entityType.Name));
-            }
-            return index;
-        }
-
-        private object GetPropertyOriginalValue(int index)
-        {
-            return _originalValues != null ? _originalValues[index] : null;
-        }
-
         public virtual bool DetectChanges()
         {
+            var originalValues = TryGetSidecar(Sidecar.WellKnownNames.OriginalValues);
+
             // TODO: Consider more efficient/higher-level/abstract mechanism for checking if DetectChanges is needed
             if (_entityType.Type == null
+                || originalValues == null
                 || typeof(INotifyPropertyChanged).GetTypeInfo().IsAssignableFrom(_entityType.Type.GetTypeInfo()))
             {
                 return false;
@@ -315,7 +354,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             foreach (var property in EntityType.Properties)
             {
                 // TODO: Perf: don't lookup accessor twice
-                if (!Equals(GetPropertyValue(property), GetPropertyOriginalValue(property)))
+                if (!Equals(this[property], originalValues[property]))
                 {
                     SetPropertyModified(property, true);
                     foundChanges = true;
@@ -337,20 +376,10 @@ namespace Microsoft.Data.Entity.ChangeTracking
             if (currentState == EntityState.Added
                 || currentState == EntityState.Modified)
             {
-                foreach (var property in EntityType.Properties)
+                var originalValues = TryGetSidecar(Sidecar.WellKnownNames.OriginalValues);
+                if (originalValues != null)
                 {
-                    var index = property.OriginalValueIndex;
-                    if (index != -1)
-                    {
-                        var originalValue = GetPropertyOriginalValue(index);
-
-                        // Only update original values we are actually tracking. If we have a slot for an original value
-                        // that is not being used due to lazy, then that lazy behavior is still valid.
-                        if (originalValue != null)
-                        {
-                            SetPropertyOriginalValue(index, GetPropertyValue(property));
-                        }
-                    }
+                    originalValues.UpdateSnapshot();
                 }
 
                 EntityState = EntityState.Unchanged;
@@ -361,94 +390,45 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
         }
 
-        internal struct StateData
+        public virtual void AutoCommitSidecars()
         {
-            private const int BitsPerInt = 32;
-            private const int BitsForEntityState = 3;
-            private const int EntityStateMask = 0x07;
-
-            private readonly int[] _bits;
-
-            public StateData(int propertyCount)
+            if (_stateData.TransparentSidecarInUse)
             {
-                _bits = new int[(propertyCount + BitsForEntityState - 1) / BitsPerInt + 1];
-            }
-
-            public void SetAllPropertiesModified(int propertyCount)
-            {
-                for (var i = 0; i < _bits.Length; i++)
+                foreach (var sidecar in _sidecars)
                 {
-                    _bits[i] |= CreateMaskForWrite(i, propertyCount);
+                    if (sidecar.AutoCommit)
+                    {
+                        sidecar.Commit();
+                    }
                 }
-            }
-
-            public EntityState EntityState
-            {
-                get { return (EntityState)(_bits[0] & EntityStateMask); }
-                set { _bits[0] = (_bits[0] & ~EntityStateMask) | (int)value; }
-            }
-
-            public bool IsPropertyModified(int propertyIndex)
-            {
-                propertyIndex += BitsForEntityState;
-
-                return (_bits[propertyIndex / BitsPerInt] & (1 << propertyIndex % BitsPerInt)) != 0;
-            }
-
-            public void SetPropertyModified(int propertyIndex, bool isModified)
-            {
-                propertyIndex += BitsForEntityState;
-
-                if (isModified)
-                {
-                    _bits[propertyIndex / BitsPerInt] |= 1 << propertyIndex % BitsPerInt;
-                }
-                else
-                {
-                    _bits[propertyIndex / BitsPerInt] &= ~(1 << propertyIndex % BitsPerInt);
-                }
-            }
-
-            public bool AnyPropertiesModified()
-            {
-                return _bits.Where((t, i) => (t & CreateMaskForRead(i)) != 0).Any();
-            }
-
-            private static int CreateMaskForRead(int i)
-            {
-                var mask = unchecked(((int)0xFFFFFFFF));
-                if (i == 0)
-                {
-                    mask &= ~EntityStateMask;
-                }
-
-                // TODO: Remove keys/readonly indexes from the mask to avoid setting them to modified
-                return mask;
-            }
-
-            private int CreateMaskForWrite(int i, int propertyCount)
-            {
-                var mask = CreateMaskForRead(i);
-
-                if (i == _bits.Length - 1)
-                {
-                    var overlay = unchecked(((int)0xFFFFFFFF));
-                    var shift = (propertyCount + BitsForEntityState) % BitsPerInt;
-                    overlay = shift != 0 ? overlay << shift : 0;
-                    mask &= ~overlay;
-                }
-
-                // TODO: Remove keys/readonly indexes from the mask to avoid setting them to modified
-                return mask;
             }
         }
 
-        protected sealed class NullSentinel
+        public virtual StateEntry PrepareToSave()
         {
-            public static readonly NullSentinel Value = new NullSentinel();
+            var storeGenerated = _entityType.Properties
+                .Where(p => p.ValueGenerationStrategy == ValueGenerationStrategy.StoreIdentity
+                            || p.ValueGenerationStrategy == ValueGenerationStrategy.StoreComputed).ToList();
 
-            private NullSentinel()
+            if (storeGenerated.Any())
             {
+                AddSidecar(_configuration.StoreGeneratedValuesFactory.Create(this, storeGenerated));
+            }
+
+            return this;
+        }
+
+        public virtual void AutoRollbackSidecars()
+        {
+            if (_stateData.TransparentSidecarInUse)
+            {
+                foreach (var sidecar in _sidecars)
+                {
+                    if (sidecar.AutoCommit)
+                    {
+                        sidecar.Rollback();
+                    }
+                }
             }
         }
     }

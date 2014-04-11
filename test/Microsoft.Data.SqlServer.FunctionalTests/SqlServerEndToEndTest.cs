@@ -125,9 +125,11 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
 
                     db.ChangeTracker.Entry(toUpdate).State = EntityState.Modified;
                     db.ChangeTracker.Entry(toDelete).State = EntityState.Deleted;
-                    var toAdd = db.Blogs.Add(new Blog { Id = 3, Name = "Blog to Insert" });
+                    var toAdd = db.Blogs.Add(new Blog { Name = "Blog to Insert" });
                     
                     await db.SaveChangesAsync();
+
+                    Assert.NotEqual(0, toAdd.Id);
 
                     Assert.Equal(EntityState.Unchanged, db.ChangeTracker.Entry(toUpdate).State);
                     Assert.Equal(EntityState.Unchanged, db.ChangeTracker.Entry(toAdd).State);
@@ -207,12 +209,12 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
         {
             await testDatabase.ExecuteNonQueryAsync(
                 @"CREATE TABLE [dbo].[Blog](
-                      [Id] [int] NOT NULL,
+                      [Id] [int] NOT NULL IDENTITY,
                       [Name] [nvarchar](max) NULL,
                       CONSTRAINT [PK_Blogging] PRIMARY KEY CLUSTERED ( [Id] ASC ))");
 
-            await testDatabase.ExecuteNonQueryAsync(@"INSERT INTO [dbo].[Blog] (Id, Name) VALUES (1, 'Blog1')");
-            await testDatabase.ExecuteNonQueryAsync(@"INSERT INTO [dbo].[Blog] (Id, Name) VALUES (2, 'Blog2')");
+            await testDatabase.ExecuteNonQueryAsync(@"INSERT INTO [dbo].[Blog] (Name) VALUES ('Blog1')");
+            await testDatabase.ExecuteNonQueryAsync(@"INSERT INTO [dbo].[Blog] (Name) VALUES ('Blog2')");
         }
 
         private class NorthwindContext : EntityContext
@@ -264,7 +266,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
         }
 
         private class BloggingContext<TBlog> : EntityContext
-            where TBlog : class
+            where TBlog : class, IBlog
         {
             public BloggingContext(EntityConfiguration config)
                 : base(config)
@@ -273,6 +275,11 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
 
             protected override void OnModelCreating(ModelBuilder builder)
             {
+                builder.Model
+                    .GetEntityType(typeof(TBlog))
+                    .GetProperty("Id")
+                    .ValueGenerationStrategy = ValueGenerationStrategy.StoreIdentity;
+                
                 builder.Entity<TBlog>().StorageName("Blog");
             }
 

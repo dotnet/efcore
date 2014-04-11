@@ -3,8 +3,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking
@@ -226,11 +229,44 @@ namespace Microsoft.Data.Entity.ChangeTracking
             return _keyFactorySource.GetKeyFactory(properties).Create(entityType, properties, entry);
         }
 
-        public virtual void AcceptAllChanges()
+        public virtual async Task<int> SaveChangesAsync(
+            [NotNull] DataStore dataStore,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
-            foreach (var entry in _identityMap.Values.ToList())
+            Check.NotNull(dataStore, "dataStore");
+
+            var entriesToSave = StateEntries
+                .Where(e => e.EntityState.IsDirty())
+                .Select(e => e.PrepareToSave())
+                .ToList();
+
+            if (!entriesToSave.Any())
             {
-                entry.AcceptChanges();
+                return 0;
+            }
+
+            try
+            {
+                var result = await dataStore
+                    .SaveChangesAsync(entriesToSave, Model, cancellationToken)
+                    .ConfigureAwait(false);
+
+                // TODO: When transactions supported, make it possible to commit/accept at end of all transactions
+                foreach (var entry in entriesToSave)
+                {
+                    entry.AutoCommitSidecars();
+                    entry.AcceptChanges();
+                }
+
+                return result;
+            }
+            catch
+            {
+                foreach (var entry in entriesToSave)
+                {
+                    entry.AutoRollbackSidecars();
+                }
+                throw;
             }
         }
     }

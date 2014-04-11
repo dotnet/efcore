@@ -86,74 +86,6 @@ namespace Microsoft.Data.Relational.Tests.Update
             Assert.True(sql.StartsWith("DELETE"));
         }
 
-        [Fact]
-        public void Cannot_save_store_generated_results_multiple_times()
-        {
-            var mockCommand = new Mock<ModificationCommand>();
-            mockCommand.Setup(c => c.RequiresResultPropagation).Returns(true);
-
-            var batch = new ModificationCommandBatch(new[] { mockCommand.Object });
-            batch.SaveStoreGeneratedValues(0, new KeyValuePair<string, object>[0]);
-
-            Assert.Equal(Strings.StoreGenValuesSavedMultipleTimesForCommand,
-                Assert.Throws<InvalidOperationException>(
-                    () => batch.SaveStoreGeneratedValues(0, new KeyValuePair<string, object>[0])).Message);
-        }
-
-        [Fact]
-        public void SaveStoreGeneratedValues_validates_parameter()
-        {
-            Assert.Equal("storeGeneratedValues",
-                Assert.Throws<ArgumentNullException>(
-                    () => new ModificationCommandBatch(new ModificationCommand[1])
-                        .SaveStoreGeneratedValues(0, null)).ParamName);
-        }
-
-        [Fact]
-        public void Propagate_results_propagates_results_for_commands()
-        {
-            var mockCommand1 = new Mock<ModificationCommand>();
-            mockCommand1.Setup(c => c.RequiresResultPropagation).Returns(true);
-            var values1 = new[] { new KeyValuePair<string, object>("Col1", 42) };
-
-            var mockCommand2 = new Mock<ModificationCommand>();
-            mockCommand2.Setup(c => c.RequiresResultPropagation).Returns(true);
-            var values2 = new[] { new KeyValuePair<string, object>("1loC", -42) };
-
-            var batch = new ModificationCommandBatch(new[] { mockCommand1.Object, mockCommand2.Object });
-            batch.SaveStoreGeneratedValues(0, values1);
-            batch.SaveStoreGeneratedValues(1, values2);
-            batch.PropagateResults();
-
-            mockCommand1.Verify(c => c.PropagateResults(values1), Times.Once);
-            mockCommand2.Verify(c => c.PropagateResults(values2), Times.Once);
-        }
-
-        [Fact]
-        public void Propagate_results_throws_when_propagating_results_for_commands_without_store_generated_values()
-        {
-            var mockCommand = new Mock<ModificationCommand>();
-            mockCommand.Setup(c => c.RequiresResultPropagation).Returns(false);
-            mockCommand.Setup(c => c.Table).Returns(new Table("table"));
-
-            var batch = new ModificationCommandBatch(new[] { mockCommand.Object });
-            batch.SaveStoreGeneratedValues(0, new[] { new KeyValuePair<string, object>("Col1", 42) });
-            Assert.Equal(Strings.FormatNoStoreGenColumnsToPropagateResults("table"),
-                Assert.Throws<InvalidOperationException>(() => batch.PropagateResults()).Message);
-        }
-
-        [Fact]
-        public void Propagate_results_throws_when_results_not_propagated_for_commands_with_store_generated_values()
-        {
-            var mockCommand = new Mock<ModificationCommand>();
-            mockCommand.Setup(c => c.RequiresResultPropagation).Returns(true);
-            mockCommand.Setup(c => c.Table).Returns(new Table("table"));
-
-            Assert.Equal(Strings.FormatResultsNotPropagatedForStoreGenColumns("table"),
-                Assert.Throws<InvalidOperationException>(
-                    () => new ModificationCommandBatch(new[] { mockCommand.Object }).PropagateResults()).Message);
-        }
-
         private static SqlGenerator CreateMockSqlGenerator()
         {
             var mockSqlGen = new Mock<SqlGenerator>() { CallBase = true };
@@ -230,8 +162,7 @@ namespace Microsoft.Data.Relational.Tests.Update
                             ? ModificationOperation.Insert
                             : ModificationOperation.Update);
 
-            return
-                new ModificationCommandBatch(new[] { mockModificationCommand.Object });
+            return new ModificationCommandBatch(new[] { mockModificationCommand.Object });
         }
     }
 }

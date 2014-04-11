@@ -6,6 +6,9 @@ using System.Data;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Relational.Update;
 using Moq;
 using Moq.Protected;
@@ -19,78 +22,93 @@ namespace Microsoft.Data.Relational.Tests.Update
         [Fact]
         public async void ExecuteAsync_executes_batch_commands_and_consumes_reader()
         {
-            var mockModificationCommand = new Mock<ModificationCommand>();
-            mockModificationCommand.Setup(c => c.Table).Returns(new Table("table"));
-            mockModificationCommand.Setup(c => c.ColumnValues)
-                .Returns(new[] { new KeyValuePair<Column, object>(new Column("Id", "_"), 1) });
-            mockModificationCommand.Setup(c => c.WhereClauses).Returns(new KeyValuePair<Column, object>[0]);
-
-            var batch = new ModificationCommandBatch(new[] { mockModificationCommand.Object });
+            var command = new ModificationCommand(CreateStateEntry(EntityState.Added), CreateTable());
+            var batch = new ModificationCommandBatch(new[] { command });
+            var mockReader = SetupMockDataReader();
+            var connection = SetupMockConnection(mockReader.Object);
 
             var executor = new BatchExecutor(new[] { batch }, new Mock<SqlGenerator> { CallBase = true }.Object);
 
-            var connection = SetupMockConnection(SetupMockDataReader(1).Object);
-
             await executor.ExecuteAsync(connection, CancellationToken.None);
 
-            var mockReader = Mock.Get(await connection.CreateCommand().ExecuteReaderAsync());
-
-            mockReader
-                .Verify(r => r.ReadAsync(It.IsAny<CancellationToken>()), Times.Once);
-
-            mockReader
-                .Verify(r => r.NextResultAsync(It.IsAny<CancellationToken>()), Times.Once);
+            mockReader.Verify(r => r.ReadAsync(It.IsAny<CancellationToken>()), Times.Once);
+            mockReader.Verify(r => r.NextResultAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async void ExecuteAsync_saves_store_generated_values()
         {
-            var mockModificationCommand = new Mock<ModificationCommand>();
-            mockModificationCommand.Setup(c => c.Table).Returns(new Table("table"));
-            mockModificationCommand.Setup(c => c.ColumnValues)
-                .Returns(new[] { new KeyValuePair<Column, object>(new Column("Id", "_"), 1) });
-            mockModificationCommand.Setup(c => c.WhereClauses).Returns(new KeyValuePair<Column, object>[0]);
-            mockModificationCommand.Setup(c => c.RequiresResultPropagation).Returns(true);
+            var stateEntry = CreateStateEntry(EntityState.Added, ValueGenerationStrategy.StoreIdentity);
+            var command = new ModificationCommand(stateEntry, CreateTable(StoreValueGenerationStrategy.Identity));
+            var batch = new ModificationCommandBatch(new[] { command });
+            var mockReader = SetupMockDataReader(new [] { "Col1" }, new List<object[]> { new object[] { 42 } });
+            var connection = SetupMockConnection(mockReader.Object);
 
-            var mockBatch = 
-                new Mock<ModificationCommandBatch>(
-                    new object[] { new[] { mockModificationCommand.Object } }) 
-                    { CallBase = true };
-
-            var executor = new BatchExecutor(new[] { mockBatch.Object }, new Mock<SqlGenerator> { CallBase = true }.Object);
-
-            var connection =
-                SetupMockConnection(
-                    SetupMockDataReader(1, new[] { "Id" }, new List<object[]> { new object[] { 42 } }).Object);
+            var executor = new BatchExecutor(new[] { batch }, new Mock<SqlGenerator> { CallBase = true }.Object);
 
             await executor.ExecuteAsync(connection, CancellationToken.None);
 
-            mockBatch.Verify(m => m.SaveStoreGeneratedValues(0,
-                It.Is<KeyValuePair<string, object>[]>(
-                    values => values.Length == 1 && values[0].Key == "Id" && (int)values[0].Value == 42)));
+            Assert.Equal(42, stateEntry[stateEntry.EntityType.GetProperty("Col1")]);
+            Assert.Equal("Test", stateEntry[stateEntry.EntityType.GetProperty("Col2")]);
+        }
+
+        [Fact]
+        public async void ExecuteAsync_saves_store_generated_values_on_non_key_columns()
+        {
+            var stateEntry = CreateStateEntry(
+                EntityState.Added, ValueGenerationStrategy.StoreIdentity, ValueGenerationStrategy.StoreComputed);
+            
+            var command = new ModificationCommand(
+                stateEntry, CreateTable(StoreValueGenerationStrategy.Identity, StoreValueGenerationStrategy.Computed));
+            
+            var batch = new ModificationCommandBatch(new[] { command });
+            var mockReader = SetupMockDataReader(new[] { "Col1", "Col2" }, new List<object[]> { new object[] { 42, "FortyTwo" } });
+            var connection = SetupMockConnection(mockReader.Object);
+
+            var executor = new BatchExecutor(new[] { batch }, new Mock<SqlGenerator> { CallBase = true }.Object);
+
+            await executor.ExecuteAsync(connection, CancellationToken.None);
+
+            Assert.Equal(42, stateEntry[stateEntry.EntityType.GetProperty("Col1")]);
+            Assert.Equal("FortyTwo", stateEntry[stateEntry.EntityType.GetProperty("Col2")]);
+        }
+
+
+        [Fact]
+        public async void ExecuteAsync_saves_store_generated_values_when_updating()
+        {
+            var stateEntry = CreateStateEntry(
+                EntityState.Modified, ValueGenerationStrategy.StoreIdentity, ValueGenerationStrategy.StoreComputed);
+
+            var command = new ModificationCommand(
+                stateEntry, CreateTable(StoreValueGenerationStrategy.Identity, StoreValueGenerationStrategy.Computed));
+
+            var batch = new ModificationCommandBatch(new[] { command });
+            var mockReader = SetupMockDataReader(new [] { "Col2" }, new List<object[]> { new object[] { "FortyTwo" } });
+            var connection = SetupMockConnection(mockReader.Object);
+
+            var executor = new BatchExecutor(new[] { batch }, new Mock<SqlGenerator> { CallBase = true }.Object);
+
+            await executor.ExecuteAsync(connection, CancellationToken.None);
+
+            Assert.Equal(1, stateEntry[stateEntry.EntityType.GetProperty("Col1")]);
+            Assert.Equal("FortyTwo", stateEntry[stateEntry.EntityType.GetProperty("Col2")]);
         }
 
         [Fact]
         public async void Exception_thrown_for_more_than_one_row_returned_for_single_command()
         {
-            var mockModificationCommand = new Mock<ModificationCommand>();
-            mockModificationCommand.Setup(c => c.Table).Returns(new Table("table"));
-            mockModificationCommand.Setup(c => c.ColumnValues)
-                .Returns(new[] { new KeyValuePair<Column, object>(new Column("Id", "_"), 1) });
-            mockModificationCommand.Setup(c => c.WhereClauses).Returns(new KeyValuePair<Column, object>[0]);
-            mockModificationCommand.Setup(c => c.RequiresResultPropagation).Returns(true);
-
-            var batch = new ModificationCommandBatch(new[] { mockModificationCommand.Object });
+            var stateEntry = CreateStateEntry(EntityState.Added, ValueGenerationStrategy.StoreIdentity);
+            var command = new ModificationCommand(stateEntry, CreateTable(StoreValueGenerationStrategy.Identity));
+            var batch = new ModificationCommandBatch(new[] { command });
+            var mockReader = SetupMockDataReader(new[] { "Col1" }, new List<object[]>
+                {
+                    new object[] { 42 }, 
+                    new object[] { 43 }
+                });
+            var connection = SetupMockConnection(mockReader.Object);
 
             var executor = new BatchExecutor(new[] { batch }, new Mock<SqlGenerator> { CallBase = true }.Object);
-
-            var connection =
-                SetupMockConnection(
-                    SetupMockDataReader(1, new[] { "Id" }, new List<object[]>
-                        {
-                            new object[] { 42 },
-                            new object[] { -42 }
-                        }).Object);
 
             Assert.Equal(Strings.TooManyRowsForModificationCommand,
                 (await Assert.ThrowsAsync<DbUpdateException>(
@@ -100,20 +118,12 @@ namespace Microsoft.Data.Relational.Tests.Update
         [Fact]
         public async void Exception_thrown_if_rows_returned_for_command_without_store_generated_values()
         {
-            var mockModificationCommand = new Mock<ModificationCommand>();
-            mockModificationCommand.Setup(c => c.Table).Returns(new Table("table"));
-            mockModificationCommand.Setup(c => c.ColumnValues)
-                .Returns(new[] { new KeyValuePair<Column, object>(new Column("Id", "_"), 1) });
-            mockModificationCommand.Setup(c => c.WhereClauses).Returns(new KeyValuePair<Column, object>[0]);
-            mockModificationCommand.Setup(c => c.RequiresResultPropagation).Returns(false);
-
-            var batch = new ModificationCommandBatch(new[] { mockModificationCommand.Object });
+            var command = new ModificationCommand(CreateStateEntry(EntityState.Added), CreateTable());
+            var batch = new ModificationCommandBatch(new[] { command });
+            var mockReader = SetupMockDataReader(new[] { "Col1" }, new List<object[]> { new object[] { 42 } });
+            var connection = SetupMockConnection(mockReader.Object);
 
             var executor = new BatchExecutor(new[] { batch }, new Mock<SqlGenerator> { CallBase = true }.Object);
-
-            var connection =
-                SetupMockConnection(
-                    SetupMockDataReader(1, new[] { "Id" }, new List<object[]> { new object[] { 42 } }).Object);
 
             Assert.Equal(Strings.FormatUpdateConcurrencyException(0, 1),
                 (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
@@ -123,18 +133,13 @@ namespace Microsoft.Data.Relational.Tests.Update
         [Fact]
         public async void Exception_thrown_if_no_rows_returned_for_command_with_store_generated_values()
         {
-            var mockModificationCommand = new Mock<ModificationCommand>();
-            mockModificationCommand.Setup(c => c.Table).Returns(new Table("table"));
-            mockModificationCommand.Setup(c => c.ColumnValues)
-                .Returns(new[] { new KeyValuePair<Column, object>(new Column("Id", "_"), 1) });
-            mockModificationCommand.Setup(c => c.WhereClauses).Returns(new KeyValuePair<Column, object>[0]);
-            mockModificationCommand.Setup(c => c.RequiresResultPropagation).Returns(true);
-
-            var batch = new ModificationCommandBatch(new[] { mockModificationCommand.Object });
+            var stateEntry = CreateStateEntry(EntityState.Added, ValueGenerationStrategy.StoreIdentity);
+            var command = new ModificationCommand(stateEntry, CreateTable(StoreValueGenerationStrategy.Identity));
+            var batch = new ModificationCommandBatch(new[] { command });
+            var mockReader = SetupMockDataReader(new[] { "Col1" });
+            var connection = SetupMockConnection(mockReader.Object);
 
             var executor = new BatchExecutor(new[] { batch }, new Mock<SqlGenerator> { CallBase = true }.Object);
-
-            var connection = SetupMockConnection(SetupMockDataReader(0).Object);
 
             Assert.Equal(Strings.FormatUpdateConcurrencyException(1, 0),
                 (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
@@ -169,34 +174,85 @@ namespace Microsoft.Data.Relational.Tests.Update
             return mockConnection.Object;
         }
 
-        private static Mock<DbDataReader> SetupMockDataReader(int recordsAffected, string[] columnNames = null, IList<object[]> results = null)
+        private static Mock<DbDataReader> SetupMockDataReader(string[] columnNames = null, IList<object[]> results = null)
         {
+            results = results ?? new List<object[]>();
+            columnNames = columnNames ?? new string[0];
+            var rowIndex = 0;
+            object[] currentRow = null;
+
             var mockDataReader = new Mock<DbDataReader>();
+
+            mockDataReader.Setup(r => r.FieldCount).Returns(columnNames.Length);
+            mockDataReader.Setup(r => r.GetName(It.IsAny<int>())).Returns((int columnIdx) => columnNames[columnIdx]);
+            mockDataReader.Setup(r => r.GetValue(It.IsAny<int>())).Returns((int columnIdx) => currentRow[columnIdx]);
+            mockDataReader.Setup(r => r.GetFieldValue<int>(It.IsAny<int>())).Returns((int columnIdx) => (int)currentRow[columnIdx]);
+            mockDataReader.Setup(r => r.GetFieldValue<string>(It.IsAny<int>())).Returns((int columnIdx) => (string)currentRow[columnIdx]);
+            mockDataReader.Setup(r => r.GetFieldValue<object>(It.IsAny<int>())).Returns((int columnIdx) => currentRow[columnIdx]);
+
             mockDataReader
-                .Setup(r => r.RecordsAffected)
-                .Returns(recordsAffected);
-
-            if (results != null && columnNames != null)
-            {
-                var rowIndex = 0;
-                object[] currentRow = null;
-
-                mockDataReader.Setup(r => r.FieldCount).Returns(columnNames.Length);
-                mockDataReader.Setup(r => r.GetName(It.IsAny<int>())).Returns((int columnIdx) => columnNames[columnIdx]);
-                mockDataReader.Setup(r => r.GetValue(It.IsAny<int>())).Returns((int columnIdx) => currentRow[columnIdx]);
-
-                mockDataReader
-                    .Setup(r => r.ReadAsync(It.IsAny<CancellationToken>()))
-                    .Callback(() => currentRow = rowIndex < results.Count ? results[rowIndex++] : null)
-                    .Returns(() =>
-                        {
-                            var tcs = new TaskCompletionSource<bool>();
-                            tcs.SetResult(currentRow != null);
-                            return tcs.Task;
-                        });
-            }
+                .Setup(r => r.ReadAsync(It.IsAny<CancellationToken>()))
+                .Callback(() => currentRow = rowIndex < results.Count ? results[rowIndex++] : null)
+                .Returns(() =>
+                    {
+                        var tcs = new TaskCompletionSource<bool>();
+                        tcs.SetResult(currentRow != null);
+                        return tcs.Task;
+                    });
 
             return mockDataReader;
+        }
+
+        private class T1
+        {
+            public int Col1 { get; set; }
+            public string Col2 { get; set; }
+        }
+
+        private static IModel BuildModel(ValueGenerationStrategy keyStrategy, ValueGenerationStrategy nonKeyStrategy)
+        {
+            var model = new Entity.Metadata.Model();
+
+            var entityType = new EntityType(typeof(T1));
+
+            var key = entityType.AddProperty("Col1", typeof(int));
+            key.ValueGenerationStrategy = keyStrategy;
+            entityType.SetKey(key);
+
+            var nonKey = entityType.AddProperty("Col2", typeof(string));
+            nonKey.ValueGenerationStrategy = nonKeyStrategy;
+
+            model.AddEntityType(entityType);
+
+            return model;
+        }
+
+        private static ContextConfiguration CreateConfiguration(IModel model)
+        {
+            return new EntityContext(
+                new EntityConfigurationBuilder().UseModel(model).BuildConfiguration()).Configuration;
+        }
+
+        private static StateEntry CreateStateEntry(
+            EntityState entityState,
+            ValueGenerationStrategy keyStrategy = ValueGenerationStrategy.None,
+            ValueGenerationStrategy nonKeyStrategy = ValueGenerationStrategy.None)
+        {
+            var model = BuildModel(keyStrategy, nonKeyStrategy);
+            var stateEntry = CreateConfiguration(model).StateEntryFactory.Create(model.GetEntityType("T1"), new T1 { Col1 = 1, Col2 = "Test" });
+            stateEntry.EntityState = entityState;
+            return stateEntry;
+        }
+
+        private static Table CreateTable(
+            StoreValueGenerationStrategy keyStrategy = StoreValueGenerationStrategy.None,
+            StoreValueGenerationStrategy nonKeyStrategy = StoreValueGenerationStrategy.None)
+        {
+            var key = new Column("Col1", "_") { ValueGenerationStrategy = keyStrategy };
+            return new Table("T1", new[] { key, new Column("Col2", "_") { ValueGenerationStrategy = nonKeyStrategy } })
+            {
+                PrimaryKey = new PrimaryKey("PK", new[] { key })
+            };
         }
     }
 }

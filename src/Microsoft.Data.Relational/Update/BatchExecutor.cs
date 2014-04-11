@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -81,13 +82,14 @@ namespace Microsoft.Data.Relational.Update
 
         private static void SaveStoreGeneratedValues([NotNull] ModificationCommandBatch commandBatch, [NotNull] DbDataReader reader, int commandIndex)
         {
-            var results = new KeyValuePair<string, object>[reader.FieldCount];
-            for (var ordinal = 0; ordinal < results.Length; ordinal++)
+            // TODO: Consider if this can be done with well-known result order (like materialization) rather than column names
+            var names = new String[reader.FieldCount];
+            for (var ordinal = 0; ordinal < names.Length; ordinal++)
             {
-                results[ordinal] = new KeyValuePair<string, object>(reader.GetName(ordinal), reader.GetValue(ordinal));
+                names[ordinal] = reader.GetName(ordinal);
             }
 
-            commandBatch.SaveStoreGeneratedValues(commandIndex, results);
+            commandBatch.SaveStoreGeneratedValues(commandIndex, names, new RelationalTypedValueReader(reader));
         }
 
         private DbCommand CreateCommand([NotNull] DbConnection connection, [NotNull] ModificationCommandBatch commandBatch)
@@ -108,14 +110,6 @@ namespace Microsoft.Data.Relational.Update
             }
 
             return command;
-        }
-
-        public virtual void PropagateResults()
-        {
-            foreach (var commandbatch in _commandBatches)
-            {
-                commandbatch.PropagateResults();
-            }            
         }
     }
 }
