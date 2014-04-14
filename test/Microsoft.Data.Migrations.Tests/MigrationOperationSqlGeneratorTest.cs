@@ -63,7 +63,8 @@ namespace Microsoft.Data.Migrations.Tests
     ""Bar"" int
     CONSTRAINT ""MyPK"" PRIMARY KEY NONCLUSTERED (""Foo"", ""Bar"")
 )",
-                MigrationOperationSqlGenerator.Generate(new CreateTableOperation(table), generateIdempotentSql: false).Sql);
+                MigrationOperationSqlGenerator.Generate(
+                    new CreateTableOperation(table), generateIdempotentSql: false).Sql);
         }
 
         [Fact]
@@ -118,8 +119,8 @@ namespace Microsoft.Data.Migrations.Tests
             Assert.Equal(
                 @"ALTER TABLE ""dbo"".""MyTable"" ALTER COLUMN ""Foo"" int NULL",
                 MigrationOperationSqlGenerator.Generate(
-                    new AlterColumnOperation("dbo.MyTable", "Foo", typeof(int), "int",
-                        isNullable: true, isDestructiveChange: false), 
+                    new AlterColumnOperation("dbo.MyTable", 
+                        new Column("Foo", "int") { IsNullable = true }, isDestructiveChange: false), 
                     generateIdempotentSql: false).Sql);
         }
 
@@ -129,8 +130,8 @@ namespace Microsoft.Data.Migrations.Tests
             Assert.Equal(
                 @"ALTER TABLE ""dbo"".""MyTable"" ALTER COLUMN ""Foo"" int NOT NULL",
                 MigrationOperationSqlGenerator.Generate(
-                    new AlterColumnOperation("dbo.MyTable", "Foo", typeof(int), "int",
-                        isNullable: false, isDestructiveChange: false), 
+                    new AlterColumnOperation("dbo.MyTable", 
+                        new Column("Foo", "int") { IsNullable = false }, isDestructiveChange: false), 
                     generateIdempotentSql: false).Sql);
         }
 

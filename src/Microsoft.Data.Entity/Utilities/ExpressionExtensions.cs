@@ -4,14 +4,15 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity;
 
 namespace System.Linq.Expressions
 {
     [DebuggerStepThrough]
-    internal static class ExpressionExtensions
+    public static class ExpressionExtensions
     {
-        public static PropertyInfo GetPropertyAccess(this LambdaExpression propertyAccessExpression)
+        public static PropertyInfo GetPropertyAccess([NotNull] this LambdaExpression propertyAccessExpression)
         {
             Contract.Assert(propertyAccessExpression.Parameters.Count == 1);
 
@@ -31,7 +32,7 @@ namespace System.Linq.Expressions
             return propertyInfo;
         }
 
-        public static IList<PropertyInfo> GetPropertyAccessList(this LambdaExpression propertyAccessExpression)
+        public static IList<PropertyInfo> GetPropertyAccessList([NotNull] this LambdaExpression propertyAccessExpression)
         {
             Contract.Assert(propertyAccessExpression.Parameters.Count == 1);
 

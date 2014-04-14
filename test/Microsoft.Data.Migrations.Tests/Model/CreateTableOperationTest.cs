@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System.Globalization;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Migrations.Model;
 using Microsoft.Data.Relational.Model;
@@ -13,7 +14,7 @@ namespace Microsoft.Data.Migrations.Tests.Model
         [Fact]
         public void Create_and_initialize_operation()
         {
-            var table = new Table("dbo.MyTable");
+            var table = new Table("dbo.MyTable", new[] { new Column("Id", "int") });
             var createTableOperation = new CreateTableOperation(table);
 
             Assert.Same(table, createTableOperation.Table);
@@ -23,7 +24,8 @@ namespace Microsoft.Data.Migrations.Tests.Model
         [Fact]
         public void Dispatches_visitor()
         {
-            var createTableOperation = new CreateTableOperation(new Table("dbo.MyTable"));
+            var table = new Table("dbo.MyTable", new[] { new Column("Id", "int") });
+            var createTableOperation = new CreateTableOperation(table);
             var mockVisitor = new Mock<MigrationOperationSqlGenerator>();
             var builder = new Mock<IndentedStringBuilder>();
             createTableOperation.GenerateSql(mockVisitor.Object, builder.Object, false);

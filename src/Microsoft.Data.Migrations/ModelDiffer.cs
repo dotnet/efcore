@@ -389,10 +389,7 @@ namespace Microsoft.Data.Migrations
                     .Select(pair => 
                         new AlterColumnOperation(
                             pair.Item2.Table.Name,
-                            pair.Item2.Name,
-                            pair.Item2.ClrType,
-                            pair.Item2.DataType,
-                            pair.Item2.IsNullable,
+                            pair.Item2,
                             isDestructiveChange: true)));
 
             // TODO: Add functionality to determine the value of isDestructiveChange.

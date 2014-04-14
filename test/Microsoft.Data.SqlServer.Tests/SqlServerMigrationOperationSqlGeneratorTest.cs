@@ -65,7 +65,8 @@ namespace Microsoft.Data.SqlServer.Tests
         ""Bar"" int
         CONSTRAINT ""MyPK"" PRIMARY KEY NONCLUSTERED (""Foo"", ""Bar"")
     )",
-                SqlServerMigrationOperationSqlGenerator.Generate(new CreateTableOperation(table), generateIdempotentSql: true).Sql);
+                SqlServerMigrationOperationSqlGenerator.Generate(
+                    new CreateTableOperation(table), generateIdempotentSql: true).Sql);
         }
 
         [Fact]
@@ -122,8 +123,8 @@ namespace Microsoft.Data.SqlServer.Tests
                 @"IF EXISTS (SELECT * FROM sys.columns WHERE name = N'Foo' AND object_id = OBJECT_ID(N'dbo.MyTable'))
     ALTER TABLE ""dbo"".""MyTable"" ALTER COLUMN ""Foo"" int NOT NULL",
                 SqlServerMigrationOperationSqlGenerator.Generate(
-                    new AlterColumnOperation("dbo.MyTable", "Foo", typeof(int), "int",
-                        isNullable: false, isDestructiveChange: false), generateIdempotentSql: true).Sql);
+                    new AlterColumnOperation("dbo.MyTable", new Column("Foo", "int") { IsNullable = false }, 
+                        isDestructiveChange: false), generateIdempotentSql: true).Sql);
         }
 
         [Fact]

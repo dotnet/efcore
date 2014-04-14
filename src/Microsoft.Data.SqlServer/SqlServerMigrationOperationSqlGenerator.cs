@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
@@ -243,7 +242,7 @@ namespace Microsoft.Data.SqlServer
             {
                 GenerateColumnPresenceCheck(
                     alterColumnOperation.TableName,
-                    alterColumnOperation.ColumnName,
+                    alterColumnOperation.NewColumn.Name,
                     negative: false,
                     builder: stringBuilder);
 

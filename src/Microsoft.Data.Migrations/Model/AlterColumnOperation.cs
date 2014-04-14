@@ -5,33 +5,25 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Migrations.Utilities;
 using Microsoft.Data.Relational;
+using Microsoft.Data.Relational.Model;
 
 namespace Microsoft.Data.Migrations.Model
 {
     public class AlterColumnOperation : MigrationOperation
     {
         private readonly SchemaQualifiedName _tableName;
-        private readonly string _columnName;
-        private readonly Type _clrType;
-        private readonly string _dataType;
-        private readonly bool _isNullable;
+        private readonly Column _newColumn;
         private readonly bool _isDestructiveChange;
 
         public AlterColumnOperation(
             SchemaQualifiedName tableName,
-            [NotNull] string columnName,
-            [CanBeNull] Type clrType,
-            [CanBeNull] string dataType,
-            bool isNullable,
+            [NotNull] Column newColumn, 
             bool isDestructiveChange)
         {
-            Check.NotNull(columnName, "columnName");
+            Check.NotNull(newColumn, "newColumn");
 
             _tableName = tableName;
-            _columnName = columnName;
-            _clrType = clrType;
-            _dataType = dataType;
-            _isNullable = isNullable;
+            _newColumn = newColumn;
             _isDestructiveChange = isDestructiveChange;
         }
 
@@ -40,24 +32,9 @@ namespace Microsoft.Data.Migrations.Model
             get { return _tableName; }
         }
 
-        public virtual string ColumnName
+        public virtual Column NewColumn
         {
-            get { return _columnName; }
-        }
-
-        public virtual Type ClrType
-        {
-            get { return _clrType; }
-        }
-
-        public virtual string DataType
-        {
-            get { return _dataType; }
-        }
-
-        public virtual bool IsNullable
-        {
-            get { return _isNullable; }
+            get { return _newColumn; }
         }
 
         public override bool IsDestructiveChange
@@ -65,12 +42,20 @@ namespace Microsoft.Data.Migrations.Model
             get { return _isDestructiveChange; }
         }
 
-        public override void GenerateSql([NotNull] MigrationOperationSqlGenerator visitor, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
+        public override void GenerateSql([NotNull] MigrationOperationSqlGenerator generator, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
-            Check.NotNull(visitor, "visitor");
+            Check.NotNull(generator, "generator");
             Check.NotNull(stringBuilder, "stringBuilder");
 
-            visitor.Generate(this, stringBuilder, generateIdempotentSql);
+            generator.Generate(this, stringBuilder, generateIdempotentSql);
+        }
+
+        public override void GenerateCode([NotNull] MigrationCodeGenerator generator, [NotNull] IndentedStringBuilder stringBuilder)
+        {
+            Check.NotNull(generator, "generator");
+            Check.NotNull(stringBuilder, "stringBuilder");
+
+            generator.Generate(this, stringBuilder);
         }
     }
 }

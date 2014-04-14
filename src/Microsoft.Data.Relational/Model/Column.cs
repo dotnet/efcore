@@ -2,6 +2,7 @@
 
 using System;
 using System.Diagnostics.Contracts;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Relational.Utilities;
 
@@ -10,25 +11,26 @@ namespace Microsoft.Data.Relational.Model
     public class Column
     {
         private Table _table;
-        private readonly string _name;
-        private readonly Type _clrType;
-        private readonly string _dataType;
+        private bool _isNullable = true;
 
         public Column([NotNull] string name, [NotNull] string dataType)
             : this(name, null, Check.NotEmpty(dataType, "dataType"))
         {
         }
 
-        public Column([NotNull] string name, [CanBeNull] Type clrType, [CanBeNull] string dataType)
+        public Column([CanBeNull] string name, [CanBeNull] Type clrType)
+            : this(name, Check.NotNull(clrType, "clrType"), null)
         {
-            Check.NotEmpty(name, "name");
+        }
 
+        public Column([CanBeNull] string name, [CanBeNull] Type clrType, [CanBeNull] string dataType)
+        {
             // TODO: Replace assert with exception.
             Contract.Assert((clrType != null) || !string.IsNullOrEmpty(dataType));
 
-            _name = name;
-            _clrType = clrType;
-            _dataType = dataType;
+            Name = name;
+            ClrType = clrType;
+            DataType = dataType;
         }
 
         public virtual Table Table
@@ -43,22 +45,17 @@ namespace Microsoft.Data.Relational.Model
             }
         }
 
-        public virtual string Name
-        {
-            get { return _name; }
-        }
+        public virtual string Name { get; [param: CanBeNull] set; }
 
-        public virtual Type ClrType
-        {
-            get { return _clrType; }
-        }
+        public virtual Type ClrType { get; [param: CanBeNull] set; }
 
-        public virtual string DataType
-        {
-            get { return _dataType; }
-        }
+        public virtual string DataType { get; [param: CanBeNull] set; }
 
-        public virtual bool IsNullable { get; set; }
+        public virtual bool IsNullable
+        {
+            get { return _isNullable; }
+            set { _isNullable = value; }
+        }
 
         public virtual object DefaultValue { get; [param: CanBeNull] set; }
 
@@ -69,5 +66,23 @@ namespace Microsoft.Data.Relational.Model
         {
             get { return DefaultValue != null || DefaultSql != null; }
         }
+
+        public virtual bool IsTimestamp { get; set; }
+
+        // TODO: Consider adding a DataType abstraction.
+
+        public virtual int? MaxLength { get; set; }
+
+        public virtual byte? Precision { get; set; }
+
+        public virtual byte? Scale { get; set; }
+
+        public virtual bool? IsFixedLength { get; set; }
+
+        public virtual bool? IsUnicode { get; set; }
+
+        // TODO: Implement an annotation mechanism and use it to store the ApiPropertyInfo.
+        // Find a way to avoid referencing PropertyInfo.
+        public virtual PropertyInfo ApiPropertyInfo { get; [param: CanBeNull] set; }
     }
 }
