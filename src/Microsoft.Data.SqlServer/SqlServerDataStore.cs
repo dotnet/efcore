@@ -30,7 +30,7 @@ namespace Microsoft.Data.SqlServer
             Check.NotNull(sqlGenerator, "sqlGenerator");
             _sqlGenerator = sqlGenerator;
 
-            _masterConnectionString = new ThreadSafeLazyRef<string>(() => 
+            _masterConnectionString = new ThreadSafeLazyRef<string>(() =>
                 {
                     var builder = new DbConnectionStringBuilder();
                     builder.ConnectionString = connectionString;

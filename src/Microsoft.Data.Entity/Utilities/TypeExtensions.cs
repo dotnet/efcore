@@ -85,12 +85,14 @@ namespace System
             {
                 var typeInfo = type.GetTypeInfo();
                 var propertyInfo = typeInfo.GetDeclaredProperty(name);
-                if (propertyInfo != null && !(propertyInfo.GetMethod ?? propertyInfo.SetMethod).IsStatic)
+                if (propertyInfo != null
+                    && !(propertyInfo.GetMethod ?? propertyInfo.SetMethod).IsStatic)
                 {
                     yield return propertyInfo;
                 }
                 type = typeInfo.BaseType;
-            } while (type != null);
+            }
+            while (type != null);
         }
     }
 }

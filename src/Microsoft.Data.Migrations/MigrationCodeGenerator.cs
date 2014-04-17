@@ -1,4 +1,4 @@
-﻿// Copyright ([NotNull]c) Microsoft Open Technologies, [NotNull] Inc. All rights reserved. See License.txt in the project root for license information.
+﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
 using JetBrains.Annotations;
@@ -20,13 +20,13 @@ namespace Microsoft.Data.Migrations
         {
             return
                 new[]
-                {
-                    "System",                 
-                    "Microsoft.Data.Migrations",
-                    "Microsoft.Data.Migrations.Builders",
-                    "Microsoft.Data.Migrations.Model",
-                    "Microsoft.Data.Relational"
-                };
+                    {
+                        "System",
+                        "Microsoft.Data.Migrations",
+                        "Microsoft.Data.Migrations.Builders",
+                        "Microsoft.Data.Migrations.Model",
+                        "Microsoft.Data.Relational"
+                    };
         }
 
         public abstract void Generate([NotNull] CreateDatabaseOperation createDatabaseOperation, [NotNull] IndentedStringBuilder stringBuilder);

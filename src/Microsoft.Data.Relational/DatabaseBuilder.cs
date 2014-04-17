@@ -72,9 +72,9 @@ namespace Microsoft.Data.Relational
             Check.NotNull(foreignKey, "foreignKey");
 
             return foreignKey.StorageName ?? string.Format(
-                "FK_{0}_{1}_{2}", 
-                TableName(foreignKey.EntityType), 
-                TableName(foreignKey.ReferencedEntityType), 
+                "FK_{0}_{1}_{2}",
+                TableName(foreignKey.EntityType),
+                TableName(foreignKey.ReferencedEntityType),
                 string.Join("_", foreignKey.Properties.OrderBy(p => p.Name).Select(p => ColumnName(p))));
         }
 
@@ -157,7 +157,7 @@ namespace Microsoft.Data.Relational
 
             var storeForeignKey = new ForeignKey(
                 ForeignKeyName(foreignKey), columns, referenceColumns, cascadeDelete);
-            
+
             table.AddForeignKey(storeForeignKey);
             _mapping.Map(foreignKey, table.ForeignKeys.Last());
         }

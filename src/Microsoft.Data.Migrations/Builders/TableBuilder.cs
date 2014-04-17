@@ -17,7 +17,7 @@ namespace Microsoft.Data.Migrations.Builders
         private readonly MigrationBuilder _migrationBuilder;
 
         public TableBuilder(
-            [NotNull] CreateTableOperation createTableOperation, 
+            [NotNull] CreateTableOperation createTableOperation,
             [NotNull] MigrationBuilder migrationBuilder)
         {
             Check.NotNull(createTableOperation, "createTableOperation");
@@ -29,7 +29,7 @@ namespace Microsoft.Data.Migrations.Builders
 
         public virtual TableBuilder<TColumns> PrimaryKey(
             [NotNull] string name,
-            [NotNull] Expression<Func<TColumns, object>> primaryKeyExpression,            
+            [NotNull] Expression<Func<TColumns, object>> primaryKeyExpression,
             bool clustered = true)
         {
             Check.NotEmpty(name, "name");
@@ -71,7 +71,7 @@ namespace Microsoft.Data.Migrations.Builders
 
         public virtual TableBuilder<TColumns> Index(
             [NotNull] string name,
-            [NotNull] Expression<Func<TColumns, object>> indexExpression,            
+            [NotNull] Expression<Func<TColumns, object>> indexExpression,
             bool unique = false,
             bool clustered = false)
         {
@@ -82,7 +82,7 @@ namespace Microsoft.Data.Migrations.Builders
             var columnNames = indexExpression.GetPropertyAccessList()
                 .Select(p => table.Columns.Single(c => c.ApiPropertyInfo == p).Name)
                 .ToArray();
-            var createIndexOperation = new CreateIndexOperation(table.Name, name, 
+            var createIndexOperation = new CreateIndexOperation(table.Name, name,
                 columnNames, unique, clustered);
 
             _migrationBuilder.AddOperation(createIndexOperation);

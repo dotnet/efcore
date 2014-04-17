@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
@@ -68,7 +67,7 @@ namespace Microsoft.Data.Relational
         }
 
         public virtual void AppendInsertCommand(
-            [NotNull] StringBuilder commandStringBuilder, [NotNull] Table table, 
+            [NotNull] StringBuilder commandStringBuilder, [NotNull] Table table,
             [NotNull] IEnumerable<KeyValuePair<Column, string>> columnsToParameters)
         {
             Check.NotNull(commandStringBuilder, "commandStringBuilder");

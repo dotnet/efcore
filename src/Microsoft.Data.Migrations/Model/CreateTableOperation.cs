@@ -1,10 +1,8 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Migrations.Utilities;
-using Microsoft.Data.Relational;
 using Microsoft.Data.Relational.Model;
 
 namespace Microsoft.Data.Migrations.Model

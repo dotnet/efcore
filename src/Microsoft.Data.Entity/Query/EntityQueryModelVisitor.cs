@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.Query
         }
 
         protected EntityQueryModelVisitor(
-            EntityQueryModelVisitor parentQueryModelVisitor, 
+            EntityQueryModelVisitor parentQueryModelVisitor,
             MethodInfo entityScanMethodInfo,
             Func<EntityQueryModelVisitor, EntityQueryModelVisitor> visitorFactory)
         {
@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity.Query
             _entityScanMethodInfo = entityScanMethodInfo;
             _visitorFactory = visitorFactory;
         }
-        
+
         public Func<QueryContext, IEnumerable<TResult>> CreateQueryExecutor<TResult>([NotNull] QueryModel queryModel)
         {
             Check.NotNull(queryModel, "queryModel");
@@ -105,7 +105,7 @@ namespace Microsoft.Data.Entity.Query
                 fromClause,
                 QuerySourceScope.GetResult(_querySourceScopeParameter, fromClause));
         }
-        
+
         public override void VisitAdditionalFromClause(AdditionalFromClause fromClause, QueryModel queryModel, int index)
         {
             var innerExpression
@@ -300,7 +300,7 @@ namespace Microsoft.Data.Entity.Query
         private class ProjectionSubQueryExpressionTreeVisitor : QueryingExpressionTreeVisitor
         {
             public ProjectionSubQueryExpressionTreeVisitor(
-                EntityQueryModelVisitor queryModelVisitor, 
+                EntityQueryModelVisitor queryModelVisitor,
                 MethodInfo entityScanMethodInfo,
                 Func<EntityQueryModelVisitor, EntityQueryModelVisitor> visitorFactory)
                 : base(queryModelVisitor, entityScanMethodInfo, visitorFactory)
@@ -458,7 +458,7 @@ namespace Microsoft.Data.Entity.Query
             private readonly MethodInfo _entityScanMethodInfo;
 
             public QueryingExpressionTreeVisitor(
-                EntityQueryModelVisitor queryModelVisitor, 
+                EntityQueryModelVisitor queryModelVisitor,
                 MethodInfo entityScanMethodInfo,
                 Func<EntityQueryModelVisitor, EntityQueryModelVisitor> visitorFactory)
             {
@@ -514,7 +514,7 @@ namespace Microsoft.Data.Entity.Query
 
         private static readonly MethodInfo _executeResultOperatorMethodInfo
             = typeof(EntityQueryModelVisitor).GetMethod("ExecuteResultOperator", BindingFlags.NonPublic | BindingFlags.Static);
-        
+
         [UsedImplicitly]
         private static TResult ExecuteResultOperator<TSource, TResult>(
             IEnumerable<TSource> source, ResultOperatorBase resultOperator, StreamedSequenceInfo streamedSequenceInfo)

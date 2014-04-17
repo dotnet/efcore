@@ -281,7 +281,7 @@ namespace Microsoft.Data.Migrations.Builders
             string name = null,
             string dataType = null)
         {
-            var column 
+            var column
                 = new Column(name, clrType, dataType)
                     {
                         DefaultValue = defaultValue,

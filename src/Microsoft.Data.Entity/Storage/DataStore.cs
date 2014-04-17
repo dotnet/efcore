@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Storage
 
         public virtual IAsyncEnumerable<TResult> Query<TResult>(
             [NotNull] QueryModel queryModel,
-            [NotNull] IModel model, 
+            [NotNull] IModel model,
             [NotNull] StateManager stateManager)
         {
             throw new NotImplementedException();

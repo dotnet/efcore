@@ -1,10 +1,5 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
-using System;
-using System.Collections.Generic;
-#if NET45
-using System.Data.SqlClient;
-#endif
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -14,6 +9,9 @@ using Microsoft.Data.Migrations;
 using Microsoft.Data.Migrations.Model;
 using Microsoft.Data.Relational;
 using Microsoft.Data.SqlServer.Utilities;
+#if NET45
+using System.Data.SqlClient;
+#endif
 
 namespace Microsoft.Data.SqlServer
 {
@@ -41,17 +39,17 @@ namespace Microsoft.Data.SqlServer
             _statementExecutor = statementExecutor;
         }
 
-        public async override Task CreateAsync(IModel model, CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task CreateAsync(IModel model, CancellationToken cancellationToken = default(CancellationToken))
         {
             using (var connection = _dataStore.CreateConnection())
             {
                 using (var masterConnection = _dataStore.CreateMasterConnection())
                 {
                     var operations = new MigrationOperation[]
-                    { 
-                        // TODO Check DbConnection.Database always gives us what we want
-                        new CreateDatabaseOperation(connection.Database)
-                    };
+                        {
+                            // TODO Check DbConnection.Database always gives us what we want
+                            new CreateDatabaseOperation(connection.Database)
+                        };
 
                     var masterCommands = _sqlGenerator.Generate(operations, generateIdempotentSql: true);
                     await _statementExecutor.ExecuteNonQueryAsync(masterConnection, masterCommands, cancellationToken);
@@ -61,7 +59,6 @@ namespace Microsoft.Data.SqlServer
                     // invalid connection may now be valid.
                     SqlConnection.ClearPool((SqlConnection)connection);
 #endif
-
                 }
 
                 var schemaOperations = _modelDiffer.DiffSource(model);
@@ -98,7 +95,6 @@ namespace Microsoft.Data.SqlServer
                     throw;
                 }
 #endif
-
             }
         }
 
@@ -119,7 +115,7 @@ namespace Microsoft.Data.SqlServer
             using (var masterConnection = _dataStore.CreateMasterConnection())
             {
                 var operations = new MigrationOperation[]
-                    { 
+                    {
                         new DropDatabaseOperation(database)
                     };
 

@@ -4,12 +4,12 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Migrations.Model;
 using Microsoft.Data.Migrations.Utilities;
 using Microsoft.Data.Relational.Model;
-using System.Text.RegularExpressions;
 
 namespace Microsoft.Data.Migrations
 {
@@ -17,7 +17,7 @@ namespace Microsoft.Data.Migrations
     {
         public static string Generate<T>([NotNull] T migrationOperation)
             where T : MigrationOperation
-        {            
+        {
             var generator = new CSharpMigrationCodeGenerator();
             var stringBuilder = new IndentedStringBuilder();
 
@@ -28,7 +28,7 @@ namespace Microsoft.Data.Migrations
 
         public virtual void GenerateClass(
             [NotNull] string @namespace,
-            [NotNull] string className, 
+            [NotNull] string className,
             [NotNull] IReadOnlyList<MigrationOperation> upgradeOperations,
             [NotNull] IReadOnlyList<MigrationOperation> downgradeOperations,
             [NotNull] IndentedStringBuilder stringBuilder)
@@ -78,7 +78,7 @@ namespace Microsoft.Data.Migrations
 
         protected virtual void GenerateMethod(
             [NotNull] string methodName,
-            [NotNull] IReadOnlyList<MigrationOperation> migrationOperations, 
+            [NotNull] IReadOnlyList<MigrationOperation> migrationOperations,
             [NotNull] IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(methodName, "methodName");
@@ -195,7 +195,7 @@ namespace Microsoft.Data.Migrations
                     {
                         using (stringBuilder.AppendLine().Indent())
                         {
-                            GenerateColumnReferences(primaryKey.Columns, stringBuilder);                            
+                            GenerateColumnReferences(primaryKey.Columns, stringBuilder);
                         }
                     }
 
@@ -264,7 +264,7 @@ namespace Microsoft.Data.Migrations
 
             stringBuilder
                 .Append("DropColumn(")
-                .Append(GenerateLiteral(dropColumnOperation.TableName))                
+                .Append(GenerateLiteral(dropColumnOperation.TableName))
                 .Append(", ")
                 .Append(GenerateLiteral(dropColumnOperation.ColumnName))
                 .Append(")");
@@ -641,7 +641,7 @@ namespace Microsoft.Data.Migrations
         {
             stringBuilder
                 .Append("t => t.")
-                .Append(GenerateColumnIdentifier(column.Name));            
+                .Append(GenerateColumnIdentifier(column.Name));
         }
 
         protected virtual void GenerateColumnReferences(

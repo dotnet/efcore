@@ -214,7 +214,7 @@ namespace Microsoft.Data.Migrations
                 .Append(DelimitIdentifier(newColumn.Name))
                 .Append(" ")
                 .Append(GenerateDataType(newColumn))
-                .Append(newColumn.IsNullable ? " NULL" : " NOT NULL");  
+                .Append(newColumn.IsNullable ? " NULL" : " NOT NULL");
         }
 
         public virtual void Generate([NotNull] AddDefaultConstraintOperation addDefaultConstraintOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
@@ -359,10 +359,10 @@ namespace Microsoft.Data.Migrations
             Check.NotNull(dropIndexOperation, "dropIndexOperation");
 
             stringBuilder
-                 .Append("DROP INDEX ")
-                 .Append(DelimitIdentifier(dropIndexOperation.IndexName))
-                 .Append(" ON ")
-                 .Append(DelimitIdentifier(dropIndexOperation.TableName));
+                .Append("DROP INDEX ")
+                .Append(DelimitIdentifier(dropIndexOperation.IndexName))
+                .Append(" ON ")
+                .Append(DelimitIdentifier(dropIndexOperation.TableName));
         }
 
         public virtual void Generate([NotNull] RenameIndexOperation renameIndexOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
@@ -542,7 +542,7 @@ namespace Microsoft.Data.Migrations
             [NotNull] string primaryKeyName,
             [NotNull] IReadOnlyList<string> columnNames,
             bool isClustered,
-            [NotNull]IndentedStringBuilder stringBuilder)
+            [NotNull] IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(primaryKeyName, "primaryKeyName");
             Check.NotNull(columnNames, "columnNames");

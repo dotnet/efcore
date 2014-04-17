@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Relational.Utilities;
-using System.Data;
 
 namespace Microsoft.Data.Relational
 {
@@ -25,7 +25,7 @@ namespace Microsoft.Data.Relational
                 await connection.OpenAsync(cancellationToken);
                 closeConnection = true;
             }
-            
+
             try
             {
                 foreach (var item in statements)

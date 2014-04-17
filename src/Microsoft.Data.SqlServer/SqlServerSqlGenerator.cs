@@ -20,10 +20,10 @@ namespace Microsoft.Data.SqlServer
             commandStringBuilder.Append("SET NOCOUNT OFF");
         }
 
-        public override void AppendInsertOperation(StringBuilder commandStringBuilder, Table table, 
+        public override void AppendInsertOperation(StringBuilder commandStringBuilder, Table table,
             KeyValuePair<Column, string>[] columnsToParameters)
         {
-            var dbGeneratedNonIdentityKeys = 
+            var dbGeneratedNonIdentityKeys =
                 table.PrimaryKey.Columns.Where(c => c.ValueGenerationStrategy == StoreValueGenerationStrategy.Computed);
 
             if (dbGeneratedNonIdentityKeys.Any())
@@ -73,7 +73,7 @@ namespace Microsoft.Data.SqlServer
             }
         }
 
-        public override IEnumerable<KeyValuePair<Column, string>> CreateWhereConditionsForStoreGeneratedKeys(Column[] storeGeneratedKeyColumns)        
+        public override IEnumerable<KeyValuePair<Column, string>> CreateWhereConditionsForStoreGeneratedKeys(Column[] storeGeneratedKeyColumns)
         {
             Check.NotNull(storeGeneratedKeyColumns, "storeGeneratedKeyColumns");
 

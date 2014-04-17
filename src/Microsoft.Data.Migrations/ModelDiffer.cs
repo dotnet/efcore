@@ -166,7 +166,7 @@ namespace Microsoft.Data.Migrations
 
         private void HandleRenameConflicts()
         {
-            const string newNamePrefix = "__mig_tmp__";           
+            const string newNamePrefix = "__mig_tmp__";
             string newName;
             var newNameIndex = 0;
 
@@ -175,7 +175,7 @@ namespace Microsoft.Data.Migrations
                  from dropOp in _operations.Get<DropTableOperation>()
                  where new SchemaQualifiedName(renameOp.NewTableName, renameOp.TableName.Schema).Equals(dropOp.TableName)
                  select new { RenameOp = renameOp, DropOp = dropOp })
-                .ToArray())
+                    .ToArray())
             {
                 newName = newNamePrefix + newNameIndex++;
 
@@ -190,7 +190,7 @@ namespace Microsoft.Data.Migrations
                  from dropOp in _operations.Get<DropColumnOperation>()
                  where string.Equals(renameOp.NewColumnName, dropOp.ColumnName, StringComparison.Ordinal)
                  select new { RenameOp = renameOp, DropOp = dropOp })
-                .ToArray())
+                    .ToArray())
             {
                 newName = newNamePrefix + newNameIndex++;
 
@@ -208,7 +208,7 @@ namespace Microsoft.Data.Migrations
                  from et2 in _targetMapping.Model.EntityTypes
                  where et1.Name.Equals(et2.Name, StringComparison.Ordinal)
                  select Tuple.Create(et1, et2))
-                .ToArray();
+                    .ToArray();
 
             var fuzzyMatchPairs =
                 from et1 in _sourceMapping.Model.EntityTypes.Except(nameMatchPairs.Select(p => p.Item1))
@@ -274,7 +274,7 @@ namespace Microsoft.Data.Migrations
         private void FindCreatedTables(
             IEnumerable<Tuple<Table, Table>> tablePairs)
         {
-            var tables = 
+            var tables =
                 _targetMapping.Database.Tables
                     .Except(tablePairs.Select(p => p.Item2))
                     .ToArray();
@@ -286,10 +286,10 @@ namespace Microsoft.Data.Migrations
             _operations.AddRange(
                 tables
                     .SelectMany(t => t.ForeignKeys)
-                    .Select(fk => 
+                    .Select(fk =>
                         new AddForeignKeyOperation(
-                            fk.Name, 
-                            fk.Table.Name, 
+                            fk.Name,
+                            fk.Table.Name,
                             fk.ReferencedTable.Name,
                             fk.Columns.Select(c => c.Name).ToArray(),
                             fk.ReferencedColumns.Select(c => c.Name).ToArray(),
@@ -326,7 +326,7 @@ namespace Microsoft.Data.Migrations
                  from p2 in entitTypePair.Item2.Properties
                  where string.Equals(p1.Name, p2.Name, StringComparison.Ordinal)
                  select Tuple.Create(p1, p2))
-                .ToArray();
+                    .ToArray();
         }
 
         private IReadOnlyList<Tuple<Column, Column>> FindColumnPairs(
@@ -383,10 +383,10 @@ namespace Microsoft.Data.Migrations
             _operations.AddRange(
                 columnPairs
                     .Where(pair =>
-                        SameDefault(pair.Item1, pair.Item2) 
-                        && (pair.Item1.IsNullable != pair.Item2.IsNullable 
+                        SameDefault(pair.Item1, pair.Item2)
+                        && (pair.Item1.IsNullable != pair.Item2.IsNullable
                             || !SameType(pair.Item1, pair.Item2)))
-                    .Select(pair => 
+                    .Select(pair =>
                         new AlterColumnOperation(
                             pair.Item2.Table.Name,
                             pair.Item2,
@@ -416,7 +416,7 @@ namespace Microsoft.Data.Migrations
         {
             _operations.AddRange(
                 columnPairs
-                    .Where(pair => 
+                    .Where(pair =>
                         pair.Item1.HasDefault
                         && !SameDefault(pair.Item1, pair.Item2))
                     .Select(pair =>
@@ -432,8 +432,8 @@ namespace Microsoft.Data.Migrations
                 .Where(pair =>
                     pair.Item1.GetKey() != null
                     && pair.Item2.GetKey() != null
-                    && pair.Item1.GetKey().IsClustered() 
-                        == pair.Item2.GetKey().IsClustered()
+                    && pair.Item1.GetKey().IsClustered()
+                    == pair.Item2.GetKey().IsClustered()
                     && SameNames(
                         pair.Item1.GetKey().Properties,
                         pair.Item2.GetKey().Properties))
@@ -496,10 +496,10 @@ namespace Microsoft.Data.Migrations
                 (from fk1 in entityTypePair.Item1.ForeignKeys
                  from fk2 in entityTypePair.Item2.ForeignKeys
                  where SameNames(fk1.Properties, fk2.Properties)
-                    && SameNames(fk1.ReferencedProperties, fk2.ReferencedProperties)
-                    && fk1.CascadeDelete() == fk2.CascadeDelete()
+                       && SameNames(fk1.ReferencedProperties, fk2.ReferencedProperties)
+                       && fk1.CascadeDelete() == fk2.CascadeDelete()
                  select Tuple.Create(fk1, fk2))
-                .ToArray();
+                    .ToArray();
         }
 
         private IReadOnlyList<Tuple<ForeignKey, ForeignKey>> FindForeignKeyPairs(
@@ -520,9 +520,9 @@ namespace Microsoft.Data.Migrations
             _operations.AddRange(
                 tablePair.Item2.ForeignKeys
                     .Except(foreignKeyPairs.Select(pair => pair.Item2))
-                    .Select(fk => 
+                    .Select(fk =>
                         new AddForeignKeyOperation(
-                            fk.Name, 
+                            fk.Name,
                             fk.Table.Name,
                             fk.ReferencedTable.Name,
                             fk.Columns.Select(c => c.Name).ToArray(),
@@ -587,16 +587,16 @@ namespace Microsoft.Data.Migrations
         }
 
         private static bool SameNames(
-            IReadOnlyList<IProperty> sourceProperties, 
+            IReadOnlyList<IProperty> sourceProperties,
             IReadOnlyList<IProperty> targetProperties)
         {
             return
-                sourceProperties.Count == targetProperties.Count 
+                sourceProperties.Count == targetProperties.Count
                 && !sourceProperties
-                    .Where((t, i) => 
+                    .Where((t, i) =>
                         !string.Equals(
-                            t.Name, 
-                            targetProperties[i].Name, 
+                            t.Name,
+                            targetProperties[i].Name,
                             StringComparison.Ordinal))
                     .Any();
         }
@@ -604,20 +604,20 @@ namespace Microsoft.Data.Migrations
         private static bool SameDefault(Column sourceColumn, Column targetColumn)
         {
             return
-                sourceColumn.DefaultValue == targetColumn.DefaultValue 
+                sourceColumn.DefaultValue == targetColumn.DefaultValue
                 && string.Equals(
-                    sourceColumn.DefaultSql, 
-                    targetColumn.DefaultSql, 
+                    sourceColumn.DefaultSql,
+                    targetColumn.DefaultSql,
                     StringComparison.Ordinal);
         }
 
         private static bool SameType(Column sourceColumn, Column targetColumn)
         {
             return
-                sourceColumn.ClrType == targetColumn.ClrType 
+                sourceColumn.ClrType == targetColumn.ClrType
                 && string.Equals(
                     sourceColumn.DataType,
-                    targetColumn.DataType, 
+                    targetColumn.DataType,
                     StringComparison.Ordinal);
         }
 
@@ -626,7 +626,7 @@ namespace Microsoft.Data.Migrations
             private readonly Dictionary<Type, List<MigrationOperation>> _allOperations
                 = new Dictionary<Type, List<MigrationOperation>>();
 
-            public void AddRange<T>(IEnumerable<T> newOperations) 
+            public void AddRange<T>(IEnumerable<T> newOperations)
                 where T : MigrationOperation
             {
                 List<MigrationOperation> operations;
@@ -655,7 +655,7 @@ namespace Microsoft.Data.Migrations
                 operations[operations.IndexOf(oldOperation)] = newOperation;
             }
 
-            public IEnumerable<T> Get<T>() 
+            public IEnumerable<T> Get<T>()
                 where T : MigrationOperation
             {
                 List<MigrationOperation> operations;

@@ -524,16 +524,24 @@ namespace Microsoft.Data.SqlServer
             // TODO Only supports types required for MusicStore
             // TODO need to take column facets (max length etc.) in to account when they are available
             if (column.ClrType == typeof(int))
+            {
                 return "int";
+            }
 
             if (column.ClrType == typeof(string))
+            {
                 return "nvarchar(MAX)";
+            }
 
             if (column.ClrType == typeof(DateTime))
+            {
                 return "datetime2";
+            }
 
             if (column.ClrType == typeof(decimal))
+            {
                 return "decimal(18,2)";
+            }
 
             throw new NotSupportedException();
         }

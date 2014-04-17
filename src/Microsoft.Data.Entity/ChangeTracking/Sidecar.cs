@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             return CanStoreValue(property) && ReadValue(property) != null;
         }
-        
+
         public virtual object this[[param: NotNull] IProperty property]
         {
             get

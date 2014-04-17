@@ -5,8 +5,8 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Migrations.Model;
 using Microsoft.Data.Migrations.Utilities;
-using Microsoft.Data.Relational.Model;
 using Microsoft.Data.Relational;
+using Microsoft.Data.Relational.Model;
 
 namespace Microsoft.Data.Migrations.Builders
 {
@@ -40,7 +40,7 @@ namespace Microsoft.Data.Migrations.Builders
             AddOperation(new DropDatabaseOperation(databaseName));
         }
 
-        public virtual void CreateSequence(SchemaQualifiedName sequenceName, 
+        public virtual void CreateSequence(SchemaQualifiedName sequenceName,
             [NotNull] string dataType, int startWith, int incrementBy)
         {
             Check.NotEmpty(dataType, "dataType");
@@ -55,7 +55,7 @@ namespace Microsoft.Data.Migrations.Builders
             AddOperation(new DropSequenceOperation(sequenceName));
         }
 
-        public virtual TableBuilder<TColumns> CreateTable<TColumns>(SchemaQualifiedName tableName, 
+        public virtual TableBuilder<TColumns> CreateTable<TColumns>(SchemaQualifiedName tableName,
             [NotNull] Func<ColumnBuilder, TColumns> columnsSpecFunc)
         {
             Check.NotNull(columnsSpecFunc, "columnsSpecFunc");
@@ -88,7 +88,7 @@ namespace Microsoft.Data.Migrations.Builders
             AddOperation(new MoveTableOperation(tableName, newSchema));
         }
 
-        public virtual void AddColumn(SchemaQualifiedName tableName, [NotNull] string columnName, 
+        public virtual void AddColumn(SchemaQualifiedName tableName, [NotNull] string columnName,
             [NotNull] Func<ColumnBuilder, Column> columnSpecFunc)
         {
             Check.NotEmpty(columnName, "columnName");
@@ -108,7 +108,7 @@ namespace Microsoft.Data.Migrations.Builders
             AddOperation(new DropColumnOperation(tableName, columnName));
         }
 
-        public virtual void RenameColumn(SchemaQualifiedName tableName, [NotNull] string columnName, 
+        public virtual void RenameColumn(SchemaQualifiedName tableName, [NotNull] string columnName,
             [NotNull] string newColumnName)
         {
             Check.NotEmpty(columnName, "columnName");
@@ -134,7 +134,7 @@ namespace Microsoft.Data.Migrations.Builders
         {
             Check.NotEmpty(columnName, "columnName");
 
-            AddOperation(new AddDefaultConstraintOperation(tableName, columnName, 
+            AddOperation(new AddDefaultConstraintOperation(tableName, columnName,
                 defaultConstraint.GetValue(), defaultConstraint.GetSql()));
         }
 
@@ -145,7 +145,7 @@ namespace Microsoft.Data.Migrations.Builders
             AddOperation(new DropDefaultConstraintOperation(tableName, columnName));
         }
 
-        public virtual void AddPrimaryKey(SchemaQualifiedName tableName, [NotNull] string primaryKeyName,            
+        public virtual void AddPrimaryKey(SchemaQualifiedName tableName, [NotNull] string primaryKeyName,
             [NotNull] IReadOnlyList<string> columnNames, bool isClustered)
         {
             Check.NotEmpty(primaryKeyName, "primaryKeyName");
@@ -172,7 +172,7 @@ namespace Microsoft.Data.Migrations.Builders
             // TODO: Update AddForeignKeyOperation constructor 
             // to have the same parameters order as this method.
 
-            AddOperation(new AddForeignKeyOperation(foreignKeyName, tableName, 
+            AddOperation(new AddForeignKeyOperation(foreignKeyName, tableName,
                 referencedTableName, columnNames, referencedColumnNames, cascadeDelete));
         }
 
@@ -226,7 +226,7 @@ namespace Microsoft.Data.Migrations.Builders
                     }
 
                     columns.Add(column);
-                }                
+                }
             }
 
             return columns;

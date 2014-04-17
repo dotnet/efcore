@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
-using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Migrations.Utilities;
@@ -17,7 +16,7 @@ namespace Microsoft.Data.Migrations.Model
 
         public AlterColumnOperation(
             SchemaQualifiedName tableName,
-            [NotNull] Column newColumn, 
+            [NotNull] Column newColumn,
             bool isDestructiveChange)
         {
             Check.NotNull(newColumn, "newColumn");

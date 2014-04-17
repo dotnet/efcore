@@ -15,9 +15,10 @@ namespace Microsoft.Data.Relational
 
         // TODO: Consider adding base interface for database objects.
 
-        private readonly Dictionary<IMetadata, object> _modelToDatabaseMap 
+        private readonly Dictionary<IMetadata, object> _modelToDatabaseMap
             = new Dictionary<IMetadata, object>();
-        private readonly Dictionary<object, IMetadata> _databaseToModelMap 
+
+        private readonly Dictionary<object, IMetadata> _databaseToModelMap
             = new Dictionary<object, IMetadata>();
 
         public ModelDatabaseMapping([NotNull] IModel model, [NotNull] Database database)

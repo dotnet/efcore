@@ -25,7 +25,7 @@ namespace Microsoft.Data.Relational.Update
             _sqlGenerator = sqlGenerator;
         }
 
-        public virtual async Task ExecuteAsync([NotNull] DbConnection connection, 
+        public virtual async Task ExecuteAsync([NotNull] DbConnection connection,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(connection, "connection");
