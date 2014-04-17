@@ -30,7 +30,8 @@ namespace Microsoft.Data.Entity
         public EntitySet([NotNull] EntityContext context)
             : base(Check.NotNull(context, "context"))
         {
-            _entityQueryable = new EntityQueryable<TEntity>(context);
+            _entityQueryable
+                = new EntityQueryable<TEntity>(new EntityQueryExecutor(context));
         }
 
         public IAsyncEnumerator<TEntity> GetAsyncEnumerator()
@@ -105,25 +106,34 @@ namespace Microsoft.Data.Entity
             return Context.UpdateAsync(entity, cancellationToken);
         }
 
-        public virtual IEnumerable<TEntity> AddRange([NotNull] IEnumerable<TEntity> entities)
+        public virtual void AddRange([NotNull] IEnumerable<TEntity> entities)
         {
             Check.NotNull(entities, "entities");
 
-            return entities.Select(Add);
+            foreach (var entity in entities)
+            {
+                Add(entity);
+            }
         }
 
-        public virtual IEnumerable<TEntity> RemoveRange([NotNull] IEnumerable<TEntity> entities)
+        public virtual void RemoveRange([NotNull] IEnumerable<TEntity> entities)
         {
             Check.NotNull(entities, "entities");
 
-            return entities.Select(Remove);
+            foreach (var entity in entities)
+            {
+                Remove(entity);
+            }
         }
 
-        public virtual IEnumerable<TEntity> UpdateRange([NotNull] IEnumerable<TEntity> entities)
+        public virtual void UpdateRange([NotNull] IEnumerable<TEntity> entities)
         {
             Check.NotNull(entities, "entities");
 
-            return entities.Select(Update);
+            foreach (var entity in entities)
+            {
+                Update(entity);
+            }
         }
     }
 }

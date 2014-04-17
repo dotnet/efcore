@@ -1,11 +1,8 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -16,10 +13,11 @@ using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Relational.Update;
 using Microsoft.Data.Relational.Utilities;
+using Remotion.Linq;
 
 namespace Microsoft.Data.Relational
 {
-    public abstract class RelationalDataStore : DataStore
+    public abstract partial class RelationalDataStore : DataStore
     {
         private readonly string _connectionString;
         private readonly ILogger _logger;
@@ -33,11 +31,23 @@ namespace Microsoft.Data.Relational
             _logger = logger;
         }
 
+        public abstract DbConnection CreateConnection([NotNull] string connectionString);
+
+        public virtual DbConnection CreateConnection()
+        {
+            return CreateConnection(_connectionString);
+        }
+
         protected abstract SqlGenerator SqlGenerator { get; }
 
         public virtual string ConnectionString
         {
             get { return _connectionString; }
+        }
+
+        public ILogger Logger
+        {
+            get { return _logger; }
         }
 
         public override async Task<int> SaveChangesAsync(
@@ -66,198 +76,18 @@ namespace Microsoft.Data.Relational
         }
 
         public override IAsyncEnumerable<TResult> Query<TResult>(
-            Type type, IModel model, StateManager stateManager)
+            QueryModel queryModel, IModel model, StateManager stateManager)
         {
+            Check.NotNull(queryModel, "queryModel");
             Check.NotNull(model, "model");
             Check.NotNull(stateManager, "stateManager");
 
-            var entityType = model.GetEntityType(type);
-            var sql = new StringBuilder();
+            var queryModelVisitor = new QueryModelVisitor();
+            var queryExecutor = queryModelVisitor.CreateQueryExecutor<TResult>(queryModel);
+            var queryContext = new RelationalQueryContext(model, stateManager, this);
 
-            sql.Append("SELECT ")
-                .AppendJoin(entityType.Properties.Select(p => p.StorageName))
-                .AppendLine()
-                .Append("FROM ")
-                .AppendLine(entityType.StorageName);
-
-            return new Enumerable<TResult>(
-                this,
-                () => CreateConnection(_connectionString),
-                sql.ToString(),
-                _logger,
-                entityType,
-                stateManager);
-        }
-
-        public abstract DbConnection CreateConnection([NotNull] string connectionString);
-
-        public virtual DbConnection CreateConnection()
-        {
-            return CreateConnection(_connectionString);
-        }
-
-        protected virtual IValueReader CreateValueReader(DbDataReader dataReader)
-        {
-            return new RelationalTypedValueReader(dataReader);
-        }
-
-        private sealed class Enumerable<T> : IAsyncEnumerable<T>
-        {
-            private readonly RelationalDataStore _dataStore;
-            private readonly Func<DbConnection> _connectionFactory;
-            private readonly string _sql;
-            private readonly ILogger _logger;
-            private readonly IEntityType _entityType;
-            private readonly StateManager _stateManager;
-
-            public Enumerable(
-                RelationalDataStore dataStore,
-                Func<DbConnection> connectionFactory,
-                string sql,
-                ILogger logger,
-                IEntityType entityType,
-                StateManager stateManager)
-            {
-                _dataStore = dataStore;
-                _connectionFactory = connectionFactory;
-                _sql = sql;
-                _logger = logger;
-                _entityType = entityType;
-                _stateManager = stateManager;
-            }
-
-            public IAsyncEnumerator<T> GetAsyncEnumerator()
-            {
-                return new Enumerator<T>(_dataStore, _connectionFactory, _sql, _logger, _entityType, _stateManager);
-            }
-
-            IAsyncEnumerator IAsyncEnumerable.GetAsyncEnumerator()
-            {
-                return GetAsyncEnumerator();
-            }
-
-            public IEnumerator<T> GetEnumerator()
-            {
-                return GetAsyncEnumerator();
-            }
-
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return GetEnumerator();
-            }
-        }
-
-        private sealed class Enumerator<T> : IAsyncEnumerator<T>
-        {
-            private readonly RelationalDataStore _dataStore;
-            private readonly Func<DbConnection> _connectionFactory;
-            private readonly string _sql;
-            private readonly ILogger _logger;
-            private readonly IEntityType _entityType;
-            private readonly StateManager _stateManager;
-
-            private DbConnection _connection;
-            private DbCommand _command;
-            private DbDataReader _reader;
-
-            public Enumerator(
-                RelationalDataStore dataStore,
-                Func<DbConnection> connectionFactory,
-                string sql,
-                ILogger logger,
-                IEntityType entityType,
-                StateManager stateManager)
-            {
-                _dataStore = dataStore;
-                _connectionFactory = connectionFactory;
-                _sql = sql;
-                _logger = logger;
-                _entityType = entityType;
-                _stateManager = stateManager;
-            }
-
-            public Task<bool> MoveNextAsync(CancellationToken cancellationToken = default(CancellationToken))
-            {
-                return _reader == null
-                    ? InitializeAndReadAsync(cancellationToken)
-                    : _reader.ReadAsync(cancellationToken);
-            }
-
-            private async Task<bool> InitializeAndReadAsync(CancellationToken cancellationToken = default(CancellationToken))
-            {
-                _connection = _connectionFactory();
-
-                await _connection.OpenAsync(cancellationToken);
-
-                _command = _connection.CreateCommand();
-                _command.CommandText = _sql;
-
-                _logger.WriteSql(_sql);
-
-                _reader = await _command.ExecuteReaderAsync(cancellationToken);
-
-                return await _reader.ReadAsync(cancellationToken);
-            }
-
-            public bool MoveNext()
-            {
-                if (_reader == null)
-                {
-                    _connection = _connectionFactory();
-                    _connection.Open();
-
-                    _command = _connection.CreateCommand();
-                    _command.CommandText = _sql;
-
-                    _logger.WriteSql(_sql);
-
-                    _reader = _command.ExecuteReader();
-                }
-
-                return _reader.Read();
-            }
-
-            public T Current
-            {
-                get
-                {
-                    if (_reader == null)
-                    {
-                        return default(T);
-                    }
-
-                    return (T)_stateManager.GetOrMaterializeEntry(
-                        _entityType, _dataStore.CreateValueReader(_reader)).Entity;
-                }
-            }
-
-            object IEnumerator.Current
-            {
-                get { return Current; }
-            }
-
-            public void Dispose()
-            {
-                if (_reader != null)
-                {
-                    _reader.Dispose();
-                }
-
-                if (_command != null)
-                {
-                    _command.Dispose();
-                }
-
-                if (_connection != null)
-                {
-                    _connection.Dispose();
-                }
-            }
-
-            public void Reset()
-            {
-                throw new NotImplementedException();
-            }
+            // TODO: Need async in query compiler
+            return new CompletedAsyncEnumerable<TResult>(queryExecutor(queryContext));
         }
     }
 }

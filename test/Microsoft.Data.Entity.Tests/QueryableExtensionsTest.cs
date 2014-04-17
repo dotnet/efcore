@@ -419,12 +419,12 @@ namespace Microsoft.Data.Entity.Tests
 //                    e => e, e => e,
 //                    new Mock<IEqualityComparer<int>>().Object, new CancellationToken()));
 
-            SourceNonAsyncEnumerableTest<int>(() => Source().ToListAsync());
+//            SourceNonAsyncEnumerableTest<int>(() => Source().ToListAsync());
 
 //            SourceNonAsyncEnumerableTest(() => ((IQueryable)Source()).ForEachAsync(e => e.GetType()));
 //            SourceNonAsyncEnumerableTest(() => ((IQueryable)Source()).ForEachAsync(e => e.GetType(), new CancellationToken()));
 
-            SourceNonAsyncEnumerableTest(() => ((IQueryable)Source()).ToListAsync());
+//            SourceNonAsyncEnumerableTest(() => ((IQueryable)Source()).ToListAsync());
         }
 
         private static IQueryable<T> Source<T>()

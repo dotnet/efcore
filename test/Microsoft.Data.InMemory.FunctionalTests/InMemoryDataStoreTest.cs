@@ -1,9 +1,12 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Tests;
 using Xunit;
 
 namespace Microsoft.Data.InMemory.FunctionalTests
@@ -13,12 +16,12 @@ namespace Microsoft.Data.InMemory.FunctionalTests
         [Fact]
         public async Task Can_add_update_delete_end_to_end()
         {
-            var inMemoryDataStore = new InMemoryDataStore();
             var model = CreateModel();
 
             var configuration = new EntityConfigurationBuilder()
                 .UseModel(model)
-                .UseDataStore(inMemoryDataStore)
+                .UseDataStore(new InMemoryDataStore())
+                .UseLoggerFactory(TestFileLogger.Factory)
                 .BuildConfiguration();
 
             var customer = new Customer { Id = 42, Name = "Theon" };

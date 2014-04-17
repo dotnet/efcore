@@ -126,50 +126,7 @@ namespace Microsoft.Data.Entity.Tests.Query
         #region ForEach
 
         [Fact]
-        public void Non_generic_ForEachAsync_throws_OperationCanceledException_before_enumerating_if_task_is_cancelled()
-        {
-            var mockAsyncEnumerable = new Mock<IAsyncEnumerable>();
-            mockAsyncEnumerable
-                .Setup(e => e.GetAsyncEnumerator())
-                .Throws(new InvalidOperationException("Not expected to be invoked - task has been cancelled."));
-
-            Assert.Throws<OperationCanceledException>(
-                () => mockAsyncEnumerable.Object
-                    .ForEachAsync(o => { }, new CancellationToken(canceled: true))
-                    .GetAwaiter().GetResult());
-        }
-
-        [Fact]
-        public void Non_generic_ForEachAsync_checks_cancellation_token_when_enumerating_results()
-        {
-            var tokenSource = new CancellationTokenSource();
-            var taskCancelled = false;
-
-            var mockAsyncEnumerator = new Mock<IAsyncEnumerator>();
-            mockAsyncEnumerator
-                .Setup(e => e.MoveNextAsync(It.IsAny<CancellationToken>()))
-                .Returns(
-                    (CancellationToken token) =>
-                        {
-                            Assert.False(taskCancelled);
-                            tokenSource.Cancel();
-                            taskCancelled = true;
-                            return Task.FromResult(true);
-                        });
-
-            var mockAsyncEnumerable = new Mock<IAsyncEnumerable>();
-            mockAsyncEnumerable
-                .Setup(e => e.GetAsyncEnumerator())
-                .Returns(mockAsyncEnumerator.Object);
-
-            Assert.Throws<OperationCanceledException>(
-                () => mockAsyncEnumerable.Object
-                    .ForEachAsync(o => { }, tokenSource.Token)
-                    .GetAwaiter().GetResult());
-        }
-
-        [Fact]
-        public void Generic_ForEachAsync_throws_OperationCanceledException_before_enumerating_if_task_is_cancelled()
+        public void ForEachAsync_throws_OperationCanceledException_before_enumerating_if_task_is_cancelled()
         {
             var mockAsyncEnumerator = new Mock<IAsyncEnumerator<int>>();
             mockAsyncEnumerator
@@ -292,24 +249,30 @@ namespace Microsoft.Data.Entity.Tests.Query
 
         #endregion
 
-        #region ToList
+        #region ToArray
 
         [Fact]
-        public void Non_generic_ToListAsync_throws_OperationCanceledException_before_enumerating_if_task_is_cancelled()
+        public void ToArrayAsync_throws_TaskCanceledException_before_enumerating_if_task_is_cancelled()
         {
-            var mockAsyncEnumerable = new Mock<IAsyncEnumerable>();
-            mockAsyncEnumerable
-                .Setup(e => e.GetAsyncEnumerator())
+            var mockAsyncEnumerator = new Mock<IAsyncEnumerator<int>>();
+            mockAsyncEnumerator
+                .Setup(e => e.MoveNextAsync(It.IsAny<CancellationToken>()))
                 .Throws(new InvalidOperationException("Not expected to be invoked - task has been cancelled."));
 
-            Assert.Throws<OperationCanceledException>(
+            var mockAsyncEnumerable = new Mock<IAsyncEnumerable<int>>();
+
+            Assert.Throws<TaskCanceledException>(
                 () => mockAsyncEnumerable.Object
-                    .ToListAsync<int>(new CancellationToken(canceled: true))
+                    .ToArrayAsync(new CancellationToken(canceled: true))
                     .GetAwaiter().GetResult());
         }
 
+        #endregion
+        
+        #region ToList
+        
         [Fact]
-        public void Generic_ToListAsync_throws_TaskCanceledException_before_enumerating_if_task_is_cancelled()
+        public void ToListAsync_throws_TaskCanceledException_before_enumerating_if_task_is_cancelled()
         {
             var mockAsyncEnumerator = new Mock<IAsyncEnumerator<int>>();
             mockAsyncEnumerator

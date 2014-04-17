@@ -303,7 +303,7 @@ namespace Microsoft.Data.Entity.Query
 
         #region ForEach
 
-        public static Task ForEachAsync<T>(
+        public static async Task ForEachAsync<T>(
             [NotNull] this IAsyncEnumerable<T> source,
             [NotNull] Action<T> action,
             CancellationToken cancellationToken = default(CancellationToken))
@@ -311,51 +311,25 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(source, "source");
             Check.NotNull(action, "action");
 
-            return ForEachAsync(source.GetAsyncEnumerator(), action, cancellationToken);
-        }
+            var enumerator = source.GetAsyncEnumerator();
 
-        private static async Task ForEachAsync<T>(
-            IAsyncEnumerator<T> enumerator, Action<T> action, CancellationToken cancellationToken)
-        {
             using (enumerator)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                if (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false))
+                if (await enumerator.MoveNextAsync(cancellationToken)
+                    .ConfigureAwait(continueOnCapturedContext: false))
                 {
                     Task<bool> moveNextTask;
+
                     do
                     {
                         cancellationToken.ThrowIfCancellationRequested();
+
                         var current = enumerator.Current;
+
                         moveNextTask = enumerator.MoveNextAsync(cancellationToken);
-                        action(current);
-                    }
-                    while (await moveNextTask.ConfigureAwait(continueOnCapturedContext: false));
-                }
-            }
-        }
 
-        public static async Task ForEachAsync(
-            [NotNull] this IAsyncEnumerable source,
-            [NotNull] Action<object> action,
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Check.NotNull(source, "source");
-            Check.NotNull(action, "action");
-
-            cancellationToken.ThrowIfCancellationRequested();
-
-            using (var enumerator = source.GetAsyncEnumerator())
-            {
-                if (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false))
-                {
-                    Task<bool> moveNextTask;
-                    do
-                    {
-                        cancellationToken.ThrowIfCancellationRequested();
-                        var current = enumerator.Current;
-                        moveNextTask = enumerator.MoveNextAsync(cancellationToken);
                         action(current);
                     }
                     while (await moveNextTask.ConfigureAwait(continueOnCapturedContext: false));
@@ -365,24 +339,29 @@ namespace Microsoft.Data.Entity.Query
 
         #endregion
 
-        #region ToList
+        #region ToArray
 
-        public static async Task<List<T>> ToListAsync<T>(
-            [NotNull] this IAsyncEnumerable source, CancellationToken cancellationToken = default(CancellationToken))
+        public static async Task<T[]> ToArrayAsync<T>(
+            [NotNull] this IAsyncEnumerable<T> source,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
 
-            var list = new List<T>();
-            await source.ForEachAsync(e => list.Add((T)e), cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
-            return list;
+            return (await source.ToListAsync(cancellationToken)
+                .ConfigureAwait(continueOnCapturedContext: false))
+                .ToArray();
         }
+
+        #endregion
+
+        #region ToList
 
         public static Task<List<T>> ToListAsync<T>(
             [NotNull] this IAsyncEnumerable<T> source, CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
 
-            var tcs = new TaskCompletionSource<List<T>>();
+            var taskCompletionSource = new TaskCompletionSource<List<T>>();
             var list = new List<T>();
 
             source.ForEachAsync(list.Add, cancellationToken).ContinueWith(
@@ -392,21 +371,21 @@ namespace Microsoft.Data.Entity.Query
                         {
                             if (t.Exception != null)
                             {
-                                tcs.TrySetException(t.Exception.InnerExceptions);
+                                taskCompletionSource.TrySetException(t.Exception.InnerExceptions);
                             }
                         }
                         else if (t.IsCanceled)
                         {
-                            tcs.TrySetCanceled();
+                            taskCompletionSource.TrySetCanceled();
                         }
                         else
                         {
-                            tcs.TrySetResult(list);
+                            taskCompletionSource.TrySetResult(list);
                         }
                     },
                 TaskContinuationOptions.ExecuteSynchronously);
 
-            return tcs.Task;
+            return taskCompletionSource.Task;
         }
 
         #endregion

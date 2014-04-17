@@ -8,7 +8,8 @@
     "Microsoft.AspNet.ConfigurationModel": "0.1-alpha-*",
     "Microsoft.AspNet.DependencyInjection": "0.1-alpha-*",
     "System.Data.Common": "0.1-alpha-*",
-    "Microsoft.AspNet.Logging" : "0.1-alpha-*"
+    "Microsoft.AspNet.Logging" : "0.1-alpha-*",
+    "Remotion.Linq": "1.15.11"
   },
   "code": "**\\*.cs;..\\Shared\\*.cs",
   "configurations": {
