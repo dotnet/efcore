@@ -2,6 +2,7 @@
 
 using System;
 using System.Runtime.InteropServices;
+using Microsoft.Data.SQLite.Utilities;
 
 namespace Microsoft.Data.SQLite.Interop
 {
@@ -9,6 +10,13 @@ namespace Microsoft.Data.SQLite.Interop
     // TODO: Consider using function pointers instead of SQLITE_TRANSIENT #Perf
     internal static class NativeMethods
     {
+#if NET451 || K10
+        static NativeMethods()
+        {
+            NativeLibraryLoader.Load("sqlite3");
+        }
+#endif
+
         [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         private static extern int sqlite3_bind_blob(StatementHandle pStmt, int i, IntPtr zData, int nData, IntPtr xDel);
 
