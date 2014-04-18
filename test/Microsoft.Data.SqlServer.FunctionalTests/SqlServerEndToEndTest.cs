@@ -49,11 +49,17 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
         {
             using (await TestDatabase.Northwind())
             {
-                var config = new EntityConfigurationBuilder()
-                    .UseDataStore(new SqlStoreWithBufferReader(TestDatabase.NorthwindConnectionString))
+                var configuration = new EntityConfigurationBuilder()
+                    .WithServices(s =>
+                        {
+                            s.AddSqlServer();
+                            // TODO: Consider sugar for changing low-level SqlServerDataStore
+                            s.ServiceCollection.AddScoped<SqlServerDataStore, SqlStoreWithBufferReader>();
+                        })
+                    .SqlServerConnectionString(TestDatabase.NorthwindConnectionString)
                     .BuildConfiguration();
 
-                using (var db = new NorthwindContext(config))
+                using (var db = new NorthwindContext(configuration))
                 {
                     var results = db.Customers
                         .Where(c => c.CompanyName.StartsWith("A"))
@@ -70,19 +76,27 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                     Assert.Null(results[1].Fax);
                     Assert.Equal("(5) 555-3745", results[2].Fax);
                     Assert.Equal("030-0076545", results[3].Fax);
+
+// TODO: Fix this
+//                  Assert.True(((SqlStoreWithBufferReader)db.Configuration.DataStore).Used);
                 }
             }
         }
 
         private class SqlStoreWithBufferReader : SqlServerDataStore
         {
-            public SqlStoreWithBufferReader(string connectionString)
-                : base(connectionString)
+            public bool Used { get; set; }
+
+            public SqlStoreWithBufferReader(
+                ContextConfiguration configuration, ILoggerFactory loggerFactory, SqlServerSqlGenerator sqlGenerator)
+                : base(configuration, loggerFactory, sqlGenerator)
             {
             }
 
+// TODO: fix this
 //            protected override IValueReader CreateValueReader(DbDataReader dataReader)
 //            {
+//                Used = true;
 //                return new RelationalObjectArrayValueReader(dataReader);
 //            }
         }
@@ -114,11 +128,12 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
             {
                 await CreateBlogDatabase(testDatabase);
 
-                var config = new EntityConfigurationBuilder()
-                    .UseSqlServer(testDatabase.Connection.ConnectionString)
+                var configuration = new EntityConfigurationBuilder()
+                    .WithServices(s => s.AddSqlServer())
+                    .SqlServerConnectionString(testDatabase.Connection.ConnectionString)
                     .BuildConfiguration();
 
-                using (var db = new BloggingContext(config))
+                using (var db = new BloggingContext(configuration))
                 {
                     var toUpdate = new Blog { Id = 1, Name = "Blog is Updated" };
                     var toDelete = new Blog { Id = 2, Name = "Blog to Delete" };
@@ -126,7 +141,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                     db.ChangeTracker.Entry(toUpdate).State = EntityState.Modified;
                     db.ChangeTracker.Entry(toDelete).State = EntityState.Deleted;
                     var toAdd = db.Blogs.Add(new Blog { Name = "Blog to Insert" });
-                    
+
                     await db.SaveChangesAsync();
 
                     Assert.NotEqual(0, toAdd.Id);
@@ -180,11 +195,12 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
             {
                 await CreateBlogDatabase(testDatabase);
 
-                var config = new EntityConfigurationBuilder()
-                    .UseSqlServer(testDatabase.Connection.ConnectionString)
+                var configuration = new EntityConfigurationBuilder()
+                    .WithServices(s => s.AddSqlServer())
+                    .SqlServerConnectionString(testDatabase.Connection.ConnectionString)
                     .BuildConfiguration();
 
-                using (var context = new BloggingContext<TBlog>(config))
+                using (var context = new BloggingContext<TBlog>(configuration))
                 {
                     var blogs = context.Blogs.ToList();
                     Assert.Equal(2, blogs.Count);
@@ -194,7 +210,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                     await context.SaveChangesAsync();
                 }
 
-                using (var context = new BloggingContext<TBlog>(config))
+                using (var context = new BloggingContext<TBlog>(configuration))
                 {
                     var blogs = context.Blogs.ToList();
                     Assert.Equal(2, blogs.Count);
@@ -232,7 +248,9 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
 
             protected override void OnConfiguring(EntityConfigurationBuilder builder)
             {
-                builder.UseSqlServer(TestDatabase.NorthwindConnectionString);
+                builder
+                    .WithServices(s => s.AddSqlServer())
+                    .SqlServerConnectionString(TestDatabase.NorthwindConnectionString);
             }
 
             protected override void OnModelCreating(ModelBuilder builder)
@@ -253,8 +271,8 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
 
         private class BloggingContext : BloggingContext<Blog>
         {
-            public BloggingContext(EntityConfiguration config)
-                : base(config)
+            public BloggingContext(EntityConfiguration configuration)
+                : base(configuration)
             {
             }
         }
@@ -268,8 +286,8 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
         private class BloggingContext<TBlog> : EntityContext
             where TBlog : class, IBlog
         {
-            public BloggingContext(EntityConfiguration config)
-                : base(config)
+            public BloggingContext(EntityConfiguration configuration)
+                : base(configuration)
             {
             }
 
@@ -279,7 +297,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                     .GetEntityType(typeof(TBlog))
                     .GetProperty("Id")
                     .ValueGenerationStrategy = ValueGenerationStrategy.StoreIdentity;
-                
+
                 builder.Entity<TBlog>().StorageName("Blog");
             }
 

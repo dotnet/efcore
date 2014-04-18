@@ -1,20 +1,20 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.Data.SqlServer;
+using Microsoft.Data.Entity;
 using Microsoft.Data.SqlServer.Utilities;
 
-namespace Microsoft.Data.Entity
+namespace Microsoft.Data.SqlServer
 {
-    public static class ConfigurationExtensions
+    public static class SqlServerEntityConfigurationBuilderExtensions
     {
-        public static EntityConfigurationBuilder UseSqlServer(
+        public static EntityConfigurationBuilder SqlServerConnectionString(
             [NotNull] this EntityConfigurationBuilder builder, [NotNull] string connectionString)
         {
             Check.NotNull(builder, "builder");
             Check.NotEmpty(connectionString, "connectionString");
 
-            builder.UseDataStore(new SqlServerDataStore(connectionString));
+            builder.Annotations[typeof(SqlServerDataStore)][SqlServerDataStore.ConnectionStringKey] = connectionString;
 
             return builder;
         }

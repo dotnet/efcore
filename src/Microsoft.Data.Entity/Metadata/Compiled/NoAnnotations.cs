@@ -9,7 +9,7 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 {
     public class NoAnnotations
     {
-        public IReadOnlyList<IAnnotation> Annotations
+        public IEnumerable<IAnnotation> Annotations
         {
             get { return ImmutableList<Annotation>.Empty; }
         }

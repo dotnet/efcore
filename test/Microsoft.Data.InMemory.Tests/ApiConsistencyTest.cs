@@ -9,7 +9,7 @@ namespace Microsoft.Data.InMemory.Tests
     {
         protected override Assembly TargetAssembly
         {
-            get { return typeof(InMemoryServices).Assembly; }
+            get { return typeof(InMemoryDataStore).Assembly; }
         }
     }
 }

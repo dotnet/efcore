@@ -25,12 +25,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(
                 "annotation",
                 // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => metadataBase.AddAnnotation(null)).ParamName);
+                Assert.Throws<ArgumentNullException>(() => metadataBase.Annotations.Add(null)).ParamName);
 
             Assert.Equal(
                 "annotation",
                 // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => metadataBase.RemoveAnnotation(null)).ParamName);
+                Assert.Throws<ArgumentNullException>(() => metadataBase.Annotations.Add(null)).ParamName);
 
             Assert.Equal(
                 Strings.FormatArgumentIsEmpty("annotationName"),
@@ -50,7 +50,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var metadataBase = new ConcreteMetadata();
 
-            metadataBase.AddAnnotation(new Annotation("Foo", "Bar"));
+            metadataBase.Annotations.Add(new Annotation("Foo", "Bar"));
 
             Assert.Equal("Bar", metadataBase["Foo"]);
         }
@@ -60,10 +60,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var metadataBase = new ConcreteMetadata();
 
-            metadataBase.AddAnnotation(new Annotation("Foo", "Bar"));
+            metadataBase.Annotations.Add(new Annotation("Foo", "Bar"));
 
             var newAnnotation = new Annotation("Foo", "Bar");
-            metadataBase.AddAnnotation(newAnnotation);
+            metadataBase.Annotations.Add(newAnnotation);
 
             Assert.Same(newAnnotation, metadataBase.Annotations.Single());
         }
@@ -74,15 +74,15 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var metadataBase = new ConcreteMetadata();
             var annotation = new Annotation("Foo", "Bar");
 
-            metadataBase.AddAnnotation(annotation);
+            metadataBase.Annotations.Add(annotation);
 
             Assert.Equal("Bar", metadataBase["Foo"]);
 
-            metadataBase.RemoveAnnotation(annotation);
+            metadataBase.Annotations.Remove(annotation);
 
             Assert.Null(metadataBase["Foo"]);
 
-            metadataBase.RemoveAnnotation(annotation); // no throw
+            metadataBase.Annotations.Remove(annotation); // no throw
         }
 
         [Fact]
@@ -91,7 +91,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var metadataBase = new ConcreteMetadata();
             var annotation = new Annotation("Foo", "Bar");
 
-            metadataBase.AddAnnotation(annotation);
+            metadataBase.Annotations.Add(annotation);
 
             Assert.Equal("Bar", metadataBase["Foo"]);
 
@@ -118,8 +118,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var annotation1 = new Annotation("Z", "Foo");
             var annotation2 = new Annotation("A", "Bar");
 
-            metadataBase.AddAnnotation(annotation1);
-            metadataBase.AddAnnotation(annotation2);
+            metadataBase.Annotations.Add(annotation1);
+            metadataBase.Annotations.Add(annotation2);
 
             Assert.True(new[] { annotation2, annotation1 }.SequenceEqual(metadataBase.Annotations));
         }

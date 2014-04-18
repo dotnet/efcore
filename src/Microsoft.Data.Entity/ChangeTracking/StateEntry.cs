@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             get
             {
                 return TryGetSidecar(Sidecar.WellKnownNames.OriginalValues)
-                       ?? AddSidecar(_configuration.OriginalValuesFactory.Create(this));
+                       ?? AddSidecar(_configuration.Services.OriginalValuesFactory.Create(this));
             }
         }
 
@@ -139,7 +139,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         private Task<object> GenerateKeyValue(CancellationToken cancellationToken = default(CancellationToken))
         {
             var keyProperty = _entityType.GetKey().Properties.Single(); // TODO: Composite keys not implemented yet.
-            var identityGenerator = _configuration.ActiveIdentityGenerators.GetOrAdd(keyProperty);
+            var identityGenerator = _configuration.Services.ActiveIdentityGenerators.GetOrAdd(keyProperty);
 
             return identityGenerator != null
                 ? identityGenerator.NextAsync(cancellationToken)
@@ -161,7 +161,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 return;
             }
 
-            _configuration.StateEntryNotifier.StateChanging(this, entityState);
+            _configuration.Services.StateEntryNotifier.StateChanging(this, entityState);
 
             _stateData.EntityState = entityState;
 
@@ -173,15 +173,15 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             if (oldState == EntityState.Unknown)
             {
-                _configuration.StateManager.StartTracking(this);
+                _configuration.Services.StateManager.StartTracking(this);
             }
             else if (entityState == EntityState.Unknown)
             {
                 // TODO: Does changing to Unknown really mean stop tracking?
-                _configuration.StateManager.StopTracking(this);
+                _configuration.Services.StateManager.StopTracking(this);
             }
 
-            _configuration.StateEntryNotifier.StateChanged(this, oldState);
+            _configuration.Services.StateEntryNotifier.StateChanged(this, oldState);
         }
 
         public virtual EntityState EntityState
@@ -219,7 +219,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             var currentState = _stateData.EntityState;
             if (isModified && currentState == EntityState.Unchanged)
             {
-                var notifier = _configuration.StateEntryNotifier;
+                var notifier = _configuration.Services.StateEntryNotifier;
                 notifier.StateChanging(this, EntityState.Modified);
                 _stateData.EntityState = EntityState.Modified;
                 notifier.StateChanged(this, currentState);
@@ -227,7 +227,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             else if (!isModified
                      && !_stateData.AnyPropertiesModified())
             {
-                var notifier = _configuration.StateEntryNotifier;
+                var notifier = _configuration.Services.StateEntryNotifier;
                 notifier.StateChanging(this, EntityState.Unchanged);
                 _stateData.EntityState = EntityState.Unchanged;
                 notifier.StateChanged(this, currentState);
@@ -309,7 +309,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         private EntityKey CreateKey(IEntityType entityType, IReadOnlyList<IProperty> properties, StateEntry entry)
         {
-            return _configuration.EntityKeyFactorySource
+            return _configuration.Services.EntityKeyFactorySource
                 .GetKeyFactory(properties)
                 .Create(entityType, properties, entry);
         }
@@ -412,7 +412,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             if (storeGenerated.Any())
             {
-                AddSidecar(_configuration.StoreGeneratedValuesFactory.Create(this, storeGenerated));
+                AddSidecar(_configuration.Services.StoreGeneratedValuesFactory.Create(this, storeGenerated));
             }
 
             return this;

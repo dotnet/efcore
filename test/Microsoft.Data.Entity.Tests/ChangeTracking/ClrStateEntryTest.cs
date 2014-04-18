@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         public void Can_get_entity()
         {
             var model = BuildModel();
-            var configuration = CreateConfiguration(model);
+            var configuration = TestHelpers.CreateContextConfiguration(model);
 
             var entity = new SomeEntity();
             var entry = CreateStateEntry(configuration, model.GetEntityType("SomeEntity"), entity);
@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entityType = model.GetEntityType("SomeEntity");
             var keyProperty = entityType.GetProperty("Id");
             var nonKeyProperty = entityType.GetProperty("Name");
-            var configuration = CreateConfiguration(model);
+            var configuration = TestHelpers.CreateContextConfiguration(model);
 
             var entity = new SomeEntity { Id = 77, Name = "Magic Tree House" };
             var entry = CreateStateEntry(configuration, entityType, entity);
@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var model = BuildModel();
             var entityType = model.GetEntityType("SomeEntity");
-            var configuration = CreateConfiguration(model);
+            var configuration = TestHelpers.CreateContextConfiguration(model);
 
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
 
@@ -99,7 +99,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = BuildModel();
             var entityType = model.GetEntityType("FullNotificationEntity");
             var idProperty = entityType.GetProperty("Id");
-            var configuration = CreateConfiguration(model);
+            var configuration = TestHelpers.CreateContextConfiguration(model);
 
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
 

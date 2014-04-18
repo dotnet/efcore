@@ -81,22 +81,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
         private static StateManager CreateStateManager()
         {
-            var configMock = new Mock<ContextConfiguration> { CallBase = true };
-            configMock.Object.Initialize(new EntityConfigurationBuilder().BuildConfiguration().ServiceProvider);
-            configMock.Setup(m => m.Model).Returns(BuildModel());
-
-            var stateManager = new StateManager(
-                configMock.Object,
-                new StateEntryFactory(configMock.Object, new EntityMaterializerSource(new MemberMapper(new FieldMatcher()))),
-                new EntityKeyFactorySource(),
-                new StateEntrySubscriber());
-
-            configMock.Setup(m => m.StateManager).Returns(stateManager);
-
-            return stateManager;
+            return TestHelpers.CreateContextConfiguration(BuildModel()).Services.StateManager;
         }
-
-        #region Fixture
 
         private class Category
         {
@@ -141,7 +127,5 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             return model;
         }
-
-        #endregion
     }
 }

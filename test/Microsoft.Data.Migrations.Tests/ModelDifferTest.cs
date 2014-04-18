@@ -91,7 +91,7 @@ namespace Microsoft.Data.Migrations.Tests
 
             targetModel.AddEntityType(dependentEntityType);
 
-            dependentProperty.AddAnnotation(new Annotation(
+            dependentProperty.Annotations.Add(new Annotation(
                 MetadataExtensions.Annotations.StorageTypeName, "int"));
 
             dependentEntityType.SetKey(dependentProperty);
@@ -99,7 +99,7 @@ namespace Microsoft.Data.Migrations.Tests
 
             var foreignKey = dependentEntityType.AddForeignKey(principalEntityType.GetKey(), dependentProperty);
             foreignKey.StorageName = "MyNewFK";
-            foreignKey.AddAnnotation(new Annotation(
+            foreignKey.Annotations.Add(new Annotation(
                 MetadataExtensions.Annotations.CascadeDelete, "True"));
 
             var operations = new ModelDiffer().Diff(sourceModel, targetModel);
@@ -142,7 +142,7 @@ namespace Microsoft.Data.Migrations.Tests
 
             sourceModel.AddEntityType(dependentEntityType);
 
-            dependentProperty.AddAnnotation(new Annotation(
+            dependentProperty.Annotations.Add(new Annotation(
                 MetadataExtensions.Annotations.StorageTypeName, "int"));
 
             dependentEntityType.SetKey(dependentProperty);
@@ -150,7 +150,7 @@ namespace Microsoft.Data.Migrations.Tests
 
             var foreignKey = dependentEntityType.AddForeignKey(principalEntityType.GetKey(), dependentProperty);
             foreignKey.StorageName = "MyOldFK";
-            foreignKey.AddAnnotation(new Annotation(
+            foreignKey.Annotations.Add(new Annotation(
                 MetadataExtensions.Annotations.CascadeDelete, "True"));
 
             var operations = new ModelDiffer().Diff(sourceModel, targetModel);
@@ -277,7 +277,7 @@ namespace Microsoft.Data.Migrations.Tests
             var targetModel = CreateModel();
 
             var property = targetModel.GetEntityType("Dependent").GetProperty("MyProperty");
-            property.AddAnnotation(new Annotation(
+            property.Annotations.Add(new Annotation(
                 MetadataExtensions.Annotations.StorageTypeName, "nvarchar(10)"));
 
             var operations = new ModelDiffer().Diff(sourceModel, targetModel);
@@ -299,7 +299,7 @@ namespace Microsoft.Data.Migrations.Tests
             var targetModel = CreateModel();
 
             var property = targetModel.GetEntityType("Dependent").GetProperty("MyProperty");
-            property.AddAnnotation(new Annotation(
+            property.Annotations.Add(new Annotation(
                 MetadataExtensions.Annotations.ColumnDefaultValue, "MyDefaultValue"));
 
             var operations = new ModelDiffer().Diff(sourceModel, targetModel);
@@ -322,7 +322,7 @@ namespace Microsoft.Data.Migrations.Tests
             var targetModel = CreateModel();
 
             var property = targetModel.GetEntityType("Dependent").GetProperty("MyProperty");
-            property.AddAnnotation(new Annotation(
+            property.Annotations.Add(new Annotation(
                 MetadataExtensions.Annotations.ColumnDefaultSql, "MyDefaultSql"));
 
             var operations = new ModelDiffer().Diff(sourceModel, targetModel);
@@ -345,7 +345,7 @@ namespace Microsoft.Data.Migrations.Tests
             var targetModel = CreateModel();
 
             var property = sourceModel.GetEntityType("Dependent").GetProperty("MyProperty");
-            property.AddAnnotation(new Annotation(
+            property.Annotations.Add(new Annotation(
                 MetadataExtensions.Annotations.ColumnDefaultValue, "MyDefaultValue"));
 
             var operations = new ModelDiffer().Diff(sourceModel, targetModel);
@@ -366,7 +366,7 @@ namespace Microsoft.Data.Migrations.Tests
             var targetModel = CreateModel();
 
             var property = sourceModel.GetEntityType("Dependent").GetProperty("MyProperty");
-            property.AddAnnotation(new Annotation(
+            property.Annotations.Add(new Annotation(
                 MetadataExtensions.Annotations.ColumnDefaultSql, "MyDefaultSql"));
 
             var operations = new ModelDiffer().Diff(sourceModel, targetModel);
@@ -495,9 +495,9 @@ namespace Microsoft.Data.Migrations.Tests
             model.AddEntityType(principalEntityType);
             model.AddEntityType(dependentEntityType);
 
-            principalProperty.AddAnnotation(new Annotation(
+            principalProperty.Annotations.Add(new Annotation(
                 MetadataExtensions.Annotations.StorageTypeName, "int"));
-            dependentProperty.AddAnnotation(new Annotation(
+            dependentProperty.Annotations.Add(new Annotation(
                 MetadataExtensions.Annotations.StorageTypeName, "int"));
 
             dependentEntityType.SetKey(dependentProperty);
@@ -507,7 +507,7 @@ namespace Microsoft.Data.Migrations.Tests
 
             var foreignKey = dependentEntityType.AddForeignKey(principalEntityType.GetKey(), dependentProperty);
             foreignKey.StorageName = "MyFK";
-            foreignKey.AddAnnotation(new Annotation(
+            foreignKey.Annotations.Add(new Annotation(
                 MetadataExtensions.Annotations.CascadeDelete, "True"));
 
             return model;

@@ -1,19 +1,20 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNet.DependencyInjection;
+using Microsoft.AspNet.DependencyInjection.Fallback;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Relational.Model;
 using Microsoft.Data.Relational.Update;
 using Moq;
 using Moq.Protected;
 using Xunit;
-using Microsoft.Data.Relational.Model;
 
 namespace Microsoft.Data.Relational.Tests.Update
 {
@@ -41,7 +42,7 @@ namespace Microsoft.Data.Relational.Tests.Update
             var stateEntry = CreateStateEntry(EntityState.Added, ValueGenerationStrategy.StoreIdentity);
             var command = new ModificationCommand(stateEntry, CreateTable(StoreValueGenerationStrategy.Identity));
             var batch = new ModificationCommandBatch(new[] { command });
-            var mockReader = SetupMockDataReader(new [] { "Col1" }, new List<object[]> { new object[] { 42 } });
+            var mockReader = SetupMockDataReader(new[] { "Col1" }, new List<object[]> { new object[] { 42 } });
             var connection = SetupMockConnection(mockReader.Object);
 
             var executor = new BatchExecutor(new[] { batch }, new Mock<SqlGenerator> { CallBase = true }.Object);
@@ -57,10 +58,10 @@ namespace Microsoft.Data.Relational.Tests.Update
         {
             var stateEntry = CreateStateEntry(
                 EntityState.Added, ValueGenerationStrategy.StoreIdentity, ValueGenerationStrategy.StoreComputed);
-            
+
             var command = new ModificationCommand(
                 stateEntry, CreateTable(StoreValueGenerationStrategy.Identity, StoreValueGenerationStrategy.Computed));
-            
+
             var batch = new ModificationCommandBatch(new[] { command });
             var mockReader = SetupMockDataReader(new[] { "Col1", "Col2" }, new List<object[]> { new object[] { 42, "FortyTwo" } });
             var connection = SetupMockConnection(mockReader.Object);
@@ -73,7 +74,6 @@ namespace Microsoft.Data.Relational.Tests.Update
             Assert.Equal("FortyTwo", stateEntry[stateEntry.EntityType.GetProperty("Col2")]);
         }
 
-
         [Fact]
         public async void ExecuteAsync_saves_store_generated_values_when_updating()
         {
@@ -84,7 +84,7 @@ namespace Microsoft.Data.Relational.Tests.Update
                 stateEntry, CreateTable(StoreValueGenerationStrategy.Identity, StoreValueGenerationStrategy.Computed));
 
             var batch = new ModificationCommandBatch(new[] { command });
-            var mockReader = SetupMockDataReader(new [] { "Col2" }, new List<object[]> { new object[] { "FortyTwo" } });
+            var mockReader = SetupMockDataReader(new[] { "Col2" }, new List<object[]> { new object[] { "FortyTwo" } });
             var connection = SetupMockConnection(mockReader.Object);
 
             var executor = new BatchExecutor(new[] { batch }, new Mock<SqlGenerator> { CallBase = true }.Object);
@@ -103,7 +103,7 @@ namespace Microsoft.Data.Relational.Tests.Update
             var batch = new ModificationCommandBatch(new[] { command });
             var mockReader = SetupMockDataReader(new[] { "Col1" }, new List<object[]>
                 {
-                    new object[] { 42 }, 
+                    new object[] { 42 },
                     new object[] { 43 }
                 });
             var connection = SetupMockConnection(mockReader.Object);
@@ -230,7 +230,13 @@ namespace Microsoft.Data.Relational.Tests.Update
         private static ContextConfiguration CreateConfiguration(IModel model)
         {
             return new EntityContext(
-                new EntityConfigurationBuilder().UseModel(model).BuildConfiguration()).Configuration;
+                new EntityConfigurationBuilder(
+                    new ServiceCollection()
+                        .AddEntityFramework()
+                        .BuildServiceProvider())
+                    .UseModel(model)
+                    .BuildConfiguration())
+                .Configuration;
         }
 
         private static StateEntry CreateStateEntry(
@@ -239,7 +245,7 @@ namespace Microsoft.Data.Relational.Tests.Update
             ValueGenerationStrategy nonKeyStrategy = ValueGenerationStrategy.None)
         {
             var model = BuildModel(keyStrategy, nonKeyStrategy);
-            var stateEntry = CreateConfiguration(model).StateEntryFactory.Create(model.GetEntityType("T1"), new T1 { Col1 = 1, Col2 = "Test" });
+            var stateEntry = CreateConfiguration(model).Services.StateEntryFactory.Create(model.GetEntityType("T1"), new T1 { Col1 = 1, Col2 = "Test" });
             stateEntry.EntityState = entityState;
             return stateEntry;
         }
@@ -250,9 +256,9 @@ namespace Microsoft.Data.Relational.Tests.Update
         {
             var key = new Column("Col1", "_") { ValueGenerationStrategy = keyStrategy };
             return new Table("T1", new[] { key, new Column("Col2", "_") { ValueGenerationStrategy = nonKeyStrategy } })
-            {
-                PrimaryKey = new PrimaryKey("PK", new[] { key })
-            };
+                {
+                    PrimaryKey = new PrimaryKey("PK", new[] { key })
+                };
         }
     }
 }

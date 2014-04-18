@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNet.DependencyInjection.Advanced;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
@@ -51,7 +52,9 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Each_context_gets_new_scoped_context_configuration()
         {
-            var configuration = new EntityConfigurationBuilder().BuildConfiguration();
+            var configuration = new EntityConfigurationBuilder()
+                .WithServices(s => s.UseStateManager<FakeStateManager>())
+                .BuildConfiguration();
 
             ContextConfiguration config1;
             using (var context = new EntityContext(configuration))
@@ -72,7 +75,9 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Each_context_gets_new_scoped_StateManager()
         {
-            var configuration = new EntityConfigurationBuilder().BuildConfiguration();
+            var configuration = new EntityConfigurationBuilder()
+                .WithServices(s => s.UseStateManager<FakeStateManager>())
+                .BuildConfiguration();
 
             StateManager stateManager1;
             using (var context = new EntityContext(configuration))
@@ -94,14 +99,13 @@ namespace Microsoft.Data.Entity.Tests
         public void SaveChanges_calls_DetectChanges()
         {
             var configuration = new EntityConfigurationBuilder()
-                .UseStateManager<FakeStateManager>()
-                .UseDataStore(Mock.Of<DataStore>())
+                .WithServices(s => s.UseStateManager<FakeStateManager>())
                 .BuildConfiguration();
 
             using (var context = new EntityContext(configuration))
             {
-                var stateManager = (FakeStateManager)context.Configuration.StateManager;
-                
+                var stateManager = (FakeStateManager)context.Configuration.Services.StateManager;
+
                 Assert.False(stateManager.DetectChangesCalled);
 
                 context.SaveChanges();
@@ -114,13 +118,12 @@ namespace Microsoft.Data.Entity.Tests
         public void SaveChanges_calls_state_manager_SaveChanges()
         {
             var configuration = new EntityConfigurationBuilder()
-                .UseStateManager<FakeStateManager>()
-                .UseDataStore(Mock.Of<DataStore>())
+                .WithServices(s => s.UseStateManager<FakeStateManager>())
                 .BuildConfiguration();
 
             using (var context = new EntityContext(configuration))
             {
-                var stateManager = (FakeStateManager)context.Configuration.StateManager;
+                var stateManager = (FakeStateManager)context.Configuration.Services.StateManager;
 
                 var entryMock = new Mock<StateEntry>();
                 entryMock.Setup(m => m.EntityState).Returns(EntityState.Modified);
@@ -146,8 +149,7 @@ namespace Microsoft.Data.Entity.Tests
                 return false;
             }
 
-            public override Task<int> SaveChangesAsync(
-                DataStore dataStore, CancellationToken cancellationToken = new CancellationToken())
+            public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
             {
                 SaveChangesCalled = true;
                 return Task.FromResult(1);
@@ -304,9 +306,7 @@ namespace Microsoft.Data.Entity.Tests
             var model = new Model();
             model.AddEntityType(new EntityType(typeof(TheGu)));
 
-            var configuration = new EntityConfigurationBuilder()
-                .UseModel(model)
-                .BuildConfiguration();
+            var configuration = new EntityConfigurationBuilder().UseModel(model).BuildConfiguration();
 
             using (var context = new EarlyLearningCenter(configuration))
             {
@@ -364,11 +364,17 @@ namespace Microsoft.Data.Entity.Tests
         public void SaveChanges_doesnt_call_DataStore_when_nothing_is_dirty()
         {
             var store = new Mock<DataStore>();
-            var config = new EntityConfigurationBuilder()
-                .UseDataStore(store.Object)
+
+            var sourceMock = new Mock<DataStoreSource>();
+            sourceMock.Setup(m => m.IsAvailable(It.IsAny<ContextConfiguration>())).Returns(true);
+            sourceMock.Setup(m => m.IsConfigured(It.IsAny<ContextConfiguration>())).Returns(true);
+            sourceMock.Setup(m => m.GetDataStore(It.IsAny<ContextConfiguration>())).Returns(store.Object);
+
+            var configuration = new EntityConfigurationBuilder()
+                .WithServices(s => s.ServiceCollection.AddInstance<DataStoreSource>(sourceMock.Object))
                 .BuildConfiguration();
 
-            using (var context = new EarlyLearningCenter(config))
+            using (var context = new EarlyLearningCenter(configuration))
             {
                 context.ChangeTracker.Entry(new Category { Id = 1 }).State = EntityState.Unchanged;
                 context.ChangeTracker.Entry(new Category { Id = 2 }).State = EntityState.Unchanged;
@@ -391,11 +397,16 @@ namespace Microsoft.Data.Entity.Tests
                 .Callback<IEnumerable<StateEntry>, IModel, CancellationToken>((e, m, c) => passedEntries.AddRange(e))
                 .Returns(Task.FromResult(3));
 
-            var config = new EntityConfigurationBuilder()
-                .UseDataStore(store.Object)
+            var sourceMock = new Mock<DataStoreSource>();
+            sourceMock.Setup(m => m.IsAvailable(It.IsAny<ContextConfiguration>())).Returns(true);
+            sourceMock.Setup(m => m.IsConfigured(It.IsAny<ContextConfiguration>())).Returns(true);
+            sourceMock.Setup(m => m.GetDataStore(It.IsAny<ContextConfiguration>())).Returns(store.Object);
+
+            var configuration = new EntityConfigurationBuilder()
+                .WithServices(s => s.ServiceCollection.AddInstance<DataStoreSource>(sourceMock.Object))
                 .BuildConfiguration();
 
-            using (var context = new EarlyLearningCenter(config))
+            using (var context = new EarlyLearningCenter(configuration))
             {
                 context.ChangeTracker.Entry(new Category { Id = 1 }).State = EntityState.Unchanged;
                 context.ChangeTracker.Entry(new Category { Id = 2 }).State = EntityState.Modified;
