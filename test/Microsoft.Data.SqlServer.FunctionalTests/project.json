@@ -12,7 +12,7 @@
     "xunit.assert": "2.0.0-aspnet-*",
     "xunit.core": "2.0.0-aspnet-*",
     "xunit.execution": "2.0.0-aspnet-*",
-    "Remotion.Linq": "1.15.11"
+    "Remotion.Linq": "1.15.11.0"
   },
   "code": "**\\*.cs;..\\Shared\\TestFileLogger.cs",
   "commands": {
