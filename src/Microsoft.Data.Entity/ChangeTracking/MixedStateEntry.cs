@@ -58,7 +58,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotNull(property, "property");
 
             return property.IsClrProperty
-                ? Configuration.ClrPropertyGetterSource.GetAccessor(property).GetClrValue(_entity)
+                ? Configuration.Services.ClrPropertyGetterSource.GetAccessor(property).GetClrValue(_entity)
                 : _shadowValues[property.ShadowIndex];
         }
 
@@ -68,7 +68,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             if (property.IsClrProperty)
             {
-                Configuration.ClrPropertySetterSource.GetAccessor(property).SetClrValue(_entity, value);
+                Configuration.Services.ClrPropertySetterSource.GetAccessor(property).SetClrValue(_entity, value);
             }
             else
             {

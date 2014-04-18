@@ -8,7 +8,7 @@ namespace Microsoft.Data.Entity.Metadata
     public interface IMetadata
     {
         string this[[NotNull] string annotationName] { get; }
-        IReadOnlyList<IAnnotation> Annotations { get; }
+        IEnumerable<IAnnotation> Annotations { get; }
         string StorageName { get; }
     }
 }

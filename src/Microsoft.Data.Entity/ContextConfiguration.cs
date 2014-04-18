@@ -1,31 +1,34 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.AspNet.DependencyInjection;
-using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity
 {
-    public class ContextConfiguration : EntityConfiguration
+    public class ContextConfiguration
     {
+        private ContextServices _services;
+        private EntityConfiguration _entityConfiguration;
         private EntityContext _context;
-        private LazyRef<IModel> _model;
+        private LazyRef<IModel> _modelFromSource;
+        private LazyRef<DataStore> _dataStore;
 
         public virtual ContextConfiguration Initialize(
-            [NotNull] IServiceProvider scopedProvider, [NotNull] EntityContext context)
+            [NotNull] IServiceProvider scopedProvider,
+            [NotNull] EntityConfiguration entityConfiguration,
+            [NotNull] EntityContext context)
         {
-            Check.NotNull(scopedProvider, "scopedProvider");
+            Check.NotNull(entityConfiguration, "entityConfiguration");
             Check.NotNull(context, "context");
 
-            Initialize(scopedProvider);
-
+            _services = new ContextServices(scopedProvider);
+            _entityConfiguration = entityConfiguration;
             _context = context;
-            _model = new LazyRef<IModel>(() => ServiceProvider.GetRequiredService<IModelSource>().GetModel(_context));
+            _modelFromSource = new LazyRef<IModel>(() => _services.ModelSource.GetModel(_context));
+            _dataStore = new LazyRef<DataStore>(() => _services.DataStoreSelector.SelectDataStore(this));
 
             return this;
         }
@@ -37,36 +40,22 @@ namespace Microsoft.Data.Entity
 
         public virtual IModel Model
         {
-            get { return _model.Value; }
+            get { return _entityConfiguration.Model ?? _modelFromSource.Value; }
         }
 
-        public virtual StateManager StateManager
+        public virtual DataStore DataStore
         {
-            get { return ServiceProvider.GetRequiredService<StateManager>(); }
+            get { return _dataStore.Value; }
         }
 
-        public virtual ContextEntitySets ContextEntitySets
+        public virtual ContextServices Services
         {
-            get { return ServiceProvider.GetRequiredService<ContextEntitySets>(); }
+            get { return _services; }
         }
 
-        public virtual StateEntryNotifier StateEntryNotifier
+        public virtual ConfigurationAnnotations Annotations
         {
-            get { return ServiceProvider.GetRequiredService<StateEntryNotifier>(); }
-        }
-
-        public virtual StateEntryFactory StateEntryFactory
-        {
-            get { return ServiceProvider.GetRequiredService<StateEntryFactory>(); }
-        }
-
-        public virtual IEnumerable<IEntityStateListener> EntityStateListeners
-        {
-            get
-            {
-                return ServiceProvider.GetService<IEnumerable<IEntityStateListener>>()
-                       ?? Enumerable.Empty<IEntityStateListener>();
-            }
+            get { return _entityConfiguration.Annotations; }
         }
     }
 }

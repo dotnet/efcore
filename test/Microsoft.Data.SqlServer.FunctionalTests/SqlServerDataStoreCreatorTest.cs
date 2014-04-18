@@ -1,9 +1,12 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNet.DependencyInjection;
+using Microsoft.AspNet.DependencyInjection.Fallback;
 using Microsoft.Data.Entity;
-using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Services;
 using Microsoft.Data.Migrations;
 using Microsoft.Data.Relational;
 using Xunit;
@@ -17,7 +20,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
         {
             using (var testDatabase = await TestDatabase.Scratch(createDatabase: false))
             {
-                var store = new SqlServerDataStore(testDatabase.Connection.ConnectionString);
+                var store = CreateStore(testDatabase);
 
                 var creator = new SqlServerDataStoreCreator(
                     store,
@@ -34,7 +37,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
         {
             using (var testDatabase = await TestDatabase.Scratch(createDatabase: true))
             {
-                var store = new SqlServerDataStore(testDatabase.Connection.ConnectionString);
+                var store = CreateStore(testDatabase);
 
                 var creator = new SqlServerDataStoreCreator(
                     store,
@@ -53,7 +56,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
             {
                 testDatabase.Connection.Close();
 
-                var store = new SqlServerDataStore(testDatabase.Connection.ConnectionString);
+                var store = CreateStore(testDatabase);
 
                 var creator = new SqlServerDataStoreCreator(
                     store,
@@ -74,7 +77,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
         {
             using (var testDatabase = await TestDatabase.Scratch(createDatabase: false))
             {
-                var store = new SqlServerDataStore(testDatabase.Connection.ConnectionString);
+                var store = CreateStore(testDatabase);
 
                 var creator = new SqlServerDataStoreCreator(
                     store,
@@ -108,23 +111,39 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
             }
         }
 
+        private static SqlServerDataStore CreateStore(TestDatabase testDatabase)
+        {
+            var configuration = new EntityContext(
+                new EntityConfigurationBuilder(
+                    new ServiceCollection()
+                        .AddEntityFramework(s => s.AddSqlServer())
+                        .BuildServiceProvider())
+                    .SqlServerConnectionString(testDatabase.Connection.ConnectionString)
+                    .BuildConfiguration())
+                .Configuration;
+
+            var store = new SqlServerDataStore(configuration, new NullLoggerFactory(), new SqlServerSqlGenerator());
+            return store;
+        }
+
         private static async Task RunDatabaseCreationTest(TestDatabase testDatabase)
         {
-            var config = new EntityConfigurationBuilder()
-                .UseSqlServer(testDatabase.Connection.ConnectionString)
+            var configuration = new EntityConfigurationBuilder()
+                .WithServices(s => s.AddSqlServer())
+                .SqlServerConnectionString(testDatabase.Connection.ConnectionString)
                 .BuildConfiguration();
 
-            using (var context = new BloggingContext(config))
+            using (var context = new BloggingContext(configuration))
             {
                 var creator = new SqlServerDataStoreCreator(
-                    (SqlServerDataStore)config.DataStore,
+                    (SqlServerDataStore)context.Configuration.DataStore,
                     new ModelDiffer(),
                     new SqlServerMigrationOperationSqlGenerator(),
                     new SqlStatementExecutor());
 
                 await creator.CreateAsync(context.Model);
 
-                if (testDatabase.Connection.State != System.Data.ConnectionState.Open)
+                if (testDatabase.Connection.State != ConnectionState.Open)
                 {
                     await testDatabase.Connection.OpenAsync();
                 }
@@ -142,9 +161,10 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
 
         private class BloggingContext : EntityContext
         {
-            public BloggingContext(EntityConfiguration config)
-                :base(config)
-            { }
+            public BloggingContext(EntityConfiguration configuration)
+                : base(configuration)
+            {
+            }
 
             public EntitySet<Blog> Blogs { get; set; }
 

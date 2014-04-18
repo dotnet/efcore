@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNet.DependencyInjection;
+using Microsoft.AspNet.DependencyInjection.Fallback;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
@@ -18,7 +19,14 @@ namespace Microsoft.Data.Entity
 
         protected EntityContext()
         {
-            Initialize(EntityConfigurationCache.Instance.GetOrAddConfiguration(this));
+            Initialize(new EntityConfigurationBuilder());
+        }
+
+        public EntityContext([NotNull] IServiceProvider serviceProvider)
+        {
+            Check.NotNull(serviceProvider, "serviceProvider");
+
+            Initialize(new EntityConfigurationBuilder(serviceProvider));
         }
 
         public EntityContext([NotNull] EntityConfiguration configuration)
@@ -28,17 +36,31 @@ namespace Microsoft.Data.Entity
             Initialize(configuration);
         }
 
-        private void Initialize(EntityConfiguration configuration)
+        private void Initialize(EntityConfigurationBuilder builder)
         {
-            var scopedProvider = configuration
-                .ServiceProvider.GetService<IServiceScopeFactory>()
-                .CreateScope().ServiceProvider;
+            // TODO: Make this lazy
+            OnConfiguring(builder);
+            var entityConfiguration = builder.BuildConfiguration();
+
+            Initialize(entityConfiguration);
+        }
+
+        private void Initialize(EntityConfiguration entityConfiguration)
+        {
+            var provider = entityConfiguration.Services
+                ?? ServiceProviderCache.Instance.GetOrAdd(entityConfiguration.ServiceCollection);
+
+            var scopedProvider = provider
+                .GetService<IServiceScopeFactory>()
+                .CreateScope()
+                .ServiceProvider;
 
             _configuration = scopedProvider
                 .GetService<ContextConfiguration>()
-                .Initialize(scopedProvider, this);
+                .Initialize(scopedProvider, entityConfiguration, this);
 
-            _sets = _configuration.ContextEntitySets;
+            // TODO: This bit not lazy
+            _sets = _configuration.Services.ContextEntitySets;
             _sets.InitializeSets(this);
         }
 
@@ -63,12 +85,13 @@ namespace Microsoft.Data.Entity
 
         public virtual Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var stateManager = _configuration.StateManager;
+            var stateManager = _configuration.Services.StateManager;
 
             // TODO: Allow auto-detect changes to be switched off
             stateManager.DetectChanges();
 
-            return stateManager.SaveChangesAsync(_configuration.DataStore, cancellationToken);
+            // TODO: StateManager could get data store from config itself
+            return stateManager.SaveChangesAsync(cancellationToken);
         }
 
         public void Dispose()
@@ -88,7 +111,7 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(entity, "entity");
 
-            await _configuration.StateManager.GetOrCreateEntry(entity).SetEntityStateAsync(EntityState.Added, cancellationToken).ConfigureAwait(false);
+            await _configuration.Services.StateManager.GetOrCreateEntry(entity).SetEntityStateAsync(EntityState.Added, cancellationToken).ConfigureAwait(false);
 
             return entity;
         }
@@ -125,7 +148,7 @@ namespace Microsoft.Data.Entity
 
         public virtual ChangeTracker ChangeTracker
         {
-            get { return new ChangeTracker(_configuration.StateManager); }
+            get { return new ChangeTracker(_configuration.Services.StateManager); }
         }
 
         public virtual IModel Model

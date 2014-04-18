@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNet.DependencyInjection.Advanced;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
@@ -169,7 +170,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
             AssertQuery<Customer>(cs =>
                 cs.Where(c => new { x = c.City } == new { x = "London" }));
         }
-        
+
         [Fact]
         public void Select_scalar()
         {
@@ -323,9 +324,9 @@ namespace Microsoft.Data.InMemory.FunctionalTests
             AssertQuery<Employee>(es =>
                 from e1 in es
                 select (from e2 in es
-                        select (from e3 in es
-                                orderby e3.EmployeeID
-                                select e3)),
+                    select (from e3 in es
+                        orderby e3.EmployeeID
+                        select e3)),
                 assertOrder: true);
         }
 
@@ -335,10 +336,10 @@ namespace Microsoft.Data.InMemory.FunctionalTests
             AssertQuery<Employee>(es =>
                 from e1 in es
                 where (from e2 in es
-                       where (from e3 in es
-                              orderby e3.EmployeeID
-                              select e3).Any()
-                       select e2).Any()
+                    where (from e3 in es
+                        orderby e3.EmployeeID
+                        select e3).Any()
+                    select e2).Any()
                 orderby e1.EmployeeID
                 select e1,
                 assertOrder: true);
@@ -352,13 +353,13 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                 where c.City == "London"
                 orderby c.CustomerID
                 select (from o1 in os
+                    where o1.CustomerID == c.CustomerID
+                          && o1.OrderDate.Value.Year == 1997
+                    orderby o1.OrderID
+                    select (from o2 in os
                         where o1.CustomerID == c.CustomerID
-                              && o1.OrderDate.Value.Year == 1997
-                        orderby o1.OrderID
-                        select (from o2 in os
-                                where o1.CustomerID == c.CustomerID
-                                orderby o2.OrderID
-                                select o1.OrderID)),
+                        orderby o2.OrderID
+                        select o1.OrderID)),
                 assertOrder: true);
         }
 
@@ -375,9 +376,9 @@ namespace Microsoft.Data.InMemory.FunctionalTests
         {
             AssertQuery<Employee>(
                 es => from e1 in es
-                      from e2 in es
-                      from e3 in es
-                      select new { e1, e2 });
+                    from e2 in es
+                    from e3 in es
+                    select new { e1, e2 });
         }
 
         [Fact]
@@ -548,7 +549,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                 select new { c.ContactName, o.OrderID });
         }
 
-         // TODO: Composite keys, slow..
+        // TODO: Composite keys, slow..
 
 //        [Fact]
 //        public void Multiple_joins_with_join_conditions_in_where()
@@ -809,8 +810,8 @@ namespace Microsoft.Data.InMemory.FunctionalTests
         {
             AssertQuery<Order>(os =>
                 os.OrderBy(o => o.OrderID)
-                .GroupBy(o => o.CustomerID)
-                .Select(g => g.Sum(o => o.OrderID)));
+                    .GroupBy(o => o.CustomerID)
+                    .Select(g => g.Sum(o => o.OrderID)));
         }
 
         [Fact]
@@ -818,8 +819,8 @@ namespace Microsoft.Data.InMemory.FunctionalTests
         {
             AssertQuery<Order>(os =>
                 os.OrderBy(o => o.OrderID)
-                .GroupBy(o => o.CustomerID)
-                .SelectMany(g => g));
+                    .GroupBy(o => o.CustomerID)
+                    .SelectMany(g => g));
         }
 
         [Fact]
@@ -843,7 +844,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
         [Fact]
         public void Count_with_predicate()
         {
-            AssertQuery<Order>(os => 
+            AssertQuery<Order>(os =>
                 os.Count(o => o.CustomerID == "ALFKI"));
         }
 
@@ -881,9 +882,9 @@ namespace Microsoft.Data.InMemory.FunctionalTests
         {
             AssertQuery<Order>(os =>
                 os.Distinct()
-                .GroupBy(o => o.CustomerID)
-                .OrderBy(g => g.Key)
-                .Select(g => new { g.Key, c = g.Count() }),
+                    .GroupBy(o => o.CustomerID)
+                    .OrderBy(g => g.Key)
+                    .Select(g => new { g.Key, c = g.Count() }),
                 assertOrder: true);
         }
 
@@ -903,7 +904,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
         [Fact]
         public void Select_Distinct_Count()
         {
-            AssertQuery<Customer>(cs => 
+            AssertQuery<Customer>(cs =>
                 cs.Select(c => c.City).Distinct().Count());
         }
 
@@ -1149,17 +1150,17 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                 .Entity<OrderDetail>()
                 .Key(od => new { od.OrderID, od.ProductID })
                 .Properties(ps =>
-                {
-                    ps.Property(c => c.UnitPrice);
-                    ps.Property(c => c.Quantity);
-                    ps.Property(c => c.Discount);
-                });
+                    {
+                        ps.Property(c => c.UnitPrice);
+                        ps.Property(c => c.Quantity);
+                        ps.Property(c => c.Discount);
+                    });
 
             _configuration
                 = new EntityConfigurationBuilder()
+                    .WithServices(s => s.AddInMemoryStore().UseLoggerFactory(TestFileLogger.Factory))
                     .UseModel(model)
-                    .UseDataStore(new InMemoryDataStore())
-                    .UseLoggerFactory(TestFileLogger.Factory)
+                    .UseInMemoryStore(persist: true)
                     .BuildConfiguration();
 
             using (var context = new EntityContext(_configuration))

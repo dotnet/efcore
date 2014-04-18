@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.AspNet.DependencyInjection.Advanced;
 using Microsoft.Data.Entity.Metadata;
 using Moq;
 using Xunit;
@@ -39,7 +40,7 @@ namespace Microsoft.Data.Entity.Tests
                     });
 
             var configuration = new EntityConfigurationBuilder()
-                .UseEntitySetInitializer(new EntitySetInitializer(setFinderMock.Object, new ClrPropertySetterSource()))
+                .WithServices(s => s.UseEntitySetInitializer(new EntitySetInitializer(setFinderMock.Object, new ClrPropertySetterSource())))
                 .BuildConfiguration();
 
             using (var context = new JustAContext(configuration))

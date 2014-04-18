@@ -22,18 +22,17 @@ namespace Microsoft.Data.InMemory.FunctionalTests
 
             model.AddEntityType(customerType);
 
-            var inMemoryDataStore = new InMemoryDataStore();
-
             var configuration = new EntityConfigurationBuilder()
+                .WithServices(s => s.AddInMemoryStore())
                 .UseModel(model)
-                .UseDataStore(inMemoryDataStore)
+                .UseInMemoryStore(persist: true)
                 .BuildConfiguration();
 
             using (var context = new EntityContext(configuration))
             {
                 // TODO: Better API for shadow state access
                 var customerEntry = context.ChangeTracker.StateManager.CreateNewEntry(customerType);
-                customerEntry[customerType.GetProperty("Id")] =  42;
+                customerEntry[customerType.GetProperty("Id")] = 42;
                 customerEntry[customerType.GetProperty("Name")] = "Daenerys";
 
                 await customerEntry.SetEntityStateAsync(EntityState.Added, CancellationToken.None);
@@ -89,11 +88,10 @@ namespace Microsoft.Data.InMemory.FunctionalTests
 
             model.AddEntityType(customerType);
 
-            var inMemoryDataStore = new InMemoryDataStore();
-
             var configuration = new EntityConfigurationBuilder()
+                .WithServices(s => s.AddInMemoryStore())
                 .UseModel(model)
-                .UseDataStore(inMemoryDataStore)
+                .UseInMemoryStore(persist: true)
                 .BuildConfiguration();
 
             var customer = new Customer { Id = 42 };

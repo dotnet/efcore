@@ -1,9 +1,8 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
-using System;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.AspNet.DependencyInjection.Advanced;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Tests;
@@ -19,9 +18,9 @@ namespace Microsoft.Data.InMemory.FunctionalTests
             var model = CreateModel();
 
             var configuration = new EntityConfigurationBuilder()
+                .WithServices(s => s.AddInMemoryStore().UseLoggerFactory(TestFileLogger.Factory))
                 .UseModel(model)
-                .UseDataStore(new InMemoryDataStore())
-                .UseLoggerFactory(TestFileLogger.Factory)
+                .UseInMemoryStore(persist: true)
                 .BuildConfiguration();
 
             var customer = new Customer { Id = 42, Name = "Theon" };
@@ -125,7 +124,8 @@ namespace Microsoft.Data.InMemory.FunctionalTests
 
             protected override void OnConfiguring(EntityConfigurationBuilder builder)
             {
-                builder.UseDataStore(new InMemoryDataStore());
+                builder.WithServices(s => s.AddInMemoryStore())
+                    .UseInMemoryStore(persist: true);
             }
 
             protected override void OnModelCreating(ModelBuilder builder)

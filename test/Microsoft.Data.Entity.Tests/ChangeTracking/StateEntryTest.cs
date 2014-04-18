@@ -7,7 +7,8 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
+using Microsoft.AspNet.DependencyInjection;
+using Microsoft.AspNet.DependencyInjection.Advanced;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
@@ -25,7 +26,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entityType = model.GetEntityType("SomeEntity");
             var keyProperty = entityType.GetProperty("Id");
 
-            var configuration = CreateConfiguration(model);
+            var configuration = TestHelpers.CreateContextConfiguration(model);
 
             var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
             entry[keyProperty] = 1;
@@ -33,7 +34,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entry.EntityState = EntityState.Added;
 
             Assert.Equal(EntityState.Added, entry.EntityState);
-            Assert.Contains(entry, configuration.StateManager.StateEntries);
+            Assert.Contains(entry, configuration.Services.StateManager.StateEntries);
         }
 
         [Fact]
@@ -43,7 +44,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entityType = model.GetEntityType("SomeEntity");
             var keyProperty = entityType.GetProperty("Id");
 
-            var configuration = CreateConfiguration(model);
+            var configuration = TestHelpers.CreateContextConfiguration(model);
 
             var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
             entry[keyProperty] = 1;
@@ -52,7 +53,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entry.EntityState = EntityState.Unknown;
 
             Assert.Equal(EntityState.Unknown, entry.EntityState);
-            Assert.DoesNotContain(entry, configuration.StateManager.StateEntries);
+            Assert.DoesNotContain(entry, configuration.Services.StateManager.StateEntries);
         }
 
         [Fact]
@@ -62,7 +63,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entityType = model.GetEntityType("SomeEntity");
             var keyProperty = entityType.GetProperty("Id");
             var nonKeyProperty = entityType.GetProperty("Name");
-            var configuration = CreateConfiguration(model);
+            var configuration = TestHelpers.CreateContextConfiguration(model);
 
             var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
             entry[keyProperty] = 1;
@@ -94,11 +95,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var generatorFactory = new Mock<IdentityGeneratorFactory>();
             generatorFactory.Setup(m => m.Create(keyProperty)).Returns(generatorMock.Object);
 
-            var configuration = new EntityContext(
-                new EntityConfigurationBuilder()
-                    .UseModel(model)
-                    .UseIdentityGeneratorFactory(generatorFactory.Object)
-                    .BuildConfiguration()).Configuration;
+            var configuration = new EntityContext(new EntityConfigurationBuilder()
+                .WithServices(s => s.UseIdentityGeneratorFactory(generatorFactory.Object))
+                .UseModel(model).BuildConfiguration()).Configuration;
 
             var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
 
@@ -113,7 +112,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = BuildModel();
             var entityType = model.GetEntityType("SomeEntity");
             var keyProperty = entityType.GetProperty("Id");
-            var configuration = CreateConfiguration(model);
+            var configuration = TestHelpers.CreateContextConfiguration(model);
 
             var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
             entry[keyProperty] = 77;
@@ -129,7 +128,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = BuildModel();
             var entityType = model.GetEntityType("SomeDependentEntity");
             var fkProperty = entityType.GetProperty("SomeEntityId");
-            var configuration = CreateConfiguration(model);
+            var configuration = TestHelpers.CreateContextConfiguration(model);
 
             var entry = CreateStateEntry(configuration, entityType, new SomeDependentEntity());
             entry[fkProperty] = 77;
@@ -146,7 +145,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var principalType = model.GetEntityType("SomeEntity");
             var dependentType = model.GetEntityType("SomeDependentEntity");
             var key = principalType.GetProperty("Id");
-            var configuration = CreateConfiguration(model);
+            var configuration = TestHelpers.CreateContextConfiguration(model);
 
             var entry = CreateStateEntry(configuration, principalType, new SomeEntity());
             entry[key] = 77;
@@ -162,7 +161,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = BuildModel();
             var entityType = model.GetEntityType("SomeEntity");
             var keyProperty = entityType.GetProperty("Id");
-            var configuration = CreateConfiguration(model);
+            var configuration = TestHelpers.CreateContextConfiguration(model);
 
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
 
@@ -175,7 +174,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = BuildModel();
             var entityType = model.GetEntityType("SomeEntity");
             var keyProperty = entityType.GetProperty("Id");
-            var configuration = CreateConfiguration(model);
+            var configuration = TestHelpers.CreateContextConfiguration(model);
 
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
 
@@ -191,7 +190,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entityType = model.GetEntityType("SomeEntity");
             var keyProperty = entityType.GetProperty("Id");
             var nonKeyProperty = entityType.GetProperty("Name");
-            var configuration = CreateConfiguration(model);
+            var configuration = TestHelpers.CreateContextConfiguration(model);
 
             var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
 
@@ -209,7 +208,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entityType = model.GetEntityType("SomeEntity");
             var keyProperty = entityType.GetProperty("Id");
             var nonKeyProperty = entityType.GetProperty("Name");
-            var configuration = CreateConfiguration(model);
+            var configuration = TestHelpers.CreateContextConfiguration(model);
 
             var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
 
@@ -233,7 +232,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var idProperty = entityType.GetProperty("Id");
             var nameProperty = entityType.GetProperty("Name");
-            var configuration = CreateConfiguration(model);
+            var configuration = TestHelpers.CreateContextConfiguration(model);
 
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
 
@@ -283,7 +282,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         protected void OriginalValuesTest(IModel model, IEntityType entityType)
         {
             var nameProperty = entityType.GetProperty("Name");
-            var configuration = CreateConfiguration(model);
+            var configuration = TestHelpers.CreateContextConfiguration(model);
 
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
 
@@ -325,7 +324,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         protected void NullOriginalValuesTest(IModel model, IEntityType entityType)
         {
             var nameProperty = entityType.GetProperty("Name");
-            var configuration = CreateConfiguration(model);
+            var configuration = TestHelpers.CreateContextConfiguration(model);
 
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, null }));
 
@@ -362,7 +361,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var idProperty = entityType.GetProperty("Id");
             var nameProperty = entityType.GetProperty("Name");
-            var configuration = CreateConfiguration(model);
+            var configuration = TestHelpers.CreateContextConfiguration(model);
 
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
             entry.EntityState = EntityState.Unchanged;
@@ -392,7 +391,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(TEntity));
             var nameProperty = entityType.GetProperty("Name");
-            var configuration = CreateConfiguration(model);
+            var configuration = TestHelpers.CreateContextConfiguration(model);
 
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
             entry.EntityState = EntityState.Unchanged;
@@ -437,7 +436,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var model = BuildModel();
             var entityType = model.GetEntityType("SomeEntity");
-            var configuration = CreateConfiguration(model);
+            var configuration = TestHelpers.CreateContextConfiguration(model);
 
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
             entry.EntityState = entityState;
@@ -464,7 +463,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = BuildModel();
             var entityType = model.GetEntityType("SomeEntity");
             var nameProperty = entityType.GetProperty("Name");
-            var configuration = CreateConfiguration(model);
+            var configuration = TestHelpers.CreateContextConfiguration(model);
 
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
             entry.EntityState = entityState;
@@ -485,7 +484,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = BuildModel();
             var entityType = model.GetEntityType("SomeEntity");
             var nameProperty = entityType.GetProperty("Name");
-            var configuration = CreateConfiguration(model);
+            var configuration = TestHelpers.CreateContextConfiguration(model);
 
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
             entry.EntityState = EntityState.Modified;
@@ -504,7 +503,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var model = BuildModel();
             var entityType = model.GetEntityType("SomeEntity");
-            var configuration = CreateConfiguration(model);
+            var configuration = TestHelpers.CreateContextConfiguration(model);
 
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
             entry.EntityState = EntityState.Deleted;
@@ -519,8 +518,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var model = BuildModel();
             var entry = CreateStateEntry(
-                CreateConfiguration(model), 
-                model.GetEntityType("SomeEntity"), 
+                TestHelpers.CreateContextConfiguration(model),
+                model.GetEntityType("SomeEntity"),
                 new ObjectArrayValueReader(new object[] { 1, "Kool" }));
 
             var sidecarMock1 = new Mock<Sidecar>();
@@ -586,8 +585,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var nameProperty = entityType.GetProperty("Name");
 
             var entry = CreateStateEntry(
-                CreateConfiguration(model), 
-                entityType, 
+                TestHelpers.CreateContextConfiguration(model),
+                entityType,
                 new ObjectArrayValueReader(new object[] { 1, "Kool" }));
 
             var sidecar = entry.AddSidecar(new TheWasp(entry, new[] { idProperty }));
@@ -615,7 +614,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var nameProperty = entityType.GetProperty("Name");
 
             var entry = CreateStateEntry(
-                CreateConfiguration(model),
+                TestHelpers.CreateContextConfiguration(model),
                 entityType,
                 new ObjectArrayValueReader(new object[] { 1, "Kool" }));
 
@@ -652,7 +651,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var nameProperty = entityType.GetProperty("Name");
 
             var entry = CreateStateEntry(
-                CreateConfiguration(model),
+                TestHelpers.CreateContextConfiguration(model),
                 entityType,
                 new ObjectArrayValueReader(new object[] { 1, "Kool" }));
 
@@ -688,7 +687,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var nameProperty = entityType.GetProperty("Name");
 
             var entry = CreateStateEntry(
-                CreateConfiguration(model),
+                TestHelpers.CreateContextConfiguration(model),
                 entityType,
                 new ObjectArrayValueReader(new object[] { 1, "Kool" }));
 
@@ -701,7 +700,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.Equal("Kool", entry[nameProperty]);
 
             entry.AutoCommitSidecars();
-            
+
             Assert.Equal(77, entry[idProperty]);
 
             Assert.Null(entry.TryGetSidecar(sidecar.Name));
@@ -716,7 +715,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var nameProperty = entityType.GetProperty("Name");
 
             var entry = CreateStateEntry(
-                CreateConfiguration(model),
+                TestHelpers.CreateContextConfiguration(model),
                 entityType,
                 new ObjectArrayValueReader(new object[] { 1, "Kool" }));
 
@@ -742,7 +741,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             private readonly bool _autoCommit;
 
             public TheWasp(
-                StateEntry stateEntry, IEnumerable<IProperty> properties, 
+                StateEntry stateEntry, IEnumerable<IProperty> properties,
                 bool transparentRead = false, bool transparentWrite = false, bool autoCommit = false)
                 : base(stateEntry, properties)
             {
@@ -781,7 +780,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var nameProperty = entityType.GetProperty("Name");
 
             var entry = CreateStateEntry(
-                CreateConfiguration(model),
+                TestHelpers.CreateContextConfiguration(model),
                 entityType,
                 new ObjectArrayValueReader(new object[] { 1, "Kool" }));
 
@@ -797,19 +796,19 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         protected virtual StateEntry CreateStateEntry(ContextConfiguration configuration, IEntityType entityType, object entity)
         {
             return new StateEntrySubscriber().SnapshotAndSubscribe(
-                new StateEntryFactory(configuration, configuration.EntityMaterializerSource).Create(entityType, entity));
+                new StateEntryFactory(
+                    configuration,
+                    configuration.Services.ServiceProvider.GetRequiredService<EntityMaterializerSource>())
+                    .Create(entityType, entity));
         }
 
         protected virtual StateEntry CreateStateEntry(ContextConfiguration configuration, IEntityType entityType, IValueReader valueReader)
         {
             return new StateEntrySubscriber().SnapshotAndSubscribe(
-                new StateEntryFactory(configuration, configuration.EntityMaterializerSource).Create(entityType, valueReader));
-        }
-
-        protected virtual ContextConfiguration CreateConfiguration(IModel model)
-        {
-            return new EntityContext(
-                new EntityConfigurationBuilder().UseModel(model).BuildConfiguration()).Configuration;
+                new StateEntryFactory(
+                    configuration,
+                    configuration.Services.ServiceProvider.GetRequiredService<EntityMaterializerSource>())
+                    .Create(entityType, valueReader));
         }
 
         protected virtual Model BuildModel()
@@ -822,7 +821,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             key1.ValueGenerationStrategy = ValueGenerationStrategy.StoreIdentity;
             entityType1.SetKey(key1);
             entityType1.AddProperty("Name", typeof(string), shadowProperty: false, concurrencyToken: true);
-            
+
             var entityType2 = new EntityType(typeof(SomeDependentEntity));
             model.AddEntityType(entityType2);
             var key2 = entityType2.AddProperty("Id", typeof(int));

@@ -11,7 +11,7 @@ using Microsoft.Data.SqlServer.Utilities;
 
 namespace Microsoft.Data.SqlServer
 {
-    internal class SqlServerSqlGenerator : SqlGenerator
+    public class SqlServerSqlGenerator : SqlGenerator
     {
         public override void AppendBatchHeader(StringBuilder commandStringBuilder)
         {
@@ -23,7 +23,11 @@ namespace Microsoft.Data.SqlServer
         public override void AppendInsertOperation(StringBuilder commandStringBuilder, Table table,
             KeyValuePair<Column, string>[] columnsToParameters)
         {
-            var dbGeneratedNonIdentityKeys =
+            Check.NotNull(commandStringBuilder, "commandStringBuilder");
+            Check.NotNull(table, "table");
+            Check.NotNull(columnsToParameters, "columnsToParameters");
+
+            var dbGeneratedNonIdentityKeys = 
                 table.PrimaryKey.Columns.Where(c => c.ValueGenerationStrategy == StoreValueGenerationStrategy.Computed);
 
             if (dbGeneratedNonIdentityKeys.Any())

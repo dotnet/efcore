@@ -2,9 +2,13 @@
 
 using System;
 using System.Linq;
+using Microsoft.AspNet.DependencyInjection;
+using Microsoft.AspNet.DependencyInjection.Advanced;
+using Microsoft.AspNet.DependencyInjection.Fallback;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.InMemory;
 using Moq;
 using Xunit;
 
@@ -215,13 +219,26 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Listeners_are_notified_when_entity_states_change()
         {
-            var listeners = new[] { new Mock<IEntityStateListener>(), new Mock<IEntityStateListener>(), new Mock<IEntityStateListener>() };
+            var listeners = new[]
+                {
+                    new Mock<IEntityStateListener>(), 
+                    new Mock<IEntityStateListener>(), 
+                    new Mock<IEntityStateListener>()
+                };
 
-            var configMock = new Mock<ContextConfiguration> { CallBase = true };
-            var stateManager = CreateStateManager(BuildModel(), configMock);
+            var services = new ServiceCollection();
+            services.AddEntityFramework();
+            services.AddInstance<IEntityStateListener>(listeners[0].Object);
+            services.AddInstance<IEntityStateListener>(listeners[1].Object);
+            services.AddInstance<IEntityStateListener>(listeners[2].Object);
 
-            configMock.Setup(m => m.EntityStateListeners).Returns(listeners.Select(m => m.Object));
-            configMock.Setup(m => m.StateEntryNotifier).Returns(new StateEntryNotifier(listeners.Select(m => m.Object)));
+            var config = new EntityContext(
+                new EntityConfigurationBuilder(services.BuildServiceProvider())
+                    .UseModel(BuildModel())
+                    .BuildConfiguration())
+                .Configuration;
+
+            var stateManager = config.Services.StateManager;
 
             var entry = stateManager.GetOrCreateEntry(new Category { Id = 77 });
             entry.EntityState = EntityState.Added;
@@ -251,12 +268,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         public void DetectChanges_is_called_for_all_tracked_entities_and_returns_true_if_any_changes_detected()
         {
             var model = BuildModel();
-            var configMock = new Mock<ContextConfiguration> { CallBase = true };
-            var stateManager = CreateStateManager(model, configMock);
+            var config = CreateConfiguration(model);
+            var stateManager = config.Services.StateManager;
 
-            var entryMock1 = CreateEntryMock(model, configMock, changes: false, key: 1);
-            var entryMock2 = CreateEntryMock(model, configMock, changes: false, key: 2);
-            var entryMock3 = CreateEntryMock(model, configMock, changes: false, key: 3);
+            var entryMock1 = CreateEntryMock(model, config, changes: false, key: 1);
+            var entryMock2 = CreateEntryMock(model, config, changes: false, key: 2);
+            var entryMock3 = CreateEntryMock(model, config, changes: false, key: 3);
 
             stateManager.StartTracking(entryMock1.Object);
             stateManager.StartTracking(entryMock2.Object);
@@ -268,8 +285,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entryMock2.Verify(m => m.DetectChanges());
             entryMock3.Verify(m => m.DetectChanges());
 
-            var entryMock4 = CreateEntryMock(model, configMock, changes: true, key: 4);
-            var entryMock5 = CreateEntryMock(model, configMock, changes: false, key: 5);
+            var entryMock4 = CreateEntryMock(model, config, changes: true, key: 4);
+            var entryMock5 = CreateEntryMock(model, config, changes: false, key: 5);
 
             stateManager.StartTracking(entryMock4.Object);
             stateManager.StartTracking(entryMock5.Object);
@@ -301,7 +318,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entry3.EntityState = EntityState.Unchanged;
             entry4.EntityState = EntityState.Deleted;
 
-            stateManager.SaveChangesAsync(Mock.Of<DataStore>()).Wait();
+            stateManager.SaveChangesAsync().Wait();
 
             Assert.Equal(3, stateManager.StateEntries.Count());
             Assert.Contains(entry1, stateManager.StateEntries);
@@ -313,10 +330,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.Equal(EntityState.Unchanged, entry3.EntityState);
         }
 
-        private static Mock<StateEntry> CreateEntryMock(IModel model, Mock<ContextConfiguration> configMock, bool changes, int key)
+        private static Mock<StateEntry> CreateEntryMock(IModel model, ContextConfiguration config, bool changes, int key)
         {
             var entryMock = new Mock<StateEntry>();
-            entryMock.Setup(m => m.Configuration).Returns(configMock.Object);
+            entryMock.Setup(m => m.Configuration).Returns(config);
             entryMock.Setup(m => m.EntityType).Returns(model.GetEntityType("Location"));
             entryMock.Setup(m => m[It.IsAny<IProperty>()]).Returns(key);
             entryMock.Setup(m => m.DetectChanges()).Returns(changes);
@@ -324,23 +341,19 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             return entryMock;
         }
 
-        private static StateManager CreateStateManager(IModel model, Mock<ContextConfiguration> configMock = null)
+        private static StateManager CreateStateManager(IModel model)
         {
-            configMock = configMock ?? new Mock<ContextConfiguration> { CallBase = true };
-            configMock.Object.Initialize(new EntityConfigurationBuilder().BuildConfiguration().ServiceProvider);
+            return CreateConfiguration(model).Services.StateManager;
+        }
 
-            configMock.Setup(m => m.Model).Returns(model);
-            configMock.Setup(m => m.StateEntryNotifier).Returns(Mock.Of<StateEntryNotifier>());
-
-            var stateManager = new StateManager(
-                configMock.Object,
-                new StateEntryFactory(configMock.Object, new EntityMaterializerSource(new MemberMapper(new FieldMatcher()))),
-                new EntityKeyFactorySource(),
-                new StateEntrySubscriber());
-
-            configMock.Setup(m => m.StateManager).Returns(stateManager);
-
-            return stateManager;
+        private static ContextConfiguration CreateConfiguration(IModel model)
+        {
+            return new EntityContext(
+                new EntityConfigurationBuilder()
+                    .UseModel(model)
+                    .WithServices(s => s.AddInMemoryStore())
+                    .BuildConfiguration())
+                .Configuration;
         }
 
         #region Fixture

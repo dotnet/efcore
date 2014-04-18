@@ -183,9 +183,9 @@ namespace Microsoft.Data.Relational.Tests
             model.AddEntityType(principalEntityType);
             model.AddEntityType(dependentEntityType);
 
-            principalProperty.AddAnnotation(new Annotation(
+            principalProperty.Annotations.Add(new Annotation(
                 MetadataExtensions.Annotations.StorageTypeName, "int"));
-            dependentProperty.AddAnnotation(new Annotation(
+            dependentProperty.Annotations.Add(new Annotation(
                 MetadataExtensions.Annotations.StorageTypeName, "int"));
 
             dependentEntityType.SetKey(dependentProperty);
@@ -195,7 +195,7 @@ namespace Microsoft.Data.Relational.Tests
 
             var foreignKey = dependentEntityType.AddForeignKey(principalEntityType.GetKey(), dependentProperty);
             foreignKey.StorageName = "MyFK";
-            foreignKey.AddAnnotation(new Annotation(
+            foreignKey.Annotations.Add(new Annotation(
                 MetadataExtensions.Annotations.CascadeDelete, "True"));
 
             return model;

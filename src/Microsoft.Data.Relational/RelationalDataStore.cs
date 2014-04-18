@@ -19,36 +19,16 @@ namespace Microsoft.Data.Relational
 {
     public abstract partial class RelationalDataStore : DataStore
     {
-        private readonly string _connectionString;
-        private readonly ILogger _logger;
-
-        protected RelationalDataStore([NotNull] string connectionString, [NotNull] ILogger logger)
+        protected RelationalDataStore()
         {
-            Check.NotEmpty(connectionString, "connectionString");
-            Check.NotNull(logger, "logger");
-
-            _connectionString = connectionString;
-            _logger = logger;
         }
 
-        public abstract DbConnection CreateConnection([NotNull] string connectionString);
-
-        public virtual DbConnection CreateConnection()
+        protected RelationalDataStore([CanBeNull] ILoggerFactory loggerFactory)
+            : base(loggerFactory)
         {
-            return CreateConnection(_connectionString);
         }
 
         protected abstract SqlGenerator SqlGenerator { get; }
-
-        public virtual string ConnectionString
-        {
-            get { return _connectionString; }
-        }
-
-        public ILogger Logger
-        {
-            get { return _logger; }
-        }
 
         public override async Task<int> SaveChangesAsync(
             IEnumerable<StateEntry> stateEntries,
@@ -63,7 +43,7 @@ namespace Microsoft.Data.Relational
 
             var commands = new CommandBatchPreparer().BatchCommands(stateEntries, database);
 
-            using (var connection = CreateConnection(_connectionString))
+            using (var connection = CreateConnection())
             {
                 await connection.OpenAsync(cancellationToken);
 
@@ -89,5 +69,7 @@ namespace Microsoft.Data.Relational
             // TODO: Need async in query compiler
             return new CompletedAsyncEnumerable<TResult>(queryExecutor(queryContext));
         }
+
+        public abstract DbConnection CreateConnection();
     }
 }

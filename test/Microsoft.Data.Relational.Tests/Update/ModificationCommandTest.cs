@@ -3,6 +3,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.AspNet.DependencyInjection;
+using Microsoft.AspNet.DependencyInjection.Fallback;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
@@ -238,7 +240,13 @@ namespace Microsoft.Data.Relational.Tests.Update
         private static ContextConfiguration CreateConfiguration(IModel model)
         {
             return new EntityContext(
-                new EntityConfigurationBuilder().UseModel(model).BuildConfiguration()).Configuration;
+                new EntityConfigurationBuilder(
+                    new ServiceCollection()
+                        .AddEntityFramework()
+                        .BuildServiceProvider())
+                    .UseModel(model)
+                    .BuildConfiguration())
+                .Configuration;
         }
 
         private static StateEntry CreateStateEntry(
@@ -247,7 +255,7 @@ namespace Microsoft.Data.Relational.Tests.Update
             ValueGenerationStrategy nonKeyStrategy = ValueGenerationStrategy.None)
         {
             var model = BuildModel(keyStrategy, nonKeyStrategy);
-            var stateEntry = CreateConfiguration(model).StateEntryFactory.Create(model.GetEntityType("T1"), new T1 { Col1 = 1, Col2 = "Test" });
+            var stateEntry = CreateConfiguration(model).Services.StateEntryFactory.Create(model.GetEntityType("T1"), new T1 { Col1 = 1, Col2 = "Test" });
             stateEntry.EntityState = entityState;
             return stateEntry;
         }

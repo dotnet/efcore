@@ -401,13 +401,13 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
                 var entityType = model.GetEntityType(type);
                 entityType.StorageName = entityType.Name + "Table";
 
-                entityType.AddAnnotation(new Annotation("Annotation1", "Value1"));
-                entityType.AddAnnotation(new Annotation("Annotation2", "Value2"));
+                entityType.Annotations.Add(new Annotation("Annotation1", "Value1"));
+                entityType.Annotations.Add(new Annotation("Annotation2", "Value2"));
 
                 var foo = entityType.AddProperty(entityType.Type.GetProperty("Foo" + i));
 
-                foo.AddAnnotation(new Annotation("Foo" + i + "Annotation1", "Foo" + i + "Value1"));
-                foo.AddAnnotation(new Annotation("Foo" + i + "Annotation2", "Foo" + i + "Value2"));
+                foo.Annotations.Add(new Annotation("Foo" + i + "Annotation1", "Foo" + i + "Value1"));
+                foo.Annotations.Add(new Annotation("Foo" + i + "Annotation2", "Foo" + i + "Value2"));
 
                 var goo = entityType.AddProperty(entityType.Type.GetProperty("Goo" + i));
             }

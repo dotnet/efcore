@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         private readonly EntityKeyFactorySource _keyFactorySource;
         private readonly StateEntryFactory _factory;
         private readonly StateEntrySubscriber _subscriber;
-        private readonly IModel _model;
+        private readonly ContextConfiguration _configuration;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         }
 
         public StateManager(
-            [NotNull] ContextConfiguration contextConfiguration,
+            [NotNull] ContextConfiguration configuration,
             [NotNull] StateEntryFactory factory,
             [NotNull] EntityKeyFactorySource entityKeyFactorySource,
             [NotNull] StateEntrySubscriber subscriber)
@@ -43,9 +43,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotNull(factory, "factory");
             Check.NotNull(entityKeyFactorySource, "entityKeyFactorySource");
 
+            _configuration = configuration;
             _keyFactorySource = entityKeyFactorySource;
             _factory = factory;
-            _model = contextConfiguration.Model;
             _subscriber = subscriber;
         }
 
@@ -129,7 +129,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             var entityType = entry.EntityType;
 
-            if (entry.Configuration.StateManager != this)
+            if (entry.Configuration.Services.StateManager != this)
             {
                 throw new InvalidOperationException(Strings.FormatWrongStateManager(entityType.Name));
             }
@@ -187,7 +187,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         public virtual IModel Model
         {
-            get { return _model; }
+            get { return _configuration.Model; }
         }
 
         public virtual StateEntry GetPrincipal([NotNull] StateEntry dependentEntry, [NotNull] IForeignKey foreignKey)
@@ -229,12 +229,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
             return _keyFactorySource.GetKeyFactory(properties).Create(entityType, properties, entry);
         }
 
-        public virtual async Task<int> SaveChangesAsync(
-            [NotNull] DataStore dataStore,
-            CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(dataStore, "dataStore");
-
             var entriesToSave = StateEntries
                 .Where(e => e.EntityState.IsDirty())
                 .Select(e => e.PrepareToSave())
@@ -247,7 +243,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             try
             {
-                var result = await dataStore
+                var result = await _configuration.DataStore
                     .SaveChangesAsync(entriesToSave, Model, cancellationToken)
                     .ConfigureAwait(false);
 

@@ -1,15 +1,16 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNet.Logging;
+using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
-using Microsoft.Data.Entity.Services;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.InMemory.Utilities;
@@ -19,24 +20,45 @@ namespace Microsoft.Data.InMemory
 {
     public partial class InMemoryDataStore : DataStore
     {
+        public const string NameKey = "Name";
+        public const string ModeKey = "Mode";
+        public const string PersistentMode = "Persistent";
+        public const string TransientMode = "Transient";
+
+        // TODO: Make this better
+        private static readonly ThreadSafeLazyRef<InMemoryDatabase> _persistentDatabase
+            = new ThreadSafeLazyRef<InMemoryDatabase>(() => null);
+
         private readonly ThreadSafeLazyRef<InMemoryDatabase> _database;
 
-        public InMemoryDataStore()
-            : this(NullLogger.Instance)
+        /// <summary>
+        ///     This constructor is intended only for use when creating test doubles that will override members
+        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
+        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
+        /// </summary>
+        protected InMemoryDataStore()
         {
         }
 
-        public InMemoryDataStore([NotNull] ILoggerFactory loggerFactory)
-            : this(Check.NotNull(loggerFactory, "loggerFactory").Create(typeof(InMemoryDataStore).Name))
+        public InMemoryDataStore([NotNull] ContextConfiguration configuration, [CanBeNull] ILoggerFactory loggerFactory)
+            : base(loggerFactory)
         {
-        }
+            Check.NotNull(configuration, "configuration");
 
-        public InMemoryDataStore([NotNull] ILogger logger)
-        {
-            Check.NotNull(logger, "logger");
+            var name = configuration.Annotations[typeof(InMemoryDataStore)][NameKey]
+                       ?? configuration.Context.GetType().FullName;
 
-            _database
-                = new ThreadSafeLazyRef<InMemoryDatabase>(() => new InMemoryDatabase(logger));
+            var persist = configuration.Annotations[typeof(InMemoryDataStore)][ModeKey] == PersistentMode;
+
+            if (persist)
+            {
+                _persistentDatabase.ExchangeValue(d => d ?? new InMemoryDatabase(Logger));
+                _database = _persistentDatabase;
+            }
+            else
+            {
+                _database = new ThreadSafeLazyRef<InMemoryDatabase>(() => new InMemoryDatabase(Logger));
+            }
         }
 
         internal InMemoryDatabase Database

@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Can_read_and_write_values()
         {
-            var entity = new Banana { Id = 77, Name = "Stand", State = "Frozen" }; 
+            var entity = new Banana { Id = 77, Name = "Stand", State = "Frozen" };
             var sidecar = CreateSidecar(CreateStateEntry(entity));
 
             Assert.Equal(77, sidecar[IdProperty]);
@@ -212,7 +212,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var sidecar = CreateSidecar(CreateStateEntry(entity));
 
             sidecar.EnsureSnapshot(IdProperty);
-            
+
             Assert.True(sidecar.HasValue(IdProperty));
             Assert.Equal(77, sidecar[IdProperty]);
 
@@ -227,7 +227,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Can_ensure_null_value_is_snapshotted_but_not_overwrite_existing_snapshot_value()
         {
-            var entity = new Banana { Id = 77, Name = "Stand", State = null};
+            var entity = new Banana { Id = 77, Name = "Stand", State = null };
             var sidecar = CreateSidecar(CreateStateEntry(entity));
 
             sidecar.EnsureSnapshot(StateProperty);
@@ -260,10 +260,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             entity = entity ?? new Banana { Id = 77, Name = "Stand", State = "Frozen" };
 
-            var configuration = new EntityContext(
-                new EntityConfigurationBuilder().UseModel(_model).BuildConfiguration()).Configuration;
+            var configuration = TestHelpers.CreateContextConfiguration(BuildModel());
 
-            return configuration.StateEntryFactory.Create(_model.GetEntityType(typeof(Banana)), entity);
+            return configuration.Services.StateEntryFactory.Create(_model.GetEntityType(typeof(Banana)), entity);
         }
 
         private static Model BuildModel()
@@ -300,8 +299,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             public string Name { get; set; }
             public string State { get; set; }
 
+#pragma warning disable 67
             public event PropertyChangedEventHandler PropertyChanged;
             public event PropertyChangingEventHandler PropertyChanging;
+#pragma warning restore 67
         }
     }
 }

@@ -17,8 +17,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entityType.AddProperty("Long", typeof(int), shadowProperty: true, concurrencyToken: false);
             entityType.AddProperty("Hammer", typeof(string), shadowProperty: true, concurrencyToken: false);
 
+            var servicesMock = new Mock<ContextServices>();
+            servicesMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());
             var configurationMock = new Mock<ContextConfiguration>();
-            configurationMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());
+            configurationMock.Setup(m => m.Services).Returns(servicesMock.Object);
 
             var entry = new StateEntryFactory(
                 configurationMock.Object,
@@ -38,8 +40,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entityType.AddProperty("Long", typeof(int));
             entityType.AddProperty("Hammer", typeof(string));
 
+            var servicesMock = new Mock<ContextServices>();
+            servicesMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());
             var configurationMock = new Mock<ContextConfiguration>();
-            configurationMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());
+            configurationMock.Setup(m => m.Services).Returns(servicesMock.Object);
 
             var entity = new RedHook();
             var entry = new StateEntryFactory(
@@ -60,8 +64,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entityType.AddProperty("Long", typeof(int));
             entityType.AddProperty("Hammer", typeof(string), shadowProperty: true, concurrencyToken: false);
 
+            var servicesMock = new Mock<ContextServices>();
+            servicesMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());
             var configurationMock = new Mock<ContextConfiguration>();
-            configurationMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());
+            configurationMock.Setup(m => m.Services).Returns(servicesMock.Object);
 
             var entity = new RedHook();
             var entry = new StateEntryFactory(
@@ -82,8 +88,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var property1 = entityType.AddProperty("Long", typeof(int), shadowProperty: true, concurrencyToken: false);
             var property2 = entityType.AddProperty("Hammer", typeof(string), shadowProperty: true, concurrencyToken: false);
 
+            var servicesMock = new Mock<ContextServices>();
+            servicesMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());
             var configurationMock = new Mock<ContextConfiguration>();
-            configurationMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());
+            configurationMock.Setup(m => m.Services).Returns(servicesMock.Object);
 
             var entry = new StateEntryFactory(configurationMock.Object, new EntityMaterializerSource(new MemberMapper(new FieldMatcher())))
                 .Create(entityType, new ObjectArrayValueReader(new object[] { "Green", 77 }));
@@ -104,8 +112,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var property1 = entityType.AddProperty("Long", typeof(int));
             var property2 = entityType.AddProperty("Hammer", typeof(string));
 
+            var servicesMock = new Mock<ContextServices>();
+            servicesMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());
             var configurationMock = new Mock<ContextConfiguration>();
-            configurationMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());
+            configurationMock.Setup(m => m.Services).Returns(servicesMock.Object);
 
             var entry = new StateEntryFactory(configurationMock.Object, new EntityMaterializerSource(new MemberMapper(new FieldMatcher())))
                 .Create(entityType, new ObjectArrayValueReader(new object[] { "Green", 77 }));
@@ -129,8 +139,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var property1 = entityType.AddProperty("Long", typeof(int));
             var property2 = entityType.AddProperty("Hammer", typeof(string), shadowProperty: true, concurrencyToken: false);
 
+            var servicesMock = new Mock<ContextServices>();
+            servicesMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());
             var configurationMock = new Mock<ContextConfiguration>();
-            configurationMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());
+            configurationMock.Setup(m => m.Services).Returns(servicesMock.Object);
 
             var entry = new StateEntryFactory(configurationMock.Object, new EntityMaterializerSource(new MemberMapper(new FieldMatcher())))
                 .Create(entityType, new ObjectArrayValueReader(new object[] { "Green", 77 }));

@@ -41,14 +41,14 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             Check.NotNull(property, "property");
 
-            return Configuration.ClrPropertyGetterSource.GetAccessor(property).GetClrValue(_entity);
+            return Configuration.Services.ClrPropertyGetterSource.GetAccessor(property).GetClrValue(_entity);
         }
 
         protected override void WritePropertyValue(IProperty property, object value)
         {
             Check.NotNull(property, "property");
 
-            Configuration.ClrPropertySetterSource.GetAccessor(property).SetClrValue(_entity, value);
+            Configuration.Services.ClrPropertySetterSource.GetAccessor(property).SetClrValue(_entity, value);
         }
     }
 }
