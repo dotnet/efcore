@@ -26,8 +26,7 @@ namespace Microsoft.Data.InMemory
         public const string TransientMode = "Transient";
 
         // TODO: Make this better
-        private static readonly ThreadSafeLazyRef<InMemoryDatabase> _persistentDatabase
-            = new ThreadSafeLazyRef<InMemoryDatabase>(() => null);
+        private static ThreadSafeLazyRef<InMemoryDatabase> _persistentDatabase;
 
         private readonly ThreadSafeLazyRef<InMemoryDatabase> _database;
 
@@ -52,7 +51,11 @@ namespace Microsoft.Data.InMemory
 
             if (persist)
             {
-                _persistentDatabase.ExchangeValue(d => d ?? new InMemoryDatabase(Logger));
+                // TODO: Temporary hack due to scoping of store
+                if (_persistentDatabase == null)
+                {
+                    _persistentDatabase = new ThreadSafeLazyRef<InMemoryDatabase>(() => new InMemoryDatabase(Logger));
+                }
                 _database = _persistentDatabase;
             }
             else
