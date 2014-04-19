@@ -9,7 +9,7 @@
     "Microsoft.AspNet.DependencyInjection": "0.1-alpha-*",
     "Microsoft.AspNet.Logging": "0.1-alpha-*",
     "System.Data.Common": "0.1-alpha-*",
-    "Remotion.Linq": "1.15.11.0"
+    "Remotion.Linq": "1.16-alpha"
   },
   "code": "**\\*.cs;..\\Shared\\*.cs",
   "configurations": {
