@@ -4,7 +4,7 @@
     "System.Data.Common": "0.1-alpha-*"
   },
   "configurations": {
-    "net45": {
+    "net451": {
       "dependencies": {
         "System.Data": ""
       }
