@@ -2,10 +2,9 @@
 
 using Microsoft.Data.Entity;
 using Microsoft.Data.FunctionalTests;
-using Northwind;
 using Xunit;
 
-namespace Microsoft.Data.InMemory.FunctionalTests
+namespace Microsoft.Data.SqlServer.FunctionalTests
 {
     public class NorthwindQueryTest : NorthwindQueryTestBase, IClassFixture<NorthwindQueryFixture>
     {
@@ -25,30 +24,28 @@ namespace Microsoft.Data.InMemory.FunctionalTests
     public class NorthwindQueryFixture : NorthwindQueryFixtureBase
     {
         private readonly EntityConfiguration _configuration;
+        private readonly TestDatabase _testDatabase;
 
         public NorthwindQueryFixture()
         {
+            _testDatabase = TestDatabase.Northwind().Result;
+
             _configuration
                 = new EntityConfigurationBuilder()
                     .UseModel(CreateModel())
-                    .WithServices(s => s.AddInMemoryStore())
-                    .UseInMemoryStore(persist: true)
+                    .WithServices(s => s.AddSqlServer())
+                    .SqlServerConnectionString(_testDatabase.Connection.ConnectionString)
                     .BuildConfiguration();
-
-            using (var context = new EntityContext(_configuration))
-            {
-                context.Set<Customer>().AddRange(NorthwindData.Customers);
-                context.Set<Employee>().AddRange(NorthwindData.Employees);
-                context.Set<Order>().AddRange(NorthwindData.Orders);
-                context.Set<Product>().AddRange(NorthwindData.Products);
-                //context.Set<OrderDetail>().AddRange(NorthwindData.OrderDetails); // composite keys
-                context.SaveChanges();
-            }
         }
 
         public override EntityConfiguration Configuration
         {
             get { return _configuration; }
+        }
+
+        public void Dispose()
+        {
+            _testDatabase.Dispose();
         }
     }
 }

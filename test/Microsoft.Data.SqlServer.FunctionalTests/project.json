@@ -16,7 +16,7 @@
     "xunit.execution": "2.0.0-aspnet-*",
     "Remotion.Linq": "1.16-alpha"
   },
-  "code": "**\\*.cs;..\\Shared\\TestFileLogger.cs",
+  "code": "**\\*.cs;..\\Shared\\TestFileLogger.cs;..\\Shared\\Northwind.cs;..\\Shared\\NorthwindQueryTestBase.cs;..\\Shared\\NorthwindQueryFixtureBase.cs",
   "commands": {
     "test": "Xunit.KRunner"
   },

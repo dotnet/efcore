@@ -252,7 +252,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
             return command;
         }
 
-        void IDisposable.Dispose()
+        public void Dispose()
         {
             if (_transaction != null)
             {
