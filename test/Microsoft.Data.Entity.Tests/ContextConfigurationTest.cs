@@ -88,10 +88,7 @@ namespace Microsoft.Data.Entity.Tests
         {
             var provider = new ServiceCollection().BuildServiceProvider();
             return new ContextConfiguration()
-                .Initialize(
-                    provider,
-                    new EntityConfiguration(provider, null, new ConfigurationAnnotations(), null),
-                    Mock.Of<EntityContext>());
+                .Initialize(provider, new EntityConfiguration(), Mock.Of<EntityContext>(), ContextConfiguration.ServiceProviderSource.Explicit);
         }
     }
 }

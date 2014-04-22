@@ -33,7 +33,6 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
             _configuration
                 = new EntityConfigurationBuilder()
                     .UseModel(CreateModel())
-                    .WithServices(s => s.AddSqlServer())
                     .SqlServerConnectionString(_testDatabase.Connection.ConnectionString)
                     .BuildConfiguration();
         }

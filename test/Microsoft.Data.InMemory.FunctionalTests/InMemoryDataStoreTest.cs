@@ -2,7 +2,9 @@
 
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNet.DependencyInjection;
 using Microsoft.AspNet.DependencyInjection.Advanced;
+using Microsoft.AspNet.DependencyInjection.Fallback;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Tests;
@@ -17,15 +19,18 @@ namespace Microsoft.Data.InMemory.FunctionalTests
         {
             var model = CreateModel();
 
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFramework(s => s.AddInMemoryStore().UseLoggerFactory(TestFileLogger.Factory))
+                .BuildServiceProvider();
+
             var configuration = new EntityConfigurationBuilder()
-                .WithServices(s => s.AddInMemoryStore().UseLoggerFactory(TestFileLogger.Factory))
                 .UseModel(model)
                 .UseInMemoryStore(persist: true)
                 .BuildConfiguration();
 
             var customer = new Customer { Id = 42, Name = "Theon" };
 
-            using (var context = new EntityContext(configuration))
+            using (var context = new EntityContext(serviceProvider, configuration))
             {
                 context.Add(customer);
 
@@ -34,7 +39,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                 customer.Name = "Changed!";
             }
 
-            using (var context = new EntityContext(configuration))
+            using (var context = new EntityContext(serviceProvider, configuration))
             {
                 var customerFromStore = context.Set<Customer>().Single();
 
@@ -42,7 +47,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                 Assert.Equal("Theon", customerFromStore.Name);
             }
 
-            using (var context = new EntityContext(configuration))
+            using (var context = new EntityContext(serviceProvider, configuration))
             {
                 customer.Name = "Theon Greyjoy";
                 context.Update(customer);
@@ -50,7 +55,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                 await context.SaveChangesAsync();
             }
 
-            using (var context = new EntityContext(configuration))
+            using (var context = new EntityContext(serviceProvider, configuration))
             {
                 var customerFromStore = context.Set<Customer>().Single();
 
@@ -58,14 +63,14 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                 Assert.Equal("Theon Greyjoy", customerFromStore.Name);
             }
 
-            using (var context = new EntityContext(configuration))
+            using (var context = new EntityContext(serviceProvider, configuration))
             {
                 context.Delete(customer);
 
                 await context.SaveChangesAsync();
             }
 
-            using (var context = new EntityContext(configuration))
+            using (var context = new EntityContext(serviceProvider, configuration))
             {
                 Assert.Equal(0, context.Set<Customer>().Count());
             }
@@ -134,8 +139,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
 
             protected override void OnConfiguring(EntityConfigurationBuilder builder)
             {
-                builder.WithServices(s => s.AddInMemoryStore())
-                    .UseInMemoryStore(persist: true);
+                builder.UseInMemoryStore();
             }
 
             protected override void OnModelCreating(ModelBuilder builder)

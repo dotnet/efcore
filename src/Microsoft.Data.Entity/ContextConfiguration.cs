@@ -10,21 +10,31 @@ namespace Microsoft.Data.Entity
 {
     public class ContextConfiguration
     {
+        public enum ServiceProviderSource
+        {
+            Explicit,
+            Implicit,
+        }
+
         private ContextServices _services;
         private EntityConfiguration _entityConfiguration;
         private EntityContext _context;
         private LazyRef<IModel> _modelFromSource;
         private LazyRef<DataStore> _dataStore;
+        private ServiceProviderSource _serviceProviderSource;
 
         public virtual ContextConfiguration Initialize(
             [NotNull] IServiceProvider scopedProvider,
             [NotNull] EntityConfiguration entityConfiguration,
-            [NotNull] EntityContext context)
+            [NotNull] EntityContext context,
+            ServiceProviderSource serviceProviderSource)
         {
             Check.NotNull(entityConfiguration, "entityConfiguration");
             Check.NotNull(context, "context");
+            Check.IsDefined(serviceProviderSource, "serviceProviderSource");
 
             _services = new ContextServices(scopedProvider);
+            _serviceProviderSource = serviceProviderSource;
             _entityConfiguration = entityConfiguration;
             _context = context;
             _modelFromSource = new LazyRef<IModel>(() => _services.ModelSource.GetModel(_context));
@@ -53,9 +63,14 @@ namespace Microsoft.Data.Entity
             get { return _services; }
         }
 
-        public virtual ConfigurationAnnotations Annotations
+        public virtual EntityConfiguration EntityConfiguration
         {
-            get { return _entityConfiguration.Annotations; }
+            get { return _entityConfiguration; }
+        }
+
+        public virtual ServiceProviderSource ProviderSource
+        {
+            get { return _serviceProviderSource; }
         }
     }
 }

@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System.Linq;
 using Microsoft.AspNet.DependencyInjection;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Storage;
@@ -21,8 +22,7 @@ namespace Microsoft.Data.InMemory
         {
             Check.NotNull(configuration, "configuration");
 
-            return configuration.Annotations.HasAnnotations(typeof(InMemoryDataStore))
-                   && configuration.Annotations[typeof(InMemoryDataStore)][InMemoryDataStore.ModeKey] != null;
+            return configuration.EntityConfiguration.Extensions().OfType<InMemoryConfigurationExtension>().Any();
         }
 
         public override bool IsAvailable(ContextConfiguration configuration)
@@ -30,6 +30,11 @@ namespace Microsoft.Data.InMemory
             Check.NotNull(configuration, "configuration");
 
             return true;
+        }
+
+        public override string Name
+        {
+            get { return typeof(InMemoryDataStore).Name; }
         }
     }
 }

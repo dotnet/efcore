@@ -10,54 +10,44 @@ namespace Microsoft.Data.Entity.Tests
 {
     public static class TestHelpers
     {
-        public static EntityConfiguration CreateEntityConfiguration(IServiceProvider provider, IModel model)
+        public static EntityConfiguration CreateEntityConfiguration(IModel model)
         {
-            return new EntityConfigurationBuilder(provider)
+            return new EntityConfigurationBuilder()
                 .UseModel(model)
                 .BuildConfiguration();
         }
 
-        public static EntityConfiguration CreateEntityConfiguration(IServiceProvider provider)
+        public static EntityConfiguration CreateEntityConfiguration()
         {
-            return new EntityConfigurationBuilder(provider)
+            return new EntityConfigurationBuilder()
                 .BuildConfiguration();
         }
 
-        public static EntityConfiguration CreateEntityConfiguration(IModel model)
+        public static IServiceProvider CreateServiceProvider()
         {
-            return CreateEntityConfiguration(
-                new ServiceCollection()
-                    .AddEntityFramework(s => s.AddInMemoryStore())
-                    .BuildServiceProvider(),
-                model);
+            return new ServiceCollection()
+                .AddEntityFramework(s => s.AddInMemoryStore())
+                .BuildServiceProvider();
         }
 
-        public static EntityConfiguration CreateEntityConfiguration()
+        public static ContextConfiguration CreateContextConfiguration(IServiceProvider serviceProvider, IModel model)
         {
-            return CreateEntityConfiguration(
-                new ServiceCollection()
-                    .AddEntityFramework(s => s.AddInMemoryStore())
-                    .BuildServiceProvider());
+            return new EntityContext(serviceProvider, CreateEntityConfiguration(model)).Configuration;
         }
 
-        public static ContextConfiguration CreateContextConfiguration(IServiceProvider provider, IModel model)
+        public static ContextConfiguration CreateContextConfiguration(IServiceProvider serviceProvider)
         {
-            return new EntityContext(CreateEntityConfiguration(provider, model)).Configuration;
-        }
-
-        public static ContextConfiguration CreateContextConfiguration(IServiceProvider provider)
-        {
-            return new EntityContext(CreateEntityConfiguration(provider)).Configuration;
+            return new EntityContext(serviceProvider, CreateEntityConfiguration()).Configuration;
         }
 
         public static ContextConfiguration CreateContextConfiguration(IModel model)
         {
-            return new EntityContext(CreateEntityConfiguration(model)).Configuration;
+            return new EntityContext(CreateServiceProvider(), CreateEntityConfiguration(model)).Configuration;
         }
 
         public static ContextConfiguration CreateContextConfiguration()
         {
-            return new EntityContext(CreateEntityConfiguration()).Configuration;
+            return new EntityContext(CreateServiceProvider(), CreateEntityConfiguration()).Configuration;
         }
     }
 }

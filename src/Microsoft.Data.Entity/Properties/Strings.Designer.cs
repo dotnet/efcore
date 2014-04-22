@@ -458,6 +458,70 @@ namespace Microsoft.Data.Entity
             return string.Format(CultureInfo.CurrentCulture, GetString("NoClrType", "entityType"), entityType);
         }
 
+        /// <summary>
+        /// The data stores {storeNames}are configured. A context can only be configured to use a single data store.
+        /// </summary>
+        internal static string MultipleDataStoresConfigured
+        {
+            get { return GetString("MultipleDataStoresConfigured"); }
+        }
+
+        /// <summary>
+        /// The data stores {storeNames}are configured. A context can only be configured to use a single data store.
+        /// </summary>
+        internal static string FormatMultipleDataStoresConfigured(object storeNames)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("MultipleDataStoresConfigured", "storeNames"), storeNames);
+        }
+
+        /// <summary>
+        /// No data stores are configured. Configure a data store using OnConfiguring or by creating an EntityConfiguration with a data store configured and passing it to the context.
+        /// </summary>
+        internal static string NoDataStoreConfigured
+        {
+            get { return GetString("NoDataStoreConfigured"); }
+        }
+
+        /// <summary>
+        /// No data stores are configured. Configure a data store using OnConfiguring or by creating an EntityConfiguration with a data store configured and passing it to the context.
+        /// </summary>
+        internal static string FormatNoDataStoreConfigured()
+        {
+            return GetString("NoDataStoreConfigured");
+        }
+
+        /// <summary>
+        /// No data stores are available. Ensure that data store services are added inside the call to AddEntityFramework on your ServiceCollection.
+        /// </summary>
+        internal static string NoDataStoreService
+        {
+            get { return GetString("NoDataStoreService"); }
+        }
+
+        /// <summary>
+        /// No data stores are available. Ensure that data store services are added inside the call to AddEntityFramework on your ServiceCollection.
+        /// </summary>
+        internal static string FormatNoDataStoreService()
+        {
+            return GetString("NoDataStoreService");
+        }
+
+        /// <summary>
+        /// The data stores {storeNames}are available. A context can only be configured to use a single data store. Configure a data store using OnConfiguring or by creating an EntityConfiguration with a data store configured and passing it to the context.
+        /// </summary>
+        internal static string MultipleDataStoresAvailable
+        {
+            get { return GetString("MultipleDataStoresAvailable"); }
+        }
+
+        /// <summary>
+        /// The data stores {storeNames}are available. A context can only be configured to use a single data store. Configure a data store using OnConfiguring or by creating an EntityConfiguration with a data store configured and passing it to the context.
+        /// </summary>
+        internal static string FormatMultipleDataStoresAvailable(object storeNames)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("MultipleDataStoresAvailable", "storeNames"), storeNames);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

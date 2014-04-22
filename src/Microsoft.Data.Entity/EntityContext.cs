@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNet.DependencyInjection;
-using Microsoft.AspNet.DependencyInjection.Fallback;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
@@ -19,45 +18,55 @@ namespace Microsoft.Data.Entity
 
         protected EntityContext()
         {
-            Initialize(new EntityConfigurationBuilder());
+            Initialize(null, new EntityConfigurationBuilder());
         }
 
         public EntityContext([NotNull] IServiceProvider serviceProvider)
         {
             Check.NotNull(serviceProvider, "serviceProvider");
 
-            Initialize(new EntityConfigurationBuilder(serviceProvider));
+            Initialize(serviceProvider, new EntityConfigurationBuilder());
         }
 
         public EntityContext([NotNull] EntityConfiguration configuration)
         {
             Check.NotNull(configuration, "configuration");
 
-            Initialize(configuration);
+            Initialize(null, configuration);
         }
 
-        private void Initialize(EntityConfigurationBuilder builder)
+        public EntityContext([NotNull] IServiceProvider serviceProvider, [NotNull] EntityConfiguration configuration)
+        {
+            Check.NotNull(serviceProvider, "serviceProvider");
+            Check.NotNull(configuration, "configuration");
+
+            Initialize(serviceProvider, configuration);
+        }
+
+        private void Initialize(IServiceProvider serviceProvider, EntityConfigurationBuilder builder)
         {
             // TODO: Make this lazy
             OnConfiguring(builder);
-            var entityConfiguration = builder.BuildConfiguration();
 
-            Initialize(entityConfiguration);
+            Initialize(serviceProvider, builder.BuildConfiguration());
         }
 
-        private void Initialize(EntityConfiguration entityConfiguration)
+        private void Initialize(IServiceProvider serviceProvider, EntityConfiguration entityConfiguration)
         {
-            var provider = entityConfiguration.Services
-                ?? ServiceProviderCache.Instance.GetOrAdd(entityConfiguration.ServiceCollection);
+            var providerSource = serviceProvider != null 
+                ? ContextConfiguration.ServiceProviderSource.Explicit 
+                : ContextConfiguration.ServiceProviderSource.Implicit;
 
-            var scopedProvider = provider
+            serviceProvider = serviceProvider ?? ServiceProviderCache.Instance.GetOrAdd(entityConfiguration);
+
+            var scopedProvider = serviceProvider
                 .GetService<IServiceScopeFactory>()
                 .CreateScope()
                 .ServiceProvider;
 
             _configuration = scopedProvider
                 .GetService<ContextConfiguration>()
-                .Initialize(scopedProvider, entityConfiguration, this);
+                .Initialize(scopedProvider, entityConfiguration, this, providerSource);
 
             // TODO: This bit not lazy
             _sets = _configuration.Services.ContextEntitySets;

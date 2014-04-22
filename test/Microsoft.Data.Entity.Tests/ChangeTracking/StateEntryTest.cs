@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNet.DependencyInjection;
 using Microsoft.AspNet.DependencyInjection.Advanced;
+using Microsoft.AspNet.DependencyInjection.Fallback;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
@@ -95,9 +96,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var generatorFactory = new Mock<IdentityGeneratorFactory>();
             generatorFactory.Setup(m => m.Create(keyProperty)).Returns(generatorMock.Object);
 
-            var configuration = new EntityContext(new EntityConfigurationBuilder()
-                .WithServices(s => s.UseIdentityGeneratorFactory(generatorFactory.Object))
-                .UseModel(model).BuildConfiguration()).Configuration;
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFramework(s => s.UseIdentityGeneratorFactory(generatorFactory.Object))
+                .BuildServiceProvider();
+
+            var configuration = TestHelpers.CreateContextConfiguration(serviceProvider, model);
 
             var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
 

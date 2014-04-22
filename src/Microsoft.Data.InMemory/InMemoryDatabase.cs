@@ -10,8 +10,8 @@ using Microsoft.AspNet.Logging;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Services;
 using Microsoft.Data.Entity.Utilities;
-using Microsoft.Data.InMemory.Utilities;
 
 namespace Microsoft.Data.InMemory
 {
@@ -23,11 +23,9 @@ namespace Microsoft.Data.InMemory
             = new ThreadSafeLazyRef<ImmutableDictionary<IEntityType, InMemoryTable>>(
                 () => ImmutableDictionary<IEntityType, InMemoryTable>.Empty);
 
-        public InMemoryDatabase([NotNull] ILogger logger)
+        public InMemoryDatabase([CanBeNull] ILoggerFactory loggerFactory)
         {
-            Check.NotNull(logger, "logger");
-
-            _logger = logger;
+            _logger = (loggerFactory ?? new NullLoggerFactory()).Create(typeof(InMemoryDatabase).Name);
         }
 
         public virtual InMemoryTable GetTable([NotNull] IEntityType entityType)

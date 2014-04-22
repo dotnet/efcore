@@ -31,8 +31,7 @@ namespace Microsoft.Data.Entity.Storage
 
             if (configured.Length > 1)
             {
-                // TODO: Proper exception message
-                throw new InvalidOperationException("Multiple data stores configured");
+                throw new InvalidOperationException(Strings.FormatMultipleDataStoresConfigured(BuildStoreNamesString(configured)));
             }
 
             if (configured.Length == 1)
@@ -40,21 +39,33 @@ namespace Microsoft.Data.Entity.Storage
                 return configured[0].GetDataStore(configuration);
             }
 
+            if (_factoroies.Length == 0)
+            {
+                if (configuration.ProviderSource == ContextConfiguration.ServiceProviderSource.Implicit)
+                {
+                    throw new InvalidOperationException(Strings.NoDataStoreConfigured);
+                }
+                throw new InvalidOperationException(Strings.NoDataStoreService);
+            }
+
             var available = _factoroies.Where(f => f.IsAvailable(configuration)).ToArray();
 
             if (available.Length == 0)
             {
-                // TODO: Proper exception message
-                throw new InvalidOperationException("No data store available");
+                throw new InvalidOperationException(Strings.NoDataStoreConfigured);
             }
 
             if (available.Length > 1)
             {
-                // TODO: Proper exception message
-                throw new InvalidOperationException("Must configure a data store");
+                throw new InvalidOperationException(Strings.FormatMultipleDataStoresAvailable(BuildStoreNamesString(available)));
             }
 
             return available[0].GetDataStore(configuration);
+        }
+
+        private static string BuildStoreNamesString(IEnumerable<DataStoreSource> available)
+        {
+            return available.Select(e => e.Name).Aggregate("", (n, c) => c + "'" + n + "' ");
         }
     }
 }

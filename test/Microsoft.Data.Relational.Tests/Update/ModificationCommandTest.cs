@@ -240,10 +240,10 @@ namespace Microsoft.Data.Relational.Tests.Update
         private static ContextConfiguration CreateConfiguration(IModel model)
         {
             return new EntityContext(
-                new EntityConfigurationBuilder(
-                    new ServiceCollection()
-                        .AddEntityFramework()
-                        .BuildServiceProvider())
+                new ServiceCollection()
+                    .AddEntityFramework()
+                    .BuildServiceProvider(),
+                new EntityConfigurationBuilder()
                     .UseModel(model)
                     .BuildConfiguration())
                 .Configuration;
