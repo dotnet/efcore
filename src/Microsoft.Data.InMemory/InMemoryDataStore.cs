@@ -87,11 +87,6 @@ namespace Microsoft.Data.InMemory
             Check.NotNull(model, "model");
             Check.NotNull(stateManager, "stateManager");
 
-            if (!_database.HasValue)
-            {
-                return new CompletedAsyncEnumerable<TResult>(Enumerable.Empty<TResult>());
-            }
-
             var queryModelVisitor = new QueryModelVisitor();
             var queryExecutor = queryModelVisitor.CreateQueryExecutor<TResult>(queryModel);
             var queryContext = new InMemoryQueryContext(model, stateManager, _database.Value);
