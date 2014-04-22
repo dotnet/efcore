@@ -364,12 +364,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         private static IModel BuildModel()
         {
             var model = new Model();
-            var builder = new ModelBuilder(model);
+            var builder = new ConventionalModelBuilder(model);
 
             builder.Entity<Product>();
             builder.Entity<Category>();
-
-            new SimpleTemporaryConvention().Apply(model);
 
             var locationType = new EntityType("Location");
             var idProperty = locationType.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false);

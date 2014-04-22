@@ -28,14 +28,26 @@ namespace Microsoft.Data.Entity.Metadata
         public virtual EntityBuilder<T> Entity<T>()
         {
             var type = typeof(T);
+            var entityType = Entity(type);
+
+            return new EntityBuilder<T>(entityType, this);
+        }
+
+        internal EntityType Entity(Type type)
+        {
             var entityType = _model.TryGetEntityType(type);
 
             if (entityType == null)
             {
                 _model.AddEntityType(entityType = new EntityType(type));
+                OnEntityTypeAdded(entityType);
             }
 
-            return new EntityBuilder<T>(entityType, this);
+            return entityType;
+        }
+
+        protected virtual void OnEntityTypeAdded([NotNull] EntityType entityType)
+        {
         }
 
         public virtual ModelBuilder Annotation([NotNull] string annotation, [NotNull] string value)

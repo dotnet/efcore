@@ -216,4 +216,7 @@
   <data name="EntityConfigurationLocked" xml:space="preserve">
     <value>Cannot change the EntityConfiguration by calling '{memberName}' because it is locked. Use EntityConfigurationBuilder to create EntityConfigurations.</value>
   </data>
+  <data name="MultiplePropertiesMatchedAsKeys" xml:space="preserve">
+    <value>Multiple potential primary key properties named '{property}' but differing only by case were found on entity type '{entityType}'. Configure the primary key explicitly using the SetKey fluent API.</value>
+  </data>
 </root>

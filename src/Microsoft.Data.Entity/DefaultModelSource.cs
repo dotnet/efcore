@@ -30,19 +30,14 @@ namespace Microsoft.Data.Entity
         private IModel CreateModel(EntityContext context)
         {
             var model = new Model();
+            var modelBuilder = new ConventionalModelBuilder(model);
 
             foreach (var setInfo in _setFinder.FindSets(context))
             {
-                if (model.TryGetEntityType(setInfo.EntityType) == null)
-                {
-                    model.AddEntityType(new EntityType(setInfo.EntityType));
-                }
+                modelBuilder.Entity(setInfo.EntityType);
             }
 
-            // TODO: Use conventions/builder appropriately
-            new SimpleTemporaryConvention().Apply(model);
-
-            context.OnModelCreating(new ModelBuilder(model));
+            context.OnModelCreating(modelBuilder);
 
             return model;
         }
