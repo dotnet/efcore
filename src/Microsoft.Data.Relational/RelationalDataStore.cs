@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.AspNet.Logging;
+using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
@@ -23,8 +23,8 @@ namespace Microsoft.Data.Relational
         {
         }
 
-        protected RelationalDataStore([CanBeNull] ILoggerFactory loggerFactory)
-            : base(loggerFactory)
+        protected RelationalDataStore([NotNull] ContextConfiguration configuration)
+            : base(configuration)
         {
         }
 

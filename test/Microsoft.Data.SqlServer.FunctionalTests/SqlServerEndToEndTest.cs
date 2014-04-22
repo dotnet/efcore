@@ -3,15 +3,14 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data.Common;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNet.Logging;
+using Microsoft.AspNet.DependencyInjection;
+using Microsoft.AspNet.DependencyInjection.Fallback;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Relational;
 using Xunit;
 
 namespace Microsoft.Data.SqlServer.FunctionalTests
@@ -49,17 +48,16 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
         {
             using (await TestDatabase.Northwind())
             {
-                var configuration = new EntityConfigurationBuilder()
-                    .WithServices(s =>
+                var serviceProvider = new ServiceCollection()
+                    .AddEntityFramework(s =>
                         {
-                            s.AddSqlServer();
                             // TODO: Consider sugar for changing low-level SqlServerDataStore
                             s.ServiceCollection.AddScoped<SqlServerDataStore, SqlStoreWithBufferReader>();
+                            s.AddSqlServer();
                         })
-                    .SqlServerConnectionString(TestDatabase.NorthwindConnectionString)
-                    .BuildConfiguration();
+                    .BuildServiceProvider();
 
-                using (var db = new NorthwindContext(configuration))
+                using (var db = new NorthwindContext(serviceProvider))
                 {
                     var results = db.Customers
                         .Where(c => c.CompanyName.StartsWith("A"))
@@ -87,9 +85,8 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
         {
             public bool Used { get; set; }
 
-            public SqlStoreWithBufferReader(
-                ContextConfiguration configuration, ILoggerFactory loggerFactory, SqlServerSqlGenerator sqlGenerator)
-                : base(configuration, loggerFactory, sqlGenerator)
+            public SqlStoreWithBufferReader(ContextConfiguration configuration, SqlServerSqlGenerator sqlGenerator)
+                : base(configuration, sqlGenerator)
             {
             }
 
@@ -129,7 +126,6 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                 await CreateBlogDatabase(testDatabase);
 
                 var configuration = new EntityConfigurationBuilder()
-                    .WithServices(s => s.AddSqlServer())
                     .SqlServerConnectionString(testDatabase.Connection.ConnectionString)
                     .BuildConfiguration();
 
@@ -196,7 +192,6 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                 await CreateBlogDatabase(testDatabase);
 
                 var configuration = new EntityConfigurationBuilder()
-                    .WithServices(s => s.AddSqlServer())
                     .SqlServerConnectionString(testDatabase.Connection.ConnectionString)
                     .BuildConfiguration();
 
@@ -239,8 +234,8 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
             {
             }
 
-            public NorthwindContext(EntityConfiguration configuration)
-                : base(configuration)
+            public NorthwindContext(IServiceProvider serviceProvider)
+                : base(serviceProvider)
             {
             }
 
@@ -248,9 +243,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
 
             protected override void OnConfiguring(EntityConfigurationBuilder builder)
             {
-                builder
-                    .WithServices(s => s.AddSqlServer())
-                    .SqlServerConnectionString(TestDatabase.NorthwindConnectionString);
+                builder.SqlServerConnectionString(TestDatabase.NorthwindConnectionString);
             }
 
             protected override void OnModelCreating(ModelBuilder builder)

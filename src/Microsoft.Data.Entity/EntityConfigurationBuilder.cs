@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.AspNet.DependencyInjection;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
@@ -10,50 +10,32 @@ namespace Microsoft.Data.Entity
 {
     public class EntityConfigurationBuilder
     {
-        private readonly IServiceProvider _serviceProvider;
-        private readonly EntityServicesBuilder _servicesBuilder;
         private IModel _model;
-        private readonly ConfigurationAnnotations _annotations = new ConfigurationAnnotations();
 
-        public EntityConfigurationBuilder()
-        {
-            _servicesBuilder = new EntityServicesBuilder(new ServiceCollection().AddEntityFramework());
-        }
-
-        public EntityConfigurationBuilder([NotNull] IServiceProvider serviceProvider)
-        {
-            Check.NotNull(serviceProvider, "serviceProvider");
-
-            _serviceProvider = serviceProvider;
-        }
+        private readonly IList<Action<IEntityConfigurationConstruction>> _buildActions
+            = new List<Action<IEntityConfigurationConstruction>>();
 
         public virtual EntityConfiguration BuildConfiguration()
         {
-            return new EntityConfiguration(
-                _serviceProvider,
-                _servicesBuilder == null ? null : _servicesBuilder.ServiceCollection,
-                _annotations,
-                _model);
+            return BuildConfiguration(() => new EntityConfiguration());
         }
 
-        public virtual EntityConfigurationBuilder WithServices([NotNull] Action<EntityServicesBuilder> servicesBuilder)
+        public virtual TConfiguration BuildConfiguration<TConfiguration>([NotNull] Func<TConfiguration> factory)
+            where TConfiguration : EntityConfiguration
         {
-            Check.NotNull(servicesBuilder, "servicesBuilder");
+            Check.NotNull(factory, "factory");
 
-            if (_servicesBuilder == null)
+            var configuration = (IEntityConfigurationConstruction)factory();
+            configuration.Model = _model;
+
+            foreach (var buildAction in _buildActions)
             {
-                // TODO: Proper messgae
-                throw new InvalidOperationException("Services already configured.");
+                buildAction(configuration);
             }
 
-            servicesBuilder(_servicesBuilder);
+            configuration.Lock();
 
-            return this;
-        }
-
-        public virtual ConfigurationAnnotations Annotations
-        {
-            get { return _annotations; }
+            return (TConfiguration)configuration;
         }
 
         public virtual EntityConfigurationBuilder UseModel([NotNull] IModel model)
@@ -61,6 +43,15 @@ namespace Microsoft.Data.Entity
             Check.NotNull(model, "model");
 
             _model = model;
+
+            return this;
+        }
+
+        public virtual EntityConfigurationBuilder AddBuildAction([NotNull] Action<IEntityConfigurationConstruction> action)
+        {
+            Check.NotNull(action, "action");
+
+            _buildActions.Add(action);
 
             return this;
         }

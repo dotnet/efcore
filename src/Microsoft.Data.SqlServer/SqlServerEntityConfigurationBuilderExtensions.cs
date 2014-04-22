@@ -14,7 +14,7 @@ namespace Microsoft.Data.SqlServer
             Check.NotNull(builder, "builder");
             Check.NotEmpty(connectionString, "connectionString");
 
-            builder.Annotations[typeof(SqlServerDataStore)][SqlServerDataStore.ConnectionStringKey] = connectionString;
+            builder.AddBuildAction(c => c.AddExtension(new SqlServerConfigurationExtension { ConnectionString = connectionString }));
 
             return builder;
         }

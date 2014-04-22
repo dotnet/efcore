@@ -17,6 +17,7 @@ namespace Microsoft.Data.InMemory
             builder.ServiceCollection
                 .AddScoped<InMemoryDataStore, InMemoryDataStore>()
                 .AddSingleton<DataStoreSource, InMemoryDataStoreSource>()
+                .AddSingleton<InMemoryDatabase, InMemoryDatabase>()
                 // TODO: Need to be able to pick the appropriate identity generator for the data store in use
                 .AddSingleton<IdentityGeneratorFactory, InMemoryIdentityGeneratorFactory>();
 

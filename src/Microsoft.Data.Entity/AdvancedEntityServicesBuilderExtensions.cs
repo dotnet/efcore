@@ -32,15 +32,6 @@ namespace Microsoft.AspNet.DependencyInjection.Advanced
             return builder;
         }
 
-        public static EntityServicesBuilder UseEntitySetSource([NotNull] this EntityServicesBuilder builder, [NotNull] EntitySetSource source)
-        {
-            Check.NotNull(source, "source");
-
-            builder.ServiceCollection.AddInstance<EntitySetSource>(source);
-
-            return builder;
-        }
-
         public static EntityServicesBuilder UseIdentityGeneratorFactory([NotNull] this EntityServicesBuilder builder, [NotNull] IdentityGeneratorFactory factory)
         {
             Check.NotNull(factory, "factory");
@@ -134,14 +125,6 @@ namespace Microsoft.AspNet.DependencyInjection.Advanced
             where TService : EntitySetInitializer
         {
             builder.ServiceCollection.AddSingleton<EntitySetInitializer, TService>();
-
-            return builder;
-        }
-
-        public static EntityServicesBuilder UseEntitySetSource<TService>([NotNull] this EntityServicesBuilder builder)
-            where TService : EntitySetSource
-        {
-            builder.ServiceCollection.AddSingleton<EntitySetSource, TService>();
 
             return builder;
         }

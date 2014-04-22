@@ -201,4 +201,19 @@
   <data name="NoClrType" xml:space="preserve">
     <value>The CLR entity materializer cannot be used for entity type '{entityType}' because it is a shadow-state entity type.  Materialization to a CLR type is only possible for entity types that have a corresponding CLR type.</value>
   </data>
+  <data name="MultipleDataStoresConfigured" xml:space="preserve">
+    <value>The data stores {storeNames}are configured. A context can only be configured to use a single data store.</value>
+  </data>
+  <data name="NoDataStoreConfigured" xml:space="preserve">
+    <value>No data stores are configured. Configure a data store using OnConfiguring or by creating an EntityConfiguration with a data store configured and passing it to the context.</value>
+  </data>
+  <data name="NoDataStoreService" xml:space="preserve">
+    <value>No data stores are available. Ensure that data store services are added inside the call to AddEntityFramework on your ServiceCollection.</value>
+  </data>
+  <data name="MultipleDataStoresAvailable" xml:space="preserve">
+    <value>The data stores {storeNames}are available. A context can only be configured to use a single data store. Configure a data store using OnConfiguring or by creating an EntityConfiguration with a data store configured and passing it to the context.</value>
+  </data>
+  <data name="EntityConfigurationLocked" xml:space="preserve">
+    <value>Cannot change the EntityConfiguration by calling '{memberName}' because it is locked. Use EntityConfigurationBuilder to create EntityConfigurations.</value>
+  </data>
 </root>

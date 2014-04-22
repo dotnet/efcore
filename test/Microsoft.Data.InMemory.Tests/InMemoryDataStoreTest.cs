@@ -16,15 +16,46 @@ namespace Microsoft.Data.InMemory.Tests
 {
     public class InMemoryDataStoreTest
     {
-        #region Fixture
-
-        private class Customer
+        [Fact]
+        public void Uses_persistent_database_by_default()
         {
-            public int Id { get; set; }
-            public string Name { get; set; }
+            var configuration = CreateConfiguration();
+            var persistentDatabase = new InMemoryDatabase(new NullLoggerFactory());
+
+            var inMemoryDataStore = new InMemoryDataStore(configuration, persistentDatabase);
+
+            Assert.Same(persistentDatabase, inMemoryDataStore.Database);
         }
 
-        #endregion
+        [Fact]
+        public void Uses_persistent_database_if_configured_as_persistent()
+        {
+            var configuration = CreateConfiguration(new EntityConfigurationBuilder()
+                .UseInMemoryStore(persist: true)
+                .BuildConfiguration());
+
+            var persistentDatabase = new InMemoryDatabase(new NullLoggerFactory());
+
+            var inMemoryDataStore = new InMemoryDataStore(configuration, persistentDatabase);
+
+            Assert.Same(persistentDatabase, inMemoryDataStore.Database);
+        }
+
+        [Fact]
+        public void Uses_transient_database_if_not_configured_as_persistent()
+        {
+            var configuration = CreateConfiguration(new EntityConfigurationBuilder()
+                .UseInMemoryStore(persist: false)
+                .BuildConfiguration());
+
+            var persistentDatabase = new InMemoryDatabase(new NullLoggerFactory());
+
+            var inMemoryDataStore = new InMemoryDataStore(configuration, persistentDatabase);
+
+            Assert.NotNull(inMemoryDataStore.Database);
+            Assert.NotSame(persistentDatabase, inMemoryDataStore.Database);
+            Assert.Same(inMemoryDataStore.Database, inMemoryDataStore.Database);
+        }
 
         [Fact]
         public async Task Save_changes_adds_new_objects_to_store()
@@ -36,7 +67,8 @@ namespace Microsoft.Data.InMemory.Tests
             var customer = new Customer { Id = 42, Name = "Unikorn" };
             var entityEntry = new ClrStateEntry(configuration, entityType, customer);
             await entityEntry.SetEntityStateAsync(EntityState.Added, CancellationToken.None);
-            var inMemoryDataStore = new InMemoryDataStore(configuration, new NullLoggerFactory());
+
+            var inMemoryDataStore = new InMemoryDataStore(configuration, new InMemoryDatabase(new NullLoggerFactory()));
 
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry }, model);
 
@@ -54,7 +86,9 @@ namespace Microsoft.Data.InMemory.Tests
             var customer = new Customer { Id = 42, Name = "Unikorn" };
             var entityEntry = new ClrStateEntry(configuration, entityType, customer);
             await entityEntry.SetEntityStateAsync(EntityState.Added, CancellationToken.None);
-            var inMemoryDataStore = new InMemoryDataStore(configuration, new NullLoggerFactory());
+
+            var inMemoryDataStore = new InMemoryDataStore(configuration, new InMemoryDatabase(new NullLoggerFactory()));
+            
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry }, model);
 
             customer.Name = "Unikorn, The Return";
@@ -76,7 +110,9 @@ namespace Microsoft.Data.InMemory.Tests
             var customer = new Customer { Id = 42, Name = "Unikorn" };
             var entityEntry = new ClrStateEntry(configuration, entityType, customer);
             await entityEntry.SetEntityStateAsync(EntityState.Added, CancellationToken.None);
-            var inMemoryDataStore = new InMemoryDataStore(configuration, new NullLoggerFactory());
+
+            var inMemoryDataStore = new InMemoryDataStore(configuration, new InMemoryDatabase(new NullLoggerFactory()));
+
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry }, model);
 
             customer.Name = "Unikorn, The Return";
@@ -103,7 +139,7 @@ namespace Microsoft.Data.InMemory.Tests
             var mockFactory = new Mock<ILoggerFactory>();
             mockFactory.Setup(m => m.Create(It.IsAny<string>())).Returns(mockLogger.Object);
 
-            var inMemoryDataStore = new InMemoryDataStore(configuration, mockFactory.Object);
+            var inMemoryDataStore = new InMemoryDataStore(configuration, new InMemoryDatabase(mockFactory.Object));
 
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry }, model);
 
@@ -132,7 +168,18 @@ namespace Microsoft.Data.InMemory.Tests
 
         private static ContextConfiguration CreateConfiguration()
         {
-            return new EntityContext(new EntityConfigurationBuilder().BuildConfiguration()).Configuration;
+            return CreateConfiguration(new EntityConfigurationBuilder().BuildConfiguration());
+        }
+
+        private static ContextConfiguration CreateConfiguration(EntityConfiguration configuration)
+        {
+            return new EntityContext(configuration).Configuration;
+        }
+
+        private class Customer
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
         }
     }
 }

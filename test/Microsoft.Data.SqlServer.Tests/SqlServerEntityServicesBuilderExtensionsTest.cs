@@ -35,8 +35,8 @@ namespace Microsoft.Data.SqlServer.Tests
             var serviceProvider = new ServiceCollection().AddEntityFramework(s => s.AddSqlServer()).BuildServiceProvider();
 
             using (var context = new EntityContext(
-                new EntityConfigurationBuilder(serviceProvider)
-                    .SqlServerConnectionString("goo").BuildConfiguration()))
+                serviceProvider,
+                new EntityConfigurationBuilder().SqlServerConnectionString("goo").BuildConfiguration()))
             {
                 var scopedProvider = context.Configuration.Services.ServiceProvider;
 

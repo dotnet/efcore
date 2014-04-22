@@ -29,9 +29,9 @@ namespace Microsoft.Data.Entity
             _context = context;
         }
 
-        protected internal EntityContext Context
+        protected internal ContextConfiguration Configuration
         {
-            get { return _context; }
+            get { return _context.Configuration; }
         }
 
         IEnumerator IEnumerable.GetEnumerator()

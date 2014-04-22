@@ -9,7 +9,7 @@ using Microsoft.AspNet.Logging;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
-using Microsoft.Data.Entity.Services;
+using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq;
 
 namespace Microsoft.Data.Entity.Storage
@@ -18,14 +18,20 @@ namespace Microsoft.Data.Entity.Storage
     {
         private readonly ILogger _logger;
 
+        /// <summary>
+        ///     This constructor is intended only for use when creating test doubles that will override members
+        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
+        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
+        /// </summary>
         protected DataStore()
-            : this(null)
         {
         }
 
-        protected DataStore([CanBeNull] ILoggerFactory loggerFactory)
+        protected DataStore([NotNull] ContextConfiguration configuration)
         {
-            _logger = (loggerFactory ?? new NullLoggerFactory()).Create(GetType().Name);
+            Check.NotNull(configuration, "configuration");
+
+            _logger = configuration.LoggerFactory.Create(GetType().Name);
         }
 
         public virtual ILogger Logger

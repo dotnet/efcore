@@ -23,6 +23,7 @@
     "net45": {
       "dependencies": {
         "System.Data": "",
+        "Moq" : "4.2.1312.1622",
         "System.Runtime": ""
       }
     }

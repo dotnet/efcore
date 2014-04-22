@@ -2,8 +2,8 @@
 
 using System;
 using System.Data.Common;
+using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.AspNet.Logging;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Relational;
@@ -17,8 +17,6 @@ namespace Microsoft.Data.SqlServer
 {
     public class SqlServerDataStore : RelationalDataStore
     {
-        public const string ConnectionStringKey = "ConnectionString";
-
         private readonly SqlServerSqlGenerator _sqlGenerator;
         private readonly LazyRef<string> _masterConnectionString;
         private readonly string _connectionString;
@@ -34,17 +32,19 @@ namespace Microsoft.Data.SqlServer
 
         public SqlServerDataStore(
             [NotNull] ContextConfiguration configuration,
-            [CanBeNull] ILoggerFactory loggerFactory, 
             [NotNull] SqlServerSqlGenerator sqlGenerator)
-            : base(loggerFactory)
+            : base(configuration)
         {
-            Check.NotNull(configuration, "configuration");
             Check.NotNull(sqlGenerator, "sqlGenerator");
 
             _sqlGenerator = sqlGenerator;
 
+            var storeConfig = configuration.EntityConfiguration.Extensions
+                .OfType<SqlServerConfigurationExtension>()
+                .FirstOrDefault();
+
             // TODO: Consider finding connection string in config file by convention
-            _connectionString = configuration.Annotations[typeof(SqlServerDataStore)][ConnectionStringKey];
+            _connectionString = storeConfig == null ? null : storeConfig.ConnectionString;
 
             if (_connectionString == null)
             {
@@ -53,11 +53,11 @@ namespace Microsoft.Data.SqlServer
             }
 
             _masterConnectionString = new LazyRef<string>(() =>
-            {
-                var builder = new DbConnectionStringBuilder { ConnectionString = _connectionString };
-                builder.Add("Initial Catalog", "master");
-                return builder.ConnectionString;
-            });
+                {
+                    var builder = new DbConnectionStringBuilder { ConnectionString = _connectionString };
+                    builder.Add("Initial Catalog", "master");
+                    return builder.ConnectionString;
+                });
         }
 
         protected override SqlGenerator SqlGenerator

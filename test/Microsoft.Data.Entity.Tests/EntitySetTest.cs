@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_add_new_entities_to_context()
         {
-            var contextMock = new Mock<EntityContext>();
+            var contextMock = CreateContextMock();
             contextMock.Setup(m => m.Add(It.IsAny<Random>())).Returns<Random>(e => e);
 
             var entity = new Random();
@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_add_new_entities_to_context_async()
         {
-            var contextMock = new Mock<EntityContext>();
+            var contextMock = CreateContextMock();
             contextMock.Setup(m => m.AddAsync(It.IsAny<Random>(), It.IsAny<CancellationToken>()))
                 .Returns<Random, CancellationToken>((e, c) => Task.FromResult(e));
 
@@ -76,7 +76,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_add_new_entities_to_context_async_with_token()
         {
-            var contextMock = new Mock<EntityContext>();
+            var contextMock = CreateContextMock();
             contextMock.Setup(m => m.AddAsync(It.IsAny<Random>(), It.IsAny<CancellationToken>()))
                 .Returns<Random, CancellationToken>((e, c) => Task.FromResult(e));
 
@@ -90,7 +90,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_add_existing_entities_for_update_to_context()
         {
-            var contextMock = new Mock<EntityContext>();
+            var contextMock = CreateContextMock();
             contextMock.Setup(m => m.Update(It.IsAny<Random>())).Returns<Random>(e => e);
 
             var entity = new Random();
@@ -102,7 +102,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_add_existing_entities_for_update_to_context_async()
         {
-            var contextMock = new Mock<EntityContext>();
+            var contextMock = CreateContextMock();
             contextMock.Setup(m => m.UpdateAsync(It.IsAny<Random>(), It.IsAny<CancellationToken>()))
                 .Returns<Random, CancellationToken>((e, c) => Task.FromResult(e));
 
@@ -115,7 +115,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_add_existing_entities_for_update_to_context_async_with_token()
         {
-            var contextMock = new Mock<EntityContext>();
+            var contextMock = CreateContextMock();
             contextMock.Setup(m => m.UpdateAsync(It.IsAny<Random>(), It.IsAny<CancellationToken>()))
                 .Returns<Random, CancellationToken>((e, c) => Task.FromResult(e));
 
@@ -124,6 +124,15 @@ namespace Microsoft.Data.Entity.Tests
             Assert.Same(entity, new EntitySet<Random>(contextMock.Object).UpdateAsync(entity, cancellationToken).Result);
 
             contextMock.Verify(m => m.UpdateAsync(entity, cancellationToken));
+        }
+
+        private static Mock<EntityContext> CreateContextMock()
+        {
+            var configMock = new Mock<ContextConfiguration>();
+            var contextMock = new Mock<EntityContext>();
+            configMock.Setup(m => m.Context).Returns(contextMock.Object);
+            contextMock.Setup(m => m.Configuration).Returns(configMock.Object);
+            return contextMock;
         }
     }
 }

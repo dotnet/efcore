@@ -34,7 +34,6 @@ namespace Microsoft.AspNet.DependencyInjection
                 .AddSingleton<EntityKeyFactorySource, EntityKeyFactorySource>()
                 .AddSingleton<ClrPropertyGetterSource, ClrPropertyGetterSource>()
                 .AddSingleton<ClrPropertySetterSource, ClrPropertySetterSource>()
-                .AddSingleton<EntitySetSource, EntitySetSource>()
                 .AddSingleton<ClrCollectionAccessorSource, ClrCollectionAccessorSource>()
                 .AddSingleton<EntityMaterializerSource, EntityMaterializerSource>()
                 .AddSingleton<MemberMapper, MemberMapper>()

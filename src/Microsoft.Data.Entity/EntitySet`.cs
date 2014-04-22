@@ -73,7 +73,7 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(entity, "entity");
 
-            return Context.Add(entity);
+            return Configuration.Context.Add(entity);
         }
 
         public virtual Task<TEntity> AddAsync(
@@ -81,21 +81,21 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(entity, "entity");
 
-            return Context.AddAsync(entity, cancellationToken);
+            return Configuration.Context.AddAsync(entity, cancellationToken);
         }
 
         public virtual TEntity Remove([NotNull] TEntity entity)
         {
             Check.NotNull(entity, "entity");
 
-            return Context.Delete(entity);
+            return Configuration.Context.Delete(entity);
         }
 
         public virtual TEntity Update([NotNull] TEntity entity)
         {
             Check.NotNull(entity, "entity");
 
-            return Context.Update(entity);
+            return Configuration.Context.Update(entity);
         }
 
         public virtual Task<TEntity> UpdateAsync(
@@ -103,7 +103,7 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(entity, "entity");
 
-            return Context.UpdateAsync(entity, cancellationToken);
+            return Configuration.Context.UpdateAsync(entity, cancellationToken);
         }
 
         public virtual void AddRange([NotNull] IEnumerable<TEntity> entities)
