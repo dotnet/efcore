@@ -1,7 +1,5 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
-using System.Text;
-using System.Threading;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Migrations.Model;
 using Microsoft.Data.Relational.Model;
@@ -226,9 +224,9 @@ namespace Microsoft.Data.Migrations.Tests
         {
             Assert.Equal(
                 @"AddForeignKey(""dbo.MyTable"", ""MyFK"", new[] { ""Foo"", ""Bar"" }, ""dbo.MyTable2"", new[] { ""Foo2"", ""Bar2"" }, cascadeDelete: false)",
-                CSharpMigrationCodeGenerator.Generate(new AddForeignKeyOperation(
-                    "MyFK", "dbo.MyTable", "dbo.MyTable2", new[] { "Foo", "Bar" },
-                    new[] { "Foo2", "Bar2" }, cascadeDelete: false)));
+                CSharpMigrationCodeGenerator.Generate(
+                    new AddForeignKeyOperation("dbo.MyTable", "MyFK", new[] { "Foo", "Bar" },
+                        "dbo.MyTable2", new[] { "Foo2", "Bar2" }, cascadeDelete: false)));
         }
 
         [Fact]

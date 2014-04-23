@@ -61,8 +61,8 @@ namespace Microsoft.Data.Migrations.Builders
             var columnNames = foreignKeyExpression.GetPropertyAccessList()
                 .Select(p => table.Columns.Single(c => c.ApiPropertyInfo == p).Name)
                 .ToArray();
-            var addForeignKeyOperation = new AddForeignKeyOperation(name, table.Name,
-                referencedTableName, columnNames, referencedColumnNames, cascadeDelete);
+            var addForeignKeyOperation = new AddForeignKeyOperation(table.Name, name,
+                columnNames, referencedTableName, referencedColumnNames, cascadeDelete);
 
             _migrationBuilder.AddOperation(addForeignKeyOperation);
 

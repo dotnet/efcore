@@ -13,8 +13,8 @@ namespace Microsoft.Data.Migrations.Tests.Model
         public void Create_and_initialize_operation()
         {
             var addForeignKeyOperation = new AddForeignKeyOperation(
-                "MyFK", "dbo.MyTable", "dbo.MyTable2",
-                new[] { "Foo", "Bar" }, new[] { "Foo2", "Bar2" },
+                "dbo.MyTable", "MyFK", new[] { "Foo", "Bar" }, 
+                "dbo.MyTable2", new[] { "Foo2", "Bar2" },
                 cascadeDelete: true);
 
             Assert.Equal("MyFK", addForeignKeyOperation.ForeignKeyName);
@@ -30,8 +30,8 @@ namespace Microsoft.Data.Migrations.Tests.Model
         public void Dispatches_visitor()
         {
             var addForeignKeyOperation = new AddForeignKeyOperation(
-                "MyFK", "dbo.MyTable", "dbo.MyTable2",
-                new[] { "Foo", "Bar" }, new[] { "Foo2", "Bar2" },
+                "dbo.MyTable", "MyFK", new[] { "Foo", "Bar" },
+                "dbo.MyTable2", new[] { "Foo2", "Bar2" },
                 cascadeDelete: true);
             var mockVisitor = new Mock<MigrationOperationSqlGenerator>();
             var builder = new Mock<IndentedStringBuilder>();

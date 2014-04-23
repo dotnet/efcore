@@ -35,15 +35,18 @@ namespace Microsoft.Data.Migrations
             var addForeignKeyOperations = database.Tables.SelectMany(
                 t => t.ForeignKeys,
                 (t, fk) => new AddForeignKeyOperation(
-                    fk.Name, fk.Table.Name, fk.ReferencedTable.Name,
+                    fk.Table.Name, 
+                    fk.Name, 
                     fk.Columns.Select(c => c.Name).ToArray(),
+                    fk.ReferencedTable.Name,
                     fk.ReferencedColumns.Select(c => c.Name).ToArray(),
                     fk.CascadeDelete));
 
             var createIndexOperations = database.Tables.SelectMany(
                 t => t.Indexes,
                 (t, idx) => new CreateIndexOperation(
-                    idx.Table.Name, idx.Name,
+                    idx.Table.Name, 
+                    idx.Name,
                     idx.Columns.Select(c => c.Name).ToArray(),
                     idx.IsUnique, idx.IsClustered));
 
@@ -288,10 +291,10 @@ namespace Microsoft.Data.Migrations
                     .SelectMany(t => t.ForeignKeys)
                     .Select(fk =>
                         new AddForeignKeyOperation(
-                            fk.Name,
                             fk.Table.Name,
-                            fk.ReferencedTable.Name,
+                            fk.Name,                                                        
                             fk.Columns.Select(c => c.Name).ToArray(),
+                            fk.ReferencedTable.Name,
                             fk.ReferencedColumns.Select(c => c.Name).ToArray(),
                             fk.CascadeDelete)));
 
@@ -522,10 +525,10 @@ namespace Microsoft.Data.Migrations
                     .Except(foreignKeyPairs.Select(pair => pair.Item2))
                     .Select(fk =>
                         new AddForeignKeyOperation(
-                            fk.Name,
                             fk.Table.Name,
-                            fk.ReferencedTable.Name,
+                            fk.Name,
                             fk.Columns.Select(c => c.Name).ToArray(),
+                            fk.ReferencedTable.Name,
                             fk.ReferencedColumns.Select(c => c.Name).ToArray(),
                             fk.CascadeDelete)));
         }

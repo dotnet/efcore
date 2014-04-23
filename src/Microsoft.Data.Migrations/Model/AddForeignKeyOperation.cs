@@ -18,10 +18,10 @@ namespace Microsoft.Data.Migrations.Model
         private readonly bool _cascadeDelete;
 
         public AddForeignKeyOperation(
-            [NotNull] string foreignKeyName,
             SchemaQualifiedName tableName,
-            SchemaQualifiedName referencedTableName,
+            [NotNull] string foreignKeyName,
             [NotNull] IReadOnlyList<string> columnNames,
+            SchemaQualifiedName referencedTableName,
             [NotNull] IReadOnlyList<string> referencedColumnNames,
             bool cascadeDelete)
         {
