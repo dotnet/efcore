@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System.Linq;
 using Microsoft.AspNet.DependencyInjection;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Storage;
@@ -22,8 +23,7 @@ namespace Microsoft.Data.SqlServer
             Check.NotNull(configuration, "configuration");
 
             // TODO: Consider finding connection string in config file by convention
-            return configuration.Annotations.HasAnnotations(typeof(SqlServerDataStore))
-                   && configuration.Annotations[typeof(SqlServerDataStore)][SqlServerDataStore.ConnectionStringKey] != null;
+            return configuration.EntityConfiguration.Extensions().OfType<SqlServerConfigurationExtension>().Any();
         }
 
         public override bool IsAvailable(ContextConfiguration configuration)
@@ -34,5 +34,9 @@ namespace Microsoft.Data.SqlServer
             return IsConfigured(configuration);
         }
 
+        public override string Name
+        {
+            get { return typeof(SqlServerDataStore).Name; }
+        }
     }
 }

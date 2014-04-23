@@ -36,7 +36,9 @@ namespace Microsoft.Data.InMemory.Tests
             var customer = new Customer { Id = 42, Name = "Unikorn" };
             var entityEntry = new ClrStateEntry(configuration, entityType, customer);
             await entityEntry.SetEntityStateAsync(EntityState.Added, CancellationToken.None);
-            var inMemoryDataStore = new InMemoryDataStore(configuration, new NullLoggerFactory());
+
+            var loggerFactory = new NullLoggerFactory();
+            var inMemoryDataStore = new InMemoryDataStore(configuration, new InMemoryDatabase(loggerFactory), loggerFactory);
 
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry }, model);
 
@@ -54,7 +56,10 @@ namespace Microsoft.Data.InMemory.Tests
             var customer = new Customer { Id = 42, Name = "Unikorn" };
             var entityEntry = new ClrStateEntry(configuration, entityType, customer);
             await entityEntry.SetEntityStateAsync(EntityState.Added, CancellationToken.None);
-            var inMemoryDataStore = new InMemoryDataStore(configuration, new NullLoggerFactory());
+            
+            var loggerFactory = new NullLoggerFactory();
+            var inMemoryDataStore = new InMemoryDataStore(configuration, new InMemoryDatabase(loggerFactory), loggerFactory);
+            
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry }, model);
 
             customer.Name = "Unikorn, The Return";
@@ -76,7 +81,10 @@ namespace Microsoft.Data.InMemory.Tests
             var customer = new Customer { Id = 42, Name = "Unikorn" };
             var entityEntry = new ClrStateEntry(configuration, entityType, customer);
             await entityEntry.SetEntityStateAsync(EntityState.Added, CancellationToken.None);
-            var inMemoryDataStore = new InMemoryDataStore(configuration, new NullLoggerFactory());
+            
+            var loggerFactory = new NullLoggerFactory();
+            var inMemoryDataStore = new InMemoryDataStore(configuration, new InMemoryDatabase(loggerFactory), loggerFactory);
+
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry }, model);
 
             customer.Name = "Unikorn, The Return";
@@ -103,7 +111,7 @@ namespace Microsoft.Data.InMemory.Tests
             var mockFactory = new Mock<ILoggerFactory>();
             mockFactory.Setup(m => m.Create(It.IsAny<string>())).Returns(mockLogger.Object);
 
-            var inMemoryDataStore = new InMemoryDataStore(configuration, mockFactory.Object);
+            var inMemoryDataStore = new InMemoryDataStore(configuration, new InMemoryDatabase(mockFactory.Object), mockFactory.Object);
 
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry }, model);
 

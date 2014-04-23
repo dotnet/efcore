@@ -9,5 +9,6 @@ namespace Microsoft.Data.Entity.Storage
         public abstract DataStore GetDataStore([NotNull] ContextConfiguration configuration);
         public abstract bool IsAvailable([NotNull] ContextConfiguration configuration);
         public abstract bool IsConfigured([NotNull] ContextConfiguration configuration);
+        public abstract string Name { get; }
     }
 }

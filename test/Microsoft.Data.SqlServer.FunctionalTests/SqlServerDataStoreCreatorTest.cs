@@ -1,11 +1,13 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNet.DependencyInjection;
 using Microsoft.AspNet.DependencyInjection.Fallback;
 using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Services;
 using Microsoft.Data.Migrations;
 using Microsoft.Data.Relational;
@@ -111,29 +113,35 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
             }
         }
 
-        private static SqlServerDataStore CreateStore(TestDatabase testDatabase)
+        private static ContextConfiguration CreateConfiguration(TestDatabase testDatabase)
         {
-            var configuration = new EntityContext(
-                new EntityConfigurationBuilder(
-                    new ServiceCollection()
-                        .AddEntityFramework(s => s.AddSqlServer())
-                        .BuildServiceProvider())
+            return new EntityContext(
+                new ServiceCollection()
+                    .AddEntityFramework(s => s.AddSqlServer())
+                    .BuildServiceProvider(),
+                new EntityConfigurationBuilder()
                     .SqlServerConnectionString(testDatabase.Connection.ConnectionString)
                     .BuildConfiguration())
                 .Configuration;
+        }
 
-            var store = new SqlServerDataStore(configuration, new NullLoggerFactory(), new SqlServerSqlGenerator());
+        private static SqlServerDataStore CreateStore(TestDatabase testDatabase)
+        {
+            var store = new SqlServerDataStore(CreateConfiguration(testDatabase), new NullLoggerFactory(), new SqlServerSqlGenerator());
             return store;
         }
 
         private static async Task RunDatabaseCreationTest(TestDatabase testDatabase)
         {
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFramework(s => s.AddSqlServer())
+                .BuildServiceProvider();
+
             var configuration = new EntityConfigurationBuilder()
-                .WithServices(s => s.AddSqlServer())
                 .SqlServerConnectionString(testDatabase.Connection.ConnectionString)
                 .BuildConfiguration();
 
-            using (var context = new BloggingContext(configuration))
+            using (var context = new BloggingContext(serviceProvider, configuration))
             {
                 var creator = new SqlServerDataStoreCreator(
                     (SqlServerDataStore)context.Configuration.DataStore,
@@ -161,8 +169,8 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
 
         private class BloggingContext : EntityContext
         {
-            public BloggingContext(EntityConfiguration configuration)
-                : base(configuration)
+            public BloggingContext(IServiceProvider serviceProvider, EntityConfiguration configuration)
+                : base(serviceProvider, configuration)
             {
             }
 

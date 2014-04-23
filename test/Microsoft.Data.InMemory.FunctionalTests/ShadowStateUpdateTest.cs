@@ -23,9 +23,8 @@ namespace Microsoft.Data.InMemory.FunctionalTests
             model.AddEntityType(customerType);
 
             var configuration = new EntityConfigurationBuilder()
-                .WithServices(s => s.AddInMemoryStore())
                 .UseModel(model)
-                .UseInMemoryStore(persist: true)
+                .UseInMemoryStore()
                 .BuildConfiguration();
 
             using (var context = new EntityContext(configuration))
@@ -89,9 +88,8 @@ namespace Microsoft.Data.InMemory.FunctionalTests
             model.AddEntityType(customerType);
 
             var configuration = new EntityConfigurationBuilder()
-                .WithServices(s => s.AddInMemoryStore())
                 .UseModel(model)
-                .UseInMemoryStore(persist: true)
+                .UseInMemoryStore()
                 .BuildConfiguration();
 
             var customer = new Customer { Id = 42 };

@@ -5,8 +5,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNet.DependencyInjection;
 using Microsoft.AspNet.DependencyInjection.Advanced;
+using Microsoft.AspNet.DependencyInjection.Fallback;
+using Microsoft.AspNet.Logging;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Moq;
@@ -52,18 +56,20 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Each_context_gets_new_scoped_context_configuration()
         {
-            var configuration = new EntityConfigurationBuilder()
-                .WithServices(s => s.UseStateManager<FakeStateManager>())
-                .BuildConfiguration();
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFramework(s => s.UseStateManager<FakeStateManager>())
+                .BuildServiceProvider();
+
+            var configuration = new EntityConfigurationBuilder().BuildConfiguration();
 
             ContextConfiguration config1;
-            using (var context = new EntityContext(configuration))
+            using (var context = new EntityContext(serviceProvider, configuration))
             {
                 config1 = context.Configuration;
                 Assert.Same(config1, context.Configuration);
             }
 
-            using (var context = new EntityContext(configuration))
+            using (var context = new EntityContext(serviceProvider, configuration))
             {
                 var config2 = context.Configuration;
                 Assert.Same(config2, context.Configuration);
@@ -75,18 +81,20 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Each_context_gets_new_scoped_StateManager()
         {
-            var configuration = new EntityConfigurationBuilder()
-                .WithServices(s => s.UseStateManager<FakeStateManager>())
-                .BuildConfiguration();
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFramework(s => s.UseStateManager<FakeStateManager>())
+                .BuildServiceProvider();
+
+            var configuration = new EntityConfigurationBuilder().BuildConfiguration();
 
             StateManager stateManager1;
-            using (var context = new EntityContext(configuration))
+            using (var context = new EntityContext(serviceProvider, configuration))
             {
                 stateManager1 = context.ChangeTracker.StateManager;
                 Assert.Same(stateManager1, context.ChangeTracker.StateManager);
             }
 
-            using (var context = new EntityContext(configuration))
+            using (var context = new EntityContext(serviceProvider, configuration))
             {
                 var stateManager2 = context.ChangeTracker.StateManager;
                 Assert.Same(stateManager2, context.ChangeTracker.StateManager);
@@ -98,11 +106,13 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void SaveChanges_calls_DetectChanges()
         {
-            var configuration = new EntityConfigurationBuilder()
-                .WithServices(s => s.UseStateManager<FakeStateManager>())
-                .BuildConfiguration();
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFramework(s => s.UseStateManager<FakeStateManager>())
+                .BuildServiceProvider();
 
-            using (var context = new EntityContext(configuration))
+            var configuration = new EntityConfigurationBuilder().BuildConfiguration();
+
+            using (var context = new EntityContext(serviceProvider, configuration))
             {
                 var stateManager = (FakeStateManager)context.Configuration.Services.StateManager;
 
@@ -117,11 +127,13 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void SaveChanges_calls_state_manager_SaveChanges()
         {
-            var configuration = new EntityConfigurationBuilder()
-                .WithServices(s => s.UseStateManager<FakeStateManager>())
-                .BuildConfiguration();
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFramework(s => s.UseStateManager<FakeStateManager>())
+                .BuildServiceProvider();
 
-            using (var context = new EntityContext(configuration))
+            var configuration = new EntityConfigurationBuilder().BuildConfiguration();
+
+            using (var context = new EntityContext(serviceProvider, configuration))
             {
                 var stateManager = (FakeStateManager)context.Configuration.Services.StateManager;
 
@@ -328,7 +340,7 @@ namespace Microsoft.Data.Entity.Tests
             }
         }
 
-        public class ContextWithSets : EntityContext
+        private class ContextWithSets : EntityContext
         {
             private readonly EntitySet<Random> _noSetter = null;
 
@@ -370,11 +382,13 @@ namespace Microsoft.Data.Entity.Tests
             sourceMock.Setup(m => m.IsConfigured(It.IsAny<ContextConfiguration>())).Returns(true);
             sourceMock.Setup(m => m.GetDataStore(It.IsAny<ContextConfiguration>())).Returns(store.Object);
 
-            var configuration = new EntityConfigurationBuilder()
-                .WithServices(s => s.ServiceCollection.AddInstance<DataStoreSource>(sourceMock.Object))
-                .BuildConfiguration();
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFramework(s => s.ServiceCollection.AddInstance<DataStoreSource>(sourceMock.Object))
+                .BuildServiceProvider();
 
-            using (var context = new EarlyLearningCenter(configuration))
+            var configuration = new EntityConfigurationBuilder().BuildConfiguration();
+
+            using (var context = new EarlyLearningCenter(serviceProvider, configuration))
             {
                 context.ChangeTracker.Entry(new Category { Id = 1 }).State = EntityState.Unchanged;
                 context.ChangeTracker.Entry(new Category { Id = 2 }).State = EntityState.Unchanged;
@@ -402,11 +416,13 @@ namespace Microsoft.Data.Entity.Tests
             sourceMock.Setup(m => m.IsConfigured(It.IsAny<ContextConfiguration>())).Returns(true);
             sourceMock.Setup(m => m.GetDataStore(It.IsAny<ContextConfiguration>())).Returns(store.Object);
 
-            var configuration = new EntityConfigurationBuilder()
-                .WithServices(s => s.ServiceCollection.AddInstance<DataStoreSource>(sourceMock.Object))
-                .BuildConfiguration();
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFramework(s => s.ServiceCollection.AddInstance<DataStoreSource>(sourceMock.Object))
+                .BuildServiceProvider();
 
-            using (var context = new EarlyLearningCenter(configuration))
+            var configuration = new EntityConfigurationBuilder().BuildConfiguration();
+
+            using (var context = new EarlyLearningCenter(serviceProvider, configuration))
             {
                 context.ChangeTracker.Entry(new Category { Id = 1 }).State = EntityState.Unchanged;
                 context.ChangeTracker.Entry(new Category { Id = 2 }).State = EntityState.Modified;
@@ -424,35 +440,362 @@ namespace Microsoft.Data.Entity.Tests
                 Times.Once);
         }
 
-        #region Fixture
+        [Fact]
+        public void Default_services_are_registered_when_parameterless_constructor_used()
+        {
+            using (var context = new EarlyLearningCenter())
+            {
+                var configuration = context.Configuration;
 
-        public class Category
+                Assert.IsType<ActiveIdentityGenerators>(configuration.Services.ActiveIdentityGenerators);
+                Assert.IsType<EntityKeyFactorySource>(configuration.Services.EntityKeyFactorySource);
+                Assert.IsType<ClrPropertyGetterSource>(configuration.Services.ClrPropertyGetterSource);
+                Assert.IsType<ClrPropertySetterSource>(configuration.Services.ClrPropertySetterSource);
+            }
+        }
+
+        [Fact]
+        public void Default_context_scoped_services_are_registered_when_parameterless_constructor_used()
+        {
+            using (var context = new EarlyLearningCenter())
+            {
+                var configuration = context.Configuration;
+
+                Assert.IsType<StateEntryFactory>(configuration.Services.StateEntryFactory);
+                Assert.IsType<StateEntryNotifier>(configuration.Services.StateEntryNotifier);
+                Assert.IsType<ContextEntitySets>(configuration.Services.ContextEntitySets);
+                Assert.IsType<StateManager>(configuration.Services.StateManager);
+                Assert.IsType<NavigationFixer>(configuration.Services.EntityStateListeners.Single());
+            }
+        }
+
+        [Fact]
+        public void Can_get_singleton_service_from_scoped_configuration()
+        {
+            using (var context = new EarlyLearningCenter())
+            {
+                var configuration = context.Configuration;
+
+                Assert.IsType<StateManager>(configuration.Services.StateManager);
+            }
+        }
+
+        [Fact]
+        public void Can_start_with_custom_services_by_passing_in_base_service_provider()
+        {
+            var factory = Mock.Of<OriginalValuesFactory>();
+            var serviceCollection = new ServiceCollection()
+                .AddSingleton<EntitySetFinder, EntitySetFinder>()
+                .AddSingleton<EntitySetInitializer, EntitySetInitializer>()
+                .AddSingleton<ClrPropertyGetterSource, ClrPropertyGetterSource>()
+                .AddSingleton<ClrPropertySetterSource, ClrPropertySetterSource>()
+                .AddSingleton<EntitySetSource, EntitySetSource>()
+                .AddSingleton<ClrCollectionAccessorSource, ClrCollectionAccessorSource>()
+                .AddSingleton<EntityMaterializerSource, EntityMaterializerSource>()
+                .AddSingleton<MemberMapper, MemberMapper>()
+                .AddSingleton<FieldMatcher, FieldMatcher>()
+                .AddSingleton<DataStoreSelector, DataStoreSelector>()
+                .AddScoped<ContextConfiguration, ContextConfiguration>()
+                .AddScoped<ContextEntitySets, ContextEntitySets>()
+                .AddInstance<OriginalValuesFactory>(factory);
+
+            var provider = serviceCollection.BuildServiceProvider();
+
+            using (var context = new EarlyLearningCenter(provider))
+            {
+                var configuration = context.Configuration;
+
+                Assert.Same(factory, configuration.Services.OriginalValuesFactory);
+            }
+        }
+
+        [Fact]
+        public void Can_replace_already_registered_service_with_new_service()
+        {
+            var factory = Mock.Of<OriginalValuesFactory>();
+            var serviceCollection = new ServiceCollection()
+                .AddEntityFramework()
+                .AddInstance<OriginalValuesFactory>(factory);
+
+            var provider = serviceCollection.BuildServiceProvider();
+
+            using (var context = new EarlyLearningCenter(provider))
+            {
+                var configuration = context.Configuration;
+
+                Assert.Same(factory, configuration.Services.OriginalValuesFactory);
+            }
+        }
+
+        [Fact]
+        public void Can_set_known_singleton_services_using_instance_sugar()
+        {
+            var identityGenerators = Mock.Of<ActiveIdentityGenerators>();
+            var collectionSource = Mock.Of<ClrCollectionAccessorSource>();
+            var getterSource = Mock.Of<ClrPropertyGetterSource>();
+            var setterSource = Mock.Of<ClrPropertySetterSource>();
+            var keyFactorySource = Mock.Of<EntityKeyFactorySource>();
+            var materializerSource = Mock.Of<EntityMaterializerSource>();
+            var setFinder = Mock.Of<EntitySetFinder>();
+            var setInitializer = Mock.Of<EntitySetInitializer>();
+            var setSource = Mock.Of<EntitySetSource>();
+            var generatorFactory = Mock.Of<IdentityGeneratorFactory>();
+            var loggerFactory = Mock.Of<ILoggerFactory>();
+            var modelSource = Mock.Of<IModelSource>();
+
+            var provider = new ServiceCollection()
+                .AddEntityFramework(s => s.UseActiveIdentityGenerators(identityGenerators)
+                    .UseClrCollectionAccessorSource(collectionSource)
+                    .UseClrPropertyGetterSource(getterSource)
+                    .UseClrPropertySetterSource(setterSource)
+                    .UseEntityKeyFactorySource(keyFactorySource)
+                    .UseEntityMaterializerSource(materializerSource)
+                    .UseEntitySetFinder(setFinder)
+                    .UseEntitySetInitializer(setInitializer)
+                    .UseEntitySetSource(setSource)
+                    .UseIdentityGeneratorFactory(generatorFactory)
+                    .UseLoggerFactory(loggerFactory)
+                    .UseModelSource(modelSource))
+                .BuildServiceProvider();
+
+            using (var context = new EarlyLearningCenter(provider))
+            {
+                var configuration = context.Configuration;
+
+                Assert.Same(identityGenerators, configuration.Services.ActiveIdentityGenerators);
+                Assert.Same(collectionSource, configuration.Services.ServiceProvider.GetService<ClrCollectionAccessorSource>());
+                Assert.Same(getterSource, configuration.Services.ClrPropertyGetterSource);
+                Assert.Same(setterSource, configuration.Services.ClrPropertySetterSource);
+                Assert.Same(keyFactorySource, configuration.Services.EntityKeyFactorySource);
+                Assert.Same(materializerSource, configuration.Services.ServiceProvider.GetService<EntityMaterializerSource>());
+                Assert.Same(setFinder, configuration.Services.ServiceProvider.GetService<EntitySetFinder>());
+                Assert.Same(setInitializer, configuration.Services.ServiceProvider.GetService<EntitySetInitializer>());
+                Assert.Same(setSource, configuration.Services.ServiceProvider.GetService<EntitySetSource>());
+                Assert.Same(generatorFactory, configuration.Services.ServiceProvider.GetService<IdentityGeneratorFactory>());
+                Assert.Same(loggerFactory, configuration.Services.ServiceProvider.GetService<ILoggerFactory>());
+                Assert.Same(modelSource, configuration.Services.ModelSource);
+            }
+        }
+
+        [Fact]
+        public void Can_set_known_singleton_services_using_type_activation()
+        {
+            var provider = new ServiceCollection()
+                .AddEntityFramework(s => s.UseActiveIdentityGenerators<FakeActiveIdentityGenerators>()
+                    .UseClrCollectionAccessorSource<FakeClrCollectionAccessorSource>()
+                    .UseClrPropertyGetterSource<FakeClrPropertyGetterSource>()
+                    .UseClrPropertySetterSource<FakeClrPropertySetterSource>()
+                    .UseEntityKeyFactorySource<FakeEntityKeyFactorySource>()
+                    .UseEntityMaterializerSource<FakeEntityMaterializerSource>()
+                    .UseEntitySetFinder<FakeEntitySetFinder>()
+                    .UseEntitySetInitializer<FakeEntitySetInitializer>()
+                    .UseEntitySetSource<FakeEntitySetSource>()
+                    .UseEntityStateListener<FakeEntityStateListener>()
+                    .UseIdentityGeneratorFactory<FakeIdentityGeneratorFactory>()
+                    .UseContextEntitySets<FakeContextEntitySets>()
+                    .UseLoggerFactory<FakeLoggerFactory>()
+                    .UseModelSource<FakeModelSource>())
+                .BuildServiceProvider();
+
+            using (var context = new EarlyLearningCenter(provider))
+            {
+                var configuration = context.Configuration;
+
+                Assert.IsType<FakeActiveIdentityGenerators>(configuration.Services.ActiveIdentityGenerators);
+                Assert.IsType<FakeClrCollectionAccessorSource>(configuration.Services.ServiceProvider.GetService<ClrCollectionAccessorSource>());
+                Assert.IsType<FakeClrPropertyGetterSource>(configuration.Services.ClrPropertyGetterSource);
+                Assert.IsType<FakeClrPropertySetterSource>(configuration.Services.ClrPropertySetterSource);
+                Assert.IsType<FakeEntityKeyFactorySource>(configuration.Services.EntityKeyFactorySource);
+                Assert.IsType<FakeEntityMaterializerSource>(configuration.Services.ServiceProvider.GetService<EntityMaterializerSource>());
+                Assert.IsType<FakeEntitySetFinder>(configuration.Services.ServiceProvider.GetService<EntitySetFinder>());
+                Assert.IsType<FakeEntitySetInitializer>(configuration.Services.ServiceProvider.GetService<EntitySetInitializer>());
+                Assert.IsType<FakeEntitySetSource>(configuration.Services.ServiceProvider.GetService<EntitySetSource>());
+                Assert.IsType<FakeIdentityGeneratorFactory>(configuration.Services.ServiceProvider.GetService<IdentityGeneratorFactory>());
+                Assert.IsType<FakeLoggerFactory>(configuration.Services.ServiceProvider.GetService<ILoggerFactory>());
+                Assert.IsType<FakeModelSource>(configuration.Services.ModelSource);
+            }
+        }
+
+        [Fact]
+        public void Can_set_known_context_scoped_services_using_type_activation()
+        {
+            var provider = new ServiceCollection()
+                .AddEntityFramework(s => s.UseStateEntryFactory<FakeStateEntryFactory>()
+                    .UseStateEntryNotifier<FakeStateEntryNotifier>()
+                    .UseContextEntitySets<FakeContextEntitySets>()
+                    .UseStateManager<FakeStateManager>()
+                    .UseEntityStateListener<FakeNavigationFixer>())
+                .BuildServiceProvider();
+
+            using (var context = new EarlyLearningCenter(provider))
+            {
+                var contextConfiguration = context.Configuration;
+
+                Assert.IsType<FakeStateEntryFactory>(contextConfiguration.Services.StateEntryFactory);
+                Assert.IsType<FakeStateEntryNotifier>(contextConfiguration.Services.StateEntryNotifier);
+                Assert.IsType<FakeContextEntitySets>(contextConfiguration.Services.ContextEntitySets);
+                Assert.IsType<FakeStateManager>(contextConfiguration.Services.StateManager);
+
+                Assert.Equal(
+                    new[] { typeof(FakeNavigationFixer), typeof(NavigationFixer) },
+                    context.Configuration.Services.EntityStateListeners.Select(l => l.GetType()).OrderBy(t => t.Name).ToArray());
+            }
+        }
+
+        [Fact]
+        public void Replaced_services_are_scoped_appropriately()
+        {
+            var provider = new ServiceCollection().AddEntityFramework(
+                s => s.UseActiveIdentityGenerators<FakeActiveIdentityGenerators>()
+                    .UseClrCollectionAccessorSource<FakeClrCollectionAccessorSource>()
+                    .UseClrPropertyGetterSource<FakeClrPropertyGetterSource>()
+                    .UseClrPropertySetterSource<FakeClrPropertySetterSource>()
+                    .UseEntityKeyFactorySource<FakeEntityKeyFactorySource>()
+                    .UseEntityMaterializerSource<FakeEntityMaterializerSource>()
+                    .UseEntitySetFinder<FakeEntitySetFinder>()
+                    .UseEntitySetInitializer<FakeEntitySetInitializer>()
+                    .UseEntitySetSource<FakeEntitySetSource>()
+                    .UseEntityStateListener<FakeEntityStateListener>()
+                    .UseIdentityGeneratorFactory<FakeIdentityGeneratorFactory>()
+                    .UseLoggerFactory<FakeLoggerFactory>()
+                    .UseModelSource<FakeModelSource>()
+                    .UseStateEntryFactory<FakeStateEntryFactory>()
+                    .UseStateEntryNotifier<FakeStateEntryNotifier>()
+                    .UseContextEntitySets<FakeContextEntitySets>()
+                    .UseStateManager<FakeStateManager>()
+                    .UseEntityStateListener<FakeNavigationFixer>())
+                .BuildServiceProvider();
+
+            StateEntryFactory stateEntryFactory;
+            StateEntryNotifier stateEntryNotifier;
+            ContextEntitySets contextEntitySets;
+            StateManager stateManager;
+            IEntityStateListener entityStateListener;
+
+            var context = new EarlyLearningCenter(provider);
+            var configuration = context.Configuration;
+
+            var activeIdentityGenerators = configuration.Services.ActiveIdentityGenerators;
+            var clrCollectionAccessorSource = configuration.Services.ServiceProvider.GetService<ClrCollectionAccessorSource>();
+            var clrPropertyGetterSource = configuration.Services.ClrPropertyGetterSource;
+            var clrPropertySetterSource = configuration.Services.ClrPropertySetterSource;
+            var entityKeyFactorySource = configuration.Services.EntityKeyFactorySource;
+            var entityMaterializerSource = configuration.Services.ServiceProvider.GetService<EntityMaterializerSource>();
+            var entitySetFinder = configuration.Services.ServiceProvider.GetService<EntitySetFinder>();
+            var entitySetInitializer = configuration.Services.ServiceProvider.GetService<EntitySetInitializer>();
+            var entitySetSource = configuration.Services.ServiceProvider.GetService<EntitySetSource>();
+            var identityGeneratorFactory = configuration.Services.ServiceProvider.GetService<IdentityGeneratorFactory>();
+            var loggerFactory = configuration.Services.ServiceProvider.GetService<ILoggerFactory>();
+            var modelSource = configuration.Services.ModelSource;
+
+            context.Dispose();
+
+            context = new EarlyLearningCenter(provider);
+            configuration = context.Configuration;
+
+            stateEntryFactory = configuration.Services.StateEntryFactory;
+            stateEntryNotifier = configuration.Services.StateEntryNotifier;
+            contextEntitySets = configuration.Services.ContextEntitySets;
+            stateManager = configuration.Services.StateManager;
+            entityStateListener = configuration.Services.EntityStateListeners.OfType<FakeNavigationFixer>().Single();
+
+            Assert.Same(stateEntryFactory, configuration.Services.StateEntryFactory);
+            Assert.Same(stateEntryNotifier, configuration.Services.StateEntryNotifier);
+            Assert.Same(contextEntitySets, configuration.Services.ContextEntitySets);
+            Assert.Same(stateManager, configuration.Services.StateManager);
+            Assert.Same(entityStateListener, configuration.Services.EntityStateListeners.OfType<FakeNavigationFixer>().Single());
+
+            Assert.Same(activeIdentityGenerators, configuration.Services.ActiveIdentityGenerators);
+            Assert.Same(clrCollectionAccessorSource, configuration.Services.ServiceProvider.GetService<ClrCollectionAccessorSource>());
+            Assert.Same(clrPropertyGetterSource, configuration.Services.ClrPropertyGetterSource);
+            Assert.Same(clrPropertySetterSource, configuration.Services.ClrPropertySetterSource);
+            Assert.Same(entityKeyFactorySource, configuration.Services.EntityKeyFactorySource);
+            Assert.Same(entityMaterializerSource, configuration.Services.ServiceProvider.GetService<EntityMaterializerSource>());
+            Assert.Same(entitySetFinder, configuration.Services.ServiceProvider.GetService<EntitySetFinder>());
+            Assert.Same(entitySetInitializer, configuration.Services.ServiceProvider.GetService<EntitySetInitializer>());
+            Assert.Same(entitySetSource, configuration.Services.ServiceProvider.GetService<EntitySetSource>());
+            Assert.Same(identityGeneratorFactory, configuration.Services.ServiceProvider.GetService<IdentityGeneratorFactory>());
+            Assert.Same(loggerFactory, configuration.Services.ServiceProvider.GetService<ILoggerFactory>());
+            Assert.Same(modelSource, configuration.Services.ModelSource);
+
+            context.Dispose();
+
+            context = new EarlyLearningCenter(provider);
+            configuration = context.Configuration;
+
+            Assert.NotSame(stateEntryFactory, configuration.Services.StateEntryFactory);
+            Assert.NotSame(stateEntryNotifier, configuration.Services.StateEntryNotifier);
+            Assert.NotSame(contextEntitySets, configuration.Services.ContextEntitySets);
+            Assert.NotSame(stateManager, configuration.Services.StateManager);
+            Assert.NotSame(entityStateListener, configuration.Services.EntityStateListeners.OfType<FakeNavigationFixer>().Single());
+
+            Assert.Same(activeIdentityGenerators, configuration.Services.ActiveIdentityGenerators);
+            Assert.Same(clrCollectionAccessorSource, configuration.Services.ServiceProvider.GetService<ClrCollectionAccessorSource>());
+            Assert.Same(clrPropertyGetterSource, configuration.Services.ClrPropertyGetterSource);
+            Assert.Same(clrPropertySetterSource, configuration.Services.ClrPropertySetterSource);
+            Assert.Same(entityKeyFactorySource, configuration.Services.EntityKeyFactorySource);
+            Assert.Same(entityMaterializerSource, configuration.Services.ServiceProvider.GetService<EntityMaterializerSource>());
+            Assert.Same(entitySetFinder, configuration.Services.ServiceProvider.GetService<EntitySetFinder>());
+            Assert.Same(entitySetInitializer, configuration.Services.ServiceProvider.GetService<EntitySetInitializer>());
+            Assert.Same(entitySetSource, configuration.Services.ServiceProvider.GetService<EntitySetSource>());
+            Assert.Same(identityGeneratorFactory, configuration.Services.ServiceProvider.GetService<IdentityGeneratorFactory>());
+            Assert.Same(loggerFactory, configuration.Services.ServiceProvider.GetService<ILoggerFactory>());
+            Assert.Same(modelSource, configuration.Services.ModelSource);
+
+            context.Dispose();
+        }
+
+        [Fact]
+        public void Can_get_replaced_singleton_service_from_scoped_configuration()
+        {
+            var provider = new ServiceCollection().AddEntityFramework(
+                s => s.UseEntityMaterializerSource<FakeEntityMaterializerSource>()).BuildServiceProvider();
+
+            using (var context = new EarlyLearningCenter(provider))
+            {
+                var contextConfiguration = context.Configuration;
+
+                Assert.IsType<FakeEntityMaterializerSource>(contextConfiguration.Services.ServiceProvider.GetService<EntityMaterializerSource>());
+            }
+        }
+
+        private class Category
         {
             public int Id { get; set; }
             public string Name { get; set; }
         }
 
-        public class Product
+        private class Product
         {
             public int Id { get; set; }
             public string Name { get; set; }
             public decimal Price { get; set; }
         }
 
-        public class TheGu
+        private class TheGu
         {
             public Guid Id { get; set; }
             public string ShirtColor { get; set; }
         }
 
-        public class EarlyLearningCenter : EntityContext
+        private class EarlyLearningCenter : EntityContext
         {
+            public EarlyLearningCenter()
+            {
+            }
+
+            public EarlyLearningCenter(IServiceProvider serviceProvider)
+                : base(serviceProvider)
+            {
+            }
+
             public EarlyLearningCenter(EntityConfiguration configuration)
                 : base(configuration)
             {
             }
 
-            public EarlyLearningCenter()
+            public EarlyLearningCenter(IServiceProvider serviceProvider, EntityConfiguration configuration)
+                : base(serviceProvider, configuration)
             {
             }
 
@@ -461,6 +804,94 @@ namespace Microsoft.Data.Entity.Tests
             public EntitySet<TheGu> Gus { get; set; }
         }
 
-        #endregion
+        private class FakeActiveIdentityGenerators : ActiveIdentityGenerators
+        {
+        }
+
+        private class FakeClrCollectionAccessorSource : ClrCollectionAccessorSource
+        {
+        }
+
+        private class FakeClrPropertyGetterSource : ClrPropertyGetterSource
+        {
+        }
+
+        private class FakeClrPropertySetterSource : ClrPropertySetterSource
+        {
+        }
+
+        private class FakeEntityKeyFactorySource : EntityKeyFactorySource
+        {
+        }
+
+        private class FakeEntityMaterializerSource : EntityMaterializerSource
+        {
+        }
+
+        private class FakeEntitySetFinder : EntitySetFinder
+        {
+        }
+
+        private class FakeEntitySetInitializer : EntitySetInitializer
+        {
+        }
+
+        private class FakeEntitySetSource : EntitySetSource
+        {
+        }
+
+        private class FakeEntityStateListener : IEntityStateListener
+        {
+            public void StateChanging(StateEntry entry, EntityState newState)
+            {
+            }
+
+            public void StateChanged(StateEntry entry, EntityState oldState)
+            {
+            }
+        }
+
+        private class FakeIdentityGeneratorFactory : IdentityGeneratorFactory
+        {
+            public override IIdentityGenerator Create(IProperty property)
+            {
+                return null;
+            }
+        }
+
+        private class FakeLoggerFactory : ILoggerFactory
+        {
+            public ILogger Create(string name)
+            {
+                return null;
+            }
+        }
+
+        private class FakeModelSource : IModelSource
+        {
+            public IModel GetModel(EntityContext context)
+            {
+                return null;
+            }
+        }
+
+        private class FakeStateEntryFactory : StateEntryFactory
+        {
+        }
+
+        private class FakeStateEntryNotifier : StateEntryNotifier
+        {
+        }
+
+        private class FakeContextEntitySets : ContextEntitySets
+        {
+            public override void InitializeSets(EntityContext context)
+            {
+            }
+        }
+
+        private class FakeNavigationFixer : NavigationFixer
+        {
+        }
     }
 }

@@ -12,27 +12,38 @@ namespace Microsoft.Data.Entity
     {
         private static readonly ServiceProviderCache _instance = new ServiceProviderCache();
 
-        private readonly ThreadSafeDictionaryCache<int, IServiceProvider> _configurations
-            = new ThreadSafeDictionaryCache<int, IServiceProvider>();
+        private readonly ThreadSafeDictionaryCache<long, IServiceProvider> _configurations
+            = new ThreadSafeDictionaryCache<long, IServiceProvider>();
 
         public static ServiceProviderCache Instance
         {
             get { return _instance; }
         }
 
-        public virtual IServiceProvider GetOrAdd(ServiceCollection serviceCollection)
+        public virtual IServiceProvider GetOrAdd(EntityConfiguration entityConfiguration)
         {
-            if (serviceCollection == null)
+            var services = new ServiceCollection().AddEntityFramework();
+            var builder = new EntityServicesBuilder(services);
+            foreach (var extension in entityConfiguration.Extensions())
             {
-                // TODO: Proper exception message
-                throw new InvalidOperationException("Must specify services in some way");
+                extension.ApplyServices(builder);
             }
 
             // TODO: Consider more robust hashing algorithm
-            var key = serviceCollection.Aggregate(
-                0, (t, d) => (t * 397) ^ (d.ImplementationInstance ?? d.ImplementationType).GetHashCode());
+            // Note that no cryptographic algorithm is available on all of phone/store/k/desktop
+            unchecked
+            {
+                var key = services.Aggregate(0, (t, d) => (t * 397) ^ CalculateHash(d).GetHashCode());
 
-            return _configurations.GetOrAdd(key, k => serviceCollection.BuildServiceProvider());
+                return _configurations.GetOrAdd(key, k => services.BuildServiceProvider());
+            }
+        }
+
+        private static long CalculateHash(IServiceDescriptor descriptor)
+        {
+            return ((((long)descriptor.Lifecycle * 397)
+                     ^ descriptor.ServiceType.GetHashCode()) * 397)
+                   ^ (descriptor.ImplementationInstance ?? descriptor.ImplementationType).GetHashCode();
         }
     }
 }

@@ -1,33 +1,20 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
-using Microsoft.AspNet.DependencyInjection;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity
 {
-    public class EntityConfiguration
+    public class EntityConfiguration : IEntityConfigurationConstruction
     {
-        private readonly IServiceProvider _services;
-        private readonly ServiceCollection _serviceCollection;
-        private readonly ConfigurationAnnotations _annotations;
-        private readonly IModel _model;
-
-        public EntityConfiguration(
-            [CanBeNull] IServiceProvider serviceProvider,
-            [CanBeNull] ServiceCollection serviceCollection,
-            [NotNull] ConfigurationAnnotations annotations,
-            [CanBeNull] IModel model)
-        {
-            Check.NotNull(annotations, "annotations");
-
-            _services = serviceProvider;
-            _serviceCollection = serviceCollection;
-            _annotations = annotations;
-            _model = model;
-        }
+        private bool _locked;
+        private IModel _model;
+        private readonly List<EntityConfigurationExtension> _extensions = new List<EntityConfigurationExtension>();
 
         [CanBeNull]
         public virtual IModel Model
@@ -35,21 +22,47 @@ namespace Microsoft.Data.Entity
             get { return _model; }
         }
 
-        [CanBeNull]
-        public virtual IServiceProvider Services
+        public virtual IReadOnlyList<EntityConfigurationExtension> Extensions()
         {
-            get { return _services; }
+            return _extensions;
         }
 
-        [CanBeNull]
-        public virtual ServiceCollection ServiceCollection
+        IModel IEntityConfigurationConstruction.Model
         {
-            get { return _serviceCollection; }
+            set
+            {
+                CheckNotLocked();
+
+                _model = value;
+            }
         }
 
-        public virtual ConfigurationAnnotations Annotations
+        void IEntityConfigurationConstruction.AddExtension<TExtension>(TExtension extension)
         {
-            get { return _annotations; }
+            Check.NotNull(extension, "extension");
+
+            CheckNotLocked();
+
+            foreach (var existing in _extensions.OfType<TExtension>().ToArray())
+            {
+                _extensions.Remove(existing);
+            }
+
+            _extensions.Add(extension);
+        }
+
+        void IEntityConfigurationConstruction.Lock()
+        {
+            _locked = true;
+        }
+
+        private void CheckNotLocked([CallerMemberName] String memberName = "")
+        {
+            if (_locked)
+            {
+                // TODO: Message
+                throw new InvalidOperationException("Locked: " + memberName);
+            }
         }
     }
 }
