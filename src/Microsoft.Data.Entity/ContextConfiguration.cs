@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity
         private ContextServices _services;
         private IServiceProvider _externalProvider;
         private EntityConfiguration _entityConfiguration;
-        private EntityContext _context;
+        private DbContext _context;
         private LazyRef<IModel> _modelFromSource;
         private LazyRef<DataStore> _dataStore;
         private ServiceProviderSource _serviceProviderSource;
@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity
             [NotNull] IServiceProvider externalProvider,
             [NotNull] IServiceProvider scopedProvider,
             [NotNull] EntityConfiguration entityConfiguration,
-            [NotNull] EntityContext context,
+            [NotNull] DbContext context,
             ServiceProviderSource serviceProviderSource)
         {
             Check.NotNull(externalProvider, "externalProvider");
@@ -66,7 +66,7 @@ namespace Microsoft.Data.Entity
             }
         }
 
-        public virtual EntityContext Context
+        public virtual DbContext Context
         {
             get { return _context; }
         }

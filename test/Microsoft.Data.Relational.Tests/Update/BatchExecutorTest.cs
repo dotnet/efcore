@@ -229,7 +229,7 @@ namespace Microsoft.Data.Relational.Tests.Update
 
         private static ContextConfiguration CreateConfiguration(IModel model)
         {
-            return new EntityContext(
+            return new DbContext(
                 new ServiceCollection()
                     .AddEntityFramework()
                     .BuildServiceProvider(),

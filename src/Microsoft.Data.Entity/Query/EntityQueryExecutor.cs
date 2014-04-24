@@ -14,15 +14,15 @@ namespace Microsoft.Data.Entity.Query
 {
     public class EntityQueryExecutor : IQueryExecutor
     {
-        private readonly EntityContext _entityContext;
+        private readonly DbContext _context;
         private readonly LazyRef<ILogger> _logger;
 
-        public EntityQueryExecutor([NotNull] EntityContext entityContext)
+        public EntityQueryExecutor([NotNull] DbContext context)
         {
-            Check.NotNull(entityContext, "entityContext");
+            Check.NotNull(context, "context");
 
-            _entityContext = entityContext;
-            _logger = new LazyRef<ILogger>(() => (_entityContext.Configuration.LoggerFactory.Create("EntityQueryExecutor")));
+            _context = context;
+            _logger = new LazyRef<ILogger>(() => (_context.Configuration.LoggerFactory.Create("EntityQueryExecutor")));
         }
 
         public virtual T ExecuteScalar<T>([NotNull] QueryModel queryModel)
@@ -74,11 +74,11 @@ namespace Microsoft.Data.Entity.Query
                 _logger.Value.WriteInformation(queryModel + Environment.NewLine);
             }
 
-            return _entityContext.Configuration.DataStore
+            return _context.Configuration.DataStore
                 .Query<T>(
                     queryModel,
-                    _entityContext.Configuration.Model,
-                    _entityContext.Configuration.Services.StateManager);
+                    _context.Configuration.Model,
+                    _context.Configuration.Services.StateManager);
         }
     }
 }

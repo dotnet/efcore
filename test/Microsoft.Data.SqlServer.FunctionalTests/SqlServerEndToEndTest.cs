@@ -228,7 +228,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
             await testDatabase.ExecuteNonQueryAsync(@"INSERT INTO [dbo].[Blog] (Name) VALUES ('Blog2')");
         }
 
-        private class NorthwindContext : EntityContext
+        private class NorthwindContext : DbContext
         {
             public NorthwindContext()
             {
@@ -239,7 +239,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
             {
             }
 
-            public EntitySet<Customer> Customers { get; set; }
+            public DbSet<Customer> Customers { get; set; }
 
             protected override void OnConfiguring(EntityConfigurationBuilder builder)
             {
@@ -276,7 +276,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
             public string Name { get; set; }
         }
 
-        private class BloggingContext<TBlog> : EntityContext
+        private class BloggingContext<TBlog> : DbContext
             where TBlog : class, IBlog
         {
             public BloggingContext(EntityConfiguration configuration)
@@ -294,7 +294,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                 builder.Entity<TBlog>().StorageName("Blog");
             }
 
-            public EntitySet<TBlog> Blogs { get; set; }
+            public DbSet<TBlog> Blogs { get; set; }
         }
 
         private interface IBlog

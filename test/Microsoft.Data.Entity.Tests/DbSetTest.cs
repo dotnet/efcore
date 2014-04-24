@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Tests
 {
-    public class EntitySetTest
+    public class DbSetTest
     {
         [Fact]
         public void Members_check_arguments()
@@ -16,9 +16,9 @@ namespace Microsoft.Data.Entity.Tests
             Assert.Equal(
                 "context",
                 // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => new EntitySet<Random>(null)).ParamName);
+                Assert.Throws<ArgumentNullException>(() => new DbSet<Random>(null)).ParamName);
 
-            var set = new EntitySet<Random>(new Mock<EntityContext>().Object);
+            var set = new DbSet<Random>(new Mock<DbContext>().Object);
 
             Assert.Equal(
                 "entity",
@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity.Tests
             contextMock.Setup(m => m.Add(It.IsAny<Random>())).Returns<Random>(e => e);
 
             var entity = new Random();
-            Assert.Same(entity, new EntitySet<Random>(contextMock.Object).Add(entity));
+            Assert.Same(entity, new DbSet<Random>(contextMock.Object).Add(entity));
 
             contextMock.Verify(m => m.Add(entity));
         }
@@ -68,7 +68,7 @@ namespace Microsoft.Data.Entity.Tests
                 .Returns<Random, CancellationToken>((e, c) => Task.FromResult(e));
 
             var entity = new Random();
-            Assert.Same(entity, new EntitySet<Random>(contextMock.Object).AddAsync(entity).Result);
+            Assert.Same(entity, new DbSet<Random>(contextMock.Object).AddAsync(entity).Result);
 
             contextMock.Verify(m => m.AddAsync(entity, CancellationToken.None));
         }
@@ -82,7 +82,7 @@ namespace Microsoft.Data.Entity.Tests
 
             var entity = new Random();
             var cancellationToken = new CancellationToken();
-            Assert.Same(entity, new EntitySet<Random>(contextMock.Object).AddAsync(entity, cancellationToken).Result);
+            Assert.Same(entity, new DbSet<Random>(contextMock.Object).AddAsync(entity, cancellationToken).Result);
 
             contextMock.Verify(m => m.AddAsync(entity, cancellationToken));
         }
@@ -94,7 +94,7 @@ namespace Microsoft.Data.Entity.Tests
             contextMock.Setup(m => m.Update(It.IsAny<Random>())).Returns<Random>(e => e);
 
             var entity = new Random();
-            Assert.Same(entity, new EntitySet<Random>(contextMock.Object).Update(entity));
+            Assert.Same(entity, new DbSet<Random>(contextMock.Object).Update(entity));
 
             contextMock.Verify(m => m.Update(entity));
         }
@@ -107,7 +107,7 @@ namespace Microsoft.Data.Entity.Tests
                 .Returns<Random, CancellationToken>((e, c) => Task.FromResult(e));
 
             var entity = new Random();
-            Assert.Same(entity, new EntitySet<Random>(contextMock.Object).UpdateAsync(entity).Result);
+            Assert.Same(entity, new DbSet<Random>(contextMock.Object).UpdateAsync(entity).Result);
 
             contextMock.Verify(m => m.UpdateAsync(entity, CancellationToken.None));
         }
@@ -121,15 +121,15 @@ namespace Microsoft.Data.Entity.Tests
 
             var entity = new Random();
             var cancellationToken = new CancellationToken();
-            Assert.Same(entity, new EntitySet<Random>(contextMock.Object).UpdateAsync(entity, cancellationToken).Result);
+            Assert.Same(entity, new DbSet<Random>(contextMock.Object).UpdateAsync(entity, cancellationToken).Result);
 
             contextMock.Verify(m => m.UpdateAsync(entity, cancellationToken));
         }
 
-        private static Mock<EntityContext> CreateContextMock()
+        private static Mock<DbContext> CreateContextMock()
         {
             var configMock = new Mock<ContextConfiguration>();
-            var contextMock = new Mock<EntityContext>();
+            var contextMock = new Mock<DbContext>();
             configMock.Setup(m => m.Context).Returns(contextMock.Object);
             contextMock.Setup(m => m.Configuration).Returns(configMock.Object);
             return contextMock;

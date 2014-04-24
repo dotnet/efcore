@@ -173,7 +173,7 @@ namespace Microsoft.Data.InMemory.Tests
 
         private static ContextConfiguration CreateConfiguration(EntityConfiguration configuration)
         {
-            return new EntityContext(configuration).Configuration;
+            return new DbContext(configuration).Configuration;
         }
 
         private class Customer

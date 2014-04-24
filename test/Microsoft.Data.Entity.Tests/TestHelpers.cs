@@ -32,22 +32,22 @@ namespace Microsoft.Data.Entity.Tests
 
         public static ContextConfiguration CreateContextConfiguration(IServiceProvider serviceProvider, IModel model)
         {
-            return new EntityContext(serviceProvider, CreateEntityConfiguration(model)).Configuration;
+            return new DbContext(serviceProvider, CreateEntityConfiguration(model)).Configuration;
         }
 
         public static ContextConfiguration CreateContextConfiguration(IServiceProvider serviceProvider)
         {
-            return new EntityContext(serviceProvider, CreateEntityConfiguration()).Configuration;
+            return new DbContext(serviceProvider, CreateEntityConfiguration()).Configuration;
         }
 
         public static ContextConfiguration CreateContextConfiguration(IModel model)
         {
-            return new EntityContext(CreateServiceProvider(), CreateEntityConfiguration(model)).Configuration;
+            return new DbContext(CreateServiceProvider(), CreateEntityConfiguration(model)).Configuration;
         }
 
         public static ContextConfiguration CreateContextConfiguration()
         {
-            return new EntityContext(CreateServiceProvider(), CreateEntityConfiguration()).Configuration;
+            return new DbContext(CreateServiceProvider(), CreateEntityConfiguration()).Configuration;
         }
     }
 }

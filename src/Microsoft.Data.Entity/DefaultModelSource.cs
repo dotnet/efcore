@@ -11,23 +11,23 @@ namespace Microsoft.Data.Entity
     {
         private readonly ThreadSafeDictionaryCache<Type, IModel> _models = new ThreadSafeDictionaryCache<Type, IModel>();
 
-        private readonly EntitySetFinder _setFinder;
+        private readonly DbSetFinder _setFinder;
 
-        public DefaultModelSource([NotNull] EntitySetFinder setFinder)
+        public DefaultModelSource([NotNull] DbSetFinder setFinder)
         {
             Check.NotNull(setFinder, "setFinder");
 
             _setFinder = setFinder;
         }
 
-        public virtual IModel GetModel(EntityContext context)
+        public virtual IModel GetModel(DbContext context)
         {
             Check.NotNull(context, "context");
 
             return _models.GetOrAdd(context.GetType(), k => CreateModel(context));
         }
 
-        private IModel CreateModel(EntityContext context)
+        private IModel CreateModel(DbContext context)
         {
             var model = new Model();
             var modelBuilder = new ConventionalModelBuilder(model);

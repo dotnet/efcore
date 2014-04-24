@@ -28,9 +28,9 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                 }
             }
 
-            private class NorthwindContext : EntityContext
+            private class NorthwindContext : DbContext
             {
-                public EntitySet<Customer> Customers { get; set; }
+                public DbSet<Customer> Customers { get; set; }
 
                 protected override void OnConfiguring(EntityConfigurationBuilder builder)
                 {
@@ -62,14 +62,14 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                 }
             }
 
-            private class NorthwindContext : EntityContext
+            private class NorthwindContext : DbContext
             {
                 public NorthwindContext(EntityConfiguration configuration)
                     : base(configuration)
                 {
                 }
 
-                public EntitySet<Customer> Customers { get; set; }
+                public DbSet<Customer> Customers { get; set; }
 
                 protected override void OnModelCreating(ModelBuilder builder)
                 {
@@ -96,14 +96,14 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                 }
             }
 
-            private class NorthwindContext : EntityContext
+            private class NorthwindContext : DbContext
             {
                 public NorthwindContext(IServiceProvider serviceProvider)
                     : base(serviceProvider)
                 {
                 }
 
-                public EntitySet<Customer> Customers { get; set; }
+                public DbSet<Customer> Customers { get; set; }
 
                 protected override void OnConfiguring(EntityConfigurationBuilder builder)
                 {
@@ -139,14 +139,14 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                 }
             }
 
-            private class NorthwindContext : EntityContext
+            private class NorthwindContext : DbContext
             {
                 public NorthwindContext(IServiceProvider serviceProvider, EntityConfiguration configuration)
                     : base(serviceProvider, configuration)
                 {
                 }
 
-                public EntitySet<Customer> Customers { get; set; }
+                public DbSet<Customer> Customers { get; set; }
 
                 protected override void OnModelCreating(ModelBuilder builder)
                 {
@@ -178,14 +178,14 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                 }
             }
 
-            private class NorthwindContext : EntityContext
+            private class NorthwindContext : DbContext
             {
                 public NorthwindContext(IServiceProvider serviceProvider)
                     : base(serviceProvider)
                 {
                 }
 
-                public EntitySet<Customer> Customers { get; set; }
+                public DbSet<Customer> Customers { get; set; }
 
                 protected override void OnModelCreating(ModelBuilder builder)
                 {
@@ -213,9 +213,9 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                 }
             }
 
-            private class NorthwindContext : EntityContext
+            private class NorthwindContext : DbContext
             {
-                public EntitySet<Customer> Customers { get; set; }
+                public DbSet<Customer> Customers { get; set; }
 
                 protected override void OnModelCreating(ModelBuilder builder)
                 {
@@ -247,14 +247,14 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                 }
             }
 
-            private class NorthwindContext : EntityContext
+            private class NorthwindContext : DbContext
             {
                 public NorthwindContext(IServiceProvider serviceProvider)
                     : base(serviceProvider)
                 {
                 }
 
-                public EntitySet<Customer> Customers { get; set; }
+                public DbSet<Customer> Customers { get; set; }
 
                 protected override void OnConfiguring(EntityConfigurationBuilder builder)
                 {
@@ -302,7 +302,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                 }
             }
 
-            private class NorthwindContext : EntityContext
+            private class NorthwindContext : DbContext
             {
                 public NorthwindContext(IServiceProvider serviceProvider)
                     : base(serviceProvider)
@@ -310,7 +310,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                     Assert.NotNull(serviceProvider);
                 }
 
-                public EntitySet<Customer> Customers { get; set; }
+                public DbSet<Customer> Customers { get; set; }
 
                 protected override void OnConfiguring(EntityConfigurationBuilder builder)
                 {
@@ -363,7 +363,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                 }
             }
 
-            private class NorthwindContext : EntityContext
+            private class NorthwindContext : DbContext
             {
                 public NorthwindContext(IServiceProvider serviceProvider, EntityConfiguration configuration)
                     : base(serviceProvider, configuration)
@@ -372,7 +372,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                     Assert.NotNull(configuration);
                 }
 
-                public EntitySet<Customer> Customers { get; set; }
+                public DbSet<Customer> Customers { get; set; }
 
                 protected override void OnModelCreating(ModelBuilder builder)
                 {
@@ -423,7 +423,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                 }
             }
 
-            private class NorthwindContext : EntityContext
+            private class NorthwindContext : DbContext
             {
                 public NorthwindContext(EntityConfiguration configuration)
                     : base(configuration)
@@ -431,7 +431,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                     Assert.NotNull(configuration);
                 }
 
-                public EntitySet<Customer> Customers { get; set; }
+                public DbSet<Customer> Customers { get; set; }
 
                 protected override void OnModelCreating(ModelBuilder builder)
                 {
@@ -454,7 +454,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                 }
             }
 
-            private class NorthwindContext : EntityContext
+            private class NorthwindContext : DbContext
             {
                 public NorthwindContext(string connectionString)
                     : base(new EntityConfigurationBuilder()
@@ -463,7 +463,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                 {
                 }
 
-                public EntitySet<Customer> Customers { get; set; }
+                public DbSet<Customer> Customers { get; set; }
 
                 protected override void OnModelCreating(ModelBuilder builder)
                 {
@@ -486,7 +486,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                 }
             }
 
-            private class NorthwindContext : EntityContext
+            private class NorthwindContext : DbContext
             {
                 private readonly string _connectionString;
 
@@ -495,7 +495,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                     _connectionString = connectionString;
                 }
 
-                public EntitySet<Customer> Customers { get; set; }
+                public DbSet<Customer> Customers { get; set; }
 
                 protected override void OnConfiguring(EntityConfigurationBuilder builder)
                 {
@@ -526,7 +526,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
 
         private static string GetString(string stringName)
         {
-            var strings = typeof(EntityContext).Assembly.GetType(typeof(EntityContext).Namespace + ".Strings");
+            var strings = typeof(DbContext).Assembly.GetType(typeof(DbContext).Namespace + ".Strings");
             return (string)strings.GetTypeInfo().GetDeclaredMethods(stringName).Single().Invoke(null, null);
         }
     }
