@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
                 .UseModel(new _OneTwoThreeContextModel())
                 .BuildConfiguration();
 
-            using (var context = new EntityContext(configuration))
+            using (var context = new DbContext(configuration))
             {
                 var entity = new KoolEntity15();
                 var property = (_KoolEntity15IdProperty)context.Model.GetEntityType(entity.GetType()).TryGetProperty("Id");
@@ -96,7 +96,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
                 .UseModel(new _OneTwoThreeContextModel())
                 .BuildConfiguration();
 
-            using (var context = new EntityContext(configuration))
+            using (var context = new DbContext(configuration))
             {
                 var entityType = (_KoolEntity15EntityType)context.Model.GetEntityType(typeof(KoolEntity15));
 
@@ -131,7 +131,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
                 .UseModel(model)
                 .BuildConfiguration();
 
-            using (var context = new EntityContext(configuration))
+            using (var context = new DbContext(configuration))
             {
                 var guid1 = Guid.NewGuid();
                 var guid2 = Guid.NewGuid();
@@ -183,7 +183,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
                 .UseModel(new _OneTwoThreeContextModel())
                 .BuildConfiguration();
 
-            using (var context = new EntityContext(configuration))
+            using (var context = new DbContext(configuration))
             {
                 context.Add(new KoolEntity6 { Id = 11, Kool5Id = 24 });
                 context.Add(new KoolEntity5 { Id = 21 });

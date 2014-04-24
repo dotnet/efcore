@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Tests
             RequiredServiceTest(c => c.Services.ClrPropertyGetterSource);
             RequiredServiceTest(c => c.Services.ClrPropertySetterSource);
             RequiredServiceTest(c => c.Services.StateManager);
-            RequiredServiceTest(c => c.Services.ContextEntitySets);
+            RequiredServiceTest(c => c.Services.ContextSets);
             RequiredServiceTest(c => c.Services.StateEntryNotifier);
             RequiredServiceTest(c => c.Services.StateEntryFactory);
         }
@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.Tests
             var configuration = TestHelpers.CreateContextConfiguration(provider);
 
             Assert.Same(configuration.Services.StateManager, configuration.Services.StateManager);
-            Assert.Same(configuration.Services.ContextEntitySets, configuration.Services.ContextEntitySets);
+            Assert.Same(configuration.Services.ContextSets, configuration.Services.ContextSets);
             Assert.Same(configuration.Services.StateEntryNotifier, configuration.Services.StateEntryNotifier);
             Assert.Same(configuration.Services.StateEntryFactory, configuration.Services.StateEntryFactory);
         }
@@ -72,7 +72,7 @@ namespace Microsoft.Data.Entity.Tests
             var configuration2 = TestHelpers.CreateContextConfiguration(provider);
 
             Assert.NotSame(configuration1.Services.StateManager, configuration2.Services.StateManager);
-            Assert.NotSame(configuration1.Services.ContextEntitySets, configuration2.Services.ContextEntitySets);
+            Assert.NotSame(configuration1.Services.ContextSets, configuration2.Services.ContextSets);
             Assert.NotSame(configuration1.Services.StateEntryNotifier, configuration2.Services.StateEntryNotifier);
             Assert.NotSame(configuration1.Services.StateEntryFactory, configuration2.Services.StateEntryFactory);
         }
@@ -88,7 +88,7 @@ namespace Microsoft.Data.Entity.Tests
         {
             var provider = new ServiceCollection().BuildServiceProvider();
             return new ContextConfiguration()
-                .Initialize(provider, provider, new EntityConfiguration(), Mock.Of<EntityContext>(), ContextConfiguration.ServiceProviderSource.Explicit);
+                .Initialize(provider, provider, new EntityConfiguration(), Mock.Of<DbContext>(), ContextConfiguration.ServiceProviderSource.Explicit);
         }
     }
 }

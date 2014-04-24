@@ -113,7 +113,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
 
         private static ContextConfiguration CreateConfiguration(TestDatabase testDatabase)
         {
-            return new EntityContext(
+            return new DbContext(
                 new ServiceCollection()
                     .AddEntityFramework(s => s.AddSqlServer())
                     .BuildServiceProvider(),
@@ -164,14 +164,14 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
             }
         }
 
-        private class BloggingContext : EntityContext
+        private class BloggingContext : DbContext
         {
             public BloggingContext(IServiceProvider serviceProvider, EntityConfiguration configuration)
                 : base(serviceProvider, configuration)
             {
             }
 
-            public EntitySet<Blog> Blogs { get; set; }
+            public DbSet<Blog> Blogs { get; set; }
 
             public class Blog
             {

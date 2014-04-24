@@ -7,12 +7,12 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Tests
 {
-    public class EntitySetFinderTest
+    public class DbSetFinderTest
     {
         [Fact]
         public void Members_check_arguments()
         {
-            var finder = new EntitySetFinder();
+            var finder = new DbSetFinder();
 
             Assert.Equal(
                 "context",
@@ -21,11 +21,11 @@ namespace Microsoft.Data.Entity.Tests
         }
 
         [Fact]
-        public void All_non_static_EntitySet_properties_are_discovered()
+        public void All_non_static_DbSet_properties_are_discovered()
         {
             using (var context = new The())
             {
-                var sets = new EntitySetFinder().FindSets(context);
+                var sets = new DbSetFinder().FindSets(context);
 
                 Assert.Equal(
                     new[] { "Betters", "Brandies", "Drinkings", "Stops", "Yous" },
@@ -47,12 +47,12 @@ namespace Microsoft.Data.Entity.Tests
 
         #region Fixture
 
-        public class Streets : EntityContext
+        public class Streets : DbContext
         {
-            public EntitySet<You> Yous { get; set; }
-            protected EntitySet<Better> Betters { get; set; }
+            public DbSet<You> Yous { get; set; }
+            protected DbSet<Better> Betters { get; set; }
 
-            internal EntitySet<Stop> Stops
+            internal DbSet<Stop> Stops
             {
                 get { return null; }
             }
@@ -60,10 +60,10 @@ namespace Microsoft.Data.Entity.Tests
 
         public class The : Streets
         {
-            public EntitySet<Drinking> Drinkings { get; set; }
-            private EntitySet<Brandy> Brandies { get; set; }
+            public DbSet<Drinking> Drinkings { get; set; }
+            private DbSet<Brandy> Brandies { get; set; }
 
-            public static EntitySet<Random> NotMe1 { get; set; }
+            public static DbSet<Random> NotMe1 { get; set; }
             public Random NotMe2 { get; set; }
             public List<Random> NotMe3 { get; set; }
             public NotANormalSet<Random> NotMe4 { get; set; }
@@ -89,7 +89,7 @@ namespace Microsoft.Data.Entity.Tests
         {
         }
 
-        public class NotANormalSet<TEntity> : EntitySet<TEntity>
+        public class NotANormalSet<TEntity> : DbSet<TEntity>
             where TEntity : class
         {
         }

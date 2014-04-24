@@ -167,7 +167,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        public void AssertAllFixedUp(EntityContext context)
+        public void AssertAllFixedUp(DbContext context)
         {
             foreach (var entry in context.ChangeTracker.Entries<Product>())
             {
@@ -236,7 +236,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             public Product Product { get; set; }
         }
 
-        private class FixupContext : EntityContext
+        private class FixupContext : DbContext
         {
             protected override void OnModelCreating(ModelBuilder builder)
             {

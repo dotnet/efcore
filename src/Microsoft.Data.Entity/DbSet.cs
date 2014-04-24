@@ -9,20 +9,20 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity
 {
-    public abstract class EntitySet : IOrderedQueryable
+    public abstract class DbSet : IOrderedQueryable
     {
-        private readonly EntityContext _context;
+        private readonly DbContext _context;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
         ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
         ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
         /// </summary>
-        protected EntitySet()
+        protected DbSet()
         {
         }
 
-        protected EntitySet([NotNull] EntityContext context)
+        protected DbSet([NotNull] DbContext context)
         {
             Check.NotNull(context, "context");
 
@@ -45,6 +45,6 @@ namespace Microsoft.Data.Entity
         public abstract IQueryProvider Provider { get; }
 
         // TODO: Decide whether/how to implement non-generic API
-        // TODO: Consider the role of EntitySet when entity is in shadow
+        // TODO: Consider the role of DbSet when entity is in shadow
     }
 }

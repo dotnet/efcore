@@ -917,7 +917,7 @@ namespace Microsoft.Data.FunctionalTests
             bool assertOrder = false)
             where TItem : class
         {
-            using (var context = new EntityContext(Configuration))
+            using (var context = new DbContext(Configuration))
             {
                 return AssertResults(
                     new[] { query(NorthwindData.Set<TItem>()) },
@@ -931,7 +931,7 @@ namespace Microsoft.Data.FunctionalTests
             bool assertOrder = false)
             where TItem : class
         {
-            using (var context = new EntityContext(Configuration))
+            using (var context = new DbContext(Configuration))
             {
                 return AssertResults(
                     new[] { query(NorthwindData.Set<TItem>()) },
@@ -945,7 +945,7 @@ namespace Microsoft.Data.FunctionalTests
             bool assertOrder = false)
             where TItem : class
         {
-            using (var context = new EntityContext(Configuration))
+            using (var context = new DbContext(Configuration))
             {
                 return AssertResults(
                     new[] { query(NorthwindData.Set<TItem>()) },
@@ -958,7 +958,7 @@ namespace Microsoft.Data.FunctionalTests
             Func<IQueryable<TItem>, IQueryable<IQueryable<object>>> query, bool assertOrder = false)
             where TItem : class
         {
-            using (var context = new EntityContext(Configuration))
+            using (var context = new DbContext(Configuration))
             {
                 return AssertResults(
                     query(NorthwindData.Set<TItem>()).ToArray(),
@@ -971,7 +971,7 @@ namespace Microsoft.Data.FunctionalTests
             Func<IQueryable<TItem>, IQueryable<object>> query, bool assertOrder = false)
             where TItem : class
         {
-            using (var context = new EntityContext(Configuration))
+            using (var context = new DbContext(Configuration))
             {
                 return AssertResults(
                     query(NorthwindData.Set<TItem>()).ToArray(),
@@ -987,7 +987,7 @@ namespace Microsoft.Data.FunctionalTests
             where TItem1 : class
             where TItem2 : class
         {
-            using (var context = new EntityContext(Configuration))
+            using (var context = new DbContext(Configuration))
             {
                 return AssertResults(
                     query(NorthwindData.Set<TItem1>(), NorthwindData.Set<TItem2>()).ToArray(),
@@ -1004,7 +1004,7 @@ namespace Microsoft.Data.FunctionalTests
             where TItem2 : class
             where TItem3 : class
         {
-            using (var context = new EntityContext(Configuration))
+            using (var context = new DbContext(Configuration))
             {
                 return AssertResults(
                     query(NorthwindData.Set<TItem1>(), NorthwindData.Set<TItem2>(), NorthwindData.Set<TItem3>()).ToArray(),
@@ -1017,7 +1017,7 @@ namespace Microsoft.Data.FunctionalTests
             Func<IQueryable<TItem>, IQueryable<object>> query, bool assertOrder = false)
             where TItem : class
         {
-            using (var context = new EntityContext(Configuration))
+            using (var context = new DbContext(Configuration))
             {
                 return AssertResults(
                     query(NorthwindData.Set<TItem>()).ToArray(),
@@ -1030,7 +1030,7 @@ namespace Microsoft.Data.FunctionalTests
             Func<IQueryable<TItem>, IQueryable<int>> query, bool assertOrder = false)
             where TItem : class
         {
-            using (var context = new EntityContext(Configuration))
+            using (var context = new DbContext(Configuration))
             {
                 return AssertResults(
                     query(NorthwindData.Set<TItem>()).ToArray(),
@@ -1043,7 +1043,7 @@ namespace Microsoft.Data.FunctionalTests
             Func<IQueryable<TItem>, IQueryable<long>> query, bool assertOrder = false)
             where TItem : class
         {
-            using (var context = new EntityContext(Configuration))
+            using (var context = new DbContext(Configuration))
             {
                 return AssertResults(
                     query(NorthwindData.Set<TItem>()).ToArray(),
@@ -1056,7 +1056,7 @@ namespace Microsoft.Data.FunctionalTests
             Func<IQueryable<TItem>, IQueryable<bool>> query, bool assertOrder = false)
             where TItem : class
         {
-            using (var context = new EntityContext(Configuration))
+            using (var context = new DbContext(Configuration))
             {
                 return AssertResults(
                     query(NorthwindData.Set<TItem>()).ToArray(),

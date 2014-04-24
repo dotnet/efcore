@@ -30,7 +30,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
 
             var customer = new Customer { Id = 42, Name = "Theon" };
 
-            using (var context = new EntityContext(serviceProvider, configuration))
+            using (var context = new DbContext(serviceProvider, configuration))
             {
                 context.Add(customer);
 
@@ -39,7 +39,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                 customer.Name = "Changed!";
             }
 
-            using (var context = new EntityContext(serviceProvider, configuration))
+            using (var context = new DbContext(serviceProvider, configuration))
             {
                 var customerFromStore = context.Set<Customer>().Single();
 
@@ -47,7 +47,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                 Assert.Equal("Theon", customerFromStore.Name);
             }
 
-            using (var context = new EntityContext(serviceProvider, configuration))
+            using (var context = new DbContext(serviceProvider, configuration))
             {
                 customer.Name = "Theon Greyjoy";
                 context.Update(customer);
@@ -55,7 +55,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                 await context.SaveChangesAsync();
             }
 
-            using (var context = new EntityContext(serviceProvider, configuration))
+            using (var context = new DbContext(serviceProvider, configuration))
             {
                 var customerFromStore = context.Set<Customer>().Single();
 
@@ -63,14 +63,14 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                 Assert.Equal("Theon Greyjoy", customerFromStore.Name);
             }
 
-            using (var context = new EntityContext(serviceProvider, configuration))
+            using (var context = new DbContext(serviceProvider, configuration))
             {
                 context.Delete(customer);
 
                 await context.SaveChangesAsync();
             }
 
-            using (var context = new EntityContext(serviceProvider, configuration))
+            using (var context = new DbContext(serviceProvider, configuration))
             {
                 Assert.Equal(0, context.Set<Customer>().Count());
             }
@@ -133,9 +133,9 @@ namespace Microsoft.Data.InMemory.FunctionalTests
             }
         }
 
-        private class SimpleContext : EntityContext
+        private class SimpleContext : DbContext
         {
-            public EntitySet<Artist> Artists { get; set; }
+            public DbSet<Artist> Artists { get; set; }
 
             protected override void OnConfiguring(EntityConfigurationBuilder builder)
             {

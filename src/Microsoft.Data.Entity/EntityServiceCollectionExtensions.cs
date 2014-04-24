@@ -29,8 +29,8 @@ namespace Microsoft.AspNet.DependencyInjection
                 .AddSingleton<IModelSource, DefaultModelSource>()
                 .AddSingleton<IdentityGeneratorFactory, DefaultIdentityGeneratorFactory>()
                 .AddSingleton<ActiveIdentityGenerators, ActiveIdentityGenerators>()
-                .AddSingleton<EntitySetFinder, EntitySetFinder>()
-                .AddSingleton<EntitySetInitializer, EntitySetInitializer>()
+                .AddSingleton<DbSetFinder, DbSetFinder>()
+                .AddSingleton<DbSetInitializer, DbSetInitializer>()
                 .AddSingleton<EntityKeyFactorySource, EntityKeyFactorySource>()
                 .AddSingleton<ClrPropertyGetterSource, ClrPropertyGetterSource>()
                 .AddSingleton<ClrPropertySetterSource, ClrPropertySetterSource>()
@@ -46,7 +46,7 @@ namespace Microsoft.AspNet.DependencyInjection
                 .AddScoped<IEntityStateListener, NavigationFixer>()
                 .AddScoped<StateEntryNotifier, StateEntryNotifier>()
                 .AddScoped<ContextConfiguration, ContextConfiguration>()
-                .AddScoped<ContextEntitySets, ContextEntitySets>()
+                .AddScoped<ContextSets, ContextSets>()
                 .AddScoped<StateManager, StateManager>();
 
             if (nestedBuilder != null)

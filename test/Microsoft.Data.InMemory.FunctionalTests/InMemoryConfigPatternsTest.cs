@@ -32,9 +32,9 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                 }
             }
 
-            private class BlogContext : EntityContext
+            private class BlogContext : DbContext
             {
-                public EntitySet<Blog> Blogs { get; set; }
+                public DbSet<Blog> Blogs { get; set; }
 
                 protected override void OnConfiguring(EntityConfigurationBuilder builder)
                 {
@@ -67,14 +67,14 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                 }
             }
 
-            private class BlogContext : EntityContext
+            private class BlogContext : DbContext
             {
                 public BlogContext(EntityConfiguration configuration)
                     : base(configuration)
                 {
                 }
 
-                public EntitySet<Blog> Blogs { get; set; }
+                public DbSet<Blog> Blogs { get; set; }
             }
         }
 
@@ -102,14 +102,14 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                 }
             }
 
-            private class BlogContext : EntityContext
+            private class BlogContext : DbContext
             {
                 public BlogContext(IServiceProvider serviceProvider)
                     : base(serviceProvider)
                 {
                 }
 
-                public EntitySet<Blog> Blogs { get; set; }
+                public DbSet<Blog> Blogs { get; set; }
 
                 protected override void OnConfiguring(EntityConfigurationBuilder builder)
                 {
@@ -146,14 +146,14 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                 }
             }
 
-            private class BlogContext : EntityContext
+            private class BlogContext : DbContext
             {
                 public BlogContext(IServiceProvider serviceProvider, EntityConfiguration configuration)
                     : base(serviceProvider, configuration)
                 {
                 }
 
-                public EntitySet<Blog> Blogs { get; set; }
+                public DbSet<Blog> Blogs { get; set; }
             }
         }
 
@@ -181,14 +181,14 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                 }
             }
 
-            private class BlogContext : EntityContext
+            private class BlogContext : DbContext
             {
                 public BlogContext(IServiceProvider serviceProvider)
                     : base(serviceProvider)
                 {
                 }
 
-                public EntitySet<Blog> Blogs { get; set; }
+                public DbSet<Blog> Blogs { get; set; }
             }
         }
 
@@ -210,9 +210,9 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                         }).InnerException.Message);
             }
 
-            private class BlogContext : EntityContext
+            private class BlogContext : DbContext
             {
-                public EntitySet<Blog> Blogs { get; set; }
+                public DbSet<Blog> Blogs { get; set; }
             }
         }
 
@@ -238,14 +238,14 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                         }).InnerException.Message);
             }
 
-            private class BlogContext : EntityContext
+            private class BlogContext : DbContext
             {
                 public BlogContext(IServiceProvider serviceProvider)
                     : base(serviceProvider)
                 {
                 }
 
-                public EntitySet<Blog> Blogs { get; set; }
+                public DbSet<Blog> Blogs { get; set; }
 
                 protected override void OnConfiguring(EntityConfigurationBuilder builder)
                 {
@@ -291,7 +291,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                 }
             }
 
-            private class BlogContext : EntityContext
+            private class BlogContext : DbContext
             {
                 public BlogContext(IServiceProvider serviceProvider)
                     : base(serviceProvider)
@@ -299,7 +299,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                     Assert.NotNull(serviceProvider);
                 }
 
-                public EntitySet<Blog> Blogs { get; set; }
+                public DbSet<Blog> Blogs { get; set; }
             }
         }
 
@@ -345,7 +345,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                 }
             }
 
-            private class BlogContext : EntityContext
+            private class BlogContext : DbContext
             {
                 public BlogContext(IServiceProvider serviceProvider, EntityConfiguration configuration)
                     : base(serviceProvider, configuration)
@@ -354,7 +354,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                     Assert.NotNull(configuration);
                 }
 
-                public EntitySet<Blog> Blogs { get; set; }
+                public DbSet<Blog> Blogs { get; set; }
             }
         }
 
@@ -403,7 +403,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                 }
             }
 
-            private class BlogContext : EntityContext
+            private class BlogContext : DbContext
             {
                 public BlogContext(EntityConfiguration configuration)
                     : base(configuration)
@@ -411,7 +411,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                     Assert.NotNull(configuration);
                 }
 
-                public EntitySet<Blog> Blogs { get; set; }
+                public DbSet<Blog> Blogs { get; set; }
             }
         }
 
@@ -497,7 +497,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
             }
 
 
-            private class BlogContext : EntityContext
+            private class BlogContext : DbContext
             {
                 public BlogContext(IServiceProvider serviceProvider, BlogConfiguration configuration)
                     : base(serviceProvider, configuration)
@@ -506,10 +506,10 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                     Assert.NotNull(configuration);
                 }
 
-                public EntitySet<Blog> Blogs { get; set; }
+                public DbSet<Blog> Blogs { get; set; }
             }
 
-            private class AccountContext : EntityContext
+            private class AccountContext : DbContext
             {
                 public AccountContext(IServiceProvider serviceProvider, AccountConfiguration configuration)
                     : base(serviceProvider, configuration)
@@ -518,7 +518,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                     Assert.NotNull(configuration);
                 }
 
-                public EntitySet<Account> Accounts { get; set; }
+                public DbSet<Account> Accounts { get; set; }
             }
 
             private class Account
@@ -536,7 +536,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
 
         private static string GetString(string stringName)
         {
-            var strings = typeof(EntityContext).Assembly.GetType(typeof(EntityContext).Namespace + ".Strings");
+            var strings = typeof(DbContext).Assembly.GetType(typeof(DbContext).Namespace + ".Strings");
             return (string)strings.GetTypeInfo().GetDeclaredMethods(stringName).Single().Invoke(null, null);
         }
     }

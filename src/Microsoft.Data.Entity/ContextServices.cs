@@ -59,9 +59,9 @@ namespace Microsoft.Data.Entity
             get { return _serviceProvider.GetRequiredService<ClrPropertySetterSource>(); }
         }
 
-        public virtual ContextEntitySets ContextEntitySets
+        public virtual ContextSets ContextSets
         {
-            get { return ServiceProvider.GetRequiredService<ContextEntitySets>(); }
+            get { return ServiceProvider.GetRequiredService<ContextSets>(); }
         }
 
         public virtual DataStoreSelector DataStoreSelector

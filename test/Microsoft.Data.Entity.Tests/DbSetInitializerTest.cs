@@ -10,7 +10,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Tests
 {
-    public class EntitySetInitializerTest
+    public class DbSetInitializerTest
     {
         [Fact]
         public void Members_check_arguments()
@@ -18,9 +18,9 @@ namespace Microsoft.Data.Entity.Tests
             Assert.Equal(
                 "setFinder",
                 // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => new EntitySetInitializer(null, new ClrPropertySetterSource())).ParamName);
+                Assert.Throws<ArgumentNullException>(() => new DbSetInitializer(null, new ClrPropertySetterSource())).ParamName);
 
-            var initializer = new EntitySetInitializer(new Mock<EntitySetFinder>().Object, new ClrPropertySetterSource());
+            var initializer = new DbSetInitializer(new Mock<DbSetFinder>().Object, new ClrPropertySetterSource());
 
             Assert.Equal(
                 "context",
@@ -31,18 +31,18 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Initializes_all_entity_set_properties_with_setters()
         {
-            var setFinderMock = new Mock<EntitySetFinder>();
-            setFinderMock.Setup(m => m.FindSets(It.IsAny<EntityContext>())).Returns(
+            var setFinderMock = new Mock<DbSetFinder>();
+            setFinderMock.Setup(m => m.FindSets(It.IsAny<DbContext>())).Returns(
                 new[]
                     {
-                        new EntitySetFinder.EntitySetProperty(typeof(JustAContext), "One", typeof(string), hasSetter: true),
-                        new EntitySetFinder.EntitySetProperty(typeof(JustAContext), "Two", typeof(object), hasSetter: true),
-                        new EntitySetFinder.EntitySetProperty(typeof(JustAContext), "Three", typeof(string), hasSetter: true),
-                        new EntitySetFinder.EntitySetProperty(typeof(JustAContext), "Four", typeof(string), hasSetter: false)
+                        new DbSetFinder.DbSetProperty(typeof(JustAContext), "One", typeof(string), hasSetter: true),
+                        new DbSetFinder.DbSetProperty(typeof(JustAContext), "Two", typeof(object), hasSetter: true),
+                        new DbSetFinder.DbSetProperty(typeof(JustAContext), "Three", typeof(string), hasSetter: true),
+                        new DbSetFinder.DbSetProperty(typeof(JustAContext), "Four", typeof(string), hasSetter: false)
                     });
 
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework(s => s.UseEntitySetInitializer(new EntitySetInitializer(setFinderMock.Object, new ClrPropertySetterSource())))
+                .AddEntityFramework(s => s.UseDbSetInitializer(new DbSetInitializer(setFinderMock.Object, new ClrPropertySetterSource())))
                 .BuildServiceProvider();
             
             var configuration = new EntityConfigurationBuilder().BuildConfiguration();
@@ -56,23 +56,23 @@ namespace Microsoft.Data.Entity.Tests
             }
         }
 
-        public class JustAContext : EntityContext
+        public class JustAContext : DbContext
         {
             public JustAContext(IServiceProvider serviceProvider, EntityConfiguration configuration)
                 : base(serviceProvider, configuration)
             {
             }
 
-            public EntitySet<string> One { get; set; }
-            private EntitySet<object> Two { get; set; }
-            public EntitySet<string> Three { get; private set; }
+            public DbSet<string> One { get; set; }
+            private DbSet<object> Two { get; set; }
+            public DbSet<string> Three { get; private set; }
 
-            public EntitySet<string> Four
+            public DbSet<string> Four
             {
                 get { return null; }
             }
 
-            public EntitySet<object> GetTwo()
+            public DbSet<object> GetTwo()
             {
                 return Two;
             }

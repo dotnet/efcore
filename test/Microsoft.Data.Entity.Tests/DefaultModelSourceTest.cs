@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Tests
                 // ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(() => new DefaultModelSource(null)).ParamName);
 
-            var modelSource = new DefaultModelSource(new Mock<EntitySetFinder>().Object);
+            var modelSource = new DefaultModelSource(new Mock<DbSetFinder>().Object);
 
             Assert.Equal(
                 "context",
@@ -28,17 +28,17 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Adds_all_entities_based_on_all_distinct_entity_types_found()
         {
-            var setFinderMock = new Mock<EntitySetFinder>();
-            setFinderMock.Setup(m => m.FindSets(It.IsAny<EntityContext>())).Returns(
+            var setFinderMock = new Mock<DbSetFinder>();
+            setFinderMock.Setup(m => m.FindSets(It.IsAny<DbContext>())).Returns(
                 new[]
                     {
-                        new EntitySetFinder.EntitySetProperty(typeof(JustAClass), "One", typeof(Random), hasSetter: true),
-                        new EntitySetFinder.EntitySetProperty(typeof(JustAClass), "Two", typeof(object), hasSetter: true),
-                        new EntitySetFinder.EntitySetProperty(typeof(JustAClass), "Three", typeof(string), hasSetter: true),
-                        new EntitySetFinder.EntitySetProperty(typeof(JustAClass), "Four", typeof(string), hasSetter: true)
+                        new DbSetFinder.DbSetProperty(typeof(JustAClass), "One", typeof(Random), hasSetter: true),
+                        new DbSetFinder.DbSetProperty(typeof(JustAClass), "Two", typeof(object), hasSetter: true),
+                        new DbSetFinder.DbSetProperty(typeof(JustAClass), "Three", typeof(string), hasSetter: true),
+                        new DbSetFinder.DbSetProperty(typeof(JustAClass), "Four", typeof(string), hasSetter: true)
                     });
 
-            var model = new DefaultModelSource(setFinderMock.Object).GetModel(new Mock<EntityContext>().Object);
+            var model = new DefaultModelSource(setFinderMock.Object).GetModel(new Mock<DbContext>().Object);
 
             Assert.Equal(
                 new[] { "Object", "Random", "String" },
@@ -47,16 +47,16 @@ namespace Microsoft.Data.Entity.Tests
 
         private class JustAClass
         {
-            public EntitySet<Random> One { get; set; }
-            protected EntitySet<object> Two { get; set; }
-            private EntitySet<string> Three { get; set; }
-            private EntitySet<string> Four { get; set; }
+            public DbSet<Random> One { get; set; }
+            protected DbSet<object> Two { get; set; }
+            private DbSet<string> Three { get; set; }
+            private DbSet<string> Four { get; set; }
         }
 
         [Fact]
         public void Caches_model_by_context_type()
         {
-            var modelSource = new DefaultModelSource(new EntitySetFinder());
+            var modelSource = new DefaultModelSource(new DbSetFinder());
 
             var model1 = modelSource.GetModel(new Context1());
             var model2 = modelSource.GetModel(new Context2());
@@ -66,11 +66,11 @@ namespace Microsoft.Data.Entity.Tests
             Assert.Same(model2, modelSource.GetModel(new Context2()));
         }
 
-        private class Context1 : EntityContext
+        private class Context1 : DbContext
         {
         }
 
-        private class Context2 : EntityContext
+        private class Context2 : DbContext
         {
         }
     }

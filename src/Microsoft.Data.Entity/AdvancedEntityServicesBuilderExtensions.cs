@@ -23,11 +23,11 @@ namespace Microsoft.AspNet.DependencyInjection.Advanced
             return builder;
         }
 
-        public static EntityServicesBuilder UseEntitySetInitializer([NotNull] this EntityServicesBuilder builder, [NotNull] EntitySetInitializer initializer)
+        public static EntityServicesBuilder UseDbSetInitializer([NotNull] this EntityServicesBuilder builder, [NotNull] DbSetInitializer initializer)
         {
             Check.NotNull(initializer, "initializer");
 
-            builder.ServiceCollection.AddInstance<EntitySetInitializer>(initializer);
+            builder.ServiceCollection.AddInstance<DbSetInitializer>(initializer);
 
             return builder;
         }
@@ -50,11 +50,11 @@ namespace Microsoft.AspNet.DependencyInjection.Advanced
             return builder;
         }
 
-        public static EntityServicesBuilder UseEntitySetFinder([NotNull] this EntityServicesBuilder builder, [NotNull] EntitySetFinder finder)
+        public static EntityServicesBuilder UseDbSetFinder([NotNull] this EntityServicesBuilder builder, [NotNull] DbSetFinder finder)
         {
             Check.NotNull(finder, "finder");
 
-            builder.ServiceCollection.AddInstance<EntitySetFinder>(finder);
+            builder.ServiceCollection.AddInstance<DbSetFinder>(finder);
 
             return builder;
         }
@@ -121,10 +121,10 @@ namespace Microsoft.AspNet.DependencyInjection.Advanced
             return builder;
         }
 
-        public static EntityServicesBuilder UseEntitySetInitializer<TService>([NotNull] this EntityServicesBuilder builder)
-            where TService : EntitySetInitializer
+        public static EntityServicesBuilder UseDbSetInitializer<TService>([NotNull] this EntityServicesBuilder builder)
+            where TService : DbSetInitializer
         {
-            builder.ServiceCollection.AddSingleton<EntitySetInitializer, TService>();
+            builder.ServiceCollection.AddSingleton<DbSetInitializer, TService>();
 
             return builder;
         }
@@ -145,10 +145,10 @@ namespace Microsoft.AspNet.DependencyInjection.Advanced
             return builder;
         }
 
-        public static EntityServicesBuilder UseEntitySetFinder<TService>([NotNull] this EntityServicesBuilder builder)
-            where TService : EntitySetFinder
+        public static EntityServicesBuilder UseDbSetFinder<TService>([NotNull] this EntityServicesBuilder builder)
+            where TService : DbSetFinder
         {
-            builder.ServiceCollection.AddSingleton<EntitySetFinder, TService>();
+            builder.ServiceCollection.AddSingleton<DbSetFinder, TService>();
 
             return builder;
         }
@@ -227,10 +227,10 @@ namespace Microsoft.AspNet.DependencyInjection.Advanced
             return builder;
         }
 
-        public static EntityServicesBuilder UseContextEntitySets<TService>([NotNull] this EntityServicesBuilder builder)
-            where TService : ContextEntitySets
+        public static EntityServicesBuilder UseContextSets<TService>([NotNull] this EntityServicesBuilder builder)
+            where TService : ContextSets
         {
-            builder.ServiceCollection.AddScoped<ContextEntitySets, TService>();
+            builder.ServiceCollection.AddScoped<ContextSets, TService>();
 
             return builder;
         }

@@ -232,7 +232,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             services.AddInstance<IEntityStateListener>(listeners[1].Object);
             services.AddInstance<IEntityStateListener>(listeners[2].Object);
 
-            var config = new EntityContext(services.BuildServiceProvider(),
+            var config = new DbContext(services.BuildServiceProvider(),
                 new EntityConfigurationBuilder()
                     .UseModel(BuildModel())
                     .BuildConfiguration())

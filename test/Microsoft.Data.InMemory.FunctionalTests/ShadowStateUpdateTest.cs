@@ -27,7 +27,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                 .UseInMemoryStore()
                 .BuildConfiguration();
 
-            using (var context = new EntityContext(configuration))
+            using (var context = new DbContext(configuration))
             {
                 // TODO: Better API for shadow state access
                 var customerEntry = context.ChangeTracker.StateManager.CreateNewEntry(customerType);
@@ -46,7 +46,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
             //
             // Assert.Equal(new object[] { 42, "Daenerys" }, customerFromStore);
 
-            using (var context = new EntityContext(configuration))
+            using (var context = new DbContext(configuration))
             {
                 var customerEntry = context.ChangeTracker.StateManager.CreateNewEntry(customerType);
                 customerEntry[customerType.GetProperty("Id")] = 42;
@@ -62,7 +62,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
             // 
             // Assert.Equal(new object[] { 42, "Daenerys Targaryen" }, customerFromStore);
 
-            using (var context = new EntityContext(configuration))
+            using (var context = new DbContext(configuration))
             {
                 var customerEntry = context.ChangeTracker.StateManager.CreateNewEntry(customerType);
                 customerEntry[customerType.GetProperty("Id")] = 42;
@@ -94,7 +94,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
 
             var customer = new Customer { Id = 42 };
 
-            using (var context = new EntityContext(configuration))
+            using (var context = new DbContext(configuration))
             {
                 context.Add(customer);
 
@@ -107,7 +107,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                 customerEntry[customerType.GetProperty("Name")] = "Changed!";
             }
 
-            using (var context = new EntityContext(configuration))
+            using (var context = new DbContext(configuration))
             {
                 var customerFromStore = context.Set<Customer>().Single();
 
@@ -117,7 +117,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                     (string)context.ChangeTracker.Entry(customerFromStore).Property("Name").CurrentValue);
             }
 
-            using (var context = new EntityContext(configuration))
+            using (var context = new DbContext(configuration))
             {
                 var customerEntry = context.ChangeTracker.Entry(customer).StateEntry;
                 customerEntry[customerType.GetProperty("Name")] = "Daenerys Targaryen";
@@ -127,7 +127,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                 await context.SaveChangesAsync();
             }
 
-            using (var context = new EntityContext(configuration))
+            using (var context = new DbContext(configuration))
             {
                 var customerFromStore = context.Set<Customer>().Single();
 
@@ -137,14 +137,14 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                     (string)context.ChangeTracker.Entry(customerFromStore).Property("Name").CurrentValue);
             }
 
-            using (var context = new EntityContext(configuration))
+            using (var context = new DbContext(configuration))
             {
                 context.Delete(customer);
 
                 await context.SaveChangesAsync();
             }
 
-            using (var context = new EntityContext(configuration))
+            using (var context = new DbContext(configuration))
             {
                 Assert.Equal(0, context.Set<Customer>().Count());
             }
