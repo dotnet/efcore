@@ -107,12 +107,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         private static IModel BuildModel()
         {
             var model = new Model();
-            var builder = new ModelBuilder(model);
+            var builder = new ConventionalModelBuilder(model);
 
             builder.Entity<Product>();
             builder.Entity<Category>();
-
-            new SimpleTemporaryConvention().Apply(model);
 
             var categoryType = model.GetEntityType(typeof(Category));
             var productType = model.GetEntityType(typeof(Product));

@@ -246,8 +246,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 builder.Entity<Category>();
                 builder.Entity<SpecialOffer>();
 
-                new SimpleTemporaryConvention().Apply(model);
-
                 var categoryType = model.GetEntityType(typeof(Category));
                 var productType = model.GetEntityType(typeof(Product));
                 var offerType = model.GetEntityType(typeof(SpecialOffer));

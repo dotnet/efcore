@@ -49,6 +49,11 @@ namespace System
             }
         }
 
+        public static Type UnwrapNullableType(this Type type)
+        {
+            return Nullable.GetUnderlyingType(type) ?? type;
+        }
+
         public static bool IsNullableType(this Type type)
         {
             var typeInfo = type.GetTypeInfo();
