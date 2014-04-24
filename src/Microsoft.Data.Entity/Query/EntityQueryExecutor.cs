@@ -6,9 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.AspNet.DependencyInjection;
 using Microsoft.AspNet.Logging;
-using Microsoft.Data.Entity.Services;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq;
 
@@ -24,10 +22,7 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(entityContext, "entityContext");
 
             _entityContext = entityContext;
-            _logger = new LazyRef<ILogger>(
-                () => (_entityContext.Configuration.Services.ServiceProvider.GetService<ILoggerFactory>()
-                       ?? new NullLoggerFactory()).Create("EntityQueryExecutor"));
-
+            _logger = new LazyRef<ILogger>(() => (_entityContext.Configuration.LoggerFactory.Create("EntityQueryExecutor")));
         }
 
         public virtual T ExecuteScalar<T>([NotNull] QueryModel queryModel)

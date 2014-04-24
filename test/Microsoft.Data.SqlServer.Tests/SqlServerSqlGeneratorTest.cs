@@ -32,8 +32,8 @@ namespace Microsoft.Data.SqlServer.Tests
 
             var sb = new StringBuilder();
             new SqlServerSqlGenerator()
-                .AppendInsertOperation(sb, table, 
-                    new Dictionary<Column, string>{{id2Column, "@p0"}, {nameColumn, "@p1"}}.ToArray());
+                .AppendInsertOperation(sb, table,
+                    new Dictionary<Column, string> { { id2Column, "@p0" }, { nameColumn, "@p1" } }.ToArray());
 
             Assert.Equal(
                 "INSERT INTO table (Id2, Name) VALUES (@p0, @p1);\r\nSELECT Id1 FROM table WHERE Id2 = @p0 AND Id1 = scope_identity()",
@@ -71,7 +71,7 @@ namespace Microsoft.Data.SqlServer.Tests
             var sb = new StringBuilder();
 
             new SqlServerSqlGenerator()
-                .AppendInsertOperation(sb, table, 
+                .AppendInsertOperation(sb, table,
                     new Dictionary<Column, string> { { id2Column, "@p0" }, { nameColumn, "@p1" } }.ToArray());
 
             const string expected =

@@ -20,14 +20,7 @@ namespace Microsoft.Data.InMemory
 {
     public partial class InMemoryDataStore : DataStore
     {
-        public const string NameKey = "Name";
-        public const string ModeKey = "Mode";
-        public const string PersistentMode = "Persistent";
-        public const string TransientMode = "Transient";
-
-        // TODO: Make this better
-        private static ThreadSafeLazyRef<InMemoryDatabase> _persistentDatabase;
-
+        private readonly bool _persist;
         private readonly ThreadSafeLazyRef<InMemoryDatabase> _database;
 
         /// <summary>
@@ -39,29 +32,24 @@ namespace Microsoft.Data.InMemory
         {
         }
 
-        public InMemoryDataStore([NotNull] ContextConfiguration configuration, [CanBeNull] ILoggerFactory loggerFactory)
-            : base(loggerFactory)
+        public InMemoryDataStore(
+            [NotNull] ContextConfiguration configuration,
+            [NotNull] InMemoryDatabase persistentDatabase)
+            : base(configuration)
         {
             Check.NotNull(configuration, "configuration");
+            Check.NotNull(persistentDatabase, "persistentDatabase");
 
-            var name = configuration.Annotations[typeof(InMemoryDataStore)][NameKey]
-                       ?? configuration.Context.GetType().FullName;
+            var storeConfig = configuration.EntityConfiguration.Extensions
+                .OfType<InMemoryConfigurationExtension>()
+                .FirstOrDefault();
 
-            var persist = configuration.Annotations[typeof(InMemoryDataStore)][ModeKey] == PersistentMode;
+            _persist = (storeConfig != null ? (bool?)storeConfig.Persist : null) ?? true;
 
-            if (persist)
-            {
-                // TODO: Temporary hack due to scoping of store
-                if (_persistentDatabase == null)
-                {
-                    _persistentDatabase = new ThreadSafeLazyRef<InMemoryDatabase>(() => new InMemoryDatabase(Logger));
-                }
-                _database = _persistentDatabase;
-            }
-            else
-            {
-                _database = new ThreadSafeLazyRef<InMemoryDatabase>(() => new InMemoryDatabase(Logger));
-            }
+            _database = new ThreadSafeLazyRef<InMemoryDatabase>(
+                            () => _persist
+                                ? persistentDatabase
+                                : new InMemoryDatabase(configuration.LoggerFactory));
         }
 
         internal InMemoryDatabase Database
@@ -86,6 +74,11 @@ namespace Microsoft.Data.InMemory
             Check.NotNull(queryModel, "queryModel");
             Check.NotNull(model, "model");
             Check.NotNull(stateManager, "stateManager");
+
+            if (!_persist && !_database.HasValue)
+            {
+                return new CompletedAsyncEnumerable<TResult>(Enumerable.Empty<TResult>());
+            }
 
             var queryModelVisitor = new QueryModelVisitor();
             var queryExecutor = queryModelVisitor.CreateQueryExecutor<TResult>(queryModel);

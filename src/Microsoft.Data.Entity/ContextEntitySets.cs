@@ -9,34 +9,8 @@ namespace Microsoft.Data.Entity
 {
     public class ContextEntitySets
     {
-        private readonly EntitySetSource _source;
-        private readonly EntitySetInitializer _setInitializer;
+        private static readonly EntitySetSource _source = new EntitySetSource();
         private readonly Dictionary<Type, EntitySet> _sets = new Dictionary<Type, EntitySet>();
-
-        /// <summary>
-        ///     This constructor is intended only for use when creating test doubles that will override members
-        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
-        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
-        /// </summary>
-        protected ContextEntitySets()
-        {
-        }
-
-        public ContextEntitySets([NotNull] EntitySetSource source, [NotNull] EntitySetInitializer setInitializer)
-        {
-            Check.NotNull(source, "source");
-            Check.NotNull(setInitializer, "setInitializer");
-
-            _source = source;
-            _setInitializer = setInitializer;
-        }
-
-        public virtual void InitializeSets([NotNull] EntityContext context)
-        {
-            Check.NotNull(context, "context");
-
-            _setInitializer.InitializeSets(context);
-        }
 
         public virtual EntitySet GetEntitySet([NotNull] EntityContext context, [NotNull] Type entityType)
         {

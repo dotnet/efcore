@@ -221,8 +221,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var listeners = new[]
                 {
-                    new Mock<IEntityStateListener>(), 
-                    new Mock<IEntityStateListener>(), 
+                    new Mock<IEntityStateListener>(),
+                    new Mock<IEntityStateListener>(),
                     new Mock<IEntityStateListener>()
                 };
 
@@ -232,8 +232,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             services.AddInstance<IEntityStateListener>(listeners[1].Object);
             services.AddInstance<IEntityStateListener>(listeners[2].Object);
 
-            var config = new EntityContext(
-                new EntityConfigurationBuilder(services.BuildServiceProvider())
+            var config = new EntityContext(services.BuildServiceProvider(),
+                new EntityConfigurationBuilder()
                     .UseModel(BuildModel())
                     .BuildConfiguration())
                 .Configuration;
@@ -268,7 +268,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         public void DetectChanges_is_called_for_all_tracked_entities_and_returns_true_if_any_changes_detected()
         {
             var model = BuildModel();
-            var config = CreateConfiguration(model);
+            var config = TestHelpers.CreateContextConfiguration(model);
             var stateManager = config.Services.StateManager;
 
             var entryMock1 = CreateEntryMock(model, config, changes: false, key: 1);
@@ -343,17 +343,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
         private static StateManager CreateStateManager(IModel model)
         {
-            return CreateConfiguration(model).Services.StateManager;
-        }
-
-        private static ContextConfiguration CreateConfiguration(IModel model)
-        {
-            return new EntityContext(
-                new EntityConfigurationBuilder()
-                    .UseModel(model)
-                    .WithServices(s => s.AddInMemoryStore())
-                    .BuildConfiguration())
-                .Configuration;
+            return TestHelpers.CreateContextConfiguration(model).Services.StateManager;
         }
 
         #region Fixture

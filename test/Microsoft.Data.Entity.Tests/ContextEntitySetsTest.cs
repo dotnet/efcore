@@ -11,31 +11,31 @@ namespace Microsoft.Data.Entity.Tests
         public void Generic_method_creates_new_generic_EntitySet()
         {
             var context = Mock.Of<EntityContext>();
-            var sets = new ContextEntitySets(new EntitySetSource(), Mock.Of<EntitySetInitializer>());
+            var sets = new ContextEntitySets();
 
             var set = sets.GetEntitySet<string>(context);
 
             Assert.IsType<EntitySet<string>>(set);
-            Assert.Same(context, set.Context);
+            Assert.Same(context.Configuration, set.Configuration);
         }
 
         [Fact]
         public void Non_generic_method_still_creates_new_generic_EntitySet()
         {
             var context = Mock.Of<EntityContext>();
-            var sets = new ContextEntitySets(new EntitySetSource(), Mock.Of<EntitySetInitializer>());
+            var sets = new ContextEntitySets();
 
             var set = sets.GetEntitySet(context, typeof(string));
 
             Assert.IsType<EntitySet<string>>(set);
-            Assert.Same(context, set.Context);
+            Assert.Same(context.Configuration, set.Configuration);
         }
 
         [Fact]
         public void Set_created_using_generic_method_is_cached_and_returned()
         {
             var context = Mock.Of<EntityContext>();
-            var sets = new ContextEntitySets(new EntitySetSource(), Mock.Of<EntitySetInitializer>());
+            var sets = new ContextEntitySets();
 
             var set = sets.GetEntitySet<string>(context);
 
@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.Tests
         public void Set_created_using_non_generic_method_is_cached_and_returned()
         {
             var context = Mock.Of<EntityContext>();
-            var sets = new ContextEntitySets(new EntitySetSource(), Mock.Of<EntitySetInitializer>());
+            var sets = new ContextEntitySets();
 
             var set = sets.GetEntitySet(context, typeof(string));
 

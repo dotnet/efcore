@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.AspNet.DependencyInjection;
 using Microsoft.AspNet.DependencyInjection.Advanced;
+using Microsoft.AspNet.DependencyInjection.Fallback;
 using Microsoft.Data.Entity.Metadata;
 using Moq;
 using Xunit;
@@ -39,11 +41,13 @@ namespace Microsoft.Data.Entity.Tests
                         new EntitySetFinder.EntitySetProperty(typeof(JustAContext), "Four", typeof(string), hasSetter: false)
                     });
 
-            var configuration = new EntityConfigurationBuilder()
-                .WithServices(s => s.UseEntitySetInitializer(new EntitySetInitializer(setFinderMock.Object, new ClrPropertySetterSource())))
-                .BuildConfiguration();
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFramework(s => s.UseEntitySetInitializer(new EntitySetInitializer(setFinderMock.Object, new ClrPropertySetterSource())))
+                .BuildServiceProvider();
+            
+            var configuration = new EntityConfigurationBuilder().BuildConfiguration();
 
-            using (var context = new JustAContext(configuration))
+            using (var context = new JustAContext(serviceProvider, configuration))
             {
                 Assert.NotNull(context.One);
                 Assert.NotNull(context.GetTwo());
@@ -54,8 +58,8 @@ namespace Microsoft.Data.Entity.Tests
 
         public class JustAContext : EntityContext
         {
-            public JustAContext(EntityConfiguration configuration)
-                : base(configuration)
+            public JustAContext(IServiceProvider serviceProvider, EntityConfiguration configuration)
+                : base(serviceProvider, configuration)
             {
             }
 

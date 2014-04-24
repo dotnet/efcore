@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNet.DependencyInjection;
-using Microsoft.AspNet.DependencyInjection.Fallback;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
@@ -14,59 +13,75 @@ namespace Microsoft.Data.Entity
 {
     public class EntityContext : IDisposable
     {
-        private ContextConfiguration _configuration;
-        private ContextEntitySets _sets;
+        private readonly LazyRef<ContextConfiguration> _configuration;
+        private readonly ContextEntitySets _sets = new ContextEntitySets();
 
         protected EntityContext()
         {
-            Initialize(new EntityConfigurationBuilder());
+            InitializeSets(null, new EntityConfigurationBuilder().BuildConfiguration());
+            _configuration = new LazyRef<ContextConfiguration>(() => Initialize(null, new EntityConfigurationBuilder()));
         }
 
         public EntityContext([NotNull] IServiceProvider serviceProvider)
         {
             Check.NotNull(serviceProvider, "serviceProvider");
 
-            Initialize(new EntityConfigurationBuilder(serviceProvider));
+            InitializeSets(serviceProvider, null);
+            _configuration = new LazyRef<ContextConfiguration>(() => Initialize(serviceProvider, new EntityConfigurationBuilder()));
         }
 
         public EntityContext([NotNull] EntityConfiguration configuration)
         {
             Check.NotNull(configuration, "configuration");
 
-            Initialize(configuration);
+            InitializeSets(null, configuration);
+            _configuration = new LazyRef<ContextConfiguration>(() => Initialize(null, configuration));
         }
 
-        private void Initialize(EntityConfigurationBuilder builder)
+        public EntityContext([NotNull] IServiceProvider serviceProvider, [NotNull] EntityConfiguration configuration)
         {
-            // TODO: Make this lazy
+            Check.NotNull(serviceProvider, "serviceProvider");
+            Check.NotNull(configuration, "configuration");
+
+            InitializeSets(serviceProvider, configuration);
+            _configuration = new LazyRef<ContextConfiguration>(() => Initialize(serviceProvider, configuration));
+        }
+
+        private ContextConfiguration Initialize(IServiceProvider serviceProvider, EntityConfigurationBuilder builder)
+        {
             OnConfiguring(builder);
-            var entityConfiguration = builder.BuildConfiguration();
 
-            Initialize(entityConfiguration);
+            return Initialize(serviceProvider, builder.BuildConfiguration());
         }
 
-        private void Initialize(EntityConfiguration entityConfiguration)
+        private ContextConfiguration Initialize(IServiceProvider serviceProvider, EntityConfiguration entityConfiguration)
         {
-            var provider = entityConfiguration.Services
-                ?? ServiceProviderCache.Instance.GetOrAdd(entityConfiguration.ServiceCollection);
+            var providerSource = serviceProvider != null 
+                ? ContextConfiguration.ServiceProviderSource.Explicit 
+                : ContextConfiguration.ServiceProviderSource.Implicit;
 
-            var scopedProvider = provider
+            serviceProvider = serviceProvider ?? ServiceProviderCache.Instance.GetOrAdd(entityConfiguration);
+
+            var scopedProvider = serviceProvider
                 .GetService<IServiceScopeFactory>()
                 .CreateScope()
                 .ServiceProvider;
 
-            _configuration = scopedProvider
+            return scopedProvider
                 .GetService<ContextConfiguration>()
-                .Initialize(scopedProvider, entityConfiguration, this);
+                .Initialize(serviceProvider, scopedProvider, entityConfiguration, this, providerSource);
+        }
 
-            // TODO: This bit not lazy
-            _sets = _configuration.Services.ContextEntitySets;
-            _sets.InitializeSets(this);
+        private void InitializeSets(IServiceProvider serviceProvider, EntityConfiguration entityConfiguration)
+        {
+            serviceProvider = serviceProvider ?? ServiceProviderCache.Instance.GetOrAdd(entityConfiguration);
+
+            serviceProvider.GetRequiredService<EntitySetInitializer>().InitializeSets(this);
         }
 
         public virtual ContextConfiguration Configuration
         {
-            get { return _configuration; }
+            get { return _configuration.Value; }
         }
 
         protected internal virtual void OnConfiguring([NotNull] EntityConfigurationBuilder builder)
@@ -85,7 +100,7 @@ namespace Microsoft.Data.Entity
 
         public virtual Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var stateManager = _configuration.Services.StateManager;
+            var stateManager = Configuration.Services.StateManager;
 
             // TODO: Allow auto-detect changes to be switched off
             stateManager.DetectChanges();
@@ -111,7 +126,7 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(entity, "entity");
 
-            await _configuration.Services.StateManager.GetOrCreateEntry(entity).SetEntityStateAsync(EntityState.Added, cancellationToken).ConfigureAwait(false);
+            await Configuration.Services.StateManager.GetOrCreateEntry(entity).SetEntityStateAsync(EntityState.Added, cancellationToken).ConfigureAwait(false);
 
             return entity;
         }
@@ -148,12 +163,12 @@ namespace Microsoft.Data.Entity
 
         public virtual ChangeTracker ChangeTracker
         {
-            get { return new ChangeTracker(_configuration.Services.StateManager); }
+            get { return new ChangeTracker(Configuration.Services.StateManager); }
         }
 
         public virtual IModel Model
         {
-            get { return _configuration.Model; }
+            get { return Configuration.Model; }
         }
 
         public virtual EntitySet Set([NotNull] Type entityType)

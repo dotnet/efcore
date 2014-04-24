@@ -31,8 +31,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
             _configuration
                 = new EntityConfigurationBuilder()
                     .UseModel(CreateModel())
-                    .WithServices(s => s.AddInMemoryStore())
-                    .UseInMemoryStore(persist: true)
+                    .UseInMemoryStore()
                     .BuildConfiguration();
 
             using (var context = new EntityContext(_configuration))
