@@ -5,12 +5,10 @@
   },
   "dependencies": {
     "Microsoft.Data.Entity": "",
-    "Microsoft.Data.Relational": "",
     "Microsoft.Data.Migrations": "",
-    "System.Data.Common": "0.1-alpha-*",
+    "Microsoft.Data.Relational": "",
     "Microsoft.AspNet.DependencyInjection": "0.1-alpha-*",
-    "Microsoft.AspNet.Logging" : "0.1-alpha-*",
-    "Remotion.Linq": "1.16-alpha"
+    "System.Data.Common": "0.1-alpha-*"
   },
   "code": "**\\*.cs;..\\Shared\\*.cs",
   "configurations": {
@@ -21,11 +19,8 @@
     },
     "k10": {
       "dependencies": {
-        "System.Collections": "4.0.0.0",
-        "System.ComponentModel": "4.0.0.0",
         "System.Diagnostics.Contracts": "4.0.0.0",
         "System.Diagnostics.Debug": "4.0.10.0",
-        "System.Diagnostics.Contracts": "4.0.0.0",
         "System.Globalization": "4.0.10.0",
         "System.Linq": "4.0.0.0",
         "System.Reflection": "4.0.10.0",

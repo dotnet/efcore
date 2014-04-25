@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Remotion.Linq.Clauses;
+using System.Linq;
 
 namespace Microsoft.Data.Entity.Query
 {
@@ -24,12 +25,12 @@ namespace Microsoft.Data.Entity.Query
         }
 
         private static readonly MethodInfo CreateMethodInfo
-            = typeof(QuerySourceScope)
-                .GetMethod("Create", BindingFlags.Static | BindingFlags.NonPublic);
+            = typeof(QuerySourceScope).GetTypeInfo()
+                .GetDeclaredMethods("Create").FirstOrDefault(m => m.IsStatic && !m.IsPublic);
 
         private static readonly MethodInfo GetResultMethodInfo
-            = typeof(QuerySourceScope)
-                .GetMethod("GetResult", BindingFlags.Instance | BindingFlags.NonPublic);
+            = typeof(QuerySourceScope).GetTypeInfo()
+                .GetDeclaredMethods("GetResult").FirstOrDefault(m => !m.IsStatic && !m.IsPublic);
 
         public static Expression Create(
             [NotNull] IQuerySource querySource,

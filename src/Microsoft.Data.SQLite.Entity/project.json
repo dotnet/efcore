@@ -3,17 +3,9 @@
   "compilationOptions": {
     "warningsAsErrors": true
   },
-  "dependencies": {
-    "Microsoft.Data.SQLite": "0.1-alpha-*",
-    "System.Data.Common": "0.1-alpha-*"
-  },
   "code": "**\\*.cs;..\\Shared\\*.cs",
   "configurations": {
-    "net45": {
-      "dependencies": {
-        "System.Data": ""
-      }
-    },
+    "net45": {},
     "k10": {
       "dependencies": {
         "System.Diagnostics.Debug": "4.0.10.0",
