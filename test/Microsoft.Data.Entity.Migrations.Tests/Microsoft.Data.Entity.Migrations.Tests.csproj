@@ -31,6 +31,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
     <PackageReference Include="Microsoft.Data.Common">
       <TargetFramework>net451</TargetFramework>
     </PackageReference>
@@ -53,9 +55,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
+    <Compile Include="CSharpMigrationCodeGeneratorTest.cs" />
     <Compile Include="CSharpModelCodeGeneratorTest.cs" />
-    <Compile Include="MigrationCSharpGeneratorTest.cs" />
+    <Compile Include="Infrastructure\HistoryRepositoryTest.cs" />
+    <Compile Include="Infrastructure\MigrationAssemblyTest.cs" />
+    <Compile Include="Infrastructure\MigrationMetadataTest.cs" />
+    <Compile Include="Infrastructure\MigrationScaffolderTest.cs" />
+    <Compile Include="Infrastructure\MigratorTest.cs" />
     <Compile Include="MigrationOperationSqlGeneratorTest.cs" />
+    <Compile Include="MigrationTest.cs" />
     <Compile Include="ModelDifferTest.cs" />
     <Compile Include="Builders\ColumnBuilderTest.cs" />
     <Compile Include="Builders\MigrationBuilderTest.cs" />

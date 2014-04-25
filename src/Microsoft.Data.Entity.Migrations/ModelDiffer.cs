@@ -29,6 +29,11 @@ namespace Microsoft.Data.Entity.Migrations
             _databaseBuilder = databaseBuilder;
         }
 
+        public virtual DatabaseBuilder DatabaseBuilder
+        {
+            get { return _databaseBuilder; }
+        }
+
         // TODO: Rename this method because it is not suggestive of what it does.
         public virtual IReadOnlyList<MigrationOperation> DiffSource([NotNull] IModel model)
         {

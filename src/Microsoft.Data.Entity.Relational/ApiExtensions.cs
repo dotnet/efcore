@@ -19,6 +19,17 @@ namespace Microsoft.Data.Entity.Metadata
             public const string CascadeDelete = "CascadeDelete";
         }
 
+        public static ModelBuilder.EntityBuilder ToTable(
+            [NotNull] this ModelBuilder.EntityBuilder entityBuilder,
+            SchemaQualifiedName tableName)
+        {
+            Check.NotNull(entityBuilder, "entityBuilder");
+
+            entityBuilder.StorageName(tableName);
+
+            return entityBuilder;
+        }
+
         public static ModelBuilder.EntityBuilder<TEntity> ToTable<TEntity>(
             [NotNull] this ModelBuilder.EntityBuilder<TEntity> entityBuilder,
             SchemaQualifiedName tableName)

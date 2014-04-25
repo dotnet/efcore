@@ -37,11 +37,24 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.Data.Common" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="CSharpMigrationCodeGenerator.cs" />
     <Compile Include="CSharpModelCodeGenerator.cs" />
+    <Compile Include="IMigrationOperationSqlGeneratorFactory.cs" />
+    <Compile Include="Infrastructure\HistoryRepository.cs" />
+    <Compile Include="Infrastructure\IMigrationMetadata.cs" />
+    <Compile Include="Infrastructure\MigrationAssembly.cs" />
+    <Compile Include="Infrastructure\MigrationMetadata.cs" />
+    <Compile Include="Infrastructure\MigrationMetadataComparer.cs" />
+    <Compile Include="Infrastructure\MigrationScaffolder.cs" />
+    <Compile Include="Infrastructure\Migrator.cs" />
+    <Compile Include="Infrastructure\ModelSnapshot.cs" />
     <Compile Include="Migration.cs" />
     <Compile Include="MigrationCodeGenerator.cs" />
     <Compile Include="MigrationOperationSqlGenerator.cs" />
+    <Compile Include="ModelCodeGenerator.cs" />
     <Compile Include="ModelDiffer.cs" />
     <Compile Include="Builders\ColumnBuilder.cs" />
     <Compile Include="Builders\MigrationBuilder.cs" />
@@ -73,8 +86,10 @@
     <Compile Include="Properties\Strings.Designer.cs">
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
+    <Compile Include="Utilities\AssemblyExtensions.cs" />
     <Compile Include="Utilities\Check.cs" />
     <Compile Include="Utilities\CSharpHelper.cs" />
+    <Compile Include="Utilities\DbContextConfigurationExtensions.cs" />
     <Compile Include="Utilities\EnumerableExtensions.cs" />
     <Compile Include="Utilities\PropertyInfoExtensions.cs" />
     <Compile Include="Utilities\TypeExtensions.cs" />

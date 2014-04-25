@@ -10,10 +10,73 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Migrations
 {
-    public class CSharpModelCodeGenerator
+    public class CSharpModelCodeGenerator : ModelCodeGenerator
     {
-        public virtual void Generate(
-            [NotNull] IModel model, [NotNull] IndentedStringBuilder stringBuilder)
+        public override void GenerateModelSnapshotClass(
+            string @namespace,
+            string className,
+            IModel model, 
+            IndentedStringBuilder stringBuilder)
+        {
+            Check.NotEmpty(className, "className");
+            Check.NotEmpty(@namespace, "namespace");
+            Check.NotNull(model, "model");
+            Check.NotNull(stringBuilder, "stringBuilder");
+
+            foreach (var ns in GetNamespaces(model).OrderBy(n => n).Distinct())
+            {
+                stringBuilder
+                    .Append("using ")
+                    .Append(ns)
+                    .AppendLine(";");
+            }
+
+            stringBuilder
+                .AppendLine()
+                .Append("namespace ")
+                .AppendLine(@namespace)
+                .AppendLine("{");
+
+            using (stringBuilder.Indent())
+            {
+                stringBuilder
+                    .Append("public class ")
+                    .Append(className)
+                    .AppendLine(" : ModelSnapshot")
+                    .AppendLine("{");
+
+                using (stringBuilder.Indent())
+                {
+                    stringBuilder
+                        .AppendLine("public override IModel Model")
+                        .AppendLine("{");
+
+                    using (stringBuilder.Indent())
+                    {
+                        stringBuilder
+                            .AppendLine("get")
+                            .AppendLine("{");
+
+                        using (stringBuilder.Indent())
+                        {
+                            Generate(model, stringBuilder);
+                        }
+
+                        stringBuilder
+                            .AppendLine()
+                            .AppendLine("}");
+                    }
+
+                    stringBuilder.AppendLine("}");
+                }
+
+                stringBuilder.AppendLine("}");
+            }
+
+            stringBuilder.Append("}");
+        }
+
+        public override void Generate(IModel model, IndentedStringBuilder stringBuilder)
         {
             stringBuilder.Append("var builder = new ModelBuilder()");
 
@@ -30,7 +93,7 @@ namespace Microsoft.Data.Entity.Migrations
         }
 
         protected virtual void GenerateEntityTypes(
-            [NotNull] IReadOnlyList<IEntityType> entityTypes, [NotNull] IndentedStringBuilder stringBuilder)
+            IReadOnlyList<IEntityType> entityTypes, IndentedStringBuilder stringBuilder)
         {
             if (!entityTypes.Any())
             {

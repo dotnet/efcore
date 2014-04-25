@@ -13,6 +13,8 @@ namespace Microsoft.Data.Entity.Infrastructure
         void AddOrUpdateExtension<TExtension>([NotNull] Action<TExtension> updater, [CanBeNull] [CallerMemberName] string memberName = "")
             where TExtension : DbContextOptionsExtension, new();
 
+        void AddExtension([NotNull] DbContextOptionsExtension extension, [CanBeNull] [CallerMemberName] string memberName = "");
+
         IReadOnlyList<DbContextOptionsExtension> Extensions { get; }
     }
 }

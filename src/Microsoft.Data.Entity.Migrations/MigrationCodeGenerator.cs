@@ -5,30 +5,63 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Data.Entity.Migrations.Infrastructure;
+using Microsoft.Data.Entity.Migrations.Utilities;
 
 namespace Microsoft.Data.Entity.Migrations
 {
     public abstract class MigrationCodeGenerator
     {
-        // TODO: Add main Generate method and revisit to decide what needs to be public vs. protected.
+        private readonly ModelCodeGenerator _modelCodeGenerator;
 
-        protected virtual IReadOnlyList<string> GetNamespaces(IEnumerable<MigrationOperation> operations)
+        public MigrationCodeGenerator([NotNull] ModelCodeGenerator modelCodeGenerator)
         {
-            return GetDefaultNamespaces(operations);
+            Check.NotNull(modelCodeGenerator, "modelCodeGenerator");
+
+            _modelCodeGenerator = modelCodeGenerator;
         }
 
-        protected virtual IReadOnlyList<string> GetDefaultNamespaces(IEnumerable<MigrationOperation> operations)
+        public virtual ModelCodeGenerator ModelCodeGenerator
         {
-            return
-                new[]
-                    {
-                        "System",
-                        "Microsoft.Data.Migrations",
-                        "Microsoft.Data.Migrations.Builders",
-                        "Microsoft.Data.Migrations.Model",
-                        "Microsoft.Data.Relational"
-                    };
+            get { return _modelCodeGenerator; }
         }
+
+        public virtual IReadOnlyList<string> GetNamespaces([NotNull] IEnumerable<MigrationOperation> operations)
+        {
+            Check.NotNull(operations, "operations");
+
+            return GetDefaultNamespaces();
+        }
+
+        public virtual IReadOnlyList<string> GetDefaultNamespaces()
+        {
+            return new[]
+                {
+                    "Microsoft.Data.Entity.Migrations",
+                    "Microsoft.Data.Entity.Migrations.Builders",
+                    "System"
+                };
+        }
+
+        public virtual IReadOnlyList<string> GetMetadataDefaultNamespaces()
+        {
+            return new[]
+                {
+                    "Microsoft.Data.Entity.Migrations.Infrastructure"
+                };
+        }
+
+        public abstract void GenerateMigrationClass(
+            [NotNull] string @namespace,
+            [NotNull] string className,
+            [NotNull] IMigrationMetadata migration,
+            [NotNull] IndentedStringBuilder stringBuilder);
+
+        public abstract void GenerateMigrationMetadataClass(
+            [NotNull] string @namespace,
+            [NotNull] string className,
+            [NotNull] IMigrationMetadata migration,
+            [NotNull] IndentedStringBuilder stringBuilder);
 
         public abstract void Generate([NotNull] CreateDatabaseOperation createDatabaseOperation, [NotNull] IndentedStringBuilder stringBuilder);
         public abstract void Generate([NotNull] DropDatabaseOperation dropDatabaseOperation, [NotNull] IndentedStringBuilder stringBuilder);

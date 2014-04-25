@@ -275,11 +275,52 @@ namespace Microsoft.Data.Entity.Relational
             get { return ";"; }
         }
 
+        // TODO: Remove QuoteIdentifier and use DelimitIdentifier instead.
         public virtual string QuoteIdentifier([NotNull] string identifier)
         {
             Check.NotNull(identifier, "identifier");
 
             return "[" + identifier.Replace("]", "]]") + "]";
+        }
+
+        // TODO: Consider adding a base class for all SQL generators (DDL, DML),
+        // to avoid duplicating the five methods below.
+
+        public virtual string DelimitIdentifier(SchemaQualifiedName schemaQualifiedName)
+        {
+            return
+                (schemaQualifiedName.IsSchemaQualified
+                    ? DelimitIdentifier(schemaQualifiedName.Schema) + "."
+                    : string.Empty)
+                + DelimitIdentifier(schemaQualifiedName.Name);
+        }
+
+        public virtual string DelimitIdentifier([NotNull] string identifier)
+        {
+            Check.NotEmpty(identifier, "identifier");
+
+            return "\"" + EscapeIdentifier(identifier) + "\"";
+        }
+
+        public virtual string EscapeIdentifier([NotNull] string identifier)
+        {
+            Check.NotEmpty(identifier, "identifier");
+
+            return identifier.Replace("\"", "\"\"");
+        }
+
+        public virtual string GenerateLiteral([NotNull] string literal)
+        {
+            Check.NotNull(literal, "literal");
+
+            return "'" + EscapeLiteral(literal) + "'";
+        }
+
+        public virtual string EscapeLiteral([NotNull] string literal)
+        {
+            Check.NotNull(literal, "literal");
+
+            return literal.Replace("'", "''");
         }
     }
 }

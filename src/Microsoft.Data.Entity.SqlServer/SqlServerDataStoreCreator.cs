@@ -83,6 +83,7 @@ namespace Microsoft.Data.Entity.SqlServer
 
         private IEnumerable<SqlStatement> CreateSchemaCommands(IModel model)
         {
+            _sqlGenerator.Database = _modelDiffer.DatabaseBuilder.GetDatabase(model);
             return _sqlGenerator.Generate(_modelDiffer.DiffSource(model), generateIdempotentSql: false);
         }
 

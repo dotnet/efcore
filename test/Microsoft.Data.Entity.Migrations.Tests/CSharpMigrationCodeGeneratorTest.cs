@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.Utilities;
@@ -8,7 +10,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Migrations.Tests
 {
-    public class MigrationCSharpGeneratorTest
+    public class CSharpMigrationCodeGeneratorTest
     {
         [Fact]
         public void Generate_when_create_database_operation()
@@ -268,7 +270,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Generate_string_literal()
         {
-            var csharpGenerator = new CSharpMigrationCodeGenerator();
+            var csharpGenerator = new CSharpMigrationCodeGenerator(new CSharpModelCodeGenerator());
 
             Assert.Equal("\"foo\\\"bar\"", csharpGenerator.GenerateLiteral("foo\"bar"));
         }
@@ -276,7 +278,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Escape_string()
         {
-            var csharpGenerator = new CSharpMigrationCodeGenerator();
+            var csharpGenerator = new CSharpMigrationCodeGenerator(new CSharpModelCodeGenerator());
 
             Assert.Equal("foo\\\"bar", csharpGenerator.EscapeString("foo\"bar"));
         }
@@ -298,31 +300,98 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                         new DropColumnOperation("dbo.MyTable", "Bar")
                     };
 
-            var codeGenerator = new CSharpMigrationCodeGenerator();
+            var migration
+                = new MigrationMetadata("Name", "Timestamp")
+                      {
+                          UpgradeOperations = upgradeOperations,
+                          DowngradeOperations = downgradeOperations
+                      };
+
+            var codeGenerator = new CSharpMigrationCodeGenerator(new CSharpModelCodeGenerator());
             var stringBuilder = new IndentedStringBuilder();
 
-            codeGenerator.GenerateClass("MyNamespace", "MyClass", upgradeOperations, downgradeOperations, stringBuilder);
+            codeGenerator.GenerateMigrationClass("MyNamespace", "MyClass", migration, stringBuilder);
 
             Assert.Equal(
-                @"using System;
-using Microsoft.Data.Migrations;
-using Microsoft.Data.Migrations.Builders;
-using Microsoft.Data.Migrations.Model;
-using Microsoft.Data.Relational;
+                @"using Microsoft.Data.Entity.Migrations;
+using Microsoft.Data.Entity.Migrations.Builders;
+using System;
 
 namespace MyNamespace
 {
-    public class MyClass : Migration
+    public partial class MyClass : Migration
     {
-        public override Up(MigrationBuilder migrationBuilder)
+        public override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn(""dbo.MyTable"", ""Foo"", c => c.Int());
             migrationBuilder.AddColumn(""dbo.MyTable"", ""Bar"", c => c.Int());
         }
-        public override Down(MigrationBuilder migrationBuilder)
+        
+        public override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(""dbo.MyTable"", ""Foo"");
             migrationBuilder.DropColumn(""dbo.MyTable"", ""Bar"");
+        }
+    }
+}",
+                stringBuilder.ToString());
+        }
+
+        [Fact]
+        public void Generate_migration_metadata_class()
+        {
+            var model = new Metadata.Model();
+            var entityType = new EntityType("Entity");
+
+            entityType.SetKey(entityType.AddProperty("Id", typeof(int)));
+            model.AddEntityType(entityType);
+
+            var migration
+                = new MigrationMetadata("Name", "Timestamp")
+                {
+                    TargetModel = model
+                };
+
+            var codeGenerator = new CSharpMigrationCodeGenerator(new CSharpModelCodeGenerator());
+            var stringBuilder = new IndentedStringBuilder();
+
+            codeGenerator.GenerateMigrationMetadataClass("MyNamespace", "MyClass", migration, stringBuilder);
+
+            Assert.Equal(
+                @"using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Migrations.Infrastructure;
+using System;
+
+namespace MyNamespace
+{
+    public partial class MyClass : IMigrationMetadata
+    {
+        string IMigrationMetadata.Name
+        {
+            get
+            {
+                return ""Name"";
+            }
+        }
+        
+        string IMigrationMetadata.Timestamp
+        {
+            get
+            {
+                return ""Timestamp"";
+            }
+        }
+        
+        IModel IMigrationMetadata.TargetModel
+        {
+            get
+            {
+                var builder = new ModelBuilder();
+                builder.Entity(""Entity"")
+                    .Properties(ps => ps.Property<int>(""Id""))
+                    .Key(""Id"");
+                return builder.Model;
+            }
         }
     }
 }",

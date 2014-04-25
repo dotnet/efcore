@@ -565,5 +565,41 @@ builder.Entity(""Order"")
 return builder.Model;",
                 stringBuilder.ToString());
         }
+
+        [Fact]
+        public void Generate_model_snapshot_class()
+        {
+            var model = new Metadata.Model();
+            var entityType = new EntityType("Entity");
+
+            entityType.SetKey(entityType.AddProperty("Id", typeof(int)));
+            model.AddEntityType(entityType);
+
+            var stringBuilder = new IndentedStringBuilder();
+            new CSharpModelCodeGenerator().GenerateModelSnapshotClass("MyNamespace", "MyClass", model, stringBuilder);
+
+            Assert.Equal(
+                @"using Microsoft.Data.Entity.Metadata;
+using System;
+
+namespace MyNamespace
+{
+    public class MyClass : ModelSnapshot
+    {
+        public override IModel Model
+        {
+            get
+            {
+                var builder = new ModelBuilder();
+                builder.Entity(""Entity"")
+                    .Properties(ps => ps.Property<int>(""Id""))
+                    .Key(""Id"");
+                return builder.Model;
+            }
+        }
+    }
+}",
+        stringBuilder.ToString());
+        }
     }
 }

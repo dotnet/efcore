@@ -9,6 +9,11 @@
     "test": "Xunit.KRunner"
   },
   "configurations": {
-    "net451": {}
+    "net451": {
+      "dependencies": {
+        "Moq" : "4.2.1312.1622",
+        "System.Runtime": ""
+      }
+    }
   }
 }

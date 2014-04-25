@@ -123,7 +123,7 @@ namespace Microsoft.Data.Entity.Migrations
 
             using (stringBuilder.Indent())
             {
-                GenerateColumns(table.Columns, stringBuilder);
+                GenerateColumns(table.Name, table.Columns, stringBuilder);
 
                 var primaryKey = table.PrimaryKey;
 
@@ -188,7 +188,7 @@ namespace Microsoft.Data.Entity.Migrations
                 .Append(DelimitIdentifier(addColumnOperation.TableName))
                 .Append(" ADD ");
 
-            GenerateColumn(addColumnOperation.Column, stringBuilder);
+            GenerateColumn(addColumnOperation.TableName, addColumnOperation.Column, stringBuilder);
         }
 
         public virtual void Generate([NotNull] DropColumnOperation dropColumnOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
@@ -214,7 +214,7 @@ namespace Microsoft.Data.Entity.Migrations
                 .Append(" ALTER COLUMN ")
                 .Append(DelimitIdentifier(newColumn.Name))
                 .Append(" ")
-                .Append(GenerateDataType(newColumn))
+                .Append(GenerateDataType(alterColumnOperation.TableName, newColumn))
                 .Append(newColumn.IsNullable ? " NULL" : " NOT NULL");
         }
 
@@ -382,7 +382,7 @@ namespace Microsoft.Data.Entity.Migrations
                 .Append(", @objtype = N'INDEX'");
         }
 
-        public virtual string GenerateDataType([NotNull] Column column)
+        public virtual string GenerateDataType(SchemaQualifiedName tableName, [NotNull] Column column)
         {
             Check.NotNull(column, "column");
 
@@ -391,9 +391,10 @@ namespace Microsoft.Data.Entity.Migrations
                 return column.DataType;
             }
 
-            var isKey = column.Table.PrimaryKey != null
-                        && column.Table.PrimaryKey.Columns.Contains(column)
-                        || column.Table.ForeignKeys.SelectMany(k => k.Columns).Contains(column);
+            var table = Database.GetTable(tableName);
+            var isKey = table.PrimaryKey != null
+                        && table.PrimaryKey.Columns.Contains(column)
+                        || table.ForeignKeys.SelectMany(k => k.Columns).Contains(column);
 
             return _typeMapper.GetTypeMapping(column.DataType, column.Name, column.ClrType, isKey, column.IsTimestamp).StoreTypeName;
         }
@@ -486,7 +487,8 @@ namespace Microsoft.Data.Entity.Migrations
             return literal.Replace("'", "''");
         }
 
-        protected virtual void GenerateColumns([NotNull] IReadOnlyList<Column> columns, [NotNull] IndentedStringBuilder stringBuilder)
+        protected virtual void GenerateColumns(
+            SchemaQualifiedName tableName, [NotNull] IReadOnlyList<Column> columns, [NotNull] IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(columns, "columns");
             Check.NotNull(stringBuilder, "stringBuilder");
@@ -496,17 +498,18 @@ namespace Microsoft.Data.Entity.Migrations
                 return;
             }
 
-            GenerateColumn(columns[0], stringBuilder);
+            GenerateColumn(tableName, columns[0], stringBuilder);
 
             for (var i = 1; i < columns.Count; i++)
             {
                 stringBuilder.AppendLine(",");
 
-                GenerateColumn(columns[i], stringBuilder);
+                GenerateColumn(tableName, columns[i], stringBuilder);
             }
         }
 
-        protected virtual void GenerateColumn([NotNull] Column column, [NotNull] IndentedStringBuilder stringBuilder)
+        protected virtual void GenerateColumn(
+            SchemaQualifiedName tableName, [NotNull] Column column, [NotNull] IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(column, "column");
             Check.NotNull(stringBuilder, "stringBuilder");
@@ -521,7 +524,7 @@ namespace Microsoft.Data.Entity.Migrations
             }
             else
             {
-                stringBuilder.Append(GenerateDataType(column));
+                stringBuilder.Append(GenerateDataType(tableName, column));
             }
 
             if (!column.IsNullable)

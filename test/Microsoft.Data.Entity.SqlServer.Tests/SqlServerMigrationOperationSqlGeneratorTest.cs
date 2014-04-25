@@ -240,20 +240,18 @@ IF @var0 IS NOT NULL
         {
             Assert.Equal(
                 "nvarchar(max)",
-                new SqlServerMigrationOperationSqlGenerator(new SqlServerTypeMapper()).GenerateDataType(CreateColumn(typeof(string))));
+                GenerateDataType(CreateColumn(typeof(string))));
         }
 
         [Fact]
         public void GenerateDataType_for_string_key()
         {
-            var sqlGenerator = new SqlServerMigrationOperationSqlGenerator(new SqlServerTypeMapper());
-
             var column = new Column("Username", typeof(string));
             var table = new Table("dbo.Users");
             table.PrimaryKey = new PrimaryKey("PK_Users", new List<Column>() { column }.AsReadOnly());
             table.AddColumn(column);
 
-            Assert.Equal("nvarchar(128)", sqlGenerator.GenerateDataType(column));
+            Assert.Equal("nvarchar(128)", GenerateDataType(column));
         }
 
         [Fact]
@@ -261,7 +259,7 @@ IF @var0 IS NOT NULL
         {
             Assert.Equal(
                 "datetime2",
-                new SqlServerMigrationOperationSqlGenerator(new SqlServerTypeMapper()).GenerateDataType(CreateColumn(typeof(DateTime))));
+                GenerateDataType(CreateColumn(typeof(DateTime))));
         }
 
         [Fact]
@@ -269,7 +267,7 @@ IF @var0 IS NOT NULL
         {
             Assert.Equal(
                 "decimal(18, 2)",
-                new SqlServerMigrationOperationSqlGenerator(new SqlServerTypeMapper()).GenerateDataType(CreateColumn(typeof(decimal))));
+                GenerateDataType(CreateColumn(typeof(decimal))));
         }
 
         [Fact]
@@ -277,7 +275,7 @@ IF @var0 IS NOT NULL
         {
             Assert.Equal(
                 "uniqueidentifier",
-                new SqlServerMigrationOperationSqlGenerator(new SqlServerTypeMapper()).GenerateDataType(CreateColumn(typeof(Guid))));
+                GenerateDataType(CreateColumn(typeof(Guid))));
         }
 
         [Fact]
@@ -285,7 +283,7 @@ IF @var0 IS NOT NULL
         {
             Assert.Equal(
                 "bit",
-                new SqlServerMigrationOperationSqlGenerator(new SqlServerTypeMapper()).GenerateDataType(CreateColumn(typeof(bool))));
+                GenerateDataType(CreateColumn(typeof(bool))));
         }
 
         [Fact]
@@ -293,7 +291,7 @@ IF @var0 IS NOT NULL
         {
             Assert.Equal(
                 "tinyint",
-                new SqlServerMigrationOperationSqlGenerator(new SqlServerTypeMapper()).GenerateDataType(CreateColumn(typeof(byte))));
+                GenerateDataType(CreateColumn(typeof(byte))));
         }
 
         [Fact]
@@ -301,7 +299,7 @@ IF @var0 IS NOT NULL
         {
             Assert.Equal(
                 "int",
-                new SqlServerMigrationOperationSqlGenerator(new SqlServerTypeMapper()).GenerateDataType(CreateColumn(typeof(char))));
+                GenerateDataType(CreateColumn(typeof(char))));
         }
 
         [Fact]
@@ -309,7 +307,7 @@ IF @var0 IS NOT NULL
         {
             Assert.Equal(
                 "float",
-                new SqlServerMigrationOperationSqlGenerator(new SqlServerTypeMapper()).GenerateDataType(CreateColumn(typeof(double))));
+                GenerateDataType(CreateColumn(typeof(double))));
         }
 
         [Fact]
@@ -317,7 +315,7 @@ IF @var0 IS NOT NULL
         {
             Assert.Equal(
                 "smallint",
-                new SqlServerMigrationOperationSqlGenerator(new SqlServerTypeMapper()).GenerateDataType(CreateColumn(typeof(short))));
+                GenerateDataType(CreateColumn(typeof(short))));
         }
 
         [Fact]
@@ -325,7 +323,7 @@ IF @var0 IS NOT NULL
         {
             Assert.Equal(
                 "bigint",
-                new SqlServerMigrationOperationSqlGenerator(new SqlServerTypeMapper()).GenerateDataType(CreateColumn(typeof(long))));
+                GenerateDataType(CreateColumn(typeof(long))));
         }
 
         [Fact]
@@ -333,7 +331,7 @@ IF @var0 IS NOT NULL
         {
             Assert.Equal(
                 "smallint",
-                new SqlServerMigrationOperationSqlGenerator(new SqlServerTypeMapper()).GenerateDataType(CreateColumn(typeof(sbyte))));
+                GenerateDataType(CreateColumn(typeof(sbyte))));
         }
 
         [Fact]
@@ -341,7 +339,7 @@ IF @var0 IS NOT NULL
         {
             Assert.Equal(
                 "real",
-                new SqlServerMigrationOperationSqlGenerator(new SqlServerTypeMapper()).GenerateDataType(CreateColumn(typeof(float))));
+                GenerateDataType(CreateColumn(typeof(float))));
         }
 
         [Fact]
@@ -349,7 +347,7 @@ IF @var0 IS NOT NULL
         {
             Assert.Equal(
                 "int",
-                new SqlServerMigrationOperationSqlGenerator(new SqlServerTypeMapper()).GenerateDataType(CreateColumn(typeof(ushort))));
+                GenerateDataType(CreateColumn(typeof(ushort))));
         }
 
         [Fact]
@@ -357,7 +355,7 @@ IF @var0 IS NOT NULL
         {
             Assert.Equal(
                 "bigint",
-                new SqlServerMigrationOperationSqlGenerator(new SqlServerTypeMapper()).GenerateDataType(CreateColumn(typeof(uint))));
+                GenerateDataType(CreateColumn(typeof(uint))));
         }
 
         [Fact]
@@ -365,7 +363,7 @@ IF @var0 IS NOT NULL
         {
             Assert.Equal(
                 "numeric(20, 0)",
-                new SqlServerMigrationOperationSqlGenerator(new SqlServerTypeMapper()).GenerateDataType(CreateColumn(typeof(ulong))));
+                GenerateDataType(CreateColumn(typeof(ulong))));
         }
 
         [Fact]
@@ -373,7 +371,7 @@ IF @var0 IS NOT NULL
         {
             Assert.Equal(
                 "datetimeoffset",
-                new SqlServerMigrationOperationSqlGenerator(new SqlServerTypeMapper()).GenerateDataType(CreateColumn(typeof(DateTimeOffset))));
+                GenerateDataType(CreateColumn(typeof(DateTimeOffset))));
         }
 
         [Fact]
@@ -381,7 +379,7 @@ IF @var0 IS NOT NULL
         {
             Assert.Equal(
                 "varbinary(max)",
-                new SqlServerMigrationOperationSqlGenerator(new SqlServerTypeMapper()).GenerateDataType(CreateColumn(typeof(byte[]))));
+                GenerateDataType(CreateColumn(typeof(byte[]))));
         }
 
         [Fact]
@@ -391,7 +389,7 @@ IF @var0 IS NOT NULL
             var table = new Table("dbo.Users") { PrimaryKey = new PrimaryKey("PK_Users", new[] { column }) };
             table.AddColumn(column);
 
-            Assert.Equal("varbinary(128)", new SqlServerMigrationOperationSqlGenerator(new SqlServerTypeMapper()).GenerateDataType(column));
+            Assert.Equal("varbinary(128)", GenerateDataType(column));
         }
 
         [Fact]
@@ -401,15 +399,22 @@ IF @var0 IS NOT NULL
             var table = new Table("dbo.Users");
             table.AddColumn(column);
 
-            Assert.Equal("rowversion", new SqlServerMigrationOperationSqlGenerator(new SqlServerTypeMapper()).GenerateDataType(column));
+            Assert.Equal("rowversion", GenerateDataType(column));
         }
-
+        
         private static Column CreateColumn(Type clrType)
         {
             var column = new Column("Username", clrType);
             var table = new Table("dbo.Users");
             table.AddColumn(column);
             return column;
+        }
+
+        private static string GenerateDataType(Column column)
+        {
+            var sqlGenerator = new SqlServerMigrationOperationSqlGenerator(new SqlServerTypeMapper()) { Database = new DatabaseModel() };
+            sqlGenerator.Database.AddTable(column.Table);
+            return sqlGenerator.GenerateDataType(column.Table.Name, column);
         }
 
         [Fact]

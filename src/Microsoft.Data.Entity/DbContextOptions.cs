@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
+using System.Diagnostics.Contracts;
 
 namespace Microsoft.Data.Entity
 {
@@ -66,6 +67,16 @@ namespace Microsoft.Data.Entity
             }
 
             updater(extension);
+        }
+
+        void IDbContextOptionsExtensions.AddExtension(DbContextOptionsExtension extension, string memberName)
+        {
+            Check.NotNull(extension, "extension");
+            CheckNotLocked(memberName);
+
+            Contract.Assert(_extensions.All(e => e.GetType() != extension.GetType()));
+
+            _extensions.Add(extension);
         }
 
         IReadOnlyList<DbContextOptionsExtension> IDbContextOptionsExtensions.Extensions

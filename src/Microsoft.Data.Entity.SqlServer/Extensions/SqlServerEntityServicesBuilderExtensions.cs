@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Migrations;
+using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.SqlServer;
 using Microsoft.Data.Entity.SqlServer.Utilities;
@@ -32,8 +33,13 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddScoped<SqlServerConnection>()
                 .AddScoped<SqlServerBatchExecutor>()
                 .AddScoped<ModelDiffer, ModelDiffer>()
+                .AddScoped<SqlServerMigrationOperationSqlGeneratorFactory>()
+                // TODO: Update code to use SqlServerMigrationOperationSqlGeneratorFactory, then remove the line below.
                 .AddScoped<SqlServerMigrationOperationSqlGenerator>()
-                .AddScoped<SqlServerDataStoreCreator>();
+                .AddScoped<SqlServerDataStoreCreator>()
+                .AddScoped<MigrationAssembly>()
+                .AddScoped<HistoryRepository>()
+                .AddScoped<Migrator, SqlServerMigrator>();
 
             return builder;
         }

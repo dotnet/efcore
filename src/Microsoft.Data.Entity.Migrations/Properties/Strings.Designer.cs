@@ -58,6 +58,54 @@ namespace Microsoft.Data.Entity.Migrations
             return string.Format(CultureInfo.CurrentCulture, GetString("UnknownOperation", "sqlGeneratorType", "operationType"), sqlGeneratorType, operationType);
         }
 
+        /// <summary>
+        /// The target migration '{targetMigrationName}' was not found.
+        /// </summary>
+        internal static string TargetMigrationNotFound
+        {
+            get { return GetString("TargetMigrationNotFound"); }
+        }
+
+        /// <summary>
+        /// The target migration '{targetMigrationName}' was not found.
+        /// </summary>
+        internal static string FormatTargetMigrationNotFound(object targetMigrationName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("TargetMigrationNotFound", "targetMigrationName"), targetMigrationName);
+        }
+
+        /// <summary>
+        /// The name '{migrationName}' is used by an existing migration.
+        /// </summary>
+        internal static string DuplicateMigrationName
+        {
+            get { return GetString("DuplicateMigrationName"); }
+        }
+
+        /// <summary>
+        /// The name '{migrationName}' is used by an existing migration.
+        /// </summary>
+        internal static string FormatDuplicateMigrationName(object migrationName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateMigrationName", "migrationName"), migrationName);
+        }
+
+        /// <summary>
+        /// The history repository includes a migration with the name '{0}' and timestamp '{1}' but the migration assembly does not contain the corresponding migration class.
+        /// </summary>
+        internal static string LocalMigrationNotFound
+        {
+            get { return GetString("LocalMigrationNotFound"); }
+        }
+
+        /// <summary>
+        /// The history repository includes a migration with the name '{0}' and timestamp '{1}' but the migration assembly does not contain the corresponding migration class.
+        /// </summary>
+        internal static string FormatLocalMigrationNotFound(object p0, object p1)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("LocalMigrationNotFound"), p0, p1);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
