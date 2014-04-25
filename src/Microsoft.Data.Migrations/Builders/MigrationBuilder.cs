@@ -125,6 +125,8 @@ namespace Microsoft.Data.Migrations.Builders
 
             var newColumn = columnSpecFunc(new ColumnBuilder());
 
+            newColumn.Name = columnName;
+
             // TODO: Add code to compute the value of isDestructiveChange.
             AddOperation(new AlterColumnOperation(tableName, newColumn, isDestructiveChange: true));
         }
@@ -169,11 +171,8 @@ namespace Microsoft.Data.Migrations.Builders
             Check.NotNull(columnNames, "columnNames");
             Check.NotNull(referencedColumnNames, "referencedColumnNames");
 
-            // TODO: Update AddForeignKeyOperation constructor 
-            // to have the same parameters order as this method.
-
-            AddOperation(new AddForeignKeyOperation(foreignKeyName, tableName,
-                referencedTableName, columnNames, referencedColumnNames, cascadeDelete));
+            AddOperation(new AddForeignKeyOperation(tableName, foreignKeyName,
+                columnNames, referencedTableName, referencedColumnNames, cascadeDelete));
         }
 
         public virtual void DropForeignKey(SchemaQualifiedName tableName, [NotNull] string foreignKeyName)

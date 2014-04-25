@@ -195,8 +195,8 @@ namespace Microsoft.Data.Migrations.Tests
             Assert.Equal(
                 @"ALTER TABLE ""dbo"".""MyTable"" ADD CONSTRAINT ""MyFK"" FOREIGN KEY (""Foo"", ""Bar"") REFERENCES ""dbo"".""MyTable2"" (""Foo2"", ""Bar2"") ON DELETE CASCADE",
                 MigrationOperationSqlGenerator.Generate(
-                    new AddForeignKeyOperation("MyFK", "dbo.MyTable", "dbo.MyTable2",
-                        new[] { "Foo", "Bar" }, new[] { "Foo2", "Bar2" }, cascadeDelete: true), 
+                    new AddForeignKeyOperation("dbo.MyTable", "MyFK", new[] { "Foo", "Bar" },
+                        "dbo.MyTable2", new[] { "Foo2", "Bar2" }, cascadeDelete: true),
                     generateIdempotentSql: false).Sql);
         }
 

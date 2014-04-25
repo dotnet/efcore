@@ -12,6 +12,11 @@ namespace Microsoft.Data.Entity.Metadata
     {
         private readonly Model _model;
 
+        public ModelBuilder()
+        {
+            _model = new Model();
+        }
+
         public ModelBuilder([NotNull] Model model)
         {
             Check.NotNull(model, "model");
@@ -113,6 +118,7 @@ namespace Microsoft.Data.Entity.Metadata
                 return this;
             }
 
+            // TODO: Implement mechanism to add annotations to key.
             public EntityBuilder<TEntity> Key([NotNull] Expression<Func<TEntity, object>> keyExpression)
             {
                 Check.NotNull(keyExpression, "keyExpression");

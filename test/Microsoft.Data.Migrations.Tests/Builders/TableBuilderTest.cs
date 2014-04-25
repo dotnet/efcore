@@ -47,11 +47,7 @@ namespace Microsoft.Data.Migrations.Tests.Builders
                     Bar = c.Int()
                 })
                 .ForeignKey("MyFK",
-                    t => new
-                        {
-                            Foo = t.Foo,
-                            Bar = t.Bar
-                        },
+                    t => new { t.Foo, t.Bar },
                     "dbo.MyTable2",
                     new[] { "Foo2", "Bar2" },
                     cascadeDelete: true);
@@ -80,11 +76,7 @@ namespace Microsoft.Data.Migrations.Tests.Builders
                     Bar = c.Int()
                 })
                 .Index("MyIdx",
-                    t => new
-                    {
-                        Foo = t.Foo,
-                        Bar = t.Bar
-                    },
+                    t => new { t.Foo, t.Bar },
                     unique: true,
                     clustered: true);
 
