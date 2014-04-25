@@ -107,7 +107,7 @@ namespace Microsoft.Data.Relational.Tests.Update
 
         private static ContextConfiguration CreateConfiguration()
         {
-            return new EntityContext(new EntityConfigurationBuilder().BuildConfiguration()).Configuration;
+            return new DbContext(new EntityConfigurationBuilder().BuildConfiguration()).Configuration;
         }
 
         private static Database CreateDatabase()

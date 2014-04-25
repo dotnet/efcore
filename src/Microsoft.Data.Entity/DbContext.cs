@@ -11,18 +11,18 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity
 {
-    public class EntityContext : IDisposable
+    public class DbContext : IDisposable
     {
         private readonly LazyRef<ContextConfiguration> _configuration;
-        private readonly ContextEntitySets _sets = new ContextEntitySets();
+        private readonly ContextSets _sets = new ContextSets();
 
-        protected EntityContext()
+        protected DbContext()
         {
             InitializeSets(null, new EntityConfigurationBuilder().BuildConfiguration());
             _configuration = new LazyRef<ContextConfiguration>(() => Initialize(null, new EntityConfigurationBuilder()));
         }
 
-        public EntityContext([NotNull] IServiceProvider serviceProvider)
+        public DbContext([NotNull] IServiceProvider serviceProvider)
         {
             Check.NotNull(serviceProvider, "serviceProvider");
 
@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity
             _configuration = new LazyRef<ContextConfiguration>(() => Initialize(serviceProvider, new EntityConfigurationBuilder()));
         }
 
-        public EntityContext([NotNull] EntityConfiguration configuration)
+        public DbContext([NotNull] EntityConfiguration configuration)
         {
             Check.NotNull(configuration, "configuration");
 
@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity
             _configuration = new LazyRef<ContextConfiguration>(() => Initialize(null, configuration));
         }
 
-        public EntityContext([NotNull] IServiceProvider serviceProvider, [NotNull] EntityConfiguration configuration)
+        public DbContext([NotNull] IServiceProvider serviceProvider, [NotNull] EntityConfiguration configuration)
         {
             Check.NotNull(serviceProvider, "serviceProvider");
             Check.NotNull(configuration, "configuration");
@@ -76,7 +76,7 @@ namespace Microsoft.Data.Entity
         {
             serviceProvider = serviceProvider ?? ServiceProviderCache.Instance.GetOrAdd(entityConfiguration);
 
-            serviceProvider.GetRequiredService<EntitySetInitializer>().InitializeSets(this);
+            serviceProvider.GetRequiredService<DbSetInitializer>().InitializeSets(this);
         }
 
         public virtual ContextConfiguration Configuration
@@ -171,21 +171,21 @@ namespace Microsoft.Data.Entity
             get { return Configuration.Model; }
         }
 
-        public virtual EntitySet Set([NotNull] Type entityType)
+        public virtual DbSet Set([NotNull] Type entityType)
         {
             Check.NotNull(entityType, "entityType");
 
             // Note: Creating sets needs to be fast because it is done eagerly when a context instance
             // is created so we avoid loading metadata to validate the type here.
-            return _sets.GetEntitySet(this, entityType);
+            return _sets.GetSet(this, entityType);
         }
 
-        public virtual EntitySet<TEntity> Set<TEntity>()
+        public virtual DbSet<TEntity> Set<TEntity>()
             where TEntity : class
         {
             // Note: Creating sets needs to be fast because it is done eagerly when a context instance
             // is created so we avoid loading metadata to validate the type here.
-            return _sets.GetEntitySet<TEntity>(this);
+            return _sets.GetSet<TEntity>(this);
         }
     }
 }

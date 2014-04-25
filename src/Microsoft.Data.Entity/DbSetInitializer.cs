@@ -8,36 +8,36 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity
 {
-    public class EntitySetInitializer
+    public class DbSetInitializer
     {
-        private readonly EntitySetFinder _setFinder;
-        private readonly ClrPropertySetterSource _entitySetSetters;
+        private readonly DbSetFinder _setFinder;
+        private readonly ClrPropertySetterSource _setSetters;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
         ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
         ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
         /// </summary>
-        protected EntitySetInitializer()
+        protected DbSetInitializer()
         {
         }
 
-        public EntitySetInitializer([NotNull] EntitySetFinder setFinder, [NotNull] ClrPropertySetterSource entitySetSetters)
+        public DbSetInitializer([NotNull] DbSetFinder setFinder, [NotNull] ClrPropertySetterSource setSetters)
         {
             Check.NotNull(setFinder, "setFinder");
-            Check.NotNull(entitySetSetters, "entitySetSetters");
+            Check.NotNull(setSetters, "setSetters");
 
             _setFinder = setFinder;
-            _entitySetSetters = entitySetSetters;
+            _setSetters = setSetters;
         }
 
-        public virtual void InitializeSets([NotNull] EntityContext context)
+        public virtual void InitializeSets([NotNull] DbContext context)
         {
             Check.NotNull(context, "context");
 
             foreach (var setInfo in _setFinder.FindSets(context).Where(p => p.HasSetter))
             {
-                _entitySetSetters
+                _setSetters
                     .GetAccessor(setInfo.ContextType, setInfo.Name)
                     .SetClrValue(context, context.Set(setInfo.EntityType));
             }

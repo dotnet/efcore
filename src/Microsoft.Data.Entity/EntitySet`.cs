@@ -13,7 +13,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity
 {
-    public class EntitySet<TEntity> : EntitySet, IOrderedQueryable<TEntity>, IAsyncEnumerable<TEntity>
+    public class DbSet<TEntity> : DbSet, IOrderedQueryable<TEntity>, IAsyncEnumerable<TEntity>
         where TEntity : class
     {
         private readonly EntityQueryable<TEntity> _entityQueryable;
@@ -23,11 +23,11 @@ namespace Microsoft.Data.Entity
         ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
         ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
         /// </summary>
-        protected EntitySet()
+        protected DbSet()
         {
         }
 
-        public EntitySet([NotNull] EntityContext context)
+        public DbSet([NotNull] DbContext context)
             : base(Check.NotNull(context, "context"))
         {
             _entityQueryable

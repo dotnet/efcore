@@ -9,42 +9,42 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity
 {
-    public class EntitySetFinder
+    public class DbSetFinder
     {
-        private readonly ThreadSafeDictionaryCache<Type, IReadOnlyList<EntitySetProperty>> _cache
-            = new ThreadSafeDictionaryCache<Type, IReadOnlyList<EntitySetProperty>>();
+        private readonly ThreadSafeDictionaryCache<Type, IReadOnlyList<DbSetProperty>> _cache
+            = new ThreadSafeDictionaryCache<Type, IReadOnlyList<DbSetProperty>>();
 
-        public virtual IReadOnlyList<EntitySetProperty> FindSets([NotNull] EntityContext context)
+        public virtual IReadOnlyList<DbSetProperty> FindSets([NotNull] DbContext context)
         {
             Check.NotNull(context, "context");
 
             return _cache.GetOrAdd(context.GetType(), FindSets);
         }
 
-        private static EntitySetProperty[] FindSets(Type contextType)
+        private static DbSetProperty[] FindSets(Type contextType)
         {
             return contextType.GetRuntimeProperties()
                 .Where(
                     p => !p.IsStatic()
                          && !p.GetIndexParameters().Any()
-                         && p.DeclaringType != typeof(EntityContext)
+                         && p.DeclaringType != typeof(DbContext)
                          && p.PropertyType.GetTypeInfo().IsGenericType
-                         && p.PropertyType.GetGenericTypeDefinition() == typeof(EntitySet<>))
+                         && p.PropertyType.GetGenericTypeDefinition() == typeof(DbSet<>))
                 .OrderBy(p => p.Name)
-                .Select(p => new EntitySetProperty(
+                .Select(p => new DbSetProperty(
                     p.DeclaringType, p.Name,
                     p.PropertyType.GetTypeInfo().GenericTypeArguments.Single(), p.SetMethod != null))
                 .ToArray();
         }
 
-        public struct EntitySetProperty
+        public struct DbSetProperty
         {
             private readonly Type _contextType;
             private readonly string _name;
             private readonly Type _entityType;
             private readonly bool _hasSetter;
 
-            public EntitySetProperty([NotNull] Type contextType, [NotNull] string name, [NotNull] Type entityType, bool hasSetter)
+            public DbSetProperty([NotNull] Type contextType, [NotNull] string name, [NotNull] Type entityType, bool hasSetter)
             {
                 Check.NotNull(contextType, "contextType");
                 Check.NotNull(name, "name");

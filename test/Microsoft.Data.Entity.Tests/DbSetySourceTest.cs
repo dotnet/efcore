@@ -6,27 +6,27 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Tests
 {
-    public class EntitySetFactorySourceTest
+    public class DbSetySourceTest
     {
         [Fact]
-        public void Can_create_new_generic_EntitySet()
+        public void Can_create_new_generic_DbSet()
         {
-            var context = Mock.Of<EntityContext>();
+            var context = Mock.Of<DbContext>();
 
-            var factorySource = new EntitySetSource();
+            var factorySource = new DbSetSource();
 
             var set = factorySource.Create(context, typeof(Random));
 
-            Assert.IsType<EntitySet<Random>>(set);
+            Assert.IsType<DbSet<Random>>(set);
             Assert.Same(context.Configuration, set.Configuration);
         }
 
         [Fact]
-        public void Always_creates_a_new_EntitySet_instance()
+        public void Always_creates_a_new_DbSet_instance()
         {
-            var context = Mock.Of<EntityContext>();
+            var context = Mock.Of<DbContext>();
 
-            var factorySource = new EntitySetSource();
+            var factorySource = new DbSetSource();
 
             Assert.NotSame(factorySource.Create(context, typeof(Random)), factorySource.Create(context, typeof(Random)));
         }

@@ -34,7 +34,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                     .UseInMemoryStore()
                     .BuildConfiguration();
 
-            using (var context = new EntityContext(_configuration))
+            using (var context = new DbContext(_configuration))
             {
                 context.Set<Customer>().AddRange(NorthwindData.Customers);
                 context.Set<Employee>().AddRange(NorthwindData.Employees);
