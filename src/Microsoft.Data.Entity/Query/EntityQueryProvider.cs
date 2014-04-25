@@ -18,10 +18,10 @@ namespace Microsoft.Data.Entity.Query
     public class EntityQueryProvider : QueryProviderBase, IAsyncQueryProvider
     {
         private static readonly MethodInfo _executeScalarAsyncMethod
-            = (typeof(EntityQueryExecutor).GetMethod("ExecuteScalarAsync"));
+            = (typeof(EntityQueryExecutor).GetTypeInfo().GetDeclaredMethod("ExecuteScalarAsync"));
 
         private static readonly MethodInfo _executeSingleAsyncMethod
-            = (typeof(EntityQueryExecutor).GetMethod("ExecuteSingleAsync"));
+            = (typeof(EntityQueryExecutor).GetTypeInfo().GetDeclaredMethod("ExecuteSingleAsync"));
 
         private static IQueryParser CreateQueryParser()
         {

@@ -12,23 +12,15 @@
   },
   "code": "**\\*.cs;..\\Shared\\*.cs",
   "configurations": {
-    "net45": {
-      "dependencies": {
-        "System.Runtime": ""
-      }
-    },
+    "net45": {},
     "k10": {
       "dependencies": {
-        "System.Collections": "4.0.0.0",
-        "System.ComponentModel": "4.0.0.0",
         "System.Diagnostics.Debug": "4.0.10.0",
         "System.Globalization": "4.0.10.0",
         "System.Linq": "4.0.0.0",
         "System.Reflection": "4.0.10.0",
-        "System.Reflection.Compatibility": "4.0.0.0",
         "System.Resources.ResourceManager": "4.0.0.0",
         "System.Runtime": "4.0.20.0",
-        "System.Runtime.Extensions": "4.0.10.0",
         "System.Threading": "4.0.0.0",
         "System.Threading.Tasks": "4.0.10.0"
       }

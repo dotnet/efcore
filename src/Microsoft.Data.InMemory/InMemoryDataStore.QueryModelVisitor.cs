@@ -14,7 +14,7 @@ namespace Microsoft.Data.InMemory
         private class QueryModelVisitor : EntityQueryModelVisitor
         {
             private static readonly MethodInfo _entityScanMethodInfo
-                = typeof(QueryModelVisitor).GetMethod("EntityScan", BindingFlags.NonPublic | BindingFlags.Static);
+                = typeof(QueryModelVisitor).GetTypeInfo().GetDeclaredMethod("EntityScan");
 
             public QueryModelVisitor()
                 : base(_entityScanMethodInfo, p => new QueryModelVisitor(p))

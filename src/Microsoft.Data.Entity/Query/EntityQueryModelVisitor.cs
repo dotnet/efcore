@@ -141,7 +141,7 @@ namespace Microsoft.Data.Entity.Query
         }
 
         private static readonly MethodInfo _selectManyShim
-            = typeof(EntityQueryModelVisitor).GetMethod("SelectManyShim", BindingFlags.NonPublic | BindingFlags.Static);
+            = typeof(EntityQueryModelVisitor).GetTypeInfo().GetDeclaredMethod("SelectManyShim");
 
         [UsedImplicitly]
         private static IEnumerable<TResult> SelectManyShim<TSource, TResult>(
@@ -197,7 +197,7 @@ namespace Microsoft.Data.Entity.Query
         }
 
         private static readonly MethodInfo _joinShim
-            = typeof(EntityQueryModelVisitor).GetMethod("JoinShim", BindingFlags.NonPublic | BindingFlags.Static);
+            = typeof(EntityQueryModelVisitor).GetTypeInfo().GetDeclaredMethod("JoinShim");
 
         [UsedImplicitly]
         private static IEnumerable<TResult> JoinShim<TOuter, TInner, TKey, TResult>(
@@ -260,7 +260,7 @@ namespace Microsoft.Data.Entity.Query
         }
 
         private static readonly MethodInfo _groupJoinShim
-            = typeof(EntityQueryModelVisitor).GetMethod("GroupJoinShim", BindingFlags.NonPublic | BindingFlags.Static);
+            = typeof(EntityQueryModelVisitor).GetTypeInfo().GetDeclaredMethod("GroupJoinShim");
 
         [UsedImplicitly]
         private static IEnumerable<TResult> GroupJoinShim<TOuter, TInner, TKey, TResult>(
@@ -288,7 +288,7 @@ namespace Microsoft.Data.Entity.Query
         }
 
         private static readonly MethodInfo _whereShim
-            = typeof(EntityQueryModelVisitor).GetMethod("WhereShim", BindingFlags.NonPublic | BindingFlags.Static);
+            = typeof(EntityQueryModelVisitor).GetTypeInfo().GetDeclaredMethod("WhereShim");
 
         [UsedImplicitly]
         private static IEnumerable<TSource> WhereShim<TSource>(
@@ -320,7 +320,7 @@ namespace Microsoft.Data.Entity.Query
                     return subExpression;
                 }
 
-                if (typeof(IQueryable).IsAssignableFrom(expression.Type))
+                if (typeof(IQueryable).GetTypeInfo().IsAssignableFrom(expression.Type.GetTypeInfo()))
                 {
                     subExpression
                         = Expression.Call(
@@ -333,8 +333,8 @@ namespace Microsoft.Data.Entity.Query
             }
 
             private static readonly MethodInfo _asQueryableShim
-                = typeof(ProjectionSubQueryExpressionTreeVisitor)
-                    .GetMethod("AsQueryableShim", BindingFlags.NonPublic | BindingFlags.Static);
+                = typeof(ProjectionSubQueryExpressionTreeVisitor).GetTypeInfo()
+                    .GetDeclaredMethod("AsQueryableShim");
 
             [UsedImplicitly]
             private static IOrderedQueryable<TSource> AsQueryableShim<TSource>(IEnumerable<TSource> source)
@@ -367,7 +367,7 @@ namespace Microsoft.Data.Entity.Query
         }
 
         private static readonly MethodInfo _selectShim
-            = typeof(EntityQueryModelVisitor).GetMethod("SelectShim", BindingFlags.NonPublic | BindingFlags.Static);
+            = typeof(EntityQueryModelVisitor).GetTypeInfo().GetDeclaredMethod("SelectShim");
 
         [UsedImplicitly]
         private static IEnumerable<TResult> SelectShim<TSource, TResult>(
@@ -427,7 +427,7 @@ namespace Microsoft.Data.Entity.Query
         }
 
         private static readonly MethodInfo _orderByShim
-            = typeof(EntityQueryModelVisitor).GetMethod("OrderByShim", BindingFlags.NonPublic | BindingFlags.Static);
+            = typeof(EntityQueryModelVisitor).GetTypeInfo().GetDeclaredMethod("OrderByShim");
 
         [UsedImplicitly]
         private static IOrderedEnumerable<TSource> OrderByShim<TSource, TKey>(
@@ -439,7 +439,7 @@ namespace Microsoft.Data.Entity.Query
         }
 
         private static readonly MethodInfo _thenByShim
-            = typeof(EntityQueryModelVisitor).GetMethod("ThenByShim", BindingFlags.NonPublic | BindingFlags.Static);
+            = typeof(EntityQueryModelVisitor).GetTypeInfo().GetDeclaredMethod("ThenByShim");
 
         [UsedImplicitly]
         private static IOrderedEnumerable<TSource> ThenByShim<TSource, TKey>(
@@ -493,10 +493,10 @@ namespace Microsoft.Data.Entity.Query
         public override void VisitResultOperator(ResultOperatorBase resultOperator, QueryModel queryModel, int index)
         {
             // TODO: sub-queries in result op. expressions
-//                resultOperator
-//                    .TransformExpressions(e =>
-//                        ReplaceClauseReferences(new QueryingExpressionTreeVisitor(this)
-//                            .VisitExpression(e)));
+            //    resultOperator
+            //        .TransformExpressions(e =>
+            //            ReplaceClauseReferences(new QueryingExpressionTreeVisitor(this)
+            //                .VisitExpression(e)));
 
             var streamedDataInfo
                 = resultOperator.GetOutputDataInfo(_streamedSequenceInfo);
@@ -513,7 +513,7 @@ namespace Microsoft.Data.Entity.Query
         }
 
         private static readonly MethodInfo _executeResultOperatorMethodInfo
-            = typeof(EntityQueryModelVisitor).GetMethod("ExecuteResultOperator", BindingFlags.NonPublic | BindingFlags.Static);
+            = typeof(EntityQueryModelVisitor).GetTypeInfo().GetDeclaredMethod("ExecuteResultOperator");
 
         [UsedImplicitly]
         private static TResult ExecuteResultOperator<TSource, TResult>(
