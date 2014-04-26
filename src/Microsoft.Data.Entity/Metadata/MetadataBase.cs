@@ -10,8 +10,6 @@ namespace Microsoft.Data.Entity.Metadata
     {
         private readonly Annotations _annotations = new Annotations();
 
-        public virtual string StorageName { get; [param: CanBeNull] set; }
-
         // ReSharper disable once AnnotationRedundanceInHierarchy
         public virtual string this[[param: NotNull] string annotationName]
         {

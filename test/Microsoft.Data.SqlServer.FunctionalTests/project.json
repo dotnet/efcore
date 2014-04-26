@@ -2,6 +2,7 @@
   "version": "0.1-alpha-*",
   "dependencies": {
     "Microsoft.Data.Entity": "",
+    "Microsoft.Data.InMemory" : "",
     "Microsoft.Data.Migrations": "",
     "Microsoft.Data.Relational": "",
     "Microsoft.Data.SqlServer": "",

@@ -21,5 +21,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         [NotNull]
         IEntityType GetEntityType([NotNull] string name);
+
+        string StorageName { get; }
     }
 }

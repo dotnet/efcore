@@ -9,7 +9,7 @@ namespace Microsoft.Data.Entity.Storage
 {
     public class DataStoreSelector
     {
-        private readonly DataStoreSource[] _factories;
+        private readonly DataStoreSource[] _sources;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -20,18 +20,18 @@ namespace Microsoft.Data.Entity.Storage
         {
         }
 
-        public DataStoreSelector([CanBeNull] IEnumerable<DataStoreSource> factories)
+        public DataStoreSelector([CanBeNull] IEnumerable<DataStoreSource> sources)
         {
-            _factories = factories == null ? new DataStoreSource[0] : factories.ToArray();
+            _sources = sources == null ? new DataStoreSource[0] : sources.ToArray();
         }
 
-        public virtual DataStore SelectDataStore([NotNull] ContextConfiguration configuration)
+        public virtual DataStoreSource SelectDataStore([NotNull] ContextConfiguration configuration)
         {
-            var configured = _factories.Where(f => f.IsConfigured(configuration)).ToArray();
+            var configured = _sources.Where(f => f.IsConfigured(configuration)).ToArray();
 
             if (configured.Length == 1)
             {
-                return configured[0].GetDataStore(configuration);
+                return configured[0];
             }
 
             if (configured.Length > 1)
@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.Storage
                 throw new InvalidOperationException(Strings.FormatMultipleDataStoresConfigured(BuildStoreNamesString(configured)));
             }
 
-            if (_factories.Length == 0)
+            if (_sources.Length == 0)
             {
                 if (configuration.ProviderSource == ContextConfiguration.ServiceProviderSource.Implicit)
                 {
@@ -48,17 +48,17 @@ namespace Microsoft.Data.Entity.Storage
                 throw new InvalidOperationException(Strings.NoDataStoreService);
             }
 
-            if (_factories.Length > 1)
+            if (_sources.Length > 1)
             {
-                throw new InvalidOperationException(Strings.FormatMultipleDataStoresAvailable(BuildStoreNamesString(_factories)));
+                throw new InvalidOperationException(Strings.FormatMultipleDataStoresAvailable(BuildStoreNamesString(_sources)));
             }
 
-            if (!_factories[0].IsAvailable(configuration))
+            if (!_sources[0].IsAvailable(configuration))
             {
                 throw new InvalidOperationException(Strings.NoDataStoreConfigured);
             }
 
-            return _factories[0].GetDataStore(configuration);
+            return _sources[0];
         }
 
         private static string BuildStoreNamesString(IEnumerable<DataStoreSource> available)

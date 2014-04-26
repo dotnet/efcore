@@ -112,5 +112,10 @@ namespace Microsoft.Data.Entity
                        ?? Enumerable.Empty<IEntityStateListener>();
             }
         }
-    }
+
+        public virtual Database Database
+        {
+            get { return _serviceProvider.GetRequiredService<Database>(); }
+        }
+     }
 }

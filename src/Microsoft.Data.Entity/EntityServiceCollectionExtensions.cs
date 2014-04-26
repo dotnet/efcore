@@ -36,6 +36,7 @@ namespace Microsoft.AspNet.DependencyInjection
                 .AddSingleton<ClrPropertySetterSource, ClrPropertySetterSource>()
                 .AddSingleton<ClrCollectionAccessorSource, ClrCollectionAccessorSource>()
                 .AddSingleton<EntityMaterializerSource, EntityMaterializerSource>()
+                .AddSingleton<CompositeEntityKeyFactory, CompositeEntityKeyFactory>()
                 .AddSingleton<MemberMapper, MemberMapper>()
                 .AddSingleton<StateEntrySubscriber, StateEntrySubscriber>()
                 .AddSingleton<FieldMatcher, FieldMatcher>()
@@ -47,7 +48,8 @@ namespace Microsoft.AspNet.DependencyInjection
                 .AddScoped<StateEntryNotifier, StateEntryNotifier>()
                 .AddScoped<ContextConfiguration, ContextConfiguration>()
                 .AddScoped<ContextSets, ContextSets>()
-                .AddScoped<StateManager, StateManager>();
+                .AddScoped<StateManager, StateManager>()
+                .AddScoped<Database, Database>();
 
             if (nestedBuilder != null)
             {

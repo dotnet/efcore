@@ -12,12 +12,11 @@ namespace Microsoft.Data.Entity.Tests.Storage
         [Fact]
         public void Selects_single_configured_store()
         {
-            var store = Mock.Of<DataStore>();
-            var source = CreateSource("DataStore1", configured: true, available: false, store: store);
+            var source = CreateSource("DataStore1", configured: true, available: false, store: Mock.Of<DataStore>());
 
             var selector = new DataStoreSelector(new[] { source });
 
-            Assert.Same(store, selector.SelectDataStore(new ContextConfiguration()));
+            Assert.Same(source, selector.SelectDataStore(new ContextConfiguration()));
         }
 
         [Fact]
@@ -85,12 +84,11 @@ namespace Microsoft.Data.Entity.Tests.Storage
         [Fact]
         public void Selects_single_available_store()
         {
-            var store = Mock.Of<DataStore>();
-            var source = CreateSource("DataStore1", configured: false, available: true, store: store);
+            var source = CreateSource("DataStore1", configured: false, available: true, store: Mock.Of<DataStore>());
 
             var selector = new DataStoreSelector(new[] { source });
 
-            Assert.Same(store, selector.SelectDataStore(new ContextConfiguration()));
+            Assert.Same(source, selector.SelectDataStore(new ContextConfiguration()));
         }
 
         private static DataStoreSource CreateSource(string name, bool configured, bool available, DataStore store = null)
@@ -98,7 +96,7 @@ namespace Microsoft.Data.Entity.Tests.Storage
             var sourceMock = new Mock<DataStoreSource>();
             sourceMock.Setup(m => m.IsConfigured(It.IsAny<ContextConfiguration>())).Returns(configured);
             sourceMock.Setup(m => m.IsAvailable(It.IsAny<ContextConfiguration>())).Returns(available);
-            sourceMock.Setup(m => m.GetDataStore(It.IsAny<ContextConfiguration>())).Returns(store);
+            sourceMock.Setup(m => m.GetStore(It.IsAny<ContextConfiguration>())).Returns(store);
             sourceMock.Setup(m => m.Name).Returns(name);
 
             return sourceMock.Object;

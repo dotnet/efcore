@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -11,117 +12,178 @@ using Microsoft.Data.Relational;
 using Microsoft.Data.SqlServer.Utilities;
 #if NET45
 using System.Data.SqlClient;
+
 #endif
 
 namespace Microsoft.Data.SqlServer
 {
     public class SqlServerDataStoreCreator : DataStoreCreator
     {
-        private readonly SqlServerDataStore _dataStore;
+        private readonly SqlServerConnection _connection;
         private readonly ModelDiffer _modelDiffer;
-        private readonly MigrationOperationSqlGenerator _sqlGenerator;
+        private readonly SqlServerMigrationOperationSqlGenerator _sqlGenerator;
         private readonly SqlStatementExecutor _statementExecutor;
 
         public SqlServerDataStoreCreator(
-            [NotNull] SqlServerDataStore dataStore,
+            [NotNull] SqlServerConnection connection,
             [NotNull] ModelDiffer modelDiffer,
-            [NotNull] MigrationOperationSqlGenerator sqlGenerator,
+            [NotNull] SqlServerMigrationOperationSqlGenerator sqlGenerator,
             [NotNull] SqlStatementExecutor statementExecutor)
         {
-            Check.NotNull(dataStore, "dataStore");
+            Check.NotNull(connection, "connection");
             Check.NotNull(modelDiffer, "modelDiffer");
             Check.NotNull(sqlGenerator, "sqlGenerator");
             Check.NotNull(statementExecutor, "statementExecutor");
 
-            _dataStore = dataStore;
+            _connection = connection;
             _modelDiffer = modelDiffer;
             _sqlGenerator = sqlGenerator;
             _statementExecutor = statementExecutor;
         }
 
+        public override void Create(IModel model)
+        {
+            using (var masterConnection = _connection.CreateMasterConnection())
+            {
+                _statementExecutor.ExecuteNonQuery(masterConnection, CreateCreateOperations());
+                ClearPool();
+            }
+
+            _statementExecutor.ExecuteNonQuery(_connection.DbConnection, CreateSchemaCommands(model));
+        }
+
         public override async Task CreateAsync(IModel model, CancellationToken cancellationToken = default(CancellationToken))
         {
-            using (var connection = _dataStore.CreateConnection())
+            using (var masterConnection = _connection.CreateMasterConnection())
             {
-                using (var masterConnection = _dataStore.CreateMasterConnection())
+                await _statementExecutor.ExecuteNonQueryAsync(masterConnection, CreateCreateOperations(), cancellationToken);
+                ClearPool();
+            }
+
+            await _statementExecutor.ExecuteNonQueryAsync(_connection.DbConnection, CreateSchemaCommands(model), cancellationToken);
+        }
+
+        private IEnumerable<SqlStatement> CreateSchemaCommands(IModel model)
+        {
+            return _sqlGenerator.Generate(_modelDiffer.DiffSource(model), generateIdempotentSql: false);
+        }
+
+        private IEnumerable<SqlStatement> CreateCreateOperations()
+        {
+            // TODO Check DbConnection.Database always gives us what we want
+            var databaseName = _connection.DbConnection.Database;
+
+            var operations = new MigrationOperation[]
                 {
-                    var operations = new MigrationOperation[]
-                        {
-                            // TODO Check DbConnection.Database always gives us what we want
-                            new CreateDatabaseOperation(connection.Database)
-                        };
+                    new CreateDatabaseOperation(databaseName)
+                };
 
-                    var masterCommands = _sqlGenerator.Generate(operations, generateIdempotentSql: true);
-                    await _statementExecutor.ExecuteNonQueryAsync(masterConnection, masterCommands, cancellationToken);
+            var masterCommands = _sqlGenerator.Generate(operations, generateIdempotentSql: true);
+            return masterCommands;
+        }
 
+        public override bool Exists()
+        {
+            try
+            {
+                _connection.Open();
+                _connection.Close();
+                return true;
+            }
 #if NET45
-                    // Clear connection pool for the database connection since after the 'create database' call, a previously
-                    // invalid connection may now be valid.
-                    SqlConnection.ClearPool((SqlConnection)connection);
-#endif
+            catch (SqlException e)
+            {
+                if (IsDoesNotExist(e))
+                {
+                    return false;
                 }
-
-                var schemaOperations = _modelDiffer.DiffSource(model);
-                var schemaCommands = _sqlGenerator.Generate(schemaOperations, generateIdempotentSql: false);
-                await _statementExecutor.ExecuteNonQueryAsync(connection, schemaCommands, cancellationToken);
+#else
+            catch
+            {
+#endif
+                throw;
             }
         }
 
         public override async Task<bool> ExistsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            using (var connection = _dataStore.CreateConnection())
+            try
             {
-                try
-                {
-                    await connection.OpenAsync(cancellationToken);
-                    connection.Close();
-                    return true;
-                }
+                await _connection.OpenAsync(cancellationToken);
+                _connection.Close();
+                return true;
+            }
 #if NET45
-                catch (SqlException e)
+            catch (SqlException e)
+            {
+                if (IsDoesNotExist(e))
                 {
-                    // TODO Explore if there are important scenarios where this could give a false negative
-                    // Login failed is thrown when database does not exist
-                    if (e.Number == 4060)
-                    {
-                        return false;
-                    }
-
-                    throw;
+                    return false;
                 }
 #else
-                catch
-                {
-                    throw;
-                }
+            catch
+            {
 #endif
+                throw;
+            }
+        }
+
+#if NET45
+        private static bool IsDoesNotExist(SqlException exception)
+        {
+            // TODO Explore if there are important scenarios where this could give a false negative
+            // Login failed is thrown when database does not exist
+            return exception.Number == 4060;
+        }
+#endif
+
+        public override void Delete()
+        {
+            ClearAllPools();
+
+            using (var masterConnection = _connection.CreateMasterConnection())
+            {
+                _statementExecutor.ExecuteNonQuery(masterConnection, CreateDropCommands());
             }
         }
 
         public override async Task DeleteAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            string database;
-            using (var connection = _dataStore.CreateConnection())
-            {
-                // TODO Check DbConnection.Database always gives us what we want
-                database = connection.Database;
-            }
+            ClearAllPools();
 
+            using (var masterConnection = _connection.CreateMasterConnection())
+            {
+                await _statementExecutor.ExecuteNonQueryAsync(masterConnection, CreateDropCommands(), cancellationToken);
+            }
+        }
+
+        private IEnumerable<SqlStatement> CreateDropCommands()
+        {
+            var operations = new MigrationOperation[]
+                {
+                    // TODO Check DbConnection.Database always gives us what we want
+                    new DropDatabaseOperation(_connection.DbConnection.Database)
+                };
+
+            var masterCommands = _sqlGenerator.Generate(operations, generateIdempotentSql: true);
+            return masterCommands;
+        }
+
+        private static void ClearAllPools()
+        {
 #if NET45
             // Clear connection pools in case there are active connections that are pooled
             SqlConnection.ClearAllPools();
 #endif
+        }
 
-            using (var masterConnection = _dataStore.CreateMasterConnection())
-            {
-                var operations = new MigrationOperation[]
-                    {
-                        new DropDatabaseOperation(database)
-                    };
-
-                var masterCommands = _sqlGenerator.Generate(operations, generateIdempotentSql: true);
-                await _statementExecutor.ExecuteNonQueryAsync(masterConnection, masterCommands, cancellationToken);
-            }
+        private void ClearPool()
+        {
+#if NET45
+            // Clear connection pool for the database connection since after the 'create database' call, a previously
+            // invalid connection may now be valid.
+            SqlConnection.ClearPool((SqlConnection)_connection.DbConnection);
+#endif
         }
     }
 }

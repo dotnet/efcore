@@ -57,49 +57,75 @@ namespace Microsoft.Data.Entity.Tests
         public void Each_context_gets_new_scoped_context_configuration()
         {
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework(s => s.UseStateManager<FakeStateManager>())
+                .AddEntityFramework()
                 .BuildServiceProvider();
 
-            var configuration = new EntityConfigurationBuilder().BuildConfiguration();
-
-            ContextConfiguration config1;
-            using (var context = new DbContext(serviceProvider, configuration))
+            ContextConfiguration configuration;
+            using (var context = new DbContext(serviceProvider))
             {
-                config1 = context.Configuration;
-                Assert.Same(config1, context.Configuration);
+                configuration = context.Configuration;
+                Assert.Same(configuration, context.Configuration);
             }
 
-            using (var context = new DbContext(serviceProvider, configuration))
+            using (var context = new DbContext(serviceProvider))
             {
-                var config2 = context.Configuration;
-                Assert.Same(config2, context.Configuration);
-
-                Assert.NotSame(config1, config2);
+                Assert.NotSame(configuration, context.Configuration);
             }
         }
 
         [Fact]
-        public void Each_context_gets_new_scoped_StateManager()
+        public void Each_context_gets_new_scoped_context_configuration_with_implicit_services()
         {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFramework(s => s.UseStateManager<FakeStateManager>())
-                .BuildServiceProvider();
-
-            var configuration = new EntityConfigurationBuilder().BuildConfiguration();
-
-            StateManager stateManager1;
-            using (var context = new DbContext(serviceProvider, configuration))
+            ContextConfiguration configuration;
+            using (var context = new Mock<DbContext> { CallBase = true }.Object)
             {
-                stateManager1 = context.ChangeTracker.StateManager;
-                Assert.Same(stateManager1, context.ChangeTracker.StateManager);
+                configuration = context.Configuration;
+                Assert.Same(configuration, context.Configuration);
             }
 
-            using (var context = new DbContext(serviceProvider, configuration))
+            using (var context = new Mock<DbContext> { CallBase = true }.Object)
             {
-                var stateManager2 = context.ChangeTracker.StateManager;
-                Assert.Same(stateManager2, context.ChangeTracker.StateManager);
+                Assert.NotSame(configuration, context.Configuration);
+            }
+        }
 
-                Assert.NotSame(stateManager1, stateManager2);
+        [Fact]
+        public void Each_context_gets_new_scoped_context_configuration_with_explicit_config()
+        {
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFramework()
+                .BuildServiceProvider();
+
+            var entityConfig = new EntityConfigurationBuilder().BuildConfiguration();
+
+            ContextConfiguration configuration;
+            using (var context = new DbContext(serviceProvider, entityConfig))
+            {
+                configuration = context.Configuration;
+                Assert.Same(configuration, context.Configuration);
+            }
+
+            using (var context = new DbContext(serviceProvider, entityConfig))
+            {
+                Assert.NotSame(configuration, context.Configuration);
+            }
+        }
+
+        [Fact]
+        public void Each_context_gets_new_scoped_context_configuration_with_implicit_services_and_explicit_config()
+        {
+            var entityConfig = new EntityConfigurationBuilder().BuildConfiguration();
+
+            ContextConfiguration configuration;
+            using (var context = new DbContext(entityConfig))
+            {
+                configuration = context.Configuration;
+                Assert.Same(configuration, context.Configuration);
+            }
+
+            using (var context = new DbContext(entityConfig))
+            {
+                Assert.NotSame(configuration, context.Configuration);
             }
         }
 
@@ -380,7 +406,7 @@ namespace Microsoft.Data.Entity.Tests
             var sourceMock = new Mock<DataStoreSource>();
             sourceMock.Setup(m => m.IsAvailable(It.IsAny<ContextConfiguration>())).Returns(true);
             sourceMock.Setup(m => m.IsConfigured(It.IsAny<ContextConfiguration>())).Returns(true);
-            sourceMock.Setup(m => m.GetDataStore(It.IsAny<ContextConfiguration>())).Returns(store.Object);
+            sourceMock.Setup(m => m.GetStore(It.IsAny<ContextConfiguration>())).Returns(store.Object);
 
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework(s => s.ServiceCollection.AddInstance<DataStoreSource>(sourceMock.Object))
@@ -398,7 +424,7 @@ namespace Microsoft.Data.Entity.Tests
             }
 
             store.Verify(
-                s => s.SaveChangesAsync(It.IsAny<IEnumerable<StateEntry>>(), It.IsAny<IModel>(), It.IsAny<CancellationToken>()),
+                s => s.SaveChangesAsync(It.IsAny<IEnumerable<StateEntry>>(), It.IsAny<CancellationToken>()),
                 Times.Never);
         }
 
@@ -407,14 +433,14 @@ namespace Microsoft.Data.Entity.Tests
         {
             var passedEntries = new List<StateEntry>();
             var store = new Mock<DataStore>();
-            store.Setup(s => s.SaveChangesAsync(It.IsAny<IEnumerable<StateEntry>>(), It.IsAny<IModel>(), It.IsAny<CancellationToken>()))
-                .Callback<IEnumerable<StateEntry>, IModel, CancellationToken>((e, m, c) => passedEntries.AddRange(e))
+            store.Setup(s => s.SaveChangesAsync(It.IsAny<IEnumerable<StateEntry>>(), It.IsAny<CancellationToken>()))
+                .Callback<IEnumerable<StateEntry>, CancellationToken>((e, c) => passedEntries.AddRange(e))
                 .Returns(Task.FromResult(3));
 
             var sourceMock = new Mock<DataStoreSource>();
             sourceMock.Setup(m => m.IsAvailable(It.IsAny<ContextConfiguration>())).Returns(true);
             sourceMock.Setup(m => m.IsConfigured(It.IsAny<ContextConfiguration>())).Returns(true);
-            sourceMock.Setup(m => m.GetDataStore(It.IsAny<ContextConfiguration>())).Returns(store.Object);
+            sourceMock.Setup(m => m.GetStore(It.IsAny<ContextConfiguration>())).Returns(store.Object);
 
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework(s => s.ServiceCollection.AddInstance<DataStoreSource>(sourceMock.Object))
@@ -436,7 +462,7 @@ namespace Microsoft.Data.Entity.Tests
             Assert.Equal(3, passedEntries.Count);
 
             store.Verify(
-                s => s.SaveChangesAsync(It.IsAny<IEnumerable<StateEntry>>(), It.IsAny<IModel>(), It.IsAny<CancellationToken>()),
+                s => s.SaveChangesAsync(It.IsAny<IEnumerable<StateEntry>>(), It.IsAny<CancellationToken>()),
                 Times.Once);
         }
 

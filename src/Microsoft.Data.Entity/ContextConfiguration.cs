@@ -24,7 +24,9 @@ namespace Microsoft.Data.Entity
         private EntityConfiguration _entityConfiguration;
         private DbContext _context;
         private LazyRef<IModel> _modelFromSource;
+        private LazyRef<DataStoreSource> _dataStoreSource;
         private LazyRef<DataStore> _dataStore;
+        private LazyRef<DataStoreConnection> _connection;
         private ServiceProviderSource _serviceProviderSource;
         private LazyRef<ILoggerFactory> _loggerFactory;
 
@@ -47,7 +49,9 @@ namespace Microsoft.Data.Entity
             _entityConfiguration = entityConfiguration;
             _context = context;
             _modelFromSource = new LazyRef<IModel>(() => _services.ModelSource.GetModel(_context));
-            _dataStore = new LazyRef<DataStore>(() => _services.DataStoreSelector.SelectDataStore(this));
+            _dataStoreSource = new LazyRef<DataStoreSource>(() => _services.DataStoreSelector.SelectDataStore(this));
+            _dataStore = new LazyRef<DataStore>(() => _dataStoreSource.Value.GetStore(this));
+            _connection = new LazyRef<DataStoreConnection>(() => _dataStoreSource.Value.GetConnection(this));
             _loggerFactory = new LazyRef<ILoggerFactory>(() => GetLoggerFactory() ?? new NullLoggerFactory());
 
             return this;
@@ -79,6 +83,16 @@ namespace Microsoft.Data.Entity
         public virtual DataStore DataStore
         {
             get { return _dataStore.Value; }
+        }
+
+        public virtual DataStoreCreator DataStoreCreator
+        {
+            get { return _dataStoreSource.Value.GetCreator(this); }
+        }
+
+        public virtual DataStoreConnection Connection
+        {
+            get { return _connection.Value; }
         }
 
         public virtual ContextServices Services

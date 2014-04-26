@@ -543,6 +543,11 @@ namespace Microsoft.Data.SqlServer
                 return "decimal(18,2)";
             }
 
+            if (column.ClrType == typeof(Guid))
+            {
+                return "uniqueidentifier";
+            }
+
             throw new NotSupportedException();
         }
 

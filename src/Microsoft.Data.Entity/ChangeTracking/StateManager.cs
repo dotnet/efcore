@@ -244,7 +244,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             try
             {
                 var result = await _configuration.DataStore
-                    .SaveChangesAsync(entriesToSave, Model, cancellationToken)
+                    .SaveChangesAsync(entriesToSave, cancellationToken)
                     .ConfigureAwait(false);
 
                 // TODO: When transactions supported, make it possible to commit/accept at end of all transactions

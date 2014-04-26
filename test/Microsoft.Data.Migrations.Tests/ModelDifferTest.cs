@@ -3,6 +3,7 @@
 using System;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Migrations.Model;
+using Microsoft.Data.Relational;
 using Xunit;
 
 namespace Microsoft.Data.Migrations.Tests
@@ -12,7 +13,7 @@ namespace Microsoft.Data.Migrations.Tests
         [Fact]
         public void DiffSource_creates_operations()
         {
-            var operations = new ModelDiffer().DiffSource(CreateModel());
+            var operations = new ModelDiffer(new DatabaseBuilder()).DiffSource(CreateModel());
 
             Assert.Equal(3, operations.Count);
 
@@ -28,7 +29,7 @@ namespace Microsoft.Data.Migrations.Tests
         [Fact]
         public void DiffTarget_creates_operations()
         {
-            var operations = new ModelDiffer().DiffTarget(CreateModel());
+            var operations = new ModelDiffer(new DatabaseBuilder()).DiffTarget(CreateModel());
 
             Assert.Equal(3, operations.Count);
 
@@ -49,7 +50,7 @@ namespace Microsoft.Data.Migrations.Tests
 
             targetModel.GetEntityType("Dependent").StorageName = "newdbo.MyTable0";
 
-            var operations = new ModelDiffer().Diff(sourceModel, targetModel);
+            var operations = new ModelDiffer(new DatabaseBuilder()).Diff(sourceModel, targetModel);
 
             Assert.Equal(1, operations.Count);
             Assert.IsType<MoveTableOperation>(operations[0]);
@@ -68,7 +69,7 @@ namespace Microsoft.Data.Migrations.Tests
 
             targetModel.GetEntityType("Dependent").StorageName = "dbo.MyNewTable0";
 
-            var operations = new ModelDiffer().Diff(sourceModel, targetModel);
+            var operations = new ModelDiffer(new DatabaseBuilder()).Diff(sourceModel, targetModel);
 
             Assert.Equal(1, operations.Count);
             Assert.IsType<RenameTableOperation>(operations[0]);
@@ -102,7 +103,7 @@ namespace Microsoft.Data.Migrations.Tests
             foreignKey.Annotations.Add(new Annotation(
                 MetadataExtensions.Annotations.CascadeDelete, "True"));
 
-            var operations = new ModelDiffer().Diff(sourceModel, targetModel);
+            var operations = new ModelDiffer(new DatabaseBuilder()).Diff(sourceModel, targetModel);
 
             Assert.Equal(2, operations.Count);
             Assert.IsType<CreateTableOperation>(operations[0]);
@@ -153,7 +154,7 @@ namespace Microsoft.Data.Migrations.Tests
             foreignKey.Annotations.Add(new Annotation(
                 MetadataExtensions.Annotations.CascadeDelete, "True"));
 
-            var operations = new ModelDiffer().Diff(sourceModel, targetModel);
+            var operations = new ModelDiffer(new DatabaseBuilder()).Diff(sourceModel, targetModel);
 
             Assert.Equal(1, operations.Count);
             Assert.IsType<DropTableOperation>(operations[0]);
@@ -171,7 +172,7 @@ namespace Microsoft.Data.Migrations.Tests
 
             targetModel.GetEntityType("Dependent").GetProperty("Id").StorageName = "NewId";
 
-            var operations = new ModelDiffer().Diff(sourceModel, targetModel);
+            var operations = new ModelDiffer(new DatabaseBuilder()).Diff(sourceModel, targetModel);
 
             Assert.Equal(1, operations.Count);
             Assert.IsType<RenameColumnOperation>(operations[0]);
@@ -192,7 +193,7 @@ namespace Microsoft.Data.Migrations.Tests
             var property = targetModel.GetEntityType("Dependent").AddProperty("MyNewProperty", typeof(string));
             property.StorageName = "MyNewColumn";
 
-            var operations = new ModelDiffer().Diff(sourceModel, targetModel);
+            var operations = new ModelDiffer(new DatabaseBuilder()).Diff(sourceModel, targetModel);
 
             Assert.Equal(1, operations.Count);
             Assert.IsType<AddColumnOperation>(operations[0]);
@@ -213,7 +214,7 @@ namespace Microsoft.Data.Migrations.Tests
             var property = sourceModel.GetEntityType("Dependent").AddProperty("MyOldProperty", typeof(string));
             property.StorageName = "MyOldColumn";
 
-            var operations = new ModelDiffer().Diff(sourceModel, targetModel);
+            var operations = new ModelDiffer(new DatabaseBuilder()).Diff(sourceModel, targetModel);
 
             Assert.Equal(1, operations.Count);
             Assert.IsType<DropColumnOperation>(operations[0]);
@@ -233,7 +234,7 @@ namespace Microsoft.Data.Migrations.Tests
             var property = targetModel.GetEntityType("Dependent").GetProperty("MyProperty");
             property.IsNullable = false;
 
-            var operations = new ModelDiffer().Diff(sourceModel, targetModel);
+            var operations = new ModelDiffer(new DatabaseBuilder()).Diff(sourceModel, targetModel);
 
             Assert.Equal(1, operations.Count);
             Assert.IsType<AlterColumnOperation>(operations[0]);
@@ -258,7 +259,7 @@ namespace Microsoft.Data.Migrations.Tests
             property = entityType.AddProperty("MyProperty", typeof(double));
             property.StorageName = "MyColumn";
 
-            var operations = new ModelDiffer().Diff(sourceModel, targetModel);
+            var operations = new ModelDiffer(new DatabaseBuilder()).Diff(sourceModel, targetModel);
 
             Assert.Equal(1, operations.Count);
             Assert.IsType<AlterColumnOperation>(operations[0]);
@@ -280,7 +281,7 @@ namespace Microsoft.Data.Migrations.Tests
             property.Annotations.Add(new Annotation(
                 MetadataExtensions.Annotations.StorageTypeName, "nvarchar(10)"));
 
-            var operations = new ModelDiffer().Diff(sourceModel, targetModel);
+            var operations = new ModelDiffer(new DatabaseBuilder()).Diff(sourceModel, targetModel);
 
             Assert.Equal(1, operations.Count);
             Assert.IsType<AlterColumnOperation>(operations[0]);
@@ -302,7 +303,7 @@ namespace Microsoft.Data.Migrations.Tests
             property.Annotations.Add(new Annotation(
                 MetadataExtensions.Annotations.ColumnDefaultValue, "MyDefaultValue"));
 
-            var operations = new ModelDiffer().Diff(sourceModel, targetModel);
+            var operations = new ModelDiffer(new DatabaseBuilder()).Diff(sourceModel, targetModel);
 
             Assert.Equal(1, operations.Count);
             Assert.IsType<AddDefaultConstraintOperation>(operations[0]);
@@ -325,7 +326,7 @@ namespace Microsoft.Data.Migrations.Tests
             property.Annotations.Add(new Annotation(
                 MetadataExtensions.Annotations.ColumnDefaultSql, "MyDefaultSql"));
 
-            var operations = new ModelDiffer().Diff(sourceModel, targetModel);
+            var operations = new ModelDiffer(new DatabaseBuilder()).Diff(sourceModel, targetModel);
 
             Assert.Equal(1, operations.Count);
             Assert.IsType<AddDefaultConstraintOperation>(operations[0]);
@@ -348,7 +349,7 @@ namespace Microsoft.Data.Migrations.Tests
             property.Annotations.Add(new Annotation(
                 MetadataExtensions.Annotations.ColumnDefaultValue, "MyDefaultValue"));
 
-            var operations = new ModelDiffer().Diff(sourceModel, targetModel);
+            var operations = new ModelDiffer(new DatabaseBuilder()).Diff(sourceModel, targetModel);
 
             Assert.Equal(1, operations.Count);
             Assert.IsType<DropDefaultConstraintOperation>(operations[0]);
@@ -369,7 +370,7 @@ namespace Microsoft.Data.Migrations.Tests
             property.Annotations.Add(new Annotation(
                 MetadataExtensions.Annotations.ColumnDefaultSql, "MyDefaultSql"));
 
-            var operations = new ModelDiffer().Diff(sourceModel, targetModel);
+            var operations = new ModelDiffer(new DatabaseBuilder()).Diff(sourceModel, targetModel);
 
             Assert.Equal(1, operations.Count);
             Assert.IsType<DropDefaultConstraintOperation>(operations[0]);
@@ -390,7 +391,7 @@ namespace Microsoft.Data.Migrations.Tests
             entityType.SetKey(entityType.GetProperty("MyProperty"));
             entityType.GetKey().StorageName = "MyNewPK";
 
-            var operations = new ModelDiffer().Diff(sourceModel, targetModel);
+            var operations = new ModelDiffer(new DatabaseBuilder()).Diff(sourceModel, targetModel);
 
             Assert.Equal(2, operations.Count);
             Assert.IsType<DropPrimaryKeyOperation>(operations[0]);
@@ -415,7 +416,7 @@ namespace Microsoft.Data.Migrations.Tests
             var entityType = sourceModel.GetEntityType("Dependent");
             entityType.RemoveForeignKey(entityType.ForeignKeys[0]);
 
-            var operations = new ModelDiffer().Diff(sourceModel, targetModel);
+            var operations = new ModelDiffer(new DatabaseBuilder()).Diff(sourceModel, targetModel);
 
             Assert.Equal(1, operations.Count);
             Assert.IsType<AddForeignKeyOperation>(operations[0]);
@@ -437,7 +438,7 @@ namespace Microsoft.Data.Migrations.Tests
             var entityType = targetModel.GetEntityType("Dependent");
             entityType.RemoveForeignKey(entityType.ForeignKeys[0]);
 
-            var operations = new ModelDiffer().Diff(sourceModel, targetModel);
+            var operations = new ModelDiffer(new DatabaseBuilder()).Diff(sourceModel, targetModel);
 
             Assert.Equal(1, operations.Count);
             Assert.IsType<DropForeignKeyOperation>(operations[0]);
@@ -459,7 +460,7 @@ namespace Microsoft.Data.Migrations.Tests
             targetModel.RemoveEntityType(dependentEntityType);
             principalEntityType.StorageName = dependentEntityType.StorageName;
 
-            var operations = new ModelDiffer().Diff(sourceModel, targetModel);
+            var operations = new ModelDiffer(new DatabaseBuilder()).Diff(sourceModel, targetModel);
 
             Assert.Equal(3, operations.Count);
 

@@ -138,6 +138,8 @@ namespace Microsoft.Data.Entity.Metadata
             sorted.Add(entityType);
         }
 
+        public virtual string StorageName { get; [param: CanBeNull] set; }
+
         IEntityType IModel.TryGetEntityType(Type type)
         {
             return TryGetEntityType(type);

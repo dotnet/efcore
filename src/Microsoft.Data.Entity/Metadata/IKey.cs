@@ -8,5 +8,6 @@ namespace Microsoft.Data.Entity.Metadata
     {
         IReadOnlyList<IProperty> Properties { get; }
         IEntityType EntityType { get; }
+        string StorageName { get; }
     }
 }

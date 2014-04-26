@@ -28,5 +28,6 @@ namespace Microsoft.Data.Entity.Metadata
         int OriginalValueCount { get; }
         bool HasClrType { get; }
         bool UseLazyOriginalValues { get; }
+        string StorageName { get; }
     }
 }

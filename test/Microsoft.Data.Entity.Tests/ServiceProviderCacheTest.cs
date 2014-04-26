@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using Microsoft.AspNet.DependencyInjection;
 using Moq;
 using Xunit;
@@ -130,10 +131,26 @@ namespace Microsoft.Data.Entity.Tests
         private static EntityConfiguration BuildConfiguration(Action<EntityServicesBuilder> builderAction)
         {
             var config = (IEntityConfigurationConstruction)new EntityConfiguration();
-            var extensionMock = new Mock<EntityConfigurationExtension>();
-            extensionMock.Setup(m => m.ApplyServices(It.IsAny<EntityServicesBuilder>())).Callback<EntityServicesBuilder>(builderAction);
-            config.AddExtension(extensionMock.Object);
+            config.AddOrUpdateExtension<FakeEntityConfigurationExtension>(e => e.BuilderActions.Add(builderAction));
             return (EntityConfiguration)config;
+        }
+
+        private class FakeEntityConfigurationExtension : EntityConfigurationExtension
+        {
+            private readonly List<Action<EntityServicesBuilder>> _builderActions = new List<Action<EntityServicesBuilder>>();
+
+            public List<Action<EntityServicesBuilder>> BuilderActions
+            {
+                get { return _builderActions; }
+            }
+
+            protected internal override void ApplyServices(EntityServicesBuilder builder)
+            {
+                foreach (var builderAction in _builderActions)
+                {
+                    builderAction(builder);
+                }
+            }
         }
 
         private interface IFakeServiceA

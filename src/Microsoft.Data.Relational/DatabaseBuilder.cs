@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Relational.Model;
 using Microsoft.Data.Relational.Utilities;
 using ForeignKey = Microsoft.Data.Relational.Model.ForeignKey;
@@ -13,72 +13,75 @@ namespace Microsoft.Data.Relational
 {
     public class DatabaseBuilder
     {
-        private ModelDatabaseMapping _mapping;
+        // TODO: IModel may not be an appropriate cache key if we want to be
+        // able to unload IModel instances and create new ones.
+        private readonly ThreadSafeDictionaryCache<IModel, ModelDatabaseMapping> _mappingCache
+            = new ThreadSafeDictionaryCache<IModel, ModelDatabaseMapping>();
 
-        public virtual Database Build([NotNull] IModel model)
+        public virtual Database GetDatabase([NotNull] IModel model)
         {
             Check.NotNull(model, "model");
 
-            return BuildMapping(model).Database;
+            return GetMapping(model).Database;
         }
 
-        public virtual ModelDatabaseMapping BuildMapping([NotNull] IModel model)
+        public virtual ModelDatabaseMapping GetMapping([NotNull] IModel model)
         {
             Check.NotNull(model, "model");
 
-            var database = new Database();
-            _mapping = new ModelDatabaseMapping(model, database);
-
-            foreach (var entityType in model.EntityTypes)
-            {
-                BuildTable(database, entityType);
-                BuildPrimaryKey(database, entityType.GetKey());
-            }
-
-            foreach (var entityType in model.EntityTypes)
-            {
-                foreach (var foreignKey in entityType.ForeignKeys)
+            return _mappingCache.GetOrAdd(model, m =>
                 {
-                    BuildForeignKey(database, foreignKey);
-                }
-            }
+                    // TODO: Consider making this lazy since we don't want to load the whole model just to
+                    // save changes to a single entity.
+                    var database = new Database();
+                    var mapping = new ModelDatabaseMapping(m, database);
 
-            return _mapping;
+                    foreach (var entityType in m.EntityTypes)
+                    {
+                        var table = BuildTable(database, entityType);
+                        mapping.Map(entityType, table);
+
+                        foreach (var property in entityType.Properties)
+                        {
+                            mapping.Map(property, BuildColumn(table, property));
+                        }
+
+                        var primaryKey = entityType.GetKey();
+                        mapping.Map(primaryKey, BuildPrimaryKey(database, primaryKey));
+                    }
+
+                    foreach (var entityType in m.EntityTypes)
+                    {
+                        foreach (var foreignKey in entityType.ForeignKeys)
+                        {
+                            mapping.Map(foreignKey, BuildForeignKey(database, foreignKey));
+                        }
+                    }
+
+                    return mapping;
+                });
         }
 
-        public virtual string TableName([NotNull] IEntityType type)
-        {
-            Check.NotNull(type, "type");
-
-            return type.StorageName ?? type.Name;
-        }
-
-        public virtual string ColumnName([NotNull] IProperty property)
-        {
-            Check.NotNull(property, "property");
-
-            return property.StorageName ?? property.Name;
-        }
-
-        public virtual string PrimaryKeyName([NotNull] IKey primaryKey)
+        private string PrimaryKeyName([NotNull] IKey primaryKey)
         {
             Check.NotNull(primaryKey, "primaryKey");
 
-            return primaryKey.StorageName ?? string.Format("PK_{0}", TableName(primaryKey.EntityType));
+            return primaryKey.StorageName ?? string.Format("PK_{0}", primaryKey.EntityType.StorageName);
         }
 
-        public virtual string ForeignKeyName([NotNull] IForeignKey foreignKey)
+        private string ForeignKeyName([NotNull] IForeignKey foreignKey)
         {
             Check.NotNull(foreignKey, "foreignKey");
 
             return foreignKey.StorageName ?? string.Format(
                 "FK_{0}_{1}_{2}",
-                TableName(foreignKey.EntityType),
-                TableName(foreignKey.ReferencedEntityType),
-                string.Join("_", foreignKey.Properties.OrderBy(p => p.Name).Select(p => ColumnName(p))));
+                foreignKey.EntityType.StorageName,
+                foreignKey.ReferencedEntityType.StorageName,
+                string.Join("_", foreignKey.Properties.OrderBy(p => p.Name).Select(p => p.StorageName)));
         }
 
-        public virtual string IndexName([NotNull] Table table, [NotNull] IEnumerable<Column> columns)
+        // TODO: Use this or remove it
+        public static string IndexName([NotNull] Table table, [NotNull] IEnumerable<Column> columns)
         {
             Check.NotNull(table, "table");
             Check.NotNull(columns, "columns");
@@ -89,23 +92,19 @@ namespace Microsoft.Data.Relational
                 string.Join("_", columns.OrderBy(c => c.Name).Select(c => c.Name)));
         }
 
-        private void BuildTable(Database database, IEntityType entityType)
+        private static Table BuildTable(Database database, IEntityType entityType)
         {
-            var table = new Table(TableName(entityType));
-
-            foreach (var property in entityType.Properties)
-            {
-                BuildColumn(table, property);
-            }
+            var table = new Table(entityType.StorageName);
 
             database.AddTable(table);
-            _mapping.Map(entityType, table);
+
+            return table;
         }
 
-        private void BuildColumn(Table table, IProperty property)
+        private static Column BuildColumn(Table table, IProperty property)
         {
             var column =
-                new Column(ColumnName(property), property.PropertyType, property.ColumnType())
+                new Column(property.StorageName, property.PropertyType, property.ColumnType())
                     {
                         IsNullable = property.IsNullable,
                         DefaultValue = property.ColumnDefaultValue(),
@@ -114,7 +113,8 @@ namespace Microsoft.Data.Relational
                     };
 
             table.AddColumn(column);
-            _mapping.Map(property, column);
+
+            return column;
         }
 
         private static StoreValueGenerationStrategy TranslateValueGenerationStrategy(ValueGenerationStrategy generationStrategy)
@@ -130,43 +130,38 @@ namespace Microsoft.Data.Relational
             }
         }
 
-        private void BuildPrimaryKey(Database database, IKey primaryKey)
+        private PrimaryKey BuildPrimaryKey(Database database, IKey primaryKey)
         {
             Check.NotNull(primaryKey, "primaryKey");
 
-            var table = database.GetTable(TableName(primaryKey.EntityType));
+            var table = database.GetTable(primaryKey.EntityType.StorageName);
             var columns = primaryKey.Properties.Select(
-                p => table.GetColumn(ColumnName(p))).ToArray();
+                p => table.GetColumn(p.StorageName)).ToArray();
             var isClustered = primaryKey.IsClustered();
 
             table.PrimaryKey = new PrimaryKey(PrimaryKeyName(primaryKey), columns, isClustered);
-            _mapping.Map(primaryKey, table.PrimaryKey);
+
+            return table.PrimaryKey;
         }
 
-        private void BuildForeignKey(Database database, IForeignKey foreignKey)
+        private ForeignKey BuildForeignKey(Database database, IForeignKey foreignKey)
         {
             Check.NotNull(foreignKey, "foreignKey");
 
-            var table = database.GetTable(TableName(foreignKey.EntityType));
-            var referencedTable = database.GetTable(TableName(foreignKey.ReferencedEntityType));
+            var table = database.GetTable(foreignKey.EntityType.StorageName);
+            var referencedTable = database.GetTable(foreignKey.ReferencedEntityType.StorageName);
             var columns = foreignKey.Properties.Select(
-                p => table.GetColumn(ColumnName(p))).ToArray();
+                p => table.GetColumn(p.StorageName)).ToArray();
             var referenceColumns = foreignKey.ReferencedProperties.Select(
-                p => referencedTable.GetColumn(ColumnName(p))).ToArray();
+                p => referencedTable.GetColumn(p.StorageName)).ToArray();
             var cascadeDelete = foreignKey.CascadeDelete();
 
             var storeForeignKey = new ForeignKey(
                 ForeignKeyName(foreignKey), columns, referenceColumns, cascadeDelete);
 
             table.AddForeignKey(storeForeignKey);
-            _mapping.Map(foreignKey, table.ForeignKeys.Last());
-        }
 
-        private static void BuildIndex(Database database, IEntityType entityType)
-        {
-            // TODO: Not implemented.
-
-            throw new NotImplementedException();
+            return storeForeignKey;
         }
     }
 }

@@ -6,7 +6,8 @@ using Microsoft.Data.InMemory.Utilities;
 
 namespace Microsoft.Data.InMemory
 {
-    public class InMemoryDataStoreSource : DataStoreSource<InMemoryDataStore, InMemoryConfigurationExtension>
+    public class InMemoryDataStoreSource
+        : DataStoreSource<InMemoryDataStore, InMemoryConfigurationExtension, InMemoryDataStoreCreator, InMemoryConnection>
     {
         public override bool IsAvailable(ContextConfiguration configuration)
         {

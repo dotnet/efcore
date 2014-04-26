@@ -18,13 +18,22 @@ namespace Microsoft.Data.Migrations
         private ModelDatabaseMapping _sourceMapping;
         private ModelDatabaseMapping _targetMapping;
         private MigrationOperationCollection _operations;
+        
+        private readonly DatabaseBuilder _databaseBuilder;
+
+        public ModelDiffer([NotNull] DatabaseBuilder databaseBuilder)
+        {
+            Check.NotNull(databaseBuilder, "databaseBuilder");
+
+            _databaseBuilder = databaseBuilder;
+        }
 
         // TODO: Rename this method because it is not suggestive of what it does.
         public virtual IReadOnlyList<MigrationOperation> DiffSource([NotNull] IModel model)
         {
             Check.NotNull(model, "model");
 
-            var database = new DatabaseBuilder().Build(model);
+            var database = _databaseBuilder.GetDatabase(model);
 
             var createSequenceOperations = database.Sequences.Select(
                 s => new CreateSequenceOperation(s));
@@ -63,7 +72,7 @@ namespace Microsoft.Data.Migrations
         {
             Check.NotNull(model, "model");
 
-            var database = new DatabaseBuilder().Build(model);
+            var database = _databaseBuilder.GetDatabase(model);
 
             var dropSequenceOperations = database.Sequences.Select(
                 s => new DropSequenceOperation(s.Name));
@@ -87,8 +96,8 @@ namespace Microsoft.Data.Migrations
             Check.NotNull(sourceModel, "sourceModel");
             Check.NotNull(targetModel, "targetModel");
 
-            _sourceMapping = new DatabaseBuilder().BuildMapping(sourceModel);
-            _targetMapping = new DatabaseBuilder().BuildMapping(targetModel);
+            _sourceMapping = _databaseBuilder.GetMapping(sourceModel);
+            _targetMapping = _databaseBuilder.GetMapping(targetModel);
             _operations = new MigrationOperationCollection();
 
             DiffSequences();

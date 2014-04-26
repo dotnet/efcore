@@ -3,14 +3,20 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data.Common;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.Remoting.Messaging;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNet.DependencyInjection;
 using Microsoft.AspNet.DependencyInjection.Fallback;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Relational;
+using Microsoft.Data.Relational.Update;
+using Microsoft.Data.SqlServer.Utilities;
 using Xunit;
 
 namespace Microsoft.Data.SqlServer.FunctionalTests
@@ -51,9 +57,8 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                 var serviceProvider = new ServiceCollection()
                     .AddEntityFramework(s =>
                         {
-                            // TODO: Consider sugar for changing low-level SqlServerDataStore
-                            s.ServiceCollection.AddScoped<SqlServerDataStore, SqlStoreWithBufferReader>();
                             s.AddSqlServer();
+                            s.ServiceCollection.AddScoped<SqlServerDataStore, SqlStoreWithBufferReader>();
                         })
                     .BuildServiceProvider();
 
@@ -75,27 +80,27 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                     Assert.Equal("(5) 555-3745", results[2].Fax);
                     Assert.Equal("030-0076545", results[3].Fax);
 
-// TODO: Fix this
-//                  Assert.True(((SqlStoreWithBufferReader)db.Configuration.DataStore).Used);
+                    Assert.IsType<SqlStoreWithBufferReader>(db.Configuration.DataStore);
                 }
             }
         }
 
         private class SqlStoreWithBufferReader : SqlServerDataStore
         {
-            public bool Used { get; set; }
-
-            public SqlStoreWithBufferReader(ContextConfiguration configuration, SqlServerSqlGenerator sqlGenerator)
-                : base(configuration, sqlGenerator)
+            public SqlStoreWithBufferReader(
+                ContextConfiguration configuration,
+                SqlServerConnection connection,
+                DatabaseBuilder databaseBuilder,
+                CommandBatchPreparer batchPreparer,
+                SqlServerBatchExecutor batchExecutor)
+                : base(configuration, connection, databaseBuilder, batchPreparer, batchExecutor)
             {
             }
 
-// TODO: fix this
-//            protected override IValueReader CreateValueReader(DbDataReader dataReader)
-//            {
-//                Used = true;
-//                return new RelationalObjectArrayValueReader(dataReader);
-//            }
+            protected override RelationalValueReaderFactory ValueReaderFactory
+            {
+                get { return new RelationalObjectArrayValueReaderFactory(); }
+            }
         }
 
         [Fact]

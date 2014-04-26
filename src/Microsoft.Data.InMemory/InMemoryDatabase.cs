@@ -28,6 +28,11 @@ namespace Microsoft.Data.InMemory
             _logger = (loggerFactory ?? new NullLoggerFactory()).Create(typeof(InMemoryDatabase).Name);
         }
 
+        public virtual void Clear()
+        {
+            _tables.ExchangeValue(ts => ImmutableDictionary<IEntityType, InMemoryTable>.Empty);
+        }
+
         public virtual InMemoryTable GetTable([NotNull] IEntityType entityType)
         {
             InMemoryTable table;

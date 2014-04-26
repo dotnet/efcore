@@ -17,6 +17,7 @@ namespace Microsoft.Data.Entity.Storage
     public abstract class DataStore
     {
         private readonly ILogger _logger;
+        private readonly IModel _model;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -32,6 +33,7 @@ namespace Microsoft.Data.Entity.Storage
             Check.NotNull(configuration, "configuration");
 
             _logger = configuration.LoggerFactory.Create(GetType().Name);
+            _model = configuration.Model;
         }
 
         public virtual ILogger Logger
@@ -39,20 +41,17 @@ namespace Microsoft.Data.Entity.Storage
             get { return _logger; }
         }
 
-        public virtual Task<int> SaveChangesAsync(
-            [NotNull] IEnumerable<StateEntry> stateEntries,
-            [NotNull] IModel model,
-            CancellationToken cancellationToken = default(CancellationToken))
+        public virtual IModel Model
         {
-            throw new NotImplementedException();
+            get { return _model; }
         }
 
-        public virtual IAsyncEnumerable<TResult> Query<TResult>(
+        public abstract Task<int> SaveChangesAsync(
+            [NotNull] IEnumerable<StateEntry> stateEntries,
+            CancellationToken cancellationToken = default(CancellationToken));
+
+        public abstract IAsyncEnumerable<TResult> Query<TResult>(
             [NotNull] QueryModel queryModel,
-            [NotNull] IModel model,
-            [NotNull] StateManager stateManager)
-        {
-            throw new NotImplementedException();
-        }
+            [NotNull] StateManager stateManager);
     }
 }

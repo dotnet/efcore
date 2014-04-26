@@ -89,7 +89,7 @@ namespace Microsoft.Data.Relational
                 private readonly string _sql;
                 private readonly IEntityType _entityType;
 
-                private DbConnection _connection;
+                private RelationalConnection _connection;
                 private DbCommand _command;
                 private DbDataReader _reader;
 
@@ -111,14 +111,14 @@ namespace Microsoft.Data.Relational
                 private async Task<bool> InitializeAndReadAsync(
                     CancellationToken cancellationToken = default(CancellationToken))
                 {
-                    _connection = _queryContext.DataStore.CreateConnection();
+                    _connection = _queryContext.Connection;
 
                     await _connection.OpenAsync(cancellationToken);
 
-                    _command = _connection.CreateCommand();
+                    _command = _connection.DbConnection.CreateCommand();
                     _command.CommandText = _sql;
 
-                    _queryContext.DataStore.Logger.WriteSql(_sql);
+                    _queryContext.Logger.WriteSql(_sql);
 
                     _reader = await _command.ExecuteReaderAsync(cancellationToken);
 
@@ -129,13 +129,13 @@ namespace Microsoft.Data.Relational
                 {
                     if (_reader == null)
                     {
-                        _connection = _queryContext.DataStore.CreateConnection();
+                        _connection = _queryContext.Connection;
                         _connection.Open();
 
-                        _command = _connection.CreateCommand();
+                        _command = _connection.DbConnection.CreateCommand();
                         _command.CommandText = _sql;
 
-                        _queryContext.DataStore.Logger.WriteSql(_sql);
+                        _queryContext.Logger.WriteSql(_sql);
 
                         _reader = _command.ExecuteReader();
                     }
@@ -154,7 +154,7 @@ namespace Microsoft.Data.Relational
 
                         return (T)_queryContext.StateManager
                             .GetOrMaterializeEntry(
-                                _entityType, new RelationalTypedValueReader(_reader)).Entity;
+                                _entityType, _queryContext.ValueReaderFactory.Create(_reader)).Entity;
                     }
                 }
 
@@ -177,7 +177,7 @@ namespace Microsoft.Data.Relational
 
                     if (_connection != null)
                     {
-                        _connection.Dispose();
+                        _connection.Close();
                     }
                 }
 
