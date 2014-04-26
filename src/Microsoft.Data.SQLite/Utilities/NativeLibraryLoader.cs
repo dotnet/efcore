@@ -27,7 +27,11 @@ namespace Microsoft.Data.SQLite.Utilities
                 return;
 
             var currentAssembly = typeof(NativeLibraryLoader).GetTypeInfo().Assembly;
-
+            
+#if NET451
+            if (TryLoadFromDirectory(dllName, new Uri(AppDomain.CurrentDomain.BaseDirectory).LocalPath))
+                return;
+#else
             try
             {
                 if (TryLoadUnderKRuntime(currentAssembly, dllName))
@@ -37,10 +41,6 @@ namespace Microsoft.Data.SQLite.Utilities
             {
                 // Ignore. Running outside of Project K
             }
-
-#if NET451
-            if (TryLoadFromDirectory(dllName, new Uri(AppDomain.CurrentDomain.BaseDirectory).LocalPath))
-                return;
 #endif
 
             Debug.Fail(dllName + " was not loaded.");
