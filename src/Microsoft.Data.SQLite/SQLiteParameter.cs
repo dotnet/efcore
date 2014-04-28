@@ -132,7 +132,7 @@ namespace Microsoft.Data.SQLite
                         break;
 
                     default:
-                        Debug.Fail("Unexpected value.");
+                        Debug.Assert(false, "Unexpected value.");
                         break;
                 }
             }

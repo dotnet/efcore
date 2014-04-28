@@ -1,13 +1,13 @@
 {
   "version": "0.1-alpha-*",
   "dependencies": {
-    "Microsoft.Net.Runtime.Interfaces": "0.1-alpha-*",
     "System.Data.Common": "0.1-alpha-*"
   },
   "configurations": {
     "net451": {
       "dependencies": {
-        "System.Data": ""
+        "System.Data": "",
+        "Microsoft.Net.Runtime.Interfaces": "0.1-alpha-*"
       }
     },
     "k10": {
@@ -25,7 +25,26 @@
         "System.Runtime.Extensions": "4.0.10.0",
         "System.Runtime.Handles": "4.0.0.0",
         "System.Runtime.InteropServices": "4.0.20.0",
-        "System.Text.Encoding": "4.0.20.0"
+        "System.Text.Encoding": "4.0.20.0",
+        "Microsoft.Net.Runtime.Interfaces": "0.1-alpha-*"
+      }
+    },
+    ".NETPortable,Version=4.6,Profile=Profile151": {
+      "dependencies": {
+        "System.Collections": "",
+        "System.ComponentModel": "",
+        "System.Diagnostics.Debug": "",
+        "System.Globalization": "",
+        "System.IO.FileSystem": "",
+        "System.Linq": "",
+        "System.Linq.Expressions": "",
+        "System.Reflection": "",
+        "System.Resources.ResourceManager": "",
+        "System.Runtime": "",
+        "System.Runtime.Extensions": "",
+        "System.Runtime.Handles": "",
+        "System.Runtime.InteropServices": "",
+        "System.Text.Encoding": ""
       }
     }
   }
