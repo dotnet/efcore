@@ -21,11 +21,14 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
             await Can_use_an_existing_closed_connection_test(openConnection: false);
         }
 
+        // See aspnet/Data#135
+#if !K10
         [Fact]
         public async Task Can_use_an_existing_open_connection()
         {
             await Can_use_an_existing_closed_connection_test(openConnection: true);
         }
+#endif
 
         private static async Task Can_use_an_existing_closed_connection_test(bool openConnection)
         {
@@ -57,7 +60,9 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                             closeCount++;
                         }
                     };
+#if NET45
                     connection.Disposed += (_, __) => disposeCount++;
+#endif
 
                     using (var context = new NorthwindContext(serviceProvider, connection))
                     {
