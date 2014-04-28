@@ -8,13 +8,13 @@
     "Microsoft.Data.Migrations": "",
     "Microsoft.Data.Relational": "",
     "Microsoft.AspNet.DependencyInjection": "0.1-alpha-*",
-    "System.Data.Common": "0.1-alpha-*"
+    "System.Data.Common": "0.1-alpha-*",
+    "System.Data.SqlClient": "0.1-alpha-*"
   },
   "code": "**\\*.cs;..\\Shared\\*.cs",
   "configurations": {
     "net45": {
       "dependencies": {
-        "System.Data": ""
       }
     },
     "k10": {

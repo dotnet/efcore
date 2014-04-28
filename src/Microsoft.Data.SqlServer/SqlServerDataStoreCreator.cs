@@ -10,10 +10,7 @@ using Microsoft.Data.Migrations;
 using Microsoft.Data.Migrations.Model;
 using Microsoft.Data.Relational;
 using Microsoft.Data.SqlServer.Utilities;
-#if NET45
 using System.Data.SqlClient;
-
-#endif
 
 namespace Microsoft.Data.SqlServer
 {
@@ -90,17 +87,12 @@ namespace Microsoft.Data.SqlServer
                 _connection.Close();
                 return true;
             }
-#if NET45
             catch (SqlException e)
             {
                 if (IsDoesNotExist(e))
                 {
                     return false;
                 }
-#else
-            catch
-            {
-#endif
                 throw;
             }
         }
@@ -113,29 +105,22 @@ namespace Microsoft.Data.SqlServer
                 _connection.Close();
                 return true;
             }
-#if NET45
             catch (SqlException e)
             {
                 if (IsDoesNotExist(e))
                 {
                     return false;
                 }
-#else
-            catch
-            {
-#endif
                 throw;
             }
         }
 
-#if NET45
         private static bool IsDoesNotExist(SqlException exception)
         {
             // TODO Explore if there are important scenarios where this could give a false negative
             // Login failed is thrown when database does not exist
             return exception.Number == 4060;
         }
-#endif
 
         public override void Delete()
         {
@@ -171,19 +156,15 @@ namespace Microsoft.Data.SqlServer
 
         private static void ClearAllPools()
         {
-#if NET45
             // Clear connection pools in case there are active connections that are pooled
             SqlConnection.ClearAllPools();
-#endif
         }
 
         private void ClearPool()
         {
-#if NET45
             // Clear connection pool for the database connection since after the 'create database' call, a previously
             // invalid connection may now be valid.
             SqlConnection.ClearPool((SqlConnection)_connection.DbConnection);
-#endif
         }
     }
 }
