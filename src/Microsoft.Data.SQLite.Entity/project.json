@@ -14,6 +14,15 @@
         "System.Resources.ResourceManager": "4.0.0.0",
         "System.Runtime": "4.0.20.0"
       }
+    },
+    ".NETPortable,Version=v4.6,Profile=Profile44": {
+      "dependencies": {
+        "System.Diagnostics.Debug": "",
+        "System.Globalization": "",
+        "System.Reflection": "",
+        "System.Resources.ResourceManager": "",
+        "System.Runtime": ""
+      }
     }
   }
 }

@@ -24,6 +24,18 @@
         "System.Threading": "4.0.0.0",
         "System.Threading.Tasks": "4.0.10.0"
       }
+    },
+    ".NETPortable,Version=v4.6,Profile=Profile44": {
+      "dependencies": {
+        "System.Diagnostics.Debug": "",
+        "System.Globalization": "",
+        "System.Linq": "",
+        "System.Reflection": "",
+        "System.Resources.ResourceManager": "",
+        "System.Runtime": "",
+        "System.Threading": "",
+        "System.Threading.Tasks": ""
+      }
     }
   }
 }

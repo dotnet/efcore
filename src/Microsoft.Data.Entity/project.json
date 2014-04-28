@@ -38,6 +38,27 @@
         "System.Threading": "4.0.0.0",
         "System.Threading.Tasks": "4.0.10.0"
       }
+    },
+    ".NETPortable,Version=v4.6,Profile=Profile44": {
+      "dependencies": {
+        "System.Collections": "",
+        "System.Collections.Concurrent": "",
+        "System.ComponentModel": "",
+        "System.Diagnostics.Contracts": "",
+        "System.Diagnostics.Debug": "",
+        "System.Globalization": "",
+        "System.Linq": "",
+        "System.Linq.Expressions": "",
+        "System.Linq.Queryable": "",
+        "System.ObjectModel": "",
+        "System.Reflection": "",
+        "System.Reflection.Extensions": "",
+        "System.Resources.ResourceManager": "",
+        "System.Runtime": "",
+        "System.Runtime.Extensions": "",
+        "System.Threading": "",
+        "System.Threading.Tasks": ""
+      }
     }
   }
 }

@@ -27,6 +27,24 @@
         "System.Runtime.Extensions": "4.0.10.0",
         "System.Text.RegularExpressions": "4.0.0.0"
       }
+    },
+    ".NETPortable,Version=v4.6,Profile=Profile44": {
+      "dependencies": {
+        "Microsoft.CSharp": "",
+        "System.Collections": "",
+        "System.Diagnostics.Debug": "",
+        "System.Dynamic.Runtime": "",
+        "System.Globalization": "",
+        "System.Linq": "",
+        "System.Linq.Expressions": "",
+        "System.Reflection": "",
+        "System.Reflection.Extensions": "",
+        "System.Reflection.Primitives": "",
+        "System.Resources.ResourceManager": "",
+        "System.Runtime": "",
+        "System.Runtime.Extensions": "",
+        "System.Text.RegularExpressions": ""
+      }
     }
   }
 }
