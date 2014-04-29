@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             model.AddEntityType(entityType4);
             entityType4.SetKey(entityType4.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
             entityType4.AddProperty("Name", typeof(string), shadowProperty: true, concurrencyToken: true);
-            
+
             return model;
         }
     }

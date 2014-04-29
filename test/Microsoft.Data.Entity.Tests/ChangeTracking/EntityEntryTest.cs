@@ -2,7 +2,6 @@
 
 using System;
 using System.Linq.Expressions;
-using System.Threading;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Moq;

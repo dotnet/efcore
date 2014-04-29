@@ -27,7 +27,7 @@ namespace Microsoft.Data.SqlServer
             Check.NotNull(table, "table");
             Check.NotNull(columnsToParameters, "columnsToParameters");
 
-            var dbGeneratedNonIdentityKeys = 
+            var dbGeneratedNonIdentityKeys =
                 table.PrimaryKey.Columns.Where(c => c.ValueGenerationStrategy == StoreValueGenerationStrategy.Computed);
 
             if (dbGeneratedNonIdentityKeys.Any())

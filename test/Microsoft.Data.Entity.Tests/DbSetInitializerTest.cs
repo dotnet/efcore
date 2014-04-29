@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.Tests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework(s => s.UseDbSetInitializer(new DbSetInitializer(setFinderMock.Object, new ClrPropertySetterSource())))
                 .BuildServiceProvider();
-            
+
             var configuration = new EntityConfigurationBuilder().BuildConfiguration();
 
             using (var context = new JustAContext(serviceProvider, configuration))

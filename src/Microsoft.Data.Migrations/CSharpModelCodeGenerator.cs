@@ -83,7 +83,7 @@ namespace Microsoft.Data.Migrations
                 GenerateKey(entityType.GetKey(), stringBuilder);
 
                 GenerateAnnotations(entityType.Annotations.ToArray(), stringBuilder);
-            }            
+            }
         }
 
         protected virtual void GenerateProperties(

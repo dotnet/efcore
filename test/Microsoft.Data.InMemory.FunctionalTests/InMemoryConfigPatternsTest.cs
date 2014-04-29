@@ -496,7 +496,6 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                 }
             }
 
-
             private class BlogContext : DbContext
             {
                 public BlogContext(IServiceProvider serviceProvider, BlogConfiguration configuration)

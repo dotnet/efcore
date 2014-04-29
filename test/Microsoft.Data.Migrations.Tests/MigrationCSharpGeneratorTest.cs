@@ -47,13 +47,13 @@ namespace Microsoft.Data.Migrations.Tests
         {
             var table = new Table("dbo.MyTable",
                 new[]
-                {
-                    new Column("Foo", typeof(int)) { IsNullable = false, DefaultValue = 5 },
-                    new Column("Bar", typeof(int))
-                });
+                    {
+                        new Column("Foo", typeof(int)) { IsNullable = false, DefaultValue = 5 },
+                        new Column("Bar", typeof(int))
+                    });
 
             Assert.Equal(
-@"CreateTable(""dbo.MyTable"",
+                @"CreateTable(""dbo.MyTable"",
     c => new
         {
             Foo = c.Int(nullable: false, defaultValue: 5),
@@ -68,16 +68,16 @@ namespace Microsoft.Data.Migrations.Tests
             Column foo;
             var table = new Table("dbo.MyTable",
                 new[]
+                    {
+                        foo = new Column("Foo", typeof(int)) { IsNullable = false, DefaultValue = 5 },
+                        new Column("Bar", typeof(int))
+                    })
                 {
-                    foo = new Column("Foo", typeof(int)) { IsNullable = false, DefaultValue = 5 },
-                    new Column("Bar", typeof(int))
-                })
-            {
-                PrimaryKey = new PrimaryKey("MyPK", new[] { foo })
-            };
+                    PrimaryKey = new PrimaryKey("MyPK", new[] { foo })
+                };
 
             Assert.Equal(
-@"CreateTable(""dbo.MyTable"",
+                @"CreateTable(""dbo.MyTable"",
     c => new
         {
             Foo = c.Int(nullable: false, defaultValue: 5),
@@ -93,16 +93,16 @@ namespace Microsoft.Data.Migrations.Tests
             Column foo, bar;
             var table = new Table("dbo.MyTable",
                 new[]
+                    {
+                        foo = new Column("Foo", typeof(int)) { IsNullable = false, DefaultValue = 5 },
+                        bar = new Column("Bar", typeof(int))
+                    })
                 {
-                    foo = new Column("Foo", typeof(int)) { IsNullable = false, DefaultValue = 5 },
-                    bar = new Column("Bar", typeof(int))
-                })
-            {
-                PrimaryKey = new PrimaryKey("MyPK", new[] { foo, bar })
-            };
+                    PrimaryKey = new PrimaryKey("MyPK", new[] { foo, bar })
+                };
 
             Assert.Equal(
-@"CreateTable(""dbo.MyTable"",
+                @"CreateTable(""dbo.MyTable"",
     c => new
         {
             Foo = c.Int(nullable: false, defaultValue: 5),
@@ -208,7 +208,7 @@ namespace Microsoft.Data.Migrations.Tests
         {
             Assert.Equal(
                 @"AddPrimaryKey(""dbo.MyTable"", ""MyPK"", new[] { ""Foo"", ""Bar"" }, isClustered: false)",
-                CSharpMigrationCodeGenerator.Generate(new AddPrimaryKeyOperation("dbo.MyTable", "MyPK", new[] {"Foo", "Bar"}, isClustered: false )));
+                CSharpMigrationCodeGenerator.Generate(new AddPrimaryKeyOperation("dbo.MyTable", "MyPK", new[] { "Foo", "Bar" }, isClustered: false)));
         }
 
         [Fact]
@@ -285,17 +285,17 @@ namespace Microsoft.Data.Migrations.Tests
         {
             var upgradeOperations
                 = new[]
-                {
-                    new AddColumnOperation("dbo.MyTable", new Column("Foo", typeof(int))),
-                    new AddColumnOperation("dbo.MyTable", new Column("Bar", typeof(int)))
-                };
+                    {
+                        new AddColumnOperation("dbo.MyTable", new Column("Foo", typeof(int))),
+                        new AddColumnOperation("dbo.MyTable", new Column("Bar", typeof(int)))
+                    };
 
             var downgradeOperations
                 = new[]
-                {
-                    new DropColumnOperation("dbo.MyTable", "Foo"),
-                    new DropColumnOperation("dbo.MyTable", "Bar")
-                };
+                    {
+                        new DropColumnOperation("dbo.MyTable", "Foo"),
+                        new DropColumnOperation("dbo.MyTable", "Bar")
+                    };
 
             var codeGenerator = new CSharpMigrationCodeGenerator();
             var stringBuilder = new IndentedStringBuilder();
@@ -303,7 +303,7 @@ namespace Microsoft.Data.Migrations.Tests
             codeGenerator.GenerateClass("MyNamespace", "MyClass", upgradeOperations, downgradeOperations, stringBuilder);
 
             Assert.Equal(
-@"using System;
+                @"using System;
 using Microsoft.Data.Migrations;
 using Microsoft.Data.Migrations.Builders;
 using Microsoft.Data.Migrations.Model;

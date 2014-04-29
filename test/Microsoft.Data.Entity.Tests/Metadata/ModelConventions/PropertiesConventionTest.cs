@@ -1,4 +1,6 @@
-﻿using System;
+﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
+
+using System;
 using System.Linq;
 using Xunit;
 
@@ -9,9 +11,22 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
         private class EntityWithInvalidProperties
         {
             public static int Static { get; set; }
-            public int WriteOnly { set { } }
-            public int ReadOnly { get { return 0; } }
-            public int this[int index] { get { return 0; } set { } }
+
+            public int WriteOnly
+            {
+                set { }
+            }
+
+            public int ReadOnly
+            {
+                get { return 0; }
+            }
+
+            public int this[int index]
+            {
+                get { return 0; }
+                set { }
+            }
         }
 
         [Fact]

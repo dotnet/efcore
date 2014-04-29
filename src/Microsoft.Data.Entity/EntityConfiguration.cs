@@ -50,7 +50,7 @@ namespace Microsoft.Data.Entity
                 extension = new TExtension();
                 _extensions.Add(extension);
             }
-            
+
             updater(extension);
         }
 

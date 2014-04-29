@@ -13,7 +13,7 @@ namespace Microsoft.Data.Migrations.Tests.Model
         public void Create_and_initialize_operation()
         {
             var addForeignKeyOperation = new AddForeignKeyOperation(
-                "dbo.MyTable", "MyFK", new[] { "Foo", "Bar" }, 
+                "dbo.MyTable", "MyFK", new[] { "Foo", "Bar" },
                 "dbo.MyTable2", new[] { "Foo2", "Bar2" },
                 cascadeDelete: true);
 

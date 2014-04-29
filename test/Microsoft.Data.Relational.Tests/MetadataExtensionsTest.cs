@@ -55,11 +55,11 @@ namespace Microsoft.Data.Relational.Tests
         [Fact]
         public void GetStoreGeneratedColumns_returns_store_generated_columns()
         {
-            var table = new Table("table", 
+            var table = new Table("table",
                 new[]
                     {
                         new Column("Id", "storetype") { ValueGenerationStrategy = StoreValueGenerationStrategy.Identity },
-                        new Column("Name", "_"), 
+                        new Column("Name", "_"),
                         new Column("LastUpdate", "_") { ValueGenerationStrategy = StoreValueGenerationStrategy.Computed }
                     });
 

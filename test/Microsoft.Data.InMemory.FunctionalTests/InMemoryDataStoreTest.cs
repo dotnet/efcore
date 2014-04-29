@@ -75,7 +75,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                 Assert.Equal(0, context.Set<Customer>().Count());
             }
         }
-        
+
         [Fact]
         public void Any_returns_false_for_empty_sets()
         {

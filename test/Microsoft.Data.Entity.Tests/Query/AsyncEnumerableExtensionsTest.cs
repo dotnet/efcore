@@ -268,9 +268,9 @@ namespace Microsoft.Data.Entity.Tests.Query
         }
 
         #endregion
-        
+
         #region ToList
-        
+
         [Fact]
         public void ToListAsync_throws_TaskCanceledException_before_enumerating_if_task_is_cancelled()
         {

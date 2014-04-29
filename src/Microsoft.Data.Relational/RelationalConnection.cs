@@ -91,7 +91,7 @@ namespace Microsoft.Data.Relational
             }
         }
 
-        public async virtual Task OpenAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task OpenAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             if (_openedCount == 0)
             {

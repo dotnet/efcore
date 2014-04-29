@@ -119,8 +119,8 @@ namespace Microsoft.Data.Migrations.Tests
             Assert.Equal(
                 @"ALTER TABLE ""dbo"".""MyTable"" ALTER COLUMN ""Foo"" int NULL",
                 MigrationOperationSqlGenerator.Generate(
-                    new AlterColumnOperation("dbo.MyTable", 
-                        new Column("Foo", "int") { IsNullable = true }, isDestructiveChange: false), 
+                    new AlterColumnOperation("dbo.MyTable",
+                        new Column("Foo", "int") { IsNullable = true }, isDestructiveChange: false),
                     generateIdempotentSql: false).Sql);
         }
 
@@ -130,8 +130,8 @@ namespace Microsoft.Data.Migrations.Tests
             Assert.Equal(
                 @"ALTER TABLE ""dbo"".""MyTable"" ALTER COLUMN ""Foo"" int NOT NULL",
                 MigrationOperationSqlGenerator.Generate(
-                    new AlterColumnOperation("dbo.MyTable", 
-                        new Column("Foo", "int") { IsNullable = false }, isDestructiveChange: false), 
+                    new AlterColumnOperation("dbo.MyTable",
+                        new Column("Foo", "int") { IsNullable = false }, isDestructiveChange: false),
                     generateIdempotentSql: false).Sql);
         }
 
@@ -177,7 +177,7 @@ namespace Microsoft.Data.Migrations.Tests
             Assert.Equal(
                 @"ALTER TABLE ""dbo"".""MyTable"" ADD CONSTRAINT ""MyPK"" PRIMARY KEY NONCLUSTERED (""Foo"", ""Bar"")",
                 MigrationOperationSqlGenerator.Generate(
-                    new AddPrimaryKeyOperation("dbo.MyTable", "MyPK", new[] { "Foo", "Bar" }, isClustered: false), 
+                    new AddPrimaryKeyOperation("dbo.MyTable", "MyPK", new[] { "Foo", "Bar" }, isClustered: false),
                     generateIdempotentSql: false).Sql);
         }
 
@@ -215,7 +215,7 @@ namespace Microsoft.Data.Migrations.Tests
                 @"CREATE UNIQUE CLUSTERED INDEX ""MyIndex"" ON ""dbo"".""MyTable"" (""Foo"", ""Bar"")",
                 MigrationOperationSqlGenerator.Generate(
                     new CreateIndexOperation("dbo.MyTable", "MyIndex", new[] { "Foo", "Bar" },
-                        isUnique: true, isClustered: true), 
+                        isUnique: true, isClustered: true),
                     generateIdempotentSql: false).Sql);
         }
 

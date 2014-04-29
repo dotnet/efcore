@@ -33,7 +33,7 @@ namespace Microsoft.Data.Relational.Update
         }
 
         public virtual async Task ExecuteAsync(
-            [NotNull] IEnumerable<ModificationCommandBatch> commandBatches, 
+            [NotNull] IEnumerable<ModificationCommandBatch> commandBatches,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(commandBatches, "commandBatches");

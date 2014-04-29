@@ -123,7 +123,7 @@ namespace Microsoft.Data.SqlServer.Tests
                 @"IF EXISTS (SELECT * FROM sys.columns WHERE name = N'Foo' AND object_id = OBJECT_ID(N'dbo.MyTable'))
     ALTER TABLE ""dbo"".""MyTable"" ALTER COLUMN ""Foo"" int NOT NULL",
                 SqlServerMigrationOperationSqlGenerator.Generate(
-                    new AlterColumnOperation("dbo.MyTable", new Column("Foo", "int") { IsNullable = false }, 
+                    new AlterColumnOperation("dbo.MyTable", new Column("Foo", "int") { IsNullable = false },
                         isDestructiveChange: false), generateIdempotentSql: true).Sql);
         }
 
@@ -186,7 +186,7 @@ IF @var0 IS NOT NULL
                 @"IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = N'MyFK' AND parent_object_id = OBJECT_ID(N'dbo.MyTable'))
     ALTER TABLE ""dbo"".""MyTable"" ADD CONSTRAINT ""MyFK"" FOREIGN KEY (""Foo"", ""Bar"") REFERENCES ""dbo"".""MyTable2"" (""Foo2"", ""Bar2"") ON DELETE CASCADE",
                 SqlServerMigrationOperationSqlGenerator.Generate(
-                    new AddForeignKeyOperation("dbo.MyTable", "MyFK", new[] { "Foo", "Bar" }, 
+                    new AddForeignKeyOperation("dbo.MyTable", "MyFK", new[] { "Foo", "Bar" },
                         "dbo.MyTable2", new[] { "Foo2", "Bar2" }, cascadeDelete: true),
                     generateIdempotentSql: true).Sql);
         }

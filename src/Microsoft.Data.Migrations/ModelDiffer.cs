@@ -18,7 +18,7 @@ namespace Microsoft.Data.Migrations
         private ModelDatabaseMapping _sourceMapping;
         private ModelDatabaseMapping _targetMapping;
         private MigrationOperationCollection _operations;
-        
+
         private readonly DatabaseBuilder _databaseBuilder;
 
         public ModelDiffer([NotNull] DatabaseBuilder databaseBuilder)
@@ -44,8 +44,8 @@ namespace Microsoft.Data.Migrations
             var addForeignKeyOperations = database.Tables.SelectMany(
                 t => t.ForeignKeys,
                 (t, fk) => new AddForeignKeyOperation(
-                    fk.Table.Name, 
-                    fk.Name, 
+                    fk.Table.Name,
+                    fk.Name,
                     fk.Columns.Select(c => c.Name).ToArray(),
                     fk.ReferencedTable.Name,
                     fk.ReferencedColumns.Select(c => c.Name).ToArray(),
@@ -54,7 +54,7 @@ namespace Microsoft.Data.Migrations
             var createIndexOperations = database.Tables.SelectMany(
                 t => t.Indexes,
                 (t, idx) => new CreateIndexOperation(
-                    idx.Table.Name, 
+                    idx.Table.Name,
                     idx.Name,
                     idx.Columns.Select(c => c.Name).ToArray(),
                     idx.IsUnique, idx.IsClustered));
@@ -184,9 +184,9 @@ namespace Microsoft.Data.Migrations
 
             foreach (var pair in 
                 (from renameOp in _operations.Get<RenameTableOperation>()
-                 from dropOp in _operations.Get<DropTableOperation>()
-                 where new SchemaQualifiedName(renameOp.NewTableName, renameOp.TableName.Schema).Equals(dropOp.TableName)
-                 select new { RenameOp = renameOp, DropOp = dropOp })
+                    from dropOp in _operations.Get<DropTableOperation>()
+                    where new SchemaQualifiedName(renameOp.NewTableName, renameOp.TableName.Schema).Equals(dropOp.TableName)
+                    select new { RenameOp = renameOp, DropOp = dropOp })
                     .ToArray())
             {
                 newName = newNamePrefix + newNameIndex++;
@@ -199,9 +199,9 @@ namespace Microsoft.Data.Migrations
 
             foreach (var pair in 
                 (from renameOp in _operations.Get<RenameColumnOperation>()
-                 from dropOp in _operations.Get<DropColumnOperation>()
-                 where string.Equals(renameOp.NewColumnName, dropOp.ColumnName, StringComparison.Ordinal)
-                 select new { RenameOp = renameOp, DropOp = dropOp })
+                    from dropOp in _operations.Get<DropColumnOperation>()
+                    where string.Equals(renameOp.NewColumnName, dropOp.ColumnName, StringComparison.Ordinal)
+                    select new { RenameOp = renameOp, DropOp = dropOp })
                     .ToArray())
             {
                 newName = newNamePrefix + newNameIndex++;
@@ -217,9 +217,9 @@ namespace Microsoft.Data.Migrations
         {
             var nameMatchPairs =
                 (from et1 in _sourceMapping.Model.EntityTypes
-                 from et2 in _targetMapping.Model.EntityTypes
-                 where et1.Name.Equals(et2.Name, StringComparison.Ordinal)
-                 select Tuple.Create(et1, et2))
+                    from et2 in _targetMapping.Model.EntityTypes
+                    where et1.Name.Equals(et2.Name, StringComparison.Ordinal)
+                    select Tuple.Create(et1, et2))
                     .ToArray();
 
             var fuzzyMatchPairs =
@@ -301,7 +301,7 @@ namespace Microsoft.Data.Migrations
                     .Select(fk =>
                         new AddForeignKeyOperation(
                             fk.Table.Name,
-                            fk.Name,                                                        
+                            fk.Name,
                             fk.Columns.Select(c => c.Name).ToArray(),
                             fk.ReferencedTable.Name,
                             fk.ReferencedColumns.Select(c => c.Name).ToArray(),
@@ -335,9 +335,9 @@ namespace Microsoft.Data.Migrations
 
             return
                 (from p1 in entitTypePair.Item1.Properties
-                 from p2 in entitTypePair.Item2.Properties
-                 where string.Equals(p1.Name, p2.Name, StringComparison.Ordinal)
-                 select Tuple.Create(p1, p2))
+                    from p2 in entitTypePair.Item2.Properties
+                    where string.Equals(p1.Name, p2.Name, StringComparison.Ordinal)
+                    select Tuple.Create(p1, p2))
                     .ToArray();
         }
 
@@ -506,11 +506,11 @@ namespace Microsoft.Data.Migrations
         {
             return
                 (from fk1 in entityTypePair.Item1.ForeignKeys
-                 from fk2 in entityTypePair.Item2.ForeignKeys
-                 where SameNames(fk1.Properties, fk2.Properties)
-                       && SameNames(fk1.ReferencedProperties, fk2.ReferencedProperties)
-                       && fk1.CascadeDelete() == fk2.CascadeDelete()
-                 select Tuple.Create(fk1, fk2))
+                    from fk2 in entityTypePair.Item2.ForeignKeys
+                    where SameNames(fk1.Properties, fk2.Properties)
+                          && SameNames(fk1.ReferencedProperties, fk2.ReferencedProperties)
+                          && fk1.CascadeDelete() == fk2.CascadeDelete()
+                    select Tuple.Create(fk1, fk2))
                     .ToArray();
         }
 

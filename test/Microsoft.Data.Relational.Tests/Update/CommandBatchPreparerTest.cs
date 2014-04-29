@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Relational.Update;
 using Microsoft.Data.Relational.Model;
+using Microsoft.Data.Relational.Update;
 using Xunit;
 using Database = Microsoft.Data.Relational.Model.Database;
 

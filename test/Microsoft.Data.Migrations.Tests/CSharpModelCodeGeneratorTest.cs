@@ -36,9 +36,9 @@ namespace Microsoft.Data.Migrations.Tests
             new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
 
             Assert.Equal(
-@"var builder = new ModelBuilder();
+                @"var builder = new ModelBuilder();
 return builder.Model;",
-                stringBuilder.ToString());            
+                stringBuilder.ToString());
         }
 
         [Fact]
@@ -52,7 +52,7 @@ return builder.Model;",
             new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
 
             Assert.Equal(
-@"var builder = new ModelBuilder()
+                @"var builder = new ModelBuilder()
     .Annotation(""A1"", ""V1"")
     .Annotation(""A2"", ""V2"");
 return builder.Model;",
@@ -71,7 +71,7 @@ return builder.Model;",
             new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
 
             Assert.Equal(
-@"var builder = new ModelBuilder();
+                @"var builder = new ModelBuilder();
 builder.Entity<Customer>()
     .Properties(ps => ps.Property(e => e.Id))
     .Key(e => e.Id);
@@ -93,7 +93,7 @@ return builder.Model;",
             new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
 
             Assert.Equal(
-@"var builder = new ModelBuilder();
+                @"var builder = new ModelBuilder();
 builder.Entity<Customer>()
     .Properties(ps => ps.Property(e => e.Id)
         .Annotation(""A1"", ""V1"")
@@ -120,7 +120,7 @@ return builder.Model;",
             new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
 
             Assert.Equal(
-@"var builder = new ModelBuilder();
+                @"var builder = new ModelBuilder();
 builder.Entity<Customer>()
     .Properties(
         ps =>
@@ -154,7 +154,7 @@ return builder.Model;",
             new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
 
             Assert.Equal(
-@"var builder = new ModelBuilder();
+                @"var builder = new ModelBuilder();
 builder.Entity<Customer>()
     .Properties(
         ps =>
@@ -188,7 +188,7 @@ return builder.Model;",
             new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
 
             Assert.Equal(
-@"var builder = new ModelBuilder();
+                @"var builder = new ModelBuilder();
 builder.Entity<Customer>()
     .Properties(
         ps =>
@@ -228,7 +228,7 @@ return builder.Model;",
             new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
 
             Assert.Equal(
-@"var builder = new ModelBuilder();
+                @"var builder = new ModelBuilder();
 builder.Entity<Customer>()
     .Properties(
         ps =>
@@ -258,19 +258,19 @@ return builder.Model;",
             builder.Entity<Customer>()
                 .Properties(
                     ps =>
-                    {
-                        ps.Property(e => e.Id);
-                        ps.Property(e => e.Name);
-                    })
+                        {
+                            ps.Property(e => e.Id);
+                            ps.Property(e => e.Name);
+                        })
                 .Key(e => new { e.Id, e.Name });
             builder.Entity<Order>()
                 .Properties(
                     ps =>
-                    {
-                        ps.Property(e => e.Id);
-                        ps.Property(e => e.CustomerId);
-                        ps.Property(e => e.CustomerName);
-                    })
+                        {
+                            ps.Property(e => e.Id);
+                            ps.Property(e => e.CustomerId);
+                            ps.Property(e => e.CustomerName);
+                        })
                 .Key(e => e.Id);
             builder.Entity<Order>()
                 .ForeignKeys(fks => fks.ForeignKey<Customer>(e => new { e.CustomerId, e.CustomerName }));
@@ -279,7 +279,7 @@ return builder.Model;",
             new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
 
             Assert.Equal(
-@"var builder = new ModelBuilder();
+                @"var builder = new ModelBuilder();
 builder.Entity<Customer>()
     .Properties(
         ps =>
@@ -310,18 +310,18 @@ return builder.Model;",
             builder.Entity<Customer>()
                 .Properties(
                     ps =>
-                    {
-                        ps.Property(e => e.Id);
-                        ps.Property(e => e.Name);
-                    })
+                        {
+                            ps.Property(e => e.Id);
+                            ps.Property(e => e.Name);
+                        })
                 .Key(e => e.Id);
             builder.Entity<Order>()
                 .Properties(
                     ps =>
-                    {
-                        ps.Property(e => e.Id);
-                        ps.Property(e => e.CustomerId);
-                    })
+                        {
+                            ps.Property(e => e.Id);
+                            ps.Property(e => e.CustomerId);
+                        })
                 .Key(e => e.Id);
             builder.Entity<Order>()
                 .ForeignKeys(fks => fks.ForeignKey<Customer>(e => e.CustomerId)
@@ -332,7 +332,7 @@ return builder.Model;",
             new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
 
             Assert.Equal(
-@"var builder = new ModelBuilder();
+                @"var builder = new ModelBuilder();
 builder.Entity<Customer>()
     .Properties(
         ps =>
@@ -364,20 +364,20 @@ return builder.Model;",
             builder.Entity<Customer>()
                 .Properties(
                     ps =>
-                    {
-                        ps.Property(e => e.Id);
-                        ps.Property(e => e.Name);
-                    })
+                        {
+                            ps.Property(e => e.Id);
+                            ps.Property(e => e.Name);
+                        })
                 .Key(e => new { e.Id, e.Name });
             builder.Entity<Order>()
                 .Properties(
                     ps =>
-                    {
-                        ps.Property(e => e.Id);
-                        ps.Property(e => e.CustomerId);
-                        ps.Property(e => e.CustomerName);
-                        ps.Property(e => e.ProductId);
-                    })
+                        {
+                            ps.Property(e => e.Id);
+                            ps.Property(e => e.CustomerId);
+                            ps.Property(e => e.CustomerName);
+                            ps.Property(e => e.ProductId);
+                        })
                 .Key(e => e.Id);
             builder.Entity<Product>()
                 .Properties(ps => ps.Property(e => e.Id))
@@ -394,7 +394,7 @@ return builder.Model;",
             new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
 
             Assert.Equal(
-@"var builder = new ModelBuilder();
+                @"var builder = new ModelBuilder();
 builder.Entity<Customer>()
     .Properties(
         ps =>
@@ -434,20 +434,20 @@ return builder.Model;",
             builder.Entity<Customer>()
                 .Properties(
                     ps =>
-                    {
-                        ps.Property(e => e.Id);
-                        ps.Property(e => e.Name);
-                    })
+                        {
+                            ps.Property(e => e.Id);
+                            ps.Property(e => e.Name);
+                        })
                 .Key(e => new { e.Id, e.Name });
             builder.Entity<Order>()
                 .Properties(
                     ps =>
-                    {
-                        ps.Property(e => e.Id);
-                        ps.Property(e => e.CustomerId);
-                        ps.Property(e => e.CustomerName);
-                        ps.Property(e => e.ProductId);
-                    })
+                        {
+                            ps.Property(e => e.Id);
+                            ps.Property(e => e.CustomerId);
+                            ps.Property(e => e.CustomerName);
+                            ps.Property(e => e.ProductId);
+                        })
                 .Key(e => e.Id);
             builder.Entity<Product>()
                 .Properties(ps => ps.Property(e => e.Id))
@@ -455,20 +455,20 @@ return builder.Model;",
             builder.Entity<Order>()
                 .ForeignKeys(
                     fks =>
-                    {
-                        fks.ForeignKey<Customer>(e => new { e.CustomerId, e.CustomerName })
-                            .Annotation("A1", "V1")
-                            .Annotation("A2", "V2");
-                        fks.ForeignKey<Product>(e => e.ProductId)
-                            .Annotation("A1", "V1")
-                            .Annotation("A2", "V2");
-                    });
+                        {
+                            fks.ForeignKey<Customer>(e => new { e.CustomerId, e.CustomerName })
+                                .Annotation("A1", "V1")
+                                .Annotation("A2", "V2");
+                            fks.ForeignKey<Product>(e => e.ProductId)
+                                .Annotation("A1", "V1")
+                                .Annotation("A2", "V2");
+                        });
 
             var stringBuilder = new IndentedStringBuilder();
             new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
 
             Assert.Equal(
-@"var builder = new ModelBuilder();
+                @"var builder = new ModelBuilder();
 builder.Entity<Customer>()
     .Properties(
         ps =>

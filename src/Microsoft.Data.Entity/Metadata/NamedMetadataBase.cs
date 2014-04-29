@@ -35,8 +35,7 @@ namespace Microsoft.Data.Entity.Metadata
         public virtual string StorageName
         {
             get { return _storageName ?? Name; }
-            [param: CanBeNull]
-            set { _storageName = value; }
+            [param: CanBeNull] set { _storageName = value; }
         }
     }
 }

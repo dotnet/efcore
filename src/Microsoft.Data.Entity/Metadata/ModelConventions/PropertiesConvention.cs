@@ -1,4 +1,6 @@
-﻿using System;
+﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
+
+using System;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -48,9 +50,9 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             Check.NotNull(propertyInfo, "propertyInfo");
 
             return !propertyInfo.IsStatic()
-                && propertyInfo.GetIndexParameters().Length == 0
-                && propertyInfo.CanRead
-                && propertyInfo.CanWrite;
+                   && propertyInfo.GetIndexParameters().Length == 0
+                   && propertyInfo.CanRead
+                   && propertyInfo.CanWrite;
         }
 
         protected virtual bool IsPrimitiveProperty([NotNull] PropertyInfo propertyInfo)
@@ -65,7 +67,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             var propertyType = propertyInfo.PropertyType.UnwrapNullableType();
 
             return _propertyTypes.Contains(propertyType)
-                || propertyType.GetTypeInfo().IsEnum;
+                   || propertyType.GetTypeInfo().IsEnum;
         }
     }
 }

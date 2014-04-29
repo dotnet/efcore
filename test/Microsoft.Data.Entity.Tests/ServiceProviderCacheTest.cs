@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.AspNet.DependencyInjection;
-using Moq;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests

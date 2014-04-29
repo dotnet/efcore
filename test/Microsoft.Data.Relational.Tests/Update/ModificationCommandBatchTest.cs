@@ -1,11 +1,10 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.Data.Relational.Update;
 using Microsoft.Data.Relational.Model;
+using Microsoft.Data.Relational.Update;
 using Moq;
 using Xunit;
 
@@ -92,7 +91,7 @@ namespace Microsoft.Data.Relational.Tests.Update
 
             mockSqlGen
                 .Setup(g => g.AppendBatchHeader(It.IsAny<StringBuilder>()))
-                .Callback((StringBuilder sb) => sb.Append("BatchHeader"));                 
+                .Callback((StringBuilder sb) => sb.Append("BatchHeader"));
 
             mockSqlGen
                 .Setup(

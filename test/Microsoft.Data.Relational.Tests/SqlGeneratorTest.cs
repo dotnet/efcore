@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Relational.Model;
 using Moq;
 using Xunit;
@@ -32,7 +31,7 @@ namespace Microsoft.Data.Relational.Tests
         {
             var sqlGenerator = CreateSqlGenerator();
             var stringBuilder = new StringBuilder();
-            var table = new Table("table", new[] {new Column("col", "_")});
+            var table = new Table("table", new[] { new Column("col", "_") });
             var parameters = new[] { "param" };
 
             sqlGenerator.AppendInsertCommand(
@@ -83,7 +82,7 @@ namespace Microsoft.Data.Relational.Tests
         public void AppendUpdateCommandHeader_appends_correct_command_header()
         {
             var stringBuilder = new StringBuilder();
-            
+
             CreateSqlGenerator()
                 .AppendUpdateCommandHeader(stringBuilder, new Table("Table"),
                     new[]
@@ -122,7 +121,7 @@ namespace Microsoft.Data.Relational.Tests
             var stringBuilder = new StringBuilder();
 
             CreateSqlGenerator()
-                .AppendSelectCommandHeader(stringBuilder, 
+                .AppendSelectCommandHeader(stringBuilder,
                     new[] { new Column("Id", "_"), new Column("Name", "_"), new Column("ZipCode", "_") });
 
             Assert.Equal("SELECT Id, Name, ZipCode", stringBuilder.ToString());
@@ -133,7 +132,7 @@ namespace Microsoft.Data.Relational.Tests
         {
             var sqlGenerator = CreateSqlGenerator();
             var stringBuilder = new StringBuilder();
-            var table = new Table("table", new[] { new Column("Id", "_"), new Column("Name", "_")});
+            var table = new Table("table", new[] { new Column("Id", "_"), new Column("Name", "_") });
             var whereConditions = new[] { new KeyValuePair<Column, string>(table.Columns.First(), "@p2") };
 
             sqlGenerator.AppendSelectCommand(stringBuilder, table, table.Columns, whereConditions);
@@ -177,8 +176,8 @@ namespace Microsoft.Data.Relational.Tests
             var columnsToParameters =
                 new Dictionary<Column, string>
                     {
-                        { table.Columns.Single(c => c.Name == "Id"), "@p0" }, 
-                        { table.Columns.Single(c => c.Name == "Name"), "@p1" } 
+                        { table.Columns.Single(c => c.Name == "Id"), "@p0" },
+                        { table.Columns.Single(c => c.Name == "Name"), "@p1" }
                     }.ToArray();
 
             sqlGenerator
@@ -189,7 +188,7 @@ namespace Microsoft.Data.Relational.Tests
 
             Mock.Get(sqlGenerator)
                 .Verify(g => g.CreateWhereConditionsForStoreGeneratedKeys(It.IsAny<Column[]>()),
-                Times.Never);
+                    Times.Never);
 
             Mock.Get(sqlGenerator)
                 .Verify(g => g.AppendSelectCommand(stringBuilder, table,
@@ -204,13 +203,13 @@ namespace Microsoft.Data.Relational.Tests
             var table = new Table("table",
                 new[]
                     {
-                        new Column("Id", "storetype") { ValueGenerationStrategy = StoreValueGenerationStrategy.Computed}, 
+                        new Column("Id", "storetype") { ValueGenerationStrategy = StoreValueGenerationStrategy.Computed },
                         new Column("Name", "_")
                     });
             table.PrimaryKey = new PrimaryKey("PK", table.Columns.Where(c => c.Name == "Id").ToArray());
 
-            var storeGenKeyWheres = 
-                new [] { new KeyValuePair<Column, string>(table.PrimaryKey.Columns.Single(), "abc")};
+            var storeGenKeyWheres =
+                new[] { new KeyValuePair<Column, string>(table.PrimaryKey.Columns.Single(), "abc") };
 
             var sqlGenerator = CreateSqlGenerator();
             Mock.Get(sqlGenerator)
@@ -230,8 +229,8 @@ namespace Microsoft.Data.Relational.Tests
 
             Mock.Get(sqlGenerator)
                 .Verify(g => g.CreateWhereConditionsForStoreGeneratedKeys(
-                     It.Is<Column[]>(cols => cols.Single().Name == "Id")),
-                Times.Once);
+                    It.Is<Column[]>(cols => cols.Single().Name == "Id")),
+                    Times.Once);
 
             Mock.Get(sqlGenerator)
                 .Verify(g => g.AppendSelectCommand(stringBuilder, table,
@@ -249,7 +248,7 @@ namespace Microsoft.Data.Relational.Tests
             var columnsToParameters =
                 new Dictionary<Column, string>
                     {
-                        { table.Columns.Single(c => c.Name == "Id"), "@p0" }, 
+                        { table.Columns.Single(c => c.Name == "Id"), "@p0" },
                         { table.Columns.Single(c => c.Name == "Name"), "@p1" }
                     }.ToArray();
 
@@ -275,21 +274,20 @@ namespace Microsoft.Data.Relational.Tests
             var sqlGenerator = CreateSqlGenerator();
             var stringBuilder = new StringBuilder();
 
-            var table = new Table("table", 
+            var table = new Table("table",
                 new[]
                     {
-                        new Column("Id", "storetype"), 
-                        new Column("Name", "_"), 
+                        new Column("Id", "storetype"),
+                        new Column("Name", "_"),
                         new Column("LastUpdate", "_") { ValueGenerationStrategy = StoreValueGenerationStrategy.Computed }
                     });
 
             table.PrimaryKey = new PrimaryKey("PK", table.Columns.Where(c => c.Name == "Id").ToArray());
 
-            var columnValues = 
+            var columnValues =
                 new[] { new KeyValuePair<Column, string>(table.Columns.Single(c => c.Name == "Name"), "@p1") };
-            var whereConditions = 
+            var whereConditions =
                 new[] { new KeyValuePair<Column, string>(table.Columns.Single(c => c.Name == "Id"), "@p2") };
-            
 
             sqlGenerator
                 .AppendUpdateOperation(stringBuilder, table, columnValues, whereConditions);
@@ -299,9 +297,9 @@ namespace Microsoft.Data.Relational.Tests
 
             Mock.Get(sqlGenerator)
                 .Verify(g => g.AppendSelectCommand(
-                        stringBuilder, table,
-                         It.Is<IEnumerable<Column>>(cols => cols.Single().Name == "LastUpdate"),
-                        whereConditions), Times.Once);
+                    stringBuilder, table,
+                    It.Is<IEnumerable<Column>>(cols => cols.Single().Name == "LastUpdate"),
+                    whereConditions), Times.Once);
         }
 
         [Fact]
@@ -497,13 +495,12 @@ namespace Microsoft.Data.Relational.Tests
                             .AppendUpdateOperation(new StringBuilder(), new Table("table"), null,
                                 new KeyValuePair<Column, string>[0])).ParamName);
 
-
                 Assert.Equal(
                     "whereConditions",
                     Assert.Throws<ArgumentNullException>(
                         () => CreateSqlGenerator()
                             .AppendUpdateOperation(new StringBuilder(), new Table("table"),
-                            new KeyValuePair<Column, string>[0], null)).ParamName);
+                                new KeyValuePair<Column, string>[0], null)).ParamName);
             }
 
             [Fact]
@@ -513,7 +510,7 @@ namespace Microsoft.Data.Relational.Tests
                     "commandStringBuilder",
                     Assert.Throws<ArgumentNullException>(
                         () => CreateSqlGenerator()
-                            .AppendUpdateCommand(null, new Table("table"), new KeyValuePair<Column, string>[0], 
+                            .AppendUpdateCommand(null, new Table("table"), new KeyValuePair<Column, string>[0],
                                 new KeyValuePair<Column, string>[0])).ParamName);
 
                 Assert.Equal(
@@ -568,28 +565,28 @@ namespace Microsoft.Data.Relational.Tests
                     Assert.Throws<ArgumentNullException>(
                         () => CreateSqlGenerator()
                             .AppendSelectCommand(null, new Table("table"), new Column[0], new KeyValuePair<Column, string>[0]))
-                                .ParamName);
+                        .ParamName);
 
                 Assert.Equal(
                     "table",
                     Assert.Throws<ArgumentNullException>(
                         () => CreateSqlGenerator()
                             .AppendSelectCommand(new StringBuilder(), null, new Column[0], new KeyValuePair<Column, string>[0]))
-                                .ParamName);
+                        .ParamName);
 
                 Assert.Equal(
                     "columns",
                     Assert.Throws<ArgumentNullException>(
                         () => CreateSqlGenerator()
                             .AppendSelectCommand(new StringBuilder(), new Table("table"), null, new KeyValuePair<Column, string>[0]))
-                                .ParamName);
+                        .ParamName);
 
                 Assert.Equal(
                     "whereConditions",
                     Assert.Throws<ArgumentNullException>(
                         () => CreateSqlGenerator()
                             .AppendSelectCommand(new StringBuilder(), new Table("table"), new Column[0], null))
-                                .ParamName);
+                        .ParamName);
             }
 
             [Fact]

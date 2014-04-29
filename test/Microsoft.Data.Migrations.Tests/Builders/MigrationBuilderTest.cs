@@ -297,7 +297,7 @@ namespace Microsoft.Data.Migrations.Tests.Builders
         {
             var builder = new MigrationBuilder();
 
-            builder.AddForeignKey("dbo.MyTable", "MyFK", new[] { "Foo", "Bar" }, 
+            builder.AddForeignKey("dbo.MyTable", "MyFK", new[] { "Foo", "Bar" },
                 "dbo.MyTable2", new[] { "Foo2", "Bar2" }, cascadeDelete: true);
 
             Assert.Equal(1, builder.Operations.Count);
@@ -334,7 +334,7 @@ namespace Microsoft.Data.Migrations.Tests.Builders
         {
             var builder = new MigrationBuilder();
 
-            builder.CreateIndex("dbo.MyTable", "MyIdx", new[] { "Foo", "Bar" }, 
+            builder.CreateIndex("dbo.MyTable", "MyIdx", new[] { "Foo", "Bar" },
                 isUnique: true, isClustered: true);
 
             Assert.Equal(1, builder.Operations.Count);
@@ -385,8 +385,8 @@ namespace Microsoft.Data.Migrations.Tests.Builders
         private class MyMigrationOperation : MigrationOperation
         {
             public override void GenerateSql(
-                MigrationOperationSqlGenerator generator, 
-                IndentedStringBuilder stringBuilder, 
+                MigrationOperationSqlGenerator generator,
+                IndentedStringBuilder stringBuilder,
                 bool generateIdempotentSql)
             {
             }

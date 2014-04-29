@@ -33,7 +33,7 @@ namespace Microsoft.Data.Migrations.Tests.Builders
 
             Assert.NotNull(primaryKey);
             Assert.Equal("MyPK", primaryKey.Name);
-            Assert.Equal(new[] {"Foo", "Bar"}, primaryKey.Columns.Select(c => c.Name));
+            Assert.Equal(new[] { "Foo", "Bar" }, primaryKey.Columns.Select(c => c.Name));
         }
 
         [Fact]
@@ -42,10 +42,10 @@ namespace Microsoft.Data.Migrations.Tests.Builders
             var migrationBuilder = new MigrationBuilder();
             migrationBuilder.CreateTable("dbo.MyTable",
                 c => new
-                {
-                    Foo = c.Int(),
-                    Bar = c.Int()
-                })
+                    {
+                        Foo = c.Int(),
+                        Bar = c.Int()
+                    })
                 .ForeignKey("MyFK",
                     t => new { t.Foo, t.Bar },
                     "dbo.MyTable2",
@@ -71,10 +71,10 @@ namespace Microsoft.Data.Migrations.Tests.Builders
             var migrationBuilder = new MigrationBuilder();
             migrationBuilder.CreateTable("dbo.MyTable",
                 c => new
-                {
-                    Foo = c.Int(),
-                    Bar = c.Int()
-                })
+                    {
+                        Foo = c.Int(),
+                        Bar = c.Int()
+                    })
                 .Index("MyIdx",
                     t => new { t.Foo, t.Bar },
                     unique: true,

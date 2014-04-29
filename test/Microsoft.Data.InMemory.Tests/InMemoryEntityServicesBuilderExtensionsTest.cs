@@ -25,7 +25,6 @@ namespace Microsoft.Data.InMemory.Tests
         [Fact]
         public void Services_wire_up_correctly()
         {
-
             var serviceProvider = new ServiceCollection().AddEntityFramework(s => s.AddInMemoryStore()).BuildServiceProvider();
 
             using (var context = new DbContext(serviceProvider, new EntityConfigurationBuilder().BuildConfiguration()))

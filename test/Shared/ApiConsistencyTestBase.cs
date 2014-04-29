@@ -20,16 +20,16 @@ namespace Microsoft.Data.Entity.Tests
         {
             var nonVirtualMethods
                 = (from t in GetAllTypes(TargetAssembly.GetTypes())
-                   where t.IsVisible
-                         && !t.IsSealed
-                         && t.GetConstructors(PublicInstance).Any()
-                         && t.Namespace != null
-                         && !t.Namespace.EndsWith(".Compiled")
-                   from m in t.GetMethods(PublicInstance)
-                   where m.DeclaringType != null
-                         && m.DeclaringType.Assembly == TargetAssembly
-                         && !m.IsVirtual
-                   select t.Name + "." + m.Name)
+                    where t.IsVisible
+                          && !t.IsSealed
+                          && t.GetConstructors(PublicInstance).Any()
+                          && t.Namespace != null
+                          && !t.Namespace.EndsWith(".Compiled")
+                    from m in t.GetMethods(PublicInstance)
+                    where m.DeclaringType != null
+                          && m.DeclaringType.Assembly == TargetAssembly
+                          && !m.IsVirtual
+                    select t.Name + "." + m.Name)
                     .ToList();
 
             Assert.False(
@@ -42,20 +42,20 @@ namespace Microsoft.Data.Entity.Tests
         {
             var parametersMissingAttribute
                 = (from t in GetAllTypes(TargetAssembly.GetTypes())
-                   where t.IsVisible
-                   let ims = t.GetInterfaces().Select(t.GetInterfaceMap)
-                   from m in t.GetMethods(PublicInstance | BindingFlags.Static)
-                       .Concat<MethodBase>(t.GetConstructors())
-                   where m.DeclaringType != null
-                         && m.DeclaringType.Assembly == TargetAssembly
-                   where t.IsInterface || !ims.Any(im => im.TargetMethods.Contains(m))
-                   from p in m.GetParameters()
-                   where !p.ParameterType.IsValueType
-                         && !p.GetCustomAttributes()
-                             .Any(
-                                 a => a.GetType().Name == "NotNullAttribute"
-                                      || a.GetType().Name == "CanBeNullAttribute")
-                   select t.Name + "." + m.Name + "[" + p.Name + "]")
+                    where t.IsVisible
+                    let ims = t.GetInterfaces().Select(t.GetInterfaceMap)
+                    from m in t.GetMethods(PublicInstance | BindingFlags.Static)
+                        .Concat<MethodBase>(t.GetConstructors())
+                    where m.DeclaringType != null
+                          && m.DeclaringType.Assembly == TargetAssembly
+                    where t.IsInterface || !ims.Any(im => im.TargetMethods.Contains(m))
+                    from p in m.GetParameters()
+                    where !p.ParameterType.IsValueType
+                          && !p.GetCustomAttributes()
+                              .Any(
+                                  a => a.GetType().Name == "NotNullAttribute"
+                                       || a.GetType().Name == "CanBeNullAttribute")
+                    select t.Name + "." + m.Name + "[" + p.Name + "]")
                     .ToList();
 
             Assert.False(
@@ -68,25 +68,25 @@ namespace Microsoft.Data.Entity.Tests
         {
             var asyncMethodsWithToken
                 = (from t in GetAllTypes(TargetAssembly.GetTypes())
-                   from m in t.GetMethods(PublicInstance)
-                   where typeof(Task).IsAssignableFrom(m.ReturnType)
-                         && m.GetParameters().Any(pi => pi.ParameterType == typeof(CancellationToken))
-                   select m).ToList();
+                    from m in t.GetMethods(PublicInstance)
+                    where typeof(Task).IsAssignableFrom(m.ReturnType)
+                          && m.GetParameters().Any(pi => pi.ParameterType == typeof(CancellationToken))
+                    select m).ToList();
 
             var asyncMethodsWithoutToken
                 = (from t in GetAllTypes(TargetAssembly.GetTypes())
-                   from m in t.GetMethods(PublicInstance)
-                   where typeof(Task).IsAssignableFrom(m.ReturnType)
-                         && m.GetParameters().All(pi => pi.ParameterType != typeof(CancellationToken))
-                   select m).ToList();
+                    from m in t.GetMethods(PublicInstance)
+                    where typeof(Task).IsAssignableFrom(m.ReturnType)
+                          && m.GetParameters().All(pi => pi.ParameterType != typeof(CancellationToken))
+                    select m).ToList();
 
             var missingOverloads
                 = (from m1 in asyncMethodsWithoutToken
-                   where !asyncMethodsWithToken
-                       .Any(m2 => m1.Name == m2.Name
-                                  && m1.ReflectedType == m2.ReflectedType)
-                   // ReSharper disable once PossibleNullReferenceException
-                   select m1.DeclaringType.Name + "." + m1.Name).ToList();
+                    where !asyncMethodsWithToken
+                        .Any(m2 => m1.Name == m2.Name
+                                   && m1.ReflectedType == m2.ReflectedType)
+                    // ReSharper disable once PossibleNullReferenceException
+                    select m1.DeclaringType.Name + "." + m1.Name).ToList();
 
             Assert.False(
                 missingOverloads.Any(),

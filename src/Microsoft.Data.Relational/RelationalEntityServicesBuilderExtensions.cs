@@ -7,6 +7,7 @@ using Microsoft.Data.Relational.Utilities;
 
 // Intentionally in this namespace since this is for use by other relational providers rather than
 // by top-level app developers.
+
 namespace Microsoft.Data.Relational
 {
     public static class RelationalEntityServicesBuilderExtensions

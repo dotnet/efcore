@@ -117,5 +117,5 @@ namespace Microsoft.Data.Entity
         {
             get { return _serviceProvider.GetRequiredService<Database>(); }
         }
-     }
+    }
 }

@@ -174,7 +174,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
 	                                          DROP DATABASE [{0}];
                                           END", name);
 
-                    if(createDatabase)
+                    if (createDatabase)
                     {
                         command.CommandText += string.Format("{0}CREATE DATABASE [{1}]", Environment.NewLine, name);
                     }

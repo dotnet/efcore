@@ -56,8 +56,8 @@ namespace Microsoft.Data.Entity
 
         private ContextConfiguration Initialize(IServiceProvider serviceProvider, EntityConfiguration entityConfiguration)
         {
-            var providerSource = serviceProvider != null 
-                ? ContextConfiguration.ServiceProviderSource.Explicit 
+            var providerSource = serviceProvider != null
+                ? ContextConfiguration.ServiceProviderSource.Explicit
                 : ContextConfiguration.ServiceProviderSource.Implicit;
 
             serviceProvider = serviceProvider ?? ServiceProviderCache.Instance.GetOrAdd(entityConfiguration);
