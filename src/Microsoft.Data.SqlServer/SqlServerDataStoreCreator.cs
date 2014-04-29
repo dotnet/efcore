@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -10,7 +11,6 @@ using Microsoft.Data.Migrations;
 using Microsoft.Data.Migrations.Model;
 using Microsoft.Data.Relational;
 using Microsoft.Data.SqlServer.Utilities;
-using System.Data.SqlClient;
 
 namespace Microsoft.Data.SqlServer
 {
@@ -81,37 +81,53 @@ namespace Microsoft.Data.SqlServer
 
         public override bool Exists()
         {
-            try
+            var retried = false;
+            while (true)
             {
-                _connection.Open();
-                _connection.Close();
-                return true;
-            }
-            catch (SqlException e)
-            {
-                if (IsDoesNotExist(e))
+                try
                 {
-                    return false;
+                    _connection.Open();
+                    _connection.Close();
+                    return true;
                 }
-                throw;
+                catch (SqlException e)
+                {
+                    if (IsDoesNotExist(e))
+                    {
+                        return false;
+                    }
+
+                    if (!RetryOnNoProcessOnEndOfPipe(e, ref retried))
+                    {
+                        throw;
+                    }
+                }
             }
         }
 
         public override async Task<bool> ExistsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            try
+            var retried = false;
+            while (true)
             {
-                await _connection.OpenAsync(cancellationToken);
-                _connection.Close();
-                return true;
-            }
-            catch (SqlException e)
-            {
-                if (IsDoesNotExist(e))
+                try
                 {
-                    return false;
+                    await _connection.OpenAsync(cancellationToken);
+                    _connection.Close();
+                    return true;
                 }
-                throw;
+                catch (SqlException e)
+                {
+                    if (IsDoesNotExist(e))
+                    {
+                        return false;
+                    }
+
+                    if (!RetryOnNoProcessOnEndOfPipe(e, ref retried))
+                    {
+                        throw;
+                    }
+                }
             }
         }
 
@@ -120,6 +136,25 @@ namespace Microsoft.Data.SqlServer
             // TODO Explore if there are important scenarios where this could give a false negative
             // Login failed is thrown when database does not exist
             return exception.Number == 4060;
+        }
+
+        private bool RetryOnNoProcessOnEndOfPipe(SqlException exception, ref bool retried)
+        {
+            // This is to handle the case where Open throws:
+            //   System.Data.SqlClient.SqlException : A connection was successfully established with the
+            //   server, but then an error occurred during the login process. (provider: Named Pipes
+            //   Provider, error: 0 - No process is on the other end of the pipe.)
+            // It appears that this happens when the database has just been created but has not yet finished
+            // opening or is auto-closing when using the AUTO_CLOSE option. The workaround is to flush the pool
+            // for the connection and then retry the Open call.
+            if (exception.Number == 233
+                && !retried)
+            {
+                ClearPool();
+                retried = true;
+                return true;
+            }
+            return false;
         }
 
         public override void Delete()

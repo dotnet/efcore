@@ -16,27 +16,60 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
         [Fact]
         public async Task Exists_returns_false_when_database_doesnt_exist()
         {
+            await Exists_returns_false_when_database_doesnt_exist_test(async: false);
+        }
+
+        [Fact]
+        public async Task ExistsAsync_returns_false_when_database_doesnt_exist()
+        {
+            await Exists_returns_false_when_database_doesnt_exist_test(async: true);
+        }
+
+        private static async Task Exists_returns_false_when_database_doesnt_exist_test(bool async)
+        {
             using (var testDatabase = await TestDatabase.Scratch(createDatabase: false))
             {
                 var creator = GetDataStoreCreator(testDatabase);
 
-                Assert.False(await creator.ExistsAsync());
+                Assert.False(async ? await creator.ExistsAsync() : creator.Exists());
             }
         }
 
         [Fact]
         public async Task Exists_returns_true_when_database_exists()
         {
+            await Exists_returns_true_when_database_exists_test(async: false);
+        }
+
+        [Fact]
+        public async Task ExistsAsync_returns_true_when_database_exists()
+        {
+            await Exists_returns_true_when_database_exists_test(async: true);
+        }
+
+        private static async Task Exists_returns_true_when_database_exists_test(bool async)
+        {
             using (var testDatabase = await TestDatabase.Scratch(createDatabase: true))
             {
                 var creator = GetDataStoreCreator(testDatabase);
 
-                Assert.True(await creator.ExistsAsync());
+                Assert.True(async ? await creator.ExistsAsync() : creator.Exists());
             }
         }
 
         [Fact]
         public async Task Delete_will_delete_database()
+        {
+            await Delete_will_delete_database_test(async: false);
+        }
+
+        [Fact]
+        public async Task DeleteAsync_will_delete_database()
+        {
+            await Delete_will_delete_database_test(async: true);
+        }
+
+        private static async Task Delete_will_delete_database_test(bool async)
         {
             using (var testDatabase = await TestDatabase.Scratch(createDatabase: true))
             {
@@ -44,44 +77,91 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
 
                 var creator = GetDataStoreCreator(testDatabase);
 
-                Assert.True(await creator.ExistsAsync());
+                Assert.True(async ? await creator.ExistsAsync() : creator.Exists());
 
-                await creator.DeleteAsync();
+                if (async)
+                {
+                    await creator.DeleteAsync();
+                }
+                else
+                {
+                    creator.Delete();
+                }
 
-                Assert.False(await creator.ExistsAsync());
+                Assert.False(async ? await creator.ExistsAsync() : creator.Exists());
             }
         }
 
         [Fact]
         public async Task Delete_noop_when_database_doesnt_exist()
         {
+            await Delete_noop_when_database_doesnt_exist_test(async: false);
+        }
+
+        [Fact]
+        public async Task DeleteAsync_noop_when_database_doesnt_exist()
+        {
+            await Delete_noop_when_database_doesnt_exist_test(async: true);
+        }
+
+        private static async Task Delete_noop_when_database_doesnt_exist_test(bool async)
+        {
             using (var testDatabase = await TestDatabase.Scratch(createDatabase: false))
             {
                 var creator = GetDataStoreCreator(testDatabase);
 
-                Assert.False(await creator.ExistsAsync());
+                Assert.False(async ? await creator.ExistsAsync() : creator.Exists());
 
-                await creator.DeleteAsync();
+                if (async)
+                {
+                    await creator.DeleteAsync();
+                }
+                else
+                {
+                    creator.Delete();
+                }
 
-                Assert.False(await creator.ExistsAsync());
+                Assert.False(async ? await creator.ExistsAsync() : creator.Exists());
             }
         }
 
         [Fact]
         public async Task Can_create_schema_in_existing_database()
         {
+            await Can_create_schema_in_existing_database_test(async: false);
+        }
+
+        [Fact]
+        public async Task Can_create_schema_in_existing_database_async()
+        {
+            await Can_create_schema_in_existing_database_test(async: true);
+        }
+
+        private static async Task Can_create_schema_in_existing_database_test(bool async)
+        {
             using (var testDatabase = await TestDatabase.Scratch())
             {
-                await RunDatabaseCreationTest(testDatabase);
+                await RunDatabaseCreationTest(testDatabase, async);
             }
         }
 
         [Fact]
         public async Task Can_create_physical_database_and_schema()
         {
+            await Can_create_physical_database_and_schema_test(async: false);
+        }
+
+        [Fact]
+        public async Task Can_create_physical_database_and_schema_async()
+        {
+            await Can_create_physical_database_and_schema_test(async: true);
+        }
+
+        private static async Task Can_create_physical_database_and_schema_test(bool async)
+        {
             using (var testDatabase = await TestDatabase.Scratch(createDatabase: false))
             {
-                await RunDatabaseCreationTest(testDatabase);
+                await RunDatabaseCreationTest(testDatabase, async);
             }
         }
 
@@ -102,7 +182,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
             return CreateConfiguration(testDatabase).Services.ServiceProvider.GetService<SqlServerDataStoreCreator>();
         }
 
-        private static async Task RunDatabaseCreationTest(TestDatabase testDatabase)
+        private static async Task RunDatabaseCreationTest(TestDatabase testDatabase, bool async)
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework(s => s.AddSqlServer())
@@ -116,7 +196,14 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
             {
                 var creator = context.Configuration.DataStoreCreator;
 
-                await creator.CreateAsync(context.Model);
+                if (async)
+                {
+                    await creator.CreateAsync(context.Model);
+                }
+                else
+                {
+                    creator.Create(context.Model);
+                }
 
                 if (testDatabase.Connection.State != ConnectionState.Open)
                 {

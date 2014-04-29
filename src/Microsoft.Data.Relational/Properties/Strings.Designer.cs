@@ -106,6 +106,70 @@ namespace Microsoft.Data.Relational
             return GetString("TooManyRowsForModificationCommand");
         }
 
+        /// <summary>
+        /// Multiple relational data store configurations found. A context can only be configured to use a single data store.
+        /// </summary>
+        internal static string MultipleDataStoresConfigured
+        {
+            get { return GetString("MultipleDataStoresConfigured"); }
+        }
+
+        /// <summary>
+        /// Multiple relational data store configurations found. A context can only be configured to use a single data store.
+        /// </summary>
+        internal static string FormatMultipleDataStoresConfigured()
+        {
+            return GetString("MultipleDataStoresConfigured");
+        }
+
+        /// <summary>
+        /// No relational data stores are configured. Configure a data store using OnConfiguring or by creating an EntityConfiguration with a data store configured and passing it to the context.
+        /// </summary>
+        internal static string NoDataStoreConfigured
+        {
+            get { return GetString("NoDataStoreConfigured"); }
+        }
+
+        /// <summary>
+        /// No relational data stores are configured. Configure a data store using OnConfiguring or by creating an EntityConfiguration with a data store configured and passing it to the context.
+        /// </summary>
+        internal static string FormatNoDataStoreConfigured()
+        {
+            return GetString("NoDataStoreConfigured");
+        }
+
+        /// <summary>
+        /// Both an existing DbConnection and a connection string have been configured. When an existing DbConnection is used the connection string must be set on that connection.
+        /// </summary>
+        internal static string ConnectionAndConnectionString
+        {
+            get { return GetString("ConnectionAndConnectionString"); }
+        }
+
+        /// <summary>
+        /// Both an existing DbConnection and a connection string have been configured. When an existing DbConnection is used the connection string must be set on that connection.
+        /// </summary>
+        internal static string FormatConnectionAndConnectionString()
+        {
+            return GetString("ConnectionAndConnectionString");
+        }
+
+        /// <summary>
+        /// A relational store has been configured without specifying either the DbConnection or connection string to use.
+        /// </summary>
+        internal static string NoConnectionOrConnectionString
+        {
+            get { return GetString("NoConnectionOrConnectionString"); }
+        }
+
+        /// <summary>
+        /// A relational store has been configured without specifying either the DbConnection or connection string to use.
+        /// </summary>
+        internal static string FormatNoConnectionOrConnectionString()
+        {
+            return GetString("NoConnectionOrConnectionString");
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
