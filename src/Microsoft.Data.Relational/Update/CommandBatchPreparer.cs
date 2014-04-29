@@ -5,13 +5,18 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Relational.Model;
+using Microsoft.Data.Relational.Utilities;
 
 namespace Microsoft.Data.Relational.Update
 {
-    internal class CommandBatchPreparer
+    public class CommandBatchPreparer
     {
-        public IEnumerable<ModificationCommandBatch> BatchCommands([NotNull] IEnumerable<StateEntry> stateEntries, [NotNull] Database database)
+        public virtual IEnumerable<ModificationCommandBatch> BatchCommands(
+            [NotNull] IEnumerable<StateEntry> stateEntries, [NotNull] Database database)
         {
+            Check.NotNull(stateEntries, "database");
+            Check.NotNull(database, "stateEntries");
+
             return
                 stateEntries.Select(
                     e => new ModificationCommandBatch(new[]

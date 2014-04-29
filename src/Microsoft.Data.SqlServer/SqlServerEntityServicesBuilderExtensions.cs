@@ -17,16 +17,18 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(builder, "builder");
 
-            builder.ServiceCollection
-                .AddScoped<SqlServerDataStore, SqlServerDataStore>()
+            builder.AddRelational().ServiceCollection
+                // TODO: Need to be able to pick the appropriate identity generator for the data store in use
+                .AddSingleton<IdentityGeneratorFactory, SqlServerIdentityGeneratorFactory>()
                 .AddSingleton<DataStoreSource, SqlServerDataStoreSource>()
                 .AddSingleton<SqlServerSqlGenerator, SqlServerSqlGenerator>()
-                .AddScoped<ModelDiffer, ModelDiffer>()
-                .AddScoped<MigrationOperationSqlGenerator, MigrationOperationSqlGenerator>()
                 .AddSingleton<SqlStatementExecutor, SqlStatementExecutor>()
-                .AddScoped<SqlServerDataStoreCreator, SqlServerDataStoreCreator>()
-                // TODO: Need to be able to pick the appropriate identity generator for the data store in use
-                .AddSingleton<IdentityGeneratorFactory, SqlServerIdentityGeneratorFactory>();
+                .AddScoped<SqlServerDataStore, SqlServerDataStore>()
+                .AddScoped<SqlServerConnection, SqlServerConnection>()
+                .AddScoped<SqlServerBatchExecutor, SqlServerBatchExecutor>()
+                .AddScoped<ModelDiffer, ModelDiffer>()
+                .AddScoped<SqlServerMigrationOperationSqlGenerator, SqlServerMigrationOperationSqlGenerator>()
+                .AddScoped<SqlServerDataStoreCreator, SqlServerDataStoreCreator>();
 
             return builder;
         }

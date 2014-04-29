@@ -75,10 +75,7 @@ namespace Microsoft.Data.Entity.Query
             }
 
             return _context.Configuration.DataStore
-                .Query<T>(
-                    queryModel,
-                    _context.Configuration.Model,
-                    _context.Configuration.Services.StateManager);
+                .Query<T>(queryModel, _context.Configuration.Services.StateManager);
         }
     }
 }

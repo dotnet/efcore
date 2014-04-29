@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.AspNet.Logging;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
@@ -14,10 +15,10 @@ namespace Microsoft.Data.InMemory
 
         public InMemoryQueryContext(
             [NotNull] IModel model,
+            [NotNull] ILogger logger,
             [NotNull] StateManager stateManager,
             [NotNull] InMemoryDatabase database)
-            : base(Check.NotNull(model, "model"),
-                Check.NotNull(stateManager, "stateManager"))
+            : base(model, logger, stateManager)
         {
             Check.NotNull(database, "database");
 

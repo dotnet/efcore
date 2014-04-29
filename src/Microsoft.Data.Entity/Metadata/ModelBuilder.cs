@@ -225,7 +225,7 @@ namespace Microsoft.Data.Entity.Metadata
 
                     public ForeignKeyBuilder StorageName([NotNull] string storageName)
                     {
-                        Metadata.StorageName = storageName;
+                        ((ForeignKey)Metadata).StorageName = storageName;
 
                         return this;
                     }

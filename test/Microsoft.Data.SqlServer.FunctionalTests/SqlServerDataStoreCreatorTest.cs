@@ -7,8 +7,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNet.DependencyInjection;
 using Microsoft.AspNet.DependencyInjection.Fallback;
 using Microsoft.Data.Entity;
-using Microsoft.Data.Migrations;
-using Microsoft.Data.Relational;
 using Xunit;
 
 namespace Microsoft.Data.SqlServer.FunctionalTests
@@ -20,13 +18,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
         {
             using (var testDatabase = await TestDatabase.Scratch(createDatabase: false))
             {
-                var store = CreateStore(testDatabase);
-
-                var creator = new SqlServerDataStoreCreator(
-                    store,
-                    new ModelDiffer(),
-                    new SqlServerMigrationOperationSqlGenerator(),
-                    new SqlStatementExecutor());
+                var creator = GetDataStoreCreator(testDatabase);
 
                 Assert.False(await creator.ExistsAsync());
             }
@@ -37,13 +29,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
         {
             using (var testDatabase = await TestDatabase.Scratch(createDatabase: true))
             {
-                var store = CreateStore(testDatabase);
-
-                var creator = new SqlServerDataStoreCreator(
-                    store,
-                    new ModelDiffer(),
-                    new SqlServerMigrationOperationSqlGenerator(),
-                    new SqlStatementExecutor());
+                var creator = GetDataStoreCreator(testDatabase);
 
                 Assert.True(await creator.ExistsAsync());
             }
@@ -56,13 +42,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
             {
                 testDatabase.Connection.Close();
 
-                var store = CreateStore(testDatabase);
-
-                var creator = new SqlServerDataStoreCreator(
-                    store,
-                    new ModelDiffer(),
-                    new SqlServerMigrationOperationSqlGenerator(),
-                    new SqlStatementExecutor());
+                var creator = GetDataStoreCreator(testDatabase);
 
                 Assert.True(await creator.ExistsAsync());
 
@@ -77,13 +57,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
         {
             using (var testDatabase = await TestDatabase.Scratch(createDatabase: false))
             {
-                var store = CreateStore(testDatabase);
-
-                var creator = new SqlServerDataStoreCreator(
-                    store,
-                    new ModelDiffer(),
-                    new SqlServerMigrationOperationSqlGenerator(),
-                    new SqlStatementExecutor());
+                var creator = GetDataStoreCreator(testDatabase);
 
                 Assert.False(await creator.ExistsAsync());
 
@@ -123,9 +97,9 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                 .Configuration;
         }
 
-        private static SqlServerDataStore CreateStore(TestDatabase testDatabase)
+        private static SqlServerDataStoreCreator GetDataStoreCreator(TestDatabase testDatabase)
         {
-            return new SqlServerDataStore(CreateConfiguration(testDatabase), new SqlServerSqlGenerator());
+            return CreateConfiguration(testDatabase).Services.ServiceProvider.GetService<SqlServerDataStoreCreator>();
         }
 
         private static async Task RunDatabaseCreationTest(TestDatabase testDatabase)
@@ -140,11 +114,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
 
             using (var context = new BloggingContext(serviceProvider, configuration))
             {
-                var creator = new SqlServerDataStoreCreator(
-                    (SqlServerDataStore)context.Configuration.DataStore,
-                    new ModelDiffer(),
-                    new SqlServerMigrationOperationSqlGenerator(),
-                    new SqlStatementExecutor());
+                var creator = context.Configuration.DataStoreCreator;
 
                 await creator.CreateAsync(context.Model);
 

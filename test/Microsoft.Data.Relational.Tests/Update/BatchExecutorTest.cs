@@ -28,9 +28,9 @@ namespace Microsoft.Data.Relational.Tests.Update
             var mockReader = SetupMockDataReader();
             var connection = SetupMockConnection(mockReader.Object);
 
-            var executor = new BatchExecutor(new[] { batch }, new Mock<SqlGenerator> { CallBase = true }.Object);
+            var executor = new BatchExecutor(new Mock<SqlGenerator> { CallBase = true }.Object, connection);
 
-            await executor.ExecuteAsync(connection, CancellationToken.None);
+            await executor.ExecuteAsync(new[] { batch }, CancellationToken.None);
 
             mockReader.Verify(r => r.ReadAsync(It.IsAny<CancellationToken>()), Times.Once);
             mockReader.Verify(r => r.NextResultAsync(It.IsAny<CancellationToken>()), Times.Once);
@@ -45,9 +45,9 @@ namespace Microsoft.Data.Relational.Tests.Update
             var mockReader = SetupMockDataReader(new[] { "Col1" }, new List<object[]> { new object[] { 42 } });
             var connection = SetupMockConnection(mockReader.Object);
 
-            var executor = new BatchExecutor(new[] { batch }, new Mock<SqlGenerator> { CallBase = true }.Object);
+            var executor = new BatchExecutor(new Mock<SqlGenerator> { CallBase = true }.Object, connection);
 
-            await executor.ExecuteAsync(connection, CancellationToken.None);
+            await executor.ExecuteAsync(new[] { batch }, CancellationToken.None);
 
             Assert.Equal(42, stateEntry[stateEntry.EntityType.GetProperty("Col1")]);
             Assert.Equal("Test", stateEntry[stateEntry.EntityType.GetProperty("Col2")]);
@@ -66,9 +66,9 @@ namespace Microsoft.Data.Relational.Tests.Update
             var mockReader = SetupMockDataReader(new[] { "Col1", "Col2" }, new List<object[]> { new object[] { 42, "FortyTwo" } });
             var connection = SetupMockConnection(mockReader.Object);
 
-            var executor = new BatchExecutor(new[] { batch }, new Mock<SqlGenerator> { CallBase = true }.Object);
+            var executor = new BatchExecutor(new Mock<SqlGenerator> { CallBase = true }.Object, connection);
 
-            await executor.ExecuteAsync(connection, CancellationToken.None);
+            await executor.ExecuteAsync(new[] { batch }, CancellationToken.None);
 
             Assert.Equal(42, stateEntry[stateEntry.EntityType.GetProperty("Col1")]);
             Assert.Equal("FortyTwo", stateEntry[stateEntry.EntityType.GetProperty("Col2")]);
@@ -87,9 +87,9 @@ namespace Microsoft.Data.Relational.Tests.Update
             var mockReader = SetupMockDataReader(new[] { "Col2" }, new List<object[]> { new object[] { "FortyTwo" } });
             var connection = SetupMockConnection(mockReader.Object);
 
-            var executor = new BatchExecutor(new[] { batch }, new Mock<SqlGenerator> { CallBase = true }.Object);
+            var executor = new BatchExecutor(new Mock<SqlGenerator> { CallBase = true }.Object, connection);
 
-            await executor.ExecuteAsync(connection, CancellationToken.None);
+            await executor.ExecuteAsync(new[] { batch }, CancellationToken.None);
 
             Assert.Equal(1, stateEntry[stateEntry.EntityType.GetProperty("Col1")]);
             Assert.Equal("FortyTwo", stateEntry[stateEntry.EntityType.GetProperty("Col2")]);
@@ -108,11 +108,11 @@ namespace Microsoft.Data.Relational.Tests.Update
                 });
             var connection = SetupMockConnection(mockReader.Object);
 
-            var executor = new BatchExecutor(new[] { batch }, new Mock<SqlGenerator> { CallBase = true }.Object);
+            var executor = new BatchExecutor(new Mock<SqlGenerator> { CallBase = true }.Object, connection);
 
             Assert.Equal(Strings.TooManyRowsForModificationCommand,
                 (await Assert.ThrowsAsync<DbUpdateException>(
-                    async () => await executor.ExecuteAsync(connection, CancellationToken.None))).Message);
+                    async () => await executor.ExecuteAsync(new[] { batch }, CancellationToken.None))).Message);
         }
 
         [Fact]
@@ -123,11 +123,11 @@ namespace Microsoft.Data.Relational.Tests.Update
             var mockReader = SetupMockDataReader(new[] { "Col1" }, new List<object[]> { new object[] { 42 } });
             var connection = SetupMockConnection(mockReader.Object);
 
-            var executor = new BatchExecutor(new[] { batch }, new Mock<SqlGenerator> { CallBase = true }.Object);
+            var executor = new BatchExecutor(new Mock<SqlGenerator> { CallBase = true }.Object, connection);
 
             Assert.Equal(Strings.FormatUpdateConcurrencyException(0, 1),
                 (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
-                    async () => await executor.ExecuteAsync(connection, CancellationToken.None))).Message);
+                    async () => await executor.ExecuteAsync(new[] { batch }, CancellationToken.None))).Message);
         }
 
         [Fact]
@@ -139,14 +139,14 @@ namespace Microsoft.Data.Relational.Tests.Update
             var mockReader = SetupMockDataReader(new[] { "Col1" });
             var connection = SetupMockConnection(mockReader.Object);
 
-            var executor = new BatchExecutor(new[] { batch }, new Mock<SqlGenerator> { CallBase = true }.Object);
+            var executor = new BatchExecutor(new Mock<SqlGenerator> { CallBase = true }.Object, connection);
 
             Assert.Equal(Strings.FormatUpdateConcurrencyException(1, 0),
                 (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
-                    async () => await executor.ExecuteAsync(connection, CancellationToken.None))).Message);
+                    async () => await executor.ExecuteAsync(new[] { batch }, CancellationToken.None))).Message);
         }
 
-        private DbConnection SetupMockConnection(DbDataReader dataReader)
+        private RelationalConnection SetupMockConnection(DbDataReader dataReader)
         {
             var mockConnection = new Mock<DbConnection>();
             var mockCommand = new Mock<DbCommand>();
@@ -171,7 +171,10 @@ namespace Microsoft.Data.Relational.Tests.Update
                 .Setup<Task<DbDataReader>>("ExecuteDbDataReaderAsync", ItExpr.IsAny<CommandBehavior>(), ItExpr.IsAny<CancellationToken>())
                 .Returns(tcs.Task);
 
-            return mockConnection.Object;
+            var mockRelationalConnection = new Mock<RelationalConnection>();
+            mockRelationalConnection.Setup(m => m.DbConnection).Returns(mockConnection.Object);
+
+            return mockRelationalConnection.Object;
         }
 
         private static Mock<DbDataReader> SetupMockDataReader(string[] columnNames = null, IList<object[]> results = null)

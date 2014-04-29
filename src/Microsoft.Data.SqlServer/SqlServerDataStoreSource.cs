@@ -6,7 +6,8 @@ using Microsoft.Data.SqlServer.Utilities;
 
 namespace Microsoft.Data.SqlServer
 {
-    public class SqlServerDataStoreSource : DataStoreSource<SqlServerDataStore, SqlServerConfigurationExtension>
+    public class SqlServerDataStoreSource 
+        : DataStoreSource<SqlServerDataStore, SqlServerConfigurationExtension, SqlServerDataStoreCreator, SqlServerConnection>
     {
         public override bool IsAvailable(ContextConfiguration configuration)
         {

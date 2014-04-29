@@ -2,32 +2,56 @@
 
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
+using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity
 {
     public class Database
     {
-        public virtual void Create()
+        private readonly ContextConfiguration _configuration;
+
+        public Database([NotNull] ContextConfiguration configuration)
         {
-            // TODO
+            Check.NotNull(configuration, "configuration");
+
+            _configuration = configuration;
         }
 
-        public virtual bool Delete()
+        public virtual DataStoreConnection Connection
         {
-            // TODO
-            return false;
+            get { return _configuration.Connection; }
+        }
+
+        public virtual void Create()
+        {
+            _configuration.DataStoreCreator.Create(_configuration.Model);
+        }
+
+        public virtual void Delete()
+        {
+            _configuration.DataStoreCreator.Delete();
+        }
+
+        public virtual bool Exists()
+        {
+            return _configuration.DataStoreCreator.Exists();
         }
 
         public virtual Task CreateAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            // TODO
-            return Task.FromResult(false);
+            return _configuration.DataStoreCreator.CreateAsync(_configuration.Model, cancellationToken);
         }
 
-        public virtual Task<bool> DeleteAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task DeleteAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            // TODO
-            return Task.FromResult(false);
+            return _configuration.DataStoreCreator.DeleteAsync(cancellationToken);
+        }
+
+        public virtual Task<bool> ExistsAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _configuration.DataStoreCreator.ExistsAsync(cancellationToken);
         }
     }
 }

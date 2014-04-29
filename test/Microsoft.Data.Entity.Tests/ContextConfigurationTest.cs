@@ -3,6 +3,7 @@
 using System;
 using Microsoft.AspNet.DependencyInjection;
 using Microsoft.AspNet.DependencyInjection.Fallback;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.InMemory;
 using Moq;
 using Xunit;
@@ -75,6 +76,70 @@ namespace Microsoft.Data.Entity.Tests
             Assert.NotSame(configuration1.Services.ContextSets, configuration2.Services.ContextSets);
             Assert.NotSame(configuration1.Services.StateEntryNotifier, configuration2.Services.StateEntryNotifier);
             Assert.NotSame(configuration1.Services.StateEntryFactory, configuration2.Services.StateEntryFactory);
+        }
+
+        [Fact]
+        public void Scoped_data_store_services_can_be_obtained_from_configuration()
+        {
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFramework(s => s.AddInMemoryStore())
+                .BuildServiceProvider();
+
+            DataStore store;
+            DataStoreCreator creator;
+            DataStoreConnection connection;
+
+            using (var context = new DbContext(serviceProvider))
+            {
+                store = context.Configuration.DataStore;
+                creator = context.Configuration.DataStoreCreator;
+                connection = context.Configuration.Connection;
+
+                Assert.Same(store, context.Configuration.DataStore);
+                Assert.Same(creator, context.Configuration.DataStoreCreator);
+                Assert.Same(connection, context.Configuration.Connection);
+            }
+
+            using (var context = new DbContext(serviceProvider))
+            {
+                Assert.NotSame(store, context.Configuration.DataStore);
+                Assert.NotSame(creator, context.Configuration.DataStoreCreator);
+                Assert.NotSame(connection, context.Configuration.Connection);
+            }
+        }
+
+        [Fact]
+        public void Scoped_data_store_services_can_be_obtained_from_configuration_with_implicit_service_provider()
+        {
+            DataStore store;
+            DataStoreCreator creator;
+            DataStoreConnection connection;
+
+            using (var context = new GiddyupContext())
+            {
+                store = context.Configuration.DataStore;
+                creator = context.Configuration.DataStoreCreator;
+                connection = context.Configuration.Connection;
+
+                Assert.Same(store, context.Configuration.DataStore);
+                Assert.Same(creator, context.Configuration.DataStoreCreator);
+                Assert.Same(connection, context.Configuration.Connection);
+            }
+
+            using (var context = new GiddyupContext())
+            {
+                Assert.NotSame(store, context.Configuration.DataStore);
+                Assert.NotSame(creator, context.Configuration.DataStoreCreator);
+                Assert.NotSame(connection, context.Configuration.Connection);
+            }
+        }
+
+        private class GiddyupContext : DbContext
+        {
+            protected internal override void OnConfiguring(EntityConfigurationBuilder builder)
+            {
+                builder.UseInMemoryStore();
+            }
         }
 
         private static IServiceProvider CreateDefaultProvider()

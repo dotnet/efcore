@@ -9,6 +9,5 @@ namespace Microsoft.Data.Entity.Metadata
     {
         string this[[NotNull] string annotationName] { get; }
         IEnumerable<IAnnotation> Annotations { get; }
-        string StorageName { get; }
     }
 }

@@ -9,13 +9,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
 {
     public class CompositeEntityKeyFactory : EntityKeyFactory
     {
-        private static readonly CompositeEntityKeyFactory _instance = new CompositeEntityKeyFactory();
-
-        public static CompositeEntityKeyFactory Instance
-        {
-            get { return _instance; }
-        }
-
         public override EntityKey Create(IEntityType entityType, IReadOnlyList<IProperty> properties, StateEntry entry)
         {
             Check.NotNull(entityType, "entityType");

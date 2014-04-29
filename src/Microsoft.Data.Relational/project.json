@@ -5,6 +5,8 @@
   },
   "dependencies": {
     "Microsoft.Data.Entity": "",
+    "Microsoft.AspNet.ConfigurationModel" : "0.1-alpha-*",
+    "Microsoft.AspNet.DependencyInjection" : "0.1-alpha-*",
     "Microsoft.AspNet.Logging": "0.1-alpha-*",
     "Remotion.Linq": "1.16-alpha",
     "System.Data.Common": "0.1-alpha-*"

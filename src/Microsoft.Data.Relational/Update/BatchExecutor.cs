@@ -13,37 +13,44 @@ namespace Microsoft.Data.Relational.Update
 {
     public class BatchExecutor
     {
-        private readonly IEnumerable<ModificationCommandBatch> _commandBatches;
         private readonly SqlGenerator _sqlGenerator;
+        private readonly RelationalConnection _connection;
 
-        public BatchExecutor([NotNull] IEnumerable<ModificationCommandBatch> commandBatches, [NotNull] SqlGenerator sqlGenerator)
+        public BatchExecutor(
+            [NotNull] SqlGenerator sqlGenerator,
+            [NotNull] RelationalConnection connection)
         {
-            Check.NotNull(commandBatches, "commandBatches");
             Check.NotNull(sqlGenerator, "sqlGenerator");
-
-            _commandBatches = commandBatches;
-            _sqlGenerator = sqlGenerator;
-        }
-
-        public virtual async Task ExecuteAsync([NotNull] DbConnection connection,
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
             Check.NotNull(connection, "connection");
 
-            foreach (var commandbatch in _commandBatches)
+            _sqlGenerator = sqlGenerator;
+            _connection = connection;
+        }
+
+        public virtual RelationalConnection Connection
+        {
+            get { return _connection; }
+        }
+
+        public virtual async Task ExecuteAsync(
+            [NotNull] IEnumerable<ModificationCommandBatch> commandBatches, 
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Check.NotNull(commandBatches, "commandBatches");
+
+            foreach (var commandbatch in commandBatches)
             {
-                await ExecuteBatchAsync(connection, commandbatch, cancellationToken).ConfigureAwait(false);
+                await ExecuteBatchAsync(commandbatch, cancellationToken).ConfigureAwait(false);
             }
         }
 
         protected virtual async Task ExecuteBatchAsync(
-            [NotNull] DbConnection connection, [NotNull] ModificationCommandBatch commandBatch,
+            [NotNull] ModificationCommandBatch commandBatch,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(connection, "connection");
             Check.NotNull(commandBatch, "commandBatch");
 
-            using (var cmd = CreateCommand(connection, commandBatch))
+            using (var cmd = CreateCommand(Connection.DbConnection, commandBatch))
             {
                 using (var reader = await cmd.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false))
                 {

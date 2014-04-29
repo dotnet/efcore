@@ -18,7 +18,7 @@ namespace Microsoft.Data.SqlServer.Tests
         public void Is_configured_when_configuration_contains_associated_extension()
         {
             var configuration = new EntityConfigurationBuilder()
-                .AddBuildAction(c => c.AddExtension(new SqlServerConfigurationExtension()))
+                .AddBuildAction(c => c.AddOrUpdateExtension<SqlServerConfigurationExtension>(e => { }))
                 .BuildConfiguration();
 
             var configurationMock = new Mock<ContextConfiguration>();
@@ -30,9 +30,7 @@ namespace Microsoft.Data.SqlServer.Tests
         [Fact]
         public void Is_not_configured_when_configuration_does_not_contain_associated_extension()
         {
-            var configuration = new EntityConfigurationBuilder()
-                .AddBuildAction(c => c.AddExtension(Mock.Of<EntityConfigurationExtension>()))
-                .BuildConfiguration();
+            var configuration = new EntityConfigurationBuilder().BuildConfiguration();
 
             var configurationMock = new Mock<ContextConfiguration>();
             configurationMock.Setup(m => m.EntityConfiguration).Returns(configuration);
@@ -44,7 +42,7 @@ namespace Microsoft.Data.SqlServer.Tests
         public void Is_available_when_configured()
         {
             var configuration = new EntityConfigurationBuilder()
-                .AddBuildAction(c => c.AddExtension(new SqlServerConfigurationExtension()))
+                .AddBuildAction(c => c.AddOrUpdateExtension<SqlServerConfigurationExtension>(e => { }))
                 .BuildConfiguration();
 
             var configurationMock = new Mock<ContextConfiguration>();
@@ -56,9 +54,7 @@ namespace Microsoft.Data.SqlServer.Tests
         [Fact]
         public void Is_not_available_when_not_configured()
         {
-            var configuration = new EntityConfigurationBuilder()
-                .AddBuildAction(c => c.AddExtension(Mock.Of<EntityConfigurationExtension>()))
-                .BuildConfiguration();
+            var configuration = new EntityConfigurationBuilder().BuildConfiguration();
 
             var configurationMock = new Mock<ContextConfiguration>();
             configurationMock.Setup(m => m.EntityConfiguration).Returns(configuration);

@@ -15,11 +15,13 @@ namespace Microsoft.Data.InMemory
             Check.NotNull(builder, "builder");
 
             builder.ServiceCollection
-                .AddScoped<InMemoryDataStore, InMemoryDataStore>()
+                // TODO: Need to be able to pick the appropriate identity generator for the data store in use
+                .AddSingleton<IdentityGeneratorFactory, InMemoryIdentityGeneratorFactory>()
                 .AddSingleton<DataStoreSource, InMemoryDataStoreSource>()
                 .AddSingleton<InMemoryDatabase, InMemoryDatabase>()
-                // TODO: Need to be able to pick the appropriate identity generator for the data store in use
-                .AddSingleton<IdentityGeneratorFactory, InMemoryIdentityGeneratorFactory>();
+                .AddScoped<InMemoryDataStore, InMemoryDataStore>()
+                .AddScoped<InMemoryConnection, InMemoryConnection>()
+                .AddScoped<InMemoryDataStoreCreator, InMemoryDataStoreCreator>();
 
             return builder;
         }

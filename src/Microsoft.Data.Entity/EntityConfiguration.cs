@@ -37,18 +37,21 @@ namespace Microsoft.Data.Entity
             }
         }
 
-        void IEntityConfigurationConstruction.AddExtension<TExtension>(TExtension extension)
+        void IEntityConfigurationConstruction.AddOrUpdateExtension<TExtension>(Action<TExtension> updater)
         {
-            Check.NotNull(extension, "extension");
+            Check.NotNull(updater, "updater");
 
             CheckNotLocked();
 
-            foreach (var existing in _extensions.OfType<TExtension>().ToArray())
-            {
-                _extensions.Remove(existing);
-            }
+            var extension = _extensions.OfType<TExtension>().FirstOrDefault();
 
-            _extensions.Add(extension);
+            if (extension == null)
+            {
+                extension = new TExtension();
+                _extensions.Add(extension);
+            }
+            
+            updater(extension);
         }
 
         void IEntityConfigurationConstruction.Lock()

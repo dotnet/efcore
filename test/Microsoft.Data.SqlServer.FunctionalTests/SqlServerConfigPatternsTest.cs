@@ -3,11 +3,14 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNet.DependencyInjection;
 using Microsoft.AspNet.DependencyInjection.Fallback;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Query;
+using Microsoft.Data.InMemory;
 using Xunit;
 
 namespace Microsoft.Data.SqlServer.FunctionalTests
@@ -23,7 +26,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                 {
                     using (var context = new NorthwindContext())
                     {
-                        Assert.Equal(91, await context.Customers.CountAsync());
+                        Assert.Equal(91, await QueryableExtensions.CountAsync(context.Customers));
                     }
                 }
             }
@@ -57,7 +60,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
 
                     using (var context = new NorthwindContext(configuration))
                     {
-                        Assert.Equal(91, await context.Customers.CountAsync());
+                        Assert.Equal(91, await QueryableExtensions.CountAsync(context.Customers));
                     }
                 }
             }
@@ -91,7 +94,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
 
                     using (var context = new NorthwindContext(serviceProvider))
                     {
-                        Assert.Equal(91, await context.Customers.CountAsync());
+                        Assert.Equal(91, await QueryableExtensions.CountAsync(context.Customers));
                     }
                 }
             }
@@ -134,7 +137,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
 
                     using (var context = new NorthwindContext(serviceProvider, configuration))
                     {
-                        Assert.Equal(91, await context.Customers.CountAsync());
+                        Assert.Equal(91, await QueryableExtensions.CountAsync(context.Customers));
                     }
                 }
             }
@@ -298,7 +301,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
 
                 public async Task TestAsync()
                 {
-                    Assert.Equal(91, await _context.Customers.CountAsync());
+                    Assert.Equal(91, await QueryableExtensions.CountAsync(_context.Customers));
                 }
             }
 
@@ -359,7 +362,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
 
                 public async Task TestAsync()
                 {
-                    Assert.Equal(91, await _context.Customers.CountAsync());
+                    Assert.Equal(91, await QueryableExtensions.CountAsync(_context.Customers));
                 }
             }
 
@@ -419,7 +422,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
 
                 public async Task TestAsync()
                 {
-                    Assert.Equal(91, await _context.Customers.CountAsync());
+                    Assert.Equal(91, await QueryableExtensions.CountAsync(_context.Customers));
                 }
             }
 
@@ -449,7 +452,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                 {
                     using (var context = new NorthwindContext(TestDatabase.NorthwindConnectionString))
                     {
-                        Assert.Equal(91, await context.Customers.CountAsync());
+                        Assert.Equal(91, await QueryableExtensions.CountAsync(context.Customers));
                     }
                 }
             }
@@ -481,7 +484,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                 {
                     using (var context = new NorthwindContext(TestDatabase.NorthwindConnectionString))
                     {
-                        Assert.Equal(91, await context.Customers.CountAsync());
+                        Assert.Equal(91, await QueryableExtensions.CountAsync(context.Customers));
                     }
                 }
             }
@@ -507,6 +510,167 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                     ConfigureModel(builder);
                 }
             }
+        }
+
+        public class NestedContext
+        {
+            [Fact]
+            public async Task Can_use_one_context_nested_inside_another_of_the_same_type()
+            {
+                using (await TestDatabase.Northwind())
+                {
+                    var serviceProvider = new ServiceCollection()
+                        .AddEntityFramework(s => s.AddSqlServer())
+                        .BuildServiceProvider();
+
+                    using (var context1 = new NorthwindContext(serviceProvider))
+                    {
+                        var customers1 = await context1.Customers.ToListAsync();
+                        Assert.Equal(91, customers1.Count);
+                        Assert.Equal(91, context1.ChangeTracker.Entries().Count());
+
+                        using (var context2 = new NorthwindContext(serviceProvider))
+                        {
+                            Assert.Equal(0, context2.ChangeTracker.Entries().Count());
+
+                            var customers2 = await context2.Customers.ToListAsync();
+                            Assert.Equal(91, customers2.Count);
+                            Assert.Equal(91, context2.ChangeTracker.Entries().Count());
+
+                            Assert.Equal(customers1[0].CustomerID, customers2[0].CustomerID);
+                            Assert.NotSame(customers1[0], customers2[0]);
+                        }
+                    }
+                }
+            }
+
+            private class NorthwindContext : DbContext
+            {
+                public NorthwindContext(IServiceProvider serviceProvider)
+                    : base(serviceProvider)
+                {
+                }
+
+                public DbSet<Customer> Customers { get; set; }
+
+                protected override void OnModelCreating(ModelBuilder builder)
+                {
+                    ConfigureModel(builder);
+                }
+
+                protected override void OnConfiguring(EntityConfigurationBuilder builder)
+                {
+                    builder.SqlServerConnectionString(TestDatabase.NorthwindConnectionString);
+                }
+            }
+        }
+
+        public class NestedContextDifferentStores
+        {
+            [Fact]
+            public async Task Can_use_one_context_nested_inside_another_of_a_different_type()
+            {
+                using (await TestDatabase.Northwind())
+                {
+                    var serviceProvider = new ServiceCollection()
+                        .AddEntityFramework(s => s.AddSqlServer().AddInMemoryStore())
+                        .BuildServiceProvider();
+
+                    await NestedContextTest(() => new BlogContext(serviceProvider), () => new NorthwindContext(serviceProvider));
+                }
+            }
+
+            [Fact]
+            public async Task Can_use_one_context_nested_inside_another_of_a_different_type_with_implicit_services()
+            {
+                using (await TestDatabase.Northwind())
+                {
+                    await NestedContextTest(() => new BlogContext(), () => new NorthwindContext());
+                }
+            }
+
+            private async Task NestedContextTest(Func<BlogContext> createBlogContext, Func<NorthwindContext> createNorthwindContext)
+            {
+                using (await TestDatabase.Northwind())
+                {
+                    using (var context0 = createBlogContext())
+                    {
+                        Assert.Equal(0, context0.ChangeTracker.Entries().Count());
+                        var blog0 = context0.Add(new Blog { Id = 1, Name = "Giddyup" });
+                        Assert.Same(blog0, context0.ChangeTracker.Entries().Select(e => e.Entity).Single());
+                        await context0.SaveChangesAsync();
+
+                        using (var context1 = createNorthwindContext())
+                        {
+                            var customers1 = await context1.Customers.ToListAsync();
+                            Assert.Equal(91, customers1.Count);
+                            Assert.Equal(91, context1.ChangeTracker.Entries().Count());
+                            Assert.Same(blog0, context0.ChangeTracker.Entries().Select(e => e.Entity).Single());
+
+                            using (var context2 = createBlogContext())
+                            {
+                                Assert.Equal(0, context2.ChangeTracker.Entries().Count());
+                                Assert.Same(blog0, context0.ChangeTracker.Entries().Select(e => e.Entity).Single());
+
+                                var blog0Prime = (await context2.Blogs.ToArrayAsync()).Single();
+                                Assert.Same(blog0Prime, context2.ChangeTracker.Entries().Select(e => e.Entity).Single());
+
+                                Assert.Equal(blog0.Id, blog0Prime.Id);
+                                Assert.NotSame(blog0, blog0Prime);
+                            }
+                        }
+                    }
+                }
+            }
+
+            private class BlogContext : DbContext
+            {
+                public BlogContext()
+                {
+                }
+
+                public BlogContext(IServiceProvider serviceProvider)
+                    : base(serviceProvider)
+                {
+                }
+
+                public DbSet<Blog> Blogs { get; set; }
+
+                protected override void OnConfiguring(EntityConfigurationBuilder builder)
+                {
+                    builder.UseInMemoryStore();
+                }
+            }
+
+            private class NorthwindContext : DbContext
+            {
+                public NorthwindContext()
+                {
+                }
+
+                public NorthwindContext(IServiceProvider serviceProvider)
+                    : base(serviceProvider)
+                {
+                }
+
+                public DbSet<Customer> Customers { get; set; }
+
+                protected override void OnModelCreating(ModelBuilder builder)
+                {
+                    ConfigureModel(builder);
+                }
+
+                protected override void OnConfiguring(EntityConfigurationBuilder builder)
+                {
+                    builder.SqlServerConnectionString(TestDatabase.NorthwindConnectionString);
+                }
+            }
+        }
+
+        private class Blog
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
         }
 
         private class Customer

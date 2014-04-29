@@ -12,36 +12,74 @@ namespace Microsoft.Data.Relational
 {
     public class SqlStatementExecutor
     {
-        public virtual async Task ExecuteNonQueryAsync([NotNull] DbConnection connection, [NotNull] IEnumerable<SqlStatement> statements, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task ExecuteNonQueryAsync(
+            [NotNull] DbConnection connection,
+            [NotNull] IEnumerable<SqlStatement> statements,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(connection, "connection");
             Check.NotNull(statements, "statements");
 
             // TODO Deal with suppressing transactions etc.
 
-            var closeConnection = false;
-            if (connection.State != ConnectionState.Open)
+            var connectionWasOpen = connection.State == ConnectionState.Open;
+            if (!connectionWasOpen)
             {
                 await connection.OpenAsync(cancellationToken);
-                closeConnection = true;
             }
 
             try
             {
-                foreach (var item in statements)
+                foreach (var statement in statements)
                 {
-                    var command = connection.CreateCommand();
-                    command.CommandText = item.Sql;
-                    await command.ExecuteNonQueryAsync(cancellationToken);
+                    await CreateCommand(connection, statement).ExecuteNonQueryAsync(cancellationToken);
                 }
             }
             finally
             {
-                if (closeConnection)
+                if (connectionWasOpen)
                 {
                     connection.Close();
                 }
             }
+        }
+
+        public virtual void ExecuteNonQuery(
+            [NotNull] DbConnection connection,
+            [NotNull] IEnumerable<SqlStatement> statements)
+        {
+            Check.NotNull(connection, "connection");
+            Check.NotNull(statements, "statements");
+
+            // TODO Deal with suppressing transactions etc.
+
+            var connectionWasOpen = connection.State == ConnectionState.Open;
+            if (!connectionWasOpen)
+            {
+                connection.Open();
+            }
+
+            try
+            {
+                foreach (var statement in statements)
+                {
+                    CreateCommand(connection, statement).ExecuteNonQuery();
+                }
+            }
+            finally
+            {
+                if (connectionWasOpen)
+                {
+                    connection.Close();
+                }
+            }
+        }
+
+        private static DbCommand CreateCommand(DbConnection connection, SqlStatement statement)
+        {
+            var command = connection.CreateCommand();
+            command.CommandText = statement.Sql;
+            return command;
         }
     }
 }

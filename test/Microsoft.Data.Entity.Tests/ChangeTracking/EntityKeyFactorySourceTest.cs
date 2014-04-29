@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var keyMock = new Mock<IProperty>();
             keyMock.Setup(m => m.PropertyType).Returns(typeof(int));
 
-            Assert.IsType<SimpleEntityKeyFactory<int>>(new EntityKeyFactorySource().GetKeyFactory(new[] { keyMock.Object }));
+            Assert.IsType<SimpleEntityKeyFactory<int>>(CreateKeyFactorySource().GetKeyFactory(new[] { keyMock.Object }));
         }
 
         [Fact]
@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var keyMock2 = new Mock<IProperty>();
             keyMock2.Setup(m => m.PropertyType).Returns(typeof(Guid));
 
-            var factorySource = new EntityKeyFactorySource();
+            var factorySource = CreateKeyFactorySource();
             Assert.Same(factorySource.GetKeyFactory(new[] { keyMock1.Object }), factorySource.GetKeyFactory(new[] { keyMock2.Object }));
         }
 
@@ -36,7 +36,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         public void Returns_a_composite_entity_key_factory_for_composite_property_key()
         {
             Assert.IsType<CompositeEntityKeyFactory>(
-                new EntityKeyFactorySource().GetKeyFactory(new[] { new Mock<IProperty>().Object, new Mock<IProperty>().Object }));
+                CreateKeyFactorySource().GetKeyFactory(new[] { new Mock<IProperty>().Object, new Mock<IProperty>().Object }));
+        }
+
+        private static EntityKeyFactorySource CreateKeyFactorySource()
+        {
+            return new EntityKeyFactorySource(new CompositeEntityKeyFactory());
         }
     }
 }

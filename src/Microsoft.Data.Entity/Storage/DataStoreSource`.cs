@@ -6,11 +6,13 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Storage
 {
-    public abstract class DataStoreSource<TDataStore, TConfigurationExtension> : DataStoreSource
+    public abstract class DataStoreSource<TDataStore, TConfiguration, TCreator, TConnection> : DataStoreSource
         where TDataStore : DataStore
-        where TConfigurationExtension : EntityConfigurationExtension
+        where TConfiguration : EntityConfigurationExtension
+        where TCreator : DataStoreCreator
+        where TConnection : DataStoreConnection
     {
-        public override DataStore GetDataStore(ContextConfiguration configuration)
+        public override DataStore GetStore(ContextConfiguration configuration)
         {
             Check.NotNull(configuration, "configuration");
 
@@ -18,11 +20,27 @@ namespace Microsoft.Data.Entity.Storage
             return configuration.Services.ServiceProvider.GetService<TDataStore>();
         }
 
+        public override DataStoreCreator GetCreator(ContextConfiguration configuration)
+        {
+            Check.NotNull(configuration, "configuration");
+
+            // TODO: Use GetRequiredService, by sharing source if possible
+            return configuration.Services.ServiceProvider.GetService<TCreator>();
+        }
+
+        public override DataStoreConnection GetConnection(ContextConfiguration configuration)
+        {
+            Check.NotNull(configuration, "configuration");
+
+            // TODO: Use GetRequiredService, by sharing source if possible
+            return configuration.Services.ServiceProvider.GetService<TConnection>();
+        }
+
         public override bool IsConfigured(ContextConfiguration configuration)
         {
             Check.NotNull(configuration, "configuration");
 
-            return configuration.EntityConfiguration.Extensions.OfType<TConfigurationExtension>().Any();
+            return configuration.EntityConfiguration.Extensions.OfType<TConfiguration>().Any();
         }
     }
 }

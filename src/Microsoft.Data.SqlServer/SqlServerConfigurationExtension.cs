@@ -2,14 +2,13 @@
 
 using Microsoft.AspNet.DependencyInjection;
 using Microsoft.Data.Entity;
+using Microsoft.Data.Relational;
 using Microsoft.Data.SqlServer.Utilities;
 
 namespace Microsoft.Data.SqlServer
 {
-    public class SqlServerConfigurationExtension : EntityConfigurationExtension
+    public class SqlServerConfigurationExtension : RelationalConfigurationExtension
     {
-        public virtual string ConnectionString { get; internal set; }
-
         protected override void ApplyServices(EntityServicesBuilder builder)
         {
             Check.NotNull(builder, "builder");

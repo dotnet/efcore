@@ -6,10 +6,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.AspNet.Logging;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.ChangeTracking;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
@@ -47,42 +45,40 @@ namespace Microsoft.Data.InMemory
             _persist = (storeConfig != null ? (bool?)storeConfig.Persist : null) ?? true;
 
             _database = new ThreadSafeLazyRef<InMemoryDatabase>(
-                            () => _persist
-                                ? persistentDatabase
-                                : new InMemoryDatabase(configuration.LoggerFactory));
+                () => _persist
+                    ? persistentDatabase
+                    : new InMemoryDatabase(configuration.LoggerFactory));
         }
 
-        internal InMemoryDatabase Database
+        public virtual InMemoryDatabase Database
         {
             get { return _database.Value; }
         }
 
         public override Task<int> SaveChangesAsync(
             IEnumerable<StateEntry> stateEntries,
-            IModel model,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(stateEntries, "stateEntries");
-            Check.NotNull(model, "model");
 
             return Task.FromResult(_database.Value.ExecuteTransaction(stateEntries));
         }
 
         public override IAsyncEnumerable<TResult> Query<TResult>(
-            QueryModel queryModel, IModel model, StateManager stateManager)
+            QueryModel queryModel, StateManager stateManager)
         {
             Check.NotNull(queryModel, "queryModel");
-            Check.NotNull(model, "model");
             Check.NotNull(stateManager, "stateManager");
 
-            if (!_persist && !_database.HasValue)
+            if (!_persist
+                && !_database.HasValue)
             {
                 return new CompletedAsyncEnumerable<TResult>(Enumerable.Empty<TResult>());
             }
 
             var queryModelVisitor = new QueryModelVisitor();
             var queryExecutor = queryModelVisitor.CreateQueryExecutor<TResult>(queryModel);
-            var queryContext = new InMemoryQueryContext(model, stateManager, _database.Value);
+            var queryContext = new InMemoryQueryContext(Model, Logger, stateManager, _database.Value);
 
             return new CompletedAsyncEnumerable<TResult>(queryExecutor(queryContext));
         }

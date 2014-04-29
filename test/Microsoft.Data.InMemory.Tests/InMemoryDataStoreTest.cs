@@ -70,7 +70,7 @@ namespace Microsoft.Data.InMemory.Tests
 
             var inMemoryDataStore = new InMemoryDataStore(configuration, new InMemoryDatabase(new NullLoggerFactory()));
 
-            await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry }, model);
+            await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry });
 
             Assert.Equal(1, inMemoryDataStore.Database.SelectMany(t => t).Count());
             Assert.Equal(new object[] { 42, "Unikorn" }, inMemoryDataStore.Database.Single().Single());
@@ -89,12 +89,12 @@ namespace Microsoft.Data.InMemory.Tests
 
             var inMemoryDataStore = new InMemoryDataStore(configuration, new InMemoryDatabase(new NullLoggerFactory()));
             
-            await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry }, model);
+            await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry });
 
             customer.Name = "Unikorn, The Return";
             await entityEntry.SetEntityStateAsync(EntityState.Modified, CancellationToken.None);
 
-            await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry }, model);
+            await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry });
 
             Assert.Equal(1, inMemoryDataStore.Database.SelectMany(t => t).Count());
             Assert.Equal(new object[] { 42, "Unikorn, The Return" }, inMemoryDataStore.Database.Single().Single());
@@ -113,12 +113,12 @@ namespace Microsoft.Data.InMemory.Tests
 
             var inMemoryDataStore = new InMemoryDataStore(configuration, new InMemoryDatabase(new NullLoggerFactory()));
 
-            await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry }, model);
+            await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry });
 
             customer.Name = "Unikorn, The Return";
             await entityEntry.SetEntityStateAsync(EntityState.Deleted, CancellationToken.None);
 
-            await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry }, model);
+            await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry });
 
             Assert.Equal(0, inMemoryDataStore.Database.SelectMany(t => t).Count());
         }
@@ -141,7 +141,7 @@ namespace Microsoft.Data.InMemory.Tests
 
             var inMemoryDataStore = new InMemoryDataStore(configuration, new InMemoryDatabase(mockFactory.Object));
 
-            await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry }, model);
+            await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry });
 
             mockLogger.Verify(
                 l => l.WriteCore(

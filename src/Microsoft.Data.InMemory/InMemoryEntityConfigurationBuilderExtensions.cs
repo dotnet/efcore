@@ -13,7 +13,7 @@ namespace Microsoft.Data.InMemory
         {
             Check.NotNull(builder, "builder");
 
-            builder.AddBuildAction(c => c.AddExtension(new InMemoryConfigurationExtension { Persist = persist }));
+            builder.AddBuildAction(c => c.AddOrUpdateExtension<InMemoryConfigurationExtension>(x => x.Persist = persist));
 
             return builder;
         }

@@ -6,5 +6,6 @@ namespace Microsoft.Data.Entity.Metadata
     {
         string Name { get; }
         IEntityType EntityType { get; }
+        string StorageName { get; }
     }
 }
