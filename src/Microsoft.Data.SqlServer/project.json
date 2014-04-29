@@ -15,6 +15,7 @@
   "configurations": {
     "net45": {
       "dependencies": {
+        "System.Data": ""
       }
     },
     "k10": {
