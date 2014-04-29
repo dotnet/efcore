@@ -20,12 +20,10 @@ namespace Microsoft.Data.SqlServer
                     goto default;
 
                 case ValueGenerationStrategy.StoreSequence:
-#if NET45
                     if (property.PropertyType == typeof(long))
                     {
                         return new SequenceIdentityGenerator(new SqlServerSimpleCommandExecutor("TODO: Connection string"));
                     }
-#endif
                     goto default;
 
                 default:

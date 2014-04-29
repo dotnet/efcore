@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System.Threading;
-#if NET45
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -50,5 +49,3 @@ namespace Microsoft.Data.SqlServer
         }
     }
 }
-
-#endif
