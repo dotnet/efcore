@@ -135,4 +135,16 @@
   <data name="TooManyRowsForModificationCommand" xml:space="preserve">
     <value>A modification command returned more than one row. Each modification command must return at most one row.</value>
   </data>
+  <data name="MultipleDataStoresConfigured" xml:space="preserve">
+    <value>Multiple relational data store configurations found. A context can only be configured to use a single data store.</value>
+  </data>
+  <data name="NoDataStoreConfigured" xml:space="preserve">
+    <value>No relational data stores are configured. Configure a data store using OnConfiguring or by creating an EntityConfiguration with a data store configured and passing it to the context.</value>
+  </data>
+  <data name="ConnectionAndConnectionString" xml:space="preserve">
+    <value>Both an existing DbConnection and a connection string have been configured. When an existing DbConnection is used the connection string must be set on that connection.</value>
+  </data>
+  <data name="NoConnectionOrConnectionString" xml:space="preserve">
+    <value>A relational store has been configured without specifying either the DbConnection or connection string to use.</value>
+  </data>
 </root>

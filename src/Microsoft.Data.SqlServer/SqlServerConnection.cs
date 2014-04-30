@@ -21,10 +21,10 @@ namespace Microsoft.Data.SqlServer
             return new SqlConnection(ConnectionString);
         }
 
-        public virtual DbConnection CreateMasterConnection()
+        public virtual SqlConnection CreateMasterConnection()
         {
-            var builder = new DbConnectionStringBuilder { ConnectionString = ConnectionString };
-            builder.Add("Initial Catalog", "master");
+            var builder = new SqlConnectionStringBuilder { ConnectionString = ConnectionString };
+            builder.InitialCatalog = "master";
             return new SqlConnection(builder.ConnectionString);
         }
     }

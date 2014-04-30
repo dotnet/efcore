@@ -3,6 +3,7 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -40,20 +41,23 @@ namespace Microsoft.Data.Relational
 
             if (storeConfigs.Length == 0)
             {
-                // TODO: Proper message
-                throw new InvalidOperationException("Configuration not found.");
+                throw new InvalidOperationException(Strings.FormatNoDataStoreConfigured());
             }
 
             if (storeConfigs.Length > 1)
             {
-                // TODO: Proper message
-                throw new InvalidOperationException("Multiple configurations found.");
+                throw new InvalidOperationException(Strings.FormatMultipleDataStoresConfigured());
             }
 
             var storeConfig = storeConfigs[0];
 
             if (storeConfig.Connection != null)
             {
+                if (!string.IsNullOrWhiteSpace(storeConfig.ConnectionString))
+                {
+                    throw new InvalidOperationException(Strings.FormatConnectionAndConnectionString());
+                }
+
                 _connection = new LazyRef<DbConnection>(() => storeConfig.Connection);
                 _connectionOwned = false;
                 _openedCount = storeConfig.Connection.State == ConnectionState.Open ? 1 : 0;
@@ -66,8 +70,7 @@ namespace Microsoft.Data.Relational
             }
             else
             {
-                // TODO: Proper message
-                throw new InvalidOperationException("No connection.");
+                throw new InvalidOperationException(Strings.FormatNoConnectionOrConnectionString());
             }
         }
 
@@ -85,10 +88,11 @@ namespace Microsoft.Data.Relational
 
         public virtual void Open()
         {
-            if (_openedCount++ == 0)
+            if (_openedCount == 0)
             {
                 _connection.Value.Open();
             }
+            _openedCount++;
         }
 
         public virtual async Task OpenAsync(CancellationToken cancellationToken = default(CancellationToken))
@@ -96,13 +100,14 @@ namespace Microsoft.Data.Relational
             if (_openedCount == 0)
             {
                 await _connection.Value.OpenAsync(cancellationToken);
-                // Only increment count if Open call succeeds
-                _openedCount++;
             }
+            _openedCount++;
         }
 
         public virtual void Close()
         {
+            Contract.Assert(_openedCount >= 1);
+
             if (--_openedCount == 0)
             {
                 _connection.Value.Close();
@@ -115,6 +120,7 @@ namespace Microsoft.Data.Relational
             {
                 _connection.Value.Dispose();
                 _connection.Reset(CreateDbConnection);
+                _openedCount = 0;
             }
         }
     }
