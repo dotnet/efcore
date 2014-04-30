@@ -7,6 +7,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity;
 
+// ReSharper disable once CheckNamespace
 namespace System.Linq.Expressions
 {
     [DebuggerStepThrough]

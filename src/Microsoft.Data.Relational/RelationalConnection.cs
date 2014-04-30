@@ -106,7 +106,10 @@ namespace Microsoft.Data.Relational
 
         public virtual void Close()
         {
-            Contract.Assert(_openedCount >= 1);
+            if (_openedCount == 0)
+            {
+                return;
+            }
 
             if (--_openedCount == 0)
             {

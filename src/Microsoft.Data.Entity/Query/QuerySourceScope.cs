@@ -24,11 +24,11 @@ namespace Microsoft.Data.Entity.Query
             }
         }
 
-        private static readonly MethodInfo CreateMethodInfo
+        private static readonly MethodInfo _createMethodInfo
             = typeof(QuerySourceScope).GetTypeInfo()
                 .GetDeclaredMethods("Create").FirstOrDefault(m => m.IsStatic && !m.IsPublic);
 
-        private static readonly MethodInfo GetResultMethodInfo
+        private static readonly MethodInfo _getResultMethodInfo
             = typeof(QuerySourceScope).GetTypeInfo()
                 .GetDeclaredMethods("GetResult").FirstOrDefault(m => !m.IsStatic && !m.IsPublic);
 
@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] Expression parentScope)
         {
             return Expression.Call(
-                CreateMethodInfo.MakeGenericMethod(querySource.ItemType),
+                _createMethodInfo.MakeGenericMethod(querySource.ItemType),
                 Expression.Constant(querySource),
                 result,
                 parentScope);
@@ -50,7 +50,7 @@ namespace Microsoft.Data.Entity.Query
         {
             return Expression.Call(
                 querySourceScope,
-                GetResultMethodInfo.MakeGenericMethod(querySource.ItemType),
+                _getResultMethodInfo.MakeGenericMethod(querySource.ItemType),
                 Expression.Constant(querySource));
         }
 

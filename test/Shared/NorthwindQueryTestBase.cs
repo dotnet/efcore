@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity;
-using Microsoft.Data.Entity.Query;
 using Northwind;
 using Xunit;
 
@@ -49,6 +48,12 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         [Fact]
+        public virtual async Task Any_simple_async()
+        {
+            await AssertQueryAsync<Customer>(cs => cs.AnyAsync());
+        }
+
+        [Fact]
         public void Select_into()
         {
             AssertQuery<Customer>(cs =>
@@ -84,6 +89,7 @@ namespace Microsoft.Data.FunctionalTests
             await AssertQueryAsync<Customer>(cs => cs.Where(c => c.City == "London"));
         }
 
+        [Fact]
         public void Where_true()
         {
             Assert.Equal(91,
@@ -837,6 +843,12 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         [Fact]
+        public async Task Count_with_no_predicate_async()
+        {
+            await AssertQueryAsync<Order>(os => os.CountAsync());
+        }
+
+        [Fact]
         public void Count_with_predicate()
         {
             AssertQuery<Order>(os =>
@@ -850,7 +862,7 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         [Fact]
-        public virtual void Distinct_Scalar()
+        public void Distinct_Scalar()
         {
             AssertQuery<Customer>(cs =>
                 cs.Select(c => c.City).Distinct());
@@ -926,6 +938,20 @@ namespace Microsoft.Data.FunctionalTests
             }
         }
 
+        private async Task<int> AssertQueryAsync<TItem>(
+            Func<IQueryable<TItem>, Task<int>> query,
+            bool assertOrder = false)
+            where TItem : class
+        {
+            using (var context = new DbContext(Configuration))
+            {
+                return AssertResults(
+                    new[] { await query(NorthwindData.Set<TItem>()) },
+                    new[] { await query(context.Set<TItem>()) },
+                    assertOrder);
+            }
+        }
+
         private int AssertQuery<TItem>(
             Func<IQueryable<TItem>, bool> query,
             bool assertOrder = false)
@@ -936,6 +962,20 @@ namespace Microsoft.Data.FunctionalTests
                 return AssertResults(
                     new[] { query(NorthwindData.Set<TItem>()) },
                     new[] { query(context.Set<TItem>()) },
+                    assertOrder);
+            }
+        }
+
+        private async Task<int> AssertQueryAsync<TItem>(
+            Func<IQueryable<TItem>, Task<bool>> query,
+            bool assertOrder = false)
+            where TItem : class
+        {
+            using (var context = new DbContext(Configuration))
+            {
+                return AssertResults(
+                    new[] { await query(NorthwindData.Set<TItem>()) },
+                    new[] { await query(context.Set<TItem>()) },
                     assertOrder);
             }
         }
@@ -1021,7 +1061,7 @@ namespace Microsoft.Data.FunctionalTests
             {
                 return AssertResults(
                     query(NorthwindData.Set<TItem>()).ToArray(),
-                    await ((IAsyncEnumerable<object>)query(context.Set<TItem>())).ToArrayAsync(),
+                    await ((IAsyncEnumerable<object>)query(context.Set<TItem>())).ToArray(),
                     assertOrder);
             }
         }

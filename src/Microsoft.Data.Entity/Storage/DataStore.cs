@@ -8,7 +8,6 @@ using JetBrains.Annotations;
 using Microsoft.AspNet.Logging;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq;
 
@@ -50,7 +49,11 @@ namespace Microsoft.Data.Entity.Storage
             [NotNull] IEnumerable<StateEntry> stateEntries,
             CancellationToken cancellationToken = default(CancellationToken));
 
-        public abstract IAsyncEnumerable<TResult> Query<TResult>(
+        public abstract IEnumerable<TResult> Query<TResult>(
+            [NotNull] QueryModel queryModel,
+            [NotNull] StateManager stateManager);
+
+        public abstract IAsyncEnumerable<TResult> AsyncQuery<TResult>(
             [NotNull] QueryModel queryModel,
             [NotNull] StateManager stateManager);
     }
