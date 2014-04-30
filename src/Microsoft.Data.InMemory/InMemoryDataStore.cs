@@ -64,23 +64,20 @@ namespace Microsoft.Data.InMemory
             return Task.FromResult(_database.Value.ExecuteTransaction(stateEntries));
         }
 
-        public override IAsyncEnumerable<TResult> Query<TResult>(
-            QueryModel queryModel, StateManager stateManager)
+        public override IEnumerable<TResult> Query<TResult>(QueryModel queryModel, StateManager stateManager)
         {
             Check.NotNull(queryModel, "queryModel");
             Check.NotNull(stateManager, "stateManager");
 
-            if (!_persist
-                && !_database.HasValue)
-            {
-                return new CompletedAsyncEnumerable<TResult>(Enumerable.Empty<TResult>());
-            }
-
-            var queryModelVisitor = new QueryModelVisitor();
-            var queryExecutor = queryModelVisitor.CreateQueryExecutor<TResult>(queryModel);
+            var queryExecutor = new QueryModelVisitor().CreateQueryExecutor<TResult>(queryModel);
             var queryContext = new InMemoryQueryContext(Model, Logger, stateManager, _database.Value);
 
-            return new CompletedAsyncEnumerable<TResult>(queryExecutor(queryContext));
+            return queryExecutor(queryContext);
+        }
+
+        public override IAsyncEnumerable<TResult> AsyncQuery<TResult>(QueryModel queryModel, StateManager stateManager)
+        {
+            return Query<TResult>(queryModel, stateManager).ToAsyncEnumerable();
         }
     }
 }

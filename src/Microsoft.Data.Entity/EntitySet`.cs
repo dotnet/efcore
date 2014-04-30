@@ -13,7 +13,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity
 {
-    public class DbSet<TEntity> : DbSet, IOrderedQueryable<TEntity>, IAsyncEnumerable<TEntity>
+    public class DbSet<TEntity> : DbSet, IOrderedQueryable<TEntity>
         where TEntity : class
     {
         private readonly EntityQueryable<TEntity> _entityQueryable;
@@ -32,41 +32,6 @@ namespace Microsoft.Data.Entity
         {
             _entityQueryable
                 = new EntityQueryable<TEntity>(new EntityQueryExecutor(context));
-        }
-
-        public IAsyncEnumerator<TEntity> GetAsyncEnumerator()
-        {
-            return _entityQueryable.GetAsyncEnumerator();
-        }
-
-        public virtual IEnumerator<TEntity> GetEnumerator()
-        {
-            return _entityQueryable.GetEnumerator();
-        }
-
-        IAsyncEnumerator IAsyncEnumerable.GetAsyncEnumerator()
-        {
-            return GetAsyncEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
-        public override Type ElementType
-        {
-            get { return _entityQueryable.ElementType; }
-        }
-
-        public override Expression Expression
-        {
-            get { return _entityQueryable.Expression; }
-        }
-
-        public override IQueryProvider Provider
-        {
-            get { return _entityQueryable.Provider; }
         }
 
         public virtual TEntity Add([NotNull] TEntity entity)
@@ -134,6 +99,31 @@ namespace Microsoft.Data.Entity
             {
                 Update(entity);
             }
+        }
+
+        IEnumerator<TEntity> IEnumerable<TEntity>.GetEnumerator()
+        {
+            return _entityQueryable.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return _entityQueryable.GetEnumerator();
+        }
+
+        public override Type ElementType
+        {
+            get { return _entityQueryable.ElementType; }
+        }
+
+        public override Expression Expression
+        {
+            get { return _entityQueryable.Expression; }
+        }
+
+        public override IQueryProvider Provider
+        {
+            get { return _entityQueryable.Provider; }
         }
     }
 }

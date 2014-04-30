@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
@@ -21,14 +22,9 @@ namespace Microsoft.Data.Entity.Query
         {
         }
 
-        public IAsyncEnumerator<TResult> GetAsyncEnumerator()
+        IAsyncEnumerator<TResult> IAsyncEnumerable<TResult>.GetEnumerator()
         {
-            return (IAsyncEnumerator<TResult>)GetEnumerator();
-        }
-
-        IAsyncEnumerator IAsyncEnumerable.GetAsyncEnumerator()
-        {
-            return GetAsyncEnumerator();
+            return ((EntityQueryProvider)Provider).AsyncQuery<TResult>(Expression).GetEnumerator();
         }
     }
 }

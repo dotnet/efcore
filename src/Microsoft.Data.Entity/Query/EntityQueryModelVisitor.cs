@@ -18,37 +18,35 @@ namespace Microsoft.Data.Entity.Query
 {
     public abstract class EntityQueryModelVisitor : QueryModelVisitorBase
     {
-        private static readonly ParameterExpression _queryContextParameter
+        protected static readonly ParameterExpression _queryContextParameter
             = Expression.Parameter(typeof(QueryContext));
 
         private static readonly ParameterExpression _querySourceScopeParameter
             = Expression.Parameter(typeof(QuerySourceScope));
 
         private readonly QuerySourceMapping _querySourceMapping = new QuerySourceMapping();
+
+        private readonly ILinqOperatorProvider _linqOperatorProvider;
         private readonly EntityQueryModelVisitor _parentQueryModelVisitor;
-        private readonly MethodInfo _entityScanMethodInfo;
-        private readonly Func<EntityQueryModelVisitor, EntityQueryModelVisitor> _visitorFactory;
 
-        private Expression _expression;
-        private StreamedSequenceInfo _streamedSequenceInfo;
+        protected Expression _expression;
+        protected StreamedSequenceInfo _streamedSequenceInfo;
 
-        protected EntityQueryModelVisitor(
-            MethodInfo entityScanMethodInfo,
-            Func<EntityQueryModelVisitor, EntityQueryModelVisitor> visitorFactory)
+        protected EntityQueryModelVisitor(EntityQueryModelVisitor parentQueryModelVisitor)
+            : this(new LinqOperatorProvider(), parentQueryModelVisitor)
         {
-            _entityScanMethodInfo = entityScanMethodInfo;
-            _visitorFactory = visitorFactory;
         }
 
         protected EntityQueryModelVisitor(
-            EntityQueryModelVisitor parentQueryModelVisitor,
-            MethodInfo entityScanMethodInfo,
-            Func<EntityQueryModelVisitor, EntityQueryModelVisitor> visitorFactory)
+            ILinqOperatorProvider linqOperatorProvider,
+            EntityQueryModelVisitor parentQueryModelVisitor)
         {
+            _linqOperatorProvider = linqOperatorProvider;
             _parentQueryModelVisitor = parentQueryModelVisitor;
-            _entityScanMethodInfo = entityScanMethodInfo;
-            _visitorFactory = visitorFactory;
         }
+
+        protected abstract ExpressionTreeVisitor CreateQueryingExpressionTreeVisitor(EntityQueryModelVisitor parentQueryModelVisitor);
+        protected abstract ExpressionTreeVisitor CreateProjectionExpressionTreeVisitor(EntityQueryModelVisitor parentQueryModelVisitor);
 
         public Func<QueryContext, IEnumerable<TResult>> CreateQueryExecutor<TResult>([NotNull] QueryModel queryModel)
         {
@@ -59,7 +57,10 @@ namespace Microsoft.Data.Entity.Query
             if (_streamedSequenceInfo == null)
             {
                 _expression
-                    = Expression.NewArrayInit(typeof(TResult), _expression);
+                    = Expression.Call(
+                        _linqOperatorProvider.ToSequence
+                            .MakeGenericMethod(typeof(TResult)),
+                        _expression);
             }
 
             return Expression
@@ -71,7 +72,7 @@ namespace Microsoft.Data.Entity.Query
         {
             _expression
                 = ReplaceClauseReferences(
-                    new QueryingExpressionTreeVisitor(this, _entityScanMethodInfo, _visitorFactory)
+                    CreateQueryingExpressionTreeVisitor(this)
                         .VisitExpression(fromClause.FromExpression));
 
             var itemParameter
@@ -88,12 +89,14 @@ namespace Microsoft.Data.Entity.Query
 
             _expression
                 = Expression.Call(
-                    _selectManyShim
+                    _linqOperatorProvider.SelectMany
                         .MakeGenericMethod(typeof(QuerySourceScope), typeof(QuerySourceScope)),
-                    Expression.NewArrayInit(typeof(QuerySourceScope), parentScopeExpression),
+                    Expression.Call(
+                        _linqOperatorProvider.ToSequence.MakeGenericMethod(typeof(QuerySourceScope)),
+                        parentScopeExpression),
                     Expression.Lambda(
                         Expression.Call(
-                            _selectShim
+                            _linqOperatorProvider.Select
                                 .MakeGenericMethod(fromClause.ItemType, typeof(QuerySourceScope)),
                             _expression,
                             Expression.Lambda(
@@ -110,7 +113,7 @@ namespace Microsoft.Data.Entity.Query
         {
             var innerExpression
                 = ReplaceClauseReferences(
-                    new QueryingExpressionTreeVisitor(this, _entityScanMethodInfo, _visitorFactory)
+                    CreateQueryingExpressionTreeVisitor(this)
                         .VisitExpression(fromClause.FromExpression));
 
             var itemParameter
@@ -122,12 +125,12 @@ namespace Microsoft.Data.Entity.Query
 
             _expression
                 = Expression.Call(
-                    _selectManyShim
+                    _linqOperatorProvider.SelectMany
                         .MakeGenericMethod(typeof(QuerySourceScope), typeof(QuerySourceScope)),
                     _expression,
                     Expression.Lambda(
                         Expression.Call(
-                            _selectShim
+                            _linqOperatorProvider.Select
                                 .MakeGenericMethod(fromClause.ItemType, typeof(QuerySourceScope)),
                             innerExpression,
                             Expression.Lambda(
@@ -140,16 +143,6 @@ namespace Microsoft.Data.Entity.Query
                 QuerySourceScope.GetResult(_querySourceScopeParameter, fromClause));
         }
 
-        private static readonly MethodInfo _selectManyShim
-            = typeof(EntityQueryModelVisitor).GetTypeInfo().GetDeclaredMethod("SelectManyShim");
-
-        [UsedImplicitly]
-        private static IEnumerable<TResult> SelectManyShim<TSource, TResult>(
-            IEnumerable<TSource> source, Func<TSource, IEnumerable<TResult>> selector)
-        {
-            return source.SelectMany(selector);
-        }
-
         public override void VisitJoinClause(JoinClause joinClause, QueryModel queryModel, int index)
         {
             var itemParameter
@@ -159,17 +152,17 @@ namespace Microsoft.Data.Entity.Query
 
             var innerSequence
                 = ReplaceClauseReferences(
-                    new QueryingExpressionTreeVisitor(null, _entityScanMethodInfo, _visitorFactory)
+                    CreateQueryingExpressionTreeVisitor(null)
                         .VisitExpression(joinClause.InnerSequence));
 
             var outerKeySelector
                 = ReplaceClauseReferences(
-                    new QueryingExpressionTreeVisitor(this, _entityScanMethodInfo, _visitorFactory)
+                    CreateQueryingExpressionTreeVisitor(this)
                         .VisitExpression(joinClause.OuterKeySelector));
 
             var innerKeySelector
                 = ReplaceClauseReferences(
-                    new QueryingExpressionTreeVisitor(this, _entityScanMethodInfo, _visitorFactory)
+                    CreateQueryingExpressionTreeVisitor(this)
                         .VisitExpression(joinClause.InnerKeySelector));
 
             var scopeCreatorExpression
@@ -178,7 +171,7 @@ namespace Microsoft.Data.Entity.Query
 
             _expression
                 = Expression.Call(
-                    _joinShim.MakeGenericMethod(
+                    _linqOperatorProvider.Join.MakeGenericMethod(
                         typeof(QuerySourceScope),
                         joinClause.ItemType,
                         outerKeySelector.Type,
@@ -196,20 +189,6 @@ namespace Microsoft.Data.Entity.Query
                 QuerySourceScope.GetResult(_querySourceScopeParameter, joinClause));
         }
 
-        private static readonly MethodInfo _joinShim
-            = typeof(EntityQueryModelVisitor).GetTypeInfo().GetDeclaredMethod("JoinShim");
-
-        [UsedImplicitly]
-        private static IEnumerable<TResult> JoinShim<TOuter, TInner, TKey, TResult>(
-            IEnumerable<TOuter> outer,
-            IEnumerable<TInner> inner,
-            Func<TOuter, TKey> outerKeySelector,
-            Func<TInner, TKey> innerKeySelector,
-            Func<TOuter, TInner, TResult> resultSelector)
-        {
-            return outer.Join(inner, outerKeySelector, innerKeySelector, resultSelector);
-        }
-
         public override void VisitGroupJoinClause(GroupJoinClause groupJoinClause, QueryModel queryModel, int index)
         {
             var itemParameter
@@ -219,17 +198,17 @@ namespace Microsoft.Data.Entity.Query
 
             var innerSequence
                 = ReplaceClauseReferences(
-                    new QueryingExpressionTreeVisitor(null, _entityScanMethodInfo, _visitorFactory)
+                    CreateQueryingExpressionTreeVisitor(null)
                         .VisitExpression(groupJoinClause.JoinClause.InnerSequence));
 
             var outerKeySelector
                 = ReplaceClauseReferences(
-                    new QueryingExpressionTreeVisitor(this, _entityScanMethodInfo, _visitorFactory)
+                    CreateQueryingExpressionTreeVisitor(this)
                         .VisitExpression(groupJoinClause.JoinClause.OuterKeySelector));
 
             var innerKeySelector
                 = ReplaceClauseReferences(
-                    new QueryingExpressionTreeVisitor(this, _entityScanMethodInfo, _visitorFactory)
+                    CreateQueryingExpressionTreeVisitor(this)
                         .VisitExpression(groupJoinClause.JoinClause.InnerKeySelector));
 
             var itemsParameter
@@ -241,7 +220,7 @@ namespace Microsoft.Data.Entity.Query
 
             _expression
                 = Expression.Call(
-                    _groupJoinShim.MakeGenericMethod(
+                    _linqOperatorProvider.GroupJoin.MakeGenericMethod(
                         typeof(QuerySourceScope),
                         groupJoinClause.JoinClause.ItemType,
                         outerKeySelector.Type,
@@ -259,88 +238,18 @@ namespace Microsoft.Data.Entity.Query
                 QuerySourceScope.GetResult(_querySourceScopeParameter, groupJoinClause));
         }
 
-        private static readonly MethodInfo _groupJoinShim
-            = typeof(EntityQueryModelVisitor).GetTypeInfo().GetDeclaredMethod("GroupJoinShim");
-
-        [UsedImplicitly]
-        private static IEnumerable<TResult> GroupJoinShim<TOuter, TInner, TKey, TResult>(
-            IEnumerable<TOuter> outer,
-            IEnumerable<TInner> inner,
-            Func<TOuter, TKey> outerKeySelector,
-            Func<TInner, TKey> innerKeySelector,
-            Func<TOuter, IEnumerable<TInner>, TResult> resultSelector)
-        {
-            return outer.GroupJoin(inner, outerKeySelector, innerKeySelector, resultSelector);
-        }
-
         public override void VisitWhereClause(WhereClause whereClause, QueryModel queryModel, int index)
         {
             var predicate
                 = ReplaceClauseReferences(
-                    new QueryingExpressionTreeVisitor(this, _entityScanMethodInfo, _visitorFactory)
+                    CreateQueryingExpressionTreeVisitor(this)
                         .VisitExpression(whereClause.Predicate));
 
             _expression
                 = Expression.Call(
-                    _whereShim.MakeGenericMethod(typeof(QuerySourceScope)),
+                    _linqOperatorProvider.Where.MakeGenericMethod(typeof(QuerySourceScope)),
                     _expression,
                     Expression.Lambda(predicate, _querySourceScopeParameter));
-        }
-
-        private static readonly MethodInfo _whereShim
-            = typeof(EntityQueryModelVisitor).GetTypeInfo().GetDeclaredMethod("WhereShim");
-
-        [UsedImplicitly]
-        private static IEnumerable<TSource> WhereShim<TSource>(
-            IEnumerable<TSource> source, Func<TSource, bool> predicate)
-        {
-            return source.Where(predicate);
-        }
-
-        private class ProjectionSubQueryExpressionTreeVisitor : QueryingExpressionTreeVisitor
-        {
-            public ProjectionSubQueryExpressionTreeVisitor(
-                EntityQueryModelVisitor queryModelVisitor,
-                MethodInfo entityScanMethodInfo,
-                Func<EntityQueryModelVisitor, EntityQueryModelVisitor> visitorFactory)
-                : base(queryModelVisitor, entityScanMethodInfo, visitorFactory)
-            {
-            }
-
-            protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
-            {
-                var queryModelVisitor = _visitorFactory(_queryModelVisitor);
-
-                queryModelVisitor.VisitQueryModel(expression.QueryModel);
-
-                var subExpression = queryModelVisitor._expression;
-
-                if (queryModelVisitor._streamedSequenceInfo == null)
-                {
-                    return subExpression;
-                }
-
-                if (typeof(IQueryable).GetTypeInfo().IsAssignableFrom(expression.Type.GetTypeInfo()))
-                {
-                    subExpression
-                        = Expression.Call(
-                            _asQueryableShim.MakeGenericMethod(
-                                queryModelVisitor._streamedSequenceInfo.ResultItemType),
-                            subExpression);
-                }
-
-                return Expression.Convert(subExpression, expression.Type);
-            }
-
-            private static readonly MethodInfo _asQueryableShim
-                = typeof(ProjectionSubQueryExpressionTreeVisitor).GetTypeInfo()
-                    .GetDeclaredMethod("AsQueryableShim");
-
-            [UsedImplicitly]
-            private static IOrderedQueryable<TSource> AsQueryableShim<TSource>(IEnumerable<TSource> source)
-            {
-                return new EnumerableQuery<TSource>(source);
-            }
         }
 
         public override void VisitSelectClause(SelectClause selectClause, QueryModel queryModel)
@@ -352,28 +261,19 @@ namespace Microsoft.Data.Entity.Query
 
             var selector
                 = ReplaceClauseReferences(
-                    new ProjectionSubQueryExpressionTreeVisitor(this, _entityScanMethodInfo, _visitorFactory)
+                    CreateProjectionExpressionTreeVisitor(this)
                         .VisitExpression(selectClause.Selector));
 
             _expression
                 = Expression.Call(
-                    _selectShim.MakeGenericMethod(typeof(QuerySourceScope), selector.Type),
+                    _linqOperatorProvider.Select.MakeGenericMethod(typeof(QuerySourceScope), selector.Type),
                     _expression,
                     Expression.Lambda(selector, _querySourceScopeParameter));
 
             _streamedSequenceInfo
                 = (StreamedSequenceInfo)selectClause.GetOutputDataInfo()
-                    .AdjustDataType(_expression.Type);
-        }
-
-        private static readonly MethodInfo _selectShim
-            = typeof(EntityQueryModelVisitor).GetTypeInfo().GetDeclaredMethod("SelectShim");
-
-        [UsedImplicitly]
-        private static IEnumerable<TResult> SelectShim<TSource, TResult>(
-            IEnumerable<TSource> source, Func<TSource, TResult> selector)
-        {
-            return source.Select(selector);
+                    .AdjustDataType(typeof(IEnumerable<>));
+            //.AdjustDataType(_expression.Type);
         }
 
         public override void VisitOrdering(Ordering ordering, QueryModel queryModel, OrderByClause orderByClause, int index)
@@ -394,14 +294,14 @@ namespace Microsoft.Data.Entity.Query
 
                 var expression
                     = ReplaceClauseReferences(
-                        new QueryingExpressionTreeVisitor(this, _entityScanMethodInfo, _visitorFactory)
+                        CreateQueryingExpressionTreeVisitor(this)
                             .VisitExpression(ordering.Expression));
 
                 _expression
                     = Expression.Call(
                         (index == 0
-                            ? _orderByShim
-                            : _thenByShim)
+                            ? _linqOperatorProvider.OrderBy
+                            : _linqOperatorProvider.ThenBy)
                             .MakeGenericMethod(_streamedSequenceInfo.ResultItemType, expression.Type),
                         _expression,
                         Expression.Lambda(expression, parameterExpression),
@@ -411,14 +311,14 @@ namespace Microsoft.Data.Entity.Query
             {
                 var expression
                     = ReplaceClauseReferences(
-                        new QueryingExpressionTreeVisitor(this, _entityScanMethodInfo, _visitorFactory)
+                        CreateQueryingExpressionTreeVisitor(this)
                             .VisitExpression(ordering.Expression));
 
                 _expression
                     = Expression.Call(
                         (index == 0
-                            ? _orderByShim
-                            : _thenByShim)
+                            ? _linqOperatorProvider.OrderBy
+                            : _linqOperatorProvider.ThenBy)
                             .MakeGenericMethod(typeof(QuerySourceScope), expression.Type),
                         _expression,
                         Expression.Lambda(expression, _querySourceScopeParameter),
@@ -426,54 +326,13 @@ namespace Microsoft.Data.Entity.Query
             }
         }
 
-        private static readonly MethodInfo _orderByShim
-            = typeof(EntityQueryModelVisitor).GetTypeInfo().GetDeclaredMethod("OrderByShim");
-
-        [UsedImplicitly]
-        private static IOrderedEnumerable<TSource> OrderByShim<TSource, TKey>(
-            IEnumerable<TSource> source, Func<TSource, TKey> expression, OrderingDirection orderingDirection)
+        protected abstract class QueryingExpressionTreeVisitor : ExpressionTreeVisitor
         {
-            return orderingDirection == OrderingDirection.Asc
-                ? source.OrderBy(expression)
-                : source.OrderByDescending(expression);
-        }
+            protected readonly EntityQueryModelVisitor _parentQueryModelVisitor;
 
-        private static readonly MethodInfo _thenByShim
-            = typeof(EntityQueryModelVisitor).GetTypeInfo().GetDeclaredMethod("ThenByShim");
-
-        [UsedImplicitly]
-        private static IOrderedEnumerable<TSource> ThenByShim<TSource, TKey>(
-            IOrderedEnumerable<TSource> source, Func<TSource, TKey> expression, OrderingDirection orderingDirection)
-        {
-            return orderingDirection == OrderingDirection.Asc
-                ? source.ThenBy(expression)
-                : source.ThenByDescending(expression);
-        }
-
-        private class QueryingExpressionTreeVisitor : ExpressionTreeVisitor
-        {
-            protected readonly EntityQueryModelVisitor _queryModelVisitor;
-            protected readonly Func<EntityQueryModelVisitor, EntityQueryModelVisitor> _visitorFactory;
-
-            private readonly MethodInfo _entityScanMethodInfo;
-
-            public QueryingExpressionTreeVisitor(
-                EntityQueryModelVisitor queryModelVisitor,
-                MethodInfo entityScanMethodInfo,
-                Func<EntityQueryModelVisitor, EntityQueryModelVisitor> visitorFactory)
+            protected QueryingExpressionTreeVisitor(EntityQueryModelVisitor parentQueryModelVisitor)
             {
-                _queryModelVisitor = queryModelVisitor;
-                _entityScanMethodInfo = entityScanMethodInfo;
-                _visitorFactory = visitorFactory;
-            }
-
-            protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
-            {
-                var queryModelVisitor = _visitorFactory(_queryModelVisitor);
-
-                queryModelVisitor.VisitQueryModel(expression.QueryModel);
-
-                return queryModelVisitor._expression;
+                _parentQueryModelVisitor = parentQueryModelVisitor;
             }
 
             protected override Expression VisitConstantExpression(ConstantExpression expression)
@@ -481,22 +340,56 @@ namespace Microsoft.Data.Entity.Query
                 if (expression.Type.GetTypeInfo().IsGenericType
                     && expression.Type.GetGenericTypeDefinition() == typeof(EntityQueryable<>))
                 {
-                    return Expression.Call(
-                        _entityScanMethodInfo.MakeGenericMethod(((IQueryable)expression.Value).ElementType),
-                        _queryContextParameter);
+                    return VisitEntityQueryable(((IQueryable)expression.Value).ElementType);
                 }
 
                 return expression;
+            }
+
+            protected abstract Expression VisitEntityQueryable(Type elementType);
+
+            protected Expression VisitProjectionSubQuery(
+                SubQueryExpression expression, EntityQueryModelVisitor queryModelVisitor)
+            {
+                queryModelVisitor.VisitQueryModel(expression.QueryModel);
+
+                var subExpression = queryModelVisitor._expression;
+
+                if (queryModelVisitor._streamedSequenceInfo == null)
+                {
+                    return subExpression;
+                }
+
+                if (typeof(IQueryable).IsAssignableFrom(expression.Type))
+                {
+                    subExpression
+                        = Expression.Call(
+                            _asQueryableShim.MakeGenericMethod(
+                                queryModelVisitor._streamedSequenceInfo.ResultItemType),
+                            subExpression);
+                }
+
+                return Expression.Convert(subExpression, expression.Type);
+            }
+
+            protected static readonly MethodInfo _asQueryableShim
+                = typeof(QueryingExpressionTreeVisitor)
+                    .GetMethod("AsQueryableShim", BindingFlags.NonPublic | BindingFlags.Static);
+
+            [UsedImplicitly]
+            private static IOrderedQueryable<TSource> AsQueryableShim<TSource>(IEnumerable<TSource> source)
+            {
+                return new EnumerableQuery<TSource>(source);
             }
         }
 
         public override void VisitResultOperator(ResultOperatorBase resultOperator, QueryModel queryModel, int index)
         {
             // TODO: sub-queries in result op. expressions
-            //    resultOperator
-            //        .TransformExpressions(e =>
-            //            ReplaceClauseReferences(new QueryingExpressionTreeVisitor(this)
-            //                .VisitExpression(e)));
+            //                resultOperator
+            //                    .TransformExpressions(e =>
+            //                        ReplaceClauseReferences(new QueryingExpressionTreeVisitor(this)
+            //                            .VisitExpression(e)));
 
             var streamedDataInfo
                 = resultOperator.GetOutputDataInfo(_streamedSequenceInfo);
@@ -513,7 +406,7 @@ namespace Microsoft.Data.Entity.Query
         }
 
         private static readonly MethodInfo _executeResultOperatorMethodInfo
-            = typeof(EntityQueryModelVisitor).GetTypeInfo().GetDeclaredMethod("ExecuteResultOperator");
+            = typeof(EntityQueryModelVisitor).GetMethod("ExecuteResultOperator", BindingFlags.NonPublic | BindingFlags.Static);
 
         [UsedImplicitly]
         private static TResult ExecuteResultOperator<TSource, TResult>(

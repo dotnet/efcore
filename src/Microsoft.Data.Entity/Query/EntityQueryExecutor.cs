@@ -32,12 +32,12 @@ namespace Microsoft.Data.Entity.Query
             return ExecuteCollection<T>(queryModel).Single();
         }
 
-        public virtual Task<T> ExecuteScalarAsync<T>([NotNull] QueryModel queryModel,
-            CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<T> ExecuteScalarAsync<T>(
+            [NotNull] QueryModel queryModel, CancellationToken cancellationToken)
         {
             Check.NotNull(queryModel, "queryModel");
 
-            return ((IAsyncEnumerable<T>)ExecuteCollection<T>(queryModel)).SingleAsync(cancellationToken);
+            return AsyncExecuteCollection<T>(queryModel).Single(cancellationToken);
         }
 
         public virtual T ExecuteSingle<T>([NotNull] QueryModel queryModel, bool returnDefaultWhenEmpty)
@@ -54,28 +54,43 @@ namespace Microsoft.Data.Entity.Query
         public virtual Task<T> ExecuteSingleAsync<T>(
             [NotNull] QueryModel queryModel,
             bool returnDefaultWhenEmpty,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken)
         {
             Check.NotNull(queryModel, "queryModel");
 
-            var asyncEnumerable = (IAsyncEnumerable<T>)ExecuteCollection<T>(queryModel);
+            var asyncEnumerable = AsyncExecuteCollection<T>(queryModel);
 
             return returnDefaultWhenEmpty
-                ? asyncEnumerable.SingleOrDefaultAsync(cancellationToken)
-                : asyncEnumerable.SingleAsync(cancellationToken);
+                ? asyncEnumerable.SingleOrDefault(cancellationToken)
+                : asyncEnumerable.Single(cancellationToken);
         }
 
-        public IEnumerable<T> ExecuteCollection<T>([NotNull] QueryModel queryModel)
+        public virtual IEnumerable<T> ExecuteCollection<T>([NotNull] QueryModel queryModel)
         {
             Check.NotNull(queryModel, "queryModel");
 
+            LogQueryModel(queryModel);
+
+            return _context.Configuration.DataStore
+                .Query<T>(queryModel, _context.Configuration.Services.StateManager);
+        }
+
+        public virtual IAsyncEnumerable<T> AsyncExecuteCollection<T>([NotNull] QueryModel queryModel)
+        {
+            Check.NotNull(queryModel, "queryModel");
+
+            LogQueryModel(queryModel);
+
+            return _context.Configuration.DataStore
+                .AsyncQuery<T>(queryModel, _context.Configuration.Services.StateManager);
+        }
+
+        private void LogQueryModel(QueryModel queryModel)
+        {
             if (_logger.Value.IsEnabled(TraceType.Information))
             {
                 _logger.Value.WriteInformation(queryModel + Environment.NewLine);
             }
-
-            return _context.Configuration.DataStore
-                .Query<T>(queryModel, _context.Configuration.Services.StateManager);
         }
     }
 }

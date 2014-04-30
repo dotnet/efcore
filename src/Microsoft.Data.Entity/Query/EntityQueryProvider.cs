@@ -1,9 +1,8 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
-using System.Diagnostics.Contracts;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -17,12 +16,6 @@ namespace Microsoft.Data.Entity.Query
 {
     public class EntityQueryProvider : QueryProviderBase, IAsyncQueryProvider
     {
-        private static readonly MethodInfo _executeScalarAsyncMethod
-            = (typeof(EntityQueryExecutor).GetTypeInfo().GetDeclaredMethod("ExecuteScalarAsync"));
-
-        private static readonly MethodInfo _executeSingleAsyncMethod
-            = (typeof(EntityQueryExecutor).GetTypeInfo().GetDeclaredMethod("ExecuteSingleAsync"));
-
         private static IQueryParser CreateQueryParser()
         {
             var transformerRegistry = ExpressionTransformerRegistry.CreateDefault();
@@ -42,7 +35,8 @@ namespace Microsoft.Data.Entity.Query
         {
         }
 
-        public Task<T> ExecuteAsync<T>(Expression expression, CancellationToken cancellationToken)
+        public virtual Task<T> ExecuteAsync<T>(
+            Expression expression, CancellationToken cancellationToken)
         {
             Check.NotNull(expression, "expression");
 
@@ -50,34 +44,37 @@ namespace Microsoft.Data.Entity.Query
 
             var queryModel = GenerateQueryModel(expression);
             var streamedDataInfo = queryModel.GetOutputDataInfo();
-
-            MethodInfo closedExecuteMethod;
+            var entityQueryExecutor = (EntityQueryExecutor)Executor;
 
             if (streamedDataInfo is StreamedScalarValueInfo)
             {
-                closedExecuteMethod = _executeScalarAsyncMethod.MakeGenericMethod(typeof(T));
-
-                return (Task<T>)closedExecuteMethod.Invoke(Executor, new object[] { queryModel, cancellationToken });
+                return entityQueryExecutor.ExecuteScalarAsync<T>(queryModel, cancellationToken);
             }
 
-            var streamedSingleValueInfo = streamedDataInfo as StreamedSingleValueInfo;
-
-            Contract.Assert(streamedSingleValueInfo != null);
-
-            closedExecuteMethod = _executeSingleAsyncMethod.MakeGenericMethod(typeof(T));
-
-            return (Task<T>)closedExecuteMethod.Invoke(
-                Executor,
-                new object[] { queryModel, streamedSingleValueInfo.ReturnDefaultWhenEmpty, cancellationToken });
+            return entityQueryExecutor
+                .ExecuteSingleAsync<T>(
+                    queryModel,
+                    ((StreamedSingleValueInfo)streamedDataInfo).ReturnDefaultWhenEmpty,
+                    cancellationToken);
         }
 
-        public Task<object> ExecuteAsync(Expression expression, CancellationToken cancellationToken)
+        public virtual Task<object> ExecuteAsync(
+            Expression expression, CancellationToken cancellationToken)
         {
             Check.NotNull(expression, "expression");
 
             cancellationToken.ThrowIfCancellationRequested();
 
             return ExecuteAsync<object>(expression, cancellationToken);
+        }
+
+        public virtual IAsyncEnumerable<T> AsyncQuery<T>([NotNull] Expression expression)
+        {
+            Check.NotNull(expression, "expression");
+
+            var queryModel = GenerateQueryModel(expression);
+
+            return ((EntityQueryExecutor)Executor).AsyncExecuteCollection<T>(queryModel);
         }
 
         public override IQueryable<T> CreateQuery<T>(Expression expression)
