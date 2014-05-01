@@ -530,6 +530,11 @@ namespace Microsoft.Data.SqlServer
 
             if (column.ClrType == typeof(string))
             {
+                if(column.Table.PrimaryKey != null && column.Table.PrimaryKey.Columns.Contains(column))
+                {
+                    return "nvarchar(128)";
+                }
+
                 return "nvarchar(MAX)";
             }
 
