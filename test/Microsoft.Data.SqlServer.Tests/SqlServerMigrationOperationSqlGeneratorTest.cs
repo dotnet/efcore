@@ -2,6 +2,7 @@
 
 using Microsoft.Data.Migrations.Model;
 using Microsoft.Data.Relational.Model;
+using System.Collections.Generic;
 using Xunit;
 
 namespace Microsoft.Data.SqlServer.Tests
@@ -228,6 +229,31 @@ IF @var0 IS NOT NULL
     EXECUTE sp_rename @objname = N'dbo.MyTable.MyIndex', @newname = N'MyIndex2', @objtype = N'INDEX'",
                 SqlServerMigrationOperationSqlGenerator.Generate(
                     new RenameIndexOperation("dbo.MyTable", "MyIndex", "MyIndex2"), generateIdempotentSql: true).Sql);
+        }
+
+        [Fact]
+        public void GenerateDataType_for_string_thats_not_a_key()
+        {
+            var sqlGenerator = new SqlServerMigrationOperationSqlGenerator();
+
+            var column = new Column("Username", typeof(string));
+            var table = new Table("dbo.Users");
+            table.AddColumn(column);
+
+            Assert.Equal("nvarchar(MAX)", sqlGenerator.GenerateDataType(column));
+        }
+
+        [Fact]
+        public void GenerateDataType_for_string_key()
+        {
+            var sqlGenerator = new SqlServerMigrationOperationSqlGenerator();
+
+            var column = new Column("Username", typeof(string));
+            var table = new Table("dbo.Users");
+            table.PrimaryKey = new PrimaryKey("PK_Users", new List<Column>() { column }.AsReadOnly());
+            table.AddColumn(column);
+
+            Assert.Equal("nvarchar(128)", sqlGenerator.GenerateDataType(column));
         }
 
         [Fact]
