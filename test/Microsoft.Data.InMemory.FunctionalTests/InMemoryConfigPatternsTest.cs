@@ -535,7 +535,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
 
         private static string GetString(string stringName)
         {
-            var strings = typeof(DbContext).Assembly.GetType(typeof(DbContext).Namespace + ".Strings");
+            var strings = typeof(DbContext).GetTypeInfo().Assembly.GetType(typeof(DbContext).Namespace + ".Strings");
             return (string)strings.GetTypeInfo().GetDeclaredMethods(stringName).Single().Invoke(null, null);
         }
     }
