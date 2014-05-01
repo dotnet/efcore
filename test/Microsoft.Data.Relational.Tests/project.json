@@ -13,7 +13,7 @@
     "xunit.core": "2.0.0-aspnet-*",
     "xunit.execution": "2.0.0-aspnet-*"
   },
-  "code": "**\\*.cs;..\\Shared\\*.cs",
+  "code": "**\\*.cs;..\\Shared\\ApiConsistencyTestBase.cs",
   "commands": {
     "test": "Xunit.KRunner"
   },

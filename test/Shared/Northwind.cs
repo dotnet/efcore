@@ -1,7 +1,12 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Data.Entity.Query;
 
 namespace Northwind
 {
@@ -239,30 +244,48 @@ namespace Northwind
         {
             if (typeof(T) == typeof(Customer))
             {
-                return Customers.Cast<T>().AsQueryable();
+                return new AsyncEnumerable<T>(Customers.Cast<T>());
             }
 
             if (typeof(T) == typeof(Employee))
             {
-                return Employees.Cast<T>().AsQueryable();
+                return new AsyncEnumerable<T>(Employees.Cast<T>());
             }
 
             if (typeof(T) == typeof(Order))
             {
-                return Orders.Cast<T>().AsQueryable();
+                return new AsyncEnumerable<T>(Orders.Cast<T>());
             }
 
             if (typeof(T) == typeof(OrderDetail))
             {
-                return OrderDetails.Cast<T>().AsQueryable();
+                return new AsyncEnumerable<T>(OrderDetails.Cast<T>());
             }
 
             if (typeof(T) == typeof(Product))
             {
-                return Products.Cast<T>().AsQueryable();
+                return new AsyncEnumerable<T>(Products.Cast<T>());
             }
 
             throw new NotImplementedException();
+        }
+
+        private class AsyncEnumerable<T> : EnumerableQuery<T>, IAsyncQueryProvider
+        {
+            public AsyncEnumerable(IEnumerable<T> enumerable)
+                : base(enumerable)
+            {
+            }
+
+            public Task<object> ExecuteAsync(Expression expression, CancellationToken cancellationToken)
+            {
+                return Task.FromResult(((IQueryProvider)this).Execute(expression));
+            }
+
+            public Task<S> ExecuteAsync<S>(Expression expression, CancellationToken cancellationToken)
+            {
+                return Task.FromResult(((IQueryProvider)this).Execute<S>(expression));
+            }
         }
 
         #region Customers

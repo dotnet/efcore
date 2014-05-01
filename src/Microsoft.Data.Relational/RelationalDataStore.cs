@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.ChangeTracking;
-using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Relational.Update;
 using Microsoft.Data.Relational.Utilities;
@@ -79,18 +78,26 @@ namespace Microsoft.Data.Relational
             return stateEntries.Count();
         }
 
-        public override IAsyncEnumerable<TResult> Query<TResult>(
-            QueryModel queryModel, StateManager stateManager)
+        public override IEnumerable<TResult> Query<TResult>(QueryModel queryModel, StateManager stateManager)
         {
             Check.NotNull(queryModel, "queryModel");
             Check.NotNull(stateManager, "stateManager");
 
-            var queryModelVisitor = new QueryModelVisitor();
-            var queryExecutor = queryModelVisitor.CreateQueryExecutor<TResult>(queryModel);
+            var queryExecutor = new QueryModelVisitor().CreateQueryExecutor<TResult>(queryModel);
             var queryContext = new RelationalQueryContext(Model, Logger, stateManager, _connection, ValueReaderFactory);
 
-            // TODO: Need async in query compiler
-            return new CompletedAsyncEnumerable<TResult>(queryExecutor(queryContext));
+            return queryExecutor(queryContext);
+        }
+
+        public override IAsyncEnumerable<TResult> AsyncQuery<TResult>(QueryModel queryModel, StateManager stateManager)
+        {
+            Check.NotNull(queryModel, "queryModel");
+            Check.NotNull(stateManager, "stateManager");
+
+            var queryExecutor = new AsyncQueryModelVisitor().CreateQueryExecutor<TResult>(queryModel);
+            var queryContext = new RelationalQueryContext(Model, Logger, stateManager, _connection, ValueReaderFactory);
+
+            return queryExecutor(queryContext);
         }
     }
 }

@@ -1,13 +1,14 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNet.Logging;
 using Microsoft.Data.Entity.Metadata;
@@ -19,14 +20,14 @@ namespace Microsoft.Data.Relational
 {
     public partial class RelationalDataStore
     {
-        private class QueryModelVisitor : EntityQueryModelVisitor
+        private class AsyncQueryModelVisitor : AsyncEntityQueryModelVisitor
         {
-            public QueryModelVisitor()
+            public AsyncQueryModelVisitor()
                 : base(null)
             {
             }
 
-            private QueryModelVisitor(EntityQueryModelVisitor parentQueryModelVisitor)
+            private AsyncQueryModelVisitor(EntityQueryModelVisitor parentQueryModelVisitor)
                 : base(parentQueryModelVisitor)
             {
             }
@@ -42,10 +43,11 @@ namespace Microsoft.Data.Relational
             }
 
             private static readonly MethodInfo _entityScanMethodInfo
-                = typeof(QueryModelVisitor).GetMethod("EntityScan", BindingFlags.NonPublic | BindingFlags.Static);
+                = typeof(AsyncQueryModelVisitor)
+                    .GetMethod("EntityScan", BindingFlags.NonPublic | BindingFlags.Static);
 
             [UsedImplicitly]
-            private static IEnumerable<TEntity> EntityScan<TEntity>(QueryContext queryContext)
+            private static IAsyncEnumerable<TEntity> EntityScan<TEntity>(QueryContext queryContext)
             {
                 var entityType = queryContext.Model.GetEntityType(typeof(TEntity));
 
@@ -69,7 +71,7 @@ namespace Microsoft.Data.Relational
 
                 protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
                 {
-                    var queryModelVisitor = new QueryModelVisitor(_parentQueryModelVisitor);
+                    var queryModelVisitor = new AsyncQueryModelVisitor(_parentQueryModelVisitor);
 
                     queryModelVisitor.VisitQueryModel(expression.QueryModel);
 
@@ -93,11 +95,11 @@ namespace Microsoft.Data.Relational
 
                 protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
                 {
-                    return VisitProjectionSubQuery(expression, new QueryModelVisitor(_parentQueryModelVisitor));
+                    return VisitProjectionSubQuery(expression, new AsyncQueryModelVisitor(_parentQueryModelVisitor));
                 }
             }
 
-            private sealed class Enumerable<T> : IEnumerable<T>
+            private sealed class Enumerable<T> : IAsyncEnumerable<T>
             {
                 private readonly RelationalQueryContext _queryContext;
                 private readonly string _sql;
@@ -110,18 +112,13 @@ namespace Microsoft.Data.Relational
                     _entityType = entityType;
                 }
 
-                public IEnumerator<T> GetEnumerator()
+                public IAsyncEnumerator<T> GetEnumerator()
                 {
                     return new Enumerator<T>(_queryContext, _sql, _entityType);
                 }
-
-                IEnumerator IEnumerable.GetEnumerator()
-                {
-                    return GetEnumerator();
-                }
             }
 
-            private sealed class Enumerator<T> : IEnumerator<T>
+            private sealed class Enumerator<T> : IAsyncEnumerator<T>
             {
                 private readonly RelationalQueryContext _queryContext;
                 private readonly string _sql;
@@ -138,22 +135,28 @@ namespace Microsoft.Data.Relational
                     _entityType = entityType;
                 }
 
-                public bool MoveNext()
+                public Task<bool> MoveNext(CancellationToken cancellationToken)
                 {
-                    if (_reader == null)
-                    {
-                        _connection = _queryContext.Connection;
-                        _connection.Open();
+                    return _reader == null
+                        ? InitializeAndReadAsync(cancellationToken)
+                        : _reader.ReadAsync(cancellationToken);
+                }
 
-                        _command = _connection.DbConnection.CreateCommand();
-                        _command.CommandText = _sql;
+                private async Task<bool> InitializeAndReadAsync(
+                    CancellationToken cancellationToken = default(CancellationToken))
+                {
+                    _connection = _queryContext.Connection;
 
-                        _queryContext.Logger.WriteSql(_sql);
+                    await _connection.OpenAsync(cancellationToken);
 
-                        _reader = _command.ExecuteReader();
-                    }
+                    _command = _connection.DbConnection.CreateCommand();
+                    _command.CommandText = _sql;
 
-                    return _reader.Read();
+                    _queryContext.Logger.WriteSql(_sql);
+
+                    _reader = await _command.ExecuteReaderAsync(cancellationToken);
+
+                    return await _reader.ReadAsync(cancellationToken);
                 }
 
                 public T Current
@@ -171,11 +174,6 @@ namespace Microsoft.Data.Relational
                     }
                 }
 
-                object IEnumerator.Current
-                {
-                    get { return Current; }
-                }
-
                 public void Dispose()
                 {
                     if (_reader != null)
@@ -187,11 +185,6 @@ namespace Microsoft.Data.Relational
                     {
                         _command.Dispose();
                     }
-                }
-
-                public void Reset()
-                {
-                    throw new NotImplementedException();
                 }
             }
         }

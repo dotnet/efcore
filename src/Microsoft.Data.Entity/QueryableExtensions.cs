@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
@@ -9,12 +10,12 @@ using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Utilities;
 
+// ReSharper disable once CheckNamespace
+
 namespace System.Linq
 {
     public static class QueryableExtensions
     {
-        #region Any
-
         private static readonly MethodInfo _any
             = GetMethod("Any", t => new[] { typeof(IQueryable<>).MakeGenericType(t) });
 
@@ -34,17 +35,12 @@ namespace System.Linq
                     Expression.Call(
                         null,
                         _any.MakeGenericMethod(typeof(TSource)),
-                        new[] { source.Expression }
-                        ),
+                        new[] { source.Expression }),
                     cancellationToken);
             }
 
             throw new InvalidOperationException(Strings.FormatIQueryableProviderNotAsync());
         }
-
-        #endregion
-
-        #region Count
 
         private static readonly MethodInfo _count
             = GetMethod("Count", t => new[] { typeof(IQueryable<>).MakeGenericType(t) });
@@ -58,23 +54,19 @@ namespace System.Linq
             cancellationToken.ThrowIfCancellationRequested();
 
             var provider = source.Provider as IAsyncQueryProvider;
+
             if (provider != null)
             {
                 return provider.ExecuteAsync<int>(
                     Expression.Call(
                         null,
                         _count.MakeGenericMethod(typeof(TSource)),
-                        new[] { source.Expression }
-                        ),
+                        new[] { source.Expression }),
                     cancellationToken);
             }
 
             throw new InvalidOperationException(Strings.FormatIQueryableProviderNotAsync());
         }
-
-        #endregion
-
-        #region Single
 
         private static readonly MethodInfo _single
             = GetMethod("Single", t => new[] { typeof(IQueryable<>).MakeGenericType(t) });
@@ -95,15 +87,34 @@ namespace System.Linq
                     Expression.Call(
                         null,
                         _single.MakeGenericMethod(typeof(TSource)),
-                        new[] { source.Expression }
-                        ),
+                        new[] { source.Expression }),
                     cancellationToken);
             }
 
             throw new InvalidOperationException(Strings.FormatIQueryableProviderNotAsync());
         }
 
-        #endregion
+        public static Task<List<TSource>> ToListAsync<TSource>(
+            [NotNull] this IQueryable<TSource> source,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Check.NotNull(source, "source");
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            return source.ToAsyncEnumerable().ToList(cancellationToken);
+        }
+
+        public static Task<TSource[]> ToArrayAsync<TSource>(
+            [NotNull] this IQueryable<TSource> source,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Check.NotNull(source, "source");
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            return source.ToAsyncEnumerable().ToArray(cancellationToken);
+        }
 
         #region TODO
 
