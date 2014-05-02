@@ -19,7 +19,7 @@ using System;
 using System.Diagnostics;
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.SQLite.Entity.Utilities
+namespace Microsoft.Data.Entity.SQLite.Utilities
 {
     [DebuggerStepThrough]
     internal static class Check
