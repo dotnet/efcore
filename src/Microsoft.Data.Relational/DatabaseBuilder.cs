@@ -124,7 +124,8 @@ namespace Microsoft.Data.Relational
                         IsNullable = property.IsNullable,
                         DefaultValue = property.ColumnDefaultValue(),
                         DefaultSql = property.ColumnDefaultSql(),
-                        ValueGenerationStrategy = TranslateValueGenerationStrategy(property.ValueGenerationStrategy)
+                        ValueGenerationStrategy = TranslateValueGenerationStrategy(property.ValueGenerationStrategy),
+                        IsTimestamp = property.PropertyType == typeof(byte[]) && property.IsConcurrencyToken
                     };
 
             table.AddColumn(column);

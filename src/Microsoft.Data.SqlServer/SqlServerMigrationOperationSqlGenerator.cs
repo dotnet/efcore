@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Open Technologies, Inc.
 // All Rights Reserved
-//
+// 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-//
+// 
 // http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR
 // CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING
 // WITHOUT LIMITATION ANY IMPLIED WARRANTIES OR CONDITIONS OF
@@ -40,7 +40,7 @@ namespace Microsoft.Data.SqlServer
             return sqlGenerator.Generate(new MigrationOperation[] { migrationOperation }, generateIdempotentSql).Single();
         }
 
-        public override void Generate([NotNull] CreateDatabaseOperation createDatabaseOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
+        public override void Generate(CreateDatabaseOperation createDatabaseOperation, IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
             Check.NotNull(createDatabaseOperation, "createDatabaseOperation");
             Check.NotNull(stringBuilder, "stringBuilder");
@@ -60,7 +60,7 @@ namespace Microsoft.Data.SqlServer
             }
         }
 
-        public override void Generate([NotNull] DropDatabaseOperation dropDatabaseOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
+        public override void Generate(DropDatabaseOperation dropDatabaseOperation, IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
             Check.NotNull(dropDatabaseOperation, "dropDatabaseOperation");
             Check.NotNull(stringBuilder, "stringBuilder");
@@ -80,7 +80,7 @@ namespace Microsoft.Data.SqlServer
             }
         }
 
-        public override void Generate([NotNull] CreateSequenceOperation createSequenceOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
+        public override void Generate(CreateSequenceOperation createSequenceOperation, IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
             Check.NotNull(createSequenceOperation, "createSequenceOperation");
             Check.NotNull(stringBuilder, "stringBuilder");
@@ -100,7 +100,7 @@ namespace Microsoft.Data.SqlServer
             }
         }
 
-        public override void Generate([NotNull] DropSequenceOperation dropSequenceOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
+        public override void Generate(DropSequenceOperation dropSequenceOperation, IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
             Check.NotNull(dropSequenceOperation, "dropSequenceOperation");
             Check.NotNull(stringBuilder, "stringBuilder");
@@ -120,7 +120,7 @@ namespace Microsoft.Data.SqlServer
             }
         }
 
-        public override void Generate([NotNull] CreateTableOperation createTableOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
+        public override void Generate(CreateTableOperation createTableOperation, IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
             Check.NotNull(createTableOperation, "createTableOperation");
             Check.NotNull(stringBuilder, "stringBuilder");
@@ -140,7 +140,7 @@ namespace Microsoft.Data.SqlServer
             }
         }
 
-        public override void Generate([NotNull] DropTableOperation dropTableOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
+        public override void Generate(DropTableOperation dropTableOperation, IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
             Check.NotNull(dropTableOperation, "dropTableOperation");
             Check.NotNull(stringBuilder, "stringBuilder");
@@ -160,7 +160,7 @@ namespace Microsoft.Data.SqlServer
             }
         }
 
-        public override void Generate([NotNull] RenameTableOperation renameTableOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
+        public override void Generate(RenameTableOperation renameTableOperation, IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
             Check.NotNull(renameTableOperation, "renameTableOperation");
             Check.NotNull(stringBuilder, "stringBuilder");
@@ -180,7 +180,7 @@ namespace Microsoft.Data.SqlServer
             }
         }
 
-        public override void Generate([NotNull] MoveTableOperation moveTableOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
+        public override void Generate(MoveTableOperation moveTableOperation, IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
             Check.NotNull(moveTableOperation, "moveTableOperation");
             Check.NotNull(stringBuilder, "stringBuilder");
@@ -200,7 +200,7 @@ namespace Microsoft.Data.SqlServer
             }
         }
 
-        public override void Generate([NotNull] AddColumnOperation addColumnOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
+        public override void Generate(AddColumnOperation addColumnOperation, IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
             Check.NotNull(addColumnOperation, "addColumnOperation");
             Check.NotNull(stringBuilder, "stringBuilder");
@@ -224,7 +224,7 @@ namespace Microsoft.Data.SqlServer
             }
         }
 
-        public override void Generate([NotNull] DropColumnOperation dropColumnOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
+        public override void Generate(DropColumnOperation dropColumnOperation, IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
             Check.NotNull(dropColumnOperation, "dropColumnOperation");
             Check.NotNull(stringBuilder, "stringBuilder");
@@ -248,7 +248,7 @@ namespace Microsoft.Data.SqlServer
             }
         }
 
-        public override void Generate([NotNull] AlterColumnOperation alterColumnOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
+        public override void Generate(AlterColumnOperation alterColumnOperation, IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
             Check.NotNull(alterColumnOperation, "alterColumnOperation");
             Check.NotNull(stringBuilder, "stringBuilder");
@@ -272,7 +272,7 @@ namespace Microsoft.Data.SqlServer
             }
         }
 
-        public override void Generate([NotNull] AddDefaultConstraintOperation addDefaultConstraintOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
+        public override void Generate(AddDefaultConstraintOperation addDefaultConstraintOperation, IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
             Check.NotNull(addDefaultConstraintOperation, "addDefaultConstraintOperation");
             Check.NotNull(stringBuilder, "stringBuilder");
@@ -296,7 +296,7 @@ namespace Microsoft.Data.SqlServer
             }
         }
 
-        public override void Generate([NotNull] DropDefaultConstraintOperation dropDefaultConstraintOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
+        public override void Generate(DropDefaultConstraintOperation dropDefaultConstraintOperation, IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
             Check.NotNull(dropDefaultConstraintOperation, "dropDefaultConstraintOperation");
             Check.NotNull(stringBuilder, "stringBuilder");
@@ -334,7 +334,7 @@ namespace Microsoft.Data.SqlServer
             }
         }
 
-        public override void Generate([NotNull] RenameColumnOperation renameColumnOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
+        public override void Generate(RenameColumnOperation renameColumnOperation, IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
             Check.NotNull(renameColumnOperation, "renameColumnOperation");
             Check.NotNull(stringBuilder, "stringBuilder");
@@ -358,7 +358,7 @@ namespace Microsoft.Data.SqlServer
             }
         }
 
-        public override void Generate([NotNull] AddPrimaryKeyOperation addPrimaryKeyOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
+        public override void Generate(AddPrimaryKeyOperation addPrimaryKeyOperation, IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
             Check.NotNull(addPrimaryKeyOperation, "addPrimaryKeyOperation");
             Check.NotNull(stringBuilder, "stringBuilder");
@@ -382,7 +382,7 @@ namespace Microsoft.Data.SqlServer
             }
         }
 
-        public override void Generate([NotNull] DropPrimaryKeyOperation dropPrimaryKeyOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
+        public override void Generate(DropPrimaryKeyOperation dropPrimaryKeyOperation, IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
             Check.NotNull(dropPrimaryKeyOperation, "dropPrimaryKeyOperation");
             Check.NotNull(stringBuilder, "stringBuilder");
@@ -406,7 +406,7 @@ namespace Microsoft.Data.SqlServer
             }
         }
 
-        public override void Generate([NotNull] AddForeignKeyOperation addForeignKeyOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
+        public override void Generate(AddForeignKeyOperation addForeignKeyOperation, IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
             Check.NotNull(addForeignKeyOperation, "addForeignKeyOperation");
             Check.NotNull(stringBuilder, "stringBuilder");
@@ -430,7 +430,7 @@ namespace Microsoft.Data.SqlServer
             }
         }
 
-        public override void Generate([NotNull] DropForeignKeyOperation dropForeignKeyOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
+        public override void Generate(DropForeignKeyOperation dropForeignKeyOperation, IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
             Check.NotNull(dropForeignKeyOperation, "dropForeignKeyOperation");
             Check.NotNull(stringBuilder, "stringBuilder");
@@ -454,7 +454,7 @@ namespace Microsoft.Data.SqlServer
             }
         }
 
-        public override void Generate([NotNull] CreateIndexOperation createIndexOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
+        public override void Generate(CreateIndexOperation createIndexOperation, IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
             Check.NotNull(createIndexOperation, "createIndexOperation");
             Check.NotNull(stringBuilder, "stringBuilder");
@@ -478,7 +478,7 @@ namespace Microsoft.Data.SqlServer
             }
         }
 
-        public override void Generate([NotNull] DropIndexOperation dropIndexOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
+        public override void Generate(DropIndexOperation dropIndexOperation, IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
             Check.NotNull(dropIndexOperation, "dropIndexOperation");
             Check.NotNull(stringBuilder, "stringBuilder");
@@ -502,7 +502,7 @@ namespace Microsoft.Data.SqlServer
             }
         }
 
-        public override void Generate([NotNull] RenameIndexOperation renameIndexOperation, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
+        public override void Generate(RenameIndexOperation renameIndexOperation, IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
         {
             Check.NotNull(renameIndexOperation, "renameIndexOperation");
             Check.NotNull(stringBuilder, "stringBuilder");
@@ -527,7 +527,8 @@ namespace Microsoft.Data.SqlServer
         }
 
         // TODO this doesn't belong here
-        public override string GenerateDataType([NotNull] Column column)
+        // TODO: Consider a lookup table
+        public override string GenerateDataType(Column column)
         {
             Check.NotNull(column, "column");
 
@@ -545,12 +546,14 @@ namespace Microsoft.Data.SqlServer
 
             if (column.ClrType == typeof(string))
             {
-                if(column.Table.PrimaryKey != null && column.Table.PrimaryKey.Columns.Contains(column))
+                if (column.Table.PrimaryKey != null
+                    && column.Table.PrimaryKey.Columns.Contains(column))
                 {
+                    // TODO: Looks like this might work for values up to 900
                     return "nvarchar(128)";
                 }
 
-                return "nvarchar(MAX)";
+                return "nvarchar(max)";
             }
 
             if (column.ClrType == typeof(DateTime))
@@ -560,7 +563,7 @@ namespace Microsoft.Data.SqlServer
 
             if (column.ClrType == typeof(decimal))
             {
-                return "decimal(18,2)";
+                return "decimal(18, 2)";
             }
 
             if (column.ClrType == typeof(Guid))
@@ -568,7 +571,91 @@ namespace Microsoft.Data.SqlServer
                 return "uniqueidentifier";
             }
 
-            throw new NotSupportedException();
+            if (column.ClrType == typeof(bool))
+            {
+                return "bit";
+            }
+
+            if (column.ClrType == typeof(byte))
+            {
+                return "tinyint";
+            }
+
+            if (column.ClrType == typeof(char))
+            {
+                // TODO: End-to-end use results in "Conversion failed when converting the nvarchar value 'C' to data type int."
+                return "int";
+            }
+
+            if (column.ClrType == typeof(double))
+            {
+                return "float";
+            }
+
+            if (column.ClrType == typeof(short))
+            {
+                return "smallint";
+            }
+
+            if (column.ClrType == typeof(long))
+            {
+                return "bigint";
+            }
+
+            // TODO: End-to-end use results in "The parameter data type of SByte is invalid."
+            if (column.ClrType == typeof(sbyte))
+            {
+                return "smallint";
+            }
+
+            if (column.ClrType == typeof(float))
+            {
+                return "real";
+            }
+
+            // TODO: End-to-end use results in "The parameter data type of UInt16 is invalid."
+            if (column.ClrType == typeof(ushort))
+            {
+                return "int";
+            }
+
+            // TODO: End-to-end use results in "The parameter data type of UInt32 is invalid."
+            if (column.ClrType == typeof(uint))
+            {
+                return "bigint";
+            }
+
+            // TODO: End-to-end use results in "The parameter data type of UInt64 is invalid."
+            if (column.ClrType == typeof(ulong))
+            {
+                return "numeric(20, 0)";
+            }
+
+            if (column.ClrType == typeof(DateTimeOffset))
+            {
+                return "datetimeoffset";
+            }
+
+            if (column.ClrType == typeof(byte[]))
+            {
+                if (column.Table.PrimaryKey != null
+                    && column.Table.PrimaryKey.Columns.Contains(column))
+                {
+                    // TODO: Looks like this might work for values up to 900
+                    return "varbinary(128)";
+                }
+
+                if (column.IsTimestamp)
+                {
+                    return "rowversion";
+                }
+
+                return "varbinary(max)";
+            }
+
+            // TODO: Consider TimeSpan mapping
+
+            throw new NotSupportedException(Strings.FormatUnsupportedType(column.Name, column.ClrType.Name));
         }
 
         protected internal virtual void GenerateDatabasePresenceCheck([NotNull] string databaseName, bool negative, IndentedStringBuilder builder)

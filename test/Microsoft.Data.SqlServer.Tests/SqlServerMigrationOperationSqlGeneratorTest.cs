@@ -15,6 +15,7 @@
 // See the Apache 2 License for the specific language governing
 // permissions and limitations under the License.
 
+using System;
 using Microsoft.Data.Migrations.Model;
 using Microsoft.Data.Relational.Model;
 using System.Collections.Generic;
@@ -249,13 +250,9 @@ IF @var0 IS NOT NULL
         [Fact]
         public void GenerateDataType_for_string_thats_not_a_key()
         {
-            var sqlGenerator = new SqlServerMigrationOperationSqlGenerator();
-
-            var column = new Column("Username", typeof(string));
-            var table = new Table("dbo.Users");
-            table.AddColumn(column);
-
-            Assert.Equal("nvarchar(MAX)", sqlGenerator.GenerateDataType(column));
+            Assert.Equal(
+                "nvarchar(max)", 
+                new SqlServerMigrationOperationSqlGenerator().GenerateDataType(CreateColumn(typeof(string))));
         }
 
         [Fact]
@@ -269,6 +266,162 @@ IF @var0 IS NOT NULL
             table.AddColumn(column);
 
             Assert.Equal("nvarchar(128)", sqlGenerator.GenerateDataType(column));
+        }
+
+        [Fact]
+        public void GenerateDataType_for_DateTime()
+        {
+            Assert.Equal(
+                "datetime2",
+                new SqlServerMigrationOperationSqlGenerator().GenerateDataType(CreateColumn(typeof(DateTime))));
+        }
+
+        [Fact]
+        public void GenerateDataType_for_decimal()
+        {
+            Assert.Equal(
+                "decimal(18, 2)",
+                new SqlServerMigrationOperationSqlGenerator().GenerateDataType(CreateColumn(typeof(decimal))));
+        }
+
+        [Fact]
+        public void GenerateDataType_for_Guid()
+        {
+            Assert.Equal(
+                "uniqueidentifier",
+                new SqlServerMigrationOperationSqlGenerator().GenerateDataType(CreateColumn(typeof(Guid))));
+        }
+
+        [Fact]
+        public void GenerateDataType_for_bool()
+        {
+            Assert.Equal(
+                "bit",
+                new SqlServerMigrationOperationSqlGenerator().GenerateDataType(CreateColumn(typeof(bool))));
+        }
+
+        [Fact]
+        public void GenerateDataType_for_byte()
+        {
+            Assert.Equal(
+                "tinyint",
+                new SqlServerMigrationOperationSqlGenerator().GenerateDataType(CreateColumn(typeof(byte))));
+        }
+
+        [Fact]
+        public void GenerateDataType_for_char()
+        {
+            Assert.Equal(
+                "int",
+                new SqlServerMigrationOperationSqlGenerator().GenerateDataType(CreateColumn(typeof(char))));
+        }
+
+        [Fact]
+        public void GenerateDataType_for_double()
+        {
+            Assert.Equal(
+                "float",
+                new SqlServerMigrationOperationSqlGenerator().GenerateDataType(CreateColumn(typeof(double))));
+        }
+
+        [Fact]
+        public void GenerateDataType_for_short()
+        {
+            Assert.Equal(
+                "smallint",
+                new SqlServerMigrationOperationSqlGenerator().GenerateDataType(CreateColumn(typeof(short))));
+        }
+
+        [Fact]
+        public void GenerateDataType_for_long()
+        {
+            Assert.Equal(
+                "bigint",
+                new SqlServerMigrationOperationSqlGenerator().GenerateDataType(CreateColumn(typeof(long))));
+        }
+
+        [Fact]
+        public void GenerateDataType_for_sbyte()
+        {
+            Assert.Equal(
+                "smallint",
+                new SqlServerMigrationOperationSqlGenerator().GenerateDataType(CreateColumn(typeof(sbyte))));
+        }
+
+        [Fact]
+        public void GenerateDataType_for_float()
+        {
+            Assert.Equal(
+                "real",
+                new SqlServerMigrationOperationSqlGenerator().GenerateDataType(CreateColumn(typeof(float))));
+        }
+
+        [Fact]
+        public void GenerateDataType_for_ushort()
+        {
+            Assert.Equal(
+                "int",
+                new SqlServerMigrationOperationSqlGenerator().GenerateDataType(CreateColumn(typeof(ushort))));
+        }
+
+        [Fact]
+        public void GenerateDataType_for_uint()
+        {
+            Assert.Equal(
+                "bigint",
+                new SqlServerMigrationOperationSqlGenerator().GenerateDataType(CreateColumn(typeof(uint))));
+        }
+
+        [Fact]
+        public void GenerateDataType_for_ulong()
+        {
+            Assert.Equal(
+                "numeric(20, 0)",
+                new SqlServerMigrationOperationSqlGenerator().GenerateDataType(CreateColumn(typeof(ulong))));
+        }
+
+        [Fact]
+        public void GenerateDataType_for_DateTimeOffset()
+        {
+            Assert.Equal(
+                "datetimeoffset",
+                new SqlServerMigrationOperationSqlGenerator().GenerateDataType(CreateColumn(typeof(DateTimeOffset))));
+        }
+
+        [Fact]
+        public void GenerateDataType_for_byte_array_that_is_not_a_concurrency_token_or_a_primary_key()
+        {
+            Assert.Equal(
+                "varbinary(max)",
+                new SqlServerMigrationOperationSqlGenerator().GenerateDataType(CreateColumn(typeof(byte[]))));
+        }
+
+        [Fact]
+        public void GenerateDataType_for_byte_array_key()
+        {
+            var column = new Column("Username", typeof(byte[]));
+            var table = new Table("dbo.Users") { PrimaryKey = new PrimaryKey("PK_Users", new[] { column }) };
+            table.AddColumn(column);
+
+            Assert.Equal("varbinary(128)", new SqlServerMigrationOperationSqlGenerator().GenerateDataType(column));
+        }
+
+        [Fact]
+        public void GenerateDataType_for_byte_array_concurrency_token()
+        {
+            var column = new Column("Username", typeof(byte[])) { IsTimestamp = true };
+            var table = new Table("dbo.Users");
+            table.AddColumn(column);
+
+            Assert.Equal("rowversion", new SqlServerMigrationOperationSqlGenerator().GenerateDataType(column));
+        }
+
+        private static Column CreateColumn(Type clrType)
+        {
+            var column = new Column("Username", clrType);
+            var table = new Table("dbo.Users");
+            table.AddColumn(column);
+            return column;
         }
 
         [Fact]

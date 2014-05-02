@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -160,9 +161,11 @@ namespace Microsoft.Data.Relational
                 private async Task<bool> InitializeAndReadAsync(
                     CancellationToken cancellationToken = default(CancellationToken))
                 {
-                    _connection = _queryContext.Connection;
+                    Contract.Assert(_connection == null);
 
-                    await _connection.OpenAsync(cancellationToken);
+                    var connection = _queryContext.Connection;
+                    await connection.OpenAsync(cancellationToken);
+                    _connection = connection;
 
                     _command = _connection.DbConnection.CreateCommand();
                     _command.CommandText = _sql;

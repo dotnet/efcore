@@ -79,9 +79,9 @@ namespace Microsoft.Data.Relational
             var database = _databaseBuilder.GetDatabase(Model);
             var commands = _batchPreparer.BatchCommands(stateEntries, database);
 
+            await _connection.OpenAsync(cancellationToken);
             try
             {
-                await _connection.OpenAsync(cancellationToken);
                 await _batchExecutor.ExecuteAsync(commands, cancellationToken);
             }
             finally

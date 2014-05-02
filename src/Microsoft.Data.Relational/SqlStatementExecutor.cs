@@ -52,7 +52,7 @@ namespace Microsoft.Data.Relational
             }
             finally
             {
-                if (connectionWasOpen)
+                if (!connectionWasOpen)
                 {
                     connection.Close();
                 }
@@ -83,7 +83,7 @@ namespace Microsoft.Data.Relational
             }
             finally
             {
-                if (connectionWasOpen)
+                if (!connectionWasOpen)
                 {
                     connection.Close();
                 }
