@@ -48,22 +48,22 @@
 	<s:Boolean x:Key="/Default/CodeStyle/CSharpUsing/QualifiedUsingAtNestedScope/@EntryValue">True</s:Boolean>
 	
 	
-	<s:String x:Key="/Default/CodeStyle/FileHeader/FileHeaderText/@EntryValue">// Copyright (c) Microsoft Open Technologies, Inc.&#xD;
-// All Rights Reserved&#xD;
-//&#xD;
-// Licensed under the Apache License, Version 2.0 (the "License");&#xD;
-// you may not use this file except in compliance with the License.&#xD;
-// You may obtain a copy of the License at&#xD;
-//&#xD;
-// http://www.apache.org/licenses/LICENSE-2.0&#xD;
-//&#xD;
-// THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR&#xD;
-// CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING&#xD;
-// WITHOUT LIMITATION ANY IMPLIED WARRANTIES OR CONDITIONS OF&#xD;
-// TITLE, FITNESS FOR A PARTICULAR PURPOSE, MERCHANTABLITY OR&#xD;
-// NON-INFRINGEMENT.&#xD;
-// See the Apache 2 License for the specific language governing&#xD;
-// permissions and limitations under the License.&#xD;
+	<s:String x:Key="/Default/CodeStyle/FileHeader/FileHeaderText/@EntryValue">Copyright (c) Microsoft Open Technologies, Inc.&#xD;
+All Rights Reserved&#xD;
+&#xD;
+Licensed under the Apache License, Version 2.0 (the "License");&#xD;
+you may not use this file except in compliance with the License.&#xD;
+You may obtain a copy of the License at&#xD;
+&#xD;
+http://www.apache.org/licenses/LICENSE-2.0&#xD;
+&#xD;
+THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR&#xD;
+CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING&#xD;
+WITHOUT LIMITATION ANY IMPLIED WARRANTIES OR CONDITIONS OF&#xD;
+TITLE, FITNESS FOR A PARTICULAR PURPOSE, MERCHANTABLITY OR&#xD;
+NON-INFRINGEMENT.&#xD;
+See the Apache 2 License for the specific language governing&#xD;
+permissions and limitations under the License.&#xD;
 </s:String>
 	<s:Boolean x:Key="/Default/CodeStyle/Generate/=Constructor/@KeyIndexDefined">True</s:Boolean>
 	<s:String x:Key="/Default/CodeStyle/Generate/=Constructor/Options/=XmlDocumentation/@EntryIndexedValue">True</s:String>
