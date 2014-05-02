@@ -1,7 +1,7 @@
 {
   "version": "0.1-alpha-*",
   "dependencies": {
-    "System.Data.Common": "0.1-alpha-*"
+    "Microsoft.Data.Common": "0.1-alpha-*"
   },
   "configurations": {
     "net451": {
