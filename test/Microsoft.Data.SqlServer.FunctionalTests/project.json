@@ -6,7 +6,7 @@
     "Microsoft.Data.Migrations": "",
     "Microsoft.Data.Relational": "",
     "Microsoft.Data.SqlServer": "",
-    "System.Data.Common": "0.1-alpha-*",
+    "Microsoft.Data.Common": "0.1-alpha-*",
     "System.Data.SqlClient": "0.1-alpha-*",
     "Microsoft.AspNet.ConfigurationModel" : "0.1-alpha-*",
     "Microsoft.AspNet.DependencyInjection" : "0.1-alpha-*",
