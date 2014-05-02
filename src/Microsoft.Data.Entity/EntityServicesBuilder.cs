@@ -22,16 +22,16 @@ namespace Microsoft.AspNet.DependencyInjection
 {
     public class EntityServicesBuilder
     {
-        private readonly ServiceCollection _serviceCollection;
+        private readonly IServiceCollection _serviceCollection;
 
-        public EntityServicesBuilder([NotNull] ServiceCollection serviceCollection)
+        public EntityServicesBuilder([NotNull] IServiceCollection serviceCollection)
         {
             Check.NotNull(serviceCollection, "serviceCollection");
 
             _serviceCollection = serviceCollection;
         }
 
-        public virtual ServiceCollection ServiceCollection
+        public virtual IServiceCollection ServiceCollection
         {
             get { return _serviceCollection; }
         }

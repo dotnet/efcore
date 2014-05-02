@@ -28,15 +28,15 @@ namespace Microsoft.AspNet.DependencyInjection
 {
     public static class EntityServiceCollectionExtensions
     {
-        public static ServiceCollection AddEntityFramework([NotNull] this ServiceCollection serviceCollection)
+        public static IServiceCollection AddEntityFramework([NotNull] this IServiceCollection serviceCollection)
         {
             Check.NotNull(serviceCollection, "serviceCollection");
 
             return AddEntityFramework(serviceCollection, null);
         }
 
-        public static ServiceCollection AddEntityFramework(
-            [NotNull] this ServiceCollection serviceCollection, [CanBeNull] Action<EntityServicesBuilder> nestedBuilder)
+        public static IServiceCollection AddEntityFramework(
+            [NotNull] this IServiceCollection serviceCollection, [CanBeNull] Action<EntityServicesBuilder> nestedBuilder)
         {
             Check.NotNull(serviceCollection, "serviceCollection");
 
