@@ -22,6 +22,11 @@
       "dependencies": {
         "System.Runtime" : ""
       }
+    },
+    "k10": {
+      "dependencies": {
+        "Microsoft.CSharp": "4.0.0.0"
+      }
     }
   }
 }

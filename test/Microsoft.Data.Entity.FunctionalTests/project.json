@@ -19,6 +19,11 @@
       "dependencies": {
         "System.Runtime": ""
       }
+    },
+    "k10": {
+      "dependencies": {
+        "System.Reflection": "4.0.10.0"
+      }
     }
   }
 }

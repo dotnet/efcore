@@ -30,20 +30,20 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
 {
     public class ExistingConnectionTest
     {
+        // See aspnet/Data#135
+#if !K10
         [Fact]
         public async Task Can_use_an_existing_closed_connection()
         {
             await Can_use_an_existing_closed_connection_test(openConnection: false);
         }
+#endif
 
-        // See aspnet/Data#135
-#if !K10
         [Fact]
         public async Task Can_use_an_existing_open_connection()
         {
             await Can_use_an_existing_closed_connection_test(openConnection: true);
         }
-#endif
 
         private static async Task Can_use_an_existing_closed_connection_test(bool openConnection)
         {

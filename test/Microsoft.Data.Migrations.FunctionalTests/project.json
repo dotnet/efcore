@@ -16,6 +16,8 @@
       "dependencies": {
         "System.Runtime": ""
       }
+    },
+    "k10": {
     }
   }
 }
