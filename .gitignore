@@ -23,4 +23,3 @@ nuget.exe
 *.ncrunchsolution
 *.*sdf
 *.ipch
-*.dll

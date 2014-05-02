@@ -1,9 +1,3 @@
-use assembly='System.IO.Compression, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'
-use assembly='System.Net.Http, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'
-use assembly='WindowsBase, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35'
-use namespace='System.IO.Compression'
-use namespace='System.IO.Packaging'
-use namespace='System.Net.Http'
 
 var VERSION='0.1'
 var FULL_VERSION='0.1'
@@ -11,61 +5,3 @@ var AUTHORS='Microsoft'
 
 use-standard-lifecycle
 k-standard-goals
-
-var sqliteDllPath='src/Microsoft.Data.SQLite/redist/x86/sqlite3.dll'
-#sqlite-download target='compile' if='!File.Exists(sqliteDllPath)'
-    var sqliteUri='http://sqlite.org/2014/sqlite-dll-win32-x86-3080403.zip'
-    @{
-        using (var client = new HttpClient())
-        using (var archiveStream = client.GetStreamAsync(sqliteUri).Result)
-        using (var archive = new ZipArchive(archiveStream))
-        {
-            var entry = archive.GetEntry("sqlite3.dll");
-            if (entry == null)
-                throw new FileNotFoundException("Could not find file 'sqlite3.dll'.");
-                
-            Directory.CreateDirectory(Path.GetDirectoryName(sqliteDllPath));
-            
-            using (var entryStream = entry.Open())
-            using (var dllStream = File.OpenWrite(sqliteDllPath))
-            {
-                entryStream.CopyTo(dllStream);
-            }
-        }
-    }
-
-#nupkg-patch target='compile'
-    @{
-        var packagePath = Directory.EnumerateFiles(@"artifacts\build", "Microsoft.Data.SQLite.0.1-alpha-*.nupkg").First();
-        using (var package = Package.Open(packagePath, FileMode.Open, FileAccess.ReadWrite))
-        {
-            CreatePartFromFile(
-                package,
-                @"src\Microsoft.Data.SQLite\build\net451\Microsoft.Data.SQLite.targets",
-                @"build\net451\Microsoft.Data.SQLite.targets");
-            CreatePartFromFile(
-                package,
-                @"src\Microsoft.Data.SQLite\redist\x86\sqlite3.dll",
-                @"redist\x86\sqlite3.dll");
-        }
-    }
-
-functions
-    @{
-        PackagePart CreatePartFromFile(
-            Package destination,
-            string sourceFileName,
-            string partUriString)
-        {
-            var partUri = PackUriHelper.CreatePartUri(new Uri(partUriString, UriKind.Relative));            
-            var packagePart = destination.CreatePart(partUri, "application/octet", CompressionOption.Maximum);
-            
-            using (var sourceStream = File.OpenRead(sourceFileName))
-            using (var stream = packagePart.GetStream())
-            {
-                sourceStream.CopyTo(stream);
-            }
-            
-            return packagePart;
-        }
-    }
