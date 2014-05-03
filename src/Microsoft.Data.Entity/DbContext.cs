@@ -31,6 +31,8 @@ namespace Microsoft.Data.Entity
         private readonly LazyRef<ContextConfiguration> _configuration;
         private readonly ContextSets _sets = new ContextSets();
 
+        private IServiceProvider _scopedServiceProvider;
+
         protected DbContext()
         {
             InitializeSets(null, new EntityConfigurationBuilder().BuildConfiguration());
@@ -77,14 +79,14 @@ namespace Microsoft.Data.Entity
 
             serviceProvider = serviceProvider ?? ServiceProviderCache.Instance.GetOrAdd(entityConfiguration);
 
-            var scopedProvider = serviceProvider
+            _scopedServiceProvider = serviceProvider
                 .GetService<IServiceScopeFactory>()
                 .CreateScope()
                 .ServiceProvider;
 
-            return scopedProvider
+            return _scopedServiceProvider
                 .GetService<ContextConfiguration>()
-                .Initialize(serviceProvider, scopedProvider, entityConfiguration, this, providerSource);
+                .Initialize(serviceProvider, _scopedServiceProvider, entityConfiguration, this, providerSource);
         }
 
         private void InitializeSets(IServiceProvider serviceProvider, EntityConfiguration entityConfiguration)
@@ -126,7 +128,10 @@ namespace Microsoft.Data.Entity
 
         public void Dispose()
         {
-            // TODO
+            if (_scopedServiceProvider != null)
+            {
+                ((IDisposable)_scopedServiceProvider).Dispose();
+            }
         }
 
         public virtual TEntity Add<TEntity>([NotNull] TEntity entity)
