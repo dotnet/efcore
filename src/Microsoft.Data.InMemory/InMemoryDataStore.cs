@@ -23,6 +23,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
@@ -46,14 +47,14 @@ namespace Microsoft.Data.InMemory
         }
 
         public InMemoryDataStore(
-            [NotNull] ContextConfiguration configuration,
+            [NotNull] DbContextConfiguration configuration,
             [NotNull] InMemoryDatabase persistentDatabase)
             : base(configuration)
         {
             Check.NotNull(configuration, "configuration");
             Check.NotNull(persistentDatabase, "persistentDatabase");
 
-            var storeConfig = configuration.EntityConfiguration.Extensions
+            var storeConfig = configuration.ContextOptions.Extensions
                 .OfType<InMemoryConfigurationExtension>()
                 .FirstOrDefault();
 

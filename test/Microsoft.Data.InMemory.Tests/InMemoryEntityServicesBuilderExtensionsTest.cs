@@ -42,7 +42,7 @@ namespace Microsoft.Data.InMemory.Tests
         {
             var serviceProvider = new ServiceCollection().AddEntityFramework(s => s.AddInMemoryStore()).BuildServiceProvider();
 
-            using (var context = new DbContext(serviceProvider, new EntityConfigurationBuilder().BuildConfiguration()))
+            using (var context = new DbContext(serviceProvider, new DbContextOptions().BuildConfiguration()))
             {
                 var scopedProvider = context.Configuration.Services.ServiceProvider;
 

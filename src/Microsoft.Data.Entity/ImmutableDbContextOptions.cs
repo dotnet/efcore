@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Open Technologies, Inc.
 // All Rights Reserved
-//
+// 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-//
+// 
 // http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR
 // CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING
 // WITHOUT LIMITATION ANY IMPLIED WARRANTIES OR CONDITIONS OF
@@ -20,12 +20,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity
 {
-    public class EntityConfiguration : IEntityConfigurationConstruction
+    public class ImmutableDbContextOptions : IDbContextOptionsConstruction
     {
         private bool _locked;
         private IModel _model;
@@ -42,7 +43,7 @@ namespace Microsoft.Data.Entity
             get { return _extensions; }
         }
 
-        IModel IEntityConfigurationConstruction.Model
+        IModel IDbContextOptionsConstruction.Model
         {
             set
             {
@@ -52,7 +53,7 @@ namespace Microsoft.Data.Entity
             }
         }
 
-        void IEntityConfigurationConstruction.AddOrUpdateExtension<TExtension>(Action<TExtension> updater)
+        void IDbContextOptionsConstruction.AddOrUpdateExtension<TExtension>(Action<TExtension> updater)
         {
             Check.NotNull(updater, "updater");
 
@@ -69,7 +70,7 @@ namespace Microsoft.Data.Entity
             updater(extension);
         }
 
-        void IEntityConfigurationConstruction.Lock()
+        void IDbContextOptionsConstruction.Lock()
         {
             _locked = true;
         }

@@ -81,7 +81,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         [Fact]
         public void Property_values_can_be_read_and_set_using_compiled_metadata_without_reflection()
         {
-            var configuration = new EntityConfigurationBuilder()
+            var configuration = new DbContextOptions()
                 .UseModel(new _OneTwoThreeContextModel())
                 .BuildConfiguration();
 
@@ -108,7 +108,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         [Fact]
         public void Entity_can_be_materialized_using_compiled_metadata_without_reflection()
         {
-            var configuration = new EntityConfigurationBuilder()
+            var configuration = new DbContextOptions()
                 .UseModel(new _OneTwoThreeContextModel())
                 .BuildConfiguration();
 
@@ -143,7 +143,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         private static void FixupTest(IModel model)
         {
-            var configuration = new EntityConfigurationBuilder()
+            var configuration = new DbContextOptions()
                 .UseModel(model)
                 .BuildConfiguration();
 
@@ -195,7 +195,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         [Fact]
         public void Navigation_fixup_happens_with_compiled_metadata_using_non_standard_collection_access()
         {
-            var configuration = new EntityConfigurationBuilder()
+            var configuration = new DbContextOptions()
                 .UseModel(new _OneTwoThreeContextModel())
                 .BuildConfiguration();
 

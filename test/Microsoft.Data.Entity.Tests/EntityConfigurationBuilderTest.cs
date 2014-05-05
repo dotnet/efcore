@@ -17,6 +17,7 @@
 
 using System;
 using Microsoft.AspNet.DependencyInjection;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Moq;
 using Xunit;
@@ -28,7 +29,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Model_is_null_if_not_set()
         {
-            Assert.Same(null, new EntityConfigurationBuilder().BuildConfiguration().Model);
+            Assert.Same(null, new DbContextOptions().BuildConfiguration().Model);
         }
 
         [Fact]
@@ -36,7 +37,7 @@ namespace Microsoft.Data.Entity.Tests
         {
             var model = Mock.Of<IModel>();
 
-            var configuration = new EntityConfigurationBuilder()
+            var configuration = new DbContextOptions()
                 .UseModel(model)
                 .BuildConfiguration();
 
@@ -46,7 +47,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Build_actions_are_applied_to_configuration()
         {
-            var configuration = new EntityConfigurationBuilder()
+            var configuration = new DbContextOptions()
                 .AddBuildAction(c => c.AddOrUpdateExtension<FakeEntityConfigurationExtension1>(e => { }))
                 .AddBuildAction(c => c.AddOrUpdateExtension<FakeEntityConfigurationExtension2>(e => { }))
                 .BuildConfiguration();
@@ -73,7 +74,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Build_locks_configuration()
         {
-            IEntityConfigurationConstruction configuration = new EntityConfigurationBuilder().BuildConfiguration();
+            IDbContextOptionsConstruction configuration = new DbContextOptions().BuildConfiguration();
 
             Assert.Equal(
                 Strings.FormatEntityConfigurationLocked("Model"),
@@ -85,15 +86,15 @@ namespace Microsoft.Data.Entity.Tests
         {
             var model = Mock.Of<IModel>();
 
-            var configuration = new EntityConfigurationBuilder()
+            var configuration = new DbContextOptions()
                 .UseModel(model)
-                .BuildConfiguration(() => new UnkoolEntityConfiguration());
+                .BuildConfiguration(() => new UnkoolContextOptions());
 
-            Assert.IsType<UnkoolEntityConfiguration>(configuration);
+            Assert.IsType<UnkoolContextOptions>(configuration);
             Assert.Same(model, configuration.Model);
         }
 
-        private class UnkoolEntityConfiguration : EntityConfiguration
+        private class UnkoolContextOptions : ImmutableDbContextOptions
         {
         }
 
@@ -102,16 +103,16 @@ namespace Microsoft.Data.Entity.Tests
         {
             var model = Mock.Of<IModel>();
 
-            var configuration = new EntityConfigurationBuilder()
+            var configuration = new DbContextOptions()
                 .UseModel(model)
-                .BuildConfiguration(() => new KoolEntityConfiguration { KoolAid = "Red" });
+                .BuildConfiguration(() => new KoolContextOptions { KoolAid = "Red" });
 
-            Assert.IsType<KoolEntityConfiguration>(configuration);
+            Assert.IsType<KoolContextOptions>(configuration);
             Assert.Same(model, configuration.Model);
             Assert.Equal("Red", configuration.KoolAid);
         }
 
-        private class KoolEntityConfiguration : EntityConfiguration
+        private class KoolContextOptions : ImmutableDbContextOptions
         {
             public virtual string KoolAid { get; set; }
         }
@@ -121,35 +122,35 @@ namespace Microsoft.Data.Entity.Tests
         {
             var model = Mock.Of<IModel>();
 
-            var configuration = new KoolEntityConfigurationBuilder()
+            var configuration = new KoolDbContextOptions()
                 .UseKoolAid("Blue")
                 .UseModel(model)
                 .BuildConfiguration();
 
-            Assert.IsType<KoolEntityConfiguration>(configuration);
+            Assert.IsType<KoolContextOptions>(configuration);
             Assert.Same(model, configuration.Model);
             Assert.Equal("Blue", configuration.KoolAid);
         }
 
-        private class KoolEntityConfigurationBuilder : EntityConfigurationBuilder
+        private class KoolDbContextOptions : DbContextOptions
         {
             private string _koolAid;
 
-            public KoolEntityConfigurationBuilder UseKoolAid(string koolAid)
+            public KoolDbContextOptions UseKoolAid(string koolAid)
             {
                 _koolAid = koolAid;
 
                 return this;
             }
 
-            public new KoolEntityConfigurationBuilder UseModel(IModel model)
+            public new KoolDbContextOptions UseModel(IModel model)
             {
-                return (KoolEntityConfigurationBuilder)base.UseModel(model);
+                return (KoolDbContextOptions)base.UseModel(model);
             }
 
-            public new KoolEntityConfiguration BuildConfiguration()
+            public new KoolContextOptions BuildConfiguration()
             {
-                return BuildConfiguration(() => new KoolEntityConfiguration { KoolAid = _koolAid });
+                return BuildConfiguration(() => new KoolContextOptions { KoolAid = _koolAid });
             }
         }
     }

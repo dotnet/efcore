@@ -122,7 +122,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         private static IModel BuildModel()
         {
             var model = new Model();
-            var builder = new ConventionalModelBuilder(model);
+            var builder = new ConventionModelBuilder(model);
 
             builder.Entity<Product>();
             builder.Entity<Category>();

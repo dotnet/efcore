@@ -19,9 +19,11 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNet.DependencyInjection;
 using Microsoft.AspNet.Logging;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Services;
 using Moq;
@@ -45,7 +47,7 @@ namespace Microsoft.Data.InMemory.Tests
         [Fact]
         public void Uses_persistent_database_if_configured_as_persistent()
         {
-            var configuration = CreateConfiguration(new EntityConfigurationBuilder()
+            var configuration = CreateConfiguration(new DbContextOptions()
                 .UseInMemoryStore(persist: true)
                 .BuildConfiguration());
 
@@ -59,7 +61,7 @@ namespace Microsoft.Data.InMemory.Tests
         [Fact]
         public void Uses_transient_database_if_not_configured_as_persistent()
         {
-            var configuration = CreateConfiguration(new EntityConfigurationBuilder()
+            var configuration = CreateConfiguration(new DbContextOptions()
                 .UseInMemoryStore(persist: false)
                 .BuildConfiguration());
 
@@ -180,12 +182,12 @@ namespace Microsoft.Data.InMemory.Tests
             return model;
         }
 
-        private static ContextConfiguration CreateConfiguration()
+        private static DbContextConfiguration CreateConfiguration()
         {
-            return CreateConfiguration(new EntityConfigurationBuilder().BuildConfiguration());
+            return CreateConfiguration(new DbContextOptions().BuildConfiguration());
         }
 
-        private static ContextConfiguration CreateConfiguration(EntityConfiguration configuration)
+        private static DbContextConfiguration CreateConfiguration(ImmutableDbContextOptions configuration)
         {
             return new DbContext(configuration).Configuration;
         }

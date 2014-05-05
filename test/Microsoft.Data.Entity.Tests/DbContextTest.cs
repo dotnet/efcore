@@ -26,6 +26,7 @@ using Microsoft.AspNet.DependencyInjection.Fallback;
 using Microsoft.AspNet.Logging;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Identity;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Moq;
@@ -75,7 +76,7 @@ namespace Microsoft.Data.Entity.Tests
                 .AddEntityFramework()
                 .BuildServiceProvider();
 
-            ContextConfiguration configuration;
+            DbContextConfiguration configuration;
             using (var context = new DbContext(serviceProvider))
             {
                 configuration = context.Configuration;
@@ -91,7 +92,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Each_context_gets_new_scoped_context_configuration_with_implicit_services()
         {
-            ContextConfiguration configuration;
+            DbContextConfiguration configuration;
             using (var context = new Mock<DbContext> { CallBase = true }.Object)
             {
                 configuration = context.Configuration;
@@ -111,9 +112,9 @@ namespace Microsoft.Data.Entity.Tests
                 .AddEntityFramework()
                 .BuildServiceProvider();
 
-            var entityConfig = new EntityConfigurationBuilder().BuildConfiguration();
+            var entityConfig = new DbContextOptions().BuildConfiguration();
 
-            ContextConfiguration configuration;
+            DbContextConfiguration configuration;
             using (var context = new DbContext(serviceProvider, entityConfig))
             {
                 configuration = context.Configuration;
@@ -129,9 +130,9 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Each_context_gets_new_scoped_context_configuration_with_implicit_services_and_explicit_config()
         {
-            var entityConfig = new EntityConfigurationBuilder().BuildConfiguration();
+            var entityConfig = new DbContextOptions().BuildConfiguration();
 
-            ContextConfiguration configuration;
+            DbContextConfiguration configuration;
             using (var context = new DbContext(entityConfig))
             {
                 configuration = context.Configuration;
@@ -151,7 +152,7 @@ namespace Microsoft.Data.Entity.Tests
                 .AddEntityFramework(s => s.UseStateManager<FakeStateManager>())
                 .BuildServiceProvider();
 
-            var configuration = new EntityConfigurationBuilder().BuildConfiguration();
+            var configuration = new DbContextOptions().BuildConfiguration();
 
             using (var context = new DbContext(serviceProvider, configuration))
             {
@@ -172,7 +173,7 @@ namespace Microsoft.Data.Entity.Tests
                 .AddEntityFramework(s => s.UseStateManager<FakeStateManager>())
                 .BuildServiceProvider();
 
-            var configuration = new EntityConfigurationBuilder().BuildConfiguration();
+            var configuration = new DbContextOptions().BuildConfiguration();
 
             using (var context = new DbContext(serviceProvider, configuration))
             {
@@ -359,7 +360,7 @@ namespace Microsoft.Data.Entity.Tests
             var model = new Model();
             model.AddEntityType(new EntityType(typeof(TheGu)));
 
-            var configuration = new EntityConfigurationBuilder().UseModel(model).BuildConfiguration();
+            var configuration = new DbContextOptions().UseModel(model).BuildConfiguration();
 
             using (var context = new EarlyLearningCenter(configuration))
             {
@@ -419,15 +420,15 @@ namespace Microsoft.Data.Entity.Tests
             var store = new Mock<DataStore>();
 
             var sourceMock = new Mock<DataStoreSource>();
-            sourceMock.Setup(m => m.IsAvailable(It.IsAny<ContextConfiguration>())).Returns(true);
-            sourceMock.Setup(m => m.IsConfigured(It.IsAny<ContextConfiguration>())).Returns(true);
-            sourceMock.Setup(m => m.GetStore(It.IsAny<ContextConfiguration>())).Returns(store.Object);
+            sourceMock.Setup(m => m.IsAvailable(It.IsAny<DbContextConfiguration>())).Returns(true);
+            sourceMock.Setup(m => m.IsConfigured(It.IsAny<DbContextConfiguration>())).Returns(true);
+            sourceMock.Setup(m => m.GetStore(It.IsAny<DbContextConfiguration>())).Returns(store.Object);
 
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework(s => s.ServiceCollection.AddInstance<DataStoreSource>(sourceMock.Object))
                 .BuildServiceProvider();
 
-            var configuration = new EntityConfigurationBuilder().BuildConfiguration();
+            var configuration = new DbContextOptions().BuildConfiguration();
 
             using (var context = new EarlyLearningCenter(serviceProvider, configuration))
             {
@@ -453,15 +454,15 @@ namespace Microsoft.Data.Entity.Tests
                 .Returns(Task.FromResult(3));
 
             var sourceMock = new Mock<DataStoreSource>();
-            sourceMock.Setup(m => m.IsAvailable(It.IsAny<ContextConfiguration>())).Returns(true);
-            sourceMock.Setup(m => m.IsConfigured(It.IsAny<ContextConfiguration>())).Returns(true);
-            sourceMock.Setup(m => m.GetStore(It.IsAny<ContextConfiguration>())).Returns(store.Object);
+            sourceMock.Setup(m => m.IsAvailable(It.IsAny<DbContextConfiguration>())).Returns(true);
+            sourceMock.Setup(m => m.IsConfigured(It.IsAny<DbContextConfiguration>())).Returns(true);
+            sourceMock.Setup(m => m.GetStore(It.IsAny<DbContextConfiguration>())).Returns(store.Object);
 
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework(s => s.ServiceCollection.AddInstance<DataStoreSource>(sourceMock.Object))
                 .BuildServiceProvider();
 
-            var configuration = new EntityConfigurationBuilder().BuildConfiguration();
+            var configuration = new DbContextOptions().BuildConfiguration();
 
             using (var context = new EarlyLearningCenter(serviceProvider, configuration))
             {
@@ -535,7 +536,7 @@ namespace Microsoft.Data.Entity.Tests
                 .AddSingleton<MemberMapper, MemberMapper>()
                 .AddSingleton<FieldMatcher, FieldMatcher>()
                 .AddSingleton<DataStoreSelector, DataStoreSelector>()
-                .AddScoped<ContextConfiguration, ContextConfiguration>()
+                .AddScoped<DbContextConfiguration, DbContextConfiguration>()
                 .AddScoped<ContextSets, ContextSets>()
                 .AddInstance<OriginalValuesFactory>(factory);
 
@@ -820,12 +821,12 @@ namespace Microsoft.Data.Entity.Tests
             {
             }
 
-            public EarlyLearningCenter(EntityConfiguration configuration)
+            public EarlyLearningCenter(ImmutableDbContextOptions configuration)
                 : base(configuration)
             {
             }
 
-            public EarlyLearningCenter(IServiceProvider serviceProvider, EntityConfiguration configuration)
+            public EarlyLearningCenter(IServiceProvider serviceProvider, ImmutableDbContextOptions configuration)
                 : base(serviceProvider, configuration)
             {
             }

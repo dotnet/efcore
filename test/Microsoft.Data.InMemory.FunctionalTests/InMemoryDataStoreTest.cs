@@ -38,7 +38,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                 .AddEntityFramework(s => s.AddInMemoryStore().UseLoggerFactory(TestFileLogger.Factory))
                 .BuildServiceProvider();
 
-            var configuration = new EntityConfigurationBuilder()
+            var configuration = new DbContextOptions()
                 .UseModel(model)
                 .UseInMemoryStore(persist: true)
                 .BuildConfiguration();
@@ -152,7 +152,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
         {
             public DbSet<Artist> Artists { get; set; }
 
-            protected override void OnConfiguring(EntityConfigurationBuilder builder)
+            protected override void OnConfiguring(DbContextOptions builder)
             {
                 builder.UseInMemoryStore();
             }

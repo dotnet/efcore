@@ -25,6 +25,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNet.DependencyInjection;
 using Microsoft.AspNet.DependencyInjection.Fallback;
 using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Relational;
 using Microsoft.Data.Relational.Update;
@@ -99,7 +100,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
         private class SqlStoreWithBufferReader : SqlServerDataStore
         {
             public SqlStoreWithBufferReader(
-                ContextConfiguration configuration,
+                DbContextConfiguration configuration,
                 SqlServerConnection connection,
                 DatabaseBuilder databaseBuilder,
                 CommandBatchPreparer batchPreparer,
@@ -139,7 +140,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
         {
             using (var testDatabase = await TestDatabase.Scratch())
             {
-                var configuration = new EntityConfigurationBuilder()
+                var configuration = new DbContextOptions()
                     .SqlServerConnectionString(testDatabase.Connection.ConnectionString)
                     .BuildConfiguration();
 
@@ -224,7 +225,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
         {
             using (var testDatabase = await TestDatabase.Scratch())
             {
-                var configuration = new EntityConfigurationBuilder()
+                var configuration = new DbContextOptions()
                     .SqlServerConnectionString(testDatabase.Connection.ConnectionString)
                     .BuildConfiguration();
 
@@ -325,7 +326,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
 
             public DbSet<Customer> Customers { get; set; }
 
-            protected override void OnConfiguring(EntityConfigurationBuilder builder)
+            protected override void OnConfiguring(DbContextOptions builder)
             {
                 builder.SqlServerConnectionString(TestDatabase.NorthwindConnectionString);
             }
@@ -348,7 +349,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
 
         private class BloggingContext : BloggingContext<Blog>
         {
-            public BloggingContext(EntityConfiguration configuration)
+            public BloggingContext(ImmutableDbContextOptions configuration)
                 : base(configuration)
             {
             }
@@ -377,7 +378,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
         private class BloggingContext<TBlog> : DbContext
             where TBlog : class, IBlog
         {
-            public BloggingContext(EntityConfiguration configuration)
+            public BloggingContext(ImmutableDbContextOptions configuration)
                 : base(configuration)
             {
             }

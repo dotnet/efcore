@@ -22,6 +22,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNet.DependencyInjection;
 using Microsoft.AspNet.DependencyInjection.Fallback;
 using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Infrastructure;
 using Xunit;
 
 namespace Microsoft.Data.SqlServer.FunctionalTests
@@ -180,13 +181,13 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
             }
         }
 
-        private static ContextConfiguration CreateConfiguration(TestDatabase testDatabase)
+        private static DbContextConfiguration CreateConfiguration(TestDatabase testDatabase)
         {
             return new DbContext(
                 new ServiceCollection()
                     .AddEntityFramework(s => s.AddSqlServer())
                     .BuildServiceProvider(),
-                new EntityConfigurationBuilder()
+                new DbContextOptions()
                     .SqlServerConnectionString(testDatabase.Connection.ConnectionString)
                     .BuildConfiguration())
                 .Configuration;
@@ -203,7 +204,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                 .AddEntityFramework(s => s.AddSqlServer())
                 .BuildServiceProvider();
 
-            var configuration = new EntityConfigurationBuilder()
+            var configuration = new DbContextOptions()
                 .SqlServerConnectionString(testDatabase.Connection.ConnectionString)
                 .BuildConfiguration();
 
@@ -238,7 +239,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
 
         private class BloggingContext : DbContext
         {
-            public BloggingContext(IServiceProvider serviceProvider, EntityConfiguration configuration)
+            public BloggingContext(IServiceProvider serviceProvider, ImmutableDbContextOptions configuration)
                 : base(serviceProvider, configuration)
             {
             }

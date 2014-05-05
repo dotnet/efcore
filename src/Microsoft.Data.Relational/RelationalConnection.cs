@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Open Technologies, Inc.
 // All Rights Reserved
-//
+// 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-//
+// 
 // http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR
 // CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING
 // WITHOUT LIMITATION ANY IMPLIED WARRANTIES OR CONDITIONS OF
@@ -18,12 +18,11 @@
 using System;
 using System.Data;
 using System.Data.Common;
-using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Relational.Utilities;
@@ -46,11 +45,11 @@ namespace Microsoft.Data.Relational
         {
         }
 
-        protected RelationalConnection([NotNull] ContextConfiguration configuration)
+        protected RelationalConnection([NotNull] DbContextConfiguration configuration)
         {
             Check.NotNull(configuration, "configuration");
 
-            var storeConfigs = configuration.EntityConfiguration.Extensions
+            var storeConfigs = configuration.ContextOptions.Extensions
                 .OfType<RelationalConfigurationExtension>()
                 .ToArray();
 

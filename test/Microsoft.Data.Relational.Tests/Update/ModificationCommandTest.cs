@@ -22,6 +22,7 @@ using Microsoft.AspNet.DependencyInjection;
 using Microsoft.AspNet.DependencyInjection.Fallback;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Relational.Model;
 using Microsoft.Data.Relational.Update;
@@ -252,13 +253,13 @@ namespace Microsoft.Data.Relational.Tests.Update
             return model;
         }
 
-        private static ContextConfiguration CreateConfiguration(IModel model)
+        private static DbContextConfiguration CreateConfiguration(IModel model)
         {
             return new DbContext(
                 new ServiceCollection()
                     .AddEntityFramework()
                     .BuildServiceProvider(),
-                new EntityConfigurationBuilder()
+                new DbContextOptions()
                     .UseModel(model)
                     .BuildConfiguration())
                 .Configuration;

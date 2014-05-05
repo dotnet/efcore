@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Open Technologies, Inc.
 // All Rights Reserved
-//
+// 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-//
+// 
 // http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR
 // CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING
 // WITHOUT LIMITATION ANY IMPLIED WARRANTIES OR CONDITIONS OF
@@ -23,6 +23,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
@@ -30,7 +31,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 {
     public abstract partial class StateEntry
     {
-        private readonly ContextConfiguration _configuration;
+        private readonly DbContextConfiguration _configuration;
         private readonly IEntityType _entityType;
         private StateData _stateData;
         private Sidecar[] _sidecars;
@@ -45,7 +46,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         }
 
         protected StateEntry(
-            [NotNull] ContextConfiguration configuration,
+            [NotNull] DbContextConfiguration configuration,
             [NotNull] IEntityType entityType)
         {
             Check.NotNull(configuration, "configuration");
@@ -64,7 +65,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             get { return _entityType; }
         }
 
-        public virtual ContextConfiguration Configuration
+        public virtual DbContextConfiguration Configuration
         {
             get { return _configuration; }
         }

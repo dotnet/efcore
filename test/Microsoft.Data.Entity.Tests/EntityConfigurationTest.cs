@@ -18,6 +18,7 @@
 using System;
 using System.Linq;
 using Microsoft.AspNet.DependencyInjection;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Moq;
 using Xunit;
@@ -29,7 +30,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Mutating_methods_throw_when_configuratin_locked()
         {
-            IEntityConfigurationConstruction configuration = new EntityConfiguration();
+            IDbContextOptionsConstruction configuration = new ImmutableDbContextOptions();
             configuration.Lock();
 
             Assert.Equal(
@@ -44,13 +45,13 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_update_an_existing_extension()
         {
-            IEntityConfigurationConstruction configuration = new EntityConfiguration();
+            IDbContextOptionsConstruction configuration = new ImmutableDbContextOptions();
 
             configuration.AddOrUpdateExtension<FakeEntityConfigurationExtension>(e => e.Something += "One");
             configuration.AddOrUpdateExtension<FakeEntityConfigurationExtension>(e => e.Something += "Two");
 
             Assert.Equal(
-                "OneTwo", ((EntityConfiguration)configuration).Extensions.OfType<FakeEntityConfigurationExtension>().Single().Something);
+                "OneTwo", ((ImmutableDbContextOptions)configuration).Extensions.OfType<FakeEntityConfigurationExtension>().Single().Something);
         }
 
         private class FakeEntityConfigurationExtension : EntityConfigurationExtension

@@ -22,6 +22,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNet.DependencyInjection;
 using Microsoft.AspNet.DependencyInjection.Fallback;
 using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Relational;
 using Xunit;
@@ -198,13 +199,13 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
             }
         }
 
-        private static ContextConfiguration CreateConfiguration(TestDatabase testDatabase)
+        private static DbContextConfiguration CreateConfiguration(TestDatabase testDatabase)
         {
             return new DbContext(
                 new ServiceCollection()
                     .AddEntityFramework(s => s.AddSqlServer())
                     .BuildServiceProvider(),
-                new EntityConfigurationBuilder()
+                new DbContextOptions()
                     .SqlServerConnectionString(testDatabase.Connection.ConnectionString)
                     .BuildConfiguration())
                 .Configuration;
@@ -289,7 +290,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
                 _testDatabase = testDatabase;
             }
 
-            protected override void OnConfiguring(EntityConfigurationBuilder builder)
+            protected override void OnConfiguring(DbContextOptions builder)
             {
                 builder.SqlServerConnectionString(_testDatabase.Connection.ConnectionString);
             }

@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Open Technologies, Inc.
 // All Rights Reserved
-//
+// 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-//
+// 
 // http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR
 // CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING
 // WITHOUT LIMITATION ANY IMPLIED WARRANTIES OR CONDITIONS OF
@@ -17,6 +17,7 @@
 
 using System.Linq;
 using Microsoft.AspNet.DependencyInjection;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Storage
@@ -27,7 +28,7 @@ namespace Microsoft.Data.Entity.Storage
         where TCreator : DataStoreCreator
         where TConnection : DataStoreConnection
     {
-        public override DataStore GetStore(ContextConfiguration configuration)
+        public override DataStore GetStore(DbContextConfiguration configuration)
         {
             Check.NotNull(configuration, "configuration");
 
@@ -35,7 +36,7 @@ namespace Microsoft.Data.Entity.Storage
             return configuration.Services.ServiceProvider.GetService<TDataStore>();
         }
 
-        public override DataStoreCreator GetCreator(ContextConfiguration configuration)
+        public override DataStoreCreator GetCreator(DbContextConfiguration configuration)
         {
             Check.NotNull(configuration, "configuration");
 
@@ -43,7 +44,7 @@ namespace Microsoft.Data.Entity.Storage
             return configuration.Services.ServiceProvider.GetService<TCreator>();
         }
 
-        public override DataStoreConnection GetConnection(ContextConfiguration configuration)
+        public override DataStoreConnection GetConnection(DbContextConfiguration configuration)
         {
             Check.NotNull(configuration, "configuration");
 
@@ -51,11 +52,11 @@ namespace Microsoft.Data.Entity.Storage
             return configuration.Services.ServiceProvider.GetService<TConnection>();
         }
 
-        public override bool IsConfigured(ContextConfiguration configuration)
+        public override bool IsConfigured(DbContextConfiguration configuration)
         {
             Check.NotNull(configuration, "configuration");
 
-            return configuration.EntityConfiguration.Extensions.OfType<TConfiguration>().Any();
+            return configuration.ContextOptions.Extensions.OfType<TConfiguration>().Any();
         }
     }
 }

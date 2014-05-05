@@ -20,6 +20,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Relational.Model;
 using Microsoft.Data.Relational.Update;
@@ -120,9 +121,9 @@ namespace Microsoft.Data.Relational.Tests.Update
                 command.WhereClauses.Select(v => new KeyValuePair<string, object>(v.Key.Name, v.Value)));
         }
 
-        private static ContextConfiguration CreateConfiguration()
+        private static DbContextConfiguration CreateConfiguration()
         {
-            return new DbContext(new EntityConfigurationBuilder().BuildConfiguration()).Configuration;
+            return new DbContext(new DbContextOptions().BuildConfiguration()).Configuration;
         }
 
         private static Database CreateDatabase()

@@ -23,6 +23,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNet.DependencyInjection;
 using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Infrastructure;
 using Moq;
 using Moq.Protected;
 using Xunit;
@@ -337,31 +338,31 @@ namespace Microsoft.Data.Relational.Tests
                         }))).Message);
         }
 
-        private static ContextConfiguration CreateConfiguration(
+        private static DbContextConfiguration CreateConfiguration(
             Action<FakeConfigurationExtension1> configUpdater1,
             Action<FakeConfigurationExtension2> configUpdater2 = null)
         {
-            IEntityConfigurationConstruction entityConfiguration = new EntityConfiguration();
+            IDbContextOptionsConstruction contextOptions = new ImmutableDbContextOptions();
 
             if (configUpdater1 != null)
             {
-                entityConfiguration.AddOrUpdateExtension(configUpdater1);
+                contextOptions.AddOrUpdateExtension(configUpdater1);
             }
 
             if (configUpdater2 != null)
             {
-                entityConfiguration.AddOrUpdateExtension(configUpdater2);
+                contextOptions.AddOrUpdateExtension(configUpdater2);
             }
 
-            var contextConfigurationMock = new Mock<ContextConfiguration>();
-            contextConfigurationMock.Setup(m => m.EntityConfiguration).Returns((EntityConfiguration)entityConfiguration);
+            var contextConfigurationMock = new Mock<DbContextConfiguration>();
+            contextConfigurationMock.Setup(m => m.ContextOptions).Returns((ImmutableDbContextOptions)contextOptions);
 
             return contextConfigurationMock.Object;
         }
 
         private class FakeConnection : RelationalConnection
         {
-            public FakeConnection([NotNull] ContextConfiguration configuration)
+            public FakeConnection([NotNull] DbContextConfiguration configuration)
                 : base(configuration)
             {
             }

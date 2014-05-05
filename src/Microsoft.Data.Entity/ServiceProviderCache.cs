@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Open Technologies, Inc.
 // All Rights Reserved
-//
+// 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-//
+// 
 // http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR
 // CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING
 // WITHOUT LIMITATION ANY IMPLIED WARRANTIES OR CONDITIONS OF
@@ -35,11 +35,11 @@ namespace Microsoft.Data.Entity
             get { return _instance; }
         }
 
-        public virtual IServiceProvider GetOrAdd(EntityConfiguration entityConfiguration)
+        public virtual IServiceProvider GetOrAdd(ImmutableDbContextOptions contextOptions)
         {
             var services = new ServiceCollection().AddEntityFramework();
             var builder = new EntityServicesBuilder(services);
-            foreach (var extension in entityConfiguration.Extensions)
+            foreach (var extension in contextOptions.Extensions)
             {
                 extension.ApplyServices(builder);
             }

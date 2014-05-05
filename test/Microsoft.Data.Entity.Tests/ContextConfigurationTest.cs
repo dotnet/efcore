@@ -18,6 +18,7 @@
 using System;
 using Microsoft.AspNet.DependencyInjection;
 using Microsoft.AspNet.DependencyInjection.Fallback;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.InMemory;
 using Moq;
@@ -41,7 +42,7 @@ namespace Microsoft.Data.Entity.Tests
             RequiredServiceTest(c => c.Services.StateEntryFactory);
         }
 
-        private void RequiredServiceTest<TService>(Func<ContextConfiguration, TService> test)
+        private void RequiredServiceTest<TService>(Func<DbContextConfiguration, TService> test)
         {
             Assert.Equal(
                 Strings.FormatMissingConfigurationItem(typeof(TService)),
@@ -151,7 +152,7 @@ namespace Microsoft.Data.Entity.Tests
 
         private class GiddyupContext : DbContext
         {
-            protected internal override void OnConfiguring(EntityConfigurationBuilder builder)
+            protected internal override void OnConfiguring(DbContextOptions builder)
             {
                 builder.UseInMemoryStore();
             }
@@ -164,11 +165,11 @@ namespace Microsoft.Data.Entity.Tests
                 .BuildServiceProvider();
         }
 
-        private static ContextConfiguration CreateEmptyConfiguration()
+        private static DbContextConfiguration CreateEmptyConfiguration()
         {
             var provider = new ServiceCollection().BuildServiceProvider();
-            return new ContextConfiguration()
-                .Initialize(provider, provider, new EntityConfiguration(), Mock.Of<DbContext>(), ContextConfiguration.ServiceProviderSource.Explicit);
+            return new DbContextConfiguration()
+                .Initialize(provider, provider, new ImmutableDbContextOptions(), Mock.Of<DbContext>(), DbContextConfiguration.ServiceProviderSource.Explicit);
         }
     }
 }

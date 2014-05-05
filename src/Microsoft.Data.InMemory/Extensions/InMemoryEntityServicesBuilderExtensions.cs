@@ -16,12 +16,12 @@
 // permissions and limitations under the License.
 
 using JetBrains.Annotations;
-using Microsoft.AspNet.DependencyInjection;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.InMemory;
 using Microsoft.Data.InMemory.Utilities;
 
-namespace Microsoft.Data.InMemory
+namespace Microsoft.AspNet.DependencyInjection
 {
     public static class InMemoryEntityServicesBuilderExtensions
     {

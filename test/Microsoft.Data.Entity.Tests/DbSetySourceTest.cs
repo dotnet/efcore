@@ -16,6 +16,7 @@
 // permissions and limitations under the License.
 
 using System;
+using Microsoft.Data.Entity.Infrastructure;
 using Moq;
 using Xunit;
 

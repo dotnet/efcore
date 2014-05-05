@@ -937,7 +937,7 @@ namespace Microsoft.Data.FunctionalTests
                 cs.Select(c => c.City).Select(c => c).Distinct().Count());
         }
 
-        protected abstract EntityConfiguration Configuration { get; }
+        protected abstract ImmutableDbContextOptions Configuration { get; }
 
         private int AssertQuery<TItem>(
             Func<IQueryable<TItem>, int> query,
