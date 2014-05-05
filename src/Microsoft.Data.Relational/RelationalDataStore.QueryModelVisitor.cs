@@ -19,6 +19,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -157,8 +158,11 @@ namespace Microsoft.Data.Relational
                 {
                     if (_reader == null)
                     {
-                        _connection = _queryContext.Connection;
-                        _connection.Open();
+                        Contract.Assert(_connection == null);
+
+                        var connection = _queryContext.Connection;
+                        connection.Open();
+                        _connection = connection;
 
                         _command = _connection.DbConnection.CreateCommand();
                         _command.CommandText = _sql;

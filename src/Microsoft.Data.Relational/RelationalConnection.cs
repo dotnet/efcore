@@ -119,13 +119,13 @@ namespace Microsoft.Data.Relational
             _openedCount++;
         }
 
+        // Sporadic failure when running Async query tests
         public virtual void Close()
         {
-            if (_openedCount == 0)
-            {
-                return;
-            }
-
+            // TODO: Consider how to handle open/closing to make sure that a connection that is passed in
+            // as open is never erroneously closed without placing undue burdon on users of the connection.
+            // Disabled: See GitHub #141
+            // Contract.Assert(_openedCount > 0);
             if (--_openedCount == 0)
             {
                 _connection.Value.Close();
