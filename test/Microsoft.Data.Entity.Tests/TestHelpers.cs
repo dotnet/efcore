@@ -20,7 +20,7 @@ using Microsoft.AspNet.DependencyInjection;
 using Microsoft.AspNet.DependencyInjection.Fallback;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.InMemory;
+using Microsoft.Data.Entity.InMemory;
 
 namespace Microsoft.Data.Entity.Tests
 {
