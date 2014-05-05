@@ -16,6 +16,7 @@
 // permissions and limitations under the License.
 
 using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Infrastructure;
 using Moq;
 using Xunit;
 
@@ -32,12 +33,12 @@ namespace Microsoft.Data.SqlServer.Tests
         [Fact]
         public void Is_configured_when_configuration_contains_associated_extension()
         {
-            var configuration = new EntityConfigurationBuilder()
+            var configuration = new DbContextOptions()
                 .AddBuildAction(c => c.AddOrUpdateExtension<SqlServerConfigurationExtension>(e => { }))
                 .BuildConfiguration();
 
-            var configurationMock = new Mock<ContextConfiguration>();
-            configurationMock.Setup(m => m.EntityConfiguration).Returns(configuration);
+            var configurationMock = new Mock<DbContextConfiguration>();
+            configurationMock.Setup(m => m.ContextOptions).Returns(configuration);
 
             Assert.True(new SqlServerDataStoreSource().IsConfigured(configurationMock.Object));
         }
@@ -45,10 +46,10 @@ namespace Microsoft.Data.SqlServer.Tests
         [Fact]
         public void Is_not_configured_when_configuration_does_not_contain_associated_extension()
         {
-            var configuration = new EntityConfigurationBuilder().BuildConfiguration();
+            var configuration = new DbContextOptions().BuildConfiguration();
 
-            var configurationMock = new Mock<ContextConfiguration>();
-            configurationMock.Setup(m => m.EntityConfiguration).Returns(configuration);
+            var configurationMock = new Mock<DbContextConfiguration>();
+            configurationMock.Setup(m => m.ContextOptions).Returns(configuration);
 
             Assert.False(new SqlServerDataStoreSource().IsConfigured(configurationMock.Object));
         }
@@ -56,12 +57,12 @@ namespace Microsoft.Data.SqlServer.Tests
         [Fact]
         public void Is_available_when_configured()
         {
-            var configuration = new EntityConfigurationBuilder()
+            var configuration = new DbContextOptions()
                 .AddBuildAction(c => c.AddOrUpdateExtension<SqlServerConfigurationExtension>(e => { }))
                 .BuildConfiguration();
 
-            var configurationMock = new Mock<ContextConfiguration>();
-            configurationMock.Setup(m => m.EntityConfiguration).Returns(configuration);
+            var configurationMock = new Mock<DbContextConfiguration>();
+            configurationMock.Setup(m => m.ContextOptions).Returns(configuration);
 
             Assert.True(new SqlServerDataStoreSource().IsAvailable(configurationMock.Object));
         }
@@ -69,10 +70,10 @@ namespace Microsoft.Data.SqlServer.Tests
         [Fact]
         public void Is_not_available_when_not_configured()
         {
-            var configuration = new EntityConfigurationBuilder().BuildConfiguration();
+            var configuration = new DbContextOptions().BuildConfiguration();
 
-            var configurationMock = new Mock<ContextConfiguration>();
-            configurationMock.Setup(m => m.EntityConfiguration).Returns(configuration);
+            var configurationMock = new Mock<DbContextConfiguration>();
+            configurationMock.Setup(m => m.ContextOptions).Returns(configuration);
 
             Assert.False(new SqlServerDataStoreSource().IsAvailable(configurationMock.Object));
         }

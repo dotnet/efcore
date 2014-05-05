@@ -30,7 +30,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
             _fixture = fixture;
         }
 
-        protected override EntityConfiguration Configuration
+        protected override ImmutableDbContextOptions Configuration
         {
             get { return _fixture.Configuration; }
         }
@@ -38,7 +38,7 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
 
     public class NorthwindQueryFixture : NorthwindQueryFixtureBase
     {
-        private readonly EntityConfiguration _configuration;
+        private readonly ImmutableDbContextOptions _configuration;
         private readonly TestDatabase _testDatabase;
 
         public NorthwindQueryFixture()
@@ -46,13 +46,13 @@ namespace Microsoft.Data.SqlServer.FunctionalTests
             _testDatabase = TestDatabase.Northwind().Result;
 
             _configuration
-                = new EntityConfigurationBuilder()
+                = new DbContextOptions()
                     .UseModel(CreateModel())
                     .SqlServerConnectionString(_testDatabase.Connection.ConnectionString)
                     .BuildConfiguration();
         }
 
-        public override EntityConfiguration Configuration
+        public override ImmutableDbContextOptions Configuration
         {
             get { return _configuration; }
         }

@@ -18,6 +18,7 @@
 using System;
 using Microsoft.AspNet.DependencyInjection;
 using Microsoft.AspNet.DependencyInjection.Fallback;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.InMemory;
 
@@ -25,16 +26,16 @@ namespace Microsoft.Data.Entity.Tests
 {
     public static class TestHelpers
     {
-        public static EntityConfiguration CreateEntityConfiguration(IModel model)
+        public static ImmutableDbContextOptions CreateEntityConfiguration(IModel model)
         {
-            return new EntityConfigurationBuilder()
+            return new DbContextOptions()
                 .UseModel(model)
                 .BuildConfiguration();
         }
 
-        public static EntityConfiguration CreateEntityConfiguration()
+        public static ImmutableDbContextOptions CreateEntityConfiguration()
         {
-            return new EntityConfigurationBuilder()
+            return new DbContextOptions()
                 .BuildConfiguration();
         }
 
@@ -45,22 +46,22 @@ namespace Microsoft.Data.Entity.Tests
                 .BuildServiceProvider();
         }
 
-        public static ContextConfiguration CreateContextConfiguration(IServiceProvider serviceProvider, IModel model)
+        public static DbContextConfiguration CreateContextConfiguration(IServiceProvider serviceProvider, IModel model)
         {
             return new DbContext(serviceProvider, CreateEntityConfiguration(model)).Configuration;
         }
 
-        public static ContextConfiguration CreateContextConfiguration(IServiceProvider serviceProvider)
+        public static DbContextConfiguration CreateContextConfiguration(IServiceProvider serviceProvider)
         {
             return new DbContext(serviceProvider, CreateEntityConfiguration()).Configuration;
         }
 
-        public static ContextConfiguration CreateContextConfiguration(IModel model)
+        public static DbContextConfiguration CreateContextConfiguration(IModel model)
         {
             return new DbContext(CreateServiceProvider(), CreateEntityConfiguration(model)).Configuration;
         }
 
-        public static ContextConfiguration CreateContextConfiguration()
+        public static DbContextConfiguration CreateContextConfiguration()
         {
             return new DbContext(CreateServiceProvider(), CreateEntityConfiguration()).Configuration;
         }

@@ -27,6 +27,7 @@ using Microsoft.AspNet.DependencyInjection.Advanced;
 using Microsoft.AspNet.DependencyInjection.Fallback;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Identity;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Moq;
 using Xunit;
@@ -811,7 +812,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.False(storeGenValues.CanStoreValue(nameProperty));
         }
 
-        protected virtual StateEntry CreateStateEntry(ContextConfiguration configuration, IEntityType entityType, object entity)
+        protected virtual StateEntry CreateStateEntry(DbContextConfiguration configuration, IEntityType entityType, object entity)
         {
             return new StateEntrySubscriber().SnapshotAndSubscribe(
                 new StateEntryFactory(
@@ -820,7 +821,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                     .Create(entityType, entity));
         }
 
-        protected virtual StateEntry CreateStateEntry(ContextConfiguration configuration, IEntityType entityType, IValueReader valueReader)
+        protected virtual StateEntry CreateStateEntry(DbContextConfiguration configuration, IEntityType entityType, IValueReader valueReader)
         {
             return new StateEntrySubscriber().SnapshotAndSubscribe(
                 new StateEntryFactory(

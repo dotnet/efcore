@@ -15,6 +15,7 @@
 // See the Apache 2 License for the specific language governing
 // permissions and limitations under the License.
 
+using Microsoft.AspNet.DependencyInjection;
 using Microsoft.Data.Entity;
 using Microsoft.Data.FunctionalTests;
 using Northwind;
@@ -31,7 +32,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
             _fixture = fixture;
         }
 
-        protected override EntityConfiguration Configuration
+        protected override ImmutableDbContextOptions Configuration
         {
             get { return _fixture.Configuration; }
         }
@@ -39,12 +40,12 @@ namespace Microsoft.Data.InMemory.FunctionalTests
 
     public class NorthwindQueryFixture : NorthwindQueryFixtureBase
     {
-        private readonly EntityConfiguration _configuration;
+        private readonly ImmutableDbContextOptions _configuration;
 
         public NorthwindQueryFixture()
         {
             _configuration
-                = new EntityConfigurationBuilder()
+                = new DbContextOptions()
                     .UseModel(CreateModel())
                     .UseInMemoryStore()
                     .BuildConfiguration();
@@ -60,7 +61,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
             }
         }
 
-        public override EntityConfiguration Configuration
+        public override ImmutableDbContextOptions Configuration
         {
             get { return _configuration; }
         }

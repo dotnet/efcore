@@ -18,6 +18,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.Infrastructure;
 using Moq;
 using Xunit;
 
@@ -143,7 +144,7 @@ namespace Microsoft.Data.Entity.Tests
 
         private static Mock<DbContext> CreateContextMock()
         {
-            var configMock = new Mock<ContextConfiguration>();
+            var configMock = new Mock<DbContextConfiguration>();
             var contextMock = new Mock<DbContext>();
             configMock.Setup(m => m.Context).Returns(contextMock.Object);
             contextMock.Setup(m => m.Configuration).Returns(configMock.Object);

@@ -17,6 +17,7 @@
 
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Moq;
@@ -34,7 +35,7 @@ namespace Microsoft.Data.Entity.Tests
 
             var model = Mock.Of<IModel>();
             var connection = Mock.Of<DataStoreConnection>();
-            var configurationMock = new Mock<ContextConfiguration>();
+            var configurationMock = new Mock<DbContextConfiguration>();
             configurationMock.Setup(m => m.DataStoreCreator).Returns(creatorMock.Object);
             configurationMock.Setup(m => m.Model).Returns(model);
             configurationMock.Setup(m => m.Connection).Returns(connection);
@@ -62,7 +63,7 @@ namespace Microsoft.Data.Entity.Tests
             creatorMock.Setup(m => m.ExistsAsync(cancellationToken)).Returns(Task.FromResult(true));
 
             var model = Mock.Of<IModel>();
-            var configurationMock = new Mock<ContextConfiguration>();
+            var configurationMock = new Mock<DbContextConfiguration>();
             configurationMock.Setup(m => m.DataStoreCreator).Returns(creatorMock.Object);
             configurationMock.Setup(m => m.Model).Returns(model);
 

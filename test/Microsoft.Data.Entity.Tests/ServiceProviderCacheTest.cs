@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.AspNet.DependencyInjection;
+using Microsoft.Data.Entity.Infrastructure;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests
@@ -142,11 +143,11 @@ namespace Microsoft.Data.Entity.Tests
             Assert.NotSame(cache.GetOrAdd(config1), cache.GetOrAdd(config2));
         }
 
-        private static EntityConfiguration BuildConfiguration(Action<EntityServicesBuilder> builderAction)
+        private static ImmutableDbContextOptions BuildConfiguration(Action<EntityServicesBuilder> builderAction)
         {
-            var config = (IEntityConfigurationConstruction)new EntityConfiguration();
+            var config = (IDbContextOptionsConstruction)new ImmutableDbContextOptions();
             config.AddOrUpdateExtension<FakeEntityConfigurationExtension>(e => e.BuilderActions.Add(builderAction));
-            return (EntityConfiguration)config;
+            return (ImmutableDbContextOptions)config;
         }
 
         private class FakeEntityConfigurationExtension : EntityConfigurationExtension

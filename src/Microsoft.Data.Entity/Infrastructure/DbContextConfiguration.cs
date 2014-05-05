@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Open Technologies, Inc.
 // All Rights Reserved
-//
+// 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-//
+// 
 // http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR
 // CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING
 // WITHOUT LIMITATION ANY IMPLIED WARRANTIES OR CONDITIONS OF
@@ -24,9 +24,9 @@ using Microsoft.Data.Entity.Services;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity
+namespace Microsoft.Data.Entity.Infrastructure
 {
-    public class ContextConfiguration
+    public class DbContextConfiguration
     {
         public enum ServiceProviderSource
         {
@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity
 
         private ContextServices _services;
         private IServiceProvider _externalProvider;
-        private EntityConfiguration _entityConfiguration;
+        private ImmutableDbContextOptions _contextOptions;
         private DbContext _context;
         private LazyRef<IModel> _modelFromSource;
         private LazyRef<DataStoreSource> _dataStoreSource;
@@ -45,23 +45,23 @@ namespace Microsoft.Data.Entity
         private ServiceProviderSource _serviceProviderSource;
         private LazyRef<ILoggerFactory> _loggerFactory;
 
-        public virtual ContextConfiguration Initialize(
+        public virtual DbContextConfiguration Initialize(
             [NotNull] IServiceProvider externalProvider,
             [NotNull] IServiceProvider scopedProvider,
-            [NotNull] EntityConfiguration entityConfiguration,
+            [NotNull] ImmutableDbContextOptions contextOptions,
             [NotNull] DbContext context,
             ServiceProviderSource serviceProviderSource)
         {
             Check.NotNull(externalProvider, "externalProvider");
             Check.NotNull(scopedProvider, "scopedProvider");
-            Check.NotNull(entityConfiguration, "entityConfiguration");
+            Check.NotNull(contextOptions, "contextOptions");
             Check.NotNull(context, "context");
             Check.IsDefined(serviceProviderSource, "serviceProviderSource");
 
             _externalProvider = externalProvider;
             _services = new ContextServices(scopedProvider);
             _serviceProviderSource = serviceProviderSource;
-            _entityConfiguration = entityConfiguration;
+            _contextOptions = contextOptions;
             _context = context;
             _modelFromSource = new LazyRef<IModel>(() => _services.ModelSource.GetModel(_context));
             _dataStoreSource = new LazyRef<DataStoreSource>(() => _services.DataStoreSelector.SelectDataStore(this));
@@ -92,7 +92,7 @@ namespace Microsoft.Data.Entity
 
         public virtual IModel Model
         {
-            get { return _entityConfiguration.Model ?? _modelFromSource.Value; }
+            get { return _contextOptions.Model ?? _modelFromSource.Value; }
         }
 
         public virtual DataStore DataStore
@@ -115,9 +115,9 @@ namespace Microsoft.Data.Entity
             get { return _services; }
         }
 
-        public virtual EntityConfiguration EntityConfiguration
+        public virtual ImmutableDbContextOptions ContextOptions
         {
-            get { return _entityConfiguration; }
+            get { return _contextOptions; }
         }
 
         public virtual ServiceProviderSource ProviderSource

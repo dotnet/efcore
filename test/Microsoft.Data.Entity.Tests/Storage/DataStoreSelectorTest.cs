@@ -16,6 +16,7 @@
 // permissions and limitations under the License.
 
 using System;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Storage;
 using Moq;
 using Xunit;
@@ -31,7 +32,7 @@ namespace Microsoft.Data.Entity.Tests.Storage
 
             var selector = new DataStoreSelector(new[] { source });
 
-            Assert.Same(source, selector.SelectDataStore(new ContextConfiguration()));
+            Assert.Same(source, selector.SelectDataStore(new DbContextConfiguration()));
         }
 
         [Fact]
@@ -45,14 +46,14 @@ namespace Microsoft.Data.Entity.Tests.Storage
             var selector = new DataStoreSelector(new[] { source1, source2, source3, source4 });
 
             Assert.Equal(Strings.FormatMultipleDataStoresConfigured("'DataStore1' 'DataStore2' 'DataStore4' "),
-                Assert.Throws<InvalidOperationException>(() => selector.SelectDataStore(new ContextConfiguration())).Message);
+                Assert.Throws<InvalidOperationException>(() => selector.SelectDataStore(new DbContextConfiguration())).Message);
         }
 
         [Fact]
         public void Throws_if_no_store_services_have_been_registered_using_external_service_provider()
         {
-            var configurationMock = new Mock<ContextConfiguration>();
-            configurationMock.Setup(m => m.ProviderSource).Returns(ContextConfiguration.ServiceProviderSource.Explicit);
+            var configurationMock = new Mock<DbContextConfiguration>();
+            configurationMock.Setup(m => m.ProviderSource).Returns(DbContextConfiguration.ServiceProviderSource.Explicit);
 
             var selector = new DataStoreSelector(null);
 
@@ -63,8 +64,8 @@ namespace Microsoft.Data.Entity.Tests.Storage
         [Fact]
         public void Throws_if_no_store_services_have_been_registered_using_implicit_service_provider()
         {
-            var configurationMock = new Mock<ContextConfiguration>();
-            configurationMock.Setup(m => m.ProviderSource).Returns(ContextConfiguration.ServiceProviderSource.Implicit);
+            var configurationMock = new Mock<DbContextConfiguration>();
+            configurationMock.Setup(m => m.ProviderSource).Returns(DbContextConfiguration.ServiceProviderSource.Implicit);
 
             var selector = new DataStoreSelector(null);
 
@@ -82,7 +83,7 @@ namespace Microsoft.Data.Entity.Tests.Storage
             var selector = new DataStoreSelector(new[] { source1, source2, source3 });
 
             Assert.Equal(Strings.FormatMultipleDataStoresAvailable("'DataStore1' 'DataStore2' 'DataStore3' "),
-                Assert.Throws<InvalidOperationException>(() => selector.SelectDataStore(new ContextConfiguration())).Message);
+                Assert.Throws<InvalidOperationException>(() => selector.SelectDataStore(new DbContextConfiguration())).Message);
         }
 
         [Fact]
@@ -93,7 +94,7 @@ namespace Microsoft.Data.Entity.Tests.Storage
             var selector = new DataStoreSelector(new[] { source });
 
             Assert.Equal(Strings.FormatNoDataStoreConfigured(),
-                Assert.Throws<InvalidOperationException>(() => selector.SelectDataStore(new ContextConfiguration())).Message);
+                Assert.Throws<InvalidOperationException>(() => selector.SelectDataStore(new DbContextConfiguration())).Message);
         }
 
         [Fact]
@@ -103,15 +104,15 @@ namespace Microsoft.Data.Entity.Tests.Storage
 
             var selector = new DataStoreSelector(new[] { source });
 
-            Assert.Same(source, selector.SelectDataStore(new ContextConfiguration()));
+            Assert.Same(source, selector.SelectDataStore(new DbContextConfiguration()));
         }
 
         private static DataStoreSource CreateSource(string name, bool configured, bool available, DataStore store = null)
         {
             var sourceMock = new Mock<DataStoreSource>();
-            sourceMock.Setup(m => m.IsConfigured(It.IsAny<ContextConfiguration>())).Returns(configured);
-            sourceMock.Setup(m => m.IsAvailable(It.IsAny<ContextConfiguration>())).Returns(available);
-            sourceMock.Setup(m => m.GetStore(It.IsAny<ContextConfiguration>())).Returns(store);
+            sourceMock.Setup(m => m.IsConfigured(It.IsAny<DbContextConfiguration>())).Returns(configured);
+            sourceMock.Setup(m => m.IsAvailable(It.IsAny<DbContextConfiguration>())).Returns(available);
+            sourceMock.Setup(m => m.GetStore(It.IsAny<DbContextConfiguration>())).Returns(store);
             sourceMock.Setup(m => m.Name).Returns(name);
 
             return sourceMock.Object;

@@ -16,12 +16,21 @@
 // permissions and limitations under the License.
 
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.InMemory;
+using Microsoft.Data.InMemory.Utilities;
 
 namespace Microsoft.Data.Entity
 {
-    public interface IModelSource
+    public static class InMemoryEntityConfigurationBuilderExtensions
     {
-        IModel GetModel([NotNull] DbContext context);
+        public static DbContextOptions UseInMemoryStore(
+            [NotNull] this DbContextOptions builder, bool persist = true)
+        {
+            Check.NotNull(builder, "builder");
+
+            builder.AddBuildAction(c => c.AddOrUpdateExtension<InMemoryConfigurationExtension>(x => x.Persist = persist));
+
+            return builder;
+        }
     }
 }

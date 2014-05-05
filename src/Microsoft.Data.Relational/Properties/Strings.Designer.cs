@@ -140,7 +140,7 @@ namespace Microsoft.Data.Relational
         }
 
         /// <summary>
-        /// No relational data stores are configured. Configure a data store using OnConfiguring or by creating an EntityConfiguration with a data store configured and passing it to the context.
+        /// No relational data stores are configured. Configure a data store using OnConfiguring or by creating an ImmutableDbContextOptions with a data store configured and passing it to the context.
         /// </summary>
         internal static string NoDataStoreConfigured
         {
@@ -148,7 +148,7 @@ namespace Microsoft.Data.Relational
         }
 
         /// <summary>
-        /// No relational data stores are configured. Configure a data store using OnConfiguring or by creating an EntityConfiguration with a data store configured and passing it to the context.
+        /// No relational data stores are configured. Configure a data store using OnConfiguring or by creating an ImmutableDbContextOptions with a data store configured and passing it to the context.
         /// </summary>
         internal static string FormatNoDataStoreConfigured()
         {

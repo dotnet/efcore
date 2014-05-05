@@ -51,7 +51,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
             {
                 public DbSet<Blog> Blogs { get; set; }
 
-                protected override void OnConfiguring(EntityConfigurationBuilder builder)
+                protected override void OnConfiguring(DbContextOptions builder)
                 {
                     builder.UseInMemoryStore();
                 }
@@ -63,7 +63,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
             [Fact]
             public void Can_save_and_query_with_implicit_services_and_explicit_config()
             {
-                var configuration = new EntityConfigurationBuilder()
+                var configuration = new DbContextOptions()
                     .UseInMemoryStore()
                     .BuildConfiguration();
 
@@ -84,7 +84,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
 
             private class BlogContext : DbContext
             {
-                public BlogContext(EntityConfiguration configuration)
+                public BlogContext(ImmutableDbContextOptions configuration)
                     : base(configuration)
                 {
                 }
@@ -126,7 +126,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
 
                 public DbSet<Blog> Blogs { get; set; }
 
-                protected override void OnConfiguring(EntityConfigurationBuilder builder)
+                protected override void OnConfiguring(DbContextOptions builder)
                 {
                     builder.UseInMemoryStore();
                 }
@@ -142,7 +142,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                     .AddEntityFramework(s => s.AddInMemoryStore())
                     .BuildServiceProvider();
 
-                var configuration = new EntityConfigurationBuilder()
+                var configuration = new DbContextOptions()
                     .UseInMemoryStore()
                     .BuildConfiguration();
 
@@ -163,7 +163,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
 
             private class BlogContext : DbContext
             {
-                public BlogContext(IServiceProvider serviceProvider, EntityConfiguration configuration)
+                public BlogContext(IServiceProvider serviceProvider, ImmutableDbContextOptions configuration)
                     : base(serviceProvider, configuration)
                 {
                 }
@@ -262,7 +262,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
 
                 public DbSet<Blog> Blogs { get; set; }
 
-                protected override void OnConfiguring(EntityConfigurationBuilder builder)
+                protected override void OnConfiguring(DbContextOptions builder)
                 {
                     builder.UseInMemoryStore();
                 }
@@ -323,7 +323,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
             [Fact]
             public void Can_register_context_and_configuration_with_DI_container_and_have_both_injected()
             {
-                var configuration = new EntityConfigurationBuilder()
+                var configuration = new DbContextOptions()
                     .UseInMemoryStore()
                     .BuildConfiguration();
 
@@ -331,7 +331,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                     .AddEntityFramework(s => s.AddInMemoryStore())
                     .AddTransient<BlogContext, BlogContext>()
                     .AddTransient<MyController, MyController>()
-                    .AddInstance<EntityConfiguration>(configuration)
+                    .AddInstance<ImmutableDbContextOptions>(configuration)
                     .BuildServiceProvider();
 
                 serviceProvider.GetService<MyController>().Test();
@@ -362,7 +362,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
 
             private class BlogContext : DbContext
             {
-                public BlogContext(IServiceProvider serviceProvider, EntityConfiguration configuration)
+                public BlogContext(IServiceProvider serviceProvider, ImmutableDbContextOptions configuration)
                     : base(serviceProvider, configuration)
                 {
                     Assert.NotNull(serviceProvider);
@@ -381,7 +381,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
             [Fact]
             public void Can_register_configuration_with_DI_container_and_have_it_injected()
             {
-                var configuration = new EntityConfigurationBuilder()
+                var configuration = new DbContextOptions()
                     .UseInMemoryStore()
                     .BuildConfiguration();
 
@@ -389,7 +389,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                     .AddEntityFramework(s => s.AddInMemoryStore())
                     .AddTransient<BlogContext, BlogContext>()
                     .AddTransient<MyController, MyController>()
-                    .AddInstance<EntityConfiguration>(configuration)
+                    .AddInstance<ImmutableDbContextOptions>(configuration)
                     .BuildServiceProvider();
 
                 serviceProvider.GetService<MyController>().Test();
@@ -420,7 +420,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
 
             private class BlogContext : DbContext
             {
-                public BlogContext(EntityConfiguration configuration)
+                public BlogContext(ImmutableDbContextOptions configuration)
                     : base(configuration)
                 {
                     Assert.NotNull(configuration);
@@ -435,11 +435,11 @@ namespace Microsoft.Data.InMemory.FunctionalTests
             [Fact]
             public void Can_inject_different_configurations_into_different_contexts()
             {
-                var blogCofiguration = new EntityConfigurationBuilder()
+                var blogCofiguration = new DbContextOptions()
                     .UseInMemoryStore()
                     .BuildConfiguration(() => new BlogConfiguration());
 
-                var accountCofiguration = new EntityConfigurationBuilder()
+                var accountCofiguration = new DbContextOptions()
                     .UseInMemoryStore()
                     .BuildConfiguration(() => new AccountConfiguration());
 
@@ -457,11 +457,11 @@ namespace Microsoft.Data.InMemory.FunctionalTests
                 serviceProvider.GetService<MyAccountController>().Test();
             }
 
-            private class BlogConfiguration : EntityConfiguration
+            private class BlogConfiguration : ImmutableDbContextOptions
             {
             }
 
-            private class AccountConfiguration : EntityConfiguration
+            private class AccountConfiguration : ImmutableDbContextOptions
             {
             }
 

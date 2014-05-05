@@ -17,6 +17,7 @@
 
 using Microsoft.AspNet.DependencyInjection;
 using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.InMemory.Utilities;
 
 namespace Microsoft.Data.InMemory

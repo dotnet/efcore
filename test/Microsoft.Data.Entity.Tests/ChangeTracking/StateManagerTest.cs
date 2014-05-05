@@ -20,6 +20,7 @@ using System.Linq;
 using Microsoft.AspNet.DependencyInjection;
 using Microsoft.AspNet.DependencyInjection.Fallback;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Moq;
 using Xunit;
@@ -245,7 +246,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             services.AddInstance<IEntityStateListener>(listeners[2].Object);
 
             var config = new DbContext(services.BuildServiceProvider(),
-                new EntityConfigurationBuilder()
+                new DbContextOptions()
                     .UseModel(BuildModel())
                     .BuildConfiguration())
                 .Configuration;
@@ -342,7 +343,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.Equal(EntityState.Unchanged, entry3.EntityState);
         }
 
-        private static Mock<StateEntry> CreateEntryMock(IModel model, ContextConfiguration config, bool changes, int key)
+        private static Mock<StateEntry> CreateEntryMock(IModel model, DbContextConfiguration config, bool changes, int key)
         {
             var entryMock = new Mock<StateEntry>();
             entryMock.Setup(m => m.Configuration).Returns(config);
@@ -376,7 +377,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         private static IModel BuildModel()
         {
             var model = new Model();
-            var builder = new ConventionalModelBuilder(model);
+            var builder = new ConventionModelBuilder(model);
 
             builder.Entity<Product>();
             builder.Entity<Category>();

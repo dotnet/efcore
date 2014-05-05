@@ -19,6 +19,7 @@ using System;
 using Microsoft.AspNet.DependencyInjection;
 using Microsoft.AspNet.DependencyInjection.Advanced;
 using Microsoft.AspNet.DependencyInjection.Fallback;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Moq;
 using Xunit;
@@ -60,7 +61,7 @@ namespace Microsoft.Data.Entity.Tests
                 .AddEntityFramework(s => s.UseDbSetInitializer(new DbSetInitializer(setFinderMock.Object, new ClrPropertySetterSource())))
                 .BuildServiceProvider();
 
-            var configuration = new EntityConfigurationBuilder().BuildConfiguration();
+            var configuration = new DbContextOptions().BuildConfiguration();
 
             using (var context = new JustAContext(serviceProvider, configuration))
             {
@@ -73,7 +74,7 @@ namespace Microsoft.Data.Entity.Tests
 
         public class JustAContext : DbContext
         {
-            public JustAContext(IServiceProvider serviceProvider, EntityConfiguration configuration)
+            public JustAContext(IServiceProvider serviceProvider, ImmutableDbContextOptions configuration)
                 : base(serviceProvider, configuration)
             {
             }

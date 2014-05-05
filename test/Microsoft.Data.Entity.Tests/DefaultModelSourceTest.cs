@@ -17,6 +17,7 @@
 
 using System;
 using System.Linq;
+using Microsoft.Data.Entity.Infrastructure;
 using Moq;
 using Xunit;
 

@@ -85,6 +85,6 @@ namespace Microsoft.Data.FunctionalTests
             return model;
         }
 
-        public abstract EntityConfiguration Configuration { get; }
+        public abstract ImmutableDbContextOptions Configuration { get; }
     }
 }

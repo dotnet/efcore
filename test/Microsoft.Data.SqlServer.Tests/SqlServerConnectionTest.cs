@@ -19,6 +19,7 @@ using System.Data.SqlClient;
 using Microsoft.AspNet.DependencyInjection;
 using Microsoft.AspNet.DependencyInjection.Fallback;
 using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Infrastructure;
 using Xunit;
 
 namespace Microsoft.Data.SqlServer.Tests
@@ -46,12 +47,12 @@ namespace Microsoft.Data.SqlServer.Tests
             }
         }
 
-        public static ContextConfiguration CreateConfiguration()
+        public static DbContextConfiguration CreateConfiguration()
         {
             return new DbContext(new ServiceCollection()
                 .AddEntityFramework(s => s.AddSqlServer())
                 .BuildServiceProvider(),
-                new EntityConfigurationBuilder()
+                new DbContextOptions()
                     .SqlServerConnectionString("Server=(localdb)\v11.0;Database=SqlServerConnectionTest;Trusted_Connection=True;")
                     .BuildConfiguration()).Configuration;
         }

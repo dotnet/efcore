@@ -16,6 +16,7 @@
 // permissions and limitations under the License.
 
 using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.InMemory.Utilities;
 
@@ -24,7 +25,7 @@ namespace Microsoft.Data.InMemory
     public class InMemoryDataStoreSource
         : DataStoreSource<InMemoryDataStore, InMemoryConfigurationExtension, InMemoryDataStoreCreator, InMemoryConnection>
     {
-        public override bool IsAvailable(ContextConfiguration configuration)
+        public override bool IsAvailable(DbContextConfiguration configuration)
         {
             Check.NotNull(configuration, "configuration");
 

@@ -17,6 +17,7 @@
 
 using System;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Moq;
 using Xunit;
@@ -34,7 +35,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var servicesMock = new Mock<ContextServices>();
             servicesMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());
-            var configurationMock = new Mock<ContextConfiguration>();
+            var configurationMock = new Mock<DbContextConfiguration>();
             configurationMock.Setup(m => m.Services).Returns(servicesMock.Object);
 
             var entry = new StateEntryFactory(
@@ -57,7 +58,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var servicesMock = new Mock<ContextServices>();
             servicesMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());
-            var configurationMock = new Mock<ContextConfiguration>();
+            var configurationMock = new Mock<DbContextConfiguration>();
             configurationMock.Setup(m => m.Services).Returns(servicesMock.Object);
 
             var entity = new RedHook();
@@ -81,7 +82,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var servicesMock = new Mock<ContextServices>();
             servicesMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());
-            var configurationMock = new Mock<ContextConfiguration>();
+            var configurationMock = new Mock<DbContextConfiguration>();
             configurationMock.Setup(m => m.Services).Returns(servicesMock.Object);
 
             var entity = new RedHook();
@@ -105,7 +106,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var servicesMock = new Mock<ContextServices>();
             servicesMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());
-            var configurationMock = new Mock<ContextConfiguration>();
+            var configurationMock = new Mock<DbContextConfiguration>();
             configurationMock.Setup(m => m.Services).Returns(servicesMock.Object);
 
             var entry = new StateEntryFactory(configurationMock.Object, new EntityMaterializerSource(new MemberMapper(new FieldMatcher())))
@@ -129,7 +130,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var servicesMock = new Mock<ContextServices>();
             servicesMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());
-            var configurationMock = new Mock<ContextConfiguration>();
+            var configurationMock = new Mock<DbContextConfiguration>();
             configurationMock.Setup(m => m.Services).Returns(servicesMock.Object);
 
             var entry = new StateEntryFactory(configurationMock.Object, new EntityMaterializerSource(new MemberMapper(new FieldMatcher())))
@@ -156,7 +157,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var servicesMock = new Mock<ContextServices>();
             servicesMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());
-            var configurationMock = new Mock<ContextConfiguration>();
+            var configurationMock = new Mock<DbContextConfiguration>();
             configurationMock.Setup(m => m.Services).Returns(servicesMock.Object);
 
             var entry = new StateEntryFactory(configurationMock.Object, new EntityMaterializerSource(new MemberMapper(new FieldMatcher())))

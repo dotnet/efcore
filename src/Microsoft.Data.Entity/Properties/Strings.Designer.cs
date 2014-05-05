@@ -492,7 +492,7 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        /// No data stores are configured. Configure a data store using OnConfiguring or by creating an EntityConfiguration with a data store configured and passing it to the context.
+        /// No data stores are configured. Configure a data store using OnConfiguring or by creating an ImmutableDbContextOptions with a data store configured and passing it to the context.
         /// </summary>
         internal static string NoDataStoreConfigured
         {
@@ -500,7 +500,7 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        /// No data stores are configured. Configure a data store using OnConfiguring or by creating an EntityConfiguration with a data store configured and passing it to the context.
+        /// No data stores are configured. Configure a data store using OnConfiguring or by creating an ImmutableDbContextOptions with a data store configured and passing it to the context.
         /// </summary>
         internal static string FormatNoDataStoreConfigured()
         {
@@ -524,7 +524,7 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        /// The data stores {storeNames}are available. A context can only be configured to use a single data store. Configure a data store using OnConfiguring or by creating an EntityConfiguration with a data store configured and passing it to the context.
+        /// The data stores {storeNames}are available. A context can only be configured to use a single data store. Configure a data store using OnConfiguring or by creating an ImmutableDbContextOptions with a data store configured and passing it to the context.
         /// </summary>
         internal static string MultipleDataStoresAvailable
         {
@@ -532,7 +532,7 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        /// The data stores {storeNames}are available. A context can only be configured to use a single data store. Configure a data store using OnConfiguring or by creating an EntityConfiguration with a data store configured and passing it to the context.
+        /// The data stores {storeNames}are available. A context can only be configured to use a single data store. Configure a data store using OnConfiguring or by creating an ImmutableDbContextOptions with a data store configured and passing it to the context.
         /// </summary>
         internal static string FormatMultipleDataStoresAvailable(object storeNames)
         {
@@ -540,7 +540,7 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        /// Cannot change the EntityConfiguration by calling '{memberName}' because it is locked. Use EntityConfigurationBuilder to create EntityConfigurations.
+        /// Cannot change the ImmutableDbContextOptions by calling '{memberName}' because it is locked. Use DbContextOptions to create EntityConfigurations.
         /// </summary>
         internal static string EntityConfigurationLocked
         {
@@ -548,7 +548,7 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        /// Cannot change the EntityConfiguration by calling '{memberName}' because it is locked. Use EntityConfigurationBuilder to create EntityConfigurations.
+        /// Cannot change the ImmutableDbContextOptions by calling '{memberName}' because it is locked. Use DbContextOptions to create EntityConfigurations.
         /// </summary>
         internal static string FormatEntityConfigurationLocked(object memberName)
         {

@@ -17,6 +17,7 @@
 
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNet.DependencyInjection;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Metadata;
 using Moq;
@@ -104,7 +105,7 @@ namespace Microsoft.Data.InMemory.Tests
         {
             public DbSet<Fraggle> Fraggles { get; set; }
 
-            protected override void OnConfiguring(EntityConfigurationBuilder builder)
+            protected override void OnConfiguring(DbContextOptions builder)
             {
                 builder.UseInMemoryStore();
             }

@@ -18,6 +18,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNet.DependencyInjection;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Metadata;
 using Xunit;
@@ -37,7 +38,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
 
             model.AddEntityType(customerType);
 
-            var configuration = new EntityConfigurationBuilder()
+            var configuration = new DbContextOptions()
                 .UseModel(model)
                 .UseInMemoryStore()
                 .BuildConfiguration();
@@ -102,7 +103,7 @@ namespace Microsoft.Data.InMemory.FunctionalTests
 
             model.AddEntityType(customerType);
 
-            var configuration = new EntityConfigurationBuilder()
+            var configuration = new DbContextOptions()
                 .UseModel(model)
                 .UseInMemoryStore()
                 .BuildConfiguration();
