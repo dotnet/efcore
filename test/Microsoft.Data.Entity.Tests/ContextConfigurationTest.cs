@@ -20,7 +20,7 @@ using Microsoft.AspNet.DependencyInjection;
 using Microsoft.AspNet.DependencyInjection.Fallback;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.InMemory;
+using Microsoft.Data.Entity.InMemory;
 using Moq;
 using Xunit;
 
