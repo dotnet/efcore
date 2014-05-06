@@ -9,7 +9,7 @@
     "Microsoft.Data.Entity.Relational": "",
     "Microsoft.AspNet.DependencyInjection": "0.1-alpha-*",
     "Microsoft.Data.Common": "0.1-alpha-*",
-    "System.Data.SqlClient": "0.1-alpha-*"
+    "Microsoft.Data.SqlServer": "0.1-alpha-*"
   },
   "code": "**\\*.cs;..\\Shared\\*.cs",
   "configurations": {
