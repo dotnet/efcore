@@ -239,21 +239,32 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     var blogs = context.Blogs.ToList();
                     Assert.Equal(2, blogs.Count);
 
-                    var blog = blogs.Single(b => b.Id == 77);
+                    var blog77 = blogs.Single(b => b.Id == 77);
 
-                    Assert.Equal(77, blog.Id);
-                    Assert.Equal("Blog1", blog.Name);
-                    Assert.True(blog.George);
-                    Assert.Equal(new Guid("0456AEF1-B7FC-47AA-8102-975D6BA3A9BF"), blog.TheGu);
-                    Assert.Equal(new DateTime(1973, 9, 3, 0, 10, 33, 777), blog.NotFigTime);
-                    Assert.Equal(64, blog.ToEat);
-                    Assert.Equal(0.123456789, blog.OrNothing);
-                    Assert.Equal(777, blog.Fuse);
-                    Assert.Equal(9876543210, blog.WayRound);
-                    Assert.Equal(0.12345f, blog.Away);
-                    Assert.Equal(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, blog.AndChew);
+                    Assert.Equal(77, blog77.Id);
+                    Assert.Equal("Blog1", blog77.Name);
+                    Assert.True(blog77.George);
+                    Assert.Equal(new Guid("0456AEF1-B7FC-47AA-8102-975D6BA3A9BF"), blog77.TheGu);
+                    Assert.Equal(new DateTime(1973, 9, 3, 0, 10, 33, 777), blog77.NotFigTime);
+                    Assert.Equal(64, blog77.ToEat);
+                    Assert.Equal(0.123456789, blog77.OrNothing);
+                    Assert.Equal(777, blog77.Fuse);
+                    Assert.Equal(9876543210, blog77.WayRound);
+                    Assert.Equal(0.12345f, blog77.Away);
+                    Assert.Equal(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, blog77.AndChew);
 
-                    blog.Name = "New Name";
+                    blog77.Name = "New Name";
+
+                    var blog78 = blogs.Single(b => b.Id == 78);
+                    blog78.Name = null;
+
+                    context.Add(new TBlog()
+                    {
+                        Id = 79,
+                        Name = null,
+                        NotFigTime = new DateTime(1973, 9, 3, 0, 10, 33, 777),
+                        AndChew = new byte[] { 1, 2, 3, 4 }
+                    });
 
                     await context.SaveChangesAsync();
                 }
@@ -261,10 +272,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 using (var context = new BloggingContext<TBlog>(configuration))
                 {
                     var blogs = context.Blogs.ToList();
-                    Assert.Equal(2, blogs.Count);
+                    Assert.Equal(3, blogs.Count);
 
                     Assert.Equal("New Name", blogs.Single(b => b.Id == 77).Name);
-                    Assert.Equal("Blog2", blogs.Single(b => b.Id == 78).Name);
+                    Assert.Null(blogs.Single(b => b.Id == 78).Name);
+                    Assert.Null(blogs.Single(b => b.Id == 79).Name);
                 }
             }
         }

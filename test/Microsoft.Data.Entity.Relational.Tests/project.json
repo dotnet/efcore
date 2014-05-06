@@ -3,6 +3,7 @@
   "dependencies": {
     "Microsoft.Data.Entity" : "",
     "Microsoft.Data.Entity.Relational" : "",
+    "Microsoft.Framework.ConfigurationModel" : "0.1-alpha-*",
     "Microsoft.Framework.DependencyInjection" : "0.1-alpha-*",
     "Microsoft.Framework.Logging" : "0.1-alpha-*",
     "Microsoft.Data.Common": "0.1-alpha-*",
