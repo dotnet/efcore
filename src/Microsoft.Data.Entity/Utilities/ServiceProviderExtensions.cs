@@ -18,7 +18,7 @@
 using System;
 using Microsoft.Data.Entity;
 
-namespace Microsoft.AspNet.DependencyInjection
+namespace Microsoft.Framework.DependencyInjection
 {
     internal static class ServiceProviderExtensions
     {

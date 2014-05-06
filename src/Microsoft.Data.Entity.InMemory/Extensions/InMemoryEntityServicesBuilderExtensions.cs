@@ -21,7 +21,7 @@ using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.InMemory;
 using Microsoft.Data.Entity.InMemory.Utilities;
 
-namespace Microsoft.AspNet.DependencyInjection
+namespace Microsoft.Framework.DependencyInjection
 {
     public static class InMemoryEntityServicesBuilderExtensions
     {

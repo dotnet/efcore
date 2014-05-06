@@ -17,7 +17,7 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.AspNet.DependencyInjection;
+using Microsoft.Framework.DependencyInjection;
 using Microsoft.Data.Entity.Infrastructure;
 using Xunit;
 

@@ -17,7 +17,7 @@
 
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNet.DependencyInjection;
+using Microsoft.Framework.DependencyInjection;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Metadata;
 using Moq;

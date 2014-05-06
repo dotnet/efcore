@@ -18,7 +18,7 @@
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.AspNet.DependencyInjection
+namespace Microsoft.Framework.DependencyInjection
 {
     public class EntityServicesBuilder
     {

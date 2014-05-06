@@ -16,7 +16,7 @@
 // permissions and limitations under the License.
 
 using System;
-using Microsoft.AspNet.Logging;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Services
 {

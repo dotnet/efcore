@@ -17,8 +17,8 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.AspNet.DependencyInjection;
-using Microsoft.AspNet.Logging;
+using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.Logging;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Services;
 using Microsoft.Data.Entity.Storage;

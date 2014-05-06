@@ -16,7 +16,7 @@
 // permissions and limitations under the License.
 
 using JetBrains.Annotations;
-using Microsoft.AspNet.DependencyInjection;
+using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.Infrastructure
 {
