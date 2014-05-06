@@ -6,7 +6,6 @@
     "Microsoft.Data.Entity.Relational": "",
     "Microsoft.Data.Entity.SqlServer": "",
     "Microsoft.Data.Common": "0.1-alpha-*",
-    "Microsoft.AspNet.ConfigurationModel" : "0.1-alpha-*",
     "Microsoft.AspNet.DependencyInjection" : "0.1-alpha-*",
     "Microsoft.AspNet.Logging" : "0.1-alpha-*",
     "Xunit.KRunner": "0.1-alpha-*",
