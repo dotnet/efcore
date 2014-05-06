@@ -127,7 +127,12 @@ namespace Microsoft.Data.Entity.Relational.Update
                 var dbParam = command.CreateParameter();
                 dbParam.Direction = ParameterDirection.Input;
                 dbParam.ParameterName = parameter.Key;
-                dbParam.Value = parameter.Value;
+                
+                // TODO: This is a hack that allows nullable strings to be saved. We actually need proper handling
+                // for parameter types, but this unblocks saving nullable strings for now. Other nullable types
+                // may not work.
+                dbParam.Value = parameter.Value ?? DBNull.Value;
+                
                 command.Parameters.Add(dbParam);
             }
 

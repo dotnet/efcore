@@ -6,6 +6,7 @@
     "Microsoft.Data.Entity.Relational": "",
     "Microsoft.Data.Entity.SqlServer": "",
     "Microsoft.Data.Common": "0.1-alpha-*",
+    "Microsoft.Framework.ConfigurationModel" : "0.1-alpha-*",
     "Microsoft.Framework.DependencyInjection" : "0.1-alpha-*",
     "Microsoft.Framework.Logging" : "0.1-alpha-*",
     "Xunit.KRunner": "0.1-alpha-*",

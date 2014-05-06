@@ -7,6 +7,7 @@
     "Microsoft.Data.Entity.SqlServer": "",
     "Microsoft.Framework.Logging" : "0.1-alpha-*",
     "Microsoft.Data.Common": "0.1-alpha-*",
+    "Microsoft.Framework.ConfigurationModel" : "0.1-alpha-*",
     "Microsoft.Framework.DependencyInjection": "0.1-alpha-*",
     "Xunit.KRunner": "0.1-alpha-*",
     "xunit.abstractions": "2.0.0-aspnet-*",
