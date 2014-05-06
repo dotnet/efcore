@@ -21,7 +21,7 @@ using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.AspNet.Logging;
+using Microsoft.Framework.Logging;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;

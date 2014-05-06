@@ -18,8 +18,8 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using Microsoft.AspNet.DependencyInjection;
-using Microsoft.AspNet.DependencyInjection.Fallback;
+using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Fallback;
 using Microsoft.Data.Entity;
 using Xunit;
 

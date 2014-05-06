@@ -17,7 +17,7 @@
 
 using System.Linq;
 using System.Reflection;
-using Microsoft.AspNet.DependencyInjection;
+using Microsoft.Framework.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.Data.Entity.InMemory.Tests

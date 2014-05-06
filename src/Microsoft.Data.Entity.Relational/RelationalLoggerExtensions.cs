@@ -19,7 +19,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Utilities;
 
-namespace Microsoft.AspNet.Logging
+namespace Microsoft.Framework.Logging
 {
     internal static class RelationalLoggerExtensions
     {

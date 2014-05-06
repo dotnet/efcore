@@ -23,7 +23,7 @@ using Microsoft.Data.Entity.Relational.Utilities;
 // Intentionally in this namespace since this is for use by other relational providers rather than
 // by top-level app developers.
 
-namespace Microsoft.AspNet.DependencyInjection
+namespace Microsoft.Framework.DependencyInjection
 {
     public static class RelationalEntityServicesBuilderExtensions
     {

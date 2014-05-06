@@ -16,7 +16,7 @@
 // permissions and limitations under the License.
 
 using JetBrains.Annotations;
-using Microsoft.AspNet.Logging;
+using Microsoft.Framework.Logging;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;

@@ -18,7 +18,7 @@
 using System.Data.Common;
 using System.Linq;
 using System.Reflection;
-using Microsoft.AspNet.DependencyInjection;
+using Microsoft.Framework.DependencyInjection;
 using Moq;
 using Xunit;
 

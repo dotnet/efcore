@@ -17,7 +17,7 @@
 
 using System;
 using System.IO;
-using Microsoft.AspNet.Logging;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Tests
 {

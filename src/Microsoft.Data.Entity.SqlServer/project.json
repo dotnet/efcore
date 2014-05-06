@@ -7,7 +7,7 @@
     "Microsoft.Data.Entity": "",
     "Microsoft.Data.Entity.Migrations": "",
     "Microsoft.Data.Entity.Relational": "",
-    "Microsoft.AspNet.DependencyInjection": "0.1-alpha-*",
+    "Microsoft.Framework.DependencyInjection": "0.1-alpha-*",
     "Microsoft.Data.Common": "0.1-alpha-*",
     "Microsoft.Data.SqlServer": "0.1-alpha-*"
   },

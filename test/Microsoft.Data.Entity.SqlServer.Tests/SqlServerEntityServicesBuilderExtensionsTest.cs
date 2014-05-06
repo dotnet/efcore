@@ -16,8 +16,8 @@
 // permissions and limitations under the License.
 
 using System.Linq;
-using Microsoft.AspNet.DependencyInjection;
-using Microsoft.AspNet.DependencyInjection.Fallback;
+using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Fallback;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Storage;
