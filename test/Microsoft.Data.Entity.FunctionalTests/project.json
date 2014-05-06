@@ -2,7 +2,6 @@
   "version" : "0.1-alpha-*",
   "dependencies": {
     "Microsoft.Data.Entity" : "",
-    "Microsoft.AspNet.ConfigurationModel" : "0.1-alpha-*",
     "Microsoft.AspNet.DependencyInjection" : "0.1-alpha-*",
     "Microsoft.AspNet.Logging" : "0.1-alpha-*",
     "Xunit.KRunner": "0.1-alpha-*",
