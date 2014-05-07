@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .AddEntityFramework(s => s.AddSqlServer())
                 .BuildServiceProvider(),
                 new DbContextOptions()
-                    .SqlServerConnectionString("Server=(localdb)\v11.0;Database=SqlServerConnectionTest;Trusted_Connection=True;")
+                    .UseSqlServer("Server=(localdb)\v11.0;Database=SqlServerConnectionTest;Trusted_Connection=True;")
                     .BuildConfiguration()).Configuration;
         }
     }

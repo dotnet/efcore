@@ -188,7 +188,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     .AddEntityFramework(s => s.AddSqlServer())
                     .BuildServiceProvider(),
                 new DbContextOptions()
-                    .SqlServerConnectionString(testDatabase.Connection.ConnectionString)
+                    .UseSqlServer(testDatabase.Connection.ConnectionString)
                     .BuildConfiguration())
                 .Configuration;
         }
@@ -205,7 +205,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .BuildServiceProvider();
 
             var configuration = new DbContextOptions()
-                .SqlServerConnectionString(testDatabase.Connection.ConnectionString)
+                .UseSqlServer(testDatabase.Connection.ConnectionString)
                 .BuildConfiguration();
 
             using (var context = new BloggingContext(serviceProvider, configuration))

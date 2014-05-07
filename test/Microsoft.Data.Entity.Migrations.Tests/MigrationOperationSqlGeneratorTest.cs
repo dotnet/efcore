@@ -83,6 +83,31 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         }
 
         [Fact]
+        public void Generate_when_create_table_operation_with_Identity_key()
+        {
+            Column foo, bar;
+            var table = new Table(
+                "dbo.MyTable",
+                new[]
+                    {
+                        foo = new Column("Foo", "int") { IsNullable = false, ValueGenerationStrategy = StoreValueGenerationStrategy.Identity},
+                        bar = new Column("Bar", "int") { IsNullable = true }
+                    })
+            {
+                PrimaryKey = new PrimaryKey("MyPK", new[] { foo }, isClustered: false )
+            };
+
+            Assert.Equal(
+                @"CREATE TABLE ""dbo"".""MyTable"" (
+    ""Foo"" int NOT NULL IDENTITY,
+    ""Bar"" int
+    CONSTRAINT ""MyPK"" PRIMARY KEY NONCLUSTERED (""Foo"")
+)",
+                MigrationOperationSqlGenerator.Generate(
+                    new CreateTableOperation(table), generateIdempotentSql: false).Sql);
+        }
+
+        [Fact]
         public void Generate_when_drop_table_operation()
         {
             Assert.Equal(

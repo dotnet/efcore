@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity
 {
     public static class SqlServerEntityConfigurationBuilderExtensions
     {
-        public static DbContextOptions SqlServerConnectionString(
+        public static DbContextOptions UseSqlServer(
             [NotNull] this DbContextOptions builder, [NotNull] string connectionString)
         {
             Check.NotNull(builder, "builder");
@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity
         }
 
         // TODO: Use SqlConnection instead of DbConnection?
-        public static DbContextOptions SqlServerConnection(
+        public static DbContextOptions UseSqlServer(
             [NotNull] this DbContextOptions builder, [NotNull] DbConnection connection)
         {
             Check.NotNull(builder, "builder");

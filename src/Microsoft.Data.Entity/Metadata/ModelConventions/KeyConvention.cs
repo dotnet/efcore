@@ -75,7 +75,12 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                 property.ValueGenerationStrategy = ValueGenerationStrategy.Client;
             }
 
-            // TODO: Nullable, Identity
+            if (property.PropertyType == typeof(int))
+            {
+                property.ValueGenerationStrategy = ValueGenerationStrategy.StoreIdentity;
+            }
+
+            // TODO: Nullable, Sequence
         }
     }
 }

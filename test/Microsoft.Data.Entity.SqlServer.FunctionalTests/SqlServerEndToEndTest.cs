@@ -141,7 +141,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             using (var testDatabase = await TestDatabase.Scratch())
             {
                 var configuration = new DbContextOptions()
-                    .SqlServerConnectionString(testDatabase.Connection.ConnectionString)
+                    .UseSqlServer(testDatabase.Connection.ConnectionString)
                     .BuildConfiguration();
 
                 using (var db = new BloggingContext(configuration))
@@ -151,9 +151,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 using (var db = new BloggingContext(configuration))
                 {
-                    var toUpdate = db.Blogs.Single(b => b.Id == 77);
+                    var toUpdate = db.Blogs.Single(b => b.Name == "Blog1");
                     toUpdate.Name = "Blog is Updated";
-                    var toDelete = db.Blogs.Single(b => b.Id == 78);
+                    var toDelete = db.Blogs.Single(b => b.Name == "Blog2");
                     toDelete.Name = "Blog to delete";
 
                     db.ChangeTracker.Entry(toUpdate).State = EntityState.Modified;
@@ -161,7 +161,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                     var toAdd = db.Blogs.Add(new Blog()
                         {
-                            Id = 79,
                             Name = "Blog to Insert",
                             George = true,
                             TheGu = new Guid("0456AEF1-B7FC-47AA-8102-975D6BA3A9BF"),
@@ -183,19 +182,19 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     Assert.DoesNotContain(toDelete, db.ChangeTracker.Entries().Select(e => e.Entity));
 
                     var rows = await testDatabase.ExecuteScalarAsync<int>(
-                        @"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = 77 AND Name = 'Blog is Updated'",
+                        @"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = 1 AND Name = 'Blog is Updated'",
                         CancellationToken.None);
 
                     Assert.Equal(1, rows);
 
                     rows = await testDatabase.ExecuteScalarAsync<int>(
-                        @"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = 78",
+                        @"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = 2",
                         CancellationToken.None);
 
                     Assert.Equal(0, rows);
 
                     rows = await testDatabase.ExecuteScalarAsync<int>(
-                        @"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = 79 AND Name = 'Blog to Insert'",
+                        @"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = 3 AND Name = 'Blog to Insert'",
                         CancellationToken.None);
 
                     Assert.Equal(1, rows);
@@ -226,12 +225,22 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             using (var testDatabase = await TestDatabase.Scratch())
             {
                 var configuration = new DbContextOptions()
-                    .SqlServerConnectionString(testDatabase.Connection.ConnectionString)
+                    .UseSqlServer(testDatabase.Connection.ConnectionString)
                     .BuildConfiguration();
+
+                int blog1Id;
+                int blog2Id;
+                int blog3Id;
 
                 using (var context = new BloggingContext<TBlog>(configuration))
                 {
-                    await CreateBlogDatabase<TBlog>(context);
+                    var blogs = await CreateBlogDatabase<TBlog>(context);
+                    blog1Id = blogs[0].Id;
+                    blog2Id = blogs[1].Id;
+
+                    Assert.NotEqual(0, blog1Id);
+                    Assert.NotEqual(0, blog2Id);
+                    Assert.NotEqual(blog1Id, blog2Id);
                 }
 
                 using (var context = new BloggingContext<TBlog>(configuration))
@@ -239,34 +248,38 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     var blogs = context.Blogs.ToList();
                     Assert.Equal(2, blogs.Count);
 
-                    var blog77 = blogs.Single(b => b.Id == 77);
+                    var blog1 = blogs.Single(b => b.Name == "Blog1");
+                    Assert.Equal(blog1Id, blog1.Id);
 
-                    Assert.Equal(77, blog77.Id);
-                    Assert.Equal("Blog1", blog77.Name);
-                    Assert.True(blog77.George);
-                    Assert.Equal(new Guid("0456AEF1-B7FC-47AA-8102-975D6BA3A9BF"), blog77.TheGu);
-                    Assert.Equal(new DateTime(1973, 9, 3, 0, 10, 33, 777), blog77.NotFigTime);
-                    Assert.Equal(64, blog77.ToEat);
-                    Assert.Equal(0.123456789, blog77.OrNothing);
-                    Assert.Equal(777, blog77.Fuse);
-                    Assert.Equal(9876543210, blog77.WayRound);
-                    Assert.Equal(0.12345f, blog77.Away);
-                    Assert.Equal(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, blog77.AndChew);
+                    Assert.Equal("Blog1", blog1.Name);
+                    Assert.True(blog1.George);
+                    Assert.Equal(new Guid("0456AEF1-B7FC-47AA-8102-975D6BA3A9BF"), blog1.TheGu);
+                    Assert.Equal(new DateTime(1973, 9, 3, 0, 10, 33, 777), blog1.NotFigTime);
+                    Assert.Equal(64, blog1.ToEat);
+                    Assert.Equal(0.123456789, blog1.OrNothing);
+                    Assert.Equal(777, blog1.Fuse);
+                    Assert.Equal(9876543210, blog1.WayRound);
+                    Assert.Equal(0.12345f, blog1.Away);
+                    Assert.Equal(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, blog1.AndChew);
 
-                    blog77.Name = "New Name";
+                    blog1.Name = "New Name";
 
-                    var blog78 = blogs.Single(b => b.Id == 78);
-                    blog78.Name = null;
+                    var blog2 = blogs.Single(b => b.Name == "Blog2");
+                    Assert.Equal(blog2Id, blog2.Id);
 
-                    context.Add(new TBlog()
+                    blog2.Name = null;
+
+                    var blog3 = context.Add(new TBlog()
                     {
-                        Id = 79,
                         Name = null,
                         NotFigTime = new DateTime(1973, 9, 3, 0, 10, 33, 777),
                         AndChew = new byte[] { 1, 2, 3, 4 }
                     });
 
                     await context.SaveChangesAsync();
+
+                    blog3Id = blog3.Id;
+                    Assert.NotEqual(0, blog3Id);
                 }
 
                 using (var context = new BloggingContext<TBlog>(configuration))
@@ -274,19 +287,18 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     var blogs = context.Blogs.ToList();
                     Assert.Equal(3, blogs.Count);
 
-                    Assert.Equal("New Name", blogs.Single(b => b.Id == 77).Name);
-                    Assert.Null(blogs.Single(b => b.Id == 78).Name);
-                    Assert.Null(blogs.Single(b => b.Id == 79).Name);
+                    Assert.Equal("New Name", blogs.Single(b => b.Id == blog1Id).Name);
+                    Assert.Null(blogs.Single(b => b.Id == blog2Id).Name);
+                    Assert.Null(blogs.Single(b => b.Id == blog3Id).Name);
                 }
             }
         }
 
-        private static async Task CreateBlogDatabase<TBlog>(DbContext context) where TBlog : class, IBlog, new()
+        private static async Task<TBlog[]> CreateBlogDatabase<TBlog>(DbContext context) where TBlog : class, IBlog, new()
         {
             await context.Database.CreateAsync();
-            await context.AddAsync(new TBlog()
+            var blog1 = await context.AddAsync(new TBlog()
                 {
-                    Id = 77,
                     Name = "Blog1",
                     George = true,
                     TheGu = new Guid("0456AEF1-B7FC-47AA-8102-975D6BA3A9BF"),
@@ -303,9 +315,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     //OrUShort = 888888888888888, // TODO: The parameter data type of UInt64 is invalid.
                     AndChew = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }
                 });
-            await context.AddAsync(new TBlog()
+            var blog2 = await context.AddAsync(new TBlog()
                 {
-                    Id = 78,
                     Name = "Blog2",
                     George = false,
                     TheGu = new Guid("0456AEF1-B7FC-47AA-8102-975D6BA3A9CF"),
@@ -323,6 +334,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     AndChew = new byte[16]
                 });
             await context.SaveChangesAsync();
+
+            return new[] { blog1, blog2 };
         }
 
         private class NorthwindContext : DbContext
@@ -340,7 +353,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             protected override void OnConfiguring(DbContextOptions builder)
             {
-                builder.SqlServerConnectionString(TestDatabase.NorthwindConnectionString);
+                builder.UseSqlServer(TestDatabase.NorthwindConnectionString);
             }
 
             protected override void OnModelCreating(ModelBuilder builder)

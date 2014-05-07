@@ -34,6 +34,13 @@ namespace Microsoft.Data.Entity.SqlServer
                     }
                     goto default;
 
+                case ValueGenerationStrategy.StoreIdentity:
+                    if (property.PropertyType == typeof(int))
+                    {
+                        return new TemporaryIdentityGenerator();
+                    }
+                    goto default;
+
                 case ValueGenerationStrategy.StoreSequence:
                     if (property.PropertyType == typeof(long))
                     {
