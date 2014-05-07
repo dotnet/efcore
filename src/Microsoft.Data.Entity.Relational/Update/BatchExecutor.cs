@@ -1,13 +1,15 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.Relational.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Update
@@ -16,16 +18,20 @@ namespace Microsoft.Data.Entity.Relational.Update
     {
         private readonly SqlGenerator _sqlGenerator;
         private readonly RelationalConnection _connection;
+        private readonly RelationalTypeMapper _typeMapper;
 
         public BatchExecutor(
             [NotNull] SqlGenerator sqlGenerator,
-            [NotNull] RelationalConnection connection)
+            [NotNull] RelationalConnection connection,
+            [NotNull] RelationalTypeMapper typeMapper)
         {
             Check.NotNull(sqlGenerator, "sqlGenerator");
             Check.NotNull(connection, "connection");
+            Check.NotNull(typeMapper, "typeMapper");
 
             _sqlGenerator = sqlGenerator;
             _connection = connection;
+            _typeMapper = typeMapper;
         }
 
         public virtual RelationalConnection Connection
@@ -51,24 +57,30 @@ namespace Microsoft.Data.Entity.Relational.Update
         {
             Check.NotNull(commandBatch, "commandBatch");
 
-            using (var cmd = CreateCommand(Connection.DbConnection, commandBatch))
-            {
-                using (var reader = await cmd.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false))
-                {
-                    var resultSetIdx = -1;
+            // TODO: It is likely the code below won't really work correctly in the wild because
+            // we currently don't actually create batches of commands and because there is no mechanism
+            // for getting back affected rows for update/delete commands. Leaving the code here right now
+            // because it might be a decent starting point for a real implementation.
 
+            using (var storeCommand = CreateStoreCommand(Connection.DbConnection, commandBatch))
+            {
+                var modificationCommands = commandBatch.ModificationCommands;
+                using (var reader = await storeCommand.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false))
+                {
+                    var commandIndex = -1;
                     do
                     {
-                        resultSetIdx++;
+                        commandIndex++;
+                        var tableModification = modificationCommands[commandIndex];
 
                         if (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
                         {
-                            if (!commandBatch.CommandRequiresResultPropagation(resultSetIdx))
+                            if (!tableModification.RequiresResultPropagation)
                             {
                                 throw new DbUpdateConcurrencyException(string.Format(Strings.FormatUpdateConcurrencyException(0, 1)));
                             }
 
-                            SaveStoreGeneratedValues(commandBatch, reader, resultSetIdx);
+                            tableModification.PropagateResults(new RelationalTypedValueReader(reader));
 
                             if (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
                             {
@@ -77,7 +89,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                         }
                         else
                         {
-                            if (commandBatch.CommandRequiresResultPropagation(resultSetIdx))
+                            if (tableModification.RequiresResultPropagation)
                             {
                                 throw new DbUpdateConcurrencyException(string.Format(Strings.FormatUpdateConcurrencyException(1, 0)));
                             }
@@ -88,38 +100,30 @@ namespace Microsoft.Data.Entity.Relational.Update
             }
         }
 
-        private static void SaveStoreGeneratedValues([NotNull] ModificationCommandBatch commandBatch, [NotNull] DbDataReader reader, int commandIndex)
-        {
-            // TODO: Consider if this can be done with well-known result order (like materialization) rather than column names
-            var names = new String[reader.FieldCount];
-            for (var ordinal = 0; ordinal < names.Length; ordinal++)
-            {
-                names[ordinal] = reader.GetName(ordinal);
-            }
-
-            commandBatch.SaveStoreGeneratedValues(commandIndex, names, new RelationalTypedValueReader(reader));
-        }
-
-        private DbCommand CreateCommand([NotNull] DbConnection connection, [NotNull] ModificationCommandBatch commandBatch)
+        private DbCommand CreateStoreCommand([NotNull] DbConnection connection, [NotNull] ModificationCommandBatch commandBatch)
         {
             var command = connection.CreateCommand();
             command.CommandType = CommandType.Text;
+            command.CommandText = commandBatch.CompileBatch(_sqlGenerator);
 
-            List<KeyValuePair<string, object>> parameters;
-            command.CommandText = commandBatch.CompileBatch(_sqlGenerator, out parameters);
-
-            foreach (var parameter in parameters)
+            foreach (var columnModification in commandBatch.ModificationCommands.SelectMany(t => t.ColumnModifications))
             {
-                var dbParam = command.CreateParameter();
-                dbParam.Direction = ParameterDirection.Input;
-                dbParam.ParameterName = parameter.Key;
+                if (columnModification.ParameterName != null)
+                {
+                    // TODO: It would be nice to just pass IProperty to the type mapper, but Migrations uses its own
+                    // store model for which there is no easy way to get an IProperty.
 
-                // TODO: This is a hack that allows nullable strings to be saved. We actually need proper handling
-                // for parameter types, but this unblocks saving nullable strings for now. Other nullable types
-                // may not work.
-                dbParam.Value = parameter.Value ?? DBNull.Value;
+                    var property = columnModification.Property;
 
-                command.Parameters.Add(dbParam);
+                    // TODO: Avoid doing Contains check everywhere we need to know if a property is part of a key
+                    var isKey = property.EntityType.GetKey().Properties.Contains(property);
+
+                    command.Parameters.Add(
+                        _typeMapper
+                            .GetTypeMapping(
+                                property.ColumnType(), property.StorageName, property.PropertyType, isKey, property.IsConcurrencyToken)
+                            .CreateParameter(command, columnModification));
+                }
             }
 
             return command;

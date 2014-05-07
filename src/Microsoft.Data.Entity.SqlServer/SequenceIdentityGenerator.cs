@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.SqlServer
                 = string.Format(
                     CultureInfo.InvariantCulture,
                     "SELECT NEXT VALUE FOR {0}",
-                    new SqlServerMigrationOperationSqlGenerator().DelimitIdentifier(_sequenceName));
+                    new SqlServerMigrationOperationSqlGenerator(new SqlServerTypeMapper()).DelimitIdentifier(_sequenceName));
         }
 
         public virtual async Task<long> NextAsync(CancellationToken cancellationToken = default(CancellationToken))

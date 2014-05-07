@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.InMemory
         }
 
         public override Task<int> SaveChangesAsync(
-            IEnumerable<StateEntry> stateEntries,
+            IReadOnlyList<StateEntry> stateEntries,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(stateEntries, "stateEntries");

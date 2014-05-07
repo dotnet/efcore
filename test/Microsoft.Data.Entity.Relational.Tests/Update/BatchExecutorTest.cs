@@ -24,12 +24,15 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public async void ExecuteAsync_executes_batch_commands_and_consumes_reader()
         {
-            var command = new ModificationCommand(CreateStateEntry(EntityState.Added), CreateTable());
+            var stateEntry = CreateStateEntry(EntityState.Added);
+            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+            command.AddStateEntry(stateEntry);
+
             var batch = new ModificationCommandBatch(new[] { command });
             var mockReader = SetupMockDataReader();
             var connection = SetupMockConnection(mockReader.Object);
 
-            var executor = new BatchExecutor(new Mock<SqlGenerator> { CallBase = true }.Object, connection);
+            var executor = new BatchExecutor(new Mock<SqlGenerator> { CallBase = true }.Object, connection, new RelationalTypeMapper());
 
             await executor.ExecuteAsync(new[] { batch }, CancellationToken.None);
 
@@ -41,12 +44,14 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         public async void ExecuteAsync_saves_store_generated_values()
         {
             var stateEntry = CreateStateEntry(EntityState.Added, ValueGenerationStrategy.StoreIdentity);
-            var command = new ModificationCommand(stateEntry, CreateTable(StoreValueGenerationStrategy.Identity));
+            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+            command.AddStateEntry(stateEntry);
+
             var batch = new ModificationCommandBatch(new[] { command });
             var mockReader = SetupMockDataReader(new[] { "Col1" }, new List<object[]> { new object[] { 42 } });
             var connection = SetupMockConnection(mockReader.Object);
 
-            var executor = new BatchExecutor(new Mock<SqlGenerator> { CallBase = true }.Object, connection);
+            var executor = new BatchExecutor(new Mock<SqlGenerator> { CallBase = true }.Object, connection, new RelationalTypeMapper());
 
             await executor.ExecuteAsync(new[] { batch }, CancellationToken.None);
 
@@ -60,14 +65,14 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var stateEntry = CreateStateEntry(
                 EntityState.Added, ValueGenerationStrategy.StoreIdentity, ValueGenerationStrategy.StoreComputed);
 
-            var command = new ModificationCommand(
-                stateEntry, CreateTable(StoreValueGenerationStrategy.Identity, StoreValueGenerationStrategy.Computed));
+            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+            command.AddStateEntry(stateEntry);
 
             var batch = new ModificationCommandBatch(new[] { command });
             var mockReader = SetupMockDataReader(new[] { "Col1", "Col2" }, new List<object[]> { new object[] { 42, "FortyTwo" } });
             var connection = SetupMockConnection(mockReader.Object);
 
-            var executor = new BatchExecutor(new Mock<SqlGenerator> { CallBase = true }.Object, connection);
+            var executor = new BatchExecutor(new Mock<SqlGenerator> { CallBase = true }.Object, connection, new RelationalTypeMapper());
 
             await executor.ExecuteAsync(new[] { batch }, CancellationToken.None);
 
@@ -81,14 +86,14 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var stateEntry = CreateStateEntry(
                 EntityState.Modified, ValueGenerationStrategy.StoreIdentity, ValueGenerationStrategy.StoreComputed);
 
-            var command = new ModificationCommand(
-                stateEntry, CreateTable(StoreValueGenerationStrategy.Identity, StoreValueGenerationStrategy.Computed));
+            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+            command.AddStateEntry(stateEntry);
 
             var batch = new ModificationCommandBatch(new[] { command });
             var mockReader = SetupMockDataReader(new[] { "Col2" }, new List<object[]> { new object[] { "FortyTwo" } });
             var connection = SetupMockConnection(mockReader.Object);
 
-            var executor = new BatchExecutor(new Mock<SqlGenerator> { CallBase = true }.Object, connection);
+            var executor = new BatchExecutor(new Mock<SqlGenerator> { CallBase = true }.Object, connection, new RelationalTypeMapper());
 
             await executor.ExecuteAsync(new[] { batch }, CancellationToken.None);
 
@@ -100,7 +105,9 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         public async void Exception_thrown_for_more_than_one_row_returned_for_single_command()
         {
             var stateEntry = CreateStateEntry(EntityState.Added, ValueGenerationStrategy.StoreIdentity);
-            var command = new ModificationCommand(stateEntry, CreateTable(StoreValueGenerationStrategy.Identity));
+            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+            command.AddStateEntry(stateEntry);
+
             var batch = new ModificationCommandBatch(new[] { command });
             var mockReader = SetupMockDataReader(new[] { "Col1" }, new List<object[]>
                 {
@@ -109,7 +116,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 });
             var connection = SetupMockConnection(mockReader.Object);
 
-            var executor = new BatchExecutor(new Mock<SqlGenerator> { CallBase = true }.Object, connection);
+            var executor = new BatchExecutor(new Mock<SqlGenerator> { CallBase = true }.Object, connection, new RelationalTypeMapper());
 
             Assert.Equal(Strings.TooManyRowsForModificationCommand,
                 (await Assert.ThrowsAsync<DbUpdateException>(
@@ -119,12 +126,15 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public async void Exception_thrown_if_rows_returned_for_command_without_store_generated_values()
         {
-            var command = new ModificationCommand(CreateStateEntry(EntityState.Added), CreateTable());
+            var stateEntry = CreateStateEntry(EntityState.Added);
+            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+            command.AddStateEntry(stateEntry);
+
             var batch = new ModificationCommandBatch(new[] { command });
             var mockReader = SetupMockDataReader(new[] { "Col1" }, new List<object[]> { new object[] { 42 } });
             var connection = SetupMockConnection(mockReader.Object);
 
-            var executor = new BatchExecutor(new Mock<SqlGenerator> { CallBase = true }.Object, connection);
+            var executor = new BatchExecutor(new Mock<SqlGenerator> { CallBase = true }.Object, connection, new RelationalTypeMapper());
 
             Assert.Equal(Strings.FormatUpdateConcurrencyException(0, 1),
                 (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
@@ -135,12 +145,14 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         public async void Exception_thrown_if_no_rows_returned_for_command_with_store_generated_values()
         {
             var stateEntry = CreateStateEntry(EntityState.Added, ValueGenerationStrategy.StoreIdentity);
-            var command = new ModificationCommand(stateEntry, CreateTable(StoreValueGenerationStrategy.Identity));
+            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+            command.AddStateEntry(stateEntry);
+
             var batch = new ModificationCommandBatch(new[] { command });
             var mockReader = SetupMockDataReader(new[] { "Col1" });
             var connection = SetupMockConnection(mockReader.Object);
 
-            var executor = new BatchExecutor(new Mock<SqlGenerator> { CallBase = true }.Object, connection);
+            var executor = new BatchExecutor(new Mock<SqlGenerator> { CallBase = true }.Object, connection, new RelationalTypeMapper());
 
             Assert.Equal(Strings.FormatUpdateConcurrencyException(1, 0),
                 (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
@@ -248,20 +260,24 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             ValueGenerationStrategy nonKeyStrategy = ValueGenerationStrategy.None)
         {
             var model = BuildModel(keyStrategy, nonKeyStrategy);
-            var stateEntry = CreateConfiguration(model).Services.StateEntryFactory.Create(model.GetEntityType("T1"), new T1 { Col1 = 1, Col2 = "Test" });
+
+            var stateEntry = CreateConfiguration(model).Services.StateEntryFactory.Create(
+                model.GetEntityType("T1"), new T1 { Col1 = 1, Col2 = "Test" });
+
             stateEntry.EntityState = entityState;
+
             return stateEntry;
         }
 
-        private static Table CreateTable(
-            StoreValueGenerationStrategy keyStrategy = StoreValueGenerationStrategy.None,
-            StoreValueGenerationStrategy nonKeyStrategy = StoreValueGenerationStrategy.None)
-        {
-            var key = new Column("Col1", "_") { ValueGenerationStrategy = keyStrategy };
-            return new Table("T1", new[] { key, new Column("Col2", "_") { ValueGenerationStrategy = nonKeyStrategy } })
-                {
-                    PrimaryKey = new PrimaryKey("PK", new[] { key })
-                };
-        }
+        //private static Table CreateTable(
+        //    StoreValueGenerationStrategy keyStrategy = StoreValueGenerationStrategy.None,
+        //    StoreValueGenerationStrategy nonKeyStrategy = StoreValueGenerationStrategy.None)
+        //{
+        //    var key = new Column("Col1", "_") { ValueGenerationStrategy = keyStrategy };
+        //    return new Table("T1", new[] { key, new Column("Col2", "_") { ValueGenerationStrategy = nonKeyStrategy } })
+        //        {
+        //            PrimaryKey = new PrimaryKey("PK", new[] { key })
+        //        };
+        //}
     }
 }

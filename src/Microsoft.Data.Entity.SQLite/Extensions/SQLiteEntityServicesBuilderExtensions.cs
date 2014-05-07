@@ -20,6 +20,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddSingleton<DataStoreSource, SQLiteDataStoreSource>()
                 .AddSingleton<SQLiteSqlGenerator>()
                 .AddSingleton<SqlStatementExecutor>()
+                .AddSingleton<SQLiteTypeMapper>()
                 .AddScoped<SQLiteDataStore>()
                 .AddScoped<SQLiteConnectionConnection>()
                 .AddScoped<SQLiteBatchExecutor>()

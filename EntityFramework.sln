@@ -27,7 +27,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Entity.InMem
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Entity.Relational.net45", "src\Microsoft.Data.Entity.Relational\Microsoft.Data.Entity.Relational.net45.csproj", "{75C5A774-A3F3-43EB-97D3-DBE0CF2825D8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Entity.SQLite.net45", "src\Microsoft.Data.Entity.SQLite\Microsoft.Data.Entity.SQLite.net45.csproj", "{4CC98896-FE91-4F16-AE60-D6FF9E905836}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Entity.SQLite.net451", "src\Microsoft.Data.Entity.SQLite\Microsoft.Data.Entity.SQLite.net451.csproj", "{4CC98896-FE91-4F16-AE60-D6FF9E905836}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Entity.SqlServer.net45", "src\Microsoft.Data.Entity.SqlServer\Microsoft.Data.Entity.SqlServer.net45.csproj", "{04E6620B-5B41-45FE-981A-F40EB7686B0E}"
 EndProject
@@ -57,7 +57,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Entity.SqlSe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Entity.InMemory.FunctionalTests.net45", "test\Microsoft.Data.Entity.InMemory.FunctionalTests\Microsoft.Data.Entity.InMemory.FunctionalTests.net45.csproj", "{7E1A1A1B-6D0B-4C66-8026-326EFC0B4625}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Entity.SQLite.Tests.net45", "test\Microsoft.Data.Entity.SQLite.Tests\Microsoft.Data.Entity.SQLite.Tests.net45.csproj", "{1F060759-25F6-47FB-AEBB-3D88195F3DF7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Entity.SQLite.Tests.net451", "test\Microsoft.Data.Entity.SQLite.Tests\Microsoft.Data.Entity.SQLite.Tests.net451.csproj", "{1F060759-25F6-47FB-AEBB-3D88195F3DF7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

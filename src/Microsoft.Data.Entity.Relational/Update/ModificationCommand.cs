@@ -7,29 +7,42 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.Relational.Utilities;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Update
 {
     public class ModificationCommand
     {
-        private readonly StateEntry _stateEntry;
-        private readonly Table _table;
-        private readonly KeyValuePair<Column, object>[] _columnValues;
-        private readonly KeyValuePair<Column, object>[] _whereClauses;
-        private readonly ModificationOperation _operation;
+        private readonly ParameterNameGenerator _parameterNameGenerator;
+        private readonly string _tableName;
+        private readonly List<StateEntry> _stateEntries = new List<StateEntry>();
 
-        /// <summary>
-        ///     This constructor is intended only for use when creating test doubles that will override members
-        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
-        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
-        /// </summary>
-        protected ModificationCommand()
+        private readonly LazyRef<IReadOnlyList<ColumnModification>> _columnModifications
+            = new LazyRef<IReadOnlyList<ColumnModification>>(() => new ColumnModification[0]);
+
+        private bool _requiresResultPropagation;
+
+        public ModificationCommand([NotNull] string tableName, [NotNull] ParameterNameGenerator parameterNameGenerator)
         {
+            Check.NotEmpty(tableName, "tableName");
+            Check.NotNull(parameterNameGenerator, "parameterNameGenerator");
+
+            _tableName = tableName;
+            _parameterNameGenerator = parameterNameGenerator;
         }
 
-        public ModificationCommand([NotNull] StateEntry stateEntry, [NotNull] Table table)
+        public virtual string TableName
+        {
+            get { return _tableName; }
+        }
+
+        public virtual IReadOnlyList<StateEntry> StateEntries
+        {
+            get { return _stateEntries; }
+        }
+
+        public virtual ModificationCommand AddStateEntry([NotNull] StateEntry stateEntry)
         {
             Check.NotNull(stateEntry, "stateEntry");
 
@@ -37,103 +50,102 @@ namespace Microsoft.Data.Entity.Relational.Update
             {
                 throw new NotSupportedException(Strings.FormatModificationFunctionInvalidEntityState(stateEntry.EntityState));
             }
-
-            _stateEntry = stateEntry;
-            _table = table;
-
-            _operation =
-                stateEntry.EntityState == EntityState.Added
-                    ? ModificationOperation.Insert
-                    : stateEntry.EntityState == EntityState.Modified
-                        ? ModificationOperation.Update
-                        : ModificationOperation.Delete;
-
-            // TODO: this will need to be done lazily because the result can be different when 
-            // the results are propagated to state entries for which commands have not been executed
-            if (_operation == ModificationOperation.Insert)
+            
+            var firstEntry = _stateEntries.FirstOrDefault();
+            if (firstEntry != null
+                && firstEntry.EntityState != stateEntry.EntityState)
             {
-                _columnValues = GetColumnValues(table, true).ToArray();
+                // TODO: Proper message
+                throw new InvalidOperationException("Two entities cannot make conflicting updates to the same row.");
+
+                // TODO: Check for any other conflicts between the two entries
             }
-            else
-            {
-                if (_operation == ModificationOperation.Update)
-                {
-                    _columnValues = GetColumnValues(table, false).ToArray();
-                }
 
-                _whereClauses = GetWhereClauses(table, stateEntry).ToArray();
-            }
+            _stateEntries.Add(stateEntry);
+            _columnModifications.Reset(GenerateColumnModifications);
+
+            return this;
         }
 
-        public virtual ModificationOperation Operation
-        {
-            get { return _operation; }
-        }
-
-        public virtual Table Table
-        {
-            get { return _table; }
-        }
-
-        public virtual KeyValuePair<Column, object>[] ColumnValues
-        {
-            get { return _columnValues; }
-        }
-
-        public virtual KeyValuePair<Column, object>[] WhereClauses
-        {
-            get { return _whereClauses; }
-        }
-
-        public virtual StateEntry StateEntry
-        {
-            get { return _stateEntry; }
-        }
-
-        internal virtual bool RequiresResultPropagation
+        public virtual EntityState EntityState
         {
             get
             {
-                if (Operation != ModificationOperation.Delete)
-                {
-                    var storeGeneratedColumns = _table.GetStoreGeneratedColumns();
+                var firstEntry = _stateEntries.FirstOrDefault();
 
-                    return (Operation == ModificationOperation.Update
-                        ? storeGeneratedColumns.Except(_table.PrimaryKey.Columns)
-                        : storeGeneratedColumns).Any();
-                }
-
-                return false;
+                return firstEntry != null ? firstEntry.EntityState : EntityState.Unknown;
             }
         }
 
-        private IEnumerable<KeyValuePair<Column, object>> GetColumnValues(Table table, bool includeKeyColumns)
+        public virtual IReadOnlyList<ColumnModification> ColumnModifications
         {
-            var nonStoreGeneratedColumns = table.Columns.Except(table.GetStoreGeneratedColumns());
-
-            return
-                (includeKeyColumns ? nonStoreGeneratedColumns : nonStoreGeneratedColumns.Except(table.PrimaryKey.Columns))
-                    .Select(c => new KeyValuePair<Column, object>(c, GetPropertyValue(_stateEntry, c)));
+            get { return _columnModifications.Value; }
         }
 
-        private static IEnumerable<KeyValuePair<Column, object>> GetWhereClauses(Table table, StateEntry stateEntry)
+        public virtual bool RequiresResultPropagation
         {
-            // TODO: Concurrency columns
-            return
-                table
-                    .PrimaryKey.Columns
-                    .Select(c => new KeyValuePair<Column, object>(c, GetPropertyValue(stateEntry, c)));
+            get
+            {
+                var _ = _columnModifications.Value;
+                return _requiresResultPropagation;
+            }
         }
 
-        private static object GetPropertyValue(StateEntry stateEntry, Column column)
+        private IReadOnlyList<ColumnModification> GenerateColumnModifications()
         {
-            return stateEntry[GetProperty(stateEntry, column.Name)];
+            var adding = EntityState == EntityState.Added;
+            var deleting = EntityState == EntityState.Deleted;
+            var columnModifications = new List<ColumnModification>();
+
+            foreach (var stateEntry in _stateEntries)
+            {
+                var entityType = stateEntry.EntityType;
+
+                foreach (var property in entityType.Properties)
+                {
+                    // TODO: Concurrency columns
+                    var isKey = entityType.GetKey().Properties.Contains(property);
+                    var isCondition = isKey || (!adding && property.IsConcurrencyToken);
+
+                    var readValue = !deleting && (property.ValueGenerationStrategy == ValueGenerationStrategy.StoreComputed
+                                    || (adding && property.ValueGenerationStrategy == ValueGenerationStrategy.StoreIdentity));
+
+                    // TODO: Default values
+                    // TODO: Should not need to filter key values here but they currently can get marked as modified
+                    var writeValue = (adding && property.ValueGenerationStrategy != ValueGenerationStrategy.StoreComputed
+                                      && property.ValueGenerationStrategy != ValueGenerationStrategy.StoreIdentity)
+                                     || (!isKey && !deleting && stateEntry.IsPropertyModified(property));
+
+                    if (readValue
+                        || writeValue
+                        || isKey
+                        || isCondition)
+                    {
+                        if (readValue)
+                        {
+                            _requiresResultPropagation = true;
+                        }
+
+                        columnModifications.Add(new ColumnModification(
+                            stateEntry, property, _parameterNameGenerator.GenerateNext(), readValue, writeValue, isKey, isCondition));
+                    }
+                }
+            }
+            return columnModifications;
         }
 
-        private static IProperty GetProperty(StateEntry stateEntry, string columnName)
+        public virtual void PropagateResults([NotNull] IValueReader reader)
         {
-            // TODO: poor man's model to store mapping
-            return stateEntry.EntityType.Properties.Single(p => p.StorageName == columnName);
+            Check.NotNull(reader, "reader");
+
+            // TODO: Consider using strongly typed ReadValue instead of just <object>
+            // Note that this call sets the value into a sidecar and will only commit to the actual entity
+            // if SaveChanges is successful.
+            var columnOperations = ColumnModifications.Where(o => o.IsRead).ToArray();
+            for (var i = 0; i < columnOperations.Length; i++)
+            {
+                columnOperations[i].StateEntry[columnOperations[i].Property] = reader.ReadValue<object>(i);
+            }
         }
     }
 }

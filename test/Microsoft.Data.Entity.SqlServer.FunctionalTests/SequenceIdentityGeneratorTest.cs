@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -17,8 +18,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 var sequenceIdentityGenerator
                     = new SequenceIdentityGenerator(testDatabase);
 
+                var generator = new SqlServerMigrationOperationSqlGenerator(new SqlServerTypeMapper());
+
                 await testDatabase.ExecuteNonQueryAsync(
-                    SqlServerMigrationOperationSqlGenerator.Generate(sequenceIdentityGenerator.CreateMigrationOperation(), generateIdempotentSql: true).Sql);
+                    generator.Generate(new[] { sequenceIdentityGenerator.CreateMigrationOperation() }, generateIdempotentSql: true).Single().Sql);
 
                 var next = sequenceIdentityGenerator.NextAsync(CancellationToken.None).Result;
 

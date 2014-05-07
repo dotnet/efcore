@@ -3,10 +3,13 @@
 
 namespace Microsoft.Data.Entity.Relational.Update
 {
-    public enum ModificationOperation : byte
+    public class ParameterNameGenerator
     {
-        Insert,
-        Update,
-        Delete
+        private int _count;
+
+        public virtual string GenerateNext()
+        {
+            return "@p" + _count++;
+        }
     }
 }

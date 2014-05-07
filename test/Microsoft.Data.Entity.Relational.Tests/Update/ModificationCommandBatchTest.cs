@@ -1,12 +1,14 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
-using System.Linq;
+using System;
 using System.Text;
-using Microsoft.Data.Entity.Relational.Model;
+using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Update;
-using Moq;
+using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Relational.Tests.Update
@@ -16,153 +18,141 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public void CompileBatch_compiles_inserts()
         {
-            var batch =
-                CreateCommandBatch(
-                    new Table("Table"),
-                    new Dictionary<Column, object>
-                        {
-                            { new Column("Id", "_"), 42 }, { new Column("Name", "_"), "Test" }
-                        }.ToArray(),
-                    null);
+            var stateEntry = CreateStateEntry(EntityState.Added);
 
-            List<KeyValuePair<string, object>> parameters;
-            var sql = batch.CompileBatch(CreateMockSqlGenerator(), out parameters);
+            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+            command.AddStateEntry(stateEntry);
 
-            Assert.Equal("BatchHeader$\r\nINSERT;Table;Id,Name;@p0,@p1$", sql.Trim());
-            Assert.Equal(new Dictionary<string, object> { { "@p0", 42 }, { "@p1", "Test" } }, parameters);
+            var batch = new ModificationCommandBatch(new[] { command });
+
+            Assert.Equal(
+                "BatchHeader$" + Environment.NewLine +
+                "INSERT INTO [T1] ([Col1], [Col2]) VALUES (@p0, @p1)$" + Environment.NewLine,
+                batch.CompileBatch(new ConcreteSqlGenerator()));
         }
 
         [Fact]
         public void CompileBatch_compiles_updates()
         {
-            var id1Column = new Column("Id1", "int") { ValueGenerationStrategy = StoreValueGenerationStrategy.Identity };
-            var table = new Table("Table", new[] { id1Column }) { PrimaryKey = new PrimaryKey("PK", new[] { id1Column }) };
+            var stateEntry = CreateStateEntry(EntityState.Modified, ValueGenerationStrategy.StoreIdentity);
 
-            var batch =
-                CreateCommandBatch(
-                    table,
-                    new Dictionary<Column, object> { { new Column("Name", "_"), "Test" } }.ToArray(),
-                    new Dictionary<Column, object>
-                        {
-                            { new Column("Id1", "_"), 42 }, { new Column("Id2", "_"), 43 }
-                        }.ToArray());
+            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+            command.AddStateEntry(stateEntry);
 
-            List<KeyValuePair<string, object>> parameters;
-            var sql = batch.CompileBatch(CreateMockSqlGenerator(), out parameters);
+            var batch = new ModificationCommandBatch(new[] { command });
 
-            Assert.Equal("BatchHeader$\r\nUPDATE;Table;Name=@p0;Id1=@p1,Id2=@p2$", sql.Trim());
-            Assert.Equal(new Dictionary<string, object> { { "@p0", "Test" }, { "@p1", 42 }, { "@p2", 43 } }, parameters);
+            Assert.Equal(
+                "BatchHeader$" + Environment.NewLine +
+                "UPDATE [T1] SET [Col2] = @p1 WHERE [Col1] = @p0$" + Environment.NewLine,
+                batch.CompileBatch(new ConcreteSqlGenerator()));
         }
 
         [Fact]
         public void CompileBatch_compiles_deletes()
         {
-            var batch =
-                CreateCommandBatch(
-                    new Table("Table"),
-                    null,
-                    new Dictionary<Column, object>
-                        {
-                            { new Column("Id1", "_"), 42 }, { new Column("Id2", "_"), 43 }
-                        }.ToArray());
+            var stateEntry = CreateStateEntry(EntityState.Deleted);
 
-            List<KeyValuePair<string, object>> parameters;
-            var sql = batch.CompileBatch(CreateMockSqlGenerator(), out parameters);
+            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+            command.AddStateEntry(stateEntry);
 
-            Assert.Equal("BatchHeader$\r\nDELETE;Table;Id1=@p0,Id2=@p1$", sql.Trim());
-            Assert.Equal(new Dictionary<string, object> { { "@p0", 42 }, { "@p1", 43 } }, parameters);
+            var batch = new ModificationCommandBatch(new[] { command });
+
+            Assert.Equal(
+                "BatchHeader$" + Environment.NewLine +
+                "DELETE FROM [T1] WHERE [Col1] = @p0$" + Environment.NewLine,
+                batch.CompileBatch(new ConcreteSqlGenerator()));
         }
 
         [Fact]
         public void Batch_separator_not_appended_if_batch_header_empty()
         {
-            var batch =
-                CreateCommandBatch(
-                    new Table("Table"), null, new Dictionary<Column, object> { { new Column("Id1", "_"), 42 } }.ToArray());
+            var stateEntry = CreateStateEntry(EntityState.Deleted);
 
-            List<KeyValuePair<string, object>> parameters;
-            var sql = batch.CompileBatch(new Mock<SqlGenerator> { CallBase = true }.Object, out parameters);
+            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+            command.AddStateEntry(stateEntry);
 
-            Assert.True(sql.StartsWith("DELETE"));
+            var batch = new ModificationCommandBatch(new[] { command });
+
+            Assert.Equal(
+                "DELETE FROM [T1] WHERE [Col1] = @p0$" + Environment.NewLine,
+                batch.CompileBatch(new ConcreteSqlGenerator(useBatchHeader: false)));
         }
 
-        private static SqlGenerator CreateMockSqlGenerator()
+        private class ConcreteSqlGenerator : SqlGenerator
         {
-            var mockSqlGen = new Mock<SqlGenerator>() { CallBase = true };
+            private readonly string _batchHeader;
 
-            mockSqlGen
-                .Setup(g => g.AppendBatchHeader(It.IsAny<StringBuilder>()))
-                .Callback((StringBuilder sb) => sb.Append("BatchHeader"));
+            public ConcreteSqlGenerator(bool useBatchHeader = true)
+            {
+                _batchHeader = useBatchHeader ? "BatchHeader" : null;
+            }
 
-            mockSqlGen
-                .Setup(
-                    g => g.AppendInsertCommand(
-                        It.IsAny<StringBuilder>(), It.IsAny<Table>(),
-                        It.IsAny<IEnumerable<KeyValuePair<Column, string>>>()))
-                .Callback(
-                    (StringBuilder sb, Table t, IEnumerable<KeyValuePair<Column, string>> colParams)
-                        =>
-                        sb.Append("INSERT").Append(";")
-                            .Append(t.Name).Append(";")
-                            .Append(string.Join(",", colParams.Select(c => c.Key.Name))).Append(";")
-                            .Append(string.Join(",", colParams.Select(c => c.Value))));
+            protected override void AppendIdentityWhereCondition(StringBuilder commandStringBuilder, ColumnModification columnModification)
+            {
+                commandStringBuilder
+                    .Append(QuoteIdentifier(columnModification.ColumnName))
+                    .Append(" = ")
+                    .Append("provider_specific_identity()");
+            }
 
-            mockSqlGen
-                .Setup(
-                    g => g.AppendUpdateCommand(
-                        It.IsAny<StringBuilder>(), It.IsAny<Table>(),
-                        It.IsAny<IEnumerable<KeyValuePair<Column, string>>>(), It.IsAny<IEnumerable<KeyValuePair<Column, string>>>()))
-                .Callback(
-                    (StringBuilder sb, Table t, IEnumerable<KeyValuePair<Column, string>> cols, IEnumerable<KeyValuePair<Column, string>> wheres)
-                        =>
-                        sb.Append("UPDATE").Append(";")
-                            .Append(t.Name).Append(";")
-                            .Append(string.Join(",", cols.Select(c => c.Key.Name + "=" + c.Value))).Append(";")
-                            .Append(string.Join(",", wheres.Select(c => c.Key.Name + "=" + c.Value))));
+            public override void AppendBatchHeader(StringBuilder commandStringBuilder)
+            {
+                commandStringBuilder.Append(_batchHeader);
+            }
 
-            mockSqlGen
-                .Setup(
-                    g => g.AppendDeleteCommand(
-                        It.IsAny<StringBuilder>(), It.IsAny<Table>(),
-                        It.IsAny<IEnumerable<KeyValuePair<Column, string>>>()))
-                .Callback(
-                    (StringBuilder sb, Table t, IEnumerable<KeyValuePair<Column, string>> wheres)
-                        =>
-                        sb.Append("DELETE").Append(";")
-                            .Append(t.Name).Append(";")
-                            .Append(string.Join(",", wheres.Select(c => c.Key.Name + "=" + c.Value))));
-
-            mockSqlGen.Setup(g => g.BatchCommandSeparator).Returns("$");
-
-            return mockSqlGen.Object;
+            public override string BatchCommandSeparator
+            {
+                get { return "$"; }
+            }
         }
 
-        private static ModificationCommandBatch CreateCommandBatch(Table table,
-            KeyValuePair<Column, object>[] columnValues, KeyValuePair<Column, object>[] whereClauses)
+        private class T1
         {
-            var mockModificationCommand = new Mock<ModificationCommand>();
-            mockModificationCommand
-                .Setup(c => c.Table)
-                .Returns(table);
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
 
-            mockModificationCommand
-                .Setup(c => c.ColumnValues)
-                .Returns(columnValues);
+        private static IModel BuildModel(ValueGenerationStrategy keyStrategy, ValueGenerationStrategy nonKeyStrategy)
+        {
+            var model = new Metadata.Model();
 
-            mockModificationCommand
-                .Setup(c => c.WhereClauses)
-                .Returns(whereClauses);
+            var entityType = new EntityType(typeof(T1));
 
-            mockModificationCommand
-                .Setup(c => c.Operation)
-                .Returns(
-                    columnValues == null
-                        ? ModificationOperation.Delete
-                        : whereClauses == null
-                            ? ModificationOperation.Insert
-                            : ModificationOperation.Update);
+            var key = entityType.AddProperty("Id", typeof(int));
+            key.ValueGenerationStrategy = keyStrategy;
+            key.StorageName = "Col1";
+            entityType.SetKey(key);
 
-            return new ModificationCommandBatch(new[] { mockModificationCommand.Object });
+            var nonKey = entityType.AddProperty("Name", typeof(string));
+            nonKey.StorageName = "Col2";
+            nonKey.ValueGenerationStrategy = nonKeyStrategy;
+
+            model.AddEntityType(entityType);
+
+            return model;
+        }
+
+        private static DbContextConfiguration CreateConfiguration(IModel model)
+        {
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddEntityFramework();
+            return new DbContext(serviceCollection.BuildServiceProvider(),
+                new DbContextOptions()
+                    .UseModel(model)
+                    .BuildConfiguration())
+                .Configuration;
+        }
+
+        private static StateEntry CreateStateEntry(
+            EntityState entityState,
+            ValueGenerationStrategy keyStrategy = ValueGenerationStrategy.None,
+            ValueGenerationStrategy nonKeyStrategy = ValueGenerationStrategy.None)
+        {
+            var model = BuildModel(keyStrategy, nonKeyStrategy);
+            var stateEntry = CreateConfiguration(model).Services.StateEntryFactory.Create(
+                model.GetEntityType("T1"), new T1 { Id = 1, Name = "Test" });
+            stateEntry.EntityState = entityState;
+            return stateEntry;
         }
     }
 }

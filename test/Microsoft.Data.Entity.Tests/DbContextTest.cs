@@ -427,7 +427,7 @@ namespace Microsoft.Data.Entity.Tests
             }
 
             store.Verify(
-                s => s.SaveChangesAsync(It.IsAny<IEnumerable<StateEntry>>(), It.IsAny<CancellationToken>()),
+                s => s.SaveChangesAsync(It.IsAny<IReadOnlyList<StateEntry>>(), It.IsAny<CancellationToken>()),
                 Times.Never);
         }
 
@@ -436,7 +436,7 @@ namespace Microsoft.Data.Entity.Tests
         {
             var passedEntries = new List<StateEntry>();
             var store = new Mock<DataStore>();
-            store.Setup(s => s.SaveChangesAsync(It.IsAny<IEnumerable<StateEntry>>(), It.IsAny<CancellationToken>()))
+            store.Setup(s => s.SaveChangesAsync(It.IsAny<IReadOnlyList<StateEntry>>(), It.IsAny<CancellationToken>()))
                 .Callback<IEnumerable<StateEntry>, CancellationToken>((e, c) => passedEntries.AddRange(e))
                 .Returns(Task.FromResult(3));
 
@@ -466,7 +466,7 @@ namespace Microsoft.Data.Entity.Tests
             Assert.Equal(3, passedEntries.Count);
 
             store.Verify(
-                s => s.SaveChangesAsync(It.IsAny<IEnumerable<StateEntry>>(), It.IsAny<CancellationToken>()),
+                s => s.SaveChangesAsync(It.IsAny<IReadOnlyList<StateEntry>>(), It.IsAny<CancellationToken>()),
                 Times.Once);
         }
 

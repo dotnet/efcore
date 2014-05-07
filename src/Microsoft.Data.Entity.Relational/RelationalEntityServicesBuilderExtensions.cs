@@ -21,6 +21,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddSingleton<DatabaseBuilder, DatabaseBuilder>()
                 .AddSingleton<RelationalObjectArrayValueReaderFactory, RelationalObjectArrayValueReaderFactory>()
                 .AddSingleton<RelationalTypedValueReaderFactory, RelationalTypedValueReaderFactory>()
+                .AddSingleton<ParameterNameGeneratorFactory, ParameterNameGeneratorFactory>()
                 .AddSingleton<CommandBatchPreparer, CommandBatchPreparer>();
 
             return builder;

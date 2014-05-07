@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Linq;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Model;
@@ -15,7 +16,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         {
             Assert.Equal(
                 @"CREATE DATABASE ""MyDatabase""",
-                MigrationOperationSqlGenerator.Generate(new CreateDatabaseOperation("MyDatabase"), generateIdempotentSql: false).Sql);
+                Generate(new CreateDatabaseOperation("MyDatabase"), generateIdempotentSql: false).Sql);
         }
 
         [Fact]
@@ -23,7 +24,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         {
             Assert.Equal(
                 @"DROP DATABASE ""MyDatabase""",
-                MigrationOperationSqlGenerator.Generate(new DropDatabaseOperation("MyDatabase"), generateIdempotentSql: false).Sql);
+                Generate(new DropDatabaseOperation("MyDatabase"), generateIdempotentSql: false).Sql);
         }
 
         [Fact]
@@ -31,7 +32,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         {
             Assert.Equal(
                 @"CREATE SEQUENCE ""dbo"".""MySequence"" AS BIGINT START WITH 0 INCREMENT BY 1",
-                MigrationOperationSqlGenerator.Generate(
+                Generate(
                     new CreateSequenceOperation(new Sequence("dbo.MySequence")), generateIdempotentSql: false).Sql);
         }
 
@@ -40,7 +41,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         {
             Assert.Equal(
                 @"DROP SEQUENCE ""dbo"".""MySequence""",
-                MigrationOperationSqlGenerator.Generate(new DropSequenceOperation("dbo.MySequence"), generateIdempotentSql: false).Sql);
+                Generate(new DropSequenceOperation("dbo.MySequence"), generateIdempotentSql: false).Sql);
         }
 
         [Fact]
@@ -64,7 +65,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
     ""Bar"" int,
     CONSTRAINT ""MyPK"" PRIMARY KEY NONCLUSTERED (""Foo"", ""Bar"")
 )",
-                MigrationOperationSqlGenerator.Generate(
+                Generate(
                     new CreateTableOperation(table), generateIdempotentSql: false).Sql);
         }
 
@@ -89,7 +90,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
     ""Bar"" int,
     CONSTRAINT ""MyPK"" PRIMARY KEY NONCLUSTERED (""Foo"")
 )",
-                MigrationOperationSqlGenerator.Generate(
+                Generate(
                     new CreateTableOperation(table), generateIdempotentSql: false).Sql);
         }
 
@@ -98,7 +99,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         {
             Assert.Equal(
                 @"DROP TABLE ""dbo"".""MyTable""",
-                MigrationOperationSqlGenerator.Generate(new DropTableOperation("dbo.MyTable"), generateIdempotentSql: false).Sql);
+                Generate(new DropTableOperation("dbo.MyTable"), generateIdempotentSql: false).Sql);
         }
 
         [Fact]
@@ -106,7 +107,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         {
             Assert.Equal(
                 @"EXECUTE sp_rename @objname = N'dbo.MyTable', @newname = N'MyTable2', @objtype = N'OBJECT'",
-                MigrationOperationSqlGenerator.Generate(
+                Generate(
                     new RenameTableOperation("dbo.MyTable", "MyTable2"), generateIdempotentSql: false).Sql);
         }
 
@@ -115,7 +116,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         {
             Assert.Equal(
                 @"ALTER SCHEMA ""dbo2"" TRANSFER ""dbo"".""MyTable""",
-                MigrationOperationSqlGenerator.Generate(
+                Generate(
                     new MoveTableOperation("dbo.MyTable", "dbo2"), generateIdempotentSql: false).Sql);
         }
 
@@ -126,7 +127,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
 
             Assert.Equal(
                 @"ALTER TABLE ""dbo"".""MyTable"" ADD ""Bar"" int NOT NULL DEFAULT 5",
-                MigrationOperationSqlGenerator.Generate(
+                Generate(
                     new AddColumnOperation("dbo.MyTable", column), generateIdempotentSql: false).Sql);
         }
 
@@ -135,7 +136,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         {
             Assert.Equal(
                 @"ALTER TABLE ""dbo"".""MyTable"" DROP COLUMN ""Foo""",
-                MigrationOperationSqlGenerator.Generate(
+                Generate(
                     new DropColumnOperation("dbo.MyTable", "Foo"), generateIdempotentSql: false).Sql);
         }
 
@@ -144,7 +145,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         {
             Assert.Equal(
                 @"ALTER TABLE ""dbo"".""MyTable"" ALTER COLUMN ""Foo"" int NULL",
-                MigrationOperationSqlGenerator.Generate(
+                Generate(
                     new AlterColumnOperation("dbo.MyTable",
                         new Column("Foo", "int") { IsNullable = true }, isDestructiveChange: false),
                     generateIdempotentSql: false).Sql);
@@ -155,7 +156,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         {
             Assert.Equal(
                 @"ALTER TABLE ""dbo"".""MyTable"" ALTER COLUMN ""Foo"" int NOT NULL",
-                MigrationOperationSqlGenerator.Generate(
+                Generate(
                     new AlterColumnOperation("dbo.MyTable",
                         new Column("Foo", "int") { IsNullable = false }, isDestructiveChange: false),
                     generateIdempotentSql: false).Sql);
@@ -166,7 +167,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         {
             Assert.Equal(
                 @"ALTER TABLE ""dbo"".""MyTable"" ALTER COLUMN ""Foo"" SET DEFAULT 'MyDefault'",
-                MigrationOperationSqlGenerator.Generate(
+                Generate(
                     new AddDefaultConstraintOperation("dbo.MyTable", "Foo", "MyDefault", null), generateIdempotentSql: false).Sql);
         }
 
@@ -175,7 +176,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         {
             Assert.Equal(
                 @"ALTER TABLE ""dbo"".""MyTable"" ALTER COLUMN ""Foo"" SET DEFAULT GETDATE()",
-                MigrationOperationSqlGenerator.Generate(
+                Generate(
                     new AddDefaultConstraintOperation("dbo.MyTable", "Foo", null, "GETDATE()"), generateIdempotentSql: false).Sql);
         }
 
@@ -184,7 +185,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         {
             Assert.Equal(
                 @"ALTER TABLE ""dbo"".""MyTable"" ALTER COLUMN ""Foo"" DROP DEFAULT",
-                MigrationOperationSqlGenerator.Generate(
+                Generate(
                     new DropDefaultConstraintOperation("dbo.MyTable", "Foo"), generateIdempotentSql: false).Sql);
         }
 
@@ -193,7 +194,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         {
             Assert.Equal(
                 @"EXECUTE sp_rename @objname = N'dbo.MyTable.Foo', @newname = N'Bar', @objtype = N'COLUMN'",
-                MigrationOperationSqlGenerator.Generate(
+                Generate(
                     new RenameColumnOperation("dbo.MyTable", "Foo", "Bar"), generateIdempotentSql: false).Sql);
         }
 
@@ -202,7 +203,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         {
             Assert.Equal(
                 @"ALTER TABLE ""dbo"".""MyTable"" ADD CONSTRAINT ""MyPK"" PRIMARY KEY NONCLUSTERED (""Foo"", ""Bar"")",
-                MigrationOperationSqlGenerator.Generate(
+                Generate(
                     new AddPrimaryKeyOperation("dbo.MyTable", "MyPK", new[] { "Foo", "Bar" }, isClustered: false),
                     generateIdempotentSql: false).Sql);
         }
@@ -212,7 +213,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         {
             Assert.Equal(
                 @"ALTER TABLE ""dbo"".""MyTable"" DROP CONSTRAINT ""MyPK""",
-                MigrationOperationSqlGenerator.Generate(new DropPrimaryKeyOperation("dbo.MyTable", "MyPK"), generateIdempotentSql: false).Sql);
+                Generate(new DropPrimaryKeyOperation("dbo.MyTable", "MyPK"), generateIdempotentSql: false).Sql);
         }
 
         [Fact]
@@ -220,7 +221,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         {
             Assert.Equal(
                 @"ALTER TABLE ""dbo"".""MyTable"" ADD CONSTRAINT ""MyFK"" FOREIGN KEY (""Foo"", ""Bar"") REFERENCES ""dbo"".""MyTable2"" (""Foo2"", ""Bar2"") ON DELETE CASCADE",
-                MigrationOperationSqlGenerator.Generate(
+                Generate(
                     new AddForeignKeyOperation("dbo.MyTable", "MyFK", new[] { "Foo", "Bar" },
                         "dbo.MyTable2", new[] { "Foo2", "Bar2" }, cascadeDelete: true),
                     generateIdempotentSql: false).Sql);
@@ -231,7 +232,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         {
             Assert.Equal(
                 @"ALTER TABLE ""dbo"".""MyTable"" DROP CONSTRAINT ""MyFK""",
-                MigrationOperationSqlGenerator.Generate(new DropForeignKeyOperation("dbo.MyTable", "MyFK"), generateIdempotentSql: false).Sql);
+                Generate(new DropForeignKeyOperation("dbo.MyTable", "MyFK"), generateIdempotentSql: false).Sql);
         }
 
         [Fact]
@@ -239,7 +240,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         {
             Assert.Equal(
                 @"CREATE UNIQUE CLUSTERED INDEX ""MyIndex"" ON ""dbo"".""MyTable"" (""Foo"", ""Bar"")",
-                MigrationOperationSqlGenerator.Generate(
+                Generate(
                     new CreateIndexOperation("dbo.MyTable", "MyIndex", new[] { "Foo", "Bar" },
                         isUnique: true, isClustered: true),
                     generateIdempotentSql: false).Sql);
@@ -250,7 +251,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         {
             Assert.Equal(
                 @"DROP INDEX ""MyIndex"" ON ""dbo"".""MyTable""",
-                MigrationOperationSqlGenerator.Generate(new DropIndexOperation("dbo.MyTable", "MyIndex"), generateIdempotentSql: false).Sql);
+                Generate(new DropIndexOperation("dbo.MyTable", "MyIndex"), generateIdempotentSql: false).Sql);
         }
 
         [Fact]
@@ -258,14 +259,14 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         {
             Assert.Equal(
                 @"EXECUTE sp_rename @objname = N'dbo.MyTable.MyIndex', @newname = N'MyIndex2', @objtype = N'INDEX'",
-                MigrationOperationSqlGenerator.Generate(
+                Generate(
                     new RenameIndexOperation("dbo.MyTable", "MyIndex", "MyIndex2"), generateIdempotentSql: false).Sql);
         }
 
         [Fact]
         public void Delimit_identifier()
         {
-            var sqlGenerator = new MigrationOperationSqlGenerator();
+            var sqlGenerator = new MigrationOperationSqlGenerator(new RelationalTypeMapper());
 
             Assert.Equal("\"foo\"\"bar\"", sqlGenerator.DelimitIdentifier("foo\"bar"));
         }
@@ -273,7 +274,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Delimit_identifier_when_schema_qualified()
         {
-            var sqlGenerator = new MigrationOperationSqlGenerator();
+            var sqlGenerator = new MigrationOperationSqlGenerator(new RelationalTypeMapper());
 
             Assert.Equal("\"foo\".\"bar\"", sqlGenerator.DelimitIdentifier(SchemaQualifiedName.Parse("foo.bar")));
         }
@@ -281,7 +282,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Escape_identifier()
         {
-            var sqlGenerator = new MigrationOperationSqlGenerator();
+            var sqlGenerator = new MigrationOperationSqlGenerator(new RelationalTypeMapper());
 
             Assert.Equal("foo\"\"bar", sqlGenerator.EscapeIdentifier("foo\"bar"));
         }
@@ -289,7 +290,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Delimit_literal()
         {
-            var sqlGenerator = new MigrationOperationSqlGenerator();
+            var sqlGenerator = new MigrationOperationSqlGenerator(new RelationalTypeMapper());
 
             Assert.Equal("'foo''bar'", sqlGenerator.DelimitLiteral("foo'bar"));
         }
@@ -297,9 +298,16 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Escape_literal()
         {
-            var sqlGenerator = new MigrationOperationSqlGenerator();
+            var sqlGenerator = new MigrationOperationSqlGenerator(new RelationalTypeMapper());
 
             Assert.Equal("foo''bar", sqlGenerator.EscapeLiteral("foo'bar"));
+        }
+
+        private static SqlStatement Generate(MigrationOperation migrationOperation, bool generateIdempotentSql)
+        {
+            var sqlGenerator = new MigrationOperationSqlGenerator(new RelationalTypeMapper());
+
+            return sqlGenerator.Generate(new[] { migrationOperation }, generateIdempotentSql).Single();
         }
     }
 }

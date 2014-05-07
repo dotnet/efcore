@@ -250,13 +250,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     Assert.Equal(blog2Id, blog2.Id);
 
                     blog2.Name = null;
+                    blog2.NotFigTime = new DateTime();
+                    blog2.AndChew = null;
 
-                    var blog3 = context.Add(new TBlog()
-                        {
-                            Name = null,
-                            NotFigTime = new DateTime(1973, 9, 3, 0, 10, 33, 777),
-                            AndChew = new byte[] { 1, 2, 3, 4 }
-                        });
+                    var blog3 = context.Add(new TBlog());
 
                     await context.SaveChangesAsync();
 
@@ -270,8 +267,16 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     Assert.Equal(3, blogs.Count);
 
                     Assert.Equal("New Name", blogs.Single(b => b.Id == blog1Id).Name);
-                    Assert.Null(blogs.Single(b => b.Id == blog2Id).Name);
-                    Assert.Null(blogs.Single(b => b.Id == blog3Id).Name);
+
+                    var blog2 = blogs.Single(b => b.Id == blog2Id);
+                    Assert.Null(blog2.Name);
+                    Assert.Equal(blog2.NotFigTime, new DateTime());
+                    Assert.Null(blog2.AndChew);
+
+                    var blog3 = blogs.Single(b => b.Id == blog3Id);
+                    Assert.Null(blog3.Name);
+                    Assert.Equal(blog3.NotFigTime, new DateTime());
+                    Assert.Null(blog3.AndChew);
                 }
             }
         }

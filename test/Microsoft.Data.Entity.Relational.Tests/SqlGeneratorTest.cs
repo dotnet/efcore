@@ -2,11 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.Data.Entity.Relational.Model;
-using Moq;
+using Microsoft.Data.Entity.Relational.Update;
+using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Relational.Tests
@@ -14,650 +14,278 @@ namespace Microsoft.Data.Entity.Relational.Tests
     public class SqlGeneratorTest
     {
         [Fact]
-        public void AppendInsertCommandHeader_appends_correct_insert_command_header()
+        public void AppendDeleteOperation_creates_full_delete_command_text()
         {
             var stringBuilder = new StringBuilder();
-            var table = new Table("Table", new[] { new Column("Id", "_"), new Column("CustomerName", "_") });
+            var operations = CreateDeleteOperations(concurrencyToken: false);
 
-            CreateSqlGenerator()
-                .AppendInsertCommandHeader(stringBuilder, table, table.Columns);
+            new ConcreteSqlGenerator().AppendDeleteOperation(stringBuilder, "Ducks", operations);
 
             Assert.Equal(
-                "INSERT INTO Table (Id, CustomerName)",
+                "DELETE FROM [Ducks] WHERE [Id] = @p1",
                 stringBuilder.ToString());
         }
 
         [Fact]
-        public void AppendInsertCommand_creates_full_insert_command_text()
+        public void AppendDeleteOperation_creates_full_delete_command_text_with_concurrency_check()
         {
-            var sqlGenerator = CreateSqlGenerator();
             var stringBuilder = new StringBuilder();
-            var table = new Table("table", new[] { new Column("col", "_") });
-            var parameters = new[] { "param" };
+            var operations = CreateDeleteOperations();
 
-            sqlGenerator.AppendInsertCommand(
-                stringBuilder, table, new Dictionary<Column, string> { { table.Columns.First(), "param" } });
+            new ConcreteSqlGenerator().AppendDeleteOperation(stringBuilder, "Ducks", operations);
 
             Assert.Equal(
-                "INSERT INTO table (col) VALUES (param)",
+                "DELETE FROM [Ducks] WHERE [Id] = @p1 AND [ConcurrencyToken] = @p5",
                 stringBuilder.ToString());
-
-            Mock.Get(sqlGenerator)
-                .Verify(s => s.AppendInsertCommandHeader(stringBuilder, table, table.Columns), Times.Once());
-            Mock.Get(sqlGenerator)
-                .Verify(s => s.AppendValues(stringBuilder, parameters), Times.Once());
         }
 
         [Fact]
-        public void AppendDeleteCommandHeader_appends_correct_command_header()
+        public void AppendInsertOperation_appends_insert_and_select_and_where_if_store_generated_columns_exist()
         {
             var stringBuilder = new StringBuilder();
+            var operations = CreateInsertOperations();
 
-            CreateSqlGenerator()
-                .AppendDeleteCommandHeader(stringBuilder, new Table("Table"));
-
-            Assert.Equal("DELETE FROM Table", stringBuilder.ToString());
-        }
-
-        [Fact]
-        public void AppendDeleteCommand_creates_full_delete_command_text()
-        {
-            var sqlGenerator = CreateSqlGenerator();
-            var stringBuilder = new StringBuilder();
-            var table = new Table("table", new[] { new Column("Id", "_") });
-            var whereConditions = new[] { new KeyValuePair<Column, string>(table.Columns.Single(), "@p1") };
-
-            sqlGenerator.AppendDeleteCommand(stringBuilder, table, whereConditions);
+            new ConcreteSqlGenerator().AppendInsertOperation(stringBuilder, "Ducks", operations);
 
             Assert.Equal(
-                "DELETE FROM table WHERE Id = @p1",
+                "INSERT INTO [Ducks] ([Name], [Quacks], [ConcurrencyToken]) VALUES (@p2, @p3, @p5);" + Environment.NewLine +
+                "SELECT [Id], [Computed] FROM [Ducks] WHERE [Id] = provider_specific_identity()",
                 stringBuilder.ToString());
-
-            Mock.Get(sqlGenerator)
-                .Verify(s => s.AppendDeleteCommandHeader(stringBuilder, table), Times.Once());
-            Mock.Get(sqlGenerator)
-                .Verify(s => s.AppendWhereClause(stringBuilder, whereConditions), Times.Once());
         }
 
         [Fact]
-        public void AppendUpdateCommandHeader_appends_correct_command_header()
+        public void AppendInsertOperation_appends_only_insert_if_no_store_generated_columns_exist_or_conditions_exist()
         {
             var stringBuilder = new StringBuilder();
+            var operations = CreateInsertOperations(identityKey: false, computedProperty: false);
 
-            CreateSqlGenerator()
-                .AppendUpdateCommandHeader(stringBuilder, new Table("Table"),
-                    new[]
-                        {
-                            new KeyValuePair<Column, string>(new Column("Col1", "_"), "@p1"),
-                            new KeyValuePair<Column, string>(new Column("Name", "_"), "@p2"),
-                        });
-
-            Assert.Equal("UPDATE Table SET Col1 = @p1, Name = @p2", stringBuilder.ToString());
-        }
-
-        [Fact]
-        public void AppendUpdateCommand_creates_full_delete_command_text()
-        {
-            var sqlGenerator = CreateSqlGenerator();
-            var stringBuilder = new StringBuilder();
-            var table = new Table("table");
-            var columnValues = new[] { new KeyValuePair<Column, string>(new Column("Name", "_"), "@p1") };
-            var whereConditions = new[] { new KeyValuePair<Column, string>(new Column("Id", "_"), "@p2") };
-
-            sqlGenerator.AppendUpdateCommand(stringBuilder, table, columnValues, whereConditions);
+            new ConcreteSqlGenerator().AppendInsertOperation(stringBuilder, "Ducks", operations);
 
             Assert.Equal(
-                "UPDATE table SET Name = @p1 WHERE Id = @p2",
+                "INSERT INTO [Ducks] ([Id], [Name], [Quacks], [ConcurrencyToken]) VALUES (@p1, @p2, @p3, @p5)",
                 stringBuilder.ToString());
-
-            Mock.Get(sqlGenerator)
-                .Verify(s => s.AppendUpdateCommandHeader(stringBuilder, table, columnValues), Times.Once());
-            Mock.Get(sqlGenerator)
-                .Verify(s => s.AppendWhereClause(stringBuilder, whereConditions), Times.Once());
         }
 
         [Fact]
-        public void AppendSelectCommandHeader_appends_correct_select_header()
+        public void AppendInsertOperation_appends_insert_and_select_store_generated_columns_but_no_identity()
         {
             var stringBuilder = new StringBuilder();
+            var operations = CreateInsertOperations(identityKey: false, computedProperty: true);
 
-            CreateSqlGenerator()
-                .AppendSelectCommandHeader(stringBuilder,
-                    new[] { new Column("Id", "_"), new Column("Name", "_"), new Column("ZipCode", "_") });
-
-            Assert.Equal("SELECT Id, Name, ZipCode", stringBuilder.ToString());
-        }
-
-        [Fact]
-        public void AppendSelectCommand_creates_full_select_command_text()
-        {
-            var sqlGenerator = CreateSqlGenerator();
-            var stringBuilder = new StringBuilder();
-            var table = new Table("table", new[] { new Column("Id", "_"), new Column("Name", "_") });
-            var whereConditions = new[] { new KeyValuePair<Column, string>(table.Columns.First(), "@p2") };
-
-            sqlGenerator.AppendSelectCommand(stringBuilder, table, table.Columns, whereConditions);
+            new ConcreteSqlGenerator().AppendInsertOperation(stringBuilder, "Ducks", operations);
 
             Assert.Equal(
-                "SELECT Id, Name FROM table WHERE Id = @p2",
+                "INSERT INTO [Ducks] ([Id], [Name], [Quacks], [ConcurrencyToken]) VALUES (@p1, @p2, @p3, @p5);" + Environment.NewLine +
+                "SELECT [Computed] FROM [Ducks] WHERE [Id] = @p1",
                 stringBuilder.ToString());
-
-            Mock.Get(sqlGenerator)
-                .Verify(s => s.AppendSelectCommandHeader(stringBuilder, table.Columns), Times.Once());
-            Mock.Get(sqlGenerator)
-                .Verify(s => s.AppendWhereClause(stringBuilder, whereConditions), Times.Once());
         }
 
         [Fact]
-        public void AppendFromClause_appends_correct_from_clause()
+        public void AppendInsertOperation_appends_insert_and_select_for_only_identity()
         {
             var stringBuilder = new StringBuilder();
+            var operations = CreateInsertOperations(identityKey: true, computedProperty: false);
 
-            CreateSqlGenerator()
-                .AppendFromClause(stringBuilder, new Table("table"));
+            new ConcreteSqlGenerator().AppendInsertOperation(stringBuilder, "Ducks", operations);
 
-            Assert.Equal("FROM table", stringBuilder.ToString());
+            Assert.Equal(
+                "INSERT INTO [Ducks] ([Name], [Quacks], [ConcurrencyToken]) VALUES (@p2, @p3, @p5);" + Environment.NewLine +
+                "SELECT [Id] FROM [Ducks] WHERE [Id] = provider_specific_identity()",
+                stringBuilder.ToString());
         }
 
         [Fact]
-        public void AppendInsertOperation_appends_insert_and_select_if_store_generated_columns_exist()
+        public void AppendInsertOperation_appends_insert_and_select_for_all_store_generated_columns()
         {
-            var sqlGenerator = CreateSqlGenerator();
-
             var stringBuilder = new StringBuilder();
-            var table = new Table("table",
-                new[]
-                    {
-                        new Column("Id", "storetype"),
-                        new Column("Name", "_"),
-                        new Column("Timestamp", "_") { ValueGenerationStrategy = StoreValueGenerationStrategy.Computed }
-                    });
-            table.PrimaryKey = new PrimaryKey("PK", table.Columns.Where(c => c.Name == "Id").ToArray());
+            var operations = CreateInsertOperations().Where(p => !p.IsWrite).ToArray();
 
-            var columnsToParameters =
-                new Dictionary<Column, string>
-                    {
-                        { table.Columns.Single(c => c.Name == "Id"), "@p0" },
-                        { table.Columns.Single(c => c.Name == "Name"), "@p1" }
-                    }.ToArray();
+            new ConcreteSqlGenerator().AppendInsertOperation(stringBuilder, "Ducks", operations);
 
-            sqlGenerator
-                .AppendInsertOperation(stringBuilder, table, columnsToParameters);
-
-            Mock.Get(sqlGenerator)
-                .Verify(g => g.AppendInsertCommand(stringBuilder, table, columnsToParameters), Times.Once);
-
-            Mock.Get(sqlGenerator)
-                .Verify(g => g.CreateWhereConditionsForStoreGeneratedKeys(It.IsAny<Column[]>()),
-                    Times.Never);
-
-            Mock.Get(sqlGenerator)
-                .Verify(g => g.AppendSelectCommand(stringBuilder, table,
-                    It.Is<IEnumerable<Column>>(cols => cols.Single().Name == "Timestamp"),
-                    It.Is<IEnumerable<KeyValuePair<Column, string>>>(w => w.Single().Key.Name == "Id" && w.Single().Value == "@p0")),
-                    Times.Once);
+            Assert.Equal(
+                "INSERT INTO [Ducks] DEFAULT VALUES;" + Environment.NewLine +
+                "SELECT [Id], [Computed] FROM [Ducks] WHERE [Id] = provider_specific_identity()",
+                stringBuilder.ToString());
         }
 
         [Fact]
-        public void AppendInsertOperation_appends_insert_and_calls_into_CreateWhereConditionsForStoreGeneratedKeys_if_store_generated_keys_exist()
+        public void AppendInsertOperation_appends_insert_and_select_for_only_single_identity_coluns()
         {
-            var table = new Table("table",
-                new[]
-                    {
-                        new Column("Id", "storetype") { ValueGenerationStrategy = StoreValueGenerationStrategy.Computed },
-                        new Column("Name", "_")
-                    });
-            table.PrimaryKey = new PrimaryKey("PK", table.Columns.Where(c => c.Name == "Id").ToArray());
-
-            var storeGenKeyWheres =
-                new[] { new KeyValuePair<Column, string>(table.PrimaryKey.Columns.Single(), "abc") };
-
-            var sqlGenerator = CreateSqlGenerator();
-            Mock.Get(sqlGenerator)
-                .Setup(g => g.CreateWhereConditionsForStoreGeneratedKeys(It.IsAny<Column[]>()))
-                .Returns(storeGenKeyWheres);
-
             var stringBuilder = new StringBuilder();
+            var operations = CreateInsertOperations(computedProperty: false).Where(p => !p.IsWrite).ToArray();
 
-            var columnsToParameters =
-                new Dictionary<Column, string> { { table.Columns.Single(c => c.Name == "Name"), "@p0" } }.ToArray();
+            new ConcreteSqlGenerator().AppendInsertOperation(stringBuilder, "Ducks", operations);
 
-            sqlGenerator
-                .AppendInsertOperation(stringBuilder, table, columnsToParameters);
-
-            Mock.Get(sqlGenerator)
-                .Verify(g => g.AppendInsertCommand(stringBuilder, table, columnsToParameters), Times.Once);
-
-            Mock.Get(sqlGenerator)
-                .Verify(g => g.CreateWhereConditionsForStoreGeneratedKeys(
-                    It.Is<Column[]>(cols => cols.Single().Name == "Id")),
-                    Times.Once);
-
-            Mock.Get(sqlGenerator)
-                .Verify(g => g.AppendSelectCommand(stringBuilder, table,
-                    It.Is<IEnumerable<Column>>(cols => cols.Single().Name == "Id"),
-                    It.Is<IEnumerable<KeyValuePair<Column, string>>>(wheres => wheres.SequenceEqual(storeGenKeyWheres))),
-                    Times.Once);
-        }
-
-        [Fact]
-        public void AppendInsertOperation_appends_only_insert_if_no_store_generated_columns_exist()
-        {
-            var table = new Table("table", new[] { new Column("Id", "storetype"), new Column("Name", "_") });
-            table.PrimaryKey = new PrimaryKey("PK", table.Columns.Where(c => c.Name == "Id").ToArray());
-
-            var columnsToParameters =
-                new Dictionary<Column, string>
-                    {
-                        { table.Columns.Single(c => c.Name == "Id"), "@p0" },
-                        { table.Columns.Single(c => c.Name == "Name"), "@p1" }
-                    }.ToArray();
-
-            var sqlGenerator = CreateSqlGenerator();
-            var stringBuilder = new StringBuilder();
-
-            sqlGenerator
-                .AppendInsertOperation(stringBuilder, table, columnsToParameters);
-
-            Mock.Get(sqlGenerator)
-                .Verify(g => g.AppendInsertCommand(stringBuilder, table, columnsToParameters), Times.Once);
-
-            Mock.Get(sqlGenerator)
-                .Verify(g => g.AppendSelectCommand(
-                    It.IsAny<StringBuilder>(), It.IsAny<Table>(), It.IsAny<IEnumerable<Column>>(),
-                    It.IsAny<IEnumerable<KeyValuePair<Column, string>>>()),
-                    Times.Never);
+            Assert.Equal(
+                "INSERT INTO [Ducks] DEFAULT VALUES;" + Environment.NewLine +
+                "SELECT [Id] FROM [Ducks] WHERE [Id] = provider_specific_identity()",
+                stringBuilder.ToString());
         }
 
         [Fact]
         public void AppendUpdateOperation_appends_update_and_select_if_store_generated_columns_exist()
         {
-            var sqlGenerator = CreateSqlGenerator();
             var stringBuilder = new StringBuilder();
+            var operations = CreateUpdateOperations();
 
-            var table = new Table("table",
-                new[]
-                    {
-                        new Column("Id", "storetype"),
-                        new Column("Name", "_"),
-                        new Column("LastUpdate", "_") { ValueGenerationStrategy = StoreValueGenerationStrategy.Computed }
-                    });
+            new ConcreteSqlGenerator().AppendUpdateOperation(stringBuilder, "Ducks", operations);
 
-            table.PrimaryKey = new PrimaryKey("PK", table.Columns.Where(c => c.Name == "Id").ToArray());
-
-            var columnValues =
-                new[] { new KeyValuePair<Column, string>(table.Columns.Single(c => c.Name == "Name"), "@p1") };
-            var whereConditions =
-                new[] { new KeyValuePair<Column, string>(table.Columns.Single(c => c.Name == "Id"), "@p2") };
-
-            sqlGenerator
-                .AppendUpdateOperation(stringBuilder, table, columnValues, whereConditions);
-
-            Mock.Get(sqlGenerator)
-                .Verify(g => g.AppendUpdateCommand(stringBuilder, table, columnValues, whereConditions), Times.Once);
-
-            Mock.Get(sqlGenerator)
-                .Verify(g => g.AppendSelectCommand(
-                    stringBuilder, table,
-                    It.Is<IEnumerable<Column>>(cols => cols.Single().Name == "LastUpdate"),
-                    whereConditions), Times.Once);
+            Assert.Equal(
+                "UPDATE [Ducks] SET [Name] = @p2, [Quacks] = @p3, [ConcurrencyToken] = @p5 WHERE [Id] = @p1 AND [ConcurrencyToken] = @p5;" + Environment.NewLine +
+                "SELECT [Computed] FROM [Ducks] WHERE [Id] = @p1",
+                stringBuilder.ToString());
         }
 
         [Fact]
         public void AppendUpdateOperation_does_not_append_select_if_store_generated_columns_dont_exist()
         {
-            var table = new Table("table", new[] { new Column("Id", "storetype"), new Column("Name", "_") });
-            table.PrimaryKey = new PrimaryKey("PK", table.Columns.Where(c => c.Name == "Id").ToArray());
-
-            var sqlGenerator = CreateSqlGenerator();
             var stringBuilder = new StringBuilder();
+            var operations = CreateUpdateOperations(computedProperty: false, concurrencyToken: false);
 
-            var columnValues = new[] { new KeyValuePair<Column, string>(table.Columns.Single(c => c.Name == "Name"), "@p1") };
-            var whereConditions = new[] { new KeyValuePair<Column, string>(table.PrimaryKey.Columns.Single(), "@p2") };
-
-            sqlGenerator
-                .AppendUpdateOperation(stringBuilder, table, columnValues, whereConditions);
-
-            Mock.Get(sqlGenerator)
-                .Verify(g => g.AppendUpdateCommand(stringBuilder, table, columnValues, whereConditions), Times.Once);
-
-            Mock.Get(sqlGenerator)
-                .Verify(g => g.AppendSelectCommand(It.IsAny<StringBuilder>(), It.IsAny<Table>(),
-                    It.IsAny<IEnumerable<Column>>(), It.IsAny<IEnumerable<KeyValuePair<Column, string>>>()),
-                    Times.Never);
-        }
-
-        [Fact]
-        public void AppendValues_appends_correct_values()
-        {
-            var stringBuilder = new StringBuilder();
-
-            CreateSqlGenerator()
-                .AppendValues(stringBuilder, new[] { "@p1", "@p2" });
+            new ConcreteSqlGenerator().AppendUpdateOperation(stringBuilder, "Ducks", operations);
 
             Assert.Equal(
-                "VALUES (@p1, @p2)",
+                "UPDATE [Ducks] SET [Name] = @p2, [Quacks] = @p3, [ConcurrencyToken] = @p5 WHERE [Id] = @p1",
                 stringBuilder.ToString());
         }
 
         [Fact]
-        public void AppendWhereClause_appends_where_clause()
+        public void AppendUpdateOperation_appends_select_for_concurrency_token()
         {
             var stringBuilder = new StringBuilder();
+            var operations = CreateUpdateOperations(computedProperty: false, concurrencyToken: true);
 
-            CreateSqlGenerator()
-                .AppendWhereClause(
-                    stringBuilder,
-                    new Dictionary<Column, string>
-                        {
-                            { new Column("Id", "_"), "@p1" },
-                            { new Column("Col2", "_"), "@p2" },
-                            { new Column("Version", "_"), "@p3" }
-                        });
+            new ConcreteSqlGenerator().AppendUpdateOperation(stringBuilder, "Ducks", operations);
 
             Assert.Equal(
-                "WHERE Id = @p1 AND Col2 = @p2 AND Version = @p3",
+                "UPDATE [Ducks] SET [Name] = @p2, [Quacks] = @p3, [ConcurrencyToken] = @p5 WHERE [Id] = @p1 AND [ConcurrencyToken] = @p5",
+                stringBuilder.ToString());
+        }
+
+        [Fact]
+        public void AppendUpdateOperation_appends_select_for_computed_property()
+        {
+            var stringBuilder = new StringBuilder();
+            var operations = CreateUpdateOperations(computedProperty: true, concurrencyToken: false);
+
+            new ConcreteSqlGenerator().AppendUpdateOperation(stringBuilder, "Ducks", operations);
+
+            Assert.Equal(
+                "UPDATE [Ducks] SET [Name] = @p2, [Quacks] = @p3, [ConcurrencyToken] = @p5 WHERE [Id] = @p1;" + Environment.NewLine +
+                "SELECT [Computed] FROM [Ducks] WHERE [Id] = @p1",
                 stringBuilder.ToString());
         }
 
         [Fact]
         public void Default_BatchCommandSeparator_is_semicolon()
         {
-            Assert.Equal(";", CreateSqlGenerator().BatchCommandSeparator);
+            Assert.Equal(";", new ConcreteSqlGenerator().BatchCommandSeparator);
         }
 
-        public class ParameterValidation
+        private class ConcreteSqlGenerator : SqlGenerator
         {
-            [Fact]
-            public void AppendInsertOperation_validates_parameters()
+            protected override void AppendIdentityWhereCondition(StringBuilder commandStringBuilder, ColumnModification columnModification)
             {
-                Assert.Equal(
-                    "commandStringBuilder",
-                    Assert.Throws<ArgumentNullException>(
-                        () => CreateSqlGenerator()
-                            .AppendInsertOperation(null, new Table("table"), new KeyValuePair<Column, string>[0])).ParamName);
-
-                Assert.Equal(
-                    "table",
-                    Assert.Throws<ArgumentNullException>(
-                        () => CreateSqlGenerator()
-                            .AppendInsertOperation(new StringBuilder(), null, new KeyValuePair<Column, string>[0])).ParamName);
-
-                Assert.Equal(
-                    "columnsToParameters",
-                    Assert.Throws<ArgumentNullException>(
-                        () => CreateSqlGenerator()
-                            .AppendInsertOperation(new StringBuilder(), new Table("table"), null)).ParamName);
-            }
-
-            [Fact]
-            public void AppendInsertCommand_validates_parameters()
-            {
-                Assert.Equal(
-                    "commandStringBuilder",
-                    Assert.Throws<ArgumentNullException>(
-                        () => CreateSqlGenerator()
-                            .AppendInsertCommand(null, new Table("table"), new Dictionary<Column, string>())).ParamName);
-
-                Assert.Equal(
-                    "table",
-                    Assert.Throws<ArgumentNullException>(
-                        () => CreateSqlGenerator()
-                            .AppendInsertCommand(new StringBuilder(), null, new Dictionary<Column, string>())).ParamName);
-
-                Assert.Equal(
-                    "columnsToParameters",
-                    Assert.Throws<ArgumentNullException>(
-                        () => CreateSqlGenerator()
-                            .AppendInsertCommand(new StringBuilder(), new Table("table"), null)).ParamName);
-            }
-
-            [Fact]
-            public void AppendInsertCommandHeader_validates_parameters()
-            {
-                Assert.Equal(
-                    "commandStringBuilder",
-                    Assert.Throws<ArgumentNullException>(
-                        () => CreateSqlGenerator()
-                            .AppendInsertCommandHeader(null, new Table("table"), new Column[0])).ParamName);
-
-                Assert.Equal(
-                    "table",
-                    Assert.Throws<ArgumentNullException>(
-                        () => CreateSqlGenerator()
-                            .AppendInsertCommandHeader(new StringBuilder(), null, new Column[0])).ParamName);
-
-                Assert.Equal(
-                    "columns",
-                    Assert.Throws<ArgumentNullException>(
-                        () => CreateSqlGenerator()
-                            .AppendInsertCommandHeader(new StringBuilder(), new Table("table"), null)).ParamName);
-            }
-
-            [Fact]
-            public void AppendDeleteCommand_validates_parameters()
-            {
-                Assert.Equal(
-                    "commandStringBuilder",
-                    Assert.Throws<ArgumentNullException>(
-                        () => CreateSqlGenerator()
-                            .AppendDeleteCommand(null, new Table("table"), new KeyValuePair<Column, string>[0])).ParamName);
-
-                Assert.Equal(
-                    "table",
-                    Assert.Throws<ArgumentNullException>(
-                        () => CreateSqlGenerator()
-                            .AppendDeleteCommand(new StringBuilder(), null, new KeyValuePair<Column, string>[0])).ParamName);
-
-                Assert.Equal(
-                    "whereConditions",
-                    Assert.Throws<ArgumentNullException>(
-                        () => CreateSqlGenerator()
-                            .AppendDeleteCommand(new StringBuilder(), new Table("table"), null)).ParamName);
-            }
-
-            [Fact]
-            public void AppendDeleteCommandHeader_validates_parameters()
-            {
-                Assert.Equal(
-                    "commandStringBuilder",
-                    Assert.Throws<ArgumentNullException>(
-                        () => CreateSqlGenerator()
-                            .AppendDeleteCommandHeader(null, new Table("table"))).ParamName);
-
-                Assert.Equal(
-                    "table",
-                    Assert.Throws<ArgumentNullException>(
-                        () => CreateSqlGenerator()
-                            .AppendDeleteCommandHeader(new StringBuilder(), null)).ParamName);
-            }
-
-            [Fact]
-            public void AppendUpdateOperstion_validates_paramters()
-            {
-                Assert.Equal(
-                    "commandStringBuilder",
-                    Assert.Throws<ArgumentNullException>(
-                        () => CreateSqlGenerator()
-                            .AppendUpdateOperation(null, new Table("table"), new KeyValuePair<Column, string>[0],
-                                new KeyValuePair<Column, string>[0])).ParamName);
-
-                Assert.Equal(
-                    "table",
-                    Assert.Throws<ArgumentNullException>(
-                        () => CreateSqlGenerator()
-                            .AppendUpdateOperation(new StringBuilder(), null, new KeyValuePair<Column, string>[0],
-                                new KeyValuePair<Column, string>[0])).ParamName);
-
-                Assert.Equal(
-                    "columnValues",
-                    Assert.Throws<ArgumentNullException>(
-                        () => CreateSqlGenerator()
-                            .AppendUpdateOperation(new StringBuilder(), new Table("table"), null,
-                                new KeyValuePair<Column, string>[0])).ParamName);
-
-                Assert.Equal(
-                    "whereConditions",
-                    Assert.Throws<ArgumentNullException>(
-                        () => CreateSqlGenerator()
-                            .AppendUpdateOperation(new StringBuilder(), new Table("table"),
-                                new KeyValuePair<Column, string>[0], null)).ParamName);
-            }
-
-            [Fact]
-            public void AppendUpdateCommand_validates_parameters()
-            {
-                Assert.Equal(
-                    "commandStringBuilder",
-                    Assert.Throws<ArgumentNullException>(
-                        () => CreateSqlGenerator()
-                            .AppendUpdateCommand(null, new Table("table"), new KeyValuePair<Column, string>[0],
-                                new KeyValuePair<Column, string>[0])).ParamName);
-
-                Assert.Equal(
-                    "table",
-                    Assert.Throws<ArgumentNullException>(
-                        () => CreateSqlGenerator()
-                            .AppendUpdateCommand(new StringBuilder(), null, new KeyValuePair<Column, string>[0],
-                                new KeyValuePair<Column, string>[0])).ParamName);
-
-                Assert.Equal(
-                    "columnValues",
-                    Assert.Throws<ArgumentNullException>(
-                        () => CreateSqlGenerator()
-                            .AppendUpdateCommand(new StringBuilder(), new Table("table"), null,
-                                new KeyValuePair<Column, string>[0])).ParamName);
-
-                Assert.Equal(
-                    "whereConditions",
-                    Assert.Throws<ArgumentNullException>(
-                        () => CreateSqlGenerator()
-                            .AppendUpdateCommand(new StringBuilder(), new Table("table"), new KeyValuePair<Column, string>[0],
-                                null)).ParamName);
-            }
-
-            [Fact]
-            public void AppendUpdateCommandHeader_validates_parameters()
-            {
-                Assert.Equal(
-                    "commandStringBuilder",
-                    Assert.Throws<ArgumentNullException>(
-                        () => CreateSqlGenerator()
-                            .AppendUpdateCommandHeader(null, new Table("table"), new KeyValuePair<Column, string>[0])).ParamName);
-
-                Assert.Equal(
-                    "table",
-                    Assert.Throws<ArgumentNullException>(
-                        () => CreateSqlGenerator()
-                            .AppendUpdateCommandHeader(new StringBuilder(), null, new KeyValuePair<Column, string>[0])).ParamName);
-
-                Assert.Equal(
-                    "columnValues",
-                    Assert.Throws<ArgumentNullException>(
-                        () => CreateSqlGenerator()
-                            .AppendUpdateCommandHeader(new StringBuilder(), new Table("table"), null)).ParamName);
-            }
-
-            [Fact]
-            public void AppendSelectCommand_validates_parameters()
-            {
-                Assert.Equal(
-                    "commandStringBuilder",
-                    Assert.Throws<ArgumentNullException>(
-                        () => CreateSqlGenerator()
-                            .AppendSelectCommand(null, new Table("table"), new Column[0], new KeyValuePair<Column, string>[0]))
-                        .ParamName);
-
-                Assert.Equal(
-                    "table",
-                    Assert.Throws<ArgumentNullException>(
-                        () => CreateSqlGenerator()
-                            .AppendSelectCommand(new StringBuilder(), null, new Column[0], new KeyValuePair<Column, string>[0]))
-                        .ParamName);
-
-                Assert.Equal(
-                    "columns",
-                    Assert.Throws<ArgumentNullException>(
-                        () => CreateSqlGenerator()
-                            .AppendSelectCommand(new StringBuilder(), new Table("table"), null, new KeyValuePair<Column, string>[0]))
-                        .ParamName);
-
-                Assert.Equal(
-                    "whereConditions",
-                    Assert.Throws<ArgumentNullException>(
-                        () => CreateSqlGenerator()
-                            .AppendSelectCommand(new StringBuilder(), new Table("table"), new Column[0], null))
-                        .ParamName);
-            }
-
-            [Fact]
-            public void AppendSelectCommandHeader_validates_parameters()
-            {
-                Assert.Equal(
-                    "commandStringBuilder",
-                    Assert.Throws<ArgumentNullException>(
-                        () => CreateSqlGenerator()
-                            .AppendSelectCommandHeader(null, new Column[0])).ParamName);
-
-                Assert.Equal(
-                    "columns",
-                    Assert.Throws<ArgumentNullException>(
-                        () => CreateSqlGenerator()
-                            .AppendSelectCommandHeader(new StringBuilder(), null)).ParamName);
-            }
-
-            [Fact]
-            public void AppendFromClause_validates_parameters()
-            {
-                Assert.Equal(
-                    "commandStringBuilder",
-                    Assert.Throws<ArgumentNullException>(
-                        () => CreateSqlGenerator()
-                            .AppendFromClause(null, new Table("table"))).ParamName);
-
-                Assert.Equal(
-                    "table",
-                    Assert.Throws<ArgumentNullException>(
-                        () => CreateSqlGenerator()
-                            .AppendFromClause(new StringBuilder(), null)).ParamName);
-            }
-
-            [Fact]
-            public void AppendValues_validates_parameters()
-            {
-                Assert.Equal(
-                    "commandStringBuilder",
-                    Assert.Throws<ArgumentNullException>(
-                        () => CreateSqlGenerator()
-                            .AppendValues(null, new string[0])).ParamName);
-
-                Assert.Equal(
-                    "valueParameterNames",
-                    Assert.Throws<ArgumentNullException>(
-                        () => CreateSqlGenerator()
-                            .AppendValues(new StringBuilder(), null)).ParamName);
-            }
-
-            [Fact]
-            public void AppendWhereClause_validates_parameters()
-            {
-                Assert.Equal(
-                    "commandStringBuilder",
-                    Assert.Throws<ArgumentNullException>(
-                        () => CreateSqlGenerator()
-                            .AppendWhereClause(null, new KeyValuePair<Column, string>[0])).ParamName);
-
-                Assert.Equal(
-                    "whereConditions",
-                    Assert.Throws<ArgumentNullException>(
-                        () => CreateSqlGenerator()
-                            .AppendWhereClause(new StringBuilder(), null)).ParamName);
+                commandStringBuilder
+                    .Append(QuoteIdentifier(columnModification.ColumnName))
+                    .Append(" = ")
+                    .Append("provider_specific_identity()");
             }
         }
 
-        private static SqlGenerator CreateSqlGenerator()
+        private ColumnModification[] CreateInsertOperations(bool identityKey = true, bool computedProperty = true)
         {
-            return new Mock<SqlGenerator> { CallBase = true }.Object;
+            using (var context = new DuckDuckGooseContext())
+            {
+                var entry = context.ChangeTracker.Entry(context.Add(new Duck())).StateEntry;
+
+                return new[]
+                    {
+                        new ColumnModification(
+                            entry, entry.EntityType.GetProperty("Id"), "@p1",
+                            isRead: identityKey, isWrite: !identityKey, isKey: true, isCondition: true),
+                        new ColumnModification(
+                            entry, entry.EntityType.GetProperty("Name"), "@p2",
+                            isRead: false, isWrite: true, isKey: false, isCondition: false),
+                        new ColumnModification(
+                            entry, entry.EntityType.GetProperty("Quacks"), "@p3",
+                            isRead: false, isWrite: true, isKey: false, isCondition: false),
+                        new ColumnModification(
+                            entry, entry.EntityType.GetProperty("Computed"), "@p4",
+                            isRead: computedProperty, isWrite: false, isKey: false, isCondition: false),
+                        new ColumnModification(
+                            entry, entry.EntityType.GetProperty("ConcurrencyToken"), "@p5",
+                            isRead: false, isWrite: true, isKey: false, isCondition: false)
+                    };
+            }
+        }
+
+        private ColumnModification[] CreateUpdateOperations(bool computedProperty = true, bool concurrencyToken = true)
+        {
+            using (var context = new DuckDuckGooseContext())
+            {
+                var entry = context.ChangeTracker.Entry(context.Add(new Duck())).StateEntry;
+
+                return new[]
+                    {
+                        new ColumnModification(
+                            entry, entry.EntityType.GetProperty("Id"), "@p1",
+                            isRead: false, isWrite: false, isKey: true, isCondition: true),
+                        new ColumnModification(
+                            entry, entry.EntityType.GetProperty("Name"), "@p2",
+                            isRead: false, isWrite: true, isKey: false, isCondition: false),
+                        new ColumnModification(
+                            entry, entry.EntityType.GetProperty("Quacks"), "@p3",
+                            isRead: false, isWrite: true, isKey: false, isCondition: false),
+                        new ColumnModification(
+                            entry, entry.EntityType.GetProperty("Computed"), "@p4",
+                            isRead: computedProperty, isWrite: false, isKey: false, isCondition: false),
+                        new ColumnModification(
+                            entry, entry.EntityType.GetProperty("ConcurrencyToken"), "@p5",
+                            isRead: false, isWrite: true, isKey: false, isCondition: concurrencyToken)
+                    };
+            }
+        }
+
+        private ColumnModification[] CreateDeleteOperations(bool concurrencyToken = true)
+        {
+            using (var context = new DuckDuckGooseContext())
+            {
+                var entry = context.ChangeTracker.Entry(context.Add(new Duck())).StateEntry;
+
+                return new[]
+                    {
+                        new ColumnModification(
+                            entry, entry.EntityType.GetProperty("Id"), "@p1",
+                            isRead: false, isWrite: false, isKey: true, isCondition: true),
+                        new ColumnModification(
+                            entry, entry.EntityType.GetProperty("ConcurrencyToken"), "@p5",
+                            isRead: false, isWrite: false, isKey: false, isCondition: concurrencyToken)
+                    };
+            }
+        }
+
+        private class DuckDuckGooseContext : DbContext
+        {
+            public DuckDuckGooseContext()
+                : base(new ServiceCollection()
+                    .AddEntityFramework()
+                    .AddInMemoryStore()
+                    .ServiceCollection
+                    .BuildServiceProvider())
+            {
+            }
+
+            public DbSet<Duck> Blogs { get; set; }
+        }
+
+        private class Duck
+        {
+            private int Id { get; set; }
+            private int Computed { get; set; }
+            private string Name { get; set; }
+            private bool Quacks { get; set; }
+            private int ConcurrencyToken { get; set; }
         }
     }
 }

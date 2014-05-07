@@ -147,4 +147,7 @@
   <data name="NoConnectionOrConnectionString" xml:space="preserve">
     <value>A relational store has been configured without specifying either the DbConnection or connection string to use.</value>
   </data>
+  <data name="UnsupportedType" xml:space="preserve">
+    <value>The property '{0}' cannot be mapped because it is of type '{1}' which is currently not supported.'</value>
+  </data>
 </root>
