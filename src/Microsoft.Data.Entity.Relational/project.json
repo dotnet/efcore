@@ -4,12 +4,12 @@
     "warningsAsErrors": true
   },
   "dependencies": {
+    "Ix-Async": "1.2.2",
+    "Microsoft.Data.Common": "0.1-alpha-*",
     "Microsoft.Data.Entity": "",
     "Microsoft.Framework.DependencyInjection" : "0.1-alpha-*",
     "Microsoft.Framework.Logging": "0.1-alpha-*",
-    "Remotion.Linq": "1.15.13.0",
-    "Microsoft.Data.Common": "0.1-alpha-*",
-    "Ix-Async": "1.2.2" 
+    "Remotion.Linq": "1.15.13.0"
   },
   "code": "**\\*.cs;..\\Shared\\*.cs",
   "configurations": {

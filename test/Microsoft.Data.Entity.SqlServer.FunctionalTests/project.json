@@ -1,23 +1,23 @@
 {
   "version": "0.1-alpha-*",
   "dependencies": {
+    "Ix-Async": "1.2.2",
+    "Microsoft.Data.Common": "0.1-alpha-*",
     "Microsoft.Data.Entity": "",
     "Microsoft.Data.Entity.InMemory" : "",
     "Microsoft.Data.Entity.Migrations": "",
     "Microsoft.Data.Entity.Relational": "",
     "Microsoft.Data.Entity.SqlServer": "",
-    "Microsoft.Data.Common": "0.1-alpha-*",
     "Microsoft.Data.SqlServer": "0.1-alpha-*",
     "Microsoft.Framework.ConfigurationModel" : "0.1-alpha-*",
     "Microsoft.Framework.DependencyInjection" : "0.1-alpha-*",
     "Microsoft.Framework.Logging" : "0.1-alpha-*",
-    "Xunit.KRunner": "0.1-alpha-*",
+    "Remotion.Linq": "1.15.13.0",
     "xunit.abstractions": "2.0.0-aspnet-*",
     "xunit.assert": "2.0.0-aspnet-*",
     "xunit.core": "2.0.0-aspnet-*",
     "xunit.execution": "2.0.0-aspnet-*",
-    "Remotion.Linq": "1.15.13.0",
-    "Ix-Async": "1.2.2"
+    "Xunit.KRunner": "0.1-alpha-*"
   },
   "code": "**\\*.cs;..\\Shared\\TestFileLogger.cs;..\\Shared\\Northwind.cs;..\\Shared\\NorthwindQueryTestBase.cs;..\\Shared\\NorthwindQueryFixtureBase.cs",
   "commands": {
