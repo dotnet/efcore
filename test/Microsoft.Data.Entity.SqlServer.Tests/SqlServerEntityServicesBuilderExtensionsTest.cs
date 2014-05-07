@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             var context = new DbContext(
                 serviceProvider,
-                new DbContextOptions().SqlServerConnectionString("goo").BuildConfiguration());
+                new DbContextOptions().UseSqlServer("goo").BuildConfiguration());
 
             var scopedProvider = context.Configuration.Services.ServiceProvider;
 
@@ -105,7 +105,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             context = new DbContext(
                 serviceProvider,
-                new DbContextOptions().SqlServerConnectionString("goo").BuildConfiguration());
+                new DbContextOptions().UseSqlServer("goo").BuildConfiguration());
 
             scopedProvider = context.Configuration.Services.ServiceProvider;
 

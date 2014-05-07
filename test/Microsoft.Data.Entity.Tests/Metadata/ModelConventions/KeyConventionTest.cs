@@ -73,6 +73,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             var key = entityType.TryGetKey();
             Assert.NotNull(key);
             Assert.Equal(new[] { "Id" }, key.Properties.Select(p => p.Name));
+            Assert.Equal(ValueGenerationStrategy.StoreIdentity, key.Properties.Single().ValueGenerationStrategy);
         }
 
         private class EntityWithTypeId
@@ -90,6 +91,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             var key = entityType.TryGetKey();
             Assert.NotNull(key);
             Assert.Equal(new[] { "EntityWithTypeIdId" }, key.Properties.Select(p => p.Name));
+            Assert.Equal(ValueGenerationStrategy.StoreIdentity, key.Properties.Single().ValueGenerationStrategy);
         }
 
         private class EntityWithIdAndTypeId
@@ -108,6 +110,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             var key = entityType.TryGetKey();
             Assert.NotNull(key);
             Assert.Equal(new[] { "Id" }, key.Properties.Select(p => p.Name));
+            Assert.Equal(ValueGenerationStrategy.StoreIdentity, key.Properties.Single().ValueGenerationStrategy);
         }
 
         private class EntityWithMultipleIds

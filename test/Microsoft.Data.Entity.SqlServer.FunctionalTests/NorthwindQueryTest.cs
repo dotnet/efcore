@@ -48,7 +48,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             _configuration
                 = new DbContextOptions()
                     .UseModel(CreateModel())
-                    .SqlServerConnectionString(_testDatabase.Connection.ConnectionString)
+                    .UseSqlServer(_testDatabase.Connection.ConnectionString)
                     .BuildConfiguration();
         }
 

@@ -539,6 +539,12 @@ namespace Microsoft.Data.Entity.Migrations
                 stringBuilder.Append(" NOT NULL");
             }
 
+            // TODO: Move to SQL Server specific generation
+            if (column.ValueGenerationStrategy == StoreValueGenerationStrategy.Identity)
+            {
+                stringBuilder.Append(" IDENTITY");
+            }
+
             if (column.DefaultSql != null)
             {
                 stringBuilder
