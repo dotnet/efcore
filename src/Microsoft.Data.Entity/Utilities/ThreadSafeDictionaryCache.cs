@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Utilities
         public virtual TValue GetOrAdd([NotNull] TKey key, [NotNull] Func<TKey, TValue> factory)
         {
             Check.NotNull(key, "key");
-            Check.NotNull("source", "factory");
+            Check.NotNull(factory, "factory");
 
             TValue value;
             if (!_cache.Value.TryGetValue(key, out value))

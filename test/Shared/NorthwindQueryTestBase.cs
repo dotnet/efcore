@@ -346,6 +346,16 @@ namespace Microsoft.Data.FunctionalTests
                 assertOrder: true);
         }
 
+        [Fact(Skip="Test is failing, see #153")]
+        public virtual void Where_subquery_on_collection()
+        {
+            AssertQuery<Product, OrderDetail>((pr, od) =>
+                from p in pr
+                where p.OrderDetails.Contains(od.FirstOrDefault(orderDetail => orderDetail.Discount == 0.1))
+                select p,
+                assertOrder: false);
+        }
+
         [Fact]
         public void Where_subquery_recursive_trivial()
         {
