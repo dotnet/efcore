@@ -124,6 +124,11 @@ namespace Northwind
 
     public class Product
     {
+        public Product()
+        {
+            OrderDetails = new List<OrderDetail>();
+        }
+
         public int ProductID { get; set; }
         public string ProductName { get; set; }
         public int? SupplierID { get; set; }
@@ -134,6 +139,8 @@ namespace Northwind
         public short? UnitsOnOrder { get; set; }
         public short? ReorderLevel { get; set; }
         public bool Discontinued { get; set; }
+
+        public virtual ICollection<OrderDetail> OrderDetails { get; set; }
 
         protected bool Equals(Product other)
         {
@@ -221,6 +228,8 @@ namespace Northwind
         public decimal UnitPrice { get; set; }
         public short Quantity { get; set; }
         public float Discount { get; set; }
+
+        public virtual Product Product { get; set; }
 
         protected bool Equals(OrderDetail other)
         {

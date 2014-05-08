@@ -82,6 +82,15 @@ namespace Microsoft.Data.FunctionalTests
                     })
                 .StorageName("Order Details");
 
+            var productType = model.GetEntityType(typeof(Product));
+            var orderDetailType = model.GetEntityType(typeof(OrderDetail));
+
+            var productIdFk
+                = orderDetailType.AddForeignKey(productType.GetKey(), orderDetailType.GetProperty("ProductID"));
+
+            orderDetailType.AddNavigation(new Navigation(productIdFk, "Product"));
+            productType.AddNavigation(new Navigation(productIdFk, "OrderDetails"));
+
             return model;
         }
 

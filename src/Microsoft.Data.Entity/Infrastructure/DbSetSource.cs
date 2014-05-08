@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         public virtual DbSet Create([NotNull] DbContext context, [NotNull] Type type)
         {
             Check.NotNull(context, "context");
-            Check.NotNull("type", "type");
+            Check.NotNull(type, "type");
 
             var factory = _cache.GetOrAdd(
                 type,
