@@ -21,8 +21,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using Microsoft.Net.Runtime;
-using Microsoft.Net.Runtime.Infrastructure;
+using Microsoft.Framework.Runtime;
+using Microsoft.Framework.Runtime.Infrastructure;
 
 namespace Microsoft.Data.SQLite.Utilities
 {

@@ -7,7 +7,7 @@
     "net451": {
       "dependencies": {
         "System.Data": "",
-        "Microsoft.Net.Runtime.Interfaces": "0.1-alpha-*"
+        "Microsoft.Framework.Runtime.Interfaces": "0.1-alpha-*"
       }
     },
     "k10": {
@@ -26,7 +26,7 @@
         "System.Runtime.Handles": "4.0.0.0",
         "System.Runtime.InteropServices": "4.0.20.0",
         "System.Text.Encoding": "4.0.20.0",
-        "Microsoft.Net.Runtime.Interfaces": "0.1-alpha-*"
+        "Microsoft.Framework.Runtime.Interfaces": "0.1-alpha-*"
       }
     },
     ".NETPortable,Version=4.6,Profile=Profile151": {
