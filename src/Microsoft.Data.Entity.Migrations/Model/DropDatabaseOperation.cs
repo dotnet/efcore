@@ -16,8 +16,8 @@
 // permissions and limitations under the License.
 
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Entity.Migrations.Utilities;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Migrations.Model
 {

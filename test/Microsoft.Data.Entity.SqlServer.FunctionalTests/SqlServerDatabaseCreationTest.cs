@@ -19,12 +19,11 @@ using System;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Fallback;
-using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
+using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
@@ -249,24 +248,24 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 Assert.Equal(
                     new[]
                         {
-                            "Blog.AndChew (varbinary)", 
-                            "Blog.AndRow (timestamp)", 
-                            "Blog.Cheese (nvarchar)", 
-                            "Blog.CupOfChar (int)", 
-                            "Blog.ErMilan (int)", 
-                            "Blog.Fuse (smallint)", 
-                            "Blog.George (bit)", 
-                            "Blog.Key1 (nvarchar)", 
-                            "Blog.Key2 (varbinary)", 
-                            "Blog.NotFigTime (datetime2)", 
-                            "Blog.NotToEat (smallint)", 
-                            "Blog.On (real)", 
-                            "Blog.OrNothing (float)", 
-                            "Blog.OrULong (int)", 
-                            "Blog.OrUShort (numeric)", 
-                            "Blog.OrUSkint (bigint)", 
-                            "Blog.TheGu (uniqueidentifier)", 
-                            "Blog.ToEat (tinyint)", 
+                            "Blog.AndChew (varbinary)",
+                            "Blog.AndRow (timestamp)",
+                            "Blog.Cheese (nvarchar)",
+                            "Blog.CupOfChar (int)",
+                            "Blog.ErMilan (int)",
+                            "Blog.Fuse (smallint)",
+                            "Blog.George (bit)",
+                            "Blog.Key1 (nvarchar)",
+                            "Blog.Key2 (varbinary)",
+                            "Blog.NotFigTime (datetime2)",
+                            "Blog.NotToEat (smallint)",
+                            "Blog.On (real)",
+                            "Blog.OrNothing (float)",
+                            "Blog.OrULong (int)",
+                            "Blog.OrUShort (numeric)",
+                            "Blog.OrUSkint (bigint)",
+                            "Blog.TheGu (uniqueidentifier)",
+                            "Blog.ToEat (tinyint)",
                             "Blog.WayRound (bigint)"
                         },
                     columns);

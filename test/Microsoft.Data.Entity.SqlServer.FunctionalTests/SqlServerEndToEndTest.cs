@@ -22,13 +22,12 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Fallback;
-using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Update;
+using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
@@ -267,11 +266,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     blog2.Name = null;
 
                     var blog3 = context.Add(new TBlog()
-                    {
-                        Name = null,
-                        NotFigTime = new DateTime(1973, 9, 3, 0, 10, 33, 777),
-                        AndChew = new byte[] { 1, 2, 3, 4 }
-                    });
+                        {
+                            Name = null,
+                            NotFigTime = new DateTime(1973, 9, 3, 0, 10, 33, 777),
+                            AndChew = new byte[] { 1, 2, 3, 4 }
+                        });
 
                     await context.SaveChangesAsync();
 

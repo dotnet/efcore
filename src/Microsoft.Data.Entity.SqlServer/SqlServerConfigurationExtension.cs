@@ -15,9 +15,9 @@
 // See the Apache 2 License for the specific language governing
 // permissions and limitations under the License.
 
-using Microsoft.Framework.DependencyInjection;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.SqlServer.Utilities;
+using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.SqlServer
 {

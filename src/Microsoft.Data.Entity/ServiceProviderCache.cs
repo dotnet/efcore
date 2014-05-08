@@ -17,9 +17,9 @@
 
 using System;
 using System.Linq;
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity
 {

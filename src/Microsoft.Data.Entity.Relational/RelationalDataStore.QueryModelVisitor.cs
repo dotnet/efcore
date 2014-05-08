@@ -25,9 +25,9 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using JetBrains.Annotations;
-using Microsoft.Framework.Logging;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
+using Microsoft.Framework.Logging;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Parsing;
 

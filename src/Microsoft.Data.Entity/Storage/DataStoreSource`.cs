@@ -16,9 +16,9 @@
 // permissions and limitations under the License.
 
 using System.Linq;
-using Microsoft.Framework.DependencyInjection;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.Storage
 {

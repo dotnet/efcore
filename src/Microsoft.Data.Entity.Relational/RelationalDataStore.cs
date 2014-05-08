@@ -23,9 +23,9 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.Relational.Utilities;
+using Microsoft.Data.Entity.Storage;
 using Remotion.Linq;
 
 namespace Microsoft.Data.Entity.Relational

@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Open Technologies, Inc.
 // All Rights Reserved
-//
+// 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-//
+// 
 // http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR
 // CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING
 // WITHOUT LIMITATION ANY IMPLIED WARRANTIES OR CONDITIONS OF
@@ -90,12 +90,12 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 "dbo.MyTable",
                 new[]
                     {
-                        foo = new Column("Foo", "int") { IsNullable = false, ValueGenerationStrategy = StoreValueGenerationStrategy.Identity},
+                        foo = new Column("Foo", "int") { IsNullable = false, ValueGenerationStrategy = StoreValueGenerationStrategy.Identity },
                         bar = new Column("Bar", "int") { IsNullable = true }
                     })
-            {
-                PrimaryKey = new PrimaryKey("MyPK", new[] { foo }, isClustered: false )
-            };
+                {
+                    PrimaryKey = new PrimaryKey("MyPK", new[] { foo }, isClustered: false)
+                };
 
             Assert.Equal(
                 @"CREATE TABLE ""dbo"".""MyTable"" (

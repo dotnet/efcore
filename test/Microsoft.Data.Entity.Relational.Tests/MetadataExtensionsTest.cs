@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Open Technologies, Inc.
 // All Rights Reserved
-//
+// 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-//
+// 
 // http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR
 // CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING
 // WITHOUT LIMITATION ANY IMPLIED WARRANTIES OR CONDITIONS OF
@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public void ToTable_sets_storage_name_on_entity()
         {
-            var model = new Entity.Metadata.Model();
+            var model = new Metadata.Model();
             var modelBuilder = new ModelBuilder(model);
 
             modelBuilder.Entity<Customer>().ToTable("customers");
@@ -48,7 +48,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public void ColumnName_sets_storage_name_on_entity_property()
         {
-            var model = new Entity.Metadata.Model();
+            var model = new Metadata.Model();
             var modelBuilder = new ModelBuilder(model);
 
             modelBuilder.Entity<Customer>().Properties(ps => ps.Property(c => c.Id).ColumnName("id"));
@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public void ColumnType_sets_annotation_on_entity_property()
         {
-            var model = new Entity.Metadata.Model();
+            var model = new Metadata.Model();
             var modelBuilder = new ModelBuilder(model);
 
             modelBuilder.Entity<Customer>().Properties(ps => ps.Property(c => c.Id).ColumnType("bigint"));
