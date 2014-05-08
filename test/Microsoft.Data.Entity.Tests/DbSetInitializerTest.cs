@@ -57,9 +57,11 @@ namespace Microsoft.Data.Entity.Tests
                         new DbSetFinder.DbSetProperty(typeof(JustAContext), "Four", typeof(string), hasSetter: false)
                     });
 
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFramework(s => s.UseDbSetInitializer(new DbSetInitializer(setFinderMock.Object, new ClrPropertySetterSource())))
-                .BuildServiceProvider();
+            var serviceCollection = new ServiceCollection();
+            serviceCollection
+                .AddEntityFramework()
+                .UseDbSetInitializer(new DbSetInitializer(setFinderMock.Object, new ClrPropertySetterSource()));
+            var serviceProvider = serviceCollection.BuildServiceProvider();
 
             var configuration = new DbContextOptions().BuildConfiguration();
 

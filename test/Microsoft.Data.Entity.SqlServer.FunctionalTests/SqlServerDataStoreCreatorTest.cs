@@ -183,10 +183,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private static DbContextConfiguration CreateConfiguration(TestDatabase testDatabase)
         {
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddEntityFramework().AddSqlServer();
             return new DbContext(
-                new ServiceCollection()
-                    .AddEntityFramework(s => s.AddSqlServer())
-                    .BuildServiceProvider(),
+                serviceCollection.BuildServiceProvider(),
                 new DbContextOptions()
                     .UseSqlServer(testDatabase.Connection.ConnectionString)
                     .BuildConfiguration())
@@ -200,9 +200,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private static async Task RunDatabaseCreationTest(TestDatabase testDatabase, bool async)
         {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFramework(s => s.AddSqlServer())
-                .BuildServiceProvider();
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddEntityFramework().AddSqlServer();
+            var serviceProvider = serviceCollection.BuildServiceProvider();
 
             var configuration = new DbContextOptions()
                 .UseSqlServer(testDatabase.Connection.ConnectionString)

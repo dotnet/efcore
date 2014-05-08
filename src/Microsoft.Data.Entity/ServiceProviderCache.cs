@@ -37,8 +37,8 @@ namespace Microsoft.Data.Entity
 
         public virtual IServiceProvider GetOrAdd(ImmutableDbContextOptions contextOptions)
         {
-            var services = new ServiceCollection().AddEntityFramework();
-            var builder = new EntityServicesBuilder(services);
+            var services = new ServiceCollection();
+            var builder = services.AddEntityFramework();
             foreach (var extension in contextOptions.Extensions)
             {
                 extension.ApplyServices(builder);

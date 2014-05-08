@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Open Technologies, Inc.
 // All Rights Reserved
-//
+// 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-//
+// 
 // http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR
 // CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING
 // WITHOUT LIMITATION ANY IMPLIED WARRANTIES OR CONDITIONS OF
@@ -16,10 +16,9 @@
 // permissions and limitations under the License.
 
 using System.Data.SqlClient;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
-using Microsoft.Data.Entity;
-using Microsoft.Data.Entity.Infrastructure;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.Tests
@@ -49,9 +48,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
         public static DbContextConfiguration CreateConfiguration()
         {
-            return new DbContext(new ServiceCollection()
-                .AddEntityFramework(s => s.AddSqlServer())
-                .BuildServiceProvider(),
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddEntityFramework().AddSqlServer();
+            return new DbContext(serviceCollection.BuildServiceProvider(),
                 new DbContextOptions()
                     .UseSqlServer("Server=(localdb)\v11.0;Database=SqlServerConnectionTest;Trusted_Connection=True;")
                     .BuildConfiguration()).Configuration;

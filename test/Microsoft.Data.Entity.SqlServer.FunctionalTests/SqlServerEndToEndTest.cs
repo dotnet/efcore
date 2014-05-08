@@ -66,13 +66,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             using (await TestDatabase.Northwind())
             {
-                var serviceProvider = new ServiceCollection()
-                    .AddEntityFramework(s =>
-                        {
-                            s.AddSqlServer();
-                            s.ServiceCollection.AddScoped<SqlServerDataStore, SqlStoreWithBufferReader>();
-                        })
-                    .BuildServiceProvider();
+                var serviceCollection = new ServiceCollection();
+                serviceCollection.AddEntityFramework().AddSqlServer();
+                serviceCollection.AddScoped<SqlServerDataStore, SqlStoreWithBufferReader>();
+                var serviceProvider = serviceCollection.BuildServiceProvider();
 
                 using (var db = new NorthwindContext(serviceProvider))
                 {

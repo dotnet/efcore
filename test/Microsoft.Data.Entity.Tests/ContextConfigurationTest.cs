@@ -97,9 +97,9 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Scoped_data_store_services_can_be_obtained_from_configuration()
         {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFramework(s => s.AddInMemoryStore())
-                .BuildServiceProvider();
+            var services = new ServiceCollection();
+            services.AddEntityFramework().AddInMemoryStore();
+            var serviceProvider = services.BuildServiceProvider();
 
             DataStore store;
             DataStoreCreator creator;
@@ -160,9 +160,9 @@ namespace Microsoft.Data.Entity.Tests
 
         private static IServiceProvider CreateDefaultProvider()
         {
-            return new ServiceCollection()
-                .AddEntityFramework(s => s.AddInMemoryStore())
-                .BuildServiceProvider();
+            var services = new ServiceCollection();
+            services.AddEntityFramework().AddInMemoryStore();
+            return services.BuildServiceProvider();
         }
 
         private static DbContextConfiguration CreateEmptyConfiguration()

@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Open Technologies, Inc.
 // All Rights Reserved
-//
+// 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-//
+// 
 // http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR
 // CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING
 // WITHOUT LIMITATION ANY IMPLIED WARRANTIES OR CONDITIONS OF
@@ -16,11 +16,10 @@
 // permissions and limitations under the License.
 
 using System;
-using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Fallback;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.InMemory;
+using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Fallback;
 
 namespace Microsoft.Data.Entity.Tests
 {
@@ -41,9 +40,9 @@ namespace Microsoft.Data.Entity.Tests
 
         public static IServiceProvider CreateServiceProvider()
         {
-            return new ServiceCollection()
-                .AddEntityFramework(s => s.AddInMemoryStore())
-                .BuildServiceProvider();
+            var services = new ServiceCollection();
+            services.AddEntityFramework().AddInMemoryStore();
+            return services.BuildServiceProvider();
         }
 
         public static DbContextConfiguration CreateContextConfiguration(IServiceProvider serviceProvider, IModel model)

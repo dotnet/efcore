@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Open Technologies, Inc.
 // All Rights Reserved
-//
+// 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-//
+// 
 // http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR
 // CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING
 // WITHOUT LIMITATION ANY IMPLIED WARRANTIES OR CONDITIONS OF
@@ -20,7 +20,6 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
-using Microsoft.Data.Entity;
 using Xunit;
 
 namespace Microsoft.Data.Entity.InMemory.FunctionalTests
@@ -98,9 +97,9 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             [Fact]
             public void Can_save_and_query_with_explicit_services_and_OnConfiguring()
             {
-                var serviceProvider = new ServiceCollection()
-                    .AddEntityFramework(s => s.AddInMemoryStore())
-                    .BuildServiceProvider();
+                var services = new ServiceCollection();
+                services.AddEntityFramework().AddInMemoryStore();
+                var serviceProvider = services.BuildServiceProvider();
 
                 using (var context = new BlogContext(serviceProvider))
                 {
@@ -138,9 +137,9 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             [Fact]
             public void Can_save_and_query_with_explicit_services_and_explicit_config()
             {
-                var serviceProvider = new ServiceCollection()
-                    .AddEntityFramework(s => s.AddInMemoryStore())
-                    .BuildServiceProvider();
+                var services = new ServiceCollection();
+                services.AddEntityFramework().AddInMemoryStore();
+                var serviceProvider = services.BuildServiceProvider();
 
                 var configuration = new DbContextOptions()
                     .UseInMemoryStore()
@@ -177,9 +176,9 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             [Fact]
             public void Can_save_and_query_with_explicit_services_and_no_config()
             {
-                var serviceProvider = new ServiceCollection()
-                    .AddEntityFramework(s => s.AddInMemoryStore())
-                    .BuildServiceProvider();
+                var services = new ServiceCollection();
+                services.AddEntityFramework().AddInMemoryStore();
+                var serviceProvider = services.BuildServiceProvider();
 
                 using (var context = new BlogContext(serviceProvider))
                 {
@@ -236,9 +235,9 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             [Fact]
             public void Throws_on_attempt_to_use_store_with_no_store_services()
             {
-                var serviceProvider = new ServiceCollection()
-                    .AddEntityFramework()
-                    .BuildServiceProvider();
+                var serviceCollection = new ServiceCollection();
+                serviceCollection.AddEntityFramework();
+                var serviceProvider = serviceCollection.BuildServiceProvider();
 
                 Assert.Equal(
                     GetString("FormatNoDataStoreService"),
@@ -274,11 +273,12 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             [Fact]
             public void Can_register_context_with_DI_container_and_have_it_injected()
             {
-                var serviceProvider = new ServiceCollection()
-                    .AddEntityFramework(s => s.AddInMemoryStore())
-                    .AddTransient<BlogContext, BlogContext>()
+                var services = new ServiceCollection();
+                services.AddTransient<BlogContext, BlogContext>()
                     .AddTransient<MyController, MyController>()
-                    .BuildServiceProvider();
+                    .AddEntityFramework()
+                    .AddInMemoryStore();
+                var serviceProvider = services.BuildServiceProvider();
 
                 serviceProvider.GetService<MyController>().Test();
             }
@@ -327,12 +327,13 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                     .UseInMemoryStore()
                     .BuildConfiguration();
 
-                var serviceProvider = new ServiceCollection()
-                    .AddEntityFramework(s => s.AddInMemoryStore())
-                    .AddTransient<BlogContext, BlogContext>()
+                var services = new ServiceCollection();
+                services.AddTransient<BlogContext, BlogContext>()
                     .AddTransient<MyController, MyController>()
-                    .AddInstance<ImmutableDbContextOptions>(configuration)
-                    .BuildServiceProvider();
+                    .AddInstance(configuration)
+                    .AddEntityFramework()
+                    .AddInMemoryStore();
+                var serviceProvider = services.BuildServiceProvider();
 
                 serviceProvider.GetService<MyController>().Test();
             }
@@ -385,12 +386,13 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                     .UseInMemoryStore()
                     .BuildConfiguration();
 
-                var serviceProvider = new ServiceCollection()
-                    .AddEntityFramework(s => s.AddInMemoryStore())
-                    .AddTransient<BlogContext, BlogContext>()
+                var services = new ServiceCollection();
+                services.AddTransient<BlogContext, BlogContext>()
                     .AddTransient<MyController, MyController>()
-                    .AddInstance<ImmutableDbContextOptions>(configuration)
-                    .BuildServiceProvider();
+                    .AddInstance(configuration)
+                    .AddEntityFramework()
+                    .AddInMemoryStore();
+                var serviceProvider = services.BuildServiceProvider();
 
                 serviceProvider.GetService<MyController>().Test();
             }
@@ -443,15 +445,17 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                     .UseInMemoryStore()
                     .BuildConfiguration(() => new AccountConfiguration());
 
-                var serviceProvider = new ServiceCollection()
-                    .AddEntityFramework(s => s.AddInMemoryStore())
+                var services = new ServiceCollection();
+                services.AddTransient<BlogContext, BlogContext>()
                     .AddTransient<BlogContext, BlogContext>()
                     .AddTransient<AccountContext, AccountContext>()
                     .AddTransient<MyBlogController, MyBlogController>()
                     .AddTransient<MyAccountController, MyAccountController>()
-                    .AddInstance<BlogConfiguration>(blogCofiguration)
-                    .AddInstance<AccountConfiguration>(accountCofiguration)
-                    .BuildServiceProvider();
+                    .AddInstance(blogCofiguration)
+                    .AddInstance(accountCofiguration)
+                    .AddEntityFramework()
+                    .AddInMemoryStore();
+                var serviceProvider = services.BuildServiceProvider();
 
                 serviceProvider.GetService<MyBlogController>().Test();
                 serviceProvider.GetService<MyAccountController>().Test();

@@ -30,7 +30,8 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         [Fact]
         public void Can_get_default_services()
         {
-            var services = new ServiceCollection().AddEntityFramework(s => s.AddInMemoryStore());
+            var services = new ServiceCollection();
+            services.AddEntityFramework().AddInMemoryStore();
 
             Assert.True(services.Any(sd => sd.ServiceType == typeof(IdentityGeneratorFactory)));
             Assert.True(services.Any(sd => sd.ServiceType == typeof(InMemoryDataStore)));
@@ -40,7 +41,9 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         [Fact]
         public void Services_wire_up_correctly()
         {
-            var serviceProvider = new ServiceCollection().AddEntityFramework(s => s.AddInMemoryStore()).BuildServiceProvider();
+            var services = new ServiceCollection();
+            services.AddEntityFramework().AddInMemoryStore();
+            var serviceProvider = services.BuildServiceProvider();
 
             using (var context = new DbContext(serviceProvider, new DbContextOptions().BuildConfiguration()))
             {
