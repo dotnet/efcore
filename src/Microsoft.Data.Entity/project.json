@@ -5,7 +5,7 @@
   },
   "dependencies": {
     "Ix-Async": "1.2.2",
-    "Microsoft.Bcl.Immutable": "1.1.18-beta-*",
+    "Microsoft.Bcl.Immutable": "1.1.22-beta",
     "Microsoft.Framework.DependencyInjection": "0.1-alpha-*",
     "Microsoft.Framework.Logging": "0.1-alpha-*",
     "Remotion.Linq": "1.15.13.0"
