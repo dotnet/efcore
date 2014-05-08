@@ -112,9 +112,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var generatorFactory = new Mock<IdentityGeneratorFactory>();
             generatorFactory.Setup(m => m.Create(keyProperty)).Returns(generatorMock.Object);
 
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFramework(s => s.UseIdentityGeneratorFactory(generatorFactory.Object))
-                .BuildServiceProvider();
+            var services = new ServiceCollection();
+            services.AddEntityFramework().UseIdentityGeneratorFactory(generatorFactory.Object);
+            var serviceProvider = services.BuildServiceProvider();
 
             var configuration = TestHelpers.CreateContextConfiguration(serviceProvider, model);
 

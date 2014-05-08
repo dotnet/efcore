@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Open Technologies, Inc.
 // All Rights Reserved
-//
+// 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-//
+// 
 // http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR
 // CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING
 // WITHOUT LIMITATION ANY IMPLIED WARRANTIES OR CONDITIONS OF
@@ -20,14 +20,13 @@ using System.Data;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Fallback;
-using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.Relational.Update;
+using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Fallback;
 using Moq;
 using Moq.Protected;
 using Xunit;
@@ -230,7 +229,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
         private static IModel BuildModel(ValueGenerationStrategy keyStrategy, ValueGenerationStrategy nonKeyStrategy)
         {
-            var model = new Entity.Metadata.Model();
+            var model = new Metadata.Model();
 
             var entityType = new EntityType(typeof(T1));
 
@@ -248,10 +247,9 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
         private static DbContextConfiguration CreateConfiguration(IModel model)
         {
-            return new DbContext(
-                new ServiceCollection()
-                    .AddEntityFramework()
-                    .BuildServiceProvider(),
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddEntityFramework();
+            return new DbContext(serviceCollection.BuildServiceProvider(),
                 new DbContextOptions()
                     .UseModel(model)
                     .BuildConfiguration())

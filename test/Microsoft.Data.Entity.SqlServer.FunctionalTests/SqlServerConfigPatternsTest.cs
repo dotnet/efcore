@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Open Technologies, Inc.
 // All Rights Reserved
-//
+// 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-//
+// 
 // http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR
 // CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING
 // WITHOUT LIMITATION ANY IMPLIED WARRANTIES OR CONDITIONS OF
@@ -19,12 +19,9 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
-using Microsoft.Data.Entity;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Query;
-using Microsoft.Data.Entity.InMemory;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
@@ -40,7 +37,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 {
                     using (var context = new NorthwindContext())
                     {
-                        Assert.Equal(91, await QueryableExtensions.CountAsync(context.Customers));
+                        Assert.Equal(91, await context.Customers.CountAsync());
                     }
                 }
             }
@@ -74,7 +71,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                     using (var context = new NorthwindContext(configuration))
                     {
-                        Assert.Equal(91, await QueryableExtensions.CountAsync(context.Customers));
+                        Assert.Equal(91, await context.Customers.CountAsync());
                     }
                 }
             }
@@ -102,13 +99,13 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 using (await TestDatabase.Northwind())
                 {
-                    var serviceProvider = new ServiceCollection()
-                        .AddEntityFramework(s => s.AddSqlServer())
-                        .BuildServiceProvider();
+                    var serviceCollection = new ServiceCollection();
+                    serviceCollection.AddEntityFramework().AddSqlServer();
+                    var serviceProvider = serviceCollection.BuildServiceProvider();
 
                     using (var context = new NorthwindContext(serviceProvider))
                     {
-                        Assert.Equal(91, await QueryableExtensions.CountAsync(context.Customers));
+                        Assert.Equal(91, await context.Customers.CountAsync());
                     }
                 }
             }
@@ -141,9 +138,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 using (await TestDatabase.Northwind())
                 {
-                    var serviceProvider = new ServiceCollection()
-                        .AddEntityFramework(s => s.AddSqlServer())
-                        .BuildServiceProvider();
+                    var serviceCollection = new ServiceCollection();
+                    serviceCollection.AddEntityFramework().AddSqlServer();
+                    var serviceProvider = serviceCollection.BuildServiceProvider();
 
                     var configuration = new DbContextOptions()
                         .UseSqlServer(TestDatabase.NorthwindConnectionString)
@@ -151,7 +148,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                     using (var context = new NorthwindContext(serviceProvider, configuration))
                     {
-                        Assert.Equal(91, await QueryableExtensions.CountAsync(context.Customers));
+                        Assert.Equal(91, await context.Customers.CountAsync());
                     }
                 }
             }
@@ -179,9 +176,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 using (await TestDatabase.Northwind())
                 {
-                    var serviceProvider = new ServiceCollection()
-                        .AddEntityFramework(s => s.AddSqlServer())
-                        .BuildServiceProvider();
+                    var serviceCollection = new ServiceCollection();
+                    serviceCollection.AddEntityFramework().AddSqlServer();
+                    var serviceProvider = serviceCollection.BuildServiceProvider();
 
                     Assert.Equal(
                         GetString("FormatNoDataStoreConfigured"),
@@ -248,9 +245,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 using (await TestDatabase.Northwind())
                 {
-                    var serviceProvider = new ServiceCollection()
-                        .AddEntityFramework()
-                        .BuildServiceProvider();
+                    var serviceCollection = new ServiceCollection();
+                    serviceCollection.AddEntityFramework();
+                    var serviceProvider = serviceCollection.BuildServiceProvider();
 
                     Assert.Equal(
                         GetString("FormatNoDataStoreService"),
@@ -290,8 +287,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             [Fact]
             public async Task Can_register_context_with_DI_container_and_have_it_injected()
             {
-                var serviceProvider = new ServiceCollection()
-                    .AddEntityFramework(s => s.AddSqlServer())
+                var serviceCollection = new ServiceCollection();
+                serviceCollection.AddEntityFramework().AddSqlServer();
+                var serviceProvider = serviceCollection
                     .AddTransient<NorthwindContext, NorthwindContext>()
                     .AddTransient<MyController, MyController>()
                     .BuildServiceProvider();
@@ -315,7 +313,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 public async Task TestAsync()
                 {
-                    Assert.Equal(91, await QueryableExtensions.CountAsync(_context.Customers));
+                    Assert.Equal(91, await _context.Customers.CountAsync());
                 }
             }
 
@@ -350,12 +348,13 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     .UseSqlServer(TestDatabase.NorthwindConnectionString)
                     .BuildConfiguration();
 
-                var serviceProvider = new ServiceCollection()
-                    .AddEntityFramework(s => s.AddSqlServer())
-                    .AddTransient<NorthwindContext, NorthwindContext>()
+                var serviceCollection = new ServiceCollection();
+                serviceCollection.AddEntityFramework().AddSqlServer();
+                serviceCollection
                     .AddTransient<MyController, MyController>()
-                    .AddInstance<ImmutableDbContextOptions>(configuration)
-                    .BuildServiceProvider();
+                    .AddTransient<NorthwindContext, NorthwindContext>()
+                    .AddInstance(configuration);
+                var serviceProvider = serviceCollection.BuildServiceProvider();
 
                 using (await TestDatabase.Northwind())
                 {
@@ -376,7 +375,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 public async Task TestAsync()
                 {
-                    Assert.Equal(91, await QueryableExtensions.CountAsync(_context.Customers));
+                    Assert.Equal(91, await _context.Customers.CountAsync());
                 }
             }
 
@@ -410,12 +409,13 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     .UseSqlServer(TestDatabase.NorthwindConnectionString)
                     .BuildConfiguration();
 
-                var serviceProvider = new ServiceCollection()
-                    .AddEntityFramework(s => s.AddSqlServer())
+                var serviceCollection = new ServiceCollection();
+                serviceCollection.AddEntityFramework().AddSqlServer();
+                serviceCollection
                     .AddTransient<NorthwindContext, NorthwindContext>()
                     .AddTransient<MyController, MyController>()
-                    .AddInstance<ImmutableDbContextOptions>(configuration)
-                    .BuildServiceProvider();
+                    .AddInstance(configuration);
+                var serviceProvider = serviceCollection.BuildServiceProvider();
 
                 using (await TestDatabase.Northwind())
                 {
@@ -533,9 +533,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 using (await TestDatabase.Northwind())
                 {
-                    var serviceProvider = new ServiceCollection()
-                        .AddEntityFramework(s => s.AddSqlServer())
-                        .BuildServiceProvider();
+                    var serviceCollection = new ServiceCollection();
+                    serviceCollection.AddEntityFramework().AddSqlServer();
+                    var serviceProvider = serviceCollection.BuildServiceProvider();
 
                     using (var context1 = new NorthwindContext(serviceProvider))
                     {
@@ -586,9 +586,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 using (await TestDatabase.Northwind())
                 {
-                    var serviceProvider = new ServiceCollection()
-                        .AddEntityFramework(s => s.AddSqlServer().AddInMemoryStore())
-                        .BuildServiceProvider();
+                    var serviceCollection = new ServiceCollection();
+                    serviceCollection.AddEntityFramework().AddSqlServer().AddInMemoryStore();
+                    var serviceProvider = serviceCollection.BuildServiceProvider();
 
                     await NestedContextTest(() => new BlogContext(serviceProvider), () => new NorthwindContext(serviceProvider));
                 }

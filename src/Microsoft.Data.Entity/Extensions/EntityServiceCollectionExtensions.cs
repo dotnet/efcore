@@ -15,7 +15,6 @@
 // See the Apache 2 License for the specific language governing
 // permissions and limitations under the License.
 
-using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Identity;
@@ -28,15 +27,7 @@ namespace Microsoft.Framework.DependencyInjection
 {
     public static class EntityServiceCollectionExtensions
     {
-        public static IServiceCollection AddEntityFramework([NotNull] this IServiceCollection serviceCollection)
-        {
-            Check.NotNull(serviceCollection, "serviceCollection");
-
-            return AddEntityFramework(serviceCollection, null);
-        }
-
-        public static IServiceCollection AddEntityFramework(
-            [NotNull] this IServiceCollection serviceCollection, [CanBeNull] Action<EntityServicesBuilder> nestedBuilder)
+        public static EntityServicesBuilder AddEntityFramework([NotNull] this IServiceCollection serviceCollection)
         {
             Check.NotNull(serviceCollection, "serviceCollection");
 
@@ -66,12 +57,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddScoped<StateManager, StateManager>()
                 .AddScoped<Database, Database>();
 
-            if (nestedBuilder != null)
-            {
-                nestedBuilder(new EntityServicesBuilder(serviceCollection));
-            }
-
-            return serviceCollection;
+            return new EntityServicesBuilder(serviceCollection);
         }
     }
 }

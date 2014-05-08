@@ -255,10 +255,9 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
         private static DbContextConfiguration CreateConfiguration(IModel model)
         {
-            return new DbContext(
-                new ServiceCollection()
-                    .AddEntityFramework()
-                    .BuildServiceProvider(),
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddEntityFramework();
+            return new DbContext(serviceCollection.BuildServiceProvider(),
                 new DbContextOptions()
                     .UseModel(model)
                     .BuildConfiguration())

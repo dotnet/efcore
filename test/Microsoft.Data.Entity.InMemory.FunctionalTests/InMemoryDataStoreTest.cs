@@ -34,9 +34,9 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         {
             var model = CreateModel();
 
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFramework(s => s.AddInMemoryStore().UseLoggerFactory(TestFileLogger.Factory))
-                .BuildServiceProvider();
+            var services = new ServiceCollection();
+            services.AddEntityFramework().AddInMemoryStore().UseLoggerFactory(TestFileLogger.Factory);
+            var serviceProvider = services.BuildServiceProvider();
 
             var configuration = new DbContextOptions()
                 .UseModel(model)

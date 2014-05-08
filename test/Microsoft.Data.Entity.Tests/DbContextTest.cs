@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Open Technologies, Inc.
 // All Rights Reserved
-//
+// 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-//
+// 
 // http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR
 // CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING
 // WITHOUT LIMITATION ANY IMPLIED WARRANTIES OR CONDITIONS OF
@@ -20,15 +20,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Advanced;
-using Microsoft.Framework.DependencyInjection.Fallback;
-using Microsoft.Framework.Logging;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Advanced;
+using Microsoft.Framework.DependencyInjection.Fallback;
+using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
 
@@ -72,9 +72,9 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Each_context_gets_new_scoped_context_configuration()
         {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .BuildServiceProvider();
+            var services = new ServiceCollection();
+            services.AddEntityFramework();
+            var serviceProvider = services.BuildServiceProvider();
 
             DbContextConfiguration configuration;
             using (var context = new DbContext(serviceProvider))
@@ -108,9 +108,9 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Each_context_gets_new_scoped_context_configuration_with_explicit_config()
         {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .BuildServiceProvider();
+            var services = new ServiceCollection();
+            services.AddEntityFramework();
+            var serviceProvider = services.BuildServiceProvider();
 
             var entityConfig = new DbContextOptions().BuildConfiguration();
 
@@ -148,9 +148,9 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void SaveChanges_calls_DetectChanges()
         {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFramework(s => s.UseStateManager<FakeStateManager>())
-                .BuildServiceProvider();
+            var services = new ServiceCollection();
+            services.AddEntityFramework().UseStateManager<FakeStateManager>();
+            var serviceProvider = services.BuildServiceProvider();
 
             var configuration = new DbContextOptions().BuildConfiguration();
 
@@ -169,9 +169,9 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void SaveChanges_calls_state_manager_SaveChanges()
         {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFramework(s => s.UseStateManager<FakeStateManager>())
-                .BuildServiceProvider();
+            var services = new ServiceCollection();
+            services.AddEntityFramework().UseStateManager<FakeStateManager>();
+            var serviceProvider = services.BuildServiceProvider();
 
             var configuration = new DbContextOptions().BuildConfiguration();
 
@@ -424,9 +424,10 @@ namespace Microsoft.Data.Entity.Tests
             sourceMock.Setup(m => m.IsConfigured(It.IsAny<DbContextConfiguration>())).Returns(true);
             sourceMock.Setup(m => m.GetStore(It.IsAny<DbContextConfiguration>())).Returns(store.Object);
 
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFramework(s => s.ServiceCollection.AddInstance<DataStoreSource>(sourceMock.Object))
-                .BuildServiceProvider();
+            var services = new ServiceCollection();
+            services.AddEntityFramework();
+            services.AddInstance(sourceMock.Object);
+            var serviceProvider = services.BuildServiceProvider();
 
             var configuration = new DbContextOptions().BuildConfiguration();
 
@@ -458,9 +459,10 @@ namespace Microsoft.Data.Entity.Tests
             sourceMock.Setup(m => m.IsConfigured(It.IsAny<DbContextConfiguration>())).Returns(true);
             sourceMock.Setup(m => m.GetStore(It.IsAny<DbContextConfiguration>())).Returns(store.Object);
 
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFramework(s => s.ServiceCollection.AddInstance<DataStoreSource>(sourceMock.Object))
-                .BuildServiceProvider();
+            var services = new ServiceCollection();
+            services.AddEntityFramework();
+            services.AddInstance(sourceMock.Object);
+            var serviceProvider = services.BuildServiceProvider();
 
             var configuration = new DbContextOptions().BuildConfiguration();
 
@@ -554,9 +556,9 @@ namespace Microsoft.Data.Entity.Tests
         public void Can_replace_already_registered_service_with_new_service()
         {
             var factory = Mock.Of<OriginalValuesFactory>();
-            var serviceCollection = new ServiceCollection()
-                .AddEntityFramework()
-                .AddInstance<OriginalValuesFactory>(factory);
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddEntityFramework();
+            serviceCollection.AddInstance(factory);
 
             var provider = serviceCollection.BuildServiceProvider();
 
@@ -583,19 +585,21 @@ namespace Microsoft.Data.Entity.Tests
             var loggerFactory = Mock.Of<ILoggerFactory>();
             var modelSource = Mock.Of<IModelSource>();
 
-            var provider = new ServiceCollection()
-                .AddEntityFramework(s => s.UseActiveIdentityGenerators(identityGenerators)
-                    .UseClrCollectionAccessorSource(collectionSource)
-                    .UseClrPropertyGetterSource(getterSource)
-                    .UseClrPropertySetterSource(setterSource)
-                    .UseEntityKeyFactorySource(keyFactorySource)
-                    .UseEntityMaterializerSource(materializerSource)
-                    .UseDbSetFinder(setFinder)
-                    .UseDbSetInitializer(setInitializer)
-                    .UseIdentityGeneratorFactory(generatorFactory)
-                    .UseLoggerFactory(loggerFactory)
-                    .UseModelSource(modelSource))
-                .BuildServiceProvider();
+            var services = new ServiceCollection();
+            services.AddEntityFramework()
+                .UseActiveIdentityGenerators(identityGenerators)
+                .UseClrCollectionAccessorSource(collectionSource)
+                .UseClrPropertyGetterSource(getterSource)
+                .UseClrPropertySetterSource(setterSource)
+                .UseEntityKeyFactorySource(keyFactorySource)
+                .UseEntityMaterializerSource(materializerSource)
+                .UseDbSetFinder(setFinder)
+                .UseDbSetInitializer(setInitializer)
+                .UseIdentityGeneratorFactory(generatorFactory)
+                .UseLoggerFactory(loggerFactory)
+                .UseModelSource(modelSource);
+
+            var provider = services.BuildServiceProvider();
 
             using (var context = new EarlyLearningCenter(provider))
             {
@@ -618,21 +622,23 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_set_known_singleton_services_using_type_activation()
         {
-            var provider = new ServiceCollection()
-                .AddEntityFramework(s => s.UseActiveIdentityGenerators<FakeActiveIdentityGenerators>()
-                    .UseClrCollectionAccessorSource<FakeClrCollectionAccessorSource>()
-                    .UseClrPropertyGetterSource<FakeClrPropertyGetterSource>()
-                    .UseClrPropertySetterSource<FakeClrPropertySetterSource>()
-                    .UseEntityKeyFactorySource<FakeEntityKeyFactorySource>()
-                    .UseEntityMaterializerSource<FakeEntityMaterializerSource>()
-                    .UseDbSetFinder<FakeDbSetFinder>()
-                    .UseDbSetInitializer<FakeDbSetInitializer>()
-                    .UseEntityStateListener<FakeEntityStateListener>()
-                    .UseIdentityGeneratorFactory<FakeIdentityGeneratorFactory>()
-                    .UseContextSets<FakeContextSets>()
-                    .UseLoggerFactory<FakeLoggerFactory>()
-                    .UseModelSource<FakeModelSource>())
-                .BuildServiceProvider();
+            var services = new ServiceCollection();
+            services.AddEntityFramework()
+                .UseActiveIdentityGenerators<FakeActiveIdentityGenerators>()
+                .UseClrCollectionAccessorSource<FakeClrCollectionAccessorSource>()
+                .UseClrPropertyGetterSource<FakeClrPropertyGetterSource>()
+                .UseClrPropertySetterSource<FakeClrPropertySetterSource>()
+                .UseEntityKeyFactorySource<FakeEntityKeyFactorySource>()
+                .UseEntityMaterializerSource<FakeEntityMaterializerSource>()
+                .UseDbSetFinder<FakeDbSetFinder>()
+                .UseDbSetInitializer<FakeDbSetInitializer>()
+                .UseEntityStateListener<FakeEntityStateListener>()
+                .UseIdentityGeneratorFactory<FakeIdentityGeneratorFactory>()
+                .UseContextSets<FakeContextSets>()
+                .UseLoggerFactory<FakeLoggerFactory>()
+                .UseModelSource<FakeModelSource>();
+
+            var provider = services.BuildServiceProvider();
 
             using (var context = new EarlyLearningCenter(provider))
             {
@@ -655,13 +661,15 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_set_known_context_scoped_services_using_type_activation()
         {
-            var provider = new ServiceCollection()
-                .AddEntityFramework(s => s.UseStateEntryFactory<FakeStateEntryFactory>()
-                    .UseStateEntryNotifier<FakeStateEntryNotifier>()
-                    .UseContextSets<FakeContextSets>()
-                    .UseStateManager<FakeStateManager>()
-                    .UseEntityStateListener<FakeNavigationFixer>())
-                .BuildServiceProvider();
+            var services = new ServiceCollection();
+            services.AddEntityFramework()
+                .UseStateEntryFactory<FakeStateEntryFactory>()
+                .UseStateEntryNotifier<FakeStateEntryNotifier>()
+                .UseContextSets<FakeContextSets>()
+                .UseStateManager<FakeStateManager>()
+                .UseEntityStateListener<FakeNavigationFixer>();
+
+            var provider = services.BuildServiceProvider();
 
             using (var context = new EarlyLearningCenter(provider))
             {
@@ -681,25 +689,27 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Replaced_services_are_scoped_appropriately()
         {
-            var provider = new ServiceCollection().AddEntityFramework(
-                s => s.UseActiveIdentityGenerators<FakeActiveIdentityGenerators>()
-                    .UseClrCollectionAccessorSource<FakeClrCollectionAccessorSource>()
-                    .UseClrPropertyGetterSource<FakeClrPropertyGetterSource>()
-                    .UseClrPropertySetterSource<FakeClrPropertySetterSource>()
-                    .UseEntityKeyFactorySource<FakeEntityKeyFactorySource>()
-                    .UseEntityMaterializerSource<FakeEntityMaterializerSource>()
-                    .UseDbSetFinder<FakeDbSetFinder>()
-                    .UseDbSetInitializer<FakeDbSetInitializer>()
-                    .UseEntityStateListener<FakeEntityStateListener>()
-                    .UseIdentityGeneratorFactory<FakeIdentityGeneratorFactory>()
-                    .UseLoggerFactory<FakeLoggerFactory>()
-                    .UseModelSource<FakeModelSource>()
-                    .UseStateEntryFactory<FakeStateEntryFactory>()
-                    .UseStateEntryNotifier<FakeStateEntryNotifier>()
-                    .UseContextSets<FakeContextSets>()
-                    .UseStateManager<FakeStateManager>()
-                    .UseEntityStateListener<FakeNavigationFixer>())
-                .BuildServiceProvider();
+            var services = new ServiceCollection();
+            services.AddEntityFramework()
+                .UseActiveIdentityGenerators<FakeActiveIdentityGenerators>()
+                .UseClrCollectionAccessorSource<FakeClrCollectionAccessorSource>()
+                .UseClrPropertyGetterSource<FakeClrPropertyGetterSource>()
+                .UseClrPropertySetterSource<FakeClrPropertySetterSource>()
+                .UseEntityKeyFactorySource<FakeEntityKeyFactorySource>()
+                .UseEntityMaterializerSource<FakeEntityMaterializerSource>()
+                .UseDbSetFinder<FakeDbSetFinder>()
+                .UseDbSetInitializer<FakeDbSetInitializer>()
+                .UseEntityStateListener<FakeEntityStateListener>()
+                .UseIdentityGeneratorFactory<FakeIdentityGeneratorFactory>()
+                .UseLoggerFactory<FakeLoggerFactory>()
+                .UseModelSource<FakeModelSource>()
+                .UseStateEntryFactory<FakeStateEntryFactory>()
+                .UseStateEntryNotifier<FakeStateEntryNotifier>()
+                .UseContextSets<FakeContextSets>()
+                .UseStateManager<FakeStateManager>()
+                .UseEntityStateListener<FakeNavigationFixer>();
+
+            var provider = services.BuildServiceProvider();
 
             StateEntryFactory stateEntryFactory;
             StateEntryNotifier stateEntryNotifier;
@@ -780,8 +790,9 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_get_replaced_singleton_service_from_scoped_configuration()
         {
-            var provider = new ServiceCollection().AddEntityFramework(
-                s => s.UseEntityMaterializerSource<FakeEntityMaterializerSource>()).BuildServiceProvider();
+            var services = new ServiceCollection();
+            services.AddEntityFramework().UseEntityMaterializerSource<FakeEntityMaterializerSource>();
+            var provider = services.BuildServiceProvider();
 
             using (var context = new EarlyLearningCenter(provider))
             {

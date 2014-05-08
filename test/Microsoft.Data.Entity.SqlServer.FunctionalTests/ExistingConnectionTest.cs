@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Open Technologies, Inc.
 // All Rights Reserved
-//
+// 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-//
+// 
 // http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR
 // CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING
 // WITHOUT LIMITATION ANY IMPLIED WARRANTIES OR CONDITIONS OF
@@ -20,10 +20,9 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
-using Microsoft.Data.Entity;
-using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
@@ -47,9 +46,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private static async Task Can_use_an_existing_closed_connection_test(bool openConnection)
         {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFramework(s => s.AddSqlServer())
-                .BuildServiceProvider();
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddEntityFramework().AddSqlServer();
+            var serviceProvider = serviceCollection.BuildServiceProvider();
 
             using (await TestDatabase.Northwind())
             {
@@ -65,16 +64,16 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     }
 
                     connection.StateChange += (_, a) =>
-                    {
-                        if (a.CurrentState == ConnectionState.Open)
                         {
-                            openCount++;
-                        }
-                        else if (a.CurrentState == ConnectionState.Closed)
-                        {
-                            closeCount++;
-                        }
-                    };
+                            if (a.CurrentState == ConnectionState.Open)
+                            {
+                                openCount++;
+                            }
+                            else if (a.CurrentState == ConnectionState.Closed)
+                            {
+                                closeCount++;
+                            }
+                        };
 #if NET45
                     connection.Disposed += (_, __) => disposeCount++;
 #endif
