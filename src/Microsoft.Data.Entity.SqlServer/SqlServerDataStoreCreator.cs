@@ -47,6 +47,7 @@ namespace Microsoft.Data.Entity.SqlServer
                 ClearPool();
             }
 
+            // TODO: If this fails, we're left with an empty database
             _statementExecutor.ExecuteNonQuery(_connection.DbConnection, CreateSchemaCommands(model));
         }
 

@@ -525,6 +525,7 @@ namespace Microsoft.Data.Entity.SqlServer
 
             // TODO Only supports types required for MusicStore
             // TODO need to take column facets (max length etc.) in to account when they are available
+            // TODO: Nullable types
             if (column.ClrType == typeof(int))
             {
                 return "int";

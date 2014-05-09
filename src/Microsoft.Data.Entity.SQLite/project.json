@@ -3,9 +3,21 @@
   "compilationOptions": {
     "warningsAsErrors": true
   },
+  "dependencies": {
+    "Microsoft.Data.Common": "0.1-alpha-*",
+    "Microsoft.Data.Entity": "",
+    "Microsoft.Data.Entity.Migrations": "",
+    "Microsoft.Data.Entity.Relational": "",
+    "Microsoft.Data.SQLite": "0.1-alpha-*",
+    "Microsoft.Framework.DependencyInjection": "0.1-alpha-*"
+  },
   "code": "**\\*.cs;..\\Shared\\*.cs",
   "configurations": {
-    "net45": {},
+    "net451": {
+      "dependencies": {
+        "System.Data": ""
+      }
+    },
     "k10": {
       "dependencies": {
         "System.Diagnostics.Debug": "4.0.10.0",
