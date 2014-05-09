@@ -5,7 +5,7 @@ using Microsoft.Data.SQLite.Interop;
 
 namespace Microsoft.Data.SQLite
 {
-    internal enum SQLiteType
+    public enum SQLiteType
     {
         Integer = Constants.SQLITE_INTEGER,
         Float = Constants.SQLITE_FLOAT,

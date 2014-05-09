@@ -98,7 +98,7 @@ namespace Microsoft.Data.SQLite
 
         public override bool NextResult()
         {
-            throw new NotSupportedException();
+            return false;
         }
 
         public override void Close()
@@ -151,9 +151,9 @@ namespace Microsoft.Data.SQLite
             return GetTypeMap(ordinal).ClrType;
         }
 
-        private TypeMap GetTypeMap(int ordinal)
+        private SQLiteTypeMap GetTypeMap(int ordinal)
         {
-            return TypeMap.FromDeclaredType(GetDataTypeName(ordinal), GetSQLiteType(ordinal));
+            return SQLiteTypeMap.FromDeclaredType(GetDataTypeName(ordinal), GetSQLiteType(ordinal));
         }
 
         private SQLiteType GetSQLiteType(int ordinal)
@@ -268,7 +268,7 @@ namespace Microsoft.Data.SQLite
         {
             CheckClosed("GetFieldValue");
 
-            var map = TypeMap.FromClrType<T>();
+            var map = SQLiteTypeMap.FromClrType<T>();
             var value = ColumnReader.Read(map.SQLiteType, _command.Handle, ordinal);
 
             return (T)map.FromInterop(value);

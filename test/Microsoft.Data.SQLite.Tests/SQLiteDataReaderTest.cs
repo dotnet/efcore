@@ -133,11 +133,9 @@ namespace Microsoft.Data.SQLite
         }
 
         [Fact]
-        public void NextResult_not_supported()
+        public void NextResult_returns_false()
         {
-            var reader = CreateReader();
-
-            Assert.Throws<NotSupportedException>(() => reader.NextResult());
+            Assert.False(CreateReader().NextResult());
         }
 
         [Fact]

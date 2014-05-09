@@ -104,7 +104,7 @@ namespace Microsoft.Data.SQLite
             var index = NativeMethods.sqlite3_bind_parameter_index(handle, _parameterName);
             if (index != 0)
             {
-                var typeMap = TypeMap.FromClrType(_value.GetType());
+                var typeMap = SQLiteTypeMap.FromClrType(_value.GetType());
                 switch (typeMap.SQLiteType)
                 {
                     case SQLiteType.Integer:

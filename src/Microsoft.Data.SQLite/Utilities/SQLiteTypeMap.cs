@@ -9,17 +9,17 @@ using System.Linq;
 
 namespace Microsoft.Data.SQLite.Utilities
 {
-    // TODO: Make this configurable
+    // TODO: Make this more configurable
     // TODO: Avoid boxing #Perf
     // TODO: Compute and cache lookups #Perf
-    internal class TypeMap
+    public class SQLiteTypeMap
     {
-        private static readonly ICollection<TypeMap> _typeMaps = new List<TypeMap>();
-        private static readonly TypeMap _null = Add<DBNull>(Enumerable.Empty<string>());
-        private static readonly TypeMap _integer = Add<long>(new[] { "INTEGER" });
-        private static readonly TypeMap _real = Add<double>(new[] { "FLOAT", "REAL" });
-        private static readonly TypeMap _text = Add<string>(new[] { "CHAR", "NCHAR", "NVARCHAR", "VARCHAR" });
-        private static readonly TypeMap _blob = Add<byte[]>(new[] { "BLOB" });
+        private static readonly ICollection<SQLiteTypeMap> _typeMaps = new List<SQLiteTypeMap>();
+        private static readonly SQLiteTypeMap _null = Add<DBNull>(Enumerable.Empty<string>());
+        private static readonly SQLiteTypeMap _integer = Add<long>(new[] { "INTEGER" });
+        private static readonly SQLiteTypeMap _real = Add<double>(new[] { "FLOAT", "REAL" });
+        private static readonly SQLiteTypeMap _text = Add<string>(new[] { "CHAR", "NCHAR", "NVARCHAR", "VARCHAR" });
+        private static readonly SQLiteTypeMap _blob = Add<byte[]>(new[] { "BLOB" });
 
         private readonly Type _clrType;
         private readonly SQLiteType _sqliteType;
@@ -27,7 +27,7 @@ namespace Microsoft.Data.SQLite.Utilities
         private readonly Func<object, object> _fromInterop;
         private readonly IEnumerable<string> _declaredTypes;
 
-        static TypeMap()
+        static SQLiteTypeMap()
         {
             Add((bool b) => b ? 1L : 0L, l => l != 0, new[] { "BIT" });
             Add((byte b) => (long)b, l => (byte)l, new[] { "TINYINT" });
@@ -45,7 +45,7 @@ namespace Microsoft.Data.SQLite.Utilities
             Add((ulong l) => unchecked((long)l), l => unchecked((ulong)l), new[] { "ULONG" });
         }
 
-        private TypeMap(Type clrType, SQLiteType sqliteType, IEnumerable<string> declaredTypes)
+        private SQLiteTypeMap(Type clrType, SQLiteType sqliteType, IEnumerable<string> declaredTypes)
         {
             Debug.Assert(clrType != null, "clrType is null.");
             Debug.Assert(declaredTypes != null, "declaredTypes is null.");
@@ -55,7 +55,7 @@ namespace Microsoft.Data.SQLite.Utilities
             _declaredTypes = declaredTypes;
         }
 
-        private TypeMap(
+        private SQLiteTypeMap(
                 Type clrType,
                 SQLiteType sqliteType,
                 Func<object, object> toInterop,
@@ -80,9 +80,14 @@ namespace Microsoft.Data.SQLite.Utilities
             get { return _sqliteType; }
         }
 
-        public static TypeMap Add<T>(IEnumerable<string> declaredTypes)
+        public IEnumerable<string> DeclaredTypes
         {
-            var map = new TypeMap(
+            get { return _declaredTypes; }
+        }
+
+        public static SQLiteTypeMap Add<T>(IEnumerable<string> declaredTypes)
+        {
+            var map = new SQLiteTypeMap(
                 typeof(T),
                 GetSQLiteType<T>(),
                 declaredTypes);
@@ -91,13 +96,13 @@ namespace Microsoft.Data.SQLite.Utilities
             return map;
         }
 
-        public static TypeMap Add<T, TInterop>(Func<T, TInterop> toInterop, Func<TInterop, T> fromInterop, IEnumerable<string> declaredTypes)
+        public static SQLiteTypeMap Add<T, TInterop>(Func<T, TInterop> toInterop, Func<TInterop, T> fromInterop, IEnumerable<string> declaredTypes)
         {
             Debug.Assert(toInterop != null, "toInterop is null.");
             Debug.Assert(fromInterop != null, "fromInterop is null.");
             Debug.Assert(declaredTypes != null, "declaredTypes is null.");
 
-            var map = new TypeMap(
+            var map = new SQLiteTypeMap(
                 typeof(T),
                 GetSQLiteType<TInterop>(),
                 o => toInterop((T)o),
@@ -124,12 +129,12 @@ namespace Microsoft.Data.SQLite.Utilities
             return SQLiteType.Blob;
         }
 
-        public static TypeMap FromClrType<T>()
+        public static SQLiteTypeMap FromClrType<T>()
         {
             return FromClrType(typeof(T));
         }
 
-        public static TypeMap FromClrType(Type type)
+        public static SQLiteTypeMap FromClrType(Type type)
         {
             // TODO: Consider derived types
             var map = _typeMaps.FirstOrDefault(m => m._clrType == type);
@@ -139,9 +144,9 @@ namespace Microsoft.Data.SQLite.Utilities
             return map;
         }
 
-        public static TypeMap FromDeclaredType(string declaredType, SQLiteType sqliteType)
+        public static SQLiteTypeMap FromDeclaredType(string declaredType, SQLiteType sqliteType)
         {
-            TypeMap map = null;
+            SQLiteTypeMap map = null;
             if (declaredType != null)
             {
                 // Strip length, precision & scale
@@ -158,7 +163,7 @@ namespace Microsoft.Data.SQLite.Utilities
             return map;
         }
 
-        public static TypeMap FromSQLiteType(SQLiteType type)
+        public static SQLiteTypeMap FromSQLiteType(SQLiteType type)
         {
             switch (type)
             {

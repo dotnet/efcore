@@ -25,7 +25,7 @@
     <Compile Include="SQLiteExceptionTest.cs" />
     <Compile Include="SQLiteParameterTest.cs" />
     <Compile Include="SQLiteTransactionTest.cs" />
-    <Compile Include="Utilities\TypeMapTest.cs" />
+    <Compile Include="Utilities\SQLiteTypeMapTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="project.json" />

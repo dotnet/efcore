@@ -254,7 +254,7 @@ namespace Microsoft.Data.SQLite
 
                 var declaredType = NativeMethods.sqlite3_column_decltype(_handle, 0);
                 var sqliteType = (SQLiteType)NativeMethods.sqlite3_column_type(_handle, 0);
-                var map = TypeMap.FromDeclaredType(declaredType, sqliteType);
+                var map = SQLiteTypeMap.FromDeclaredType(declaredType, sqliteType);
                 var value = ColumnReader.Read(map.SQLiteType, _handle, 0);
 
                 return map.FromInterop(value);

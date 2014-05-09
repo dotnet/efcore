@@ -40,7 +40,7 @@
     <Compile Include="Utilities\DbConnectionExtensions.cs" />
     <Compile Include="Utilities\NativeLibraryLoader.cs" />
     <Compile Include="Utilities\ServiceProviderExtensions.cs" />
-    <Compile Include="Utilities\TypeMap.cs" />
+    <Compile Include="Utilities\SQLiteTypeMap.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="build\net451\Microsoft.Data.SQLite.targets" />

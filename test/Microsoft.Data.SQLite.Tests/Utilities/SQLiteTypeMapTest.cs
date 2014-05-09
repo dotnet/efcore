@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Microsoft.Data.SQLite.Utilities
 {
-    public class TypeMapTest
+    public class SQLiteTypeMapTest
     {
         [Theory]
         [InlineData(true)]
@@ -20,7 +20,7 @@ namespace Microsoft.Data.SQLite.Utilities
         [InlineData((ushort)1)]
         public void FromClrType_maps_integers(object value)
         {
-            var map = TypeMap.FromClrType(value.GetType());
+            var map = SQLiteTypeMap.FromClrType(value.GetType());
 
             Assert.Equal(SQLiteType.Integer, map.SQLiteType);
             Assert.Equal(1L, map.ToInterop(value));
@@ -32,7 +32,7 @@ namespace Microsoft.Data.SQLite.Utilities
         [InlineData(3.14f)]
         public void FromClrType_maps_floats(object value)
         {
-            var map = TypeMap.FromClrType(value.GetType());
+            var map = SQLiteTypeMap.FromClrType(value.GetType());
 
             Assert.Equal(SQLiteType.Float, map.SQLiteType);
             Assert.Equal(3.14, (double)map.ToInterop(value), precision: 6);
@@ -44,7 +44,7 @@ namespace Microsoft.Data.SQLite.Utilities
         {
             var value = "test";
 
-            var map = TypeMap.FromClrType<string>();
+            var map = SQLiteTypeMap.FromClrType<string>();
 
             Assert.Equal(SQLiteType.Text, map.SQLiteType);
             Assert.Equal("test", map.ToInterop(value));
@@ -56,7 +56,7 @@ namespace Microsoft.Data.SQLite.Utilities
         {
             var value = new byte[] { 0x7e, 0x57 };
 
-            var map = TypeMap.FromClrType<byte[]>();
+            var map = SQLiteTypeMap.FromClrType<byte[]>();
 
             Assert.Equal(SQLiteType.Blob, map.SQLiteType);
             Assert.Equal(new byte[] { 0x7e, 0x57 }, map.ToInterop(value));
@@ -68,7 +68,7 @@ namespace Microsoft.Data.SQLite.Utilities
         {
             var value = DBNull.Value;
 
-            var map = TypeMap.FromClrType<DBNull>();
+            var map = SQLiteTypeMap.FromClrType<DBNull>();
 
             Assert.Equal(SQLiteType.Null, map.SQLiteType);
             Assert.Equal(DBNull.Value, map.ToInterop(value));
@@ -78,7 +78,7 @@ namespace Microsoft.Data.SQLite.Utilities
         [Fact]
         public void FromClrType_throws_when_unknown()
         {
-            var ex = Assert.Throws<ArgumentException>(() => TypeMap.FromClrType(GetType()));
+            var ex = Assert.Throws<ArgumentException>(() => SQLiteTypeMap.FromClrType(GetType()));
             Assert.Equal(Strings.FormatUnknownDataType(GetType()), ex.Message);
         }
 
@@ -107,7 +107,7 @@ namespace Microsoft.Data.SQLite.Utilities
         [InlineData("VARCHAR", SQLiteType.Text, typeof(string))]
         public void FromDeclaredType_maps_types(string declaredType, int sqliteType, Type clrType)
         {
-            var map = TypeMap.FromDeclaredType(declaredType, (SQLiteType)sqliteType);
+            var map = SQLiteTypeMap.FromDeclaredType(declaredType, (SQLiteType)sqliteType);
 
             Assert.Equal(clrType, map.ClrType);
         }
@@ -115,7 +115,7 @@ namespace Microsoft.Data.SQLite.Utilities
         [Fact]
         public void FromDeclaredType_ignores_facets()
         {
-            var map = TypeMap.FromDeclaredType("NVARCHAR(4000)", SQLiteType.Text);
+            var map = SQLiteTypeMap.FromDeclaredType("NVARCHAR(4000)", SQLiteType.Text);
 
             Assert.Equal(typeof(string), map.ClrType);
         }
@@ -123,7 +123,7 @@ namespace Microsoft.Data.SQLite.Utilities
         [Fact]
         public void FromDeclaredType_ignores_sqlitetype()
         {
-            var map = TypeMap.FromDeclaredType("INTEGER", SQLiteType.Text);
+            var map = SQLiteTypeMap.FromDeclaredType("INTEGER", SQLiteType.Text);
 
             Assert.Equal(typeof(long), map.ClrType);
         }
@@ -131,7 +131,7 @@ namespace Microsoft.Data.SQLite.Utilities
         [Fact]
         public void FromDeclaredType_falls_back_using_sqlitetype()
         {
-            var map = TypeMap.FromDeclaredType("UNKNOWN", SQLiteType.Integer);
+            var map = SQLiteTypeMap.FromDeclaredType("UNKNOWN", SQLiteType.Integer);
 
             Assert.Equal(typeof(long), map.ClrType);
         }
@@ -144,7 +144,7 @@ namespace Microsoft.Data.SQLite.Utilities
         [InlineData(SQLiteType.Blob, typeof(byte[]))]
         public void FromSQLiteType_maps_types(int sqliteType, Type clrType)
         {
-            var map = TypeMap.FromSQLiteType((SQLiteType)sqliteType);
+            var map = SQLiteTypeMap.FromSQLiteType((SQLiteType)sqliteType);
 
             Assert.Equal(clrType, map.ClrType);
         }
@@ -154,7 +154,7 @@ namespace Microsoft.Data.SQLite.Utilities
         {
             var value = new DateTime(2014, 3, 19, 14, 18, 58, 213);
 
-            var map = TypeMap.FromClrType<DateTime>();
+            var map = SQLiteTypeMap.FromClrType<DateTime>();
 
             Assert.Equal(SQLiteType.Text, map.SQLiteType);
             Assert.Equal("2014-03-19T14:18:58.2130000", map.ToInterop(value));
@@ -165,7 +165,7 @@ namespace Microsoft.Data.SQLite.Utilities
         {
             var value = new DateTimeOffset(2014, 3, 19, 14, 18, 58, 213, new TimeSpan(-7, 0, 0));
 
-            var map = TypeMap.FromClrType<DateTimeOffset>();
+            var map = SQLiteTypeMap.FromClrType<DateTimeOffset>();
 
             Assert.Equal(SQLiteType.Text, map.SQLiteType);
             Assert.Equal("2014-03-19T14:18:58.2130000-07:00", map.ToInterop(value));
@@ -176,7 +176,7 @@ namespace Microsoft.Data.SQLite.Utilities
         {
             var value = 3.14m;
 
-            var map = TypeMap.FromClrType<decimal>();
+            var map = SQLiteTypeMap.FromClrType<decimal>();
 
             Assert.Equal(SQLiteType.Text, map.SQLiteType);
             Assert.Equal("3.14", map.ToInterop(value));
@@ -187,7 +187,7 @@ namespace Microsoft.Data.SQLite.Utilities
         {
             var value = new Guid("36127aab-3769-45b5-8804-f2d447dc001a");
 
-            var map = TypeMap.FromClrType<Guid>();
+            var map = SQLiteTypeMap.FromClrType<Guid>();
 
             Assert.Equal(SQLiteType.Blob, map.SQLiteType);
             Assert.Equal(
@@ -207,7 +207,7 @@ namespace Microsoft.Data.SQLite.Utilities
         {
             var value = new TimeSpan(19, 14, 18, 58, 213);
 
-            var map = TypeMap.FromClrType<TimeSpan>();
+            var map = SQLiteTypeMap.FromClrType<TimeSpan>();
 
             Assert.Equal(SQLiteType.Text, map.SQLiteType);
             Assert.Equal("19.14:18:58.2130000", map.ToInterop(value));
@@ -218,7 +218,7 @@ namespace Microsoft.Data.SQLite.Utilities
         {
             var value = 0xFFFFFFFFFFFFFFFF;
 
-            var map = TypeMap.FromClrType<ulong>();
+            var map = SQLiteTypeMap.FromClrType<ulong>();
 
             Assert.Equal(-1L, map.ToInterop(value));
         }
@@ -228,7 +228,7 @@ namespace Microsoft.Data.SQLite.Utilities
         {
             var value = new DateTime(2014, 3, 19, 14, 18, 58);
 
-            var map = TypeMap.FromClrType<DateTime>();
+            var map = SQLiteTypeMap.FromClrType<DateTime>();
 
             Assert.Equal(value, map.FromInterop("2014-03-19 14:18:58"));
         }
@@ -238,7 +238,7 @@ namespace Microsoft.Data.SQLite.Utilities
         {
             var value = new DateTimeOffset(2014, 3, 19, 14, 18, 58, 213, new TimeSpan(-7, 0, 0));
 
-            var map = TypeMap.FromClrType<DateTimeOffset>();
+            var map = SQLiteTypeMap.FromClrType<DateTimeOffset>();
 
             Assert.Equal(value, map.FromInterop("2014-03-19T14:18:58.2130000-07:00"));
         }
@@ -248,7 +248,7 @@ namespace Microsoft.Data.SQLite.Utilities
         {
             var value = 3.14m;
 
-            var map = TypeMap.FromClrType<decimal>();
+            var map = SQLiteTypeMap.FromClrType<decimal>();
 
             Assert.Equal(value, map.FromInterop("3.14"));
         }
@@ -258,7 +258,7 @@ namespace Microsoft.Data.SQLite.Utilities
         {
             var value = new Guid("36127aab-3769-45b5-8804-f2d447dc001a");
 
-            var map = TypeMap.FromClrType<Guid>();
+            var map = SQLiteTypeMap.FromClrType<Guid>();
 
             Assert.Equal(
                 value,
@@ -278,7 +278,7 @@ namespace Microsoft.Data.SQLite.Utilities
         {
             var value = new TimeSpan(14, 18, 58);
 
-            var map = TypeMap.FromClrType<TimeSpan>();
+            var map = SQLiteTypeMap.FromClrType<TimeSpan>();
 
             Assert.Equal(SQLiteType.Text, map.SQLiteType);
             Assert.Equal(value, map.FromInterop("14:18:58"));
@@ -289,7 +289,7 @@ namespace Microsoft.Data.SQLite.Utilities
         {
             var value = 0xFFFFFFFFFFFFFFFF;
 
-            var map = TypeMap.FromClrType<ulong>();
+            var map = SQLiteTypeMap.FromClrType<ulong>();
 
             Assert.Equal(value, map.FromInterop(-1L));
         }
