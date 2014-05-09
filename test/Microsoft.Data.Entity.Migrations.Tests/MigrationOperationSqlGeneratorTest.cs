@@ -61,7 +61,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             Assert.Equal(
                 @"CREATE TABLE ""dbo"".""MyTable"" (
     ""Foo"" int NOT NULL DEFAULT 5,
-    ""Bar"" int
+    ""Bar"" int,
     CONSTRAINT ""MyPK"" PRIMARY KEY NONCLUSTERED (""Foo"", ""Bar"")
 )",
                 MigrationOperationSqlGenerator.Generate(
@@ -86,7 +86,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             Assert.Equal(
                 @"CREATE TABLE ""dbo"".""MyTable"" (
     ""Foo"" int NOT NULL IDENTITY,
-    ""Bar"" int
+    ""Bar"" int,
     CONSTRAINT ""MyPK"" PRIMARY KEY NONCLUSTERED (""Foo"")
 )",
                 MigrationOperationSqlGenerator.Generate(

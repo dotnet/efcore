@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 @"IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = N'MyTable' AND schema_id = SCHEMA_ID(N'dbo'))
     CREATE TABLE ""dbo"".""MyTable"" (
         ""Foo"" int NOT NULL DEFAULT 5,
-        ""Bar"" int
+        ""Bar"" int,
         CONSTRAINT ""MyPK"" PRIMARY KEY NONCLUSTERED (""Foo"", ""Bar"")
     )",
                 SqlServerMigrationOperationSqlGenerator.Generate(

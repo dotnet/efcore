@@ -129,7 +129,7 @@ namespace Microsoft.Data.Entity.Migrations
 
                 if (primaryKey != null)
                 {
-                    stringBuilder.AppendLine();
+                    stringBuilder.AppendLine(",");
 
                     GeneratePrimaryKey(
                         primaryKey.Name,
@@ -560,6 +560,7 @@ namespace Microsoft.Data.Entity.Migrations
                 .Append(DelimitIdentifier(primaryKeyName))
                 .Append(" PRIMARY KEY");
 
+            // TODO: Not ANSI-99
             if (!isClustered)
             {
                 stringBuilder.Append(" NONCLUSTERED");
