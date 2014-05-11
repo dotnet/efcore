@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.Migrations.Model
         private readonly SchemaQualifiedName _tableName;
         private readonly string _primaryKeyName;
         private readonly IReadOnlyList<string> _columnNames;
-        private readonly bool _isClustered;
+        private readonly bool _isClustered = true;
 
         public AddPrimaryKeyOperation(
             SchemaQualifiedName tableName,

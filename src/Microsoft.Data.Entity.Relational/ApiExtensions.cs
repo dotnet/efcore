@@ -112,7 +112,7 @@ namespace Microsoft.Data.Entity.Metadata
             if (isClusteredString == null
                 || !bool.TryParse(isClusteredString, out isClustered))
             {
-                isClustered = false;
+                isClustered = true;
             }
 
             return isClustered;
