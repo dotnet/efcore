@@ -135,7 +135,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             Assert.Equal(
                 @"IF NOT EXISTS (SELECT * FROM sys.default_constraints WHERE parent_object_id = OBJECT_ID(N'dbo.MyTable') AND COL_NAME(parent_object_id, parent_column_id) = N'Foo')
-    ALTER TABLE [dbo].[MyTable] ADD CONSTRAINT ""DF_dbo.MyTable_Foo"" DEFAULT 5 FOR [Foo]",
+    ALTER TABLE [dbo].[MyTable] ADD CONSTRAINT [DF_dbo.MyTable_Foo] DEFAULT 5 FOR [Foo]",
                 SqlServerMigrationOperationSqlGenerator.Generate(
                     new AddDefaultConstraintOperation("dbo.MyTable", "Foo", 5, null), generateIdempotentSql: true).Sql);
         }
@@ -423,7 +423,7 @@ IF @var0 IS NOT NULL
         {
             var sqlGenerator = new SqlServerMigrationOperationSqlGenerator();
 
-            Assert.Equal("foo[]bar", sqlGenerator.EscapeIdentifier("foo[]]bar"));
+            Assert.Equal("foo[]]]]bar", sqlGenerator.EscapeIdentifier("foo[]]bar"));
         }
 
         [Fact]
