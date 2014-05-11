@@ -816,5 +816,19 @@ namespace Microsoft.Data.Entity.SqlServer
                 .Append(constraintNameVariable)
                 .Append(" + '\"')");
         }
+
+        public override string DelimitIdentifier(string identifier)
+        {
+            Check.NotEmpty(identifier, "identifier");
+
+            return "[" + EscapeIdentifier(identifier) + "]";
+        }
+
+        public override string EscapeIdentifier(string identifier)
+        {
+            Check.NotEmpty(identifier, "identifier");
+
+            return identifier.Replace("]", "]]");
+        }
     }
 }

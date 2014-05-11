@@ -41,10 +41,13 @@ namespace Microsoft.Data.Entity.SqlServer
 
         public override void Create(IModel model)
         {
-            using (var masterConnection = _connection.CreateMasterConnection())
+            if (!Exists())
             {
-                _statementExecutor.ExecuteNonQuery(masterConnection, CreateCreateOperations());
-                ClearPool();
+                using (var masterConnection = _connection.CreateMasterConnection())
+                {
+                    _statementExecutor.ExecuteNonQuery(masterConnection, CreateCreateOperations());
+                    ClearPool();
+                }
             }
 
             // TODO: If this fails, we're left with an empty database
@@ -53,10 +56,13 @@ namespace Microsoft.Data.Entity.SqlServer
 
         public override async Task CreateAsync(IModel model, CancellationToken cancellationToken = default(CancellationToken))
         {
-            using (var masterConnection = _connection.CreateMasterConnection())
+            if (!await ExistsAsync(cancellationToken))
             {
-                await _statementExecutor.ExecuteNonQueryAsync(masterConnection, CreateCreateOperations(), cancellationToken);
-                ClearPool();
+                using (var masterConnection = _connection.CreateMasterConnection())
+                {
+                    await _statementExecutor.ExecuteNonQueryAsync(masterConnection, CreateCreateOperations(), cancellationToken);
+                    ClearPool();
+                }
             }
 
             await _statementExecutor.ExecuteNonQueryAsync(_connection.DbConnection, CreateSchemaCommands(model), cancellationToken);
@@ -77,7 +83,7 @@ namespace Microsoft.Data.Entity.SqlServer
                     new CreateDatabaseOperation(databaseName)
                 };
 
-            var masterCommands = _sqlGenerator.Generate(operations, generateIdempotentSql: true);
+            var masterCommands = _sqlGenerator.Generate(operations, generateIdempotentSql: false);
             return masterCommands;
         }
 
@@ -161,6 +167,11 @@ namespace Microsoft.Data.Entity.SqlServer
 
         public override void Delete()
         {
+            if (!Exists())
+            {
+                return;
+            }
+
             ClearAllPools();
 
             using (var masterConnection = _connection.CreateMasterConnection())
@@ -171,6 +182,11 @@ namespace Microsoft.Data.Entity.SqlServer
 
         public override async Task DeleteAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
+            if (!await ExistsAsync(cancellationToken))
+            {
+                return;
+            }
+
             ClearAllPools();
 
             using (var masterConnection = _connection.CreateMasterConnection())
@@ -187,7 +203,7 @@ namespace Microsoft.Data.Entity.SqlServer
                     new DropDatabaseOperation(_connection.DbConnection.Database)
                 };
 
-            var masterCommands = _sqlGenerator.Generate(operations, generateIdempotentSql: true);
+            var masterCommands = _sqlGenerator.Generate(operations, generateIdempotentSql: false);
             return masterCommands;
         }
 
