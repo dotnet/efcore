@@ -6,6 +6,7 @@ using System.Linq;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Model;
 using Xunit;
+using Moq;
 
 namespace Microsoft.Data.Entity.Relational.Tests
 {
@@ -72,6 +73,12 @@ namespace Microsoft.Data.Entity.Relational.Tests
         {
             Assert.Equal("table",
                 Assert.Throws<ArgumentNullException>(() => MetadataExtensions.GetStoreGeneratedColumns(null)).ParamName);
+        }
+
+        [Fact]
+        public void IsClustered_returns_true_by_default()
+        {
+            Assert.True(new Mock<Key>().Object.IsClustered());
         }
     }
 }

@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.Relational.Model
     {
         private readonly string _name;
         private readonly IReadOnlyList<Column> _columns;
-        private readonly bool _isClustered;
+        private readonly bool _isClustered = true;
 
         public PrimaryKey(
             [NotNull] string name,
