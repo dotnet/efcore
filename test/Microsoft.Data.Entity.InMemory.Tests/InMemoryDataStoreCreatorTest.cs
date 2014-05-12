@@ -16,8 +16,26 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         {
             var creator = new InMemoryDataStoreCreator(Mock.Of<InMemoryDataStore>());
 
-            creator.Create(Mock.Of<IModel>());
-            await creator.CreateAsync(Mock.Of<IModel>());
+            creator.Create();
+            await creator.CreateAsync();
+        }
+
+        [Fact]
+        public async Task CreateTables_is_no_op()
+        {
+            var creator = new InMemoryDataStoreCreator(Mock.Of<InMemoryDataStore>());
+
+            creator.CreateTables(Mock.Of<IModel>());
+            await creator.CreateTablesAsync(Mock.Of<IModel>());
+        }
+
+        [Fact]
+        public async Task EnsureCreated_is_no_op_and_returns_false()
+        {
+            var creator = new InMemoryDataStoreCreator(Mock.Of<InMemoryDataStore>());
+
+            Assert.False(creator.EnsureCreated(Mock.Of<IModel>()));
+            Assert.False(await creator.EnsureCreatedAsync(Mock.Of<IModel>()));
         }
 
         [Fact]
@@ -30,18 +48,39 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         }
 
         [Fact]
+        public async Task HasTables_returns_true()
+        {
+            var creator = new InMemoryDataStoreCreator(Mock.Of<InMemoryDataStore>());
+
+            Assert.True(creator.HasTables());
+            Assert.True(await creator.HasTablesAsync());
+        }
+
+        [Fact]
         public async Task Delete_clears_all_in_memory_data()
         {
-            await Delete_clears_all_in_memory_data_test(async: false);
+            await Delete_clears_all_in_memory_data_test(useEnsureMethod: false, async: false);
         }
 
         [Fact]
         public async Task DeleteAsync_clears_all_in_memory_data()
         {
-            await Delete_clears_all_in_memory_data_test(async: true);
+            await Delete_clears_all_in_memory_data_test(useEnsureMethod: false, async: true);
         }
 
-        private static async Task Delete_clears_all_in_memory_data_test(bool async)
+        [Fact]
+        public async Task EnsureDeleted_clears_all_in_memory_data_and_returns_true()
+        {
+            await Delete_clears_all_in_memory_data_test(useEnsureMethod: true, async: false);
+        }
+
+        [Fact]
+        public async Task EnsureDeletedAsync_clears_all_in_memory_data_and_returns_true()
+        {
+            await Delete_clears_all_in_memory_data_test(useEnsureMethod: true, async: true);
+        }
+
+        private static async Task Delete_clears_all_in_memory_data_test(bool useEnsureMethod, bool async)
         {
             using (var context = new FraggleContext())
             {
@@ -65,11 +104,25 @@ namespace Microsoft.Data.Entity.InMemory.Tests
 
                 if (async)
                 {
-                    await context.Database.DeleteAsync();
+                    if (useEnsureMethod)
+                    {
+                        Assert.True(await context.Database.EnsureDeletedAsync());
+                    }
+                    else
+                    {
+                        await context.Database.DeleteAsync();
+                    }
                 }
                 else
                 {
-                    context.Database.Delete();
+                    if (useEnsureMethod)
+                    {
+                        Assert.True(context.Database.EnsureDeleted());
+                    }
+                    else
+                    {
+                        context.Database.Delete();
+                    }
                 }
 
                 // Exists still returns true because in-memory database is always available

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -13,13 +14,47 @@ namespace Microsoft.Data.Entity.Relational
 {
     public class SqlStatementExecutor
     {
-        public virtual async Task ExecuteNonQueryAsync(
+        public virtual Task ExecuteNonQueryAsync(
             [NotNull] DbConnection connection,
             [NotNull] IEnumerable<SqlStatement> statements,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(connection, "connection");
             Check.NotNull(statements, "statements");
+
+            return ExecuteAsync(
+                connection,
+                async () =>
+                    {
+                        foreach (var statement in statements)
+                        {
+                            await CreateCommand(connection, statement).ExecuteNonQueryAsync(cancellationToken);
+                        }
+                        return Task.FromResult<object>(null);
+                    },
+                cancellationToken);
+        }
+
+        public virtual Task<object> ExecuteScalarAsync(
+            [NotNull] DbConnection connection,
+            [NotNull] SqlStatement statement,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Check.NotNull(connection, "connection");
+            Check.NotNull(statement, "statement");
+
+            return ExecuteAsync(
+                connection,
+                () => CreateCommand(connection, statement).ExecuteScalarAsync(cancellationToken),
+                cancellationToken);
+        }
+
+        public virtual async Task<object> ExecuteAsync(
+            [NotNull] DbConnection connection,
+            [NotNull] Func<Task<object>> action,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Check.NotNull(connection, "connection");
 
             // TODO Deal with suppressing transactions etc.
 
@@ -31,10 +66,7 @@ namespace Microsoft.Data.Entity.Relational
 
             try
             {
-                foreach (var statement in statements)
-                {
-                    await CreateCommand(connection, statement).ExecuteNonQueryAsync(cancellationToken);
-                }
+                return await action();
             }
             finally
             {
@@ -52,6 +84,36 @@ namespace Microsoft.Data.Entity.Relational
             Check.NotNull(connection, "connection");
             Check.NotNull(statements, "statements");
 
+            Execute(
+                connection,
+                () =>
+                {
+                    foreach (var statement in statements)
+                    {
+                        CreateCommand(connection, statement).ExecuteNonQuery();
+                    }
+                    return null;
+                });
+        }
+
+        public virtual object ExecuteScalar(
+            [NotNull] DbConnection connection,
+            [NotNull] SqlStatement statement)
+        {
+            Check.NotNull(connection, "connection");
+            Check.NotNull(statement, "statement");
+
+            return Execute(
+                connection,
+                () => CreateCommand(connection, statement).ExecuteScalar());
+        }
+
+        public virtual object Execute(
+            [NotNull] DbConnection connection,
+            [NotNull] Func<object> action)
+        {
+            Check.NotNull(connection, "connection");
+
             // TODO Deal with suppressing transactions etc.
 
             var connectionWasOpen = connection.State == ConnectionState.Open;
@@ -62,10 +124,7 @@ namespace Microsoft.Data.Entity.Relational
 
             try
             {
-                foreach (var statement in statements)
-                {
-                    CreateCommand(connection, statement).ExecuteNonQuery();
-                }
+                return action();
             }
             finally
             {

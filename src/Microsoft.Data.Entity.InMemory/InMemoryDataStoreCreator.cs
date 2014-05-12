@@ -21,14 +21,37 @@ namespace Microsoft.Data.Entity.InMemory
             _dataStore = dataStore;
         }
 
-        public override Task CreateAsync(IModel model, CancellationToken cancellationToken = new CancellationToken())
+        public override void Create()
+        {
+        }
+
+        public override Task CreateAsync(CancellationToken cancellationToken = new CancellationToken())
         {
             return Task.FromResult(0);
+        }
+
+        public override void CreateTables(IModel model)
+        {
+        }
+
+        public override Task CreateTablesAsync(IModel model, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return Task.FromResult(0);
+        }
+
+        public override bool Exists()
+        {
+            return true;
         }
 
         public override Task<bool> ExistsAsync(CancellationToken cancellationToken = new CancellationToken())
         {
             return Task.FromResult(true);
+        }
+
+        public override void Delete()
+        {
+            _dataStore.Database.Clear();
         }
 
         public override Task DeleteAsync(CancellationToken cancellationToken = new CancellationToken())
@@ -38,18 +61,14 @@ namespace Microsoft.Data.Entity.InMemory
             return Task.FromResult(0);
         }
 
-        public override void Create(IModel model)
-        {
-        }
-
-        public override bool Exists()
+        public override bool HasTables()
         {
             return true;
         }
 
-        public override void Delete()
+        public override Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            _dataStore.Database.Clear();
+            return Task.FromResult(true);
         }
     }
 }
