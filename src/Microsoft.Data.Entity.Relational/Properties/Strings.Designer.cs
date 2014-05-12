@@ -170,6 +170,22 @@ namespace Microsoft.Data.Entity.Relational
             return GetString("NoConnectionOrConnectionString");
         }
 
+        /// <summary>
+        /// The property '{0}' cannot be mapped because it is of type '{1}' which is currently not supported.'
+        /// </summary>
+        internal static string UnsupportedType
+        {
+            get { return GetString("UnsupportedType"); }
+        }
+
+        /// <summary>
+        /// The property '{0}' cannot be mapped because it is of type '{1}' which is currently not supported.'
+        /// </summary>
+        internal static string FormatUnsupportedType(object p0, object p1)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("UnsupportedType"), p0, p1);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

@@ -57,13 +57,12 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         public override async Task<int> SaveChangesAsync(
-            IEnumerable<StateEntry> stateEntries,
+            IReadOnlyList<StateEntry> stateEntries,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(stateEntries, "stateEntries");
 
-            var database = _databaseBuilder.GetDatabase(Model);
-            var commands = _batchPreparer.BatchCommands(stateEntries, database);
+            var commands = _batchPreparer.BatchCommands(stateEntries);
 
             await _connection.OpenAsync(cancellationToken);
             try

@@ -332,7 +332,7 @@ namespace Microsoft.Data.FunctionalTests
                 assertOrder: true);
         }
 
-        [Fact(Skip = "Test is failing, see #153")]
+        // TODO: [Fact] See #153
         public virtual void Where_subquery_on_collection()
         {
             AssertQuery<Product, OrderDetail>((pr, od) =>

@@ -123,7 +123,4 @@
   <data name="InvalidEnumValue" xml:space="preserve">
     <value>The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.</value>
   </data>
-  <data name="UnsupportedType" xml:space="preserve">
-    <value>The property '{0}' cannot be mapped because it is of type '{1}' which is currently not supported.'</value>
-  </data>
 </root>

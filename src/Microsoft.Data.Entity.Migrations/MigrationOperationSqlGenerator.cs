@@ -30,6 +30,14 @@ namespace Microsoft.Data.Entity.Migrations
         internal const string DateTimeOffsetFormat = "yyyy-MM-ddTHH:mm:ss.fffzzz";
 
         private DatabaseModel _database;
+        private readonly RelationalTypeMapper _typeMapper;
+
+        public MigrationOperationSqlGenerator([NotNull] RelationalTypeMapper typeMapper)
+        {
+            Check.NotNull(typeMapper, "typeMapper");
+
+            _typeMapper = typeMapper;
+        }
 
         public virtual DatabaseModel Database
         {
@@ -42,15 +50,6 @@ namespace Microsoft.Data.Entity.Migrations
 
                 _database = value;
             }
-        }
-
-        public static SqlStatement Generate([NotNull] MigrationOperation migrationOperation, bool generateIdempotentSql)
-        {
-            Check.NotNull(migrationOperation, "migrationOperation");
-
-            var sqlGenerator = new MigrationOperationSqlGenerator();
-
-            return sqlGenerator.Generate(new MigrationOperation[] { migrationOperation }, generateIdempotentSql).Single();
         }
 
         public virtual IEnumerable<SqlStatement> Generate([NotNull] IReadOnlyList<MigrationOperation> migrationOperations, bool generateIdempotentSql)
@@ -386,12 +385,15 @@ namespace Microsoft.Data.Entity.Migrations
         {
             Check.NotNull(column, "column");
 
-            if (column.DataType != null)
+            if (!string.IsNullOrEmpty(column.DataType))
             {
                 return column.DataType;
             }
 
-            throw new NotImplementedException();
+            var isKey = column.Table.PrimaryKey != null
+                        && column.Table.PrimaryKey.Columns.Contains(column);
+
+            return _typeMapper.GetTypeMapping(column.DataType, column.Name, column.ClrType, isKey, column.IsTimestamp).StoreTypeName;
         }
 
         public virtual string GenerateLiteral([NotNull] object value)

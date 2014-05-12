@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Model
             var newColumn = new Column("Foo", "int") { IsNullable = true };
             var alterColumnOperation = new AlterColumnOperation(
                 "dbo.MyTable", newColumn, isDestructiveChange: true);
-            var mockVisitor = new Mock<MigrationOperationSqlGenerator>();
+            var mockVisitor = new Mock<MigrationOperationSqlGenerator>(new RelationalTypeMapper());
             var builder = new Mock<IndentedStringBuilder>();
             alterColumnOperation.GenerateSql(mockVisitor.Object, builder.Object, false);
 

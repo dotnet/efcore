@@ -48,7 +48,7 @@ namespace Microsoft.Data.Entity.Storage
         }
 
         public abstract Task<int> SaveChangesAsync(
-            [NotNull] IEnumerable<StateEntry> stateEntries,
+            [NotNull] IReadOnlyList<StateEntry> stateEntries,
             CancellationToken cancellationToken = default(CancellationToken));
 
         public abstract IEnumerable<TResult> Query<TResult>(

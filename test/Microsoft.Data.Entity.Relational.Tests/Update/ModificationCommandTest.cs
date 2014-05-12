@@ -2,12 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
@@ -22,20 +19,32 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var stateEntry = CreateStateEntry(EntityState.Added, ValueGenerationStrategy.StoreIdentity);
 
-            var table = new Table("T1",
-                new[]
-                    {
-                        new Column("Col1", "_") { ValueGenerationStrategy = StoreValueGenerationStrategy.Identity },
-                        new Column("Col2", "_")
-                    });
+            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+            command.AddStateEntry(stateEntry);
 
-            var modificationCommand = new ModificationCommand(stateEntry, table);
+            Assert.Equal("T1", command.TableName);
+            Assert.Equal(EntityState.Added, command.EntityState);
+            Assert.Equal(2, command.ColumnModifications.Count);
 
-            Assert.Equal("T1", modificationCommand.Table.Name);
-            Assert.Equal(ModificationOperation.Insert, modificationCommand.Operation);
-            Assert.Equal("Col2", modificationCommand.ColumnValues.Single().Key.Name);
-            Assert.Equal("Test", modificationCommand.ColumnValues.Single().Value);
-            Assert.Null(modificationCommand.WhereClauses);
+            var columnMod = command.ColumnModifications[0];
+
+            Assert.Equal("Col1", columnMod.ColumnName);
+            Assert.Same(stateEntry, columnMod.StateEntry);
+            Assert.Equal("Id", columnMod.Property.Name);
+            Assert.True(columnMod.IsCondition);
+            Assert.True(columnMod.IsKey);
+            Assert.True(columnMod.IsRead);
+            Assert.False(columnMod.IsWrite);
+
+            columnMod = command.ColumnModifications[1];
+
+            Assert.Equal("Col2", columnMod.ColumnName);
+            Assert.Same(stateEntry, columnMod.StateEntry);
+            Assert.Equal("Name", columnMod.Property.Name);
+            Assert.False(columnMod.IsCondition);
+            Assert.False(columnMod.IsKey);
+            Assert.False(columnMod.IsRead);
+            Assert.True(columnMod.IsWrite);
         }
 
         [Fact]
@@ -43,16 +52,32 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var stateEntry = CreateStateEntry(EntityState.Added);
 
-            var table = new Table("T1", new[] { new Column("Col1", "_"), new Column("Col2", "_") });
+            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+            command.AddStateEntry(stateEntry);
 
-            var modificationCommand = new ModificationCommand(stateEntry, table);
+            Assert.Equal("T1", command.TableName);
+            Assert.Equal(EntityState.Added, command.EntityState);
+            Assert.Equal(2, command.ColumnModifications.Count);
 
-            Assert.Equal("T1", modificationCommand.Table.Name);
-            Assert.Equal(ModificationOperation.Insert, modificationCommand.Operation);
-            Assert.Equal(
-                new Dictionary<string, object> { { "Col1", 1 }, { "Col2", "Test" } },
-                modificationCommand.ColumnValues.Select(v => new KeyValuePair<string, object>(v.Key.Name, v.Value)));
-            Assert.Null(modificationCommand.WhereClauses);
+            var columnMod = command.ColumnModifications[0];
+
+            Assert.Equal("Col1", columnMod.ColumnName);
+            Assert.Same(stateEntry, columnMod.StateEntry);
+            Assert.Equal("Id", columnMod.Property.Name);
+            Assert.True(columnMod.IsCondition);
+            Assert.True(columnMod.IsKey);
+            Assert.False(columnMod.IsRead);
+            Assert.True(columnMod.IsWrite);
+
+            columnMod = command.ColumnModifications[1];
+
+            Assert.Equal("Col2", columnMod.ColumnName);
+            Assert.Same(stateEntry, columnMod.StateEntry);
+            Assert.Equal("Name", columnMod.Property.Name);
+            Assert.False(columnMod.IsCondition);
+            Assert.False(columnMod.IsKey);
+            Assert.False(columnMod.IsRead);
+            Assert.True(columnMod.IsWrite);
         }
 
         [Fact]
@@ -60,22 +85,32 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var stateEntry = CreateStateEntry(EntityState.Modified, ValueGenerationStrategy.StoreIdentity);
 
-            var table = new Table("T1",
-                new[]
-                    {
-                        new Column("Col1", "_") { ValueGenerationStrategy = StoreValueGenerationStrategy.Identity },
-                        new Column("Col2", "_")
-                    });
-            table.PrimaryKey = new PrimaryKey("PK", table.Columns.Where(c => c.Name == "Col1").ToArray());
+            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+            command.AddStateEntry(stateEntry);
 
-            var modificationCommand = new ModificationCommand(stateEntry, table);
+            Assert.Equal("T1", command.TableName);
+            Assert.Equal(EntityState.Modified, command.EntityState);
+            Assert.Equal(2, command.ColumnModifications.Count);
 
-            Assert.Equal("T1", modificationCommand.Table.Name);
-            Assert.Equal(ModificationOperation.Update, modificationCommand.Operation);
-            Assert.Equal(1, modificationCommand.ColumnValues.Count());
-            Assert.True(modificationCommand.ColumnValues.Any(v => v.Key.Name == "Col2" && (string)v.Value == "Test"));
-            Assert.Equal(1, modificationCommand.WhereClauses.Count());
-            Assert.True(modificationCommand.WhereClauses.Any(v => v.Key.Name == "Col1" && (int)v.Value == 1));
+            var columnMod = command.ColumnModifications[0];
+
+            Assert.Equal("Col1", columnMod.ColumnName);
+            Assert.Same(stateEntry, columnMod.StateEntry);
+            Assert.Equal("Id", columnMod.Property.Name);
+            Assert.True(columnMod.IsCondition);
+            Assert.True(columnMod.IsKey);
+            Assert.False(columnMod.IsRead);
+            Assert.False(columnMod.IsWrite);
+
+            columnMod = command.ColumnModifications[1];
+
+            Assert.Equal("Col2", columnMod.ColumnName);
+            Assert.Same(stateEntry, columnMod.StateEntry);
+            Assert.Equal("Name", columnMod.Property.Name);
+            Assert.False(columnMod.IsCondition);
+            Assert.False(columnMod.IsKey);
+            Assert.False(columnMod.IsRead);
+            Assert.True(columnMod.IsWrite);
         }
 
         [Fact]
@@ -83,19 +118,32 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var stateEntry = CreateStateEntry(EntityState.Modified);
 
-            var table = new Table("T1", new[] { new Column("Col1", "_"), new Column("Col2", "_") });
-            table.PrimaryKey = new PrimaryKey("PK", table.Columns.Where(c => c.Name == "Col1").ToArray());
+            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+            command.AddStateEntry(stateEntry);
 
-            var modificationCommand = new ModificationCommand(stateEntry, table);
+            Assert.Equal("T1", command.TableName);
+            Assert.Equal(EntityState.Modified, command.EntityState);
+            Assert.Equal(2, command.ColumnModifications.Count);
 
-            Assert.Equal("T1", modificationCommand.Table.Name);
-            Assert.Equal(ModificationOperation.Update, modificationCommand.Operation);
+            var columnMod = command.ColumnModifications[0];
 
-            Assert.Equal(1, modificationCommand.ColumnValues.Count());
-            Assert.True(modificationCommand.ColumnValues.Any(v => v.Key.Name == "Col2" && (string)v.Value == "Test"));
+            Assert.Equal("Col1", columnMod.ColumnName);
+            Assert.Same(stateEntry, columnMod.StateEntry);
+            Assert.Equal("Id", columnMod.Property.Name);
+            Assert.True(columnMod.IsCondition);
+            Assert.True(columnMod.IsKey);
+            Assert.False(columnMod.IsRead);
+            Assert.False(columnMod.IsWrite);
 
-            Assert.Equal(1, modificationCommand.WhereClauses.Count());
-            Assert.True(modificationCommand.WhereClauses.Any(v => v.Key.Name == "Col1" && (int)v.Value == 1));
+            columnMod = command.ColumnModifications[1];
+
+            Assert.Equal("Col2", columnMod.ColumnName);
+            Assert.Same(stateEntry, columnMod.StateEntry);
+            Assert.Equal("Name", columnMod.Property.Name);
+            Assert.False(columnMod.IsCondition);
+            Assert.False(columnMod.IsKey);
+            Assert.False(columnMod.IsRead);
+            Assert.True(columnMod.IsWrite);
         }
 
         [Fact]
@@ -103,17 +151,22 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var stateEntry = CreateStateEntry(EntityState.Deleted);
 
-            var table = new Table("T1", new[] { new Column("Col1", "_"), new Column("Col2", "_") });
-            table.PrimaryKey = new PrimaryKey("PK", table.Columns.Where(c => c.Name == "Col1").ToArray());
+            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+            command.AddStateEntry(stateEntry);
 
-            var modificationCommand = new ModificationCommand(stateEntry, table);
+            Assert.Equal("T1", command.TableName);
+            Assert.Equal(EntityState.Deleted, command.EntityState);
+            Assert.Equal(1, command.ColumnModifications.Count);
 
-            Assert.Equal("T1", modificationCommand.Table.Name);
-            Assert.Equal(ModificationOperation.Delete, modificationCommand.Operation);
-            Assert.Null(modificationCommand.ColumnValues);
+            var columnMod = command.ColumnModifications[0];
 
-            Assert.Equal(1, modificationCommand.WhereClauses.Count());
-            Assert.True(modificationCommand.WhereClauses.Any(v => v.Key.Name == "Col1" && (int)v.Value == 1));
+            Assert.Equal("Col1", columnMod.ColumnName);
+            Assert.Same(stateEntry, columnMod.StateEntry);
+            Assert.Equal("Id", columnMod.Property.Name);
+            Assert.True(columnMod.IsCondition);
+            Assert.True(columnMod.IsKey);
+            Assert.False(columnMod.IsRead);
+            Assert.False(columnMod.IsWrite);
         }
 
         [Fact]
@@ -121,9 +174,11 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var stateEntry = CreateStateEntry(EntityState.Unchanged);
 
+            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+
             Assert.Equal(
                 Strings.FormatModificationFunctionInvalidEntityState(EntityState.Unchanged),
-                Assert.Throws<NotSupportedException>(() => new ModificationCommand(stateEntry, new Table("Table"))).Message);
+                Assert.Throws<NotSupportedException>(() => command.AddStateEntry(stateEntry)).Message);
         }
 
         [Fact]
@@ -131,9 +186,11 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var stateEntry = CreateStateEntry(EntityState.Unknown);
 
+            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+
             Assert.Equal(
                 Strings.FormatModificationFunctionInvalidEntityState(EntityState.Unknown),
-                Assert.Throws<NotSupportedException>(() => new ModificationCommand(stateEntry, new Table("Table"))).Message);
+                Assert.Throws<NotSupportedException>(() => command.AddStateEntry(stateEntry)).Message);
         }
 
         [Fact]
@@ -142,15 +199,10 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var stateEntry = CreateStateEntry(
                 EntityState.Deleted, ValueGenerationStrategy.StoreIdentity, ValueGenerationStrategy.StoreComputed);
 
-            var table = new Table("T1",
-                new[]
-                    {
-                        new Column("Col1", "_") { ValueGenerationStrategy = StoreValueGenerationStrategy.Identity },
-                        new Column("Col2", "_") { ValueGenerationStrategy = StoreValueGenerationStrategy.Computed }
-                    });
-            table.PrimaryKey = new PrimaryKey("PK", table.Columns.Where(c => c.Name == "Col1").ToArray());
+            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+            command.AddStateEntry(stateEntry);
 
-            Assert.False(new ModificationCommand(stateEntry, table).RequiresResultPropagation);
+            Assert.False(command.RequiresResultPropagation);
         }
 
         [Fact]
@@ -159,15 +211,10 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var stateEntry = CreateStateEntry(
                 EntityState.Added, ValueGenerationStrategy.StoreIdentity, ValueGenerationStrategy.StoreComputed);
 
-            var table = new Table("T1",
-                new[]
-                    {
-                        new Column("Col1", "_") { ValueGenerationStrategy = StoreValueGenerationStrategy.Identity },
-                        new Column("Col2", "_") { ValueGenerationStrategy = StoreValueGenerationStrategy.Computed }
-                    });
-            table.PrimaryKey = new PrimaryKey("PK", table.Columns.Where(c => c.Name == "Col1").ToArray());
+            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+            command.AddStateEntry(stateEntry);
 
-            Assert.True(new ModificationCommand(stateEntry, table).RequiresResultPropagation);
+            Assert.True(command.RequiresResultPropagation);
         }
 
         [Fact]
@@ -175,10 +222,10 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var stateEntry = CreateStateEntry(EntityState.Added);
 
-            var table = new Table("T1", new[] { new Column("Col1", "_"), new Column("Col2", "_") });
-            table.PrimaryKey = new PrimaryKey("PK", table.Columns.Where(c => c.Name == "Col1").ToArray());
+            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+            command.AddStateEntry(stateEntry);
 
-            Assert.False(new ModificationCommand(stateEntry, table).RequiresResultPropagation);
+            Assert.False(command.RequiresResultPropagation);
         }
 
         [Fact]
@@ -187,15 +234,10 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var stateEntry = CreateStateEntry(
                 EntityState.Modified, ValueGenerationStrategy.StoreIdentity, ValueGenerationStrategy.StoreComputed);
 
-            var table = new Table("T1",
-                new[]
-                    {
-                        new Column("Col1", "_") { ValueGenerationStrategy = StoreValueGenerationStrategy.Identity },
-                        new Column("Col2", "_") { ValueGenerationStrategy = StoreValueGenerationStrategy.Computed }
-                    });
-            table.PrimaryKey = new PrimaryKey("PK", table.Columns.Where(c => c.Name == "Col1").ToArray());
+            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+            command.AddStateEntry(stateEntry);
 
-            Assert.True(new ModificationCommand(stateEntry, table).RequiresResultPropagation);
+            Assert.True(command.RequiresResultPropagation);
         }
 
         [Fact]
@@ -203,21 +245,16 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var stateEntry = CreateStateEntry(EntityState.Modified, ValueGenerationStrategy.StoreIdentity);
 
-            var table = new Table("T1",
-                new[]
-                    {
-                        new Column("Col1", "_") { ValueGenerationStrategy = StoreValueGenerationStrategy.Identity },
-                        new Column("Col2", "_")
-                    });
-            table.PrimaryKey = new PrimaryKey("PK", table.Columns.Where(c => c.Name == "Col1").ToArray());
+            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+            command.AddStateEntry(stateEntry);
 
-            Assert.False(new ModificationCommand(stateEntry, table).RequiresResultPropagation);
+            Assert.False(command.RequiresResultPropagation);
         }
 
         private class T1
         {
-            public int Col1 { get; set; }
-            public string Col2 { get; set; }
+            public int Id { get; set; }
+            public string Name { get; set; }
         }
 
         private static IModel BuildModel(ValueGenerationStrategy keyStrategy, ValueGenerationStrategy nonKeyStrategy)
@@ -226,11 +263,13 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
             var entityType = new EntityType(typeof(T1));
 
-            var key = entityType.AddProperty("Col1", typeof(int));
+            var key = entityType.AddProperty("Id", typeof(int));
             key.ValueGenerationStrategy = keyStrategy;
+            key.StorageName = "Col1";
             entityType.SetKey(key);
 
-            var nonKey = entityType.AddProperty("Col2", typeof(string));
+            var nonKey = entityType.AddProperty("Name", typeof(string));
+            nonKey.StorageName = "Col2";
             nonKey.ValueGenerationStrategy = nonKeyStrategy;
 
             model.AddEntityType(entityType);
@@ -255,7 +294,8 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             ValueGenerationStrategy nonKeyStrategy = ValueGenerationStrategy.None)
         {
             var model = BuildModel(keyStrategy, nonKeyStrategy);
-            var stateEntry = CreateConfiguration(model).Services.StateEntryFactory.Create(model.GetEntityType("T1"), new T1 { Col1 = 1, Col2 = "Test" });
+            var stateEntry = CreateConfiguration(model).Services.StateEntryFactory.Create(
+                model.GetEntityType("T1"), new T1 { Id = 1, Name = "Test" });
             stateEntry.EntityState = entityState;
             return stateEntry;
         }

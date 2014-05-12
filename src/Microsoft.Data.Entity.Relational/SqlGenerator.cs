@@ -6,205 +6,214 @@ using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational.Model;
+using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.Relational.Utilities;
 
 namespace Microsoft.Data.Entity.Relational
 {
     public abstract class SqlGenerator
     {
-        public virtual void AppendInsertOperation([NotNull] StringBuilder commandStringBuilder, [NotNull] Table table,
-            [NotNull] KeyValuePair<Column, string>[] columnsToParameters)
+        public virtual void AppendInsertOperation(
+            [NotNull] StringBuilder commandStringBuilder,
+            [NotNull] string tableName,
+            [NotNull] IReadOnlyList<ColumnModification> operations)
         {
             Check.NotNull(commandStringBuilder, "commandStringBuilder");
-            Check.NotNull(table, "table");
-            Check.NotNull(columnsToParameters, "columnsToParameters");
+            Check.NotEmpty(tableName, "tableName");
+            Check.NotNull(operations, "operations");
 
-            AppendInsertCommand(commandStringBuilder, table, columnsToParameters);
+            var writeOperations = operations.Where(o => o.IsWrite).ToArray();
 
-            var storeGeneratedColumns = table.GetStoreGeneratedColumns().ToArray();
+            AppendInsertCommand(commandStringBuilder, tableName, writeOperations);
 
-            if (storeGeneratedColumns.Any())
+            var readOperations = operations.Where(o => o.IsRead).ToArray();
+            if (readOperations.Length > 0)
             {
+                var keyOperations = operations.Where(o => o.IsKey).ToArray();
+
                 commandStringBuilder.Append(BatchCommandSeparator).AppendLine();
-
-                var primaryKeyColumns = table.PrimaryKey.Columns;
-
-                var whereConditions =
-                    columnsToParameters.Where(p => primaryKeyColumns.Contains(p.Key));
-
-                var storeGeneratedKeyColumns = storeGeneratedColumns.Where(primaryKeyColumns.Contains).ToArray();
-                if (storeGeneratedKeyColumns.Any())
-                {
-                    whereConditions = whereConditions.Concat(
-                        CreateWhereConditionsForStoreGeneratedKeys(storeGeneratedKeyColumns));
-                }
-
-                AppendSelectCommand(commandStringBuilder, table, storeGeneratedColumns, whereConditions);
+                AppendSelectCommand(commandStringBuilder, tableName, readOperations, keyOperations);
             }
         }
 
-        public abstract IEnumerable<KeyValuePair<Column, string>> CreateWhereConditionsForStoreGeneratedKeys(
-            [NotNull] Column[] storeGeneratedKeyColumns);
-
-        public virtual void AppendUpdateOperation([NotNull] StringBuilder commandStringBuilder, [NotNull] Table table,
-            [NotNull] KeyValuePair<Column, string>[] columnValues, [NotNull] KeyValuePair<Column, string>[] whereConditions)
+        public virtual void AppendUpdateOperation(
+            [NotNull] StringBuilder commandStringBuilder,
+            [NotNull] string tableName,
+            [NotNull] IReadOnlyList<ColumnModification> operations)
         {
             Check.NotNull(commandStringBuilder, "commandStringBuilder");
-            Check.NotNull(table, "table");
-            Check.NotNull(columnValues, "columnValues");
-            Check.NotNull(whereConditions, "whereConditions");
+            Check.NotEmpty(tableName, "tableName");
+            Check.NotNull(operations, "operations");
 
-            AppendUpdateCommand(commandStringBuilder, table, columnValues, whereConditions);
+            var writeOperations = operations.Where(o => o.IsWrite).ToArray();
+            var conditionOperations = operations.Where(o => o.IsCondition).ToArray();
 
-            var storeGeneratedNonKeyColumns =
-                table.GetStoreGeneratedColumns().Except(table.PrimaryKey.Columns).ToArray();
+            AppendUpdateCommand(commandStringBuilder, tableName, writeOperations, conditionOperations);
 
-            if (storeGeneratedNonKeyColumns.Any())
+            var readOperations = operations.Where(o => o.IsRead).ToArray();
+
+            if (readOperations.Length > 0)
             {
+                var keyOperations = operations.Where(o => o.IsKey).ToArray();
+
                 commandStringBuilder.Append(BatchCommandSeparator).AppendLine();
-                AppendSelectCommand(commandStringBuilder, table, storeGeneratedNonKeyColumns, whereConditions);
+                AppendSelectCommand(commandStringBuilder, tableName, readOperations, keyOperations);
             }
         }
 
-        public virtual void AppendInsertCommand(
-            [NotNull] StringBuilder commandStringBuilder, [NotNull] Table table,
-            [NotNull] IEnumerable<KeyValuePair<Column, string>> columnsToParameters)
+        public virtual void AppendDeleteOperation(
+            [NotNull] StringBuilder commandStringBuilder,
+            [NotNull] string tableName,
+            [NotNull] IReadOnlyList<ColumnModification> operations)
         {
             Check.NotNull(commandStringBuilder, "commandStringBuilder");
-            Check.NotNull(table, "table");
-            Check.NotNull(columnsToParameters, "columnsToParameters");
+            Check.NotEmpty(tableName, "tableName");
+            Check.NotNull(operations, "operations");
 
-            var columnsToParametersArray = columnsToParameters.ToArray();
+            var conditionOperations = operations.Where(o => o.IsCondition).ToArray();
 
-            AppendInsertCommandHeader(commandStringBuilder, table, columnsToParametersArray.Select(c => c.Key));
+            AppendDeleteCommandHeader(commandStringBuilder, tableName);
             commandStringBuilder.Append(" ");
-            AppendValues(commandStringBuilder, columnsToParametersArray.Select(c => c.Value));
+            AppendWhereClause(commandStringBuilder, conditionOperations);
         }
 
-        public virtual void AppendDeleteCommand(
-            [NotNull] StringBuilder commandStringBuilder, [NotNull] Table table,
-            [NotNull] IEnumerable<KeyValuePair<Column, string>> whereConditions)
+        protected virtual void AppendInsertCommand(
+            [NotNull] StringBuilder commandStringBuilder,
+            [NotNull] string tableName,
+            [NotNull] IReadOnlyList<ColumnModification> operations)
         {
             Check.NotNull(commandStringBuilder, "commandStringBuilder");
-            Check.NotNull(table, "table");
-            Check.NotNull(whereConditions, "whereConditions");
+            Check.NotEmpty(tableName, "tableName");
+            Check.NotNull(operations, "operations");
 
-            AppendDeleteCommandHeader(commandStringBuilder, table);
+            AppendInsertCommandHeader(commandStringBuilder, tableName, operations);
             commandStringBuilder.Append(" ");
-            AppendWhereClause(commandStringBuilder, whereConditions);
+            AppendValues(commandStringBuilder, operations);
         }
 
-        public virtual void AppendUpdateCommand(
-            [NotNull] StringBuilder commandStringBuilder, [NotNull] Table table,
-            [NotNull] IEnumerable<KeyValuePair<Column, string>> columnValues,
-            [NotNull] IEnumerable<KeyValuePair<Column, string>> whereConditions)
+        protected virtual void AppendUpdateCommand(
+            [NotNull] StringBuilder commandStringBuilder,
+            [NotNull] string tableName,
+            [NotNull] IReadOnlyList<ColumnModification> operations,
+            [NotNull] IReadOnlyList<ColumnModification> conditionOperations)
         {
             Check.NotNull(commandStringBuilder, "commandStringBuilder");
-            Check.NotNull(table, "table");
-            Check.NotNull(columnValues, "columnValues");
-            Check.NotNull(whereConditions, "whereConditions");
+            Check.NotEmpty(tableName, "tableName");
+            Check.NotNull(operations, "operations");
+            Check.NotNull(conditionOperations, "conditionOperations");
 
-            AppendUpdateCommandHeader(commandStringBuilder, table, columnValues);
+            AppendUpdateCommandHeader(commandStringBuilder, tableName, operations);
             commandStringBuilder.Append(" ");
-            AppendWhereClause(commandStringBuilder, whereConditions);
+            AppendWhereClause(commandStringBuilder, conditionOperations);
         }
 
-        public virtual void AppendSelectCommand([NotNull] StringBuilder commandStringBuilder, [NotNull] Table table,
-            [NotNull] IEnumerable<Column> columns, [NotNull] IEnumerable<KeyValuePair<Column, string>> whereConditions)
+        protected virtual void AppendSelectCommand(
+            [NotNull] StringBuilder commandStringBuilder,
+            [NotNull] string tableName,
+            [NotNull] IReadOnlyList<ColumnModification> operations,
+            [NotNull] IReadOnlyList<ColumnModification> conditionOperations)
         {
             Check.NotNull(commandStringBuilder, "commandStringBuilder");
-            Check.NotNull(table, "table");
-            Check.NotNull(columns, "columns");
-            Check.NotNull(whereConditions, "whereConditions");
+            Check.NotEmpty(tableName, "tableName");
+            Check.NotNull(operations, "operations");
+            Check.NotNull(conditionOperations, "conditionOperations");
 
-            AppendSelectCommandHeader(commandStringBuilder, columns);
+            AppendSelectCommandHeader(commandStringBuilder, operations);
             commandStringBuilder.Append(" ");
-            AppendFromClause(commandStringBuilder, table);
+            AppendFromClause(commandStringBuilder, tableName);
             commandStringBuilder.Append(" ");
             // TODO: there is no notion of operator - currently all the where conditions check equality
-            AppendWhereClause(commandStringBuilder, whereConditions);
+            AppendWhereClause(commandStringBuilder, conditionOperations);
         }
 
-        public virtual void AppendInsertCommandHeader(
-            [NotNull] StringBuilder commandStringBuilder, [NotNull] Table table, [NotNull] IEnumerable<Column> columns)
+        protected virtual void AppendInsertCommandHeader(
+            [NotNull] StringBuilder commandStringBuilder,
+            [NotNull] string tableName,
+            [NotNull] IReadOnlyList<ColumnModification> operations)
         {
             Check.NotNull(commandStringBuilder, "commandStringBuilder");
-            Check.NotNull(table, "table");
-            Check.NotNull(columns, "columns");
-
-            columns = columns.ToArray();
+            Check.NotEmpty(tableName, "tableName");
+            Check.NotNull(operations, "operations");
 
             commandStringBuilder
                 .Append("INSERT INTO ")
-                .Append(table.Name);
+                .Append(QuoteIdentifier(tableName));
 
-            if (columns.Any())
+            if (operations.Count > 0)
             {
                 commandStringBuilder
                     .Append(" (")
-                    .AppendJoin(columns.Select(c => c.Name))
+                    .AppendJoin(operations.Select(o => QuoteIdentifier(o.ColumnName)))
                     .Append(")");
             }
         }
 
-        public virtual void AppendDeleteCommandHeader([NotNull] StringBuilder commandStringBuilder, [NotNull] Table table)
+        protected virtual void AppendDeleteCommandHeader(
+            [NotNull] StringBuilder commandStringBuilder,
+            [NotNull] string tableName)
         {
             Check.NotNull(commandStringBuilder, "commandStringBuilder");
-            Check.NotNull(table, "table");
+            Check.NotEmpty(tableName, "tableName");
 
             commandStringBuilder
                 .Append("DELETE FROM ")
-                .Append(table.Name);
+                .Append(QuoteIdentifier(tableName));
         }
 
-        public virtual void AppendUpdateCommandHeader(
-            [NotNull] StringBuilder commandStringBuilder, [NotNull] Table table,
-            [NotNull] IEnumerable<KeyValuePair<Column, string>> columnValues)
+        protected virtual void AppendUpdateCommandHeader(
+            [NotNull] StringBuilder commandStringBuilder,
+            [NotNull] string tableName,
+            [NotNull] IReadOnlyList<ColumnModification> operations)
         {
             Check.NotNull(commandStringBuilder, "commandStringBuilder");
-            Check.NotNull(table, "table");
-            Check.NotNull(columnValues, "columnValues");
+            Check.NotEmpty(tableName, "tableName");
+            Check.NotNull(operations, "operations");
 
             commandStringBuilder
                 .Append("UPDATE ")
-                .Append(table.Name)
+                .Append(QuoteIdentifier(tableName))
                 .Append(" SET ")
-                .AppendJoin(columnValues, (sb, v) => sb.Append(v.Key.Name).Append(" = ").Append(v.Value), ", ");
+                .AppendJoin(
+                operations, 
+                (sb, v) => sb.Append(QuoteIdentifier(v.ColumnName)).Append(" = ").Append(v.ParameterName), ", ");
         }
 
-        public virtual void AppendSelectCommandHeader([NotNull] StringBuilder commandStringBuilder, [NotNull] IEnumerable<Column> columns)
+        protected virtual void AppendSelectCommandHeader(
+            [NotNull] StringBuilder commandStringBuilder,
+            [NotNull] IReadOnlyList<ColumnModification> operations)
         {
             Check.NotNull(commandStringBuilder, "commandStringBuilder");
-            Check.NotNull(columns, "columns");
+            Check.NotNull(operations, "operations");
 
             commandStringBuilder
                 .Append("SELECT ")
-                .AppendJoin(columns.Select(c => c.Name));
+                .AppendJoin(operations.Select(c => QuoteIdentifier(c.ColumnName)));
         }
 
-        public virtual void AppendFromClause([NotNull] StringBuilder commandStringBuilder, [NotNull] Table table)
+        protected virtual void AppendFromClause(
+            [NotNull] StringBuilder commandStringBuilder,
+            [NotNull] string tableName)
         {
             Check.NotNull(commandStringBuilder, "commandStringBuilder");
-            Check.NotNull(table, "table");
+            Check.NotEmpty(tableName, "tableName");
 
             commandStringBuilder
                 .Append("FROM ")
-                .Append(table.Name);
+                .Append(QuoteIdentifier(tableName));
         }
 
-        public virtual void AppendValues([NotNull] StringBuilder commandStringBuilder, [NotNull] IEnumerable<string> valueParameterNames)
+        protected virtual void AppendValues(
+            [NotNull] StringBuilder commandStringBuilder,
+            [NotNull] IReadOnlyList<ColumnModification> operations)
         {
             Check.NotNull(commandStringBuilder, "commandStringBuilder");
-            Check.NotNull(valueParameterNames, "valueParameterNames");
+            Check.NotNull(operations, "operations");
 
-            valueParameterNames = valueParameterNames.ToArray();
-
-            if (valueParameterNames.Any())
+            if (operations.Count > 0)
             {
                 commandStringBuilder
                     .Append("VALUES (")
-                    .AppendJoin(valueParameterNames)
+                    .AppendJoin(operations.Select(o => o.ParameterName))
                     .Append(")");
             }
             else
@@ -214,16 +223,48 @@ namespace Microsoft.Data.Entity.Relational
             }
         }
 
-        public virtual void AppendWhereClause(
-            [NotNull] StringBuilder commandStringBuilder, [NotNull] IEnumerable<KeyValuePair<Column, string>> whereConditions)
+        protected virtual void AppendWhereClause(
+            [NotNull] StringBuilder commandStringBuilder,
+            [NotNull] IReadOnlyList<ColumnModification> operations)
         {
             Check.NotNull(commandStringBuilder, "commandStringBuilder");
-            Check.NotNull(whereConditions, "whereConditions");
+            Check.NotNull(operations, "operations");
+
+            if (operations.Count > 0)
+            {
+                commandStringBuilder
+                    .Append("WHERE ")
+                    .AppendJoin(operations, (sb, v) =>
+                        {
+                            if (v.Property.ValueGenerationStrategy == ValueGenerationStrategy.StoreIdentity
+                                && v.IsRead)
+                            {
+                                AppendIdentityWhereCondition(sb, v);
+                            }
+                            else
+                            {
+                                AppendWhereCondition(sb, v);
+                            }
+                        }, " AND ");
+            }
+        }
+
+        protected virtual void AppendWhereCondition(
+            [NotNull] StringBuilder commandStringBuilder,
+            [NotNull] ColumnModification columnModification)
+        {
+            Check.NotNull(commandStringBuilder, "commandStringBuilder");
+            Check.NotNull(columnModification, "columnModification");
 
             commandStringBuilder
-                .Append("WHERE ")
-                .AppendJoin(whereConditions, (sb, v) => sb.Append(v.Key.Name).Append(" = ").Append(v.Value), " AND ");
+                .Append(QuoteIdentifier(columnModification.ColumnName))
+                .Append(" = ")
+                .Append(columnModification.ParameterName);
         }
+
+        protected abstract void AppendIdentityWhereCondition(
+            [NotNull] StringBuilder commandStringBuilder,
+            [NotNull] ColumnModification columnModification);
 
         public virtual void AppendBatchHeader([NotNull] StringBuilder commandStringBuilder)
         {
@@ -232,6 +273,13 @@ namespace Microsoft.Data.Entity.Relational
         public virtual string BatchCommandSeparator
         {
             get { return ";"; }
+        }
+
+        public virtual string QuoteIdentifier([NotNull] string identifier)
+        {
+            Check.NotNull(identifier, "identifier");
+
+            return "[" + identifier.Replace("]", "]]") + "]";
         }
     }
 }

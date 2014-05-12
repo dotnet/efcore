@@ -1,13 +1,10 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Relational;
-using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.SqlServer.Utilities;
 using Microsoft.Data.Entity.Utilities;
 
@@ -17,13 +14,9 @@ namespace Microsoft.Data.Entity.SqlServer
     {
         private int _variableCount;
 
-        public new static SqlStatement Generate([NotNull] MigrationOperation migrationOperation, bool generateIdempotentSql)
+        public SqlServerMigrationOperationSqlGenerator([NotNull] SqlServerTypeMapper typeMapper)
+            : base(typeMapper)
         {
-            Check.NotNull(migrationOperation, "migrationOperation");
-
-            var sqlGenerator = new SqlServerMigrationOperationSqlGenerator();
-
-            return sqlGenerator.Generate(new MigrationOperation[] { migrationOperation }, generateIdempotentSql).Single();
         }
 
         public override void Generate(CreateDatabaseOperation createDatabaseOperation, IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
@@ -510,139 +503,6 @@ namespace Microsoft.Data.Entity.SqlServer
             {
                 base.Generate(renameIndexOperation, stringBuilder, generateIdempotentSql);
             }
-        }
-
-        // TODO this doesn't belong here
-        // TODO: Consider a lookup table
-        public override string GenerateDataType(Column column)
-        {
-            Check.NotNull(column, "column");
-
-            if (!string.IsNullOrEmpty(column.DataType))
-            {
-                return column.DataType;
-            }
-
-            // TODO Only supports types required for MusicStore
-            // TODO need to take column facets (max length etc.) in to account when they are available
-            // TODO: Nullable types
-            if (column.ClrType == typeof(int))
-            {
-                return "int";
-            }
-
-            if (column.ClrType == typeof(string))
-            {
-                if (column.Table.PrimaryKey != null
-                    && column.Table.PrimaryKey.Columns.Contains(column))
-                {
-                    // TODO: Looks like this might work for values up to 900
-                    return "nvarchar(128)";
-                }
-
-                return "nvarchar(max)";
-            }
-
-            if (column.ClrType == typeof(DateTime))
-            {
-                return "datetime2";
-            }
-
-            if (column.ClrType == typeof(decimal))
-            {
-                return "decimal(18, 2)";
-            }
-
-            if (column.ClrType == typeof(Guid))
-            {
-                return "uniqueidentifier";
-            }
-
-            if (column.ClrType == typeof(bool))
-            {
-                return "bit";
-            }
-
-            if (column.ClrType == typeof(byte))
-            {
-                return "tinyint";
-            }
-
-            if (column.ClrType == typeof(char))
-            {
-                // TODO: End-to-end use results in "Conversion failed when converting the nvarchar value 'C' to data type int."
-                return "int";
-            }
-
-            if (column.ClrType == typeof(double))
-            {
-                return "float";
-            }
-
-            if (column.ClrType == typeof(short))
-            {
-                return "smallint";
-            }
-
-            if (column.ClrType == typeof(long))
-            {
-                return "bigint";
-            }
-
-            // TODO: End-to-end use results in "The parameter data type of SByte is invalid."
-            if (column.ClrType == typeof(sbyte))
-            {
-                return "smallint";
-            }
-
-            if (column.ClrType == typeof(float))
-            {
-                return "real";
-            }
-
-            // TODO: End-to-end use results in "The parameter data type of UInt16 is invalid."
-            if (column.ClrType == typeof(ushort))
-            {
-                return "int";
-            }
-
-            // TODO: End-to-end use results in "The parameter data type of UInt32 is invalid."
-            if (column.ClrType == typeof(uint))
-            {
-                return "bigint";
-            }
-
-            // TODO: End-to-end use results in "The parameter data type of UInt64 is invalid."
-            if (column.ClrType == typeof(ulong))
-            {
-                return "numeric(20, 0)";
-            }
-
-            if (column.ClrType == typeof(DateTimeOffset))
-            {
-                return "datetimeoffset";
-            }
-
-            if (column.ClrType == typeof(byte[]))
-            {
-                if (column.Table.PrimaryKey != null
-                    && column.Table.PrimaryKey.Columns.Contains(column))
-                {
-                    // TODO: Looks like this might work for values up to 900
-                    return "varbinary(128)";
-                }
-
-                if (column.IsTimestamp)
-                {
-                    return "rowversion";
-                }
-
-                return "varbinary(max)";
-            }
-
-            // TODO: Consider TimeSpan mapping
-
-            throw new NotSupportedException(Strings.FormatUnsupportedType(column.Name, column.ClrType.Name));
         }
 
         protected internal virtual void GenerateDatabasePresenceCheck([NotNull] string databaseName, bool negative, IndentedStringBuilder builder)

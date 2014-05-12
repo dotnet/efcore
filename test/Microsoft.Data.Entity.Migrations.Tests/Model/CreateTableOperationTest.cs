@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Model
         {
             var table = new Table("dbo.MyTable", new[] { new Column("Id", "int") });
             var createTableOperation = new CreateTableOperation(table);
-            var mockVisitor = new Mock<MigrationOperationSqlGenerator>();
+            var mockVisitor = new Mock<MigrationOperationSqlGenerator>(new RelationalTypeMapper());
             var builder = new Mock<IndentedStringBuilder>();
             createTableOperation.GenerateSql(mockVisitor.Object, builder.Object, false);
 

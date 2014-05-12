@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Model
         public void Dispatches_visitor()
         {
             var createSequenceOperation = new CreateSequenceOperation(new Sequence("dbo.MySequence"));
-            var mockVisitor = new Mock<MigrationOperationSqlGenerator>();
+            var mockVisitor = new Mock<MigrationOperationSqlGenerator>(new RelationalTypeMapper());
             var builder = new Mock<IndentedStringBuilder>();
             createSequenceOperation.GenerateSql(mockVisitor.Object, builder.Object, false);
 

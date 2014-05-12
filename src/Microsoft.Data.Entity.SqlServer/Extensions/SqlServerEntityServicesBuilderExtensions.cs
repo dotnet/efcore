@@ -23,6 +23,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddSingleton<DataStoreSource, SqlServerDataStoreSource>()
                 .AddSingleton<SqlServerSqlGenerator, SqlServerSqlGenerator>()
                 .AddSingleton<SqlStatementExecutor, SqlStatementExecutor>()
+                .AddSingleton<SqlServerTypeMapper, SqlServerTypeMapper>()
                 .AddScoped<SqlServerDataStore, SqlServerDataStore>()
                 .AddScoped<SqlServerConnection, SqlServerConnection>()
                 .AddScoped<SqlServerBatchExecutor, SqlServerBatchExecutor>()
