@@ -9,10 +9,16 @@ namespace Microsoft.Data.Entity.AzureTableStorage
     public class AzureTableStorageConfigurationExtension : EntityConfigurationExtension
     {
         public string ConnectionString { get; set; }
+        public bool UseBatching { get; set; }
+
+        public AzureTableStorageConfigurationExtension()
+        {
+            UseBatching = false;
+        }
 
         protected override void ApplyServices(EntityServicesBuilder builder)
         {
-            builder.AddAzureTableStorage();
+            builder.AddAzureTableStorage(batching: UseBatching);
         }
     }
 }
