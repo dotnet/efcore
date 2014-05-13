@@ -40,7 +40,22 @@ namespace Microsoft.Data.Entity.SQLite
             _modelDiffer = modelDiffer;
         }
 
-        public override void Create(IModel model)
+        public override void Create()
+        {
+            using (var connection = _connection.CreateConnectionReadWriteCreate())
+            {
+                connection.Open();
+            }
+        }
+
+        public override Task CreateAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Create();
+
+            return Task.FromResult(0);
+        }
+
+        public override void CreateTables(IModel model)
         {
             Check.NotNull(model, "model");
 
@@ -48,19 +63,27 @@ namespace Microsoft.Data.Entity.SQLite
             var statements = _generator.Generate(operations, generateIdempotentSql: false);
 
             // TODO: Delete database on error
-            using (var connection = _connection.CreateConnectionWithCreate())
+            using (var connection = _connection.CreateConnectionReadWrite())
             {
                 _executor.ExecuteNonQuery(connection, statements);
             }
+        }
+
+        public override Task CreateTablesAsync(IModel model, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            CreateTables(model);
+
+            return Task.FromResult(0);
         }
 
         public override bool Exists()
         {
             try
             {
-                using (var connnection = _connection.CreateConnectionWithoutCreate())
+                using (var connection = _connection.CreateConnectionReadOnly())
                 {
-                    connnection.Open();
+                    connection.Open();
+                    connection.Close();
                 }
 
                 return true;
@@ -76,21 +99,29 @@ namespace Microsoft.Data.Entity.SQLite
             return false;
         }
 
-        public override void Delete()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Task CreateAsync(IModel model, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Create(model);
-
-            return Task.FromResult(0);
-        }
-
         public override Task<bool> ExistsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             return Task.FromResult(Exists());
+        }
+
+        public override bool HasTables()
+        {
+            return (int)_executor.ExecuteScalar(_connection.DbConnection, CreateHasTablesCommand()) != 0;
+        }
+
+        public override async Task<bool> HasTablesAsync(CancellationToken cancellationToken = new CancellationToken())
+        {
+            return (int)(await _executor.ExecuteScalarAsync(_connection.DbConnection, CreateHasTablesCommand(), cancellationToken)) != 0;
+        }
+
+        private SqlStatement CreateHasTablesCommand()
+        {
+            return new SqlStatement("SELECT count(*) FROM sqlite_master WHERE type = 'table' AND rootpage IS NOT NULL");
+        }
+
+        public override void Delete()
+        {
+            throw new NotImplementedException();
         }
 
         public override Task DeleteAsync(CancellationToken cancellationToken = default(CancellationToken))

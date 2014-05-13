@@ -67,18 +67,18 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         }
 
         [Fact]
-        public async Task Delete_will_delete_database()
+        public async Task EnsureDeleted_will_delete_database()
         {
-            await Delete_will_delete_database_test(async: false);
+            await EnsureDeleted_will_delete_database_test(async: false);
         }
 
         [Fact]
-        public async Task DeleteAsync_will_delete_database()
+        public async Task EnsureDeletedAsync_will_delete_database()
         {
-            await Delete_will_delete_database_test(async: true);
+            await EnsureDeleted_will_delete_database_test(async: true);
         }
 
-        private static async Task Delete_will_delete_database_test(bool async)
+        private static async Task EnsureDeleted_will_delete_database_test(bool async)
         {
             using (var testDatabase = await TestDatabase.Scratch(createDatabase: true))
             {
@@ -90,11 +90,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                     if (async)
                     {
-                        await context.Database.DeleteAsync();
+                        Assert.True(await context.Database.EnsureDeletedAsync());
                     }
                     else
                     {
-                        context.Database.Delete();
+                        Assert.True(context.Database.EnsureDeleted());
                     }
 
                     Assert.Equal(ConnectionState.Closed, ((RelationalConnection)context.Database.Connection).DbConnection.State);
@@ -107,18 +107,18 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         }
 
         [Fact]
-        public async Task Delete_noop_when_database_doesnt_exist()
+        public async Task EnsuredDeleted_noop_when_database_doesnt_exist()
         {
-            await Delete_noop_when_database_doesnt_exist_test(async: false);
+            await EnsuredDeleted_noop_when_database_doesnt_exist_test(async: false);
         }
 
         [Fact]
-        public async Task DeleteAsync_noop_when_database_doesnt_exist()
+        public async Task EnsuredDeletedAsync_noop_when_database_doesnt_exist()
         {
-            await Delete_noop_when_database_doesnt_exist_test(async: true);
+            await EnsuredDeleted_noop_when_database_doesnt_exist_test(async: true);
         }
 
-        private static async Task Delete_noop_when_database_doesnt_exist_test(bool async)
+        private static async Task EnsuredDeleted_noop_when_database_doesnt_exist_test(bool async)
         {
             using (var testDatabase = await TestDatabase.Scratch(createDatabase: false))
             {
@@ -128,11 +128,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                     if (async)
                     {
-                        await context.Database.DeleteAsync();
+                        Assert.False(await context.Database.EnsureDeletedAsync());
                     }
                     else
                     {
-                        context.Database.Delete();
+                        Assert.False(context.Database.EnsureDeleted());
                     }
 
                     Assert.Equal(ConnectionState.Closed, ((RelationalConnection)context.Database.Connection).DbConnection.State);
@@ -145,18 +145,18 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         }
 
         [Fact]
-        public async Task Can_create_schema_in_existing_database()
+        public async Task EnsureCreated_can_create_schema_in_existing_database()
         {
-            await Can_create_schema_in_existing_database_test(async: false);
+            await EnsureCreated_can_create_schema_in_existing_database_test(async: false);
         }
 
         [Fact]
-        public async Task Can_create_schema_in_existing_database_async()
+        public async Task EnsureCreatedAsync_can_create_schema_in_existing_database()
         {
-            await Can_create_schema_in_existing_database_test(async: true);
+            await EnsureCreated_can_create_schema_in_existing_database_test(async: true);
         }
 
-        private static async Task Can_create_schema_in_existing_database_test(bool async)
+        private static async Task EnsureCreated_can_create_schema_in_existing_database_test(bool async)
         {
             using (var testDatabase = await TestDatabase.Scratch())
             {
@@ -165,18 +165,18 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         }
 
         [Fact]
-        public async Task Can_create_physical_database_and_schema()
+        public async Task EnsureCreated_can_create_physical_database_and_schema()
         {
-            await Can_create_physical_database_and_schema_test(async: false);
+            await EnsureCreated_can_create_physical_database_and_schema_test(async: false);
         }
 
         [Fact]
-        public async Task Can_create_physical_database_and_schema_async()
+        public async Task EnsureCreatedAsync_can_create_physical_database_and_schema()
         {
-            await Can_create_physical_database_and_schema_test(async: true);
+            await EnsureCreated_can_create_physical_database_and_schema_test(async: true);
         }
 
-        private static async Task Can_create_physical_database_and_schema_test(bool async)
+        private static async Task EnsureCreated_can_create_physical_database_and_schema_test(bool async)
         {
             using (var testDatabase = await TestDatabase.Scratch(createDatabase: false))
             {
@@ -196,11 +196,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .Configuration;
         }
 
-        private static SqlServerDataStoreCreator GetDataStoreCreator(TestDatabase testDatabase)
-        {
-            return CreateConfiguration(testDatabase).Services.ServiceProvider.GetService<SqlServerDataStoreCreator>();
-        }
-
         private static async Task RunDatabaseCreationTest(TestDatabase testDatabase, bool async)
         {
             using (var context = new BloggingContext(testDatabase))
@@ -209,11 +204,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 if (async)
                 {
-                    await context.Database.CreateAsync();
+                    Assert.True(await context.Database.EnsureCreatedAsync());
                 }
                 else
                 {
-                    context.Database.Create();
+                    Assert.True(context.Database.EnsureCreated());
                 }
 
                 Assert.Equal(ConnectionState.Closed, ((RelationalConnection)context.Database.Connection).DbConnection.State);
@@ -255,6 +250,41 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                             "Blog.WayRound (bigint)"
                         },
                     columns);
+            }
+        }
+
+
+        [Fact]
+        public async Task EnsuredCreated_is_noop_when_database_exists_and_has_schema()
+        {
+            await EnsuredCreated_is_noop_when_database_exists_and_has_schema_test(async: false);
+        }
+
+        [Fact]
+        public async Task EnsuredCreatedAsync_is_noop_when_database_exists_and_has_schema()
+        {
+            await EnsuredCreated_is_noop_when_database_exists_and_has_schema_test(async: true);
+        }
+
+        private static async Task EnsuredCreated_is_noop_when_database_exists_and_has_schema_test(bool async)
+        {
+            using (var testDatabase = await TestDatabase.Scratch(createDatabase: false))
+            {
+                using (var context = new BloggingContext(testDatabase))
+                {
+                    context.Database.EnsureCreated();
+
+                    if (async)
+                    {
+                        Assert.False(await context.Database.EnsureCreatedAsync());
+                    }
+                    else
+                    {
+                        Assert.False(context.Database.EnsureCreated());
+                    }
+
+                    Assert.Equal(ConnectionState.Closed, ((RelationalConnection)context.Database.Connection).DbConnection.State);
+                }
             }
         }
 

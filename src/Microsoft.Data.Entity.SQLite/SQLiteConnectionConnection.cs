@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.SQLite
             return new SQLiteConnection(ConnectionString);
         }
 
-        public virtual SQLiteConnection CreateConnectionWithCreate()
+        public virtual SQLiteConnection CreateConnectionReadWriteCreate()
         {
             // TODO: Handle uris
             var builder = new SQLiteConnectionStringBuilder(ConnectionString) { Mode = "RWC" };
@@ -29,7 +29,15 @@ namespace Microsoft.Data.Entity.SQLite
             return new SQLiteConnection(builder.ConnectionString);
         }
 
-        public virtual SQLiteConnection CreateConnectionWithoutCreate()
+        public virtual SQLiteConnection CreateConnectionReadWrite()
+        {
+            // TODO: Handle in-memory & uris
+            var builder = new SQLiteConnectionStringBuilder(ConnectionString) { Mode = "RW" };
+
+            return new SQLiteConnection(builder.ConnectionString);
+        }
+
+        public virtual SQLiteConnection CreateConnectionReadOnly()
         {
             // TODO: Handle in-memory & uris
             var builder = new SQLiteConnectionStringBuilder(ConnectionString) { Mode = "RO" };

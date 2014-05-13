@@ -39,33 +39,46 @@ namespace Microsoft.Data.Entity.SqlServer
             _statementExecutor = statementExecutor;
         }
 
-        public override void Create(IModel model)
+        public override void Create()
         {
-            if (!Exists())
+            using (var masterConnection = _connection.CreateMasterConnection())
             {
-                using (var masterConnection = _connection.CreateMasterConnection())
-                {
-                    _statementExecutor.ExecuteNonQuery(masterConnection, CreateCreateOperations());
-                    ClearPool();
-                }
+                _statementExecutor.ExecuteNonQuery(masterConnection, CreateCreateOperations());
+                ClearPool();
             }
+        }
 
-            // TODO: If this fails, we're left with an empty database
+        public override async Task CreateAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            using (var masterConnection = _connection.CreateMasterConnection())
+            {
+                await _statementExecutor.ExecuteNonQueryAsync(masterConnection, CreateCreateOperations(), cancellationToken);
+                ClearPool();
+            }
+        }
+        
+        public override void CreateTables(IModel model)
+        {
+            Check.NotNull(model, "model");
+
             _statementExecutor.ExecuteNonQuery(_connection.DbConnection, CreateSchemaCommands(model));
         }
 
-        public override async Task CreateAsync(IModel model, CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task CreateTablesAsync(IModel model, CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (!await ExistsAsync(cancellationToken))
-            {
-                using (var masterConnection = _connection.CreateMasterConnection())
-                {
-                    await _statementExecutor.ExecuteNonQueryAsync(masterConnection, CreateCreateOperations(), cancellationToken);
-                    ClearPool();
-                }
-            }
+            Check.NotNull(model, "model");
 
             await _statementExecutor.ExecuteNonQueryAsync(_connection.DbConnection, CreateSchemaCommands(model), cancellationToken);
+        }
+
+        public override bool HasTables()
+        {
+            return (int)_statementExecutor.ExecuteScalar(_connection.DbConnection, CreateHasTablesCommand()) != 0;
+        }
+
+        public override async Task<bool> HasTablesAsync(CancellationToken cancellationToken = new CancellationToken())
+        {
+            return (int)(await _statementExecutor.ExecuteScalarAsync(_connection.DbConnection, CreateHasTablesCommand(), cancellationToken)) != 0;
         }
 
         private IEnumerable<SqlStatement> CreateSchemaCommands(IModel model)
@@ -73,6 +86,11 @@ namespace Microsoft.Data.Entity.SqlServer
             return _sqlGenerator.Generate(_modelDiffer.DiffSource(model), generateIdempotentSql: false);
         }
 
+        private SqlStatement CreateHasTablesCommand()
+        {
+            return new SqlStatement("IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES) SELECT 1 ELSE SELECT 0");
+        }
+        
         private IEnumerable<SqlStatement> CreateCreateOperations()
         {
             // TODO Check DbConnection.Database always gives us what we want
@@ -89,7 +107,7 @@ namespace Microsoft.Data.Entity.SqlServer
 
         public override bool Exists()
         {
-            var retried = false;
+            var retryCount = 0;
             while (true)
             {
                 try
@@ -105,7 +123,7 @@ namespace Microsoft.Data.Entity.SqlServer
                         return false;
                     }
 
-                    if (!RetryOnNoProcessOnEndOfPipe(e, ref retried))
+                    if (!RetryOnNoProcessOnEndOfPipe(e, ref retryCount))
                     {
                         throw;
                     }
@@ -115,7 +133,7 @@ namespace Microsoft.Data.Entity.SqlServer
 
         public override async Task<bool> ExistsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var retried = false;
+            var retryCount = 0;
             while (true)
             {
                 try
@@ -131,7 +149,7 @@ namespace Microsoft.Data.Entity.SqlServer
                         return false;
                     }
 
-                    if (!RetryOnNoProcessOnEndOfPipe(e, ref retried))
+                    if (!RetryOnNoProcessOnEndOfPipe(e, ref retryCount))
                     {
                         throw;
                     }
@@ -146,7 +164,7 @@ namespace Microsoft.Data.Entity.SqlServer
             return exception.Number == 4060;
         }
 
-        private bool RetryOnNoProcessOnEndOfPipe(SqlException exception, ref bool retried)
+        private bool RetryOnNoProcessOnEndOfPipe(SqlException exception, ref int retryCount)
         {
             // This is to handle the case where Open throws:
             //   System.Data.SqlClient.SqlException : A connection was successfully established with the
@@ -156,10 +174,9 @@ namespace Microsoft.Data.Entity.SqlServer
             // opening or is auto-closing when using the AUTO_CLOSE option. The workaround is to flush the pool
             // for the connection and then retry the Open call.
             if (exception.Number == 233
-                && !retried)
+                && retryCount++ < 3)
             {
                 ClearPool();
-                retried = true;
                 return true;
             }
             return false;
@@ -167,11 +184,6 @@ namespace Microsoft.Data.Entity.SqlServer
 
         public override void Delete()
         {
-            if (!Exists())
-            {
-                return;
-            }
-
             ClearAllPools();
 
             using (var masterConnection = _connection.CreateMasterConnection())
@@ -182,11 +194,6 @@ namespace Microsoft.Data.Entity.SqlServer
 
         public override async Task DeleteAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (!await ExistsAsync(cancellationToken))
-            {
-                return;
-            }
-
             ClearAllPools();
 
             using (var masterConnection = _connection.CreateMasterConnection())

@@ -283,7 +283,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private static async Task<TBlog[]> CreateBlogDatabase<TBlog>(DbContext context) where TBlog : class, IBlog, new()
         {
-            await context.Database.CreateAsync();
+            await context.Database.EnsureCreatedAsync();
             var blog1 = await context.AddAsync(new TBlog()
                 {
                     Name = "Blog1",
