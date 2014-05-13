@@ -268,16 +268,5 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
             return stateEntry;
         }
-
-        //private static Table CreateTable(
-        //    StoreValueGenerationStrategy keyStrategy = StoreValueGenerationStrategy.None,
-        //    StoreValueGenerationStrategy nonKeyStrategy = StoreValueGenerationStrategy.None)
-        //{
-        //    var key = new Column("Col1", "_") { ValueGenerationStrategy = keyStrategy };
-        //    return new Table("T1", new[] { key, new Column("Col2", "_") { ValueGenerationStrategy = nonKeyStrategy } })
-        //        {
-        //            PrimaryKey = new PrimaryKey("PK", new[] { key })
-        //        };
-        //}
     }
 }

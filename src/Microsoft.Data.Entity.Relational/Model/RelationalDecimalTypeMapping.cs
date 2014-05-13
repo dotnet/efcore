@@ -10,14 +10,14 @@ namespace Microsoft.Data.Entity.Relational.Model
 {
     public class RelationalDecimalTypeMapping : RelationalTypeMapping
     {
-        private readonly byte _scale;
         private readonly byte _precision;
+        private readonly byte _scale;
 
-        public RelationalDecimalTypeMapping(byte scale, byte precision)
-            : base("decimal(" + scale + ", " + precision + ")", DbType.Decimal)
+        public RelationalDecimalTypeMapping(byte precision, byte scale)
+            : base("decimal(" + precision + ", " + scale + ")", DbType.Decimal)
         {
-            _scale = scale;
             _precision = precision;
+            _scale = scale;
         }
 
         protected override void ConfigureParameter(DbParameter parameter, ColumnModification columnModification)
@@ -34,6 +34,16 @@ namespace Microsoft.Data.Entity.Relational.Model
             //}
 
             base.ConfigureParameter(parameter, columnModification);
+        }
+
+        public virtual byte Precision
+        {
+            get { return _precision; }
+        }
+
+        public virtual byte Scale
+        {
+            get { return _scale; }
         }
     }
 }
