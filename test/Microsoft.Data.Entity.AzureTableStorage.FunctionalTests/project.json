@@ -16,12 +16,14 @@
     "xunit.execution": "2.0.0-beta-*",
     "Xunit.KRunner": "0.1-alpha-*"
   },
+  "include": "App.config",
   "commands": {
     "test": "Xunit.KRunner"
   },
   "configurations": {
     "net45": {
       "dependencies": {
+        "System.Configuration": ""
       }
     }
   }
