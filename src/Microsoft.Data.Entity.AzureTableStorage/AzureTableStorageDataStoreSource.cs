@@ -6,10 +6,10 @@ using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.AzureTableStorage
 {
-    class AzureTableStorageDataStoreSource : DataStoreSource<
-        AzureStorageDataStore, 
-        AzureTableStorageConfigurationExtension, 
-        AzureTableStorageDataStoreCreator, 
+    internal class AzureTableStorageDataStoreSource : DataStoreSource<
+        AzureTableStorageDataStore,
+        AzureTableStorageConfigurationExtension,
+        AzureTableStorageDataStoreCreator,
         AzureTableStorageConnection>
     {
         public override bool IsAvailable(DbContextConfiguration configuration)
