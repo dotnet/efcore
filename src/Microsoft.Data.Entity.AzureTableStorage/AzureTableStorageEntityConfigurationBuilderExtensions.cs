@@ -7,10 +7,14 @@ namespace Microsoft.Data.Entity
 {
     public static class AzureTableStorageEntityConfigurationBuilderExtensions
     {
-        public static DbContextOptions UseAzureTableStorge(this DbContextOptions builder, string connectionString)
+        public static DbContextOptions UseAzureTableStorge(this DbContextOptions builder, string connectionString, bool batchRequests = false)
         {
             builder.AddBuildAction(c => c.AddOrUpdateExtension<AzureTableStorageConfigurationExtension>(
-                e => e.ConnectionString = connectionString));
+                e =>
+                    {
+                        e.ConnectionString = connectionString;
+                        e.UseBatching = batchRequests;
+                    }));
 
             return builder;
         }
