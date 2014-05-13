@@ -1,0 +1,28 @@
+{
+  "version": "0.1-alpha-*",
+  "compilationOptions": {
+    "warningAsErrors": false
+  },
+  "dependencies": {
+    "Microsoft.Data.Entity": "",
+    "Microsoft.Data.Entity.AzureTableStorage": "",
+    "Microsoft.Framework.ConfigurationModel":"0.1-alpha-*",
+    "Microsoft.Framework.DependencyInjection": "0.1-alpha-*",
+    "Moq":  "4.2.1402.2112",
+    "xunit.abstractions": "2.0.0-aspnet-*",
+    "xunit.assert": "2.0.0-aspnet-*",
+    "xunit.core": "2.0.0-aspnet-*",
+    "xunit.execution": "2.0.0-aspnet-*",
+    "Xunit.KRunner": "0.1-alpha-*"
+  },
+  "commands": {
+    "test": "Xunit.KRunner"
+  },
+  "configurations": {
+    "net45": {
+      "dependencies": {
+        "System.Net.Http":""
+      }
+    }
+  }
+}
