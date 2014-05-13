@@ -1,0 +1,18 @@
+{
+  "version": "0.1-alpha-*",
+  "dependencies": {
+      "WindowsAzure.Storage": "3.2.0",
+      "Microsoft.Framework.DependencyInjection":  "0.1-alpha-*",
+      "Remotion.Linq": "1.15.13.0",
+      "Microsoft.Data.Entity": "",
+      "Microsoft.Framework.Logging": "0.1-alpha-*",
+      "System.Collections.Generic": ""
+  },
+  "compilationOptions": {
+    "warningsAsErrors": true
+  },
+  "configurations": {
+    "net45": {},
+    "k10": {}
+  }
+}
