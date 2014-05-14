@@ -28,5 +28,10 @@ namespace Microsoft.Data.Entity.Relational.Model
 
             base.ConfigureParameter(parameter, columnModification);
         }
+
+        public virtual int Size
+        {
+            get { return _size; }
+        }
     }
 }
