@@ -13,11 +13,15 @@ namespace Microsoft.Data.Entity.SqlServer
         public SqlServerDataStore(
             [NotNull] DbContextConfiguration configuration,
             [NotNull] SqlServerConnection connection,
-            [NotNull] DatabaseBuilder databaseBuilder,
             [NotNull] CommandBatchPreparer batchPreparer,
             [NotNull] SqlServerBatchExecutor batchExecutor)
-            : base(configuration, connection, databaseBuilder, batchPreparer, batchExecutor)
+            : base(configuration, connection, batchPreparer, batchExecutor)
         {
+        }
+
+        protected override RelationalValueReaderFactory ValueReaderFactory
+        {
+            get { return new RelationalObjectArrayValueReaderFactory(); }
         }
     }
 }

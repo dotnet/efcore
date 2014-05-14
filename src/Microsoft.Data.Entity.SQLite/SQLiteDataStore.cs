@@ -13,10 +13,9 @@ namespace Microsoft.Data.Entity.SQLite
         public SQLiteDataStore(
             [NotNull] DbContextConfiguration configuration,
             [NotNull] SQLiteConnectionConnection connection,
-            [NotNull] DatabaseBuilder databaseBuilder,
             [NotNull] CommandBatchPreparer batchPreparer,
             [NotNull] SQLiteBatchExecutor batchExecutor)
-            : base(configuration, connection, databaseBuilder, batchPreparer, batchExecutor)
+            : base(configuration, connection, batchPreparer, batchExecutor)
         {
         }
     }

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Relational.Query;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.Relational.Utilities;
 using Microsoft.Data.Entity.Storage;
@@ -16,9 +17,8 @@ using Remotion.Linq;
 
 namespace Microsoft.Data.Entity.Relational
 {
-    public abstract partial class RelationalDataStore : DataStore
+    public abstract class RelationalDataStore : DataStore
     {
-        private readonly DatabaseBuilder _databaseBuilder;
         private readonly CommandBatchPreparer _batchPreparer;
         private readonly BatchExecutor _batchExecutor;
         private readonly RelationalConnection _connection;
@@ -35,17 +35,14 @@ namespace Microsoft.Data.Entity.Relational
         protected RelationalDataStore(
             [NotNull] DbContextConfiguration configuration,
             [NotNull] RelationalConnection connection,
-            [NotNull] DatabaseBuilder databaseBuilder,
             [NotNull] CommandBatchPreparer batchPreparer,
             [NotNull] BatchExecutor batchExecutor)
             : base(configuration)
         {
             Check.NotNull(connection, "connection");
-            Check.NotNull(databaseBuilder, "databaseBuilder");
             Check.NotNull(batchPreparer, "batchPreparer");
             Check.NotNull(batchExecutor, "batchExecutor");
 
-            _databaseBuilder = databaseBuilder;
             _batchPreparer = batchPreparer;
             _batchExecutor = batchExecutor;
             _connection = connection;
@@ -83,10 +80,11 @@ namespace Microsoft.Data.Entity.Relational
             Check.NotNull(queryModel, "queryModel");
             Check.NotNull(stateManager, "stateManager");
 
-            var queryExecutor = new QueryModelVisitor().CreateQueryExecutor<TResult>(queryModel);
+            var queryCompilationContext = new RelationalQueryCompilationContext(Model);
+            var queryExecutor = queryCompilationContext.CreateVisitor().CreateQueryExecutor<TResult>(queryModel);
             var queryContext = new RelationalQueryContext(Model, Logger, stateManager, _connection, ValueReaderFactory);
 
-            return queryExecutor(queryContext);
+            return queryExecutor(queryContext, null);
         }
 
         public override IAsyncEnumerable<TResult> AsyncQuery<TResult>(QueryModel queryModel, StateManager stateManager)
@@ -94,10 +92,11 @@ namespace Microsoft.Data.Entity.Relational
             Check.NotNull(queryModel, "queryModel");
             Check.NotNull(stateManager, "stateManager");
 
-            var queryExecutor = new AsyncQueryModelVisitor().CreateQueryExecutor<TResult>(queryModel);
+            var queryCompilationContext = new RelationalAsyncQueryCompilationContext(Model);
+            var queryExecutor = queryCompilationContext.CreateVisitor().CreateAsyncQueryExecutor<TResult>(queryModel);
             var queryContext = new RelationalQueryContext(Model, Logger, stateManager, _connection, ValueReaderFactory);
 
-            return queryExecutor(queryContext);
+            return queryExecutor(queryContext, null);
         }
     }
 }
