@@ -23,11 +23,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 await testDatabase.ExecuteNonQueryAsync(
                     generator.Generate(new[] { sequenceIdentityGenerator.CreateMigrationOperation() }, generateIdempotentSql: true).Single().Sql);
 
-                var next = sequenceIdentityGenerator.NextAsync(CancellationToken.None).Result;
+                var next = sequenceIdentityGenerator.NextAsync().Result;
 
                 for (var i = 1; i <= 100; i++)
                 {
-                    Assert.Equal(next + i, await sequenceIdentityGenerator.NextAsync(CancellationToken.None));
+                    Assert.Equal(next + i, await sequenceIdentityGenerator.NextAsync());
                 }
             }
         }

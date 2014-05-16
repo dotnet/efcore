@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
             var executor = new BatchExecutor(new Mock<SqlGenerator> { CallBase = true }.Object, connection, new RelationalTypeMapper());
 
-            await executor.ExecuteAsync(new[] { batch }, CancellationToken.None);
+            await executor.ExecuteAsync(new[] { batch });
 
             mockReader.Verify(r => r.ReadAsync(It.IsAny<CancellationToken>()), Times.Once);
             mockReader.Verify(r => r.NextResultAsync(It.IsAny<CancellationToken>()), Times.Once);
@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
             var executor = new BatchExecutor(new Mock<SqlGenerator> { CallBase = true }.Object, connection, new RelationalTypeMapper());
 
-            await executor.ExecuteAsync(new[] { batch }, CancellationToken.None);
+            await executor.ExecuteAsync(new[] { batch });
 
             Assert.Equal(42, stateEntry[stateEntry.EntityType.GetProperty("Col1")]);
             Assert.Equal("Test", stateEntry[stateEntry.EntityType.GetProperty("Col2")]);
@@ -74,7 +74,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
             var executor = new BatchExecutor(new Mock<SqlGenerator> { CallBase = true }.Object, connection, new RelationalTypeMapper());
 
-            await executor.ExecuteAsync(new[] { batch }, CancellationToken.None);
+            await executor.ExecuteAsync(new[] { batch });
 
             Assert.Equal(42, stateEntry[stateEntry.EntityType.GetProperty("Col1")]);
             Assert.Equal("FortyTwo", stateEntry[stateEntry.EntityType.GetProperty("Col2")]);
@@ -95,7 +95,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
             var executor = new BatchExecutor(new Mock<SqlGenerator> { CallBase = true }.Object, connection, new RelationalTypeMapper());
 
-            await executor.ExecuteAsync(new[] { batch }, CancellationToken.None);
+            await executor.ExecuteAsync(new[] { batch });
 
             Assert.Equal(1, stateEntry[stateEntry.EntityType.GetProperty("Col1")]);
             Assert.Equal("FortyTwo", stateEntry[stateEntry.EntityType.GetProperty("Col2")]);
@@ -120,7 +120,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
             Assert.Equal(Strings.TooManyRowsForModificationCommand,
                 (await Assert.ThrowsAsync<DbUpdateException>(
-                    async () => await executor.ExecuteAsync(new[] { batch }, CancellationToken.None))).Message);
+                    async () => await executor.ExecuteAsync(new[] { batch }))).Message);
         }
 
         [Fact]
@@ -138,7 +138,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
             Assert.Equal(Strings.FormatUpdateConcurrencyException(0, 1),
                 (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
-                    async () => await executor.ExecuteAsync(new[] { batch }, CancellationToken.None))).Message);
+                    async () => await executor.ExecuteAsync(new[] { batch }))).Message);
         }
 
         [Fact]
@@ -156,7 +156,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
             Assert.Equal(Strings.FormatUpdateConcurrencyException(1, 0),
                 (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
-                    async () => await executor.ExecuteAsync(new[] { batch }, CancellationToken.None))).Message);
+                    async () => await executor.ExecuteAsync(new[] { batch }))).Message);
         }
 
         private RelationalConnection SetupMockConnection(DbDataReader dataReader)

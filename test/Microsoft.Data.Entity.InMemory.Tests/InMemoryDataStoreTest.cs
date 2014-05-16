@@ -67,7 +67,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
 
             var customer = new Customer { Id = 42, Name = "Unikorn" };
             var entityEntry = new ClrStateEntry(configuration, entityType, customer);
-            await entityEntry.SetEntityStateAsync(EntityState.Added, CancellationToken.None);
+            await entityEntry.SetEntityStateAsync(EntityState.Added);
 
             var inMemoryDataStore = new InMemoryDataStore(configuration, new InMemoryDatabase(new NullLoggerFactory()));
 
@@ -86,14 +86,14 @@ namespace Microsoft.Data.Entity.InMemory.Tests
 
             var customer = new Customer { Id = 42, Name = "Unikorn" };
             var entityEntry = new ClrStateEntry(configuration, entityType, customer);
-            await entityEntry.SetEntityStateAsync(EntityState.Added, CancellationToken.None);
+            await entityEntry.SetEntityStateAsync(EntityState.Added);
 
             var inMemoryDataStore = new InMemoryDataStore(configuration, new InMemoryDatabase(new NullLoggerFactory()));
 
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry });
 
             customer.Name = "Unikorn, The Return";
-            await entityEntry.SetEntityStateAsync(EntityState.Modified, CancellationToken.None);
+            await entityEntry.SetEntityStateAsync(EntityState.Modified);
 
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry });
 
@@ -110,14 +110,14 @@ namespace Microsoft.Data.Entity.InMemory.Tests
 
             var customer = new Customer { Id = 42, Name = "Unikorn" };
             var entityEntry = new ClrStateEntry(configuration, entityType, customer);
-            await entityEntry.SetEntityStateAsync(EntityState.Added, CancellationToken.None);
+            await entityEntry.SetEntityStateAsync(EntityState.Added);
 
             var inMemoryDataStore = new InMemoryDataStore(configuration, new InMemoryDatabase(new NullLoggerFactory()));
 
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry });
 
             customer.Name = "Unikorn, The Return";
-            await entityEntry.SetEntityStateAsync(EntityState.Deleted, CancellationToken.None);
+            await entityEntry.SetEntityStateAsync(EntityState.Deleted);
 
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry });
 
@@ -133,7 +133,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
 
             var customer = new Customer { Id = 42, Name = "Unikorn" };
             var entityEntry = new ClrStateEntry(configuration, entityType, customer);
-            await entityEntry.SetEntityStateAsync(EntityState.Added, CancellationToken.None);
+            await entityEntry.SetEntityStateAsync(EntityState.Added);
 
             var mockLogger = new Mock<ILogger>();
             var mockFactory = new Mock<ILoggerFactory>();

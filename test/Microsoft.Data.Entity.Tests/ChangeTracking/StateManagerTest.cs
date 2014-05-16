@@ -227,9 +227,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var services = new ServiceCollection();
             services.AddEntityFramework();
-            services.AddInstance<IEntityStateListener>(listeners[0].Object);
-            services.AddInstance<IEntityStateListener>(listeners[1].Object);
-            services.AddInstance<IEntityStateListener>(listeners[2].Object);
+            services.AddInstance(listeners[0].Object);
+            services.AddInstance(listeners[1].Object);
+            services.AddInstance(listeners[2].Object);
 
             var config = new DbContext(services.BuildServiceProvider(),
                 new DbContextOptions()

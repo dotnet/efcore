@@ -125,7 +125,7 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(entity, "entity");
 
-            return AddAsync(entity, CancellationToken.None).Result;
+            return AddAsync(entity).Result;
         }
 
         public virtual async Task<TEntity> AddAsync<TEntity>(

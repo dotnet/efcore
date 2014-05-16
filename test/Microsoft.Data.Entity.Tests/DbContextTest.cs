@@ -515,18 +515,18 @@ namespace Microsoft.Data.Entity.Tests
         {
             var factory = Mock.Of<OriginalValuesFactory>();
             var serviceCollection = new ServiceCollection()
-                .AddSingleton<DbSetFinder, DbSetFinder>()
-                .AddSingleton<DbSetInitializer, DbSetInitializer>()
-                .AddSingleton<ClrPropertyGetterSource, ClrPropertyGetterSource>()
-                .AddSingleton<ClrPropertySetterSource, ClrPropertySetterSource>()
-                .AddSingleton<ClrCollectionAccessorSource, ClrCollectionAccessorSource>()
-                .AddSingleton<EntityMaterializerSource, EntityMaterializerSource>()
-                .AddSingleton<MemberMapper, MemberMapper>()
-                .AddSingleton<FieldMatcher, FieldMatcher>()
-                .AddSingleton<DataStoreSelector, DataStoreSelector>()
-                .AddScoped<DbContextConfiguration, DbContextConfiguration>()
-                .AddScoped<ContextSets, ContextSets>()
-                .AddInstance<OriginalValuesFactory>(factory);
+                .AddSingleton<DbSetFinder>()
+                .AddSingleton<DbSetInitializer>()
+                .AddSingleton<ClrPropertyGetterSource>()
+                .AddSingleton<ClrPropertySetterSource>()
+                .AddSingleton<ClrCollectionAccessorSource>()
+                .AddSingleton<EntityMaterializerSource>()
+                .AddSingleton<MemberMapper>()
+                .AddSingleton<FieldMatcher>()
+                .AddSingleton<DataStoreSelector>()
+                .AddScoped<DbContextConfiguration>()
+                .AddScoped<ContextSets>()
+                .AddInstance(factory);
 
             var provider = serviceCollection.BuildServiceProvider();
 

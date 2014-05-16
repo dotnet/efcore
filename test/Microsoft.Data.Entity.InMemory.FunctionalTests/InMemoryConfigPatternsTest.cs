@@ -260,8 +260,8 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             public void Can_register_context_with_DI_container_and_have_it_injected()
             {
                 var services = new ServiceCollection();
-                services.AddTransient<BlogContext, BlogContext>()
-                    .AddTransient<MyController, MyController>()
+                services.AddTransient<BlogContext>()
+                    .AddTransient<MyController>()
                     .AddEntityFramework()
                     .AddInMemoryStore();
                 var serviceProvider = services.BuildServiceProvider();
@@ -314,8 +314,8 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                     .BuildConfiguration();
 
                 var services = new ServiceCollection();
-                services.AddTransient<BlogContext, BlogContext>()
-                    .AddTransient<MyController, MyController>()
+                services.AddTransient<BlogContext>()
+                    .AddTransient<MyController>()
                     .AddInstance(configuration)
                     .AddEntityFramework()
                     .AddInMemoryStore();
@@ -373,8 +373,8 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                     .BuildConfiguration();
 
                 var services = new ServiceCollection();
-                services.AddTransient<BlogContext, BlogContext>()
-                    .AddTransient<MyController, MyController>()
+                services.AddTransient<BlogContext>()
+                    .AddTransient<MyController>()
                     .AddInstance(configuration)
                     .AddEntityFramework()
                     .AddInMemoryStore();
@@ -432,11 +432,11 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                     .BuildConfiguration(() => new AccountConfiguration());
 
                 var services = new ServiceCollection();
-                services.AddTransient<BlogContext, BlogContext>()
-                    .AddTransient<BlogContext, BlogContext>()
-                    .AddTransient<AccountContext, AccountContext>()
-                    .AddTransient<MyBlogController, MyBlogController>()
-                    .AddTransient<MyAccountController, MyAccountController>()
+                services.AddTransient<BlogContext>()
+                    .AddTransient<BlogContext>()
+                    .AddTransient<AccountContext>()
+                    .AddTransient<MyBlogController>()
+                    .AddTransient<MyAccountController>()
                     .AddInstance(blogCofiguration)
                     .AddInstance(accountCofiguration)
                     .AddEntityFramework()

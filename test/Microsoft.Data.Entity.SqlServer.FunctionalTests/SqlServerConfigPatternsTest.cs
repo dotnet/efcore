@@ -276,8 +276,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 var serviceCollection = new ServiceCollection();
                 serviceCollection.AddEntityFramework().AddSqlServer();
                 var serviceProvider = serviceCollection
-                    .AddTransient<NorthwindContext, NorthwindContext>()
-                    .AddTransient<MyController, MyController>()
+                    .AddTransient<NorthwindContext>()
+                    .AddTransient<MyController>()
                     .BuildServiceProvider();
 
                 using (await TestDatabase.Northwind())
@@ -337,8 +337,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 var serviceCollection = new ServiceCollection();
                 serviceCollection.AddEntityFramework().AddSqlServer();
                 serviceCollection
-                    .AddTransient<MyController, MyController>()
-                    .AddTransient<NorthwindContext, NorthwindContext>()
+                    .AddTransient<MyController>()
+                    .AddTransient<NorthwindContext>()
                     .AddInstance(configuration);
                 var serviceProvider = serviceCollection.BuildServiceProvider();
 
@@ -398,8 +398,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 var serviceCollection = new ServiceCollection();
                 serviceCollection.AddEntityFramework().AddSqlServer();
                 serviceCollection
-                    .AddTransient<NorthwindContext, NorthwindContext>()
-                    .AddTransient<MyController, MyController>()
+                    .AddTransient<NorthwindContext>()
+                    .AddTransient<MyController>()
                     .AddInstance(configuration);
                 var serviceProvider = serviceCollection.BuildServiceProvider();
 

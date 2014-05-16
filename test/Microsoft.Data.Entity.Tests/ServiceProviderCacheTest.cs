@@ -19,15 +19,15 @@ namespace Microsoft.Data.Entity.Tests
             var config1 = BuildConfiguration(b =>
                 {
                     b.ServiceCollection.AddSingleton<IFakeServiceA, FakeService1>();
-                    b.ServiceCollection.AddSingleton<FakeService3, FakeService3>();
-                    b.ServiceCollection.AddInstance<FakeService4>(serviceInstance);
+                    b.ServiceCollection.AddSingleton<FakeService3>();
+                    b.ServiceCollection.AddInstance(serviceInstance);
                 });
 
             var config2 = BuildConfiguration(b =>
                 {
                     b.ServiceCollection.AddSingleton<IFakeServiceA, FakeService1>();
-                    b.ServiceCollection.AddSingleton<FakeService3, FakeService3>();
-                    b.ServiceCollection.AddInstance<FakeService4>(serviceInstance);
+                    b.ServiceCollection.AddSingleton<FakeService3>();
+                    b.ServiceCollection.AddInstance(serviceInstance);
                 });
 
             var cache = new ServiceProviderCache();
@@ -41,15 +41,15 @@ namespace Microsoft.Data.Entity.Tests
             var config1 = BuildConfiguration(b =>
                 {
                     b.ServiceCollection.AddSingleton<IFakeServiceA, FakeService1>();
-                    b.ServiceCollection.AddSingleton<FakeService3, FakeService3>();
-                    b.ServiceCollection.AddInstance<FakeService4>(new FakeService4());
+                    b.ServiceCollection.AddSingleton<FakeService3>();
+                    b.ServiceCollection.AddInstance(new FakeService4());
                 });
 
             var config2 = BuildConfiguration(b =>
                 {
                     b.ServiceCollection.AddSingleton<IFakeServiceA, FakeService1>();
-                    b.ServiceCollection.AddSingleton<FakeService3, FakeService3>();
-                    b.ServiceCollection.AddInstance<FakeService4>(new FakeService4());
+                    b.ServiceCollection.AddSingleton<FakeService3>();
+                    b.ServiceCollection.AddInstance(new FakeService4());
                 });
 
             var cache = new ServiceProviderCache();
@@ -65,15 +65,15 @@ namespace Microsoft.Data.Entity.Tests
             var config1 = BuildConfiguration(b =>
                 {
                     b.ServiceCollection.AddSingleton<IFakeServiceA, FakeService1>();
-                    b.ServiceCollection.AddSingleton<FakeService3, FakeService3>();
-                    b.ServiceCollection.AddInstance<FakeService4>(serviceInstance);
+                    b.ServiceCollection.AddSingleton<FakeService3>();
+                    b.ServiceCollection.AddInstance(serviceInstance);
                 });
 
             var config2 = BuildConfiguration(b =>
                 {
                     b.ServiceCollection.AddSingleton<IFakeServiceA, FakeService2>();
-                    b.ServiceCollection.AddSingleton<FakeService3, FakeService3>();
-                    b.ServiceCollection.AddInstance<FakeService4>(serviceInstance);
+                    b.ServiceCollection.AddSingleton<FakeService3>();
+                    b.ServiceCollection.AddInstance(serviceInstance);
                 });
 
             var cache = new ServiceProviderCache();
@@ -89,15 +89,15 @@ namespace Microsoft.Data.Entity.Tests
             var config1 = BuildConfiguration(b =>
                 {
                     b.ServiceCollection.AddSingleton<IFakeServiceA, FakeService1>();
-                    b.ServiceCollection.AddSingleton<FakeService3, FakeService3>();
-                    b.ServiceCollection.AddInstance<FakeService4>(serviceInstance);
+                    b.ServiceCollection.AddSingleton<FakeService3>();
+                    b.ServiceCollection.AddInstance(serviceInstance);
                 });
 
             var config2 = BuildConfiguration(b =>
                 {
                     b.ServiceCollection.AddSingleton<IFakeServiceA, FakeService1>();
-                    b.ServiceCollection.AddScoped<FakeService3, FakeService3>();
-                    b.ServiceCollection.AddInstance<FakeService4>(serviceInstance);
+                    b.ServiceCollection.AddScoped<FakeService3>();
+                    b.ServiceCollection.AddInstance(serviceInstance);
                 });
 
             var cache = new ServiceProviderCache();
@@ -113,15 +113,15 @@ namespace Microsoft.Data.Entity.Tests
             var config1 = BuildConfiguration(b =>
                 {
                     b.ServiceCollection.AddSingleton<IFakeServiceA, FakeService1>();
-                    b.ServiceCollection.AddSingleton<FakeService3, FakeService3>();
-                    b.ServiceCollection.AddInstance<FakeService4>(serviceInstance);
+                    b.ServiceCollection.AddSingleton<FakeService3>();
+                    b.ServiceCollection.AddInstance(serviceInstance);
                 });
 
             var config2 = BuildConfiguration(b =>
                 {
                     b.ServiceCollection.AddSingleton<IFakeServiceB, FakeService1>();
-                    b.ServiceCollection.AddSingleton<FakeService3, FakeService3>();
-                    b.ServiceCollection.AddInstance<FakeService4>(serviceInstance);
+                    b.ServiceCollection.AddSingleton<FakeService3>();
+                    b.ServiceCollection.AddInstance(serviceInstance);
                 });
 
             var cache = new ServiceProviderCache();

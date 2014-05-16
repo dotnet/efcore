@@ -19,10 +19,10 @@ namespace Microsoft.Framework.DependencyInjection
                 // TODO: Need to be able to pick the appropriate identity generator for the data store in use
                 .AddSingleton<IdentityGeneratorFactory, InMemoryIdentityGeneratorFactory>()
                 .AddSingleton<DataStoreSource, InMemoryDataStoreSource>()
-                .AddSingleton<InMemoryDatabase, InMemoryDatabase>()
-                .AddScoped<InMemoryDataStore, InMemoryDataStore>()
-                .AddScoped<InMemoryConnection, InMemoryConnection>()
-                .AddScoped<InMemoryDataStoreCreator, InMemoryDataStoreCreator>();
+                .AddSingleton<InMemoryDatabase>()
+                .AddScoped<InMemoryDataStore>()
+                .AddScoped<InMemoryConnection>()
+                .AddScoped<InMemoryDataStoreCreator>();
 
             return builder;
         }

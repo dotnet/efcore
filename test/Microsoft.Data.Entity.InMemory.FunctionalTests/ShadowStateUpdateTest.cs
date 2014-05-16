@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 customerEntry[customerType.GetProperty("Id")] = 42;
                 customerEntry[customerType.GetProperty("Name")] = "Daenerys";
 
-                await customerEntry.SetEntityStateAsync(EntityState.Added, CancellationToken.None);
+                await customerEntry.SetEntityStateAsync(EntityState.Added);
 
                 await context.SaveChangesAsync();
 
@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 customerEntry[customerType.GetProperty("Id")] = 42;
                 customerEntry[customerType.GetProperty("Name")] = "Daenerys Targaryen";
 
-                await customerEntry.SetEntityStateAsync(EntityState.Modified, CancellationToken.None);
+                await customerEntry.SetEntityStateAsync(EntityState.Modified);
 
                 await context.SaveChangesAsync();
             }
@@ -67,7 +67,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 var customerEntry = context.ChangeTracker.StateManager.CreateNewEntry(customerType);
                 customerEntry[customerType.GetProperty("Id")] = 42;
 
-                await customerEntry.SetEntityStateAsync(EntityState.Deleted, CancellationToken.None);
+                await customerEntry.SetEntityStateAsync(EntityState.Deleted);
 
                 await context.SaveChangesAsync();
             }
