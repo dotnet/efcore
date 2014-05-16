@@ -21,6 +21,7 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotNull(entityType, "entityType");
 
             _entities.Value = _entities.Value.Add(entityType);
+            entityType.Model = this;
         }
 
         public virtual void RemoveEntityType([NotNull] EntityType entityType)
@@ -28,6 +29,7 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotNull(entityType, "entityType");
 
             _entities.Value = _entities.Value.Remove(entityType);
+            entityType.Model = null;
         }
 
         [CanBeNull]

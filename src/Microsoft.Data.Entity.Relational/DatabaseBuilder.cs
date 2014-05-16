@@ -110,26 +110,13 @@ namespace Microsoft.Data.Entity.Relational
                         IsNullable = property.IsNullable,
                         DefaultValue = property.ColumnDefaultValue(),
                         DefaultSql = property.ColumnDefaultSql(),
-                        ValueGenerationStrategy = TranslateValueGenerationStrategy(property.ValueGenerationStrategy),
+                        ValueGenerationStrategy = property.ValueGenerationOnSave,
                         IsTimestamp = property.PropertyType == typeof(byte[]) && property.IsConcurrencyToken
                     };
 
             table.AddColumn(column);
 
             return column;
-        }
-
-        private static StoreValueGenerationStrategy TranslateValueGenerationStrategy(ValueGenerationStrategy generationStrategy)
-        {
-            switch (generationStrategy)
-            {
-                case ValueGenerationStrategy.StoreComputed:
-                    return StoreValueGenerationStrategy.Computed;
-                case ValueGenerationStrategy.StoreIdentity:
-                    return StoreValueGenerationStrategy.Identity;
-                default:
-                    return StoreValueGenerationStrategy.None;
-            }
         }
 
         private PrimaryKey BuildPrimaryKey(DatabaseModel database, IKey primaryKey)

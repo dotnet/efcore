@@ -51,13 +51,17 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var entityType = new EntityType(typeof(Customer));
 
+            Assert.Null(entityType.Model);
+
             model.AddEntityType(entityType);
 
             Assert.NotNull(model.TryGetEntityType(typeof(Customer)));
+            Assert.Same(model, entityType.Model);
 
             model.RemoveEntityType(entityType);
 
             Assert.Null(model.TryGetEntityType(typeof(Customer)));
+            Assert.Null(entityType.Model);
         }
 
         [Fact]

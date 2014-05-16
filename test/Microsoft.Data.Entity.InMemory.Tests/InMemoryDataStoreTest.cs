@@ -167,7 +167,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
 
         private static DbContextConfiguration CreateConfiguration()
         {
-            return CreateConfiguration(new DbContextOptions().BuildConfiguration());
+            return CreateConfiguration(new DbContextOptions().UseInMemoryStore().BuildConfiguration());
         }
 
         private static DbContextConfiguration CreateConfiguration(ImmutableDbContextOptions configuration)

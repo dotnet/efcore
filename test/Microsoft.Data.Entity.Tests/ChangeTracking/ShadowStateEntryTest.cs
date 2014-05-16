@@ -46,7 +46,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entityType1 = new EntityType("SomeEntity");
             model.AddEntityType(entityType1);
             var key1 = entityType1.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false);
-            key1.ValueGenerationStrategy = ValueGenerationStrategy.StoreIdentity;
+            key1.ValueGenerationOnSave = ValueGenerationOnSave.WhenInserting;
+            key1.ValueGenerationOnAdd = ValueGenerationOnAdd.Client;
             entityType1.SetKey(key1);
             entityType1.AddProperty("Name", typeof(string), shadowProperty: true, concurrencyToken: true);
 

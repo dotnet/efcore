@@ -34,24 +34,6 @@ namespace Microsoft.Framework.DependencyInjection.Advanced
             return builder;
         }
 
-        public static EntityServicesBuilder UseIdentityGeneratorFactory([NotNull] this EntityServicesBuilder builder, [NotNull] IdentityGeneratorFactory factory)
-        {
-            Check.NotNull(factory, "factory");
-
-            builder.ServiceCollection.AddInstance(factory);
-
-            return builder;
-        }
-
-        public static EntityServicesBuilder UseActiveIdentityGenerators([NotNull] this EntityServicesBuilder builder, [NotNull] ActiveIdentityGenerators generators)
-        {
-            Check.NotNull(generators, "generators");
-
-            builder.ServiceCollection.AddInstance(generators);
-
-            return builder;
-        }
-
         public static EntityServicesBuilder UseDbSetFinder([NotNull] this EntityServicesBuilder builder, [NotNull] DbSetFinder finder)
         {
             Check.NotNull(finder, "finder");
@@ -127,22 +109,6 @@ namespace Microsoft.Framework.DependencyInjection.Advanced
             where TService : DbSetInitializer
         {
             builder.ServiceCollection.AddSingleton<DbSetInitializer, TService>();
-
-            return builder;
-        }
-
-        public static EntityServicesBuilder UseIdentityGeneratorFactory<TService>([NotNull] this EntityServicesBuilder builder)
-            where TService : IdentityGeneratorFactory
-        {
-            builder.ServiceCollection.AddSingleton<IdentityGeneratorFactory, TService>();
-
-            return builder;
-        }
-
-        public static EntityServicesBuilder UseActiveIdentityGenerators<TService>([NotNull] this EntityServicesBuilder builder)
-            where TService : ActiveIdentityGenerators
-        {
-            builder.ServiceCollection.AddSingleton<ActiveIdentityGenerators, TService>();
 
             return builder;
         }

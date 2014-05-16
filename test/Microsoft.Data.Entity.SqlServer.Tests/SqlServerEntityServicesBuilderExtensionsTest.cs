@@ -28,7 +28,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.True(services.Any(sd => sd.ServiceType == typeof(CommandBatchPreparer)));
 
             // SQL Server dingletones
-            Assert.True(services.Any(sd => sd.ServiceType == typeof(IdentityGeneratorFactory)));
             Assert.True(services.Any(sd => sd.ServiceType == typeof(DataStoreSource)));
             Assert.True(services.Any(sd => sd.ServiceType == typeof(SqlServerSqlGenerator)));
             Assert.True(services.Any(sd => sd.ServiceType == typeof(SqlStatementExecutor)));
@@ -60,7 +59,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var typedReaderFactory = scopedProvider.GetService<RelationalTypedValueReaderFactory>();
             var batchPreparer = scopedProvider.GetService<CommandBatchPreparer>();
 
-            var identityGeneratorFactory = scopedProvider.GetService<IdentityGeneratorFactory>();
             var dataStoreSource = scopedProvider.GetService<DataStoreSource>();
             var sqlServerSqlGenerator = scopedProvider.GetService<SqlServerSqlGenerator>();
             var sqlStatementExecutor = scopedProvider.GetService<SqlStatementExecutor>();
@@ -77,7 +75,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.NotNull(typedReaderFactory);
             Assert.NotNull(batchPreparer);
 
-            Assert.NotNull(identityGeneratorFactory);
             Assert.NotNull(dataStoreSource);
             Assert.NotNull(sqlServerSqlGenerator);
             Assert.NotNull(sqlStatementExecutor);
@@ -103,7 +100,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.Same(typedReaderFactory, scopedProvider.GetService<RelationalTypedValueReaderFactory>());
             Assert.Same(batchPreparer, scopedProvider.GetService<CommandBatchPreparer>());
 
-            Assert.Same(identityGeneratorFactory, scopedProvider.GetService<IdentityGeneratorFactory>());
             Assert.Same(dataStoreSource, scopedProvider.GetService<DataStoreSource>());
             Assert.Same(sqlServerSqlGenerator, scopedProvider.GetService<SqlServerSqlGenerator>());
             Assert.Same(sqlStatementExecutor, scopedProvider.GetService<SqlStatementExecutor>());

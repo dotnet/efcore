@@ -3,22 +3,22 @@
 
 using System;
 using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Data.Entity.Identity;
+using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.SqlServer.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer
 {
-    public class SequentialGuidIdentityGenerator : IIdentityGenerator<Guid>
+    public class SequentialGuidValueGenerator : SimpleValueGenerator
     {
-        private static long _counter;
+        private long _counter = DateTime.UtcNow.Ticks;
 
-        static SequentialGuidIdentityGenerator()
+        public override object Next(DbContextConfiguration contextConfiguration, IProperty property)
         {
-            _counter = DateTime.UtcNow.Ticks;
-        }
+            Check.NotNull(contextConfiguration, "contextConfiguration");
+            Check.NotNull(property, "property");
 
-        public virtual Task<Guid> NextAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
             var guidBytes = Guid.NewGuid().ToByteArray();
             var counterBytes = BitConverter.GetBytes(Interlocked.Increment(ref _counter));
 
@@ -36,12 +36,7 @@ namespace Microsoft.Data.Entity.SqlServer
             guidBytes[14] = counterBytes[3];
             guidBytes[15] = counterBytes[2];
 
-            return Task.FromResult(new Guid(guidBytes));
-        }
-
-        async Task<object> IIdentityGenerator.NextAsync(CancellationToken cancellationToken)
-        {
-            return await NextAsync(cancellationToken).ConfigureAwait(false);
+            return new Guid(guidBytes);
         }
     }
 }

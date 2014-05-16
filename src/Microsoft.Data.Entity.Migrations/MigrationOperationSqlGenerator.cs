@@ -7,6 +7,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Migrations.Utilities;
 using Microsoft.Data.Entity.Relational;
@@ -528,7 +529,7 @@ namespace Microsoft.Data.Entity.Migrations
             }
 
             // TODO: Move to SQL Server specific generation
-            if (column.ValueGenerationStrategy == StoreValueGenerationStrategy.Identity)
+            if (column.ValueGenerationStrategy == ValueGenerationOnSave.WhenInserting)
             {
                 stringBuilder.Append(" IDENTITY");
             }

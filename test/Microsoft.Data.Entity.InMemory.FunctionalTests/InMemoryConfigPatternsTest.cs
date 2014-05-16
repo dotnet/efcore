@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             {
                 using (var context = new BlogContext())
                 {
-                    context.Blogs.Add(new Blog { Id = 1, Name = "The Waffle Cart" });
+                    context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
                     context.SaveChanges();
                 }
 
@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 {
                     var blog = context.Blogs.SingleOrDefault();
 
-                    Assert.Equal(1, blog.Id);
+                    Assert.NotEqual(0, blog.Id);
                     Assert.Equal("The Waffle Cart", blog.Name);
                 }
             }
@@ -54,7 +54,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
                 using (var context = new BlogContext(configuration))
                 {
-                    context.Blogs.Add(new Blog { Id = 1, Name = "The Waffle Cart" });
+                    context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
                     context.SaveChanges();
                 }
 
@@ -62,7 +62,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 {
                     var blog = context.Blogs.SingleOrDefault();
 
-                    Assert.Equal(1, blog.Id);
+                    Assert.NotEqual(0, blog.Id);
                     Assert.Equal("The Waffle Cart", blog.Name);
                 }
             }
@@ -89,7 +89,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
                 using (var context = new BlogContext(serviceProvider))
                 {
-                    context.Blogs.Add(new Blog { Id = 1, Name = "The Waffle Cart" });
+                    context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
                     context.SaveChanges();
                 }
 
@@ -97,7 +97,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 {
                     var blog = context.Blogs.SingleOrDefault();
 
-                    Assert.Equal(1, blog.Id);
+                    Assert.NotEqual(0, blog.Id);
                     Assert.Equal("The Waffle Cart", blog.Name);
                 }
             }
@@ -133,7 +133,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
                 using (var context = new BlogContext(serviceProvider, configuration))
                 {
-                    context.Blogs.Add(new Blog { Id = 1, Name = "The Waffle Cart" });
+                    context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
                     context.SaveChanges();
                 }
 
@@ -141,7 +141,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 {
                     var blog = context.Blogs.SingleOrDefault();
 
-                    Assert.Equal(1, blog.Id);
+                    Assert.NotEqual(0, blog.Id);
                     Assert.Equal("The Waffle Cart", blog.Name);
                 }
             }
@@ -168,7 +168,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
                 using (var context = new BlogContext(serviceProvider))
                 {
-                    context.Blogs.Add(new Blog { Id = 1, Name = "The Waffle Cart" });
+                    context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
                     context.SaveChanges();
                 }
 
@@ -176,7 +176,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 {
                     var blog = context.Blogs.SingleOrDefault();
 
-                    Assert.Equal(1, blog.Id);
+                    Assert.NotEqual(0, blog.Id);
                     Assert.Equal("The Waffle Cart", blog.Name);
                 }
             }
@@ -204,7 +204,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                         {
                             using (var context = new BlogContext())
                             {
-                                context.Blogs.Add(new Blog { Id = 1, Name = "The Waffle Cart" });
+                                context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
                                 context.SaveChanges();
                             }
                         }).InnerException.Message);
@@ -232,7 +232,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                         {
                             using (var context = new BlogContext(serviceProvider))
                             {
-                                context.Blogs.Add(new Blog { Id = 1, Name = "The Waffle Cart" });
+                                context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
                                 context.SaveChanges();
                             }
                         }).InnerException.Message);
@@ -282,12 +282,12 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
                 public void Test()
                 {
-                    _context.Blogs.Add(new Blog { Id = 1, Name = "The Waffle Cart" });
+                    _context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
                     _context.SaveChanges();
 
                     var blog = _context.Blogs.SingleOrDefault();
 
-                    Assert.Equal(1, blog.Id);
+                    Assert.NotEqual(0, blog.Id);
                     Assert.Equal("The Waffle Cart", blog.Name);
                 }
             }
@@ -337,12 +337,12 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
                 public void Test()
                 {
-                    _context.Blogs.Add(new Blog { Id = 1, Name = "The Waffle Cart" });
+                    _context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
                     _context.SaveChanges();
 
                     var blog = _context.Blogs.SingleOrDefault();
 
-                    Assert.Equal(1, blog.Id);
+                    Assert.NotEqual(0, blog.Id);
                     Assert.Equal("The Waffle Cart", blog.Name);
                 }
             }
@@ -396,12 +396,12 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
                 public void Test()
                 {
-                    _context.Blogs.Add(new Blog { Id = 1, Name = "The Waffle Cart" });
+                    _context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
                     _context.SaveChanges();
 
                     var blog = _context.Blogs.SingleOrDefault();
 
-                    Assert.Equal(1, blog.Id);
+                    Assert.NotEqual(0, blog.Id);
                     Assert.Equal("The Waffle Cart", blog.Name);
                 }
             }
@@ -468,12 +468,12 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
                 public void Test()
                 {
-                    _context.Blogs.Add(new Blog { Id = 1, Name = "The Waffle Cart" });
+                    _context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
                     _context.SaveChanges();
 
                     var blog = _context.Blogs.SingleOrDefault();
 
-                    Assert.Equal(1, blog.Id);
+                    Assert.NotEqual(0, blog.Id);
                     Assert.Equal("The Waffle Cart", blog.Name);
                 }
             }
@@ -491,7 +491,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
                 public void Test()
                 {
-                    _context.Accounts.Add(new Account { Id = 1, Name = "Eeky Bear" });
+                    _context.Accounts.Add(new Account { Name = "Eeky Bear" });
                     _context.SaveChanges();
 
                     var account = _context.Accounts.SingleOrDefault();

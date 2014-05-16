@@ -9,6 +9,8 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public interface IEntityType : IMetadata
     {
+        IModel Model { get; }
+
         string Name { get; }
 
         [CanBeNull]

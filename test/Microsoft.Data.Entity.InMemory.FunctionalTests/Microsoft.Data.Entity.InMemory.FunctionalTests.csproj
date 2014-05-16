@@ -55,8 +55,10 @@
     <PackageReference Include="xunit.execution" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GuidValueGeneratorEndToEndTest.cs" />
     <Compile Include="InMemoryConfigPatternsTest.cs" />
     <Compile Include="InMemoryDataStoreTest.cs" />
+    <Compile Include="InMemoryIntegerGeneratorEndToEndTest.cs" />
     <Compile Include="NorthwindQueryTest.cs" />
     <Compile Include="ShadowStateUpdateTest.cs" />
     <Compile Include="..\Shared\TestFileLogger.cs" />

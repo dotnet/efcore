@@ -2,17 +2,19 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
+using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.Storage
 {
-    public abstract class DataStoreSource<TDataStore, TConfiguration, TCreator, TConnection> : DataStoreSource
+    public abstract class DataStoreSource<TDataStore, TConfiguration, TCreator, TConnection, TValueGeneratorCache> : DataStoreSource
         where TDataStore : DataStore
         where TConfiguration : EntityConfigurationExtension
         where TCreator : DataStoreCreator
         where TConnection : DataStoreConnection
+        where TValueGeneratorCache : ValueGeneratorCache
     {
         public override DataStore GetStore(DbContextConfiguration configuration)
         {
@@ -36,6 +38,14 @@ namespace Microsoft.Data.Entity.Storage
 
             // TODO: Use GetRequiredService, by sharing source if possible
             return configuration.Services.ServiceProvider.GetService<TConnection>();
+        }
+
+        public override ValueGeneratorCache GetValueGeneratorCache(DbContextConfiguration configuration)
+        {
+            Check.NotNull(configuration, "configuration");
+
+            // TODO: Use GetRequiredService, by sharing source if possible
+            return configuration.Services.ServiceProvider.GetService<TValueGeneratorCache>();
         }
 
         public override bool IsConfigured(DbContextConfiguration configuration)

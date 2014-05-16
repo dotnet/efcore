@@ -17,9 +17,10 @@ namespace Microsoft.Framework.DependencyInjection
             Check.NotNull(builder, "builder");
 
             builder.ServiceCollection
-                // TODO: Need to be able to pick the appropriate identity generator for the data store in use
-                .AddSingleton<IdentityGeneratorFactory, InMemoryIdentityGeneratorFactory>()
                 .AddSingleton<DataStoreSource, InMemoryDataStoreSource>()
+                .AddSingleton<InMemoryValueGeneratorCache>()
+                .AddSingleton<InMemoryValueGeneratorSelector>()
+                .AddSingleton<SimpleValueGeneratorFactory<InMemoryValueGenerator>>()
                 .AddSingleton<InMemoryDatabase>()
                 .AddScoped<InMemoryDataStore>()
                 .AddScoped<InMemoryConnection>()

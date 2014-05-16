@@ -60,14 +60,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
+    <Compile Include="SequentialGuidValueGeneratorTest.cs" />
     <Compile Include="SqlServerConfigurationExtensionTest.cs" />
     <Compile Include="SqlServerConnectionTest.cs" />
     <Compile Include="SqlServerDataStoreSourceTest.cs" />
     <Compile Include="SqlServerEntityServicesBuilderExtensionsTest.cs" />
     <Compile Include="SqlServerMigrationOperationSqlGeneratorTest.cs" />
+    <Compile Include="SqlServerSequenceValueGeneratorFactoryTest.cs" />
+    <Compile Include="SqlServerSequenceValueGeneratorTest.cs" />
     <Compile Include="SqlServerSqlGeneratorTest.cs" />
     <Compile Include="SqlServerTypeMapperTest.cs" />
     <Compile Include="..\Shared\ApiConsistencyTestBase.cs" />
+    <Compile Include="SqlServerValueGeneratorSelectorTest.cs" />
     <None Include="..\..\packages\KoreBuild\Build\Resources.tt">
       <Link>Properties\Resources.tt</Link>
       <Generator>TextTemplatingFileGenerator</Generator>

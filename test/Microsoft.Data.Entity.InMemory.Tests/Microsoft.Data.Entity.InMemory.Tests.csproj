@@ -66,6 +66,13 @@
     <Compile Include="InMemoryDataStoreTest.cs" />
     <Compile Include="InMemoryEntityServicesBuilderExtensionsTest.cs" />
     <Compile Include="..\Shared\ApiConsistencyTestBase.cs" />
+    <Compile Include="InMemoryValueGeneratorSelectorTest.cs" />
+    <Compile Include="InMemoryValueGeneratorTest.cs" />
+    <None Include="..\..\packages\KoreBuild\Build\Resources.tt">
+      <Link>Properties\Resources.tt</Link>
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <CustomToolNamespace>Microsoft.Data.Entity.InMemory.Tests</CustomToolNamespace>
+    </None>
     <Content Include="project.json" />
   </ItemGroup>
   <ItemGroup>

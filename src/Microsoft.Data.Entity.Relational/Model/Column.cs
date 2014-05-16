@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics.Contracts;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Model
@@ -61,7 +62,7 @@ namespace Microsoft.Data.Entity.Relational.Model
         public virtual object DefaultValue { get; [param: CanBeNull] set; }
 
         public virtual string DefaultSql { get; [param: CanBeNull] set; }
-        public virtual StoreValueGenerationStrategy ValueGenerationStrategy { get; set; }
+        public virtual ValueGenerationOnSave ValueGenerationStrategy { get; set; }
 
         public virtual bool HasDefault
         {

@@ -19,9 +19,14 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
             get { return typeof(TProperty); }
         }
 
-        public ValueGenerationStrategy ValueGenerationStrategy
+        public virtual ValueGenerationOnSave ValueGenerationOnSave
         {
-            get { return ValueGenerationStrategy.None; }
+            get { return ValueGenerationOnSave.None; }
+        }
+
+        public virtual ValueGenerationOnAdd ValueGenerationOnAdd
+        {
+            get { return ValueGenerationOnAdd.None; }
         }
 
         public bool IsNullable

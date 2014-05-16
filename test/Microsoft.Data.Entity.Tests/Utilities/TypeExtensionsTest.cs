@@ -22,6 +22,16 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             Assert.Equal(typeof(int), typeof(List<int>).GetSequenceType());
         }
 
+        [Fact]
+        public void IsInteger_returns_true_only_for_integer_types()
+        {
+            Assert.True(typeof(long).IsInteger());
+            Assert.True(typeof(int).IsInteger());
+            Assert.True(typeof(short).IsInteger());
+            Assert.True(typeof(byte).IsInteger());
+            Assert.False(typeof(bool).IsInteger());
+        }
+
         public class CtorFixture
         {
             public CtorFixture()

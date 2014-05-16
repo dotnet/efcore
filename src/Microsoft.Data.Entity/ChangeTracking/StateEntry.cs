@@ -141,10 +141,10 @@ namespace Microsoft.Data.Entity.ChangeTracking
         private Task<object> GenerateKeyValue(CancellationToken cancellationToken = default(CancellationToken))
         {
             var keyProperty = _entityType.GetKey().Properties.Single(); // TODO: Composite keys not implemented yet.
-            var identityGenerator = _configuration.Services.ActiveIdentityGenerators.GetOrAdd(keyProperty);
+            var valueGenerator = _configuration.ValueGeneratorCache.GetGenerator(keyProperty);
 
-            return identityGenerator != null
-                ? identityGenerator.NextAsync(cancellationToken)
+            return valueGenerator != null
+                ? valueGenerator.NextAsync(_configuration, keyProperty, cancellationToken)
                 : Task.FromResult<object>(null);
         }
 
@@ -409,8 +409,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         public virtual StateEntry PrepareToSave()
         {
             var storeGenerated = _entityType.Properties
-                .Where(p => p.ValueGenerationStrategy == ValueGenerationStrategy.StoreIdentity
-                            || p.ValueGenerationStrategy == ValueGenerationStrategy.StoreComputed).ToList();
+                .Where(p => p.ValueGenerationOnSave != ValueGenerationOnSave.None).ToList();
 
             if (storeGenerated.Any())
             {

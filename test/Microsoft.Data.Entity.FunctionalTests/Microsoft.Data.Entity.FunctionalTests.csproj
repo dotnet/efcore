@@ -56,6 +56,10 @@
     <Content Include="project.json" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Microsoft.Data.Entity.InMemory\Microsoft.Data.Entity.InMemory.csproj">
+      <Project>{ba3f5dbc-ec16-4d5a-8298-8226e6c5accc}</Project>
+      <Name>Microsoft.Data.Entity.InMemory</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\Microsoft.Data.Entity\Microsoft.Data.Entity.csproj">
       <Project>{71415CEC-8111-4C73-8751-512D22F10602}</Project>
       <Name>Microsoft.Data.Entity</Name>

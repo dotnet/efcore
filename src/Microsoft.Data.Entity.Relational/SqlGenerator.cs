@@ -236,7 +236,7 @@ namespace Microsoft.Data.Entity.Relational
                     .Append("WHERE ")
                     .AppendJoin(operations, (sb, v) =>
                         {
-                            if (v.Property.ValueGenerationStrategy == ValueGenerationStrategy.StoreIdentity
+                            if (v.Property.ValueGenerationOnSave == ValueGenerationOnSave.WhenInserting
                                 && v.IsRead)
                             {
                                 AppendIdentityWhereCondition(sb, v);

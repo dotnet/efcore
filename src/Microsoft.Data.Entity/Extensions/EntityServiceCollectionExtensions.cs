@@ -20,8 +20,8 @@ namespace Microsoft.Framework.DependencyInjection
 
             serviceCollection
                 .AddSingleton<IModelSource, DefaultModelSource>()
-                .AddSingleton<IdentityGeneratorFactory, DefaultIdentityGeneratorFactory>()
-                .AddSingleton<ActiveIdentityGenerators>()
+                .AddSingleton<SimpleValueGeneratorFactory<TemporaryValueGenerator>>()
+                .AddSingleton<SimpleValueGeneratorFactory<GuidValueGenerator>>()
                 .AddSingleton<DbSetFinder>()
                 .AddSingleton<DbSetInitializer>()
                 .AddSingleton<EntityKeyFactorySource>()

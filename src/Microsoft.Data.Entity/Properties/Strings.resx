@@ -219,4 +219,7 @@
   <data name="MultiplePropertiesMatchedAsKeys" xml:space="preserve">
     <value>Multiple potential primary key properties named '{property}' but differing only by case were found on entity type '{entityType}'. Configure the primary key explicitly using the SetKey fluent API.</value>
   </data>
+  <data name="NoValueGenerator" xml:space="preserve">
+    <value>No {generator} value generator has been configured for property '{entityType}.{propertyName}'. To use value generation for properties of type '{propertyType}' the data store must configure an appropriate value generator.</value>
+  </data>
 </root>

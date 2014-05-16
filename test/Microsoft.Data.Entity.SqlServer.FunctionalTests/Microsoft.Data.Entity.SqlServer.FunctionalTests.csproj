@@ -67,8 +67,8 @@
   <ItemGroup>
     <Compile Include="ExistingConnectionTest.cs" />
     <Compile Include="NorthwindQueryTest.cs" />
-    <Compile Include="SequenceIdentityGeneratorTest.cs" />
-    <Compile Include="SequentialGuidIdentityGeneratorTest.cs" />
+    <Compile Include="SequenceEndToEndTest.cs" />
+    <Compile Include="SequentialGuidEndToEndTest.cs" />
     <Compile Include="SqlFileLogger.cs" />
     <Compile Include="SqlServerConfigPatternsTest.cs" />
     <Compile Include="SqlServerDatabaseCreationTest.cs" />

@@ -45,11 +45,6 @@ namespace Microsoft.Data.Entity.Infrastructure
             get { return _serviceProvider; }
         }
 
-        public virtual ActiveIdentityGenerators ActiveIdentityGenerators
-        {
-            get { return _serviceProvider.GetRequiredService<ActiveIdentityGenerators>(); }
-        }
-
         public virtual ClrPropertyGetterSource ClrPropertyGetterSource
         {
             get { return _serviceProvider.GetRequiredService<ClrPropertyGetterSource>(); }

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Model;
@@ -77,7 +78,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 "dbo.MyTable",
                 new[]
                     {
-                        foo = new Column("Foo", "int") { IsNullable = false, ValueGenerationStrategy = StoreValueGenerationStrategy.Identity },
+                        foo = new Column("Foo", "int") { IsNullable = false, ValueGenerationStrategy = ValueGenerationOnSave.WhenInserting},
                         bar = new Column("Bar", "int") { IsNullable = true }
                     })
                 {

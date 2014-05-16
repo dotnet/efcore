@@ -7,6 +7,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Migrations.Utilities;
 using Microsoft.Data.Entity.Relational.Model;
@@ -612,7 +613,7 @@ namespace Microsoft.Data.Entity.Migrations
                 args.Add("unicode: " + GenerateLiteral(column.IsUnicode.Value));
             }
 
-            if (column.ValueGenerationStrategy == StoreValueGenerationStrategy.Identity)
+            if (column.ValueGenerationStrategy == ValueGenerationOnSave.WhenInserting)
             {
                 args.Add("identity: " + GenerateLiteral(true));
             }

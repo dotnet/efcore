@@ -251,6 +251,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var productType = model.GetEntityType(typeof(Product));
                 var offerType = model.GetEntityType(typeof(SpecialOffer));
 
+                categoryType.GetProperty("Id").ValueGenerationOnAdd = ValueGenerationOnAdd.None;
+                productType.GetProperty("Id").ValueGenerationOnAdd = ValueGenerationOnAdd.None;
+                offerType.GetProperty("Id").ValueGenerationOnAdd = ValueGenerationOnAdd.None;
+
                 var categoryIdFk
                     = productType.AddForeignKey(
                         categoryType.GetKey(), new[] { productType.GetProperty("CategoryId") });
@@ -265,6 +269,11 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 productType.AddNavigation(new Navigation(categoryIdFk, "Category"));
                 productType.AddNavigation(new Navigation(productIdFk, "SpecialOffers"));
                 offerType.AddNavigation(new Navigation(productIdFk, "Product"));
+            }
+
+            protected override void OnConfiguring(DbContextOptions builder)
+            {
+                builder.UseInMemoryStore(persist: false);
             }
         }
 

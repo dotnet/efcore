@@ -523,7 +523,7 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        /// Cannot change the ImmutableDbContextOptions by calling '{memberName}' because it is locked. Use DbContextOptions to create EntityConfigurations.
+        /// Cannot change the ImmutableDbContextOptions by calling '{memberName}' because it is locked. Use ImmutableDbContextOptionsBuilder to create ImmutableDbContextOptionss.
         /// </summary>
         internal static string EntityConfigurationLocked
         {
@@ -531,7 +531,7 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        /// Cannot change the ImmutableDbContextOptions by calling '{memberName}' because it is locked. Use DbContextOptions to create EntityConfigurations.
+        /// Cannot change the ImmutableDbContextOptions by calling '{memberName}' because it is locked. Use ImmutableDbContextOptionsBuilder to create ImmutableDbContextOptionss.
         /// </summary>
         internal static string FormatEntityConfigurationLocked(object memberName)
         {
@@ -552,6 +552,22 @@ namespace Microsoft.Data.Entity
         internal static string FormatMultiplePropertiesMatchedAsKeys(object property, object entityType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("MultiplePropertiesMatchedAsKeys", "property", "entityType"), property, entityType);
+        }
+
+        /// <summary>
+        /// No {generator} value generator has been configured for property '{entityType}.{propertyName}'. To use value generation for properties of type '{propertyType}' the data store must configure an appropriate value generator.
+        /// </summary>
+        internal static string NoValueGenerator
+        {
+            get { return GetString("NoValueGenerator"); }
+        }
+
+        /// <summary>
+        /// No {generator} value generator has been configured for property '{entityType}.{propertyName}'. To use value generation for properties of type '{propertyType}' the data store must configure an appropriate value generator.
+        /// </summary>
+        internal static string FormatNoValueGenerator(object generator, object entityType, object propertyName, object propertyType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NoValueGenerator", "generator", "entityType", "propertyName", "propertyType"), generator, entityType, propertyName, propertyType);
         }
 
         private static string GetString(string name, params string[] formatterNames)

@@ -3,12 +3,10 @@
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public enum ValueGenerationStrategy
+    public enum ValueGenerationOnAdd
     {
         None,
         Client,
-        StoreSequence,
-        StoreIdentity,
-        StoreComputed
+        Server
     }
 }

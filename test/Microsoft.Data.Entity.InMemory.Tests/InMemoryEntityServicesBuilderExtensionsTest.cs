@@ -18,7 +18,6 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var services = new ServiceCollection();
             services.AddEntityFramework().AddInMemoryStore();
 
-            Assert.True(services.Any(sd => sd.ServiceType == typeof(IdentityGeneratorFactory)));
             Assert.True(services.Any(sd => sd.ServiceType == typeof(InMemoryDataStore)));
             Assert.True(services.Any(sd => sd.ServiceType == typeof(DataStoreSource)));
         }
@@ -34,7 +33,6 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             {
                 var scopedProvider = context.Configuration.Services.ServiceProvider;
 
-                Assert.NotNull(scopedProvider.GetService<IdentityGeneratorFactory>());
                 Assert.NotNull(scopedProvider.GetService<InMemoryDataStore>());
                 Assert.NotNull(scopedProvider.GetService<DataStoreSource>());
             }

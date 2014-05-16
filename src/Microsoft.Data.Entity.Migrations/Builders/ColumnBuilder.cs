@@ -3,6 +3,7 @@
 
 using System;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Model;
 
 namespace Microsoft.Data.Entity.Migrations.Builders
@@ -302,7 +303,7 @@ namespace Microsoft.Data.Entity.Migrations.Builders
 
             if (identity)
             {
-                column.ValueGenerationStrategy = StoreValueGenerationStrategy.Identity;
+                column.ValueGenerationStrategy = ValueGenerationOnSave.WhenInserting;
             }
 
             return column;

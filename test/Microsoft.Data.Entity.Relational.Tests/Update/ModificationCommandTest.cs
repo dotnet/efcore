@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public void ModificationCommand_initialized_correctly_for_added_entities_with_identity_key()
         {
-            var stateEntry = CreateStateEntry(EntityState.Added, ValueGenerationStrategy.StoreIdentity);
+            var stateEntry = CreateStateEntry(EntityState.Added, ValueGenerationOnSave.WhenInserting);
 
             var command = new ModificationCommand("T1", new ParameterNameGenerator());
             command.AddStateEntry(stateEntry);
@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public void ModificationCommand_initialized_correctly_for_modified_entities_with_identity_key()
         {
-            var stateEntry = CreateStateEntry(EntityState.Modified, ValueGenerationStrategy.StoreIdentity);
+            var stateEntry = CreateStateEntry(EntityState.Modified, ValueGenerationOnSave.WhenInserting);
 
             var command = new ModificationCommand("T1", new ParameterNameGenerator());
             command.AddStateEntry(stateEntry);
@@ -197,7 +197,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         public void RequiresResultPropagation_false_for_Delete_operation()
         {
             var stateEntry = CreateStateEntry(
-                EntityState.Deleted, ValueGenerationStrategy.StoreIdentity, ValueGenerationStrategy.StoreComputed);
+                EntityState.Deleted, ValueGenerationOnSave.WhenInserting, ValueGenerationOnSave.WhenInsertingAndUpdating);
 
             var command = new ModificationCommand("T1", new ParameterNameGenerator());
             command.AddStateEntry(stateEntry);
@@ -209,7 +209,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         public void RequiresResultPropagation_true_for_Insert_operation_if_store_generated_columns_exist()
         {
             var stateEntry = CreateStateEntry(
-                EntityState.Added, ValueGenerationStrategy.StoreIdentity, ValueGenerationStrategy.StoreComputed);
+                EntityState.Added, ValueGenerationOnSave.WhenInserting, ValueGenerationOnSave.WhenInsertingAndUpdating);
 
             var command = new ModificationCommand("T1", new ParameterNameGenerator());
             command.AddStateEntry(stateEntry);
@@ -232,7 +232,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         public void RequiresResultPropagation_true_for_Update_operation_if_non_key_store_generated_columns_exist()
         {
             var stateEntry = CreateStateEntry(
-                EntityState.Modified, ValueGenerationStrategy.StoreIdentity, ValueGenerationStrategy.StoreComputed);
+                EntityState.Modified, ValueGenerationOnSave.WhenInserting, ValueGenerationOnSave.WhenInsertingAndUpdating);
 
             var command = new ModificationCommand("T1", new ParameterNameGenerator());
             command.AddStateEntry(stateEntry);
@@ -243,7 +243,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public void RequiresResultPropagation_false_for_Update_operation_if_no_non_key_store_generated_columns_exist()
         {
-            var stateEntry = CreateStateEntry(EntityState.Modified, ValueGenerationStrategy.StoreIdentity);
+            var stateEntry = CreateStateEntry(EntityState.Modified, ValueGenerationOnSave.WhenInserting);
 
             var command = new ModificationCommand("T1", new ParameterNameGenerator());
             command.AddStateEntry(stateEntry);
@@ -257,20 +257,20 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             public string Name { get; set; }
         }
 
-        private static IModel BuildModel(ValueGenerationStrategy keyStrategy, ValueGenerationStrategy nonKeyStrategy)
+        private static IModel BuildModel(ValueGenerationOnSave keyStrategy, ValueGenerationOnSave nonKeyStrategy)
         {
             var model = new Metadata.Model();
 
             var entityType = new EntityType(typeof(T1));
 
             var key = entityType.AddProperty("Id", typeof(int));
-            key.ValueGenerationStrategy = keyStrategy;
+            key.ValueGenerationOnSave = keyStrategy;
             key.StorageName = "Col1";
             entityType.SetKey(key);
 
             var nonKey = entityType.AddProperty("Name", typeof(string));
             nonKey.StorageName = "Col2";
-            nonKey.ValueGenerationStrategy = nonKeyStrategy;
+            nonKey.ValueGenerationOnSave = nonKeyStrategy;
 
             model.AddEntityType(entityType);
 
@@ -280,7 +280,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         private static DbContextConfiguration CreateConfiguration(IModel model)
         {
             var serviceCollection = new ServiceCollection();
-            serviceCollection.AddEntityFramework();
+            serviceCollection.AddEntityFramework().AddInMemoryStore();
             return new DbContext(serviceCollection.BuildServiceProvider(),
                 new DbContextOptions()
                     .UseModel(model)
@@ -290,8 +290,8 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
         private static StateEntry CreateStateEntry(
             EntityState entityState,
-            ValueGenerationStrategy keyStrategy = ValueGenerationStrategy.None,
-            ValueGenerationStrategy nonKeyStrategy = ValueGenerationStrategy.None)
+            ValueGenerationOnSave keyStrategy = ValueGenerationOnSave.None,
+            ValueGenerationOnSave nonKeyStrategy = ValueGenerationOnSave.None)
         {
             var model = BuildModel(keyStrategy, nonKeyStrategy);
             var stateEntry = CreateConfiguration(model).Services.StateEntryFactory.Create(

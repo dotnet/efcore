@@ -444,6 +444,7 @@ namespace Microsoft.Data.Entity.Tests
             sourceMock.Setup(m => m.IsAvailable(It.IsAny<DbContextConfiguration>())).Returns(true);
             sourceMock.Setup(m => m.IsConfigured(It.IsAny<DbContextConfiguration>())).Returns(true);
             sourceMock.Setup(m => m.GetStore(It.IsAny<DbContextConfiguration>())).Returns(store.Object);
+            sourceMock.Setup(m => m.GetValueGeneratorCache(It.IsAny<DbContextConfiguration>())).Returns(Mock.Of<ValueGeneratorCache>);
 
             var services = new ServiceCollection();
             services.AddEntityFramework();
@@ -477,7 +478,6 @@ namespace Microsoft.Data.Entity.Tests
             {
                 var configuration = context.Configuration;
 
-                Assert.IsType<ActiveIdentityGenerators>(configuration.Services.ActiveIdentityGenerators);
                 Assert.IsType<EntityKeyFactorySource>(configuration.Services.EntityKeyFactorySource);
                 Assert.IsType<ClrPropertyGetterSource>(configuration.Services.ClrPropertyGetterSource);
                 Assert.IsType<ClrPropertySetterSource>(configuration.Services.ClrPropertySetterSource);
@@ -559,7 +559,6 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_set_known_singleton_services_using_instance_sugar()
         {
-            var identityGenerators = Mock.Of<ActiveIdentityGenerators>();
             var collectionSource = Mock.Of<ClrCollectionAccessorSource>();
             var getterSource = Mock.Of<ClrPropertyGetterSource>();
             var setterSource = Mock.Of<ClrPropertySetterSource>();
@@ -567,13 +566,11 @@ namespace Microsoft.Data.Entity.Tests
             var materializerSource = Mock.Of<EntityMaterializerSource>();
             var setFinder = Mock.Of<DbSetFinder>();
             var setInitializer = Mock.Of<DbSetInitializer>();
-            var generatorFactory = Mock.Of<IdentityGeneratorFactory>();
             var loggerFactory = Mock.Of<ILoggerFactory>();
             var modelSource = Mock.Of<IModelSource>();
 
             var services = new ServiceCollection();
             services.AddEntityFramework()
-                .UseActiveIdentityGenerators(identityGenerators)
                 .UseClrCollectionAccessorSource(collectionSource)
                 .UseClrPropertyGetterSource(getterSource)
                 .UseClrPropertySetterSource(setterSource)
@@ -581,7 +578,6 @@ namespace Microsoft.Data.Entity.Tests
                 .UseEntityMaterializerSource(materializerSource)
                 .UseDbSetFinder(setFinder)
                 .UseDbSetInitializer(setInitializer)
-                .UseIdentityGeneratorFactory(generatorFactory)
                 .UseLoggerFactory(loggerFactory)
                 .UseModelSource(modelSource);
 
@@ -591,7 +587,6 @@ namespace Microsoft.Data.Entity.Tests
             {
                 var configuration = context.Configuration;
 
-                Assert.Same(identityGenerators, configuration.Services.ActiveIdentityGenerators);
                 Assert.Same(collectionSource, configuration.Services.ServiceProvider.GetService<ClrCollectionAccessorSource>());
                 Assert.Same(getterSource, configuration.Services.ClrPropertyGetterSource);
                 Assert.Same(setterSource, configuration.Services.ClrPropertySetterSource);
@@ -599,7 +594,6 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Same(materializerSource, configuration.Services.ServiceProvider.GetService<EntityMaterializerSource>());
                 Assert.Same(setFinder, configuration.Services.ServiceProvider.GetService<DbSetFinder>());
                 Assert.Same(setInitializer, configuration.Services.ServiceProvider.GetService<DbSetInitializer>());
-                Assert.Same(generatorFactory, configuration.Services.ServiceProvider.GetService<IdentityGeneratorFactory>());
                 Assert.Same(loggerFactory, configuration.Services.ServiceProvider.GetService<ILoggerFactory>());
                 Assert.Same(modelSource, configuration.Services.ModelSource);
             }
@@ -610,7 +604,6 @@ namespace Microsoft.Data.Entity.Tests
         {
             var services = new ServiceCollection();
             services.AddEntityFramework()
-                .UseActiveIdentityGenerators<FakeActiveIdentityGenerators>()
                 .UseClrCollectionAccessorSource<FakeClrCollectionAccessorSource>()
                 .UseClrPropertyGetterSource<FakeClrPropertyGetterSource>()
                 .UseClrPropertySetterSource<FakeClrPropertySetterSource>()
@@ -619,7 +612,6 @@ namespace Microsoft.Data.Entity.Tests
                 .UseDbSetFinder<FakeDbSetFinder>()
                 .UseDbSetInitializer<FakeDbSetInitializer>()
                 .UseEntityStateListener<FakeEntityStateListener>()
-                .UseIdentityGeneratorFactory<FakeIdentityGeneratorFactory>()
                 .UseContextSets<FakeContextSets>()
                 .UseLoggerFactory<FakeLoggerFactory>()
                 .UseModelSource<FakeModelSource>();
@@ -630,7 +622,6 @@ namespace Microsoft.Data.Entity.Tests
             {
                 var configuration = context.Configuration;
 
-                Assert.IsType<FakeActiveIdentityGenerators>(configuration.Services.ActiveIdentityGenerators);
                 Assert.IsType<FakeClrCollectionAccessorSource>(configuration.Services.ServiceProvider.GetService<ClrCollectionAccessorSource>());
                 Assert.IsType<FakeClrPropertyGetterSource>(configuration.Services.ClrPropertyGetterSource);
                 Assert.IsType<FakeClrPropertySetterSource>(configuration.Services.ClrPropertySetterSource);
@@ -638,7 +629,6 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.IsType<FakeEntityMaterializerSource>(configuration.Services.ServiceProvider.GetService<EntityMaterializerSource>());
                 Assert.IsType<FakeDbSetFinder>(configuration.Services.ServiceProvider.GetService<DbSetFinder>());
                 Assert.IsType<FakeDbSetInitializer>(configuration.Services.ServiceProvider.GetService<DbSetInitializer>());
-                Assert.IsType<FakeIdentityGeneratorFactory>(configuration.Services.ServiceProvider.GetService<IdentityGeneratorFactory>());
                 Assert.IsType<FakeLoggerFactory>(configuration.Services.ServiceProvider.GetService<ILoggerFactory>());
                 Assert.IsType<FakeModelSource>(configuration.Services.ModelSource);
             }
@@ -677,7 +667,6 @@ namespace Microsoft.Data.Entity.Tests
         {
             var services = new ServiceCollection();
             services.AddEntityFramework()
-                .UseActiveIdentityGenerators<FakeActiveIdentityGenerators>()
                 .UseClrCollectionAccessorSource<FakeClrCollectionAccessorSource>()
                 .UseClrPropertyGetterSource<FakeClrPropertyGetterSource>()
                 .UseClrPropertySetterSource<FakeClrPropertySetterSource>()
@@ -686,7 +675,6 @@ namespace Microsoft.Data.Entity.Tests
                 .UseDbSetFinder<FakeDbSetFinder>()
                 .UseDbSetInitializer<FakeDbSetInitializer>()
                 .UseEntityStateListener<FakeEntityStateListener>()
-                .UseIdentityGeneratorFactory<FakeIdentityGeneratorFactory>()
                 .UseLoggerFactory<FakeLoggerFactory>()
                 .UseModelSource<FakeModelSource>()
                 .UseStateEntryFactory<FakeStateEntryFactory>()
@@ -706,7 +694,6 @@ namespace Microsoft.Data.Entity.Tests
             var context = new EarlyLearningCenter(provider);
             var configuration = context.Configuration;
 
-            var activeIdentityGenerators = configuration.Services.ActiveIdentityGenerators;
             var clrCollectionAccessorSource = configuration.Services.ServiceProvider.GetService<ClrCollectionAccessorSource>();
             var clrPropertyGetterSource = configuration.Services.ClrPropertyGetterSource;
             var clrPropertySetterSource = configuration.Services.ClrPropertySetterSource;
@@ -714,7 +701,6 @@ namespace Microsoft.Data.Entity.Tests
             var entityMaterializerSource = configuration.Services.ServiceProvider.GetService<EntityMaterializerSource>();
             var setFinder = configuration.Services.ServiceProvider.GetService<DbSetFinder>();
             var setInitializer = configuration.Services.ServiceProvider.GetService<DbSetInitializer>();
-            var identityGeneratorFactory = configuration.Services.ServiceProvider.GetService<IdentityGeneratorFactory>();
             var loggerFactory = configuration.Services.ServiceProvider.GetService<ILoggerFactory>();
             var modelSource = configuration.Services.ModelSource;
 
@@ -735,7 +721,6 @@ namespace Microsoft.Data.Entity.Tests
             Assert.Same(stateManager, configuration.Services.StateManager);
             Assert.Same(entityStateListener, configuration.Services.EntityStateListeners.OfType<FakeNavigationFixer>().Single());
 
-            Assert.Same(activeIdentityGenerators, configuration.Services.ActiveIdentityGenerators);
             Assert.Same(clrCollectionAccessorSource, configuration.Services.ServiceProvider.GetService<ClrCollectionAccessorSource>());
             Assert.Same(clrPropertyGetterSource, configuration.Services.ClrPropertyGetterSource);
             Assert.Same(clrPropertySetterSource, configuration.Services.ClrPropertySetterSource);
@@ -743,7 +728,6 @@ namespace Microsoft.Data.Entity.Tests
             Assert.Same(entityMaterializerSource, configuration.Services.ServiceProvider.GetService<EntityMaterializerSource>());
             Assert.Same(setFinder, configuration.Services.ServiceProvider.GetService<DbSetFinder>());
             Assert.Same(setInitializer, configuration.Services.ServiceProvider.GetService<DbSetInitializer>());
-            Assert.Same(identityGeneratorFactory, configuration.Services.ServiceProvider.GetService<IdentityGeneratorFactory>());
             Assert.Same(loggerFactory, configuration.Services.ServiceProvider.GetService<ILoggerFactory>());
             Assert.Same(modelSource, configuration.Services.ModelSource);
 
@@ -758,7 +742,6 @@ namespace Microsoft.Data.Entity.Tests
             Assert.NotSame(stateManager, configuration.Services.StateManager);
             Assert.NotSame(entityStateListener, configuration.Services.EntityStateListeners.OfType<FakeNavigationFixer>().Single());
 
-            Assert.Same(activeIdentityGenerators, configuration.Services.ActiveIdentityGenerators);
             Assert.Same(clrCollectionAccessorSource, configuration.Services.ServiceProvider.GetService<ClrCollectionAccessorSource>());
             Assert.Same(clrPropertyGetterSource, configuration.Services.ClrPropertyGetterSource);
             Assert.Same(clrPropertySetterSource, configuration.Services.ClrPropertySetterSource);
@@ -766,7 +749,6 @@ namespace Microsoft.Data.Entity.Tests
             Assert.Same(entityMaterializerSource, configuration.Services.ServiceProvider.GetService<EntityMaterializerSource>());
             Assert.Same(setFinder, configuration.Services.ServiceProvider.GetService<DbSetFinder>());
             Assert.Same(setInitializer, configuration.Services.ServiceProvider.GetService<DbSetInitializer>());
-            Assert.Same(identityGeneratorFactory, configuration.Services.ServiceProvider.GetService<IdentityGeneratorFactory>());
             Assert.Same(loggerFactory, configuration.Services.ServiceProvider.GetService<ILoggerFactory>());
             Assert.Same(modelSource, configuration.Services.ModelSource);
 
@@ -831,10 +813,11 @@ namespace Microsoft.Data.Entity.Tests
             public DbSet<Product> Products { get; set; }
             public DbSet<Category> Categories { get; set; }
             public DbSet<TheGu> Gus { get; set; }
-        }
 
-        private class FakeActiveIdentityGenerators : ActiveIdentityGenerators
-        {
+            protected internal override void OnConfiguring(DbContextOptions builder)
+            {
+                builder.UseInMemoryStore(persist: false);
+            }
         }
 
         private class FakeClrCollectionAccessorSource : ClrCollectionAccessorSource
@@ -876,14 +859,6 @@ namespace Microsoft.Data.Entity.Tests
 
             public void StateChanged(StateEntry entry, EntityState oldState)
             {
-            }
-        }
-
-        private class FakeIdentityGeneratorFactory : IdentityGeneratorFactory
-        {
-            public override IIdentityGenerator Create(IProperty property)
-            {
-                return null;
             }
         }
 

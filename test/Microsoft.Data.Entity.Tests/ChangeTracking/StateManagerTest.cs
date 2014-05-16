@@ -231,7 +231,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             services.AddInstance(listeners[1].Object);
             services.AddInstance(listeners[2].Object);
 
-            var config = new DbContext(services.BuildServiceProvider(),
+            var config = new DbContext(services.AddEntityFramework().AddInMemoryStore().ServiceCollection.BuildServiceProvider(),
                 new DbContextOptions()
                     .UseModel(BuildModel())
                     .BuildConfiguration())

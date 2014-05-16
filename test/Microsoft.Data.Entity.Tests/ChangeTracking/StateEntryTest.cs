@@ -6,15 +6,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking;
-using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Advanced;
-using Microsoft.Framework.DependencyInjection.Fallback;
 using Moq;
 using Xunit;
 
@@ -91,24 +86,23 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = BuildModel();
             var entityType = model.GetEntityType("SomeEntity");
             var keyProperty = entityType.GetProperty("Id");
-
-            var generatorMock = new Mock<IIdentityGenerator>();
-            generatorMock.Setup(m => m.NextAsync(CancellationToken.None)).Returns(Task.FromResult((object)77));
-
-            var generatorFactory = new Mock<IdentityGeneratorFactory>();
-            generatorFactory.Setup(m => m.Create(keyProperty)).Returns(generatorMock.Object);
-
-            var services = new ServiceCollection();
-            services.AddEntityFramework().UseIdentityGeneratorFactory(generatorFactory.Object);
-            var serviceProvider = services.BuildServiceProvider();
-
-            var configuration = TestHelpers.CreateContextConfiguration(serviceProvider, model);
+            var configuration = TestHelpers.CreateContextConfiguration(model);
 
             var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
 
+            if (keyProperty.IsShadowProperty)
+            {
+                Assert.Null(entry[keyProperty]);
+            }
+            else
+            {
+                Assert.Equal(0, entry[keyProperty]);
+            }
+
             entry.EntityState = EntityState.Added;
 
-            Assert.Equal(77, entry[keyProperty]);
+            Assert.NotNull(entry[keyProperty]);
+            Assert.NotEqual(0, entry[keyProperty]);
         }
 
         [Fact]
@@ -823,7 +817,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entityType1 = new EntityType(typeof(SomeEntity));
             model.AddEntityType(entityType1);
             var key1 = entityType1.AddProperty("Id", typeof(int));
-            key1.ValueGenerationStrategy = ValueGenerationStrategy.StoreIdentity;
+            key1.ValueGenerationOnSave = ValueGenerationOnSave.WhenInserting;
+            key1.ValueGenerationOnAdd = ValueGenerationOnAdd.Client;
             entityType1.SetKey(key1);
             entityType1.AddProperty("Name", typeof(string), shadowProperty: false, concurrencyToken: true);
 

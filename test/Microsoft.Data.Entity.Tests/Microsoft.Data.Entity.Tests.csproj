@@ -72,6 +72,14 @@
     <Compile Include="EntityConfigurationBuilderTest.cs" />
     <Compile Include="EntityConfigurationTest.cs" />
     <Compile Include="EntitySetFinderTest.cs" />
+    <Compile Include="Identity\GuidValueGeneratorTest.cs" />
+    <Compile Include="Identity\SimpleValueGeneratorFactoryTest.cs" />
+    <Compile Include="Identity\SimpleValueGeneratorTest.cs" />
+    <Compile Include="Identity\SingleValueGeneratorPoolTest.cs" />
+    <Compile Include="Identity\TemporaryValueGeneratorTest.cs" />
+    <Compile Include="Identity\ValueGeneratorCacheTest.cs" />
+    <Compile Include="Identity\ValueGeneratorPoolTest.cs" />
+    <Compile Include="Identity\ValueGeneratorSelectorTest.cs" />
     <Compile Include="QueryableExtensionsTest.cs" />
     <Compile Include="ServiceProviderCacheTest.cs" />
     <Compile Include="TestHelpers.cs" />
@@ -96,7 +104,6 @@
     <Compile Include="ChangeTracking\StateEntryTest.cs" />
     <Compile Include="ChangeTracking\StateManagerTest.cs" />
     <Compile Include="ChangeTracking\StoreGeneratedValuesTest.cs" />
-    <Compile Include="Identity\TemporaryIdentityGeneratorTest.cs" />
     <Compile Include="Metadata\AnnotationTest.cs" />
     <Compile Include="Metadata\ClrCollectionAccessorSourceTest.cs" />
     <Compile Include="Metadata\ClrPropertyGetterSourceTest.cs" />

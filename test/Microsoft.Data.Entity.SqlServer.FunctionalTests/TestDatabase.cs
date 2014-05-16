@@ -12,6 +12,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Relational;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
@@ -263,7 +264,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             _connection.Dispose();
         }
 
-        private static string CreateConnectionString(string name)
+        public static string CreateConnectionString(string name)
         {
             return new SqlConnectionStringBuilder
                 {
@@ -276,46 +277,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     IntegratedSecurity = true,
                     ConnectTimeout = 30
                 }.ConnectionString;
-        }
-
-        private sealed class AsyncLock
-        {
-            private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
-            private readonly Task<IDisposable> _releaser;
-
-            public AsyncLock()
-            {
-                _releaser = Task.FromResult<IDisposable>(new Releaser(this));
-            }
-
-            public Task<IDisposable> LockAsync()
-            {
-                var waitTask = _semaphore.WaitAsync();
-
-                return waitTask.IsCompleted
-                    ? _releaser
-                    : waitTask.ContinueWith(
-                        (_, state) => (IDisposable)state,
-                        _releaser.Result,
-                        CancellationToken.None,
-                        TaskContinuationOptions.ExecuteSynchronously,
-                        TaskScheduler.Default);
-            }
-
-            private sealed class Releaser : IDisposable
-            {
-                private readonly AsyncLock _asyncLock;
-
-                public Releaser(AsyncLock asyncLock)
-                {
-                    _asyncLock = asyncLock;
-                }
-
-                public void Dispose()
-                {
-                    _asyncLock._semaphore.Release();
-                }
-            }
         }
     }
 }

@@ -2,6 +2,7 @@
   "version" : "0.1-alpha-*",
   "dependencies": {
     "Microsoft.Data.Entity" : "",
+    "Microsoft.Data.Entity.InMemory" : "",
     "Microsoft.Framework.ConfigurationModel" : "0.1-alpha-*",
     "Microsoft.Framework.DependencyInjection" : "0.1-alpha-*",
     "Microsoft.Framework.Logging" : "0.1-alpha-*",

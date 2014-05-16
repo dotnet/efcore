@@ -116,5 +116,13 @@ namespace System
             }
             while (type != null);
         }
+
+        public static bool IsInteger(this Type type)
+        {
+            return type == typeof(int)
+                   || type == typeof(long)
+                   || type == typeof(short)
+                   || type == typeof(byte);
+        }
     }
 }

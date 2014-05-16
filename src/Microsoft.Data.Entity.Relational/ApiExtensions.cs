@@ -1,11 +1,8 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
-using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational;
-using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.Relational.Utilities;
 
 // ReSharper disable once CheckNamespace
@@ -133,15 +130,6 @@ namespace Microsoft.Data.Entity.Metadata
             }
 
             return cascadeDelete;
-        }
-
-        public static IEnumerable<Column> GetStoreGeneratedColumns([NotNull] this Table table)
-        {
-            Check.NotNull(table, "table");
-
-            return table.Columns.Where(
-                c => c.ValueGenerationStrategy == StoreValueGenerationStrategy.Identity ||
-                     c.ValueGenerationStrategy == StoreValueGenerationStrategy.Computed);
         }
     }
 }

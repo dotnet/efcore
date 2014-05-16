@@ -58,12 +58,13 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
 
             if (property.PropertyType == typeof(Guid))
             {
-                property.ValueGenerationStrategy = ValueGenerationStrategy.Client;
+                property.ValueGenerationOnAdd = ValueGenerationOnAdd.Client;
             }
 
-            if (property.PropertyType == typeof(int))
+            if (property.PropertyType.IsInteger())
             {
-                property.ValueGenerationStrategy = ValueGenerationStrategy.StoreIdentity;
+                property.ValueGenerationOnAdd = ValueGenerationOnAdd.Client;
+                property.ValueGenerationOnSave = ValueGenerationOnSave.WhenInserting;
             }
 
             // TODO: Nullable, Sequence

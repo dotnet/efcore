@@ -8,7 +8,12 @@ using Microsoft.Data.Entity.Storage;
 namespace Microsoft.Data.Entity.InMemory
 {
     public class InMemoryDataStoreSource
-        : DataStoreSource<InMemoryDataStore, InMemoryConfigurationExtension, InMemoryDataStoreCreator, InMemoryConnection>
+        : DataStoreSource<
+            InMemoryDataStore,
+            InMemoryConfigurationExtension,
+            InMemoryDataStoreCreator,
+            InMemoryConnection,
+            InMemoryValueGeneratorCache>
     {
         public override bool IsAvailable(DbContextConfiguration configuration)
         {

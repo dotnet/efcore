@@ -3,6 +3,7 @@
 
 using System;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Services;
 using Microsoft.Data.Entity.Storage;
@@ -89,6 +90,11 @@ namespace Microsoft.Data.Entity.Infrastructure
         public virtual DataStoreCreator DataStoreCreator
         {
             get { return _dataStoreSource.Value.GetCreator(this); }
+        }
+
+        public virtual ValueGeneratorCache ValueGeneratorCache
+        {
+            get { return _dataStoreSource.Value.GetValueGeneratorCache(this); }
         }
 
         public virtual DataStoreConnection Connection

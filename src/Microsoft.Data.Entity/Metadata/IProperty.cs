@@ -9,7 +9,8 @@ namespace Microsoft.Data.Entity.Metadata
     {
         Type PropertyType { get; }
         bool IsNullable { get; }
-        ValueGenerationStrategy ValueGenerationStrategy { get; }
+        ValueGenerationOnSave ValueGenerationOnSave { get; }
+        ValueGenerationOnAdd ValueGenerationOnAdd { get; }
         int Index { get; }
         int ShadowIndex { get; }
         int OriginalValueIndex { get; }

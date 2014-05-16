@@ -200,6 +200,27 @@ namespace Microsoft.Data.Entity.Metadata
 
                         return this;
                     }
+
+                    // TODO Consider if this should be relational only
+                    public PropertyBuilder UseStoreSequence()
+                    {
+                        Metadata.ValueGenerationOnAdd = ValueGenerationOnAdd.Server;
+                        Metadata.ValueGenerationOnSave = ValueGenerationOnSave.None;
+
+                        return this;
+                    }
+
+                    // TODO Consider if this should be relational only
+                    public PropertyBuilder UseStoreSequence([NotNull] string sequenceName, int blockSize)
+                    {
+                        Check.NotEmpty(sequenceName, "sequenceName");
+
+                        // TODO: Make these constants in some class once decided if this should be relational-only
+                        Metadata["StoreSequenceName"] = sequenceName;
+                        Metadata["StoreSequenceBlockSize"] = blockSize.ToString();
+
+                        return UseStoreSequence();
+                    }
                 }
             }
 

@@ -16,7 +16,6 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Throws_if_required_services_not_configured()
         {
-            RequiredServiceTest(c => c.Services.ActiveIdentityGenerators);
             RequiredServiceTest(c => c.Services.ModelSource);
             RequiredServiceTest(c => c.Services.EntityKeyFactorySource);
             RequiredServiceTest(c => c.Services.ClrPropertyGetterSource);
@@ -47,7 +46,6 @@ namespace Microsoft.Data.Entity.Tests
             var configuration1 = TestHelpers.CreateContextConfiguration(provider);
             var configuration2 = TestHelpers.CreateContextConfiguration(provider);
 
-            Assert.Same(configuration1.Services.ActiveIdentityGenerators, configuration2.Services.ActiveIdentityGenerators);
             Assert.Same(configuration1.Services.ModelSource, configuration2.Services.ModelSource);
             Assert.Same(configuration1.Services.EntityKeyFactorySource, configuration2.Services.EntityKeyFactorySource);
             Assert.Same(configuration1.Services.ClrPropertyGetterSource, configuration2.Services.ClrPropertyGetterSource);

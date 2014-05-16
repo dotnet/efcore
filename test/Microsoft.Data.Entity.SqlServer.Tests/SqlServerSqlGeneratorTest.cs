@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Data.SqlClient;
 using System.Text;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Framework.DependencyInjection;
@@ -69,6 +70,11 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             }
 
             public DbSet<Duck> Blogs { get; set; }
+
+            protected internal override void OnConfiguring(DbContextOptions builder)
+            {
+                builder.UseSqlServer(new SqlConnection());
+            }
         }
 
         private class Duck

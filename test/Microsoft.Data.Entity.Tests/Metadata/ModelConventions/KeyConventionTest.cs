@@ -59,7 +59,8 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             var key = entityType.TryGetKey();
             Assert.NotNull(key);
             Assert.Equal(new[] { "Id" }, key.Properties.Select(p => p.Name));
-            Assert.Equal(ValueGenerationStrategy.StoreIdentity, key.Properties.Single().ValueGenerationStrategy);
+            Assert.Equal(ValueGenerationOnSave.WhenInserting, key.Properties.Single().ValueGenerationOnSave);
+            Assert.Equal(ValueGenerationOnAdd.Client, key.Properties.Single().ValueGenerationOnAdd);
         }
 
         private class EntityWithTypeId
@@ -77,7 +78,8 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             var key = entityType.TryGetKey();
             Assert.NotNull(key);
             Assert.Equal(new[] { "EntityWithTypeIdId" }, key.Properties.Select(p => p.Name));
-            Assert.Equal(ValueGenerationStrategy.StoreIdentity, key.Properties.Single().ValueGenerationStrategy);
+            Assert.Equal(ValueGenerationOnSave.WhenInserting, key.Properties.Single().ValueGenerationOnSave);
+            Assert.Equal(ValueGenerationOnAdd.Client, key.Properties.Single().ValueGenerationOnAdd);
         }
 
         private class EntityWithIdAndTypeId
@@ -96,7 +98,8 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             var key = entityType.TryGetKey();
             Assert.NotNull(key);
             Assert.Equal(new[] { "Id" }, key.Properties.Select(p => p.Name));
-            Assert.Equal(ValueGenerationStrategy.StoreIdentity, key.Properties.Single().ValueGenerationStrategy);
+            Assert.Equal(ValueGenerationOnSave.WhenInserting, key.Properties.Single().ValueGenerationOnSave);
+            Assert.Equal(ValueGenerationOnAdd.Client, key.Properties.Single().ValueGenerationOnAdd);
         }
 
         private class EntityWithMultipleIds
@@ -132,7 +135,8 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
 
             var property = entityType.TryGetProperty("Id");
             Assert.NotNull(property);
-            Assert.Equal(ValueGenerationStrategy.Client, property.ValueGenerationStrategy);
+            Assert.Equal(ValueGenerationOnSave.None, property.ValueGenerationOnSave);
+            Assert.Equal(ValueGenerationOnAdd.Client, property.ValueGenerationOnAdd);
         }
 
         private static EntityType CreateEntityType<T>()

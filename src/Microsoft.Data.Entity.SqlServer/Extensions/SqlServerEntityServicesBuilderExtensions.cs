@@ -19,9 +19,11 @@ namespace Microsoft.Framework.DependencyInjection
             Check.NotNull(builder, "builder");
 
             builder.AddRelational().ServiceCollection
-                // TODO: Need to be able to pick the appropriate identity generator for the data store in use
-                .AddSingleton<IdentityGeneratorFactory, SqlServerIdentityGeneratorFactory>()
                 .AddSingleton<DataStoreSource, SqlServerDataStoreSource>()
+                .AddSingleton<SqlServerValueGeneratorCache>()
+                .AddSingleton<SqlServerValueGeneratorSelector>()
+                .AddSingleton<SimpleValueGeneratorFactory<SequentialGuidValueGenerator>>()
+                .AddSingleton<SqlServerSequenceValueGeneratorFactory>()
                 .AddSingleton<SqlServerSqlGenerator>()
                 .AddSingleton<SqlStatementExecutor>()
                 .AddSingleton<SqlServerTypeMapper>()

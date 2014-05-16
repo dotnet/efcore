@@ -8,7 +8,12 @@ using Microsoft.Data.Entity.Storage;
 namespace Microsoft.Data.Entity.SqlServer
 {
     public class SqlServerDataStoreSource
-        : DataStoreSource<SqlServerDataStore, SqlServerConfigurationExtension, SqlServerDataStoreCreator, SqlServerConnection>
+        : DataStoreSource<
+            SqlServerDataStore,
+            SqlServerConfigurationExtension,
+            SqlServerDataStoreCreator,
+            SqlServerConnection,
+            SqlServerValueGeneratorCache>
     {
         public override bool IsAvailable(DbContextConfiguration configuration)
         {

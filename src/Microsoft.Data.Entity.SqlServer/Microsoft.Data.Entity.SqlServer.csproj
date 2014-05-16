@@ -48,16 +48,16 @@
     <PackageReference Include="Microsoft.Framework.DependencyInjection" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="SequenceIdentityGenerator.cs" />
-    <Compile Include="SequentialGuidIdentityGenerator.cs" />
+    <Compile Include="SequentialGuidValueGenerator.cs" />
     <Compile Include="SqlServerBatchExecutor.cs" />
     <Compile Include="SqlServerConfigurationExtension.cs" />
     <Compile Include="SqlServerConnection.cs" />
     <Compile Include="SqlServerDataStore.cs" />
     <Compile Include="SqlServerDataStoreCreator.cs" />
     <Compile Include="SqlServerDataStoreSource.cs" />
-    <Compile Include="SqlServerIdentityGeneratorFactory.cs" />
     <Compile Include="SqlServerMigrationOperationSqlGenerator.cs" />
+    <Compile Include="SqlServerSequenceValueGenerator.cs" />
+    <Compile Include="SqlServerSequenceValueGeneratorFactory.cs" />
     <Compile Include="SqlServerSimpleCommandExecutor.cs" />
     <Compile Include="SqlServerSqlGenerator.cs" />
     <Compile Include="SqlServerTypeMapper.cs" />
@@ -68,10 +68,13 @@
     <Compile Include="Properties\Strings.Designer.cs">
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
+    <Compile Include="SqlServerValueGeneratorCache.cs" />
+    <Compile Include="SqlServerValueGeneratorSelector.cs" />
     <Compile Include="Utilities\Check.cs" />
     <Compile Include="Utilities\EnumerableExtensions.cs" />
     <Compile Include="..\Shared\CodeAnnotations.cs" />
     <Compile Include="..\Shared\StringBuilderExtensions.cs" />
+    <Compile Include="Utilities\TypeExtensions.cs" />
     <EmbeddedResource Include="..\Microsoft.Data.Entity.SqlServer\Properties\Strings.resx">
       <LogicalName>Microsoft.Data.Entity.SqlServer.Strings.resources</LogicalName>
     </EmbeddedResource>

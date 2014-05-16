@@ -49,7 +49,8 @@ namespace Microsoft.Data.Entity.Metadata
             set { _isNullable = value; }
         }
 
-        public virtual ValueGenerationStrategy ValueGenerationStrategy { get; [param: NotNull] set; }
+        public virtual ValueGenerationOnSave ValueGenerationOnSave { get; set; }
+        public virtual ValueGenerationOnAdd ValueGenerationOnAdd { get; set; }
 
         public virtual bool IsClrProperty
         {

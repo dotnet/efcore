@@ -58,6 +58,8 @@ namespace Microsoft.Data.Entity.Metadata
         {
         }
 
+        public virtual Model Model { get; internal set; }
+
         public virtual Type Type
         {
             get { return _type; }
@@ -388,6 +390,11 @@ namespace Microsoft.Data.Entity.Metadata
         public virtual IReadOnlyList<Property> Properties
         {
             get { return _properties; }
+        }
+
+        IModel IEntityType.Model
+        {
+            get { return Model; }
         }
 
         IKey IEntityType.GetKey()

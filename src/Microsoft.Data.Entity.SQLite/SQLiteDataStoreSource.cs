@@ -8,7 +8,12 @@ using Microsoft.Data.Entity.Storage;
 namespace Microsoft.Data.Entity.SQLite
 {
     public class SQLiteDataStoreSource
-        : DataStoreSource<SQLiteDataStore, SQLiteConfigurationExtension, SQLiteDataStoreCreator, SQLiteConnectionConnection>
+        : DataStoreSource<
+            SQLiteDataStore,
+            SQLiteConfigurationExtension,
+            SQLiteDataStoreCreator,
+            SQLiteConnectionConnection,
+            SQLiteValueGeneratorCache>
     {
         public override bool IsAvailable(DbContextConfiguration configuration)
         {

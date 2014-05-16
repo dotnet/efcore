@@ -4,7 +4,6 @@
 using System;
 using System.Data;
 using System.Data.Common;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -35,21 +34,7 @@ namespace Microsoft.Data.Entity.Relational
         {
             Check.NotNull(configuration, "configuration");
 
-            var storeConfigs = configuration.ContextOptions.Extensions
-                .OfType<RelationalConfigurationExtension>()
-                .ToArray();
-
-            if (storeConfigs.Length == 0)
-            {
-                throw new InvalidOperationException(Strings.FormatNoDataStoreConfigured());
-            }
-
-            if (storeConfigs.Length > 1)
-            {
-                throw new InvalidOperationException(Strings.FormatMultipleDataStoresConfigured());
-            }
-
-            var storeConfig = storeConfigs[0];
+            var storeConfig = RelationalConfigurationExtension.Extract(configuration);
 
             if (storeConfig.Connection != null)
             {
