@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             for (var _ = 0; _ < 100; _++)
             {
-                values.Add(await sequentialGuidIdentityGenerator.NextAsync(CancellationToken.None));
+                values.Add(await sequentialGuidIdentityGenerator.NextAsync());
             }
 
             using (var testDatabase = await TestDatabase.Default())

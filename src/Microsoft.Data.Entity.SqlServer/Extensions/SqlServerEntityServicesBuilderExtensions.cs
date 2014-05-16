@@ -21,15 +21,15 @@ namespace Microsoft.Framework.DependencyInjection
                 // TODO: Need to be able to pick the appropriate identity generator for the data store in use
                 .AddSingleton<IdentityGeneratorFactory, SqlServerIdentityGeneratorFactory>()
                 .AddSingleton<DataStoreSource, SqlServerDataStoreSource>()
-                .AddSingleton<SqlServerSqlGenerator, SqlServerSqlGenerator>()
-                .AddSingleton<SqlStatementExecutor, SqlStatementExecutor>()
-                .AddSingleton<SqlServerTypeMapper, SqlServerTypeMapper>()
-                .AddScoped<SqlServerDataStore, SqlServerDataStore>()
-                .AddScoped<SqlServerConnection, SqlServerConnection>()
-                .AddScoped<SqlServerBatchExecutor, SqlServerBatchExecutor>()
+                .AddSingleton<SqlServerSqlGenerator>()
+                .AddSingleton<SqlStatementExecutor>()
+                .AddSingleton<SqlServerTypeMapper>()
+                .AddScoped<SqlServerDataStore>()
+                .AddScoped<SqlServerConnection>()
+                .AddScoped<SqlServerBatchExecutor>()
                 .AddScoped<ModelDiffer, ModelDiffer>()
-                .AddScoped<SqlServerMigrationOperationSqlGenerator, SqlServerMigrationOperationSqlGenerator>()
-                .AddScoped<SqlServerDataStoreCreator, SqlServerDataStoreCreator>();
+                .AddScoped<SqlServerMigrationOperationSqlGenerator>()
+                .AddScoped<SqlServerDataStoreCreator>();
 
             return builder;
         }

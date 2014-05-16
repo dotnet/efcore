@@ -18,11 +18,11 @@ namespace Microsoft.Framework.DependencyInjection
             Check.NotNull(builder, "builder");
 
             builder.ServiceCollection
-                .AddSingleton<DatabaseBuilder, DatabaseBuilder>()
-                .AddSingleton<RelationalObjectArrayValueReaderFactory, RelationalObjectArrayValueReaderFactory>()
-                .AddSingleton<RelationalTypedValueReaderFactory, RelationalTypedValueReaderFactory>()
-                .AddSingleton<ParameterNameGeneratorFactory, ParameterNameGeneratorFactory>()
-                .AddSingleton<CommandBatchPreparer, CommandBatchPreparer>();
+                .AddSingleton<DatabaseBuilder>()
+                .AddSingleton<RelationalObjectArrayValueReaderFactory>()
+                .AddSingleton<RelationalTypedValueReaderFactory>()
+                .AddSingleton<ParameterNameGeneratorFactory>()
+                .AddSingleton<CommandBatchPreparer>();
 
             return builder;
         }

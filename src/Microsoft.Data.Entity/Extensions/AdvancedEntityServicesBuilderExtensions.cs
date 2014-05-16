@@ -19,7 +19,7 @@ namespace Microsoft.Framework.DependencyInjection.Advanced
         {
             Check.NotNull(modelSource, "modelSource");
 
-            builder.ServiceCollection.AddInstance<IModelSource>(modelSource);
+            builder.ServiceCollection.AddInstance(modelSource);
 
             return builder;
         }
@@ -28,7 +28,7 @@ namespace Microsoft.Framework.DependencyInjection.Advanced
         {
             Check.NotNull(initializer, "initializer");
 
-            builder.ServiceCollection.AddInstance<DbSetInitializer>(initializer);
+            builder.ServiceCollection.AddInstance(initializer);
 
             return builder;
         }
@@ -37,7 +37,7 @@ namespace Microsoft.Framework.DependencyInjection.Advanced
         {
             Check.NotNull(factory, "factory");
 
-            builder.ServiceCollection.AddInstance<IdentityGeneratorFactory>(factory);
+            builder.ServiceCollection.AddInstance(factory);
 
             return builder;
         }
@@ -46,7 +46,7 @@ namespace Microsoft.Framework.DependencyInjection.Advanced
         {
             Check.NotNull(generators, "generators");
 
-            builder.ServiceCollection.AddInstance<ActiveIdentityGenerators>(generators);
+            builder.ServiceCollection.AddInstance(generators);
 
             return builder;
         }
@@ -55,7 +55,7 @@ namespace Microsoft.Framework.DependencyInjection.Advanced
         {
             Check.NotNull(finder, "finder");
 
-            builder.ServiceCollection.AddInstance<DbSetFinder>(finder);
+            builder.ServiceCollection.AddInstance(finder);
 
             return builder;
         }
@@ -64,7 +64,7 @@ namespace Microsoft.Framework.DependencyInjection.Advanced
         {
             Check.NotNull(source, "source");
 
-            builder.ServiceCollection.AddInstance<EntityKeyFactorySource>(source);
+            builder.ServiceCollection.AddInstance(source);
 
             return builder;
         }
@@ -73,7 +73,7 @@ namespace Microsoft.Framework.DependencyInjection.Advanced
         {
             Check.NotNull(source, "source");
 
-            builder.ServiceCollection.AddInstance<ClrCollectionAccessorSource>(source);
+            builder.ServiceCollection.AddInstance(source);
 
             return builder;
         }
@@ -82,7 +82,7 @@ namespace Microsoft.Framework.DependencyInjection.Advanced
         {
             Check.NotNull(source, "source");
 
-            builder.ServiceCollection.AddInstance<ClrPropertyGetterSource>(source);
+            builder.ServiceCollection.AddInstance(source);
 
             return builder;
         }
@@ -91,7 +91,7 @@ namespace Microsoft.Framework.DependencyInjection.Advanced
         {
             Check.NotNull(source, "source");
 
-            builder.ServiceCollection.AddInstance<ClrPropertySetterSource>(source);
+            builder.ServiceCollection.AddInstance(source);
 
             return builder;
         }
@@ -100,7 +100,7 @@ namespace Microsoft.Framework.DependencyInjection.Advanced
         {
             Check.NotNull(source, "source");
 
-            builder.ServiceCollection.AddInstance<EntityMaterializerSource>(source);
+            builder.ServiceCollection.AddInstance(source);
 
             return builder;
         }
@@ -109,7 +109,7 @@ namespace Microsoft.Framework.DependencyInjection.Advanced
         {
             Check.NotNull(factory, "factory");
 
-            builder.ServiceCollection.AddInstance<ILoggerFactory>(factory);
+            builder.ServiceCollection.AddInstance(factory);
 
             return builder;
         }
