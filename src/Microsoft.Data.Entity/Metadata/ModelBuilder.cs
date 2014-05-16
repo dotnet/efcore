@@ -31,15 +31,37 @@ namespace Microsoft.Data.Entity.Metadata
             get { return _model; }
         }
 
+        public virtual EntityBuilder Entity([NotNull] string name)
+        {
+            Check.NotEmpty(name, "name");
+
+            var entityType = GetEntity(name);
+
+            return new EntityBuilder(entityType, this);
+        }
+
         public virtual EntityBuilder<T> Entity<T>()
         {
             var type = typeof(T);
-            var entityType = Entity(type);
+            var entityType = GetEntity(type);
 
             return new EntityBuilder<T>(entityType, this);
         }
 
-        internal EntityType Entity(Type type)
+        internal EntityType GetEntity(string name)
+        {
+            var entityType = _model.TryGetEntityType(name);
+
+            if (entityType == null)
+            {
+                _model.AddEntityType(entityType = new EntityType(name));
+                OnEntityTypeAdded(entityType);
+            }
+
+            return entityType;
+        }
+
+        internal EntityType GetEntity(Type type)
         {
             var entityType = _model.TryGetEntityType(type);
 
@@ -105,18 +127,163 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        public class EntityBuilder<TEntity> : MetadataBuilder<EntityType, EntityBuilder<TEntity>>
+        public class EntityBuilderBase<TMetadataBuilder> : MetadataBuilder<EntityType, TMetadataBuilder>
+            where TMetadataBuilder : MetadataBuilder<EntityType, TMetadataBuilder>
+        {
+            internal EntityBuilderBase(EntityType entityType, ModelBuilder modelBuilder)
+                : base(entityType, modelBuilder)
+            {
+            }
+
+            public EntityBuilderBase<TMetadataBuilder> StorageName([NotNull] string storageName)
+            {
+                Metadata.StorageName = storageName;
+
+                return this;
+            }
+
+            // TODO: Implement mechanism to add annotations to key.
+            public EntityBuilderBase<TMetadataBuilder> Key([NotNull] params string[] propertyNames)
+            {
+                Check.NotNull(propertyNames, "propertyNames");
+
+                Metadata.SetKey(propertyNames.Select(n => Metadata.GetProperty(n)).ToArray());
+
+                return this;
+            }
+
+            public EntityBuilderBase<TMetadataBuilder> Properties([NotNull] Action<PropertiesBuilder> propertiesBuilder)
+            {
+                Check.NotNull(propertiesBuilder, "propertiesBuilder");
+
+                propertiesBuilder(new PropertiesBuilder(Metadata));
+
+                return this;
+            }
+
+            public class PropertiesBuilder
+            {
+                private readonly EntityType _entityType;
+
+                internal PropertiesBuilder(EntityType entityType)
+                {
+                    _entityType = entityType;
+                }
+
+                protected EntityType EntityType
+                {
+                    get { return _entityType; }
+                }
+
+                public virtual PropertyBuilder Property<TProperty>(
+                    [NotNull] string name, bool shadowProperty = false, bool concurrencyToken = false)
+                {
+                    Check.NotEmpty(name, "name");
+
+                    var property
+                        = _entityType.TryGetProperty(name)
+                          ?? _entityType.AddProperty(name, typeof(TProperty), shadowProperty, concurrencyToken);
+
+                    return new PropertyBuilder(property);
+                }
+
+                public class PropertyBuilder : MetadataBuilder<Property, PropertyBuilder>
+                {
+                    internal PropertyBuilder(Property property)
+                        : base(property)
+                    {
+                    }
+
+                    public PropertyBuilder StorageName([NotNull] string storageName)
+                    {
+                        Metadata.StorageName = storageName;
+
+                        return this;
+                    }
+                }
+            }
+
+            public EntityBuilderBase<TMetadataBuilder> ForeignKeys([NotNull] Action<ForeignKeysBuilder> foreignKeysBuilder)
+            {
+                Check.NotNull(foreignKeysBuilder, "foreignKeysBuilder");
+
+                foreignKeysBuilder(new ForeignKeysBuilder(Metadata, ModelBuilder));
+
+                return this;
+            }
+
+            public class ForeignKeysBuilder
+            {
+                private readonly EntityType _entityType;
+                private readonly ModelBuilder _modelBuilder;
+
+                internal ForeignKeysBuilder(EntityType entityType, ModelBuilder modelBuilder)
+                {
+                    _entityType = entityType;
+                    _modelBuilder = modelBuilder;
+                }
+
+                protected EntityType EntityType
+                {
+                    get { return _entityType; }
+                }
+
+                protected ModelBuilder ModelBuilder
+                {
+                    get { return _modelBuilder; }
+                }
+
+                public ForeignKeyBuilder ForeignKey([NotNull] string referencedEntityTypeName, [NotNull] params string[] propertyNames)
+                {
+                    Check.NotNull(referencedEntityTypeName, "referencedEntityTypeName");
+                    Check.NotNull(propertyNames, "propertyNames");
+
+                    var principalType = _modelBuilder._model.GetEntityType(referencedEntityTypeName);
+                    var dependentProperties = propertyNames.Select(n => _entityType.GetProperty(n)).ToArray();
+
+                    // TODO: This code currently assumes that the FK maps to a PK on the principal end
+                    var foreignKey = _entityType.AddForeignKey(principalType.GetKey(), dependentProperties);
+
+                    return new ForeignKeyBuilder(foreignKey);
+                }
+
+                public class ForeignKeyBuilder : MetadataBuilder<ForeignKey, ForeignKeyBuilder>
+                {
+                    internal ForeignKeyBuilder(ForeignKey foreignKey)
+                        : base(foreignKey)
+                    {
+                    }
+
+                    public ForeignKeyBuilder StorageName([NotNull] string storageName)
+                    {
+                        ((ForeignKey)Metadata).StorageName = storageName;
+
+                        return this;
+                    }
+
+                    public ForeignKeyBuilder IsUnique()
+                    {
+                        Metadata.IsUnique = true;
+
+                        return this;
+                    }
+                }
+            }
+        }
+
+        public class EntityBuilder : EntityBuilderBase<EntityBuilder>
         {
             internal EntityBuilder(EntityType entityType, ModelBuilder modelBuilder)
                 : base(entityType, modelBuilder)
             {
             }
+        }
 
-            public EntityBuilder<TEntity> StorageName([NotNull] string storageName)
+        public class EntityBuilder<TEntity> : EntityBuilderBase<EntityBuilder<TEntity>>
+        {
+            internal EntityBuilder(EntityType entityType, ModelBuilder modelBuilder)
+                : base(entityType, modelBuilder)
             {
-                Metadata.StorageName = storageName;
-
-                return this;
             }
 
             // TODO: Implement mechanism to add annotations to key.
@@ -142,13 +309,11 @@ namespace Microsoft.Data.Entity.Metadata
                 return this;
             }
 
-            public class PropertiesBuilder
+            public new class PropertiesBuilder : EntityBuilderBase<EntityBuilder<TEntity>>.PropertiesBuilder
             {
-                private readonly EntityType _entityType;
-
                 internal PropertiesBuilder(EntityType entityType)
+                    : base(entityType)
                 {
-                    _entityType = entityType;
                 }
 
                 public virtual PropertyBuilder Property([NotNull] Expression<Func<TEntity, object>> propertyExpression)
@@ -156,25 +321,10 @@ namespace Microsoft.Data.Entity.Metadata
                     var propertyInfo = propertyExpression.GetPropertyAccess();
 
                     var property
-                        = _entityType.TryGetProperty(propertyInfo.Name)
-                          ?? _entityType.AddProperty(propertyInfo);
+                        = EntityType.TryGetProperty(propertyInfo.Name)
+                          ?? EntityType.AddProperty(propertyInfo);
 
                     return new PropertyBuilder(property);
-                }
-
-                public class PropertyBuilder : MetadataBuilder<Property, PropertyBuilder>
-                {
-                    internal PropertyBuilder(Property property)
-                        : base(property)
-                    {
-                    }
-
-                    public PropertyBuilder StorageName([NotNull] string storageName)
-                    {
-                        Metadata.StorageName = storageName;
-
-                        return this;
-                    }
                 }
             }
 
@@ -187,15 +337,11 @@ namespace Microsoft.Data.Entity.Metadata
                 return this;
             }
 
-            public class ForeignKeysBuilder
+            public new class ForeignKeysBuilder : EntityBuilderBase<EntityBuilder<TEntity>>.ForeignKeysBuilder
             {
-                private readonly EntityType _entityType;
-                private readonly ModelBuilder _modelBuilder;
-
                 internal ForeignKeysBuilder(EntityType entityType, ModelBuilder modelBuilder)
+                    : base(entityType, modelBuilder)
                 {
-                    _entityType = entityType;
-                    _modelBuilder = modelBuilder;
                 }
 
                 public ForeignKeyBuilder ForeignKey<TReferencedEntityType>(
@@ -203,40 +349,18 @@ namespace Microsoft.Data.Entity.Metadata
                 {
                     Check.NotNull(foreignKeyExpression, "foreignKeyExpression");
 
-                    var principalType = _modelBuilder.Entity<TReferencedEntityType>().Metadata;
+                    var principalType = ModelBuilder.Entity<TReferencedEntityType>().Metadata;
 
                     var dependentProperties
                         = foreignKeyExpression.GetPropertyAccessList()
-                            .Select(pi => _entityType.TryGetProperty(pi.Name) ?? _entityType.AddProperty(pi))
+                            .Select(pi => EntityType.TryGetProperty(pi.Name) ?? EntityType.AddProperty(pi))
                             .ToArray();
 
                     // TODO: This code currently assumes that the FK maps to a PK on the principal end
                     var foreignKey
-                        = _entityType.AddForeignKey(principalType.GetKey(), dependentProperties);
+                        = EntityType.AddForeignKey(principalType.GetKey(), dependentProperties);
 
                     return new ForeignKeyBuilder(foreignKey);
-                }
-
-                public class ForeignKeyBuilder : MetadataBuilder<ForeignKey, ForeignKeyBuilder>
-                {
-                    internal ForeignKeyBuilder(ForeignKey foreignKey)
-                        : base(foreignKey)
-                    {
-                    }
-
-                    public ForeignKeyBuilder StorageName([NotNull] string storageName)
-                    {
-                        ((ForeignKey)Metadata).StorageName = storageName;
-
-                        return this;
-                    }
-
-                    public ForeignKeyBuilder IsUnique()
-                    {
-                        Metadata.IsUnique = true;
-
-                        return this;
-                    }
                 }
             }
         }

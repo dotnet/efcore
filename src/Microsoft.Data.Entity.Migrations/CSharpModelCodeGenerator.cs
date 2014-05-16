@@ -32,10 +32,6 @@ namespace Microsoft.Data.Entity.Migrations
         protected virtual void GenerateEntityTypes(
             [NotNull] IReadOnlyList<IEntityType> entityTypes, [NotNull] IndentedStringBuilder stringBuilder)
         {
-            // TODO: Handle entity types not associated with CLR types.
-
-            entityTypes = entityTypes.Where(et => et.HasClrType).ToArray();
-
             if (!entityTypes.Any())
             {
                 return;
@@ -52,9 +48,7 @@ namespace Microsoft.Data.Entity.Migrations
 
             foreach (var entityType in entityTypes.Where(entityType => entityType.ForeignKeys.Count > 0))
             {
-                // TODO: Handle entity types not associated with CLR types.
-
-                var foreignKeys = entityType.ForeignKeys.Where(fk => fk.ReferencedEntityType.HasClrType).ToArray();
+                var foreignKeys = entityType.ForeignKeys;
 
                 if (foreignKeys.Any())
                 {
@@ -137,9 +131,22 @@ namespace Microsoft.Data.Entity.Migrations
             [NotNull] IProperty property, [NotNull] IndentedStringBuilder stringBuilder)
         {
             stringBuilder
-                .Append("ps.Property(e => e.")
-                .Append(property.Name)
-                .Append(")");
+                .Append("ps.Property<")
+                .Append(property.PropertyType.GetTypeName())
+                .Append(">(")
+                .Append(DelimitString(property.Name));
+
+            if (!property.IsClrProperty)
+            {
+                stringBuilder.Append(", shadowProperty: true");
+            }
+
+            if (property.IsConcurrencyToken)
+            {
+                stringBuilder.Append(", concurrencyToken: true");
+            }
+
+            stringBuilder.Append(")");
 
             using (stringBuilder.Indent())
             {
@@ -155,16 +162,15 @@ namespace Microsoft.Data.Entity.Migrations
                 return;
             }
 
-            stringBuilder.AppendLine().Append(".Key(e => ");
-
-            GeneratePropertyReferences(key.Properties, stringBuilder);
-
-            stringBuilder.Append(")");
+            stringBuilder
+                .AppendLine()
+                .Append(".Key(")
+                .Append(key.Properties.Select(p => DelimitString(p.Name)).Join())
+                .Append(")");
 
             using (stringBuilder.Indent())
             {
                 // TODO: ModelBuilder does not support adding annotations to key.
-
                 //GenerateAnnotations(key.Annotations.ToArray(), stringBuilder);
             }
         }
@@ -219,13 +225,11 @@ namespace Microsoft.Data.Entity.Migrations
             [NotNull] IForeignKey foreignKey, [NotNull] IndentedStringBuilder stringBuilder)
         {
             stringBuilder
-                .Append("fks.ForeignKey<")
-                .Append(foreignKey.ReferencedEntityType.Type.Name)
-                .Append(">(e => ");
-
-            GeneratePropertyReferences(foreignKey.Properties, stringBuilder);
-
-            stringBuilder.Append(")");
+                .Append("fks.ForeignKey(")
+                .Append(DelimitString(foreignKey.ReferencedEntityType.Name))
+                .Append(", ")
+                .Append(foreignKey.Properties.Select(p => DelimitString(p.Name)).Join())
+                .Append(")");
 
             using (stringBuilder.Indent())
             {
@@ -264,27 +268,9 @@ namespace Microsoft.Data.Entity.Migrations
             [NotNull] IEntityType entityType, [NotNull] IndentedStringBuilder stringBuilder)
         {
             stringBuilder
-                .Append(".Entity<")
-                .Append(entityType.Type.Name)
-                .Append(">()");
-        }
-
-        protected virtual void GeneratePropertyReferences(
-            [NotNull] IReadOnlyList<IProperty> properties, [NotNull] IndentedStringBuilder stringBuilder)
-        {
-            if (properties.Count == 1)
-            {
-                stringBuilder
-                    .Append("e.")
-                    .Append(properties[0].Name);
-
-                return;
-            }
-
-            stringBuilder
-                .Append("new { ")
-                .Append(properties.Select(p => "e." + p.Name).Join())
-                .Append(" }");
+                .Append(".Entity(")
+                .Append(DelimitString(entityType.Name))
+                .Append(")");
         }
 
         protected virtual string DelimitString([NotNull] string value)
