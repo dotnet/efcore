@@ -9,15 +9,12 @@ namespace Microsoft.Data.Entity.Query
 {
     public abstract class QueryCompilationContext
     {
-        private static readonly LinqOperatorProvider _defaultLinqOperatorProvider = new LinqOperatorProvider();
-        private static readonly ResultOperatorHandler _defaultResultOperatorHandler = new ResultOperatorHandler();
-
         private readonly IModel _model;
         private readonly ILinqOperatorProvider _linqOperatorProvider;
         private readonly IResultOperatorHandler _resultOperatorHandler;
 
         protected QueryCompilationContext([NotNull] IModel model)
-            : this(Check.NotNull(model, "model"), _defaultLinqOperatorProvider, _defaultResultOperatorHandler)
+            : this(Check.NotNull(model, "model"), new LinqOperatorProvider(), new ResultOperatorHandler())
         {
         }
 

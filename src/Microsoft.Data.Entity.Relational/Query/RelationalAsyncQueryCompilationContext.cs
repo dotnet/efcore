@@ -10,8 +10,6 @@ namespace Microsoft.Data.Entity.Relational.Query
 {
     public class RelationalAsyncQueryCompilationContext : AsyncQueryCompilationContext
     {
-        private static readonly AsyncEnumerableMethodProvider _asyncEnumerableMethodProvider = new AsyncEnumerableMethodProvider();
-
         public RelationalAsyncQueryCompilationContext([NotNull] IModel model)
             : base(Check.NotNull(model, "model"))
         {
@@ -19,7 +17,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         public override EntityQueryModelVisitor CreateVisitor()
         {
-            return new RelationalQueryModelVisitor(this, _asyncEnumerableMethodProvider);
+            return new RelationalQueryModelVisitor(this, new AsyncEnumerableMethodProvider());
         }
     }
 }

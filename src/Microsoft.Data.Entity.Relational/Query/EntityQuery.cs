@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Utilities;
+using Remotion.Linq.Clauses;
 
 namespace Microsoft.Data.Entity.Relational.Query
 {
@@ -20,6 +21,11 @@ namespace Microsoft.Data.Entity.Relational.Query
             _sqlSelect.Table = tableName;
         }
 
+        public virtual void SetTopN(int n)
+        {
+            _sqlSelect.TopN = n;
+        }
+
         public virtual void AddToProjection([NotNull] IProperty property)
         {
             Check.NotNull(property, "property");
@@ -28,6 +34,13 @@ namespace Microsoft.Data.Entity.Relational.Query
             {
                 _propertyIndexes.Add(property, _sqlSelect.AddToSelectList(property.StorageName));
             }
+        }
+
+        public virtual void AddToOrderBy([NotNull] IProperty property, OrderingDirection orderingDirection)
+        {
+            Check.NotNull(property, "property");
+
+            _sqlSelect.AddToOrderByList(property.StorageName, orderingDirection);
         }
 
         public virtual int GetProjectionIndex([NotNull] IProperty property)

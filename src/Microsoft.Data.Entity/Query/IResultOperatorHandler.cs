@@ -3,6 +3,7 @@
 
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.StreamedData;
 
@@ -11,9 +12,9 @@ namespace Microsoft.Data.Entity.Query
     public interface IResultOperatorHandler
     {
         Expression HandleResultOperator(
-            [NotNull] StreamedSequenceInfo streamedSequenceInfo,
-            [NotNull] IStreamedDataInfo streamedDataInfo,
+            [NotNull] EntityQueryModelVisitor entityQueryModelVisitor, 
+            [NotNull] IStreamedDataInfo streamedDataInfo, 
             [NotNull] ResultOperatorBase resultOperator,
-            [NotNull] Expression expression);
+            [NotNull] QueryModel queryModel);
     }
 }
