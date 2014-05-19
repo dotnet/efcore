@@ -24,3 +24,4 @@ nuget.exe
 *.*sdf
 *.ipch
 *.dll
+*.sln.ide
