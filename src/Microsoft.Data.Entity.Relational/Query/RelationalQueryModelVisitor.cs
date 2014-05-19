@@ -33,16 +33,26 @@ namespace Microsoft.Data.Entity.Relational.Query
             _enumerableMethodProvider = enumerableMethodProvider;
         }
 
-        protected override ExpressionTreeVisitor CreateQueryingExpressionTreeVisitor(IQuerySource querySource)
+        public virtual EntityQuery QueryFor([NotNull] IQuerySource querySource)
         {
             Check.NotNull(querySource, "querySource");
 
+            return _queriesBySource[querySource];
+        }
+
+        protected override ExpressionTreeVisitor CreateQueryingExpressionTreeVisitor(IQuerySource querySource)
+        {
             return new RelationalQueryingExpressionTreeVisitor(this, querySource);
         }
 
         protected override ExpressionTreeVisitor CreateProjectionExpressionTreeVisitor()
         {
             return new RelationalProjectionSubQueryExpressionTreeVisitor(this);
+        }
+
+        protected override ExpressionTreeVisitor CreateOrderingExpressionTreeVisitor(Ordering ordering)
+        {
+            return new RelationalOrderingSubQueryExpressionTreeVisitor(this, ordering);
         }
 
         protected override Expression ReplaceClauseReferences(
@@ -105,7 +115,7 @@ namespace Microsoft.Data.Entity.Relational.Query
             }
         }
 
-        private void ProcessMemberExpression(MemberExpression expression)
+        private void ProcessMemberExpression(MemberExpression expression, Action<EntityQuery, IProperty> queryAction)
         {
             var querySourceReferenceExpression
                 = expression.Expression as QuerySourceReferenceExpression;
@@ -114,25 +124,20 @@ namespace Microsoft.Data.Entity.Relational.Query
             {
                 var querySource = querySourceReferenceExpression.ReferencedQuerySource;
 
-                if (!QuerySourceRequiresMaterialization(querySource))
+                var entityType
+                    = QueryCompilationContext.Model
+                        .TryGetEntityType(querySource.ItemType);
+
+                if (entityType != null)
                 {
-                    var entityType
-                        = QueryCompilationContext.Model
-                            .TryGetEntityType(querySource.ItemType);
+                    var property = entityType.TryGetProperty(expression.Member.Name);
 
-                    if (entityType != null)
+                    if (property != null)
                     {
-                        var property
-                            = entityType
-                                .TryGetProperty(expression.Member.Name);
-
-                        if (property != null)
+                        EntityQuery entityQuery;
+                        if (_queriesBySource.TryGetValue(querySource, out entityQuery))
                         {
-                            EntityQuery entityQuery;
-                            if (_queriesBySource.TryGetValue(querySource, out entityQuery))
-                            {
-                                entityQuery.AddToProjection(property);
-                            }
+                            queryAction(entityQuery, property);
                         }
                     }
                 }
@@ -154,7 +159,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             protected override Expression VisitMemberExpression(MemberExpression expression)
             {
-                _queryModelVisitor.ProcessMemberExpression(expression);
+                _queryModelVisitor.ProcessMemberExpression(expression, (eq, p) => eq.AddToProjection(p));
 
                 return base.VisitMemberExpression(expression);
             }
@@ -197,7 +202,30 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             protected override Expression VisitMemberExpression(MemberExpression expression)
             {
-                _queryModelVisitor.ProcessMemberExpression(expression);
+                _queryModelVisitor.ProcessMemberExpression(expression, (eq, p) => eq.AddToProjection(p));
+
+                return base.VisitMemberExpression(expression);
+            }
+        }
+
+        private class RelationalOrderingSubQueryExpressionTreeVisitor : RelationalQueryingExpressionTreeVisitor
+        {
+            private readonly RelationalQueryModelVisitor _queryModelVisitor;
+            private readonly Ordering _ordering;
+
+            public RelationalOrderingSubQueryExpressionTreeVisitor(RelationalQueryModelVisitor queryModelVisitor, Ordering ordering)
+                : base(queryModelVisitor, null)
+            {
+                _queryModelVisitor = queryModelVisitor;
+                _ordering = ordering;
+            }
+
+            protected override Expression VisitMemberExpression(MemberExpression expression)
+            {
+                _queryModelVisitor
+                    .ProcessMemberExpression(
+                        expression,
+                        (eq, p) => eq.AddToOrderBy(p, _ordering.OrderingDirection));
 
                 return base.VisitMemberExpression(expression);
             }

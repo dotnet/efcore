@@ -10,8 +10,6 @@ namespace Microsoft.Data.Entity.Relational.Query
 {
     public class RelationalQueryCompilationContext : QueryCompilationContext
     {
-        private static readonly EnumerableMethodProvider _enumerableMethodProvider = new EnumerableMethodProvider();
-
         public RelationalQueryCompilationContext([NotNull] IModel model)
             : base(Check.NotNull(model, "model"))
         {
@@ -19,7 +17,12 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         public override EntityQueryModelVisitor CreateVisitor()
         {
-            return new RelationalQueryModelVisitor(this, _enumerableMethodProvider);
+            return new RelationalQueryModelVisitor(this, new EnumerableMethodProvider());
+        }
+
+        public override IResultOperatorHandler ResultOperatorHandler
+        {
+            get { return new RelationalResultOperatorHandler(base.ResultOperatorHandler); }
         }
     }
 }

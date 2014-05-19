@@ -9,11 +9,8 @@ namespace Microsoft.Data.Entity.Query
 {
     public abstract class AsyncQueryCompilationContext : QueryCompilationContext
     {
-        private static readonly AsyncLinqOperatorProvider _asyncLinqOperatorProvider = new AsyncLinqOperatorProvider();
-        private static readonly AsyncResultOperatorHandler _asyncResultOperatorHandler = new AsyncResultOperatorHandler();
-
         protected AsyncQueryCompilationContext([NotNull] IModel model)
-            : base(Check.NotNull(model, "model"), _asyncLinqOperatorProvider, _asyncResultOperatorHandler)
+            : base(Check.NotNull(model, "model"), new AsyncLinqOperatorProvider(), new AsyncResultOperatorHandler())
         {
         }
     }

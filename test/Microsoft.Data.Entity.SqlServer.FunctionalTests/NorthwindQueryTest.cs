@@ -52,8 +52,9 @@ FROM Customers",
             base.Take_simple();
 
             Assert.Equal(
-                @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
-FROM Customers",
+                @"SELECT TOP 10 Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
+FROM Customers
+ORDER BY CustomerID",
                 _fixture.Sql);
         }
 
@@ -62,8 +63,9 @@ FROM Customers",
             base.Take_simple_projection();
 
             Assert.Equal(
-                @"SELECT CustomerID, City
-FROM Customers",
+                @"SELECT TOP 10 CustomerID, City
+FROM Customers
+ORDER BY CustomerID",
                 _fixture.Sql);
         }
 
@@ -92,7 +94,7 @@ FROM Customers",
             base.Select_scalar_primitive_after_take();
 
             Assert.Equal(
-                @"SELECT City, EmployeeID
+                @"SELECT TOP 9 City, EmployeeID
 FROM Employees",
                 _fixture.Sql);
         }
@@ -256,22 +258,19 @@ FROM Orders",
         {
             base.SelectMany_cartesian_product_with_ordering();
 
-            Assert.Equal(2950, _fixture.Sql.Length);
+            Assert.Equal(4341, _fixture.Sql.Length);
             Assert.StartsWith(
                 @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
 FROM Customers
+ORDER BY CustomerID DESC
 
 SELECT City
 FROM Employees
+ORDER BY City
 
 SELECT City
 FROM Employees
-
-SELECT City
-FROM Employees
-
-SELECT City
-FROM Employees",
+ORDER BY City",
                 _fixture.Sql);
         }
 
@@ -286,6 +285,17 @@ FROM Orders
 SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
 FROM Customers",
                 _fixture.Sql);
+        }
+
+        public override void Take_with_single()
+        {
+            base.Take_with_single(); 
+            
+            Assert.Equal(
+                 @"SELECT TOP 1 Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
+FROM Customers
+ORDER BY CustomerID",
+                 _fixture.Sql);
         }
 
         private readonly NorthwindQueryFixture _fixture;

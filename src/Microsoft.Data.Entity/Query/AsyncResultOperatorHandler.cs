@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
+using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.ResultOperators;
 using Remotion.Linq.Clauses.StreamedData;
@@ -25,15 +26,15 @@ namespace Microsoft.Data.Entity.Query
                 };
 
         public Expression HandleResultOperator(
-            StreamedSequenceInfo streamedSequenceInfo,
-            IStreamedDataInfo streamedDataInfo,
-            ResultOperatorBase resultOperator,
-            Expression expression)
+            EntityQueryModelVisitor entityQueryModelVisitor, 
+            IStreamedDataInfo streamedDataInfo, 
+            ResultOperatorBase resultOperator, 
+            QueryModel queryModel)
         {
-            Check.NotNull(streamedSequenceInfo, "streamedSequenceInfo");
+            Check.NotNull(entityQueryModelVisitor, "entityQueryModelVisitor");
             Check.NotNull(streamedDataInfo, "streamedDataInfo");
             Check.NotNull(resultOperator, "resultOperator");
-            Check.NotNull(expression, "expression");
+            Check.NotNull(queryModel, "queryModel");
 
             Func<Expression, Type, ResultOperatorBase, Expression> asyncHandler;
             if (!_asyncHandlers.TryGetValue(resultOperator.GetType(), out asyncHandler))
@@ -42,7 +43,10 @@ namespace Microsoft.Data.Entity.Query
                 throw new NotImplementedException();
             }
 
-            return asyncHandler(expression, streamedSequenceInfo.ResultItemType, resultOperator);
+            return asyncHandler(
+                entityQueryModelVisitor.Expression, 
+                entityQueryModelVisitor.StreamedSequenceInfo.ResultItemType, 
+                resultOperator);
         }
 
         private static Expression ProcessResultOperator(Expression expression, Type expressionItemType, AnyResultOperator _)
