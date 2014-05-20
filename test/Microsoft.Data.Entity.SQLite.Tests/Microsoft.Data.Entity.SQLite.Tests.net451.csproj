@@ -91,7 +91,7 @@
   </ItemGroup>
   <ItemGroup>
   <ProjectReference Include="..\..\src\Microsoft.Data.Entity.Relational\Microsoft.Data.Entity.Relational.net451.csproj">
-          <Project>{DA7A66A5-22AB-466C-A9AC-307FEA617D9F}</Project>
+          <Project>{79523789-FBE0-4A97-AE7C-729C2F87656E}</Project>
           <Name>Microsoft.Data.Entity.Relational</Name>
         </ProjectReference><ProjectReference Include="..\..\src\Microsoft.Data.Entity.SQLite\Microsoft.Data.Entity.SQLite.net451.csproj">
           <Project>{4CC98896-FE91-4F16-AE60-D6FF9E905836}</Project>

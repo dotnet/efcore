@@ -49,7 +49,7 @@
         </Reference>
         <Reference Include="Microsoft.Data.SQLite, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null">
         <SpecificVersion>False</SpecificVersion>
-        <HintPath>..\..\packages\Microsoft.Data.SQLite.0.1-alpha-build-0373\lib\net451\Microsoft.Data.SQLite.dll</HintPath>
+        <HintPath>..\..\packages\Microsoft.Data.SQLite.0.1-alpha-build-0374\lib\net451\Microsoft.Data.SQLite.dll</HintPath>
         <Private>true</Private>
         </Reference>
         <Reference Include="Microsoft.Framework.DependencyInjection, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null">
@@ -92,13 +92,13 @@
   </ItemGroup>
   <ItemGroup>
   <ProjectReference Include="..\..\src\Microsoft.Data.Entity\Microsoft.Data.Entity.net451.csproj">
-          <Project>{3B1474F7-E69B-453E-A4B2-BCDB55F62FE9}</Project>
+          <Project>{A7DCB590-67A2-419F-9E5D-0FD9514F2B29}</Project>
           <Name>Microsoft.Data.Entity</Name>
         </ProjectReference><ProjectReference Include="..\..\src\Microsoft.Data.Entity.Migrations\Microsoft.Data.Entity.Migrations.net451.csproj">
-          <Project>{34BD64B7-E4B9-46C3-BCEF-C22562F96CB1}</Project>
+          <Project>{74488998-365B-4937-967E-FC1F29C032A6}</Project>
           <Name>Microsoft.Data.Entity.Migrations</Name>
         </ProjectReference><ProjectReference Include="..\..\src\Microsoft.Data.Entity.Relational\Microsoft.Data.Entity.Relational.net451.csproj">
-          <Project>{DA7A66A5-22AB-466C-A9AC-307FEA617D9F}</Project>
+          <Project>{79523789-FBE0-4A97-AE7C-729C2F87656E}</Project>
           <Name>Microsoft.Data.Entity.Relational</Name>
         </ProjectReference>
   </ItemGroup>

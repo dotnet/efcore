@@ -54,7 +54,7 @@
         </Reference>
         <Reference Include="Microsoft.Data.SqlServer, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null">
         <SpecificVersion>False</SpecificVersion>
-        <HintPath>..\..\packages\Microsoft.Data.SqlServer.0.1-alpha-build-0691\lib\net45\Microsoft.Data.SqlServer.dll</HintPath>
+        <HintPath>..\..\packages\Microsoft.Data.SqlServer.0.1-alpha-build-0692\lib\net45\Microsoft.Data.SqlServer.dll</HintPath>
         <Private>true</Private>
         </Reference>
         <Reference Include="Microsoft.Framework.ConfigurationModel, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
