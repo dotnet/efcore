@@ -3,9 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Utilities;
 using Remotion.Linq.Clauses;
 
@@ -13,43 +15,74 @@ namespace Microsoft.Data.Entity.Relational.Query
 {
     public class SqlSelect
     {
-        private readonly IList<string> _selectList = new List<string>();
+        private readonly IList<IProperty> _selectList = new List<IProperty>();
 
-        private readonly IList<Tuple<string, OrderingDirection>> _orderByList
-            = new List<Tuple<string, OrderingDirection>>();
+        private readonly IList<Tuple<IProperty, OrderingDirection>> _orderByList
+            = new List<Tuple<IProperty, OrderingDirection>>();
 
-        private SchemaQualifiedName _table;
+        private object _tableSource;
+        private int? _limit;
+        private int _aliasCount;
+        private bool _projectStar;
+        private bool _distinct;
 
-        public virtual SchemaQualifiedName Table
+        public virtual SqlSelect SetTableSource([NotNull] object tableSource)
         {
-            get { return _table; }
-            [param: NotNull]
-            set
-            {
-                Check.NotNull(value, "value");
+            Check.NotNull(tableSource, "tableSource");
 
-                _table = value;
+            _tableSource = tableSource;
+
+            return this;
+        }
+
+        public virtual bool TryMakeDistinct()
+        {
+            _distinct
+                = _orderByList
+                    .Select(t => t.Item1)
+                    .All(p => !_selectList.Contains(p));
+
+            return _distinct;
+        }
+
+        public virtual void AddLimit(int limit)
+        {
+            if (_limit != null)
+            {
+                _tableSource
+                    = new SqlSelect
+                        {
+                            _tableSource = _tableSource,
+                            _limit = _limit,
+                            _projectStar = true
+                        };
+            }
+
+            _limit = limit;
+        }
+
+        public virtual void AddToProjection([NotNull] IProperty property)
+        {
+            Check.NotNull(property, "property");
+
+            if (!_selectList.Contains(property))
+            {
+                _selectList.Add(property);
             }
         }
 
-        public virtual int? TopN { get; set; }
-
-        public virtual int AddToSelectList([NotNull] string expression)
+        public virtual int GetProjectionIndex([NotNull] IProperty property)
         {
-            Check.NotNull(expression, "expression");
+            Check.NotNull(property, "property");
 
-            _selectList.Add(expression);
-
-            return _selectList.Count - 1;
+            return _selectList.IndexOf(property);
         }
 
-        public virtual int AddToOrderByList([NotNull] string expression, OrderingDirection orderingDirection)
+        public virtual void AddToOrderBy([NotNull] IProperty property, OrderingDirection orderingDirection)
         {
-            Check.NotNull(expression, "expression");
+            Check.NotNull(property, "property");
 
-            _orderByList.Add(Tuple.Create(expression, orderingDirection));
-
-            return _orderByList.Count - 1;
+            _orderByList.Add(Tuple.Create(property, orderingDirection));
         }
 
         public virtual bool IsEmptyProjection
@@ -61,21 +94,58 @@ namespace Microsoft.Data.Entity.Relational.Query
         {
             var selectSql = new StringBuilder();
 
-            selectSql.Append("SELECT ");
+            selectSql
+                .Append("SELECT ");
 
-            if (TopN != null)
+            if (_distinct)
+            {
+                selectSql
+                    .Append("DISTINCT ");
+            }
+
+            if (_limit != null)
             {
                 selectSql
                     .Append("TOP ")
-                    .Append(TopN)
+                    .Append(_limit)
                     .Append(" ");
             }
 
+            if (_projectStar)
+            {
+                selectSql
+                    .Append("*");
+            }
+            else
+            {
+                selectSql
+                    .AppendJoin(
+                        !IsEmptyProjection
+                            ? _selectList.Select(p => p.StorageName)
+                            : new[] { "1" });
+            }
+
             selectSql
-                .AppendJoin(!IsEmptyProjection ? _selectList : new[] { "1" })
                 .AppendLine()
-                .Append("FROM ")
-                .Append(Table);
+                .Append("FROM ");
+
+            // HACK: this is temporary
+            var isSubquery = _tableSource is SqlSelect;
+
+            if (isSubquery)
+            {
+                selectSql
+                    .Append("(")
+                    .Append(_tableSource)
+                    .Append(") AS ")
+                    .Append("t")
+                    .Append(_aliasCount++.ToString(CultureInfo.InvariantCulture));
+            }
+            else
+            {
+                selectSql
+                    .Append(_tableSource);
+            }
 
             if (_orderByList.Count > 0)
             {
@@ -84,7 +154,9 @@ namespace Microsoft.Data.Entity.Relational.Query
                     .Append("ORDER BY ")
                     .AppendJoin(
                         _orderByList
-                            .Select(o => o.Item2 == OrderingDirection.Asc ? o.Item1 : o.Item1 + " DESC"));
+                            .Select(o => o.Item2 == OrderingDirection.Asc
+                                ? o.Item1.StorageName
+                                : o.Item1.StorageName + " DESC"));
             }
 
             return selectSql.ToString();

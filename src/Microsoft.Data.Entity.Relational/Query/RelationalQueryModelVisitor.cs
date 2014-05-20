@@ -18,8 +18,8 @@ namespace Microsoft.Data.Entity.Relational.Query
 {
     public class RelationalQueryModelVisitor : EntityQueryModelVisitor
     {
-        private readonly Dictionary<IQuerySource, EntityQuery> _queriesBySource
-            = new Dictionary<IQuerySource, EntityQuery>();
+        private readonly Dictionary<IQuerySource, SqlSelect> _queriesBySource
+            = new Dictionary<IQuerySource, SqlSelect>();
 
         private readonly IEnumerableMethodProvider _enumerableMethodProvider;
 
@@ -33,11 +33,14 @@ namespace Microsoft.Data.Entity.Relational.Query
             _enumerableMethodProvider = enumerableMethodProvider;
         }
 
-        public virtual EntityQuery QueryFor([NotNull] IQuerySource querySource)
+        public virtual SqlSelect TryGetSqlSelect([NotNull] IQuerySource querySource)
         {
             Check.NotNull(querySource, "querySource");
 
-            return _queriesBySource[querySource];
+            SqlSelect sqlSelect;
+            return _queriesBySource.TryGetValue(querySource, out sqlSelect)
+                ? sqlSelect
+                : null;
         }
 
         protected override ExpressionTreeVisitor CreateQueryingExpressionTreeVisitor(IQuerySource querySource)
@@ -97,7 +100,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
                         var property = entityType.GetProperty(expression.Member.Name);
 
-                        EntityQuery entityQuery;
+                        SqlSelect entityQuery;
                         if (_queryModelVisitor._queriesBySource
                             .TryGetValue(querySourceReferenceExpression.ReferencedQuerySource, out entityQuery))
                         {
@@ -115,7 +118,7 @@ namespace Microsoft.Data.Entity.Relational.Query
             }
         }
 
-        private void ProcessMemberExpression(MemberExpression expression, Action<EntityQuery, IProperty> queryAction)
+        private void ProcessMemberExpression(MemberExpression expression, Action<SqlSelect, IProperty> queryAction)
         {
             var querySourceReferenceExpression
                 = expression.Expression as QuerySourceReferenceExpression;
@@ -134,7 +137,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
                     if (property != null)
                     {
-                        EntityQuery entityQuery;
+                        SqlSelect entityQuery;
                         if (_queriesBySource.TryGetValue(querySource, out entityQuery))
                         {
                             queryAction(entityQuery, property);
@@ -159,7 +162,11 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             protected override Expression VisitMemberExpression(MemberExpression expression)
             {
-                _queryModelVisitor.ProcessMemberExpression(expression, (eq, p) => eq.AddToProjection(p));
+                _queryModelVisitor
+                    .ProcessMemberExpression(
+                        expression,
+                        (sqlSelect, property)
+                            => sqlSelect.AddToProjection(property));
 
                 return base.VisitMemberExpression(expression);
             }
@@ -169,7 +176,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                 var queryMethodInfo = _queryModelVisitor._enumerableMethodProvider.QueryValues;
                 var entityType = QueryCompilationContext.Model.GetEntityType(elementType);
 
-                var entityQuery = new EntityQuery(entityType.StorageName);
+                var entityQuery = new SqlSelect().SetTableSource(entityType.StorageName);
 
                 _queryModelVisitor._queriesBySource.Add(_querySource, entityQuery);
 
@@ -202,7 +209,11 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             protected override Expression VisitMemberExpression(MemberExpression expression)
             {
-                _queryModelVisitor.ProcessMemberExpression(expression, (eq, p) => eq.AddToProjection(p));
+                _queryModelVisitor
+                    .ProcessMemberExpression(
+                        expression,
+                        (sqlSelect, property)
+                            => sqlSelect.AddToProjection(property));
 
                 return base.VisitMemberExpression(expression);
             }
@@ -213,7 +224,8 @@ namespace Microsoft.Data.Entity.Relational.Query
             private readonly RelationalQueryModelVisitor _queryModelVisitor;
             private readonly Ordering _ordering;
 
-            public RelationalOrderingSubQueryExpressionTreeVisitor(RelationalQueryModelVisitor queryModelVisitor, Ordering ordering)
+            public RelationalOrderingSubQueryExpressionTreeVisitor(
+                RelationalQueryModelVisitor queryModelVisitor, Ordering ordering)
                 : base(queryModelVisitor, null)
             {
                 _queryModelVisitor = queryModelVisitor;
@@ -225,8 +237,10 @@ namespace Microsoft.Data.Entity.Relational.Query
                 _queryModelVisitor
                     .ProcessMemberExpression(
                         expression,
-                        (eq, p) => eq.AddToOrderBy(p, _ordering.OrderingDirection));
+                        (sqlSelect, property)
+                            => sqlSelect.AddToOrderBy(property, _ordering.OrderingDirection));
 
+                // TODO: Remove expressions when fully server eval'd
                 return base.VisitMemberExpression(expression);
             }
         }

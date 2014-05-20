@@ -107,7 +107,6 @@
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
 <Compile Include="..\..\src\Microsoft.Data.Entity.Relational\Query\AsyncEnumerableMethodProvider.cs" />
-<Compile Include="..\..\src\Microsoft.Data.Entity.Relational\Query\EntityQuery.cs" />
 <Compile Include="..\..\src\Microsoft.Data.Entity.Relational\Query\EnumerableMethodProvider.cs" />
 <Compile Include="..\..\src\Microsoft.Data.Entity.Relational\Query\IEnumerableMethodProvider.cs" />
 <Compile Include="..\..\src\Microsoft.Data.Entity.Relational\Query\RelationalAsyncQueryCompilationContext.cs" />

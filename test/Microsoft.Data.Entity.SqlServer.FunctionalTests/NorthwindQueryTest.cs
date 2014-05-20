@@ -249,7 +249,7 @@ FROM Employees",
             base.GroupBy_Distinct();
 
             Assert.Equal(
-                @"SELECT CustomerID, OrderDate, OrderID
+                @"SELECT DISTINCT CustomerID, OrderDate, OrderID
 FROM Orders",
                 _fixture.Sql);
         }
@@ -289,13 +289,57 @@ FROM Customers",
 
         public override void Take_with_single()
         {
-            base.Take_with_single(); 
-            
+            base.Take_with_single();
+
             Assert.Equal(
-                 @"SELECT TOP 1 Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
+                @"SELECT TOP 2 Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
+FROM (SELECT TOP 1 *
+FROM Customers) AS t0
+ORDER BY CustomerID",
+                _fixture.Sql);
+        }
+
+        public override void Distinct()
+        {
+            base.Distinct();
+
+            Assert.Equal(
+                @"SELECT DISTINCT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
+FROM Customers",
+                _fixture.Sql);
+        }
+
+        public override void Distinct_Scalar()
+        {
+            base.Distinct_Scalar();
+
+            Assert.Equal(
+                @"SELECT DISTINCT City
+FROM Customers",
+                _fixture.Sql);
+        }
+
+        public override void OrderBy_Distinct()
+        {
+            base.OrderBy_Distinct();
+
+            Assert.Equal(
+                @"SELECT CustomerID, City
 FROM Customers
 ORDER BY CustomerID",
-                 _fixture.Sql);
+                _fixture.Sql);
+        }
+
+        public override void Distinct_OrderBy()
+        {
+            base.Distinct_OrderBy();
+
+            // TODO: 
+//            Assert.Equal(
+//                @"SELECT DISTINCT City
+//FROM Customers
+//ORDER BY City",
+//                _fixture.Sql);
         }
 
         private readonly NorthwindQueryFixture _fixture;
