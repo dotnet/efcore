@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.InMemory.Query;
 using Microsoft.Data.Entity.InMemory.Utilities;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
@@ -16,7 +17,7 @@ using Remotion.Linq;
 
 namespace Microsoft.Data.Entity.InMemory
 {
-    public partial class InMemoryDataStore : DataStore
+    public class InMemoryDataStore : DataStore
     {
         private readonly bool _persist;
         private readonly ThreadSafeLazyRef<InMemoryDatabase> _database;
@@ -69,10 +70,11 @@ namespace Microsoft.Data.Entity.InMemory
             Check.NotNull(queryModel, "queryModel");
             Check.NotNull(stateManager, "stateManager");
 
-            var queryExecutor = new QueryModelVisitor().CreateQueryExecutor<TResult>(queryModel);
+            var queryCompilationContext = new InMemoryQueryCompilationContext(Model);
+            var queryExecutor = queryCompilationContext.CreateVisitor().CreateQueryExecutor<TResult>(queryModel);
             var queryContext = new InMemoryQueryContext(Model, Logger, stateManager, _database.Value);
 
-            return queryExecutor(queryContext);
+            return queryExecutor(queryContext, null);
         }
 
         public override IAsyncEnumerable<TResult> AsyncQuery<TResult>(QueryModel queryModel, StateManager stateManager)

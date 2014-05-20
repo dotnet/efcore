@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -39,7 +40,7 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] Expression parentScope)
         {
             return Expression.Call(
-                _createMethodInfo.MakeGenericMethod(querySource.ItemType),
+                _createMethodInfo.MakeGenericMethod(result.Type),
                 Expression.Constant(querySource),
                 result,
                 parentScope);
@@ -47,11 +48,12 @@ namespace Microsoft.Data.Entity.Query
 
         public static Expression GetResult(
             [NotNull] Expression querySourceScope,
-            [NotNull] IQuerySource querySource)
+            [NotNull] IQuerySource querySource,
+            [NotNull] Type resultType)
         {
             return Expression.Call(
                 querySourceScope,
-                _getResultMethodInfo.MakeGenericMethod(querySource.ItemType),
+                _getResultMethodInfo.MakeGenericMethod(resultType),
                 Expression.Constant(querySource));
         }
 

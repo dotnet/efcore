@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Metadata;
 using Northwind;
 
@@ -68,6 +67,7 @@ namespace Microsoft.Data.FunctionalTests
                     })
                 .StorageName("Order Details");
 
+            // TODO: Use FAPIS when avail.
             var productType = model.GetEntityType(typeof(Product));
             var orderDetailType = model.GetEntityType(typeof(OrderDetail));
 
@@ -79,7 +79,5 @@ namespace Microsoft.Data.FunctionalTests
 
             return model;
         }
-
-        public abstract ImmutableDbContextOptions Configuration { get; }
     }
 }
