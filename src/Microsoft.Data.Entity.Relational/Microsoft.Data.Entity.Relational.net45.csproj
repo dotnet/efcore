@@ -114,6 +114,7 @@
 <Compile Include="..\..\src\Microsoft.Data.Entity.Relational\Query\RelationalQueryCompilationContext.cs" />
 <Compile Include="..\..\src\Microsoft.Data.Entity.Relational\Query\RelationalQueryContext.cs" />
 <Compile Include="..\..\src\Microsoft.Data.Entity.Relational\Query\RelationalQueryModelVisitor.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.Relational\Query\RelationalResultOperatorHandler.cs" />
 <Compile Include="..\..\src\Microsoft.Data.Entity.Relational\Query\SqlSelect.cs" />
 <Compile Include="..\..\src\Microsoft.Data.Entity.Relational\Update\BatchExecutor.cs" />
 <Compile Include="..\..\src\Microsoft.Data.Entity.Relational\Update\ColumnModification.cs" />

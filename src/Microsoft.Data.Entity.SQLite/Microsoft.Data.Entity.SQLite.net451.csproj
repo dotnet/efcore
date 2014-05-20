@@ -92,13 +92,13 @@
   </ItemGroup>
   <ItemGroup>
   <ProjectReference Include="..\..\src\Microsoft.Data.Entity\Microsoft.Data.Entity.net451.csproj">
-          <Project>{88A782EC-5479-4C44-9C66-35FA5BD9C85A}</Project>
+          <Project>{FD63BC48-6C86-4CD7-BD14-8912996DD195}</Project>
           <Name>Microsoft.Data.Entity</Name>
         </ProjectReference><ProjectReference Include="..\..\src\Microsoft.Data.Entity.Migrations\Microsoft.Data.Entity.Migrations.net451.csproj">
-          <Project>{F7C5ABFC-092D-4C17-8871-D0191973A1C8}</Project>
+          <Project>{EC04EC3C-54CF-4BEE-8412-3A953F6A6BF0}</Project>
           <Name>Microsoft.Data.Entity.Migrations</Name>
         </ProjectReference><ProjectReference Include="..\..\src\Microsoft.Data.Entity.Relational\Microsoft.Data.Entity.Relational.net451.csproj">
-          <Project>{91FB06C0-A84E-48EC-979C-487B6708AAA5}</Project>
+          <Project>{9CCA1F83-4E43-4F4E-AC8A-48B749F1C7A7}</Project>
           <Name>Microsoft.Data.Entity.Relational</Name>
         </ProjectReference>
   </ItemGroup>
