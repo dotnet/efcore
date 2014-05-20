@@ -9,6 +9,16 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 {
     public class NorthwindQueryTest : NorthwindQueryTestBase, IClassFixture<NorthwindQueryFixture>
     {
+        public override void Queryable_simple()
+        {
+            base.Queryable_simple();
+        }
+
+        public override void OrderBy_Join()
+        {
+            base.OrderBy_Join();
+        }
+
         private readonly NorthwindQueryFixture _fixture;
 
         public NorthwindQueryTest(NorthwindQueryFixture fixture)
@@ -16,9 +26,9 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             _fixture = fixture;
         }
 
-        protected override ImmutableDbContextOptions Configuration
+        protected override DbContext CreateContext()
         {
-            get { return _fixture.Configuration; }
+            return _fixture.CreateContext();
         }
     }
 
@@ -45,9 +55,9 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             }
         }
 
-        public override ImmutableDbContextOptions Configuration
+        public DbContext CreateContext()
         {
-            get { return _configuration; }
+            return new DbContext(_configuration);
         }
     }
 }

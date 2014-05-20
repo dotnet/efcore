@@ -75,15 +75,12 @@
 <Compile Include="..\..\src\Microsoft.Data.Entity.Relational\ModelDatabaseMapping.cs" />
 <Compile Include="..\..\src\Microsoft.Data.Entity.Relational\RelationalConfigurationExtension.cs" />
 <Compile Include="..\..\src\Microsoft.Data.Entity.Relational\RelationalConnection.cs" />
-<Compile Include="..\..\src\Microsoft.Data.Entity.Relational\RelationalDataStore.AsyncQueryModelVisitor.cs" />
 <Compile Include="..\..\src\Microsoft.Data.Entity.Relational\RelationalDataStore.cs" />
-<Compile Include="..\..\src\Microsoft.Data.Entity.Relational\RelationalDataStore.QueryModelVisitor.cs" />
 <Compile Include="..\..\src\Microsoft.Data.Entity.Relational\RelationalEntityServicesBuilderExtensions.cs" />
 <Compile Include="..\..\src\Microsoft.Data.Entity.Relational\RelationalLoggerExtensions.cs" />
 <Compile Include="..\..\src\Microsoft.Data.Entity.Relational\RelationalLoggingEventIds.cs" />
 <Compile Include="..\..\src\Microsoft.Data.Entity.Relational\RelationalObjectArrayValueReader.cs" />
 <Compile Include="..\..\src\Microsoft.Data.Entity.Relational\RelationalObjectArrayValueReaderFactory.cs" />
-<Compile Include="..\..\src\Microsoft.Data.Entity.Relational\RelationalQueryContext.cs" />
 <Compile Include="..\..\src\Microsoft.Data.Entity.Relational\RelationalTypedValueReader.cs" />
 <Compile Include="..\..\src\Microsoft.Data.Entity.Relational\RelationalTypedValueReaderFactory.cs" />
 <Compile Include="..\..\src\Microsoft.Data.Entity.Relational\RelationalValueReaderFactory.cs" />
@@ -109,6 +106,16 @@
 <Compile Include="..\..\src\Microsoft.Data.Entity.Relational\Properties\Strings.Designer.cs">
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
+<Compile Include="..\..\src\Microsoft.Data.Entity.Relational\Query\AsyncEnumerableMethodProvider.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.Relational\Query\EntityQuery.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.Relational\Query\EnumerableMethodProvider.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.Relational\Query\IEnumerableMethodProvider.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.Relational\Query\RelationalAsyncQueryCompilationContext.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.Relational\Query\RelationalQueryCompilationContext.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.Relational\Query\RelationalQueryContext.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.Relational\Query\RelationalQueryModelVisitor.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.Relational\Query\RelationalResultOperatorHandler.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.Relational\Query\SqlSelect.cs" />
 <Compile Include="..\..\src\Microsoft.Data.Entity.Relational\Update\BatchExecutor.cs" />
 <Compile Include="..\..\src\Microsoft.Data.Entity.Relational\Update\ColumnModification.cs" />
 <Compile Include="..\..\src\Microsoft.Data.Entity.Relational\Update\CommandBatchPreparer.cs" />

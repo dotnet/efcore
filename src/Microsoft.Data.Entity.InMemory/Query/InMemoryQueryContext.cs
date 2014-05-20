@@ -8,7 +8,7 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Framework.Logging;
 
-namespace Microsoft.Data.Entity.InMemory
+namespace Microsoft.Data.Entity.InMemory.Query
 {
     public class InMemoryQueryContext : QueryContext
     {

@@ -1,6 +1,6 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')"/>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -22,7 +22,7 @@
     <DefineConstants>DEBUG;TRACE;NET45;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -32,76 +32,77 @@
     <DefineConstants>TRACE;NET45;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="mscorlib" />
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data">
-    </Reference>
-    <Reference Include="Microsoft.Data.Common, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Microsoft.Data.Common.0.1-alpha-build-0139\lib\net451\Microsoft.Data.Common.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
-    <Reference Include="Microsoft.Data.SQLite, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Microsoft.Data.SQLite.0.1-alpha-build-0374\lib\net451\Microsoft.Data.SQLite.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
-    <Reference Include="Microsoft.Framework.DependencyInjection, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Microsoft.Framework.DependencyInjection.0.1-alpha-build-0389\lib\net45\Microsoft.Framework.DependencyInjection.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
+    <Reference Include="mscorlib"/>
+    <Reference Include="System"/>
+    <Reference Include="System.Core"/>
+    <Reference Include="Microsoft.CSharp"/>
+    
+<Reference Include="System.Data"></Reference>
+
+        <Reference Include="Microsoft.Data.Common, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null">
+        <SpecificVersion>False</SpecificVersion>
+        <HintPath>..\..\packages\Microsoft.Data.Common.0.1-alpha-build-0139\lib\net451\Microsoft.Data.Common.dll</HintPath>
+        <Private>true</Private>
+        </Reference>
+        <Reference Include="Microsoft.Data.SQLite, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null">
+        <SpecificVersion>False</SpecificVersion>
+        <HintPath>..\..\packages\Microsoft.Data.SQLite.0.1-alpha-build-0374\lib\net451\Microsoft.Data.SQLite.dll</HintPath>
+        <Private>true</Private>
+        </Reference>
+        <Reference Include="Microsoft.Framework.DependencyInjection, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null">
+        <SpecificVersion>False</SpecificVersion>
+        <HintPath>..\..\packages\Microsoft.Framework.DependencyInjection.0.1-alpha-build-0389\lib\net45\Microsoft.Framework.DependencyInjection.dll</HintPath>
+        <Private>true</Private>
+        </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\src\Microsoft.Data.Entity.SQLite\SQLiteBatchExecutor.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity.SQLite\SQLiteConfigurationExtension.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity.SQLite\SQLiteConnectionConnection.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity.SQLite\SQLiteDataStore.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity.SQLite\SQLiteDataStoreCreator.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity.SQLite\SQLiteDataStoreSource.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity.SQLite\SQLiteMigrationOperationSqlGenerator.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity.SQLite\SQLiteSqlGenerator.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity.SQLite\SQLiteTypeMapper.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity.SQLite\Extensions\SQLiteDbContextOptionsExtensions.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity.SQLite\Extensions\SQLiteEntityServicesBuilderExtensions.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity.SQLite\Properties\AssemblyInfo.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity.SQLite\Properties\InternalsVisibleTo.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity.SQLite\Properties\Strings.Designer.cs">
+<Compile Include="..\..\src\Microsoft.Data.Entity.SQLite\SQLiteConfigurationExtension.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.SQLite\SQLiteConnectionConnection.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.SQLite\SQLiteDataStore.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.SQLite\SQLiteDataStoreCreator.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.SQLite\SQLiteDataStoreSource.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.SQLite\SQLiteMigrationOperationSqlGenerator.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.SQLite\SQLiteSqlGenerator.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.SQLite\SQLiteTypeMapper.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.SQLite\Extensions\SQLiteDbContextOptionsExtensions.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.SQLite\Extensions\SQLiteEntityServicesBuilderExtensions.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.SQLite\Properties\AssemblyInfo.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.SQLite\Properties\InternalsVisibleTo.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.SQLite\Properties\Strings.Designer.cs">
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
-    <Compile Include="..\..\src\Microsoft.Data.Entity.SQLite\Utilities\Check.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity.SQLite\..\Shared\CodeAnnotations.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity.SQLite\..\Shared\StringBuilderExtensions.cs" />
-    <EmbeddedResource Include="..\..\src\Microsoft.Data.Entity.SQLite\Properties\Strings.resx">
-      <LogicalName>Microsoft.Data.Entity.SQLite.Strings.resources</LogicalName>
-    </EmbeddedResource>
-    <None Include="..\..\packages\KoreBuild\Build\Resources.tt">
-      <Link>Properties\Resources.tt</Link>
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <CustomToolNamespace>Microsoft.Data.Entity.SQLite</CustomToolNamespace>
-    </None>
-    <Content Include="project.json" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.SQLite\Utilities\Check.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.SQLite\..\Shared\CodeAnnotations.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.SQLite\..\Shared\StringBuilderExtensions.cs" />
+<EmbeddedResource Include="..\..\src\Microsoft.Data.Entity.SQLite\Properties\Strings.resx">
+    <LogicalName>Microsoft.Data.Entity.SQLite.Strings.resources</LogicalName>
+  </EmbeddedResource>
+<None Include="..\..\packages\KoreBuild\Build\Resources.tt">
+  <Link>Properties\Resources.tt</Link>
+  <Generator>TextTemplatingFileGenerator</Generator>
+  <CustomToolNamespace>Microsoft.Data.Entity.SQLite</CustomToolNamespace>
+</None>
+
+
+    <Content Include="project.json"/>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.Data.Entity.Migrations\Microsoft.Data.Entity.Migrations.net45.csproj">
-      <Project>{6e38b72f-31da-4aef-8f34-b8269572ec6b}</Project>
-      <Name>Microsoft.Data.Entity.Migrations.net45</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Microsoft.Data.Entity.Relational\Microsoft.Data.Entity.Relational.net45.csproj">
-      <Project>{75c5a774-a3f3-43eb-97d3-dbe0cf2825d8}</Project>
-      <Name>Microsoft.Data.Entity.Relational.net45</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Microsoft.Data.Entity\Microsoft.Data.Entity.net45.csproj">
-      <Project>{71415cec-8111-4c73-8751-512d22f10602}</Project>
-      <Name>Microsoft.Data.Entity.net45</Name>
-    </ProjectReference>
+  <ProjectReference Include="..\..\src\Microsoft.Data.Entity\Microsoft.Data.Entity.net451.csproj">
+          <Project>{FD63BC48-6C86-4CD7-BD14-8912996DD195}</Project>
+          <Name>Microsoft.Data.Entity</Name>
+        </ProjectReference><ProjectReference Include="..\..\src\Microsoft.Data.Entity.Migrations\Microsoft.Data.Entity.Migrations.net451.csproj">
+          <Project>{EC04EC3C-54CF-4BEE-8412-3A953F6A6BF0}</Project>
+          <Name>Microsoft.Data.Entity.Migrations</Name>
+        </ProjectReference><ProjectReference Include="..\..\src\Microsoft.Data.Entity.Relational\Microsoft.Data.Entity.Relational.net451.csproj">
+          <Project>{9CCA1F83-4E43-4F4E-AC8A-48B749F1C7A7}</Project>
+          <Name>Microsoft.Data.Entity.Relational</Name>
+        </ProjectReference>
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
