@@ -71,12 +71,10 @@
 <Compile Include="..\..\src\Microsoft.Data.Entity.InMemory\InMemoryConnection.cs" />
 <Compile Include="..\..\src\Microsoft.Data.Entity.InMemory\InMemoryDatabase.cs" />
 <Compile Include="..\..\src\Microsoft.Data.Entity.InMemory\InMemoryDataStore.cs" />
-<Compile Include="..\..\src\Microsoft.Data.Entity.InMemory\InMemoryDataStore.QueryModelVisitor.cs" />
 <Compile Include="..\..\src\Microsoft.Data.Entity.InMemory\InMemoryDataStoreCreator.cs" />
 <Compile Include="..\..\src\Microsoft.Data.Entity.InMemory\InMemoryDataStoreSource.cs" />
 <Compile Include="..\..\src\Microsoft.Data.Entity.InMemory\InMemoryIdentityGenerator.cs" />
 <Compile Include="..\..\src\Microsoft.Data.Entity.InMemory\InMemoryIdentityGeneratorFactory.cs" />
-<Compile Include="..\..\src\Microsoft.Data.Entity.InMemory\InMemoryQueryContext.cs" />
 <Compile Include="..\..\src\Microsoft.Data.Entity.InMemory\Extensions\InMemoryEntityConfigurationBuilderExtensions.cs" />
 <Compile Include="..\..\src\Microsoft.Data.Entity.InMemory\Extensions\InMemoryEntityServicesBuilderExtensions.cs" />
 <Compile Include="..\..\src\Microsoft.Data.Entity.InMemory\Properties\AssemblyInfo.cs" />
@@ -84,6 +82,9 @@
 <Compile Include="..\..\src\Microsoft.Data.Entity.InMemory\Properties\Strings.Designer.cs">
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
+<Compile Include="..\..\src\Microsoft.Data.Entity.InMemory\Query\InMemoryQueryCompilationContext.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.InMemory\Query\InMemoryQueryContext.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.InMemory\Query\InMemoryQueryModelVisitor.cs" />
 <Compile Include="..\..\src\Microsoft.Data.Entity.InMemory\Utilities\Check.cs" />
 <Compile Include="..\..\src\Microsoft.Data.Entity.InMemory\..\Shared\CodeAnnotations.cs" />
 <Compile Include="..\..\src\Microsoft.Data.Entity.InMemory\..\Shared\StringBuilderExtensions.cs" />
