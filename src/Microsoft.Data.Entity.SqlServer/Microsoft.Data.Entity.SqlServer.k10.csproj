@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')"/>
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{2E7C4BB1-9680-40D3-832B-6C5369DB8569}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Microsoft.Data.Entity.SqlServer</RootNamespace>
+    <AssemblyName>Microsoft.Data.Entity.SqlServer</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <BaseIntermediateOutputPath>obj/K</BaseIntermediateOutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\K</OutputPath>
+    <DefineConstants>DEBUG;TRACE;K10;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\K</OutputPath>
+    <DefineConstants>TRACE;K10;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\..\src\Microsoft.Data.Entity.SqlServer\SequenceIdentityGenerator.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.SqlServer\SequentialGuidIdentityGenerator.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.SqlServer\SqlServerBatchExecutor.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.SqlServer\SqlServerConfigurationExtension.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.SqlServer\SqlServerConnection.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.SqlServer\SqlServerDataStore.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.SqlServer\SqlServerDataStoreCreator.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.SqlServer\SqlServerDataStoreSource.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.SqlServer\SqlServerIdentityGeneratorFactory.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.SqlServer\SqlServerMigrationOperationSqlGenerator.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.SqlServer\SqlServerSimpleCommandExecutor.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.SqlServer\SqlServerSqlGenerator.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.SqlServer\SqlServerTypeMapper.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.SqlServer\Extensions\SqlServerEntityConfigurationBuilderExtensions.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.SqlServer\Extensions\SqlServerEntityServicesBuilderExtensions.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.SqlServer\Properties\AssemblyInfo.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.SqlServer\Properties\InternalsVisibleTo.cs.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.SqlServer\Properties\Strings.Designer.cs">
+      <DependentUpon>Strings.resx</DependentUpon>
+    </Compile>
+<Compile Include="..\..\src\Microsoft.Data.Entity.SqlServer\Utilities\Check.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.SqlServer\Utilities\EnumerableExtensions.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.SqlServer\..\Shared\CodeAnnotations.cs" />
+<Compile Include="..\..\src\Microsoft.Data.Entity.SqlServer\..\Shared\StringBuilderExtensions.cs" />
+<EmbeddedResource Include="..\..\src\Microsoft.Data.Entity.SqlServer\Properties\Strings.resx">
+    <LogicalName>Microsoft.Data.Entity.SqlServer.Strings.resources</LogicalName>
+  </EmbeddedResource>
+<None Include="..\..\packages\KoreBuild\Build\Resources.tt">
+  <Link>Properties\Resources.tt</Link>
+  <Generator>TextTemplatingFileGenerator</Generator>
+  <CustomToolNamespace>Microsoft.Data.Entity.SqlServer</CustomToolNamespace>
+</None>
+
+
+    <Content Include="project.json"/>
+  </ItemGroup>
+  <ItemGroup>
+    
+        <Reference Include="Microsoft.Data.Common, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null">
+        <SpecificVersion>False</SpecificVersion>
+        <HintPath>..\..\packages\Microsoft.Data.Common.0.1-alpha-build-0139\lib\k10\Microsoft.Data.Common.dll</HintPath>
+        <Private>true</Private>
+        </Reference>
+        <Reference Include="Microsoft.Data.SqlServer, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null">
+        <SpecificVersion>False</SpecificVersion>
+        <HintPath>..\..\packages\Microsoft.Data.SqlServer.0.1-alpha-build-0691\lib\k10\Microsoft.Data.SqlServer.dll</HintPath>
+        <Private>true</Private>
+        </Reference>
+        <Reference Include="Microsoft.Framework.DependencyInjection, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null">
+        <SpecificVersion>False</SpecificVersion>
+        <HintPath>..\..\packages\Microsoft.Framework.DependencyInjection.0.1-alpha-build-0389\lib\k10\Microsoft.Framework.DependencyInjection.dll</HintPath>
+        <Private>true</Private>
+        </Reference>
+        <Reference Include="System.Diagnostics.Contracts, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+        <SpecificVersion>False</SpecificVersion>
+        <HintPath>..\..\packages\System.Diagnostics.Contracts.4.0.0.0\lib\contract\System.Diagnostics.Contracts.dll</HintPath>
+        <Private>true</Private>
+        </Reference>
+        <Reference Include="System.Diagnostics.Debug, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+        <SpecificVersion>False</SpecificVersion>
+        <HintPath>..\..\packages\System.Diagnostics.Debug.4.0.10.0\lib\contract\System.Diagnostics.Debug.dll</HintPath>
+        <Private>true</Private>
+        </Reference>
+        <Reference Include="System.Globalization, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+        <SpecificVersion>False</SpecificVersion>
+        <HintPath>..\..\packages\System.Globalization.4.0.10.0\lib\contract\System.Globalization.dll</HintPath>
+        <Private>true</Private>
+        </Reference>
+        <Reference Include="System.Linq, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+        <SpecificVersion>False</SpecificVersion>
+        <HintPath>..\..\packages\System.Linq.4.0.0.0\lib\contract\System.Linq.dll</HintPath>
+        <Private>true</Private>
+        </Reference>
+        <Reference Include="System.Reflection, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+        <SpecificVersion>False</SpecificVersion>
+        <HintPath>..\..\packages\System.Reflection.4.0.10.0\lib\contract\System.Reflection.dll</HintPath>
+        <Private>true</Private>
+        </Reference>
+        <Reference Include="System.Resources.ResourceManager, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+        <SpecificVersion>False</SpecificVersion>
+        <HintPath>..\..\packages\System.Resources.ResourceManager.4.0.0.0\lib\contract\System.Resources.ResourceManager.dll</HintPath>
+        <Private>true</Private>
+        </Reference>
+        <Reference Include="System.Runtime, Version=4.0.20.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+        <SpecificVersion>False</SpecificVersion>
+        <HintPath>..\..\packages\System.Runtime.4.0.20.0\lib\contract\System.Runtime.dll</HintPath>
+        <Private>true</Private>
+        </Reference>
+        <Reference Include="System.Runtime.Extensions, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+        <SpecificVersion>False</SpecificVersion>
+        <HintPath>..\..\packages\System.Runtime.Extensions.4.0.10.0\lib\contract\System.Runtime.Extensions.dll</HintPath>
+        <Private>true</Private>
+        </Reference>
+        <Reference Include="System.Threading, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+        <SpecificVersion>False</SpecificVersion>
+        <HintPath>..\..\packages\System.Threading.4.0.0.0\lib\contract\System.Threading.dll</HintPath>
+        <Private>true</Private>
+        </Reference>
+        <Reference Include="System.Threading.Tasks, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+        <SpecificVersion>False</SpecificVersion>
+        <HintPath>..\..\packages\System.Threading.Tasks.4.0.10.0\lib\contract\System.Threading.Tasks.dll</HintPath>
+        <Private>true</Private>
+        </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Microsoft.Data.Entity\Microsoft.Data.Entity.k10.csproj">
+          <Project>{399ACC13-6972-4484-A0BD-9F91296CC220}</Project>
+          <Name>Microsoft.Data.Entity</Name>
+        </ProjectReference><ProjectReference Include="..\..\src\Microsoft.Data.Entity.Migrations\Microsoft.Data.Entity.Migrations.k10.csproj">
+          <Project>{6983B107-265E-439F-9B82-162CFB9BFBA4}</Project>
+          <Name>Microsoft.Data.Entity.Migrations</Name>
+        </ProjectReference><ProjectReference Include="..\..\src\Microsoft.Data.Entity.Relational\Microsoft.Data.Entity.Relational.k10.csproj">
+          <Project>{895E3376-22A5-449D-AAEB-407DD28C4CE7}</Project>
+          <Name>Microsoft.Data.Entity.Relational</Name>
+        </ProjectReference>
+  </ItemGroup>
+  <Import Project="C:\Users\anpete\Documents\GitHub\aspnet\EntityFramework\packages\KoreBuild\build\ProjectK.CSharp.targets"/>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')"/>
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{E4905225-3F42-41FC-A0F7-A35212154418}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Microsoft.Data.Entity.SQLite.Tests</RootNamespace>
+    <AssemblyName>Microsoft.Data.Entity.SQLite.Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <BaseIntermediateOutputPath>obj/K</BaseIntermediateOutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\K</OutputPath>
+    <DefineConstants>DEBUG;TRACE;K10;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\K</OutputPath>
+    <DefineConstants>TRACE;K10;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\..\test\Microsoft.Data.Entity.SQLite.Tests\ApiConsistencyTest.cs" />
+<Compile Include="..\..\test\Microsoft.Data.Entity.SQLite.Tests\..\Shared\ApiConsistencyTestBase.cs" />
+
+<None Include="..\..\packages\KoreBuild\Build\Resources.tt">
+  <Link>Properties\Resources.tt</Link>
+  <Generator>TextTemplatingFileGenerator</Generator>
+  <CustomToolNamespace>Microsoft.Data.Entity.SQLite.Tests</CustomToolNamespace>
+</None>
+
+
+    <Content Include="project.json"/>
+  </ItemGroup>
+  <ItemGroup>
+    
+        <Reference Include="xunit.abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null">
+        <SpecificVersion>False</SpecificVersion>
+        <HintPath>..\..\packages\xunit.abstractions.2.0.0-aspnet-040\lib\k10\xunit.abstractions.dll</HintPath>
+        <Private>true</Private>
+        </Reference>
+        <Reference Include="xunit.assert, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null">
+        <SpecificVersion>False</SpecificVersion>
+        <HintPath>..\..\packages\xunit.assert.2.0.0-aspnet-040\lib\k10\xunit.assert.dll</HintPath>
+        <Private>true</Private>
+        </Reference>
+        <Reference Include="xunit.core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null">
+        <SpecificVersion>False</SpecificVersion>
+        <HintPath>..\..\packages\xunit.core.2.0.0-aspnet-040\lib\k10\xunit.core.dll</HintPath>
+        <Private>true</Private>
+        </Reference>
+        <Reference Include="xunit.execution, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null">
+        <SpecificVersion>False</SpecificVersion>
+        <HintPath>..\..\packages\xunit.execution.2.0.0-aspnet-040\lib\k10\xunit.execution.dll</HintPath>
+        <Private>true</Private>
+        </Reference>
+        <Reference Include="Xunit.KRunner, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null">
+        <SpecificVersion>False</SpecificVersion>
+        <HintPath>..\..\packages\Xunit.KRunner.0.1-alpha-build-0039\lib\k10\Xunit.KRunner.dll</HintPath>
+        <Private>true</Private>
+        </Reference>
+        <Reference Include="System.Runtime, Version=4.0.20.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+        <SpecificVersion>False</SpecificVersion>
+        <HintPath>..\..\packages\System.Runtime.4.0.20.0\lib\contract\System.Runtime.dll</HintPath>
+        <Private>true</Private>
+        </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Microsoft.Data.Entity.Relational\Microsoft.Data.Entity.Relational.k10.csproj">
+          <Project>{895E3376-22A5-449D-AAEB-407DD28C4CE7}</Project>
+          <Name>Microsoft.Data.Entity.Relational</Name>
+        </ProjectReference><ProjectReference Include="..\..\src\Microsoft.Data.Entity.SQLite\Microsoft.Data.Entity.SQLite.k10.csproj">
+          <Project>{F86D8125-0DAC-4E9F-81EE-E2EEF23F5D83}</Project>
+          <Name>Microsoft.Data.Entity.SQLite</Name>
+        </ProjectReference>
+  </ItemGroup>
+  <Import Project="C:\Users\anpete\Documents\GitHub\aspnet\EntityFramework\packages\KoreBuild\build\ProjectK.CSharp.targets"/>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
