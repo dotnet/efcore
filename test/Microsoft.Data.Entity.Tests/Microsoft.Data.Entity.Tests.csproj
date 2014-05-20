@@ -1,6 +1,7 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')"/>
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="..\..\tools\EntityFramework.props" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -9,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Microsoft.Data.Entity.Tests</RootNamespace>
     <AssemblyName>Microsoft.Data.Entity.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <BaseIntermediateOutputPath>obj/net45</BaseIntermediateOutputPath>
   </PropertyGroup>
@@ -33,163 +34,121 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="mscorlib"/>
-    <Reference Include="System"/>
-    <Reference Include="System.Core"/>
-    <Reference Include="Microsoft.CSharp"/>
-    
-<Reference Include="System.Runtime"></Reference>
-
-        <Reference Include="System.Interactive.Async, Version=1.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
-        <SpecificVersion>False</SpecificVersion>
-        <HintPath>..\..\packages\Ix-Async.1.2.2\lib\net45\System.Interactive.Async.dll</HintPath>
-        <Private>true</Private>
-        </Reference>
-        <Reference Include="Microsoft.Framework.ConfigurationModel, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-        <SpecificVersion>False</SpecificVersion>
-        <HintPath>..\..\packages\Microsoft.Framework.ConfigurationModel.0.1-alpha-build-0233\lib\net45\Microsoft.Framework.ConfigurationModel.dll</HintPath>
-        <Private>true</Private>
-        </Reference>
-        <Reference Include="Microsoft.Framework.DependencyInjection, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null">
-        <SpecificVersion>False</SpecificVersion>
-        <HintPath>..\..\packages\Microsoft.Framework.DependencyInjection.0.1-alpha-build-0389\lib\net45\Microsoft.Framework.DependencyInjection.dll</HintPath>
-        <Private>true</Private>
-        </Reference>
-        <Reference Include="Microsoft.Framework.Logging, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null">
-        <SpecificVersion>False</SpecificVersion>
-        <HintPath>..\..\packages\Microsoft.Framework.Logging.0.1-alpha-build-0172\lib\net45\Microsoft.Framework.Logging.dll</HintPath>
-        <Private>true</Private>
-        </Reference>
-        <Reference Include="xunit.abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c">
-        <SpecificVersion>False</SpecificVersion>
-        <HintPath>..\..\packages\xunit.abstractions.2.0.0-aspnet-040\lib\net45\xunit.abstractions.dll</HintPath>
-        <Private>true</Private>
-        </Reference>
-        <Reference Include="xunit.assert, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null">
-        <SpecificVersion>False</SpecificVersion>
-        <HintPath>..\..\packages\xunit.assert.2.0.0-aspnet-040\lib\net45\xunit.assert.dll</HintPath>
-        <Private>true</Private>
-        </Reference>
-        <Reference Include="xunit.core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c">
-        <SpecificVersion>False</SpecificVersion>
-        <HintPath>..\..\packages\xunit.core.2.0.0-aspnet-040\lib\net45\xunit.core.dll</HintPath>
-        <Private>true</Private>
-        </Reference>
-        <Reference Include="xunit.runner.tdnet, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null">
-        <SpecificVersion>False</SpecificVersion>
-        <HintPath>..\..\packages\xunit.core.2.0.0-aspnet-040\lib\net45\xunit.runner.tdnet.dll</HintPath>
-        <Private>true</Private>
-        </Reference>
-        <Reference Include="xunit.runner.utility, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c">
-        <SpecificVersion>False</SpecificVersion>
-        <HintPath>..\..\packages\xunit.core.2.0.0-aspnet-040\lib\net45\xunit.runner.utility.dll</HintPath>
-        <Private>true</Private>
-        </Reference>
-        <Reference Include="xunit.execution, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c">
-        <SpecificVersion>False</SpecificVersion>
-        <HintPath>..\..\packages\xunit.execution.2.0.0-aspnet-040\lib\net45\xunit.execution.dll</HintPath>
-        <Private>true</Private>
-        </Reference>
-        <Reference Include="Xunit.KRunner, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null">
-        <SpecificVersion>False</SpecificVersion>
-        <HintPath>..\..\packages\Xunit.KRunner.0.1-alpha-build-0039\lib\net45\Xunit.KRunner.dll</HintPath>
-        <Private>true</Private>
-        </Reference>
-        <Reference Include="Moq, Version=4.2.1312.1622, Culture=neutral, PublicKeyToken=69f491c39445e920">
-        <SpecificVersion>False</SpecificVersion>
-        <HintPath>..\..\packages\Moq.4.2.1312.1622\lib\net40\Moq.dll</HintPath>
-        <Private>true</Private>
-        </Reference>
+    <Reference Include="mscorlib" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Runtime" />
+    <Reference Include="System.Interactive.Async, Version=1.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Ix-Async.1.2.2\lib\net45\System.Interactive.Async.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <PackageReference Include="Microsoft.Framework.ConfigurationModel" />
+    <PackageReference Include="Microsoft.Framework.DependencyInjection" />
+    <PackageReference Include="Microsoft.Framework.Logging" />
+    <PackageReference Include="xunit.abstractions" />
+    <PackageReference Include="xunit.assert" />
+    <PackageReference Include="xunit.core">
+      <Assemblies>xunit.core;xunit.runner.tdnet</Assemblies>
+    </PackageReference>
+    <PackageReference Include="xunit.execution" />
+    <Reference Include="Moq, Version=4.2.1312.1622, Culture=neutral, PublicKeyToken=69f491c39445e920">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Moq.4.2.1312.1622\lib\net40\Moq.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\test\Microsoft.Data.Entity.Tests\ApiConsistencyTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\ContextConfigurationTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\ContextSetsTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\DatabaseTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\DbContextTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\DbSetInitializerTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\DbSetTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\DbSetySourceTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\DefaultModelSourceTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\EntityConfigurationBuilderTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\EntityConfigurationTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\EntitySetFinderTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\QueryableExtensionsTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\ServiceProviderCacheTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\TestHelpers.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\ChangeTracking\ChangeTrackerTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\ChangeTracking\ClrStateEntryTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\ChangeTracking\CompositeEntityKeyFactoryTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\ChangeTracking\CompositeEntityKeyTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\ChangeTracking\EntityEntryTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\ChangeTracking\EntityKeyFactorySourceTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\ChangeTracking\EntityKeyTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\ChangeTracking\MixedStateEntryTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\ChangeTracking\NavigationFixerTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\ChangeTracking\OriginalValuesTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\ChangeTracking\PropertyEntryTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\ChangeTracking\ShadowStateEntryTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\ChangeTracking\SidecarTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\ChangeTracking\SimpleEntityKeyFactoryTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\ChangeTracking\SimpleEntityKeyTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\ChangeTracking\StateDataTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\ChangeTracking\StateEntryFactoryTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\ChangeTracking\StateEntrySubscriberTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\ChangeTracking\StateEntryTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\ChangeTracking\StateManagerTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\ChangeTracking\StoreGeneratedValuesTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\Identity\TemporaryIdentityGeneratorTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\Metadata\AnnotationTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\Metadata\ClrCollectionAccessorSourceTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\Metadata\ClrPropertyGetterSourceTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\Metadata\ClrPropertySetterSourceTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\Metadata\ConventionalModelBuilderTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\Metadata\EntityMaterializerSourceTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\Metadata\EntityTypeTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\Metadata\FieldMatcherTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\Metadata\ForeignKeyTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\Metadata\KeyTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\Metadata\MemberMapperTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\Metadata\MetadataBaseTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\Metadata\ModelBuilderTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\Metadata\ModelTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\Metadata\NavigationTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\Metadata\ObjectArrayValueReaderTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\Metadata\PropertyTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\Metadata\ModelConventions\KeyConventionTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\Metadata\ModelConventions\PropertiesConventionTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\Query\TaskResultAsyncEnumerableTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\Storage\DataStoreSelectorTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\Utilities\CheckTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\Utilities\EnumerableExtensionsTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\Utilities\ExpressionExtensionsTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\Utilities\IndentedStringBuilderTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\Utilities\LazyRefTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\Utilities\PropertyInfoExtensionsTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\Utilities\ThreadSafeDictionaryCacheTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\Utilities\ThreadSafeLazyRefTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\Utilities\TypeExtensionsTest.cs" />
-<Compile Include="..\..\test\Microsoft.Data.Entity.Tests\..\Shared\ApiConsistencyTestBase.cs" />
-
-<None Include="..\..\packages\KoreBuild\Build\Resources.tt">
-  <Link>Properties\Resources.tt</Link>
-  <Generator>TextTemplatingFileGenerator</Generator>
-  <CustomToolNamespace>Microsoft.Data.Entity.Tests</CustomToolNamespace>
-</None>
-
-
-    <Content Include="project.json"/>
+    <Compile Include="ApiConsistencyTest.cs" />
+    <Compile Include="ContextConfigurationTest.cs" />
+    <Compile Include="ContextSetsTest.cs" />
+    <Compile Include="DatabaseTest.cs" />
+    <Compile Include="DbContextTest.cs" />
+    <Compile Include="DbSetInitializerTest.cs" />
+    <Compile Include="DbSetTest.cs" />
+    <Compile Include="DbSetySourceTest.cs" />
+    <Compile Include="DefaultModelSourceTest.cs" />
+    <Compile Include="EntityConfigurationBuilderTest.cs" />
+    <Compile Include="EntityConfigurationTest.cs" />
+    <Compile Include="EntitySetFinderTest.cs" />
+    <Compile Include="QueryableExtensionsTest.cs" />
+    <Compile Include="ServiceProviderCacheTest.cs" />
+    <Compile Include="TestHelpers.cs" />
+    <Compile Include="ChangeTracking\ChangeTrackerTest.cs" />
+    <Compile Include="ChangeTracking\ClrStateEntryTest.cs" />
+    <Compile Include="ChangeTracking\CompositeEntityKeyFactoryTest.cs" />
+    <Compile Include="ChangeTracking\CompositeEntityKeyTest.cs" />
+    <Compile Include="ChangeTracking\EntityEntryTest.cs" />
+    <Compile Include="ChangeTracking\EntityKeyFactorySourceTest.cs" />
+    <Compile Include="ChangeTracking\EntityKeyTest.cs" />
+    <Compile Include="ChangeTracking\MixedStateEntryTest.cs" />
+    <Compile Include="ChangeTracking\NavigationFixerTest.cs" />
+    <Compile Include="ChangeTracking\OriginalValuesTest.cs" />
+    <Compile Include="ChangeTracking\PropertyEntryTest.cs" />
+    <Compile Include="ChangeTracking\ShadowStateEntryTest.cs" />
+    <Compile Include="ChangeTracking\SidecarTest.cs" />
+    <Compile Include="ChangeTracking\SimpleEntityKeyFactoryTest.cs" />
+    <Compile Include="ChangeTracking\SimpleEntityKeyTest.cs" />
+    <Compile Include="ChangeTracking\StateDataTest.cs" />
+    <Compile Include="ChangeTracking\StateEntryFactoryTest.cs" />
+    <Compile Include="ChangeTracking\StateEntrySubscriberTest.cs" />
+    <Compile Include="ChangeTracking\StateEntryTest.cs" />
+    <Compile Include="ChangeTracking\StateManagerTest.cs" />
+    <Compile Include="ChangeTracking\StoreGeneratedValuesTest.cs" />
+    <Compile Include="Identity\TemporaryIdentityGeneratorTest.cs" />
+    <Compile Include="Metadata\AnnotationTest.cs" />
+    <Compile Include="Metadata\ClrCollectionAccessorSourceTest.cs" />
+    <Compile Include="Metadata\ClrPropertyGetterSourceTest.cs" />
+    <Compile Include="Metadata\ClrPropertySetterSourceTest.cs" />
+    <Compile Include="Metadata\ConventionalModelBuilderTest.cs" />
+    <Compile Include="Metadata\EntityMaterializerSourceTest.cs" />
+    <Compile Include="Metadata\EntityTypeTest.cs" />
+    <Compile Include="Metadata\FieldMatcherTest.cs" />
+    <Compile Include="Metadata\ForeignKeyTest.cs" />
+    <Compile Include="Metadata\KeyTest.cs" />
+    <Compile Include="Metadata\MemberMapperTest.cs" />
+    <Compile Include="Metadata\MetadataBaseTest.cs" />
+    <Compile Include="Metadata\ModelBuilderTest.cs" />
+    <Compile Include="Metadata\ModelTest.cs" />
+    <Compile Include="Metadata\NavigationTest.cs" />
+    <Compile Include="Metadata\ObjectArrayValueReaderTest.cs" />
+    <Compile Include="Metadata\PropertyTest.cs" />
+    <Compile Include="Metadata\ModelConventions\KeyConventionTest.cs" />
+    <Compile Include="Metadata\ModelConventions\PropertiesConventionTest.cs" />
+    <Compile Include="Query\TaskResultAsyncEnumerableTest.cs" />
+    <Compile Include="Storage\DataStoreSelectorTest.cs" />
+    <Compile Include="Utilities\CheckTest.cs" />
+    <Compile Include="Utilities\EnumerableExtensionsTest.cs" />
+    <Compile Include="Utilities\ExpressionExtensionsTest.cs" />
+    <Compile Include="Utilities\IndentedStringBuilderTest.cs" />
+    <Compile Include="Utilities\LazyRefTest.cs" />
+    <Compile Include="Utilities\PropertyInfoExtensionsTest.cs" />
+    <Compile Include="Utilities\ThreadSafeDictionaryCacheTest.cs" />
+    <Compile Include="Utilities\ThreadSafeLazyRefTest.cs" />
+    <Compile Include="Utilities\TypeExtensionsTest.cs" />
+    <Compile Include="..\Shared\ApiConsistencyTestBase.cs" />
+    <None Include="..\..\packages\KoreBuild\Build\Resources.tt">
+      <Link>Properties\Resources.tt</Link>
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <CustomToolNamespace>Microsoft.Data.Entity.Tests</CustomToolNamespace>
+    </None>
+    <Content Include="project.json" />
   </ItemGroup>
   <ItemGroup>
-  <ProjectReference Include="..\..\src\Microsoft.Data.Entity\Microsoft.Data.Entity.net45.csproj">
-          <Project>{71415CEC-8111-4C73-8751-512D22F10602}</Project>
-          <Name>Microsoft.Data.Entity</Name>
-        </ProjectReference><ProjectReference Include="..\..\src\Microsoft.Data.Entity.InMemory\Microsoft.Data.Entity.InMemory.net45.csproj">
-          <Project>{BA3F5DBC-EC16-4D5A-8298-8226E6C5ACCC}</Project>
-          <Name>Microsoft.Data.Entity.InMemory</Name>
-        </ProjectReference>
+    <ProjectReference Include="..\..\src\Microsoft.Data.Entity\Microsoft.Data.Entity.csproj">
+      <Project>{71415CEC-8111-4C73-8751-512D22F10602}</Project>
+      <Name>Microsoft.Data.Entity</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Microsoft.Data.Entity.InMemory\Microsoft.Data.Entity.InMemory.csproj">
+      <Project>{BA3F5DBC-EC16-4D5A-8298-8226E6C5ACCC}</Project>
+      <Name>Microsoft.Data.Entity.InMemory</Name>
+    </ProjectReference>
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

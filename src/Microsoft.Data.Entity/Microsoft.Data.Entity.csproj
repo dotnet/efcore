@@ -1,6 +1,7 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="..\..\tools\EntityFramework.props" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -9,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Microsoft.Data.Entity</RootNamespace>
     <AssemblyName>Microsoft.Data.Entity</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <BaseIntermediateOutputPath>obj/net45</BaseIntermediateOutputPath>
   </PropertyGroup>
@@ -39,32 +40,20 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Collections">
-    </Reference>
-    <Reference Include="System.Linq.Expressions">
-    </Reference>
-    <Reference Include="System.Runtime">
-    </Reference>
+    <Reference Include="System.Collections" />
+    <Reference Include="System.Linq.Expressions" />
+    <Reference Include="System.Runtime" />
     <Reference Include="System.Interactive.Async, Version=1.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\Ix-Async.1.2.2\lib\net45\System.Interactive.Async.dll</HintPath>
       <Private>true</Private>
     </Reference>
-    <Reference Include="System.Collections.Immutable, Version=1.1.20.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Microsoft.Bcl.Immutable.1.1.18-beta-121\lib\net45\System.Collections.Immutable.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
-    <Reference Include="Microsoft.Framework.DependencyInjection, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Microsoft.Framework.DependencyInjection.0.1-alpha-build-0389\lib\net45\Microsoft.Framework.DependencyInjection.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
-    <Reference Include="Microsoft.Framework.Logging, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Microsoft.Framework.Logging.0.1-alpha-build-0172\lib\net45\Microsoft.Framework.Logging.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
+    <PackageReference Include="Microsoft.Bcl.Immutable">
+      <TargetFramework>portable-net45+win8</TargetFramework>
+      <Assemblies>System.Collections.Immutable</Assemblies>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Framework.DependencyInjection" />
+    <PackageReference Include="Microsoft.Framework.Logging" />
     <Reference Include="Remotion.Linq, Version=1.15.13.0, Culture=neutral, PublicKeyToken=fee00910d6e5f53b">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\Remotion.Linq.1.15.13.0\lib\portable-net45+wp80+win\Remotion.Linq.dll</HintPath>
@@ -72,160 +61,160 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\src\Microsoft.Data.Entity\DbContext.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\DbContextOptions.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\DbSet.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\EntityServicesBuilder.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\EntitySet`.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\EntityState.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\EntityStateExtensions.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\ImmutableDbContextOptions.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\INotifyPropertyChanging.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\ServiceProviderCache.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\ChangeTracking\ArraySidecar.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\ChangeTracking\ChangeTracker.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\ChangeTracking\ClrStateEntry.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\ChangeTracking\CompositeEntityKey.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\ChangeTracking\CompositeEntityKeyFactory.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\ChangeTracking\DictionarySidecar.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\ChangeTracking\EntityEntry.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\ChangeTracking\EntityEntry`.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\ChangeTracking\EntityKey.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\ChangeTracking\EntityKeyFactory.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\ChangeTracking\EntityKeyFactorySource.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\ChangeTracking\IEntityStateListener.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\ChangeTracking\MixedStateEntry.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\ChangeTracking\NavigationFixer.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\ChangeTracking\OriginalValues.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\ChangeTracking\OriginalValuesFactory.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\ChangeTracking\PropertyEntry.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\ChangeTracking\PropertyEntry`.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\ChangeTracking\ShadowStateEntry.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\ChangeTracking\Sidecar.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\ChangeTracking\SimpleEntityKey.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\ChangeTracking\SimpleEntityKeyFactory.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\ChangeTracking\StateData.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\ChangeTracking\StateEntry.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\ChangeTracking\StateEntryFactory.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\ChangeTracking\StateEntryNotifier.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\ChangeTracking\StateEntrySubscriber.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\ChangeTracking\StateManager.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\ChangeTracking\StoreGeneratedValues.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\ChangeTracking\StoreGeneratedValuesFactory.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Extensions\AdvancedEntityServicesBuilderExtensions.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Extensions\EntityServiceCollectionExtensions.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Extensions\QueryableExtensions.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Identity\ActiveIdentityGenerators.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Identity\DefaultIdentityGeneratorFactory.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Identity\GuidIdentityGenerator.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Identity\IdentityGeneratorFactory.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Identity\IIdentityGenerator.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Identity\IIdentityGenerator`.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Identity\OverridingIdentityGeneratorFactory.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Identity\TemporaryIdentityGenerator.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Infrastructure\ContextServices.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Infrastructure\ContextSets.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Infrastructure\Database.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Infrastructure\DbContextConfiguration.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Infrastructure\DbSetFinder.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Infrastructure\DbSetInitializer.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Infrastructure\DbSetSource.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Infrastructure\DefaultModelSource.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Infrastructure\EntityConfigurationExtension.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Infrastructure\IDbContextOptionsConstruction.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Infrastructure\IModelSource.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\Annotation.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\Annotations.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\ClrAccessorSource.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\ClrCollectionAccessorSource.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\ClrICollectionAccessor.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\ClrPropertyGetter.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\ClrPropertyGetterSource.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\ClrPropertySetter.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\ClrPropertySetterSource.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\ConventionModelBuilder.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\EntityMaterializerSource.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\EntityType.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\FieldMatcher.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\ForeignKey.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\IAnnotation.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\IClrCollectionAccessor.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\IClrPropertyGetter.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\IClrPropertySetter.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\IEntityMaterializer.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\IEntityType.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\IForeignKey.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\IKey.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\IMetadata.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\IModel.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\INavigation.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\IProperty.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\IPropertyBase.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\IValueReader.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\Key.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\MemberMapper.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\MetadataBase.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\Model.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\ModelBuilder.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\ModelExtensions.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\ModelItemNotFoundException.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\NamedMetadataBase.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\Navigation.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\ObjectArrayValueReader.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\Property.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\ValueGenerationStrategy.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\Compiled\CompiledEntityType.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\Compiled\CompiledForeignKey.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\Compiled\CompiledKey.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\Compiled\CompiledMetadataBase.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\Compiled\CompiledModel.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\Compiled\CompiledNavigation.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\Compiled\CompiledProperty.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\Compiled\CompiledPropertyNoAnnotations.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\Compiled\CompiledSimpleForeignKey.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\Compiled\Empty.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\Compiled\NoAnnotations.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\ModelConventions\IModelConvention.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\ModelConventions\KeyConvention.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Metadata\ModelConventions\PropertiesConvention.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Properties\AssemblyInfo.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Properties\InternalsVisibleTo.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Properties\Strings.Designer.cs">
+    <Compile Include="DbContext.cs" />
+    <Compile Include="DbContextOptions.cs" />
+    <Compile Include="DbSet.cs" />
+    <Compile Include="EntityServicesBuilder.cs" />
+    <Compile Include="EntitySet`.cs" />
+    <Compile Include="EntityState.cs" />
+    <Compile Include="EntityStateExtensions.cs" />
+    <Compile Include="ImmutableDbContextOptions.cs" />
+    <Compile Include="INotifyPropertyChanging.cs" />
+    <Compile Include="ServiceProviderCache.cs" />
+    <Compile Include="ChangeTracking\ArraySidecar.cs" />
+    <Compile Include="ChangeTracking\ChangeTracker.cs" />
+    <Compile Include="ChangeTracking\ClrStateEntry.cs" />
+    <Compile Include="ChangeTracking\CompositeEntityKey.cs" />
+    <Compile Include="ChangeTracking\CompositeEntityKeyFactory.cs" />
+    <Compile Include="ChangeTracking\DictionarySidecar.cs" />
+    <Compile Include="ChangeTracking\EntityEntry.cs" />
+    <Compile Include="ChangeTracking\EntityEntry`.cs" />
+    <Compile Include="ChangeTracking\EntityKey.cs" />
+    <Compile Include="ChangeTracking\EntityKeyFactory.cs" />
+    <Compile Include="ChangeTracking\EntityKeyFactorySource.cs" />
+    <Compile Include="ChangeTracking\IEntityStateListener.cs" />
+    <Compile Include="ChangeTracking\MixedStateEntry.cs" />
+    <Compile Include="ChangeTracking\NavigationFixer.cs" />
+    <Compile Include="ChangeTracking\OriginalValues.cs" />
+    <Compile Include="ChangeTracking\OriginalValuesFactory.cs" />
+    <Compile Include="ChangeTracking\PropertyEntry.cs" />
+    <Compile Include="ChangeTracking\PropertyEntry`.cs" />
+    <Compile Include="ChangeTracking\ShadowStateEntry.cs" />
+    <Compile Include="ChangeTracking\Sidecar.cs" />
+    <Compile Include="ChangeTracking\SimpleEntityKey.cs" />
+    <Compile Include="ChangeTracking\SimpleEntityKeyFactory.cs" />
+    <Compile Include="ChangeTracking\StateData.cs" />
+    <Compile Include="ChangeTracking\StateEntry.cs" />
+    <Compile Include="ChangeTracking\StateEntryFactory.cs" />
+    <Compile Include="ChangeTracking\StateEntryNotifier.cs" />
+    <Compile Include="ChangeTracking\StateEntrySubscriber.cs" />
+    <Compile Include="ChangeTracking\StateManager.cs" />
+    <Compile Include="ChangeTracking\StoreGeneratedValues.cs" />
+    <Compile Include="ChangeTracking\StoreGeneratedValuesFactory.cs" />
+    <Compile Include="Extensions\AdvancedEntityServicesBuilderExtensions.cs" />
+    <Compile Include="Extensions\EntityServiceCollectionExtensions.cs" />
+    <Compile Include="Extensions\QueryableExtensions.cs" />
+    <Compile Include="Identity\ActiveIdentityGenerators.cs" />
+    <Compile Include="Identity\DefaultIdentityGeneratorFactory.cs" />
+    <Compile Include="Identity\GuidIdentityGenerator.cs" />
+    <Compile Include="Identity\IdentityGeneratorFactory.cs" />
+    <Compile Include="Identity\IIdentityGenerator.cs" />
+    <Compile Include="Identity\IIdentityGenerator`.cs" />
+    <Compile Include="Identity\OverridingIdentityGeneratorFactory.cs" />
+    <Compile Include="Identity\TemporaryIdentityGenerator.cs" />
+    <Compile Include="Infrastructure\ContextServices.cs" />
+    <Compile Include="Infrastructure\ContextSets.cs" />
+    <Compile Include="Infrastructure\Database.cs" />
+    <Compile Include="Infrastructure\DbContextConfiguration.cs" />
+    <Compile Include="Infrastructure\DbSetFinder.cs" />
+    <Compile Include="Infrastructure\DbSetInitializer.cs" />
+    <Compile Include="Infrastructure\DbSetSource.cs" />
+    <Compile Include="Infrastructure\DefaultModelSource.cs" />
+    <Compile Include="Infrastructure\EntityConfigurationExtension.cs" />
+    <Compile Include="Infrastructure\IDbContextOptionsConstruction.cs" />
+    <Compile Include="Infrastructure\IModelSource.cs" />
+    <Compile Include="Metadata\Annotation.cs" />
+    <Compile Include="Metadata\Annotations.cs" />
+    <Compile Include="Metadata\ClrAccessorSource.cs" />
+    <Compile Include="Metadata\ClrCollectionAccessorSource.cs" />
+    <Compile Include="Metadata\ClrICollectionAccessor.cs" />
+    <Compile Include="Metadata\ClrPropertyGetter.cs" />
+    <Compile Include="Metadata\ClrPropertyGetterSource.cs" />
+    <Compile Include="Metadata\ClrPropertySetter.cs" />
+    <Compile Include="Metadata\ClrPropertySetterSource.cs" />
+    <Compile Include="Metadata\ConventionModelBuilder.cs" />
+    <Compile Include="Metadata\EntityMaterializerSource.cs" />
+    <Compile Include="Metadata\EntityType.cs" />
+    <Compile Include="Metadata\FieldMatcher.cs" />
+    <Compile Include="Metadata\ForeignKey.cs" />
+    <Compile Include="Metadata\IAnnotation.cs" />
+    <Compile Include="Metadata\IClrCollectionAccessor.cs" />
+    <Compile Include="Metadata\IClrPropertyGetter.cs" />
+    <Compile Include="Metadata\IClrPropertySetter.cs" />
+    <Compile Include="Metadata\IEntityMaterializer.cs" />
+    <Compile Include="Metadata\IEntityType.cs" />
+    <Compile Include="Metadata\IForeignKey.cs" />
+    <Compile Include="Metadata\IKey.cs" />
+    <Compile Include="Metadata\IMetadata.cs" />
+    <Compile Include="Metadata\IModel.cs" />
+    <Compile Include="Metadata\INavigation.cs" />
+    <Compile Include="Metadata\IProperty.cs" />
+    <Compile Include="Metadata\IPropertyBase.cs" />
+    <Compile Include="Metadata\IValueReader.cs" />
+    <Compile Include="Metadata\Key.cs" />
+    <Compile Include="Metadata\MemberMapper.cs" />
+    <Compile Include="Metadata\MetadataBase.cs" />
+    <Compile Include="Metadata\Model.cs" />
+    <Compile Include="Metadata\ModelBuilder.cs" />
+    <Compile Include="Metadata\ModelExtensions.cs" />
+    <Compile Include="Metadata\ModelItemNotFoundException.cs" />
+    <Compile Include="Metadata\NamedMetadataBase.cs" />
+    <Compile Include="Metadata\Navigation.cs" />
+    <Compile Include="Metadata\ObjectArrayValueReader.cs" />
+    <Compile Include="Metadata\Property.cs" />
+    <Compile Include="Metadata\ValueGenerationStrategy.cs" />
+    <Compile Include="Metadata\Compiled\CompiledEntityType.cs" />
+    <Compile Include="Metadata\Compiled\CompiledForeignKey.cs" />
+    <Compile Include="Metadata\Compiled\CompiledKey.cs" />
+    <Compile Include="Metadata\Compiled\CompiledMetadataBase.cs" />
+    <Compile Include="Metadata\Compiled\CompiledModel.cs" />
+    <Compile Include="Metadata\Compiled\CompiledNavigation.cs" />
+    <Compile Include="Metadata\Compiled\CompiledProperty.cs" />
+    <Compile Include="Metadata\Compiled\CompiledPropertyNoAnnotations.cs" />
+    <Compile Include="Metadata\Compiled\CompiledSimpleForeignKey.cs" />
+    <Compile Include="Metadata\Compiled\Empty.cs" />
+    <Compile Include="Metadata\Compiled\NoAnnotations.cs" />
+    <Compile Include="Metadata\ModelConventions\IModelConvention.cs" />
+    <Compile Include="Metadata\ModelConventions\KeyConvention.cs" />
+    <Compile Include="Metadata\ModelConventions\PropertiesConvention.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\InternalsVisibleTo.cs" />
+    <Compile Include="Properties\Strings.Designer.cs">
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Query\AsyncEntityQueryModelVisitor.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Query\AsyncLinqOperatorProvider.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Query\EntityQueryable`.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Query\EntityQueryExecutor.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Query\EntityQueryModelVisitor.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Query\EntityQueryProvider.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Query\IAsyncQueryProvider.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Query\ILinqOperatorProvider.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Query\LinqOperatorProvider.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Query\QueryContext.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Query\QuerySourceScope.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Query\TaskResultAsyncEnumerable.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Services\NullLoggerFactory.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Storage\DataStore.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Storage\DataStoreConnection.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Storage\DataStoreCreator.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Storage\DataStoreSelector.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Storage\DataStoreSource.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Storage\DataStoreSource`.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Utilities\Check.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Utilities\EnumerableExtensions.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Utilities\ExpressionExtensions.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Utilities\IndentedStringBuilder.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Utilities\LazyRef.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Utilities\PropertyInfoExtensions.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Utilities\ReferenceEqualityComparer.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Utilities\ServiceProviderExtensions.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Utilities\ThreadSafeDictionaryCache.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Utilities\ThreadSafeLazyRef.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\Utilities\TypeExtensions.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\..\Shared\CodeAnnotations.cs" />
-    <Compile Include="..\..\src\Microsoft.Data.Entity\..\Shared\StringBuilderExtensions.cs" />
-    <EmbeddedResource Include="..\..\src\Microsoft.Data.Entity\Properties\Strings.resx">
+    <Compile Include="Query\AsyncEntityQueryModelVisitor.cs" />
+    <Compile Include="Query\AsyncLinqOperatorProvider.cs" />
+    <Compile Include="Query\EntityQueryable`.cs" />
+    <Compile Include="Query\EntityQueryExecutor.cs" />
+    <Compile Include="Query\EntityQueryModelVisitor.cs" />
+    <Compile Include="Query\EntityQueryProvider.cs" />
+    <Compile Include="Query\IAsyncQueryProvider.cs" />
+    <Compile Include="Query\ILinqOperatorProvider.cs" />
+    <Compile Include="Query\LinqOperatorProvider.cs" />
+    <Compile Include="Query\QueryContext.cs" />
+    <Compile Include="Query\QuerySourceScope.cs" />
+    <Compile Include="Query\TaskResultAsyncEnumerable.cs" />
+    <Compile Include="Services\NullLoggerFactory.cs" />
+    <Compile Include="Storage\DataStore.cs" />
+    <Compile Include="Storage\DataStoreConnection.cs" />
+    <Compile Include="Storage\DataStoreCreator.cs" />
+    <Compile Include="Storage\DataStoreSelector.cs" />
+    <Compile Include="Storage\DataStoreSource.cs" />
+    <Compile Include="Storage\DataStoreSource`.cs" />
+    <Compile Include="Utilities\Check.cs" />
+    <Compile Include="Utilities\EnumerableExtensions.cs" />
+    <Compile Include="Utilities\ExpressionExtensions.cs" />
+    <Compile Include="Utilities\IndentedStringBuilder.cs" />
+    <Compile Include="Utilities\LazyRef.cs" />
+    <Compile Include="Utilities\PropertyInfoExtensions.cs" />
+    <Compile Include="Utilities\ReferenceEqualityComparer.cs" />
+    <Compile Include="Utilities\ServiceProviderExtensions.cs" />
+    <Compile Include="Utilities\ThreadSafeDictionaryCache.cs" />
+    <Compile Include="Utilities\ThreadSafeLazyRef.cs" />
+    <Compile Include="Utilities\TypeExtensions.cs" />
+    <Compile Include="..\Shared\CodeAnnotations.cs" />
+    <Compile Include="..\Shared\StringBuilderExtensions.cs" />
+    <EmbeddedResource Include="Properties\Strings.resx">
       <LogicalName>Microsoft.Data.Entity.Strings.resources</LogicalName>
     </EmbeddedResource>
     <None Include="..\..\packages\KoreBuild\Build\Resources.tt">
@@ -235,12 +224,7 @@
     </None>
     <Content Include="project.json" />
   </ItemGroup>
-  <ItemGroup>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PreBuildEvent>xcopy $(SolutionDir)packages\Microsoft.Bcl.Immutable.1.1.18-beta-121\lib\portable-net45+win8\System.Collections.Immutable.dll $(SolutionDir)packages\Microsoft.Bcl.Immutable.1.1.18-beta-121\lib\net45 /Y</PreBuildEvent>
-  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

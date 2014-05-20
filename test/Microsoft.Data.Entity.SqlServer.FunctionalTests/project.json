@@ -24,7 +24,7 @@
     "test": "Xunit.KRunner"
   },
   "configurations": {
-    "net45": {
+    "net451": {
       "dependencies": {
         "System.Data": "",
         "System.Runtime": ""
