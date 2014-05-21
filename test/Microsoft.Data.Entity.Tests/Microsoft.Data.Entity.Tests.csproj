@@ -1,0 +1,159 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="..\..\tools\EntityFramework.props" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{EF361118-7D0D-453E-ADA4-2F24FBEE196C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Microsoft.Data.Entity.Tests</RootNamespace>
+    <AssemblyName>Microsoft.Data.Entity.Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <BaseIntermediateOutputPath>obj/net45</BaseIntermediateOutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\net45</OutputPath>
+    <DefineConstants>DEBUG;TRACE;NET45;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\net45</OutputPath>
+    <DefineConstants>TRACE;NET45;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="mscorlib" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Runtime" />
+    <Reference Include="System.Interactive.Async, Version=1.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Ix-Async.1.2.2\lib\net45\System.Interactive.Async.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <PackageReference Include="Microsoft.Framework.ConfigurationModel" />
+    <PackageReference Include="Microsoft.Framework.DependencyInjection" />
+    <PackageReference Include="Microsoft.Framework.Logging" />
+    <PackageReference Include="xunit.abstractions" />
+    <PackageReference Include="xunit.assert" />
+    <PackageReference Include="xunit.core">
+      <Assemblies>xunit.core;xunit.runner.tdnet</Assemblies>
+    </PackageReference>
+    <PackageReference Include="xunit.execution" />
+    <Reference Include="Moq, Version=4.2.1312.1622, Culture=neutral, PublicKeyToken=69f491c39445e920">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Moq.4.2.1312.1622\lib\net40\Moq.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ApiConsistencyTest.cs" />
+    <Compile Include="ContextConfigurationTest.cs" />
+    <Compile Include="ContextSetsTest.cs" />
+    <Compile Include="DatabaseTest.cs" />
+    <Compile Include="DbContextTest.cs" />
+    <Compile Include="DbSetInitializerTest.cs" />
+    <Compile Include="DbSetTest.cs" />
+    <Compile Include="DbSetySourceTest.cs" />
+    <Compile Include="DefaultModelSourceTest.cs" />
+    <Compile Include="EntityConfigurationBuilderTest.cs" />
+    <Compile Include="EntityConfigurationTest.cs" />
+    <Compile Include="EntitySetFinderTest.cs" />
+    <Compile Include="QueryableExtensionsTest.cs" />
+    <Compile Include="ServiceProviderCacheTest.cs" />
+    <Compile Include="TestHelpers.cs" />
+    <Compile Include="ChangeTracking\ChangeTrackerTest.cs" />
+    <Compile Include="ChangeTracking\ClrStateEntryTest.cs" />
+    <Compile Include="ChangeTracking\CompositeEntityKeyFactoryTest.cs" />
+    <Compile Include="ChangeTracking\CompositeEntityKeyTest.cs" />
+    <Compile Include="ChangeTracking\EntityEntryTest.cs" />
+    <Compile Include="ChangeTracking\EntityKeyFactorySourceTest.cs" />
+    <Compile Include="ChangeTracking\EntityKeyTest.cs" />
+    <Compile Include="ChangeTracking\MixedStateEntryTest.cs" />
+    <Compile Include="ChangeTracking\NavigationFixerTest.cs" />
+    <Compile Include="ChangeTracking\OriginalValuesTest.cs" />
+    <Compile Include="ChangeTracking\PropertyEntryTest.cs" />
+    <Compile Include="ChangeTracking\ShadowStateEntryTest.cs" />
+    <Compile Include="ChangeTracking\SidecarTest.cs" />
+    <Compile Include="ChangeTracking\SimpleEntityKeyFactoryTest.cs" />
+    <Compile Include="ChangeTracking\SimpleEntityKeyTest.cs" />
+    <Compile Include="ChangeTracking\StateDataTest.cs" />
+    <Compile Include="ChangeTracking\StateEntryFactoryTest.cs" />
+    <Compile Include="ChangeTracking\StateEntrySubscriberTest.cs" />
+    <Compile Include="ChangeTracking\StateEntryTest.cs" />
+    <Compile Include="ChangeTracking\StateManagerTest.cs" />
+    <Compile Include="ChangeTracking\StoreGeneratedValuesTest.cs" />
+    <Compile Include="Identity\TemporaryIdentityGeneratorTest.cs" />
+    <Compile Include="Metadata\AnnotationTest.cs" />
+    <Compile Include="Metadata\ClrCollectionAccessorSourceTest.cs" />
+    <Compile Include="Metadata\ClrPropertyGetterSourceTest.cs" />
+    <Compile Include="Metadata\ClrPropertySetterSourceTest.cs" />
+    <Compile Include="Metadata\ConventionalModelBuilderTest.cs" />
+    <Compile Include="Metadata\EntityMaterializerSourceTest.cs" />
+    <Compile Include="Metadata\EntityTypeTest.cs" />
+    <Compile Include="Metadata\FieldMatcherTest.cs" />
+    <Compile Include="Metadata\ForeignKeyTest.cs" />
+    <Compile Include="Metadata\KeyTest.cs" />
+    <Compile Include="Metadata\MemberMapperTest.cs" />
+    <Compile Include="Metadata\MetadataBaseTest.cs" />
+    <Compile Include="Metadata\ModelBuilderTest.cs" />
+    <Compile Include="Metadata\ModelTest.cs" />
+    <Compile Include="Metadata\NavigationTest.cs" />
+    <Compile Include="Metadata\ObjectArrayValueReaderTest.cs" />
+    <Compile Include="Metadata\PropertyTest.cs" />
+    <Compile Include="Metadata\ModelConventions\KeyConventionTest.cs" />
+    <Compile Include="Metadata\ModelConventions\PropertiesConventionTest.cs" />
+    <Compile Include="Query\TaskResultAsyncEnumerableTest.cs" />
+    <Compile Include="Storage\DataStoreSelectorTest.cs" />
+    <Compile Include="Utilities\CheckTest.cs" />
+    <Compile Include="Utilities\EnumerableExtensionsTest.cs" />
+    <Compile Include="Utilities\ExpressionExtensionsTest.cs" />
+    <Compile Include="Utilities\IndentedStringBuilderTest.cs" />
+    <Compile Include="Utilities\LazyRefTest.cs" />
+    <Compile Include="Utilities\PropertyInfoExtensionsTest.cs" />
+    <Compile Include="Utilities\ThreadSafeDictionaryCacheTest.cs" />
+    <Compile Include="Utilities\ThreadSafeLazyRefTest.cs" />
+    <Compile Include="Utilities\TypeExtensionsTest.cs" />
+    <Compile Include="..\Shared\ApiConsistencyTestBase.cs" />
+    <None Include="..\..\packages\KoreBuild\Build\Resources.tt">
+      <Link>Properties\Resources.tt</Link>
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <CustomToolNamespace>Microsoft.Data.Entity.Tests</CustomToolNamespace>
+    </None>
+    <Content Include="project.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Microsoft.Data.Entity\Microsoft.Data.Entity.csproj">
+      <Project>{71415CEC-8111-4C73-8751-512D22F10602}</Project>
+      <Name>Microsoft.Data.Entity</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Microsoft.Data.Entity.InMemory\Microsoft.Data.Entity.InMemory.csproj">
+      <Project>{BA3F5DBC-EC16-4D5A-8298-8226E6C5ACCC}</Project>
+      <Name>Microsoft.Data.Entity.InMemory</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

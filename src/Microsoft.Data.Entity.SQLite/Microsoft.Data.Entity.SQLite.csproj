@@ -1,0 +1,104 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="..\..\tools\EntityFramework.props" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{4CC98896-FE91-4F16-AE60-D6FF9E905836}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Microsoft.Data.Entity.SQLite</RootNamespace>
+    <AssemblyName>Microsoft.Data.Entity.SQLite</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <BaseIntermediateOutputPath>obj/net451</BaseIntermediateOutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\net451</OutputPath>
+    <DefineConstants>DEBUG;TRACE;NET451;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\net451</OutputPath>
+    <DefineConstants>TRACE;NET451;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="mscorlib" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <PackageReference Include="Microsoft.Data.Common">
+      <TargetFramework>net451</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Data.SQLite">
+      <TargetFramework>net451</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Framework.DependencyInjection" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="SQLiteBatchExecutor.cs" />
+    <Compile Include="SQLiteConfigurationExtension.cs" />
+    <Compile Include="SQLiteConnectionConnection.cs" />
+    <Compile Include="SQLiteDataStore.cs" />
+    <Compile Include="SQLiteDataStoreCreator.cs" />
+    <Compile Include="SQLiteDataStoreSource.cs" />
+    <Compile Include="SQLiteMigrationOperationSqlGenerator.cs" />
+    <Compile Include="SQLiteSqlGenerator.cs" />
+    <Compile Include="SQLiteTypeMapper.cs" />
+    <Compile Include="Extensions\SQLiteDbContextOptionsExtensions.cs" />
+    <Compile Include="Extensions\SQLiteEntityServicesBuilderExtensions.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\InternalsVisibleTo.cs" />
+    <Compile Include="Properties\Strings.Designer.cs">
+      <DependentUpon>Strings.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Utilities\Check.cs" />
+    <Compile Include="..\Shared\CodeAnnotations.cs" />
+    <Compile Include="..\Shared\StringBuilderExtensions.cs" />
+    <EmbeddedResource Include="Properties\Strings.resx">
+      <LogicalName>Microsoft.Data.Entity.SQLite.Strings.resources</LogicalName>
+    </EmbeddedResource>
+    <None Include="..\..\packages\KoreBuild\Build\Resources.tt">
+      <Link>Properties\Resources.tt</Link>
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <CustomToolNamespace>Microsoft.Data.Entity.SQLite</CustomToolNamespace>
+    </None>
+    <Content Include="project.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.Data.Entity.Migrations\Microsoft.Data.Entity.Migrations.csproj">
+      <Project>{6e38b72f-31da-4aef-8f34-b8269572ec6b}</Project>
+      <Name>Microsoft.Data.Entity.Migrations</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.Data.Entity.Relational\Microsoft.Data.Entity.Relational.csproj">
+      <Project>{75c5a774-a3f3-43eb-97d3-dbe0cf2825d8}</Project>
+      <Name>Microsoft.Data.Entity.Relational</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.Data.Entity\Microsoft.Data.Entity.csproj">
+      <Project>{71415cec-8111-4c73-8751-512d22f10602}</Project>
+      <Name>Microsoft.Data.Entity</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
