@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Metadata
             _getter = getter;
         }
 
-        public object GetClrValue(object instance)
+        public virtual object GetClrValue(object instance)
         {
             Check.NotNull(instance, "instance");
 

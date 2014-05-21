@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.SqlServer
             _commandTimeout = commandTimeout;
         }
 
-        public async Task<T> ExecuteScalarAsync<T>(string commandText, CancellationToken cancellationToken, params object[] parameters)
+        public virtual async Task<T> ExecuteScalarAsync<T>(string commandText, CancellationToken cancellationToken, params object[] parameters)
         {
             Check.NotEmpty(commandText, "commandText");
             Check.NotNull(parameters, "parameters");

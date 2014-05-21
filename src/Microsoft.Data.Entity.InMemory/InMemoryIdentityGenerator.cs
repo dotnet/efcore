@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.InMemory
     {
         private static long _current;
 
-        public Task<long> NextAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<long> NextAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             return Task.FromResult(Interlocked.Increment(ref _current));
         }

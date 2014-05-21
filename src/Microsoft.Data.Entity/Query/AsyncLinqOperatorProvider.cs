@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Query
             return AsyncEnumerable.Return(element);
         }
 
-        public MethodInfo ToSequence
+        public virtual MethodInfo ToSequence
         {
             get { return _toSequenceShim; }
         }
@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.Query
             return source.SelectMany(selector);
         }
 
-        public MethodInfo SelectMany
+        public virtual MethodInfo SelectMany
         {
             get { return _selectManyShim; }
         }
@@ -58,7 +58,7 @@ namespace Microsoft.Data.Entity.Query
             return outer.Join(inner, outerKeySelector, innerKeySelector, resultSelector);
         }
 
-        public MethodInfo Join
+        public virtual MethodInfo Join
         {
             get { return _joinShim; }
         }
@@ -78,7 +78,7 @@ namespace Microsoft.Data.Entity.Query
             return outer.GroupJoin(inner, outerKeySelector, innerKeySelector, resultSelector);
         }
 
-        public MethodInfo GroupJoin
+        public virtual MethodInfo GroupJoin
         {
             get { return _groupJoinShim; }
         }
@@ -94,7 +94,7 @@ namespace Microsoft.Data.Entity.Query
             return source.Select(selector);
         }
 
-        public MethodInfo Select
+        public virtual MethodInfo Select
         {
             get { return _selectShim; }
         }
@@ -112,7 +112,7 @@ namespace Microsoft.Data.Entity.Query
                 : source.OrderByDescending(expression);
         }
 
-        public MethodInfo OrderBy
+        public virtual MethodInfo OrderBy
         {
             get { return _orderByShim; }
         }
@@ -130,7 +130,7 @@ namespace Microsoft.Data.Entity.Query
                 : source.ThenByDescending(expression);
         }
 
-        public MethodInfo ThenBy
+        public virtual MethodInfo ThenBy
         {
             get { return _thenByShim; }
         }
@@ -146,7 +146,7 @@ namespace Microsoft.Data.Entity.Query
             return source.Where(predicate);
         }
 
-        public MethodInfo Where
+        public virtual MethodInfo Where
         {
             get { return _whereShim; }
         }
