@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.SqlServer
             _counter = DateTime.UtcNow.Ticks;
         }
 
-        public Task<Guid> NextAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<Guid> NextAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var guidBytes = Guid.NewGuid().ToByteArray();
             var counterBytes = BitConverter.GetBytes(Interlocked.Increment(ref _counter));

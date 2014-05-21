@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Tests
                     from m in t.GetMethods(PublicInstance)
                     where m.DeclaringType != null
                           && m.DeclaringType.Assembly == TargetAssembly
-                          && !m.IsVirtual
+                          && !(m.IsVirtual && !m.IsFinal)
                     select t.Name + "." + m.Name)
                     .ToList();
 

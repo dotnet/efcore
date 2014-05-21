@@ -113,7 +113,8 @@ namespace Microsoft.Data.Entity
             return stateManager.SaveChangesAsync(cancellationToken);
         }
 
-        public void Dispose()
+        // TODO: Consider Framework Guidelines recommended dispose pattern
+        public virtual void Dispose()
         {
             if (_scopedServiceProvider != null)
             {

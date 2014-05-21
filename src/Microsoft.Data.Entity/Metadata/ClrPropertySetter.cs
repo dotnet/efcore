@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Metadata
             _setter = setter;
         }
 
-        public void SetClrValue(object instance, object value)
+        public virtual void SetClrValue(object instance, object value)
         {
             Check.NotNull(instance, "instance");
 

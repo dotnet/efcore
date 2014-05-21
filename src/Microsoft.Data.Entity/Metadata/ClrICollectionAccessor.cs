@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Metadata
             _getCollection = getCollection;
         }
 
-        public void Add(object instance, object value)
+        public virtual void Add(object instance, object value)
         {
             Check.NotNull(instance, "instance");
             Check.NotNull(value, "value");
@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Metadata
             _getCollection((TEntity)instance).Add((TElement)value);
         }
 
-        public bool Contains(object instance, object value)
+        public virtual bool Contains(object instance, object value)
         {
             Check.NotNull(instance, "instance");
             Check.NotNull(value, "value");
@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.Metadata
             return _getCollection((TEntity)instance).Contains((TElement)value);
         }
 
-        public void Remove(object instance, object value)
+        public virtual void Remove(object instance, object value)
         {
             Check.NotNull(instance, "instance");
             Check.NotNull(value, "value");

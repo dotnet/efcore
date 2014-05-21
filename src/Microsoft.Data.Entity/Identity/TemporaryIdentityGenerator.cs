@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.Identity
     {
         private int _current = 0;
 
-        public Task<int> NextAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<int> NextAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             return Task.FromResult(Interlocked.Decrement(ref _current));
         }

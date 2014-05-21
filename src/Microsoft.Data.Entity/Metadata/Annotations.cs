@@ -54,7 +54,7 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        public IEnumerator<Annotation> GetEnumerator()
+        public virtual IEnumerator<Annotation> GetEnumerator()
         {
             return _annotations.HasValue
                 ? (IEnumerator<Annotation>)_annotations.Value.GetEnumerator()

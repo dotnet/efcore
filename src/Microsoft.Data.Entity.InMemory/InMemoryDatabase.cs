@@ -87,7 +87,7 @@ namespace Microsoft.Data.Entity.InMemory
             return rowsAffected;
         }
 
-        public IEnumerator<InMemoryTable> GetEnumerator()
+        public virtual IEnumerator<InMemoryTable> GetEnumerator()
         {
             return _tables.HasValue
                 ? _tables.Value.Values.GetEnumerator()
@@ -122,7 +122,7 @@ namespace Microsoft.Data.Entity.InMemory
                 _rows.ExchangeValue(rs => rs.SetItem(stateEntry.GetPrimaryKeyValue(), stateEntry.GetValueBuffer()));
             }
 
-            public IEnumerator<object[]> GetEnumerator()
+            public virtual IEnumerator<object[]> GetEnumerator()
             {
                 return _rows.HasValue
                     ? _rows.Value.Values.GetEnumerator()
