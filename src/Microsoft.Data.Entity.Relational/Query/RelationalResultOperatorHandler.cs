@@ -84,7 +84,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         private static bool ProcessFirst(SqlSelect sqlSelect)
         {
-            sqlSelect.AddLimit(2);
+            sqlSelect.AddLimit(1);
 
             return false;
         }
