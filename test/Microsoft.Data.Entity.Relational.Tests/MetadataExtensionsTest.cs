@@ -5,8 +5,8 @@ using System;
 using System.Linq;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Model;
-using Xunit;
 using Moq;
+using Xunit;
 
 namespace Microsoft.Data.Entity.Relational.Tests
 {

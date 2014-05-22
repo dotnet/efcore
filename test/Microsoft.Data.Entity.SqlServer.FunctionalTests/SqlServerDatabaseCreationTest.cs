@@ -253,7 +253,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             }
         }
 
-
         [Fact]
         public async Task EnsuredCreated_is_noop_when_database_exists_and_has_schema()
         {

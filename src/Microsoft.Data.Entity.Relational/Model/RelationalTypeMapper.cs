@@ -15,16 +15,16 @@ namespace Microsoft.Data.Entity.Relational.Model
         // store type. If the CLR type is unsealed or if the mapping varies based on how the
         // type is used (e.g. in keys), then add custom mapping below.
         private readonly Tuple<Type, RelationalTypeMapping>[] _simpleMappings =
-        {
-            Tuple.Create(typeof(int), new RelationalTypeMapping("integer", DbType.Int32)),
-            Tuple.Create(typeof(DateTime), new RelationalTypeMapping("timestamp", DbType.DateTime)),
-            Tuple.Create(typeof(bool), new RelationalTypeMapping("boolean", DbType.Boolean)),
-            Tuple.Create(typeof(double), new RelationalTypeMapping("double precision", DbType.Double)),
-            Tuple.Create(typeof(long), new RelationalTypeMapping("bigint", DbType.Int64)),
-            Tuple.Create(typeof(DateTimeOffset), new RelationalTypeMapping("timestamp with time zone", DbType.DateTimeOffset)),
-            Tuple.Create(typeof(short), new RelationalTypeMapping("smallint", DbType.Int16)),
-            Tuple.Create(typeof(float), new RelationalTypeMapping("real", DbType.Single))
-        };
+            {
+                Tuple.Create(typeof(int), new RelationalTypeMapping("integer", DbType.Int32)),
+                Tuple.Create(typeof(DateTime), new RelationalTypeMapping("timestamp", DbType.DateTime)),
+                Tuple.Create(typeof(bool), new RelationalTypeMapping("boolean", DbType.Boolean)),
+                Tuple.Create(typeof(double), new RelationalTypeMapping("double precision", DbType.Double)),
+                Tuple.Create(typeof(long), new RelationalTypeMapping("bigint", DbType.Int64)),
+                Tuple.Create(typeof(DateTimeOffset), new RelationalTypeMapping("timestamp with time zone", DbType.DateTimeOffset)),
+                Tuple.Create(typeof(short), new RelationalTypeMapping("smallint", DbType.Int16)),
+                Tuple.Create(typeof(float), new RelationalTypeMapping("real", DbType.Single))
+            };
 
         // TODO: What is the best size value for the base provider mapping?
         private readonly RelationalTypeMapping _nonKeyStringMapping

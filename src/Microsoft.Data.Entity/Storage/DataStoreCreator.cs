@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.Storage
             return false;
         }
 
-        public async virtual Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             if (await ExistsAsync(cancellationToken))
             {
@@ -72,7 +72,7 @@ namespace Microsoft.Data.Entity.Storage
             return false;
         }
 
-        public async virtual Task<bool> EnsureCreatedAsync(
+        public virtual async Task<bool> EnsureCreatedAsync(
             [NotNull] IModel model, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (!await ExistsAsync(cancellationToken))

@@ -17,18 +17,18 @@ namespace Microsoft.Data.FunctionalTests
                 .Entity<Customer>()
                 .Key(c => c.CustomerID)
                 .Properties(ps =>
-                {
-                    ps.Property(c => c.CompanyName);
-                    ps.Property(c => c.ContactName);
-                    ps.Property(c => c.ContactTitle);
-                    ps.Property(c => c.Address);
-                    ps.Property(c => c.City);
-                    ps.Property(c => c.Region);
-                    ps.Property(c => c.PostalCode);
-                    ps.Property(c => c.Country);
-                    ps.Property(c => c.Phone);
-                    ps.Property(c => c.Fax);
-                })
+                    {
+                        ps.Property(c => c.CompanyName);
+                        ps.Property(c => c.ContactName);
+                        ps.Property(c => c.ContactTitle);
+                        ps.Property(c => c.Address);
+                        ps.Property(c => c.City);
+                        ps.Property(c => c.Region);
+                        ps.Property(c => c.PostalCode);
+                        ps.Property(c => c.Country);
+                        ps.Property(c => c.Phone);
+                        ps.Property(c => c.Fax);
+                    })
                 .StorageName("Customers");
 
             modelBuilder
@@ -47,21 +47,21 @@ namespace Microsoft.Data.FunctionalTests
                 .Entity<Order>()
                 .Key(o => o.OrderID)
                 .Properties(ps =>
-                {
-                    ps.Property(c => c.CustomerID);
-                    ps.Property(c => c.OrderDate);
-                })
+                    {
+                        ps.Property(c => c.CustomerID);
+                        ps.Property(c => c.OrderDate);
+                    })
                 .StorageName("Orders");
 
             modelBuilder
                 .Entity<OrderDetail>()
                 .Key(od => new { od.OrderID, od.ProductID })
                 .Properties(ps =>
-                {
-                    ps.Property(c => c.UnitPrice);
-                    ps.Property(c => c.Quantity);
-                    ps.Property(c => c.Discount);
-                })
+                    {
+                        ps.Property(c => c.UnitPrice);
+                        ps.Property(c => c.Quantity);
+                        ps.Property(c => c.Discount);
+                    })
                 .StorageName("Order Details");
 
             // TODO: Use FAPIS when avail.

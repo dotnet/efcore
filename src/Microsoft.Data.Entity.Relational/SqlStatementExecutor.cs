@@ -87,13 +87,13 @@ namespace Microsoft.Data.Entity.Relational
             Execute(
                 connection,
                 () =>
-                {
-                    foreach (var statement in statements)
                     {
-                        CreateCommand(connection, statement).ExecuteNonQuery();
-                    }
-                    return null;
-                });
+                        foreach (var statement in statements)
+                        {
+                            CreateCommand(connection, statement).ExecuteNonQuery();
+                        }
+                        return null;
+                    });
         }
 
         public virtual object ExecuteScalar(

@@ -33,8 +33,8 @@ namespace Microsoft.Data.Entity.Metadata
             return entityBuilder;
         }
 
-        public static ModelBuilder.EntityBuilder<TEntity>.PropertiesBuilder.PropertyBuilder ColumnName<TEntity>(
-            [NotNull] this ModelBuilder.EntityBuilder<TEntity>.PropertiesBuilder.PropertyBuilder propertyBuilder,
+        public static ModelBuilder.EntityBuilderBase<ModelBuilder.EntityBuilder<TEntity>>.PropertiesBuilder.PropertyBuilder ColumnName<TEntity>(
+            [NotNull] this ModelBuilder.EntityBuilderBase<ModelBuilder.EntityBuilder<TEntity>>.PropertiesBuilder.PropertyBuilder propertyBuilder,
             [NotNull] string columnName)
             where TEntity : class
         {
@@ -45,8 +45,8 @@ namespace Microsoft.Data.Entity.Metadata
             return propertyBuilder;
         }
 
-        public static ModelBuilder.EntityBuilder<TEntity>.PropertiesBuilder.PropertyBuilder ColumnType<TEntity>(
-            [NotNull] this ModelBuilder.EntityBuilder<TEntity>.PropertiesBuilder.PropertyBuilder propertyBuilder,
+        public static ModelBuilder.EntityBuilderBase<ModelBuilder.EntityBuilder<TEntity>>.PropertiesBuilder.PropertyBuilder ColumnType<TEntity>(
+            [NotNull] this ModelBuilder.EntityBuilderBase<ModelBuilder.EntityBuilder<TEntity>>.PropertiesBuilder.PropertyBuilder propertyBuilder,
             [NotNull] string typeName)
             where TEntity : class
         {
@@ -57,8 +57,8 @@ namespace Microsoft.Data.Entity.Metadata
             return propertyBuilder;
         }
 
-        public static ModelBuilder.EntityBuilder<TEntity>.PropertiesBuilder.PropertyBuilder ColumnDefaultSql<TEntity>(
-            [NotNull] this ModelBuilder.EntityBuilder<TEntity>.PropertiesBuilder.PropertyBuilder propertyBuilder,
+        public static ModelBuilder.EntityBuilderBase<ModelBuilder.EntityBuilder<TEntity>>.PropertiesBuilder.PropertyBuilder ColumnDefaultSql<TEntity>(
+            [NotNull] this ModelBuilder.EntityBuilderBase<ModelBuilder.EntityBuilder<TEntity>>.PropertiesBuilder.PropertyBuilder propertyBuilder,
             [NotNull] string columnDefaultSql)
             where TEntity : class
         {
@@ -69,8 +69,8 @@ namespace Microsoft.Data.Entity.Metadata
             return propertyBuilder;
         }
 
-        public static ModelBuilder.EntityBuilder<TEntity>.ForeignKeysBuilder.ForeignKeyBuilder CascadeDelete<TEntity>(
-            [NotNull] this ModelBuilder.EntityBuilder<TEntity>.ForeignKeysBuilder.ForeignKeyBuilder foreignKeyBuilder,
+        public static ModelBuilder.EntityBuilderBase<ModelBuilder.EntityBuilder<TEntity>>.ForeignKeysBuilder.ForeignKeyBuilder CascadeDelete<TEntity>(
+            [NotNull] this ModelBuilder.EntityBuilderBase<ModelBuilder.EntityBuilder<TEntity>>.ForeignKeysBuilder.ForeignKeyBuilder foreignKeyBuilder,
             bool cascadeDelete)
             where TEntity : class
         {

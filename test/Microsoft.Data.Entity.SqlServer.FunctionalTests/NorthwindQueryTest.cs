@@ -292,10 +292,10 @@ FROM Customers",
             base.Take_with_single();
 
             Assert.Equal(
-                 @"SELECT TOP 1 Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
+                @"SELECT TOP 1 Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
 FROM Customers
 ORDER BY CustomerID",
-                 _fixture.Sql);
+                _fixture.Sql);
         }
 
         private readonly NorthwindQueryFixture _fixture;

@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.SqlServer
                 ClearPool();
             }
         }
-        
+
         public override void CreateTables(IModel model)
         {
             Check.NotNull(model, "model");
@@ -90,7 +90,7 @@ namespace Microsoft.Data.Entity.SqlServer
         {
             return new SqlStatement("IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES) SELECT 1 ELSE SELECT 0");
         }
-        
+
         private IEnumerable<SqlStatement> CreateCreateOperations()
         {
             // TODO Check DbConnection.Database always gives us what we want

@@ -50,7 +50,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             {
                 throw new NotSupportedException(Strings.FormatModificationFunctionInvalidEntityState(stateEntry.EntityState));
             }
-            
+
             var firstEntry = _stateEntries.FirstOrDefault();
             if (firstEntry != null
                 && firstEntry.EntityState != stateEntry.EntityState)
@@ -108,7 +108,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                     var isCondition = isKey || (!adding && property.IsConcurrencyToken);
 
                     var readValue = !deleting && (property.ValueGenerationStrategy == ValueGenerationStrategy.StoreComputed
-                                    || (adding && property.ValueGenerationStrategy == ValueGenerationStrategy.StoreIdentity));
+                                                  || (adding && property.ValueGenerationStrategy == ValueGenerationStrategy.StoreIdentity));
 
                     // TODO: Default values
                     // TODO: Should not need to filter key values here but they currently can get marked as modified

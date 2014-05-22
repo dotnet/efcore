@@ -174,8 +174,8 @@ namespace Microsoft.Data.Entity.Relational
                 .Append(QuoteIdentifier(tableName))
                 .Append(" SET ")
                 .AppendJoin(
-                operations, 
-                (sb, v) => sb.Append(QuoteIdentifier(v.ColumnName)).Append(" = ").Append(v.ParameterName), ", ");
+                    operations,
+                    (sb, v) => sb.Append(QuoteIdentifier(v.ColumnName)).Append(" = ").Append(v.ParameterName), ", ");
         }
 
         protected virtual void AppendSelectCommandHeader(

@@ -169,10 +169,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .Entity<Customer>()
                 .Properties(
                     ps =>
-                    {
-                        ps.Property(e => e.Id);
-                        ps.Property<string>("Name");
-                    })
+                        {
+                            ps.Property(e => e.Id);
+                            ps.Property<string>("Name");
+                        })
                 .Key("Id", "Name");
 
             var entity = model.GetEntityType(typeof(Customer));
@@ -192,10 +192,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .Entity("Customer")
                 .Properties(
                     ps =>
-                    {
-                        ps.Property<int>("Id");
-                        ps.Property<string>("Name");
-                    })
+                        {
+                            ps.Property<int>("Id");
+                            ps.Property<string>("Name");
+                        })
                 .Key("Id", "Name");
 
             var entity = model.GetEntityType(typeof(Customer));
@@ -363,10 +363,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .Entity<Customer>()
                 .Properties(
                     ps =>
-                    {
-                        ps.Property(c => c.Id);
-                        ps.Property<string>("Name").Annotation("foo", "bar");
-                    });
+                        {
+                            ps.Property(c => c.Id);
+                            ps.Property<string>("Name").Annotation("foo", "bar");
+                        });
 
             Assert.Equal(2, model.GetEntityType(typeof(Customer)).Properties.Count());
         }
@@ -381,10 +381,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .Entity("Customer")
                 .Properties(
                     ps =>
-                    {
-                        ps.Property<int>("Id");
-                        ps.Property<string>("Name").Annotation("foo", "bar");
-                    });
+                        {
+                            ps.Property<int>("Id");
+                            ps.Property<string>("Name").Annotation("foo", "bar");
+                        });
 
             Assert.Equal(2, model.GetEntityType(typeof(Customer)).Properties.Count());
         }
@@ -415,7 +415,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             modelBuilder
                 .Entity<Order>()
                 .Properties(ps => ps.Property<int>("CustomerId"))
-                .ForeignKeys(fks => fks.ForeignKey("Customer", new [] { "CustomerId" }));
+                .ForeignKeys(fks => fks.ForeignKey("Customer", new[] { "CustomerId" }));
 
             var entityType = model.GetEntityType(typeof(Order));
 
@@ -448,7 +448,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             modelBuilder
                 .Entity("Customer")
                 .Properties(ps => ps.Property<int>("Id"))
-                .Key(new [] { "Id" });
+                .Key(new[] { "Id" });
             modelBuilder
                 .Entity("Order")
                 .Properties(ps => ps.Property<int>("CustomerId"))
@@ -495,10 +495,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .Properties(ps => ps.Property<int>("CustomerId"))
                 .ForeignKeys(
                     fks =>
-                    {
-                        fks.ForeignKey<Customer>(c => c.CustomerId);
-                        fks.ForeignKey("Customer", "CustomerId").IsUnique();
-                    });
+                        {
+                            fks.ForeignKey<Customer>(c => c.CustomerId);
+                            fks.ForeignKey("Customer", "CustomerId").IsUnique();
+                        });
 
             var entityType = model.GetEntityType(typeof(Order));
 
@@ -519,10 +519,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .Properties(ps => ps.Property<int>("CustomerId"))
                 .ForeignKeys(
                     fks =>
-                    {
-                        fks.ForeignKey("Customer", "CustomerId");
-                        fks.ForeignKey("Customer", "CustomerId").IsUnique();
-                    });
+                        {
+                            fks.ForeignKey("Customer", "CustomerId");
+                            fks.ForeignKey("Customer", "CustomerId").IsUnique();
+                        });
 
             var entityType = model.GetEntityType(typeof(Order));
 
@@ -546,10 +546,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .Properties(ps => ps.Property<int>("CustomerId"))
                 .ForeignKeys(
                     fks =>
-                    {
-                        fks.ForeignKey("Customer", "CustomerId");
-                        fks.ForeignKey("Customer", "CustomerId").IsUnique();
-                    });
+                        {
+                            fks.ForeignKey("Customer", "CustomerId");
+                            fks.ForeignKey("Customer", "CustomerId").IsUnique();
+                        });
 
             var entityType = model.GetEntityType(typeof(Order));
 
