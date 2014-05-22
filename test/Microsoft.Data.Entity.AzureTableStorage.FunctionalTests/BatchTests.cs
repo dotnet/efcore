@@ -3,6 +3,7 @@
 
 using System;
 using System.Configuration;
+using Microsoft.Data.Entity.AzureTableStorage.FunctionalTests.Helpers;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.WindowsAzure.Storage.Table;
 using Xunit;

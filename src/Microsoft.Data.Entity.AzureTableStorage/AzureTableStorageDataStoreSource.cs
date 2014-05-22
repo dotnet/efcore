@@ -10,7 +10,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         AzureTableStorageDataStore,
         AzureTableStorageConfigurationExtension,
         AzureTableStorageDataStoreCreator,
-        AzureTableStorageConnection>
+        AzureTableStorageConnection,
+        AzureTableStorageValueGeneratorCache>
     {
         public override bool IsAvailable(DbContextConfiguration configuration)
         {
