@@ -14,14 +14,21 @@ namespace Microsoft.Data.FunctionalTests
     public abstract class NorthwindQueryTestBase
     {
         [Fact]
-        public void Queryable_simple()
+        public virtual void Queryable_simple()
         {
             Assert.Equal(91,
                 AssertQuery<Customer>(cs => cs));
         }
 
         [Fact]
-        public void Queryable_nested_simple()
+        public virtual void Queryable_simple_anonymous()
+        {
+            Assert.Equal(91,
+                AssertQuery<Customer>(cs => cs.Select(c => new { c })));
+        }
+
+        [Fact]
+        public virtual void Queryable_nested_simple()
         {
             Assert.Equal(91,
                 AssertQuery<Customer>(cs =>
@@ -29,224 +36,224 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         [Fact]
-        public void Take_simple()
+        public virtual void Take_simple()
         {
             Assert.Equal(10,
                 AssertQuery<Customer>(cs => cs.OrderBy(c => c.CustomerID).Take(10)));
         }
 
         [Fact]
-        public void Take_simple_projection()
+        public virtual void Take_simple_projection()
         {
             Assert.Equal(10,
                 AssertQuery<Customer>(cs => cs.OrderBy(c => c.CustomerID).Select(c => c.City).Take(10)));
         }
 
         [Fact]
-        public void Any_simple()
+        public virtual void Any_simple()
         {
             AssertQuery<Customer>(cs => cs.Any());
         }
 
         [Fact]
-        public virtual async Task Any_simple_async()
+        public async Task Any_simple_async()
         {
             await AssertQueryAsync<Customer>(cs => cs.AnyAsync());
         }
 
         [Fact]
-        public void Select_into()
+        public virtual void Select_into()
         {
             AssertQuery<Customer>(cs =>
                 from c in cs
                 select c.CustomerID
-                into id
-                where id == "ALFKI"
-                select id);
+                    into id
+                    where id == "ALFKI"
+                    select id);
         }
 
         [Fact]
-        public void Take_with_single()
+        public virtual void Take_with_single()
         {
             AssertQuery<Customer>(cs => cs.OrderBy(c => c.CustomerID).Take(1).Single());
         }
 
         [Fact]
-        public void Where_simple()
+        public virtual void Where_simple()
         {
             AssertQuery<Customer>(cs => cs.Where(c => c.City == "London"));
         }
 
         [Fact]
-        public void Where_primitive()
+        public virtual void Where_primitive()
         {
             AssertQuery<Employee>(es =>
                 es.Select(e => e.EmployeeID).Take(9).Where(i => i == 5));
         }
 
         [Fact]
-        public async Task Where_simple_async()
+        public virtual async Task Where_simple_async()
         {
             await AssertQueryAsync<Customer>(cs => cs.Where(c => c.City == "London"));
         }
 
         [Fact]
-        public void Where_true()
+        public virtual void Where_true()
         {
             Assert.Equal(91,
                 AssertQuery<Customer>(cs => cs.Where(c => true)));
         }
 
         [Fact]
-        public void Where_false()
+        public virtual void Where_false()
         {
             Assert.Equal(0,
                 AssertQuery<Customer>(cs => cs.Where(c => false)));
         }
 
-//        TODO: Re-write entity ref equality to identity equality.
-//
-//        [Fact]
-//        public void Where_compare_entity_equal()
-//        {
-//            var alfki = NorthwindData.Customers.Single(c => c.CustomerID == "ALFKI");
-//
-//            Assert.Equal(1,
-//                // ReSharper disable once PossibleUnintendedReferenceComparison
-//                AssertQuery<Customer>(cs => cs.Where(c => c == alfki)));
-//        }
-//
-//        [Fact]
-//        public void Where_compare_entity_not_equal()
-//        {
-//            var alfki = new Customer { CustomerID = "ALFKI" };
-//
-//            Assert.Equal(90,
-//                // ReSharper disable once PossibleUnintendedReferenceComparison
-//                AssertQuery<Customer>(cs => cs.Where(c => c != alfki)));
-//
-//        [Fact]
-//        public void Project_compare_entity_equal()
-//        {
-//            var alfki = NorthwindData.Customers.Single(c => c.CustomerID == "ALFKI");
-//
-//            Assert.Equal(1,
-//                // ReSharper disable once PossibleUnintendedReferenceComparison
-//                AssertQuery<Customer>(cs => cs.Select(c => c == alfki)));
-//        }
-//
-//        [Fact]
-//        public void Project_compare_entity_not_equal()
-//        {
-//            var alfki = new Customer { CustomerID = "ALFKI" };
-//
-//            Assert.Equal(90,
-//                // ReSharper disable once PossibleUnintendedReferenceComparison
-//                AssertQuery<Customer>(cs => cs.Select(c => c != alfki)));
-//        }
+        //        TODO: Re-write entity ref equality to identity equality.
+        //
+        //        [Fact]
+        //        public virtual void Where_compare_entity_equal()
+        //        {
+        //            var alfki = NorthwindData.Customers.Single(c => c.CustomerID == "ALFKI");
+        //
+        //            Assert.Equal(1,
+        //                // ReSharper disable once PossibleUnintendedReferenceComparison
+        //                AssertQuery<Customer>(cs => cs.Where(c => c == alfki)));
+        //        }
+        //
+        //        [Fact]
+        //        public virtual void Where_compare_entity_not_equal()
+        //        {
+        //            var alfki = new Customer { CustomerID = "ALFKI" };
+        //
+        //            Assert.Equal(90,
+        //                // ReSharper disable once PossibleUnintendedReferenceComparison
+        //                AssertQuery<Customer>(cs => cs.Where(c => c != alfki)));
+        //
+        //        [Fact]
+        //        public virtual void Project_compare_entity_equal()
+        //        {
+        //            var alfki = NorthwindData.Customers.Single(c => c.CustomerID == "ALFKI");
+        //
+        //            Assert.Equal(1,
+        //                // ReSharper disable once PossibleUnintendedReferenceComparison
+        //                AssertQuery<Customer>(cs => cs.Select(c => c == alfki)));
+        //        }
+        //
+        //        [Fact]
+        //        public virtual void Project_compare_entity_not_equal()
+        //        {
+        //            var alfki = new Customer { CustomerID = "ALFKI" };
+        //
+        //            Assert.Equal(90,
+        //                // ReSharper disable once PossibleUnintendedReferenceComparison
+        //                AssertQuery<Customer>(cs => cs.Select(c => c != alfki)));
+        //        }
 
         [Fact]
-        public void Where_compare_constructed_equal()
+        public virtual void Where_compare_constructed_equal()
         {
             AssertQuery<Customer>(cs =>
                 cs.Where(c => new { x = c.City } == new { x = "London" }));
         }
 
         [Fact]
-        public void Where_compare_constructed_multi_value_equal()
+        public virtual void Where_compare_constructed_multi_value_equal()
         {
             AssertQuery<Customer>(cs =>
                 cs.Where(c => new { x = c.City, y = c.Country } == new { x = "London", y = "UK" }));
         }
 
         [Fact]
-        public void Where_compare_constructed_multi_value_not_equal()
+        public virtual void Where_compare_constructed_multi_value_not_equal()
         {
             AssertQuery<Customer>(cs =>
                 cs.Where(c => new { x = c.City, y = c.Country } != new { x = "London", y = "UK" }));
         }
 
         [Fact]
-        public void Where_compare_constructed()
+        public virtual void Where_compare_constructed()
         {
             AssertQuery<Customer>(cs =>
                 cs.Where(c => new { x = c.City } == new { x = "London" }));
         }
 
         [Fact]
-        public void Select_scalar()
+        public virtual void Select_scalar()
         {
             AssertQuery<Customer>(cs => cs.Select(c => c.City));
         }
 
         [Fact]
-        public void Select_anonymous_one()
+        public virtual void Select_anonymous_one()
         {
             AssertQuery<Customer>(cs => cs.Select(c => new { c.City }));
         }
 
         [Fact]
-        public void Select_anonymous_two()
+        public virtual void Select_anonymous_two()
         {
             AssertQuery<Customer>(cs => cs.Select(c => new { c.City, c.Phone }));
         }
 
         [Fact]
-        public void Select_anonymous_three()
+        public virtual void Select_anonymous_three()
         {
             AssertQuery<Customer>(cs => cs.Select(c => new { c.City, c.Phone, c.Country }));
         }
 
         [Fact]
-        public void Select_customer_table()
+        public virtual void Select_customer_table()
         {
             AssertQuery<Customer>(cs => cs);
         }
 
         [Fact]
-        public void Select_customer_identity()
+        public virtual void Select_customer_identity()
         {
             AssertQuery<Customer>(cs => cs.Select(c => c));
         }
 
         [Fact]
-        public void Select_anonymous_with_object()
+        public virtual void Select_anonymous_with_object()
         {
             AssertQuery<Customer>(cs => cs.Select(c => new { c.City, c }));
         }
 
         [Fact]
-        public void Select_anonymous_nested()
+        public virtual void Select_anonymous_nested()
         {
             AssertQuery<Customer>(cs => cs.Select(c => new { c.City, Country = new { c.Country } }));
         }
 
         [Fact]
-        public void Select_anonymous_empty()
+        public virtual void Select_anonymous_empty()
         {
             AssertQuery<Customer>(cs => cs.Select(c => new { }));
         }
 
         [Fact]
-        public void Select_anonymous_literal()
+        public virtual void Select_anonymous_literal()
         {
             AssertQuery<Customer>(cs => cs.Select(c => new { X = 10 }));
         }
 
         [Fact]
-        public void Select_constant_int()
+        public virtual void Select_constant_int()
         {
             AssertQuery<Customer>(cs => cs.Select(c => 0));
         }
 
         [Fact]
-        public void Select_constant_null_string()
+        public virtual void Select_constant_null_string()
         {
             AssertQuery<Customer>(cs => cs.Select(c => (string)null));
         }
 
         [Fact]
-        public void Select_local()
+        public virtual void Select_local()
         {
             // ReSharper disable once ConvertToConstant.Local
             var x = 10;
@@ -255,21 +262,48 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         [Fact]
-        public void Select_scalar_primitive()
+        public virtual void Select_scalar_primitive()
         {
             Assert.Equal(9,
                 AssertQuery<Employee>(es => es.Select(e => e.EmployeeID)));
         }
 
         [Fact]
-        public void Select_scalar_primitive_after_take()
+        public virtual void Select_scalar_primitive_after_take()
         {
             Assert.Equal(9,
                 AssertQuery<Employee>(es => es.Take(9).Select(e => e.EmployeeID)));
         }
 
         [Fact]
-        public void Select_nested_collection()
+        public virtual void Select_project_filter()
+        {
+            AssertQuery<Customer>(cs =>
+                from c in cs
+                where c.City == "London"
+                select c.CompanyName);
+        }
+
+        [Fact]
+        public virtual async Task Select_project_filter_async()
+        {
+            await AssertQueryAsync<Customer>(cs =>
+                from c in cs
+                where c.City == "London"
+                select c.CompanyName);
+        }
+
+        [Fact]
+        public virtual void Select_project_filter2()
+        {
+            AssertQuery<Customer>(cs =>
+                from c in cs
+                where c.City == "London"
+                select c.City);
+        }
+
+        [Fact]
+        public virtual void Select_nested_collection()
         {
             AssertQuery<Customer, Order>((cs, os) =>
                 from c in cs
@@ -284,51 +318,51 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         // TODO: Re-linq parser
-//        [Fact]
-//        public void Select_nested_ordered_enumerable_collection()
-//        {
-//            AssertQuery<Customer>(cs =>
-//                cs.Select(c => cs.AsEnumerable().OrderBy(c2 => c2.CustomerID)),
-//                assertOrder: true);
-//        }
+        //        [Fact]
+        //        public virtual void Select_nested_ordered_enumerable_collection()
+        //        {
+        //            AssertQuery<Customer>(cs =>
+        //                cs.Select(c => cs.AsEnumerable().OrderBy(c2 => c2.CustomerID)),
+        //                assertOrder: true);
+        //        }
 
         [Fact]
-        public void Select_nested_collection_in_anonymous_type()
+        public virtual void Select_nested_collection_in_anonymous_type()
         {
             AssertQuery<Customer, Order>((cs, os) =>
                 from c in cs
                 where c.CustomerID == "ALFKI"
                 select new
-                    {
-                        CustomerId = c.CustomerID,
-                        OrderIds
-                            = os.Where(o => o.CustomerID == c.CustomerID
-                                            && o.OrderDate.Value.Year == 1997)
-                                .Select(o => o.OrderID)
-                                .OrderBy(o => o),
-                        Customer = c
-                    },
+                {
+                    CustomerId = c.CustomerID,
+                    OrderIds
+                        = os.Where(o => o.CustomerID == c.CustomerID
+                                        && o.OrderDate.Value.Year == 1997)
+                            .Select(o => o.OrderID)
+                            .OrderBy(o => o),
+                    Customer = c
+                },
                 asserter:
                     (l2oResults, efResults) =>
-                        {
-                            dynamic l2oResult = l2oResults.Single();
-                            dynamic efResult = efResults.Single();
+                    {
+                        dynamic l2oResult = l2oResults.Single();
+                        dynamic efResult = efResults.Single();
 
-                            Assert.Equal(l2oResult.CustomerId, efResult.CustomerId);
-                            Assert.Equal(l2oResult.OrderIds, efResult.OrderIds);
-                            Assert.Equal(l2oResult.Customer, efResult.Customer);
-                        });
+                        Assert.Equal(l2oResult.CustomerId, efResult.CustomerId);
+                        Assert.Equal(l2oResult.OrderIds, efResult.OrderIds);
+                        Assert.Equal(l2oResult.Customer, efResult.Customer);
+                    });
         }
 
         [Fact]
-        public void Select_subquery_recursive_trivial()
+        public virtual void Select_subquery_recursive_trivial()
         {
             AssertQuery<Employee>(es =>
                 from e1 in es
                 select (from e2 in es
-                    select (from e3 in es
-                        orderby e3.EmployeeID
-                        select e3)),
+                        select (from e3 in es
+                                orderby e3.EmployeeID
+                                select e3)),
                 assertOrder: true);
         }
 
@@ -343,40 +377,40 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         [Fact]
-        public void Where_subquery_recursive_trivial()
+        public virtual void Where_subquery_recursive_trivial()
         {
             AssertQuery<Employee>(es =>
                 from e1 in es
                 where (from e2 in es
-                    where (from e3 in es
-                        orderby e3.EmployeeID
-                        select e3).Any()
-                    select e2).Any()
+                       where (from e3 in es
+                              orderby e3.EmployeeID
+                              select e3).Any()
+                       select e2).Any()
                 orderby e1.EmployeeID
                 select e1,
                 assertOrder: true);
         }
 
         [Fact]
-        public void Select_nested_collection_deep()
+        public virtual void Select_nested_collection_deep()
         {
             AssertQuery<Customer, Order>((cs, os) =>
                 from c in cs
                 where c.City == "London"
                 orderby c.CustomerID
                 select (from o1 in os
-                    where o1.CustomerID == c.CustomerID
-                          && o1.OrderDate.Value.Year == 1997
-                    orderby o1.OrderID
-                    select (from o2 in os
                         where o1.CustomerID == c.CustomerID
-                        orderby o2.OrderID
-                        select o1.OrderID)),
+                              && o1.OrderDate.Value.Year == 1997
+                        orderby o1.OrderID
+                        select (from o2 in os
+                                where o1.CustomerID == c.CustomerID
+                                orderby o2.OrderID
+                                select o1.OrderID)),
                 assertOrder: true);
         }
 
         [Fact]
-        public void OrderBy_scalar_primitive()
+        public virtual void OrderBy_scalar_primitive()
         {
             AssertQuery<Employee>(es =>
                 es.Select(e => e.EmployeeID).OrderBy(i => i),
@@ -384,28 +418,38 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         [Fact]
-        public void SelectMany_simple()
+        public virtual void SelectMany_simple1()
         {
             AssertQuery<Employee>(
                 es => from e1 in es
-                    from e2 in es
-                    from e3 in es
-                    select new { e1, e2 });
+                      from e2 in es
+                      select new { e1, e2 });
         }
 
         [Fact]
-        public void SelectMany_nested_simple()
+        public virtual void SelectMany_simple2()
+        {
+            AssertQuery<Employee>(
+                es => from e1 in es
+                      from e2 in es
+                      from e3 in es
+                      select new { e1, e3 });
+        }
+
+        [Fact]
+        public virtual void SelectMany_nested_simple()
         {
             AssertQuery<Customer>(cs =>
                 from c in cs
-                from c1 in (from c2 in (from c3 in cs select c3) select c2)
+                from c1 in
+                    (from c2 in (from c3 in cs select c3) select c2)
                 orderby c1.CustomerID
                 select c1,
                 assertOrder: true);
         }
 
         [Fact]
-        public void SelectMany_correlated_simple()
+        public virtual void SelectMany_correlated_simple()
         {
             AssertQuery<Customer, Employee>((cs, es) =>
                 from c in cs
@@ -417,7 +461,7 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         [Fact]
-        public void SelectMany_correlated_subquery_simple()
+        public virtual void SelectMany_correlated_subquery_simple()
         {
             AssertQuery<Customer, Employee>(
                 (cs, es) =>
@@ -429,18 +473,21 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         [Fact]
-        public void SelectMany_correlated_subquery_hard()
+        public virtual void SelectMany_correlated_subquery_hard()
         {
             AssertQuery<Customer, Employee>(
                 (cs, es) =>
-                    from c1 in (from c2 in cs.Take(91) select c2.City).Distinct()
-                    from e1 in (from e2 in es where c1 == e2.City select new { e2.City, c1 }).Take(9)
-                    from e2 in (from e3 in es where e1.City == e3.City select c1).Take(9)
+                    from c1 in
+                        (from c2 in cs.Take(91) select c2.City).Distinct()
+                    from e1 in
+                        (from e2 in es where c1 == e2.City select new { e2.City, c1 }).Take(9)
+                    from e2 in
+                        (from e3 in es where e1.City == e3.City select c1).Take(9)
                     select new { c1, e1 });
         }
 
         [Fact]
-        public void SelectMany_cartesian_product_with_ordering()
+        public virtual void SelectMany_cartesian_product_with_ordering()
         {
             AssertQuery<Customer, Employee>(
                 (cs, es) =>
@@ -453,7 +500,7 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         [Fact]
-        public void SelectMany_primitive()
+        public virtual void SelectMany_primitive()
         {
             AssertQuery<Employee>(
                 es =>
@@ -463,7 +510,7 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         [Fact]
-        public void SelectMany_primitive_select_subquery()
+        public virtual void SelectMany_primitive_select_subquery()
         {
             AssertQuery<Employee>(
                 es =>
@@ -473,7 +520,7 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         [Fact]
-        public void Join_customers_orders()
+        public virtual void Join_customers_orders()
         {
             AssertQuery<Customer, Order>((cs, os) =>
                 from c in cs
@@ -482,18 +529,18 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         [Fact]
-        public void Join_customers_orders_select()
+        public virtual void Join_customers_orders_select()
         {
             AssertQuery<Customer, Order>((cs, os) =>
                 from c in cs
                 join o in os on c.CustomerID equals o.CustomerID
                 select new { c.ContactName, o.OrderID }
-                into p
-                select p);
+                    into p
+                    select p);
         }
 
         [Fact]
-        public void Join_customers_orders_with_subquery()
+        public virtual void Join_customers_orders_with_subquery()
         {
             AssertQuery<Customer, Order>((cs, os) =>
                 from c in cs
@@ -504,7 +551,7 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         [Fact]
-        public void Join_multi_key()
+        public virtual void Join_multi_key()
         {
             AssertQuery<Customer, Order>((cs, os) =>
                 from c in cs
@@ -514,35 +561,35 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         [Fact]
-        public void GroupJoin_into_customers_orders()
+        public virtual void GroupJoin_customers_orders()
         {
             AssertQuery<Customer, Order>((cs, os) =>
                 from c in cs
                 join o in os.OrderBy(o => o.OrderID) on c.CustomerID equals o.CustomerID into orders
                 select new { customer = c, orders = orders.ToList() },
                 asserter: (l2oItems, efItems) =>
+                {
+                    foreach (var pair in
+                        from dynamic l2oItem in l2oItems
+                        join dynamic efItem in efItems on l2oItem.customer equals efItem.customer
+                        select new { l2oItem, efItem })
                     {
-                        foreach (var pair in 
-                            from dynamic l2oItem in l2oItems
-                            join dynamic efItem in efItems on l2oItem.customer equals efItem.customer
-                            select new { l2oItem, efItem })
-                        {
-                            Assert.Equal(pair.l2oItem.orders, pair.efItem.orders);
-                        }
-                    });
+                        Assert.Equal(pair.l2oItem.orders, pair.efItem.orders);
+                    }
+                });
         }
 
         [Fact]
-        public void Join_into_customers_orders_count()
+        public virtual void GroupJoin_customers_orders_count()
         {
             AssertQuery<Customer, Order>((cs, os) =>
                 from c in cs
-                join o in os on c.CustomerID equals o.CustomerID into ords
-                select new { cust = c, ords = ords.Count() });
+                join o in os on c.CustomerID equals o.CustomerID into orders
+                select new { cust = c, ords = orders.Count() });
         }
 
         [Fact]
-        public void Join_into_default_if_empty()
+        public virtual void GroupJoin_default_if_empty()
         {
             AssertQuery<Customer, Order>((cs, os) =>
                 from c in cs
@@ -552,7 +599,7 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         [Fact]
-        public void SelectMany_customer_orders()
+        public virtual void SelectMany_customer_orders()
         {
             AssertQuery<Customer, Order>((cs, os) =>
                 from c in cs
@@ -563,35 +610,35 @@ namespace Microsoft.Data.FunctionalTests
 
         // TODO: Composite keys, slow..
 
-//        [Fact]
-//        public void Multiple_joins_with_join_conditions_in_where()
-//        {
-//            AssertQuery<Customer, Order, OrderDetail>((cs, os, ods) =>
-//                from c in cs
-//                from o in os.OrderBy(o1 => o1.OrderID).Take(10)
-//                from od in ods
-//                where o.CustomerID == c.CustomerID
-//                    && o.OrderID == od.OrderID
-//                where c.CustomerID == "ALFKI"
-//                select od.ProductID,
-//                assertOrder: true);
-//        }
-//        [Fact]
-//
-//        public void TestMultipleJoinsWithMissingJoinCondition()
-//        {
-//            AssertQuery<Customer, Order, OrderDetail>((cs, os, ods) =>
-//                from c in cs
-//                from o in os
-//                from od in ods
-//                where o.CustomerID == c.CustomerID
-//                where c.CustomerID == "ALFKI"
-//                select od.ProductID
-//                );
-//        }
+        //        [Fact]
+        //        public virtual void Multiple_joins_with_join_conditions_in_where()
+        //        {
+        //            AssertQuery<Customer, Order, OrderDetail>((cs, os, ods) =>
+        //                from c in cs
+        //                from o in os.OrderBy(o1 => o1.OrderID).Take(10)
+        //                from od in ods
+        //                where o.CustomerID == c.CustomerID
+        //                    && o.OrderID == od.OrderID
+        //                where c.CustomerID == "ALFKI"
+        //                select od.ProductID,
+        //                assertOrder: true);
+        //        }
+        //        [Fact]
+        //
+        //        public virtual void TestMultipleJoinsWithMissingJoinCondition()
+        //        {
+        //            AssertQuery<Customer, Order, OrderDetail>((cs, os, ods) =>
+        //                from c in cs
+        //                from o in os
+        //                from od in ods
+        //                where o.CustomerID == c.CustomerID
+        //                where c.CustomerID == "ALFKI"
+        //                select od.ProductID
+        //                );
+        //        }
 
         [Fact]
-        public void OrderBy()
+        public virtual void OrderBy()
         {
             AssertQuery<Customer>(cs =>
                 cs.OrderBy(c => c.CustomerID),
@@ -599,7 +646,7 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         [Fact]
-        public void OrderBy_ThenBy_predicate()
+        public virtual void OrderBy_ThenBy_predicate()
         {
             AssertQuery<Customer>(cs =>
                 cs.Where(c => c.City == "London")
@@ -609,7 +656,7 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         [Fact]
-        public void OrderBy_correlated_subquery_lol()
+        public virtual void OrderBy_correlated_subquery_lol()
         {
             AssertQuery<Customer>(cs =>
                 from c in cs
@@ -618,7 +665,7 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         [Fact]
-        public void OrderBy_Select()
+        public virtual void OrderBy_Select()
         {
             AssertQuery<Customer>(cs =>
                 cs.OrderBy(c => c.CustomerID)
@@ -627,7 +674,7 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         [Fact]
-        public void OrderBy_multiple()
+        public virtual void OrderBy_multiple()
         {
             AssertQuery<Customer>(cs =>
                 cs.OrderBy(c => c.CustomerID)
@@ -638,7 +685,7 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         [Fact]
-        public void OrderBy_ThenBy()
+        public virtual void OrderBy_ThenBy()
         {
             AssertQuery<Customer>(cs =>
                 cs.OrderBy(c => c.CustomerID).ThenBy(c => c.Country).Select(c => c.City),
@@ -646,7 +693,7 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         [Fact]
-        public void OrderByDescending()
+        public virtual void OrderByDescending()
         {
             AssertQuery<Customer>(cs =>
                 cs.OrderByDescending(c => c.CustomerID).Select(c => c.City),
@@ -654,7 +701,7 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         [Fact]
-        public void OrderByDescending_ThenBy()
+        public virtual void OrderByDescending_ThenBy()
         {
             AssertQuery<Customer>(cs =>
                 cs.OrderByDescending(c => c.CustomerID).ThenBy(c => c.Country).Select(c => c.City),
@@ -662,7 +709,7 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         [Fact]
-        public void OrderByDescending_ThenByDescending()
+        public virtual void OrderByDescending_ThenByDescending()
         {
             AssertQuery<Customer>(cs =>
                 cs.OrderByDescending(c => c.CustomerID).ThenByDescending(c => c.Country).Select(c => c.City),
@@ -670,7 +717,7 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         [Fact]
-        public void OrderBy_Join()
+        public virtual void OrderBy_Join()
         {
             AssertQuery<Customer, Order>((cs, os) =>
                 from c in cs.OrderBy(c => c.CustomerID)
@@ -680,7 +727,7 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         [Fact]
-        public void OrderBy_SelectMany()
+        public virtual void OrderBy_SelectMany()
         {
             AssertQuery<Customer, Order>((cs, os) =>
                 from c in cs.OrderBy(c => c.CustomerID)
@@ -691,100 +738,100 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         // TODO: Need to figure out how to do this 
-//        [Fact]
-//        public void GroupBy_anonymous()
-//        {
-//            AssertQuery<Customer>(cs =>
-//                cs.Select(c => new { c.City, c.CustomerID })
-//                    .GroupBy(a => a.City),
-//                assertOrder: true);
-//        }
-//
-//        [Fact]
-//        public void GroupBy_anonymous_subquery()
-//        {
-//            AssertQuery<Customer>(cs =>
-//                cs.Select(c => new { c.City, c.CustomerID })
-//                    .GroupBy(a => from c2 in cs select c2),
-//                assertOrder: true);
-//        }
-//
-//        [Fact]
-//        public void GroupBy_nested_order_by_enumerable()
-//        {
-//            AssertQuery<Customer>(cs =>
-//                cs.Select(c => new { c.City, c.CustomerID })
-//                    .OrderBy(a => a.City)
-//                    .GroupBy(a => a.City)
-//                    .Select(g => g.OrderBy(a => a.CustomerID)),
-//                assertOrder: true);
-//        }
+        //        [Fact]
+        //        public virtual void GroupBy_anonymous()
+        //        {
+        //            AssertQuery<Customer>(cs =>
+        //                cs.Select(c => new { c.City, c.CustomerID })
+        //                    .GroupBy(a => a.City),
+        //                assertOrder: true);
+        //        }
+        //
+        //        [Fact]
+        //        public virtual void GroupBy_anonymous_subquery()
+        //        {
+        //            AssertQuery<Customer>(cs =>
+        //                cs.Select(c => new { c.City, c.CustomerID })
+        //                    .GroupBy(a => from c2 in cs select c2),
+        //                assertOrder: true);
+        //        }
+        //
+        //        [Fact]
+        //        public virtual void GroupBy_nested_order_by_enumerable()
+        //        {
+        //            AssertQuery<Customer>(cs =>
+        //                cs.Select(c => new { c.City, c.CustomerID })
+        //                    .OrderBy(a => a.City)
+        //                    .GroupBy(a => a.City)
+        //                    .Select(g => g.OrderBy(a => a.CustomerID)),
+        //                assertOrder: true);
+        //        }
 
         [Fact]
-        public void GroupBy_SelectMany()
+        public virtual void GroupBy_SelectMany()
         {
             AssertQuery<Customer>(cs =>
                 cs.GroupBy(c => c.City).SelectMany(g => g));
         }
 
         [Fact]
-        public void GroupBy_Sum()
+        public virtual void GroupBy_Sum()
         {
             AssertQuery<Order>(os =>
                 os.GroupBy(o => o.CustomerID).Select(g => g.Sum(o => o.OrderID)));
         }
 
         [Fact]
-        public void GroupBy_Count()
+        public virtual void GroupBy_Count()
         {
             AssertQuery<Order>(os =>
                 os.GroupBy(o => o.CustomerID).Select(g => g.Count()));
         }
 
         [Fact]
-        public void GroupBy_LongCount()
+        public virtual void GroupBy_LongCount()
         {
             AssertQuery<Order>(os =>
                 os.GroupBy(o => o.CustomerID).Select(g => g.LongCount()));
         }
 
         [Fact]
-        public void GroupBy_Sum_Min_Max_Avg()
+        public virtual void GroupBy_Sum_Min_Max_Avg()
         {
             AssertQuery<Order>(os =>
                 os.GroupBy(o => o.CustomerID).Select(g =>
                     new
-                        {
-                            Sum = g.Sum(o => o.OrderID),
-                            Min = g.Min(o => o.OrderID),
-                            Max = g.Max(o => o.OrderID),
-                            Avg = g.Average(o => o.OrderID)
-                        }));
+                    {
+                        Sum = g.Sum(o => o.OrderID),
+                        Min = g.Min(o => o.OrderID),
+                        Max = g.Max(o => o.OrderID),
+                        Avg = g.Average(o => o.OrderID)
+                    }));
         }
 
         [Fact]
-        public void GroupBy_with_result_selector()
+        public virtual void GroupBy_with_result_selector()
         {
             AssertQuery<Order>(os =>
                 os.GroupBy(o => o.CustomerID, (k, g) =>
                     new
-                        {
-                            Sum = g.Sum(o => o.OrderID),
-                            Min = g.Min(o => o.OrderID),
-                            Max = g.Max(o => o.OrderID),
-                            Avg = g.Average(o => o.OrderID)
-                        }));
+                    {
+                        Sum = g.Sum(o => o.OrderID),
+                        Min = g.Min(o => o.OrderID),
+                        Max = g.Max(o => o.OrderID),
+                        Avg = g.Average(o => o.OrderID)
+                    }));
         }
 
         [Fact]
-        public void GroupBy_with_element_selector_sum()
+        public virtual void GroupBy_with_element_selector_sum()
         {
             AssertQuery<Order>(os =>
                 os.GroupBy(o => o.CustomerID, o => o.OrderID).Select(g => g.Sum()));
         }
 
         [Fact]
-        public void GroupBy_with_element_selector()
+        public virtual void GroupBy_with_element_selector()
         {
             AssertQuery<Order>(os =>
                 os.GroupBy(o => o.CustomerID, o => o.OrderID)
@@ -794,7 +841,7 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         [Fact]
-        public void GroupBy_with_element_selector_sum_max()
+        public virtual void GroupBy_with_element_selector_sum_max()
         {
             AssertQuery<Order>(os =>
                 os.GroupBy(o => o.CustomerID, o => o.OrderID)
@@ -802,7 +849,7 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         [Fact]
-        public void GroupBy_with_anonymous_element()
+        public virtual void GroupBy_with_anonymous_element()
         {
             AssertQuery<Order>(os =>
                 os.GroupBy(o => o.CustomerID, o => new { o.OrderID })
@@ -810,7 +857,7 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         [Fact]
-        public void GroupBy_with_two_part_key()
+        public virtual void GroupBy_with_two_part_key()
         {
             AssertQuery<Order>(os =>
                 os.GroupBy(o => new { o.CustomerID, o.OrderDate })
@@ -818,7 +865,7 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         [Fact]
-        public void OrderBy_GroupBy()
+        public virtual void OrderBy_GroupBy()
         {
             AssertQuery<Order>(os =>
                 os.OrderBy(o => o.OrderID)
@@ -827,7 +874,7 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         [Fact]
-        public void OrderBy_GroupBy_SelectMany()
+        public virtual void OrderBy_GroupBy_SelectMany()
         {
             AssertQuery<Order>(os =>
                 os.OrderBy(o => o.OrderID)
@@ -836,19 +883,19 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         [Fact]
-        public void Sum_with_no_arg()
+        public virtual void Sum_with_no_arg()
         {
             AssertQuery<Order>(os => os.Select(o => o.OrderID).Sum());
         }
 
         [Fact]
-        public void Sum_with_arg()
+        public virtual void Sum_with_arg()
         {
             AssertQuery<Order>(os => os.Sum(o => o.OrderID));
         }
 
         [Fact]
-        public void Count_with_no_predicate()
+        public virtual void Count_with_no_predicate()
         {
             AssertQuery<Order>(os => os.Count());
         }
@@ -860,27 +907,27 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         [Fact]
-        public void Count_with_predicate()
+        public virtual void Count_with_predicate()
         {
             AssertQuery<Order>(os =>
                 os.Count(o => o.CustomerID == "ALFKI"));
         }
 
         [Fact]
-        public void Distinct()
+        public virtual void Distinct()
         {
             AssertQuery<Customer>(cs => cs.Distinct());
         }
 
         [Fact]
-        public void Distinct_Scalar()
+        public virtual void Distinct_Scalar()
         {
             AssertQuery<Customer>(cs =>
                 cs.Select(c => c.City).Distinct());
         }
 
         [Fact]
-        public void OrderBy_Distinct()
+        public virtual void OrderBy_Distinct()
         {
             AssertQuery<Customer>(cs =>
                 cs.OrderBy(c => c.CustomerID).Select(c => c.City).Distinct(),
@@ -888,7 +935,7 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         [Fact]
-        public void Distinct_OrderBy()
+        public virtual void Distinct_OrderBy()
         {
             AssertQuery<Customer>(cs =>
                 cs.Select(c => c.City).Distinct().OrderBy(c => c),
@@ -896,7 +943,7 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         [Fact]
-        public void Distinct_GroupBy()
+        public virtual void Distinct_GroupBy()
         {
             AssertQuery<Order>(os =>
                 os.Distinct()
@@ -907,40 +954,40 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         [Fact]
-        public void GroupBy_Distinct()
+        public virtual void GroupBy_Distinct()
         {
             AssertQuery<Order>(os =>
                 os.GroupBy(o => o.CustomerID).Distinct().Select(g => g.Key));
         }
 
         [Fact]
-        public void Distinct_Count()
+        public virtual void Distinct_Count()
         {
             AssertQuery<Customer>(cs => cs.Distinct().Count());
         }
 
         [Fact]
-        public void Select_Distinct_Count()
+        public virtual void Select_Distinct_Count()
         {
             AssertQuery<Customer>(cs =>
                 cs.Select(c => c.City).Distinct().Count());
         }
 
         [Fact]
-        public void Select_Select_Distinct_Count()
+        public virtual void Select_Select_Distinct_Count()
         {
             AssertQuery<Customer>(cs =>
                 cs.Select(c => c.City).Select(c => c).Distinct().Count());
         }
 
-        protected abstract ImmutableDbContextOptions Configuration { get; }
+        protected abstract DbContext CreateContext();
 
         private int AssertQuery<TItem>(
             Func<IQueryable<TItem>, int> query,
             bool assertOrder = false)
             where TItem : class
         {
-            using (var context = new DbContext(Configuration))
+            using (var context = CreateContext())
             {
                 return AssertResults(
                     new[] { query(NorthwindData.Set<TItem>()) },
@@ -954,7 +1001,7 @@ namespace Microsoft.Data.FunctionalTests
             bool assertOrder = false)
             where TItem : class
         {
-            using (var context = new DbContext(Configuration))
+            using (var context = CreateContext())
             {
                 return AssertResults(
                     new[] { await query(NorthwindData.Set<TItem>()) },
@@ -968,7 +1015,7 @@ namespace Microsoft.Data.FunctionalTests
             bool assertOrder = false)
             where TItem : class
         {
-            using (var context = new DbContext(Configuration))
+            using (var context = CreateContext())
             {
                 return AssertResults(
                     new[] { query(NorthwindData.Set<TItem>()) },
@@ -982,7 +1029,7 @@ namespace Microsoft.Data.FunctionalTests
             bool assertOrder = false)
             where TItem : class
         {
-            using (var context = new DbContext(Configuration))
+            using (var context = CreateContext())
             {
                 return AssertResults(
                     new[] { await query(NorthwindData.Set<TItem>()) },
@@ -996,7 +1043,7 @@ namespace Microsoft.Data.FunctionalTests
             bool assertOrder = false)
             where TItem : class
         {
-            using (var context = new DbContext(Configuration))
+            using (var context = CreateContext())
             {
                 return AssertResults(
                     new[] { query(NorthwindData.Set<TItem>()) },
@@ -1009,7 +1056,7 @@ namespace Microsoft.Data.FunctionalTests
             Func<IQueryable<TItem>, IQueryable<IQueryable<object>>> query, bool assertOrder = false)
             where TItem : class
         {
-            using (var context = new DbContext(Configuration))
+            using (var context = CreateContext())
             {
                 return AssertResults(
                     query(NorthwindData.Set<TItem>()).ToArray(),
@@ -1022,7 +1069,7 @@ namespace Microsoft.Data.FunctionalTests
             Func<IQueryable<TItem>, IQueryable<object>> query, bool assertOrder = false)
             where TItem : class
         {
-            using (var context = new DbContext(Configuration))
+            using (var context = CreateContext())
             {
                 return AssertResults(
                     query(NorthwindData.Set<TItem>()).ToArray(),
@@ -1038,7 +1085,7 @@ namespace Microsoft.Data.FunctionalTests
             where TItem1 : class
             where TItem2 : class
         {
-            using (var context = new DbContext(Configuration))
+            using (var context = CreateContext())
             {
                 return AssertResults(
                     query(NorthwindData.Set<TItem1>(), NorthwindData.Set<TItem2>()).ToArray(),
@@ -1055,7 +1102,7 @@ namespace Microsoft.Data.FunctionalTests
             where TItem2 : class
             where TItem3 : class
         {
-            using (var context = new DbContext(Configuration))
+            using (var context = CreateContext())
             {
                 return AssertResults(
                     query(NorthwindData.Set<TItem1>(), NorthwindData.Set<TItem2>(), NorthwindData.Set<TItem3>()).ToArray(),
@@ -1068,7 +1115,7 @@ namespace Microsoft.Data.FunctionalTests
             Func<IQueryable<TItem>, IQueryable<object>> query, bool assertOrder = false)
             where TItem : class
         {
-            using (var context = new DbContext(Configuration))
+            using (var context = CreateContext())
             {
                 return AssertResults(
                     query(NorthwindData.Set<TItem>()).ToArray(),
@@ -1081,7 +1128,7 @@ namespace Microsoft.Data.FunctionalTests
             Func<IQueryable<TItem>, IQueryable<int>> query, bool assertOrder = false)
             where TItem : class
         {
-            using (var context = new DbContext(Configuration))
+            using (var context = CreateContext())
             {
                 return AssertResults(
                     query(NorthwindData.Set<TItem>()).ToArray(),
@@ -1094,7 +1141,7 @@ namespace Microsoft.Data.FunctionalTests
             Func<IQueryable<TItem>, IQueryable<long>> query, bool assertOrder = false)
             where TItem : class
         {
-            using (var context = new DbContext(Configuration))
+            using (var context = CreateContext())
             {
                 return AssertResults(
                     query(NorthwindData.Set<TItem>()).ToArray(),
@@ -1107,7 +1154,7 @@ namespace Microsoft.Data.FunctionalTests
             Func<IQueryable<TItem>, IQueryable<bool>> query, bool assertOrder = false)
             where TItem : class
         {
-            using (var context = new DbContext(Configuration))
+            using (var context = CreateContext())
             {
                 return AssertResults(
                     query(NorthwindData.Set<TItem>()).ToArray(),

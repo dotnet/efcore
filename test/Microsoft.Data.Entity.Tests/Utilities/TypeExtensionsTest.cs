@@ -13,6 +13,15 @@ namespace Microsoft.Data.Entity.Tests.Utilities
 {
     public class TypeExtensionsTest
     {
+        [Fact]
+        public void GetSequenceType_finds_element_type()
+        {
+            Assert.Equal(typeof(int), typeof(IEnumerable<int>).GetSequenceType());
+            Assert.Equal(typeof(int), typeof(IQueryable<int>).GetSequenceType());
+            Assert.Equal(typeof(int), typeof(IAsyncEnumerable<int>).GetSequenceType());
+            Assert.Equal(typeof(int), typeof(List<int>).GetSequenceType());
+        }
+
         public class CtorFixture
         {
             public CtorFixture()

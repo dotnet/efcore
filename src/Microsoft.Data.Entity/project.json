@@ -16,6 +16,7 @@
       "dependencies": {
         "System.Collections": "",
         "System.Linq.Expressions": "",
+        "System.ObjectModel": "",
         "System.Runtime": ""
       }
     },

@@ -13,7 +13,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    [DebuggerDisplay("{Name},nq")]
+    [DebuggerDisplay("{Name,nq}")]
     public class EntityType : NamedMetadataBase, IEntityType
     {
         private readonly Type _type;

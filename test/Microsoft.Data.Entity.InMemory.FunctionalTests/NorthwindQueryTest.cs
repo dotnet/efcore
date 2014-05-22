@@ -16,9 +16,9 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             _fixture = fixture;
         }
 
-        protected override ImmutableDbContextOptions Configuration
+        protected override DbContext CreateContext()
         {
-            get { return _fixture.Configuration; }
+            return _fixture.CreateContext();
         }
     }
 
@@ -45,9 +45,9 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             }
         }
 
-        public override ImmutableDbContextOptions Configuration
+        public DbContext CreateContext()
         {
-            get { return _configuration; }
+            return new DbContext(_configuration);
         }
     }
 }

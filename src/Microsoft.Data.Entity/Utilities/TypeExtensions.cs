@@ -13,6 +13,20 @@ namespace System
     [DebuggerStepThrough]
     internal static class TypeExtensions
     {
+        public static Type GetSequenceType(this Type type)
+        {
+            var sequenceType
+                = type.TryGetElementType(typeof(IEnumerable<>))
+                  ?? type.TryGetElementType(typeof(IAsyncEnumerable<>));
+
+            if (sequenceType == null)
+            {
+                throw new ArgumentException();
+            }
+
+            return sequenceType;
+        }
+
         public static Type TryGetElementType(this Type type, Type interfaceOrBaseType)
         {
             if (!type.GetTypeInfo().IsGenericTypeDefinition)

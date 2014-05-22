@@ -84,10 +84,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             public SqlStoreWithBufferReader(
                 DbContextConfiguration configuration,
                 SqlServerConnection connection,
-                DatabaseBuilder databaseBuilder,
                 CommandBatchPreparer batchPreparer,
                 SqlServerBatchExecutor batchExecutor)
-                : base(configuration, connection, databaseBuilder, batchPreparer, batchExecutor)
+                : base(configuration, connection, batchPreparer, batchExecutor)
             {
             }
 

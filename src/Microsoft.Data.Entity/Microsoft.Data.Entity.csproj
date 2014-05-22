@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <Import Project="..\..\tools\EntityFramework.props" />
@@ -42,6 +42,7 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Collections" />
     <Reference Include="System.Linq.Expressions" />
+    <Reference Include="System.ObjectModel" />
     <Reference Include="System.Runtime" />
     <Reference Include="System.Interactive.Async, Version=1.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
       <SpecificVersion>False</SpecificVersion>
@@ -70,6 +71,11 @@
     <Compile Include="EntityStateExtensions.cs" />
     <Compile Include="ImmutableDbContextOptions.cs" />
     <Compile Include="INotifyPropertyChanging.cs" />
+    <Compile Include="Query\AsyncQueryCompilationContext.cs" />
+    <Compile Include="Query\AsyncResultOperatorHandler.cs" />
+    <Compile Include="Query\IResultOperatorHandler.cs" />
+    <Compile Include="Query\QueryCompilationContext.cs" />
+    <Compile Include="Query\ResultOperatorHandler.cs" />
     <Compile Include="ServiceProviderCache.cs" />
     <Compile Include="ChangeTracking\ArraySidecar.cs" />
     <Compile Include="ChangeTracking\ChangeTracker.cs" />
@@ -182,7 +188,6 @@
     <Compile Include="Properties\Strings.Designer.cs">
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
-    <Compile Include="Query\AsyncEntityQueryModelVisitor.cs" />
     <Compile Include="Query\AsyncLinqOperatorProvider.cs" />
     <Compile Include="Query\EntityQueryable`.cs" />
     <Compile Include="Query\EntityQueryExecutor.cs" />

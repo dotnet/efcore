@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -16,42 +16,8 @@ using Remotion.Linq.Clauses.StreamedData;
 
 namespace Microsoft.Data.Entity.Query
 {
-    public abstract class AsyncEntityQueryModelVisitor : EntityQueryModelVisitor
+    public class AsyncResultOperatorHandler : IResultOperatorHandler
     {
-        protected AsyncEntityQueryModelVisitor(EntityQueryModelVisitor parentQueryModelVisitor)
-            : base(new AsyncLinqOperatorProvider(), parentQueryModelVisitor)
-        {
-        }
-
-        public new Func<QueryContext, IAsyncEnumerable<TResult>> CreateQueryExecutor<TResult>([NotNull] QueryModel queryModel)
-        {
-            Check.NotNull(queryModel, "queryModel");
-
-            VisitQueryModel(queryModel);
-
-            if (_streamedSequenceInfo == null)
-            {
-                _expression
-                    = Expression.Call(
-                        _taskToSequenceShim.MakeGenericMethod(typeof(TResult)),
-                        _expression);
-            }
-
-            return Expression
-                .Lambda<Func<QueryContext, IAsyncEnumerable<TResult>>>(_expression, _queryContextParameter)
-                .Compile();
-        }
-
-        private static readonly MethodInfo _taskToSequenceShim
-            = typeof(AsyncEntityQueryModelVisitor)
-                .GetTypeInfo().GetDeclaredMethod("TaskToSequenceShim");
-
-        [UsedImplicitly]
-        private static IAsyncEnumerable<T> TaskToSequenceShim<T>(Task<T> task)
-        {
-            return new TaskResultAsyncEnumerable<T>(task);
-        }
-
         private static readonly Dictionary<Type, Func<Expression, Type, ResultOperatorBase, Expression>>
             _asyncHandlers = new Dictionary<Type, Func<Expression, Type, ResultOperatorBase, Expression>>
                 {
@@ -59,10 +25,16 @@ namespace Microsoft.Data.Entity.Query
                     { typeof(CountResultOperator), (e, t, r) => ProcessResultOperator(e, t, (CountResultOperator)r) }
                 };
 
-        public override void VisitResultOperator(ResultOperatorBase resultOperator, QueryModel queryModel, int index)
+        public virtual Expression HandleResultOperator(
+            EntityQueryModelVisitor entityQueryModelVisitor,
+            IStreamedDataInfo streamedDataInfo,
+            ResultOperatorBase resultOperator,
+            QueryModel queryModel)
         {
-            var streamedDataInfo
-                = resultOperator.GetOutputDataInfo(_streamedSequenceInfo);
+            Check.NotNull(entityQueryModelVisitor, "entityQueryModelVisitor");
+            Check.NotNull(streamedDataInfo, "streamedDataInfo");
+            Check.NotNull(resultOperator, "resultOperator");
+            Check.NotNull(queryModel, "queryModel");
 
             Func<Expression, Type, ResultOperatorBase, Expression> asyncHandler;
             if (!_asyncHandlers.TryGetValue(resultOperator.GetType(), out asyncHandler))
@@ -71,10 +43,10 @@ namespace Microsoft.Data.Entity.Query
                 throw new NotImplementedException();
             }
 
-            _expression
-                = asyncHandler(_expression, _streamedSequenceInfo.ResultItemType, resultOperator);
-
-            _streamedSequenceInfo = streamedDataInfo as StreamedSequenceInfo;
+            return asyncHandler(
+                entityQueryModelVisitor.Expression,
+                entityQueryModelVisitor.StreamedSequenceInfo.ResultItemType,
+                resultOperator);
         }
 
         private static Expression ProcessResultOperator(Expression expression, Type expressionItemType, AnyResultOperator _)
@@ -83,7 +55,7 @@ namespace Microsoft.Data.Entity.Query
         }
 
         private static readonly MethodInfo _anyAsyncShim
-            = typeof(AsyncEntityQueryModelVisitor)
+            = typeof(AsyncResultOperatorHandler)
                 .GetTypeInfo().GetDeclaredMethod("AnyAsyncShim");
 
         [UsedImplicitly]
@@ -98,7 +70,7 @@ namespace Microsoft.Data.Entity.Query
         }
 
         private static readonly MethodInfo _countAsyncShim
-            = typeof(AsyncEntityQueryModelVisitor)
+            = typeof(AsyncResultOperatorHandler)
                 .GetTypeInfo().GetDeclaredMethod("CountAsyncShim");
 
         [UsedImplicitly]
