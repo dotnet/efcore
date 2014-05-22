@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Utilities;
 
+// ReSharper disable once CheckNamespace
 namespace Microsoft.Framework.Logging
 {
     internal static class RelationalLoggerExtensions

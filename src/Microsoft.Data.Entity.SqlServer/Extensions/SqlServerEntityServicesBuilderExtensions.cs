@@ -9,6 +9,7 @@ using Microsoft.Data.Entity.SqlServer;
 using Microsoft.Data.Entity.SqlServer.Utilities;
 using Microsoft.Data.Entity.Storage;
 
+// ReSharper disable once CheckNamespace
 namespace Microsoft.Framework.DependencyInjection
 {
     public static class SqlServerEntityServicesBuilderExtensions

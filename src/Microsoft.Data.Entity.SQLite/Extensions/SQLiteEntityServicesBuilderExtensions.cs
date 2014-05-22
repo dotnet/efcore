@@ -8,6 +8,7 @@ using Microsoft.Data.Entity.SQLite;
 using Microsoft.Data.Entity.SQLite.Utilities;
 using Microsoft.Data.Entity.Storage;
 
+// ReSharper disable once CheckNamespace
 namespace Microsoft.Framework.DependencyInjection
 {
     public static class SQLiteEntityServicesBuilderExtensions

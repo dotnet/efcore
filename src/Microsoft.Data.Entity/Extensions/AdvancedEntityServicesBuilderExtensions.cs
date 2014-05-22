@@ -9,6 +9,7 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
+// ReSharper disable once CheckNamespace
 namespace Microsoft.Framework.DependencyInjection.Advanced
 {
     public static class AdvancedEntityServicesBuilderExtensions

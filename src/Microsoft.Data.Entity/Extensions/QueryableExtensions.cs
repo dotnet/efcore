@@ -12,7 +12,6 @@ using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Utilities;
 
 // ReSharper disable once CheckNamespace
-
 namespace System.Linq
 {
     public static class QueryableExtensions

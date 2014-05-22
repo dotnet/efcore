@@ -4,6 +4,7 @@
 using System;
 using Microsoft.Data.Entity;
 
+// ReSharper disable once CheckNamespace
 namespace Microsoft.Framework.DependencyInjection
 {
     internal static class ServiceProviderExtensions

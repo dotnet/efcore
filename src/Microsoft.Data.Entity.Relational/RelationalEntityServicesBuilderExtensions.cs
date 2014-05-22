@@ -9,6 +9,7 @@ using Microsoft.Data.Entity.Relational.Utilities;
 // Intentionally in this namespace since this is for use by other relational providers rather than
 // by top-level app developers.
 
+// ReSharper disable once CheckNamespace
 namespace Microsoft.Framework.DependencyInjection
 {
     public static class RelationalEntityServicesBuilderExtensions

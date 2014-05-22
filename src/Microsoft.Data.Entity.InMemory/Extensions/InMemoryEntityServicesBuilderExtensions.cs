@@ -7,6 +7,7 @@ using Microsoft.Data.Entity.InMemory;
 using Microsoft.Data.Entity.InMemory.Utilities;
 using Microsoft.Data.Entity.Storage;
 
+// ReSharper disable once CheckNamespace
 namespace Microsoft.Framework.DependencyInjection
 {
     public static class InMemoryEntityServicesBuilderExtensions

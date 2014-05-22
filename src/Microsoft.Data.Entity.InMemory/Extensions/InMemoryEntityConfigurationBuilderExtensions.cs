@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.InMemory;
 using Microsoft.Data.Entity.InMemory.Utilities;
 
+// ReSharper disable once CheckNamespace
 namespace Microsoft.Data.Entity
 {
     public static class InMemoryEntityConfigurationBuilderExtensions
