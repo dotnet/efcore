@@ -49,11 +49,6 @@
   <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
     <Compile Include="..\Shared\ApiConsistencyTestBase.cs" />
-    <None Include="..\..\packages\KoreBuild\Build\Resources.tt">
-      <Link>Properties\Resources.tt</Link>
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <CustomToolNamespace>Microsoft.Data.Entity.SQLite.Tests</CustomToolNamespace>
-    </None>
     <Content Include="project.json" />
   </ItemGroup>
   <ItemGroup>
@@ -72,6 +67,9 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

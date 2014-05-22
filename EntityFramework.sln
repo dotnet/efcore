@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30324.0
+VisualStudioVersion = 12.0.30501.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{35BED7DE-CA6F-41EA-91E3-25CA7295C7B9}"
 EndProject
@@ -40,6 +40,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Entity.InMemory.FunctionalTests", "test\Microsoft.Data.Entity.InMemory.FunctionalTests\Microsoft.Data.Entity.InMemory.FunctionalTests.csproj", "{7E1A1A1B-6D0B-4C66-8026-326EFC0B4625}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Entity.SQLite.Tests", "test\Microsoft.Data.Entity.SQLite.Tests\Microsoft.Data.Entity.SQLite.Tests.csproj", "{1F060759-25F6-47FB-AEBB-3D88195F3DF7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Entity.SQLite.FunctionalTests", "test\Microsoft.Data.Entity.SQLite.FunctionalTests\Microsoft.Data.Entity.SQLite.FunctionalTests.csproj", "{A0EF2B6C-CE20-42EA-B5E0-4753B17B382D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -115,6 +117,10 @@ Global
 		{1F060759-25F6-47FB-AEBB-3D88195F3DF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1F060759-25F6-47FB-AEBB-3D88195F3DF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1F060759-25F6-47FB-AEBB-3D88195F3DF7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A0EF2B6C-CE20-42EA-B5E0-4753B17B382D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A0EF2B6C-CE20-42EA-B5E0-4753B17B382D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A0EF2B6C-CE20-42EA-B5E0-4753B17B382D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A0EF2B6C-CE20-42EA-B5E0-4753B17B382D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -137,5 +143,6 @@ Global
 		{FA789ED6-2AAC-4BAA-A4FB-B600BE2DA956} = {547020C0-976F-4542-81CE-7FD465595614}
 		{7E1A1A1B-6D0B-4C66-8026-326EFC0B4625} = {547020C0-976F-4542-81CE-7FD465595614}
 		{1F060759-25F6-47FB-AEBB-3D88195F3DF7} = {547020C0-976F-4542-81CE-7FD465595614}
+		{A0EF2B6C-CE20-42EA-B5E0-4753B17B382D} = {547020C0-976F-4542-81CE-7FD465595614}
 	EndGlobalSection
 EndGlobal

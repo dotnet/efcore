@@ -47,11 +47,6 @@
     <PackageReference Include="xunit.execution" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\packages\KoreBuild\Build\Resources.tt">
-      <Link>Properties\Resources.tt</Link>
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <CustomToolNamespace>Microsoft.Data.Entity.Migrations.FunctionalTests</CustomToolNamespace>
-    </None>
     <Content Include="project.json" />
   </ItemGroup>
   <ItemGroup>
@@ -59,6 +54,9 @@
       <Project>{71415CEC-8111-4C73-8751-512D22F10602}</Project>
       <Name>Microsoft.Data.Entity</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

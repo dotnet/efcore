@@ -5,22 +5,22 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{6AB933C7-DE2A-45F2-BDC6-E71A01EF7756}</ProjectGuid>
+    <ProjectGuid>{A0EF2B6C-CE20-42EA-B5E0-4753B17B382D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.Data.Entity.FunctionalTests</RootNamespace>
-    <AssemblyName>Microsoft.Data.Entity.FunctionalTests</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <RootNamespace>Microsoft.Data.Entity.SQLite.FunctionalTests</RootNamespace>
+    <AssemblyName>Microsoft.Data.Entity.SQLite.FunctionalTests</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <BaseIntermediateOutputPath>obj/net45</BaseIntermediateOutputPath>
+    <BaseIntermediateOutputPath>obj/net451</BaseIntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\net45</OutputPath>
-    <DefineConstants>DEBUG;TRACE;NET45;</DefineConstants>
+    <OutputPath>bin\Debug\net451</OutputPath>
+    <DefineConstants>DEBUG;TRACE;NET451;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -28,8 +28,8 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\net45</OutputPath>
-    <DefineConstants>TRACE;NET45;</DefineConstants>
+    <OutputPath>bin\Release\net451</OutputPath>
+    <DefineConstants>TRACE;NET451;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -39,9 +39,6 @@
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Runtime" />
-    <PackageReference Include="Microsoft.Framework.ConfigurationModel" />
-    <PackageReference Include="Microsoft.Framework.DependencyInjection" />
-    <PackageReference Include="Microsoft.Framework.Logging" />
     <PackageReference Include="xunit.abstractions" />
     <PackageReference Include="xunit.assert" />
     <PackageReference Include="xunit.core">
@@ -50,14 +47,19 @@
     <PackageReference Include="xunit.execution" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FixupTest.cs" />
-    <Compile Include="Metadata\CompiledModelTest.cs" />
-    <Compile Include="Metadata\KoolModel.cs" />
     <Content Include="project.json" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Microsoft.Data.Entity.Relational\Microsoft.Data.Entity.Relational.csproj">
+      <Project>{75c5a774-a3f3-43eb-97d3-dbe0cf2825d8}</Project>
+      <Name>Microsoft.Data.Entity.Relational</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Microsoft.Data.Entity.SQLite\Microsoft.Data.Entity.SQLite.csproj">
+      <Project>{4CC98896-FE91-4F16-AE60-D6FF9E905836}</Project>
+      <Name>Microsoft.Data.Entity.SQLite</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\Microsoft.Data.Entity\Microsoft.Data.Entity.csproj">
-      <Project>{71415CEC-8111-4C73-8751-512D22F10602}</Project>
+      <Project>{71415cec-8111-4c73-8751-512d22f10602}</Project>
       <Name>Microsoft.Data.Entity</Name>
     </ProjectReference>
   </ItemGroup>
