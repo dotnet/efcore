@@ -31,17 +31,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Entity.InMem
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Entity.FunctionalTests", "test\Microsoft.Data.Entity.FunctionalTests\Microsoft.Data.Entity.FunctionalTests.csproj", "{6AB933C7-DE2A-45F2-BDC6-E71A01EF7756}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Entity.Migrations.FunctionalTests", "test\Microsoft.Data.Entity.Migrations.FunctionalTests\Microsoft.Data.Entity.Migrations.FunctionalTests.csproj", "{C416F750-9FE1-4B5B-8B9E-7CBA953ED9A8}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Entity.Relational.FunctionalTests", "test\Microsoft.Data.Entity.Relational.FunctionalTests\Microsoft.Data.Entity.Relational.FunctionalTests.csproj", "{2D43456E-2FF3-4049-BBC3-E57850085FC2}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Entity.SqlServer.FunctionalTests", "test\Microsoft.Data.Entity.SqlServer.FunctionalTests\Microsoft.Data.Entity.SqlServer.FunctionalTests.csproj", "{FA789ED6-2AAC-4BAA-A4FB-B600BE2DA956}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Entity.InMemory.FunctionalTests", "test\Microsoft.Data.Entity.InMemory.FunctionalTests\Microsoft.Data.Entity.InMemory.FunctionalTests.csproj", "{7E1A1A1B-6D0B-4C66-8026-326EFC0B4625}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Entity.SQLite.Tests", "test\Microsoft.Data.Entity.SQLite.Tests\Microsoft.Data.Entity.SQLite.Tests.csproj", "{1F060759-25F6-47FB-AEBB-3D88195F3DF7}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Entity.SQLite.FunctionalTests", "test\Microsoft.Data.Entity.SQLite.FunctionalTests\Microsoft.Data.Entity.SQLite.FunctionalTests.csproj", "{A0EF2B6C-CE20-42EA-B5E0-4753B17B382D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -97,14 +91,6 @@ Global
 		{6AB933C7-DE2A-45F2-BDC6-E71A01EF7756}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6AB933C7-DE2A-45F2-BDC6-E71A01EF7756}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6AB933C7-DE2A-45F2-BDC6-E71A01EF7756}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C416F750-9FE1-4B5B-8B9E-7CBA953ED9A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C416F750-9FE1-4B5B-8B9E-7CBA953ED9A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C416F750-9FE1-4B5B-8B9E-7CBA953ED9A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C416F750-9FE1-4B5B-8B9E-7CBA953ED9A8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2D43456E-2FF3-4049-BBC3-E57850085FC2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2D43456E-2FF3-4049-BBC3-E57850085FC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2D43456E-2FF3-4049-BBC3-E57850085FC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2D43456E-2FF3-4049-BBC3-E57850085FC2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FA789ED6-2AAC-4BAA-A4FB-B600BE2DA956}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FA789ED6-2AAC-4BAA-A4FB-B600BE2DA956}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FA789ED6-2AAC-4BAA-A4FB-B600BE2DA956}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -117,10 +103,6 @@ Global
 		{1F060759-25F6-47FB-AEBB-3D88195F3DF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1F060759-25F6-47FB-AEBB-3D88195F3DF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1F060759-25F6-47FB-AEBB-3D88195F3DF7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A0EF2B6C-CE20-42EA-B5E0-4753B17B382D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A0EF2B6C-CE20-42EA-B5E0-4753B17B382D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A0EF2B6C-CE20-42EA-B5E0-4753B17B382D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A0EF2B6C-CE20-42EA-B5E0-4753B17B382D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -138,11 +120,8 @@ Global
 		{001005B3-D16F-4399-9265-A67D619652BD} = {547020C0-976F-4542-81CE-7FD465595614}
 		{81EF720B-EC6D-456F-9FA6-71DA7D4ED3BF} = {547020C0-976F-4542-81CE-7FD465595614}
 		{6AB933C7-DE2A-45F2-BDC6-E71A01EF7756} = {547020C0-976F-4542-81CE-7FD465595614}
-		{C416F750-9FE1-4B5B-8B9E-7CBA953ED9A8} = {547020C0-976F-4542-81CE-7FD465595614}
-		{2D43456E-2FF3-4049-BBC3-E57850085FC2} = {547020C0-976F-4542-81CE-7FD465595614}
 		{FA789ED6-2AAC-4BAA-A4FB-B600BE2DA956} = {547020C0-976F-4542-81CE-7FD465595614}
 		{7E1A1A1B-6D0B-4C66-8026-326EFC0B4625} = {547020C0-976F-4542-81CE-7FD465595614}
 		{1F060759-25F6-47FB-AEBB-3D88195F3DF7} = {547020C0-976F-4542-81CE-7FD465595614}
-		{A0EF2B6C-CE20-42EA-B5E0-4753B17B382D} = {547020C0-976F-4542-81CE-7FD465595614}
 	EndGlobalSection
 EndGlobal

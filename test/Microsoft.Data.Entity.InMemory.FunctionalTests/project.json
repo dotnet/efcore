@@ -1,16 +1,6 @@
 {
-  "version" : "0.1-alpha-*",
   "dependencies": {
-    "Ix-Async": "1.2.2",
-    "Microsoft.Data.Entity" : "",
     "Microsoft.Data.Entity.InMemory" : "",
-    "Microsoft.Framework.ConfigurationModel" : "0.1-alpha-*",
-    "Microsoft.Framework.DependencyInjection" : "0.1-alpha-*",
-    "Microsoft.Framework.Logging" : "0.1-alpha-*",
-    "xunit.abstractions": "2.0.0-aspnet-*",
-    "xunit.assert": "2.0.0-aspnet-*",
-    "xunit.core": "2.0.0-aspnet-*",
-    "xunit.execution": "2.0.0-aspnet-*",
     "Xunit.KRunner": "0.1-alpha-*"
   },
   "code": "**\\*.cs;..\\Shared\\TestFileLogger.cs;..\\Shared\\Northwind.cs;..\\Shared\\NorthwindQueryTestBase.cs;..\\Shared\\NorthwindQueryFixtureBase.cs",
@@ -18,11 +8,7 @@
     "test": "Xunit.KRunner"
   },
   "configurations": {
-    "net45": {
-      "dependencies": {
-        "System.Runtime" : ""
-      }
-    },
+    "net45": {},
     "k10": {
       "dependencies": {
         "Microsoft.CSharp": "4.0.0.0"

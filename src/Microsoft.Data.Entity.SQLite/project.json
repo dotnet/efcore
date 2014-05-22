@@ -4,37 +4,13 @@
     "warningsAsErrors": true
   },
   "dependencies": {
-    "Microsoft.Data.Common": "0.1-alpha-*",
-    "Microsoft.Data.Entity": "",
     "Microsoft.Data.Entity.Migrations": "",
-    "Microsoft.Data.Entity.Relational": "",
-    "Microsoft.Data.SQLite": "0.1-alpha-*",
-    "Microsoft.Framework.DependencyInjection": "0.1-alpha-*"
+    "Microsoft.Data.SQLite": "0.1-alpha-*"
   },
   "code": "**\\*.cs;..\\Shared\\*.cs",
   "configurations": {
-    "net451": {
-      "dependencies": {
-        "System.Data": ""
-      }
-    },
-    "k10": {
-      "dependencies": {
-        "System.Diagnostics.Debug": "4.0.10.0",
-        "System.Globalization": "4.0.10.0",
-        "System.Reflection": "4.0.10.0",
-        "System.Resources.ResourceManager": "4.0.0.0",
-        "System.Runtime": "4.0.20.0"
-      }
-    },
-    ".NETPortable,Version=v4.6,Profile=Profile44": {
-      "dependencies": {
-        "System.Diagnostics.Debug": "",
-        "System.Globalization": "",
-        "System.Reflection": "",
-        "System.Resources.ResourceManager": "",
-        "System.Runtime": ""
-      }
-    }
+    "net451": {},
+    "k10": {},
+    ".NETPortable,Version=v4.6,Profile=Profile44": {}
   }
 }

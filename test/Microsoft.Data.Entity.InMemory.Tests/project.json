@@ -1,18 +1,7 @@
 {
-  "version": "0.1-alpha-*",
   "dependencies": {
-    "Microsoft.Data.Common": "0.1-alpha-*",
-    "Microsoft.Data.Entity": "",
     "Microsoft.Data.Entity.InMemory": "",
-    "Microsoft.Data.Entity.Relational": "",
-    "Microsoft.Data.Entity.SqlServer": "",
-    "Microsoft.Framework.ConfigurationModel" : "0.1-alpha-*",
-    "Microsoft.Framework.DependencyInjection" : "0.1-alpha-*",
-    "Microsoft.Framework.Logging" : "0.1-alpha-*",
-    "xunit.abstractions": "2.0.0-aspnet-*",
-    "xunit.assert": "2.0.0-aspnet-*",
-    "xunit.core": "2.0.0-aspnet-*",
-    "xunit.execution": "2.0.0-aspnet-*",
+    "Moq" : "4.2.1312.1622",
     "Xunit.KRunner": "0.1-alpha-*"
   },
   "code": "**\\*.cs;..\\Shared\\ApiConsistencyTestBase.cs",
@@ -20,12 +9,6 @@
     "test": "Xunit.KRunner"
   },
   "configurations": {
-    "net45": {
-      "dependencies": {
-        "Moq" : "4.2.1312.1622",
-        "System.Data": "",
-        "System.Runtime": ""
-      }
-    }
+    "net45": {}
   }
 }
