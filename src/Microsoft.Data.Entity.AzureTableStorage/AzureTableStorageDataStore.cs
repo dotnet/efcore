@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.AzureTableStorage.Interfaces;
+using Microsoft.Data.Entity.AzureTableStorage.Query;
 using Microsoft.Data.Entity.AzureTableStorage.Utilities;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
@@ -42,10 +43,10 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             Check.NotNull(queryModel, "queryModel");
             Check.NotNull(stateManager, "stateManager");
 
-            var queryExecutor = new AzureTableStorageQueryModelVisitor().CreateQueryExecutor<TResult>(queryModel);
+            var compilationContext = new AzureTableStorageQueryCompilationContext(Model);
+            var queryExecutor = compilationContext.CreateVisitor().CreateQueryExecutor<TResult>(queryModel);
             var queryContext = new AzureTableStorageQueryContext(Model, Logger, stateManager, Connection);
-
-            return queryExecutor(queryContext);
+            return queryExecutor(queryContext, null);
         }
 
         public override IAsyncEnumerable<TResult> AsyncQuery<TResult>(QueryModel queryModel, StateManager stateManager)

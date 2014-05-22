@@ -10,11 +10,13 @@
     "Microsoft.Framework.DependencyInjection": "0.1-alpha-*",
     "Moq":  "4.2.1402.2112",
     "WindowsAzure.Storage": "4.0.0",
+    "Ix-Async": "1.2.2",
     "xunit.abstractions": "2.0.0-beta-*",
     "xunit.assert": "2.0.0-beta-*",
     "xunit.core": "2.0.0-beta-*",
     "xunit.execution": "2.0.0-beta-*",
-    "Xunit.KRunner": "0.1-alpha-*"
+    "Xunit.KRunner": "0.1-alpha-*",
+    "Remotion.Linq": "1.15.13.0"
   },
   "commands": {
     "test": "Xunit.KRunner"
@@ -22,6 +24,7 @@
   "configurations": {
     "net45": {
       "dependencies": {
+          "System.Threading.Tasks": ""
       }
     }
   }
