@@ -5,7 +5,7 @@ using System;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 
-namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
+namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests.Helpers
 {
     public class CloudTableFixture : IDisposable
     {
