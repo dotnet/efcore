@@ -6,30 +6,32 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Globalization;
 using System.Linq;
+using Microsoft.Data.Entity.AzureTableStorage.FunctionalTests.Helpers;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.WindowsAzure.Storage.Table;
 using Xunit;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
 {
-    public class AzureTableStorageEndToEndTests : IClassFixture<CloudTableFixture>, IDisposable
+    public class EndToEndTests : IClassFixture<CloudTableFixture>, IDisposable
     {
         private readonly EmulatorContext _context;
         private readonly CloudTable _table;
-        private readonly AzureStorageEmulatorEntity _sampleEntity;
-        private readonly List<AzureStorageEmulatorEntity> _sampleSet = new List<AzureStorageEmulatorEntity>();
+        private readonly Item _sampleEntity;
+        private readonly List<Item> _sampleSet = new List<Item>();
         private readonly string _testPartition;
 
         #region setup
 
-        public AzureTableStorageEndToEndTests(CloudTableFixture fixture)
+        public EndToEndTests(CloudTableFixture fixture)
         {
             var connectionString = ConfigurationManager.AppSettings["TestConnectionString"];
             _testPartition = "unittests-" + DateTime.UtcNow.ToString("R");
-            _context = new EmulatorContext();
-            _table = fixture.GetOrCreateTable("AzureStorageEmulatorEntity", connectionString);
+            var tableName = "Table" + DateTime.UtcNow.ToBinary();
+            _context = new EmulatorContext(tableName);
+            _table = fixture.GetOrCreateTable(tableName, connectionString);
             fixture.DeleteOnDispose = true;
-            var deleteTest = new AzureStorageEmulatorEntity
+            var deleteTest = new Item
                 {
                     PartitionKey = _testPartition,
                     RowKey = "It_deletes_entity_test",
@@ -40,16 +42,17 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
 
             for (var i = 0; i < 20; i++)
             {
-                var findTest = new AzureStorageEmulatorEntity
+                var findTest = new Item
                     {
                         PartitionKey = _testPartition,
                         RowKey = "It_finds_entity_test_" + i,
                         Purchased = DateTime.Now,
+                        Count = i,
                     };
                 _sampleSet.Add(findTest);
             }
 
-            _sampleEntity = new AzureStorageEmulatorEntity
+            _sampleEntity = new Item
                 {
                     PartitionKey = _testPartition,
                     RowKey = "Sample_entity",
@@ -76,7 +79,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
         [Fact]
         public void It_adds_entity()
         {
-            _context.BooFars.Add(new AzureStorageEmulatorEntity
+            _context.Items.Add(new Item
                 {
                     PartitionKey = _testPartition,
                     RowKey = "It_adds_entity_test",
@@ -94,7 +97,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
         [Fact]
         public void It_finds_entities()
         {
-            var rows = _context.BooFars.Where(s => s.PartitionKey == _testPartition && s.RowKey.StartsWith("It_finds_entity_test_"));
+            var rows = _context.Items.Where(s => s.PartitionKey == _testPartition && s.RowKey.StartsWith("It_finds_entity_test_"));
             Assert.Equal(20, rows.Count());
         }
 
@@ -102,27 +105,27 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
         [Fact]
         public void It_handles_out_of_range_dates()
         {
-            var lowDate = new AzureStorageEmulatorEntity
+            var lowDate = new Item
                 {
                     PartitionKey = _testPartition,
                     RowKey = "DateOutOfRange",
                     Purchased = DateTime.Parse("Dec 31, 1600 23:59:00 GMT", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal)
                 };
-            _context.BooFars.Add(lowDate);
+            _context.Items.Add(lowDate);
             Assert.Throws<AggregateException>(() => { _context.SaveChanges(); });
         }
 
         [Fact]
         public void It_materializes_entity()
         {
-            var actual = _context.BooFars.First(s => s.PartitionKey == _testPartition && s.RowKey == "Sample_entity");
+            var actual = _context.Items.First(s => s.PartitionKey == _testPartition && s.RowKey == "Sample_entity");
             Assert.True(_sampleEntity.Equals(actual));
         }
 
         [Fact]
         public void It_deletes_entity()
         {
-            var tableRow = _context.BooFars.First(s => s.PartitionKey == _testPartition && s.RowKey == "It_deletes_entity_test");
+            var tableRow = _context.Items.First(s => s.PartitionKey == _testPartition && s.RowKey == "It_deletes_entity_test");
             _context.Delete(tableRow);
             var changes = _context.SaveChanges();
             Assert.Equal(1, changes);
@@ -146,7 +149,14 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
 
         private class EmulatorContext : DbContext
         {
-            public DbSet<AzureStorageEmulatorEntity> BooFars { get; set; }
+            private readonly string _tableName;
+
+            public EmulatorContext(string tableName)
+            {
+                _tableName = tableName;
+            }
+
+            public DbSet<Item> Items { get; set; }
 
             protected override void OnConfiguring(DbContextOptions builder)
             {
@@ -155,11 +165,11 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
 
             protected override void OnModelCreating(ModelBuilder builder)
             {
-                builder.Entity<AzureStorageEmulatorEntity>().Key(s => s.Key);
+                builder.Entity<Item>().Key(s => s.Key).StorageName(_tableName);
             }
         }
 
-        private class AzureStorageEmulatorEntity : TableEntity
+        private class Item : TableEntity
         {
             public string Key
             {
@@ -175,7 +185,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
             // override object.Equals
             public override bool Equals(object obj)
             {
-                var other = obj as AzureStorageEmulatorEntity;
+                var other = obj as Item;
                 if (other == null)
                 {
                     return false;

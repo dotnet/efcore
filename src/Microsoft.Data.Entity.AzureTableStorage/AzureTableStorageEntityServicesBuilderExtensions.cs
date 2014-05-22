@@ -13,7 +13,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             builder.ServiceCollection
                 .AddSingleton<DataStoreSource, AzureTableStorageDataStoreSource>()
                 .AddScoped<AzureTableStorageConnection, AzureTableStorageConnection>()
-                .AddScoped<AzureTableStorageDataStoreCreator, AzureTableStorageDataStoreCreator>();
+                .AddScoped<AzureTableStorageDataStoreCreator, AzureTableStorageDataStoreCreator>()
+                .AddScoped<AzureTableStorageValueGeneratorCache, AzureTableStorageValueGeneratorCache>();
             if (batching)
             {
                 builder.ServiceCollection.AddScoped<AzureTableStorageDataStore, AzureTableStorageBatchedDataStore>();
