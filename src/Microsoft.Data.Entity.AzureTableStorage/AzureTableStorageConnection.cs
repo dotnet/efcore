@@ -27,7 +27,6 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         {
             Check.NotNull(configuration, "configuration");
 
-
             var storeConfig = configuration
                 .ContextOptions
                 .Extensions
