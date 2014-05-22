@@ -463,19 +463,23 @@ namespace Microsoft.Data.Entity.Query
             }
 
             var expression
-                = ReplaceClauseReferences(
-                    CreateOrderingExpressionTreeVisitor(ordering)
-                        .VisitExpression(ordering.Expression));
+                = CreateOrderingExpressionTreeVisitor(ordering)
+                    .VisitExpression(ordering.Expression);
 
-            _expression
-                = Expression.Call(
-                    (index == 0
-                        ? _queryCompilationContext.LinqOperatorProvider.OrderBy
-                        : _queryCompilationContext.LinqOperatorProvider.ThenBy)
-                        .MakeGenericMethod(elementType, expression.Type),
-                    _expression,
-                    Expression.Lambda(expression, parameterExpression),
-                    Expression.Constant(ordering.OrderingDirection));
+            if (expression != null)
+            {
+                expression = ReplaceClauseReferences(expression);
+
+                _expression
+                    = Expression.Call(
+                        (index == 0
+                            ? _queryCompilationContext.LinqOperatorProvider.OrderBy
+                            : _queryCompilationContext.LinqOperatorProvider.ThenBy)
+                            .MakeGenericMethod(elementType, expression.Type),
+                        _expression,
+                        Expression.Lambda(expression, parameterExpression),
+                        Expression.Constant(ordering.OrderingDirection));
+            }
         }
 
         public override void VisitResultOperator(
@@ -489,13 +493,13 @@ namespace Microsoft.Data.Entity.Query
             var streamedDataInfo
                 = resultOperator.GetOutputDataInfo(_streamedSequenceInfo);
 
-            var maybeExpression
-                = _queryCompilationContext.ResultOperatorHandler
-                    .HandleResultOperator(this, streamedDataInfo, resultOperator, queryModel);
+            var expression
+               = _queryCompilationContext.ResultOperatorHandler
+                   .HandleResultOperator(this, streamedDataInfo, resultOperator, queryModel);
 
-            if (maybeExpression != null)
+            if (expression != null)
             {
-                _expression = maybeExpression;
+                _expression = expression;
 
                 _streamedSequenceInfo = streamedDataInfo as StreamedSequenceInfo;
             }

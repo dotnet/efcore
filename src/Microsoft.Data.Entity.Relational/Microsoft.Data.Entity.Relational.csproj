@@ -63,7 +63,6 @@
     <Compile Include="IDbCommandExecutor.cs" />
     <Compile Include="ModelDatabaseMapping.cs" />
     <Compile Include="Query\AsyncEnumerableMethodProvider.cs" />
-    <Compile Include="Query\EntityQuery.cs" />
     <Compile Include="Query\EnumerableMethodProvider.cs" />
     <Compile Include="Query\IEnumerableMethodProvider.cs" />
     <Compile Include="Query\RelationalAsyncQueryCompilationContext.cs" />

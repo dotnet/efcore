@@ -16,10 +16,13 @@ namespace Microsoft.Data.Entity.Relational.Query
 {
     public class RelationalResultOperatorHandler : IResultOperatorHandler
     {
-        private static readonly Dictionary<Type, Func<EntityQueryModelVisitor, ResultOperatorBase, QueryModel, Expression>>
-            _resultHandlers = new Dictionary<Type, Func<EntityQueryModelVisitor, ResultOperatorBase, QueryModel, Expression>>
+        private static readonly Dictionary<Type, Func<SqlSelect, ResultOperatorBase, bool>>
+            _resultHandlers = new Dictionary<Type, Func<SqlSelect, ResultOperatorBase, bool>>
                 {
-                    { typeof(TakeResultOperator), (v, r, q) => ProcessResultOperator(v, (TakeResultOperator)r, q) }
+                    { typeof(TakeResultOperator), (s, r) => ProcessTake(s, (TakeResultOperator)r) },
+                    { typeof(SingleResultOperator), (s, r) => ProcessSingle(s) },
+                    { typeof(FirstResultOperator), (s, r) => ProcessFirst(s) },
+                    { typeof(DistinctResultOperator), (s, r) => ProcessDistinct(s) }
                 };
 
         private readonly IResultOperatorHandler _resultOperatorHandler;
@@ -42,8 +45,16 @@ namespace Microsoft.Data.Entity.Relational.Query
             Check.NotNull(resultOperator, "resultOperator");
             Check.NotNull(queryModel, "queryModel");
 
-            Func<EntityQueryModelVisitor, ResultOperatorBase, QueryModel, Expression> resultHandler;
-            if (!_resultHandlers.TryGetValue(resultOperator.GetType(), out resultHandler))
+            var relationalQueryModelVisitor
+                = (RelationalQueryModelVisitor)entityQueryModelVisitor;
+
+            var sqlSelect
+                = relationalQueryModelVisitor.TryGetSqlSelect(queryModel.MainFromClause);
+
+            Func<SqlSelect, ResultOperatorBase, bool> resultHandler;
+            if (!_resultHandlers.TryGetValue(resultOperator.GetType(), out resultHandler)
+                || sqlSelect == null
+                || resultHandler(sqlSelect, resultOperator))
             {
                 return _resultOperatorHandler
                     .HandleResultOperator(
@@ -53,21 +64,34 @@ namespace Microsoft.Data.Entity.Relational.Query
                         queryModel);
             }
 
-            return resultHandler(entityQueryModelVisitor, resultOperator, queryModel);
+            return null;
         }
 
-        private static Expression ProcessResultOperator(
-            EntityQueryModelVisitor entityQueryModelVisitor,
-            TakeResultOperator takeResultOperator,
-            QueryModel queryModel)
+        private static bool ProcessTake(
+            SqlSelect sqlSelect, TakeResultOperator takeResultOperator)
         {
-            var relationalVisitor = (RelationalQueryModelVisitor)entityQueryModelVisitor;
+            sqlSelect.AddLimit(takeResultOperator.GetConstantCount());
 
-            relationalVisitor
-                .QueryFor(queryModel.MainFromClause)
-                .SetTopN(takeResultOperator.GetConstantCount());
+            return false;
+        }
 
-            return null;
+        private static bool ProcessSingle(SqlSelect sqlSelect)
+        {
+            sqlSelect.AddLimit(2);
+
+            return false;
+        }
+
+        private static bool ProcessFirst(SqlSelect sqlSelect)
+        {
+            sqlSelect.AddLimit(2);
+
+            return false;
+        }
+
+        private static bool ProcessDistinct(SqlSelect sqlSelect)
+        {
+            return !sqlSelect.TryMakeDistinct();
         }
     }
 }

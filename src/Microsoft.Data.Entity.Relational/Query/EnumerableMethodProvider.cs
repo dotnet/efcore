@@ -25,13 +25,13 @@ namespace Microsoft.Data.Entity.Relational.Query
                 .GetDeclaredMethod("_QueryValues");
 
         [UsedImplicitly]
-        private static IEnumerable<IValueReader> _QueryValues(QueryContext queryContext, EntityQuery entityQuery)
+        private static IEnumerable<IValueReader> _QueryValues(QueryContext queryContext, SqlSelect sqlSelect)
         {
             var relationalQueryContext = (RelationalQueryContext)queryContext;
 
             return new Enumerable<IValueReader>(
                 relationalQueryContext.Connection,
-                entityQuery.ToString(),
+                sqlSelect.ToString(),
                 r => relationalQueryContext.ValueReaderFactory.Create(r),
                 queryContext.Logger);
         }
@@ -46,13 +46,13 @@ namespace Microsoft.Data.Entity.Relational.Query
                 .GetDeclaredMethod("_QueryEntities");
 
         [UsedImplicitly]
-        private static IEnumerable<TEntity> _QueryEntities<TEntity>(QueryContext queryContext, EntityQuery entityQuery)
+        private static IEnumerable<TEntity> _QueryEntities<TEntity>(QueryContext queryContext, SqlSelect sqlSelect)
         {
             var relationalQueryContext = ((RelationalQueryContext)queryContext);
 
             return new Enumerable<TEntity>(
                 relationalQueryContext.Connection,
-                entityQuery.ToString(),
+                sqlSelect.ToString(),
                 r => (TEntity)queryContext.StateManager
                     .GetOrMaterializeEntry(
                         queryContext.Model.GetEntityType(typeof(TEntity)),
