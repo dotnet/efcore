@@ -7,7 +7,7 @@ using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.InMemory
 {
-    public class InMemoryConfigurationExtension : EntityConfigurationExtension
+    public class InMemoryOptionsExtension : DbContextOptionsExtension
     {
         public virtual bool Persist { get; internal set; }
 

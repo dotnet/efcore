@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.SQLite
     public class SQLiteDataStoreSource
         : DataStoreSource<
             SQLiteDataStore,
-            SQLiteConfigurationExtension,
+            SQLiteOptionsExtension,
             SQLiteDataStoreCreator,
             SQLiteConnectionConnection,
             SQLiteValueGeneratorCache>

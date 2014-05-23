@@ -71,9 +71,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             public DbSet<Duck> Blogs { get; set; }
 
-            protected internal override void OnConfiguring(DbContextOptions builder)
+            protected internal override void OnConfiguring(DbContextOptions options)
             {
-                builder.UseSqlServer(new SqlConnection());
+                options.UseSqlServer(new SqlConnection());
             }
         }
 

@@ -98,16 +98,16 @@ namespace Microsoft.Data.Entity.Tests
             services.AddEntityFramework();
             var serviceProvider = services.BuildServiceProvider();
 
-            var entityConfig = new DbContextOptions().BuildConfiguration();
+            var options = new DbContextOptions();
 
             DbContextConfiguration configuration;
-            using (var context = new DbContext(serviceProvider, entityConfig))
+            using (var context = new DbContext(serviceProvider, options))
             {
                 configuration = context.Configuration;
                 Assert.Same(configuration, context.Configuration);
             }
 
-            using (var context = new DbContext(serviceProvider, entityConfig))
+            using (var context = new DbContext(serviceProvider, options))
             {
                 Assert.NotSame(configuration, context.Configuration);
             }
@@ -116,16 +116,16 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Each_context_gets_new_scoped_context_configuration_with_implicit_services_and_explicit_config()
         {
-            var entityConfig = new DbContextOptions().BuildConfiguration();
+            var options = new DbContextOptions();
 
             DbContextConfiguration configuration;
-            using (var context = new DbContext(entityConfig))
+            using (var context = new DbContext(options))
             {
                 configuration = context.Configuration;
                 Assert.Same(configuration, context.Configuration);
             }
 
-            using (var context = new DbContext(entityConfig))
+            using (var context = new DbContext(options))
             {
                 Assert.NotSame(configuration, context.Configuration);
             }
@@ -138,9 +138,9 @@ namespace Microsoft.Data.Entity.Tests
             services.AddEntityFramework().UseStateManager<FakeStateManager>();
             var serviceProvider = services.BuildServiceProvider();
 
-            var configuration = new DbContextOptions().BuildConfiguration();
+            var options = new DbContextOptions();
 
-            using (var context = new DbContext(serviceProvider, configuration))
+            using (var context = new DbContext(serviceProvider, options))
             {
                 var stateManager = (FakeStateManager)context.Configuration.Services.StateManager;
 
@@ -159,9 +159,9 @@ namespace Microsoft.Data.Entity.Tests
             services.AddEntityFramework().UseStateManager<FakeStateManager>();
             var serviceProvider = services.BuildServiceProvider();
 
-            var configuration = new DbContextOptions().BuildConfiguration();
+            var options = new DbContextOptions();
 
-            using (var context = new DbContext(serviceProvider, configuration))
+            using (var context = new DbContext(serviceProvider, options))
             {
                 var stateManager = (FakeStateManager)context.Configuration.Services.StateManager;
 
@@ -346,9 +346,9 @@ namespace Microsoft.Data.Entity.Tests
             var model = new Model();
             model.AddEntityType(new EntityType(typeof(TheGu)));
 
-            var configuration = new DbContextOptions().UseModel(model).BuildConfiguration();
+            var options = new DbContextOptions().UseModel(model);
 
-            using (var context = new EarlyLearningCenter(configuration))
+            using (var context = new EarlyLearningCenter(options))
             {
                 Assert.Equal(
                     new[] { "TheGu" },
@@ -415,9 +415,9 @@ namespace Microsoft.Data.Entity.Tests
             services.AddInstance(sourceMock.Object);
             var serviceProvider = services.BuildServiceProvider();
 
-            var configuration = new DbContextOptions().BuildConfiguration();
+            var options = new DbContextOptions();
 
-            using (var context = new EarlyLearningCenter(serviceProvider, configuration))
+            using (var context = new EarlyLearningCenter(serviceProvider, options))
             {
                 context.ChangeTracker.Entry(new Category { Id = 1 }).State = EntityState.Unchanged;
                 context.ChangeTracker.Entry(new Category { Id = 2 }).State = EntityState.Unchanged;
@@ -451,9 +451,9 @@ namespace Microsoft.Data.Entity.Tests
             services.AddInstance(sourceMock.Object);
             var serviceProvider = services.BuildServiceProvider();
 
-            var configuration = new DbContextOptions().BuildConfiguration();
+            var options = new DbContextOptions();
 
-            using (var context = new EarlyLearningCenter(serviceProvider, configuration))
+            using (var context = new EarlyLearningCenter(serviceProvider, options))
             {
                 context.ChangeTracker.Entry(new Category { Id = 1 }).State = EntityState.Unchanged;
                 context.ChangeTracker.Entry(new Category { Id = 2 }).State = EntityState.Modified;
@@ -800,13 +800,13 @@ namespace Microsoft.Data.Entity.Tests
             {
             }
 
-            public EarlyLearningCenter(ImmutableDbContextOptions configuration)
-                : base(configuration)
+            public EarlyLearningCenter(DbContextOptions options)
+                : base(options)
             {
             }
 
-            public EarlyLearningCenter(IServiceProvider serviceProvider, ImmutableDbContextOptions configuration)
-                : base(serviceProvider, configuration)
+            public EarlyLearningCenter(IServiceProvider serviceProvider, DbContextOptions options)
+                : base(serviceProvider, options)
             {
             }
 
@@ -814,9 +814,9 @@ namespace Microsoft.Data.Entity.Tests
             public DbSet<Category> Categories { get; set; }
             public DbSet<TheGu> Gus { get; set; }
 
-            protected internal override void OnConfiguring(DbContextOptions builder)
+            protected internal override void OnConfiguring(DbContextOptions options)
             {
-                builder.UseInMemoryStore(persist: false);
+                options.UseInMemoryStore(persist: false);
             }
         }
 

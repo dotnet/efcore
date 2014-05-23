@@ -125,7 +125,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
         private static DbContextConfiguration CreateConfiguration()
         {
-            return new DbContext(new DbContextOptions().UseInMemoryStore(persist: false).BuildConfiguration()).Configuration;
+            return new DbContext(new DbContextOptions().UseInMemoryStore(persist: false)).Configuration;
         }
 
         private static IModel CreateModel()

@@ -58,7 +58,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="InMemoryConfigurationExtension.cs" />
+    <Compile Include="InMemoryOptionsExtension.cs" />
     <Compile Include="InMemoryConnection.cs" />
     <Compile Include="InMemoryDatabase.cs" />
     <Compile Include="InMemoryDataStore.cs" />
@@ -66,7 +66,7 @@
     <Compile Include="InMemoryDataStoreSource.cs" />
     <Compile Include="Query\InMemoryQueryCompilationContext.cs" />
     <Compile Include="Query\InMemoryQueryContext.cs" />
-    <Compile Include="Extensions\InMemoryEntityConfigurationBuilderExtensions.cs" />
+    <Compile Include="Extensions\InMemoryDbContextOptionsExtensions.cs" />
     <Compile Include="Extensions\InMemoryEntityServicesBuilderExtensions.cs" />
     <Compile Include="InMemoryValueGenerator.cs" />
     <Compile Include="InMemoryValueGeneratorCache.cs" />

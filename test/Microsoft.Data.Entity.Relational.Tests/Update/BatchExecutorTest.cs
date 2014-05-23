@@ -250,8 +250,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             return new DbContext(serviceCollection.BuildServiceProvider(),
                 new DbContextOptions()
                     .UseInMemoryStore(persist: false)
-                    .UseModel(model)
-                    .BuildConfiguration())
+                    .UseModel(model))
                 .Configuration;
         }
 

@@ -24,17 +24,16 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
     public class NorthwindQueryFixture : NorthwindQueryFixtureBase
     {
-        private readonly ImmutableDbContextOptions _configuration;
+        private readonly DbContextOptions _options;
 
         public NorthwindQueryFixture()
         {
-            _configuration
+            _options
                 = new DbContextOptions()
                     .UseModel(CreateModel())
-                    .UseInMemoryStore()
-                    .BuildConfiguration();
+                    .UseInMemoryStore();
 
-            using (var context = new DbContext(_configuration))
+            using (var context = new DbContext(_options))
             {
                 context.Set<Customer>().AddRange(NorthwindData.Customers);
                 context.Set<Employee>().AddRange(NorthwindData.Employees);
@@ -47,7 +46,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
         public DbContext CreateContext()
         {
-            return new DbContext(_configuration);
+            return new DbContext(_options);
         }
     }
 }

@@ -60,9 +60,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             public DbSet<Pegasus> Pegasuses { get; set; }
 
-            protected override void OnConfiguring(DbContextOptions builder)
+            protected override void OnConfiguring(DbContextOptions options)
             {
-                builder.UseSqlServer(TestDatabase.CreateConnectionString(_databaseName));
+                options.UseSqlServer(TestDatabase.CreateConnectionString(_databaseName));
             }
         }
 

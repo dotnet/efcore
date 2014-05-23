@@ -70,7 +70,7 @@
     <Compile Include="Query\RelationalQueryModelVisitor.cs" />
     <Compile Include="Query\RelationalResultOperatorHandler.cs" />
     <Compile Include="Query\SqlSelect.cs" />
-    <Compile Include="RelationalConfigurationExtension.cs" />
+    <Compile Include="RelationalOptionsExtension.cs" />
     <Compile Include="RelationalConnection.cs" />
     <Compile Include="RelationalDataStore.cs" />
     <Compile Include="RelationalEntityServicesBuilderExtensions.cs" />

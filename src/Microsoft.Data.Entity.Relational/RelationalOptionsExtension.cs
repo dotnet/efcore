@@ -10,7 +10,7 @@ using Microsoft.Data.Entity.Relational.Utilities;
 
 namespace Microsoft.Data.Entity.Relational
 {
-    public abstract class RelationalConfigurationExtension : EntityConfigurationExtension
+    public abstract class RelationalOptionsExtension : DbContextOptionsExtension
     {
         private string _connectionString;
         private DbConnection _connection;
@@ -40,12 +40,12 @@ namespace Microsoft.Data.Entity.Relational
             }
         }
 
-        public static RelationalConfigurationExtension Extract([NotNull] DbContextConfiguration configuration)
+        public static RelationalOptionsExtension Extract([NotNull] DbContextConfiguration configuration)
         {
             Check.NotNull(configuration, "configuration");
 
             var storeConfigs = configuration.ContextOptions.Extensions
-                .OfType<RelationalConfigurationExtension>()
+                .OfType<RelationalOptionsExtension>()
                 .ToArray();
 
             if (storeConfigs.Length == 0)

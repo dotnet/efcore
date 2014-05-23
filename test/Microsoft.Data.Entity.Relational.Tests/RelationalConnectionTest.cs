@@ -324,10 +324,10 @@ namespace Microsoft.Data.Entity.Relational.Tests
         }
 
         private static DbContextConfiguration CreateConfiguration(
-            Action<FakeConfigurationExtension1> configUpdater1,
-            Action<FakeConfigurationExtension2> configUpdater2 = null)
+            Action<FakeOptionsExtension1> configUpdater1,
+            Action<FakeOptionsExtension2> configUpdater2 = null)
         {
-            IDbContextOptionsConstruction contextOptions = new ImmutableDbContextOptions();
+            IDbContextOptionsExtensions contextOptions = new DbContextOptions();
 
             if (configUpdater1 != null)
             {
@@ -340,7 +340,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
             }
 
             var contextConfigurationMock = new Mock<DbContextConfiguration>();
-            contextConfigurationMock.Setup(m => m.ContextOptions).Returns((ImmutableDbContextOptions)contextOptions);
+            contextConfigurationMock.Setup(m => m.ContextOptions).Returns(contextOptions);
 
             return contextConfigurationMock.Object;
         }
@@ -368,14 +368,14 @@ namespace Microsoft.Data.Entity.Relational.Tests
             return connectionMock;
         }
 
-        private class FakeConfigurationExtension1 : RelationalConfigurationExtension
+        private class FakeOptionsExtension1 : RelationalOptionsExtension
         {
             protected override void ApplyServices(EntityServicesBuilder builder)
             {
             }
         }
 
-        private class FakeConfigurationExtension2 : RelationalConfigurationExtension
+        private class FakeOptionsExtension2 : RelationalOptionsExtension
         {
             protected override void ApplyServices(EntityServicesBuilder builder)
             {

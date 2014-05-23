@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.SqlServer
     public class SqlServerDataStoreSource
         : DataStoreSource<
             SqlServerDataStore,
-            SqlServerConfigurationExtension,
+            SqlServerOptionsExtension,
             SqlServerDataStoreCreator,
             SqlServerConnection,
             SqlServerValueGeneratorCache>

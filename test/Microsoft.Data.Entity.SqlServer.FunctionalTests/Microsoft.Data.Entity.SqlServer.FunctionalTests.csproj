@@ -73,7 +73,6 @@
     <Compile Include="SqlServerConfigPatternsTest.cs" />
     <Compile Include="SqlServerDatabaseCreationTest.cs" />
     <Compile Include="SqlServerDataStoreCreatorTest.cs" />
-    <Compile Include="SqlServerDataStoreTest.cs" />
     <Compile Include="SqlServerEndToEndTest.cs" />
     <Compile Include="SqlServerSimpleCommandExecutorTest.cs" />
     <Compile Include="TestDatabase.cs" />

@@ -66,11 +66,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         [Fact]
         public void Property_values_can_be_read_and_set_using_compiled_metadata_without_reflection()
         {
-            var configuration = new DbContextOptions()
-                .UseModel(new _OneTwoThreeContextModel())
-                .BuildConfiguration();
+            var options = new DbContextOptions().UseModel(new _OneTwoThreeContextModel());
 
-            using (var context = new DbContext(configuration))
+            using (var context = new DbContext(options))
             {
                 var entity = new KoolEntity15();
                 var property = (_KoolEntity15IdProperty)context.Model.GetEntityType(entity.GetType()).TryGetProperty("Id");
@@ -93,11 +91,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         [Fact]
         public void Entity_can_be_materialized_using_compiled_metadata_without_reflection()
         {
-            var configuration = new DbContextOptions()
-                .UseModel(new _OneTwoThreeContextModel())
-                .BuildConfiguration();
+            var options = new DbContextOptions().UseModel(new _OneTwoThreeContextModel());
 
-            using (var context = new DbContext(configuration))
+            using (var context = new DbContext(options))
             {
                 var entityType = (_KoolEntity15EntityType)context.Model.GetEntityType(typeof(KoolEntity15));
 
@@ -128,12 +124,11 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         private static void FixupTest(IModel model)
         {
-            var configuration = new DbContextOptions()
+            var options = new DbContextOptions()
                 .UseModel(model)
-                .UseInMemoryStore(persist: false)
-                .BuildConfiguration();
+                .UseInMemoryStore(persist: false);
 
-            using (var context = new DbContext(configuration))
+            using (var context = new DbContext(options))
             {
                 var guid1 = Guid.NewGuid();
                 var guid2 = Guid.NewGuid();
@@ -181,12 +176,11 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         [Fact]
         public void Navigation_fixup_happens_with_compiled_metadata_using_non_standard_collection_access()
         {
-            var configuration = new DbContextOptions()
+            var options = new DbContextOptions()
                 .UseModel(new _OneTwoThreeContextModel())
-                .UseInMemoryStore()
-                .BuildConfiguration();
+                .UseInMemoryStore();
 
-            using (var context = new DbContext(configuration))
+            using (var context = new DbContext(options))
             {
                 context.Add(new KoolEntity6 { Id = 11, Kool5Id = 24 });
                 context.Add(new KoolEntity5 { Id = 21 });

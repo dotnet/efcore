@@ -30,13 +30,11 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         [Fact]
         public void Uses_persistent_database_if_configured_as_persistent()
         {
-            var configuration = CreateConfiguration(new DbContextOptions()
-                .UseInMemoryStore(persist: true)
-                .BuildConfiguration());
+            var options = CreateConfiguration(new DbContextOptions().UseInMemoryStore(persist: true));
 
             var persistentDatabase = new InMemoryDatabase(new NullLoggerFactory());
 
-            var inMemoryDataStore = new InMemoryDataStore(configuration, persistentDatabase);
+            var inMemoryDataStore = new InMemoryDataStore(options, persistentDatabase);
 
             Assert.Same(persistentDatabase, inMemoryDataStore.Database);
         }
@@ -44,13 +42,11 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         [Fact]
         public void Uses_transient_database_if_not_configured_as_persistent()
         {
-            var configuration = CreateConfiguration(new DbContextOptions()
-                .UseInMemoryStore(persist: false)
-                .BuildConfiguration());
+            var options = CreateConfiguration(new DbContextOptions().UseInMemoryStore(persist: false));
 
             var persistentDatabase = new InMemoryDatabase(new NullLoggerFactory());
 
-            var inMemoryDataStore = new InMemoryDataStore(configuration, persistentDatabase);
+            var inMemoryDataStore = new InMemoryDataStore(options, persistentDatabase);
 
             Assert.NotNull(inMemoryDataStore.Database);
             Assert.NotSame(persistentDatabase, inMemoryDataStore.Database);
@@ -167,12 +163,12 @@ namespace Microsoft.Data.Entity.InMemory.Tests
 
         private static DbContextConfiguration CreateConfiguration()
         {
-            return CreateConfiguration(new DbContextOptions().UseInMemoryStore().BuildConfiguration());
+            return CreateConfiguration(new DbContextOptions().UseInMemoryStore());
         }
 
-        private static DbContextConfiguration CreateConfiguration(ImmutableDbContextOptions configuration)
+        private static DbContextConfiguration CreateConfiguration(DbContextOptions options)
         {
-            return new DbContext(configuration).Configuration;
+            return new DbContext(options).Configuration;
         }
 
         private class Customer

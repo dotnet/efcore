@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Relational
         {
             Check.NotNull(configuration, "configuration");
 
-            var storeConfig = RelationalConfigurationExtension.Extract(configuration);
+            var storeConfig = RelationalOptionsExtension.Extract(configuration);
 
             if (storeConfig.Connection != null)
             {

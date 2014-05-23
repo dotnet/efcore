@@ -49,9 +49,9 @@ namespace Microsoft.Data.Entity.Tests
                 .UseDbSetInitializer(new DbSetInitializer(setFinderMock.Object, new ClrPropertySetterSource()));
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
-            var configuration = new DbContextOptions().BuildConfiguration();
+            var options = new DbContextOptions();
 
-            using (var context = new JustAContext(serviceProvider, configuration))
+            using (var context = new JustAContext(serviceProvider, options))
             {
                 Assert.NotNull(context.One);
                 Assert.NotNull(context.GetTwo());
@@ -62,8 +62,8 @@ namespace Microsoft.Data.Entity.Tests
 
         public class JustAContext : DbContext
         {
-            public JustAContext(IServiceProvider serviceProvider, ImmutableDbContextOptions configuration)
-                : base(serviceProvider, configuration)
+            public JustAContext(IServiceProvider serviceProvider, DbContextOptions options)
+                : base(serviceProvider, options)
             {
             }
 

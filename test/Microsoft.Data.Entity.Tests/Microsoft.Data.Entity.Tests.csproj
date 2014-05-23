@@ -69,8 +69,7 @@
     <Compile Include="DbSetTest.cs" />
     <Compile Include="DbSetySourceTest.cs" />
     <Compile Include="DefaultModelSourceTest.cs" />
-    <Compile Include="EntityConfigurationBuilderTest.cs" />
-    <Compile Include="EntityConfigurationTest.cs" />
+    <Compile Include="DbContextOptionsTest.cs" />
     <Compile Include="EntitySetFinderTest.cs" />
     <Compile Include="Identity\GuidValueGeneratorTest.cs" />
     <Compile Include="Identity\SimpleValueGeneratorFactoryTest.cs" />

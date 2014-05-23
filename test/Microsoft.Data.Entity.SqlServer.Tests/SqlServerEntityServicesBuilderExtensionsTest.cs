@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
-using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Update;
@@ -50,7 +49,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             var context = new DbContext(
                 serviceProvider,
-                new DbContextOptions().UseSqlServer("goo").BuildConfiguration());
+                new DbContextOptions().UseSqlServer("goo"));
 
             var scopedProvider = context.Configuration.Services.ServiceProvider;
 
@@ -90,7 +89,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             context = new DbContext(
                 serviceProvider,
-                new DbContextOptions().UseSqlServer("goo").BuildConfiguration());
+                new DbContextOptions().UseSqlServer("goo"));
 
             scopedProvider = context.Configuration.Services.ServiceProvider;
 

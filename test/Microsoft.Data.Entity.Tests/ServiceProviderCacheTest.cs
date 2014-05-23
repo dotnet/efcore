@@ -16,14 +16,14 @@ namespace Microsoft.Data.Entity.Tests
         {
             var serviceInstance = new FakeService4();
 
-            var config1 = BuildConfiguration(b =>
+            var config1 = CreateOptions(b =>
                 {
                     b.ServiceCollection.AddSingleton<IFakeServiceA, FakeService1>();
                     b.ServiceCollection.AddSingleton<FakeService3>();
                     b.ServiceCollection.AddInstance(serviceInstance);
                 });
 
-            var config2 = BuildConfiguration(b =>
+            var config2 = CreateOptions(b =>
                 {
                     b.ServiceCollection.AddSingleton<IFakeServiceA, FakeService1>();
                     b.ServiceCollection.AddSingleton<FakeService3>();
@@ -38,14 +38,14 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Returns_different_provider_for_configured_services_differing_by_instance()
         {
-            var config1 = BuildConfiguration(b =>
+            var config1 = CreateOptions(b =>
                 {
                     b.ServiceCollection.AddSingleton<IFakeServiceA, FakeService1>();
                     b.ServiceCollection.AddSingleton<FakeService3>();
                     b.ServiceCollection.AddInstance(new FakeService4());
                 });
 
-            var config2 = BuildConfiguration(b =>
+            var config2 = CreateOptions(b =>
                 {
                     b.ServiceCollection.AddSingleton<IFakeServiceA, FakeService1>();
                     b.ServiceCollection.AddSingleton<FakeService3>();
@@ -62,14 +62,14 @@ namespace Microsoft.Data.Entity.Tests
         {
             var serviceInstance = new FakeService4();
 
-            var config1 = BuildConfiguration(b =>
+            var config1 = CreateOptions(b =>
                 {
                     b.ServiceCollection.AddSingleton<IFakeServiceA, FakeService1>();
                     b.ServiceCollection.AddSingleton<FakeService3>();
                     b.ServiceCollection.AddInstance(serviceInstance);
                 });
 
-            var config2 = BuildConfiguration(b =>
+            var config2 = CreateOptions(b =>
                 {
                     b.ServiceCollection.AddSingleton<IFakeServiceA, FakeService2>();
                     b.ServiceCollection.AddSingleton<FakeService3>();
@@ -86,14 +86,14 @@ namespace Microsoft.Data.Entity.Tests
         {
             var serviceInstance = new FakeService4();
 
-            var config1 = BuildConfiguration(b =>
+            var config1 = CreateOptions(b =>
                 {
                     b.ServiceCollection.AddSingleton<IFakeServiceA, FakeService1>();
                     b.ServiceCollection.AddSingleton<FakeService3>();
                     b.ServiceCollection.AddInstance(serviceInstance);
                 });
 
-            var config2 = BuildConfiguration(b =>
+            var config2 = CreateOptions(b =>
                 {
                     b.ServiceCollection.AddSingleton<IFakeServiceA, FakeService1>();
                     b.ServiceCollection.AddScoped<FakeService3>();
@@ -110,14 +110,14 @@ namespace Microsoft.Data.Entity.Tests
         {
             var serviceInstance = new FakeService4();
 
-            var config1 = BuildConfiguration(b =>
+            var config1 = CreateOptions(b =>
                 {
                     b.ServiceCollection.AddSingleton<IFakeServiceA, FakeService1>();
                     b.ServiceCollection.AddSingleton<FakeService3>();
                     b.ServiceCollection.AddInstance(serviceInstance);
                 });
 
-            var config2 = BuildConfiguration(b =>
+            var config2 = CreateOptions(b =>
                 {
                     b.ServiceCollection.AddSingleton<IFakeServiceB, FakeService1>();
                     b.ServiceCollection.AddSingleton<FakeService3>();
@@ -129,14 +129,14 @@ namespace Microsoft.Data.Entity.Tests
             Assert.NotSame(cache.GetOrAdd(config1), cache.GetOrAdd(config2));
         }
 
-        private static ImmutableDbContextOptions BuildConfiguration(Action<EntityServicesBuilder> builderAction)
+        private static DbContextOptions CreateOptions(Action<EntityServicesBuilder> builderAction)
         {
-            var config = (IDbContextOptionsConstruction)new ImmutableDbContextOptions();
-            config.AddOrUpdateExtension<FakeEntityConfigurationExtension>(e => e.BuilderActions.Add(builderAction));
-            return (ImmutableDbContextOptions)config;
+            IDbContextOptionsExtensions options = new DbContextOptions();
+            options.AddOrUpdateExtension<FakeDbContextOptionsExtension>(e => e.BuilderActions.Add(builderAction));
+            return (DbContextOptions)options;
         }
 
-        private class FakeEntityConfigurationExtension : EntityConfigurationExtension
+        private class FakeDbContextOptionsExtension : DbContextOptionsExtension
         {
             private readonly List<Action<EntityServicesBuilder>> _builderActions = new List<Action<EntityServicesBuilder>>();
 

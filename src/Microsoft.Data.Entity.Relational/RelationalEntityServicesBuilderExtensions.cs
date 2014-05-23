@@ -2,15 +2,14 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.Relational.Utilities;
+using Microsoft.Framework.DependencyInjection;
 
 // Intentionally in this namespace since this is for use by other relational providers rather than
 // by top-level app developers.
 
-// ReSharper disable once CheckNamespace
-namespace Microsoft.Framework.DependencyInjection
+namespace Microsoft.Data.Entity.Relational
 {
     public static class RelationalEntityServicesBuilderExtensions
     {

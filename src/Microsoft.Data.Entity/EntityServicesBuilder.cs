@@ -3,8 +3,9 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.DependencyInjection;
 
-namespace Microsoft.Framework.DependencyInjection
+namespace Microsoft.Data.Entity
 {
     public class EntityServicesBuilder
     {

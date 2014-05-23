@@ -135,9 +135,9 @@ namespace Microsoft.Data.Entity.Tests
 
         private class GiddyupContext : DbContext
         {
-            protected internal override void OnConfiguring(DbContextOptions builder)
+            protected internal override void OnConfiguring(DbContextOptions options)
             {
-                builder.UseInMemoryStore();
+                options.UseInMemoryStore();
             }
         }
 
@@ -152,7 +152,7 @@ namespace Microsoft.Data.Entity.Tests
         {
             var provider = new ServiceCollection().BuildServiceProvider();
             return new DbContextConfiguration()
-                .Initialize(provider, provider, new ImmutableDbContextOptions(), Mock.Of<DbContext>(), DbContextConfiguration.ServiceProviderSource.Explicit);
+                .Initialize(provider, provider, new DbContextOptions(), Mock.Of<DbContext>(), DbContextConfiguration.ServiceProviderSource.Explicit);
         }
     }
 }

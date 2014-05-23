@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.Storage
 {
     public abstract class DataStoreSource<TDataStore, TConfiguration, TCreator, TConnection, TValueGeneratorCache> : DataStoreSource
         where TDataStore : DataStore
-        where TConfiguration : EntityConfigurationExtension
+        where TConfiguration : DbContextOptionsExtension
         where TCreator : DataStoreCreator
         where TConnection : DataStoreConnection
         where TValueGeneratorCache : ValueGeneratorCache

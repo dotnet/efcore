@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.InMemory
     public class InMemoryDataStoreSource
         : DataStoreSource<
             InMemoryDataStore,
-            InMemoryConfigurationExtension,
+            InMemoryOptionsExtension,
             InMemoryDataStoreCreator,
             InMemoryConnection,
             InMemoryValueGeneratorCache>

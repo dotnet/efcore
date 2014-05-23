@@ -271,9 +271,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 offerType.AddNavigation(new Navigation(productIdFk, "Product"));
             }
 
-            protected override void OnConfiguring(DbContextOptions builder)
+            protected override void OnConfiguring(DbContextOptions options)
             {
-                builder.UseInMemoryStore(persist: false);
+                options.UseInMemoryStore(persist: false);
             }
         }
 

@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.InMemory
             Check.NotNull(persistentDatabase, "persistentDatabase");
 
             var storeConfig = configuration.ContextOptions.Extensions
-                .OfType<InMemoryConfigurationExtension>()
+                .OfType<InMemoryOptionsExtension>()
                 .FirstOrDefault();
 
             _persist = (storeConfig != null ? (bool?)storeConfig.Persist : null) ?? true;

@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Infrastructure
 
         private ContextServices _services;
         private IServiceProvider _externalProvider;
-        private ImmutableDbContextOptions _contextOptions;
+        private DbContextOptions _contextOptions;
         private DbContext _context;
         private LazyRef<IModel> _modelFromSource;
         private LazyRef<DataStoreSource> _dataStoreSource;
@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         public virtual DbContextConfiguration Initialize(
             [NotNull] IServiceProvider externalProvider,
             [NotNull] IServiceProvider scopedProvider,
-            [NotNull] ImmutableDbContextOptions contextOptions,
+            [NotNull] DbContextOptions contextOptions,
             [NotNull] DbContext context,
             ServiceProviderSource serviceProviderSource)
         {
@@ -107,7 +107,7 @@ namespace Microsoft.Data.Entity.Infrastructure
             get { return _services; }
         }
 
-        public virtual ImmutableDbContextOptions ContextOptions
+        public virtual IDbContextOptionsExtensions ContextOptions
         {
             get { return _contextOptions; }
         }

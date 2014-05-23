@@ -15,6 +15,8 @@ namespace Microsoft.Data.Entity
 {
     public class DbContext : IDisposable
     {
+        private static readonly ThreadSafeDictionaryCache<Type, Type> _optionsTypes = new ThreadSafeDictionaryCache<Type, Type>();
+
         private readonly LazyRef<DbContextConfiguration> _configuration;
         private readonly ContextSets _sets = new ContextSets();
 
@@ -22,8 +24,9 @@ namespace Microsoft.Data.Entity
 
         protected DbContext()
         {
-            InitializeSets(null, new DbContextOptions().BuildConfiguration());
-            _configuration = new LazyRef<DbContextConfiguration>(() => Initialize(null, new DbContextOptions()));
+            var options = new DbContextOptions();
+            InitializeSets(null, options);
+            _configuration = new LazyRef<DbContextConfiguration>(() => Initialize(null, options));
         }
 
         public DbContext([NotNull] IServiceProvider serviceProvider)
@@ -31,40 +34,50 @@ namespace Microsoft.Data.Entity
             Check.NotNull(serviceProvider, "serviceProvider");
 
             InitializeSets(serviceProvider, null);
-            _configuration = new LazyRef<DbContextConfiguration>(() => Initialize(serviceProvider, new DbContextOptions()));
+            _configuration = new LazyRef<DbContextConfiguration>(
+                () => Initialize(serviceProvider, GetOptions(serviceProvider)));
         }
 
-        public DbContext([NotNull] ImmutableDbContextOptions configuration)
+        private DbContextOptions GetOptions(IServiceProvider serviceProvider)
         {
-            Check.NotNull(configuration, "configuration");
+            var genericOptions = _optionsTypes.GetOrAdd(GetType(), t => typeof(DbContextOptions<>).MakeGenericType(t));
 
-            InitializeSets(null, configuration);
-            _configuration = new LazyRef<DbContextConfiguration>(() => Initialize(null, configuration));
+            return (DbContextOptions)serviceProvider.GetService(genericOptions)
+                   ?? serviceProvider.GetService<DbContextOptions>()
+                   ?? new DbContextOptions();
         }
 
-        public DbContext([NotNull] IServiceProvider serviceProvider, [NotNull] ImmutableDbContextOptions configuration)
+        public DbContext([NotNull] DbContextOptions options)
+        {
+            Check.NotNull(options, "options");
+
+            InitializeSets(null, options);
+            _configuration = new LazyRef<DbContextConfiguration>(() => Initialize(null, options));
+        }
+
+        // TODO: Consider removing this constructor if DbContextOptions should be obtained from serviceProvider
+        public DbContext([NotNull] IServiceProvider serviceProvider, [NotNull] DbContextOptions options)
         {
             Check.NotNull(serviceProvider, "serviceProvider");
-            Check.NotNull(configuration, "configuration");
+            Check.NotNull(options, "options");
 
-            InitializeSets(serviceProvider, configuration);
-            _configuration = new LazyRef<DbContextConfiguration>(() => Initialize(serviceProvider, configuration));
+            InitializeSets(serviceProvider, options);
+            _configuration = new LazyRef<DbContextConfiguration>(() => Initialize(serviceProvider, options));
         }
 
-        private DbContextConfiguration Initialize(IServiceProvider serviceProvider, DbContextOptions builder)
+        private DbContextConfiguration Initialize(IServiceProvider serviceProvider, DbContextOptions options)
         {
-            OnConfiguring(builder);
+            if (!options.IsLocked)
+            {
+                OnConfiguring(options);
+            }
+            options.Lock();
 
-            return Initialize(serviceProvider, builder.BuildConfiguration());
-        }
-
-        private DbContextConfiguration Initialize(IServiceProvider serviceProvider, ImmutableDbContextOptions contextOptions)
-        {
             var providerSource = serviceProvider != null
                 ? DbContextConfiguration.ServiceProviderSource.Explicit
                 : DbContextConfiguration.ServiceProviderSource.Implicit;
 
-            serviceProvider = serviceProvider ?? ServiceProviderCache.Instance.GetOrAdd(contextOptions);
+            serviceProvider = serviceProvider ?? ServiceProviderCache.Instance.GetOrAdd(options);
 
             _scopedServiceProvider = serviceProvider
                 .GetService<IServiceScopeFactory>()
@@ -73,12 +86,12 @@ namespace Microsoft.Data.Entity
 
             return _scopedServiceProvider
                 .GetService<DbContextConfiguration>()
-                .Initialize(serviceProvider, _scopedServiceProvider, contextOptions, this, providerSource);
+                .Initialize(serviceProvider, _scopedServiceProvider, options, this, providerSource);
         }
 
-        private void InitializeSets(IServiceProvider serviceProvider, ImmutableDbContextOptions contextOptions)
+        private void InitializeSets(IServiceProvider serviceProvider, DbContextOptions options)
         {
-            serviceProvider = serviceProvider ?? ServiceProviderCache.Instance.GetOrAdd(contextOptions);
+            serviceProvider = serviceProvider ?? ServiceProviderCache.Instance.GetOrAdd(options);
 
             serviceProvider.GetRequiredService<DbSetInitializer>().InitializeSets(this);
         }
@@ -88,7 +101,7 @@ namespace Microsoft.Data.Entity
             get { return _configuration.Value; }
         }
 
-        protected internal virtual void OnConfiguring([NotNull] DbContextOptions builder)
+        protected internal virtual void OnConfiguring([NotNull] DbContextOptions options)
         {
         }
 

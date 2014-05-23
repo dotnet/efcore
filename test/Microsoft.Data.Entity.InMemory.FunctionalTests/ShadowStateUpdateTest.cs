@@ -21,12 +21,11 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             model.AddEntityType(customerType);
 
-            var configuration = new DbContextOptions()
+            var options = new DbContextOptions()
                 .UseModel(model)
-                .UseInMemoryStore()
-                .BuildConfiguration();
+                .UseInMemoryStore();
 
-            using (var context = new DbContext(configuration))
+            using (var context = new DbContext(options))
             {
                 // TODO: Better API for shadow state access
                 var customerEntry = context.ChangeTracker.StateManager.CreateNewEntry(customerType);
@@ -45,7 +44,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             //
             // Assert.Equal(new object[] { 42, "Daenerys" }, customerFromStore);
 
-            using (var context = new DbContext(configuration))
+            using (var context = new DbContext(options))
             {
                 var customerEntry = context.ChangeTracker.StateManager.CreateNewEntry(customerType);
                 customerEntry[customerType.GetProperty("Id")] = 42;
@@ -61,7 +60,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             // 
             // Assert.Equal(new object[] { 42, "Daenerys Targaryen" }, customerFromStore);
 
-            using (var context = new DbContext(configuration))
+            using (var context = new DbContext(options))
             {
                 var customerEntry = context.ChangeTracker.StateManager.CreateNewEntry(customerType);
                 customerEntry[customerType.GetProperty("Id")] = 42;
@@ -86,14 +85,13 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             model.AddEntityType(customerType);
 
-            var configuration = new DbContextOptions()
+            var options = new DbContextOptions()
                 .UseModel(model)
-                .UseInMemoryStore()
-                .BuildConfiguration();
+                .UseInMemoryStore();
 
             var customer = new Customer { Id = 42 };
 
-            using (var context = new DbContext(configuration))
+            using (var context = new DbContext(options))
             {
                 context.Add(customer);
 
@@ -106,7 +104,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 customerEntry[customerType.GetProperty("Name")] = "Changed!";
             }
 
-            using (var context = new DbContext(configuration))
+            using (var context = new DbContext(options))
             {
                 var customerFromStore = context.Set<Customer>().Single();
 
@@ -116,7 +114,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                     (string)context.ChangeTracker.Entry(customerFromStore).Property("Name").CurrentValue);
             }
 
-            using (var context = new DbContext(configuration))
+            using (var context = new DbContext(options))
             {
                 var customerEntry = context.ChangeTracker.Entry(customer).StateEntry;
                 customerEntry[customerType.GetProperty("Name")] = "Daenerys Targaryen";
@@ -126,7 +124,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 await context.SaveChangesAsync();
             }
 
-            using (var context = new DbContext(configuration))
+            using (var context = new DbContext(options))
             {
                 var customerFromStore = context.Set<Customer>().Single();
 
@@ -136,14 +134,14 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                     (string)context.ChangeTracker.Entry(customerFromStore).Property("Name").CurrentValue);
             }
 
-            using (var context = new DbContext(configuration))
+            using (var context = new DbContext(options))
             {
                 context.Delete(customer);
 
                 await context.SaveChangesAsync();
             }
 
-            using (var context = new DbContext(configuration))
+            using (var context = new DbContext(options))
             {
                 Assert.Equal(0, context.Set<Customer>().Count());
             }

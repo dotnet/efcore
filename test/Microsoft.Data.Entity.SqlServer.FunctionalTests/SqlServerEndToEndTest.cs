@@ -121,16 +121,14 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             using (var testDatabase = await TestDatabase.Scratch())
             {
-                var configuration = new DbContextOptions()
-                    .UseSqlServer(testDatabase.Connection.ConnectionString)
-                    .BuildConfiguration();
+                var options = new DbContextOptions().UseSqlServer(testDatabase.Connection.ConnectionString);
 
-                using (var db = new BloggingContext(configuration))
+                using (var db = new BloggingContext(options))
                 {
                     await CreateBlogDatabase<Blog>(db);
                 }
 
-                using (var db = new BloggingContext(configuration))
+                using (var db = new BloggingContext(options))
                 {
                     var toUpdate = db.Blogs.Single(b => b.Name == "Blog1");
                     toUpdate.Name = "Blog is Updated";
@@ -205,15 +203,13 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             using (var testDatabase = await TestDatabase.Scratch())
             {
-                var configuration = new DbContextOptions()
-                    .UseSqlServer(testDatabase.Connection.ConnectionString)
-                    .BuildConfiguration();
+                var options = new DbContextOptions().UseSqlServer(testDatabase.Connection.ConnectionString);
 
                 int blog1Id;
                 int blog2Id;
                 int blog3Id;
 
-                using (var context = new BloggingContext<TBlog>(configuration))
+                using (var context = new BloggingContext<TBlog>(options))
                 {
                     var blogs = await CreateBlogDatabase<TBlog>(context);
                     blog1Id = blogs[0].Id;
@@ -224,7 +220,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     Assert.NotEqual(blog1Id, blog2Id);
                 }
 
-                using (var context = new BloggingContext<TBlog>(configuration))
+                using (var context = new BloggingContext<TBlog>(options))
                 {
                     var blogs = context.Blogs.ToList();
                     Assert.Equal(2, blogs.Count);
@@ -260,7 +256,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     Assert.NotEqual(0, blog3Id);
                 }
 
-                using (var context = new BloggingContext<TBlog>(configuration))
+                using (var context = new BloggingContext<TBlog>(options))
                 {
                     var blogs = context.Blogs.ToList();
                     Assert.Equal(3, blogs.Count);
@@ -337,9 +333,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             public DbSet<Customer> Customers { get; set; }
 
-            protected override void OnConfiguring(DbContextOptions builder)
+            protected override void OnConfiguring(DbContextOptions options)
             {
-                builder.UseSqlServer(TestDatabase.NorthwindConnectionString);
+                options.UseSqlServer(TestDatabase.NorthwindConnectionString);
             }
 
             protected override void OnModelCreating(ModelBuilder builder)
@@ -360,8 +356,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private class BloggingContext : BloggingContext<Blog>
         {
-            public BloggingContext(ImmutableDbContextOptions configuration)
-                : base(configuration)
+            public BloggingContext(DbContextOptions options)
+                : base(options)
             {
             }
         }
@@ -389,8 +385,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         private class BloggingContext<TBlog> : DbContext
             where TBlog : class, IBlog
         {
-            public BloggingContext(ImmutableDbContextOptions configuration)
-                : base(configuration)
+            public BloggingContext(DbContextOptions options)
+                : base(options)
             {
             }
 

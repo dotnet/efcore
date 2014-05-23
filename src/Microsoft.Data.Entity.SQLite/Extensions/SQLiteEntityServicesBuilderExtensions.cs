@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Relational;

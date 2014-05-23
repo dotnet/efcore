@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
     <Compile Include="..\Shared\ApiConsistencyTestBase.cs" />
+    <Compile Include="SQLiteDbContextOptionsExtensionsTest.cs" />
     <Content Include="project.json" />
   </ItemGroup>
   <ItemGroup>

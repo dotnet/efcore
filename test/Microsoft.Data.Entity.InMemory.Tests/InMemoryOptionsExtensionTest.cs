@@ -8,10 +8,10 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.InMemory.Tests
 {
-    public class InMemoryConfigurationExtensionTest
+    public class InMemoryOptionsExtensionTest
     {
         private static readonly MethodInfo _applyServices
-            = typeof(InMemoryConfigurationExtension).GetTypeInfo().DeclaredMethods.Single(m => m.Name == "ApplyServices");
+            = typeof(InMemoryOptionsExtension).GetTypeInfo().DeclaredMethods.Single(m => m.Name == "ApplyServices");
 
         [Fact]
         public void Adds_in_memory_services()
@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var services = new ServiceCollection();
             var builder = new EntityServicesBuilder(services);
 
-            _applyServices.Invoke(new InMemoryConfigurationExtension(), new object[] { builder });
+            _applyServices.Invoke(new InMemoryOptionsExtension(), new object[] { builder });
 
             Assert.True(services.Any(sd => sd.ServiceType == typeof(InMemoryDataStore)));
         }

@@ -11,17 +11,14 @@ namespace Microsoft.Data.Entity.Tests
 {
     public static class TestHelpers
     {
-        public static ImmutableDbContextOptions CreateEntityConfiguration(IModel model)
+        public static DbContextOptions CreateOptions(IModel model)
         {
-            return new DbContextOptions()
-                .UseModel(model)
-                .BuildConfiguration();
+            return new DbContextOptions().UseModel(model);
         }
 
-        public static ImmutableDbContextOptions CreateEntityConfiguration()
+        public static DbContextOptions CreateOptions()
         {
-            return new DbContextOptions()
-                .BuildConfiguration();
+            return new DbContextOptions();
         }
 
         public static IServiceProvider CreateServiceProvider()
@@ -33,22 +30,22 @@ namespace Microsoft.Data.Entity.Tests
 
         public static DbContextConfiguration CreateContextConfiguration(IServiceProvider serviceProvider, IModel model)
         {
-            return new DbContext(serviceProvider, CreateEntityConfiguration(model)).Configuration;
+            return new DbContext(serviceProvider, CreateOptions(model)).Configuration;
         }
 
         public static DbContextConfiguration CreateContextConfiguration(IServiceProvider serviceProvider)
         {
-            return new DbContext(serviceProvider, CreateEntityConfiguration()).Configuration;
+            return new DbContext(serviceProvider, CreateOptions()).Configuration;
         }
 
         public static DbContextConfiguration CreateContextConfiguration(IModel model)
         {
-            return new DbContext(CreateServiceProvider(), CreateEntityConfiguration(model)).Configuration;
+            return new DbContext(CreateServiceProvider(), CreateOptions(model)).Configuration;
         }
 
         public static DbContextConfiguration CreateContextConfiguration()
         {
-            return new DbContext(CreateServiceProvider(), CreateEntityConfiguration()).Configuration;
+            return new DbContext(CreateServiceProvider(), CreateOptions()).Configuration;
         }
     }
 }

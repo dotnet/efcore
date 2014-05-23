@@ -138,8 +138,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             serviceCollection.AddEntityFramework().AddInMemoryStore();
             return new DbContext(serviceCollection.BuildServiceProvider(),
                 new DbContextOptions()
-                    .UseModel(model)
-                    .BuildConfiguration())
+                    .UseModel(model))
                 .Configuration;
         }
 

@@ -5,7 +5,6 @@ using System;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Framework.DependencyInjection;
@@ -184,18 +183,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             }
         }
 
-        private static DbContextConfiguration CreateConfiguration(TestDatabase testDatabase)
-        {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddEntityFramework().AddSqlServer();
-            return new DbContext(
-                serviceCollection.BuildServiceProvider(),
-                new DbContextOptions()
-                    .UseSqlServer(testDatabase.Connection.ConnectionString)
-                    .BuildConfiguration())
-                .Configuration;
-        }
-
         private static async Task RunDatabaseCreationTest(TestDatabase testDatabase, bool async)
         {
             using (var context = new BloggingContext(testDatabase))
@@ -304,9 +291,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 _testDatabase = testDatabase;
             }
 
-            protected override void OnConfiguring(DbContextOptions builder)
+            protected override void OnConfiguring(DbContextOptions options)
             {
-                builder.UseSqlServer(_testDatabase.Connection.ConnectionString);
+                options.UseSqlServer(_testDatabase.Connection.ConnectionString);
             }
 
             protected override void OnModelCreating(ModelBuilder builder)

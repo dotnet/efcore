@@ -213,11 +213,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 serviceCollection.AddEntityFramework().AddSqlServer();
                 var serviceProvider = serviceCollection.BuildServiceProvider();
 
-                var configuration = new DbContextOptions()
-                    .UseSqlServer(testDatabase.Connection.ConnectionString)
-                    .BuildConfiguration();
+                var options = new DbContextOptions().UseSqlServer(testDatabase.Connection.ConnectionString);
 
-                using (var context = new BloggingContext(serviceProvider, configuration))
+                using (var context = new BloggingContext(serviceProvider, options))
                 {
                     var creator = context.Configuration.DataStoreCreator;
 
@@ -345,9 +343,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             serviceCollection.AddEntityFramework().AddSqlServer();
             return new DbContext(
                 serviceCollection.BuildServiceProvider(),
-                new DbContextOptions()
-                    .UseSqlServer(testDatabase.Connection.ConnectionString)
-                    .BuildConfiguration())
+                new DbContextOptions().UseSqlServer(testDatabase.Connection.ConnectionString))
                 .Configuration;
         }
 
@@ -358,8 +354,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private class BloggingContext : DbContext
         {
-            public BloggingContext(IServiceProvider serviceProvider, ImmutableDbContextOptions configuration)
-                : base(serviceProvider, configuration)
+            public BloggingContext(IServiceProvider serviceProvider, DbContextOptions options)
+                : base(serviceProvider, options)
             {
             }
 

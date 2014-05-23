@@ -99,9 +99,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             public DbSet<Customer> Customers { get; set; }
 
-            protected override void OnConfiguring(DbContextOptions builder)
+            protected override void OnConfiguring(DbContextOptions options)
             {
-                builder.UseSqlServer(_connection);
+                options.UseSqlServer(_connection);
             }
 
             protected override void OnModelCreating(ModelBuilder builder)

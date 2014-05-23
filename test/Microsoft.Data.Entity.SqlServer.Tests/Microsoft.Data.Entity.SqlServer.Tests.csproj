@@ -61,7 +61,8 @@
   <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
     <Compile Include="SequentialGuidValueGeneratorTest.cs" />
-    <Compile Include="SqlServerConfigurationExtensionTest.cs" />
+    <Compile Include="SqlServerDbContextOptionsExtensionsTest.cs" />
+    <Compile Include="SqlServerOptionsExtensionTest.cs" />
     <Compile Include="SqlServerConnectionTest.cs" />
     <Compile Include="SqlServerDataStoreSourceTest.cs" />
     <Compile Include="SqlServerEntityServicesBuilderExtensionsTest.cs" />

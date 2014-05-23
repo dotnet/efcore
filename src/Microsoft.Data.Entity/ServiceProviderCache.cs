@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
@@ -21,11 +22,11 @@ namespace Microsoft.Data.Entity
             get { return _instance; }
         }
 
-        public virtual IServiceProvider GetOrAdd(ImmutableDbContextOptions contextOptions)
+        public virtual IServiceProvider GetOrAdd(IDbContextOptionsExtensions options)
         {
             var services = new ServiceCollection();
             var builder = services.AddEntityFramework();
-            foreach (var extension in contextOptions.Extensions)
+            foreach (var extension in options.Extensions)
             {
                 extension.ApplyServices(builder);
             }
