@@ -4,11 +4,13 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
@@ -118,12 +120,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         private void SetEntityState(EntityState entityState)
         {
-            // TODO: Decide what to do here when we decide what to do with sync/async paths in general
-            var generatedValue = entityState == EntityState.Added && EntityState != EntityState.Added
-                ? GenerateKeyValue().Result
-                : null;
-
-            SetEntityState(entityState, generatedValue);
+            SetEntityState(entityState, GenerateValues(GetValueGenerators(entityState)));
         }
 
         public virtual async Task SetEntityStateAsync(
@@ -131,53 +128,87 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             Check.IsDefined(entityState, "entityState");
 
-            var generatedValue = entityState == EntityState.Added && EntityState != EntityState.Added
-                ? await GenerateKeyValue(cancellationToken).ConfigureAwait(false)
-                : null;
-
-            SetEntityState(entityState, generatedValue);
+            SetEntityState(entityState, await GenerateValuesAsync(GetValueGenerators(entityState), cancellationToken));
         }
 
-        private Task<object> GenerateKeyValue(CancellationToken cancellationToken = default(CancellationToken))
+        private Tuple<IProperty, object>[] GenerateValues(Tuple<IProperty, IValueGenerator>[] generators)
         {
-            var keyProperty = _entityType.GetKey().Properties.Single(); // TODO: Composite keys not implemented yet.
-            var valueGenerator = _configuration.ValueGeneratorCache.GetGenerator(keyProperty);
-
-            return valueGenerator != null
-                ? valueGenerator.NextAsync(_configuration, keyProperty, cancellationToken)
-                : Task.FromResult<object>(null);
+            return generators == null
+                ? null
+                : generators
+                    .Select(t => t.Item2 == null ? null : Tuple.Create(t.Item1, t.Item2.Next(_configuration, t.Item1)))
+                    .ToArray();
         }
 
-        private void SetEntityState(EntityState entityState, object generatedValue)
+        private async Task<Tuple<IProperty, object>[]> GenerateValuesAsync(
+            Tuple<IProperty, IValueGenerator>[] generators,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (generators == null)
+            {
+                return null;
+            }
+
+            var values = new Tuple<IProperty, object>[generators.Length];
+            for (var i = 0; i < generators.Length; i++)
+            {
+                var generator = generators[i].Item2;
+                if (generator != null)
+                {
+                    var property = generators[i].Item1;
+                    values[i] = Tuple.Create(property, await generator.NextAsync(_configuration, property, cancellationToken));
+                }
+            }
+            return values;
+        }
+
+        private Tuple<IProperty, IValueGenerator>[] GetValueGenerators(EntityState newState)
+        {
+            if (newState != EntityState.Added
+                || EntityState == EntityState.Added)
+            {
+                return null;
+            }
+            var properties = _entityType.Properties.Where(p => p.ValueGenerationOnAdd != ValueGenerationOnAdd.None);
+            return properties.Select(p => Tuple.Create(p, _configuration.ValueGeneratorCache.GetGenerator(p))).ToArray();
+        }
+
+        private void SetEntityState(EntityState newState, Tuple<IProperty, object>[] generatedValues)
         {
             // The entity state can be Modified even if some properties are not modified so always
             // set all properties to modified if the entity state is explicitly set to Modified.
-            if (entityState == EntityState.Modified)
+            if (newState == EntityState.Modified)
             {
                 _stateData.SetAllPropertiesModified(_entityType.Properties.Count());
             }
 
             var oldState = _stateData.EntityState;
-            if (oldState == entityState)
+            if (oldState == newState)
             {
                 return;
             }
 
-            _configuration.Services.StateEntryNotifier.StateChanging(this, entityState);
+            _configuration.Services.StateEntryNotifier.StateChanging(this, newState);
 
-            _stateData.EntityState = entityState;
+            _stateData.EntityState = newState;
 
-            if (entityState == EntityState.Added
-                && generatedValue != null)
+            if (newState == EntityState.Added)
             {
-                this[_entityType.GetKey().Properties.Single()] = generatedValue; // TODO: Composite keys not implemented yet.
+                foreach (var generatedValue in generatedValues.Where(v => v != null))
+                {
+                    this[generatedValue.Item1] = generatedValue.Item2;
+                }
+            }
+            else
+            {
+                Contract.Assert(generatedValues == null);
             }
 
             if (oldState == EntityState.Unknown)
             {
                 _configuration.Services.StateManager.StartTracking(this);
             }
-            else if (entityState == EntityState.Unknown)
+            else if (newState == EntityState.Unknown)
             {
                 // TODO: Does changing to Unknown really mean stop tracking?
                 _configuration.Services.StateManager.StopTracking(this);

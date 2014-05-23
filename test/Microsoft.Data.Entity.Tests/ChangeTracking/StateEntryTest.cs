@@ -106,6 +106,36 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
+        public void Changing_state_to_Added_triggers_value_generation_for_any_property()
+        {
+            var model = BuildModel();
+            var entityType = model.GetEntityType("SomeDependentEntity");
+            var keyProperties = new[] { entityType.GetProperty("Id1"), entityType.GetProperty("Id2") };
+            var fkProperty = entityType.GetProperty("SomeEntityId");
+            var property = entityType.GetProperty("JustAProperty");
+            var configuration = TestHelpers.CreateContextConfiguration(model);
+
+            var entry = CreateStateEntry(configuration, entityType, new SomeDependentEntity());
+            entry[keyProperties[0]] = 77;
+            entry[keyProperties[1]] = "ReadySalted";
+            entry[fkProperty] = 0;
+
+            if (property.IsShadowProperty)
+            {
+                Assert.Null(entry[property]);
+            }
+            else
+            {
+                Assert.Equal(0, entry[property]);
+            }
+
+            entry.EntityState = EntityState.Added;
+
+            Assert.NotNull(entry[property]);
+            Assert.NotEqual(0, entry[property]);
+        }
+
+        [Fact]
         public void Can_create_primary_key()
         {
             var model = BuildModel();
@@ -119,6 +149,23 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var keyValue = entry.GetPrimaryKeyValue();
             Assert.IsType<SimpleEntityKey<int>>(keyValue);
             Assert.Equal(77, keyValue.Value);
+        }
+
+        [Fact]
+        public void Can_create_composite_primary_key()
+        {
+            var model = BuildModel();
+            var entityType = model.GetEntityType("SomeDependentEntity");
+            var keyProperties = new[] { entityType.GetProperty("Id1"), entityType.GetProperty("Id2") };
+            var configuration = TestHelpers.CreateContextConfiguration(model);
+
+            var entry = CreateStateEntry(configuration, entityType, new SomeDependentEntity());
+            entry[keyProperties[0]] = 77;
+            entry[keyProperties[1]] = "SmokeyBacon";
+
+            var keyValue = (CompositeEntityKey)entry.GetPrimaryKeyValue();
+            Assert.Equal(77, keyValue.Value[0]);
+            Assert.Equal("SmokeyBacon", keyValue.Value[1]);
         }
 
         [Fact]
@@ -152,6 +199,41 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var keyValue = entry.GetPrincipalKeyValue(dependentType.ForeignKeys.Single());
             Assert.IsType<SimpleEntityKey<int>>(keyValue);
             Assert.Equal(77, keyValue.Value);
+        }
+
+        [Fact]
+        public void Can_create_composite_foreign_key_value_based_on_dependent_values()
+        {
+            var model = BuildModel();
+            var entityType = model.GetEntityType("SomeMoreDependentEntity");
+            var fkProperties = new[] { entityType.GetProperty("Fk1"), entityType.GetProperty("Fk2") };
+            var configuration = TestHelpers.CreateContextConfiguration(model);
+
+            var entry = CreateStateEntry(configuration, entityType, new SomeMoreDependentEntity());
+            entry[fkProperties[0]] = 77;
+            entry[fkProperties[1]] = "CheeseAndOnion";
+
+            var keyValue = (CompositeEntityKey)entry.GetDependentKeyValue(entityType.ForeignKeys.Single());
+            Assert.Equal(77, keyValue.Value[0]);
+            Assert.Equal("CheeseAndOnion", keyValue.Value[1]);
+        }
+
+        [Fact]
+        public void Can_create_composite_foreign_key_value_based_on_principal_end_values()
+        {
+            var model = BuildModel();
+            var principalType = model.GetEntityType("SomeDependentEntity");
+            var dependentType = model.GetEntityType("SomeMoreDependentEntity");
+            var keyProperties = new[] { principalType.GetProperty("Id1"), principalType.GetProperty("Id2") };
+            var configuration = TestHelpers.CreateContextConfiguration(model);
+
+            var entry = CreateStateEntry(configuration, principalType, new SomeDependentEntity());
+            entry[keyProperties[0]] = 77;
+            entry[keyProperties[1]] = "PrawnCocktail";
+
+            var keyValue = (CompositeEntityKey)entry.GetPrincipalKeyValue(dependentType.ForeignKeys.Single());
+            Assert.Equal(77, keyValue.Value[0]);
+            Assert.Equal("PrawnCocktail", keyValue.Value[1]);
         }
 
         [Fact]
@@ -824,10 +906,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var entityType2 = new EntityType(typeof(SomeDependentEntity));
             model.AddEntityType(entityType2);
-            var key2 = entityType2.AddProperty("Id", typeof(int));
-            entityType2.SetKey(key2);
+            var key2a = entityType2.AddProperty("Id1", typeof(int));
+            var key2b = entityType2.AddProperty("Id2", typeof(string));
+            entityType2.SetKey(key2a, key2b);
             var fk = entityType2.AddProperty("SomeEntityId", typeof(int));
             entityType2.AddForeignKey(entityType1.GetKey(), new[] { fk });
+            var justAProperty = entityType2.AddProperty("JustAProperty", typeof(int));
+            justAProperty.ValueGenerationOnSave = ValueGenerationOnSave.WhenInserting;
+            justAProperty.ValueGenerationOnAdd = ValueGenerationOnAdd.Client;
 
             var entityType3 = new EntityType(typeof(FullNotificationEntity));
             model.AddEntityType(entityType3);
@@ -838,6 +924,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             model.AddEntityType(entityType4);
             entityType4.SetKey(entityType4.AddProperty("Id", typeof(int)));
             entityType4.AddProperty("Name", typeof(string), shadowProperty: false, concurrencyToken: true);
+
+            var entityType5 = new EntityType(typeof(SomeMoreDependentEntity));
+            model.AddEntityType(entityType5);
+            var key5 = entityType5.AddProperty("Id", typeof(int));
+            entityType5.SetKey(key5);
+            var fk5a = entityType5.AddProperty("Fk1", typeof(int));
+            var fk5b = entityType5.AddProperty("Fk2", typeof(string));
+            entityType5.AddForeignKey(entityType2.GetKey(), new[] { fk5a, fk5b });
 
             return model;
         }
@@ -856,8 +950,17 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
         protected class SomeDependentEntity
         {
-            public int Id { get; set; }
+            public int Id1 { get; set; }
+            public string Id2 { get; set; }
             public int SomeEntityId { get; set; }
+            public int JustAProperty { get; set; }
+        }
+
+        protected class SomeMoreDependentEntity
+        {
+            public int Id { get; set; }
+            public int Fk1 { get; set; }
+            public string Fk2 { get; set; }
         }
 
         protected class FullNotificationEntity : INotifyPropertyChanging, INotifyPropertyChanged, ISomeEntity

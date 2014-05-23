@@ -53,10 +53,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var entityType2 = new EntityType("SomeDependentEntity");
             model.AddEntityType(entityType2);
-            var key2 = entityType2.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false);
-            entityType2.SetKey(key2);
+            var key2a = entityType2.AddProperty("Id1", typeof(int), shadowProperty: true, concurrencyToken: false);
+            var key2b = entityType2.AddProperty("Id2", typeof(string), shadowProperty: true, concurrencyToken: false);
+            entityType2.SetKey(key2a, key2b);
             var fk = entityType2.AddProperty("SomeEntityId", typeof(int), shadowProperty: true, concurrencyToken: false);
             entityType2.AddForeignKey(entityType1.GetKey(), new[] { fk });
+            var justAProperty = entityType2.AddProperty("JustAProperty", typeof(int), shadowProperty: true, concurrencyToken: false);
+            justAProperty.ValueGenerationOnSave = ValueGenerationOnSave.WhenInserting;
+            justAProperty.ValueGenerationOnAdd = ValueGenerationOnAdd.Client;
 
             var entityType3 = new EntityType(typeof(FullNotificationEntity));
             model.AddEntityType(entityType3);
@@ -67,6 +71,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             model.AddEntityType(entityType4);
             entityType4.SetKey(entityType4.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
             entityType4.AddProperty("Name", typeof(string), shadowProperty: true, concurrencyToken: true);
+
+            var entityType5 = new EntityType("SomeMoreDependentEntity");
+            model.AddEntityType(entityType5);
+            var key5 = entityType5.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false);
+            entityType5.SetKey(key5);
+            var fk5a = entityType5.AddProperty("Fk1", typeof(int), shadowProperty: true, concurrencyToken: false);
+            var fk5b = entityType5.AddProperty("Fk2", typeof(string), shadowProperty: true, concurrencyToken: false);
+            entityType5.AddForeignKey(entityType2.GetKey(), new[] { fk5a, fk5b });
 
             return model;
         }
