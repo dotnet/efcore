@@ -60,7 +60,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                                 closeCount++;
                             }
                         };
-#if NET451
+#if !K10
                     connection.Disposed += (_, __) => disposeCount++;
 #endif
 

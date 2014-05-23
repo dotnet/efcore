@@ -43,13 +43,15 @@ namespace Microsoft.Data.Entity.Tests
         {
             var parametersMissingAttribute
                 = (from t in GetAllTypes(TargetAssembly.GetTypes())
-                    where t.IsVisible
+                    where t.IsVisible && !typeof(Delegate).IsAssignableFrom(t)
                     let ims = t.GetInterfaces().Select(t.GetInterfaceMap)
+                    let es = t.GetEvents()
                     from m in t.GetMethods(PublicInstance | BindingFlags.Static)
                         .Concat<MethodBase>(t.GetConstructors())
                     where m.DeclaringType != null
                           && m.DeclaringType.Assembly == TargetAssembly
                     where t.IsInterface || !ims.Any(im => im.TargetMethods.Contains(m))
+                    where !es.Any(e => e.AddMethod == m || e.RemoveMethod == m)
                     from p in m.GetParameters()
                     where !p.ParameterType.IsValueType
                           && !p.GetCustomAttributes()
