@@ -1,0 +1,28 @@
+{
+  "version": "0.1-alpha-*",
+  "compilationOptions": {
+    "warningAsErrors": false
+  },
+  "dependencies": {
+    "Microsoft.Data.Entity": "",
+    "Microsoft.Data.Entity.AzureTableStorage": "",
+    "Microsoft.Framework.ConfigurationModel":"0.1-alpha-*",
+    "Microsoft.Framework.DependencyInjection": "0.1-alpha-*",
+    "Moq":  "4.2.1402.2112",
+    "WindowsAzure.Storage": "4.0.0",
+    "xunit.abstractions": "2.0.0-beta-*",
+    "xunit.assert": "2.0.0-beta-*",
+    "xunit.core": "2.0.0-beta-*",
+    "xunit.execution": "2.0.0-beta-*",
+    "Xunit.KRunner": "0.1-alpha-*"
+  },
+  "commands": {
+    "test": "Xunit.KRunner"
+  },
+  "configurations": {
+    "net45": {
+      "dependencies": {
+      }
+    }
+  }
+}
