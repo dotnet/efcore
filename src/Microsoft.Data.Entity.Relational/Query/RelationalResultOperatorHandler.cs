@@ -20,8 +20,8 @@ namespace Microsoft.Data.Entity.Relational.Query
             _resultHandlers = new Dictionary<Type, Func<SqlSelect, ResultOperatorBase, bool>>
                 {
                     { typeof(TakeResultOperator), (s, r) => ProcessTake(s, (TakeResultOperator)r) },
-                    { typeof(SingleResultOperator), (s, r) => ProcessSingle(s) },
-                    { typeof(FirstResultOperator), (s, r) => ProcessFirst(s) },
+                    //{ typeof(SingleResultOperator), (s, r) => ProcessSingle(s) },
+                    //{ typeof(FirstResultOperator), (s, r) => ProcessFirst(s) },
                     { typeof(DistinctResultOperator), (s, r) => ProcessDistinct(s) }
                 };
 
@@ -75,19 +75,19 @@ namespace Microsoft.Data.Entity.Relational.Query
             return false;
         }
 
-        private static bool ProcessSingle(SqlSelect sqlSelect)
-        {
-            sqlSelect.AddLimit(2);
-
-            return false;
-        }
-
-        private static bool ProcessFirst(SqlSelect sqlSelect)
-        {
-            sqlSelect.AddLimit(1);
-
-            return false;
-        }
+//        private static bool ProcessSingle(SqlSelect sqlSelect)
+//        {
+//            sqlSelect.AddLimit(2);
+//
+//            return false;
+//        }
+//
+//        private static bool ProcessFirst(SqlSelect sqlSelect)
+//        {
+//            sqlSelect.AddLimit(1);
+//
+//            return false;
+//        }
 
         private static bool ProcessDistinct(SqlSelect sqlSelect)
         {
