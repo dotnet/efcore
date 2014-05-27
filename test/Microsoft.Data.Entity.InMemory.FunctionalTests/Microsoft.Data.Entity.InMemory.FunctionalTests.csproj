@@ -39,11 +39,9 @@
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Runtime" />
-    <Reference Include="System.Interactive.Async, Version=1.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Ix-Async.1.2.2\lib\net45\System.Interactive.Async.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
+    <PackageReference Include="Ix-Async">
+      <Assemblies>System.Interactive.Async</Assemblies>
+    </PackageReference>
     <PackageReference Include="Microsoft.Framework.ConfigurationModel" />
     <PackageReference Include="Microsoft.Framework.DependencyInjection" />
     <PackageReference Include="Microsoft.Framework.Logging" />
