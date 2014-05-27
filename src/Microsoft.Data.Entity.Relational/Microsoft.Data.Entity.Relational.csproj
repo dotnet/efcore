@@ -41,21 +41,17 @@
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Interactive.Async, Version=1.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Ix-Async.1.2.2\lib\net45\System.Interactive.Async.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
+    <PackageReference Include="Ix-Async">
+      <Assemblies>System.Interactive.Async</Assemblies>
+    </PackageReference>
     <PackageReference Include="Microsoft.Data.Common">
       <TargetFramework>net451</TargetFramework>
     </PackageReference>
     <PackageReference Include="Microsoft.Framework.DependencyInjection" />
     <PackageReference Include="Microsoft.Framework.Logging" />
-    <Reference Include="Remotion.Linq, Version=1.15.13.0, Culture=neutral, PublicKeyToken=fee00910d6e5f53b">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Remotion.Linq.1.15.13.0\lib\portable-net45+wp80+win\Remotion.Linq.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
+    <PackageReference Include="Remotion.Linq">
+      <TargetFramework>portable-net45+wp80+win</TargetFramework>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiExtensions.cs" />

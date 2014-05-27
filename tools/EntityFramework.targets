@@ -3,7 +3,7 @@
   <PropertyGroup>
     <PackagesTargetsFile>$(MSBuildProjectDirectory)\$(IntermediateOutputPath)Packages.targets</PackagesTargetsFile>
     <PackagesFolder>$(SolutionDir)packages</PackagesFolder>
-    <BuildDependsOn>WritePackageReferences;$(BuildDependsOn)</BuildDependsOn>
+    <BuildDependsOn>CheckPackageReferences;$(BuildDependsOn)</BuildDependsOn>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <PackageReference>
@@ -26,11 +26,12 @@
         <![CDATA[
         if (!Directory.Exists(PackagesFolder))
         {
-            Log.LogError("No packages found. Run 'kpm restore' and try again.");
+            Log.LogError("No packages found.");
 
             return false;
         }
 
+        Directory.CreateDirectory(Path.GetDirectoryName(TargetsFile));
         using (var writer = new StreamWriter(TargetsFile, append: false))
         {
             writer.WriteLine("<Project xmlns='http://schemas.microsoft.com/developer/msbuild/2003'>");
@@ -50,7 +51,7 @@
                     p => p.StartsWith(id) && Char.IsDigit(p[id.Length + 1]));
                 if (latestVersion == null)
                 {
-                    Log.LogError("Package '{0}' not found. Run 'kpm restore' and try again.", id);
+                    Log.LogError("Package '{0}' not found.", id);
 
                     continue;
                 }
@@ -77,11 +78,16 @@
       </Code>
     </Task>
   </UsingTask>
+  <Target Name="CheckPackageReferences">
+    <Error
+      Text="Package references not found. Run 'build initialize' before opening solution for first time."
+      Condition="!Exists('$(PackagesTargetsFile)')" />
+  </Target>
   <Target Name="WritePackageReferences">
     <WritePackageReferences
       TargetsFile="$(PackagesTargetsFile)"
       PackageReferences="@(PackageReference)"
       PackagesFolder="$(PackagesFolder)" />
   </Target>
-  <Import Project="$(PackagesTargetsFile)" Condition="Exists($(PackagesTargetsFile))" />
+  <Import Project="$(PackagesTargetsFile)" Condition="Exists('$(PackagesTargetsFile)')" />
 </Project>
