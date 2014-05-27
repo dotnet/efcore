@@ -42,6 +42,7 @@
       <Assemblies>System.Interactive.Async</Assemblies>
     </PackageReference>
     <PackageReference Include="Microsoft.Data.Common" />
+    <PackageReference Include="Microsoft.Framework.ConfigurationModel" />
     <PackageReference Include="Microsoft.Framework.DependencyInjection" />
     <PackageReference Include="Microsoft.Framework.Logging" />
     <PackageReference Include="Remotion.Linq">
@@ -49,7 +50,14 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\packages\KoreBuild\Build\Resources.cs">
+      <Link>Properties\Resources.cs</Link>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.tt</DependentUpon>
+    </Compile>
     <Compile Include="ApiExtensions.cs" />
+    <Compile Include="ConnectionStringResolver.cs" />
     <Compile Include="DatabaseBuilder.cs" />
     <Compile Include="IDbCommandExecutor.cs" />
     <Compile Include="ModelDatabaseMapping.cs" />
@@ -113,6 +121,7 @@
       <Link>Properties\Resources.tt</Link>
       <Generator>TextTemplatingFileGenerator</Generator>
       <CustomToolNamespace>Microsoft.Data.Entity.Relational</CustomToolNamespace>
+      <LastGenOutput>Resources.cs</LastGenOutput>
     </None>
     <None Include="project.json" />
   </ItemGroup>

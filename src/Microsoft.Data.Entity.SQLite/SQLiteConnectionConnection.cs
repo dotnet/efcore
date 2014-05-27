@@ -11,8 +11,10 @@ namespace Microsoft.Data.Entity.SQLite
 {
     public class SQLiteConnectionConnection : RelationalConnection
     {
-        public SQLiteConnectionConnection([NotNull] DbContextConfiguration configuration)
-            : base(configuration)
+        public SQLiteConnectionConnection(
+            [NotNull] DbContextConfiguration configuration,
+            [NotNull] ConnectionStringResolver connectionStringResolver)
+            : base(configuration, connectionStringResolver)
         {
         }
 

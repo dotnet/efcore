@@ -77,6 +77,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConnectionStringTest.cs" />
     <Compile Include="ExistingConnectionTest.cs" />
     <Compile Include="NorthwindQueryTest.cs" />
     <Compile Include="SequenceEndToEndTest.cs" />

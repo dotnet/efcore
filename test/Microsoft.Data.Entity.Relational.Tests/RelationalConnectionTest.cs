@@ -2,13 +2,14 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.ConfigurationModel;
 using Moq;
 using Moq.Protected;
 using Xunit;
@@ -20,7 +21,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public void Can_create_new_connection_lazily_using_given_connection_string()
         {
-            using (var connection = new FakeConnection(CreateConfiguration(e => e.ConnectionString = "Database=FrodoLives")))
+            using (var connection = new FakeConnection(
+                CreateConfiguration(e => e.ConnectionString = "Database=FrodoLives"), new ConnectionStringResolver(null)))
             {
                 Assert.Equal(0, connection.CreateCount);
 
@@ -34,7 +36,10 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public void Lazy_connection_is_opened_and_closed_when_necessary()
         {
-            using (var connection = new FakeConnection(CreateConfiguration(e => e.ConnectionString = "Database=FrodoLives")))
+            using (var connection = new FakeConnection(
+                CreateConfiguration(
+                    e => e.ConnectionString = "Database=FrodoLives"),
+                new ConnectionStringResolver(null)))
             {
                 Assert.Equal(0, connection.CreateCount);
 
@@ -75,7 +80,9 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public async Task Lazy_connection_is_async_opened_and_closed_when_necessary()
         {
-            using (var connection = new FakeConnection(CreateConfiguration(e => e.ConnectionString = "Database=FrodoLives")))
+            using (var connection = new FakeConnection(
+                CreateConfiguration(e => e.ConnectionString = "Database=FrodoLives"), new ConnectionStringResolver(null)))
+
             {
                 Assert.Equal(0, connection.CreateCount);
 
@@ -117,7 +124,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public void Lazy_connection_is_recreated_if_used_again_after_being_disposed()
         {
-            var connection = new FakeConnection(CreateConfiguration(e => e.ConnectionString = "Database=FrodoLives"));
+            var connection = new FakeConnection(
+                CreateConfiguration(e => e.ConnectionString = "Database=FrodoLives"), new ConnectionStringResolver(null));
 
             Assert.Equal(0, connection.CreateCount);
             var connectionMock = Mock.Get(connection.DbConnection);
@@ -149,7 +157,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public void Lazy_connection_is_not_created_just_so_it_can_be_disposed()
         {
-            var connection = new FakeConnection(CreateConfiguration(e => e.ConnectionString = "Database=FrodoLives"));
+            var connection = new FakeConnection(
+                CreateConfiguration(e => e.ConnectionString = "Database=FrodoLives"), new ConnectionStringResolver(null));
 
             connection.Dispose();
 
@@ -161,7 +170,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
         {
             var dbConnection = CreateDbConnectionMock("Database=FrodoLives").Object;
 
-            using (var connection = new FakeConnection(CreateConfiguration(e => e.Connection = dbConnection)))
+            using (var connection = new FakeConnection(
+                CreateConfiguration(e => e.Connection = dbConnection), new ConnectionStringResolver(null)))
             {
                 Assert.Equal(0, connection.CreateCount);
 
@@ -177,7 +187,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
             var connectionMock = CreateDbConnectionMock("Database=FrodoLives");
             connectionMock.Setup(m => m.State).Returns(ConnectionState.Closed);
 
-            using (var connection = new FakeConnection(CreateConfiguration(e => e.Connection = connectionMock.Object)))
+            using (var connection = new FakeConnection(
+                CreateConfiguration(e => e.Connection = connectionMock.Object), new ConnectionStringResolver(null)))
             {
                 Assert.Equal(0, connection.CreateCount);
 
@@ -220,7 +231,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
             var connectionMock = CreateDbConnectionMock("Database=FrodoLives");
             connectionMock.Setup(m => m.State).Returns(ConnectionState.Open);
 
-            using (var connection = new FakeConnection(CreateConfiguration(e => e.Connection = connectionMock.Object)))
+            using (var connection = new FakeConnection(
+                CreateConfiguration(e => e.Connection = connectionMock.Object), new ConnectionStringResolver(null)))
             {
                 Assert.Equal(0, connection.CreateCount);
 
@@ -261,7 +273,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
         public void Existing_connection_is_not_disposed_even_after_being_opened_and_closed()
         {
             var connectionMock = CreateDbConnectionMock("Database=FrodoLives");
-            var connection = new FakeConnection(CreateConfiguration(e => e.Connection = connectionMock.Object));
+            var connection = new FakeConnection(
+                CreateConfiguration(e => e.Connection = connectionMock.Object), new ConnectionStringResolver(null));
 
             Assert.Equal(0, connection.CreateCount);
             Assert.Same(connectionMock.Object, connection.DbConnection);
@@ -291,7 +304,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
         {
             Assert.Equal(
                 Strings.FormatNoDataStoreConfigured(),
-                Assert.Throws<InvalidOperationException>(() => new FakeConnection(CreateConfiguration(null))).Message);
+                Assert.Throws<InvalidOperationException>(() => new FakeConnection(
+                    CreateConfiguration(null), new ConnectionStringResolver(null))).Message);
         }
 
         [Fact]
@@ -299,7 +313,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
         {
             Assert.Equal(
                 Strings.FormatMultipleDataStoresConfigured(),
-                Assert.Throws<InvalidOperationException>(() => new FakeConnection(CreateConfiguration(e => { }, e => { }))).Message);
+                Assert.Throws<InvalidOperationException>(() => new FakeConnection(
+                    CreateConfiguration(e => { }, e => { }), new ConnectionStringResolver(null))).Message);
         }
 
         [Fact]
@@ -307,7 +322,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
         {
             Assert.Equal(
                 Strings.FormatNoConnectionOrConnectionString(),
-                Assert.Throws<InvalidOperationException>(() => new FakeConnection(CreateConfiguration(e => { }))).Message);
+                Assert.Throws<InvalidOperationException>(() => new FakeConnection(
+                    CreateConfiguration(e => { }), new ConnectionStringResolver(null))).Message);
         }
 
         [Fact]
@@ -315,12 +331,32 @@ namespace Microsoft.Data.Entity.Relational.Tests
         {
             Assert.Equal(
                 Strings.FormatConnectionAndConnectionString(),
-                Assert.Throws<InvalidOperationException>(() => new FakeConnection(CreateConfiguration(
-                    e =>
-                        {
-                            e.Connection = CreateDbConnectionMock("Database=FrodoLives").Object;
-                            e.ConnectionString = "Database=FrodoLives";
-                        }))).Message);
+                Assert.Throws<InvalidOperationException>(() => new FakeConnection(
+                    CreateConfiguration(
+                        e =>
+                            {
+                                e.Connection = CreateDbConnectionMock("Database=FrodoLives").Object;
+                                e.ConnectionString = "Database=FrodoLives";
+                            }), new ConnectionStringResolver(null))).Message);
+        }
+
+        [Fact]
+        public void Uses_connection_string_resolver()
+        {
+            var configuration = new Configuration
+                {
+                    new MemoryConfigurationSource(
+                        new Dictionary<string, string>
+                            {
+                                { "Data:Lobsang:ConnectionString", "Database=DatumEarth" }
+                            })
+                };
+
+            using (var connection = new FakeConnection(
+                CreateConfiguration(e => e.ConnectionString = "Lobsang"), new ConnectionStringResolver(configuration)))
+            {
+                Assert.Equal("Database=DatumEarth", connection.ConnectionString);
+            }
         }
 
         private static DbContextConfiguration CreateConfiguration(
@@ -347,8 +383,10 @@ namespace Microsoft.Data.Entity.Relational.Tests
 
         private class FakeConnection : RelationalConnection
         {
-            public FakeConnection([NotNull] DbContextConfiguration configuration)
-                : base(configuration)
+            public FakeConnection(
+                [NotNull] DbContextConfiguration configuration,
+                [NotNull] ConnectionStringResolver connectionStringResolver)
+                : base(configuration, connectionStringResolver)
             {
             }
 

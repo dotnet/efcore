@@ -11,8 +11,10 @@ namespace Microsoft.Data.Entity.SqlServer
 {
     public class SqlServerConnection : RelationalConnection
     {
-        public SqlServerConnection([NotNull] DbContextConfiguration configuration)
-            : base(configuration)
+        public SqlServerConnection(
+            [NotNull] DbContextConfiguration configuration,
+            [NotNull] ConnectionStringResolver connectionStringResolver)
+            : base(configuration, connectionStringResolver)
         {
         }
 

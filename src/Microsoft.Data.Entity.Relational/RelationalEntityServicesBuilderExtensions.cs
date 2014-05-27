@@ -22,7 +22,9 @@ namespace Microsoft.Data.Entity.Relational
                 .AddSingleton<RelationalObjectArrayValueReaderFactory>()
                 .AddSingleton<RelationalTypedValueReaderFactory>()
                 .AddSingleton<ParameterNameGeneratorFactory>()
-                .AddSingleton<CommandBatchPreparer>();
+                .AddSingleton<CommandBatchPreparer>()
+                // TODO: Is singleton correct here? What is IConfiguration scoped as?
+                .AddSingleton<ConnectionStringResolver>();
 
             return builder;
         }

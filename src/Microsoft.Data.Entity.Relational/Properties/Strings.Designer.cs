@@ -171,7 +171,7 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         /// <summary>
-        /// The property '{0}' cannot be mapped because it is of type '{1}' which is currently not supported.'
+        /// The property '{propertyName}' cannot be mapped because it is of type '{propertyType}' which is currently not supported.
         /// </summary>
         internal static string UnsupportedType
         {
@@ -179,11 +179,43 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         /// <summary>
-        /// The property '{0}' cannot be mapped because it is of type '{1}' which is currently not supported.'
+        /// The property '{propertyName}' cannot be mapped because it is of type '{propertyType}' which is currently not supported.
         /// </summary>
-        internal static string FormatUnsupportedType(object p0, object p1)
+        internal static string FormatUnsupportedType(object propertyName, object propertyType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("UnsupportedType"), p0, p1);
+            return string.Format(CultureInfo.CurrentCulture, GetString("UnsupportedType", "propertyName", "propertyType"), propertyName, propertyType);
+        }
+
+        /// <summary>
+        /// The connection string '{connectionName}' could not be found because no IConfiguration object has been configured.
+        /// </summary>
+        internal static string NoConfigForConnection
+        {
+            get { return GetString("NoConfigForConnection"); }
+        }
+
+        /// <summary>
+        /// The connection string '{connectionName}' could not be found because no IConfiguration object has been configured.
+        /// </summary>
+        internal static string FormatNoConfigForConnection(object connectionName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NoConfigForConnection", "connectionName"), connectionName);
+        }
+
+        /// <summary>
+        /// The connection string '{connectionName}' could not be found in the application's configuration.
+        /// </summary>
+        internal static string ConnectionNotFound
+        {
+            get { return GetString("ConnectionNotFound"); }
+        }
+
+        /// <summary>
+        /// The connection string '{connectionName}' could not be found in the application's configuration.
+        /// </summary>
+        internal static string FormatConnectionNotFound(object connectionName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ConnectionNotFound", "connectionName"), connectionName);
         }
 
         private static string GetString(string name, params string[] formatterNames)
