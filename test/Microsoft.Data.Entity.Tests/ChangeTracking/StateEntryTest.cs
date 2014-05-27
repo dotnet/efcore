@@ -54,6 +54,25 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.DoesNotContain(entry, configuration.Services.StateManager.StateEntries);
         }
 
+        [Fact] // GitHub #251
+        public void Changing_state_from_Added_to_Deleted_causes_entity_to_stop_tracking()
+        {
+            var model = BuildModel();
+            var entityType = model.GetEntityType("SomeEntity");
+            var keyProperty = entityType.GetProperty("Id");
+
+            var configuration = TestHelpers.CreateContextConfiguration(model);
+
+            var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
+            entry[keyProperty] = 1;
+
+            entry.EntityState = EntityState.Added;
+            entry.EntityState = EntityState.Deleted;
+
+            Assert.Equal(EntityState.Unknown, entry.EntityState);
+            Assert.DoesNotContain(entry, configuration.Services.StateManager.StateEntries);
+        }
+
         [Fact]
         public void Changing_state_to_Modified_or_Unchanged_causes_all_properties_to_be_marked_accordingly()
         {

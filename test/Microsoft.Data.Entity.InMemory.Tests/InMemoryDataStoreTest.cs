@@ -111,6 +111,9 @@ namespace Microsoft.Data.Entity.InMemory.Tests
 
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry });
 
+            // Because the data store is being used directly the entity state must be manually changed after saving.
+            await entityEntry.SetEntityStateAsync(EntityState.Unchanged);
+
             customer.Name = "Unikorn, The Return";
             await entityEntry.SetEntityStateAsync(EntityState.Deleted);
 
