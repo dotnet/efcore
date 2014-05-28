@@ -1,0 +1,117 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="..\..\tools\EntityFramework.props" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{075D9733-B40F-4684-8CAF-6FA17D25B5B5}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Microsoft.Data.Entity.AzureTableStorage.Tests</RootNamespace>
+    <AssemblyName>Microsoft.Data.Entity.AzureTableStorage.Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="Microsoft.WindowsAzure.Storage" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <PackageReference Include="Microsoft.Framework.ConfigurationModel">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Framework.DependencyInjection">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="xunit.abstractions">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="xunit.assert">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="xunit.core">
+      <TargetFramework>net45</TargetFramework>
+      <Assemblies>xunit.core;xunit.runner.tdnet</Assemblies>
+    </PackageReference>
+    <PackageReference Include="xunit.execution">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Moq">
+      <TargetFramework>net40</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Ix-Async">
+      <Assemblies>System.Interactive.Async</Assemblies>
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="WindowsAzure.Storage">
+      <Assemblies>Microsoft.WindowsAzure.Storage</Assemblies>
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Remotion.Linq">
+      <TargetFramework>portable-net45+wp80+win</TargetFramework>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BatchedDataStoreTests.cs" />
+    <Compile Include="DataStoreCreatorTests.cs" />
+    <Compile Include="DataStoreTests.cs" />
+    <Compile Include="Helpers\FakeConnection.cs" />
+    <Compile Include="Helpers\PocoTestType.cs" />
+    <Compile Include="Helpers\TestModelExtensions.cs" />
+    <Compile Include="Helpers\TestModelFixture.cs" />
+    <Compile Include="Helpers\TestStateEntry.cs" />
+    <Compile Include="Helpers\TestTableResult.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Query\ModelVisitorTests.cs" />
+    <Compile Include="Query\TableFilterTests.cs" />
+    <Compile Include="Query\TableQueryTest.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="project.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Microsoft.Data.Entity\Microsoft.Data.Entity.csproj">
+      <Project>{71415CEC-8111-4C73-8751-512D22F10602}</Project>
+      <Name>Microsoft.Data.Entity</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Microsoft.Data.Entity.AzureTableStorage\Microsoft.Data.Entity.AzureTableStorage.csproj">
+      <Project>{c059860c-039d-48c0-b381-987db950bb5d}</Project>
+      <Name>Microsoft.Data.Entity.AzureTableStorage</Name>
+      <TargetFramework>net451</TargetFramework>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
