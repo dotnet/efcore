@@ -50,12 +50,6 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\packages\KoreBuild\Build\Resources.cs">
-      <Link>Properties\Resources.cs</Link>
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.tt</DependentUpon>
-    </Compile>
     <Compile Include="ApiExtensions.cs" />
     <Compile Include="ConnectionStringResolver.cs" />
     <Compile Include="DatabaseBuilder.cs" />
@@ -121,7 +115,6 @@
       <Link>Properties\Resources.tt</Link>
       <Generator>TextTemplatingFileGenerator</Generator>
       <CustomToolNamespace>Microsoft.Data.Entity.Relational</CustomToolNamespace>
-      <LastGenOutput>Resources.cs</LastGenOutput>
     </None>
     <None Include="project.json" />
   </ItemGroup>
