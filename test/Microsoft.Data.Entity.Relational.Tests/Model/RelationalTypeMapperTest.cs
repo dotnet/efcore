@@ -24,6 +24,30 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
         }
 
         [Fact]
+        public void Does_simple_ANSI_mappings_from_nullable_CLR_types_to_DDL_types()
+        {
+            Assert.Equal("integer", GetTypeMapping(typeof(int?)).StoreTypeName);
+            Assert.Equal("timestamp", GetTypeMapping(typeof(DateTime?)).StoreTypeName);
+            Assert.Equal("boolean", GetTypeMapping(typeof(bool?)).StoreTypeName);
+            Assert.Equal("double precision", GetTypeMapping(typeof(double?)).StoreTypeName);
+            Assert.Equal("smallint", GetTypeMapping(typeof(short?)).StoreTypeName);
+            Assert.Equal("bigint", GetTypeMapping(typeof(long?)).StoreTypeName);
+            Assert.Equal("real", GetTypeMapping(typeof(float?)).StoreTypeName);
+            Assert.Equal("timestamp with time zone", GetTypeMapping(typeof(DateTimeOffset?)).StoreTypeName);
+        }
+
+        [Fact]
+        public void Does_simple_ANSI_mappings_for_enums_to_DDL_types()
+        {
+            Assert.Equal("integer", GetTypeMapping(typeof(IntEnum)).StoreTypeName);
+            Assert.Equal("smallint", GetTypeMapping(typeof(ShortEnum)).StoreTypeName);
+            Assert.Equal("bigint", GetTypeMapping(typeof(LongEnum)).StoreTypeName);
+            Assert.Equal("integer", GetTypeMapping(typeof(IntEnum?)).StoreTypeName);
+            Assert.Equal("smallint", GetTypeMapping(typeof(ShortEnum?)).StoreTypeName);
+            Assert.Equal("bigint", GetTypeMapping(typeof(LongEnum?)).StoreTypeName);
+        }
+
+        [Fact]
         public void Does_simple_ANSI_mappings_to_DbTypes()
         {
             Assert.Equal(DbType.Int32, GetTypeMapping(typeof(int)).StoreType);
@@ -37,9 +61,44 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
         }
 
         [Fact]
+        public void Does_simple_ANSI_mappings_from_nullable_CLR_types_to_DbTypes()
+        {
+            Assert.Equal(DbType.Int32, GetTypeMapping(typeof(int?)).StoreType);
+            Assert.Equal(DbType.DateTime, GetTypeMapping(typeof(DateTime?)).StoreType);
+            Assert.Equal(DbType.Boolean, GetTypeMapping(typeof(bool?)).StoreType);
+            Assert.Equal(DbType.Double, GetTypeMapping(typeof(double?)).StoreType);
+            Assert.Equal(DbType.Int16, GetTypeMapping(typeof(short?)).StoreType);
+            Assert.Equal(DbType.Int64, GetTypeMapping(typeof(long?)).StoreType);
+            Assert.Equal(DbType.Single, GetTypeMapping(typeof(float?)).StoreType);
+            Assert.Equal(DbType.DateTimeOffset, GetTypeMapping(typeof(DateTimeOffset?)).StoreType);
+        }
+
+        [Fact]
+        public void Does_simple_ANSI_mappings_from_enums_to_DbTypes()
+        {
+            Assert.Equal(DbType.Int32, GetTypeMapping(typeof(IntEnum)).StoreType);
+            Assert.Equal(DbType.Int16, GetTypeMapping(typeof(ShortEnum)).StoreType);
+            Assert.Equal(DbType.Int64, GetTypeMapping(typeof(LongEnum)).StoreType);
+            Assert.Equal(DbType.Int32, GetTypeMapping(typeof(IntEnum?)).StoreType);
+            Assert.Equal(DbType.Int16, GetTypeMapping(typeof(ShortEnum?)).StoreType);
+            Assert.Equal(DbType.Int64, GetTypeMapping(typeof(LongEnum?)).StoreType);
+        }
+
+        [Fact]
         public void Does_decimal_mapping()
         {
             var typeMapping = (RelationalDecimalTypeMapping)GetTypeMapping(typeof(decimal));
+
+            Assert.Equal(DbType.Decimal, typeMapping.StoreType);
+            Assert.Equal(18, typeMapping.Precision);
+            Assert.Equal(2, typeMapping.Scale);
+            Assert.Equal("decimal(18, 2)", typeMapping.StoreTypeName);
+        }
+
+        [Fact]
+        public void Does_decimal_mapping_for_nullable_types()
+        {
+            var typeMapping = (RelationalDecimalTypeMapping)GetTypeMapping(typeof(decimal?));
 
             Assert.Equal(DbType.Decimal, typeMapping.StoreType);
             Assert.Equal(18, typeMapping.Precision);
@@ -94,6 +153,18 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
         }
 
         private class ConcreteTypeMapper : RelationalTypeMapper
+        {
+        }
+
+        private enum LongEnum : long
+        {
+        }
+
+        private enum IntEnum : int
+        {
+        }
+
+        private enum ShortEnum : short
         {
         }
     }

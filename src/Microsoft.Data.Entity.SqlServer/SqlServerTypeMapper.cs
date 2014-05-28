@@ -46,6 +46,8 @@ namespace Microsoft.Data.Entity.SqlServer
         public override RelationalTypeMapping GetTypeMapping(
             string specifiedType, string storageName, Type propertyType, bool isKey, bool isConcurrencyToken)
         {
+            propertyType = propertyType.UnwrapNullableType();
+
             var mapping = _simpleMappings.FirstOrDefault(m => m.Item1 == propertyType);
             if (mapping != null)
             {

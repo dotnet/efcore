@@ -4,6 +4,7 @@
 using System;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Utilities;
 
@@ -55,10 +56,17 @@ namespace Microsoft.Data.Entity.Relational.Model
             // TODO: Consider allowing Code First to specify an actual type mapping instead of just the string
             // type since that would remove the need to parse the string.
 
+            propertyType = propertyType.UnwrapNullableType();
+
             var mapping = _simpleMappings.FirstOrDefault(m => m.Item1 == propertyType);
             if (mapping != null)
             {
                 return mapping.Item2;
+            }
+
+            if (propertyType.GetTypeInfo().IsEnum)
+            {
+                return GetTypeMapping(specifiedType, storageName, Enum.GetUnderlyingType(propertyType), isKey, isConcurrencyToken);
             }
 
             if (propertyType == typeof(decimal))

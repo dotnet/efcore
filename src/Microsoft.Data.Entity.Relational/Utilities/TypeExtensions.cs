@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
@@ -25,15 +25,6 @@ namespace System
             return !typeInfo.IsValueType
                    || (typeInfo.IsGenericType
                        && typeInfo.GetGenericTypeDefinition() == typeof(Nullable<>));
-        }
-
-        // TODO: Share code with core
-        public static bool IsInteger(this Type type)
-        {
-            return type == typeof(int)
-                   || type == typeof(long)
-                   || type == typeof(short)
-                   || type == typeof(byte);
         }
     }
 }

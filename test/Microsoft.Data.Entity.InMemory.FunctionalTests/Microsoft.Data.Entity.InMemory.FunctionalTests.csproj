@@ -66,12 +66,14 @@
     <Compile Include="InMemoryConfigPatternsTest.cs" />
     <Compile Include="InMemoryDataStoreTest.cs" />
     <Compile Include="InMemoryIntegerGeneratorEndToEndTest.cs" />
+    <Compile Include="MonsterFixupTest.cs" />
     <Compile Include="NorthwindQueryTest.cs" />
     <Compile Include="ShadowStateUpdateTest.cs" />
     <Compile Include="..\Shared\TestFileLogger.cs" />
     <Compile Include="..\Shared\Northwind.cs" />
     <Compile Include="..\Shared\NorthwindQueryTestBase.cs" />
     <Compile Include="..\Shared\NorthwindQueryFixtureBase.cs" />
+    <Compile Include="..\Shared\MonsterFixupTestBase.cs" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>

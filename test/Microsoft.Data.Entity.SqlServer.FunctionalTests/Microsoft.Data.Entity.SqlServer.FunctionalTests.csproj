@@ -75,6 +75,7 @@
     <Compile Include="SequenceEndToEndTest.cs" />
     <Compile Include="SequentialGuidEndToEndTest.cs" />
     <Compile Include="SqlFileLogger.cs" />
+    <Compile Include="MonsterFixupTest.cs" />
     <Compile Include="SqlServerConfigPatternsTest.cs" />
     <Compile Include="SqlServerDatabaseCreationTest.cs" />
     <Compile Include="SqlServerDataStoreCreatorTest.cs" />
@@ -85,6 +86,7 @@
     <Compile Include="..\Shared\Northwind.cs" />
     <Compile Include="..\Shared\NorthwindQueryTestBase.cs" />
     <Compile Include="..\Shared\NorthwindQueryFixtureBase.cs" />
+    <Compile Include="..\Shared\MonsterFixupTestBase.cs" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>

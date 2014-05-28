@@ -116,7 +116,8 @@ namespace Microsoft.Data.Entity.Relational.Update
                     var property = columnModification.Property;
 
                     // TODO: Avoid doing Contains check everywhere we need to know if a property is part of a key
-                    var isKey = property.EntityType.GetKey().Properties.Contains(property);
+                    var isKey = property.EntityType.GetKey().Properties.Contains(property)
+                                || property.EntityType.ForeignKeys.SelectMany(k => k.Properties).Contains(property);
 
                     command.Parameters.Add(
                         _typeMapper

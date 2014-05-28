@@ -392,7 +392,8 @@ namespace Microsoft.Data.Entity.Migrations
             }
 
             var isKey = column.Table.PrimaryKey != null
-                        && column.Table.PrimaryKey.Columns.Contains(column);
+                        && column.Table.PrimaryKey.Columns.Contains(column)
+                        || column.Table.ForeignKeys.SelectMany(k => k.Columns).Contains(column);
 
             return _typeMapper.GetTypeMapping(column.DataType, column.Name, column.ClrType, isKey, column.IsTimestamp).StoreTypeName;
         }

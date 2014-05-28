@@ -4,7 +4,7 @@
     "Microsoft.Data.Entity.SqlServer": "",
     "Xunit.KRunner": "0.1-alpha-*"
   },
-  "code": "**\\*.cs;..\\Shared\\TestFileLogger.cs;..\\Shared\\Northwind.cs;..\\Shared\\NorthwindQueryTestBase.cs;..\\Shared\\NorthwindQueryFixtureBase.cs",
+  "code": "**\\*.cs;..\\Shared\\TestFileLogger.cs;..\\Shared\\Northwind.cs;..\\Shared\\NorthwindQueryTestBase.cs;..\\Shared\\NorthwindQueryFixtureBase.cs;..\\Shared\\MonsterFixupTestBase.cs",
   "commands": {
     "test": "Xunit.KRunner"
   },
