@@ -9,11 +9,7 @@
   },
   "code": "**\\*.cs;..\\Shared\\*.cs",
   "configurations": {
-    "net45": {
-      "dependencies": {
-        "System.Data": ""
-      }
-    },
+    "net451": {},
     "k10": {},
     ".NETPortable,Version=v4.6,Profile=Profile44": {}
   }

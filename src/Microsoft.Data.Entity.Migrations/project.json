@@ -8,7 +8,7 @@
   },
   "code": "**\\*.cs;..\\Shared\\*.cs",
   "configurations": {
-    "net45": {},
+    "net451": {},
     "k10": {
       "dependencies": {
         "Microsoft.CSharp": "4.0.0.0"

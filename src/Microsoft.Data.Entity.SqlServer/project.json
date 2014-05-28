@@ -9,7 +9,7 @@
   },
   "code": "**\\*.cs;..\\Shared\\*.cs",
   "configurations": {
-    "net45": {},
+    "net451": {},
     "k10": {}
   }
 }

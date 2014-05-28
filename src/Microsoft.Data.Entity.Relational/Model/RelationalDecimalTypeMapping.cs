@@ -26,12 +26,11 @@ namespace Microsoft.Data.Entity.Relational.Model
             Check.NotNull(columnModification, "columnModification");
 
             // Note: Precision/scale should not be set for input parameters because this will cause truncation
-            // TODO: Uncomment this--not doing for alpha because it requires all dependencies updated to 4.5.1
-            //if (parameter.Direction == ParameterDirection.Output)
-            //{
-            //    parameter.Scale = _scale;
-            //    parameter.Precision = _precision;
-            //}
+            if (parameter.Direction == ParameterDirection.Output)
+            {
+                parameter.Scale = _scale;
+                parameter.Precision = _precision;
+            }
 
             base.ConfigureParameter(parameter, columnModification);
         }
