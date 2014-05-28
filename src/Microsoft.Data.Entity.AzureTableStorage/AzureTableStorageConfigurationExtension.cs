@@ -2,11 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.AzureTableStorage
 {
-    public class AzureTableStorageConfigurationExtension : EntityConfigurationExtension
+    public class AzureTableStorageConfigurationExtension : DbContextOptionsExtension
     {
         public string ConnectionString { get; set; }
         public bool UseBatching { get; set; }
