@@ -32,13 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.ComponentModel" />
-    <Reference Include="System.Core" />
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Linq.Expressions" />
-    <Reference Include="System.Runtime" />
-    <Reference Include="System.Threading.Tasks" />
     <PackageReference Include="Microsoft.Data.Common">
       <TargetFramework>net451</TargetFramework>
     </PackageReference>
@@ -49,9 +43,6 @@
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <PackageReference Include="Microsoft.Framework.DependencyInjection">
-      <TargetFramework>net45</TargetFramework>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Framework.Logging">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <PackageReference Include="xunit.abstractions">

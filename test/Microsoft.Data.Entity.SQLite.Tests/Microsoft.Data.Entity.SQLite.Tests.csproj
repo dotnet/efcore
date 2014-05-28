@@ -31,10 +31,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Runtime" />
+    <Reference Include="System.Data" />
+    <PackageReference Include="Microsoft.Data.Common">
+      <TargetFramework>net451</TargetFramework>
+    </PackageReference>
     <PackageReference Include="xunit.abstractions">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>

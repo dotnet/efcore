@@ -31,17 +31,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.ComponentModel" />
-    <Reference Include="System.Core" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Linq.Expressions" />
-    <Reference Include="System.Runtime" />
-    <Reference Include="System.Threading.Tasks" />
-    <PackageReference Include="Microsoft.Data.Common">
-      <TargetFramework>net451</TargetFramework>
-    </PackageReference>
     <PackageReference Include="Microsoft.Framework.ConfigurationModel">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
@@ -89,14 +78,6 @@
     <ProjectReference Include="..\..\src\Microsoft.Data.Entity.InMemory\Microsoft.Data.Entity.InMemory.csproj">
       <Project>{BA3F5DBC-EC16-4D5A-8298-8226E6C5ACCC}</Project>
       <Name>Microsoft.Data.Entity.InMemory</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\src\Microsoft.Data.Entity.Relational\Microsoft.Data.Entity.Relational.csproj">
-      <Project>{75C5A774-A3F3-43EB-97D3-DBE0CF2825D8}</Project>
-      <Name>Microsoft.Data.Entity.Relational</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\src\Microsoft.Data.Entity.SqlServer\Microsoft.Data.Entity.SqlServer.csproj">
-      <Project>{04E6620B-5B41-45FE-981A-F40EB7686B0E}</Project>
-      <Name>Microsoft.Data.Entity.SqlServer</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

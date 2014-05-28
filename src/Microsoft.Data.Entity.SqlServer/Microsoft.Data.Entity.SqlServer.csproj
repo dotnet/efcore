@@ -35,9 +35,6 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Diagnostics.Debug" />
-    <Reference Include="System.Runtime" />
-    <Reference Include="System.Threading.Tasks" />
     <PackageReference Include="Microsoft.Data.Common">
       <TargetFramework>net451</TargetFramework>
     </PackageReference>

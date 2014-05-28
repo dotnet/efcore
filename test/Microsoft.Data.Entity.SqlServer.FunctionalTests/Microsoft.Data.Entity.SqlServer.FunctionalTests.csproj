@@ -32,14 +32,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Collections" />
-    <Reference Include="System.ComponentModel" />
-    <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Linq.Expressions" />
-    <Reference Include="System.Runtime" />
-    <Reference Include="System.Threading.Tasks" />
     <PackageReference Include="Ix-Async">
       <TargetFramework>net45</TargetFramework>
       <Assemblies>System.Interactive.Async</Assemblies>
@@ -58,9 +52,6 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Framework.Logging">
       <TargetFramework>net45</TargetFramework>
-    </PackageReference>
-    <PackageReference Include="Remotion.Linq">
-      <TargetFramework>portable-net45+wp80+win</TargetFramework>
     </PackageReference>
     <PackageReference Include="xunit.abstractions">
       <TargetFramework>net45</TargetFramework>

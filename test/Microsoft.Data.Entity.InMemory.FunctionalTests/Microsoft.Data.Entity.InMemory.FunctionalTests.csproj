@@ -32,13 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Collections" />
-    <Reference Include="System.ComponentModel" />
-    <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Linq.Expressions" />
-    <Reference Include="System.Runtime" />
-    <Reference Include="System.Threading.Tasks" />
     <PackageReference Include="Ix-Async">
       <TargetFramework>net45</TargetFramework>
       <Assemblies>System.Interactive.Async</Assemblies>
