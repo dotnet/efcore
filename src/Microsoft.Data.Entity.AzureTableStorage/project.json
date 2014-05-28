@@ -2,21 +2,18 @@
   "version": "0.1-alpha-*",
   "dependencies": {
     "Ix-Async": "1.2.2",
-    "WindowsAzure.Storage": "4.0.0",
+    "WindowsAzure.Storage": "4.0.1",
+    "Remotion.Linq": "1.15.13.0",
     "Microsoft.Framework.ConfigurationModel": "0.1-alpha-*",
     "Microsoft.Framework.DependencyInjection": "0.1-alpha-*",
-    "Remotion.Linq": "1.15.13.0",
-    "Microsoft.Data.Entity": "",
-    "Microsoft.Framework.Logging": "0.1-alpha-*"
+    "Microsoft.Framework.Logging": "0.1-alpha-*",
+    "Microsoft.Data.Entity": ""
   },
   "code": "**\\*.cs;..\\Shared\\*.cs",
   "compilationOptions": {
     "warningsAsErrors": true
   },
   "configurations": {
-    "net45": {
-      "dependencies": {
-      }
-    }
+    "net451": {}
   }
 }
