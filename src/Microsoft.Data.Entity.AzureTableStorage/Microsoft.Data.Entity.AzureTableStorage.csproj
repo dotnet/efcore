@@ -62,13 +62,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AzureTableStorageBatchedDataStore.cs" />
-    <Compile Include="AzureTableStorageConfigurationExtension.cs" />
     <Compile Include="AzureTableStorageConnection.cs" />
     <Compile Include="AzureTableStorageDataStore.cs" />
     <Compile Include="AzureTableStorageDataStoreCreator.cs" />
     <Compile Include="AzureTableStorageDataStoreSource.cs" />
     <Compile Include="AzureTableStorageDbContextExtensions.cs" />
     <Compile Include="AzureTableStorageEntityServicesBuilderExtensions.cs" />
+    <Compile Include="AzureTableStorageOptionsExtension.cs" />
     <Compile Include="AzureTableStorageValueGeneratorCache.cs" />
     <Compile Include="Exceptions\AzureAccountException.cs" />
     <Compile Include="Exceptions\DbUpdateException.cs" />
