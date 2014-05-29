@@ -10,10 +10,12 @@ namespace Microsoft.Data.Entity
 {
     public static class AzureTableStorageDbContextExtensions
     {
-        public static DbContextOptions UseAzureTableStorge([NotNull] this DbContextOptions options, string connectionString, bool batchRequests = false)
+        public static DbContextOptions UseAzureTableStorge([NotNull] this DbContextOptions options, [NotNull] string connectionString, bool batchRequests = false)
         {
             Check.NotNull(options, "options");
-            ((IDbContextOptionsExtensions)options).AddOrUpdateExtension<AzureTableStorageConfigurationExtension>(
+            Check.NotNull(connectionString, "connectionString");
+
+            ((IDbContextOptionsExtensions)options).AddOrUpdateExtension<AzureTableStorageOptionsExtension>(
                 e =>
                     {
                         e.ConnectionString = connectionString;
