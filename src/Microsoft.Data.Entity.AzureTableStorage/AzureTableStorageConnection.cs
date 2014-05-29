@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             var storeConfig = configuration
                 .ContextOptions
                 .Extensions
-                .OfType<AzureTableStorageConfigurationExtension>()
+                .OfType<AzureTableStorageOptionsExtension>()
                 .Single();
 
             _connectionString = storeConfig.ConnectionString;

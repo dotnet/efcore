@@ -21,14 +21,14 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Wrappers
 
         public Task<ITableResult> ExecuteAsync(TableOperation operation, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return Task.Factory.StartNew<ITableResult>(
+            return Task.Run<ITableResult>(
                 () => new TableResultWrapper(_table.ExecuteAsync(operation, cancellationToken).Result)
                 , cancellationToken);
         }
 
         public Task<IList<ITableResult>> ExecuteBatchAsync(TableBatchOperation batch, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return Task.Factory.StartNew<IList<ITableResult>>(
+            return Task.Run<IList<ITableResult>>(
                 () => _table.ExecuteBatchAsync(batch, cancellationToken)
                     .Result
                     .Select(s => new TableResultWrapper(s))
