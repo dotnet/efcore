@@ -54,7 +54,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
 
         public override Task<bool> HasTablesAsync(CancellationToken cancellationToken = new CancellationToken())
         {
-            return Task.Factory.StartNew(() => HasTables(), cancellationToken);
+            return Task.Run(() => HasTables(), cancellationToken);
         }
 
         public override void Create()

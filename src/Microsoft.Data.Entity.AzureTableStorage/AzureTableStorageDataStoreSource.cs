@@ -8,7 +8,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
 {
     internal class AzureTableStorageDataStoreSource : DataStoreSource<
         AzureTableStorageDataStore,
-        AzureTableStorageConfigurationExtension,
+        AzureTableStorageOptionsExtension,
         AzureTableStorageDataStoreCreator,
         AzureTableStorageConnection,
         AzureTableStorageValueGeneratorCache>
