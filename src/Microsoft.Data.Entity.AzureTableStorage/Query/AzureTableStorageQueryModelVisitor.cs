@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.AzureTableStorage.Interfaces;
+using Microsoft.Data.Entity.AzureTableStorage.Utilities;
 using Microsoft.Data.Entity.Query;
 using Microsoft.WindowsAzure.Storage.Table;
 using Remotion.Linq.Clauses;
@@ -31,13 +32,15 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
         {
         }
 
-        protected ITableQuery GetTableQuery(IQuerySource key)
+        public ITableQuery GetTableQuery([NotNull] IQuerySource key)
         {
+            Check.NotNull(key, "key");
             return _queriesBySource[key];
         }
 
-        protected bool TryGetTableQuery(IQuerySource key, out ITableQuery query)
+        public bool TryGetTableQuery([NotNull] IQuerySource key, out ITableQuery query)
         {
+            Check.NotNull(key, "key");
             return _queriesBySource.TryGetValue(key, out query);
         }
 
