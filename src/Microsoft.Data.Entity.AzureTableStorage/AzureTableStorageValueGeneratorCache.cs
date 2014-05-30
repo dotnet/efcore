@@ -10,6 +10,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
     {
         public override IValueGenerator GetGenerator(IProperty property)
         {
+            //TODO Timestamp? ETag?
             return null;
         }
     }

@@ -70,9 +70,9 @@
     <Compile Include="AzureTableStorageEntityServicesBuilderExtensions.cs" />
     <Compile Include="AzureTableStorageOptionsExtension.cs" />
     <Compile Include="AzureTableStorageValueGeneratorCache.cs" />
+    <Compile Include="EntityBuilderExtensions.cs" />
     <Compile Include="Exceptions\AzureAccountException.cs" />
     <Compile Include="Exceptions\DbUpdateException.cs" />
-    <Compile Include="Interfaces\IAzureTableEntity.cs" />
     <Compile Include="Interfaces\ICloudStorageAccount.cs" />
     <Compile Include="Interfaces\ICloudTable.cs" />
     <Compile Include="Interfaces\ICloudTableClient.cs" />
@@ -83,6 +83,7 @@
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
     <Compile Include="..\Shared\CodeAnnotations.cs" />
+    <Compile Include="Query\PocoTableEntityAdapter.cs" />
     <Compile Include="Query\AzureTableStorageQueryCompilationContext.cs" />
     <Compile Include="Query\AzureTableStorageQueryContext.cs" />
     <Compile Include="Query\AzureTableStorageQueryModelVisitor.cs" />
@@ -102,6 +103,7 @@
       <Link>Properties\Resources.tt</Link>
       <Generator>TextTemplatingFileGenerator</Generator>
       <CustomToolNamespace>Microsoft.Data.Entity.AzureTableStorage</CustomToolNamespace>
+      <LastGenOutput>Resources.cs</LastGenOutput>
     </None>
     <None Include="project.json" />
   </ItemGroup>
@@ -110,6 +112,9 @@
       <Project>{71415CEC-8111-4C73-8751-512D22F10602}</Project>
       <Name>Microsoft.Data.Entity</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
