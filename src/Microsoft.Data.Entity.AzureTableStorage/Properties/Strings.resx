@@ -129,4 +129,7 @@
   <data name="CannotModifyAccount" xml:space="preserve">
     <value>Cannot modify an Azure Storage account from within the Entity Framework</value>
   </data>
+  <data name="InvalidPoco" xml:space="preserve">
+    <value>Cannot access a public setter and getter for the property '{propertyName}' of type '{typeName}'</value>
+  </data>
 </root>

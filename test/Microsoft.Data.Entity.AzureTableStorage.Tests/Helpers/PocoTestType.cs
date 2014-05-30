@@ -7,6 +7,10 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers
 {
     public class PocoTestType
     {
+        public string PartitionKey { get; set; }
+        public string RowKey { get; set; }
+        public string ETag { get; set; }
+        public DateTimeOffset Timestamp { get; set; }
         public Guid Guid { get; set; }
         public long BigCount { get; set; }
         public int Count { get; set; }

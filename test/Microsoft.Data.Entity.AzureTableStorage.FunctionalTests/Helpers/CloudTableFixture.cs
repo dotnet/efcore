@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests.Helpers
         public CloudTableFixture()
         {
             _table = null;
-            DeleteOnDispose = false;
+            DeleteOnDispose = true;
         }
 
         public bool DeleteOnDispose { get; set; }
