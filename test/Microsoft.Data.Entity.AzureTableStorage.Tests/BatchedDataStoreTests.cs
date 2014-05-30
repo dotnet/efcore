@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.AzureTableStorage.Interfaces;
+using Microsoft.Data.Entity.AzureTableStorage.Query;
 using Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.WindowsAzure.Storage.Table;
@@ -93,7 +94,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
         public void It_maps_entity_state_to_table_operations(EntityState entityState, TableOperationType operationType)
         {
             var entry = TestStateEntry.Mock().WithState(entityState);
-            var operation = GetOperation(entry);
+            var operation = GetOperation(entry, PocoTableEntityAdapter.FromObject(entry.Entity));
 
             if (operation == null)
             {

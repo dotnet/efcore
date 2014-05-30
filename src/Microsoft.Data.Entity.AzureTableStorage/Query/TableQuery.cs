@@ -3,13 +3,16 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Microsoft.Data.Entity.AzureTableStorage.Interfaces;
 using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Query
 {
+    [DebuggerDisplay("TableQuery<{ResultType}>")]
     public class TableQuery<TEntity> : ITableQuery
+        where TEntity : ITableEntity
     {
         private readonly IList<TableFilter> _filters = new List<TableFilter>();
 
