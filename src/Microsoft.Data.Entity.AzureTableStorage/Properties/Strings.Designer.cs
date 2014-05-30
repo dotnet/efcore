@@ -74,6 +74,22 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             return GetString("CannotModifyAccount");
         }
 
+        /// <summary>
+        /// Entities in Azure Table Storage require a property '{propertyName}' of type '{typeName}'
+        /// </summary>
+        internal static string InvalidPoco
+        {
+            get { return GetString("InvalidPoco"); }
+        }
+
+        /// <summary>
+        /// Entities in Azure Table Storage require a property '{propertyName}' of type '{typeName}'
+        /// </summary>
+        internal static string FormatInvalidPoco(object propertyName, object typeName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidPoco", "propertyName", "typeName"), propertyName, typeName);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

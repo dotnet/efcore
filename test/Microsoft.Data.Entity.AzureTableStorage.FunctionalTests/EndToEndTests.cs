@@ -2,23 +2,26 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Data.Entity.AzureTableStorage.FunctionalTests.Helpers;
-using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.AzureTableStorage.Query;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Core;
 using Microsoft.WindowsAzure.Storage.Table;
 using Xunit;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
 {
-    public class EndToEndTests : IClassFixture<CloudTableFixture>, IDisposable
+    public class EndToEndTests : IClassFixture<CloudTableFixture>
     {
-        private readonly EmulatorContext _context;
-        private readonly CloudTable _table;
-        private readonly Item _sampleEntity;
-        private readonly List<Item> _sampleSet = new List<Item>();
+        private readonly PurchaseContext _context;
+        private readonly Purchase _sampleEntity;
+        private readonly List<Purchase> _sampleSet = new List<Purchase>();
         private readonly string _testPartition;
 
         #region setup
@@ -28,10 +31,9 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
             var connectionString = ConfigurationManager.AppSettings["TestConnectionString"];
             _testPartition = "unittests-" + DateTime.UtcNow.ToString("R");
             var tableName = "Table" + DateTime.UtcNow.ToBinary();
-            _context = new EmulatorContext(tableName);
-            _table = fixture.GetOrCreateTable(tableName, connectionString);
-            fixture.DeleteOnDispose = true;
-            var deleteTest = new Item
+            _context = new PurchaseContext(tableName);
+            var table = fixture.GetOrCreateTable(tableName, connectionString);
+            var deleteTest = new Purchase
                 {
                     PartitionKey = _testPartition,
                     RowKey = "It_deletes_entity_test",
@@ -42,7 +44,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
 
             for (var i = 0; i < 20; i++)
             {
-                var findTest = new Item
+                var findTest = new Purchase
                     {
                         PartitionKey = _testPartition,
                         RowKey = "It_finds_entity_test_" + i,
@@ -52,7 +54,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
                 _sampleSet.Add(findTest);
             }
 
-            _sampleEntity = new Item
+            _sampleEntity = new Purchase
                 {
                     PartitionKey = _testPartition,
                     RowKey = "Sample_entity",
@@ -66,8 +68,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
             _sampleSet.Add(_sampleEntity);
 
             var setupBatch = new TableBatchOperation();
-            _sampleSet.ForEach(s => setupBatch.Add(TableOperation.InsertOrReplace(s)));
-            var setup = _table.ExecuteBatch(setupBatch);
+            _sampleSet.ForEach(s => setupBatch.Add(TableOperation.InsertOrReplace(new PocoTableEntityAdapter<Purchase>(s))));
+            var setup = table.ExecuteBatch(setupBatch);
             if (setup.Any(s => s.HttpStatusCode >= 400))
             {
                 throw new Exception("Could not setup for test correctly");
@@ -79,7 +81,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
         [Fact]
         public void It_adds_entity()
         {
-            _context.Items.Add(new Item
+            _context.Purchases.Add(new Purchase
                 {
                     PartitionKey = _testPartition,
                     RowKey = "It_adds_entity_test",
@@ -97,7 +99,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
         [Fact]
         public void It_finds_entities()
         {
-            var rows = _context.Items.Where(s => s.PartitionKey == _testPartition && s.RowKey.StartsWith("It_finds_entity_test_"));
+            var rows = _context.Purchases.Where(s => s.PartitionKey == _testPartition && s.RowKey.StartsWith("It_finds_entity_test_"));
             Assert.Equal(20, rows.Count());
         }
 
@@ -105,119 +107,30 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
         [Fact]
         public void It_handles_out_of_range_dates()
         {
-            var lowDate = new Item
+            var lowDate = new Purchase
                 {
                     PartitionKey = _testPartition,
                     RowKey = "DateOutOfRange",
                     Purchased = DateTime.Parse("Dec 31, 1600 23:59:00 GMT", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal)
                 };
-            _context.Items.Add(lowDate);
+            _context.Purchases.Add(lowDate);
             Assert.Throws<AggregateException>(() => { _context.SaveChanges(); });
         }
 
         [Fact]
         public void It_materializes_entity()
         {
-            var actual = _context.Items.First(s => s.PartitionKey == _testPartition && s.RowKey == "Sample_entity");
+            var actual = _context.Purchases.First(s => s.PartitionKey == _testPartition && s.RowKey == "Sample_entity");
             Assert.True(_sampleEntity.Equals(actual));
         }
 
         [Fact]
         public void It_deletes_entity()
         {
-            var tableRow = _context.Items.First(s => s.PartitionKey == _testPartition && s.RowKey == "It_deletes_entity_test");
+            var tableRow = _context.Purchases.First(s => s.PartitionKey == _testPartition && s.RowKey == "It_deletes_entity_test");
             _context.Delete(tableRow);
             var changes = _context.SaveChanges();
             Assert.Equal(1, changes);
         }
-
-        public void Dispose()
-        {
-            try
-            {
-                var cleanupBatch = new TableBatchOperation();
-                _sampleSet.ForEach(s => cleanupBatch.Add(TableOperation.Delete(s)));
-                _table.ExecuteBatch(cleanupBatch);
-            }
-            catch (Exception)
-            {
-                // suppress because there is not DeleteIfExists and tests may delete entities 
-            }
-        }
-
-        #region model
-
-        private class EmulatorContext : DbContext
-        {
-            private readonly string _tableName;
-
-            public EmulatorContext(string tableName)
-            {
-                _tableName = tableName;
-            }
-
-            public DbSet<Item> Items { get; set; }
-
-            protected override void OnConfiguring(DbContextOptions builder)
-            {
-                builder.UseAzureTableStorge(ConfigurationManager.AppSettings["TestConnectionString"]);
-            }
-
-            protected override void OnModelCreating(ModelBuilder builder)
-            {
-                builder.Entity<Item>().Key(s => s.Key).StorageName(_tableName);
-            }
-        }
-
-        private class Item : TableEntity
-        {
-            public string Key
-            {
-                get { return PartitionKey + RowKey; }
-            }
-
-            public double Cost { get; set; }
-            public string Name { get; set; }
-            public DateTime Purchased { get; set; }
-            public int Count { get; set; }
-            public Guid GlobalGuid { get; set; }
-            public bool Awesomeness { get; set; }
-            // override object.Equals
-            public override bool Equals(object obj)
-            {
-                var other = obj as Item;
-                if (other == null)
-                {
-                    return false;
-                }
-                else if (Key != other.Key)
-                {
-                    return false;
-                }
-                else if (Cost != other.Cost)
-                {
-                    return false;
-                }
-                else if (Name != other.Name)
-                {
-                    return false;
-                }
-                else if (Count != other.Count)
-                {
-                    return false;
-                }
-                else if (!GlobalGuid.Equals(other.GlobalGuid))
-                {
-                    return false;
-                }
-                else if (Awesomeness != other.Awesomeness)
-                {
-                    return false;
-                }
-                return Purchased.ToUniversalTime().Equals(other.Purchased.ToUniversalTime());
-            }
-        }
-
-        #endregion
     }
 }

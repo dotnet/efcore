@@ -68,7 +68,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             foreach (var tableGroup in tableGroups)
             {
                 var table = Connection.GetTableReference(tableGroup.Key.StorageName);
-                var tasks = tableGroup.Select(GetOperation)
+                var tasks = tableGroup.Select(entry => GetOperation(entry, PocoTableEntityAdapter.FromObject(entry.Entity)))
                     .TakeWhile(operation => !cancellationToken.IsCancellationRequested)
                     .Select(operation => table.ExecuteAsync(operation, cancellationToken));
                 allTasks.AddRange(tasks);
@@ -106,10 +106,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             return tasks.Aggregate(0, (current, task) => current + inspect(task));
         }
 
-        protected TableOperation GetOperation(StateEntry entry)
+        protected TableOperation GetOperation(StateEntry entry, ITableEntity entity)
         {
-            var entity = (ITableEntity)entry.Entity;
-
             switch (entry.EntityState)
             {
                 case EntityState.Added:
