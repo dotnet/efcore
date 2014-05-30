@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
             visitor.VisitExpression(querySource.FromExpression);
 
             Assert.True(TryGetTableQuery(querySource, out query));
-            Assert.IsType<TableQuery<PocoTestType>>(query);
+            Assert.IsType<TableQuery<PocoTableEntityAdapter<PocoTestType>>>(query);
             Assert.NotNull(query);
         }
 

@@ -10,11 +10,11 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
 {
     public class TableQueryTest
     {
-        private readonly TableQuery<PocoTestType> _tableQuery;
+        private readonly TableQuery<PocoTableEntityAdapter<PocoTestType>> _tableQuery;
 
         public TableQueryTest()
         {
-            _tableQuery = new TableQuery<PocoTestType>();
+            _tableQuery = new TableQuery<PocoTableEntityAdapter<PocoTestType>>();
         }
 
         [Fact]

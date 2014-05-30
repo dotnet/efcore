@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.AzureTableStorage.Interfaces;
+using Microsoft.Data.Entity.AzureTableStorage.Query;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.WindowsAzure.Storage.Table;
@@ -40,13 +41,14 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             foreach (var tableGroup in tableGroups)
             {
                 var table = Connection.GetTableReference(tableGroup.Key.StorageName);
-                var partitionGroups = tableGroup.GroupBy(s => ((ITableEntity)s.Entity).PartitionKey);
+                var partitionGroups = tableGroup.GroupBy(s =>
+                    (string)s.Entity.GetType().GetProperty("PartitionKey", typeof(string)).GetValue(s.Entity)
+                    );
                 foreach (var partitionGroup in partitionGroups)
                 {
                     var batch = new TableBatchOperation();
-                    foreach (var operation in partitionGroup.Select(GetOperation).Where(operation => operation != null))
+                    foreach (var operation in partitionGroup.Select(entry => GetOperation(entry, PocoTableEntityAdapter.FromObject(entry.Entity))).Where(operation => operation != null))
                     {
-                        //TODO An entity can only appear once in a transaction; Ensure that change tracker never returns multiple state entries for the same entity
                         // TODO allow user access to config options: Retry Policy, Secondary Storage, Timeout 
                         batch.Add(operation);
                         if (batch.Count >= MaxBatchOperations)
