@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             return new Enumerable<IValueReader>(
                 relationalQueryContext.Connection,
-                sqlSelect.ToString(),
+                sqlSelect,
                 r => relationalQueryContext.ValueReaderFactory.Create(r),
                 queryContext.Logger);
         }
@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             return new Enumerable<TEntity>(
                 relationalQueryContext.Connection,
-                sqlSelect.ToString(),
+                sqlSelect,
                 r => (TEntity)queryContext.StateManager
                     .GetOrMaterializeEntry(
                         queryContext.Model.GetEntityType(typeof(TEntity)),
@@ -63,13 +63,13 @@ namespace Microsoft.Data.Entity.Relational.Query
         private sealed class Enumerable<T> : IEnumerable<T>
         {
             private readonly RelationalConnection _connection;
-            private readonly string _sql;
+            private readonly SqlSelect _sql;
             private readonly Func<DbDataReader, T> _shaper;
             private readonly ILogger _logger;
 
             public Enumerable(
                 RelationalConnection connection,
-                string sql,
+                SqlSelect sql,
                 Func<DbDataReader, T> shaper,
                 ILogger logger)
             {
@@ -108,9 +108,21 @@ namespace Microsoft.Data.Entity.Relational.Query
                         _enumerable._connection.Open();
 
                         _command = _enumerable._connection.DbConnection.CreateCommand();
-                        _command.CommandText = _enumerable._sql;
+                        _command.CommandText = _enumerable._sql.ToString();
 
-                        _enumerable._logger.WriteSql(_enumerable._sql);
+                        foreach (var parameter in _enumerable._sql.Parameters)
+                        {
+                            var dbParameter = _command.CreateParameter();
+
+                            dbParameter.ParameterName = parameter.Name;
+                            dbParameter.Value = parameter.Value;
+
+                            // TODO: Parameter facets
+
+                            _command.Parameters.Add(dbParameter);
+                        }
+
+                        _enumerable._logger.WriteSql(_command.CommandText);
 
                         _reader = _command.ExecuteReader();
                     }

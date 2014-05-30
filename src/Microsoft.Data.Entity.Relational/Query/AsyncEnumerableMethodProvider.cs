@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             return new AsyncEnumerable<IValueReader>(
                 relationalQueryContext.Connection,
-                sqlSelect.ToString(),
+                sqlSelect,
                 r => relationalQueryContext.ValueReaderFactory.Create(r),
                 queryContext.Logger);
         }
@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             return new AsyncEnumerable<TEntity>(
                 relationalQueryContext.Connection,
-                sqlSelect.ToString(),
+                sqlSelect,
                 r => (TEntity)queryContext.StateManager
                     .GetOrMaterializeEntry(
                         queryContext.Model.GetEntityType(typeof(TEntity)),
@@ -64,13 +64,13 @@ namespace Microsoft.Data.Entity.Relational.Query
         private sealed class AsyncEnumerable<T> : IAsyncEnumerable<T>
         {
             private readonly RelationalConnection _connection;
-            private readonly string _sql;
+            private readonly SqlSelect _sql;
             private readonly Func<DbDataReader, T> _shaper;
             private readonly ILogger _logger;
 
             public AsyncEnumerable(
                 RelationalConnection connection,
-                string sql,
+                SqlSelect sql,
                 Func<DbDataReader, T> shaper,
                 ILogger logger)
             {
@@ -110,9 +110,21 @@ namespace Microsoft.Data.Entity.Relational.Query
                     await _enumerable._connection.OpenAsync(cancellationToken);
 
                     _command = _enumerable._connection.DbConnection.CreateCommand();
-                    _command.CommandText = _enumerable._sql;
+                    _command.CommandText = _enumerable._sql.ToString();
 
-                    _enumerable._logger.WriteSql(_enumerable._sql);
+                    foreach (var parameter in _enumerable._sql.Parameters)
+                    {
+                        var dbParameter = _command.CreateParameter();
+
+                        dbParameter.ParameterName = parameter.Name;
+                        dbParameter.Value = parameter.Value;
+
+                        // TODO: Parameter facets
+
+                        _command.Parameters.Add(dbParameter);
+                    }
+
+                    _enumerable._logger.WriteSql(_command.CommandText);
 
                     _reader = await _command.ExecuteReaderAsync(cancellationToken);
 

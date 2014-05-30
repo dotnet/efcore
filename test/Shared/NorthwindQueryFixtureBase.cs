@@ -34,7 +34,11 @@ namespace Microsoft.Data.FunctionalTests
             modelBuilder
                 .Entity<Employee>()
                 .Key(e => e.EmployeeID)
-                .Properties(ps => ps.Property(c => c.City))
+                .Properties(ps =>
+                    {
+                        ps.Property(c => c.City);
+                        ps.Property(c => c.Country);
+                    })
                 .StorageName("Employees");
 
             modelBuilder

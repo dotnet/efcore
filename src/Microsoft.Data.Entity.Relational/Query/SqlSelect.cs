@@ -15,16 +15,44 @@ namespace Microsoft.Data.Entity.Relational.Query
 {
     public class SqlSelect
     {
-        private readonly IList<IProperty> _selectList = new List<IProperty>();
+        public class Parameter
+        {
+            private readonly string _name;
+            private readonly object _value;
 
-        private readonly IList<Tuple<IProperty, OrderingDirection>> _orderByList
+            public Parameter([NotNull] string name, [NotNull] object value)
+            {
+                Check.NotNull(name, "name");
+                Check.NotNull(value, "value");
+
+                _name = name;
+                _value = value;
+            }
+
+            public virtual string Name
+            {
+                get { return _name; }
+            }
+
+            public virtual object Value
+            {
+                get { return _value; }
+            }
+        }
+
+        private readonly List<IProperty> _selectList = new List<IProperty>();
+
+        private readonly List<Tuple<IProperty, OrderingDirection>> _orderByList
             = new List<Tuple<IProperty, OrderingDirection>>();
+
+        private readonly List<Parameter> _parameters = new List<Parameter>();
 
         private object _tableSource;
         private int? _limit;
         private int _aliasCount;
         private bool _projectStar;
         private bool _distinct;
+        private string _predicate;
 
         public virtual SqlSelect SetTableSource([NotNull] object tableSource)
         {
@@ -51,11 +79,11 @@ namespace Microsoft.Data.Entity.Relational.Query
             {
                 _tableSource
                     = new SqlSelect
-                    {
-                        _tableSource = _tableSource,
-                        _limit = _limit,
-                        _projectStar = true
-                    };
+                        {
+                            _tableSource = _tableSource,
+                            _limit = _limit,
+                            _projectStar = true
+                        };
             }
 
             _limit = limit;
@@ -88,6 +116,31 @@ namespace Microsoft.Data.Entity.Relational.Query
         public virtual bool IsEmptyProjection
         {
             get { return _selectList.Count == 0; }
+        }
+
+        public virtual string AddParameter([NotNull] object value)
+        {
+            Check.NotNull(value, "value");
+
+            var parameter
+                = _parameters.SingleOrDefault(kv => Equals(kv.Value, value));
+
+            if (parameter == null)
+            {
+                _parameters.Add(parameter = new Parameter("@p" + _parameters.Count, value));
+            }
+
+            return parameter.Name;
+        }
+
+        public virtual IEnumerable<Parameter> Parameters
+        {
+            get { return _parameters; }
+        }
+
+        public virtual void SetPredicate([CanBeNull] string predicate)
+        {
+            _predicate = predicate;
         }
 
         public override string ToString()
@@ -145,6 +198,14 @@ namespace Microsoft.Data.Entity.Relational.Query
             {
                 selectSql
                     .Append(_tableSource);
+            }
+
+            if (!string.IsNullOrWhiteSpace(_predicate))
+            {
+                selectSql
+                    .AppendLine()
+                    .Append("WHERE ")
+                    .Append(_predicate);
             }
 
             if (_orderByList.Count > 0)

@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Relational.Utilities;
+using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.ExpressionTreeVisitors;
@@ -56,6 +57,217 @@ namespace Microsoft.Data.Entity.Relational.Query
         protected override ExpressionTreeVisitor CreateOrderingExpressionTreeVisitor(Ordering ordering)
         {
             return new RelationalOrderingSubQueryExpressionTreeVisitor(this, ordering);
+        }
+
+        public override void VisitWhereClause(WhereClause whereClause, QueryModel queryModel, int index)
+        {
+            base.VisitWhereClause(whereClause, queryModel, index);
+
+            foreach (var sourceQuery in _queriesBySource)
+            {
+                var filteringVisitor
+                    = new FilteringExpressionTreeVisitor(this, sourceQuery.Key, sourceQuery.Value);
+
+                filteringVisitor.VisitExpression(whereClause.Predicate);
+
+                sourceQuery.Value.SetPredicate(filteringVisitor.Predicate);
+            }
+        }
+
+        private class FilteringExpressionTreeVisitor : ThrowingExpressionTreeVisitor
+        {
+            private readonly RelationalQueryModelVisitor _queryModelVisitor;
+            private readonly IQuerySource _querySource;
+            private readonly SqlSelect _sqlSelect;
+
+            private string _predicate;
+
+            public FilteringExpressionTreeVisitor(
+                RelationalQueryModelVisitor queryModelVisitor,
+                IQuerySource querySource,
+                SqlSelect sqlSelect)
+            {
+                _queryModelVisitor = queryModelVisitor;
+                _querySource = querySource;
+                _sqlSelect = sqlSelect;
+            }
+
+            public string Predicate
+            {
+                get { return _predicate; }
+            }
+
+            protected override Expression VisitBinaryExpression(BinaryExpression expression)
+            {
+                _predicate = null;
+
+                switch (expression.NodeType)
+                {
+                    case ExpressionType.Equal:
+                    case ExpressionType.NotEqual:
+                    case ExpressionType.GreaterThan:
+                    case ExpressionType.GreaterThanOrEqual:
+                    case ExpressionType.LessThan:
+                    case ExpressionType.LessThanOrEqual:
+                    {
+                        _predicate = ProcessComparisonExpression(expression);
+
+                        break;
+                    }
+
+                    case ExpressionType.AndAlso:
+                    {
+                        VisitExpression(expression.Left);
+
+                        var left = _predicate;
+
+                        VisitExpression(expression.Right);
+
+                        var right = _predicate;
+
+                        if (left != null
+                            && right != null)
+                        {
+                            _predicate = "(" + left + ") AND (" + right + ")";
+                        }
+                        else
+                        {
+                            _predicate = left ?? right;
+                        }
+
+                        break;
+                    }
+
+                    case ExpressionType.OrElse:
+                    {
+                        VisitExpression(expression.Left);
+
+                        var left = _predicate;
+
+                        VisitExpression(expression.Right);
+
+                        var right = _predicate;
+
+                        if (left != null
+                            && right != null)
+                        {
+                            _predicate = "(" + left + ") OR (" + right + ")";
+                        }
+                        else
+                        {
+                            _predicate = null;
+                        }
+
+                        break;
+                    }
+
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+
+                return expression;
+            }
+
+            private string ProcessComparisonExpression(BinaryExpression expression)
+            {
+                var memberExpression
+                    = (expression.Left as MemberExpression)
+                      ?? (expression.Right as MemberExpression);
+
+                if (memberExpression == null)
+                {
+                    return null;
+                }
+
+                var constantExpression
+                    = (expression.Left as ConstantExpression)
+                      ?? (expression.Right as ConstantExpression);
+
+                if (constantExpression == null)
+                {
+                    return null;
+                }
+
+                var querySourceReferenceExpression
+                    = memberExpression.Expression as QuerySourceReferenceExpression;
+
+                string column = null;
+
+                if (querySourceReferenceExpression != null
+                    && querySourceReferenceExpression.ReferencedQuerySource == _querySource)
+                {
+                    var entityType
+                        = _queryModelVisitor.QueryCompilationContext.Model
+                            .TryGetEntityType(querySourceReferenceExpression.ReferencedQuerySource.ItemType);
+
+                    if (entityType != null)
+                    {
+                        var property = entityType.TryGetProperty(memberExpression.Member.Name);
+
+                        if (property != null)
+                        {
+                            column = property.StorageName;
+                        }
+                    }
+                }
+
+                return column == null
+                    ? null
+                    : BuildComparisonSql(expression.NodeType, column, constantExpression.Value);
+            }
+
+            private string BuildComparisonSql(ExpressionType expressionType, string column, object value)
+            {
+                string sql;
+
+                switch (expressionType)
+                {
+                    case ExpressionType.Equal:
+                        sql = value == null ? " IS NULL " : " = " + _sqlSelect.AddParameter(value);
+                        break;
+                    case ExpressionType.NotEqual:
+                        sql = value == null ? " IS NOT NULL " : " <> " + _sqlSelect.AddParameter(value);
+                        break;
+                    case ExpressionType.GreaterThan:
+                        sql = " > " + _sqlSelect.AddParameter(value);
+                        break;
+                    case ExpressionType.GreaterThanOrEqual:
+                        sql = " >= " + _sqlSelect.AddParameter(value);
+                        break;
+                    case ExpressionType.LessThan:
+                        sql = " < " + _sqlSelect.AddParameter(value);
+                        break;
+                    case ExpressionType.LessThanOrEqual:
+                        sql = " <= " + _sqlSelect.AddParameter(value);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+
+                return column + sql;
+            }
+
+            protected override Expression VisitMethodCallExpression(MethodCallExpression expression)
+            {
+                // TODO: Method handlers
+
+                return expression;
+            }
+
+            protected override Expression VisitConstantExpression(ConstantExpression expression)
+            {
+                return expression;
+            }
+
+            protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
+            {
+                return expression;
+            }
+
+            protected override Exception CreateUnhandledItemException<T>(T unhandledItem, string visitMethod)
+            {
+                return new NotImplementedException("Filter expression not handled: " + unhandledItem.GetType().Name);
+            }
         }
 
         protected override Expression ReplaceClauseReferences(
@@ -125,11 +337,9 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             if (querySourceReferenceExpression != null)
             {
-                var querySource = querySourceReferenceExpression.ReferencedQuerySource;
-
                 var entityType
                     = QueryCompilationContext.Model
-                        .TryGetEntityType(querySource.ItemType);
+                        .TryGetEntityType(querySourceReferenceExpression.ReferencedQuerySource.ItemType);
 
                 if (entityType != null)
                 {
@@ -138,7 +348,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                     if (property != null)
                     {
                         SqlSelect entityQuery;
-                        if (_queriesBySource.TryGetValue(querySource, out entityQuery))
+                        if (_queriesBySource.TryGetValue(querySourceReferenceExpression.ReferencedQuerySource, out entityQuery))
                         {
                             queryAction(entityQuery, property);
                         }

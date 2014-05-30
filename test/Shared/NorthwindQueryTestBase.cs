@@ -85,6 +85,46 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         [Fact]
+        public virtual void Where_simple_reversed()
+        {
+            AssertQuery<Customer>(cs => cs.Where(c => "London" == c.City));
+        }
+
+        [Fact]
+        public virtual void Where_select_many_or()
+        {
+            AssertQuery<Customer, Employee>((cs, es) =>
+                from c in cs
+                from e in es
+                where c.City == "London"
+                      || e.City == "London"
+                select new { c, e });
+        }
+
+        [Fact]
+        public virtual void Where_select_many_or2()
+        {
+            AssertQuery<Customer, Employee>((cs, es) =>
+                from c in cs
+                from e in es
+                where c.City == "London"
+                      || c.City == "Berlin"
+                select new { c, e });
+        }
+
+        [Fact]
+        public virtual void Where_select_many_and()
+        {
+            AssertQuery<Customer, Employee>((cs, es) =>
+                  from c in cs
+                  from e in es
+                  where (c.City == "London" && c.Country == "UK")
+                        && (e.City == "London" && e.Country == "UK")
+                  select new { c, e });
+        }
+
+
+        [Fact]
         public virtual void Where_primitive()
         {
             AssertQuery<Employee>(es =>
@@ -978,6 +1018,50 @@ namespace Microsoft.Data.FunctionalTests
         {
             AssertQuery<Customer>(cs =>
                 cs.Select(c => c.City).Select(c => c).Distinct().Count());
+        }
+
+        [Fact]
+        public virtual void Single_Throws()
+        {
+            Assert.Throws<InvalidOperationException>(() =>
+                AssertQuery<Customer>(cs => cs.Single()));
+        }
+
+        [Fact]
+        public virtual void Single_Predicate()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Single(c => c.CustomerID == "ALFKI"));
+        }
+
+        [Fact]
+        public virtual void Where_Single()
+        {
+            AssertQuery<Customer>(
+                // ReSharper disable once ReplaceWithSingleCallToSingle
+                cs => cs.Where(c => c.CustomerID == "ALFKI").Single());
+        }
+
+        [Fact]
+        public virtual void SingleOrDefault_Throws()
+        {
+            Assert.Throws<InvalidOperationException>(() =>
+                AssertQuery<Customer>(cs => cs.SingleOrDefault()));
+        }
+
+        [Fact]
+        public virtual void SingleOrDefault_Predicate()
+        {
+            AssertQuery<Customer>(
+                cs => cs.SingleOrDefault(c => c.CustomerID == "ALFKI"));
+        }
+
+        [Fact]
+        public virtual void Where_SingleOrDefault()
+        {
+            AssertQuery<Customer>(
+                // ReSharper disable once ReplaceWithSingleCallToSingleOrDefault
+                cs => cs.Where(c => c.CustomerID == "ALFKI").SingleOrDefault());
         }
 
         protected abstract DbContext CreateContext();

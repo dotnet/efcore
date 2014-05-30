@@ -94,7 +94,7 @@ FROM Customers",
             base.Select_scalar_primitive_after_take();
 
             Assert.Equal(
-                @"SELECT TOP 9 City, EmployeeID
+                @"SELECT TOP 9 City, Country, EmployeeID
 FROM Employees",
                 _fixture.Sql);
         }
@@ -105,7 +105,19 @@ FROM Employees",
 
             Assert.Equal(
                 @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
-FROM Customers",
+FROM Customers
+WHERE City = @p0",
+                _fixture.Sql);
+        }
+
+        public override void Where_simple_reversed()
+        {
+            base.Where_simple_reversed();
+
+            Assert.Equal(
+                @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
+FROM Customers
+WHERE City = @p0",
                 _fixture.Sql);
         }
 
@@ -115,8 +127,61 @@ FROM Customers",
 
             Assert.Equal(
                 @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
-FROM Customers",
+FROM Customers
+WHERE City = @p0",
                 _fixture.Sql);
+        }
+
+        public override void Where_select_many_or()
+        {
+            base.Where_select_many_or();
+
+            Assert.StartsWith(
+                 @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
+FROM Customers
+
+SELECT City, Country, EmployeeID
+FROM Employees
+
+SELECT City, Country, EmployeeID
+FROM Employees",
+                 _fixture.Sql);
+        }
+
+        public override void Where_select_many_or2()
+        {
+            base.Where_select_many_or2();
+
+            Assert.StartsWith(
+                 @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
+FROM Customers
+WHERE (City = @p0) OR (City = @p1)
+
+SELECT City, Country, EmployeeID
+FROM Employees
+
+SELECT City, Country, EmployeeID
+FROM Employees",
+                 _fixture.Sql);
+        }
+
+        public override void Where_select_many_and()
+        {
+            base.Where_select_many_and();
+
+            Assert.StartsWith(
+                 @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
+FROM Customers
+WHERE (City = @p0) AND (Country = @p1)
+
+SELECT City, Country, EmployeeID
+FROM Employees
+WHERE (City = @p0) AND (Country = @p1)
+
+SELECT City, Country, EmployeeID
+FROM Employees
+WHERE (City = @p0) AND (Country = @p1)",
+                 _fixture.Sql);
         }
 
         public override void Select_project_filter()
@@ -125,7 +190,8 @@ FROM Customers",
 
             Assert.Equal(
                 @"SELECT City, CompanyName
-FROM Customers",
+FROM Customers
+WHERE City = @p0",
                 _fixture.Sql);
         }
 
@@ -135,7 +201,8 @@ FROM Customers",
 
             Assert.Equal(
                 @"SELECT City, CompanyName
-FROM Customers",
+FROM Customers
+WHERE City = @p0",
                 _fixture.Sql);
         }
 
@@ -145,7 +212,8 @@ FROM Customers",
 
             Assert.Equal(
                 @"SELECT City
-FROM Customers",
+FROM Customers
+WHERE City = @p0",
                 _fixture.Sql);
         }
 
@@ -154,34 +222,34 @@ FROM Customers",
             base.SelectMany_simple1();
 
             Assert.Equal(
-                @"SELECT City, EmployeeID
+                @"SELECT City, Country, EmployeeID
 FROM Employees
 
-SELECT City, EmployeeID
+SELECT City, Country, EmployeeID
 FROM Employees
 
-SELECT City, EmployeeID
+SELECT City, Country, EmployeeID
 FROM Employees
 
-SELECT City, EmployeeID
+SELECT City, Country, EmployeeID
 FROM Employees
 
-SELECT City, EmployeeID
+SELECT City, Country, EmployeeID
 FROM Employees
 
-SELECT City, EmployeeID
+SELECT City, Country, EmployeeID
 FROM Employees
 
-SELECT City, EmployeeID
+SELECT City, Country, EmployeeID
 FROM Employees
 
-SELECT City, EmployeeID
+SELECT City, Country, EmployeeID
 FROM Employees
 
-SELECT City, EmployeeID
+SELECT City, Country, EmployeeID
 FROM Employees
 
-SELECT City, EmployeeID
+SELECT City, Country, EmployeeID
 FROM Employees",
                 _fixture.Sql);
         }
@@ -204,39 +272,39 @@ FROM Customers",
         {
             base.SelectMany_simple2();
 
-            Assert.Equal(3774, _fixture.Sql.Length);
+            Assert.Equal(4512, _fixture.Sql.Length);
             Assert.StartsWith(
-                @"SELECT City, EmployeeID
+                @"SELECT City, Country, EmployeeID
 FROM Employees
 
 SELECT 1
 FROM Employees
 
-SELECT City, EmployeeID
+SELECT City, Country, EmployeeID
 FROM Employees
 
-SELECT City, EmployeeID
+SELECT City, Country, EmployeeID
 FROM Employees
 
-SELECT City, EmployeeID
+SELECT City, Country, EmployeeID
 FROM Employees
 
-SELECT City, EmployeeID
+SELECT City, Country, EmployeeID
 FROM Employees
 
-SELECT City, EmployeeID
+SELECT City, Country, EmployeeID
 FROM Employees
 
-SELECT City, EmployeeID
+SELECT City, Country, EmployeeID
 FROM Employees
 
-SELECT City, EmployeeID
+SELECT City, Country, EmployeeID
 FROM Employees
 
-SELECT City, EmployeeID
+SELECT City, Country, EmployeeID
 FROM Employees
 
-SELECT City, EmployeeID
+SELECT City, Country, EmployeeID
 FROM Employees
 
 SELECT 1
@@ -287,7 +355,7 @@ FROM Customers",
                 _fixture.Sql);
         }
 
-        // TODO
+        // TODO: Single
 //        public override void Take_with_single()
 //        {
 //            base.Take_with_single();
@@ -342,6 +410,110 @@ ORDER BY CustomerID",
             //ORDER BY City",
             //                _fixture.Sql);
         }
+
+        public override void Where_subquery_recursive_trivial()
+        {
+            base.Where_subquery_recursive_trivial();
+
+            Assert.Equal(1194, _fixture.Sql.Length);
+            Assert.StartsWith(
+                @"SELECT City, Country, EmployeeID
+FROM Employees
+ORDER BY EmployeeID
+
+SELECT City, Country, EmployeeID
+FROM Employees
+
+SELECT City, Country, EmployeeID
+FROM Employees
+ORDER BY EmployeeID
+
+SELECT City, Country, EmployeeID
+FROM Employees",
+                _fixture.Sql);
+        }
+
+        public override void Where_false()
+        {
+            base.Where_false();
+
+            Assert.Equal(
+                @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
+FROM Customers",
+                _fixture.Sql);
+        }
+
+        public override void Where_primitive()
+        {
+            base.Where_primitive();
+
+            Assert.Equal(
+                @"SELECT TOP 9 EmployeeID
+FROM Employees",
+                _fixture.Sql);
+        }
+
+        public override void Where_true()
+        {
+            base.Where_true(); 
+            
+            Assert.Equal(
+                 @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
+FROM Customers",
+                 _fixture.Sql);
+        }
+
+        public override void Where_compare_constructed_equal()
+        {
+            base.Where_compare_constructed_equal();
+
+            Assert.Equal(
+                @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
+FROM Customers",
+                _fixture.Sql);
+        }
+
+        public override void Where_compare_constructed_multi_value_equal()
+        {
+            base.Where_compare_constructed_multi_value_equal(); 
+            
+            Assert.Equal(
+                 @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
+FROM Customers",
+                 _fixture.Sql);
+        }
+
+        public override void Where_compare_constructed_multi_value_not_equal()
+        {
+            base.Where_compare_constructed_multi_value_not_equal();
+            
+            Assert.Equal(
+                @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
+FROM Customers",
+                _fixture.Sql);
+        }
+
+        public override void Where_compare_constructed()
+        {
+            base.Where_compare_constructed();
+
+            Assert.Equal(
+                    @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
+FROM Customers",
+                    _fixture.Sql);
+        }
+
+        // TODO: Single
+//        public override void Single_Predicate()
+//        {
+//            base.Single_Predicate();
+//
+//            Assert.Equal(
+//                    @"SELECT TOP 2 Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
+//FROM Customers
+//WHERE CustomerID = @p0",
+//                    _fixture.Sql);
+//        }
 
         private readonly NorthwindQueryFixture _fixture;
 
