@@ -3,6 +3,7 @@
 
 using System;
 using System.Data;
+using System.IO;
 using Xunit;
 
 namespace Microsoft.Data.SQLite
@@ -70,11 +71,25 @@ namespace Microsoft.Data.SQLite
         }
 
         [Fact]
-        public void DataSource_returns_value()
+        public void DataSource_returns_connection_string_filename_when_closed()
         {
             using (var connection = new SQLiteConnection("Filename=test.db"))
             {
                 Assert.Equal("test.db", connection.DataSource);
+            }
+        }
+
+        [Fact]
+        public void DataSource_returns_actual_filename_when_open()
+        {
+            using (var connection = new SQLiteConnection("Filename=test.db"))
+            {
+                connection.Open();
+
+                var result = connection.DataSource;
+
+                Assert.True(Path.IsPathRooted(result));
+                Assert.Equal("test.db", Path.GetFileName(result));
             }
         }
 

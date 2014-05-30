@@ -3,7 +3,9 @@
 
 using System;
 using System.Runtime.InteropServices;
+#if NET451 || K10
 using Microsoft.Data.SQLite.Utilities;
+#endif
 
 namespace Microsoft.Data.SQLite.Interop
 {
@@ -144,6 +146,23 @@ namespace Microsoft.Data.SQLite.Interop
 
         [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         public static extern int sqlite3_column_type(StatementHandle pStmt, int iCol);
+
+        [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        private static extern IntPtr sqlite3_db_filename(DatabaseHandle db, IntPtr zDbName);
+
+        public static string sqlite3_db_filename(DatabaseHandle db, string zDbName)
+        {
+            var ptr = MarshalEx.StringToHGlobalUTF8(zDbName);
+            try
+            {
+                return MarshalEx.PtrToStringUTF8(sqlite3_db_filename(db, ptr));
+            }
+            finally
+            {
+                if (ptr != IntPtr.Zero)
+                    Marshal.FreeHGlobal(ptr);
+            }
+        }
 
         [DllImport(
             "sqlite3",

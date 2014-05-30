@@ -13,6 +13,8 @@ namespace Microsoft.Data.SQLite
 {
     public class SQLiteConnection : DbConnection
     {
+        private const string MainDatabaseName = "main";
+
         private string _connectionString;
         private SQLiteConnectionStringBuilder _connectionOptions;
         private ConnectionState _state;
@@ -52,12 +54,17 @@ namespace Microsoft.Data.SQLite
 
         public override string Database
         {
-            get { return "main"; }
+            get { return MainDatabaseName; }
         }
 
         public override string DataSource
         {
-            get { return _connectionOptions.Filename; }
+            get
+            {
+                return _state == ConnectionState.Open
+                    ? NativeMethods.sqlite3_db_filename(_handle, MainDatabaseName)
+                    : _connectionOptions.Filename;
+            }
         }
 
         public override string ServerVersion
