@@ -30,7 +30,15 @@ namespace Microsoft.Data.Entity.Relational.Query
         {
             Check.NotNull(tableSource, "tableSource");
 
-            _tableSource = tableSource;
+            var tableName = tableSource as string;
+            if (tableName != null)
+            {
+                _tableSource = QuoteIdentifier(tableName);
+            }
+            else
+            {
+                _tableSource = tableSource;
+            }
 
             return this;
         }
@@ -121,7 +129,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                 selectSql
                     .AppendJoin(
                         !IsEmptyProjection
-                            ? _selectList.Select(p => p.StorageName)
+                            ? _selectList.Select(p => QuoteIdentifier(p.StorageName))
                             : new[] { "1" });
             }
 
@@ -155,11 +163,18 @@ namespace Microsoft.Data.Entity.Relational.Query
                     .AppendJoin(
                         _orderByList
                             .Select(o => o.Item2 == OrderingDirection.Asc
-                                ? o.Item1.StorageName
-                                : o.Item1.StorageName + " DESC"));
+                                ? QuoteIdentifier(o.Item1.StorageName)
+                                : QuoteIdentifier(o.Item1.StorageName) + " DESC"));
             }
 
             return selectSql.ToString();
+        }
+
+        public virtual string QuoteIdentifier([NotNull] string identifier)
+        {
+            Check.NotNull(identifier, "identifier");
+
+            return "[" + identifier.Replace("]", "]]") + "]";
         }
     }
 }

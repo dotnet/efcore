@@ -22,8 +22,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             base.Queryable_simple();
 
             Assert.Equal(
-                @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
-FROM Customers",
+                @"SELECT [Address], [City], [CompanyName], [ContactName], [ContactTitle], [Country], [CustomerID], [Fax], [Phone], [PostalCode], [Region]
+FROM [Customers]",
                 _fixture.Sql);
         }
 
@@ -32,8 +32,8 @@ FROM Customers",
             base.Queryable_simple_anonymous();
 
             Assert.Equal(
-                @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
-FROM Customers",
+                @"SELECT [Address], [City], [CompanyName], [ContactName], [ContactTitle], [Country], [CustomerID], [Fax], [Phone], [PostalCode], [Region]
+FROM [Customers]",
                 _fixture.Sql);
         }
 
@@ -42,8 +42,8 @@ FROM Customers",
             base.Queryable_nested_simple();
 
             Assert.Equal(
-                @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
-FROM Customers",
+                @"SELECT [Address], [City], [CompanyName], [ContactName], [ContactTitle], [Country], [CustomerID], [Fax], [Phone], [PostalCode], [Region]
+FROM [Customers]",
                 _fixture.Sql);
         }
 
@@ -52,9 +52,9 @@ FROM Customers",
             base.Take_simple();
 
             Assert.Equal(
-                @"SELECT TOP 10 Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
-FROM Customers
-ORDER BY CustomerID",
+                @"SELECT TOP 10 [Address], [City], [CompanyName], [ContactName], [ContactTitle], [Country], [CustomerID], [Fax], [Phone], [PostalCode], [Region]
+FROM [Customers]
+ORDER BY [CustomerID]",
                 _fixture.Sql);
         }
 
@@ -63,9 +63,9 @@ ORDER BY CustomerID",
             base.Take_simple_projection();
 
             Assert.Equal(
-                @"SELECT TOP 10 CustomerID, City
-FROM Customers
-ORDER BY CustomerID",
+                @"SELECT TOP 10 [CustomerID], [City]
+FROM [Customers]
+ORDER BY [CustomerID]",
                 _fixture.Sql);
         }
 
@@ -74,8 +74,8 @@ ORDER BY CustomerID",
             base.Any_simple();
 
             Assert.Equal(
-                @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
-FROM Customers",
+                @"SELECT [Address], [City], [CompanyName], [ContactName], [ContactTitle], [Country], [CustomerID], [Fax], [Phone], [PostalCode], [Region]
+FROM [Customers]",
                 _fixture.Sql);
         }
 
@@ -84,8 +84,8 @@ FROM Customers",
             base.Select_scalar();
 
             Assert.Equal(
-                @"SELECT City
-FROM Customers",
+                @"SELECT [City]
+FROM [Customers]",
                 _fixture.Sql);
         }
 
@@ -94,8 +94,8 @@ FROM Customers",
             base.Select_scalar_primitive_after_take();
 
             Assert.Equal(
-                @"SELECT TOP 9 City, EmployeeID
-FROM Employees",
+                @"SELECT TOP 9 [City], [EmployeeID]
+FROM [Employees]",
                 _fixture.Sql);
         }
 
@@ -104,8 +104,8 @@ FROM Employees",
             base.Where_simple();
 
             Assert.Equal(
-                @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
-FROM Customers",
+                @"SELECT [Address], [City], [CompanyName], [ContactName], [ContactTitle], [Country], [CustomerID], [Fax], [Phone], [PostalCode], [Region]
+FROM [Customers]",
                 _fixture.Sql);
         }
 
@@ -114,8 +114,8 @@ FROM Customers",
             await base.Where_simple_async();
 
             Assert.Equal(
-                @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
-FROM Customers",
+                @"SELECT [Address], [City], [CompanyName], [ContactName], [ContactTitle], [Country], [CustomerID], [Fax], [Phone], [PostalCode], [Region]
+FROM [Customers]",
                 _fixture.Sql);
         }
 
@@ -124,8 +124,8 @@ FROM Customers",
             base.Select_project_filter();
 
             Assert.Equal(
-                @"SELECT City, CompanyName
-FROM Customers",
+                @"SELECT [City], [CompanyName]
+FROM [Customers]",
                 _fixture.Sql);
         }
 
@@ -134,8 +134,8 @@ FROM Customers",
             await base.Select_project_filter_async();
 
             Assert.Equal(
-                @"SELECT City, CompanyName
-FROM Customers",
+                @"SELECT [City], [CompanyName]
+FROM [Customers]",
                 _fixture.Sql);
         }
 
@@ -144,8 +144,8 @@ FROM Customers",
             base.Select_project_filter2();
 
             Assert.Equal(
-                @"SELECT City
-FROM Customers",
+                @"SELECT [City]
+FROM [Customers]",
                 _fixture.Sql);
         }
 
@@ -154,35 +154,35 @@ FROM Customers",
             base.SelectMany_simple1();
 
             Assert.Equal(
-                @"SELECT City, EmployeeID
-FROM Employees
+                @"SELECT [City], [EmployeeID]
+FROM [Employees]
 
-SELECT City, EmployeeID
-FROM Employees
+SELECT [City], [EmployeeID]
+FROM [Employees]
 
-SELECT City, EmployeeID
-FROM Employees
+SELECT [City], [EmployeeID]
+FROM [Employees]
 
-SELECT City, EmployeeID
-FROM Employees
+SELECT [City], [EmployeeID]
+FROM [Employees]
 
-SELECT City, EmployeeID
-FROM Employees
+SELECT [City], [EmployeeID]
+FROM [Employees]
 
-SELECT City, EmployeeID
-FROM Employees
+SELECT [City], [EmployeeID]
+FROM [Employees]
 
-SELECT City, EmployeeID
-FROM Employees
+SELECT [City], [EmployeeID]
+FROM [Employees]
 
-SELECT City, EmployeeID
-FROM Employees
+SELECT [City], [EmployeeID]
+FROM [Employees]
 
-SELECT City, EmployeeID
-FROM Employees
+SELECT [City], [EmployeeID]
+FROM [Employees]
 
-SELECT City, EmployeeID
-FROM Employees",
+SELECT [City], [EmployeeID]
+FROM [Employees]",
                 _fixture.Sql);
         }
 
@@ -190,13 +190,12 @@ FROM Employees",
         {
             base.Join_customers_orders();
 
-            Assert.Equal(89, _fixture.Sql.Length);
             Assert.Equal(
-                @"SELECT CustomerID, OrderID
-FROM Orders
+                @"SELECT [CustomerID], [OrderID]
+FROM [Orders]
 
-SELECT CustomerID, ContactName
-FROM Customers",
+SELECT [CustomerID], [ContactName]
+FROM [Customers]",
                 _fixture.Sql);
         }
 
@@ -204,43 +203,43 @@ FROM Customers",
         {
             base.SelectMany_simple2();
 
-            Assert.Equal(3774, _fixture.Sql.Length);
+            Assert.Equal(4284, _fixture.Sql.Length);
             Assert.StartsWith(
-                @"SELECT City, EmployeeID
-FROM Employees
+                @"SELECT [City], [EmployeeID]
+FROM [Employees]
 
 SELECT 1
-FROM Employees
+FROM [Employees]
 
-SELECT City, EmployeeID
-FROM Employees
+SELECT [City], [EmployeeID]
+FROM [Employees]
 
-SELECT City, EmployeeID
-FROM Employees
+SELECT [City], [EmployeeID]
+FROM [Employees]
 
-SELECT City, EmployeeID
-FROM Employees
+SELECT [City], [EmployeeID]
+FROM [Employees]
 
-SELECT City, EmployeeID
-FROM Employees
+SELECT [City], [EmployeeID]
+FROM [Employees]
 
-SELECT City, EmployeeID
-FROM Employees
+SELECT [City], [EmployeeID]
+FROM [Employees]
 
-SELECT City, EmployeeID
-FROM Employees
+SELECT [City], [EmployeeID]
+FROM [Employees]
 
-SELECT City, EmployeeID
-FROM Employees
+SELECT [City], [EmployeeID]
+FROM [Employees]
 
-SELECT City, EmployeeID
-FROM Employees
+SELECT [City], [EmployeeID]
+FROM [Employees]
 
-SELECT City, EmployeeID
-FROM Employees
+SELECT [City], [EmployeeID]
+FROM [Employees]
 
 SELECT 1
-FROM Employees",
+FROM [Employees]",
                 _fixture.Sql);
         }
 
@@ -249,8 +248,8 @@ FROM Employees",
             base.GroupBy_Distinct();
 
             Assert.Equal(
-                @"SELECT DISTINCT CustomerID, OrderDate, OrderID
-FROM Orders",
+                @"SELECT DISTINCT [CustomerID], [OrderDate], [OrderID]
+FROM [Orders]",
                 _fixture.Sql);
         }
 
@@ -258,19 +257,19 @@ FROM Orders",
         {
             base.SelectMany_cartesian_product_with_ordering();
 
-            Assert.Equal(4341, _fixture.Sql.Length);
+            Assert.Equal(4913, _fixture.Sql.Length);
             Assert.StartsWith(
-                @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
-FROM Customers
-ORDER BY CustomerID DESC
+                @"SELECT [Address], [City], [CompanyName], [ContactName], [ContactTitle], [Country], [CustomerID], [Fax], [Phone], [PostalCode], [Region]
+FROM [Customers]
+ORDER BY [CustomerID] DESC
 
-SELECT City
-FROM Employees
-ORDER BY City
+SELECT [City]
+FROM [Employees]
+ORDER BY [City]
 
-SELECT City
-FROM Employees
-ORDER BY City",
+SELECT [City]
+FROM [Employees]
+ORDER BY [City]",
                 _fixture.Sql);
         }
 
@@ -279,11 +278,11 @@ ORDER BY City",
             base.GroupJoin_customers_orders_count();
 
             Assert.Equal(
-                @"SELECT CustomerID, OrderDate, OrderID
-FROM Orders
+                @"SELECT [CustomerID], [OrderDate], [OrderID]
+FROM [Orders]
 
-SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
-FROM Customers",
+SELECT [Address], [City], [CompanyName], [ContactName], [ContactTitle], [Country], [CustomerID], [Fax], [Phone], [PostalCode], [Region]
+FROM [Customers]",
                 _fixture.Sql);
         }
 
@@ -305,8 +304,8 @@ FROM Customers",
             base.Distinct();
 
             Assert.Equal(
-                @"SELECT DISTINCT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
-FROM Customers",
+                @"SELECT DISTINCT [Address], [City], [CompanyName], [ContactName], [ContactTitle], [Country], [CustomerID], [Fax], [Phone], [PostalCode], [Region]
+FROM [Customers]",
                 _fixture.Sql);
         }
 
@@ -315,8 +314,8 @@ FROM Customers",
             base.Distinct_Scalar();
 
             Assert.Equal(
-                @"SELECT DISTINCT City
-FROM Customers",
+                @"SELECT DISTINCT [City]
+FROM [Customers]",
                 _fixture.Sql);
         }
 
@@ -325,9 +324,9 @@ FROM Customers",
             base.OrderBy_Distinct();
 
             Assert.Equal(
-                @"SELECT CustomerID, City
-FROM Customers
-ORDER BY CustomerID",
+                @"SELECT [CustomerID], [City]
+FROM [Customers]
+ORDER BY [CustomerID]",
                 _fixture.Sql);
         }
 
