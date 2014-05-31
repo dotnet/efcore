@@ -58,6 +58,7 @@
     <Compile Include="SQLiteConnectionStringBuilderTest.cs" />
     <Compile Include="SQLiteConnectionTest.cs" />
     <Compile Include="SQLiteDataReaderTest.cs" />
+    <Compile Include="SQLiteEngineTest.cs" />
     <Compile Include="SQLiteExceptionTest.cs" />
     <Compile Include="SQLiteParameterTest.cs" />
     <Compile Include="SQLiteTransactionTest.cs" />

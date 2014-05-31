@@ -44,6 +44,7 @@
     <Compile Include="Interop\DatabaseHandle.cs" />
     <Compile Include="Interop\MarshalEx.cs" />
     <Compile Include="Interop\NativeMethods.cs" />
+    <Compile Include="Interop\sqlite3_vfs.cs" />
     <Compile Include="Interop\StatementHandle.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\InternalsVisibleTo.cs" />
@@ -54,6 +55,7 @@
     <Compile Include="SQLiteConnection.cs" />
     <Compile Include="SQLiteConnectionStringBuilder.cs" />
     <Compile Include="SQLiteDataReader.cs" />
+    <Compile Include="SQLiteEngine.cs" />
     <Compile Include="SQLiteException.cs" />
     <Compile Include="SQLiteParameter.cs" />
     <Compile Include="SQLiteParameterCollection.cs" />

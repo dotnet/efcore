@@ -247,5 +247,8 @@ namespace Microsoft.Data.SQLite.Interop
 
         [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         public static extern int sqlite3_step(StatementHandle pStmt);
+
+        [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        public static extern IntPtr sqlite3_vfs_find(IntPtr zVfsName);
     }
 }
