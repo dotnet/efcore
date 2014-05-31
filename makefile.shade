@@ -12,8 +12,14 @@ var AUTHORS='Microsoft'
 use-standard-lifecycle
 k-standard-goals
 
+#write-package-references target='initialize' if='!IsMono'
+  var programFilesX86='${Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86)}'
+  var buildProgram='${Path.Combine(programFilesX86, "MSBuild", "12.0", "Bin", "MSBuild.exe")}'
+  for each='var projectFile in Files.Include("src/**/*.csproj").Include("test/**/*.csproj")'
+    exec program='${buildProgram}' commandline='${projectFile} /t:WritePackageReferences'
+
 var sqliteDllPath='src/Microsoft.Data.SQLite/redist/x86/sqlite3.dll'
-#sqlite-download target='compile' if='!File.Exists(sqliteDllPath)'
+#sqlite-download target='initialize' if='!File.Exists(sqliteDllPath)'
     var sqliteUri='http://sqlite.org/2014/sqlite-dll-win32-x86-3080403.zip'
     @{
         using (var client = new HttpClient())
@@ -33,6 +39,7 @@ var sqliteDllPath='src/Microsoft.Data.SQLite/redist/x86/sqlite3.dll'
             }
         }
     }
+    copy sourceDir='${Path.GetDirectoryName(sqliteDllPath)}' include='${Path.GetFileName(sqliteDllPath)}' outputDir='test/Microsoft.Data.SQLite.Tests/bin/Debug'
 
 #nupkg-patch target='compile'
     @{
