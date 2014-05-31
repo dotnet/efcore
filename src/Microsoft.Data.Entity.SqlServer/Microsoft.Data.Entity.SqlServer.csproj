@@ -72,7 +72,7 @@
     <Compile Include="Utilities\EnumerableExtensions.cs" />
     <Compile Include="..\Shared\CodeAnnotations.cs" />
     <Compile Include="..\Shared\StringBuilderExtensions.cs" />
-    <Compile Include="Utilities\TypeExtensions.cs" />
+    <Compile Include="..\Shared\SharedTypeExtensions.cs" />
     <EmbeddedResource Include="..\Microsoft.Data.Entity.SqlServer\Properties\Strings.resx">
       <LogicalName>Microsoft.Data.Entity.SqlServer.Strings.resources</LogicalName>
     </EmbeddedResource>

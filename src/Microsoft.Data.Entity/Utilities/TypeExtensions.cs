@@ -66,20 +66,6 @@ namespace System
             }
         }
 
-        public static Type UnwrapNullableType(this Type type)
-        {
-            return Nullable.GetUnderlyingType(type) ?? type;
-        }
-
-        public static bool IsNullableType(this Type type)
-        {
-            var typeInfo = type.GetTypeInfo();
-
-            return !typeInfo.IsValueType
-                   || (typeInfo.IsGenericType
-                       && typeInfo.GetGenericTypeDefinition() == typeof(Nullable<>));
-        }
-
         public static PropertyInfo GetAnyProperty(this Type type, string name)
         {
             var props = type.GetRuntimeProperties().Where(p => p.Name == name).ToList();
@@ -115,14 +101,6 @@ namespace System
                 type = typeInfo.BaseType;
             }
             while (type != null);
-        }
-
-        public static bool IsInteger(this Type type)
-        {
-            return type == typeof(int)
-                   || type == typeof(long)
-                   || type == typeof(short)
-                   || type == typeof(byte);
         }
     }
 }

@@ -108,7 +108,7 @@
     <Compile Include="Utilities\Check.cs" />
     <Compile Include="..\Shared\CodeAnnotations.cs" />
     <Compile Include="..\Shared\StringBuilderExtensions.cs" />
-    <Compile Include="Utilities\TypeExtensions.cs" />
+    <Compile Include="..\Shared\SharedTypeExtensions.cs" />
     <EmbeddedResource Include="Properties\Strings.resx">
       <LogicalName>Microsoft.Data.Entity.Relational.Strings.resources</LogicalName>
     </EmbeddedResource>

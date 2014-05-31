@@ -9,15 +9,13 @@ using System.Reflection;
 namespace System
 {
     [DebuggerStepThrough]
-    internal static class TypeExtensions
+    internal static class SharedTypeExtensions
     {
-        // TODO: Share code with core
         public static Type UnwrapNullableType(this Type type)
         {
             return Nullable.GetUnderlyingType(type) ?? type;
         }
 
-        // TODO: Share code with core
         public static bool IsNullableType(this Type type)
         {
             var typeInfo = type.GetTypeInfo();
@@ -25,6 +23,14 @@ namespace System
             return !typeInfo.IsValueType
                    || (typeInfo.IsGenericType
                        && typeInfo.GetGenericTypeDefinition() == typeof(Nullable<>));
+        }
+
+        public static bool IsInteger(this Type type)
+        {
+            return type == typeof(int)
+                   || type == typeof(long)
+                   || type == typeof(short)
+                   || type == typeof(byte);
         }
     }
 }

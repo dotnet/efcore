@@ -214,6 +214,7 @@
     <Compile Include="Utilities\TypeExtensions.cs" />
     <Compile Include="..\Shared\CodeAnnotations.cs" />
     <Compile Include="..\Shared\StringBuilderExtensions.cs" />
+    <Compile Include="..\Shared\SharedTypeExtensions.cs" />
     <EmbeddedResource Include="Properties\Strings.resx">
       <LogicalName>Microsoft.Data.Entity.Strings.resources</LogicalName>
     </EmbeddedResource>
