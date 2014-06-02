@@ -156,4 +156,7 @@
   <data name="ConnectionNotFound" xml:space="preserve">
     <value>The connection string '{connectionName}' could not be found in the application's configuration.</value>
   </data>
+  <data name="RelationalNotInUse" xml:space="preserve">
+    <value>Relational-specific methods can only be used when the context is using a relational data store.</value>
+  </data>
 </root>

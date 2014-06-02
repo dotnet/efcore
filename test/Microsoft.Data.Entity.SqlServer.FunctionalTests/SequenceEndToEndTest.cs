@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 context.Database.EnsureCreated();
 
                 // TODO: Integrate sequence generation into Migrations
-                CreateDatabaseSequence(context, context.Database.Connection);
+                CreateDatabaseSequence(context, context.Database.AsRelational().Connection);
             }
 
             AddEntities(serviceProvider);
@@ -87,7 +87,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 context.Database.EnsureCreated();
 
                 // TODO: Integrate sequence generation into Migrations
-                CreateDatabaseSequence(context, context.Database.Connection);
+                CreateDatabaseSequence(context, context.Database.AsRelational().Connection);
             }
 
             await AddEntitiesAsync(serviceProvider, "BroniesAsync");
@@ -144,7 +144,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 context.Database.EnsureCreated();
 
                 // TODO: Integrate sequence generation into Migrations
-                CreateDatabaseSequence(context, context.Database.Connection);
+                CreateDatabaseSequence(context, context.Database.AsRelational().Connection);
             }
 
             const int threadCount = 50;
@@ -175,7 +175,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             }
         }
 
-        private static void CreateDatabaseSequence(BronieContext context, DataStoreConnection storeConnection)
+        private static void CreateDatabaseSequence(BronieContext context, RelationalConnection storeConnection)
         {
             var executor = new SqlStatementExecutor();
 
@@ -187,7 +187,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .Generate(operations, generateIdempotentSql: false);
 
             // TODO: Should be able to get relational connection without cast
-            var connection = ((RelationalConnection)storeConnection).DbConnection;
+            var connection = storeConnection.DbConnection;
 
             executor.ExecuteNonQuery(connection, sql);
         }

@@ -15,7 +15,7 @@ using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.SqlServer
 {
-    public class SqlServerDataStoreCreator : DataStoreCreator
+    public class SqlServerDataStoreCreator : RelationalDataStoreCreator
     {
         private readonly SqlServerConnection _connection;
         private readonly ModelDiffer _modelDiffer;

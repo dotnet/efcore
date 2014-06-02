@@ -11,7 +11,6 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational.Utilities;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
-using Microsoft.Framework.ConfigurationModel;
 
 namespace Microsoft.Data.Entity.Relational
 {

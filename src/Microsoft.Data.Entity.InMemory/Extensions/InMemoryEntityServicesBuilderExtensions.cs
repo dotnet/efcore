@@ -4,6 +4,7 @@
 using JetBrains.Annotations;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Identity;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.InMemory;
 using Microsoft.Data.Entity.InMemory.Utilities;
 using Microsoft.Data.Entity.Storage;
@@ -23,6 +24,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddSingleton<InMemoryValueGeneratorSelector>()
                 .AddSingleton<SimpleValueGeneratorFactory<InMemoryValueGenerator>>()
                 .AddSingleton<InMemoryDatabase>()
+                .AddScoped<Database>()
                 .AddScoped<InMemoryDataStore>()
                 .AddScoped<InMemoryConnection>()
                 .AddScoped<InMemoryDataStoreCreator>();

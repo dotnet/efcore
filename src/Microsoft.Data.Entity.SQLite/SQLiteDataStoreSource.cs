@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.SQLite.Utilities;
 using Microsoft.Data.Entity.Storage;
 
@@ -13,7 +14,8 @@ namespace Microsoft.Data.Entity.SQLite
             SQLiteOptionsExtension,
             SQLiteDataStoreCreator,
             SQLiteConnectionConnection,
-            SQLiteValueGeneratorCache>
+            SQLiteValueGeneratorCache,
+            RelationalDatabase>
     {
         public override bool IsAvailable(DbContextConfiguration configuration)
         {

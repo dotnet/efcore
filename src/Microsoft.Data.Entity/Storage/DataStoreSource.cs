@@ -10,6 +10,7 @@ namespace Microsoft.Data.Entity.Storage
     public abstract class DataStoreSource
     {
         public abstract DataStore GetStore([NotNull] DbContextConfiguration configuration);
+        public abstract Database GetDatabase([NotNull] DbContextConfiguration configuration);
         public abstract DataStoreCreator GetCreator([NotNull] DbContextConfiguration configuration);
         public abstract DataStoreConnection GetConnection([NotNull] DbContextConfiguration configuration);
         public abstract ValueGeneratorCache GetValueGeneratorCache([NotNull] DbContextConfiguration configuration);

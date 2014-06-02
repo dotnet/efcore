@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Relational;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;
@@ -217,7 +218,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 using (var context = new BloggingContext(serviceProvider, options))
                 {
-                    var creator = context.Configuration.DataStoreCreator;
+                    var creator = (RelationalDataStoreCreator)context.Configuration.DataStoreCreator;
 
                     if (async)
                     {

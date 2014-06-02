@@ -14,7 +14,7 @@ using Microsoft.Data.SQLite;
 
 namespace Microsoft.Data.Entity.SQLite
 {
-    public class SQLiteDataStoreCreator : DataStoreCreator
+    public class SQLiteDataStoreCreator : RelationalDataStoreCreator
     {
         private const int SQLITE_CANTOPEN = 14;
 

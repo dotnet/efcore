@@ -179,7 +179,7 @@ namespace Microsoft.Data.Entity
 
         public virtual Database Database
         {
-            get { return Configuration.Services.Database; }
+            get { return Configuration.Database; }
         }
 
         public virtual ChangeTracker ChangeTracker

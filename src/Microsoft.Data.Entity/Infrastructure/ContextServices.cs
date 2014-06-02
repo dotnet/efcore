@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
-using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
@@ -107,11 +106,6 @@ namespace Microsoft.Data.Entity.Infrastructure
                 return ServiceProvider.GetService<IEnumerable<IEntityStateListener>>()
                        ?? Enumerable.Empty<IEntityStateListener>();
             }
-        }
-
-        public virtual Database Database
-        {
-            get { return _serviceProvider.GetRequiredService<Database>(); }
         }
     }
 }
