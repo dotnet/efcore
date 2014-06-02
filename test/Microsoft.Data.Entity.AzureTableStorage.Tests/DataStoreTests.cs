@@ -17,9 +17,9 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
     public class DataStoreTests : AzureTableStorageDataStore, IClassFixture<FakeConnection>
     {
         private readonly FakeConnection _fakeConnection;
-
+        private ITableEntityFactory _entityFactory = new PocoTableEntityAdapterFactory();
         public DataStoreTests(FakeConnection connection)
-            : base(connection)
+            : base(connection,new PocoTableEntityAdapterFactory())
         {
             _fakeConnection = connection;
             _fakeConnection.ClearQueue();
@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
         public void It_maps_entity_state_to_table_operations(EntityState entityState, TableOperationType operationType)
         {
             var entry = TestStateEntry.Mock().WithState(entityState);
-            var operation = GetOperation(entry, PocoTableEntityAdapter.FromObject(entry.Entity));
+            var operation = GetOperation(entry, _entityFactory.MakeFromObject(entry.Entity));
 
             if (operation == null)
             {

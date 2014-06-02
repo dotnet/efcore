@@ -2,8 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.AzureTableStorage.Query;
 using Microsoft.Data.Entity.AzureTableStorage.Utilities;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.AzureTableStorage
 {
@@ -17,7 +19,9 @@ namespace Microsoft.Data.Entity.AzureTableStorage
                 .AddSingleton<DataStoreSource, AzureTableStorageDataStoreSource>()
                 .AddScoped<AzureTableStorageConnection, AzureTableStorageConnection>()
                 .AddScoped<AzureTableStorageDataStoreCreator, AzureTableStorageDataStoreCreator>()
-                .AddScoped<AzureTableStorageValueGeneratorCache, AzureTableStorageValueGeneratorCache>();
+                .AddScoped<AzureTableStorageValueGeneratorCache, AzureTableStorageValueGeneratorCache>()
+                .AddSingleton<ITableEntityFactory,PocoTableEntityAdapterFactory>();
+
             if (batching)
             {
                 builder.ServiceCollection.AddScoped<AzureTableStorageDataStore, AzureTableStorageBatchedDataStore>();

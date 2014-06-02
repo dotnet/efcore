@@ -11,6 +11,7 @@ using Microsoft.Data.Entity.AzureTableStorage.Interfaces;
 using Microsoft.Data.Entity.AzureTableStorage.Query;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Framework.DependencyInjection;
 using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Microsoft.Data.Entity.AzureTableStorage
@@ -18,15 +19,13 @@ namespace Microsoft.Data.Entity.AzureTableStorage
     public class AzureTableStorageBatchedDataStore : AzureTableStorageDataStore
     {
         private const int MaxBatchOperations = 100;
-
         /// <summary>
         ///     Provided only for testing purposes. Do not use.
         /// </summary>
-        protected AzureTableStorageBatchedDataStore(AzureTableStorageConnection connection)
-            : base(connection)
+        protected AzureTableStorageBatchedDataStore(AzureTableStorageConnection connection, ITableEntityFactory entityFactory)
+            :base(connection,entityFactory)
         {
         }
-
         public AzureTableStorageBatchedDataStore([NotNull] DbContextConfiguration configuration, [NotNull] AzureTableStorageConnection connection)
             : base(configuration, connection)
         {
@@ -47,7 +46,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
                 foreach (var partitionGroup in partitionGroups)
                 {
                     var batch = new TableBatchOperation();
-                    foreach (var operation in partitionGroup.Select(entry => GetOperation(entry, PocoTableEntityAdapter.FromObject(entry.Entity))).Where(operation => operation != null))
+                    foreach (var operation in partitionGroup.Select(entry => GetOperation(entry, EntityFactory.MakeFromObject(entry.Entity))).Where(operation => operation != null))
                     {
                         // TODO allow user access to config options: Retry Policy, Secondary Storage, Timeout 
                         batch.Add(operation);
