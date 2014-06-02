@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -21,54 +22,29 @@ namespace Microsoft.Data.Entity.InMemory
             _dataStore = dataStore;
         }
 
-        public override void Create()
+        public override bool EnsureDeleted()
         {
+            if (_dataStore.Database.Any())
+            {
+                _dataStore.Database.Clear();
+                return true;
+            }
+            return false;
         }
 
-        public override Task CreateAsync(CancellationToken cancellationToken = new CancellationToken())
+        public override Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            return Task.FromResult(0);
+            return Task.FromResult(EnsureDeleted());
         }
 
-        public override void CreateTables(IModel model)
+        public override bool EnsureCreated(IModel model)
         {
+            return false;
         }
 
-        public override Task CreateTablesAsync(IModel model, CancellationToken cancellationToken = new CancellationToken())
+        public override Task<bool> EnsureCreatedAsync(IModel model, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return Task.FromResult(0);
-        }
-
-        public override bool Exists()
-        {
-            return true;
-        }
-
-        public override Task<bool> ExistsAsync(CancellationToken cancellationToken = new CancellationToken())
-        {
-            return Task.FromResult(true);
-        }
-
-        public override void Delete()
-        {
-            _dataStore.Database.Clear();
-        }
-
-        public override Task DeleteAsync(CancellationToken cancellationToken = new CancellationToken())
-        {
-            _dataStore.Database.Clear();
-
-            return Task.FromResult(0);
-        }
-
-        public override bool HasTables()
-        {
-            return true;
-        }
-
-        public override Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return Task.FromResult(true);
+            return Task.FromResult(false);
         }
     }
 }

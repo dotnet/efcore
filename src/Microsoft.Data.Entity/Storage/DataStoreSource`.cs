@@ -9,12 +9,13 @@ using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.Storage
 {
-    public abstract class DataStoreSource<TDataStore, TConfiguration, TCreator, TConnection, TValueGeneratorCache> : DataStoreSource
+    public abstract class DataStoreSource<TDataStore, TConfiguration, TCreator, TConnection, TValueGeneratorCache, TDatabase> : DataStoreSource
         where TDataStore : DataStore
         where TConfiguration : DbContextOptionsExtension
         where TCreator : DataStoreCreator
         where TConnection : DataStoreConnection
         where TValueGeneratorCache : ValueGeneratorCache
+        where TDatabase : Database
     {
         public override DataStore GetStore(DbContextConfiguration configuration)
         {
@@ -22,6 +23,14 @@ namespace Microsoft.Data.Entity.Storage
 
             // TODO: Use GetRequiredService, by sharing source if possible
             return configuration.Services.ServiceProvider.GetService<TDataStore>();
+        }
+
+        public override Database GetDatabase(DbContextConfiguration configuration)
+        {
+            Check.NotNull(configuration, "configuration");
+
+            // TODO: Use GetRequiredService, by sharing source if possible
+            return configuration.Services.ServiceProvider.GetService<TDatabase>();
         }
 
         public override DataStoreCreator GetCreator(DbContextConfiguration configuration)

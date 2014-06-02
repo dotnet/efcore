@@ -20,59 +20,14 @@ namespace Microsoft.Data.Entity.Infrastructure
             _configuration = configuration;
         }
 
+        protected virtual DbContextConfiguration Configuration
+        {
+            get { return _configuration; }
+        }
+
         public virtual DataStoreConnection Connection
         {
             get { return _configuration.Connection; }
-        }
-
-        public virtual void Create()
-        {
-            _configuration.DataStoreCreator.Create();
-        }
-
-        public virtual Task CreateAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return _configuration.DataStoreCreator.CreateAsync(cancellationToken);
-        }
-
-        public virtual void CreateTables()
-        {
-            _configuration.DataStoreCreator.CreateTables(_configuration.Model);
-        }
-
-        public virtual Task CreateTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return _configuration.DataStoreCreator.CreateTablesAsync(_configuration.Model, cancellationToken);
-        }
-
-        public virtual void Delete()
-        {
-            _configuration.DataStoreCreator.Delete();
-        }
-
-        public virtual Task DeleteAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return _configuration.DataStoreCreator.DeleteAsync(cancellationToken);
-        }
-
-        public virtual bool Exists()
-        {
-            return _configuration.DataStoreCreator.Exists();
-        }
-
-        public virtual Task<bool> ExistsAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return _configuration.DataStoreCreator.ExistsAsync(cancellationToken);
-        }
-
-        public virtual bool HasTables()
-        {
-            return _configuration.DataStoreCreator.HasTables();
-        }
-
-        public virtual Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return _configuration.DataStoreCreator.HasTablesAsync(cancellationToken);
         }
 
         public virtual bool EnsureCreated()

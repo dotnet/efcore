@@ -218,6 +218,22 @@ namespace Microsoft.Data.Entity.Relational
             return string.Format(CultureInfo.CurrentCulture, GetString("ConnectionNotFound", "connectionName"), connectionName);
         }
 
+        /// <summary>
+        /// Relational-specific methods can only be used when the context is using a relational data store.
+        /// </summary>
+        internal static string RelationalNotInUse
+        {
+            get { return GetString("RelationalNotInUse"); }
+        }
+
+        /// <summary>
+        /// Relational-specific methods can only be used when the context is using a relational data store.
+        /// </summary>
+        internal static string FormatRelationalNotInUse()
+        {
+            return GetString("RelationalNotInUse");
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

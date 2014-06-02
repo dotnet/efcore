@@ -31,6 +31,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         private LazyRef<DataStoreConnection> _connection;
         private ServiceProviderSource _serviceProviderSource;
         private LazyRef<ILoggerFactory> _loggerFactory;
+        private LazyRef<Database> _database;
 
         public virtual DbContextConfiguration Initialize(
             [NotNull] IServiceProvider externalProvider,
@@ -55,6 +56,7 @@ namespace Microsoft.Data.Entity.Infrastructure
             _dataStore = new LazyRef<DataStore>(() => _dataStoreSource.Value.GetStore(this));
             _connection = new LazyRef<DataStoreConnection>(() => _dataStoreSource.Value.GetConnection(this));
             _loggerFactory = new LazyRef<ILoggerFactory>(() => GetLoggerFactory() ?? new NullLoggerFactory());
+            _database = new LazyRef<Database>(() => _dataStoreSource.Value.GetDatabase(this));
 
             return this;
         }
@@ -85,6 +87,11 @@ namespace Microsoft.Data.Entity.Infrastructure
         public virtual DataStore DataStore
         {
             get { return _dataStore.Value; }
+        }
+
+        public virtual Database Database
+        {
+            get { return _database.Value; }
         }
 
         public virtual DataStoreCreator DataStoreCreator

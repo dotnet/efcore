@@ -42,8 +42,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddScoped<StateEntryNotifier>()
                 .AddScoped<DbContextConfiguration>()
                 .AddScoped<ContextSets>()
-                .AddScoped<StateManager>()
-                .AddScoped<Database>();
+                .AddScoped<StateManager>();
 
             return new EntityServicesBuilder(serviceCollection);
         }
