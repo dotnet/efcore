@@ -14,6 +14,7 @@ using Microsoft.Data.Entity.AzureTableStorage.Utilities;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Framework.DependencyInjection;
 using Microsoft.WindowsAzure.Storage.Table;
 using Remotion.Linq;
 
@@ -22,13 +23,15 @@ namespace Microsoft.Data.Entity.AzureTableStorage
     public class AzureTableStorageDataStore : DataStore
     {
         protected readonly AzureTableStorageConnection Connection;
+        internal ITableEntityFactory EntityFactory;
 
         /// <summary>
         ///     Provided only for testing purposes. Do not use.
         /// </summary>
-        protected AzureTableStorageDataStore(AzureTableStorageConnection connection)
+        protected AzureTableStorageDataStore(AzureTableStorageConnection connection, ITableEntityFactory entityFactory)
         {
             Connection = connection;
+            EntityFactory = entityFactory;
         }
 
         public AzureTableStorageDataStore([NotNull] DbContextConfiguration configuration, [NotNull] AzureTableStorageConnection connection)
@@ -36,6 +39,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         {
             Check.NotNull(connection, "connection");
             Connection = connection;
+            EntityFactory = configuration.Services.ServiceProvider.GetService<ITableEntityFactory>();
         }
 
         public override IEnumerable<TResult> Query<TResult>(QueryModel queryModel, StateManager stateManager)
@@ -68,7 +72,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             foreach (var tableGroup in tableGroups)
             {
                 var table = Connection.GetTableReference(tableGroup.Key.StorageName);
-                var tasks = tableGroup.Select(entry => GetOperation(entry, PocoTableEntityAdapter.FromObject(entry.Entity)))
+                var tasks = tableGroup.Select(entry => GetOperation(entry, EntityFactory.MakeFromObject(entry.Entity)))
                     .TakeWhile(operation => !cancellationToken.IsCancellationRequested)
                     .Select(operation => table.ExecuteAsync(operation, cancellationToken));
                 allTasks.AddRange(tasks);
