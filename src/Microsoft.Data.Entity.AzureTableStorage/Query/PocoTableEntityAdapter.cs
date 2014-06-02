@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -13,17 +13,7 @@ using Microsoft.WindowsAzure.Storage.Table.Protocol;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Query
 {
-    public static class PocoTableEntityAdapter
-    {
-        public static ITableEntity FromObject(object obj)
-        {
-            var objType = obj.GetType();
-            var adapterType = typeof(PocoTableEntityAdapter<>).MakeGenericType(objType);
-            return (ITableEntity)adapterType.GetConstructor(new[] { objType }).Invoke(new[] { obj });
-        }
-    }
-
-    public class PocoTableEntityAdapter<TEntity> : TableEntity, ITableEntity
+    public class PocoTableEntityAdapter<TEntity> : ITableEntity
         where TEntity : class, new()
     {
         private static MethodInfo _partitionKeyGetMethod;
@@ -78,6 +68,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
                 {
                     throw new TypeAccessException(Strings.FormatInvalidPoco(name, type));
                 }
+                //TODO support for special cases e.g. private getters in base case that get overridden
                 getMethod = getMethod ?? prop.GetGetMethod(nonPublic: false);
                 if (getMethod == null)
                 {
@@ -107,7 +98,6 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
         public PocoTableEntityAdapter([NotNull] TEntity clrInstance)
         {
             Check.NotNull(clrInstance, "clrInstance");
-
             CheckProperties();
             ClrInstance = clrInstance;
             _clrProperties = ClrInstance.GetType().GetProperties();
@@ -118,19 +108,19 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
         {
         }
 
-        public new string PartitionKey
+        public string PartitionKey
         {
             get { return (string)_partitionKeyGetMethod.Invoke(ClrInstance, null); }
             set { _partitionKeySetMethod.Invoke(ClrInstance, new object[] { value }); }
         }
 
-        public new string RowKey
+        public string RowKey
         {
             get { return (string)_rowKeyGetMethod.Invoke(ClrInstance, null); }
             set { _rowKeySetMethod.Invoke(ClrInstance, new object[] { value }); }
         }
 
-        public new DateTimeOffset Timestamp
+        public DateTimeOffset Timestamp
         {
             get
             {
@@ -153,7 +143,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
             }
         }
 
-        public new string ETag
+        public string ETag
         {
             get
             {
@@ -176,7 +166,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
             }
         }
 
-        public override void ReadEntity(IDictionary<string, EntityProperty> properties, OperationContext operationContext)
+        public void ReadEntity(IDictionary<string, EntityProperty> properties, OperationContext operationContext)
         {
             foreach (var property in _clrProperties)
             {
@@ -298,7 +288,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
             }
         }
 
-        public override IDictionary<string, EntityProperty> WriteEntity(OperationContext operationContext)
+        public IDictionary<string, EntityProperty> WriteEntity(OperationContext operationContext)
         {
             var retVals = new Dictionary<string, EntityProperty>();
 
