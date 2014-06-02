@@ -83,7 +83,9 @@
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
     <Compile Include="..\Shared\CodeAnnotations.cs" />
+    <Compile Include="Query\ITableEntityFactory.cs" />
     <Compile Include="Query\PocoTableEntityAdapter.cs" />
+    <Compile Include="Query\PocoTableEntityAdapterFactory.cs" />
     <Compile Include="Query\AzureTableStorageQueryCompilationContext.cs" />
     <Compile Include="Query\AzureTableStorageQueryContext.cs" />
     <Compile Include="Query\AzureTableStorageQueryModelVisitor.cs" />
