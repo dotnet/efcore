@@ -5,6 +5,39 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests.Helpers
 {
     public class Purchase 
     {
+        protected bool Equals(Purchase other)
+        {
+            return string.Equals(PartitionKey, other.PartitionKey) && string.Equals(RowKey, other.RowKey) && Timestamp.Equals(other.Timestamp) && string.Equals(ETag, other.ETag) && Cost.Equals(other.Cost) && string.Equals(Name, other.Name) && Purchased.Equals(other.Purchased) && Count == other.Count && GlobalGuid.Equals(other.GlobalGuid) && Awesomeness.Equals(other.Awesomeness);
+        }
+
+        public static bool operator ==(Purchase left, Purchase right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(Purchase left, Purchase right)
+        {
+            return !Equals(left, right);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = (PartitionKey != null ? PartitionKey.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (RowKey != null ? RowKey.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ Timestamp.GetHashCode();
+                hashCode = (hashCode * 397) ^ (ETag != null ? ETag.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ Cost.GetHashCode();
+                hashCode = (hashCode * 397) ^ (Name != null ? Name.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ Purchased.GetHashCode();
+                hashCode = (hashCode * 397) ^ Count;
+                hashCode = (hashCode * 397) ^ GlobalGuid.GetHashCode();
+                hashCode = (hashCode * 397) ^ Awesomeness.GetHashCode();
+                return hashCode;
+            }
+        }
+
         public Purchase()
         {
             Purchased = DateTime.Parse("Jan 1, 1601 00:00:00 GMT", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal);
@@ -19,43 +52,21 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests.Helpers
         public int Count { get; set; }
         public Guid GlobalGuid { get; set; }
         public bool Awesomeness { get; set; }
-        // override object.Equals
         public override bool Equals(object obj)
         {
-            var other = obj as Purchase;
-            if (other == null)
+            if (ReferenceEquals(null, obj))
             {
                 return false;
             }
-            else if (PartitionKey != other.PartitionKey)
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+            if (obj.GetType() != this.GetType())
             {
                 return false;
             }
-            else if (RowKey != other.RowKey)
-            {
-                return false;
-            }
-            else if (Cost != other.Cost)
-            {
-                return false;
-            }
-            else if (Name != other.Name)
-            {
-                return false;
-            }
-            else if (Count != other.Count)
-            {
-                return false;
-            }
-            else if (!GlobalGuid.Equals(other.GlobalGuid))
-            {
-                return false;
-            }
-            else if (Awesomeness != other.Awesomeness)
-            {
-                return false;
-            }
-            return Purchased.ToUniversalTime().Equals(other.Purchased.ToUniversalTime());
+            return Equals((Purchase)obj);
         }
     }
 }
