@@ -5,11 +5,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{50F8CE3F-907C-48A6-A7EB-73CC631ADBE6}</ProjectGuid>
+    <ProjectGuid>{38F9AD16-B3B4-48A5-B814-77660CF409AE}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.Data.Entity.Migrations.Tests</RootNamespace>
-    <AssemblyName>Microsoft.Data.Entity.Migrations.Tests</AssemblyName>
+    <RootNamespace>Microsoft.Data.Entity.Migrations.Design.Tests</RootNamespace>
+    <AssemblyName>Microsoft.Data.Entity.Migrations.Design.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -31,8 +31,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Data" />
     <PackageReference Include="Microsoft.Data.Common">
       <TargetFramework>net451</TargetFramework>
     </PackageReference>
@@ -55,52 +53,28 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
-    <Compile Include="Infrastructure\HistoryRepositoryTest.cs" />
-    <Compile Include="Infrastructure\MigrationAssemblyTest.cs" />
-    <Compile Include="Infrastructure\MigrationMetadataTest.cs" />
-    <Compile Include="Infrastructure\MigratorTest.cs" />
-    <Compile Include="MigrationOperationSqlGeneratorTest.cs" />
-    <Compile Include="MigrationTest.cs" />
-    <Compile Include="ModelDifferTest.cs" />
-    <Compile Include="Builders\ColumnBuilderTest.cs" />
-    <Compile Include="Builders\MigrationBuilderTest.cs" />
-    <Compile Include="Builders\TableBuilderTest.cs" />
-    <Compile Include="Model\AddColumnOperationTest.cs" />
-    <Compile Include="Model\AddDefaultConstraintOperationTest.cs" />
-    <Compile Include="Model\AddForeignKeyOperationTest.cs" />
-    <Compile Include="Model\AddPrimaryKeyOperationTest.cs" />
-    <Compile Include="Model\AlterColumnOperationTest.cs" />
-    <Compile Include="Model\CreateDatabaseOperationTest.cs" />
-    <Compile Include="Model\CreateIndexOperationTest.cs" />
-    <Compile Include="Model\CreateSequenceOperationTest.cs" />
-    <Compile Include="Model\CreateTableOperationTest.cs" />
-    <Compile Include="Model\DropColumnOperationTest.cs" />
-    <Compile Include="Model\DropDatabaseOperationTest.cs" />
-    <Compile Include="Model\DropDefaultConstraintOperationTest.cs" />
-    <Compile Include="Model\DropForeignKeyOperation.cs" />
-    <Compile Include="Model\DropIndexOperationTest.cs" />
-    <Compile Include="Model\DropPrimaryKeyOperationTest.cs" />
-    <Compile Include="Model\DropSequenceOperationTest.cs" />
-    <Compile Include="Model\DropTableOperationTest.cs" />
-    <Compile Include="Model\MoveTableOperationTest.cs" />
-    <Compile Include="Model\RenameColumnOperationTest.cs" />
-    <Compile Include="Model\RenameIndexOperationTest.cs" />
-    <Compile Include="Model\RenameTableOperationTest.cs" />
+    <Compile Include="CSharpMigrationCodeGeneratorTest.cs" />
+    <Compile Include="CSharpModelCodeGeneratorTest.cs" />
     <Compile Include="..\Shared\ApiConsistencyTestBase.cs" />
+    <Compile Include="MigrationScaffolderTest.cs" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Microsoft.Data.Entity\Microsoft.Data.Entity.csproj">
-      <Project>{71415CEC-8111-4C73-8751-512D22F10602}</Project>
-      <Name>Microsoft.Data.Entity</Name>
+    <ProjectReference Include="..\..\src\Microsoft.Data.Entity.Migrations.Design\Microsoft.Data.Entity.Migrations.Design.csproj">
+      <Project>{10ca97eb-e724-4f08-86af-f301f2b0bfff}</Project>
+      <Name>Microsoft.Data.Entity.Migrations.Design</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Microsoft.Data.Entity.Relational\Microsoft.Data.Entity.Relational.csproj">
+      <Project>{75c5a774-a3f3-43eb-97d3-dbe0cf2825d8}</Project>
+      <Name>Microsoft.Data.Entity.Relational</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\src\Microsoft.Data.Entity.Migrations\Microsoft.Data.Entity.Migrations.csproj">
       <Project>{6E38B72F-31DA-4AEF-8F34-B8269572EC6B}</Project>
       <Name>Microsoft.Data.Entity.Migrations</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\Microsoft.Data.Entity.Relational\Microsoft.Data.Entity.Relational.csproj">
-      <Project>{75C5A774-A3F3-43EB-97D3-DBE0CF2825D8}</Project>
-      <Name>Microsoft.Data.Entity.Relational</Name>
+    <ProjectReference Include="..\..\src\Microsoft.Data.Entity\Microsoft.Data.Entity.csproj">
+      <Project>{71415cec-8111-4c73-8751-512d22f10602}</Project>
+      <Name>Microsoft.Data.Entity</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

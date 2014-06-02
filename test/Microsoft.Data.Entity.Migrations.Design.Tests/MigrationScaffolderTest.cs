@@ -6,11 +6,10 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational;
-using Microsoft.Framework.DependencyInjection;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
+namespace Microsoft.Data.Entity.Migrations.Design.Tests
 {
     public class MigrationScaffolderTest
     {

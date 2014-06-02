@@ -1,0 +1,15 @@
+{
+  "version": "0.1-alpha-*",
+  "compilationOptions": {
+    "warningsAsErrors": true
+  },
+  "dependencies": {
+    "Microsoft.Data.Entity.Migrations": ""
+  },
+  "code": "**\\*.cs;..\\Shared\\*.cs",
+  "configurations": {
+    "net451": {},
+    "k10": {},
+    ".NETPortable,Version=v4.6,Profile=Profile44": {}
+  }
+}

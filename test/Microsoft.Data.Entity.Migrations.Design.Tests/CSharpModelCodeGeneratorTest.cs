@@ -5,7 +5,7 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Migrations.Tests
+namespace Microsoft.Data.Entity.Migrations.Design.Tests
 {
     public class CSharpModelCodeGeneratorTest
     {

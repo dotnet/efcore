@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
     public class TestDatabase : IDisposable, IDbCommandExecutor
     {
-        public const int CommandTimeout = 5;
+        public const int CommandTimeout = 30;
         private const string DefaultDatabaseName = "Microsoft.Data.SqlServer.FunctionalTest";
         private const string NorthwindDatabaseName = "Northwind";
 
@@ -166,7 +166,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 using (var command = master.CreateCommand())
                 {
-                    command.CommandTimeout = 5; // Query will take a few seconds if (and only if) there are active connections
+                    command.CommandTimeout = CommandTimeout; // Query will take a few seconds if (and only if) there are active connections
 
                     // SET SINGLE_USER will close any open connections that would prevent the drop
                     command.CommandText

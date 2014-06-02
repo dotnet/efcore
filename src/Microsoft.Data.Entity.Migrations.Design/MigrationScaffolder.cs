@@ -8,11 +8,12 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Migrations.Design.Utilities;
+using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Utilities;
-using Microsoft.Data.Entity.Migrations.Utilities;
 
-namespace Microsoft.Data.Entity.Migrations.Infrastructure
+namespace Microsoft.Data.Entity.Migrations.Design
 {
     public abstract class MigrationScaffolder
     {

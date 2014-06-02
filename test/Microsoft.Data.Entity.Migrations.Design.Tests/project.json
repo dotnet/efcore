@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "Microsoft.Data.Entity.Migrations" : "",
+    "Microsoft.Data.Entity.Migrations.Design" : "",
     "Moq" : "4.2.1312.1622",
     "Xunit.KRunner": "0.1-alpha-*"
   },

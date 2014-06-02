@@ -123,13 +123,7 @@
   <data name="InvalidEnumValue" xml:space="preserve">
     <value>The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.</value>
   </data>
-  <data name="UnknownOperation" xml:space="preserve">
-    <value>The current migration SQL generator '{sqlGeneratorType}' is unable to generate SQL for operations of type '{operationType}'.</value>
-  </data>
-  <data name="TargetMigrationNotFound" xml:space="preserve">
-    <value>The target migration '{targetMigrationName}' was not found.</value>
-  </data>
-  <data name="LocalMigrationNotFound" xml:space="preserve">
-    <value>The history repository includes a migration with the name '{0}' and timestamp '{1}' but the migration assembly does not contain the corresponding migration class.</value>
+  <data name="DuplicateMigrationName" xml:space="preserve">
+    <value>The name '{migrationName}' is used by an existing migration.</value>
   </data>
 </root>

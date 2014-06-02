@@ -75,22 +75,6 @@ namespace Microsoft.Data.Entity.Migrations
         }
 
         /// <summary>
-        /// The name '{migrationName}' is used by an existing migration.
-        /// </summary>
-        internal static string DuplicateMigrationName
-        {
-            get { return GetString("DuplicateMigrationName"); }
-        }
-
-        /// <summary>
-        /// The name '{migrationName}' is used by an existing migration.
-        /// </summary>
-        internal static string FormatDuplicateMigrationName(object migrationName)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateMigrationName", "migrationName"), migrationName);
-        }
-
-        /// <summary>
         /// The history repository includes a migration with the name '{0}' and timestamp '{1}' but the migration assembly does not contain the corresponding migration class.
         /// </summary>
         internal static string LocalMigrationNotFound
