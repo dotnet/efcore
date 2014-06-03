@@ -3,12 +3,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.AzureTableStorage.Interfaces;
 using Microsoft.Data.Entity.AzureTableStorage.Utilities;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
@@ -18,25 +17,26 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
 {
     public class AzureTableStorageQueryModelVisitor : EntityQueryModelVisitor
     {
-        private readonly Dictionary<IQuerySource, ITableQuery> _queriesBySource = new Dictionary<IQuerySource, ITableQuery>();
+        private readonly Dictionary<IQuerySource, AtsTableQuery> _queriesBySource = new Dictionary<IQuerySource, AtsTableQuery>();
+        private readonly AzureTableStorageQueryCompilationContext _queryCompilationContext;
 
         public AzureTableStorageQueryModelVisitor([NotNull] AzureTableStorageQueryCompilationContext queryCompilationContext)
             : base(queryCompilationContext)
         {
+            _queryCompilationContext = queryCompilationContext;
         }
 
         private AzureTableStorageQueryModelVisitor(AzureTableStorageQueryModelVisitor visitor)
-            : base(visitor.QueryCompilationContext)
-        {
-        }
+            : this(visitor._queryCompilationContext)
+        {}
 
-        public ITableQuery GetTableQuery([NotNull] IQuerySource key)
+        public AtsTableQuery GetTableQuery([NotNull] IQuerySource key)
         {
             Check.NotNull(key, "key");
             return _queriesBySource[key];
         }
 
-        public bool TryGetTableQuery([NotNull] IQuerySource key, out ITableQuery query)
+        public bool TryGetTableQuery([NotNull] IQuerySource key, out AtsTableQuery query)
         {
             Check.NotNull(key, "key");
             return _queriesBySource.TryGetValue(key, out query);
@@ -51,12 +51,14 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
         {
             private readonly AzureTableStorageQueryModelVisitor _parent;
             private readonly IQuerySource _querySource;
+            private readonly IEntityType _entityType;
 
             public AzureTableStorageQueryingExpressionTreeVisitor(AzureTableStorageQueryModelVisitor parent, IQuerySource querySource)
                 : base(parent.QueryCompilationContext)
             {
                 _parent = parent;
                 _querySource = querySource;
+                _entityType = _parent._queryCompilationContext.Model.TryGetEntityType(_querySource.ItemType);
             }
 
             protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
@@ -68,26 +70,23 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
 
             protected override Expression VisitEntityQueryable(Type elementType)
             {
-                var entityType = _parent.QueryCompilationContext.Model.GetEntityType(elementType);
-                var adapterType = typeof(PocoTableEntityAdapter<>).MakeGenericType(entityType.Type);
-                var queryConstructor = typeof(TableQuery<>).MakeGenericType(adapterType).GetConstructor(Type.EmptyTypes);
-                if (queryConstructor == null)
-                {
-                    throw new NullReferenceException("Could not create table query for this element type");
-                }
-                var query = (ITableQuery)queryConstructor.Invoke(null);
+                var query = new AtsTableQuery();
                 _parent._queriesBySource[_querySource] = query;
+
+                var entityType = _parent.QueryCompilationContext.Model.GetEntityType(elementType);
+
                 return Expression.Call(
                     _entityScanMethodInfo.MakeGenericMethod(elementType),
                     QueryContextParameter,
-                    Expression.Constant(query)
+                    Expression.Constant(query),
+                    Expression.Constant(entityType)
                     );
             }
 
             protected override Expression VisitUnaryExpression(UnaryExpression expression)
             {
-                var filter = TableFilter.FromUnaryExpression(expression);
-                ITableQuery query;
+                var filter = _parent._queryCompilationContext.TableFilterFactory.TryCreate(expression, _entityType);
+                AtsTableQuery query;
                 if (filter != null
                     && _parent._queriesBySource.TryGetValue(_querySource, out query))
                 {
@@ -99,8 +98,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
 
             protected override Expression VisitMemberExpression(MemberExpression expression)
             {
-                var filter = TableFilter.FromMemberExpression(expression);
-                ITableQuery query;
+                var filter = _parent._queryCompilationContext.TableFilterFactory.TryCreate(expression, _entityType);
+                AtsTableQuery query;
                 if (filter != null
                     && _parent._queriesBySource.TryGetValue(_querySource, out query))
                 {
@@ -112,8 +111,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
 
             protected override Expression VisitBinaryExpression(BinaryExpression expression)
             {
-                var filter = TableFilter.FromBinaryExpression(expression);
-                ITableQuery query;
+                var filter = _parent._queryCompilationContext.TableFilterFactory.TryCreate(expression,_entityType);
+                AtsTableQuery query;
                 if (filter != null
                     && _parent._queriesBySource.TryGetValue(_querySource, out query))
                 {
@@ -129,7 +128,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
                 return base.VisitBinaryExpression(expression);
             }
 
-            public static bool CanReduceBinaryExpression(BinaryExpression expression)
+            private static bool CanReduceBinaryExpression(BinaryExpression expression)
             {
                 return expression.NodeType == ExpressionType.AndAlso;
             }
@@ -138,21 +137,20 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
         private static readonly MethodInfo _entityScanMethodInfo
             = typeof(AzureTableStorageQueryModelVisitor).GetTypeInfo().GetDeclaredMethod("EntityScan");
 
+
         [UsedImplicitly]
-        private static IEnumerable<TResult> EntityScan<TResult>(QueryContext queryContext, TableQuery<PocoTableEntityAdapter<TResult>> tableQuery)
+        private static IEnumerable<TResult> EntityScan<TResult>(QueryContext queryContext, AtsTableQuery tableQuery, IEntityType entityType)
             where TResult : class, new()
         {
-            var type = queryContext.Model.GetEntityType(tableQuery.ResultType.GetGenericArguments()[0]);
-            var table = ((AzureTableStorageQueryContext)queryContext).Database.GetTableReference(type.StorageName);
+            var context = ((AzureTableStorageQueryContext)queryContext);
+            var table = context.Database.GetTableReference(entityType.StorageName);
 
-            return table.ExecuteQuery(tableQuery.ToExecutableQuery()).Select(item =>
-                {
-                    //TODO use GetOrMaterialize instead -> support ShadowState
-                    var entry = queryContext.StateManager.GetOrCreateEntry(item.ClrInstance);
-                    queryContext.StateManager.StartTracking(entry);
-                    entry.EntityState = EntityState.Unchanged;
-                    return item.ClrInstance;
-                });
+            return table.ExecuteQuery(tableQuery, s =>
+                (TResult)context.StateManager.GetOrMaterializeEntry(
+                    entityType,
+                    context.ValueReaderFactory.Create(entityType, s)
+                    ).Entity
+                );
         }
     }
 }

@@ -75,7 +75,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         }
 
         /// <summary>
-        /// Entities in Azure Table Storage require a property '{propertyName}' of type '{typeName}'
+        /// Cannot access a public setter and getter for the property '{propertyName}' of type '{typeName}'
         /// </summary>
         internal static string InvalidPoco
         {
@@ -83,11 +83,27 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         }
 
         /// <summary>
-        /// Entities in Azure Table Storage require a property '{propertyName}' of type '{typeName}'
+        /// Cannot access a public setter and getter for the property '{propertyName}' of type '{typeName}'
         /// </summary>
         internal static string FormatInvalidPoco(object propertyName, object typeName)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("InvalidPoco", "propertyName", "typeName"), propertyName, typeName);
+        }
+
+        /// <summary>
+        /// This database cannot be used as an AzureTableStorageDatabase
+        /// </summary>
+        internal static string AtsDatabaseNotInUse
+        {
+            get { return GetString("AtsDatabaseNotInUse"); }
+        }
+
+        /// <summary>
+        /// This database cannot be used as an AzureTableStorageDatabase
+        /// </summary>
+        internal static string FormatAtsDatabaseNotInUse()
+        {
+            return GetString("AtsDatabaseNotInUse");
         }
 
         private static string GetString(string name, params string[] formatterNames)

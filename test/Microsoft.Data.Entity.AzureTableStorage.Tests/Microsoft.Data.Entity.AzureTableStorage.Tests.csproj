@@ -68,7 +68,7 @@
     </PackageReference>
     <PackageReference Include="WindowsAzure.Storage">
       <Assemblies>Microsoft.WindowsAzure.Storage</Assemblies>
-      <TargetFramework>net45</TargetFramework>
+      <TargetFramework>net40</TargetFramework>
     </PackageReference>
     <PackageReference Include="Remotion.Linq">
       <TargetFramework>portable-net45+wp80+win</TargetFramework>
@@ -76,9 +76,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BatchedDataStoreTests.cs" />
-    <Compile Include="DataStoreCreatorTests.cs" />
+    <Compile Include="AtsDatabaseTests.cs" />
     <Compile Include="DataStoreTests.cs" />
     <Compile Include="Helpers\FakeConnection.cs" />
+    <Compile Include="Helpers\PocoTableEntityAdapter.cs" />
     <Compile Include="Helpers\PocoTestType.cs" />
     <Compile Include="Helpers\TestModelExtensions.cs" />
     <Compile Include="Helpers\TestModelFixture.cs" />
@@ -86,7 +87,7 @@
     <Compile Include="Helpers\TestTableResult.cs" />
     <Compile Include="Query\PocoTableEntityAdapterTest.cs" />
     <Compile Include="Query\ModelVisitorTests.cs" />
-    <Compile Include="Query\TableFilterTests.cs" />
+    <Compile Include="Query\TableFilterFactoryTests.cs" />
     <Compile Include="Query\TableQueryTest.cs" />
   </ItemGroup>
   <ItemGroup>

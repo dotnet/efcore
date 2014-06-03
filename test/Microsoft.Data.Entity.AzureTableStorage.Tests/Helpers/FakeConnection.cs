@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.AzureTableStorage.Interfaces;
+using Microsoft.Data.Entity.AzureTableStorage.Query;
 using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Tests
@@ -64,7 +65,12 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
                 return Task.Factory.StartNew(() => true);
             }
 
-            public IEnumerable<TElement> ExecuteQuery<TElement>(TableQuery<TElement> query) where TElement : ITableEntity, new()
+            public IEnumerable<TElement> ExecuteQuery<TElement>(AtsTableQuery query, Func<AtsNamedValueBuffer, TElement> resolver) where TElement : class
+            {
+                throw new NotImplementedException();
+            }
+
+            public void DeleteIfExists()
             {
                 throw new NotImplementedException();
             }
