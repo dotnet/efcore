@@ -1,11 +1,13 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.AzureTableStorage.Interfaces;
+using Microsoft.Data.Entity.AzureTableStorage.Query;
 using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Wrappers
@@ -46,9 +48,22 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Wrappers
             return _table.CreateIfNotExistsAsync(cancellationToken);
         }
 
-        public IEnumerable<TElement> ExecuteQuery<TElement>(TableQuery<TElement> query) where TElement : ITableEntity, new()
+        public IEnumerable<TElement> ExecuteQuery<TElement>(AtsTableQuery query, Func<AtsNamedValueBuffer,TElement> resolver) where TElement : class
         {
-            return _table.ExecuteQuery(query);
+            return _table.ExecuteQuery(query.ToExecutableQuery(), (key, rowKey, timestamp, properties, etag) =>
+                {
+                    var buffer = new AtsNamedValueBuffer(properties);
+                    buffer["PartitionKey"] = key;
+                    buffer["RowKey"] = rowKey;
+                    buffer["Timestamp"] = timestamp;
+                    buffer["ETag"] = etag;
+                    return resolver(buffer);
+                });
+        }
+
+        public void DeleteIfExists()
+        {
+            _table.DeleteIfExists();
         }
     }
 }

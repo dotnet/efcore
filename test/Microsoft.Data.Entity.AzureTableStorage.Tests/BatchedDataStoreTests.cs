@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.AzureTableStorage.Adapters;
 using Microsoft.Data.Entity.AzureTableStorage.Interfaces;
 using Microsoft.Data.Entity.AzureTableStorage.Query;
 using Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers;
@@ -20,10 +21,10 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
     {
         private readonly FakeConnection _fakeConnection;
 
-        private readonly ITableEntityFactory _entityFactory = new PocoTableEntityAdapterFactory();
+        private readonly TableEntityAdapterFactory _entityFactory = new TableEntityAdapterFactory();
 
         public BatchedDataStoreTests(FakeConnection connection)
-            : base(connection,new PocoTableEntityAdapterFactory())
+            : base(connection,new TableEntityAdapterFactory())
         {
             _fakeConnection = connection;
             _fakeConnection.ClearQueue();
@@ -88,29 +89,6 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
         }
 
         [Theory]
-        [InlineData(EntityState.Added, TableOperationType.Insert)]
-        [InlineData(EntityState.Modified, TableOperationType.Replace)]
-        [InlineData(EntityState.Deleted, TableOperationType.Delete)]
-        [InlineData(EntityState.Unknown, null)]
-        [InlineData(EntityState.Unchanged, null)]
-        public void It_maps_entity_state_to_table_operations(EntityState entityState, TableOperationType operationType)
-        {
-            var entry = TestStateEntry.Mock().WithState(entityState);
-            var operation = GetOperation(entry, _entityFactory.MakeFromObject(entry.Entity));
-
-            if (operation == null)
-            {
-                Assert.True(EntityState.Unknown.HasFlag(entityState) || EntityState.Unchanged.HasFlag(entityState));
-            }
-            else
-            {
-                var propInfo = typeof(TableOperation).GetProperty("OperationType", BindingFlags.NonPublic | BindingFlags.Instance);
-                var type = (TableOperationType)propInfo.GetValue(operation);
-                Assert.Equal(operationType, type);
-            }
-        }
-
-        [Theory]
         [InlineData(1)]
         [InlineData(2)]
         [InlineData(100)]
@@ -124,7 +102,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
             {
                 var title = "Test - " + i;
                 _fakeConnection.QueueResult(title, TestTableResult.OK());
-                testEntries.Add(TestStateEntry.Mock().WithState(EntityState.Added).WithName(title));
+                testEntries.Add(TestStateEntry.Mock().WithState(EntityState.Added).WithType(title).WithProperty("PartitionKey","A"));
             }
             var actualChanges = SaveChangesAsync(testEntries).Result;
             Assert.Equal(expectedChanges, actualChanges);

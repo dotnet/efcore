@@ -4,11 +4,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using Microsoft.Data.Entity.AzureTableStorage.Interfaces;
+using Microsoft.Data.Entity.AzureTableStorage.Adapters;
 using Microsoft.Data.Entity.AzureTableStorage.Query;
 using Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.WindowsAzure.Storage.Table;
 using Xunit;
+
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
 {
@@ -18,14 +20,14 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
         private readonly TestModelFixture _fixture;
 
         public ModelVisitorTests(TestModelFixture fixture)
-            : base(new AzureTableStorageQueryCompilationContext(SetupModel(fixture)))
+            : base(new AzureTableStorageQueryCompilationContext(SetupModel(fixture),new TableFilterFactory()))
         {
             _fixture = fixture;
         }
 
         private static IModel SetupModel(TestModelFixture fixture)
         {
-            return fixture.CreateTestModel("TestModel").WithEntityType(new EntityType(typeof(PocoTestType)));
+            return fixture.CreateTestModel("TestModel").WithEntityType(PocoTestType.EntityType());
         }
 
         private static Expression MakePredicate<TSource>(Expression<Func<TSource, bool>> wherePredicate)
@@ -38,12 +40,12 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
         {
             var querySource = _fixture.CreateWithEntityQueryable<PocoTestType>();
             var visitor = CreateQueryingExpressionTreeVisitor(querySource);
-            ITableQuery query;
+            AtsTableQuery query;
 
             visitor.VisitExpression(querySource.FromExpression);
 
             Assert.True(TryGetTableQuery(querySource, out query));
-            Assert.IsType<TableQuery<PocoTableEntityAdapter<PocoTestType>>>(query);
+            Assert.IsType<AzureTableStorage.Query.AtsTableQuery>(query);
             Assert.NotNull(query);
         }
 

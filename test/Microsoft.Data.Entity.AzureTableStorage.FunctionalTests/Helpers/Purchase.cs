@@ -7,7 +7,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests.Helpers
     {
         protected bool Equals(Purchase other)
         {
-            return string.Equals(PartitionKey, other.PartitionKey) && string.Equals(RowKey, other.RowKey) && Timestamp.Equals(other.Timestamp) && string.Equals(ETag, other.ETag) && Cost.Equals(other.Cost) && string.Equals(Name, other.Name) && Purchased.Equals(other.Purchased) && Count == other.Count && GlobalGuid.Equals(other.GlobalGuid) && Awesomeness.Equals(other.Awesomeness);
+            // intentionally leaves out Timestamp (changed by server)
+            return string.Equals(PartitionKey, other.PartitionKey) && string.Equals(RowKey, other.RowKey) && string.Equals(ETag, other.ETag) && Cost.Equals(other.Cost) && string.Equals(Name, other.Name) && Purchased.Equals(other.Purchased) && Count == other.Count && GlobalGuid.Equals(other.GlobalGuid) && Awesomeness.Equals(other.Awesomeness);
         }
 
         public static bool operator ==(Purchase left, Purchase right)

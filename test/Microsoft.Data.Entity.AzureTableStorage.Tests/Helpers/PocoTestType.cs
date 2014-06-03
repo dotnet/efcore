@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers
 {
@@ -21,5 +22,16 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers
         public byte[] Buffer { get; set; }
 
         public PocoTestType NestedObj { get; set; }
+
+        public static EntityType EntityType()
+        {
+            var entityType =
+            new EntityType(typeof(PocoTestType));
+            foreach (var property in typeof(PocoTestType).GetProperties())
+            {
+                entityType.AddProperty(property);
+            }
+            return entityType;
+        }
     }
 }

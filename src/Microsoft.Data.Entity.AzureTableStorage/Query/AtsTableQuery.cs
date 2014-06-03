@@ -5,25 +5,19 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Microsoft.Data.Entity.AzureTableStorage.Interfaces;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Query
 {
-    [DebuggerDisplay("TableQuery<{ResultType}>")]
-    public class TableQuery<TEntity> : ITableQuery
-        where TEntity : ITableEntity
+    [DebuggerDisplay("AtsTableQuery")]
+    public class AtsTableQuery
     {
         private readonly IList<TableFilter> _filters = new List<TableFilter>();
 
-        public TableQuery()
+        internal TableQuery ToExecutableQuery()
         {
-            ResultType = typeof(TEntity);
-        }
-
-        internal WindowsAzure.Storage.Table.TableQuery<TEntity> ToExecutableQuery()
-        {
-            var query = new WindowsAzure.Storage.Table.TableQuery<TEntity>();
+            var query = new TableQuery();
             query.Where(Where);
             return query;
         }
@@ -51,9 +45,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
             return Where;
         }
 
-        public Type ResultType { get; private set; }
-
-        public ITableQuery WithFilter(TableFilter filter)
+        public AtsTableQuery WithFilter(TableFilter filter)
         {
             _filters.Add(filter);
             return this;

@@ -8,13 +8,13 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.AzureTableStorage.Adapters;
 using Microsoft.Data.Entity.AzureTableStorage.Interfaces;
 using Microsoft.Data.Entity.AzureTableStorage.Query;
 using Microsoft.Data.Entity.AzureTableStorage.Utilities;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Framework.DependencyInjection;
 using Microsoft.WindowsAzure.Storage.Table;
 using Remotion.Linq;
 
@@ -22,24 +22,32 @@ namespace Microsoft.Data.Entity.AzureTableStorage
 {
     public class AzureTableStorageDataStore : DataStore
     {
+        private readonly AzureTableStorageQueryFactory _queryFactory;
         protected readonly AzureTableStorageConnection Connection;
-        internal ITableEntityFactory EntityFactory;
+        internal TableEntityAdapterFactory EntityFactory;
 
         /// <summary>
         ///     Provided only for testing purposes. Do not use.
         /// </summary>
-        protected AzureTableStorageDataStore(AzureTableStorageConnection connection, ITableEntityFactory entityFactory)
+        protected AzureTableStorageDataStore(AzureTableStorageConnection connection, TableEntityAdapterFactory entityFactory)
         {
             Connection = connection;
             EntityFactory = entityFactory;
         }
 
-        public AzureTableStorageDataStore([NotNull] DbContextConfiguration configuration, [NotNull] AzureTableStorageConnection connection)
+        public AzureTableStorageDataStore([NotNull] DbContextConfiguration configuration,
+            [NotNull] AzureTableStorageConnection connection,
+            [NotNull] AzureTableStorageQueryFactory queryFactory,
+            [NotNull] TableEntityAdapterFactory tableEntityFactory)
             : base(configuration)
         {
             Check.NotNull(connection, "connection");
+            Check.NotNull(queryFactory, "queryFactory");
+            Check.NotNull(tableEntityFactory, "tableEntityFactory");
+
+            _queryFactory = queryFactory;
+            EntityFactory = tableEntityFactory;
             Connection = connection;
-            EntityFactory = configuration.Services.ServiceProvider.GetService<ITableEntityFactory>();
         }
 
         public override IEnumerable<TResult> Query<TResult>(QueryModel queryModel, StateManager stateManager)
@@ -47,9 +55,9 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             Check.NotNull(queryModel, "queryModel");
             Check.NotNull(stateManager, "stateManager");
 
-            var compilationContext = new AzureTableStorageQueryCompilationContext(Model);
+            var compilationContext = _queryFactory.MakeCompilationContext(Model);
             var queryExecutor = compilationContext.CreateVisitor().CreateQueryExecutor<TResult>(queryModel);
-            var queryContext = new AzureTableStorageQueryContext(Model, Logger, stateManager, Connection);
+            var queryContext = _queryFactory.MakeQueryContext(Model, Logger, stateManager, Connection);
             return queryExecutor(queryContext, null);
         }
 
@@ -72,7 +80,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             foreach (var tableGroup in tableGroups)
             {
                 var table = Connection.GetTableReference(tableGroup.Key.StorageName);
-                var tasks = tableGroup.Select(entry => GetOperation(entry, EntityFactory.MakeFromObject(entry.Entity)))
+                var tasks = tableGroup.Select(entry => GetOperation(entry, EntityFactory.CreateFromStateEntry(entry)))
                     .TakeWhile(operation => !cancellationToken.IsCancellationRequested)
                     .Select(operation => table.ExecuteAsync(operation, cancellationToken));
                 allTasks.AddRange(tasks);
@@ -118,10 +126,11 @@ namespace Microsoft.Data.Entity.AzureTableStorage
                     return TableOperation.Insert(entity);
 
                 case EntityState.Deleted:
-                    entity.ETag = entity.ETag ?? "*";
+                    entity.ETag = entity.ETag ?? "*"; // TODO use ETag for concurrency checks
                     return TableOperation.Delete(entity);
 
                 case EntityState.Modified:
+                    entity.ETag = entity.ETag ?? "*";
                     return TableOperation.Replace(entity);
 
                 case EntityState.Unchanged:

@@ -5,13 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Security;
-using JetBrains.Annotations;
 using Microsoft.Data.Entity.AzureTableStorage.Utilities;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 using Microsoft.WindowsAzure.Storage.Table.Protocol;
 
-namespace Microsoft.Data.Entity.AzureTableStorage.Query
+namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests.Helpers
 {
     public class PocoTableEntityAdapter<TEntity> : ITableEntity
         where TEntity : class, new()
@@ -62,11 +61,11 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
                     {
                         return;
                     }
-                    throw new TypeAccessException(Strings.FormatInvalidPoco(name, type));
+                    throw new TypeAccessException();
                 }
                 if (prop.PropertyType != type)
                 {
-                    throw new TypeAccessException(Strings.FormatInvalidPoco(name, type));
+                    throw new TypeAccessException();
                 }
                 //TODO support for special cases e.g. private getters in base case that get overridden
                 getMethod = getMethod ?? prop.GetGetMethod(nonPublic: false);
@@ -82,11 +81,11 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
             }
             catch (AmbiguousMatchException e)
             {
-                throw new TypeAccessException(Strings.FormatInvalidPoco(name, type), e);
+                throw new TypeAccessException();
             }
             catch (SecurityException e)
             {
-                throw new TypeAccessException(Strings.FormatInvalidPoco(name, type), e);
+                throw new TypeAccessException();
             }
         }
 
@@ -95,9 +94,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
         private DateTimeOffset _timestamp;
         public TEntity ClrInstance { get; private set; }
 
-        public PocoTableEntityAdapter([NotNull] TEntity clrInstance)
+        public PocoTableEntityAdapter(TEntity clrInstance)
         {
-            Check.NotNull(clrInstance, "clrInstance");
             CheckProperties();
             ClrInstance = clrInstance;
             _clrProperties = ClrInstance.GetType().GetProperties();
