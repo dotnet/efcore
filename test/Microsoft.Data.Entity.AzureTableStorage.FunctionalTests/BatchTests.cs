@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
         {
             for (var i = 0; i < count; i++)
             {
-                var item = new Purchase { Count = i, PartitionKey = _testParition, RowKey = (count + i).ToString() };
+                var item = new Purchase { Count = i, PartitionKey = _testParition + count, RowKey = i.ToString() };
                 _context.Purchases.Add(item);
             }
             var changes = _context.SaveChanges();

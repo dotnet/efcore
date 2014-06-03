@@ -5,12 +5,23 @@ using System;
 using System.Linq.Expressions;
 using Microsoft.Data.Entity.AzureTableStorage.Query;
 using Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers;
+using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.Compiled;
 using Xunit;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
 {
-    public class TableFilterTests
+    public class TableFilterFactoryTests
     {
+        private TableFilterFactory _factory;
+        private EntityType _entityType;
+
+        public TableFilterFactoryTests()
+        {
+            _factory = new TableFilterFactory();
+            _entityType = PocoTestType.EntityType();
+
+        }
         [Fact]
         public void It_makes_member_to_constant_expression()
         {
@@ -24,7 +35,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
                         typeof(PocoTestType).GetProperty("Count")
                         )
                     );
-            var filter = TableFilter.FromBinaryExpression(expression);
+            var filter = _factory.TryCreate(expression, _entityType);
             Assert.NotNull(filter);
             Assert.Equal("Count eq 5", filter.ToString());
         }
@@ -45,7 +56,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
                         typeof(WithMethodType).GetField("StaticIntField")
                         )
                     );
-            var filter = TableFilter.FromBinaryExpression(expression);
+            var filter = _factory.TryCreate(expression, _entityType);
             Assert.NotNull(filter);
             Assert.Equal("Count eq 34", filter.ToString());
         }
@@ -66,7 +77,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
                         typeof(WithMethodType).GetField("InstanceIntField")
                         )
                     );
-            var filter = TableFilter.FromBinaryExpression(expression);
+            var filter = _factory.TryCreate(expression, _entityType);
             Assert.NotNull(filter);
             Assert.Equal("Count eq 842", filter.ToString());
         }
@@ -87,7 +98,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
                         new Expression[] { Expression.Constant("ca761232ed4211cebacd00aa0057b223") }
                         )
                     );
-            var filter = TableFilter.FromBinaryExpression(expression);
+            var filter = _factory.TryCreate(expression, _entityType);
             Assert.NotNull(filter);
             Assert.Equal("Guid eq guid'ca761232-ed42-11ce-bacd-00aa0057b223'", filter.ToString());
         }
@@ -104,7 +115,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
                         ),
                     Expression.Constant(5)
                     );
-            var filter = TableFilter.FromBinaryExpression(expression);
+            var filter = _factory.TryCreate(expression, _entityType);
             Assert.Null(filter);
         }
 

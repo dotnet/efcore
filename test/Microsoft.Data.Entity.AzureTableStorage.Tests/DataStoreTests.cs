@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.AzureTableStorage.Adapters;
 using Microsoft.Data.Entity.AzureTableStorage.Interfaces;
 using Microsoft.Data.Entity.AzureTableStorage.Query;
 using Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers;
@@ -17,9 +18,9 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
     public class DataStoreTests : AzureTableStorageDataStore, IClassFixture<FakeConnection>
     {
         private readonly FakeConnection _fakeConnection;
-        private ITableEntityFactory _entityFactory = new PocoTableEntityAdapterFactory();
+        private TableEntityAdapterFactory _entityFactory = new TableEntityAdapterFactory();
         public DataStoreTests(FakeConnection connection)
-            : base(connection,new PocoTableEntityAdapterFactory())
+            : base(connection,new TableEntityAdapterFactory())
         {
             _fakeConnection = connection;
             _fakeConnection.ClearQueue();
@@ -69,7 +70,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
         public void It_maps_entity_state_to_table_operations(EntityState entityState, TableOperationType operationType)
         {
             var entry = TestStateEntry.Mock().WithState(entityState);
-            var operation = GetOperation(entry, _entityFactory.MakeFromObject(entry.Entity));
+            var operation = GetOperation(entry, new TableEntity());
 
             if (operation == null)
             {
@@ -87,7 +88,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
         public void It_saves_changes()
         {
             _fakeConnection.QueueResult("Test1", TestTableResult.OK());
-            var testEntries = new List<StateEntry> { TestStateEntry.Mock().WithState(EntityState.Added).WithName("Test1") };
+            var testEntries = new List<StateEntry> { TestStateEntry.Mock().WithState(EntityState.Added).WithType("Test1") };
             var changes = SaveChangesAsync(testEntries).Result;
             Assert.Equal(1, changes);
         }

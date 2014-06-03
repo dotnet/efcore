@@ -1,9 +1,11 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.AzureTableStorage.Query;
 using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Interfaces
@@ -14,6 +16,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Interfaces
         Task<IList<ITableResult>> ExecuteBatchAsync(TableBatchOperation batch, CancellationToken cancellationToken = default(CancellationToken));
         void CreateIfNotExists();
         Task CreateIfNotExistsAsync(CancellationToken cancellationToken = default(CancellationToken));
-        IEnumerable<TElement> ExecuteQuery<TElement>(TableQuery<TElement> query) where TElement : ITableEntity, new();
+        IEnumerable<TElement> ExecuteQuery<TElement>(AtsTableQuery query, Func<AtsNamedValueBuffer,TElement> resolver) where TElement : class;
+        void DeleteIfExists();
     }
 }

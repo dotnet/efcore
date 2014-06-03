@@ -132,4 +132,7 @@
   <data name="InvalidPoco" xml:space="preserve">
     <value>Cannot access a public setter and getter for the property '{propertyName}' of type '{typeName}'</value>
   </data>
+  <data name="AtsDatabaseNotInUse" xml:space="preserve">
+    <value>This database cannot be used as an AzureTableStorageDatabase</value>
+  </data>
 </root>
