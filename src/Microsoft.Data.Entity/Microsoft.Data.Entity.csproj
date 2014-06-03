@@ -60,6 +60,7 @@
     <Compile Include="EntitySet`.cs" />
     <Compile Include="EntityState.cs" />
     <Compile Include="EntityStateExtensions.cs" />
+    <Compile Include="Extensions\EntityTypeExtensions.cs" />
     <Compile Include="Identity\GuidValueGenerator.cs" />
     <Compile Include="Identity\IValueGenerator.cs" />
     <Compile Include="Identity\IValueGeneratorFactory.cs" />

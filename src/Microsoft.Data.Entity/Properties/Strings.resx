@@ -219,4 +219,7 @@
   <data name="NoValueGenerator" xml:space="preserve">
     <value>No {generator} value generator has been configured for property '{entityType}.{propertyName}'. To use value generation for properties of type '{propertyType}' the data store must configure an appropriate value generator.</value>
   </data>
+  <data name="PropertyWithStorageNameNotFound" xml:space="preserve">
+    <value>A property with the storage name '{property}' on entity type '{entityType}' could not be found. Ensure that the property exists, has been included in the model, and has been configured with storage name specified.</value>
+  </data>
 </root>

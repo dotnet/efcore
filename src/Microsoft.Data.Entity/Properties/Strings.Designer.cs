@@ -554,6 +554,22 @@ namespace Microsoft.Data.Entity
             return string.Format(CultureInfo.CurrentCulture, GetString("NoValueGenerator", "generator", "entityType", "propertyName", "propertyType"), generator, entityType, propertyName, propertyType);
         }
 
+        /// <summary>
+        /// A property with the storage name '{property}' on entity type '{entityType}' could not be found. Ensure that the property exists, has been included in the model, and has been configured with storage name specified.
+        /// </summary>
+        internal static string PropertyWithStorageNameNotFound
+        {
+            get { return GetString("PropertyWithStorageNameNotFound"); }
+        }
+
+        /// <summary>
+        /// A property with the storage name '{property}' on entity type '{entityType}' could not be found. Ensure that the property exists, has been included in the model, and has been configured with storage name specified.
+        /// </summary>
+        internal static string FormatPropertyWithStorageNameNotFound(object property, object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("PropertyWithStorageNameNotFound", "property", "entityType"), property, entityType);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
