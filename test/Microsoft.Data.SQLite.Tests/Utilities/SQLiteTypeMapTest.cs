@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Data;
 using Xunit;
 
 namespace Microsoft.Data.SQLite.Utilities
@@ -83,33 +84,34 @@ namespace Microsoft.Data.SQLite.Utilities
         }
 
         [Theory]
-        [InlineData("BIT", SQLiteType.Integer, typeof(bool))]
-        [InlineData("BLOB", SQLiteType.Blob, typeof(byte[]))]
-        [InlineData("CHAR", SQLiteType.Text, typeof(string))]
-        [InlineData("DATETIME", SQLiteType.Text, typeof(DateTime))]
-        [InlineData("DATETIMEOFFSET", SQLiteType.Text, typeof(DateTimeOffset))]
-        [InlineData("DECIMAL", SQLiteType.Text, typeof(decimal))]
-        [InlineData("FLOAT", SQLiteType.Float, typeof(double))]
-        [InlineData("INT", SQLiteType.Integer, typeof(int))]
-        [InlineData("INT8", SQLiteType.Integer, typeof(sbyte))]
-        [InlineData("INTEGER", SQLiteType.Integer, typeof(long))]
-        [InlineData("INTERVAL", SQLiteType.Text, typeof(TimeSpan))]
-        [InlineData("NCHAR", SQLiteType.Text, typeof(string))]
-        [InlineData("NVARCHAR", SQLiteType.Text, typeof(string))]
-        [InlineData("REAL", SQLiteType.Float, typeof(double))]
-        [InlineData("SINGLE", SQLiteType.Float, typeof(float))]
-        [InlineData("SMALLINT", SQLiteType.Integer, typeof(short))]
-        [InlineData("TINYINT", SQLiteType.Integer, typeof(byte))]
-        [InlineData("UINT", SQLiteType.Integer, typeof(uint))]
-        [InlineData("UINT16", SQLiteType.Integer, typeof(ushort))]
-        [InlineData("ULONG", SQLiteType.Integer, typeof(ulong))]
-        [InlineData("UNIQUEIDENTIFIER", SQLiteType.Blob, typeof(Guid))]
-        [InlineData("VARCHAR", SQLiteType.Text, typeof(string))]
-        public void FromDeclaredType_maps_types(string declaredType, int sqliteType, Type clrType)
+        [InlineData("BIT", SQLiteType.Integer, typeof(bool), DbType.Boolean)]
+        [InlineData("BLOB", SQLiteType.Blob, typeof(byte[]), DbType.Binary)]
+        [InlineData("CHAR", SQLiteType.Text, typeof(string), DbType.String)]
+        [InlineData("DATETIME", SQLiteType.Text, typeof(DateTime), DbType.DateTime)]
+        [InlineData("DATETIMEOFFSET", SQLiteType.Text, typeof(DateTimeOffset), DbType.DateTimeOffset)]
+        [InlineData("DECIMAL", SQLiteType.Text, typeof(decimal), DbType.Decimal)]
+        [InlineData("FLOAT", SQLiteType.Float, typeof(double), DbType.Double)]
+        [InlineData("INT", SQLiteType.Integer, typeof(int), DbType.Int32)]
+        [InlineData("INT8", SQLiteType.Integer, typeof(sbyte), DbType.SByte)]
+        [InlineData("INTEGER", SQLiteType.Integer, typeof(long), DbType.Int64)]
+        [InlineData("INTERVAL", SQLiteType.Text, typeof(TimeSpan), DbType.Time)]
+        [InlineData("NCHAR", SQLiteType.Text, typeof(string), DbType.String)]
+        [InlineData("NVARCHAR", SQLiteType.Text, typeof(string), DbType.String)]
+        [InlineData("REAL", SQLiteType.Float, typeof(double), DbType.Double)]
+        [InlineData("SINGLE", SQLiteType.Float, typeof(float), DbType.Single)]
+        [InlineData("SMALLINT", SQLiteType.Integer, typeof(short), DbType.Int16)]
+        [InlineData("TINYINT", SQLiteType.Integer, typeof(byte), DbType.Byte)]
+        [InlineData("UINT", SQLiteType.Integer, typeof(uint), DbType.UInt32)]
+        [InlineData("UINT16", SQLiteType.Integer, typeof(ushort), DbType.UInt16)]
+        [InlineData("ULONG", SQLiteType.Integer, typeof(ulong), DbType.UInt64)]
+        [InlineData("UNIQUEIDENTIFIER", SQLiteType.Blob, typeof(Guid), DbType.Guid)]
+        [InlineData("VARCHAR", SQLiteType.Text, typeof(string), DbType.String)]
+        public void FromDeclaredType_maps_types(string declaredType, int sqliteType, Type clrType, DbType dbType)
         {
             var map = SQLiteTypeMap.FromDeclaredType(declaredType, (SQLiteType)sqliteType);
 
             Assert.Equal(clrType, map.ClrType);
+            Assert.Equal(dbType, map.DbType);
         }
 
         [Fact]

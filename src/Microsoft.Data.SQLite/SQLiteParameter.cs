@@ -31,6 +31,7 @@ namespace Microsoft.Data.SQLite
             _value = value;
         }
 
+        // TODO: Implement this
         public override DbType DbType { get; set; }
 
         public override ParameterDirection Direction

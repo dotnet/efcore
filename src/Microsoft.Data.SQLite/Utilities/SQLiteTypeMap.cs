@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
@@ -15,37 +16,38 @@ namespace Microsoft.Data.SQLite.Utilities
     public class SQLiteTypeMap
     {
         private static readonly ICollection<SQLiteTypeMap> _typeMaps = new List<SQLiteTypeMap>();
-        private static readonly SQLiteTypeMap _null = Add<DBNull>(Enumerable.Empty<string>());
-        private static readonly SQLiteTypeMap _integer = Add<long>(new[] { "INTEGER" });
-        private static readonly SQLiteTypeMap _real = Add<double>(new[] { "FLOAT", "REAL" });
-        private static readonly SQLiteTypeMap _text = Add<string>(new[] { "CHAR", "NCHAR", "NVARCHAR", "VARCHAR" });
-        private static readonly SQLiteTypeMap _blob = Add<byte[]>(new[] { "BLOB" });
+        private static readonly SQLiteTypeMap _null = Add<DBNull>(Enumerable.Empty<string>(), 0);
+        private static readonly SQLiteTypeMap _integer = Add<long>(new[] { "INTEGER" }, DbType.Int64);
+        private static readonly SQLiteTypeMap _real = Add<double>(new[] { "FLOAT", "REAL" }, DbType.Double);
+        private static readonly SQLiteTypeMap _text = Add<string>(new[] { "CHAR", "NCHAR", "NVARCHAR", "VARCHAR" }, DbType.String);
+        private static readonly SQLiteTypeMap _blob = Add<byte[]>(new[] { "BLOB" }, DbType.Binary);
 
         private readonly Type _clrType;
         private readonly SQLiteType _sqliteType;
         private readonly Func<object, object> _toInterop;
         private readonly Func<object, object> _fromInterop;
         private readonly IEnumerable<string> _declaredTypes;
+        private readonly DbType _dbType;
 
         static SQLiteTypeMap()
         {
-            Add((bool b) => b ? 1L : 0L, l => l != 0, new[] { "BIT" });
-            Add((byte b) => (long)b, l => (byte)l, new[] { "TINYINT" });
-            Add((DateTime d) => d.ToString("o"), DateTime.Parse, new[] { "DATETIME" });
-            Add((DateTimeOffset d) => d.ToString("o"), DateTimeOffset.Parse, new[] { "DATETIMEOFFSET" });
-            Add((decimal d) => d.ToString(CultureInfo.InvariantCulture), decimal.Parse, new[] { "DECIMAL" });
-            Add((float f) => (double)f, d => (float)d, new[] { "SINGLE" });
-            Add((Guid g) => g.ToByteArray(), b => new Guid(b), new[] { "UNIQUEIDENTIFIER" });
-            Add((int i) => (long)i, l => (int)l, new[] { "INT" });
-            Add((sbyte b) => (long)b, l => (sbyte)l, new[] { "INT8" });
-            Add((short s) => (long)s, l => (short)l, new[] { "SMALLINT" });
-            Add((TimeSpan t) => t.ToString("c"), TimeSpan.Parse, new[] { "INTERVAL" });
-            Add((uint i) => (long)i, l => (uint)l, new[] { "UINT" });
-            Add((ushort s) => (long)s, l => (ushort)l, new[] { "UINT16" });
-            Add((ulong l) => unchecked((long)l), l => unchecked((ulong)l), new[] { "ULONG" });
+            Add((bool b) => b ? 1L : 0L, l => l != 0, new[] { "BIT" }, DbType.Boolean);
+            Add((byte b) => (long)b, l => (byte)l, new[] { "TINYINT" }, DbType.Byte);
+            Add((DateTime d) => d.ToString("o"), DateTime.Parse, new[] { "DATETIME" }, DbType.DateTime);
+            Add((DateTimeOffset d) => d.ToString("o"), DateTimeOffset.Parse, new[] { "DATETIMEOFFSET" }, DbType.DateTimeOffset);
+            Add((decimal d) => d.ToString(CultureInfo.InvariantCulture), decimal.Parse, new[] { "DECIMAL" }, DbType.Decimal);
+            Add((float f) => (double)f, d => (float)d, new[] { "SINGLE" }, DbType.Single);
+            Add((Guid g) => g.ToByteArray(), b => new Guid(b), new[] { "UNIQUEIDENTIFIER" }, DbType.Guid);
+            Add((int i) => (long)i, l => (int)l, new[] { "INT" }, DbType.Int32);
+            Add((sbyte b) => (long)b, l => (sbyte)l, new[] { "INT8" }, DbType.SByte);
+            Add((short s) => (long)s, l => (short)l, new[] { "SMALLINT" }, DbType.Int16);
+            Add((TimeSpan t) => t.ToString("c"), TimeSpan.Parse, new[] { "INTERVAL" }, DbType.Time);
+            Add((uint i) => (long)i, l => (uint)l, new[] { "UINT" }, DbType.UInt32);
+            Add((ushort s) => (long)s, l => (ushort)l, new[] { "UINT16" }, DbType.UInt16);
+            Add((ulong l) => unchecked((long)l), l => unchecked((ulong)l), new[] { "ULONG" }, DbType.UInt64);
         }
 
-        private SQLiteTypeMap(Type clrType, SQLiteType sqliteType, IEnumerable<string> declaredTypes)
+        private SQLiteTypeMap(Type clrType, SQLiteType sqliteType, IEnumerable<string> declaredTypes, DbType dbType)
         {
             Debug.Assert(clrType != null, "clrType is null.");
             Debug.Assert(declaredTypes != null, "declaredTypes is null.");
@@ -53,6 +55,7 @@ namespace Microsoft.Data.SQLite.Utilities
             _clrType = clrType;
             _sqliteType = sqliteType;
             _declaredTypes = declaredTypes;
+            _dbType = dbType;
         }
 
         private SQLiteTypeMap(
@@ -60,8 +63,9 @@ namespace Microsoft.Data.SQLite.Utilities
                 SQLiteType sqliteType,
                 Func<object, object> toInterop,
                 Func<object, object> fromInterop,
-                IEnumerable<string> declaredTypes)
-            : this(clrType, sqliteType, declaredTypes)
+                IEnumerable<string> declaredTypes,
+                DbType dbType)
+            : this(clrType, sqliteType, declaredTypes, dbType)
         {
             Debug.Assert(toInterop != null, "toInterop is null.");
             Debug.Assert(fromInterop != null, "fromInterop is null.");
@@ -85,18 +89,24 @@ namespace Microsoft.Data.SQLite.Utilities
             get { return _declaredTypes; }
         }
 
-        public static SQLiteTypeMap Add<T>(IEnumerable<string> declaredTypes)
+        public DbType DbType
+        {
+            get { return _dbType; }
+        }
+
+        public static SQLiteTypeMap Add<T>(IEnumerable<string> declaredTypes, DbType dbType)
         {
             var map = new SQLiteTypeMap(
                 typeof(T),
                 GetSQLiteType<T>(),
-                declaredTypes);
+                declaredTypes,
+                dbType);
             _typeMaps.Add(map);
 
             return map;
         }
 
-        public static SQLiteTypeMap Add<T, TInterop>(Func<T, TInterop> toInterop, Func<TInterop, T> fromInterop, IEnumerable<string> declaredTypes)
+        public static SQLiteTypeMap Add<T, TInterop>(Func<T, TInterop> toInterop, Func<TInterop, T> fromInterop, IEnumerable<string> declaredTypes, DbType dbType)
         {
             Debug.Assert(toInterop != null, "toInterop is null.");
             Debug.Assert(fromInterop != null, "fromInterop is null.");
@@ -107,7 +117,8 @@ namespace Microsoft.Data.SQLite.Utilities
                 GetSQLiteType<TInterop>(),
                 o => toInterop((T)o),
                 o => fromInterop((TInterop)o),
-                declaredTypes);
+                declaredTypes,
+                dbType);
             _typeMaps.Add(map);
 
             return map;
