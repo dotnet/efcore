@@ -42,6 +42,9 @@
     <PackageReference Include="Microsoft.Framework.DependencyInjection" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Shared\SharedTypeExtensions.cs">
+      <Link>Extensions\SharedTypeExtensions.cs</Link>
+    </Compile>
     <Compile Include="SQLiteBatchExecutor.cs" />
     <Compile Include="SqLiteOptionsExtension.cs" />
     <Compile Include="SQLiteConnectionConnection.cs" />
@@ -85,6 +88,9 @@
       <Project>{71415cec-8111-4c73-8751-512d22f10602}</Project>
       <Name>Microsoft.Data.Entity</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

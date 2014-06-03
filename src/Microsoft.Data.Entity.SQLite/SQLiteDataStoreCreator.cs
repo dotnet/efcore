@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -9,7 +8,6 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.SQLite.Utilities;
-using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.SQLite;
 
 namespace Microsoft.Data.Entity.SQLite
@@ -59,6 +57,8 @@ namespace Microsoft.Data.Entity.SQLite
         {
             Check.NotNull(model, "model");
 
+            // TODO: SQLiteMigrationOperationSqlGenerator should get this from DI
+            _generator.Database = _modelDiffer.DatabaseBuilder.GetDatabase(model);
             var operations = _modelDiffer.DiffSource(model);
             var statements = _generator.Generate(operations, generateIdempotentSql: false);
 
@@ -106,7 +106,7 @@ namespace Microsoft.Data.Entity.SQLite
 
         public override bool HasTables()
         {
-            return (int)_executor.ExecuteScalar(_connection.DbConnection, CreateHasTablesCommand()) != 0;
+            return (long)_executor.ExecuteScalar(_connection.DbConnection, CreateHasTablesCommand()) != 0;
         }
 
         public override async Task<bool> HasTablesAsync(CancellationToken cancellationToken = new CancellationToken())
@@ -121,7 +121,17 @@ namespace Microsoft.Data.Entity.SQLite
 
         public override void Delete()
         {
-            throw new NotImplementedException();
+            string filename = null;
+            using (var connection = _connection.CreateConnectionReadOnly())
+            {
+                connection.Open();
+                filename = connection.DataSource;
+            }
+
+            if (filename != null)
+            {
+                SQLiteEngine.DeleteDatabase(filename);
+            }
         }
 
         public override Task DeleteAsync(CancellationToken cancellationToken = default(CancellationToken))

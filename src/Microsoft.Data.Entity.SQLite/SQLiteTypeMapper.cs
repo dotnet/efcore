@@ -2,8 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Diagnostics.Contracts;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.SQLite.Utilities;
 
@@ -14,20 +14,20 @@ namespace Microsoft.Data.Entity.SQLite
         public override RelationalTypeMapping GetTypeMapping(
             string specifiedType, string storageName, Type propertyType, bool isKey, bool isConcurrencyToken)
         {
-            // TODO: This is a hacky implementation for getting the DbType to use.
-
-            var baseMapping = base.GetTypeMapping(specifiedType, storageName, propertyType, isKey, isConcurrencyToken);
-
-            if (specifiedType != null)
+            propertyType = propertyType.UnwrapNullableType();
+            if (propertyType.GetTypeInfo().IsEnum)
             {
-                return new RelationalTypeMapping(specifiedType, baseMapping.StoreType);
+                propertyType = Enum.GetUnderlyingType(propertyType);
             }
 
-            var types = SQLiteTypeMap.FromClrType(Nullable.GetUnderlyingType(propertyType) ?? propertyType)
-                .DeclaredTypes;
-            Contract.Assert(types.Any(), "types is empty.");
+            var map = SQLiteTypeMap.FromClrType(propertyType);
+            if (specifiedType != null)
+            {
+                map = SQLiteTypeMap.FromDeclaredType(specifiedType, map.SQLiteType);
+            }
 
-            return new RelationalTypeMapping(types.First(), baseMapping.StoreType);
+            // TODO: Leverage base implementation more
+            return new RelationalTypeMapping(map.DeclaredTypes.First(), map.DbType);
         }
     }
 }
