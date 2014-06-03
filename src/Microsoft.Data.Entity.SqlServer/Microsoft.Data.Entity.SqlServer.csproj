@@ -86,17 +86,17 @@
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.Data.Entity\Microsoft.Data.Entity.csproj">
-      <Project>{71415CEC-8111-4C73-8751-512D22F10602}</Project>
-      <Name>Microsoft.Data.Entity</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Microsoft.Data.Entity.Migrations\Microsoft.Data.Entity.Migrations.csproj">
-      <Project>{6E38B72F-31DA-4AEF-8F34-B8269572EC6B}</Project>
+      <Project>{6e38b72f-31da-4aef-8f34-b8269572ec6b}</Project>
       <Name>Microsoft.Data.Entity.Migrations</Name>
     </ProjectReference>
     <ProjectReference Include="..\Microsoft.Data.Entity.Relational\Microsoft.Data.Entity.Relational.csproj">
-      <Project>{75C5A774-A3F3-43EB-97D3-DBE0CF2825D8}</Project>
+      <Project>{75c5a774-a3f3-43eb-97d3-dbe0cf2825d8}</Project>
       <Name>Microsoft.Data.Entity.Relational</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.Data.Entity\Microsoft.Data.Entity.csproj">
+      <Project>{71415cec-8111-4c73-8751-512d22f10602}</Project>
+      <Name>Microsoft.Data.Entity</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
