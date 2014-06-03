@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <configuration>
   <appSettings>
-    <add key="TestConnectionString" value="DefaultEndpointsProtocol=https;AccountName=ef7;AccountKey=hW+cqm9kjT3x9pISFj9gZo7LtzG174V/AtGajQkHFsInJcch1gVZv9QU4Olk8EjQ9Q2Ss3eSUZYtbdAXfTdfgw==;"/>
+    <add key="TestConnectionString" value="DefaultEndpointsProtocol=https;AccountName=name;AccountKey=key;"/>
   </appSettings>
 <startup><supportedRuntime version="v4.0" sku=".NETFramework,Version=v4.5.1"/></startup></configuration>

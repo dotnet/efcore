@@ -16,102 +16,17 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
     [DebuggerDisplay("TableFilter")]
     public class TableFilter
     {
-        protected TableFilter()
-        {
-        }
+        protected string _storageName;
 
-        public MemberExpression Left { get; private set; }
+        private TableFilter(string storageName, FilterComparisonOperator op)
+        {
+            ComparisonOperator = op;
+            _storageName = storageName;
+        }
 
         public object Right { get; protected set; }
 
         public FilterComparisonOperator ComparisonOperator { get; protected set; }
-
-        public static TableFilter FromBinaryExpression([NotNull] BinaryExpression expression)
-        {
-            try
-            {
-                Check.NotNull(expression, "expression");
-
-                var op = FilterComparison.FromNodeType(expression.NodeType);
-                var tableFilterCtor = GetCtor(expression);
-                try
-                {
-                    return tableFilterCtor.Invoke(new object[] { expression.Left, op, expression.Right }) as TableFilter;
-                }
-                catch (Exception)
-                {
-                    // swallow and try the reversed order
-                    FilterComparison.FlipInequalities(ref op);
-                    return tableFilterCtor.Invoke(new object[] { expression.Right, op, expression.Left }) as TableFilter;
-                }
-            }
-            catch (ArgumentException)
-            {
-                return null;
-            }
-        }
-
-        public static TableFilter FromMemberExpression([NotNull] MemberExpression expression)
-        {
-            Check.NotNull(expression, "expression");
-            if (expression.Type != typeof(bool))
-            {
-                return null;
-            }
-            try
-            {
-                return new ConstantTableFilter(expression, FilterComparisonOperator.Equal, Expression.Constant(true));
-            }
-            catch (ArgumentException)
-            {
-                return null;
-            }
-        }
-
-        public static TableFilter FromUnaryExpression(UnaryExpression expression)
-        {
-            Check.NotNull(expression, "expression");
-            try
-            {
-                if (expression.Operand is MemberExpression
-                    && expression.Operand.Type == typeof(bool))
-                {
-                    return new ConstantTableFilter((MemberExpression)expression.Operand, FilterComparisonOperator.Equal, Expression.Constant(expression.NodeType != ExpressionType.Not));
-                }
-                return null;
-            }
-            catch (InvalidCastException)
-            {
-                return null;
-            }
-        }
-
-        private static ConstructorInfo GetCtor(BinaryExpression expression)
-        {
-            var rightExpression = expression.Left is MemberExpression ? expression.Right : expression.Left;
-            Type ctorType, ctorParamType;
-            if (rightExpression is ConstantExpression)
-            {
-                ctorType = typeof(ConstantTableFilter);
-                ctorParamType = typeof(ConstantExpression);
-            }
-            else if (rightExpression is MemberExpression)
-            {
-                ctorType = typeof(MemberTableFilter);
-                ctorParamType = typeof(MemberExpression);
-            }
-            else if (rightExpression is NewExpression)
-            {
-                ctorType = typeof(NewObjTableFilter<>).MakeGenericType(rightExpression.Type);
-                ctorParamType = typeof(NewExpression);
-            }
-            else
-            {
-                throw new ArgumentOutOfRangeException("expression", "Cannot find a matching constructor");
-            }
-
-            return ctorType.GetConstructor(new[] { typeof(MemberExpression), typeof(FilterComparisonOperator), ctorParamType });
-        }
 
         protected static MethodInfo FilterMethodForConstant(Type type)
         {
@@ -157,85 +72,102 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
             throw new ArgumentOutOfRangeException("type", "Cannot generate filter method for this type");
         }
 
-        protected TableFilter(MemberExpression left, FilterComparisonOperator op)
+
+        internal class ConstantTableFilter : TableFilter
         {
-            if (left.Expression.NodeType == ExpressionType.MemberAccess)
+            private readonly MethodInfo _stringMethod;
+
+            public ConstantTableFilter(string storageName, FilterComparisonOperator op, ConstantExpression right)
+                : base(storageName, op)
             {
-                throw new ArgumentException("Nested member access not supported", "left");
+                Right = right.Value;
+                _stringMethod = FilterMethodForConstant(right.Type);
             }
-            Left = left;
-            ComparisonOperator = op;
-        }
-    }
 
-    internal class ConstantTableFilter : TableFilter
-    {
-        private readonly MethodInfo _stringMethod;
-
-        public ConstantTableFilter(MemberExpression left, FilterComparisonOperator op, ConstantExpression right)
-            : base(left, op)
-        {
-            Right = right.Value;
-            _stringMethod = FilterMethodForConstant(right.Type);
-        }
-
-        public override string ToString()
-        {
-            return (string)_stringMethod.Invoke(null, new object[] { Left.Member.Name, FilterComparison.ToString(ComparisonOperator), Right });
-        }
-    }
-
-    internal class MemberTableFilter : TableFilter
-    {
-        private readonly MethodInfo _stringMethod;
-        private readonly Func<object> _getTarget;
-        public new FieldInfo Right { get; protected set; }
-
-        public MemberTableFilter(MemberExpression left, FilterComparisonOperator op, MemberExpression right)
-            : base(left, op)
-        {
-            Right = (FieldInfo)right.Member;
-            _stringMethod = FilterMethodForConstant(Right.FieldType);
-            if (right.Expression is ConstantExpression)
+            public override string ToString()
             {
-                _getTarget = () => ((ConstantExpression)right.Expression).Value;
-            }
-            else
-            {
-                _getTarget = () => null;
+                return (string)_stringMethod.Invoke(null, new object[] { _storageName, FilterComparison.ToString(ComparisonOperator), Right });
             }
         }
 
-        public override string ToString()
+        internal class MemberTableFilter : TableFilter
         {
-            return (string)_stringMethod.Invoke(null, new[] { Left.Member.Name, FilterComparison.ToString(ComparisonOperator), Right.GetValue(_getTarget()) });
-        }
-    }
+            private readonly MethodInfo _stringMethod;
+            private readonly Func<object> _getRightValue;
+            public new MemberInfo Right { get; protected set; }
 
-    internal class NewObjTableFilter<T> : TableFilter
-    {
-        private readonly ConstructorInfo objCtor;
-        private readonly IReadOnlyCollection<Expression> _args;
-        private readonly MethodInfo _stringMethod;
-
-        public NewObjTableFilter(MemberExpression left, FilterComparisonOperator op, NewExpression right)
-            : base(left, op)
-        {
-            objCtor = right.Constructor;
-            _args = right.Arguments;
-            _stringMethod = FilterMethodForConstant(typeof(T));
-        }
-
-        public override string ToString()
-        {
-            return (string)_stringMethod.Invoke(null, new[]
+            [UsedImplicitly]
+            public MemberTableFilter(string storageName, FilterComparisonOperator op, MemberExpression right)
+                : base(storageName, op)
+            {
+                Right = right.Member;
+                Func<object> getTarget;
+                var constantTarget = right.Expression is ConstantExpression;
+                if (constantTarget)
                 {
-                    Left.Member.Name,
-                    FilterComparison.ToString(ComparisonOperator),
-                    objCtor.Invoke(
-                        _args.Select(a => ((ConstantExpression)a).Value).ToArray()
-                        )
-                });
+                    getTarget = () => ((ConstantExpression)right.Expression).Value;
+                }
+                else
+                {
+                    getTarget = () => null;
+                }
+
+                if (right.Member is FieldInfo)
+                {
+                    var fieldInfo = (FieldInfo)Right;
+                    _stringMethod = FilterMethodForConstant(fieldInfo.FieldType);
+                    _getRightValue = () => fieldInfo.GetValue(getTarget());
+                }
+                else if (right.Member is PropertyInfo)
+                {
+                    var propInfo = (PropertyInfo)Right;
+                    _stringMethod = FilterMethodForConstant(propInfo.PropertyType);
+
+                    if (!constantTarget)
+                    {
+                        throw new ArgumentException("Cannot get static property info", "right");
+                    }
+                    _getRightValue = () => propInfo.GetValue(getTarget());
+                }
+                else
+                {
+                    throw new ArgumentException("Cannot get member info", "right");
+                }
+
+            }
+
+            public override string ToString()
+            {
+                return (string)_stringMethod.Invoke(null, new[] { _storageName, FilterComparison.ToString(ComparisonOperator), _getRightValue() });
+            }
+        }
+
+        internal class NewObjTableFilter : TableFilter
+        {
+            private readonly ConstructorInfo objCtor;
+            private readonly IReadOnlyCollection<Expression> _args;
+            private readonly MethodInfo _stringMethod;
+
+            [UsedImplicitly]
+            public NewObjTableFilter(string storageName, FilterComparisonOperator op, NewExpression right)
+                : base(storageName, op)
+            {
+                objCtor = right.Constructor;
+                _args = right.Arguments;
+                _stringMethod = FilterMethodForConstant(right.Type);
+            }
+
+            public override string ToString()
+            {
+                return (string)_stringMethod.Invoke(null, new[]
+                    {
+                        _storageName,
+                        FilterComparison.ToString(ComparisonOperator),
+                        objCtor.Invoke(
+                            _args.Select(a => ((ConstantExpression)a).Value).ToArray()
+                            )
+                    });
+            }
         }
     }
 }

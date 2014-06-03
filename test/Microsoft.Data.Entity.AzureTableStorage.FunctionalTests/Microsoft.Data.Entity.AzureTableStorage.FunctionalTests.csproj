@@ -68,15 +68,26 @@
     </PackageReference>
     <PackageReference Include="WindowsAzure.Storage">
       <Assemblies>Microsoft.WindowsAzure.Storage</Assemblies>
-      <TargetFramework>net45</TargetFramework>
+      <TargetFramework>net40</TargetFramework>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Shared\Northwind.cs">
+      <Link>Northwind.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\NorthwindQueryFixtureBase.cs">
+      <Link>NorthwindQueryFixtureBase.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\NorthwindQueryTestBase.cs">
+      <Link>NorthwindQueryTestBase.cs</Link>
+    </Compile>
     <Compile Include="BatchTests.cs" />
     <Compile Include="EndToEndTests.cs" />
     <Compile Include="Helpers\CloudTableFixture.cs" />
+    <Compile Include="Helpers\PocoTableEntityAdapter.cs" />
     <Compile Include="Helpers\Purchase.cs" />
     <Compile Include="Helpers\PurchaseContext.cs" />
+    <Compile Include="NorthwindQueryTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Microsoft.Data.Entity\Microsoft.Data.Entity.csproj">

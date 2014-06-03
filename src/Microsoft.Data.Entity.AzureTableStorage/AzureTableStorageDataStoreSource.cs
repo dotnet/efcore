@@ -11,7 +11,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         AzureTableStorageOptionsExtension,
         AzureTableStorageDataStoreCreator,
         AzureTableStorageConnection,
-        AzureTableStorageValueGeneratorCache>
+        AzureTableStorageValueGeneratorCache,
+        AtsDatabase>
     {
         public override bool IsAvailable(DbContextConfiguration configuration)
         {

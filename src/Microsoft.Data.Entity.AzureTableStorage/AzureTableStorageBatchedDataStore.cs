@@ -1,17 +1,19 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.AzureTableStorage.Adapters;
 using Microsoft.Data.Entity.AzureTableStorage.Interfaces;
 using Microsoft.Data.Entity.AzureTableStorage.Query;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Framework.DependencyInjection;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Microsoft.Data.Entity.AzureTableStorage
@@ -19,15 +21,17 @@ namespace Microsoft.Data.Entity.AzureTableStorage
     public class AzureTableStorageBatchedDataStore : AzureTableStorageDataStore
     {
         private const int MaxBatchOperations = 100;
+
         /// <summary>
         ///     Provided only for testing purposes. Do not use.
         /// </summary>
-        protected AzureTableStorageBatchedDataStore(AzureTableStorageConnection connection, ITableEntityFactory entityFactory)
-            :base(connection,entityFactory)
+        protected AzureTableStorageBatchedDataStore(AzureTableStorageConnection connection, TableEntityAdapterFactory entityFactory)
+            : base(connection, entityFactory)
         {
         }
-        public AzureTableStorageBatchedDataStore([NotNull] DbContextConfiguration configuration, [NotNull] AzureTableStorageConnection connection)
-            : base(configuration, connection)
+
+        public AzureTableStorageBatchedDataStore([NotNull] DbContextConfiguration configuration, [NotNull] AzureTableStorageConnection connection, [NotNull] AzureTableStorageQueryFactory queryFactory, [NotNull] TableEntityAdapterFactory tableEntityFactory)
+            : base(configuration, connection, queryFactory, tableEntityFactory)
         {
         }
 
@@ -41,12 +45,15 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             {
                 var table = Connection.GetTableReference(tableGroup.Key.StorageName);
                 var partitionGroups = tableGroup.GroupBy(s =>
-                    (string)s.Entity.GetType().GetProperty("PartitionKey", typeof(string)).GetValue(s.Entity)
+                    {
+                        var property = s.EntityType.GetPropertyByStorageName("PartitionKey");
+                        return s[property];
+                    }
                     );
                 foreach (var partitionGroup in partitionGroups)
                 {
                     var batch = new TableBatchOperation();
-                    foreach (var operation in partitionGroup.Select(entry => GetOperation(entry, EntityFactory.MakeFromObject(entry.Entity))).Where(operation => operation != null))
+                    foreach (var operation in partitionGroup.Select(entry => GetOperation(entry, EntityFactory.CreateFromStateEntry(entry))).Where(operation => operation != null))
                     {
                         // TODO allow user access to config options: Retry Policy, Secondary Storage, Timeout 
                         batch.Add(operation);

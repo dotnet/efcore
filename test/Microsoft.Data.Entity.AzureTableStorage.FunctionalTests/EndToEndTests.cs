@@ -2,16 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Globalization;
 using System.Linq;
-using System.Reflection;
 using Microsoft.Data.Entity.AzureTableStorage.FunctionalTests.Helpers;
-using Microsoft.Data.Entity.AzureTableStorage.Query;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Core;
 using Microsoft.WindowsAzure.Storage.Table;
 using Xunit;
 
