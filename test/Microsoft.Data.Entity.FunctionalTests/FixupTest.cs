@@ -265,10 +265,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         productType.GetKey(), new[] { offerType.GetProperty("ProductId") });
                 productIdFk.StorageName = "Product_Offers";
 
-                categoryType.AddNavigation(new Navigation(categoryIdFk, "Products"));
-                productType.AddNavigation(new Navigation(categoryIdFk, "Category"));
-                productType.AddNavigation(new Navigation(productIdFk, "SpecialOffers"));
-                offerType.AddNavigation(new Navigation(productIdFk, "Product"));
+                categoryType.AddNavigation(new Navigation(categoryIdFk, "Products", pointsToPrincipal: false));
+                productType.AddNavigation(new Navigation(categoryIdFk, "Category", pointsToPrincipal: true));
+                productType.AddNavigation(new Navigation(productIdFk, "SpecialOffers", pointsToPrincipal: false));
+                offerType.AddNavigation(new Navigation(productIdFk, "Product", pointsToPrincipal: true));
             }
 
             protected override void OnConfiguring(DbContextOptions options)

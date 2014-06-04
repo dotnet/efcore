@@ -50,7 +50,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         private static void AccessorTest(string navigationName, Func<MyEntity, IEnumerable<Random>> reader)
         {
             var entityType = new EntityType(typeof(MyEntity));
-            var navigation = entityType.AddNavigation(new Navigation(Mock.Of<ForeignKey>(), navigationName));
+            var navigation = entityType.AddNavigation(new Navigation(Mock.Of<ForeignKey>(), navigationName, pointsToPrincipal: true));
 
             var accessor = new ClrCollectionAccessorSource().GetAccessor(navigation);
 
@@ -75,7 +75,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Delegate_getter_is_cached_by_type_and_property_name()
         {
             var entityType = new EntityType(typeof(MyEntity));
-            var navigation = entityType.AddNavigation(new Navigation(Mock.Of<ForeignKey>(), "AsICollection"));
+            var navigation = entityType.AddNavigation(new Navigation(Mock.Of<ForeignKey>(), "AsICollection", pointsToPrincipal: false));
 
             var source = new ClrCollectionAccessorSource();
 

@@ -24,6 +24,12 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
             get { return _model.EntityTypes[Definition.ForeignKeyTypeIndex].ForeignKeys[Definition.ForeignKeyIndex]; }
         }
 
+        public bool PointsToPrincipal
+        {
+            // TODO: Make sure this can be overriden when necessary
+            get { return ForeignKey.EntityType == EntityType; }
+        }
+
         protected struct NavigationDefinition
         {
             public short EntityTypeIndex;

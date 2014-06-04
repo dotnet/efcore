@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Moq;
@@ -38,7 +37,6 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var typeMock = new Mock<IEntityType>();
             typeMock.Setup(m => m.GetKey().Properties).Returns(new[] { keyProp });
 
-            var random = new Random();
             var entryMock = new Mock<StateEntry>();
             entryMock.Setup(m => m[keyProp]).Returns(7);
             entryMock.Setup(m => m[nonKeyProp]).Returns("Ate");
@@ -48,6 +46,24 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 typeMock.Object, new[] { nonKeyProp }, entryMock.Object);
 
             Assert.Equal("Ate", key.Value);
+        }
+
+        [Fact]
+        public void Returns_null_if_key_value_is_null()
+        {
+            var keyProp = new Mock<IProperty>().Object;
+            var nonKeyProp = new Mock<IProperty>().Object;
+
+            var typeMock = new Mock<IEntityType>();
+            typeMock.Setup(m => m.GetKey().Properties).Returns(new[] { keyProp });
+
+            var entryMock = new Mock<StateEntry>();
+            entryMock.Setup(m => m[keyProp]).Returns(7);
+            entryMock.Setup(m => m[nonKeyProp]).Returns(null);
+            entryMock.Setup(m => m.EntityType).Returns(typeMock.Object);
+
+            Assert.Null(new SimpleEntityKeyFactory<string>().Create(
+                typeMock.Object, new[] { nonKeyProp }, entryMock.Object));
         }
 
         [Fact]

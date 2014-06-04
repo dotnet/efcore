@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
@@ -32,8 +33,29 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         private bool Equals(CompositeEntityKey other)
         {
-            return EntityType == other.EntityType
-                   && _keyValueParts.SequenceEqual(other._keyValueParts);
+            if (EntityType != other.EntityType)
+            {
+                return false;
+            }
+
+            var parts = _keyValueParts;
+            var otherParts = other._keyValueParts;
+
+            var partCount = parts.Length;
+            if (partCount != otherParts.Length)
+            {
+                return false;
+            }
+
+            for (var i = 0; i < partCount; i++)
+            {
+                if (!StructuralComparisons.StructuralEqualityComparer.Equals(parts[i], otherParts[i]))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         public override bool Equals([CanBeNull] object obj)
@@ -52,7 +74,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             return _keyValueParts.Aggregate(
                 EntityType.GetHashCode() * 397,
-                (t, v) => (t * 397) ^ (v != null ? v.GetHashCode() : 0));
+                (t, v) => (t * 397) ^ (v != null ? StructuralComparisons.StructuralEqualityComparer.GetHashCode(v) : 0));
         }
     }
 }

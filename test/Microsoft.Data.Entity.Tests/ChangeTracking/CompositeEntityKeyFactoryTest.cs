@@ -58,6 +58,27 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
+        public void Returns_null_if_any_value_in_the_entry_properties_is_null()
+        {
+            var keyProp = new Mock<IProperty>().Object;
+            var nonKeyPart1 = new Mock<IProperty>().Object;
+            var nonKeyPart2 = new Mock<IProperty>().Object;
+
+            var typeMock = new Mock<IEntityType>();
+            typeMock.Setup(m => m.GetKey().Properties).Returns(new[] { keyProp });
+
+            var random = new Random();
+            var entryMock = new Mock<StateEntry>();
+            entryMock.Setup(m => m[keyProp]).Returns(7);
+            entryMock.Setup(m => m[nonKeyPart1]).Returns("Ate");
+            entryMock.Setup(m => m[nonKeyPart2]).Returns(null);
+            entryMock.Setup(m => m.EntityType).Returns(typeMock.Object);
+
+            Assert.Null(new CompositeEntityKeyFactory().Create(
+                typeMock.Object, new[] { nonKeyPart2, nonKeyPart1 }, entryMock.Object));
+        }
+
+        [Fact]
         public void Creates_a_new_primary_key_for_key_values_in_the_given_value_buffer()
         {
             var keyPart1Mock = new Mock<IProperty>();
@@ -97,6 +118,33 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 typeMock.Object, new[] { nonKeyPart2Mock.Object, nonKeyPart1Mock.Object }, new ObjectArrayValueReader(new object[] { 7, "Ate", random }));
 
             Assert.Equal(new Object[] { random, "Ate" }, key.Value);
+        }
+
+        [Fact]
+        public void Returns_null_if_any_value_in_the_given_buffer_is_null()
+        {
+            var keyPropMock = new Mock<IProperty>();
+            keyPropMock.Setup(m => m.Index).Returns(0);
+            var nonKeyPart1Mock = new Mock<IProperty>();
+            nonKeyPart1Mock.Setup(m => m.Index).Returns(1);
+            var nonKeyPart2Mock = new Mock<IProperty>();
+            nonKeyPart2Mock.Setup(m => m.Index).Returns(2);
+
+            var typeMock = new Mock<IEntityType>();
+            typeMock.Setup(m => m.GetKey().Properties).Returns(new[] { keyPropMock.Object });
+
+            var random = new Random();
+
+            var key = new CompositeEntityKeyFactory().Create(
+                typeMock.Object,
+                new[]
+                    {
+                        nonKeyPart2Mock.Object,
+                        nonKeyPart1Mock.Object
+                    },
+                new ObjectArrayValueReader(new object[] { 7, null, random }));
+
+            Assert.Null(key);
         }
     }
 }

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
@@ -80,25 +81,36 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             foreach (var navigation in _stateManager.Model.GetNavigations(foreignKey))
             {
-                if (navigation.EntityType == principalEntry.EntityType)
-                {
-                    var accessor = _collectionAccessorSource.GetAccessor(navigation);
-
-                    foreach (var dependent in dependentEntries)
-                    {
-                        if (!accessor.Contains(principalEntry.Entity, dependent.Entity))
-                        {
-                            accessor.Add(principalEntry.Entity, dependent.Entity);
-                        }
-                    }
-                }
-                else
+                if (navigation.PointsToPrincipal)
                 {
                     var accessor = _setterSource.GetAccessor(navigation);
 
                     foreach (var dependent in dependentEntries)
                     {
                         accessor.SetClrValue(dependent.Entity, principalEntry.Entity);
+                    }
+                }
+                else
+                {
+                    // TODO: Avoid doing this lookup every time--should be cached
+                    if (navigation.EntityType.Type.GetAnyProperty(navigation.Name).PropertyType.TryGetElementType(typeof(IEnumerable<>)) == null)
+                    {
+                        var accessor = _setterSource.GetAccessor(navigation);
+
+                        // TODO: Decide how to handle case where multiple values match non-collection nav prop
+                        accessor.SetClrValue(principalEntry.Entity, dependentEntries.Single().Entity);
+                    }
+                    else
+                    {
+                        var accessor = _collectionAccessorSource.GetAccessor(navigation);
+
+                        foreach (var dependent in dependentEntries)
+                        {
+                            if (!accessor.Contains(principalEntry.Entity, dependent.Entity))
+                            {
+                                accessor.Add(principalEntry.Entity, dependent.Entity);
+                            }
+                        }
                     }
                 }
             }

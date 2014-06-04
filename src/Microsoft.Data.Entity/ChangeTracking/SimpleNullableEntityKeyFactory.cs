@@ -7,25 +7,17 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking
 {
-    public class SimpleEntityKeyFactory<TKey> : EntityKeyFactory
+    public class SimpleNullableEntityKeyFactory<TKey, TNullableKey> : SimpleEntityKeyFactory<TKey>
     {
-        public override EntityKey Create(IEntityType entityType, IReadOnlyList<IProperty> properties, StateEntry entry)
-        {
-            Check.NotNull(entityType, "entityType");
-            Check.NotNull(properties, "properties");
-            Check.NotNull(entry, "entry");
-
-            var value = entry[properties[0]];
-            return value == null ? null : new SimpleEntityKey<TKey>(entityType, (TKey)value);
-        }
-
         public override EntityKey Create(IEntityType entityType, IReadOnlyList<IProperty> properties, IValueReader valueReader)
         {
             Check.NotNull(entityType, "entityType");
             Check.NotNull(properties, "properties");
             Check.NotNull(valueReader, "valueReader");
 
-            return new SimpleEntityKey<TKey>(entityType, valueReader.ReadValue<TKey>(properties[0].Index));
+            var value = (object)valueReader.ReadValue<TNullableKey>(properties[0].Index);
+
+            return value == null ? null : new SimpleEntityKey<TKey>(entityType, (TKey)value);
         }
     }
 }

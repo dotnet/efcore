@@ -64,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
+    <Compile Include="ChangeTracking\SimpleNullableEntityKeyFactoryTest.cs" />
     <Compile Include="ContextConfigurationTest.cs" />
     <Compile Include="ContextSetsTest.cs" />
     <Compile Include="DatabaseTest.cs" />

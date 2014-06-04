@@ -16,22 +16,39 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(
                 "foreignKey",
                 // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => new Navigation(null, "Handlebars")).ParamName);
+                Assert.Throws<ArgumentNullException>(() => new Navigation(null, "Handlebars", pointsToPrincipal: true)).ParamName);
             Assert.Equal(
                 Strings.FormatArgumentIsEmpty("name"),
-                Assert.Throws<ArgumentException>(() => new Navigation(new Mock<ForeignKey>().Object, "")).Message);
+                Assert.Throws<ArgumentException>(() => new Navigation(new Mock<ForeignKey>().Object, "", pointsToPrincipal: true)).Message);
         }
 
         [Fact]
-        public void Can_create_navigation()
+        public void Can_create_navigation_to_principal()
         {
             var foreignKey = new Mock<ForeignKey>().Object;
 
-            var navigation = new Navigation(foreignKey, "Deception");
+            var navigation = new Navigation(foreignKey, "Deception", pointsToPrincipal: true);
 
             Assert.Same(foreignKey, navigation.ForeignKey);
             Assert.Equal("Deception", navigation.Name);
             Assert.Null(navigation.EntityType);
+            Assert.True(navigation.PointsToPrincipal);
+
+            Assert.Same(foreignKey, ((INavigation)navigation).ForeignKey);
+            Assert.Null(((INavigation)navigation).EntityType);
+        }
+
+        [Fact]
+        public void Can_create_navigation_to_dependents()
+        {
+            var foreignKey = new Mock<ForeignKey>().Object;
+
+            var navigation = new Navigation(foreignKey, "Deception", pointsToPrincipal: false);
+
+            Assert.Same(foreignKey, navigation.ForeignKey);
+            Assert.Equal("Deception", navigation.Name);
+            Assert.Null(navigation.EntityType);
+            Assert.False(navigation.PointsToPrincipal);
 
             Assert.Same(foreignKey, ((INavigation)navigation).ForeignKey);
             Assert.Null(((INavigation)navigation).EntityType);
@@ -40,7 +57,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_set_entity_type()
         {
-            var navigation = new Navigation(new Mock<ForeignKey>().Object, "TheBattle");
+            var navigation = new Navigation(new Mock<ForeignKey>().Object, "TheBattle", pointsToPrincipal: true);
             var entityType = new Mock<EntityType>().Object;
 
             navigation.EntityType = entityType;

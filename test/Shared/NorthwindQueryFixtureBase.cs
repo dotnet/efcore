@@ -75,8 +75,8 @@ namespace Microsoft.Data.FunctionalTests
             var productIdFk
                 = orderDetailType.AddForeignKey(productType.GetKey(), orderDetailType.GetProperty("ProductID"));
 
-            orderDetailType.AddNavigation(new Navigation(productIdFk, "Product"));
-            productType.AddNavigation(new Navigation(productIdFk, "OrderDetails"));
+            orderDetailType.AddNavigation(new Navigation(productIdFk, "Product", pointsToPrincipal: true));
+            productType.AddNavigation(new Navigation(productIdFk, "OrderDetails", pointsToPrincipal: false));
 
             return model;
         }

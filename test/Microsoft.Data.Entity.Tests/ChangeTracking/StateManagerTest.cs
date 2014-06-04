@@ -149,6 +149,36 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
+        public void Throws_on_attempt_to_start_tracking_different_entities_with_same_identity()
+        {
+            var stateManager = CreateStateManager(BuildModel());
+            var category1 = new Category { Id = 7 };
+            var category2 = new Category { Id = 7 };
+
+            var stateEntry1 = stateManager.GetOrCreateEntry(category1);
+            var stateEntry2 = stateManager.GetOrCreateEntry(category2);
+
+            stateManager.StartTracking(stateEntry1);
+
+            Assert.Equal(
+                Strings.FormatIdentityConflict("Category"),
+                Assert.Throws<InvalidOperationException>(() => stateManager.StartTracking(stateEntry2)).Message);
+        }
+
+        [Fact]
+        public void Throws_on_attempt_to_start_tracking_different_entity_with_null_key()
+        {
+            var stateManager = CreateStateManager(BuildModel());
+            var entity = new Dogegory();
+
+            var stateEntry = stateManager.GetOrCreateEntry(entity);
+
+            Assert.Equal(
+                Strings.FormatNullPrimaryKey("Dogegory"),
+                Assert.Throws<InvalidOperationException>(() => stateManager.StartTracking(stateEntry)).Message);
+        }
+
+        [Fact]
         public void Throws_on_attempt_to_start_tracking_with_wrong_manager()
         {
             var model = BuildModel();
@@ -358,6 +388,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             public decimal Price { get; set; }
         }
 
+        private class Dogegory
+        {
+            public string Id { get; set; }
+        }
+
         private static IModel BuildModel()
         {
             var model = new Model();
@@ -365,6 +400,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             builder.Entity<Product>();
             builder.Entity<Category>();
+            builder.Entity<Dogegory>();
 
             var locationType = new EntityType("Location");
             var idProperty = locationType.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false);

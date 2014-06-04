@@ -150,6 +150,11 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             var keyValue = CreateKey(entityType, entityType.GetKey().Properties, entry);
 
+            if (keyValue == null)
+            {
+                throw new InvalidOperationException(Strings.FormatNullPrimaryKey(entityType.Name));
+            }
+
             if (_identityMap.TryGetValue(keyValue, out existingEntry))
             {
                 if (existingEntry != entry)
@@ -198,6 +203,11 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             var dependentKeyValue = dependentEntry.GetDependentKeyValue(foreignKey);
 
+            if (dependentKeyValue == null)
+            {
+                return null;
+            }
+
             // TODO: Add additional indexes so that this isn't a linear lookup
             var principals = StateEntries.Where(
                 e => e.EntityType == foreignKey.ReferencedEntityType
@@ -218,6 +228,11 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotNull(foreignKey, "foreignKey");
 
             var principalKeyValue = principalEntry.GetPrincipalKeyValue(foreignKey);
+
+            if (principalKeyValue == null)
+            {
+                return Enumerable.Empty<StateEntry>();
+            }
 
             // TODO: Add additional indexes so that this isn't a linear lookup
             return StateEntries.Where(

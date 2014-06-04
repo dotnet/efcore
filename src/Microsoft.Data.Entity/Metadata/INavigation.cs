@@ -6,5 +6,6 @@ namespace Microsoft.Data.Entity.Metadata
     public interface INavigation : IPropertyBase
     {
         IForeignKey ForeignKey { get; }
+        bool PointsToPrincipal { get; }
     }
 }

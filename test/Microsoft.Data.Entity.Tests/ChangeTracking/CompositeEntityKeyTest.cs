@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Moq;
@@ -47,6 +48,24 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.NotEqual(new CompositeEntityKey(type1, new object[] { 77, "Kake" }).GetHashCode(), new CompositeEntityKey(type1, new object[] { 77, "Lie" }).GetHashCode());
             Assert.NotEqual(new CompositeEntityKey(type1, new object[] { 77, "Kake" }).GetHashCode(), new CompositeEntityKey(type1, new object[] { 88, "Kake" }).GetHashCode());
             Assert.NotEqual(new CompositeEntityKey(type1, new object[] { 77, "Kake" }).GetHashCode(), new CompositeEntityKey(type2, new object[] { 77, "Kake" }).GetHashCode());
+        }
+
+        [Fact]
+        public void Uses_structural_comparisons_for_array_matching()
+        {
+            var type = new Mock<EntityType>().Object;
+
+            Assert.True(new CompositeEntityKey(type, new object[] { new Byte[] { 1, 2, 3 } }).Equals(new CompositeEntityKey(type, new object[] { new Byte[] { 1, 2, 3 } })));
+            Assert.False(new CompositeEntityKey(type, new object[] { new Byte[] { 1, 2, 3 } }).Equals(new CompositeEntityKey(type, new object[] { new Byte[] { 3, 2, 3 } })));
+        }
+
+        [Fact]
+        public void Uses_structural_comparisons_for_array_hashcode_generation()
+        {
+            var type = new Mock<EntityType>().Object;
+
+            Assert.Equal(new CompositeEntityKey(type, new object[] { new Byte[] { 1, 2, 3 } }).GetHashCode(), new CompositeEntityKey(type, new object[] { new Byte[] { 1, 2, 3 } }).GetHashCode());
+            Assert.NotEqual(new CompositeEntityKey(type, new object[] { new Byte[] { 1, 2, 3 } }).GetHashCode(), new CompositeEntityKey(type, new object[] { new Byte[] { 3, 2, 3 } }).GetHashCode());
         }
     }
 }

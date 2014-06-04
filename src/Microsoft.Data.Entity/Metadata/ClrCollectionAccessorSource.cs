@@ -44,6 +44,7 @@ namespace Microsoft.Data.Entity.Metadata
             return (IClrCollectionAccessor)boundMethod.Invoke(null, new object[] { property });
         }
 
+        // ReSharper disable once UnusedMember.Local
         private static IClrCollectionAccessor CreateGeneric<TEntity, TCollection, TElement>(PropertyInfo property)
             where TCollection : ICollection<TElement>
         {

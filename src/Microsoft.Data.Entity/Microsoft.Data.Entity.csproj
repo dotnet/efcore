@@ -52,6 +52,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ChangeTracking\SimpleNullableEntityKeyFactory.cs" />
     <Compile Include="DbContext.cs" />
     <Compile Include="DbContextOptions.cs" />
     <Compile Include="DbContextOptions`.cs" />

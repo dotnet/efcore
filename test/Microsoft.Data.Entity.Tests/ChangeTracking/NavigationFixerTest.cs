@@ -121,8 +121,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             categoryIdFk.StorageName = "Category_Products";
 
-            categoryType.AddNavigation(new Navigation(categoryIdFk, "Products"));
-            productType.AddNavigation(new Navigation(categoryIdFk, "Category"));
+            categoryType.AddNavigation(new Navigation(categoryIdFk, "Products", pointsToPrincipal: false));
+            productType.AddNavigation(new Navigation(categoryIdFk, "Category", pointsToPrincipal: true));
 
             return model;
         }

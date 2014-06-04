@@ -107,6 +107,22 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
+        /// The instance of entity type '{entityType}' cannot be tracked because it has a null primary key. Either set the key explicitly or consider using an IValueGenerator to generate unique key values.
+        /// </summary>
+        internal static string NullPrimaryKey
+        {
+            get { return GetString("NullPrimaryKey"); }
+        }
+
+        /// <summary>
+        /// The instance of entity type '{entityType}' cannot be tracked because it has a null primary key. Either set the key explicitly or consider using an IValueGenerator to generate unique key values.
+        /// </summary>
+        internal static string FormatNullPrimaryKey(object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NullPrimaryKey", "entityType"), entityType);
+        }
+
+        /// <summary>
         /// Cannot start tracking StateEntry for entity type '{entityType}' because it was created by a different StateManager instance.
         /// </summary>
         internal static string WrongStateManager

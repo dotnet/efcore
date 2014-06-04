@@ -24,8 +24,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
 
             SimpleVerification(serviceProvider, "Monster");
-
             FkVerification(serviceProvider, "Monster");
+            NavigationVerification(serviceProvider, "Monster");
         }
 
         protected void SimpleVerification(IServiceProvider serviceProvider, string databaseName)
@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             using (var context = new MonsterContext(serviceProvider, CreateOptions(databaseName)))
             {
                 Assert.Equal(
-                    new[] { "Sheila Koalie", "Sue Pandy", "Tarquin Tiger" },
+                    new[] { "Eeky Bear", "Sheila Koalie", "Sue Pandy", "Tarquin Tiger" },
                     context.Customers.Select(c => c.Name).OrderBy(n => n));
 
                 Assert.Equal(
@@ -167,9 +167,15 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = new MonsterContext(serviceProvider, CreateOptions(databaseName)))
             {
+                var customer0 = context.Customers.Single(e => e.Name == "Eeky Bear");
                 var customer1 = context.Customers.Single(e => e.Name == "Sheila Koalie");
                 var customer2 = context.Customers.Single(e => e.Name == "Sue Pandy");
                 var customer3 = context.Customers.Single(e => e.Name == "Tarquin Tiger");
+
+                Assert.Null(customer0.HusbandId);
+                Assert.Null(customer1.HusbandId);
+                Assert.Equal(customer0.CustomerId, customer2.HusbandId);
+                Assert.Null(customer3.HusbandId);
 
                 var product1 = context.Products.Single(e => e.Description.StartsWith("Mrs"));
                 var product2 = context.Products.Single(e => e.Description.StartsWith("Chocolate"));
@@ -368,6 +374,289 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
+        protected void NavigationVerification(IServiceProvider serviceProvider, string databaseName)
+        {
+            using (var context = new MonsterContext(serviceProvider, CreateOptions(databaseName)))
+            {
+                var customer0 = context.Customers.Single(e => e.Name == "Eeky Bear");
+                var customer1 = context.Customers.Single(e => e.Name == "Sheila Koalie");
+                var customer2 = context.Customers.Single(e => e.Name == "Sue Pandy");
+                var customer3 = context.Customers.Single(e => e.Name == "Tarquin Tiger");
+
+                Assert.Null(customer0.Husband);
+                Assert.Same(customer2, customer0.Wife);
+
+                Assert.Null(customer1.Husband);
+                Assert.Null(customer1.Wife);
+
+                Assert.Same(customer0, customer2.Husband);
+                Assert.Null(customer2.Wife);
+
+                Assert.Null(customer3.Husband);
+                Assert.Null(customer3.Wife);
+
+                var product1 = context.Products.Single(e => e.Description.StartsWith("Mrs"));
+                var product2 = context.Products.Single(e => e.Description.StartsWith("Chocolate"));
+                var product3 = context.Products.Single(e => e.Description.StartsWith("Assorted"));
+
+                var barcode1 = context.Barcodes.Single(e => e.Text == "Barcode 1 2 3 4");
+                var barcode2 = context.Barcodes.Single(e => e.Text == "Barcode 2 2 3 4");
+                var barcode3 = context.Barcodes.Single(e => e.Text == "Barcode 3 2 3 4");
+
+                Assert.Same(barcode1, product1.Barcodes.Single());
+                Assert.Same(product1, barcode1.Product);
+
+                Assert.Same(barcode2, product2.Barcodes.Single());
+                Assert.Same(product2, barcode2.Product);
+
+                Assert.Same(barcode3, product3.Barcodes.Single());
+                Assert.Same(product3, barcode3.Product);
+
+                var barcodeDetails1 = context.BarcodeDetails.Single(e => e.RegisteredTo == "Eeky Bear");
+                var barcodeDetails2 = context.BarcodeDetails.Single(e => e.RegisteredTo == "Trent");
+
+                Assert.Same(barcodeDetails1, barcode1.Detail);
+                Assert.Same(barcodeDetails2, barcode2.Detail);
+
+                var incorrectScan1 = context.IncorrectScans.Single(e => e.Details.StartsWith("Treats"));
+                var incorrectScan2 = context.IncorrectScans.Single(e => e.Details.StartsWith("Wot"));
+
+                Assert.Same(barcode3, incorrectScan1.ActualBarcode);
+                Assert.Same(barcode2, incorrectScan2.ActualBarcode);
+
+                Assert.Same(barcode2, incorrectScan1.ExpectedBarcode);
+                Assert.Same(incorrectScan1, barcode2.BadScans.Single());
+
+                Assert.Same(barcode1, incorrectScan2.ExpectedBarcode);
+                Assert.Same(incorrectScan2, barcode1.BadScans.Single());
+
+                Assert.Empty(barcode3.BadScans);
+
+                var complaint1 = context.Complaints.Single(e => e.Details.StartsWith("Don't"));
+                var complaint2 = context.Complaints.Single(e => e.Details.StartsWith("Really"));
+
+                Assert.Same(customer2, complaint1.Customer);
+                Assert.Same(customer2, complaint2.Customer);
+
+                var resolution = context.Resolutions.Single(e => e.Details.StartsWith("Destroyed"));
+
+                Assert.Same(complaint2, resolution.Complaint);
+                Assert.Same(resolution, complaint2.Resolution);
+
+                Assert.Null(complaint1.Resolution);
+
+                var login1 = context.Logins.Single(e => e.Username == "MrsKoalie73");
+                var login2 = context.Logins.Single(e => e.Username == "MrsBossyPants");
+                var login3 = context.Logins.Single(e => e.Username == "TheStripedMenace");
+
+                Assert.Same(customer1, login1.Customer);
+                Assert.Same(login1, customer1.Logins.Single());
+
+                Assert.Same(customer2, login2.Customer);
+                Assert.Same(login2, customer2.Logins.Single());
+
+                Assert.Same(customer3, login3.Customer);
+                Assert.Same(login3, customer3.Logins.Single());
+
+                Assert.Empty(customer0.Logins);
+
+                var rsaToken1 = context.RsaTokens.Single(e => e.Serial == "1234");
+                var rsaToken2 = context.RsaTokens.Single(e => e.Serial == "2234");
+
+                Assert.Same(login1, rsaToken1.Login);
+                Assert.Same(login2, rsaToken2.Login);
+
+                var smartCard1 = context.SmartCards.Single(e => e.Username == "MrsKoalie73");
+                var smartCard2 = context.SmartCards.Single(e => e.Username == "MrsBossyPants");
+
+                Assert.Same(login1, smartCard1.Login);
+                Assert.Same(login2, smartCard2.Login);
+
+                var reset1 = context.PasswordResets.Single(e => e.EmailedTo == "trent@example.com");
+
+                Assert.Same(login3, reset1.Login);
+
+                var pageView1 = context.PageViews.Single(e => e.PageUrl == "somePage1");
+                var pageView2 = context.PageViews.Single(e => e.PageUrl == "somePage1");
+                var pageView3 = context.PageViews.Single(e => e.PageUrl == "somePage1");
+
+                Assert.Same(login1, pageView1.Login);
+                Assert.Same(login1, pageView2.Login);
+                Assert.Same(login1, pageView3.Login);
+
+                var lastLogin1 = context.LastLogins.Single(e => e.Username == "MrsKoalie73");
+                var lastLogin2 = context.LastLogins.Single(e => e.Username == "MrsBossyPants");
+
+                Assert.Same(login1, lastLogin1.Login);
+                Assert.Same(login2, lastLogin2.Login);
+
+                var message1 = context.Messages.Single(e => e.Body.StartsWith("Fancy"));
+                var message2 = context.Messages.Single(e => e.Body.StartsWith("Love"));
+                var message3 = context.Messages.Single(e => e.Body.StartsWith("I'll"));
+
+                Assert.Same(login1, message1.Sender);
+                Assert.Same(login1, message3.Sender);
+                Assert.Equal(
+                    new[] { "Fanc", "I'll"}, 
+                    login1.SentMessages.Select(m => m.Body.Substring(0, 4)).OrderBy(m => m).ToArray());
+
+                Assert.Same(login2, message2.Sender);
+                Assert.Same(message2, login2.SentMessages.Single());
+
+                Assert.Same(login2, message1.Recipient);
+                Assert.Same(login2, message3.Recipient);
+                Assert.Equal(
+                    new[] { "Fanc", "I'll" },
+                    login2.ReceivedMessages.Select(m => m.Body.Substring(0, 4)).OrderBy(m => m).ToArray());
+
+                Assert.Same(login1, message2.Recipient);
+                Assert.Same(message2, login1.ReceivedMessages.Single());
+
+                var order1 = context.Orders.Single(e => e.Username == "MrsKoalie73");
+                var order2 = context.Orders.Single(e => e.Username == "MrsBossyPants");
+                var order3 = context.Orders.Single(e => e.Username == "TheStripedMenace");
+
+                Assert.Same(customer1, order1.Customer);
+                Assert.Same(order1, customer1.Orders.Single());
+
+                Assert.Same(customer2, order2.Customer);
+                Assert.Same(order2, customer2.Orders.Single());
+                
+                Assert.Same(customer3, order3.Customer);
+                Assert.Same(order3, customer3.Orders.Single());
+
+                var orderLine1 = context.OrderLines.Single(e => e.Quantity == 7);
+                var orderLine2 = context.OrderLines.Single(e => e.Quantity == 1);
+                var orderLine3 = context.OrderLines.Single(e => e.Quantity == 2);
+                var orderLine4 = context.OrderLines.Single(e => e.Quantity == 3);
+                var orderLine5 = context.OrderLines.Single(e => e.Quantity == 4);
+                var orderLine6 = context.OrderLines.Single(e => e.Quantity == 5);
+
+                Assert.Same(product1, orderLine1.Product);
+                Assert.Same(product2, orderLine2.Product);
+                Assert.Same(product3, orderLine3.Product);
+                Assert.Same(product2, orderLine4.Product);
+                Assert.Same(product1, orderLine5.Product);
+                Assert.Same(product2, orderLine6.Product);
+
+                Assert.Same(order1, orderLine1.Order);
+                Assert.Same(order1, orderLine2.Order);
+                Assert.Same(order2, orderLine3.Order);
+                Assert.Same(order2, orderLine4.Order);
+                Assert.Same(order2, orderLine5.Order);
+                Assert.Same(order3, orderLine6.Order);
+
+                Assert.Equal(
+                    new[] { orderLine2, orderLine1 },
+                    order1.OrderLines.OrderBy(e => e.Quantity).ToArray());
+
+                Assert.Equal(
+                    new[] { orderLine3, orderLine4, orderLine5 },
+                    order2.OrderLines.OrderBy(e => e.Quantity).ToArray());
+
+                Assert.Same(orderLine6, order3.OrderLines.Single());
+
+                var productDetail1 = context.ProductDetails.Single(e => e.Details.StartsWith("A"));
+                var productDetail2 = context.ProductDetails.Single(e => e.Details.StartsWith("Eeky"));
+
+                Assert.Same(product1, productDetail1.Product);
+                Assert.Same(productDetail1, product1.Detail);
+
+                Assert.Same(product2, productDetail2.Product);
+                Assert.Same(productDetail2, product2.Detail);
+
+                var productReview1 = context.ProductReviews.Single(e => e.Review.StartsWith("Better"));
+                var productReview2 = context.ProductReviews.Single(e => e.Review.StartsWith("Good"));
+                var productReview3 = context.ProductReviews.Single(e => e.Review.StartsWith("Eeky"));
+
+                Assert.Same(product1, productReview1.Product);
+                Assert.Same(product1, productReview2.Product);
+                Assert.Equal(
+                    new[] { productReview1, productReview2 }, 
+                    product1.Reviews.OrderBy(r => r.Review).ToArray());
+
+                Assert.Same(product2, productReview3.Product);
+                Assert.Same(productReview3, product2.Reviews.Single());
+
+                Assert.Empty(product3.Reviews);
+
+                var productPhoto1 = context.ProductPhotos.Single(e => e.Photo[0] == 101);
+                var productPhoto2 = context.ProductPhotos.Single(e => e.Photo[0] == 103);
+                var productPhoto3 = context.ProductPhotos.Single(e => e.Photo[0] == 105);
+
+                Assert.Equal(
+                    new[] { productPhoto1, productPhoto2 },
+                    product1.Photos.OrderBy(r => r.Photo.First()).ToArray());
+
+                Assert.Same(productPhoto3, product3.Photos.Single());
+                Assert.Empty(product2.Photos);
+
+                var productWebFeature1 = context.ProductWebFeatures.Single(e => e.Heading.StartsWith("Waffle"));
+                var productWebFeature2 = context.ProductWebFeatures.Single(e => e.Heading.StartsWith("What"));
+
+                Assert.Same(productPhoto1, productWebFeature1.Photo);
+                Assert.Same(productWebFeature1, productPhoto1.Features.Single());
+
+                Assert.Same(productReview1, productWebFeature1.Review);
+                Assert.Same(productWebFeature1, productReview1.Features.Single());
+
+                Assert.Null(productWebFeature2.Photo);
+                Assert.Empty(productPhoto2.Features);
+
+                Assert.Same(productReview3, productWebFeature2.Review);
+                Assert.Same(productWebFeature2, productReview3.Features.Single());
+
+                Assert.Empty(productPhoto3.Features);
+                Assert.Empty(productReview2.Features);
+
+                var supplier1 = context.Suppliers.Single(e => e.Name.StartsWith("Trading"));
+                var supplier2 = context.Suppliers.Single(e => e.Name.StartsWith("Ants"));
+
+                var supplierLogo1 = context.SupplierLogos.Single(e => e.Logo[0] == 201);
+
+                Assert.Same(supplierLogo1, supplier1.Logo);
+
+                var supplierInfo1 = context.SupplierInformation.Single(e => e.Information.StartsWith("Seems"));
+                var supplierInfo2 = context.SupplierInformation.Single(e => e.Information.StartsWith("Orange"));
+                var supplierInfo3 = context.SupplierInformation.Single(e => e.Information.StartsWith("Very"));
+
+                Assert.Same(supplier1, supplierInfo1.Supplier);
+                Assert.Same(supplier1, supplierInfo2.Supplier);
+                Assert.Same(supplier2, supplierInfo3.Supplier);
+
+                var customerInfo1 = context.CustomerInformation.Single(e => e.Information.StartsWith("Really"));
+                var customerInfo2 = context.CustomerInformation.Single(e => e.Information.StartsWith("Mrs"));
+
+                Assert.Same(customerInfo1, customer1.Info);
+                Assert.Same(customerInfo2, customer2.Info);
+
+                var computer1 = context.Computers.Single(e => e.Name == "markash420");
+                var computer2 = context.Computers.Single(e => e.Name == "unicorns420");
+
+                var computerDetail1 = context.ComputerDetails.Single(e => e.Specifications == "It's a Dell!");
+                var computerDetail2 = context.ComputerDetails.Single(e => e.Specifications == "It's not a Dell!");
+
+                Assert.Same(computer1, computerDetail1.Computer);
+                Assert.Same(computerDetail1, computer1.ComputerDetail);
+
+                Assert.Same(computer2, computerDetail2.Computer);
+                Assert.Same(computerDetail2, computer2.ComputerDetail);
+
+                var driver1 = context.Drivers.Single(e => e.Name == "Eeky Bear");
+                var driver2 = context.Drivers.Single(e => e.Name == "Splash Bear");
+
+                // TODO: Currently these LINQ queries throw InvalidCastException
+                //var license1 = context.Licenses.Single(e => e.LicenseNumber == "10");
+                //var license2 = context.Licenses.Single(e => e.LicenseNumber == "11");
+
+                //Assert.Same(driver1, license1.Driver);
+                //Assert.Same(license1, driver1.License);
+
+                //Assert.Same(driver2, license2.Driver);
+                //Assert.Same(license2, driver2.License);
+            }
+        }
+
         protected abstract IServiceProvider CreateServiceProvider();
 
         protected abstract DbContextOptions CreateOptions(string databaseName);
@@ -434,6 +723,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 builder.Entity<Complaint>().ForeignKeys(fk => fk.ForeignKey<Customer>(e => e.CustomerId));
                 builder.Entity<Message>().ForeignKeys(fk => fk.ForeignKey<Login>(e => e.FromUsername));
+                builder.Entity<Message>().ForeignKeys(fk => fk.ForeignKey<Login>(e => e.ToUsername));
                 builder.Entity<CustomerInfo>().ForeignKeys(fk => fk.ForeignKey<Customer>(e => e.CustomerInfoId));
                 builder.Entity<SupplierInfo>().ForeignKeys(fk => fk.ForeignKey<Supplier>(e => e.SupplierId));
                 builder.Entity<AnOrder>().ForeignKeys(fk => fk.ForeignKey<Login>(e => e.Username));
@@ -454,6 +744,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 builder.Entity<Resolution>().ForeignKeys(fk => fk.ForeignKey<Complaint>(e => e.ResolutionId));
                 builder.Entity<IncorrectScan>().ForeignKeys(fk => fk.ForeignKey<Barcode>(e => e.ExpectedCode));
                 builder.Entity<Customer>().ForeignKeys(fk => fk.ForeignKey<Customer>(e => e.CustomerId));
+                builder.Entity<Customer>().ForeignKeys(fk => fk.ForeignKey<Customer>(e => e.HusbandId));
                 builder.Entity<IncorrectScan>().ForeignKeys(fk => fk.ForeignKey<Barcode>(e => e.ActualCode));
                 builder.Entity<Barcode>().ForeignKeys(fk => fk.ForeignKey<Product>(e => e.ProductId));
                 builder.Entity<BarcodeDetail>().ForeignKeys(fk => fk.ForeignKey<Barcode>(e => e.Code));
@@ -473,41 +764,182 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 //builder.Entity<DiscontinuedProduct>().ForeignKeys(fk => fk.ForeignKey<Product>(e => e.ReplacementProductId));
                 //builder.Entity<ProductPageView>().ForeignKeys(fk => fk.ForeignKey<Product>(e => e.ProductId));
 
+                var model = builder.Model;
+
                 // TODO: Key should get by-convention value generation even if key is not discovered by convention
-                var noteId = builder.Model.GetEntityType(typeof(OrderNote)).GetProperty("NoteId");
+                var noteId = model.GetEntityType(typeof(OrderNote)).GetProperty("NoteId");
                 noteId.ValueGenerationOnAdd = ValueGenerationOnAdd.Client;
                 noteId.ValueGenerationOnSave = ValueGenerationOnSave.WhenInserting;
 
-                var featureId = builder.Model.GetEntityType(typeof(ProductWebFeature)).GetProperty("FeatureId");
+                var featureId = model.GetEntityType(typeof(ProductWebFeature)).GetProperty("FeatureId");
                 featureId.ValueGenerationOnAdd = ValueGenerationOnAdd.Client;
                 featureId.ValueGenerationOnSave = ValueGenerationOnSave.WhenInserting;
 
                 // TODO: Should key get by-convention value generation even if part of composite key?
-                var reviewId = builder.Model.GetEntityType(typeof(ProductReview)).GetProperty("ReviewId");
+                var reviewId = model.GetEntityType(typeof(ProductReview)).GetProperty("ReviewId");
                 reviewId.ValueGenerationOnAdd = ValueGenerationOnAdd.Client;
                 reviewId.ValueGenerationOnSave = ValueGenerationOnSave.WhenInserting;
 
-                var photoId = builder.Model.GetEntityType(typeof(ProductPhoto)).GetProperty("PhotoId");
+                var photoId = model.GetEntityType(typeof(ProductPhoto)).GetProperty("PhotoId");
                 photoId.ValueGenerationOnAdd = ValueGenerationOnAdd.Client;
                 photoId.ValueGenerationOnSave = ValueGenerationOnSave.WhenInserting;
 
                 // TODO: Key should not get by-convention value generation if it is dependent of identifying relationship
-                var detailId = builder.Model.GetEntityType(typeof(ComputerDetail)).GetProperty("ComputerDetailId");
+                var detailId = model.GetEntityType(typeof(ComputerDetail)).GetProperty("ComputerDetailId");
                 detailId.ValueGenerationOnAdd = ValueGenerationOnAdd.None;
                 detailId.ValueGenerationOnSave = ValueGenerationOnSave.None;
 
-                var resolutionId = builder.Model.GetEntityType(typeof(Resolution)).GetProperty("ResolutionId");
+                var resolutionId = model.GetEntityType(typeof(Resolution)).GetProperty("ResolutionId");
                 resolutionId.ValueGenerationOnAdd = ValueGenerationOnAdd.None;
                 resolutionId.ValueGenerationOnSave = ValueGenerationOnSave.None;
+
+                var customerId = model.GetEntityType(typeof(CustomerInfo)).GetProperty("CustomerInfoId");
+                customerId.ValueGenerationOnAdd = ValueGenerationOnAdd.None;
+                customerId.ValueGenerationOnSave = ValueGenerationOnSave.None;
+
+                // TODO: Use fluent API when available
+                AddNavigationToPrincipal(model, typeof(Barcode), "ProductId", "Product");
+                AddNavigationToDependent(model, typeof(Barcode), typeof(IncorrectScan), "ExpectedCode", "BadScans");
+                AddNavigationToDependent(model, typeof(Barcode), typeof(BarcodeDetail), "Code", "Detail");
+
+                AddNavigationToPrincipal(model, typeof(Complaint), "CustomerId", "Customer");
+                AddNavigationToDependent(model, typeof(Complaint), typeof(Resolution), "ResolutionId", "Resolution");
+
+                AddNavigationToPrincipal(model, typeof(ComputerDetail), "ComputerDetailId", "Computer");
+                AddNavigationToDependent(model, typeof(Computer), typeof(ComputerDetail), "ComputerDetailId", "ComputerDetail");
+
+                AddNavigationToDependent(model, typeof(Driver), typeof(License), "Name", "License");
+
+                AddNavigationToPrincipal(model, typeof(IncorrectScan), "ExpectedCode", "ExpectedBarcode");
+                AddNavigationToPrincipal(model, typeof(IncorrectScan), "ActualCode", "ActualBarcode");
+
+                AddNavigationToPrincipal(model, typeof(LastLogin), "Username", "Login");
+
+                AddNavigationToPrincipal(model, typeof(License), "Name", "Driver");
+
+                AddNavigationToPrincipal(model, typeof(Message), "FromUsername", "Sender");
+                AddNavigationToPrincipal(model, typeof(Message), "ToUsername", "Recipient");
+
+                AddNavigationToPrincipal(model, typeof(OrderLine), "OrderId", "Order");
+                AddNavigationToPrincipal(model, typeof(OrderLine), "ProductId", "Product");
+
+                AddNavigationToPrincipal(model, typeof(AnOrder), "CustomerId", "Customer");
+                AddNavigationToPrincipal(model, typeof(AnOrder), "Username", "Login");
+                AddNavigationToDependent(model, typeof(AnOrder), typeof(OrderLine), "OrderId", "OrderLines");
+                AddNavigationToDependent(model, typeof(AnOrder), typeof(OrderNote), "OrderId", "Notes");
+
+                AddNavigationToPrincipal(model, typeof(OrderNote), "OrderId", "Order");
+
+                AddNavigationToPrincipal(model, typeof(OrderQualityCheck), "OrderId", "Order");
+
+                AddNavigationToPrincipal(model, typeof(PageView), "Username", "Login");
+                
+                AddNavigationToPrincipal(model, typeof(PasswordReset), "Username", "Login");
+
+                AddNavigationToPrincipal(model, typeof(ProductDetail), "ProductId", "Product");
+
+                AddNavigationToDependent(model, typeof(Product), typeof(ProductDetail), "ProductId", "Detail");
+                AddNavigationToDependent(model, typeof(Product), typeof(ProductReview), "ProductId", "Reviews");
+                AddNavigationToDependent(model, typeof(Product), typeof(ProductPhoto), "ProductId", "Photos");
+                AddNavigationToDependent(model, typeof(Product), typeof(Barcode), "ProductId", "Barcodes");
+
+                AddNavigationToPrincipal(model, typeof(ProductWebFeature), "ProductId", "PhotoId", "Photo");
+                AddNavigationToPrincipal(model, typeof(ProductWebFeature), "ProductId", "ReviewId", "Review");
+
+                AddNavigationToDependent(model, typeof(ProductPhoto), typeof(ProductWebFeature), "ProductId", "PhotoId", "Features");
+
+                AddNavigationToDependent(model, typeof(ProductReview), typeof(ProductWebFeature), "ProductId", "ReviewId", "Features");
+                AddNavigationToPrincipal(model, typeof(ProductReview), "ProductId", "Product");
+
+                AddNavigationToPrincipal(model, typeof(Resolution), "ResolutionId", "Complaint");
+
+                AddNavigationToPrincipal(model, typeof(RsaToken), "Username", "Login");
+
+                AddNavigationToPrincipal(model, typeof(SmartCard), "Username", "Login");
+                AddNavigationToDependent(model, typeof(SmartCard), typeof(LastLogin), "SmartcardUsername", "LastLogin");
+
+                AddNavigationToPrincipal(model, typeof(SupplierInfo), "SupplierId", "Supplier");
+
+                AddNavigationToDependent(model, typeof(Supplier), typeof(SupplierLogo), "SupplierId", "Logo");
+
+                AddNavigationToDependent(model, typeof(Customer), typeof(CustomerInfo), "CustomerInfoId", "Info");
+                AddNavigationToDependent(model, typeof(Customer), typeof(AnOrder), "CustomerId", "Orders");
+                AddNavigationToDependent(model, typeof(Customer), typeof(Login), "CustomerId", "Logins");
+                AddNavigationToPrincipal(model, typeof(Customer), "HusbandId", "Husband");
+                AddNavigationToDependent(model, typeof(Customer), "HusbandId", "Wife");
+
+                AddNavigationToPrincipal(model, typeof(Login), "CustomerId", "Customer");
+                AddNavigationToDependent(model, typeof(Login), typeof(LastLogin), "Username", "LastLogin");
+                AddNavigationToDependent(model, typeof(Login), typeof(Message), "FromUsername", "SentMessages");
+                AddNavigationToDependent(model, typeof(Login), typeof(Message), "ToUsername", "ReceivedMessages");
+                AddNavigationToDependent(model, typeof(Login), typeof(AnOrder), "Username", "Orders");
+            }
+
+            private static void AddNavigationToPrincipal(Model model, Type type, string fk, string navigation)
+            {
+                model.GetEntityType(type)
+                    .AddNavigation(
+                        new Navigation(
+                            model.GetEntityType(type).ForeignKeys.Single(
+                                f => f.Properties.Count == 1 && f.Properties.Single().Name == fk),
+                            navigation, pointsToPrincipal: true));
+            }
+
+            private static void AddNavigationToDependent(Model model, Type type, string fk, string navigation)
+            {
+                model.GetEntityType(type)
+                    .AddNavigation(
+                        new Navigation(
+                            model.GetEntityType(type).ForeignKeys.Single(
+                                f => f.Properties.Count == 1 && f.Properties.Single().Name == fk),
+                            navigation, pointsToPrincipal: false));
+            }
+
+            private static void AddNavigationToDependent(Model model, Type type, Type dependentType, string fk, string navigation)
+            {
+                model.GetEntityType(type)
+                    .AddNavigation(
+                        new Navigation(
+                            model.GetEntityType(dependentType).ForeignKeys.Single(
+                                f => f.Properties.Count == 1 && f.Properties.Single().Name == fk),
+                            navigation, pointsToPrincipal: false));
+            }
+
+            private static void AddNavigationToDependent(Model model, Type type, Type dependentType, string fk1, string fk2, string navigation)
+            {
+                model.GetEntityType(type)
+                    .AddNavigation(
+                        new Navigation(
+                            model.GetEntityType(dependentType).ForeignKeys.Single(
+                                f => f.Properties.Count == 2 
+                                    && f.Properties.Any(p => p.Name == fk1)
+                                    && f.Properties.Any(p => p.Name == fk2)),
+                            navigation, pointsToPrincipal: false));
+            }
+
+            private static void AddNavigationToPrincipal(Model model, Type type, string fk1, string fk2, string navigation)
+            {
+                model.GetEntityType(type)
+                    .AddNavigation(
+                        new Navigation(
+                            model.GetEntityType(type).ForeignKeys.Single(
+                                f => f.Properties.Count == 2
+                                    && f.Properties.Any(p => p.Name == fk1)
+                                    && f.Properties.Any(p => p.Name == fk2)),
+                            navigation, pointsToPrincipal: true));
             }
 
             public void SeedUsingFKs()
             {
+                var customer0 = Add(new Customer { Name = "Eeky Bear" });
                 var customer1 = Add(new Customer { Name = "Sheila Koalie" });
-                var customer2 = Add(new Customer { Name = "Sue Pandy" });
                 var customer3 = Add(new Customer { Name = "Tarquin Tiger" });
 
                 // TODO: Key propagation so all the additional SaveChanges calls can be removed
+                SaveChanges();
+
+                var customer2 = Add(new Customer { Name = "Sue Pandy", HusbandId = customer0.CustomerId });
+
                 SaveChanges();
 
                 var product1 = Add(new Product { Description = "Mrs Koalie's Famous Waffles", BaseConcurrency = "Pounds Sterling" });
@@ -1218,6 +1650,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
 
             public int CustomerId { get; set; }
+            public int? HusbandId { get; set; }
             public string Name { get; set; }
 
             public ContactDetails ContactInfo { get; set; }

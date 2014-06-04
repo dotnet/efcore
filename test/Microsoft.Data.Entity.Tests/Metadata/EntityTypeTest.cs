@@ -227,7 +227,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var entityType = new EntityType(typeof(Order));
 
-            var navigation = new Navigation(new Mock<ForeignKey>().Object, "Milk");
+            var navigation = new Navigation(new Mock<ForeignKey>().Object, "Milk", pointsToPrincipal: true);
 
             entityType.AddNavigation(navigation);
 
@@ -246,7 +246,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 = new Navigation(
                     new ForeignKey(
                         entityType1.GetKey(),
-                        new[] { entityType1.AddProperty(Customer.IdProperty) }), "Nav");
+                        new[] { entityType1.AddProperty(Customer.IdProperty) }), "Nav", pointsToPrincipal: true);
 
             entityType1.AddNavigation(navigation);
 

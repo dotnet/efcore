@@ -2,7 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
@@ -36,11 +38,24 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             Check.NotNull(keyProperties, "keyProperties");
 
-            return keyProperties.Count == 1
-                ? _cache.GetOrAdd(
-                    keyProperties[0].PropertyType,
-                    t => (EntityKeyFactory)Activator.CreateInstance(typeof(SimpleEntityKeyFactory<>).MakeGenericType(t)))
-                : _compositeKeyFactory;
+            if (keyProperties.Count == 1)
+            {
+                var keyType = keyProperties[0].PropertyType;
+
+                // Use composite key for anything with structural (e.g. byte[]) properties even if they are
+                // not composite because it is setup to do structural comparisons and the generic typing
+                // advantages of the simple key don't really apply anyway.
+                if (!typeof(IStructuralEquatable).GetTypeInfo().IsAssignableFrom(keyType.GetTypeInfo()))
+                {
+                    return _cache.GetOrAdd(
+                        keyType,
+                        t => (EntityKeyFactory)(t.IsNullableType()
+                            ? Activator.CreateInstance(typeof(SimpleNullableEntityKeyFactory<,>).MakeGenericType(t.UnwrapNullableType(), t))
+                            : Activator.CreateInstance(typeof(SimpleEntityKeyFactory<>).MakeGenericType(t))));
+                }
+            }
+
+            return _compositeKeyFactory;
         }
     }
 }

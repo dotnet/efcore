@@ -415,16 +415,16 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             var fk31 = entityType3.AddForeignKey(entityType4.GetKey(), new[] { entityType3.GetProperty("KoolEntity4Id") });
             var fk61 = entityType6.AddForeignKey(entityType5.GetKey(), new[] { entityType6.GetProperty("Kool5Id") });
 
-            entityType1.AddNavigation(new Navigation(fk11, "NavTo2"));
-            entityType1.AddNavigation(new Navigation(fk21, "NavTo2s"));
-            entityType2.AddNavigation(new Navigation(fk21, "NavTo1"));
-            entityType2.AddNavigation(new Navigation(fk11, "NavTo1s"));
-            entityType2.AddNavigation(new Navigation(fk22, "NavTo3"));
-            entityType3.AddNavigation(new Navigation(fk22, "NavTo2s"));
-            entityType3.AddNavigation(new Navigation(fk31, "NavTo4"));
-            entityType4.AddNavigation(new Navigation(fk31, "NavTo3s"));
-            entityType5.AddNavigation(new Navigation(fk61, "Kool6s"));
-            entityType6.AddNavigation(new Navigation(fk61, "Kool5"));
+            entityType1.AddNavigation(new Navigation(fk11, "NavTo2", pointsToPrincipal: true));
+            entityType1.AddNavigation(new Navigation(fk21, "NavTo2s", pointsToPrincipal: false));
+            entityType2.AddNavigation(new Navigation(fk21, "NavTo1", pointsToPrincipal: true));
+            entityType2.AddNavigation(new Navigation(fk11, "NavTo1s", pointsToPrincipal: false));
+            entityType2.AddNavigation(new Navigation(fk22, "NavTo3", pointsToPrincipal: true));
+            entityType3.AddNavigation(new Navigation(fk22, "NavTo2s", pointsToPrincipal: false));
+            entityType3.AddNavigation(new Navigation(fk31, "NavTo4", pointsToPrincipal: true));
+            entityType4.AddNavigation(new Navigation(fk31, "NavTo3s", pointsToPrincipal: false));
+            entityType5.AddNavigation(new Navigation(fk61, "Kool6s", pointsToPrincipal: false));
+            entityType6.AddNavigation(new Navigation(fk61, "Kool5", pointsToPrincipal: true));
 
             return model;
         }

@@ -120,7 +120,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         {
             using (var db = new SimpleContext())
             {
-                db.Artists.Add(new SimpleContext.Artist { Name = "John Doe" });
+                db.Artists.Add(new SimpleContext.Artist { ArtistId = "JDId", Name = "John Doe" });
                 await db.SaveChangesAsync();
             }
 
@@ -128,6 +128,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             {
                 var data = db.Artists.ToList();
                 Assert.Equal(1, data.Count);
+                Assert.Equal("JDId", data[0].ArtistId);
                 Assert.Equal("John Doe", data[0].Name);
             }
         }

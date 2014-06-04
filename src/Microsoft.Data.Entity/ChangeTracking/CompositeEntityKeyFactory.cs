@@ -16,8 +16,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotNull(properties, "properties");
             Check.NotNull(entry, "entry");
 
-            // TODO: What happens if we get a null property value?
-            return new CompositeEntityKey(entityType, properties.Select(p => entry[p]).ToArray());
+            return Create(entityType, properties.Select(p => entry[p]).ToArray());
         }
 
         public override EntityKey Create(IEntityType entityType, IReadOnlyList<IProperty> properties, IValueReader valueReader)
@@ -26,9 +25,13 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotNull(properties, "properties");
             Check.NotNull(valueReader, "valueReader");
 
-            // TODO: What happens if we get a null property value?
             // TODO: Consider using strongly typed ReadValue instead of always object
-            return new CompositeEntityKey(entityType, properties.Select(p => valueReader.ReadValue<object>(p.Index)).ToArray());
+            return Create(entityType, properties.Select(p => valueReader.ReadValue<object>(p.Index)).ToArray());
+        }
+
+        private static CompositeEntityKey Create(IEntityType entityType, object[] values)
+        {
+            return values.Any(v => v == null) ? null : new CompositeEntityKey(entityType, values);
         }
     }
 }
