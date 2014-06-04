@@ -107,7 +107,73 @@ FROM Employees",
             Assert.Equal(
                 @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
 FROM Customers
-WHERE City = @p0",
+WHERE (City = @p0)",
+                _fixture.Sql);
+        }
+
+        public override void Where_is_null()
+        {
+            base.Where_is_null();
+
+            Assert.Equal(
+                @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
+FROM Customers
+WHERE (City IS NULL)",
+                _fixture.Sql);
+        }
+
+        public override void Where_is_not_null()
+        {
+            base.Where_is_not_null();
+
+            Assert.Equal(
+                @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
+FROM Customers
+WHERE (City IS NOT NULL)",
+                _fixture.Sql);
+        }
+
+        public override void Where_null_is_null()
+        {
+            base.Where_null_is_null();
+
+            Assert.Equal(
+                @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
+FROM Customers
+WHERE (1=1)",
+                _fixture.Sql);
+        }
+
+        public override void Where_constant_is_null()
+        {
+            base.Where_constant_is_null();
+
+            Assert.Equal(
+                @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
+FROM Customers
+WHERE (1=0)",
+                _fixture.Sql);
+        }
+
+        public override void Where_null_is_not_null()
+        {
+            base.Where_null_is_not_null();
+
+            Assert.Equal(
+                @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
+FROM Customers
+WHERE (1=0)",
+                _fixture.Sql);
+        }
+
+        public override void Where_constant_is_not_null()
+        {
+            base.Where_constant_is_not_null();
+
+            Assert.Equal(
+                @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
+FROM Customers
+WHERE (1=1)",
                 _fixture.Sql);
         }
 
@@ -118,7 +184,18 @@ WHERE City = @p0",
             Assert.Equal(
                 @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
 FROM Customers
-WHERE City = @p0",
+WHERE (@p0 = City)",
+                _fixture.Sql);
+        }
+
+        public override void Where_identity_comparison()
+        {
+            base.Where_identity_comparison();
+
+            Assert.Equal(
+                @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
+FROM Customers
+WHERE (City = City)",
                 _fixture.Sql);
         }
 
@@ -129,7 +206,7 @@ WHERE City = @p0",
             Assert.Equal(
                 @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
 FROM Customers
-WHERE City = @p0",
+WHERE (City = @p0)",
                 _fixture.Sql);
         }
 
@@ -156,7 +233,7 @@ FROM Employees",
             Assert.StartsWith(
                  @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
 FROM Customers
-WHERE (City = @p0) OR (City = @p1)
+WHERE ((City = @p0) OR (City = @p1))
 
 SELECT City, Country, EmployeeID
 FROM Employees
@@ -173,15 +250,15 @@ FROM Employees",
             Assert.StartsWith(
                  @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
 FROM Customers
-WHERE (City = @p0) AND (Country = @p1)
+WHERE ((City = @p0) AND (Country = @p1))
 
 SELECT City, Country, EmployeeID
 FROM Employees
-WHERE (City = @p0) AND (Country = @p1)
+WHERE ((City = @p0) AND (Country = @p1))
 
 SELECT City, Country, EmployeeID
 FROM Employees
-WHERE (City = @p0) AND (Country = @p1)",
+WHERE ((City = @p0) AND (Country = @p1))",
                  _fixture.Sql);
         }
 
@@ -192,7 +269,7 @@ WHERE (City = @p0) AND (Country = @p1)",
             Assert.Equal(
                 @"SELECT City, CompanyName
 FROM Customers
-WHERE City = @p0",
+WHERE (City = @p0)",
                 _fixture.Sql);
         }
 
@@ -203,7 +280,7 @@ WHERE City = @p0",
             Assert.Equal(
                 @"SELECT City, CompanyName
 FROM Customers
-WHERE City = @p0",
+WHERE (City = @p0)",
                 _fixture.Sql);
         }
 
@@ -214,7 +291,7 @@ WHERE City = @p0",
             Assert.Equal(
                 @"SELECT City
 FROM Customers
-WHERE City = @p0",
+WHERE (City = @p0)",
                 _fixture.Sql);
         }
 
@@ -440,7 +517,8 @@ FROM Employees",
 
             Assert.Equal(
                 @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
-FROM Customers",
+FROM Customers
+WHERE (1=0)",
                 _fixture.Sql);
         }
 
@@ -460,7 +538,8 @@ FROM Employees",
 
             Assert.Equal(
                  @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
-FROM Customers",
+FROM Customers
+WHERE (1=1)",
                  _fixture.Sql);
         }
 
