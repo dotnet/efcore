@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq;
-using System.Reflection;
 using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.SQLite.Utilities;
 
@@ -14,12 +13,6 @@ namespace Microsoft.Data.Entity.SQLite
         public override RelationalTypeMapping GetTypeMapping(
             string specifiedType, string storageName, Type propertyType, bool isKey, bool isConcurrencyToken)
         {
-            propertyType = propertyType.UnwrapNullableType();
-            if (propertyType.GetTypeInfo().IsEnum)
-            {
-                propertyType = Enum.GetUnderlyingType(propertyType);
-            }
-
             var map = SQLiteTypeMap.FromClrType(propertyType);
             if (specifiedType != null)
             {

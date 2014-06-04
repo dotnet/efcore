@@ -1,0 +1,14 @@
+{
+  "dependencies": {
+    "Microsoft.Data.Entity.SQLite": "",
+    "Xunit.KRunner": "0.1-alpha-*"
+  },
+  "code": "**\\*.cs;..\\Shared\\Northwind.cs;..\\Shared\\NorthwindQueryFixtureBase.cs;..\\Shared\\NorthwindQueryTestBase.cs",
+  "commands": {
+    "test": "Xunit.KRunner"
+  },
+  "configurations": {
+    "net451": {},
+    "k10": {}
+  }
+}

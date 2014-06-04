@@ -15,6 +15,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
+    // TODO: Test non-SqlServer SQL (i.e. generated from Relational base) elsewhere
     public class NorthwindQueryTest : NorthwindQueryTestBase, IClassFixture<NorthwindQueryFixture>
     {
         public override void Queryable_simple()
@@ -455,8 +456,8 @@ FROM Employees",
 
         public override void Where_true()
         {
-            base.Where_true(); 
-            
+            base.Where_true();
+
             Assert.Equal(
                  @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
 FROM Customers",
@@ -475,8 +476,8 @@ FROM Customers",
 
         public override void Where_compare_constructed_multi_value_equal()
         {
-            base.Where_compare_constructed_multi_value_equal(); 
-            
+            base.Where_compare_constructed_multi_value_equal();
+
             Assert.Equal(
                  @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
 FROM Customers",
@@ -486,7 +487,7 @@ FROM Customers",
         public override void Where_compare_constructed_multi_value_not_equal()
         {
             base.Where_compare_constructed_multi_value_not_equal();
-            
+
             Assert.Equal(
                 @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
 FROM Customers",
@@ -529,7 +530,7 @@ FROM Customers",
         }
     }
 
-    public class NorthwindQueryFixture : NorthwindQueryFixtureBase
+    public class NorthwindQueryFixture : NorthwindQueryFixtureBase, IDisposable
     {
         private class SqlLoggerFactory : ILoggerFactory
         {

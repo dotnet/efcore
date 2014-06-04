@@ -172,8 +172,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     command.CommandText
                         = string.Format(@"IF EXISTS (SELECT * FROM sys.databases WHERE name = N'{0}')
                                           BEGIN
-	                                          ALTER DATABASE [{0}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
-	                                          DROP DATABASE [{0}];
+                                              ALTER DATABASE [{0}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+                                              DROP DATABASE [{0}];
                                           END", name);
 
                     if (createDatabase)
