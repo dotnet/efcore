@@ -5,15 +5,16 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Utilities;
 using Remotion.Linq.Clauses;
 
-namespace Microsoft.Data.Entity.Relational.Query
+namespace Microsoft.Data.Entity.Relational.Query.Sql
 {
-    public class SqlSelect
+    public class SqlSelect : IParameterFactory
     {
         public class Parameter
         {
@@ -52,7 +53,7 @@ namespace Microsoft.Data.Entity.Relational.Query
         private int _aliasCount;
         private bool _projectStar;
         private bool _distinct;
-        private string _predicate;
+        private Expression _predicate;
 
         public virtual SqlSelect SetTableSource([NotNull] object tableSource)
         {
@@ -118,7 +119,7 @@ namespace Microsoft.Data.Entity.Relational.Query
             get { return _selectList.Count == 0; }
         }
 
-        public virtual string AddParameter([NotNull] object value)
+        public virtual string CreateParameter(object value)
         {
             Check.NotNull(value, "value");
 
@@ -138,7 +139,7 @@ namespace Microsoft.Data.Entity.Relational.Query
             get { return _parameters; }
         }
 
-        public virtual void SetPredicate([CanBeNull] string predicate)
+        public virtual void SetPredicate([CanBeNull] Expression predicate)
         {
             _predicate = predicate;
         }
@@ -200,12 +201,13 @@ namespace Microsoft.Data.Entity.Relational.Query
                     .Append(_tableSource);
             }
 
-            if (!string.IsNullOrWhiteSpace(_predicate))
+            if (_predicate != null)
             {
                 selectSql
                     .AppendLine()
-                    .Append("WHERE ")
-                    .Append(_predicate);
+                    .Append("WHERE ");
+
+                new SqlGeneratingExpressionTreeVisitor(selectSql, this).VisitExpression(_predicate);
             }
 
             if (_orderByList.Count > 0)

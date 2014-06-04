@@ -91,6 +91,51 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         [Fact]
+        public virtual void Where_is_null()
+        {
+            AssertQuery<Customer>(cs => cs.Where(c => c.City == null));
+        }
+
+        [Fact]
+        public virtual void Where_null_is_null()
+        {
+            // ReSharper disable once EqualExpressionComparison
+            AssertQuery<Customer>(cs => cs.Where(c => null == null));
+        }
+
+        [Fact]
+        public virtual void Where_constant_is_null()
+        {
+            AssertQuery<Customer>(cs => cs.Where(c => "foo" == null));
+        }
+
+        [Fact]
+        public virtual void Where_is_not_null()
+        {
+            AssertQuery<Customer>(cs => cs.Where(c => c.City != null));
+        }
+
+        [Fact]
+        public virtual void Where_null_is_not_null()
+        {
+            // ReSharper disable once EqualExpressionComparison
+            AssertQuery<Customer>(cs => cs.Where(c => null != null));
+        }
+
+        [Fact]
+        public virtual void Where_constant_is_not_null()
+        {
+            AssertQuery<Customer>(cs => cs.Where(c => "foo" != null));
+        }
+        
+        [Fact]
+        public virtual void Where_identity_comparison()
+        {
+            // ReSharper disable once EqualExpressionComparison
+            AssertQuery<Customer>(cs => cs.Where(c => c.City == c.City));
+        }
+
+        [Fact]
         public virtual void Where_select_many_or()
         {
             AssertQuery<Customer, Employee>((cs, es) =>
