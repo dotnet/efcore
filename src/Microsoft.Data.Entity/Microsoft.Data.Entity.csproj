@@ -222,6 +222,7 @@
       <Link>Properties\Resources.tt</Link>
       <Generator>TextTemplatingFileGenerator</Generator>
       <CustomToolNamespace>Microsoft.Data.Entity</CustomToolNamespace>
+      <LastGenOutput>Resources.cs</LastGenOutput>
     </None>
     <None Include="project.json" />
   </ItemGroup>

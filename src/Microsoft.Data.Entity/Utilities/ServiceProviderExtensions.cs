@@ -2,26 +2,41 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Data.Entity;
+using System.Collections.Generic;
+using System.Linq;
+using JetBrains.Annotations;
+using Microsoft.Data.Entity.Utilities;
 
 // ReSharper disable once CheckNamespace
+
 namespace Microsoft.Framework.DependencyInjection
 {
     internal static class ServiceProviderExtensions
     {
-        public static TService GetRequiredService<TService>(this IServiceProvider serviceProvider)
+        public static TService TryGetService<TService>([NotNull] this IServiceProvider serviceProvider)
             where TService : class
         {
-            // TODO: Consider checking for null serviceProvider when used with improperly constructed config.
+            Check.NotNull(serviceProvider, "serviceProvider");
 
-            var service = serviceProvider.GetService<TService>();
+            var services = serviceProvider.GetService<IEnumerable<TService>>();
 
-            if (service != null)
+            return services == null ? null : services.FirstOrDefault();
+        }
+
+        public static object TryGetService([NotNull] this IServiceProvider serviceProvider, Type serviceType)
+        {
+            Check.NotNull(serviceProvider, "serviceProvider");
+            Check.NotNull(serviceType, "serviceType");
+
+            // Use try-catch here to avoid use of MakeGenericType for IEnumerbale pattern
+            try
             {
-                return service;
+                return serviceProvider.GetService(serviceType);
             }
-
-            throw new InvalidOperationException(Strings.FormatMissingConfigurationItem(typeof(TService)));
+            catch
+            {
+                return null;
+            }
         }
     }
 }

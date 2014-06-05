@@ -353,7 +353,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
                 };
 
             using (var connection = new FakeConnection(
-                CreateConfiguration(e => e.ConnectionString = "Lobsang"), new ConnectionStringResolver(configuration)))
+                CreateConfiguration(e => e.ConnectionString = "Lobsang"), new ConnectionStringResolver(new[] { configuration })))
             {
                 Assert.Equal("Database=DatumEarth", connection.ConnectionString);
             }

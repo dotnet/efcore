@@ -46,64 +46,64 @@ namespace Microsoft.Data.Entity.Infrastructure
 
         public virtual ClrPropertyGetterSource ClrPropertyGetterSource
         {
-            get { return _serviceProvider.GetRequiredService<ClrPropertyGetterSource>(); }
+            get { return _serviceProvider.GetService<ClrPropertyGetterSource>(); }
         }
 
         public virtual ClrPropertySetterSource ClrPropertySetterSource
         {
-            get { return _serviceProvider.GetRequiredService<ClrPropertySetterSource>(); }
+            get { return _serviceProvider.GetService<ClrPropertySetterSource>(); }
         }
 
         public virtual ContextSets ContextSets
         {
-            get { return ServiceProvider.GetRequiredService<ContextSets>(); }
+            get { return ServiceProvider.GetService<ContextSets>(); }
         }
 
         public virtual DataStoreSelector DataStoreSelector
         {
-            get { return _serviceProvider.GetRequiredService<DataStoreSelector>(); }
+            get { return _serviceProvider.GetService<DataStoreSelector>(); }
         }
 
         public virtual StateManager StateManager
         {
-            get { return ServiceProvider.GetRequiredService<StateManager>(); }
+            get { return ServiceProvider.GetService<StateManager>(); }
         }
 
         public virtual EntityKeyFactorySource EntityKeyFactorySource
         {
-            get { return _serviceProvider.GetRequiredService<EntityKeyFactorySource>(); }
+            get { return _serviceProvider.GetService<EntityKeyFactorySource>(); }
         }
 
         public virtual IModelSource ModelSource
         {
-            get { return _serviceProvider.GetRequiredService<IModelSource>(); }
+            get { return _serviceProvider.GetService<IModelSource>(); }
         }
 
         public virtual OriginalValuesFactory OriginalValuesFactory
         {
-            get { return _serviceProvider.GetRequiredService<OriginalValuesFactory>(); }
+            get { return _serviceProvider.GetService<OriginalValuesFactory>(); }
         }
 
         public virtual StateEntryNotifier StateEntryNotifier
         {
-            get { return ServiceProvider.GetRequiredService<StateEntryNotifier>(); }
+            get { return ServiceProvider.GetService<StateEntryNotifier>(); }
         }
 
         public virtual StoreGeneratedValuesFactory StoreGeneratedValuesFactory
         {
-            get { return _serviceProvider.GetRequiredService<StoreGeneratedValuesFactory>(); }
+            get { return _serviceProvider.GetService<StoreGeneratedValuesFactory>(); }
         }
 
         public virtual StateEntryFactory StateEntryFactory
         {
-            get { return ServiceProvider.GetRequiredService<StateEntryFactory>(); }
+            get { return ServiceProvider.GetService<StateEntryFactory>(); }
         }
 
         public virtual IEnumerable<IEntityStateListener> EntityStateListeners
         {
             get
             {
-                return ServiceProvider.GetService<IEnumerable<IEntityStateListener>>()
+                return ServiceProvider.TryGetService<IEnumerable<IEntityStateListener>>()
                        ?? Enumerable.Empty<IEntityStateListener>();
             }
         }

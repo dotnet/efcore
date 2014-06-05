@@ -23,9 +23,11 @@ namespace Microsoft.Data.Entity.InMemory
             = new ThreadSafeLazyRef<ImmutableDictionary<IEntityType, InMemoryTable>>(
                 () => ImmutableDictionary<IEntityType, InMemoryTable>.Empty);
 
-        public InMemoryDatabase([CanBeNull] ILoggerFactory loggerFactory)
+        public InMemoryDatabase([CanBeNull] IEnumerable<ILoggerFactory> loggerFactories)
         {
-            _logger = (loggerFactory ?? new NullLoggerFactory()).Create(typeof(InMemoryDatabase).Name);
+            var factory = (loggerFactories == null ? null : loggerFactories.FirstOrDefault()) ?? new NullLoggerFactory();
+
+            _logger = factory.Create(typeof(InMemoryDatabase).Name);
         }
 
         public virtual void Clear()

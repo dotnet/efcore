@@ -21,7 +21,6 @@ namespace Microsoft.Data.Entity.Storage
         {
             Check.NotNull(configuration, "configuration");
 
-            // TODO: Use GetRequiredService, by sharing source if possible
             return configuration.Services.ServiceProvider.GetService<TDataStore>();
         }
 
@@ -29,7 +28,6 @@ namespace Microsoft.Data.Entity.Storage
         {
             Check.NotNull(configuration, "configuration");
 
-            // TODO: Use GetRequiredService, by sharing source if possible
             return configuration.Services.ServiceProvider.GetService<TDatabase>();
         }
 
@@ -37,7 +35,6 @@ namespace Microsoft.Data.Entity.Storage
         {
             Check.NotNull(configuration, "configuration");
 
-            // TODO: Use GetRequiredService, by sharing source if possible
             return configuration.Services.ServiceProvider.GetService<TCreator>();
         }
 
@@ -45,7 +42,6 @@ namespace Microsoft.Data.Entity.Storage
         {
             Check.NotNull(configuration, "configuration");
 
-            // TODO: Use GetRequiredService, by sharing source if possible
             return configuration.Services.ServiceProvider.GetService<TConnection>();
         }
 
@@ -53,7 +49,6 @@ namespace Microsoft.Data.Entity.Storage
         {
             Check.NotNull(configuration, "configuration");
 
-            // TODO: Use GetRequiredService, by sharing source if possible
             return configuration.Services.ServiceProvider.GetService<TValueGeneratorCache>();
         }
 

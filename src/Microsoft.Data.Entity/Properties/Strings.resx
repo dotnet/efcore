@@ -132,9 +132,6 @@
   <data name="InvalidPropertyExpression" xml:space="preserve">
     <value>The expression '{expression}' is not a valid property expression. The expression should represent a property access: 't =&gt; t.MyProperty'.</value>
   </data>
-  <data name="MissingConfigurationItem" xml:space="preserve">
-    <value>A service of type '{serviceType}' has not been configured. Either configure the service explicitly, or ensure one is available from the current IServiceProvider.</value>
-  </data>
   <data name="IdentityConflict" xml:space="preserve">
     <value>The instance of entity type '{entityType}' cannot be tracked because another instance of this type with the same key is already being tracked. For new entities consider using an IIdentityGenerator to generate unique key values.</value>
   </data>

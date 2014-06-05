@@ -91,22 +91,6 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        /// A service of type '{serviceType}' has not been configured. Either configure the service explicitly, or ensure one is available from the current IServiceProvider.
-        /// </summary>
-        internal static string MissingConfigurationItem
-        {
-            get { return GetString("MissingConfigurationItem"); }
-        }
-
-        /// <summary>
-        /// A service of type '{serviceType}' has not been configured. Either configure the service explicitly, or ensure one is available from the current IServiceProvider.
-        /// </summary>
-        internal static string FormatMissingConfigurationItem(object serviceType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("MissingConfigurationItem", "serviceType"), serviceType);
-        }
-
-        /// <summary>
         /// The instance of entity type '{entityType}' cannot be tracked because another instance of this type with the same key is already being tracked. For new entities consider using an IIdentityGenerator to generate unique key values.
         /// </summary>
         internal static string IdentityConflict

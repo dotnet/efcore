@@ -48,7 +48,7 @@ namespace Microsoft.Data.Entity.InMemory
             _database = new ThreadSafeLazyRef<InMemoryDatabase>(
                 () => _persist
                     ? persistentDatabase
-                    : new InMemoryDatabase(configuration.LoggerFactory));
+                    : new InMemoryDatabase(new[] { configuration.LoggerFactory }));
         }
 
         public virtual InMemoryDatabase Database

@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
                             })
                 };
 
-            Assert.Equal("Database=DatumEarth", new ConnectionStringResolver(configuration).Resolve("Lobsang"));
+            Assert.Equal("Database=DatumEarth", new ConnectionStringResolver(new[] { configuration }).Resolve("Lobsang"));
         }
 
         [Fact]
@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
                             })
                 };
 
-            Assert.Equal("Database=Rectangles", new ConnectionStringResolver(configuration).Resolve("Lobsang"));
+            Assert.Equal("Database=Rectangles", new ConnectionStringResolver(new[] { configuration }).Resolve("Lobsang"));
         }
 
         [Fact]
@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
                             })
                 };
 
-            Assert.Equal("Database=DatumEarth", new ConnectionStringResolver(configuration).Resolve("name=Lobsang"));
+            Assert.Equal("Database=DatumEarth", new ConnectionStringResolver(new[] { configuration }).Resolve("name=Lobsang"));
         }
 
         [Fact]
@@ -86,7 +86,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
                             })
                 };
 
-            Assert.Equal("Database=Rectangles", new ConnectionStringResolver(configuration).Resolve("name=Lobsang"));
+            Assert.Equal("Database=Rectangles", new ConnectionStringResolver(new[] { configuration }).Resolve("name=Lobsang"));
         }
 
         [Fact]
@@ -111,7 +111,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
 
             Assert.Equal(
                 Strings.FormatConnectionNotFound("Lobsang"),
-                Assert.Throws<InvalidOperationException>(() => new ConnectionStringResolver(configuration).Resolve("name=Lobsang")).Message);
+                Assert.Throws<InvalidOperationException>(() => new ConnectionStringResolver(new[] { configuration }).Resolve("name=Lobsang")).Message);
         }
     }
 }

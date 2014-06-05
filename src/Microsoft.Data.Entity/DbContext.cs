@@ -42,8 +42,8 @@ namespace Microsoft.Data.Entity
         {
             var genericOptions = _optionsTypes.GetOrAdd(GetType(), t => typeof(DbContextOptions<>).MakeGenericType(t));
 
-            return (DbContextOptions)serviceProvider.GetService(genericOptions)
-                   ?? serviceProvider.GetService<DbContextOptions>()
+            return (DbContextOptions)serviceProvider.TryGetService(genericOptions)
+                   ?? serviceProvider.TryGetService<DbContextOptions>()
                    ?? new DbContextOptions();
         }
 
@@ -93,7 +93,7 @@ namespace Microsoft.Data.Entity
         {
             serviceProvider = serviceProvider ?? ServiceProviderCache.Instance.GetOrAdd(options);
 
-            serviceProvider.GetRequiredService<DbSetInitializer>().InitializeSets(this);
+            serviceProvider.GetService<DbSetInitializer>().InitializeSets(this);
         }
 
         public virtual DbContextConfiguration Configuration

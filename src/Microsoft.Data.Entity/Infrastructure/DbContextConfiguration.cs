@@ -55,23 +55,10 @@ namespace Microsoft.Data.Entity.Infrastructure
             _dataStoreSource = new LazyRef<DataStoreSource>(() => _services.DataStoreSelector.SelectDataStore(this));
             _dataStore = new LazyRef<DataStore>(() => _dataStoreSource.Value.GetStore(this));
             _connection = new LazyRef<DataStoreConnection>(() => _dataStoreSource.Value.GetConnection(this));
-            _loggerFactory = new LazyRef<ILoggerFactory>(() => GetLoggerFactory() ?? new NullLoggerFactory());
+            _loggerFactory = new LazyRef<ILoggerFactory>(() => _externalProvider.TryGetService<ILoggerFactory>() ?? new NullLoggerFactory());
             _database = new LazyRef<Database>(() => _dataStoreSource.Value.GetDatabase(this));
 
             return this;
-        }
-
-        private ILoggerFactory GetLoggerFactory()
-        {
-            try
-            {
-                return _externalProvider.GetService<ILoggerFactory>();
-            }
-            catch
-            {
-                // Work around issue where some DI containers will throw if service not registered
-                return null;
-            }
         }
 
         public virtual DbContext Context

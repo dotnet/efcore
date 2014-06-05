@@ -898,7 +898,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             return new StateEntrySubscriber().SnapshotAndSubscribe(
                 new StateEntryFactory(
                     configuration,
-                    configuration.Services.ServiceProvider.GetRequiredService<EntityMaterializerSource>())
+                    configuration.Services.ServiceProvider.GetService<EntityMaterializerSource>())
                     .Create(entityType, entity));
         }
 
@@ -907,7 +907,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             return new StateEntrySubscriber().SnapshotAndSubscribe(
                 new StateEntryFactory(
                     configuration,
-                    configuration.Services.ServiceProvider.GetRequiredService<EntityMaterializerSource>())
+                    configuration.Services.ServiceProvider.GetService<EntityMaterializerSource>())
                     .Create(entityType, valueReader));
         }
 
