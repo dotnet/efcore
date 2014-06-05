@@ -30,9 +30,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Model
                 "dbo.MyTable", "MyPK", new[] { "Foo", "Bar" }, isClustered: true);
             var mockVisitor = new Mock<MigrationOperationSqlGenerator>(new RelationalTypeMapper());
             var builder = new Mock<IndentedStringBuilder>();
-            addPrimaryKeyOperation.GenerateSql(mockVisitor.Object, builder.Object, false);
+            addPrimaryKeyOperation.GenerateSql(mockVisitor.Object, builder.Object);
 
-            mockVisitor.Verify(g => g.Generate(addPrimaryKeyOperation, builder.Object, false), Times.Once());
+            mockVisitor.Verify(g => g.Generate(addPrimaryKeyOperation, builder.Object), Times.Once());
         }
     }
 }

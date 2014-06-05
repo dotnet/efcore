@@ -28,9 +28,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Model
             var createTableOperation = new CreateTableOperation(table);
             var mockVisitor = new Mock<MigrationOperationSqlGenerator>(new RelationalTypeMapper());
             var builder = new Mock<IndentedStringBuilder>();
-            createTableOperation.GenerateSql(mockVisitor.Object, builder.Object, false);
+            createTableOperation.GenerateSql(mockVisitor.Object, builder.Object);
 
-            mockVisitor.Verify(g => g.Generate(createTableOperation, builder.Object, false), Times.Once());
+            mockVisitor.Verify(g => g.Generate(createTableOperation, builder.Object), Times.Once());
         }
     }
 }

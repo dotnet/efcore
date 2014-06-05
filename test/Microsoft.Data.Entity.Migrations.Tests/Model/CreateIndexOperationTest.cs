@@ -34,9 +34,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Model
                 isUnique: true, isClustered: true);
             var mockVisitor = new Mock<MigrationOperationSqlGenerator>(new RelationalTypeMapper());
             var builder = new Mock<IndentedStringBuilder>();
-            createIndexOperation.GenerateSql(mockVisitor.Object, builder.Object, false);
+            createIndexOperation.GenerateSql(mockVisitor.Object, builder.Object);
 
-            mockVisitor.Verify(g => g.Generate(createIndexOperation, builder.Object, false), Times.Once());
+            mockVisitor.Verify(g => g.Generate(createIndexOperation, builder.Object), Times.Once());
         }
     }
 }

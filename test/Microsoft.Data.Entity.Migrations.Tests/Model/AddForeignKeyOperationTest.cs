@@ -37,9 +37,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Model
                 cascadeDelete: true);
             var mockVisitor = new Mock<MigrationOperationSqlGenerator>(new RelationalTypeMapper());
             var builder = new Mock<IndentedStringBuilder>();
-            addForeignKeyOperation.GenerateSql(mockVisitor.Object, builder.Object, false);
+            addForeignKeyOperation.GenerateSql(mockVisitor.Object, builder.Object);
 
-            mockVisitor.Verify(g => g.Generate(addForeignKeyOperation, builder.Object, false), Times.Once());
+            mockVisitor.Verify(g => g.Generate(addForeignKeyOperation, builder.Object), Times.Once());
         }
     }
 }

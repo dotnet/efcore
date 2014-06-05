@@ -31,9 +31,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Model
                 "dbo.MyTable", newColumn, isDestructiveChange: true);
             var mockVisitor = new Mock<MigrationOperationSqlGenerator>(new RelationalTypeMapper());
             var builder = new Mock<IndentedStringBuilder>();
-            alterColumnOperation.GenerateSql(mockVisitor.Object, builder.Object, false);
+            alterColumnOperation.GenerateSql(mockVisitor.Object, builder.Object);
 
-            mockVisitor.Verify(g => g.Generate(alterColumnOperation, builder.Object, false), Times.Once());
+            mockVisitor.Verify(g => g.Generate(alterColumnOperation, builder.Object), Times.Once());
         }
     }
 }

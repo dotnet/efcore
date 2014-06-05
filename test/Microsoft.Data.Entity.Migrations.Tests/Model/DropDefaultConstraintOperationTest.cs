@@ -27,9 +27,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Model
             var dropDefaultConstraintOperation = new DropDefaultConstraintOperation("dbo.MyTable", "Foo");
             var mockVisitor = new Mock<MigrationOperationSqlGenerator>(new RelationalTypeMapper());
             var builder = new Mock<IndentedStringBuilder>();
-            dropDefaultConstraintOperation.GenerateSql(mockVisitor.Object, builder.Object, false);
+            dropDefaultConstraintOperation.GenerateSql(mockVisitor.Object, builder.Object);
 
-            mockVisitor.Verify(g => g.Generate(dropDefaultConstraintOperation, builder.Object, false), Times.Once());
+            mockVisitor.Verify(g => g.Generate(dropDefaultConstraintOperation, builder.Object), Times.Once());
         }
     }
 }

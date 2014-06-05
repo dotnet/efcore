@@ -387,8 +387,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Builders
         {
             public override void GenerateSql(
                 MigrationOperationSqlGenerator generator,
-                IndentedStringBuilder stringBuilder,
-                bool generateIdempotentSql)
+                IndentedStringBuilder stringBuilder)
             {
             }
 

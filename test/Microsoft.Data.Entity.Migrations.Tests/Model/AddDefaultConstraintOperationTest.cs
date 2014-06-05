@@ -40,9 +40,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Model
                 "dbo.MyTable", "Foo", "MyDefault", null);
             var mockVisitor = new Mock<MigrationOperationSqlGenerator>(new RelationalTypeMapper());
             var builder = new Mock<IndentedStringBuilder>();
-            addDefaultConstraintOperation.GenerateSql(mockVisitor.Object, builder.Object, false);
+            addDefaultConstraintOperation.GenerateSql(mockVisitor.Object, builder.Object);
 
-            mockVisitor.Verify(g => g.Generate(addDefaultConstraintOperation, builder.Object, false), Times.Once());
+            mockVisitor.Verify(g => g.Generate(addDefaultConstraintOperation, builder.Object), Times.Once());
         }
     }
 }

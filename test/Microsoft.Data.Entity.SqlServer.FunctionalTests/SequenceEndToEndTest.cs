@@ -183,7 +183,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     .GetProperty("Identifier"));
 
             var sql = new SqlServerMigrationOperationSqlGenerator(new SqlServerTypeMapper())
-                .Generate(operations, generateIdempotentSql: false);
+                .Generate(operations);
 
             // TODO: Should be able to get relational connection without cast
             var connection = storeConnection.DbConnection;

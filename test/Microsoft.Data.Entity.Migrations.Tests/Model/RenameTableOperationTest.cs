@@ -27,9 +27,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Model
             var renameTableOperation = new RenameTableOperation("dbo.MyTable", "MyTable2");
             var mockVisitor = new Mock<MigrationOperationSqlGenerator>(new RelationalTypeMapper());
             var builder = new Mock<IndentedStringBuilder>();
-            renameTableOperation.GenerateSql(mockVisitor.Object, builder.Object, false);
+            renameTableOperation.GenerateSql(mockVisitor.Object, builder.Object);
 
-            mockVisitor.Verify(g => g.Generate(renameTableOperation, builder.Object, false), Times.Once());
+            mockVisitor.Verify(g => g.Generate(renameTableOperation, builder.Object), Times.Once());
         }
     }
 }

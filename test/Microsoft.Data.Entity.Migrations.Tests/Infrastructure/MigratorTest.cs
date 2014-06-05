@@ -589,9 +589,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         {
             var mock = new Mock<MigrationOperationSqlGenerator>(new RelationalTypeMapper());
 
-            mock.Setup(mosg => mosg.Generate(It.IsAny<IReadOnlyList<MigrationOperation>>(), It.IsAny<bool>()))
-                .Returns<IReadOnlyList<MigrationOperation>, bool>(
-                    (operations, idempotent) => operations.Select(op => new SqlStatement(op.GetType().Name + "Sql")));
+            mock.Setup(mosg => mosg.Generate(It.IsAny<IReadOnlyList<MigrationOperation>>()))
+                .Returns<IReadOnlyList<MigrationOperation>>(
+                    (operations) => operations.Select(op => new SqlStatement(op.GetType().Name + "Sql")));
 
             return mock;
         }

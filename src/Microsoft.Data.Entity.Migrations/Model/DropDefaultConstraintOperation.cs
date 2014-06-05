@@ -33,15 +33,15 @@ namespace Microsoft.Data.Entity.Migrations.Model
             get { return _columnName; }
         }
 
-        public override void GenerateSql([NotNull] MigrationOperationSqlGenerator generator, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql)
+        public override void GenerateSql(MigrationOperationSqlGenerator generator, IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(generator, "generator");
             Check.NotNull(stringBuilder, "stringBuilder");
 
-            generator.Generate(this, stringBuilder, generateIdempotentSql);
+            generator.Generate(this, stringBuilder);
         }
 
-        public override void GenerateCode([NotNull] MigrationCodeGenerator generator, [NotNull] IndentedStringBuilder stringBuilder)
+        public override void GenerateCode(MigrationCodeGenerator generator, IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(generator, "generator");
             Check.NotNull(stringBuilder, "stringBuilder");

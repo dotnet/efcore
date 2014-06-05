@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Model;
@@ -17,36 +18,32 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Generate_when_create_database_operation()
         {
             Assert.Equal(
-                @"IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = N'MyDatabase')
-    CREATE DATABASE [MyDatabase]",
-                Generate(new CreateDatabaseOperation("MyDatabase"), generateIdempotentSql: true).Sql);
+                @"CREATE DATABASE [MyDatabase]",
+                Generate(new CreateDatabaseOperation("MyDatabase")).Sql);
         }
 
         [Fact]
         public void Generate_when_drop_database_operation()
         {
             Assert.Equal(
-                @"IF EXISTS (SELECT * FROM sys.databases WHERE name = N'MyDatabase')
-    DROP DATABASE [MyDatabase]",
-                Generate(new DropDatabaseOperation("MyDatabase"), generateIdempotentSql: true).Sql);
+                @"DROP DATABASE [MyDatabase]",
+                Generate(new DropDatabaseOperation("MyDatabase")).Sql);
         }
 
         [Fact]
-        public void Generate_when_create_sequence_operation_and_idempotent()
+        public void Generate_when_create_sequence_operation()
         {
             Assert.Equal(
-                @"IF NOT EXISTS (SELECT * FROM sys.sequences WHERE name = N'MySequence' AND schema_id = SCHEMA_ID(N'dbo'))
-    CREATE SEQUENCE [dbo].[MySequence] AS BIGINT START WITH 0 INCREMENT BY 1",
-                Generate(new CreateSequenceOperation(new Sequence("dbo.MySequence")), generateIdempotentSql: true).Sql);
+                @"CREATE SEQUENCE [dbo].[MySequence] AS BIGINT START WITH 0 INCREMENT BY 1",
+                Generate(new CreateSequenceOperation(new Sequence("dbo.MySequence"))).Sql);
         }
 
         [Fact]
-        public void Generate_when_drop_sequence_operation_and_idempotent()
+        public void Generate_when_drop_sequence_operation()
         {
             Assert.Equal(
-                @"IF EXISTS (SELECT * FROM sys.sequences WHERE name = N'MySequence' AND schema_id = SCHEMA_ID(N'dbo'))
-    DROP SEQUENCE [dbo].[MySequence]",
-                Generate(new DropSequenceOperation("dbo.MySequence"), generateIdempotentSql: true).Sql);
+                @"DROP SEQUENCE [dbo].[MySequence]",
+                Generate(new DropSequenceOperation("dbo.MySequence")).Sql);
         }
 
         [Fact]
@@ -64,41 +61,62 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 };
 
             Assert.Equal(
-                @"IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = N'MyTable' AND schema_id = SCHEMA_ID(N'dbo'))
-    CREATE TABLE [dbo].[MyTable] (
-        [Foo] int NOT NULL DEFAULT 5,
-        [Bar] int,
-        CONSTRAINT [MyPK] PRIMARY KEY NONCLUSTERED ([Foo], [Bar])
-    )",
+                @"CREATE TABLE [dbo].[MyTable] (
+    [Foo] int NOT NULL DEFAULT 5,
+    [Bar] int,
+    CONSTRAINT [MyPK] PRIMARY KEY NONCLUSTERED ([Foo], [Bar])
+)",
                 Generate(
-                    new CreateTableOperation(table), generateIdempotentSql: true).Sql);
+                    new CreateTableOperation(table)).Sql);
+        }
+
+        [Fact]
+        public void Generate_when_create_table_operation_with_Identity_key()
+        {
+            Column foo, bar;
+            var table = new Table(
+                "dbo.MyTable",
+                new[]
+                    {
+                        foo = new Column("Foo", "int") { IsNullable = false, ValueGenerationStrategy = ValueGenerationOnSave.WhenInserting},
+                        bar = new Column("Bar", "int") { IsNullable = true }
+                    })
+            {
+                PrimaryKey = new PrimaryKey("MyPK", new[] { foo }, isClustered: false)
+            };
+
+            Assert.Equal(
+                @"CREATE TABLE [dbo].[MyTable] (
+    [Foo] int NOT NULL IDENTITY,
+    [Bar] int,
+    CONSTRAINT [MyPK] PRIMARY KEY NONCLUSTERED ([Foo])
+)",
+                Generate(
+                    new CreateTableOperation(table)).Sql);
         }
 
         [Fact]
         public void Generate_when_drop_table_operation()
         {
             Assert.Equal(
-                @"IF EXISTS (SELECT * FROM sys.tables WHERE name = N'MyTable' AND schema_id = SCHEMA_ID(N'dbo'))
-    DROP TABLE [dbo].[MyTable]",
-                Generate(new DropTableOperation("dbo.MyTable"), generateIdempotentSql: true).Sql);
+                @"DROP TABLE [dbo].[MyTable]",
+                Generate(new DropTableOperation("dbo.MyTable")).Sql);
         }
 
         [Fact]
         public void Generate_when_rename_table_operation()
         {
             Assert.Equal(
-                @"IF EXISTS (SELECT * FROM sys.tables WHERE name = N'MyTable' AND schema_id = SCHEMA_ID(N'dbo'))
-    EXECUTE sp_rename @objname = N'dbo.MyTable', @newname = N'MyTable2', @objtype = N'OBJECT'",
-                Generate(new RenameTableOperation("dbo.MyTable", "MyTable2"), generateIdempotentSql: true).Sql);
+                @"EXECUTE sp_rename @objname = N'dbo.MyTable', @newname = N'MyTable2', @objtype = N'OBJECT'",
+                Generate(new RenameTableOperation("dbo.MyTable", "MyTable2")).Sql);
         }
 
         [Fact]
         public void Generate_when_move_table_operation()
         {
             Assert.Equal(
-                @"IF EXISTS (SELECT * FROM sys.tables WHERE name = N'MyTable' AND schema_id = SCHEMA_ID(N'dbo'))
-    ALTER SCHEMA [dbo2] TRANSFER [dbo].[MyTable]",
-                Generate(new MoveTableOperation("dbo.MyTable", "dbo2"), generateIdempotentSql: true).Sql);
+                @"ALTER SCHEMA [dbo2] TRANSFER [dbo].[MyTable]",
+                Generate(new MoveTableOperation("dbo.MyTable", "dbo2")).Sql);
         }
 
         [Fact]
@@ -107,39 +125,35 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var column = new Column("Bar", "int") { IsNullable = false, DefaultValue = 5 };
 
             Assert.Equal(
-                @"IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = N'Bar' AND object_id = OBJECT_ID(N'dbo.MyTable'))
-    ALTER TABLE [dbo].[MyTable] ADD [Bar] int NOT NULL DEFAULT 5",
-                Generate(new AddColumnOperation("dbo.MyTable", column), generateIdempotentSql: true).Sql);
+                @"ALTER TABLE [dbo].[MyTable] ADD [Bar] int NOT NULL DEFAULT 5",
+                Generate(new AddColumnOperation("dbo.MyTable", column)).Sql);
         }
 
         [Fact]
         public void Generate_when_drop_column_operation()
         {
             Assert.Equal(
-                @"IF EXISTS (SELECT * FROM sys.columns WHERE name = N'Foo' AND object_id = OBJECT_ID(N'dbo.MyTable'))
-    ALTER TABLE [dbo].[MyTable] DROP COLUMN [Foo]",
-                Generate(new DropColumnOperation("dbo.MyTable", "Foo"), generateIdempotentSql: true).Sql);
+                @"ALTER TABLE [dbo].[MyTable] DROP COLUMN [Foo]",
+                Generate(new DropColumnOperation("dbo.MyTable", "Foo")).Sql);
         }
 
         [Fact]
         public void Generate_when_alter_column_operation()
         {
             Assert.Equal(
-                @"IF EXISTS (SELECT * FROM sys.columns WHERE name = N'Foo' AND object_id = OBJECT_ID(N'dbo.MyTable'))
-    ALTER TABLE [dbo].[MyTable] ALTER COLUMN [Foo] int NOT NULL",
+                @"ALTER TABLE [dbo].[MyTable] ALTER COLUMN [Foo] int NOT NULL",
                 Generate(
                     new AlterColumnOperation("dbo.MyTable", new Column("Foo", "int") { IsNullable = false },
-                        isDestructiveChange: false), generateIdempotentSql: true).Sql);
+                        isDestructiveChange: false)).Sql);
         }
 
         [Fact]
         public void Generate_when_add_default_constraint_operation()
         {
             Assert.Equal(
-                @"IF NOT EXISTS (SELECT * FROM sys.default_constraints WHERE parent_object_id = OBJECT_ID(N'dbo.MyTable') AND COL_NAME(parent_object_id, parent_column_id) = N'Foo')
-    ALTER TABLE [dbo].[MyTable] ADD CONSTRAINT [DF_dbo.MyTable_Foo] DEFAULT 5 FOR [Foo]",
+                @"ALTER TABLE [dbo].[MyTable] ADD CONSTRAINT [DF_dbo.MyTable_Foo] DEFAULT 5 FOR [Foo]",
                 Generate(
-                    new AddDefaultConstraintOperation("dbo.MyTable", "Foo", 5, null), generateIdempotentSql: true).Sql);
+                    new AddDefaultConstraintOperation("dbo.MyTable", "Foo", 5, null)).Sql);
         }
 
         [Fact]
@@ -148,91 +162,80 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.Equal(
                 @"DECLARE @var0 nvarchar(128)
 SELECT @var0 = name FROM sys.default_constraints WHERE parent_object_id = OBJECT_ID(N'dbo.MyTable') AND COL_NAME(parent_object_id, parent_column_id) = N'Foo'
-IF @var0 IS NOT NULL
-    EXECUTE('ALTER TABLE [dbo].[MyTable] DROP CONSTRAINT ""' + @var0 + '""')",
+EXECUTE('ALTER TABLE [dbo].[MyTable] DROP CONSTRAINT ""' + @var0 + '""')",
                 Generate(
-                    new DropDefaultConstraintOperation("dbo.MyTable", "Foo"), generateIdempotentSql: true).Sql);
+                    new DropDefaultConstraintOperation("dbo.MyTable", "Foo")).Sql);
         }
 
         [Fact]
         public void Generate_when_rename_column_operation()
         {
             Assert.Equal(
-                @"IF EXISTS (SELECT * FROM sys.columns WHERE name = N'Foo' AND object_id = OBJECT_ID(N'dbo.MyTable'))
-    EXECUTE sp_rename @objname = N'dbo.MyTable.Foo', @newname = N'Foo2', @objtype = N'COLUMN'",
+                @"EXECUTE sp_rename @objname = N'dbo.MyTable.Foo', @newname = N'Foo2', @objtype = N'COLUMN'",
                 Generate(
-                    new RenameColumnOperation("dbo.MyTable", "Foo", "Foo2"), generateIdempotentSql: true).Sql);
+                    new RenameColumnOperation("dbo.MyTable", "Foo", "Foo2")).Sql);
         }
 
         [Fact]
         public void Generate_when_add_primary_key_operation()
         {
             Assert.Equal(
-                @"IF NOT EXISTS (SELECT * FROM sys.key_constraints WHERE type = 'PK' AND parent_object_id = OBJECT_ID(N'dbo.MyTable'))
-    ALTER TABLE [dbo].[MyTable] ADD CONSTRAINT [MyPK] PRIMARY KEY NONCLUSTERED ([Foo], [Bar])",
+                @"ALTER TABLE [dbo].[MyTable] ADD CONSTRAINT [MyPK] PRIMARY KEY NONCLUSTERED ([Foo], [Bar])",
                 Generate(
-                    new AddPrimaryKeyOperation("dbo.MyTable", "MyPK", new[] { "Foo", "Bar" }, isClustered: false),
-                    generateIdempotentSql: true).Sql);
+                    new AddPrimaryKeyOperation("dbo.MyTable", "MyPK", new[] { "Foo", "Bar" }, isClustered: false)).Sql);
         }
 
         [Fact]
         public void Generate_when_drop_primary_key_operation()
         {
             Assert.Equal(
-                @"IF EXISTS (SELECT * FROM sys.key_constraints WHERE type = 'PK' AND name = N'MyPK' AND parent_object_id = OBJECT_ID(N'dbo.MyTable'))
-    ALTER TABLE [dbo].[MyTable] DROP CONSTRAINT [MyPK]",
-                Generate(new DropPrimaryKeyOperation("dbo.MyTable", "MyPK"), generateIdempotentSql: true).Sql);
+                @"ALTER TABLE [dbo].[MyTable] DROP CONSTRAINT [MyPK]",
+                Generate(new DropPrimaryKeyOperation("dbo.MyTable", "MyPK")).Sql);
         }
 
         [Fact]
         public void Generate_when_add_foreign_key_operation()
         {
             Assert.Equal(
-                @"IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = N'MyFK' AND parent_object_id = OBJECT_ID(N'dbo.MyTable'))
-    ALTER TABLE [dbo].[MyTable] ADD CONSTRAINT [MyFK] FOREIGN KEY ([Foo], [Bar]) REFERENCES [dbo].[MyTable2] ([Foo2], [Bar2]) ON DELETE CASCADE",
+                @"ALTER TABLE [dbo].[MyTable] ADD CONSTRAINT [MyFK] FOREIGN KEY ([Foo], [Bar]) REFERENCES [dbo].[MyTable2] ([Foo2], [Bar2]) ON DELETE CASCADE",
                 Generate(
                     new AddForeignKeyOperation("dbo.MyTable", "MyFK", new[] { "Foo", "Bar" },
-                        "dbo.MyTable2", new[] { "Foo2", "Bar2" }, cascadeDelete: true),
-                    generateIdempotentSql: true).Sql);
+                        "dbo.MyTable2", new[] { "Foo2", "Bar2" }, cascadeDelete: true)).Sql);
         }
 
         [Fact]
         public void Generate_when_drop_foreign_key_operation()
         {
             Assert.Equal(
-                @"IF EXISTS (SELECT * FROM sys.foreign_keys WHERE name = N'MyFK' AND parent_object_id = OBJECT_ID(N'dbo.MyTable2'))
-    ALTER TABLE [dbo].[MyTable2] DROP CONSTRAINT [MyFK]",
-                Generate(new DropForeignKeyOperation("dbo.MyTable2", "MyFK"), generateIdempotentSql: true).Sql);
+                @"ALTER TABLE [dbo].[MyTable2] DROP CONSTRAINT [MyFK]",
+                Generate(new DropForeignKeyOperation("dbo.MyTable2", "MyFK")).Sql);
         }
 
         [Fact]
         public void Generate_when_create_index_operation()
         {
             Assert.Equal(
-                @"IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = N'MyIndex' AND object_id = OBJECT_ID(N'dbo.MyTable'))
-    CREATE UNIQUE CLUSTERED INDEX [MyIndex] ON [dbo].[MyTable] ([Foo], [Bar])",
+                @"CREATE UNIQUE CLUSTERED INDEX [MyIndex] ON [dbo].[MyTable] ([Foo], [Bar])",
                 Generate(
                     new CreateIndexOperation("dbo.MyTable", "MyIndex", new[] { "Foo", "Bar" },
-                        isUnique: true, isClustered: true), generateIdempotentSql: true).Sql);
+                        isUnique: true, isClustered: true)).Sql);
         }
 
         [Fact]
         public void Generate_when_drop_index_operation()
         {
             Assert.Equal(
-                @"IF EXISTS (SELECT * FROM sys.indexes WHERE name = N'MyIndex' AND object_id = OBJECT_ID(N'dbo.MyTable'))
-    DROP INDEX [MyIndex] ON [dbo].[MyTable]",
-                Generate(new DropIndexOperation("dbo.MyTable", "MyIndex"), generateIdempotentSql: true).Sql);
+                @"DROP INDEX [MyIndex] ON [dbo].[MyTable]",
+                Generate(new DropIndexOperation("dbo.MyTable", "MyIndex")).Sql);
         }
 
         [Fact]
         public void Generate_when_rename_index_operation()
         {
             Assert.Equal(
-                @"IF EXISTS (SELECT * FROM sys.indexes WHERE name = N'MyIndex' AND object_id = OBJECT_ID(N'dbo.MyTable'))
-    EXECUTE sp_rename @objname = N'dbo.MyTable.MyIndex', @newname = N'MyIndex2', @objtype = N'INDEX'",
+                @"EXECUTE sp_rename @objname = N'dbo.MyTable.MyIndex', @newname = N'MyIndex2', @objtype = N'INDEX'",
                 Generate(
-                    new RenameIndexOperation("dbo.MyTable", "MyIndex", "MyIndex2"), generateIdempotentSql: true).Sql);
+                    new RenameIndexOperation("dbo.MyTable", "MyIndex", "MyIndex2")).Sql);
         }
 
         [Fact]
@@ -449,11 +452,11 @@ IF @var0 IS NOT NULL
             Assert.Equal("foo''bar", sqlGenerator.EscapeLiteral("foo'bar"));
         }
 
-        private static SqlStatement Generate(MigrationOperation migrationOperation, bool generateIdempotentSql)
+        private static SqlStatement Generate(MigrationOperation migrationOperation)
         {
             var sqlGenerator = new SqlServerMigrationOperationSqlGenerator(new SqlServerTypeMapper());
 
-            return sqlGenerator.Generate(new[] { migrationOperation }, generateIdempotentSql).Single();
+            return sqlGenerator.Generate(new[] { migrationOperation }).Single();
         }
     }
 }

@@ -162,9 +162,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 var database = DatabaseBuilder.GetDatabase(migration.TargetModel);
                 var ddlSqlGenerator = DdlSqlGeneratorFactory.Create(database);
 
-                sqlStatements.AddRange(
-                    ddlSqlGenerator.Generate(
-                        migration.DowngradeOperations, generateIdempotentSql: true));
+                sqlStatements.AddRange(ddlSqlGenerator.Generate(migration.DowngradeOperations));
 
                 sqlStatements.AddRange(
                     HistoryRepository.GenerateDeleteMigrationSql(migration, DmlSqlGenerator));
@@ -175,9 +173,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 var database = DatabaseBuilder.GetDatabase(migration.TargetModel);
                 var ddlSqlGenerator = DdlSqlGeneratorFactory.Create(database);
 
-                sqlStatements.AddRange(
-                    ddlSqlGenerator.Generate(
-                        migration.UpgradeOperations, generateIdempotentSql: true));
+                sqlStatements.AddRange(ddlSqlGenerator.Generate(migration.UpgradeOperations));
 
                 sqlStatements.AddRange(
                     HistoryRepository.GenerateInsertMigrationSql(migration, DmlSqlGenerator));

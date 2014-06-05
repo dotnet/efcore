@@ -108,8 +108,8 @@ namespace Microsoft.Data.Entity.Migrations.Design
             }
             else
             {
-                upgradeOperations = ModelDiffer.DiffSource(targetModel);
-                downgradeOperations = ModelDiffer.DiffTarget(targetModel);
+                upgradeOperations = ModelDiffer.CreateSchema(targetModel);
+                downgradeOperations = ModelDiffer.DropSchema(targetModel);
             }
 
             return

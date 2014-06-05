@@ -28,9 +28,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Model
             var addColumnOperation = new AddColumnOperation("dbo.MyTable", new Column("Foo", "int"));
             var mockVisitor = new Mock<MigrationOperationSqlGenerator>(new RelationalTypeMapper());
             var builder = new Mock<IndentedStringBuilder>();
-            addColumnOperation.GenerateSql(mockVisitor.Object, builder.Object, false);
+            addColumnOperation.GenerateSql(mockVisitor.Object, builder.Object);
 
-            mockVisitor.Verify(g => g.Generate(addColumnOperation, builder.Object, false), Times.Once());
+            mockVisitor.Verify(g => g.Generate(addColumnOperation, builder.Object), Times.Once());
         }
     }
 }

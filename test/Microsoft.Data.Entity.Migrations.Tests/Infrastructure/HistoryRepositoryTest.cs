@@ -162,7 +162,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
 
                 Assert.Equal(1, sqlStatements.Count);
                 Assert.Equal(
-                    @"DELETE FROM ""__MigrationHistory"" WHERE ""MigrationName"" = 'Foo'",
+                    @"DELETE FROM ""__MigrationHistory"" WHERE ""MigrationName"" = 'Foo' AND ""ContextKey"" = 'Microsoft.Data.Entity.Migrations.Tests.Infrastructure.HistoryRepositoryTest+Context'",
                     sqlStatements[0].Sql);
             }
         }

@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Migrations.Model
             get { return false; }
         }
 
-        public abstract void GenerateSql([NotNull] MigrationOperationSqlGenerator generator, [NotNull] IndentedStringBuilder stringBuilder, bool generateIdempotentSql);
+        public abstract void GenerateSql([NotNull] MigrationOperationSqlGenerator generator, [NotNull] IndentedStringBuilder stringBuilder);
 
         public abstract void GenerateCode([NotNull] MigrationCodeGenerator generator, [NotNull] IndentedStringBuilder stringBuilder);
     }

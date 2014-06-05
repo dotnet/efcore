@@ -59,8 +59,8 @@ namespace Microsoft.Data.Entity.SQLite
 
             // TODO: SQLiteMigrationOperationSqlGenerator should get this from DI
             _generator.Database = _modelDiffer.DatabaseBuilder.GetDatabase(model);
-            var operations = _modelDiffer.DiffSource(model);
-            var statements = _generator.Generate(operations, generateIdempotentSql: false);
+            var operations = _modelDiffer.CreateSchema(model);
+            var statements = _generator.Generate(operations);
 
             // TODO: Delete database on error
             using (var connection = _connection.CreateConnectionReadWrite())

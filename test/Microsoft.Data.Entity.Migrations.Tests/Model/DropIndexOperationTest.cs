@@ -27,9 +27,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Model
             var dropIndexOperation = new DropIndexOperation("dbo.MyTable", "MyIndex");
             var mockVisitor = new Mock<MigrationOperationSqlGenerator>(new RelationalTypeMapper());
             var builder = new Mock<IndentedStringBuilder>();
-            dropIndexOperation.GenerateSql(mockVisitor.Object, builder.Object, false);
+            dropIndexOperation.GenerateSql(mockVisitor.Object, builder.Object);
 
-            mockVisitor.Verify(g => g.Generate(dropIndexOperation, builder.Object, false), Times.Once());
+            mockVisitor.Verify(g => g.Generate(dropIndexOperation, builder.Object), Times.Once());
         }
     }
 }

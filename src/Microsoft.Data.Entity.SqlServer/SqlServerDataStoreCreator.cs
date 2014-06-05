@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.SqlServer
         private IEnumerable<SqlStatement> CreateSchemaCommands(IModel model)
         {
             _sqlGenerator.Database = _modelDiffer.DatabaseBuilder.GetDatabase(model);
-            return _sqlGenerator.Generate(_modelDiffer.DiffSource(model), generateIdempotentSql: false);
+            return _sqlGenerator.Generate(_modelDiffer.CreateSchema(model));
         }
 
         private SqlStatement CreateHasTablesCommand()
@@ -101,7 +101,7 @@ namespace Microsoft.Data.Entity.SqlServer
                     new CreateDatabaseOperation(databaseName)
                 };
 
-            var masterCommands = _sqlGenerator.Generate(operations, generateIdempotentSql: false);
+            var masterCommands = _sqlGenerator.Generate(operations);
             return masterCommands;
         }
 
@@ -210,7 +210,7 @@ namespace Microsoft.Data.Entity.SqlServer
                     new DropDatabaseOperation(_connection.DbConnection.Database)
                 };
 
-            var masterCommands = _sqlGenerator.Generate(operations, generateIdempotentSql: false);
+            var masterCommands = _sqlGenerator.Generate(operations);
             return masterCommands;
         }
 

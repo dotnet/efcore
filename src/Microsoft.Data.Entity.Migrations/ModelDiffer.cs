@@ -34,8 +34,7 @@ namespace Microsoft.Data.Entity.Migrations
             get { return _databaseBuilder; }
         }
 
-        // TODO: Rename this method because it is not suggestive of what it does.
-        public virtual IReadOnlyList<MigrationOperation> DiffSource([NotNull] IModel model)
+        public virtual IReadOnlyList<MigrationOperation> CreateSchema([NotNull] IModel model)
         {
             Check.NotNull(model, "model");
 
@@ -73,8 +72,7 @@ namespace Microsoft.Data.Entity.Migrations
                     .ToArray();
         }
 
-        // TODO: Rename this method because it is not suggestive of what it does.
-        public virtual IReadOnlyList<MigrationOperation> DiffTarget([NotNull] IModel model)
+        public virtual IReadOnlyList<MigrationOperation> DropSchema([NotNull] IModel model)
         {
             Check.NotNull(model, "model");
 
@@ -109,16 +107,17 @@ namespace Microsoft.Data.Entity.Migrations
             DiffSequences();
             DiffTables();
 
-            // TODO: Needs to handle name reuse between renames and circular renames.
-            // TODO: Add unit tests for rename column conflict and operation order.
+            // TODO: Add more unit tests for the operation order.
 
-            HandleRenameConflicts();
+            HandleTransitiveRenames();
 
             return
                 ((IEnumerable<MigrationOperation>)_operations.Get<DropIndexOperation>())
                     .Concat(_operations.Get<DropForeignKeyOperation>())
                     .Concat(_operations.Get<DropPrimaryKeyOperation>())
                     .Concat(_operations.Get<DropDefaultConstraintOperation>())
+                    .Concat(_operations.Get<DropColumnOperation>())
+                    .Concat(_operations.Get<DropTableOperation>())
                     .Concat(_operations.Get<MoveTableOperation>())
                     .Concat(_operations.Get<RenameTableOperation>())
                     .Concat(_operations.Get<RenameColumnOperation>())
@@ -130,8 +129,6 @@ namespace Microsoft.Data.Entity.Migrations
                     .Concat(_operations.Get<AddPrimaryKeyOperation>())
                     .Concat(_operations.Get<AddForeignKeyOperation>())
                     .Concat(_operations.Get<CreateIndexOperation>())
-                    .Concat(_operations.Get<DropColumnOperation>())
-                    .Concat(_operations.Get<DropTableOperation>())
                     .ToArray();
         }
 
@@ -182,40 +179,85 @@ namespace Microsoft.Data.Entity.Migrations
             }
         }
 
-        private void HandleRenameConflicts()
+        private void HandleTransitiveRenames()
         {
-            const string newNamePrefix = "__mig_tmp__";
-            string newName;
-            var newNameIndex = 0;
+            const string temporaryNamePrefix = "__mig_tmp__";
+            var temporaryNameIndex = 0;
 
-            foreach (var pair in 
-                (from renameOp in _operations.Get<RenameTableOperation>()
-                    from dropOp in _operations.Get<DropTableOperation>()
-                    where new SchemaQualifiedName(renameOp.NewTableName, renameOp.TableName.Schema).Equals(dropOp.TableName)
-                    select new { RenameOp = renameOp, DropOp = dropOp })
-                    .ToArray())
+            _operations.Set(
+                HandleTransitiveRenames(
+                    _operations.Get<RenameTableOperation>(),
+                    getParentName: op => null,
+                    getName: op => op.TableName,
+                    getNewName: op => new SchemaQualifiedName(op.NewTableName, op.TableName.Schema),
+                    generateTempName: (op) => new SchemaQualifiedName(temporaryNamePrefix + temporaryNameIndex++, op.TableName.Schema),
+                    createRenameOperation: (parentName, name, newName)
+                        => new RenameTableOperation(name, SchemaQualifiedName.Parse(newName).Name)));
+
+            _operations.Set(
+                HandleTransitiveRenames(
+                    _operations.Get<RenameColumnOperation>(),
+                    getParentName: op => op.TableName,
+                    getName: op => op.ColumnName,
+                    getNewName: op => op.NewColumnName,
+                    generateTempName: (op) => temporaryNamePrefix + temporaryNameIndex++,
+                    createRenameOperation: (parentName, name, newName)
+                        => new RenameColumnOperation(parentName, name, newName)));
+
+            _operations.Set(
+                HandleTransitiveRenames(
+                    _operations.Get<RenameIndexOperation>(),
+                    getParentName: op => op.TableName,
+                    getName: op => op.IndexName,
+                    getNewName: op => op.NewIndexName,
+                    generateTempName: (op) => temporaryNamePrefix + temporaryNameIndex++,
+                    createRenameOperation: (parentName, name, newName)
+                        => new RenameIndexOperation(parentName, name, newName)));
+        }
+
+        private static IEnumerable<T> HandleTransitiveRenames<T>(
+            IReadOnlyList<T> renameOperations,
+            Func<T, string> getParentName,
+            Func<T, string> getName,
+            Func<T, string> getNewName,
+            Func<T, string> generateTempName,
+            Func<string, string, string, T> createRenameOperation)
+            where T : MigrationOperation
+        {
+            var tempRenameOperations = new List<T>();
+
+            for (var i = 0; i < renameOperations.Count; i++)
             {
-                newName = newNamePrefix + newNameIndex++;
+                var renameOperation = renameOperations[i];
 
-                _operations.InsertBefore(pair.RenameOp, new RenameTableOperation(
-                    pair.DropOp.TableName, newName));
-                _operations.Replace(pair.DropOp, new DropTableOperation(
-                    new SchemaQualifiedName(newName, pair.DropOp.TableName.Schema)));
+                var dependentRenameOperation
+                    = renameOperations
+                        .Skip(i + 1)
+                        .SingleOrDefault(r => getName(r) == getNewName(renameOperation));
+
+                if (dependentRenameOperation != null)
+                {
+                    var tempName = generateTempName(renameOperation);
+
+                    tempRenameOperations.Add(
+                        createRenameOperation(
+                            getParentName(renameOperation),
+                            tempName,
+                            getNewName(renameOperation)));
+
+                    renameOperation
+                        = createRenameOperation(
+                            getParentName(renameOperation),
+                            getName(renameOperation),
+                            tempName);
+                }
+
+                yield return renameOperation;
             }
 
-            foreach (var pair in 
-                (from renameOp in _operations.Get<RenameColumnOperation>()
-                    from dropOp in _operations.Get<DropColumnOperation>()
-                    where string.Equals(renameOp.NewColumnName, dropOp.ColumnName, StringComparison.Ordinal)
-                    select new { RenameOp = renameOp, DropOp = dropOp })
-                    .ToArray())
+            foreach (var renameOperation in tempRenameOperations)
             {
-                newName = newNamePrefix + newNameIndex++;
-
-                _operations.InsertBefore(pair.RenameOp, new RenameColumnOperation(
-                    pair.DropOp.TableName, pair.DropOp.ColumnName, newName));
-                _operations.Replace(pair.DropOp, new DropColumnOperation(
-                    pair.DropOp.TableName, newName));
+                yield return renameOperation;
             }
         }
 
@@ -659,29 +701,21 @@ namespace Microsoft.Data.Entity.Migrations
                 }
             }
 
-            public void InsertBefore<T>(T refOperation, T newOperation)
+            public void Set<T>(IEnumerable<T> operations)
                 where T : MigrationOperation
             {
-                var operations = _allOperations[typeof(T)];
-                operations.Insert(operations.IndexOf(refOperation), newOperation);
+                _allOperations[typeof(T)] = new List<MigrationOperation>(operations);
             }
 
-            public void Replace<T>(T oldOperation, T newOperation)
-                where T : MigrationOperation
-            {
-                var operations = _allOperations[typeof(T)];
-                operations[operations.IndexOf(oldOperation)] = newOperation;
-            }
-
-            public IEnumerable<T> Get<T>()
+            public IReadOnlyList<T> Get<T>()
                 where T : MigrationOperation
             {
                 List<MigrationOperation> operations;
 
                 return
                     _allOperations.TryGetValue(typeof(T), out operations)
-                        ? operations.Cast<T>()
-                        : Enumerable.Empty<T>();
+                        ? operations.Cast<T>().ToArray()
+                        : Enumerable.Empty<T>().ToArray();
             }
         }
     }

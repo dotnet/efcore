@@ -11,9 +11,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests
     public class ModelDifferTest
     {
         [Fact]
-        public void DiffSource_creates_operations()
+        public void CreateSchema_creates_operations()
         {
-            var operations = new ModelDiffer(new DatabaseBuilder()).DiffSource(CreateModel());
+            var operations = new ModelDiffer(new DatabaseBuilder()).CreateSchema(CreateModel());
 
             Assert.Equal(3, operations.Count);
 
@@ -27,9 +27,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         }
 
         [Fact]
-        public void DiffTarget_creates_operations()
+        public void DropSchema_creates_operations()
         {
-            var operations = new ModelDiffer(new DatabaseBuilder()).DiffTarget(CreateModel());
+            var operations = new ModelDiffer(new DatabaseBuilder()).DropSchema(CreateModel());
 
             Assert.Equal(3, operations.Count);
 
@@ -450,15 +450,16 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         }
 
         [Fact]
-        public void Diff_handles_table_rename_conflicts()
+        public void Diff_handles_transitive_table_renames()
         {
             var sourceModel = CreateModel();
             var targetModel = CreateModel();
 
             var dependentEntityType = targetModel.GetEntityType("Dependent");
             var principalEntityType = targetModel.GetEntityType("Principal");
-            targetModel.RemoveEntityType(dependentEntityType);
+            var principalTableName = principalEntityType.StorageName;
             principalEntityType.StorageName = dependentEntityType.StorageName;
+            dependentEntityType.StorageName = principalTableName;
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(sourceModel, targetModel);
 
@@ -466,17 +467,56 @@ namespace Microsoft.Data.Entity.Migrations.Tests
 
             Assert.IsType<RenameTableOperation>(operations[0]);
             Assert.IsType<RenameTableOperation>(operations[1]);
-            Assert.IsType<DropTableOperation>(operations[2]);
+            Assert.IsType<RenameTableOperation>(operations[2]);
 
             var renameTableOperation0 = (RenameTableOperation)operations[0];
             var renameTableOperation1 = (RenameTableOperation)operations[1];
-            var dropTableOperation = (DropTableOperation)operations[2];
+            var renameTableOperation2 = (RenameTableOperation)operations[2];
 
             Assert.Equal("dbo.MyTable0", renameTableOperation0.TableName);
             Assert.Equal("__mig_tmp__0", renameTableOperation0.NewTableName);
             Assert.Equal("dbo.MyTable1", renameTableOperation1.TableName);
             Assert.Equal("MyTable0", renameTableOperation1.NewTableName);
-            Assert.Equal("dbo.__mig_tmp__0", dropTableOperation.TableName);
+            Assert.Equal("dbo.__mig_tmp__0", renameTableOperation2.TableName);
+            Assert.Equal("MyTable1", renameTableOperation2.NewTableName);
+        }
+
+        [Fact]
+        public void Diff_handles_transitive_column_renames()
+        {
+            var sourceModel = CreateModel();
+            var targetModel = CreateModel();
+
+            var principalEntityType = sourceModel.GetEntityType("Principal");
+            var property = principalEntityType.AddProperty("P1", typeof(string));
+            property.StorageName = "C1";
+            property = principalEntityType.AddProperty("P2", typeof(string));
+            property.StorageName = "C2";
+
+            principalEntityType = targetModel.GetEntityType("Principal");
+            property = principalEntityType.AddProperty("P1", typeof(string));
+            property.StorageName = "C2";
+            property = principalEntityType.AddProperty("P2", typeof(string));
+            property.StorageName = "C1";
+
+            var operations = new ModelDiffer(new DatabaseBuilder()).Diff(sourceModel, targetModel);
+
+            Assert.Equal(3, operations.Count);
+
+            Assert.IsType<RenameColumnOperation>(operations[0]);
+            Assert.IsType<RenameColumnOperation>(operations[1]);
+            Assert.IsType<RenameColumnOperation>(operations[2]);
+
+            var renameColumnOperation0 = (RenameColumnOperation)operations[0];
+            var renameColumnOperation1 = (RenameColumnOperation)operations[1];
+            var renameColumnOperation2 = (RenameColumnOperation)operations[2];
+
+            Assert.Equal("C1", renameColumnOperation0.ColumnName);
+            Assert.Equal("__mig_tmp__0", renameColumnOperation0.NewColumnName);
+            Assert.Equal("C2", renameColumnOperation1.ColumnName);
+            Assert.Equal("C1", renameColumnOperation1.NewColumnName);
+            Assert.Equal("__mig_tmp__0", renameColumnOperation2.ColumnName);
+            Assert.Equal("C2", renameColumnOperation2.NewColumnName);
         }
 
         private static Metadata.Model CreateModel()
