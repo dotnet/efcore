@@ -2,11 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Runtime.InteropServices;
 
 namespace Microsoft.Data.SQLite.Interop
 {
-    internal delegate int SQLiteDeleteDelegate(IntPtr pVfs, IntPtr zName, int syncDir);
-
     internal struct sqlite3_vfs
     {
         public int iVersion;
@@ -27,5 +26,8 @@ namespace Microsoft.Data.SQLite.Interop
         public IntPtr xSleep;
         public IntPtr xCurrentTime;
         public IntPtr xGetLastError;
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate int SQLiteDeleteDelegate(IntPtr pVfs, IntPtr zName, int syncDir);
     }
 }
