@@ -7,6 +7,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 
 namespace Microsoft.Data.SQLite.Utilities
 {
@@ -147,6 +148,10 @@ namespace Microsoft.Data.SQLite.Utilities
 
         public static SQLiteTypeMap FromClrType(Type type)
         {
+            type = Nullable.GetUnderlyingType(type) ?? type;
+            if (type.GetTypeInfo().IsEnum)
+                type = Enum.GetUnderlyingType(type);
+
             // TODO: Consider derived types
             var map = _typeMaps.FirstOrDefault(m => m._clrType == type);
             if (map == null)

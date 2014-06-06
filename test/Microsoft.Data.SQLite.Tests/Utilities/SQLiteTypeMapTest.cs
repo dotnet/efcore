@@ -23,6 +23,7 @@ namespace Microsoft.Data.SQLite.Utilities
         {
             var map = SQLiteTypeMap.FromClrType(value.GetType());
 
+            Assert.Equal(value.GetType(), map.ClrType);
             Assert.Equal(SQLiteType.Integer, map.SQLiteType);
             Assert.Equal(1L, map.ToInterop(value));
             Assert.Equal(value, map.FromInterop(1L));
@@ -47,6 +48,7 @@ namespace Microsoft.Data.SQLite.Utilities
 
             var map = SQLiteTypeMap.FromClrType<string>();
 
+            Assert.Equal(typeof(string), map.ClrType);
             Assert.Equal(SQLiteType.Text, map.SQLiteType);
             Assert.Equal("test", map.ToInterop(value));
             Assert.Equal(value, map.FromInterop("test"));
@@ -59,6 +61,7 @@ namespace Microsoft.Data.SQLite.Utilities
 
             var map = SQLiteTypeMap.FromClrType<byte[]>();
 
+            Assert.Equal(typeof(byte[]), map.ClrType);
             Assert.Equal(SQLiteType.Blob, map.SQLiteType);
             Assert.Equal(new byte[] { 0x7e, 0x57 }, map.ToInterop(value));
             Assert.Equal(value, map.FromInterop(new byte[] { 0x7e, 0x57 }));
@@ -71,6 +74,7 @@ namespace Microsoft.Data.SQLite.Utilities
 
             var map = SQLiteTypeMap.FromClrType<DBNull>();
 
+            Assert.Equal(typeof(DBNull), map.ClrType);
             Assert.Equal(SQLiteType.Null, map.SQLiteType);
             Assert.Equal(DBNull.Value, map.ToInterop(value));
             Assert.Equal(value, map.FromInterop(DBNull.Value));
@@ -81,6 +85,18 @@ namespace Microsoft.Data.SQLite.Utilities
         {
             var ex = Assert.Throws<ArgumentException>(() => SQLiteTypeMap.FromClrType(GetType()));
             Assert.Equal(Strings.FormatUnknownDataType(GetType()), ex.Message);
+        }
+
+        [Fact]
+        public void FromClrType_handles_nullable_types()
+        {
+            Assert.Equal(typeof(int), SQLiteTypeMap.FromClrType(typeof(int?)).ClrType);
+        }
+
+        [Fact]
+        public void FromClrType_handles_enum_types()
+        {
+            Assert.Equal(typeof(int), SQLiteTypeMap.FromClrType(typeof(StringComparison)).ClrType);
         }
 
         [Theory]
