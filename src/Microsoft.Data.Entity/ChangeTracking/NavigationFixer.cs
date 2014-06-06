@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
@@ -13,8 +12,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
     public class NavigationFixer : IEntityStateListener
     {
         private readonly StateManager _stateManager;
-        private readonly ClrCollectionAccessorSource _collectionAccessorSource;
-        private readonly ClrPropertySetterSource _setterSource;
+        private readonly NavigationAccessorSource _accessorSource;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -27,16 +25,13 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         public NavigationFixer(
             [NotNull] StateManager stateManager,
-            [NotNull] ClrCollectionAccessorSource collectionAccessorSource,
-            [NotNull] ClrPropertySetterSource setterSource)
+            [NotNull] NavigationAccessorSource accessorSource)
         {
             Check.NotNull(stateManager, "stateManager");
-            Check.NotNull(collectionAccessorSource, "collectionAccessorSource");
-            Check.NotNull(setterSource, "setterSource");
+            Check.NotNull(accessorSource, "accessorSource");
 
             _stateManager = stateManager;
-            _collectionAccessorSource = collectionAccessorSource;
-            _setterSource = setterSource;
+            _accessorSource = accessorSource;
         }
 
         public virtual void StateChanging(StateEntry entry, EntityState newState)
@@ -81,36 +76,32 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             foreach (var navigation in _stateManager.Model.GetNavigations(foreignKey))
             {
+                var accessor = _accessorSource.GetAccessor(navigation);
+
                 if (navigation.PointsToPrincipal)
                 {
-                    var accessor = _setterSource.GetAccessor(navigation);
-
                     foreach (var dependent in dependentEntries)
                     {
-                        accessor.SetClrValue(dependent.Entity, principalEntry.Entity);
+                        accessor.Setter.SetClrValue(dependent.Entity, principalEntry.Entity);
                     }
                 }
                 else
                 {
-                    // TODO: Avoid doing this lookup every time--should be cached
-                    if (navigation.EntityType.Type.GetAnyProperty(navigation.Name).PropertyType.TryGetElementType(typeof(IEnumerable<>)) == null)
+                    var collectionAccessor = accessor as CollectionNavigationAccessor;
+                    if (collectionAccessor != null)
                     {
-                        var accessor = _setterSource.GetAccessor(navigation);
-
-                        // TODO: Decide how to handle case where multiple values match non-collection nav prop
-                        accessor.SetClrValue(principalEntry.Entity, dependentEntries.Single().Entity);
+                        foreach (var dependent in dependentEntries)
+                        {
+                            if (!collectionAccessor.Collection.Contains(principalEntry.Entity, dependent.Entity))
+                            {
+                                collectionAccessor.Collection.Add(principalEntry.Entity, dependent.Entity);
+                            }
+                        }
                     }
                     else
                     {
-                        var accessor = _collectionAccessorSource.GetAccessor(navigation);
-
-                        foreach (var dependent in dependentEntries)
-                        {
-                            if (!accessor.Contains(principalEntry.Entity, dependent.Entity))
-                            {
-                                accessor.Add(principalEntry.Entity, dependent.Entity);
-                            }
-                        }
+                        // TODO: Decide how to handle case where multiple values match non-collection nav prop
+                        accessor.Setter.SetClrValue(principalEntry.Entity, dependentEntries.Single().Entity);
                     }
                 }
             }

@@ -75,6 +75,9 @@
     <Compile Include="Identity\ValueGeneratorSelector.cs" />
     <Compile Include="Infrastructure\IDbContextOptionsExtensions.cs" />
     <Compile Include="INotifyPropertyChanging.cs" />
+    <Compile Include="Metadata\CollectionNavigationAccessor.cs" />
+    <Compile Include="Metadata\NavigationAccessor.cs" />
+    <Compile Include="Metadata\NavigationAccessorSource.cs" />
     <Compile Include="Query\AsyncQueryCompilationContext.cs" />
     <Compile Include="Query\AsyncResultOperatorHandler.cs" />
     <Compile Include="Query\IResultOperatorHandler.cs" />
