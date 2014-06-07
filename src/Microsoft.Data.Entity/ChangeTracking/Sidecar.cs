@@ -13,6 +13,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         public static class WellKnownNames
         {
             public const string OriginalValues = "OriginalValues";
+            public const string ForeignKeysSnapshot = "ForeignKeysSnapshot";
             public const string StoreGeneratedValues = "StoreGeneratedValues";
         }
 
@@ -121,6 +122,16 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             if (CanStoreValue(property)
                 && !HasValue(property))
+            {
+                this[property] = _stateEntry[property];
+            }
+        }
+
+        public virtual void TakeSnapshot([NotNull] IProperty property)
+        {
+            Check.NotNull(property, "property");
+
+            if (CanStoreValue(property))
             {
                 this[property] = _stateEntry[property];
             }

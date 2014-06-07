@@ -860,6 +860,10 @@ namespace Microsoft.Data.Entity.Tests
             public void StateChanged(StateEntry entry, EntityState oldState)
             {
             }
+
+            public void ForeignKeyPropertyChanged(StateEntry entry, IProperty property, object oldValue, object newValue)
+            {
+            }
         }
 
         private class FakeLoggerFactory : ILoggerFactory

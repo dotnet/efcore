@@ -67,6 +67,15 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
         }
 
+        public virtual Sidecar ForeignKeysSnapshot
+        {
+            get
+            {
+                return TryGetSidecar(Sidecar.WellKnownNames.ForeignKeysSnapshot)
+                       ?? AddSidecar(_configuration.Services.ForeignKeysSnapshotFactory.Create(this));
+            }
+        }
+
         public virtual Sidecar AddSidecar([NotNull] Sidecar sidecar)
         {
             Check.NotNull(sidecar, "sidecar");
@@ -340,11 +349,15 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         public virtual EntityKey GetDependentKeyValue([NotNull] IForeignKey foreignKey)
         {
+            Check.NotNull(foreignKey, "foreignKey");
+
             return CreateKey(foreignKey.ReferencedEntityType, foreignKey.Properties, this);
         }
 
         public virtual EntityKey GetPrincipalKeyValue([NotNull] IForeignKey foreignKey)
         {
+            Check.NotNull(foreignKey, "foreignKey");
+
             return CreateKey(foreignKey.ReferencedEntityType, foreignKey.ReferencedProperties, this);
         }
 
@@ -353,6 +366,15 @@ namespace Microsoft.Data.Entity.ChangeTracking
             return _configuration.Services.EntityKeyFactorySource
                 .GetKeyFactory(properties)
                 .Create(entityType, properties, entry);
+        }
+
+        public virtual EntityKey GetDependentKeySnapshot([NotNull] IForeignKey foreignKey)
+        {
+            Check.NotNull(foreignKey, "foreignKey");
+
+            return _configuration.Services.EntityKeyFactorySource
+                .GetKeyFactory(foreignKey.Properties)
+                .Create(foreignKey.ReferencedEntityType, foreignKey.Properties, ForeignKeysSnapshot);
         }
 
         public virtual object[] GetValueBuffer()
@@ -364,12 +386,11 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             Check.NotNull(property, "property");
 
-            if (!_entityType.UseLazyOriginalValues)
+            if (_entityType.UseLazyOriginalValues)
             {
-                return;
+                OriginalValues.EnsureSnapshot(property);
+                ForeignKeysSnapshot.TakeSnapshot(property);
             }
-
-            OriginalValues.EnsureSnapshot(property);
         }
 
         public virtual void PropertyChanged([NotNull] IProperty property)
@@ -377,6 +398,12 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotNull(property, "property");
 
             SetPropertyModified(property, true);
+
+            var newSnapshot = DetectForeignKeyChange(property);
+            if (newSnapshot != null)
+            {
+                ForeignKeysSnapshot[newSnapshot.Item1] = newSnapshot.Item2;
+            }
         }
 
         public virtual bool DetectChanges()
@@ -391,6 +418,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 return false;
             }
 
+            var newForeignKeySnapshots = new List<Tuple<IProperty, object>>();
             var foundChanges = false;
             foreach (var property in EntityType.Properties)
             {
@@ -400,9 +428,41 @@ namespace Microsoft.Data.Entity.ChangeTracking
                     SetPropertyModified(property, true);
                     foundChanges = true;
                 }
+
+                var newSnapshot = DetectForeignKeyChange(property);
+                if (newSnapshot != null)
+                {
+                    newForeignKeySnapshots.Add(newSnapshot);
+                }
+            }
+
+            foreach (var newSnapshot in newForeignKeySnapshots)
+            {
+                ForeignKeysSnapshot[newSnapshot.Item1] = newSnapshot.Item2;
             }
 
             return foundChanges;
+        }
+
+        private Tuple<IProperty, object> DetectForeignKeyChange(IProperty property)
+        {
+            // TODO: Consider flag/index for fast check for FK
+            if (_entityType.ForeignKeys.SelectMany(fk => fk.Properties).Contains(property))
+            {
+                var snapshotValue = ForeignKeysSnapshot[property];
+                var currentValue = this[property];
+
+                // TODO: Ensure structural equality where necessary--e.g. byte arrays
+                if (!Equals(currentValue, snapshotValue))
+                {
+                    var notifier = _configuration.Services.StateEntryNotifier;
+                    notifier.ForeignKeyPropertyChanged(this, property, snapshotValue, currentValue);
+
+                    return Tuple.Create(property, currentValue);
+                }
+            }
+
+            return null;
         }
 
         public virtual void AcceptChanges()

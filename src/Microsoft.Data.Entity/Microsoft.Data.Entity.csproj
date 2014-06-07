@@ -58,6 +58,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.tt</DependentUpon>
     </Compile>
+    <Compile Include="ChangeTracking\ForeignKeysSnapshot.cs" />
+    <Compile Include="ChangeTracking\ForeignKeysSnapshotFactory.cs" />
     <Compile Include="ChangeTracking\SimpleNullableEntityKeyFactory.cs" />
     <Compile Include="DbContext.cs" />
     <Compile Include="DbContextOptions.cs" />

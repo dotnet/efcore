@@ -14,5 +14,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         public abstract EntityKey Create(
             [NotNull] IEntityType entityType, [NotNull] IReadOnlyList<IProperty> properties, [NotNull] IValueReader valueReader);
+
+        public abstract EntityKey Create(
+            [NotNull] IEntityType entityType, [NotNull] IReadOnlyList<IProperty> properties, [NotNull] Sidecar sidecar);
     }
 }

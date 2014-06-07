@@ -34,6 +34,27 @@ namespace Microsoft.Data.Entity.ChangeTracking
             _accessorSource = accessorSource;
         }
 
+        public virtual void ForeignKeyPropertyChanged(StateEntry entry, IProperty property, object oldValue, object newValue)
+        {
+            Check.NotNull(entry, "entry");
+            Check.NotNull(property, "property");
+
+            foreach (var foreignKey in entry.EntityType.ForeignKeys.Where(p => p.Properties.Contains(property)).Distinct())
+            {
+                var oldPrincipalEntry = _stateManager.GetPrincipal(entry, foreignKey, useForeignKeySnapshot: true);
+                if (oldPrincipalEntry != null)
+                {
+                    UndoFixup(foreignKey, oldPrincipalEntry, entry);
+                }
+
+                var principalEntry = _stateManager.GetPrincipal(entry, foreignKey, useForeignKeySnapshot: false);
+                if (principalEntry != null)
+                {
+                    DoFixup(foreignKey, principalEntry, new[] { entry });
+                }
+            }
+        }
+
         public virtual void StateChanging(StateEntry entry, EntityState newState)
         {
         }
@@ -52,7 +73,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             // Handle case where the new entity is the dependent
             foreach (var foreignKey in entry.EntityType.ForeignKeys)
             {
-                var principalEntry = _stateManager.GetPrincipal(entry, foreignKey);
+                var principalEntry = _stateManager.GetPrincipal(entry, foreignKey, useForeignKeySnapshot: false);
                 if (principalEntry != null)
                 {
                     DoFixup(foreignKey, principalEntry, new[] { entry });
@@ -102,6 +123,34 @@ namespace Microsoft.Data.Entity.ChangeTracking
                     {
                         // TODO: Decide how to handle case where multiple values match non-collection nav prop
                         accessor.Setter.SetClrValue(principalEntry.Entity, dependentEntries.Single().Entity);
+                    }
+                }
+            }
+        }
+
+        private void UndoFixup(IForeignKey foreignKey, StateEntry oldPrincipalEntry, StateEntry dependentEntry)
+        {
+            foreach (var navigation in _stateManager.Model.GetNavigations(foreignKey))
+            {
+                var accessor = _accessorSource.GetAccessor(navigation);
+
+                if (navigation.PointsToPrincipal)
+                {
+                    accessor.Setter.SetClrValue(dependentEntry.Entity, null);
+                }
+                else
+                {
+                    var collectionAccessor = accessor as CollectionNavigationAccessor;
+                    if (collectionAccessor != null)
+                    {
+                        if (collectionAccessor.Collection.Contains(oldPrincipalEntry.Entity, dependentEntry.Entity))
+                        {
+                            collectionAccessor.Collection.Remove(oldPrincipalEntry.Entity, dependentEntry.Entity);
+                        }
+                    }
+                    else
+                    {
+                        accessor.Setter.SetClrValue(oldPrincipalEntry.Entity, null);
                     }
                 }
             }

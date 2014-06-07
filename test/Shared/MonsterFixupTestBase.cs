@@ -4,7 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Utilities;
 using Xunit;
 
 namespace Microsoft.Data.Entity.FunctionalTests
@@ -12,16 +14,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
     public abstract class MonsterFixupTestBase
     {
         [Fact]
-        public void Can_build_monster_model_and_seed_data_using_FKs()
+        public virtual async Task Can_build_monster_model_and_seed_data_using_FKs()
         {
             var serviceProvider = CreateServiceProvider();
-
-            using (var context = new MonsterContext(serviceProvider, CreateOptions("Monster")))
-            {
-                context.Database.EnsureDeleted();
-                context.Database.EnsureCreated();
-                context.SeedUsingFKs();
-            }
+            await CreateAndSeedDatabase(serviceProvider, "Monster");
 
             SimpleVerification(serviceProvider, "Monster");
             FkVerification(serviceProvider, "Monster");
@@ -497,7 +493,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.Same(login1, message1.Sender);
                 Assert.Same(login1, message3.Sender);
                 Assert.Equal(
-                    new[] { "Fanc", "I'll"}, 
+                    new[] { "Fanc", "I'll" },
                     login1.SentMessages.Select(m => m.Body.Substring(0, 4)).OrderBy(m => m).ToArray());
 
                 Assert.Same(login2, message2.Sender);
@@ -521,7 +517,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 Assert.Same(customer2, order2.Customer);
                 Assert.Same(order2, customer2.Orders.Single());
-                
+
                 Assert.Same(customer3, order3.Customer);
                 Assert.Same(order3, customer3.Orders.Single());
 
@@ -572,7 +568,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.Same(product1, productReview1.Product);
                 Assert.Same(product1, productReview2.Product);
                 Assert.Equal(
-                    new[] { productReview1, productReview2 }, 
+                    new[] { productReview1, productReview2 },
                     product1.Reviews.OrderBy(r => r.Review).ToArray());
 
                 Assert.Same(product2, productReview3.Product);
@@ -657,9 +653,89 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
+        [Fact]
+        public virtual async Task Fixup_happens_when_FKs_change()
+        {
+            var serviceProvider = CreateServiceProvider();
+            await CreateAndSeedDatabase(serviceProvider, "Monster");
+
+            using (var context = new MonsterContext(serviceProvider, CreateOptions("Monster")))
+            {
+                var login1 = context.Logins.Single(e => e.Username == "MrsKoalie73");
+                var login2 = context.Logins.Single(e => e.Username == "MrsBossyPants");
+                var login3 = context.Logins.Single(e => e.Username == "TheStripedMenace");
+
+                var message1 = context.Messages.Single(e => e.Body.StartsWith("Fancy"));
+                var message2 = context.Messages.Single(e => e.Body.StartsWith("Love"));
+                var message3 = context.Messages.Single(e => e.Body.StartsWith("I'll"));
+
+                Assert.Same(login2, message2.Sender);
+                Assert.Same(message2, login2.SentMessages.Single());
+
+                Assert.Same(login2, message1.Recipient);
+                Assert.Same(login2, message3.Recipient);
+                Assert.Equal(new[] { message1, message3 }, login2.ReceivedMessages.OrderBy(m => m.Body).ToArray());
+
+                Assert.Same(login1, message2.Recipient);
+                Assert.Same(message2, login1.ReceivedMessages.Single());
+
+                Assert.Empty(login3.SentMessages);
+
+                message2.FromUsername = login3.Username;
+
+                context.ChangeTracker.StateManager.DetectChanges();
+
+                Assert.Same(login3, message2.Sender);
+                Assert.Same(message2, login3.SentMessages.Single());
+
+                Assert.Same(login1, message2.Recipient);
+                Assert.Same(message2, login1.ReceivedMessages.Single());
+
+                Assert.Empty(login2.SentMessages);
+
+                message2.FromUsername = login2.Username;
+
+                context.ChangeTracker.StateManager.DetectChanges();
+
+                Assert.Same(login2, message2.Sender);
+                Assert.Same(message2, login2.SentMessages.Single());
+
+                Assert.Same(login1, message2.Recipient);
+                Assert.Same(message2, login1.ReceivedMessages.Single());
+
+                Assert.Empty(login3.SentMessages);
+
+                message2.FromUsername = null;
+
+                context.ChangeTracker.StateManager.DetectChanges();
+
+                Assert.Null(message2.Sender);
+                Assert.Empty(login2.SentMessages);
+
+                Assert.Same(login1, message2.Recipient);
+                Assert.Same(message2, login1.ReceivedMessages.Single());
+
+                Assert.Empty(login3.SentMessages);
+
+                message2.FromUsername = login3.Username;
+
+                context.ChangeTracker.StateManager.DetectChanges();
+
+                Assert.Same(login3, message2.Sender);
+                Assert.Same(message2, login3.SentMessages.Single());
+
+                Assert.Same(login1, message2.Recipient);
+                Assert.Same(message2, login1.ReceivedMessages.Single());
+
+                Assert.Empty(login2.SentMessages);
+            }
+        }
+
         protected abstract IServiceProvider CreateServiceProvider();
 
         protected abstract DbContextOptions CreateOptions(string databaseName);
+
+        protected abstract Task CreateAndSeedDatabase(IServiceProvider serviceProvider, string databaseName);
 
         protected class MonsterContext : DbContext
         {
@@ -833,7 +909,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 AddNavigationToPrincipal(model, typeof(OrderQualityCheck), "OrderId", "Order");
 
                 AddNavigationToPrincipal(model, typeof(PageView), "Username", "Login");
-                
+
                 AddNavigationToPrincipal(model, typeof(PasswordReset), "Username", "Login");
 
                 AddNavigationToPrincipal(model, typeof(ProductDetail), "ProductId", "Product");
@@ -911,9 +987,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     .AddNavigation(
                         new Navigation(
                             model.GetEntityType(dependentType).ForeignKeys.Single(
-                                f => f.Properties.Count == 2 
-                                    && f.Properties.Any(p => p.Name == fk1)
-                                    && f.Properties.Any(p => p.Name == fk2)),
+                                f => f.Properties.Count == 2
+                                     && f.Properties.Any(p => p.Name == fk1)
+                                     && f.Properties.Any(p => p.Name == fk2)),
                             navigation, pointsToPrincipal: false));
             }
 
@@ -924,8 +1000,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         new Navigation(
                             model.GetEntityType(type).ForeignKeys.Single(
                                 f => f.Properties.Count == 2
-                                    && f.Properties.Any(p => p.Name == fk1)
-                                    && f.Properties.Any(p => p.Name == fk2)),
+                                     && f.Properties.Any(p => p.Name == fk1)
+                                     && f.Properties.Any(p => p.Name == fk2)),
                             navigation, pointsToPrincipal: true));
             }
 

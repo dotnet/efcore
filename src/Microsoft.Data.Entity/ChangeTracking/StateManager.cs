@@ -196,12 +196,15 @@ namespace Microsoft.Data.Entity.ChangeTracking
             get { return _configuration.Model; }
         }
 
-        public virtual StateEntry GetPrincipal([NotNull] StateEntry dependentEntry, [NotNull] IForeignKey foreignKey)
+        public virtual StateEntry GetPrincipal(
+            [NotNull] StateEntry dependentEntry, [NotNull] IForeignKey foreignKey, bool useForeignKeySnapshot)
         {
             Check.NotNull(dependentEntry, "dependentEntry");
             Check.NotNull(foreignKey, "foreignKey");
 
-            var dependentKeyValue = dependentEntry.GetDependentKeyValue(foreignKey);
+            var dependentKeyValue = useForeignKeySnapshot
+             ? dependentEntry.GetDependentKeySnapshot(foreignKey)
+             : dependentEntry.GetDependentKeyValue(foreignKey);
 
             if (dependentKeyValue == null)
             {

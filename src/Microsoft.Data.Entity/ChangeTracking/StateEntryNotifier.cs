@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking
@@ -22,33 +23,42 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
         }
 
-        public StateEntryNotifier([NotNull] IEnumerable<IEntityStateListener> entityStateListeners)
+        public StateEntryNotifier([CanBeNull] IEnumerable<IEntityStateListener> entityStateListeners)
         {
-            Check.NotNull(entityStateListeners, "entityStateListeners");
-
-            var stateListeners = entityStateListeners.ToArray();
-            _entityStateListeners = stateListeners.Length == 0 ? null : stateListeners;
+            if (entityStateListeners != null)
+            {
+                var stateListeners = entityStateListeners.ToArray();
+                _entityStateListeners = stateListeners.Length == 0 ? null : stateListeners;
+            }
         }
 
         public virtual void StateChanging([NotNull] StateEntry entry, EntityState newState)
         {
             Check.NotNull(entry, "entry");
+            Check.IsDefined(newState, "newState");
 
-            if (_entityStateListeners == null)
-            {
-                return;
-            }
-
-            foreach (var listener in _entityStateListeners)
-            {
-                listener.StateChanging(entry, newState);
-            }
+            Dispatch(l => l.StateChanging(entry, newState));
         }
 
         public virtual void StateChanged([NotNull] StateEntry entry, EntityState oldState)
         {
             Check.NotNull(entry, "entry");
+            Check.IsDefined(oldState, "oldState");
 
+            Dispatch(l => l.StateChanged(entry, oldState));
+        }
+
+        public virtual void ForeignKeyPropertyChanged(
+            [NotNull] StateEntry entry, [NotNull] IProperty property, [CanBeNull] object oldValue, [CanBeNull] object newValue)
+        {
+            Check.NotNull(entry, "entry");
+            Check.NotNull(property, "property");
+
+            Dispatch(l => l.ForeignKeyPropertyChanged(entry, property, oldValue, newValue));
+        }
+
+        private void Dispatch(Action<IEntityStateListener> action)
+        {
             if (_entityStateListeners == null)
             {
                 return;
@@ -56,7 +66,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             foreach (var listener in _entityStateListeners)
             {
-                listener.StateChanged(entry, oldState);
+                action(listener);
             }
         }
     }

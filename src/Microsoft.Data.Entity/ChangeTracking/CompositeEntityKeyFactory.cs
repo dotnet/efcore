@@ -29,6 +29,15 @@ namespace Microsoft.Data.Entity.ChangeTracking
             return Create(entityType, properties.Select(p => valueReader.ReadValue<object>(p.Index)).ToArray());
         }
 
+        public override EntityKey Create(IEntityType entityType, IReadOnlyList<IProperty> properties, Sidecar sidecar)
+        {
+            Check.NotNull(entityType, "entityType");
+            Check.NotNull(properties, "properties");
+            Check.NotNull(sidecar, "sidecar");
+
+            return Create(entityType, properties.Select(p => sidecar[p]).ToArray());
+        }
+
         private static CompositeEntityKey Create(IEntityType entityType, object[] values)
         {
             return values.Any(v => v == null) ? null : new CompositeEntityKey(entityType, values);

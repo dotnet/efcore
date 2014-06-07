@@ -13,6 +13,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             if (!entry.EntityType.UseLazyOriginalValues)
             {
                 entry.OriginalValues.TakeSnapshot();
+                entry.ForeignKeysSnapshot.TakeSnapshot();
             }
 
             var changing = entry.Entity as INotifyPropertyChanging;

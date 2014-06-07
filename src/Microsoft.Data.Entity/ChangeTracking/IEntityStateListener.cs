@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.ChangeTracking
 {
@@ -10,5 +11,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
     {
         void StateChanging([NotNull] StateEntry entry, EntityState newState);
         void StateChanged([NotNull] StateEntry entry, EntityState oldState);
+        void ForeignKeyPropertyChanged([NotNull] StateEntry entry, [NotNull] IProperty property, [CanBeNull] object oldValue, [CanBeNull] object newValue);
     }
 }
