@@ -13,11 +13,11 @@ using Microsoft.Data.Entity.Query;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Query
 {
-    public class AzureTableStorageQueryCompilationContext : QueryCompilationContext
+    public class AtsQueryCompilationContext : QueryCompilationContext
     {
         public TableFilterFactory TableFilterFactory { get; private set; }
 
-        public AzureTableStorageQueryCompilationContext([NotNull] IModel model, [NotNull] TableFilterFactory tableFilterFactory)
+        public AtsQueryCompilationContext([NotNull] IModel model, [NotNull] TableFilterFactory tableFilterFactory)
             : base(model)
         {
             Check.NotNull(tableFilterFactory, "tableFilterFactory");
@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
 
         public override EntityQueryModelVisitor CreateVisitor()
         {
-            return new AzureTableStorageQueryModelVisitor(this);
+            return new AtsQueryModelVisitor(this);
         }
     }
 }

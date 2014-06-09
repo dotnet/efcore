@@ -12,11 +12,18 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
     public class AtsDatabaseTests : IClassFixture<FakeConnection>
     {
         private readonly FakeConnection _fixture;
-        private AtsDatabase _creator;
+        private Mock<IModel> _model = new Mock<IModel>();
+        private Mock<DbContextConfiguration> _config = new Mock<DbContextConfiguration>();
 
         public AtsDatabaseTests(FakeConnection fixture)
         {
             _fixture = fixture;
+            _config.SetupGet(s => s.Model).Returns(_model.Object);
+        }
+
+        [Fact]
+        public void It_requests_create_on_all_models()
+        {
             var model = new Mock<IModel>();
             model.Setup(s => s.EntityTypes).Returns(new List<IEntityType>
                 {
@@ -25,16 +32,29 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
                 });
             var config = new Mock<DbContextConfiguration>();
             config.SetupGet(s => s.Model).Returns(model.Object);
-            _creator = new AtsDatabase(config.Object, _fixture);
+            var database = new AtsDatabase(config.Object, _fixture);
+
+            database.CreateTables();
+            Assert.Equal(2, _fixture.CreateTableRequests);
+
+            database.CreateTablesAsync().Wait();
+            Assert.Equal(4, _fixture.CreateTableRequests);
         }
 
         [Fact]
-        public void It_requests_create_on_all_models()
+        public void Has_no_tables()
         {
-            _creator.CreateTables();
-            Assert.Equal(2, _fixture.CreateTableRequests);
-            _creator.CreateTablesAsync().Wait();
-            Assert.Equal(4, _fixture.CreateTableRequests);
+            var model = new Mock<IModel>();
+            model.Setup(s => s.EntityTypes).Returns(new List<IEntityType>
+                {
+                });
+            var config = new Mock<DbContextConfiguration>();
+            config.SetupGet(s => s.Model).Returns(model.Object);
+            var database = new AtsDatabase(config.Object, _fixture);
+
+            Assert.False(database.HasTables());
         }
+
+      
     }
 }

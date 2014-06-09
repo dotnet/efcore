@@ -9,7 +9,6 @@
     "Microsoft.Framework.ConfigurationModel":"0.1-alpha-*",
     "Microsoft.Framework.DependencyInjection": "0.1-alpha-*",
     "Moq":  "4.2.1402.2112",
-    "WindowsAzure.Storage": "4.0.1",
     "Xunit.KRunner": "0.1-alpha-*"
   },
   "include": "App.config",

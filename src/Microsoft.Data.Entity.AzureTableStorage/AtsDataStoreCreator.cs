@@ -9,7 +9,7 @@ using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.AzureTableStorage
 {
-    public class AzureTableStorageDataStoreCreator : DataStoreCreator
+    public class AtsDataStoreCreator : DataStoreCreator
     {
         public override bool EnsureDeleted()
         {

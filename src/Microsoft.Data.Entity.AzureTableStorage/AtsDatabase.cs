@@ -13,10 +13,10 @@ namespace Microsoft.Data.Entity.AzureTableStorage
 {
     public class AtsDatabase : Database
     {
-        private readonly AzureTableStorageConnection _connection;
+        private readonly AtsConnection _connection;
         private readonly IModel _model;
 
-        public AtsDatabase([NotNull] DbContextConfiguration configuration, [NotNull] AzureTableStorageConnection connection)
+        public AtsDatabase([NotNull] DbContextConfiguration configuration, [NotNull] AtsConnection connection)
             : base(configuration)
         {
             Check.NotNull(connection, "connection");

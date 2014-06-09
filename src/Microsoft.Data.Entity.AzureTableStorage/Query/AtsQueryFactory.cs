@@ -9,12 +9,12 @@ using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Query
 {
-    public class AzureTableStorageQueryFactory
+    public class AtsQueryFactory
     {
         private readonly AtsValueReaderFactory _valueReaderFactory;
         private readonly TableFilterFactory _tableFilterFactory;
 
-        public AzureTableStorageQueryFactory([NotNull] AtsValueReaderFactory valueReaderFactory, [NotNull] TableFilterFactory tableFilterFactory)
+        public AtsQueryFactory([NotNull] AtsValueReaderFactory valueReaderFactory, [NotNull] TableFilterFactory tableFilterFactory)
         {
             Check.NotNull(valueReaderFactory, "valueReaderFactory");
             Check.NotNull(tableFilterFactory, "tableFilterFactory");
@@ -22,14 +22,14 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
             _tableFilterFactory = tableFilterFactory;
         }
 
-        public AzureTableStorageQueryCompilationContext MakeCompilationContext(IModel model)
+        public AtsQueryCompilationContext MakeCompilationContext(IModel model)
         {
-            return new AzureTableStorageQueryCompilationContext(model, _tableFilterFactory);
+            return new AtsQueryCompilationContext(model, _tableFilterFactory);
         }
 
-        public AzureTableStorageQueryContext MakeQueryContext(IModel model, ILogger logger, StateManager stateManager, AzureTableStorageConnection database)
+        public AtsQueryContext MakeQueryContext(IModel model, ILogger logger, StateManager stateManager, AtsConnection connection)
         {
-            return new AzureTableStorageQueryContext(model, logger, stateManager, database, _valueReaderFactory);
+            return new AtsQueryContext(model, logger, stateManager, connection, _valueReaderFactory);
         }
     }
 }
