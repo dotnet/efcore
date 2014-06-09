@@ -15,11 +15,10 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Tests
 {
-    public class DataStoreTests : AzureTableStorageDataStore, IClassFixture<FakeConnection>
+    public class AtsDataStoreTests : AtsDataStore, IClassFixture<FakeConnection>
     {
         private readonly FakeConnection _fakeConnection;
-        private TableEntityAdapterFactory _entityFactory = new TableEntityAdapterFactory();
-        public DataStoreTests(FakeConnection connection)
+        public AtsDataStoreTests(FakeConnection connection)
             : base(connection,new TableEntityAdapterFactory())
         {
             _fakeConnection = connection;

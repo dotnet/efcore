@@ -3,28 +3,25 @@
 
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.AzureTableStorage.Adapters;
 using Microsoft.Data.Entity.AzureTableStorage.Interfaces;
-using Microsoft.Data.Entity.AzureTableStorage.Query;
 using Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers;
 using Microsoft.Data.Entity.ChangeTracking;
-using Microsoft.WindowsAzure.Storage.Table;
 using Xunit;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Tests
 {
     using ResultTaskList = IList<ITableResult>;
 
-    public class BatchedDataStoreTests : AzureTableStorageBatchedDataStore, IClassFixture<FakeConnection>
+    public class AtsBatchedDataStoreTests : AtsBatchedDataStore, IClassFixture<FakeConnection>
     {
         private readonly FakeConnection _fakeConnection;
 
         private readonly TableEntityAdapterFactory _entityFactory = new TableEntityAdapterFactory();
 
-        public BatchedDataStoreTests(FakeConnection connection)
-            : base(connection,new TableEntityAdapterFactory())
+        public AtsBatchedDataStoreTests(FakeConnection connection)
+            : base(connection, new TableEntityAdapterFactory())
         {
             _fakeConnection = connection;
             _fakeConnection.ClearQueue();
@@ -91,18 +88,20 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
         [Theory]
         [InlineData(1)]
         [InlineData(2)]
+        [InlineData(99)]
         [InlineData(100)]
-        [InlineData(1000)]
-        [InlineData(10000)]
-        [InlineData(100000)]
+        [InlineData(101)]
+        [InlineData(199)]
+        [InlineData(200)]
+        [InlineData(201)]
         public void It_saves_changes(int expectedChanges)
         {
             var testEntries = new List<StateEntry>();
             for (var i = 0; i < expectedChanges; i++)
             {
-                var title = "Test - " + i;
+                var title = "TestType";
                 _fakeConnection.QueueResult(title, TestTableResult.OK());
-                testEntries.Add(TestStateEntry.Mock().WithState(EntityState.Added).WithType(title).WithProperty("PartitionKey","A"));
+                testEntries.Add(TestStateEntry.Mock().WithState(EntityState.Added).WithType(title).WithProperty("PartitionKey", "A"));
             }
             var actualChanges = SaveChangesAsync(testEntries).Result;
             Assert.Equal(expectedChanges, actualChanges);

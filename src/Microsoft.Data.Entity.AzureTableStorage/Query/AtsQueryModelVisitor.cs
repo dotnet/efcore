@@ -15,18 +15,18 @@ using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Query
 {
-    public class AzureTableStorageQueryModelVisitor : EntityQueryModelVisitor
+    public class AtsQueryModelVisitor : EntityQueryModelVisitor
     {
         private readonly Dictionary<IQuerySource, AtsTableQuery> _queriesBySource = new Dictionary<IQuerySource, AtsTableQuery>();
-        private readonly AzureTableStorageQueryCompilationContext _queryCompilationContext;
+        private readonly AtsQueryCompilationContext _queryCompilationContext;
 
-        public AzureTableStorageQueryModelVisitor([NotNull] AzureTableStorageQueryCompilationContext queryCompilationContext)
+        public AtsQueryModelVisitor([NotNull] AtsQueryCompilationContext queryCompilationContext)
             : base(queryCompilationContext)
         {
             _queryCompilationContext = queryCompilationContext;
         }
 
-        private AzureTableStorageQueryModelVisitor(AzureTableStorageQueryModelVisitor visitor)
+        private AtsQueryModelVisitor(AtsQueryModelVisitor visitor)
             : this(visitor._queryCompilationContext)
         {}
 
@@ -49,11 +49,11 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
 
         protected class AzureTableStorageQueryingExpressionTreeVisitor : QueryingExpressionTreeVisitor
         {
-            private readonly AzureTableStorageQueryModelVisitor _parent;
+            private readonly AtsQueryModelVisitor _parent;
             private readonly IQuerySource _querySource;
             private readonly IEntityType _entityType;
 
-            public AzureTableStorageQueryingExpressionTreeVisitor(AzureTableStorageQueryModelVisitor parent, IQuerySource querySource)
+            public AzureTableStorageQueryingExpressionTreeVisitor(AtsQueryModelVisitor parent, IQuerySource querySource)
                 : base(parent.QueryCompilationContext)
             {
                 _parent = parent;
@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
 
             protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
             {
-                var visitor = new AzureTableStorageQueryModelVisitor(_parent);
+                var visitor = new AtsQueryModelVisitor(_parent);
                 visitor.VisitQueryModel(expression.QueryModel);
                 return visitor.Expression;
             }
@@ -135,15 +135,15 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
         }
 
         private static readonly MethodInfo _entityScanMethodInfo
-            = typeof(AzureTableStorageQueryModelVisitor).GetTypeInfo().GetDeclaredMethod("EntityScan");
+            = typeof(AtsQueryModelVisitor).GetTypeInfo().GetDeclaredMethod("EntityScan");
 
 
         [UsedImplicitly]
         private static IEnumerable<TResult> EntityScan<TResult>(QueryContext queryContext, AtsTableQuery tableQuery, IEntityType entityType)
             where TResult : class, new()
         {
-            var context = ((AzureTableStorageQueryContext)queryContext);
-            var table = context.Database.GetTableReference(entityType.StorageName);
+            var context = ((AtsQueryContext)queryContext);
+            var table = context.Connection.GetTableReference(entityType.StorageName);
 
             return table.ExecuteQuery(tableQuery, s =>
                 (TResult)context.StateManager.GetOrMaterializeEntry(
