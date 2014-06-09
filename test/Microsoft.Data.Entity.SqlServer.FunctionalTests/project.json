@@ -9,6 +9,11 @@
     "test": "Xunit.KRunner"
   },
   "configurations": {
-    "net451": {}
+    "net451": {},
+    "k10": {
+      "dependencies": {
+        "System.Threading.ExecutionContext": "4.0.0.0"
+      }
+    }
   }
 }

@@ -6,6 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.Metadata;
 using Xunit;
+#if K10
+using System.Reflection;
+#endif
 
 namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 {

@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Runtime.Remoting.Messaging;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.FunctionalTests;
@@ -12,6 +11,11 @@ using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Microsoft.Framework.Logging;
 using Xunit;
+#if K10
+using System.Threading;
+#else
+using System.Runtime.Remoting.Messaging;
+#endif
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
@@ -597,8 +601,8 @@ FROM Customers",
 
         public override void Projection_when_null_value()
         {
-            base.Projection_when_null_value(); 
-            
+            base.Projection_when_null_value();
+
             Assert.Equal(
                      @"SELECT Region
 FROM Customers",
@@ -623,7 +627,11 @@ FROM Customers",
     {
         private class SqlLoggerFactory : ILoggerFactory
         {
+#if K10
+            private readonly static AsyncLocal<SqlLogger> _logger = new AsyncLocal<SqlLogger>();
+#else
             private const string ContextName = "__SQL";
+#endif
 
             public ILogger Create(string name)
             {
@@ -632,12 +640,23 @@ FROM Customers",
 
             public void Init()
             {
+#if K10
+                _logger.Value = new SqlLogger();
+#else
                 CallContext.LogicalSetData(ContextName, new SqlLogger());
+#endif
             }
 
             public static SqlLogger Logger
             {
-                get { return (SqlLogger)CallContext.LogicalGetData(ContextName); }
+                get
+                {
+#if K10
+                    return _logger.Value;
+#else
+                    return (SqlLogger)CallContext.LogicalGetData(ContextName);
+#endif
+                }
             }
 
             public class SqlLogger : ILogger
