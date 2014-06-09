@@ -73,6 +73,12 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         [Fact]
+        public virtual void Projection_when_null_value()
+        {
+            AssertQuery<Customer>(cs => cs.Select(c => c.Region));
+        }
+
+        [Fact]
         public virtual void Take_with_single()
         {
             AssertQuery<Customer>(cs => cs.OrderBy(c => c.CustomerID).Take(1).Single());

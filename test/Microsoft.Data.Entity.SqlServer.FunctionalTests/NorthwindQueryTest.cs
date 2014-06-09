@@ -516,6 +516,16 @@ FROM Customers",
 //                    _fixture.Sql);
 //        }
 
+        public override void Projection_when_null_value()
+        {
+            base.Projection_when_null_value(); 
+            
+            Assert.Equal(
+                     @"SELECT Region
+FROM Customers",
+                     _fixture.Sql);
+        }
+
         private readonly NorthwindQueryFixture _fixture;
 
         public NorthwindQueryTest(NorthwindQueryFixture fixture)
