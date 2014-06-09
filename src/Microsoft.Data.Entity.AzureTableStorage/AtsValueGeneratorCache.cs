@@ -6,7 +6,7 @@ using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.AzureTableStorage
 {
-    public class AzureTableStorageValueGeneratorCache : ValueGeneratorCache
+    public class AtsValueGeneratorCache : ValueGeneratorCache
     {
         public override IValueGenerator GetGenerator(IProperty property)
         {

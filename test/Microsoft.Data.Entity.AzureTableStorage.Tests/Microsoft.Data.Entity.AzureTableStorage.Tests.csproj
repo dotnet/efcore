@@ -75,17 +75,27 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BatchedDataStoreTests.cs" />
+    <Compile Include="..\Shared\ApiConsistencyTestBase.cs">
+      <Link>ApiConsistencyTestBase.cs</Link>
+    </Compile>
+    <Compile Include="ApiConsistencyTest.cs" />
+    <Compile Include="AtsDatabaseExtensionTests.cs" />
+    <Compile Include="AtsDataStoreSourceTests.cs" />
+    <Compile Include="AtsDbContextExtensionsTests.cs" />
+    <Compile Include="AtsOptionsExtensionTests.cs" />
+    <Compile Include="AtsValueGeneratorCacheTest.cs" />
+    <Compile Include="AtsBatchedDataStoreTests.cs" />
     <Compile Include="AtsDatabaseTests.cs" />
-    <Compile Include="DataStoreTests.cs" />
+    <Compile Include="AtsDataStoreTests.cs" />
     <Compile Include="Helpers\FakeConnection.cs" />
-    <Compile Include="Helpers\PocoTableEntityAdapter.cs" />
     <Compile Include="Helpers\PocoTestType.cs" />
-    <Compile Include="Helpers\TestModelExtensions.cs" />
     <Compile Include="Helpers\TestModelFixture.cs" />
     <Compile Include="Helpers\TestStateEntry.cs" />
     <Compile Include="Helpers\TestTableResult.cs" />
-    <Compile Include="Query\PocoTableEntityAdapterTest.cs" />
+    <Compile Include="Query\AtsNamedValueBufferTests.cs" />
+    <Compile Include="Query\AtsObjectArrayValueReaderFactoryTests.cs" />
+    <Compile Include="Query\AtsObjectArrayValueReaderTests.cs" />
+    <Compile Include="Query\StateEntryTableEntityAdapterTest.cs" />
     <Compile Include="Query\ModelVisitorTests.cs" />
     <Compile Include="Query\TableFilterFactoryTests.cs" />
     <Compile Include="Query\TableQueryTest.cs" />

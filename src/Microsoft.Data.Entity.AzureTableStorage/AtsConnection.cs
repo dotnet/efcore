@@ -11,7 +11,7 @@ using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.AzureTableStorage
 {
-    public class AzureTableStorageConnection : DataStoreConnection
+    public class AtsConnection : DataStoreConnection
     {
         private readonly string _connectionString;
         private readonly CloudStorageAccountWrapper _account;
@@ -19,18 +19,18 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         /// <summary>
         ///     For testing
         /// </summary>
-        protected AzureTableStorageConnection()
+        protected AtsConnection()
         {
         }
 
-        public AzureTableStorageConnection([NotNull] DbContextConfiguration configuration)
+        public AtsConnection([NotNull] DbContextConfiguration configuration)
         {
             Check.NotNull(configuration, "configuration");
 
             var storeConfig = configuration
                 .ContextOptions
                 .Extensions
-                .OfType<AzureTableStorageOptionsExtension>()
+                .OfType<AtsOptionsExtension>()
                 .Single();
 
             _connectionString = storeConfig.ConnectionString;

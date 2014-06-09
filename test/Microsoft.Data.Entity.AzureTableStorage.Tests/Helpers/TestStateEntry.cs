@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.WindowsAzure.Storage.Table;
+using Moq;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers
 {
@@ -80,6 +81,12 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers
             e.AddProperty("ETag", typeof(string));
             e.AddProperty("Timestamp", typeof(DateTimeOffset));
             _entityType = e;
+            return this;
+        }
+
+        public TestStateEntry WithEntityType(IEntityType entityType)
+        {
+            _entityType = entityType;
             return this;
         }
 
