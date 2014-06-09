@@ -3,23 +3,20 @@
 
 using System;
 using System.Configuration;
-using Microsoft.Data.Entity.AzureTableStorage.FunctionalTests.Helpers;
 using Xunit;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
 {
-    public class BatchTests : IClassFixture<CloudTableFixture>
+    public class BatchTests : IClassFixture<EndToEndFixture>
     {
-        private readonly PurchaseContext _context;
-        private readonly string _testParition;
+        private readonly string _testPartition;
+        private DbContext _context;
 
-        public BatchTests(CloudTableFixture fixture)
+        public BatchTests(EndToEndFixture fixture)
         {
-            var connectionString = ConfigurationManager.AppSettings["TestConnectionString"];
-            var tableName = "BatchTestsTable" + DateTime.UtcNow.ToBinary();
-            fixture.GetOrCreateTable(tableName, connectionString);
-            _context = new PurchaseContext(tableName,true);
-            _testParition = "BatchTests-" + DateTime.UtcNow.ToString("R");
+            _testPartition = "unittests-" + DateTime.UtcNow.ToBinary();
+            fixture.SetContextOptions(useBatching: true);
+            _context = fixture.CreateContext();
         }
 
         [Theory]
@@ -32,8 +29,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
         {
             for (var i = 0; i < count; i++)
             {
-                var item = new Purchase { Count = i, PartitionKey = _testParition + count, RowKey = i.ToString() };
-                _context.Purchases.Add(item);
+                var item = new Purchase { Count = i, PartitionKey = _testPartition, RowKey = i.ToString() };
+                _context.Set<Purchase>().Add(item);
             }
             var changes = _context.SaveChanges();
             Assert.Equal(count, changes);
@@ -42,9 +39,9 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
         [Fact]
         public void It_separates_by_partition_key()
         {
-            var partition1 = new Purchase { PartitionKey = _testParition + "A", RowKey = "0" };
-            var partition2 = new Purchase { PartitionKey = _testParition + "B", RowKey = "0" };
-            _context.Purchases.AddRange(new[] { partition1, partition2 });
+            var partition1 = new Purchase { PartitionKey = _testPartition + "A", RowKey = "0" };
+            var partition2 = new Purchase { PartitionKey = _testPartition + "B", RowKey = "0" };
+            _context.Set<Purchase>().AddRange(new[] { partition1, partition2 });
             var changes = _context.SaveChanges();
             Assert.Equal(2, changes);
         }

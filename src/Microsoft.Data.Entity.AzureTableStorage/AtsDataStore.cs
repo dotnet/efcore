@@ -20,24 +20,24 @@ using Remotion.Linq;
 
 namespace Microsoft.Data.Entity.AzureTableStorage
 {
-    public class AzureTableStorageDataStore : DataStore
+    public class AtsDataStore : DataStore
     {
-        private readonly AzureTableStorageQueryFactory _queryFactory;
-        protected readonly AzureTableStorageConnection Connection;
+        private readonly AtsQueryFactory _queryFactory;
+        protected readonly AtsConnection Connection;
         internal TableEntityAdapterFactory EntityFactory;
 
         /// <summary>
         ///     Provided only for testing purposes. Do not use.
         /// </summary>
-        protected AzureTableStorageDataStore(AzureTableStorageConnection connection, TableEntityAdapterFactory entityFactory)
+        protected AtsDataStore(AtsConnection connection, TableEntityAdapterFactory entityFactory)
         {
             Connection = connection;
             EntityFactory = entityFactory;
         }
 
-        public AzureTableStorageDataStore([NotNull] DbContextConfiguration configuration,
-            [NotNull] AzureTableStorageConnection connection,
-            [NotNull] AzureTableStorageQueryFactory queryFactory,
+        public AtsDataStore([NotNull] DbContextConfiguration configuration,
+            [NotNull] AtsConnection connection,
+            [NotNull] AtsQueryFactory queryFactory,
             [NotNull] TableEntityAdapterFactory tableEntityFactory)
             : base(configuration)
         {

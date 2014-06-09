@@ -18,19 +18,19 @@ using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Microsoft.Data.Entity.AzureTableStorage
 {
-    public class AzureTableStorageBatchedDataStore : AzureTableStorageDataStore
+    public class AtsBatchedDataStore : AtsDataStore
     {
         private const int MaxBatchOperations = 100;
 
         /// <summary>
         ///     Provided only for testing purposes. Do not use.
         /// </summary>
-        protected AzureTableStorageBatchedDataStore(AzureTableStorageConnection connection, TableEntityAdapterFactory entityFactory)
+        protected AtsBatchedDataStore(AtsConnection connection, TableEntityAdapterFactory entityFactory)
             : base(connection, entityFactory)
         {
         }
 
-        public AzureTableStorageBatchedDataStore([NotNull] DbContextConfiguration configuration, [NotNull] AzureTableStorageConnection connection, [NotNull] AzureTableStorageQueryFactory queryFactory, [NotNull] TableEntityAdapterFactory tableEntityFactory)
+        public AtsBatchedDataStore([NotNull] DbContextConfiguration configuration, [NotNull] AtsConnection connection, [NotNull] AtsQueryFactory queryFactory, [NotNull] TableEntityAdapterFactory tableEntityFactory)
             : base(configuration, connection, queryFactory, tableEntityFactory)
         {
         }
@@ -38,12 +38,12 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         public override async Task<int> SaveChangesAsync(IReadOnlyList<StateEntry> stateEntries, CancellationToken cancellationToken = new CancellationToken())
         {
             cancellationToken.ThrowIfCancellationRequested();
-            var tableGroups = stateEntries.GroupBy(s => s.EntityType);
+            var tableGroups = stateEntries.GroupBy(s => s.EntityType.StorageName);
             var allBatchTasks = new List<Task<IList<ITableResult>>>();
 
             foreach (var tableGroup in tableGroups)
             {
-                var table = Connection.GetTableReference(tableGroup.Key.StorageName);
+                var table = Connection.GetTableReference(tableGroup.Key);
                 var partitionGroups = tableGroup.GroupBy(s =>
                     {
                         var property = s.EntityType.GetPropertyByStorageName("PartitionKey");

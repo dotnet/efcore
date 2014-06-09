@@ -66,10 +66,6 @@
       <Assemblies>System.Interactive.Async</Assemblies>
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
-    <PackageReference Include="WindowsAzure.Storage">
-      <Assemblies>Microsoft.WindowsAzure.Storage</Assemblies>
-      <TargetFramework>net40</TargetFramework>
-    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Shared\Northwind.cs">
@@ -82,11 +78,8 @@
       <Link>NorthwindQueryTestBase.cs</Link>
     </Compile>
     <Compile Include="BatchTests.cs" />
+    <Compile Include="EndToEndFixture.cs" />
     <Compile Include="EndToEndTests.cs" />
-    <Compile Include="Helpers\CloudTableFixture.cs" />
-    <Compile Include="Helpers\PocoTableEntityAdapter.cs" />
-    <Compile Include="Helpers\Purchase.cs" />
-    <Compile Include="Helpers\PurchaseContext.cs" />
     <Compile Include="NorthwindQueryTest.cs" />
   </ItemGroup>
   <ItemGroup>
