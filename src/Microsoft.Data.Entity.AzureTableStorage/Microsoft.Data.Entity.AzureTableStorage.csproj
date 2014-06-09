@@ -63,15 +63,15 @@
   <ItemGroup>
     <Compile Include="AtsDatabase.cs" />
     <Compile Include="AtsDatabaseExtensions.cs" />
-    <Compile Include="AzureTableStorageBatchedDataStore.cs" />
-    <Compile Include="AzureTableStorageConnection.cs" />
-    <Compile Include="AzureTableStorageDataStore.cs" />
-    <Compile Include="AzureTableStorageDataStoreCreator.cs" />
-    <Compile Include="AzureTableStorageDataStoreSource.cs" />
-    <Compile Include="AzureTableStorageDbContextExtensions.cs" />
-    <Compile Include="AzureTableStorageEntityServicesBuilderExtensions.cs" />
-    <Compile Include="AzureTableStorageOptionsExtension.cs" />
-    <Compile Include="AzureTableStorageValueGeneratorCache.cs" />
+    <Compile Include="AtsBatchedDataStore.cs" />
+    <Compile Include="AtsConnection.cs" />
+    <Compile Include="AtsDataStore.cs" />
+    <Compile Include="AtsDataStoreCreator.cs" />
+    <Compile Include="AtsDataStoreSource.cs" />
+    <Compile Include="AtsDbContextExtensions.cs" />
+    <Compile Include="EntityServicesBuilderExtensions.cs" />
+    <Compile Include="AtsOptionsExtension.cs" />
+    <Compile Include="AtsValueGeneratorCache.cs" />
     <Compile Include="EntityBuilderExtensions.cs" />
     <Compile Include="Exceptions\AzureAccountException.cs" />
     <Compile Include="Exceptions\DbUpdateException.cs" />
@@ -83,14 +83,18 @@
     <Compile Include="Adapters\StateEntryTableEntityAdapter.cs" />
     <Compile Include="Adapters\TableEntityAdapterFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\InternalsVisibleTo.cs" />
     <Compile Include="Properties\Strings.Designer.cs">
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
     <Compile Include="..\Shared\CodeAnnotations.cs" />
-    <Compile Include="Query\AzureTableStorageQueryFactory.cs" />
-    <Compile Include="Query\AzureTableStorageQueryCompilationContext.cs" />
-    <Compile Include="Query\AzureTableStorageQueryContext.cs" />
-    <Compile Include="Query\AzureTableStorageQueryModelVisitor.cs" />
+    <Compile Include="Query\AtsNamedValueBuffer.cs" />
+    <Compile Include="Query\AtsObjectArrayValueReader.cs" />
+    <Compile Include="Query\AtsQueryFactory.cs" />
+    <Compile Include="Query\AtsQueryCompilationContext.cs" />
+    <Compile Include="Query\AtsQueryContext.cs" />
+    <Compile Include="Query\AtsQueryModelVisitor.cs" />
+    <Compile Include="Query\AtsValueReaderFactory.cs" />
     <Compile Include="Query\TableFilterFactory.cs" />
     <Compile Include="Query\FilterComparison.cs" />
     <Compile Include="Query\TableFilter.cs" />

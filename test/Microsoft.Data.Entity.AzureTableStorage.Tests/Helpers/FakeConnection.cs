@@ -12,7 +12,7 @@ using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Tests
 {
-    public class FakeConnection : AzureTableStorageConnection
+    public class FakeConnection : AtsConnection
     {
         private Dictionary<string, TestCloudTable> _tables = new Dictionary<string, TestCloudTable>();
 

@@ -14,20 +14,22 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
 {
-    public class ModelVisitorTests : AzureTableStorageQueryModelVisitor, IClassFixture<TestModelFixture>
+    public class ModelVisitorTests : AtsQueryModelVisitor, IClassFixture<TestModelFixture>
     {
         private Model _model;
         private readonly TestModelFixture _fixture;
 
         public ModelVisitorTests(TestModelFixture fixture)
-            : base(new AzureTableStorageQueryCompilationContext(SetupModel(fixture),new TableFilterFactory()))
+            : base(new AtsQueryCompilationContext(SetupModel(fixture),new TableFilterFactory()))
         {
             _fixture = fixture;
         }
 
         private static IModel SetupModel(TestModelFixture fixture)
         {
-            return fixture.CreateTestModel("TestModel").WithEntityType(PocoTestType.EntityType());
+            var model=fixture.CreateTestModel("TestModel");
+            model.AddEntityType(PocoTestType.EntityType());
+            return model;
         }
 
         private static Expression MakePredicate<TSource>(Expression<Func<TSource, bool>> wherePredicate)

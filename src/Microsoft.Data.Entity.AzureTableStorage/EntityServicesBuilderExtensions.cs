@@ -10,30 +10,30 @@ using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.AzureTableStorage
 {
-    public static class AzureTableStorageEntityServicesBuilderExtensions
+    public static class EntityServicesBuilderExtensions
     {
         public static EntityServicesBuilder AddAzureTableStorage([NotNull] this EntityServicesBuilder builder, bool batching = false)
         {
             Check.NotNull(builder, "builder");
 
             builder.ServiceCollection
-                .AddSingleton<DataStoreSource, AzureTableStorageDataStoreSource>()
-                .AddSingleton<AzureTableStorageQueryFactory>()
+                .AddSingleton<DataStoreSource, AtsDataStoreSource>()
+                .AddSingleton<AtsQueryFactory>()
                 .AddSingleton<TableEntityAdapterFactory>()
                 .AddSingleton<AtsValueReaderFactory>()
                 .AddSingleton<TableFilterFactory>()
                 .AddScoped<AtsDatabase>()
-                .AddScoped<AzureTableStorageConnection>()
-                .AddScoped<AzureTableStorageDataStoreCreator>()
-                .AddScoped<AzureTableStorageValueGeneratorCache>();
+                .AddScoped<AtsConnection>()
+                .AddScoped<AtsDataStoreCreator>()
+                .AddScoped<AtsValueGeneratorCache>();
 
             if (batching)
             {
-                builder.ServiceCollection.AddScoped<AzureTableStorageDataStore, AzureTableStorageBatchedDataStore>();
+                builder.ServiceCollection.AddScoped<AtsDataStore, AtsBatchedDataStore>();
             }
             else
             {
-                builder.ServiceCollection.AddScoped<AzureTableStorageDataStore, AzureTableStorageDataStore>();
+                builder.ServiceCollection.AddScoped<AtsDataStore, AtsDataStore>();
             }
             return builder;
         }

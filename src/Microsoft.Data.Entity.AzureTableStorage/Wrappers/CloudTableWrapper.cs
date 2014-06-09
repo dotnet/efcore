@@ -53,10 +53,10 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Wrappers
             return _table.ExecuteQuery(query.ToExecutableQuery(), (key, rowKey, timestamp, properties, etag) =>
                 {
                     var buffer = new AtsNamedValueBuffer(properties);
-                    buffer["PartitionKey"] = key;
-                    buffer["RowKey"] = rowKey;
-                    buffer["Timestamp"] = timestamp;
-                    buffer["ETag"] = etag;
+                    buffer.Add("PartitionKey",key);
+                    buffer.Add("RowKey",rowKey);
+                    buffer.Add("Timestamp",timestamp);
+                    buffer.Add("ETag",etag);
                     return resolver(buffer);
                 });
         }
