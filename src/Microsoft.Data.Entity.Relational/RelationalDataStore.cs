@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Relational.Query;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.Relational.Utilities;
@@ -80,7 +81,13 @@ namespace Microsoft.Data.Entity.Relational
             Check.NotNull(queryModel, "queryModel");
             Check.NotNull(stateManager, "stateManager");
 
-            var queryCompilationContext = new RelationalQueryCompilationContext(Model);
+            var queryCompilationContext
+                = new RelationalQueryCompilationContext(
+                    Model,
+                    new LinqOperatorProvider(),
+                    new RelationalResultOperatorHandler(new ResultOperatorHandler()),
+                    new EnumerableMethodProvider());
+
             var queryExecutor = queryCompilationContext.CreateVisitor().CreateQueryExecutor<TResult>(queryModel);
             var queryContext = new RelationalQueryContext(Model, Logger, stateManager, _connection, ValueReaderFactory);
 
@@ -92,7 +99,13 @@ namespace Microsoft.Data.Entity.Relational
             Check.NotNull(queryModel, "queryModel");
             Check.NotNull(stateManager, "stateManager");
 
-            var queryCompilationContext = new RelationalAsyncQueryCompilationContext(Model);
+            var queryCompilationContext
+                = new RelationalQueryCompilationContext(
+                    Model,
+                    new AsyncLinqOperatorProvider(),
+                    new RelationalResultOperatorHandler(new AsyncResultOperatorHandler()),
+                    new AsyncEnumerableMethodProvider());
+
             var queryExecutor = queryCompilationContext.CreateVisitor().CreateAsyncQueryExecutor<TResult>(queryModel);
             var queryContext = new RelationalQueryContext(Model, Logger, stateManager, _connection, ValueReaderFactory);
 

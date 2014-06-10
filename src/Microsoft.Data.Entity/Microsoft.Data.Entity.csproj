@@ -84,7 +84,6 @@
     <Compile Include="Metadata\CollectionNavigationAccessor.cs" />
     <Compile Include="Metadata\NavigationAccessor.cs" />
     <Compile Include="Metadata\NavigationAccessorSource.cs" />
-    <Compile Include="Query\AsyncQueryCompilationContext.cs" />
     <Compile Include="Query\AsyncResultOperatorHandler.cs" />
     <Compile Include="Query\IResultOperatorHandler.cs" />
     <Compile Include="Query\QueryCompilationContext.cs" />

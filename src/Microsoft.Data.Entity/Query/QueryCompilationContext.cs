@@ -13,11 +13,6 @@ namespace Microsoft.Data.Entity.Query
         private readonly ILinqOperatorProvider _linqOperatorProvider;
         private readonly IResultOperatorHandler _resultOperatorHandler;
 
-        protected QueryCompilationContext([NotNull] IModel model)
-            : this(Check.NotNull(model, "model"), new LinqOperatorProvider(), new ResultOperatorHandler())
-        {
-        }
-
         protected QueryCompilationContext(
             [NotNull] IModel model,
             [NotNull] ILinqOperatorProvider linqOperatorProvider,

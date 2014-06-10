@@ -24,16 +24,10 @@ namespace Microsoft.Data.Entity.Relational.Query
         private readonly Dictionary<IQuerySource, SqlSelect> _queriesBySource
             = new Dictionary<IQuerySource, SqlSelect>();
 
-        private readonly IEnumerableMethodProvider _enumerableMethodProvider;
-
         public RelationalQueryModelVisitor(
-            [NotNull] QueryCompilationContext queryCompilationContext,
-            [NotNull] IEnumerableMethodProvider enumerableMethodProvider)
+            [NotNull] RelationalQueryCompilationContext queryCompilationContext)
             : base(Check.NotNull(queryCompilationContext, "queryCompilationContext"))
         {
-            Check.NotNull(enumerableMethodProvider, "enumerableMethodProvider");
-
-            _enumerableMethodProvider = enumerableMethodProvider;
         }
 
         public virtual SqlSelect TryGetSqlSelect([NotNull] IQuerySource querySource)
@@ -379,9 +373,13 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             protected override Expression VisitEntityQueryable(Type elementType)
             {
-                var queryMethodInfo = _queryModelVisitor._enumerableMethodProvider.QueryValues;
+                var relationalQueryCompilationContext = ((RelationalQueryCompilationContext)QueryCompilationContext);
+                var queryMethodInfo = relationalQueryCompilationContext.EnumerableMethodProvider.QueryValues;
                 var entityType = QueryCompilationContext.Model.GetEntityType(elementType);
-                var sqlSelect = new SqlSelect().SetTableSource(entityType.StorageName);
+
+                var sqlSelect 
+                    = new SqlSelect(relationalQueryCompilationContext.SqlGeneratingExpressionTreeVisitor)
+                    .SetTableSource(entityType.StorageName);
 
                 _queryModelVisitor._queriesBySource.Add(_querySource, sqlSelect);
 
@@ -393,7 +391,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                     }
 
                     queryMethodInfo
-                        = _queryModelVisitor._enumerableMethodProvider.QueryEntities
+                        = relationalQueryCompilationContext.EnumerableMethodProvider.QueryEntities
                             .MakeGenericMethod(elementType);
                 }
 
