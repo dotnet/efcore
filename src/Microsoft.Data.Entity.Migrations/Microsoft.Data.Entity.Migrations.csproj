@@ -40,6 +40,12 @@
     <PackageReference Include="Microsoft.Data.Common" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\packages\KoreBuild\build\Resources.cs">
+      <Link>Properties\Resources.cs</Link>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.tt</DependentUpon>
+    </Compile>
     <Compile Include="IMigrationOperationSqlGeneratorFactory.cs" />
     <Compile Include="Infrastructure\HistoryRepository.cs" />
     <Compile Include="Infrastructure\IMigrationMetadata.cs" />
