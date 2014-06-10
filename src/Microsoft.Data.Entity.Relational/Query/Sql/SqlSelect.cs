@@ -48,6 +48,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
         private readonly List<Parameter> _parameters = new List<Parameter>();
 
+        private readonly ISqlGeneratingExpressionTreeVisitorFactory _sqlGeneratingExpressionTreeVisitorFactory;
+
         private object _tableSource;
         private int? _limit;
         private int _aliasCount;
@@ -55,6 +57,13 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
         private bool _distinct;
         private Expression _predicate;
 
+        public SqlSelect([NotNull] ISqlGeneratingExpressionTreeVisitorFactory sqlGeneratingExpressionTreeVisitorFactory)
+        {
+            Check.NotNull(sqlGeneratingExpressionTreeVisitorFactory, "sqlGeneratingExpressionTreeVisitorFactory");
+
+            _sqlGeneratingExpressionTreeVisitorFactory = sqlGeneratingExpressionTreeVisitorFactory;
+        }
+        
         public virtual SqlSelect SetTableSource([NotNull] object tableSource)
         {
             Check.NotNull(tableSource, "tableSource");
@@ -79,7 +88,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             if (_limit != null)
             {
                 _tableSource
-                    = new SqlSelect
+                    = new SqlSelect(_sqlGeneratingExpressionTreeVisitorFactory)
                         {
                             _tableSource = _tableSource,
                             _limit = _limit,
@@ -146,20 +155,20 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
         public override string ToString()
         {
-            var selectSql = new StringBuilder();
+            var sql = new StringBuilder();
 
-            selectSql
+            sql
                 .Append("SELECT ");
 
             if (_distinct)
             {
-                selectSql
+                sql
                     .Append("DISTINCT ");
             }
 
             if (_limit != null)
             {
-                selectSql
+                sql
                     .Append("TOP ")
                     .Append(_limit)
                     .Append(" ");
@@ -167,19 +176,19 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
             if (_projectStar)
             {
-                selectSql
+                sql
                     .Append("*");
             }
             else
             {
-                selectSql
+                sql
                     .AppendJoin(
                         !IsEmptyProjection
                             ? _selectList.Select(p => p.StorageName)
                             : new[] { "1" });
             }
 
-            selectSql
+            sql
                 .AppendLine()
                 .Append("FROM ");
 
@@ -188,7 +197,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
             if (isSubquery)
             {
-                selectSql
+                sql
                     .Append("(")
                     .Append(_tableSource)
                     .Append(") AS ")
@@ -197,22 +206,24 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             }
             else
             {
-                selectSql
+                sql
                     .Append(_tableSource);
             }
 
             if (_predicate != null)
             {
-                selectSql
+                sql
                     .AppendLine()
                     .Append("WHERE ");
 
-                new SqlGeneratingExpressionTreeVisitor(selectSql, this).VisitExpression(_predicate);
+                _sqlGeneratingExpressionTreeVisitorFactory
+                    .Create(sql, this)
+                    .VisitExpression(_predicate);
             }
 
             if (_orderByList.Count > 0)
             {
-                selectSql
+                sql
                     .AppendLine()
                     .Append("ORDER BY ")
                     .AppendJoin(
@@ -222,7 +233,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                                 : o.Item1.StorageName + " DESC"));
             }
 
-            return selectSql.ToString();
+            return sql.ToString();
         }
     }
 }

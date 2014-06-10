@@ -4,25 +4,45 @@
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
+using Microsoft.Data.Entity.Relational.Query.Sql;
 using Microsoft.Data.Entity.Relational.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Query
 {
     public class RelationalQueryCompilationContext : QueryCompilationContext
     {
-        public RelationalQueryCompilationContext([NotNull] IModel model)
-            : base(Check.NotNull(model, "model"))
+        private readonly IEnumerableMethodProvider _enumerableMethodProvider;
+        private readonly ISqlGeneratingExpressionTreeVisitorFactory _sqlGeneratingExpressionTreeVisitor;
+
+        public RelationalQueryCompilationContext(
+            [NotNull] IModel model,
+            [NotNull] ILinqOperatorProvider linqOperatorProvider,
+            [NotNull] IResultOperatorHandler resultOperatorHandler,
+            [NotNull] IEnumerableMethodProvider enumerableMethodProvider)
+            : base(
+                Check.NotNull(model, "model"),
+                Check.NotNull(linqOperatorProvider, "linqOperatorProvider"),
+                Check.NotNull(resultOperatorHandler, "resultOperatorHandler"))
         {
+            Check.NotNull(enumerableMethodProvider, "enumerableMethodProvider");
+
+            _enumerableMethodProvider = enumerableMethodProvider;
+            _sqlGeneratingExpressionTreeVisitor = new SqlGeneratingExpressionTreeVisitorFactory();
         }
 
         public override EntityQueryModelVisitor CreateVisitor()
         {
-            return new RelationalQueryModelVisitor(this, new EnumerableMethodProvider());
+            return new RelationalQueryModelVisitor(this);
         }
 
-        public override IResultOperatorHandler ResultOperatorHandler
+        public virtual IEnumerableMethodProvider EnumerableMethodProvider
         {
-            get { return new RelationalResultOperatorHandler(base.ResultOperatorHandler); }
+            get { return _enumerableMethodProvider; }
+        }
+
+        public virtual ISqlGeneratingExpressionTreeVisitorFactory SqlGeneratingExpressionTreeVisitor
+        {
+            get { return _sqlGeneratingExpressionTreeVisitor; }
         }
     }
 }
