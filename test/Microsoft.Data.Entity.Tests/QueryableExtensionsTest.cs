@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Tests
         // TODO: Uncomment asserts below when more extension methods come online
 
         [Fact]
-        public void Async_extension_methods_throw_OperatationCanceledException_if_task_is_cancelled()
+        public void Async_extension_methods_throw_OperationCanceledException_if_task_is_cancelled()
         {
             var source = CreateThrowingMockQueryable<int>();
 
@@ -36,14 +36,14 @@ namespace Microsoft.Data.Entity.Tests
             Assert.Throws<OperationCanceledException>(
                 () => source.SingleAsync(new CancellationToken(canceled: true)).Wait());
 
-//            Assert.Throws<OperationCanceledException>(
-//                () => source.SingleAsync(n => true, new CancellationToken(canceled: true)).Wait());
+            Assert.Throws<OperationCanceledException>(
+                () => source.SingleAsync(n => true, new CancellationToken(canceled: true)).Wait());
 
-//            Assert.Throws<OperationCanceledException>(
-//                () => source.SingleOrDefaultAsync(new CancellationToken(canceled: true)).Wait());
+            Assert.Throws<OperationCanceledException>(
+                () => source.SingleOrDefaultAsync(new CancellationToken(canceled: true)).Wait());
 
-//            Assert.Throws<OperationCanceledException>(
-//                () => source.SingleOrDefaultAsync(n => true, new CancellationToken(canceled: true)).Wait());
+            Assert.Throws<OperationCanceledException>(
+                () => source.SingleOrDefaultAsync(n => true, new CancellationToken(canceled: true)).Wait());
 
 //            Assert.Throws<OperationCanceledException>(
 //                () => source.ContainsAsync(42, new CancellationToken(canceled: true)).Wait());
@@ -51,8 +51,8 @@ namespace Microsoft.Data.Entity.Tests
             Assert.Throws<OperationCanceledException>(
                 () => source.AnyAsync(new CancellationToken(canceled: true)).Wait());
 
-//            Assert.Throws<OperationCanceledException>(
-//                () => source.AnyAsync(n => true, new CancellationToken(canceled: true)).Wait());
+            Assert.Throws<OperationCanceledException>(
+                () => source.AnyAsync(n => true, new CancellationToken(canceled: true)).Wait());
 
 //            Assert.Throws<OperationCanceledException>(
 //                () => source.AllAsync(n => true, new CancellationToken(canceled: true)).Wait());
@@ -179,7 +179,7 @@ namespace Microsoft.Data.Entity.Tests
             VerifyProducedExpression<int, int>(value => value.SingleOrDefaultAsync(e => true, cancellationTokenSource.Token));
 
             VerifyProducedExpression<int, int>(value => value.SumAsync(default(CancellationToken)));
-//            VerifyProducedExpression<int, int>(value => value.SumAsync(cancellationTokenSource.Token));
+            VerifyProducedExpression<int, int>(value => value.SumAsync(cancellationTokenSource.Token));
 //            VerifyProducedExpression<int, int>(value => value.SumAsync(e => e));
 //            VerifyProducedExpression<int, int>(value => value.SumAsync(e => e, cancellationTokenSource.Token));
 //            VerifyProducedExpression<int?, int?>(value => value.SumAsync());
@@ -292,7 +292,7 @@ namespace Microsoft.Data.Entity.Tests
 //            SourceNonAsyncQueryableTest(() => Source().AllAsync(e => true, new CancellationToken()));
 
             SourceNonAsyncQueryableTest(() => Source().AnyAsync());
-//            SourceNonAsyncQueryableTest(() => Source().AnyAsync(e => true));
+            SourceNonAsyncQueryableTest(() => Source().AnyAsync(e => true));
 //
 //            SourceNonAsyncQueryableTest(() => Source<int>().AverageAsync());
 //            SourceNonAsyncQueryableTest(() => Source<int>().AverageAsync(new CancellationToken()));
@@ -373,12 +373,12 @@ namespace Microsoft.Data.Entity.Tests
 //            SourceNonAsyncQueryableTest(() => Source().MinAsync(e => e, new CancellationToken()));
 
             SourceNonAsyncQueryableTest(() => Source().SingleAsync());
-//            SourceNonAsyncQueryableTest(() => Source().SingleAsync(e => true));
+            SourceNonAsyncQueryableTest(() => Source().SingleAsync(e => true));
 
 //            SourceNonAsyncQueryableTest(() => Source().SingleOrDefaultAsync());
 //            SourceNonAsyncQueryableTest(() => Source().SingleOrDefaultAsync(e => true));
 
-//            SourceNonAsyncQueryableTest(() => Source<int>().SumAsync());
+            SourceNonAsyncQueryableTest(() => Source<int>().SumAsync());
 //            SourceNonAsyncQueryableTest(() => Source<int>().SumAsync(e => e));
 //            SourceNonAsyncQueryableTest(() => Source<int?>().SumAsync());
 //            SourceNonAsyncQueryableTest(() => Source<int?>().SumAsync(e => e));
@@ -394,7 +394,7 @@ namespace Microsoft.Data.Entity.Tests
 //            SourceNonAsyncQueryableTest(() => Source<double>().SumAsync(e => e));
 //            SourceNonAsyncQueryableTest(() => Source<double?>().SumAsync());
 //            SourceNonAsyncQueryableTest(() => Source<double?>().SumAsync(e => e));
-//            SourceNonAsyncQueryableTest(() => Source<decimal>().SumAsync());
+            SourceNonAsyncQueryableTest(() => Source<decimal>().SumAsync());
 //            SourceNonAsyncQueryableTest(() => Source<decimal>().SumAsync(e => e));
 //            SourceNonAsyncQueryableTest(() => Source<decimal?>().SumAsync());
 //            SourceNonAsyncQueryableTest(() => Source<decimal?>().SumAsync(e => e));
@@ -421,7 +421,6 @@ namespace Microsoft.Data.Entity.Tests
 //                    new Mock<IEqualityComparer<int>>().Object, new CancellationToken()));
 
 //            SourceNonAsyncEnumerableTest<int>(() => Source().ToListAsync());
-
 //            SourceNonAsyncEnumerableTest(() => ((IQueryable)Source()).ForEachAsync(e => e.GetType()));
 //            SourceNonAsyncEnumerableTest(() => ((IQueryable)Source()).ForEachAsync(e => e.GetType(), new CancellationToken()));
 
@@ -468,20 +467,19 @@ namespace Microsoft.Data.Entity.Tests
 //            ArgumentNullTest("predicate", () => Source().FirstOrDefaultAsync(null));
 
             ArgumentNullTest("source", () => QueryableExtensions.SingleAsync<int>(null));
+            ArgumentNullTest("source", () => QueryableExtensions.SingleAsync<int>(null, s => true));
+            ArgumentNullTest("predicate", () => Source().SingleAsync(null));
 
-//            ArgumentNullTest("source", () => QueryableExtensions.SingleAsync<int>(null, s => true));
-//            ArgumentNullTest("predicate", () => Source().SingleAsync(null));
-
-//            ArgumentNullTest("source", () => QueryableExtensions.SingleOrDefaultAsync<int>(null));
-//            ArgumentNullTest("source", () => QueryableExtensions.SingleOrDefaultAsync<int>(null, s => true));
-//            ArgumentNullTest("predicate", () => Source().SingleOrDefaultAsync(null));
+            ArgumentNullTest("source", () => QueryableExtensions.SingleOrDefaultAsync<int>(null));
+            ArgumentNullTest("source", () => QueryableExtensions.SingleOrDefaultAsync<int>(null, s => true));
+            ArgumentNullTest("predicate", () => Source().SingleOrDefaultAsync(null));
 
 //            ArgumentNullTest("source", () => QueryableExtensions.ContainsAsync(null, 1));
 //            ArgumentNullTest("source", () => QueryableExtensions.ContainsAsync(null, 1, new CancellationToken()));
 
             ArgumentNullTest("source", () => QueryableExtensions.AnyAsync<int>(null));
-//            ArgumentNullTest("source", () => QueryableExtensions.AnyAsync<int>(null, s => true));
-//            ArgumentNullTest("predicate", () => Source().AnyAsync(null));
+            ArgumentNullTest("source", () => QueryableExtensions.AnyAsync<int>(null, s => true));
+            ArgumentNullTest("predicate", () => Source().AnyAsync(null));
 
 //            ArgumentNullTest("source", () => QueryableExtensions.AllAsync<int>(null, s => true));
 //            ArgumentNullTest("source", () => QueryableExtensions.AllAsync<int>(null, s => true, new CancellationToken()));
@@ -513,7 +511,7 @@ namespace Microsoft.Data.Entity.Tests
 //            ArgumentNullTest("selector", () => Source().MaxAsync<int, bool>(null));
 //            ArgumentNullTest("selector", () => Source().MaxAsync<int, bool>(null, new CancellationToken()));
 
-//            ArgumentNullTest("source", () => ((IQueryable<int>)null).SumAsync());
+            ArgumentNullTest("source", () => ((IQueryable<int>)null).SumAsync());
 //            ArgumentNullTest("source", () => ((IQueryable<int?>)null).SumAsync());
 //            ArgumentNullTest("source", () => ((IQueryable<long>)null).SumAsync());
 //            ArgumentNullTest("source", () => ((IQueryable<long?>)null).SumAsync());
@@ -521,7 +519,7 @@ namespace Microsoft.Data.Entity.Tests
 //            ArgumentNullTest("source", () => ((IQueryable<float?>)null).SumAsync());
 //            ArgumentNullTest("source", () => ((IQueryable<double>)null).SumAsync());
 //            ArgumentNullTest("source", () => ((IQueryable<double?>)null).SumAsync());
-//            ArgumentNullTest("source", () => ((IQueryable<decimal>)null).SumAsync());
+            ArgumentNullTest("source", () => ((IQueryable<decimal>)null).SumAsync());
 //            ArgumentNullTest("source", () => ((IQueryable<decimal?>)null).SumAsync());
 //            ArgumentNullTest("source", () => ((IQueryable<int>)null).SumAsync(i => 0));
 //            ArgumentNullTest("source", () => ((IQueryable<int>)null).SumAsync(i => 0, new CancellationToken()));
