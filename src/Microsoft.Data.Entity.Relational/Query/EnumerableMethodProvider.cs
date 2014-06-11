@@ -9,7 +9,6 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
-using Microsoft.Data.Entity.Relational.Query.Sql;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Relational.Query
@@ -26,13 +25,14 @@ namespace Microsoft.Data.Entity.Relational.Query
                 .GetDeclaredMethod("_QueryValues");
 
         [UsedImplicitly]
-        private static IEnumerable<IValueReader> _QueryValues(QueryContext queryContext, SqlSelect sqlSelect)
+        private static IEnumerable<IValueReader> _QueryValues(
+            QueryContext queryContext, CommandBuilder commandBuilder)
         {
             var relationalQueryContext = (RelationalQueryContext)queryContext;
 
             return new Enumerable<IValueReader>(
                 relationalQueryContext.Connection,
-                sqlSelect,
+                commandBuilder,
                 r => relationalQueryContext.ValueReaderFactory.Create(r),
                 queryContext.Logger);
         }
@@ -47,13 +47,14 @@ namespace Microsoft.Data.Entity.Relational.Query
                 .GetDeclaredMethod("_QueryEntities");
 
         [UsedImplicitly]
-        private static IEnumerable<TEntity> _QueryEntities<TEntity>(QueryContext queryContext, SqlSelect sqlSelect)
+        private static IEnumerable<TEntity> _QueryEntities<TEntity>(
+            QueryContext queryContext, CommandBuilder commandBuilder)
         {
             var relationalQueryContext = ((RelationalQueryContext)queryContext);
 
             return new Enumerable<TEntity>(
                 relationalQueryContext.Connection,
-                sqlSelect,
+                commandBuilder,
                 r => (TEntity)queryContext.StateManager
                     .GetOrMaterializeEntry(
                         queryContext.Model.GetEntityType(typeof(TEntity)),
@@ -64,18 +65,18 @@ namespace Microsoft.Data.Entity.Relational.Query
         private sealed class Enumerable<T> : IEnumerable<T>
         {
             private readonly RelationalConnection _connection;
-            private readonly SqlSelect _sql;
+            private readonly CommandBuilder _commandBuilder;
             private readonly Func<DbDataReader, T> _shaper;
             private readonly ILogger _logger;
 
             public Enumerable(
                 RelationalConnection connection,
-                SqlSelect sql,
+                CommandBuilder commandBuilder,
                 Func<DbDataReader, T> shaper,
                 ILogger logger)
             {
                 _connection = connection;
-                _sql = sql;
+                _commandBuilder = commandBuilder;
                 _shaper = shaper;
                 _logger = logger;
             }
@@ -108,20 +109,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                     {
                         _enumerable._connection.Open();
 
-                        _command = _enumerable._connection.DbConnection.CreateCommand();
-                        _command.CommandText = _enumerable._sql.ToString();
-
-                        foreach (var parameter in _enumerable._sql.Parameters)
-                        {
-                            var dbParameter = _command.CreateParameter();
-
-                            dbParameter.ParameterName = parameter.Name;
-                            dbParameter.Value = parameter.Value;
-
-                            // TODO: Parameter facets
-
-                            _command.Parameters.Add(dbParameter);
-                        }
+                        _command = _enumerable._commandBuilder.Build(_enumerable._connection.DbConnection);
 
                         _enumerable._logger.WriteSql(_command.CommandText);
 

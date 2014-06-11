@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Relational;
+using Microsoft.Data.Entity.Tests;
 using Microsoft.Data.FunctionalTests;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Advanced;
@@ -111,7 +112,7 @@ FROM Employees",
             Assert.Equal(
                 @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
 FROM Customers
-WHERE (City = @p0)",
+WHERE City = @p0",
                 _fixture.Sql);
         }
 
@@ -122,7 +123,7 @@ WHERE (City = @p0)",
             Assert.Equal(
                 @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
 FROM Customers
-WHERE (City IS NULL)",
+WHERE City IS NULL",
                 _fixture.Sql);
         }
 
@@ -133,7 +134,7 @@ WHERE (City IS NULL)",
             Assert.Equal(
                 @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
 FROM Customers
-WHERE (City IS NOT NULL)",
+WHERE City IS NOT NULL",
                 _fixture.Sql);
         }
 
@@ -144,7 +145,7 @@ WHERE (City IS NOT NULL)",
             Assert.Equal(
                 @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
 FROM Customers
-WHERE (1=1)",
+WHERE 1 = 1",
                 _fixture.Sql);
         }
 
@@ -155,7 +156,7 @@ WHERE (1=1)",
             Assert.Equal(
                 @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
 FROM Customers
-WHERE (1=0)",
+WHERE 1 = 0",
                 _fixture.Sql);
         }
 
@@ -166,7 +167,7 @@ WHERE (1=0)",
             Assert.Equal(
                 @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
 FROM Customers
-WHERE (1=0)",
+WHERE 1 = 0",
                 _fixture.Sql);
         }
 
@@ -177,7 +178,7 @@ WHERE (1=0)",
             Assert.Equal(
                 @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
 FROM Customers
-WHERE (1=1)",
+WHERE 1 = 1",
                 _fixture.Sql);
         }
 
@@ -188,7 +189,7 @@ WHERE (1=1)",
             Assert.Equal(
                 @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
 FROM Customers
-WHERE (@p0 = City)",
+WHERE @p0 = City",
                 _fixture.Sql);
         }
 
@@ -199,7 +200,7 @@ WHERE (@p0 = City)",
             Assert.Equal(
                 @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
 FROM Customers
-WHERE (City = City)",
+WHERE City = City",
                 _fixture.Sql);
         }
 
@@ -210,7 +211,7 @@ WHERE (City = City)",
             Assert.Equal(
                 @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
 FROM Customers
-WHERE (City = @p0)",
+WHERE City = @p0",
                 _fixture.Sql);
         }
 
@@ -237,7 +238,7 @@ FROM Employees",
             Assert.StartsWith(
                  @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
 FROM Customers
-WHERE ((City = @p0) OR (City = @p1))
+WHERE (City = @p0 OR City = @p1)
 
 SELECT City, Country, EmployeeID
 FROM Employees
@@ -254,15 +255,15 @@ FROM Employees",
             Assert.StartsWith(
                  @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
 FROM Customers
-WHERE ((City = @p0) AND (Country = @p1))
+WHERE (City = @p0 AND Country = @p1)
 
 SELECT City, Country, EmployeeID
 FROM Employees
-WHERE ((City = @p0) AND (Country = @p1))
+WHERE (City = @p0 AND Country = @p1)
 
 SELECT City, Country, EmployeeID
 FROM Employees
-WHERE ((City = @p0) AND (Country = @p1))",
+WHERE (City = @p0 AND Country = @p1)",
                  _fixture.Sql);
         }
 
@@ -273,7 +274,7 @@ WHERE ((City = @p0) AND (Country = @p1))",
             Assert.Equal(
                 @"SELECT City, CompanyName
 FROM Customers
-WHERE (City = @p0)",
+WHERE City = @p0",
                 _fixture.Sql);
         }
 
@@ -284,7 +285,7 @@ WHERE (City = @p0)",
             Assert.Equal(
                 @"SELECT City, CompanyName
 FROM Customers
-WHERE (City = @p0)",
+WHERE City = @p0",
                 _fixture.Sql);
         }
 
@@ -295,7 +296,7 @@ WHERE (City = @p0)",
             Assert.Equal(
                 @"SELECT City
 FROM Customers
-WHERE (City = @p0)",
+WHERE City = @p0",
                 _fixture.Sql);
         }
 
@@ -522,7 +523,7 @@ FROM Employees",
             Assert.Equal(
                 @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
 FROM Customers
-WHERE (1=0)",
+WHERE 1 = 0",
                 _fixture.Sql);
         }
 
@@ -543,7 +544,7 @@ FROM Employees",
             Assert.Equal(
                  @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
 FROM Customers
-WHERE (1=1)",
+WHERE 1 = 1",
                  _fixture.Sql);
         }
 
@@ -608,6 +609,107 @@ FROM Customers",
 FROM Customers",
                      _fixture.Sql);
         }
+        public override void All_top_level()
+        {
+            base.All_top_level();
+
+            // TODO:
+            //            Assert.Equal(
+            //                @"SELECT CASE WHEN (NOT EXISTS(
+            //  SELECT NULL 
+            //  FROM [Customers] AS t0
+            //  WHERE NOT (t0.[ContactName] LIKE @p0 + '%')
+            //  )) THEN 1 ELSE 0 END AS [value]",
+            //                _fixture.Sql);
+        }
+
+        public override void String_StartsWith_Literal()
+        {
+            base.String_StartsWith_Literal();
+
+            Assert.Equal(
+                @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
+FROM Customers
+WHERE ContactName LIKE @p0 + '%'",
+                _fixture.Sql);
+        }
+
+        public override void String_StartsWith_Identity()
+        {
+            base.String_StartsWith_Identity();
+
+            Assert.Equal(
+                @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
+FROM Customers
+WHERE ContactName LIKE ContactName + '%'",
+                _fixture.Sql);
+        }
+
+        public override void String_StartsWith_Column()
+        {
+            base.String_StartsWith_Column();
+
+            Assert.Equal(
+                @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
+FROM Customers
+WHERE ContactName LIKE ContactName + '%'",
+                _fixture.Sql);
+        }
+
+        public override void String_StartsWith_MethodCall()
+        {
+            base.String_StartsWith_MethodCall();
+
+            Assert.Equal(
+                @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
+FROM Customers
+WHERE ContactName LIKE @p0 + '%'",
+                _fixture.Sql);
+        }
+
+        public override void String_EndsWith_Literal()
+        {
+            base.String_EndsWith_Literal();
+
+            Assert.Equal(
+                @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
+FROM Customers
+WHERE ContactName LIKE '%' + @p0",
+                _fixture.Sql);
+        }
+
+        public override void String_EndsWith_Identity()
+        {
+            base.String_EndsWith_Identity();
+
+            Assert.Equal(
+                @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
+FROM Customers
+WHERE ContactName LIKE '%' + ContactName",
+                _fixture.Sql);
+        }
+
+        public override void String_EndsWith_Column()
+        {
+            base.String_EndsWith_Column();
+
+            Assert.Equal(
+                @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
+FROM Customers
+WHERE ContactName LIKE '%' + ContactName",
+                _fixture.Sql);
+        }
+
+        public override void String_EndsWith_MethodCall()
+        {
+            base.String_EndsWith_MethodCall();
+
+            Assert.Equal(
+                @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
+FROM Customers
+WHERE ContactName LIKE '%' + @p0",
+                _fixture.Sql);
+        }
 
         private readonly NorthwindQueryFixture _fixture;
 
@@ -625,66 +727,7 @@ FROM Customers",
 
     public class NorthwindQueryFixture : NorthwindQueryFixtureBase, IDisposable
     {
-        private class SqlLoggerFactory : ILoggerFactory
-        {
-#if K10
-            private readonly static AsyncLocal<SqlLogger> _logger = new AsyncLocal<SqlLogger>();
-#else
-            private const string ContextName = "__SQL";
-#endif
-
-            public ILogger Create(string name)
-            {
-                return Logger;
-            }
-
-            public void Init()
-            {
-#if K10
-                _logger.Value = new SqlLogger();
-#else
-                CallContext.LogicalSetData(ContextName, new SqlLogger());
-#endif
-            }
-
-            public static SqlLogger Logger
-            {
-                get
-                {
-#if K10
-                    return _logger.Value;
-#else
-                    return (SqlLogger)CallContext.LogicalGetData(ContextName);
-#endif
-                }
-            }
-
-            public class SqlLogger : ILogger
-            {
-                public readonly List<string> _sqlStatements = new List<string>();
-
-                public bool WriteCore(
-                    TraceType eventType,
-                    int eventId,
-                    object state,
-                    Exception exception,
-                    Func<object, Exception, string> formatter)
-                {
-                    if (eventId == RelationalLoggingEventIds.Sql)
-                    {
-                        var sql = formatter(state, exception);
-
-                        _sqlStatements.Add(sql);
-
-                        //Trace.WriteLine(sql);
-                    }
-
-                    return true;
-                }
-            }
-        }
-
-        private readonly SqlLoggerFactory _loggingFactory = new SqlLoggerFactory();
+        private readonly TestSqlLoggerFactory _loggingFactory = new TestSqlLoggerFactory();
 
         private readonly IServiceProvider _serviceProvider;
         private readonly DbContextOptions _options;
@@ -710,7 +753,7 @@ FROM Customers",
 
         public string Sql
         {
-            get { return string.Join("\r\n\r\n", SqlLoggerFactory.Logger._sqlStatements); }
+            get { return string.Join("\r\n\r\n", TestSqlLoggerFactory.Logger._sqlStatements); }
         }
 
         public void Dispose()

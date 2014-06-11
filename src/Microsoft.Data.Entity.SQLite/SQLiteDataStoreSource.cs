@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.SQLite
             SQLiteDataStore,
             SQLiteOptionsExtension,
             SQLiteDataStoreCreator,
-            SQLiteConnectionConnection,
+            SQLiteConnection,
             SQLiteValueGeneratorCache,
             RelationalDatabase>
     {

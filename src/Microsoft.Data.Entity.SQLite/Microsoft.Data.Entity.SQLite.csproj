@@ -40,6 +40,9 @@
     <PackageReference Include="Microsoft.Data.Common" />
     <PackageReference Include="Microsoft.Data.SQLite" />
     <PackageReference Include="Microsoft.Framework.DependencyInjection" />
+    <PackageReference Include="Remotion.Linq">
+      <TargetFramework>portable-net45+wp80+win</TargetFramework>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\packages\KoreBuild\build\Resources.cs">
@@ -51,9 +54,11 @@
     <Compile Include="..\Shared\SharedTypeExtensions.cs">
       <Link>Extensions\SharedTypeExtensions.cs</Link>
     </Compile>
+    <Compile Include="Query\SQLiteQueryCompilationContext.cs" />
+    <Compile Include="Query\SQLiteSqlQueryGenerator.cs" />
     <Compile Include="SQLiteBatchExecutor.cs" />
     <Compile Include="SqLiteOptionsExtension.cs" />
-    <Compile Include="SQLiteConnectionConnection.cs" />
+    <Compile Include="SQLiteConnection.cs" />
     <Compile Include="SQLiteDataStore.cs" />
     <Compile Include="SQLiteDataStoreCreator.cs" />
     <Compile Include="SQLiteDataStoreSource.cs" />

@@ -62,20 +62,26 @@
     <Compile Include="IDbCommandExecutor.cs" />
     <Compile Include="ModelDatabaseMapping.cs" />
     <Compile Include="Query\AsyncEnumerableMethodProvider.cs" />
+    <Compile Include="Query\CommandBuilder.cs" />
+    <Compile Include="Query\CommandParameter.cs" />
     <Compile Include="Query\EnumerableMethodProvider.cs" />
     <Compile Include="Query\Expressions\IsNotNullExpression.cs" />
     <Compile Include="Query\Expressions\IsNullExpression.cs" />
+    <Compile Include="Query\Expressions\LikeExpression.cs" />
+    <Compile Include="Query\Expressions\LiteralExpression.cs" />
+    <Compile Include="Query\Expressions\SelectExpression.cs" />
     <Compile Include="Query\IEnumerableMethodProvider.cs" />
-    <Compile Include="Query\IParameterFactory.cs" />
+    <Compile Include="Query\Methods\CompositeMethodCallTranslator.cs" />
+    <Compile Include="Query\Methods\EndsWithTranslator.cs" />
+    <Compile Include="Query\Methods\IMethodCallTranslator.cs" />
+    <Compile Include="Query\Methods\StartsWithTranslator.cs" />
     <Compile Include="Query\Sql\ISqlExpressionVisitor.cs" />
     <Compile Include="Query\Expressions\PropertyAccessExpression.cs" />
     <Compile Include="Query\RelationalQueryCompilationContext.cs" />
     <Compile Include="Query\RelationalQueryModelVisitor.cs" />
     <Compile Include="Query\RelationalResultOperatorHandler.cs" />
-    <Compile Include="Query\Sql\ISqlGeneratingExpressionTreeVisitorFactory.cs" />
-    <Compile Include="Query\Sql\SqlGeneratingExpressionTreeVisitor.cs" />
-    <Compile Include="Query\Sql\SqlGeneratingExpressionTreeVisitorFactory.cs" />
-    <Compile Include="Query\Sql\SqlSelect.cs" />
+    <Compile Include="Query\Sql\ISqlQueryGenerator.cs" />
+    <Compile Include="Query\Sql\DefaultSqlQueryGenerator.cs" />
     <Compile Include="RelationalDatabase.cs" />
     <Compile Include="RelationalDatabaseExtensions.cs" />
     <Compile Include="RelationalDataStoreCreator.cs" />
@@ -125,6 +131,7 @@
     <Compile Include="..\Shared\CodeAnnotations.cs" />
     <Compile Include="..\Shared\StringBuilderExtensions.cs" />
     <Compile Include="..\Shared\SharedTypeExtensions.cs" />
+    <Compile Include="Utilities\ExpressionExtensions.cs" />
     <EmbeddedResource Include="Properties\Strings.resx">
       <LogicalName>Microsoft.Data.Entity.Relational.Strings.resources</LogicalName>
       <SubType>Designer</SubType>

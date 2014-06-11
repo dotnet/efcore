@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Query;
-using Microsoft.Data.Entity.Relational.Query.Sql;
+using Microsoft.Data.Entity.Relational.Query.Expressions;
 using Microsoft.Data.Entity.Relational.Utilities;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
@@ -17,8 +17,8 @@ namespace Microsoft.Data.Entity.Relational.Query
 {
     public class RelationalResultOperatorHandler : IResultOperatorHandler
     {
-        private static readonly Dictionary<Type, Func<SqlSelect, ResultOperatorBase, bool>>
-            _resultHandlers = new Dictionary<Type, Func<SqlSelect, ResultOperatorBase, bool>>
+        private static readonly Dictionary<Type, Func<SelectExpression, ResultOperatorBase, bool>>
+            _resultHandlers = new Dictionary<Type, Func<SelectExpression, ResultOperatorBase, bool>>
                 {
                     { typeof(TakeResultOperator), (s, r) => ProcessTake(s, (TakeResultOperator)r) },
                     //{ typeof(SingleResultOperator), (s, r) => ProcessSingle(s) },
@@ -49,13 +49,13 @@ namespace Microsoft.Data.Entity.Relational.Query
             var relationalQueryModelVisitor
                 = (RelationalQueryModelVisitor)entityQueryModelVisitor;
 
-            var sqlSelect
-                = relationalQueryModelVisitor.TryGetSqlSelect(queryModel.MainFromClause);
+            var selectExpression
+                = relationalQueryModelVisitor.TryGetSelectExpression(queryModel.MainFromClause);
 
-            Func<SqlSelect, ResultOperatorBase, bool> resultHandler;
+            Func<SelectExpression, ResultOperatorBase, bool> resultHandler;
             if (!_resultHandlers.TryGetValue(resultOperator.GetType(), out resultHandler)
-                || sqlSelect == null
-                || resultHandler(sqlSelect, resultOperator))
+                || selectExpression == null
+                || resultHandler(selectExpression, resultOperator))
             {
                 return _resultOperatorHandler
                     .HandleResultOperator(
@@ -69,30 +69,30 @@ namespace Microsoft.Data.Entity.Relational.Query
         }
 
         private static bool ProcessTake(
-            SqlSelect sqlSelect, TakeResultOperator takeResultOperator)
+            SelectExpression selectExpression, TakeResultOperator takeResultOperator)
         {
-            sqlSelect.AddLimit(takeResultOperator.GetConstantCount());
+            selectExpression.AddLimit(takeResultOperator.GetConstantCount());
 
             return false;
         }
 
-//        private static bool ProcessSingle(SqlSelect sqlSelect)
+        //        private static bool ProcessSingle(SelectExpression selectExpression)
 //        {
-//            sqlSelect.AddLimit(2);
+        //            selectExpression.AddLimit(2);
 //
 //            return false;
 //        }
 //
-//        private static bool ProcessFirst(SqlSelect sqlSelect)
+        //        private static bool ProcessFirst(SelectExpression selectExpression)
 //        {
-//            sqlSelect.AddLimit(1);
+        //            selectExpression.AddLimit(1);
 //
 //            return false;
 //        }
 
-        private static bool ProcessDistinct(SqlSelect sqlSelect)
+        private static bool ProcessDistinct(SelectExpression selectExpression)
         {
-            return !sqlSelect.TryMakeDistinct();
+            return !selectExpression.TryMakeDistinct();
         }
     }
 }

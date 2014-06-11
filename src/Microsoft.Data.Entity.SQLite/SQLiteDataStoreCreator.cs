@@ -16,13 +16,13 @@ namespace Microsoft.Data.Entity.SQLite
     {
         private const int SQLITE_CANTOPEN = 14;
 
-        private readonly SQLiteConnectionConnection _connection;
+        private readonly SQLiteConnection _connection;
         private readonly SqlStatementExecutor _executor;
         private readonly SQLiteMigrationOperationSqlGenerator _generator;
         private readonly ModelDiffer _modelDiffer;
 
         public SQLiteDataStoreCreator(
-            [NotNull] SQLiteConnectionConnection connection,
+            [NotNull] SQLiteConnection connection,
             [NotNull] SqlStatementExecutor executor,
             [NotNull] SQLiteMigrationOperationSqlGenerator generator,
             [NotNull] ModelDiffer modelDiffer)

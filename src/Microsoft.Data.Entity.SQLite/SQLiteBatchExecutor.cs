@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.SQLite
     {
         public SQLiteBatchExecutor(
             [NotNull] SQLiteSqlGenerator sqlGenerator,
-            [NotNull] SQLiteConnectionConnection connection,
+            [NotNull] SQLiteConnection connection,
             [NotNull] SQLiteTypeMapper parameterFactory)
             : base(sqlGenerator, connection, parameterFactory)
         {

@@ -9,9 +9,9 @@ using Microsoft.Data.SQLite;
 
 namespace Microsoft.Data.Entity.SQLite
 {
-    public class SQLiteConnectionConnection : RelationalConnection
+    public class SQLiteConnection : RelationalConnection
     {
-        public SQLiteConnectionConnection(
+        public SQLiteConnection(
             [NotNull] DbContextConfiguration configuration,
             [NotNull] ConnectionStringResolver connectionStringResolver)
             : base(configuration, connectionStringResolver)
@@ -20,31 +20,31 @@ namespace Microsoft.Data.Entity.SQLite
 
         protected override DbConnection CreateDbConnection()
         {
-            return new SQLiteConnection(ConnectionString);
+            return new Data.SQLite.SQLiteConnection(ConnectionString);
         }
 
-        public virtual SQLiteConnection CreateConnectionReadWriteCreate()
+        public virtual Data.SQLite.SQLiteConnection CreateConnectionReadWriteCreate()
         {
             // TODO: Handle uris
             var builder = new SQLiteConnectionStringBuilder(ConnectionString) { Mode = "RWC" };
 
-            return new SQLiteConnection(builder.ConnectionString);
+            return new Data.SQLite.SQLiteConnection(builder.ConnectionString);
         }
 
-        public virtual SQLiteConnection CreateConnectionReadWrite()
+        public virtual Data.SQLite.SQLiteConnection CreateConnectionReadWrite()
         {
             // TODO: Handle in-memory & uris
             var builder = new SQLiteConnectionStringBuilder(ConnectionString) { Mode = "RW" };
 
-            return new SQLiteConnection(builder.ConnectionString);
+            return new Data.SQLite.SQLiteConnection(builder.ConnectionString);
         }
 
-        public virtual SQLiteConnection CreateConnectionReadOnly()
+        public virtual Data.SQLite.SQLiteConnection CreateConnectionReadOnly()
         {
             // TODO: Handle in-memory & uris
             var builder = new SQLiteConnectionStringBuilder(ConnectionString) { Mode = "RO" };
 
-            return new SQLiteConnection(builder.ConnectionString);
+            return new Data.SQLite.SQLiteConnection(builder.ConnectionString);
         }
     }
 }

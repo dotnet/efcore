@@ -82,13 +82,12 @@ namespace Microsoft.Data.Entity.Relational
             Check.NotNull(stateManager, "stateManager");
 
             var queryCompilationContext
-                = new RelationalQueryCompilationContext(
-                    Model,
+                = CreateQueryCompilationContext(
                     new LinqOperatorProvider(),
                     new RelationalResultOperatorHandler(new ResultOperatorHandler()),
                     new EnumerableMethodProvider());
 
-            var queryExecutor = queryCompilationContext.CreateVisitor().CreateQueryExecutor<TResult>(queryModel);
+            var queryExecutor = queryCompilationContext.CreateQueryModelVisitor().CreateQueryExecutor<TResult>(queryModel);
             var queryContext = new RelationalQueryContext(Model, Logger, stateManager, _connection, ValueReaderFactory);
 
             return queryExecutor(queryContext, null);
@@ -100,16 +99,28 @@ namespace Microsoft.Data.Entity.Relational
             Check.NotNull(stateManager, "stateManager");
 
             var queryCompilationContext
-                = new RelationalQueryCompilationContext(
-                    Model,
+                = CreateQueryCompilationContext(
                     new AsyncLinqOperatorProvider(),
                     new RelationalResultOperatorHandler(new AsyncResultOperatorHandler()),
                     new AsyncEnumerableMethodProvider());
 
-            var queryExecutor = queryCompilationContext.CreateVisitor().CreateAsyncQueryExecutor<TResult>(queryModel);
+            var queryExecutor = queryCompilationContext.CreateQueryModelVisitor().CreateAsyncQueryExecutor<TResult>(queryModel);
             var queryContext = new RelationalQueryContext(Model, Logger, stateManager, _connection, ValueReaderFactory);
 
             return queryExecutor(queryContext, null);
+        }
+
+        protected virtual RelationalQueryCompilationContext CreateQueryCompilationContext(
+            [NotNull] ILinqOperatorProvider linqOperatorProvider,
+            [NotNull] IResultOperatorHandler resultOperatorHandler,
+            [NotNull] IEnumerableMethodProvider enumerableMethodProvider)
+        {
+            Check.NotNull(linqOperatorProvider, "linqOperatorProvider");
+            Check.NotNull(resultOperatorHandler, "resultOperatorHandler");
+            Check.NotNull(enumerableMethodProvider, "enumerableMethodProvider");
+
+            return new RelationalQueryCompilationContext(
+                Model, linqOperatorProvider, resultOperatorHandler, enumerableMethodProvider);
         }
     }
 }

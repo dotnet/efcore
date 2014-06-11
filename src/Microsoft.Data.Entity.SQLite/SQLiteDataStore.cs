@@ -3,8 +3,12 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Relational;
+using Microsoft.Data.Entity.Relational.Query;
 using Microsoft.Data.Entity.Relational.Update;
+using Microsoft.Data.Entity.SQLite.Query;
+using Microsoft.Data.Entity.SQLite.Utilities;
 
 namespace Microsoft.Data.Entity.SQLite
 {
@@ -12,7 +16,7 @@ namespace Microsoft.Data.Entity.SQLite
     {
         public SQLiteDataStore(
             [NotNull] DbContextConfiguration configuration,
-            [NotNull] SQLiteConnectionConnection connection,
+            [NotNull] SQLiteConnection connection,
             [NotNull] CommandBatchPreparer batchPreparer,
             [NotNull] SQLiteBatchExecutor batchExecutor)
             : base(configuration, connection, batchPreparer, batchExecutor)
@@ -22,6 +26,19 @@ namespace Microsoft.Data.Entity.SQLite
         protected override RelationalValueReaderFactory ValueReaderFactory
         {
             get { return new RelationalObjectArrayValueReaderFactory(); }
+        }
+
+        protected override RelationalQueryCompilationContext CreateQueryCompilationContext(
+            ILinqOperatorProvider linqOperatorProvider,
+            IResultOperatorHandler resultOperatorHandler,
+            IEnumerableMethodProvider enumerableMethodProvider)
+        {
+            Check.NotNull(linqOperatorProvider, "linqOperatorProvider");
+            Check.NotNull(resultOperatorHandler, "resultOperatorHandler");
+            Check.NotNull(enumerableMethodProvider, "enumerableMethodProvider");
+
+            return new SQLiteQueryCompilationContext(
+                Model, linqOperatorProvider, resultOperatorHandler, enumerableMethodProvider);
         }
     }
 }

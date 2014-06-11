@@ -83,6 +83,7 @@
     <Compile Include="SqlServerSimpleCommandExecutorTest.cs" />
     <Compile Include="TestDatabase.cs" />
     <Compile Include="..\Shared\TestFileLogger.cs" />
+    <Compile Include="..\Shared\TestSqlLoggerFactory.cs" />
     <Compile Include="..\Shared\Northwind.cs" />
     <Compile Include="..\Shared\NorthwindQueryTestBase.cs" />
     <Compile Include="..\Shared\NorthwindQueryFixtureBase.cs" />
