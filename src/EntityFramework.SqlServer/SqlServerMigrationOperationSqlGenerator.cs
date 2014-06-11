@@ -141,5 +141,14 @@ namespace Microsoft.Data.Entity.SqlServer
                 stringBuilder.Append(" NONCLUSTERED");
             }
         }
+
+        public override void Generate(DropIndexOperation dropIndexOperation, IndentedStringBuilder stringBuilder)
+        {
+            base.Generate(dropIndexOperation, stringBuilder);
+
+            stringBuilder
+                .Append(" ON ")
+                .Append(DelimitIdentifier(dropIndexOperation.TableName));
+        }
     }
 }
