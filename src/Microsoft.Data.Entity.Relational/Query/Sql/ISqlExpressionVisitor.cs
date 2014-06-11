@@ -12,5 +12,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
         Expression VisitPropertyAccessExpression([NotNull] PropertyAccessExpression expression);
         Expression VisitIsNullExpression([NotNull] IsNullExpression expression);
         Expression VisitIsNotNullExpression([NotNull] IsNotNullExpression expression);
+        Expression VisitLikeExpression([NotNull] LikeExpression expression);
+        Expression VisitLiteralExpression([NotNull] LiteralExpression expression);
+        Expression VisitSelectExpression([NotNull] SelectExpression expression);
     }
 }

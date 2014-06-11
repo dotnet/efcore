@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.InMemory
             Check.NotNull(stateManager, "stateManager");
 
             var queryCompilationContext = new InMemoryQueryCompilationContext(Model);
-            var queryExecutor = queryCompilationContext.CreateVisitor().CreateQueryExecutor<TResult>(queryModel);
+            var queryExecutor = queryCompilationContext.CreateQueryModelVisitor().CreateQueryExecutor<TResult>(queryModel);
             var queryContext = new InMemoryQueryContext(Model, Logger, stateManager, _database.Value);
 
             return queryExecutor(queryContext, null);

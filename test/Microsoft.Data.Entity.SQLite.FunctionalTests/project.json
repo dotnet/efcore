@@ -3,7 +3,7 @@
     "Microsoft.Data.Entity.SQLite": "",
     "Xunit.KRunner": "0.1-alpha-*"
   },
-  "code": "**\\*.cs;..\\Shared\\Northwind.cs;..\\Shared\\NorthwindQueryFixtureBase.cs;..\\Shared\\NorthwindQueryTestBase.cs",
+  "code": "**\\*.cs;..\\Shared\\TestSqlLoggerFactory.cs;..\\Shared\\Northwind.cs;..\\Shared\\NorthwindQueryFixtureBase.cs;..\\Shared\\NorthwindQueryTestBase.cs",
   "commands": {
     "test": "Xunit.KRunner"
   },

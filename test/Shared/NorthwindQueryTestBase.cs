@@ -1115,6 +1115,65 @@ namespace Microsoft.Data.FunctionalTests
                 cs => cs.Where(c => c.CustomerID == "ALFKI").SingleOrDefault());
         }
 
+        [Fact]
+        public virtual void All_top_level()
+        {
+            AssertQuery<Customer>(cs => cs.All(c => c.ContactName.StartsWith("a")));
+        }
+
+        [Fact]
+        public virtual void String_StartsWith_Literal()
+        {
+            AssertQuery<Customer>(cs => cs.Where(c => c.ContactName.StartsWith("M")));
+        }
+
+        [Fact]
+        public virtual void String_StartsWith_Identity()
+        {
+            AssertQuery<Customer>(cs => cs.Where(c => c.ContactName.StartsWith(c.ContactName)));
+        }
+
+        [Fact]
+        public virtual void String_StartsWith_Column()
+        {
+            AssertQuery<Customer>(cs => cs.Where(c => c.ContactName.StartsWith(c.ContactName)));
+        }
+
+        [Fact]
+        public virtual void String_StartsWith_MethodCall()
+        {
+            AssertQuery<Customer>(cs => cs.Where(c => c.ContactName.StartsWith(LocalMethod())));
+        }
+
+        [Fact]
+        public virtual void String_EndsWith_Literal()
+        {
+            AssertQuery<Customer>(cs => cs.Where(c => c.ContactName.EndsWith("b")));
+        }
+
+        [Fact]
+        public virtual void String_EndsWith_Identity()
+        {
+            AssertQuery<Customer>(cs => cs.Where(c => c.ContactName.EndsWith(c.ContactName)));
+        }
+
+        [Fact]
+        public virtual void String_EndsWith_Column()
+        {
+            AssertQuery<Customer>(cs => cs.Where(c => c.ContactName.EndsWith(c.ContactName)));
+        }
+
+        [Fact]
+        public virtual void String_EndsWith_MethodCall()
+        {
+            AssertQuery<Customer>(cs => cs.Where(c => c.ContactName.EndsWith(LocalMethod())));
+        }
+
+        private static string LocalMethod()
+        {
+            return "M";
+        }
+
         protected abstract DbContext CreateContext();
 
         private int AssertQuery<TItem>(

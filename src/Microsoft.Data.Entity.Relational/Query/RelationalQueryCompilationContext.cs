@@ -12,7 +12,6 @@ namespace Microsoft.Data.Entity.Relational.Query
     public class RelationalQueryCompilationContext : QueryCompilationContext
     {
         private readonly IEnumerableMethodProvider _enumerableMethodProvider;
-        private readonly ISqlGeneratingExpressionTreeVisitorFactory _sqlGeneratingExpressionTreeVisitor;
 
         public RelationalQueryCompilationContext(
             [NotNull] IModel model,
@@ -27,10 +26,9 @@ namespace Microsoft.Data.Entity.Relational.Query
             Check.NotNull(enumerableMethodProvider, "enumerableMethodProvider");
 
             _enumerableMethodProvider = enumerableMethodProvider;
-            _sqlGeneratingExpressionTreeVisitor = new SqlGeneratingExpressionTreeVisitorFactory();
         }
 
-        public override EntityQueryModelVisitor CreateVisitor()
+        public override EntityQueryModelVisitor CreateQueryModelVisitor()
         {
             return new RelationalQueryModelVisitor(this);
         }
@@ -40,9 +38,9 @@ namespace Microsoft.Data.Entity.Relational.Query
             get { return _enumerableMethodProvider; }
         }
 
-        public virtual ISqlGeneratingExpressionTreeVisitorFactory SqlGeneratingExpressionTreeVisitor
+        public virtual ISqlQueryGenerator CreateSqlQueryGenerator()
         {
-            get { return _sqlGeneratingExpressionTreeVisitor; }
+            return new DefaultSqlQueryGenerator();
         }
     }
 }

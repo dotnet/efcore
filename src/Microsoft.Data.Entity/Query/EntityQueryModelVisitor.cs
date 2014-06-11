@@ -538,7 +538,7 @@ namespace Microsoft.Data.Entity.Query
 
             protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
             {
-                var queryModelVisitor = QueryCompilationContext.CreateVisitor();
+                var queryModelVisitor = QueryCompilationContext.CreateQueryModelVisitor();
 
                 queryModelVisitor.VisitQueryModel(expression.QueryModel);
 
@@ -576,7 +576,7 @@ namespace Microsoft.Data.Entity.Query
 
             protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
             {
-                var queryModelVisitor = QueryCompilationContext.CreateVisitor();
+                var queryModelVisitor = QueryCompilationContext.CreateQueryModelVisitor();
 
                 queryModelVisitor.VisitQueryModel(expression.QueryModel);
 
