@@ -224,6 +224,22 @@ namespace Microsoft.Data.SQLite
         }
 
         [Fact]
+        public void Bind_binds_text_values_without_embedded_nulls()
+        {
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT @Text || 'ing'";
+                command.Parameters.AddWithValue("@Text", "test");
+                connection.Open();
+
+                var result = command.ExecuteScalar();
+
+                Assert.Equal("testing", result);
+            }
+        }
+
+        [Fact]
         public void Bind_binds_blob_values()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))

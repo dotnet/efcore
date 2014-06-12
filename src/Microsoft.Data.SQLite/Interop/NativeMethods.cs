@@ -69,11 +69,11 @@ namespace Microsoft.Data.SQLite.Interop
 
         public static int sqlite3_bind_text(StatementHandle pStmt, int i, string zData)
         {
-            int n;
-            var ptr = MarshalEx.StringToHGlobalUTF8(zData, out n);
+            int size;
+            var ptr = MarshalEx.StringToHGlobalUTF8(zData, out size);
             try
             {
-                return sqlite3_bind_text(pStmt, i, ptr, n, Constants.SQLITE_TRANSIENT);
+                return sqlite3_bind_text(pStmt, i, ptr, size - 1, Constants.SQLITE_TRANSIENT);
             }
             finally
             {
