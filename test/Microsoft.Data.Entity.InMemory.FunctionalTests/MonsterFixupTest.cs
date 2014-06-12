@@ -4,6 +4,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.FunctionalTests;
+using Microsoft.Data.Entity.MonsterModel;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 
@@ -21,14 +22,16 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             return new DbContextOptions().UseInMemoryStore();
         }
 
-        protected override async Task CreateAndSeedDatabase(IServiceProvider serviceProvider, string databaseName)
+        protected override Task CreateAndSeedDatabase(string databaseName, Func<MonsterContext> createContext)
         {
-            using (var context = new MonsterContext(serviceProvider, CreateOptions(databaseName)))
+            using (var context = createContext())
             {
                 context.Database.EnsureDeleted();
                 context.Database.EnsureCreated();
                 context.SeedUsingFKs();
             }
+
+            return Task.FromResult(0);
         }
     }
 }

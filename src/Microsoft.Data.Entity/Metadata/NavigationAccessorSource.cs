@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
@@ -51,7 +52,7 @@ namespace Microsoft.Data.Entity.Metadata
             // TODO: Consider allowing an annotation to force treating a reference to an Entity which is an IEnumerable of
             // itself as a reference instead of a collection. Currently it will be considered a collection nav prop, which it isn't.
 
-            return elementType != null && elementType == targetType.Type
+            return elementType != null && elementType.GetTypeInfo().IsAssignableFrom(targetType.Type.GetTypeInfo())
                 ? new CollectionNavigationAccessor(
                     () => _getterSource.GetAccessor(navigation),
                     () => _setterSource.GetAccessor(navigation),

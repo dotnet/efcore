@@ -75,12 +75,12 @@
     <Compile Include="SequenceEndToEndTest.cs" />
     <Compile Include="SequentialGuidEndToEndTest.cs" />
     <Compile Include="SqlFileLogger.cs" />
-    <Compile Include="MonsterFixupTest.cs" />
     <Compile Include="SqlServerConfigPatternsTest.cs" />
     <Compile Include="SqlServerDatabaseCreationTest.cs" />
     <Compile Include="SqlServerDataStoreCreatorTest.cs" />
     <Compile Include="SqlServerEndToEndTest.cs" />
     <Compile Include="SqlServerSimpleCommandExecutorTest.cs" />
+    <Compile Include="MonsterFixupTest.cs" />
     <Compile Include="TestDatabase.cs" />
     <Compile Include="..\Shared\TestFileLogger.cs" />
     <Compile Include="..\Shared\TestSqlLoggerFactory.cs" />
@@ -88,6 +88,12 @@
     <Compile Include="..\Shared\NorthwindQueryTestBase.cs" />
     <Compile Include="..\Shared\NorthwindQueryFixtureBase.cs" />
     <Compile Include="..\Shared\MonsterFixupTestBase.cs" />
+    <Compile Include="..\Shared\ChangedChangingMonsterContext.cs" />
+    <Compile Include="..\Shared\ChangedOnlyMonsterContext.cs" />
+    <Compile Include="..\Shared\MonsterContext.cs" />
+    <Compile Include="..\Shared\MonsterContext`.cs" />
+    <Compile Include="..\Shared\MonsterModel.cs" />
+    <Compile Include="..\Shared\SnapshotMonsterContext.cs" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>

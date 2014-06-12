@@ -75,11 +75,19 @@
     <Compile Include="..\Shared\NorthwindQueryTestBase.cs">
       <Link>NorthwindQueryTestBase.cs</Link>
     </Compile>
+    <Compile Include="MonsterFixupTest.cs" />
     <Compile Include="NorthwindQueryTest.cs" />
     <Compile Include="TestDatabase.cs" />
     <None Include="northwind.db">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Compile Include="..\Shared\MonsterFixupTestBase.cs" />
+    <Compile Include="..\Shared\ChangedChangingMonsterContext.cs" />
+    <Compile Include="..\Shared\ChangedOnlyMonsterContext.cs" />
+    <Compile Include="..\Shared\MonsterContext.cs" />
+    <Compile Include="..\Shared\MonsterContext`.cs" />
+    <Compile Include="..\Shared\MonsterModel.cs" />
+    <Compile Include="..\Shared\SnapshotMonsterContext.cs" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
@@ -94,7 +102,7 @@
     <ProjectReference Include="..\..\src\Microsoft.Data.Entity.Relational\Microsoft.Data.Entity.Relational.csproj">
       <Project>{75C5A774-A3F3-43EB-97D3-DBE0CF2825D8}</Project>
       <Name>Microsoft.Data.Entity.Relational</Name>
-    </ProjectReference>      
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
