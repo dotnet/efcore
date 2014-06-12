@@ -11,13 +11,15 @@ namespace Microsoft.Data.Entity.ChangeTracking
 {
     public class CompositeEntityKey : EntityKey
     {
+        private readonly IEntityType _entityType;
         private readonly object[] _keyValueParts;
 
         public CompositeEntityKey([NotNull] IEntityType entityType, [NotNull] object[] keyValueParts)
-            : base(entityType)
         {
+            Check.NotNull(entityType, "entityType");
             Check.NotNull(keyValueParts, "keyValueParts");
 
+            _entityType = entityType;
             _keyValueParts = keyValueParts;
         }
 
@@ -33,7 +35,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         private bool Equals(CompositeEntityKey other)
         {
-            if (EntityType != other.EntityType)
+            if (_entityType != other._entityType)
             {
                 return false;
             }
@@ -73,8 +75,13 @@ namespace Microsoft.Data.Entity.ChangeTracking
         public override int GetHashCode()
         {
             return _keyValueParts.Aggregate(
-                EntityType.GetHashCode() * 397,
+                _entityType.GetHashCode() * 397,
                 (t, v) => (t * 397) ^ (v != null ? StructuralComparisons.StructuralEqualityComparer.GetHashCode(v) : 0));
+        }
+
+        public override string ToString()
+        {
+            return _entityType.Type + "[" + string.Join(", ", _keyValueParts.Select(k => k.ToString())) + "]";
         }
     }
 }

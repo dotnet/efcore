@@ -10,15 +10,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
 {
     public class CompositeEntityKeyFactory : EntityKeyFactory
     {
-        public override EntityKey Create(IEntityType entityType, IReadOnlyList<IProperty> properties, StateEntry entry)
-        {
-            Check.NotNull(entityType, "entityType");
-            Check.NotNull(properties, "properties");
-            Check.NotNull(entry, "entry");
-
-            return Create(entityType, properties.Select(p => entry[p]).ToArray());
-        }
-
         public override EntityKey Create(IEntityType entityType, IReadOnlyList<IProperty> properties, IValueReader valueReader)
         {
             Check.NotNull(entityType, "entityType");
@@ -29,18 +20,18 @@ namespace Microsoft.Data.Entity.ChangeTracking
             return Create(entityType, properties.Select(p => valueReader.ReadValue<object>(p.Index)).ToArray());
         }
 
-        public override EntityKey Create(IEntityType entityType, IReadOnlyList<IProperty> properties, Sidecar sidecar)
+        public override EntityKey Create(IEntityType entityType, IReadOnlyList<IProperty> properties, IPropertyBagEntry propertyBagEntry)
         {
             Check.NotNull(entityType, "entityType");
             Check.NotNull(properties, "properties");
-            Check.NotNull(sidecar, "sidecar");
+            Check.NotNull(propertyBagEntry, "propertyBagEntry");
 
-            return Create(entityType, properties.Select(p => sidecar[p]).ToArray());
+            return Create(entityType, properties.Select(p => propertyBagEntry[p]).ToArray());
         }
 
-        private static CompositeEntityKey Create(IEntityType entityType, object[] values)
+        private static EntityKey Create(IEntityType entityType, object[] values)
         {
-            return values.Any(v => v == null) ? null : new CompositeEntityKey(entityType, values);
+            return values.Any(v => v == null) ? EntityKey.NullEntityKey : new CompositeEntityKey(entityType, values);
         }
     }
 }

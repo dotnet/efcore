@@ -1,33 +1,30 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Utilities;
-
 namespace Microsoft.Data.Entity.ChangeTracking
 {
     public abstract class EntityKey
     {
-        private readonly IEntityType _entityType;
-
-        protected EntityKey([NotNull] IEntityType entityType)
-        {
-            Check.NotNull(entityType, "entityType");
-
-            _entityType = entityType;
-        }
+        public static readonly EntityKey NullEntityKey = new NullEntityKeySentinel();
 
         public virtual object Value
         {
             get { return GetValue(); }
         }
 
-        public virtual IEntityType EntityType
-        {
-            get { return _entityType; }
-        }
-
         protected abstract object GetValue();
+        
+        private class NullEntityKeySentinel : EntityKey
+        {
+            protected override object GetValue()
+            {
+                return null;
+            }
+
+            public override int GetHashCode()
+            {
+                return 0;
+            }
+        }
     }
 }

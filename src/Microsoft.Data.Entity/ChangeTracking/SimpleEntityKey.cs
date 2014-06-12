@@ -4,16 +4,20 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking
 {
     public class SimpleEntityKey<TKey> : EntityKey
     {
+        private readonly IEntityType _entityType;
         private readonly TKey _keyValue;
 
         public SimpleEntityKey([NotNull] IEntityType entityType, [CanBeNull] TKey keyValue)
-            : base(entityType)
         {
+            Check.NotNull(entityType, "entityType");
+
+            _entityType = entityType;
             _keyValue = keyValue;
         }
 
@@ -29,7 +33,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         private bool Equals(SimpleEntityKey<TKey> other)
         {
-            return EntityType == other.EntityType
+            return _entityType == other._entityType
                    && EqualityComparer<TKey>.Default.Equals(_keyValue, other._keyValue);
         }
 
@@ -47,8 +51,13 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         public override int GetHashCode()
         {
-            return (EntityType.GetHashCode() * 397)
+            return (_entityType.GetHashCode() * 397)
                    ^ EqualityComparer<TKey>.Default.GetHashCode(_keyValue);
+        }
+
+        public override string ToString()
+        {
+            return _entityType.Type + "[" + _keyValue + "]";
         }
     }
 }

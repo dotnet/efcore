@@ -228,4 +228,10 @@
   <data name="PropertyWithStorageNameNotFound" xml:space="preserve">
     <value>A property with the storage name '{property}' on entity type '{entityType}' could not be found. Ensure that the property exists, has been included in the model, and has been configured with storage name specified.</value>
   </data>
+  <data name="CurrentValuesAlwaysInSync" xml:space="preserve">
+    <value>CurrentValues are always in sync with the entity state.</value>
+  </data>
+  <data name="NullPrincipalKey" xml:space="preserve">
+    <value>The instance of entity type '{entityType}' cannot be tracked because it has a null principal key: '{keyProperties}'. Either set the key explicitly or consider using an IValueGenerator to generate unique key values.</value>
+  </data>
 </root>

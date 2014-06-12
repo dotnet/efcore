@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.Metadata
     {
         private readonly LazyRef<ImmutableSortedSet<EntityType>> _entities
             = new LazyRef<ImmutableSortedSet<EntityType>>(
-                () => ImmutableSortedSet<EntityType>.Empty.WithComparer(new EntityTypeComparer()));
+                () => ImmutableSortedSet<EntityType>.Empty.WithComparer(new EntityTypeNameComparer()));
 
         public virtual void AddEntityType([NotNull] EntityType entityType)
         {
@@ -90,6 +90,12 @@ namespace Microsoft.Data.Entity.Metadata
             get { return _entities.HasValue ? (IReadOnlyList<EntityType>)_entities.Value : ImmutableList<EntityType>.Empty; }
         }
 
+        public virtual IEnumerable<IForeignKey> GetReferencingForeignKeys(IEntityType entityType)
+        {
+            // TODO: Perf: Add additional indexes so that this isn't a linear lookup
+            return EntityTypes.SelectMany(et => et.ForeignKeys).Where(fk => fk.ReferencedEntityType == entityType);
+        }
+
         public virtual IReadOnlyList<IEntityType> TopologicalSort()
         {
             if (!_entities.HasValue)
@@ -121,6 +127,7 @@ namespace Microsoft.Data.Entity.Metadata
                     Strings.FormatCircularDependency(
                         visiting
                             .Concat(new[] { entityType })
+                            .Reverse()
                             .Select(et => et.Name).Join(" -> ")));
             }
 
@@ -166,14 +173,6 @@ namespace Microsoft.Data.Entity.Metadata
         IReadOnlyList<IEntityType> IModel.EntityTypes
         {
             get { return EntityTypes; }
-        }
-
-        private class EntityTypeComparer : IComparer<EntityType>
-        {
-            public int Compare(EntityType x, EntityType y)
-            {
-                return StringComparer.Ordinal.Compare(x.Name, y.Name);
-            }
         }
     }
 }

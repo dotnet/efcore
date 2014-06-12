@@ -51,13 +51,13 @@ namespace Microsoft.Data.Entity.ChangeTracking
             {
                 var navigations = _stateManager.Model.GetNavigations(foreignKey).ToArray();
 
-                var oldPrincipalEntry = _stateManager.GetPrincipal(entry, foreignKey, useForeignKeySnapshot: true);
+                var oldPrincipalEntry = _stateManager.GetPrincipal(entry.RelationshipsSnapshot, foreignKey);
                 if (oldPrincipalEntry != null)
                 {
                     Unfixup(navigations, oldPrincipalEntry, entry);
                 }
 
-                var principalEntry = _stateManager.GetPrincipal(entry, foreignKey, useForeignKeySnapshot: false);
+                var principalEntry = _stateManager.GetPrincipal(entry, foreignKey);
                 if (principalEntry != null)
                 {
                     if (foreignKey.IsUnique)
@@ -139,7 +139,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             // Handle case where the new entity is the dependent
             foreach (var foreignKey in entityType.ForeignKeys)
             {
-                var principalEntry = _stateManager.GetPrincipal(entry, foreignKey, useForeignKeySnapshot: false);
+                var principalEntry = _stateManager.GetPrincipal(entry.RelationshipsSnapshot, foreignKey);
                 if (principalEntry != null)
                 {
                     DoFixup(foreignKey, principalEntry, new[] { entry });

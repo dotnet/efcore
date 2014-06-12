@@ -1,12 +1,11 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Tests.ChangeTracking
+namespace Microsoft.Data.Entity.ChangeTracking
 {
     public class SimpleEntityKeyTest
     {
@@ -26,13 +25,16 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Only_keys_with_the_same_value_and_entity_type_test_as_equal()
+        public void Only_keys_with_the_same_value_type_and_entity_type_test_as_equal()
         {
             var type1 = new Mock<EntityType>().Object;
             var type2 = new Mock<EntityType>().Object;
 
             Assert.True(new SimpleEntityKey<int>(type1, 77).Equals(new SimpleEntityKey<int>(type1, 77)));
+            Assert.False(new SimpleEntityKey<int>(type1, 77).Equals(null));
+            Assert.False(new SimpleEntityKey<int>(type1, 77).Equals(new CompositeEntityKey(type1, new object[] { 77 })));
             Assert.False(new SimpleEntityKey<int>(type1, 77).Equals(new SimpleEntityKey<int>(type1, 88)));
+            Assert.False(new SimpleEntityKey<int>(type1, 77).Equals(new SimpleEntityKey<long>(type1, 77)));
             Assert.False(new SimpleEntityKey<int>(type1, 77).Equals(new SimpleEntityKey<int>(type2, 77)));
         }
 

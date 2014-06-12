@@ -74,7 +74,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var entry = new ClrStateEntry(TestHelpers.CreateContextConfiguration(model), type, entity);
 
-            Assert.Null(new CompositeEntityKeyFactory().Create(type, type.GetKey().Properties, entry));
+            Assert.Equal(EntityKey.NullEntityKey, new CompositeEntityKeyFactory().Create(type, type.GetKey().Properties, entry));
         }
 
         [Fact]
@@ -115,10 +115,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var random = new Random();
 
-            Assert.Null(new CompositeEntityKeyFactory().Create(
+            var key = new CompositeEntityKeyFactory().Create(
                 type, 
                 new[] { type.GetProperty("P6"), type.GetProperty("P5") }, 
-                new ObjectArrayValueReader(new object[] { 7, "Ate", random, 77, null, random })));
+                new ObjectArrayValueReader(new object[] { 7, "Ate", random, 77, null, random }));
+
+            Assert.Equal(EntityKey.NullEntityKey, key);
         }
 
         private static Model BuildModel()

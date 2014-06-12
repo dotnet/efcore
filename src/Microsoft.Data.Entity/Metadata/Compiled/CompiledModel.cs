@@ -39,5 +39,11 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
         {
             get { return LazyInitializer.EnsureInitialized(ref _entityTypes, LoadEntityTypes); }
         }
+
+        public virtual IEnumerable<IForeignKey> GetReferencingForeignKeys([NotNull] IEntityType entityType)
+        {
+            // TODO: Perf: Add additional indexes so that this isn't a linear lookup
+            return EntityTypes.SelectMany(et => et.ForeignKeys).Where(fk => fk.ReferencedEntityType == entityType);
+        }
     }
 }

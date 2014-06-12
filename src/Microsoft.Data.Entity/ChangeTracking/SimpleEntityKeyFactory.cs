@@ -9,15 +9,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
 {
     public class SimpleEntityKeyFactory<TKey> : EntityKeyFactory
     {
-        public override EntityKey Create(IEntityType entityType, IReadOnlyList<IProperty> properties, StateEntry entry)
-        {
-            Check.NotNull(entityType, "entityType");
-            Check.NotNull(properties, "properties");
-            Check.NotNull(entry, "entry");
-
-            return Create(entityType, entry[properties[0]]);
-        }
-
         public override EntityKey Create(IEntityType entityType, IReadOnlyList<IProperty> properties, IValueReader valueReader)
         {
             Check.NotNull(entityType, "entityType");
@@ -27,18 +18,18 @@ namespace Microsoft.Data.Entity.ChangeTracking
             return new SimpleEntityKey<TKey>(entityType, valueReader.ReadValue<TKey>(properties[0].Index));
         }
 
-        public override EntityKey Create(IEntityType entityType, IReadOnlyList<IProperty> properties, Sidecar sidecar)
+        public override EntityKey Create(IEntityType entityType, IReadOnlyList<IProperty> properties, IPropertyBagEntry propertyBagEntry)
         {
             Check.NotNull(entityType, "entityType");
             Check.NotNull(properties, "properties");
-            Check.NotNull(sidecar, "sidecar");
+            Check.NotNull(propertyBagEntry, "propertyBagEntry");
 
-            return Create(entityType, sidecar[properties[0]]);
+            return Create(entityType, propertyBagEntry[properties[0]]);
         }
 
-        private static SimpleEntityKey<TKey> Create(IEntityType entityType, object value)
+        private static EntityKey Create(IEntityType entityType, object value)
         {
-            return value == null ? null : new SimpleEntityKey<TKey>(entityType, (TKey)value);
+            return value == null ? EntityKey.NullEntityKey : new SimpleEntityKey<TKey>(entityType, (TKey)value);
         }
     }
 }

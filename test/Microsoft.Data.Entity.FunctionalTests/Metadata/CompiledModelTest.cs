@@ -65,6 +65,10 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             Assert.True(
                 compiledModel.EntityTypes.First().Properties.SelectMany(p => p.Annotations).Select(p => p.Value)
                     .SequenceEqual(builtModel.EntityTypes.First().Properties.SelectMany(p => p.Annotations).Select(p => p.Value)));
+
+            Assert.Equal(compiledModel.EntityTypes.Select(e => compiledModel.GetReferencingForeignKeys(e).Select(fk => fk.EntityType.Name)),
+                builtModel.EntityTypes.Select(e => builtModel.GetReferencingForeignKeys(e).Select(fk => fk.EntityType.Name)));
+
         }
 
         [Fact]

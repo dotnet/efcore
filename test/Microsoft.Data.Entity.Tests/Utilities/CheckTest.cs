@@ -37,7 +37,28 @@ namespace Microsoft.Data.Entity.Tests.Utilities
         [Fact]
         public void Not_empty_throws_when_parameter_name_null()
         {
-            Assert.Throws<ArgumentException>(() => Check.NotEmpty("42", string.Empty));
+            // ReSharper disable once AssignNullToNotNullAttribute
+            Assert.Throws<ArgumentNullException>(() => Check.NotEmpty("42", null));
+        }
+
+        [Fact]
+        public void Generic_Not_empty_throws_when_arg_is_empty()
+        {
+            // ReSharper disable once NotResolvedInText
+            Assert.Throws<ArgumentException>(() => Check.NotEmpty(new string[] {}, "foo"));
+        }
+
+        [Fact]
+        public void Generic_Not_empty_throws_when_arg_is_null()
+        {
+            // ReSharper disable once NotResolvedInText
+            Assert.Throws<ArgumentNullException>(() => Check.NotEmpty<object>(null, "foo"));
+        }
+
+        [Fact]
+        public void Generic_Not_empty_throws_when_arg_name_empty()
+        {
+            Assert.Throws<ArgumentException>(() => Check.NotEmpty(new[] { string.Empty }, string.Empty));
         }
 
         [Fact]

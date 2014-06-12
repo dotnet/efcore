@@ -2,15 +2,16 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.ComponentModel;
-using Microsoft.Data.Entity.ChangeTracking;
+using System.Linq;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Tests;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Tests.ChangeTracking
+namespace Microsoft.Data.Entity.ChangeTracking
 {
     public abstract class SidecarTest
     {
-        private readonly Model _model;
+        protected readonly Model _model;
 
         protected SidecarTest()
         {
@@ -289,15 +290,82 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.False(sidecar.HasValue(NameProperty));
         }
 
+        [Fact]
+        public void Can_create_foreign_key_value_based_on_dependent_values()
+        {
+            var entityType = _model.GetEntityType("Banana");
+            var foreignKey = entityType.ForeignKeys.Single();
+
+            var entry = CreateStateEntry();
+            var sidecar = CreateSidecar(entry);
+            sidecar[foreignKey.Properties.Single()] = 42;
+
+            var keyValue = sidecar.GetDependentKeyValue(foreignKey);
+            Assert.IsType<SimpleEntityKey<int>>(keyValue);
+            Assert.Equal(42, keyValue.Value);
+        }
+
+        [Fact]
+        public void Can_create_foreign_key_value_based_on_principal_end_values()
+        {
+            var entityType = _model.GetEntityType("Banana");
+            var foreignKey = entityType.ForeignKeys.Single();
+
+            var entry = CreateStateEntry();
+            var sidecar = CreateSidecar(entry);
+            sidecar[foreignKey.ReferencedProperties.Single()] = 42;
+
+            var keyValue = sidecar.GetPrincipalKeyValue(foreignKey);
+            Assert.IsType<SimpleEntityKey<int>>(keyValue);
+            Assert.Equal(42, keyValue.Value);
+        }
+
+        [Fact]
+        public void Can_create_composite_foreign_key_value_based_on_dependent_values()
+        {
+            var entityType = _model.GetEntityType("SomeMoreDependentEntity");
+            var foreignKey = entityType.ForeignKeys.Single();
+
+            var entry = CreateStateEntry(new SomeMoreDependentEntity());
+            var sidecar = CreateSidecar(entry);
+            sidecar[foreignKey.Properties[0]] = 77;
+            sidecar[foreignKey.Properties[1]] = "CheeseAndOnion";
+
+            var keyValue = (CompositeEntityKey)sidecar.GetDependentKeyValue(foreignKey);
+            Assert.Equal(77, keyValue.Value[0]);
+            Assert.Equal("CheeseAndOnion", keyValue.Value[1]);
+        }
+
+        [Fact]
+        public void Can_create_composite_foreign_key_value_based_on_principal_end_values()
+        {
+            var dependentType = _model.GetEntityType("SomeMoreDependentEntity");
+            var foreignKey = dependentType.ForeignKeys.Single();
+
+            var entry = CreateStateEntry(new SomeDependentEntity());
+            var sidecar = CreateSidecar(entry);
+            sidecar[foreignKey.ReferencedProperties[0]] = 77;
+            sidecar[foreignKey.ReferencedProperties[1]] = "PrawnCocktail";
+
+            var keyValue = (CompositeEntityKey)sidecar.GetPrincipalKeyValue(foreignKey);
+            Assert.Equal(77, keyValue.Value[0]);
+            Assert.Equal("PrawnCocktail", keyValue.Value[1]);
+        }
+
         protected abstract Sidecar CreateSidecar(StateEntry entry = null);
 
         protected StateEntry CreateStateEntry(Banana entity = null)
         {
             entity = entity ?? new Banana { Id = 77, Name = "Stand", State = "Frozen" };
 
-            var configuration = TestHelpers.CreateContextConfiguration(BuildModel());
+            return CreateStateEntry<Banana>(entity);
+        }
 
-            return configuration.Services.StateEntryFactory.Create(_model.GetEntityType(typeof(Banana)), entity);
+        protected StateEntry CreateStateEntry<TEntity>(TEntity entity)
+        {
+            var configuration = TestHelpers.CreateContextConfiguration(_model);
+
+            return configuration.Services.StateEntryFactory.Create(_model.GetEntityType(typeof(TEntity)), entity);
         }
 
         private static Model BuildModel()
@@ -305,11 +373,33 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = new Model();
 
             var entityType = new EntityType(typeof(Banana));
-            entityType.AddProperty("Id", typeof(int), shadowProperty: false, concurrencyToken: true);
+            var idProperty = entityType.AddProperty("Id", typeof(int), shadowProperty: false, concurrencyToken: true);
+            entityType.SetKey(idProperty);
             entityType.AddProperty("Name", typeof(string));
             entityType.AddProperty("State", typeof(string), shadowProperty: false, concurrencyToken: true);
-            
+            var fkProperty = entityType.AddProperty("RelatedId", typeof(int), shadowProperty: true, concurrencyToken: true);
+            entityType.AddForeignKey(new Key(new[] { idProperty }), fkProperty);
+
             model.AddEntityType(entityType);
+
+            var entityType2 = new EntityType(typeof(SomeDependentEntity));
+            model.AddEntityType(entityType2);
+            var key2A = entityType2.AddProperty("Id1", typeof(int));
+            var key2B = entityType2.AddProperty("Id2", typeof(string));
+            entityType2.SetKey(key2A, key2B);
+            var fk = entityType2.AddProperty("SomeEntityId", typeof(int));
+            entityType2.AddForeignKey(entityType.GetKey(), new[] { fk });
+            var justAProperty = entityType2.AddProperty("JustAProperty", typeof(int));
+            justAProperty.ValueGenerationOnSave = ValueGenerationOnSave.WhenInserting;
+            justAProperty.ValueGenerationOnAdd = ValueGenerationOnAdd.Client;
+
+            var entityType5 = new EntityType(typeof(SomeMoreDependentEntity));
+            model.AddEntityType(entityType5);
+            var key5 = entityType5.AddProperty("Id", typeof(int));
+            entityType5.SetKey(key5);
+            var fk5A = entityType5.AddProperty("Fk1", typeof(int));
+            var fk5B = entityType5.AddProperty("Fk2", typeof(string));
+            entityType5.AddForeignKey(entityType2.GetKey(), new[] { fk5A, fk5B });
 
             return model;
         }
@@ -340,6 +430,21 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             public event PropertyChangedEventHandler PropertyChanged;
             public event PropertyChangingEventHandler PropertyChanging;
 #pragma warning restore 67
+        }
+
+        protected class SomeDependentEntity
+        {
+            public int Id1 { get; set; }
+            public string Id2 { get; set; }
+            public int SomeEntityId { get; set; }
+            public int JustAProperty { get; set; }
+        }
+
+        protected class SomeMoreDependentEntity
+        {
+            public int Id { get; set; }
+            public int Fk1 { get; set; }
+            public string Fk2 { get; set; }
         }
     }
 }

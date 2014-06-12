@@ -61,6 +61,7 @@
     <Compile Include="ChangeTracking\ChangeDetector.cs" />
     <Compile Include="ChangeTracking\RelationshipsSnapshot.cs" />
     <Compile Include="ChangeTracking\RelationshipsSnapshotFactory.cs" />
+    <Compile Include="ChangeTracking\IPropertyBagEntry.cs" />
     <Compile Include="ChangeTracking\SimpleNullableEntityKeyFactory.cs" />
     <Compile Include="DbContext.cs" />
     <Compile Include="DbContextOptions.cs" />
@@ -71,6 +72,7 @@
     <Compile Include="EntityState.cs" />
     <Compile Include="EntityStateExtensions.cs" />
     <Compile Include="Extensions\EntityTypeExtensions.cs" />
+    <Compile Include="Extensions\PropertyBagExtensions.cs" />
     <Compile Include="Identity\GuidValueGenerator.cs" />
     <Compile Include="Identity\IValueGenerator.cs" />
     <Compile Include="Identity\IValueGeneratorFactory.cs" />
@@ -91,6 +93,7 @@
     <Compile Include="Metadata\NavigationAccessor.cs" />
     <Compile Include="Metadata\NavigationAccessorSource.cs" />
     <Compile Include="Metadata\NavigationExtensions.cs" />
+    <Compile Include="Metadata\EntityTypeNameComparer.cs" />
     <Compile Include="Query\AsyncResultOperatorHandler.cs" />
     <Compile Include="Query\IResultOperatorHandler.cs" />
     <Compile Include="Query\QueryCompilationContext.cs" />
@@ -218,9 +221,12 @@
     <Compile Include="Storage\DataStoreSource.cs" />
     <Compile Include="Storage\DataStoreSource`.cs" />
     <Compile Include="Utilities\AsyncLock.cs" />
+    <Compile Include="Utilities\BidirectionalAdjacencyListGraphFactory.cs" />
     <Compile Include="Utilities\Check.cs" />
     <Compile Include="Utilities\EnumerableExtensions.cs" />
     <Compile Include="Utilities\ExpressionExtensions.cs" />
+    <Compile Include="Utilities\Graph.cs" />
+    <Compile Include="Utilities\GraphFactory.cs" />
     <Compile Include="Utilities\IndentedStringBuilder.cs" />
     <Compile Include="Utilities\LazyRef.cs" />
     <Compile Include="Utilities\MetadataHelper.cs" />
@@ -229,6 +235,7 @@
     <Compile Include="Utilities\ServiceProviderExtensions.cs" />
     <Compile Include="Utilities\ThreadSafeDictionaryCache.cs" />
     <Compile Include="Utilities\ThreadSafeLazyRef.cs" />
+    <Compile Include="Utilities\BidirectionalAdjacencyListGraph.cs" />
     <Compile Include="Utilities\TypeExtensions.cs" />
     <Compile Include="..\Shared\CodeAnnotations.cs" />
     <Compile Include="..\Shared\StringBuilderExtensions.cs" />

@@ -10,7 +10,7 @@ using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Relational.Tests.Update
+namespace Microsoft.Data.Entity.Relational.Update
 {
     public class ModificationCommandTest
     {
@@ -84,6 +84,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         public void ModificationCommand_initialized_correctly_for_modified_entities_with_identity_key()
         {
             var stateEntry = CreateStateEntry(EntityState.Modified, ValueGenerationOnSave.WhenInserting);
+            stateEntry.SetPropertyModified(stateEntry.EntityType.GetKey().Properties[0], isModified: false);
 
             var command = new ModificationCommand("T1", new ParameterNameGenerator());
             command.AddStateEntry(stateEntry);
@@ -117,6 +118,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         public void ModificationCommand_initialized_correctly_for_modified_entities_with_client_generated_key()
         {
             var stateEntry = CreateStateEntry(EntityState.Modified);
+            stateEntry.SetPropertyModified(stateEntry.EntityType.GetKey().Properties[0], isModified: false);
 
             var command = new ModificationCommand("T1", new ParameterNameGenerator());
             command.AddStateEntry(stateEntry);
@@ -287,7 +289,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 .Configuration;
         }
 
-        private static StateEntry CreateStateEntry(
+        private static StateEntry  CreateStateEntry(
             EntityState entityState,
             ValueGenerationOnSave keyStrategy = ValueGenerationOnSave.None,
             ValueGenerationOnSave nonKeyStrategy = ValueGenerationOnSave.None)

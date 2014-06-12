@@ -23,6 +23,9 @@ namespace Microsoft.Data.Entity.Metadata
         [NotNull]
         IEntityType GetEntityType([NotNull] string name);
 
+        [NotNull]
+        IEnumerable<IForeignKey> GetReferencingForeignKeys([NotNull] IEntityType entityType);
+
         string StorageName { get; }
     }
 }

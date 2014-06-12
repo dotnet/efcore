@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entity = new Banana { P1 = 7, P2 = null };
             var entry = new ClrStateEntry(TestHelpers.CreateContextConfiguration(model), type, entity);
 
-            Assert.Null(new SimpleEntityKeyFactory<string>().Create(type, new[] { type.GetProperty("P2") }, entry));
+            Assert.Equal(EntityKey.NullEntityKey, new SimpleEntityKeyFactory<string>().Create(type, new[] { type.GetProperty("P2") }, entry));
         }
 
         [Fact]

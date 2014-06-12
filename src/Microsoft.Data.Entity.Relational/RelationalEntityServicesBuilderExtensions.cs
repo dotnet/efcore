@@ -4,6 +4,7 @@
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.Relational.Utilities;
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 
 // Intentionally in this namespace since this is for use by other relational providers rather than
@@ -23,6 +24,8 @@ namespace Microsoft.Data.Entity.Relational
                 .AddSingleton<RelationalTypedValueReaderFactory>()
                 .AddSingleton<ParameterNameGeneratorFactory>()
                 .AddSingleton<CommandBatchPreparer>()
+                .AddSingleton<ModificationCommandComparer>()
+                .AddSingleton<GraphFactory, BidirectionalAdjacencyListGraphFactory>()
                 .AddScoped<RelationalDatabase>()
                 // TODO: Is singleton correct here? What is IConfiguration scoped as?
                 .AddSingleton<ConnectionStringResolver>();

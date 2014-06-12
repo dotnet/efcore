@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using Microsoft.Data.Entity.Metadata;
+using Moq;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.Metadata
@@ -109,6 +110,25 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.True(new[] { entityType2, entityType1 }.SequenceEqual(model.EntityTypes));
         }
 
+        [Fact]
+        public void Can_get_referencing_foreign_keys()
+        {
+            var model = new Model();
+            var entityType1 = new EntityType(typeof(Customer));
+            var entityType2 = new EntityType(typeof(Order));
+            var keyProperty = new Property("Id", typeof(Customer)) { EntityType = entityType1 };
+            var fkProperty = new Property("CustomerId", typeof(Order)) { EntityType = entityType2 };
+            var foreignKey = entityType2.AddForeignKey(new Key(new[] { keyProperty }), fkProperty);
+
+            model.AddEntityType(entityType1);
+            model.AddEntityType(entityType2);
+
+            var referencingForeignKeys = model.GetReferencingForeignKeys(entityType1);
+
+            Assert.Same(foreignKey, referencingForeignKeys.Single());
+            Assert.Same(foreignKey, entityType1.GetReferencingForeignKeys().Single());
+        }
+
         public class TopologicalSortTest
         {
             #region Fixture
@@ -199,7 +219,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 model.AddEntityType(entityTypeB);
                 model.AddEntityType(entityTypeC);
 
-                // A -> B, C -> B
+                // A -> B, A -> C, C -> B
                 entityTypeB.AddForeignKey(entityTypeA.GetKey(), entityTypeB.AddProperty("P", typeof(int)));
                 entityTypeC.AddForeignKey(entityTypeA.GetKey(), entityTypeC.AddProperty("P", typeof(int)));
                 entityTypeB.AddForeignKey(entityTypeC.GetKey(), entityTypeB.AddProperty("P", typeof(int)));
@@ -292,13 +312,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 model.AddEntityType(entityTypeB);
                 model.AddEntityType(entityTypeC);
 
-                // A -> B -> C -> A
+                // A -> C -> B -> A
                 entityTypeA.AddForeignKey(entityTypeB.GetKey(), entityTypeA.AddProperty("P", typeof(int)));
                 entityTypeB.AddForeignKey(entityTypeC.GetKey(), entityTypeB.AddProperty("P", typeof(int)));
                 entityTypeC.AddForeignKey(entityTypeA.GetKey(), entityTypeC.AddProperty("P", typeof(int)));
 
                 Assert.Equal(
-                    Strings.FormatCircularDependency("A -> B -> C -> A"),
+                    Strings.FormatCircularDependency("A -> C -> B -> A"),
                     Assert.Throws<InvalidOperationException>(() => model.TopologicalSort()).Message);
             }
         }

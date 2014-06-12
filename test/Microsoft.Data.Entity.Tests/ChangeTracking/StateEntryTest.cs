@@ -90,7 +90,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             entry.EntityState = EntityState.Modified;
 
-            Assert.True(entry.IsPropertyModified(keyProperty));
+            Assert.False(entry.IsPropertyModified(keyProperty));
             Assert.True(entry.IsPropertyModified(nonKeyProperty));
 
             entry.EntityState = EntityState.Unchanged;
@@ -291,7 +291,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.IsType<SimpleEntityKey<int>>(keyValue);
             Assert.Equal(77, keyValue.Value);
         }
-
+        
         [Fact]
         public void Can_create_composite_foreign_key_value_based_on_dependent_values()
         {
@@ -325,6 +325,24 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var keyValue = (CompositeEntityKey)entry.GetPrincipalKeyValue(dependentType.ForeignKeys.Single());
             Assert.Equal(77, keyValue.Value[0]);
             Assert.Equal("PrawnCocktail", keyValue.Value[1]);
+        }
+
+        [Fact]
+        public void Null_composite_foreign_key_value_based_on_principal_end_values_throws()
+        {
+            var model = BuildModel();
+            var principalType = model.GetEntityType("SomeDependentEntity");
+            var dependentType = model.GetEntityType("SomeMoreDependentEntity");
+            var keyProperties = new[] { principalType.GetProperty("Id1"), principalType.GetProperty("Id2") };
+            var configuration = TestHelpers.CreateContextConfiguration(model);
+
+            var entry = CreateStateEntry(configuration, principalType, new SomeDependentEntity());
+            entry[keyProperties[0]] = 77;
+            entry[keyProperties[1]] = null;
+
+            Assert.Equal(
+                Strings.FormatNullPrincipalKey(principalType.Name, "Id1, Id2"),
+                Assert.Throws<InvalidOperationException>(() => entry.GetPrincipalKeyValue(dependentType.ForeignKeys.Single())).Message);
         }
 
         [Fact]

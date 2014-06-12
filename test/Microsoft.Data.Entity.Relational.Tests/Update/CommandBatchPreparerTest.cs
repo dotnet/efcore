@@ -1,12 +1,14 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Update;
+using Microsoft.Data.Entity.Utilities;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Relational.Tests.Update
@@ -16,15 +18,13 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public async Task BatchCommands_creates_valid_batch_for_added_entities()
         {
-            var model = CreateModel();
-
             var stateEntry = new MixedStateEntry(
                 CreateConfiguration(),
-                model.GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
+                CreateSimpleFKModel().GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
 
             await stateEntry.SetEntityStateAsync(EntityState.Added);
 
-            var commandBatches = new CommandBatchPreparer(new ParameterNameGeneratorFactory()).BatchCommands(new[] { stateEntry }).ToArray();
+            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { stateEntry }).ToArray();
             Assert.Equal(1, commandBatches.Count());
             Assert.Equal(1, commandBatches.First().ModificationCommands.Count());
 
@@ -54,17 +54,16 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         }
 
         [Fact]
-        public async Task BatchCommands_creates_valid_batch_for_updated_entities()
+        public async Task BatchCommands_creates_valid_batch_for_modified_entities()
         {
-            var model = CreateModel();
-
             var stateEntry = new MixedStateEntry(
                 CreateConfiguration(),
-                model.GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
+                CreateSimpleFKModel().GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
 
             await stateEntry.SetEntityStateAsync(EntityState.Modified);
+            stateEntry.SetPropertyModified(stateEntry.EntityType.GetKey().Properties.Single(), isModified: false);
 
-            var commandBatches = new CommandBatchPreparer(new ParameterNameGeneratorFactory()).BatchCommands(new[] { stateEntry }).ToArray();
+            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { stateEntry }).ToArray();
             Assert.Equal(1, commandBatches.Count());
             Assert.Equal(1, commandBatches.First().ModificationCommands.Count());
 
@@ -92,19 +91,17 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             Assert.False(columnMod.IsRead);
             Assert.True(columnMod.IsWrite);
         }
-
+        
         [Fact]
         public async Task BatchCommands_creates_valid_batch_for_deleted_entities()
         {
-            var model = CreateModel();
-
             var stateEntry = new MixedStateEntry(
                 CreateConfiguration(),
-                model.GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
+                CreateSimpleFKModel().GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
 
             await stateEntry.SetEntityStateAsync(EntityState.Deleted);
 
-            var commandBatches = new CommandBatchPreparer(new ParameterNameGeneratorFactory()).BatchCommands(new[] { stateEntry }).ToArray();
+            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { stateEntry }).ToArray();
             Assert.Equal(1, commandBatches.Count());
             Assert.Equal(1, commandBatches.First().ModificationCommands.Count());
 
@@ -122,13 +119,142 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             Assert.False(columnMod.IsRead);
             Assert.False(columnMod.IsWrite);
         }
+        
+        [Fact]
+        public async Task BatchCommands_sorts_related_added_entities()
+        {
+            var configuration = CreateConfiguration();
+            var model = CreateSimpleFKModel();
+
+            var stateEntry = new MixedStateEntry(
+                configuration,
+                model.GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
+            await stateEntry.SetEntityStateAsync(EntityState.Added);
+
+            var relatedStateEntry = new MixedStateEntry(
+                configuration,
+                model.GetEntityType(typeof(RelatedFakeEntity)), new RelatedFakeEntity { Id = 42 });
+            await relatedStateEntry.SetEntityStateAsync(EntityState.Added);
+
+            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { relatedStateEntry, stateEntry }).ToArray();
+
+            Assert.Equal(
+                new[] { stateEntry, relatedStateEntry },
+                commandBatches.Select(cb => cb.ModificationCommands.Single()).Select(mc => mc.StateEntries.Single()));
+        }
+        
+        [Fact]
+        public async Task BatchCommands_sorts_added_and_related_modified_entities()
+        {
+            var configuration = CreateConfiguration();
+            var model = CreateSimpleFKModel();
+
+            var stateEntry = new MixedStateEntry(
+                configuration,
+                model.GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
+            await stateEntry.SetEntityStateAsync(EntityState.Added);
+
+            var relatedStateEntry = new MixedStateEntry(
+                configuration,
+                model.GetEntityType(typeof(RelatedFakeEntity)), new RelatedFakeEntity { Id = 42 });
+            await relatedStateEntry.SetEntityStateAsync(EntityState.Modified);
+
+            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { relatedStateEntry, stateEntry }).ToArray();
+
+            Assert.Equal(
+                new[] { stateEntry, relatedStateEntry },
+                commandBatches.Select(cb => cb.ModificationCommands.Single()).Select(mc => mc.StateEntries.Single()));
+        }
+
+        [Fact]
+        public async Task BatchCommands_throws_on_modified_principal_key()
+        {
+            var configuration = CreateConfiguration();
+            var model = CreateSimpleFKModel();
+
+            var stateEntry = new MixedStateEntry(
+                configuration,
+                model.GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
+            await stateEntry.SetEntityStateAsync(EntityState.Modified);
+            stateEntry.SetPropertyModified(stateEntry.EntityType.GetKey().Properties.Single(), isModified: true);
+
+            var relatedStateEntry = new MixedStateEntry(
+                configuration,
+                model.GetEntityType(typeof(RelatedFakeEntity)), new RelatedFakeEntity { Id = 42 });
+            await relatedStateEntry.SetEntityStateAsync(EntityState.Modified);
+
+            Assert.Equal(
+                Strings.FormatPrincipalKeyModified(),
+                Assert.Throws<InvalidOperationException>(() => CreateCommandBatchPreparer().BatchCommands(new[] { relatedStateEntry, stateEntry })).Message);
+        }
+        
+        [Fact]
+        public async Task BatchCommands_sorts_unrelated_entities()
+        {
+            var configuration = CreateConfiguration();
+            var model = CreateSimpleFKModel();
+
+            var firstStateEntry = new MixedStateEntry(
+                configuration,
+                model.GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
+            await firstStateEntry.SetEntityStateAsync(EntityState.Added);
+
+            var secondStateEntry = new MixedStateEntry(
+                configuration,
+                model.GetEntityType(typeof(RelatedFakeEntity)), new RelatedFakeEntity { Id = 1 });
+            await secondStateEntry.SetEntityStateAsync(EntityState.Added);
+
+            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { secondStateEntry, firstStateEntry }).ToArray();
+
+            Assert.Equal(
+                new[] { firstStateEntry, secondStateEntry },
+                commandBatches.Select(cb => cb.ModificationCommands.Single()).Select(mc => mc.StateEntries.Single()));
+        }
+
+        [Fact]
+        public async Task BatchCommands_sorts_entities_when_reparenting()
+        {
+            var configuration = CreateConfiguration();
+            var model = CreateCyclicFKModel();
+
+            var previousParent = new MixedStateEntry(
+                configuration,
+                model.GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
+            await previousParent.SetEntityStateAsync(EntityState.Deleted);
+            
+            var newParent = new MixedStateEntry(
+                configuration,
+                model.GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 3, Value = "Test" });
+            await newParent.SetEntityStateAsync(EntityState.Added);
+
+            var relatedStateEntry = new MixedStateEntry(
+                configuration,
+                model.GetEntityType(typeof(RelatedFakeEntity)), new RelatedFakeEntity { Id = 1, RelatedId = 3});
+            await relatedStateEntry.SetEntityStateAsync(EntityState.Modified);
+            relatedStateEntry.OriginalValues[relatedStateEntry.EntityType.GetProperty("RelatedId")] = 42;
+            relatedStateEntry.SetPropertyModified(relatedStateEntry.EntityType.GetKey().Properties.Single(), isModified: false);
+
+            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { relatedStateEntry, previousParent, newParent }).ToArray();
+
+            Assert.Equal(
+                new[] { newParent, relatedStateEntry, previousParent },
+                commandBatches.Select(cb => cb.ModificationCommands.Single()).Select(mc => mc.StateEntries.Single()));
+        }
 
         private static DbContextConfiguration CreateConfiguration()
         {
             return new DbContext(new DbContextOptions().UseInMemoryStore(persist: false)).Configuration;
         }
 
-        private static IModel CreateModel()
+        private static CommandBatchPreparer CreateCommandBatchPreparer()
+        {
+            return new CommandBatchPreparer(
+                new ParameterNameGeneratorFactory(),
+                new BidirectionalAdjacencyListGraphFactory(),
+                new ModificationCommandComparer());
+        }
+
+        private static IModel CreateSimpleFKModel()
         {
             var model = new Metadata.Model();
             var modelBuilder = new ModelBuilder(model);
@@ -138,6 +264,33 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 .Key(c => c.Id)
                 .Properties(ps => ps.Property(c => c.Value));
 
+            modelBuilder
+                .Entity<RelatedFakeEntity>()
+                .Key(c => c.Id)
+                .ForeignKeys(fk => fk.ForeignKey<FakeEntity>(c => c.Id));
+
+            return model;
+        }
+
+        private static IModel CreateCyclicFKModel()
+        {
+            var model = new Metadata.Model();
+            var modelBuilder = new ModelBuilder(model);
+
+            modelBuilder
+                .Entity<FakeEntity>()
+                .Key(c => c.Id)
+                .Properties(ps => ps.Property(c => c.Value));
+            
+            modelBuilder
+                .Entity<RelatedFakeEntity>()
+                .Key(c => c.Id)
+                .ForeignKeys(fk => fk.ForeignKey<FakeEntity>(c => c.RelatedId));
+
+            modelBuilder
+                .Entity<FakeEntity>()
+                .ForeignKeys(fk => fk.ForeignKey<RelatedFakeEntity>(c => c.RelatedId));
+
             return model;
         }
 
@@ -145,6 +298,13 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             public int Id { get; set; }
             public string Value { get; set; }
+            public int? RelatedId { get; set; }
+        }
+
+        private class RelatedFakeEntity
+        {
+            public int Id { get; set; }
+            public int? RelatedId { get; set; }
         }
     }
 }

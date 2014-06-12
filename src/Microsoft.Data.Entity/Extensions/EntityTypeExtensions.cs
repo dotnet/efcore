@@ -1,10 +1,12 @@
-﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
+// ReSharper disable once CheckNamespace
 namespace Microsoft.Data.Entity.Metadata
 {
     public static class EntityTypeExtensions
@@ -29,6 +31,12 @@ namespace Microsoft.Data.Entity.Metadata
                 throw new ModelItemNotFoundException(Strings.FormatPropertyWithStorageNameNotFound(name, entityType.Name));
             }
             return property;
+        }
+
+        [NotNull]
+        public static IEnumerable<IForeignKey> GetReferencingForeignKeys([NotNull] this IEntityType entityType)
+        {
+            return entityType.Model.GetReferencingForeignKeys(entityType);
         }
     }
 }

@@ -234,6 +234,22 @@ namespace Microsoft.Data.Entity.Relational
             return GetString("RelationalNotInUse");
         }
 
+        /// <summary>
+        /// The principal key value cannot be modified.
+        /// </summary>
+        internal static string PrincipalKeyModified
+        {
+            get { return GetString("PrincipalKeyModified"); }
+        }
+
+        /// <summary>
+        /// The principal key value cannot be modified.
+        /// </summary>
+        internal static string FormatPrincipalKeyModified()
+        {
+            return GetString("PrincipalKeyModified");
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

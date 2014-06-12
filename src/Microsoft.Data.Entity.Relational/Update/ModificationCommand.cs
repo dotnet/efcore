@@ -111,9 +111,8 @@ namespace Microsoft.Data.Entity.Relational.Update
                                                   || (adding && property.ValueGenerationOnSave == ValueGenerationOnSave.WhenInserting));
 
                     // TODO: Default values
-                    // TODO: Should not need to filter key values here but they currently can get marked as modified
                     var writeValue = (adding && property.ValueGenerationOnSave == ValueGenerationOnSave.None)
-                                     || (!isKey && !deleting && stateEntry.IsPropertyModified(property));
+                                     || (!deleting && stateEntry.IsPropertyModified(property));
 
                     if (readValue
                         || writeValue

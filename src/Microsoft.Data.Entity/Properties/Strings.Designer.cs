@@ -602,6 +602,38 @@ namespace Microsoft.Data.Entity
             return string.Format(CultureInfo.CurrentCulture, GetString("PropertyWithStorageNameNotFound", "property", "entityType"), property, entityType);
         }
 
+        /// <summary>
+        /// CurrentValues are always in sync with the entity state.
+        /// </summary>
+        internal static string CurrentValuesAlwaysInSync
+        {
+            get { return GetString("CurrentValuesAlwaysInSync"); }
+        }
+
+        /// <summary>
+        /// CurrentValues are always in sync with the entity state.
+        /// </summary>
+        internal static string FormatCurrentValuesAlwaysInSync()
+        {
+            return GetString("CurrentValuesAlwaysInSync");
+        }
+
+        /// <summary>
+        /// The instance of entity type '{entityType}' cannot be tracked because it has a null principal key: '{keyProperties}'. Either set the key explicitly or consider using an IValueGenerator to generate unique key values.
+        /// </summary>
+        internal static string NullPrincipalKey
+        {
+            get { return GetString("NullPrincipalKey"); }
+        }
+
+        /// <summary>
+        /// The instance of entity type '{entityType}' cannot be tracked because it has a null principal key: '{keyProperties}'. Either set the key explicitly or consider using an IValueGenerator to generate unique key values.
+        /// </summary>
+        internal static string FormatNullPrincipalKey(object entityType, object keyProperties)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NullPrincipalKey", "entityType", "keyProperties"), entityType, keyProperties);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

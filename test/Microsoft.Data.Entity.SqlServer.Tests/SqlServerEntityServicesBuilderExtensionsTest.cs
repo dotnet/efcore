@@ -6,6 +6,7 @@ using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;
@@ -25,6 +26,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.True(services.Any(sd => sd.ServiceType == typeof(RelationalObjectArrayValueReaderFactory)));
             Assert.True(services.Any(sd => sd.ServiceType == typeof(RelationalTypedValueReaderFactory)));
             Assert.True(services.Any(sd => sd.ServiceType == typeof(CommandBatchPreparer)));
+            Assert.True(services.Any(sd => sd.ServiceType == typeof(ModificationCommandComparer)));
+            Assert.True(services.Any(sd => sd.ServiceType == typeof(GraphFactory)));
 
             // SQL Server dingletones
             Assert.True(services.Any(sd => sd.ServiceType == typeof(DataStoreSource)));

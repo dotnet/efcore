@@ -24,7 +24,6 @@ namespace Microsoft.Data.Entity.Metadata
 
         private Key _key;
 
-        public Func<object[], object> _activator;
         private int _shadowPropertyCount;
         private int _originalValueCount;
         private bool _useLazyOriginalValues = true;

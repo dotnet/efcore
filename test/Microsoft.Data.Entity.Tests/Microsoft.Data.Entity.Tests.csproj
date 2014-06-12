@@ -8,7 +8,7 @@
     <ProjectGuid>{EF361118-7D0D-453E-ADA4-2F24FBEE196C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.Data.Entity.Tests</RootNamespace>
+    <RootNamespace>Microsoft.Data.Entity</RootNamespace>
     <AssemblyName>Microsoft.Data.Entity.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -132,9 +132,12 @@
     <Compile Include="Metadata\ModelConventions\PropertiesConventionTest.cs" />
     <Compile Include="Query\TaskResultAsyncEnumerableTest.cs" />
     <Compile Include="Storage\DataStoreSelectorTest.cs" />
+    <Compile Include="Utilities\BidirectionalAdjacencyListGraphFactoryTest.cs" />
+    <Compile Include="Utilities\BidirectionalAdjacencyListGraphTest.cs" />
     <Compile Include="Utilities\CheckTest.cs" />
     <Compile Include="Utilities\EnumerableExtensionsTest.cs" />
     <Compile Include="Utilities\ExpressionExtensionsTest.cs" />
+    <Compile Include="Utilities\GraphTest.cs" />
     <Compile Include="Utilities\IndentedStringBuilderTest.cs" />
     <Compile Include="Utilities\LazyRefTest.cs" />
     <Compile Include="Utilities\PropertyInfoExtensionsTest.cs" />

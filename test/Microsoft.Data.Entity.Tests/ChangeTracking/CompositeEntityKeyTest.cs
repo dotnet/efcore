@@ -2,12 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Tests.ChangeTracking
+namespace Microsoft.Data.Entity.ChangeTracking
 {
     public class CompositeEntityKeyTest
     {
@@ -33,7 +32,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var type2 = new Mock<EntityType>().Object;
 
             Assert.True(new CompositeEntityKey(type1, new object[] { 77, "Kake" }).Equals(new CompositeEntityKey(type1, new object[] { 77, "Kake" })));
+            Assert.False(new CompositeEntityKey(type1, new object[] { 77, "Kake" }).Equals(null));
+            Assert.False(new CompositeEntityKey(type1, new object[] { 77 }).Equals(new SimpleEntityKey<int>(type1, 77)));
             Assert.False(new CompositeEntityKey(type1, new object[] { 77, "Kake" }).Equals(new CompositeEntityKey(type1, new object[] { 77, "Lie" })));
+            Assert.False(new CompositeEntityKey(type1, new object[] { 77, "Kake" }).Equals(new CompositeEntityKey(type1, new object[] { 77L, "Kake" })));
+            Assert.False(new CompositeEntityKey(type1, new object[] { 77, "Kake" }).Equals(new CompositeEntityKey(type1, new object[] { null, "Kake" })));
+            Assert.False(new CompositeEntityKey(type1, new object[] { 77, "Kake" }).Equals(new CompositeEntityKey(type1, new object[] { 77, "Kake", 42 })));
             Assert.False(new CompositeEntityKey(type1, new object[] { 77, "Kake" }).Equals(new CompositeEntityKey(type1, new object[] { 88, "Kake" })));
             Assert.False(new CompositeEntityKey(type1, new object[] { 77, "Kake" }).Equals(new CompositeEntityKey(type2, new object[] { 77, "Kake" })));
         }
@@ -46,6 +50,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             Assert.Equal(new CompositeEntityKey(type1, new object[] { 77, "Kake" }).GetHashCode(), new CompositeEntityKey(type1, new object[] { 77, "Kake" }).GetHashCode());
             Assert.NotEqual(new CompositeEntityKey(type1, new object[] { 77, "Kake" }).GetHashCode(), new CompositeEntityKey(type1, new object[] { 77, "Lie" }).GetHashCode());
+            Assert.NotEqual(new CompositeEntityKey(type1, new object[] { 77, "Kake" }).GetHashCode(), new CompositeEntityKey(type1, new object[] { null, "Kake" }).GetHashCode());
+            Assert.NotEqual(new CompositeEntityKey(type1, new object[] { 77, "Kake" }).GetHashCode(), new CompositeEntityKey(type1, new object[] { 77, "Kake", 42 }).GetHashCode());
             Assert.NotEqual(new CompositeEntityKey(type1, new object[] { 77, "Kake" }).GetHashCode(), new CompositeEntityKey(type1, new object[] { 88, "Kake" }).GetHashCode());
             Assert.NotEqual(new CompositeEntityKey(type1, new object[] { 77, "Kake" }).GetHashCode(), new CompositeEntityKey(type2, new object[] { 77, "Kake" }).GetHashCode());
         }

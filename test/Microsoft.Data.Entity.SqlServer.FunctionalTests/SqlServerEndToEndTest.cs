@@ -132,8 +132,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 {
                     var toUpdate = db.Blogs.Single(b => b.Name == "Blog1");
                     toUpdate.Name = "Blog is Updated";
+                    var updatedId = toUpdate.Id;
                     var toDelete = db.Blogs.Single(b => b.Name == "Blog2");
                     toDelete.Name = "Blog to delete";
+                    var deletedId = toDelete.Id;
 
                     db.ChangeTracker.Entry(toUpdate).State = EntityState.Modified;
                     db.ChangeTracker.Entry(toDelete).State = EntityState.Deleted;
@@ -161,13 +163,13 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     Assert.DoesNotContain(toDelete, db.ChangeTracker.Entries().Select(e => e.Entity));
 
                     var rows = await testDatabase.ExecuteScalarAsync<int>(
-                        @"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = 1 AND Name = 'Blog is Updated'",
+                        string.Format(@"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = {0} AND Name = 'Blog is Updated'", updatedId),
                         CancellationToken.None);
 
                     Assert.Equal(1, rows);
 
                     rows = await testDatabase.ExecuteScalarAsync<int>(
-                        @"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = 2",
+                        string.Format(@"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = {0}", deletedId),
                         CancellationToken.None);
 
                     Assert.Equal(0, rows);

@@ -8,7 +8,7 @@
     <ProjectGuid>{001005B3-D16F-4399-9265-A67D619652BD}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.Data.Entity.Relational.Tests</RootNamespace>
+    <RootNamespace>Microsoft.Data.Entity.Relational</RootNamespace>
     <AssemblyName>Microsoft.Data.Entity.Relational.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -84,6 +84,7 @@
     <Compile Include="Update\BatchExecutorTest.cs" />
     <Compile Include="Update\CommandBatchPreparerTest.cs" />
     <Compile Include="Update\ModificationCommandBatchTest.cs" />
+    <Compile Include="Update\ModificationCommandComparerTest.cs" />
     <Compile Include="Update\ModificationCommandTest.cs" />
     <Compile Include="Utilities\StringBuilderExtensionsTest.cs" />
     <Compile Include="..\Shared\ApiConsistencyTestBase.cs" />

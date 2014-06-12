@@ -15,7 +15,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking
 {
-    public abstract partial class StateEntry
+    public abstract partial class StateEntry : IPropertyBagEntry
     {
         private readonly DbContextConfiguration _configuration;
         private readonly IEntityType _entityType;
@@ -187,6 +187,12 @@ namespace Microsoft.Data.Entity.ChangeTracking
             if (newState == EntityState.Modified)
             {
                 _stateData.SetAllPropertiesModified(_entityType.Properties.Count());
+
+                // Assuming key properties are not modified
+                foreach (var keyProperty in EntityType.GetKey().Properties)
+                {
+                    _stateData.SetPropertyModified(keyProperty.Index, isModified: false);
+                }
             }
 
             var oldState = _stateData.EntityState;
@@ -300,7 +306,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             _configuration.Services.ClrPropertySetterSource.GetAccessor(propertyBase).SetClrValue(Entity, value);
         }
 
-        public virtual object this[[param: NotNull] IPropertyBase property]
+        public virtual object this[IPropertyBase property]
         {
             get
             {
@@ -320,7 +326,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
                 return ReadPropertyValue(property);
             }
-            [param: CanBeNull]
             set
             {
                 Check.NotNull(property, "property");
@@ -358,30 +363,32 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
         }
 
+        [NotNull]
         public virtual EntityKey GetPrimaryKeyValue()
         {
-            return CreateKey(_entityType, _entityType.GetKey().Properties, this);
+            var keyValue = CreateKey(_entityType, _entityType.GetKey().Properties, this);
+
+            if (keyValue == EntityKey.NullEntityKey)
+            {
+                throw new InvalidOperationException(Strings.FormatNullPrimaryKey(EntityType.Name));
+            }
+
+            return keyValue;
         }
 
-        public virtual EntityKey GetDependentKeyValue([NotNull] IForeignKey foreignKey)
+        [NotNull]
+        public virtual EntityKey CreateKey(
+            [NotNull] IEntityType entityType,
+            [NotNull] IReadOnlyList<IProperty> properties,
+            [NotNull] IPropertyBagEntry propertyBagEntry)
         {
-            Check.NotNull(foreignKey, "foreignKey");
+            Check.NotNull(entityType, "entityType");
+            Check.NotEmpty(properties, "properties");
+            Check.NotNull(propertyBagEntry, "propertyBagEntry");
 
-            return CreateKey(foreignKey.ReferencedEntityType, foreignKey.Properties, this);
-        }
-
-        public virtual EntityKey GetPrincipalKeyValue([NotNull] IForeignKey foreignKey)
-        {
-            Check.NotNull(foreignKey, "foreignKey");
-
-            return CreateKey(foreignKey.ReferencedEntityType, foreignKey.ReferencedProperties, this);
-        }
-
-        private EntityKey CreateKey(IEntityType entityType, IReadOnlyList<IProperty> properties, StateEntry entry)
-        {
             return _configuration.Services.EntityKeyFactorySource
                 .GetKeyFactory(properties)
-                .Create(entityType, properties, entry);
+                .Create(entityType, properties, propertyBagEntry);
         }
 
         public virtual EntityKey GetDependentKeySnapshot([NotNull] IForeignKey foreignKey)
@@ -468,6 +475,16 @@ namespace Microsoft.Data.Entity.ChangeTracking
                     }
                 }
             }
+        }
+
+        public override string ToString()
+        {
+            return GetPrimaryKeyValue() + " - " + EntityState;
+        }
+
+        StateEntry IPropertyBagEntry.StateEntry
+        {
+            get { return this; }
         }
     }
 }

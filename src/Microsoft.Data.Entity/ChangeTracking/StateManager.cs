@@ -42,9 +42,10 @@ namespace Microsoft.Data.Entity.ChangeTracking
             [NotNull] StateEntrySubscriber subscriber,
             [NotNull] ChangeDetector changeDetector)
         {
-            Check.NotNull(entityKeyFactorySource, "entityKeyFactorySource");
+            Check.NotNull(configuration, "configuration");
             Check.NotNull(factory, "factory");
             Check.NotNull(entityKeyFactorySource, "entityKeyFactorySource");
+            Check.NotNull(subscriber, "subscriber");
             Check.NotNull(changeDetector, "changeDetector");
 
             _configuration = configuration;
@@ -152,12 +153,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 }
             }
 
-            var keyValue = CreateKey(entityType, entityType.GetKey().Properties, entry);
-
-            if (keyValue == null)
-            {
-                throw new InvalidOperationException(Strings.FormatNullPrimaryKey(entityType.Name));
-            }
+            var keyValue = entry.GetPrimaryKeyValue();
 
             if (_identityMap.TryGetValue(keyValue, out existingEntry))
             {
@@ -185,9 +181,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 _entityReferenceMap.Remove(entry.Entity);
             }
 
-            var entityType = entry.EntityType;
-
-            var keyValue = CreateKey(entityType, entityType.GetKey().Properties, entry);
+            var keyValue = entry.GetPrimaryKeyValue();
 
             StateEntry existingEntry;
             if (_identityMap.TryGetValue(keyValue, out existingEntry)
@@ -202,22 +196,19 @@ namespace Microsoft.Data.Entity.ChangeTracking
             get { return _configuration.Model; }
         }
 
-        public virtual StateEntry GetPrincipal(
-            [NotNull] StateEntry dependentEntry, [NotNull] IForeignKey foreignKey, bool useForeignKeySnapshot)
+        public virtual StateEntry GetPrincipal([NotNull] IPropertyBagEntry dependentEntry, [NotNull] IForeignKey foreignKey)
         {
             Check.NotNull(dependentEntry, "dependentEntry");
             Check.NotNull(foreignKey, "foreignKey");
+            
+            var dependentKeyValue = dependentEntry.GetDependentKeyValue(foreignKey);
 
-            var dependentKeyValue = useForeignKeySnapshot
-                ? dependentEntry.GetDependentKeySnapshot(foreignKey)
-                : dependentEntry.GetDependentKeyValue(foreignKey);
-
-            if (dependentKeyValue == null)
+            if (dependentKeyValue == EntityKey.NullEntityKey)
             {
                 return null;
             }
 
-            // TODO: Add additional indexes so that this isn't a linear lookup
+            // TODO: Perf: Add additional indexes so that this isn't a linear lookup
             var principals = StateEntries.Where(
                 e => e.EntityType == foreignKey.ReferencedEntityType
                      && dependentKeyValue.Equals(e.GetPrincipalKeyValue(foreignKey))).ToArray();
@@ -237,21 +228,11 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotNull(foreignKey, "foreignKey");
 
             var principalKeyValue = principalEntry.GetPrincipalKeyValue(foreignKey);
-
-            if (principalKeyValue == null)
-            {
-                return Enumerable.Empty<StateEntry>();
-            }
-
+            
             // TODO: Add additional indexes so that this isn't a linear lookup
             return StateEntries.Where(
                 e => e.EntityType == foreignKey.EntityType
                      && principalKeyValue.Equals(e.GetDependentKeyValue(foreignKey)));
-        }
-
-        private EntityKey CreateKey(IEntityType entityType, IReadOnlyList<IProperty> properties, StateEntry entry)
-        {
-            return _keyFactorySource.GetKeyFactory(properties).Create(entityType, properties, entry);
         }
 
         public virtual async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))

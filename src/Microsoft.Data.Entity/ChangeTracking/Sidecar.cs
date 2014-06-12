@@ -8,7 +8,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking
 {
-    public abstract class Sidecar
+    public abstract class Sidecar : IPropertyBagEntry
     {
         public static class WellKnownNames
         {
@@ -17,6 +17,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             public const string StoreGeneratedValues = "StoreGeneratedValues";
         }
 
+        // TODO: Perf: Consider removing this reference to save memory
         private readonly StateEntry _stateEntry;
 
         /// <summary>
@@ -55,7 +56,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             return CanStoreValue(property) && ReadValue(property) != null;
         }
 
-        public virtual object this[[param: NotNull] IPropertyBase property]
+        public virtual object this[IPropertyBase property]
         {
             get
             {
@@ -67,7 +68,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
                     ? (ReferenceEquals(value, NullSentinel.Value) ? null : value)
                     : _stateEntry[property];
             }
-            [param: CanBeNull]
             set
             {
                 Check.NotNull(property, "property");
