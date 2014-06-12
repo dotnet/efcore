@@ -8,6 +8,7 @@ using Microsoft.Data.Entity.SqlServer;
 using Microsoft.Data.Entity.SqlServer.Utilities;
 
 // ReSharper disable once CheckNamespace
+
 namespace Microsoft.Data.Entity
 {
     public static class SqlServerDbContextOptionsExtensions

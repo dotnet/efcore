@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Tests.Metadata;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests
@@ -26,7 +25,7 @@ namespace Microsoft.Data.Entity.Tests
             entityType.AddProperty("Name", typeof(string));
 
             Assert.Equal(
-                Strings.FormatPropertyWithStorageNameNotFound("FirstName","Customer"),
+                Strings.FormatPropertyWithStorageNameNotFound("FirstName", "Customer"),
                 Assert.Throws<ModelItemNotFoundException>(() => entityType.GetPropertyByStorageName("FirstName")).Message);
             Assert.Null(entityType.TryGetPropertyByStorageName("FirstName"));
         }

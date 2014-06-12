@@ -4,10 +4,10 @@
 using System;
 using System.Data.Common;
 using System.Linq;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational.Utilities;
-using System.Reflection;
 
 namespace Microsoft.Data.Entity.Relational
 {
@@ -47,16 +47,14 @@ namespace Microsoft.Data.Entity.Relational
         {
             get { return _migrationAssembly; }
 
-            [param: NotNull]
-            set { _migrationAssembly = Check.NotNull(value, "value"); }
+            [param: NotNull] set { _migrationAssembly = Check.NotNull(value, "value"); }
         }
 
         public virtual string MigrationNamespace
         {
             get { return _migrationNamespace; }
 
-            [param: NotNull]
-            set { _migrationNamespace = Check.NotEmpty(value, "value"); }
+            [param: NotNull] set { _migrationNamespace = Check.NotEmpty(value, "value"); }
         }
 
         public static RelationalOptionsExtension Extract([NotNull] DbContextConfiguration configuration)

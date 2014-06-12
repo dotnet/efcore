@@ -8,8 +8,8 @@ using System.Text;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Update;
-using Xunit;
 using Moq;
+using Xunit;
 
 namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
 {
@@ -96,7 +96,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
 
                     Assert.Equal("Where", expression.Method.Name);
                     Assert.Equal(
-                        "h => (h.ContextKey == value(Microsoft.Data.Entity.Migrations.Infrastructure.HistoryRepository).GetContextKey())", 
+                        "h => (h.ContextKey == value(Microsoft.Data.Entity.Migrations.Infrastructure.HistoryRepository).GetContextKey())",
                         expression.Arguments[1].ToString());
 
                     var queryableType = expression.Arguments[0].Type;

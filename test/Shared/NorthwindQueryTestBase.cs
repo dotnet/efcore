@@ -133,7 +133,7 @@ namespace Microsoft.Data.FunctionalTests
         {
             AssertQuery<Customer>(cs => cs.Where(c => "foo" != null));
         }
-        
+
         [Fact]
         public virtual void Where_identity_comparison()
         {
@@ -167,13 +167,12 @@ namespace Microsoft.Data.FunctionalTests
         public virtual void Where_select_many_and()
         {
             AssertQuery<Customer, Employee>((cs, es) =>
-                  from c in cs
-                  from e in es
-                  where (c.City == "London" && c.Country == "UK")
-                        && (e.City == "London" && e.Country == "UK")
-                  select new { c, e });
+                from c in cs
+                from e in es
+                where (c.City == "London" && c.Country == "UK")
+                      && (e.City == "London" && e.Country == "UK")
+                select new { c, e });
         }
-
 
         [Fact]
         public virtual void Where_primitive()

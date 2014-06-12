@@ -6,9 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Utilities;
-using Microsoft.Data.Entity.Infrastructure;
 
 namespace Microsoft.Data.Entity.Migrations.Infrastructure
 {
@@ -54,7 +54,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         protected virtual IReadOnlyList<IMigrationMetadata> LoadMigrations()
         {
             return Assembly.GetAccessibleTypes()
-                .Where(t => t.GetTypeInfo().IsSubclassOf(typeof(Migration))                           
+                .Where(t => t.GetTypeInfo().IsSubclassOf(typeof(Migration))
                             && t.GetPublicConstructor() != null
                             && !t.GetTypeInfo().IsAbstract
                             && !t.GetTypeInfo().IsGenericType

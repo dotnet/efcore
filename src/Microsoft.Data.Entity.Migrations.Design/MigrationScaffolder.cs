@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
         private readonly MigrationAssembly _migrationAssembly;
         private readonly ModelDiffer _modelDiffer;
         private readonly MigrationCodeGenerator _migrationCodeGenerator;
-        
+
         public MigrationScaffolder(
             [NotNull] DbContextConfiguration contextConfiguration,
             [NotNull] MigrationAssembly migrationAssembly,
@@ -114,11 +114,11 @@ namespace Microsoft.Data.Entity.Migrations.Design
 
             return
                 new MigrationMetadata(migrationName, CreateMigrationTimestamp())
-                {
-                    TargetModel = targetModel,
-                    UpgradeOperations = upgradeOperations,
-                    DowngradeOperations = downgradeOperations
-                };
+                    {
+                        TargetModel = targetModel,
+                        UpgradeOperations = upgradeOperations,
+                        DowngradeOperations = downgradeOperations
+                    };
         }
 
         protected virtual string CreateMigrationTimestamp()

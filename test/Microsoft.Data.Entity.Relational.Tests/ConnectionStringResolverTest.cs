@@ -26,7 +26,6 @@ namespace Microsoft.Data.Entity.Relational.Tests
             Assert.Equal(connectionString, new ConnectionStringResolver(null).Resolve(connectionString));
         }
 
-
         [Fact]
         public void Just_name_is_used_as_path_to_configuration_entry()
         {

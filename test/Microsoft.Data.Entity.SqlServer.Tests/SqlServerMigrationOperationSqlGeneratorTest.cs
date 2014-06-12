@@ -401,7 +401,7 @@ IF @var0 IS NOT NULL
 
             Assert.Equal("rowversion", GenerateDataType(column));
         }
-        
+
         private static Column CreateColumn(Type clrType)
         {
             var column = new Column("Username", clrType);

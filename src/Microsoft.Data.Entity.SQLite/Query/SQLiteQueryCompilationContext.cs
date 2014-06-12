@@ -12,9 +12,9 @@ namespace Microsoft.Data.Entity.SQLite.Query
     public class SQLiteQueryCompilationContext : RelationalQueryCompilationContext
     {
         public SQLiteQueryCompilationContext(
-            [NotNull] IModel model, 
-            [NotNull] ILinqOperatorProvider linqOperatorProvider, 
-            [NotNull] IResultOperatorHandler resultOperatorHandler, 
+            [NotNull] IModel model,
+            [NotNull] ILinqOperatorProvider linqOperatorProvider,
+            [NotNull] IResultOperatorHandler resultOperatorHandler,
             [NotNull] IEnumerableMethodProvider enumerableMethodProvider)
             : base(model, linqOperatorProvider, resultOperatorHandler, enumerableMethodProvider)
         {

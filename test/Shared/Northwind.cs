@@ -16937,7 +16937,6 @@ Winchester Way",
 
         public static readonly OrderDetail[] OrderDetails =
             {
-
                 new OrderDetail
                     {
                         OrderID = 10248,

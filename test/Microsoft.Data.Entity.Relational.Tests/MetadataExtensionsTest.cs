@@ -3,7 +3,6 @@
 
 using System.Linq;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational.Model;
 using Moq;
 using Xunit;
 

@@ -31,10 +31,10 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         {
             using (var context
                 = new Context
-                      {
-                          MigrationAssembly = new MockAssembly(),
-                          MigrationNamespace = "MyNamespace"
-                      })
+                    {
+                        MigrationAssembly = new MockAssembly(),
+                        MigrationNamespace = "MyNamespace"
+                    })
             {
                 var migrationAssembly = new MigrationAssembly(context.Configuration);
 
@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                 Assert.Same(migrations1, migrations2);
                 Assert.Equal(2, migrations1.Count);
                 Assert.Equal("Migration1", migrations1[0].GetType().Name);
-                Assert.Equal("Migration2", migrations1[1].GetType().Name);                
+                Assert.Equal("Migration2", migrations1[1].GetType().Name);
             }
         }
 
@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                 var model2 = migrationAssembly.Model;
 
                 Assert.Same(model1, model2);
-                Assert.Equal("ContextModelSnapshot", model1.StorageName);                
+                Assert.Equal("ContextModelSnapshot", model1.StorageName);
             }
         }
 
@@ -176,6 +176,6 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             }
         }
     }
-    
+
     #endregion
 }

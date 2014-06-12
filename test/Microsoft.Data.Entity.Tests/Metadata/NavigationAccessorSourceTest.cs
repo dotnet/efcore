@@ -116,6 +116,5 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             return model;
         }
-
     }
 }

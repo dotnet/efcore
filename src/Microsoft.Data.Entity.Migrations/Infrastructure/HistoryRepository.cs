@@ -132,12 +132,12 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 .ToTable(TableName)
                 .Properties(
                     ps =>
-                    {
-                        // TODO: Add column constraints (FixedLength, MaxLength) where needed.
-                        ps.Property(e => e.MigrationName);
-                        ps.Property(e => e.Timestamp);
-                        ps.Property(e => e.ContextKey);
-                    })
+                        {
+                            // TODO: Add column constraints (FixedLength, MaxLength) where needed.
+                            ps.Property(e => e.MigrationName);
+                            ps.Property(e => e.Timestamp);
+                            ps.Property(e => e.ContextKey);
+                        })
                 .Key(e => new { e.MigrationName, e.ContextKey });
 
             return builder.Model;
@@ -168,7 +168,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         {
             public string MigrationName { get; set; }
             public string Timestamp { get; set; }
-            public string ContextKey { get; set; }            
+            public string ContextKey { get; set; }
         }
     }
 }

@@ -2,20 +2,17 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Tests;
 using Microsoft.Data.FunctionalTests;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
-using Microsoft.Framework.Logging;
 using Xunit;
 #if K10
 using System.Threading;
 #else
-using System.Runtime.Remoting.Messaging;
+
 #endif
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
@@ -220,7 +217,7 @@ WHERE City = @p0",
             base.Where_select_many_or();
 
             Assert.StartsWith(
-                 @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
+                @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
 FROM Customers
 
 SELECT City, Country, EmployeeID
@@ -228,7 +225,7 @@ FROM Employees
 
 SELECT City, Country, EmployeeID
 FROM Employees",
-                 _fixture.Sql);
+                _fixture.Sql);
         }
 
         public override void Where_select_many_or2()
@@ -236,7 +233,7 @@ FROM Employees",
             base.Where_select_many_or2();
 
             Assert.StartsWith(
-                 @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
+                @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
 FROM Customers
 WHERE (City = @p0 OR City = @p1)
 
@@ -245,7 +242,7 @@ FROM Employees
 
 SELECT City, Country, EmployeeID
 FROM Employees",
-                 _fixture.Sql);
+                _fixture.Sql);
         }
 
         public override void Where_select_many_and()
@@ -253,7 +250,7 @@ FROM Employees",
             base.Where_select_many_and();
 
             Assert.StartsWith(
-                 @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
+                @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
 FROM Customers
 WHERE (City = @p0 AND Country = @p1)
 
@@ -264,7 +261,7 @@ WHERE (City = @p0 AND Country = @p1)
 SELECT City, Country, EmployeeID
 FROM Employees
 WHERE (City = @p0 AND Country = @p1)",
-                 _fixture.Sql);
+                _fixture.Sql);
         }
 
         public override void Select_project_filter()
@@ -542,10 +539,10 @@ FROM Employees",
             base.Where_true();
 
             Assert.Equal(
-                 @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
+                @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
 FROM Customers
 WHERE 1 = 1",
-                 _fixture.Sql);
+                _fixture.Sql);
         }
 
         public override void Where_compare_constructed_equal()
@@ -563,9 +560,9 @@ FROM Customers",
             base.Where_compare_constructed_multi_value_equal();
 
             Assert.Equal(
-                 @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
+                @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
 FROM Customers",
-                 _fixture.Sql);
+                _fixture.Sql);
         }
 
         public override void Where_compare_constructed_multi_value_not_equal()
@@ -583,9 +580,9 @@ FROM Customers",
             base.Where_compare_constructed();
 
             Assert.Equal(
-                    @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
+                @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
 FROM Customers",
-                    _fixture.Sql);
+                _fixture.Sql);
         }
 
         // TODO: Single
@@ -605,10 +602,11 @@ FROM Customers",
             base.Projection_when_null_value();
 
             Assert.Equal(
-                     @"SELECT Region
+                @"SELECT Region
 FROM Customers",
-                     _fixture.Sql);
+                _fixture.Sql);
         }
+
         public override void All_top_level()
         {
             base.All_top_level();

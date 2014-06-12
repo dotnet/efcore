@@ -11,6 +11,7 @@ using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
 // ReSharper disable once CheckNamespace
+
 namespace Microsoft.Framework.DependencyInjection
 {
     public static class EntityServiceCollectionExtensions

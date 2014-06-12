@@ -12,13 +12,13 @@ namespace Microsoft.Data.Entity.Migrations.Utilities
         public static Assembly GetMigrationAssembly(this DbContextConfiguration configuration)
         {
             return RelationalOptionsExtension.Extract(configuration).MigrationAssembly
-                ?? configuration.Context.GetType().GetTypeInfo().Assembly;
+                   ?? configuration.Context.GetType().GetTypeInfo().Assembly;
         }
 
         public static string GetMigrationNamespace(this DbContextConfiguration configuration)
         {
             return RelationalOptionsExtension.Extract(configuration).MigrationNamespace
-                ?? configuration.Context.GetType().Namespace + ".Migrations";
+                   ?? configuration.Context.GetType().Namespace + ".Migrations";
         }
     }
 }

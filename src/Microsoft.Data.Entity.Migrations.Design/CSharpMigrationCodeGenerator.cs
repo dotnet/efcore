@@ -104,7 +104,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
                 .AppendLine()
                 .Append("namespace ")
                 .AppendLine(@namespace)
-                .AppendLine("{");            
+                .AppendLine("{");
 
             using (stringBuilder.Indent())
             {
@@ -117,11 +117,11 @@ namespace Microsoft.Data.Entity.Migrations.Design
                 using (stringBuilder.Indent())
                 {
                     GenerateMigrationProperty(
-                        "string IMigrationMetadata.Name", 
+                        "string IMigrationMetadata.Name",
                         () => stringBuilder
                             .Append("return ")
                             .Append(GenerateLiteral(migration.Name))
-                            .Append(";"), 
+                            .Append(";"),
                         stringBuilder);
 
                     stringBuilder.AppendLine().AppendLine();
@@ -149,7 +149,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
 
             stringBuilder
                 .AppendLine()
-                .Append("}");            
+                .Append("}");
         }
 
         protected virtual void GenerateMigrationMethod(

@@ -52,8 +52,8 @@ namespace Microsoft.Data.Entity.Identity
         private static IValueGeneratorPool CreatePool(IProperty property, IValueGeneratorFactory factory)
         {
             var poolSize = factory.GetPoolSize(property);
-            return poolSize == 1 
-                ? (IValueGeneratorPool)new SingleValueGeneratorPool(factory, property) 
+            return poolSize == 1
+                ? (IValueGeneratorPool)new SingleValueGeneratorPool(factory, property)
                 : new ValueGeneratorPool(factory, property, poolSize);
         }
     }

@@ -7,6 +7,7 @@ using Microsoft.Data.Entity.SQLite;
 using Microsoft.Data.Entity.SQLite.Utilities;
 
 // ReSharper disable once CheckNamespace
+
 namespace Microsoft.Data.Entity
 {
     public static class SQLiteDbContextOptionsExtensions

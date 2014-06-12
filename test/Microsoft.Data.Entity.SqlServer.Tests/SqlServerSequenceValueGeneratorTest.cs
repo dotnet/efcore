@@ -139,12 +139,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 var testNumber = i;
                 generatedValues[testNumber] = new List<long>();
                 tests[testNumber] = async () =>
-                {
-                    for (var j = 0; j < valueCount; j++)
                     {
-                        generatedValues[testNumber].Add((long)await generator.NextAsync(configMock.Object, CreateProperty(typeof(long))));
-                    }
-                };
+                        for (var j = 0; j < valueCount; j++)
+                        {
+                            generatedValues[testNumber].Add((long)await generator.NextAsync(configMock.Object, CreateProperty(typeof(long))));
+                        }
+                    };
             }
 
             var tasks = tests.Select(Task.Run).ToArray();

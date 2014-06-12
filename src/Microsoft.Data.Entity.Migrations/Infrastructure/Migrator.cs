@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         private readonly DatabaseBuilder _databaseBuilder;
         private readonly IMigrationOperationSqlGeneratorFactory _ddlSqlGeneratorFactory;
         private readonly SqlGenerator _dmlSqlGenerator;
-        private readonly SqlStatementExecutor _sqlExecutor;        
+        private readonly SqlStatementExecutor _sqlExecutor;
 
         public Migrator(
             [NotNull] DbContextConfiguration contextConfiguration,
@@ -115,7 +115,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         {
             var migrationPairs = PairMigrations(GetLocalMigrations(), GetDatabaseMigrations());
 
-            return 
+            return
                 GenerateUpdateDatabaseSql(
                     new IMigrationMetadata[0],
                     migrationPairs
@@ -152,7 +152,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         }
 
         protected virtual IReadOnlyList<SqlStatement> GenerateUpdateDatabaseSql(
-            IReadOnlyList<IMigrationMetadata> downgradeMigrations, 
+            IReadOnlyList<IMigrationMetadata> downgradeMigrations,
             IReadOnlyList<IMigrationMetadata> upgradeMigrations)
         {
             var sqlStatements = new List<SqlStatement>();
@@ -169,7 +169,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 sqlStatements.AddRange(
                     HistoryRepository.GenerateDeleteMigrationSql(migration, DmlSqlGenerator));
             }
-            
+
             foreach (var migration in upgradeMigrations)
             {
                 var database = DatabaseBuilder.GetDatabase(migration.TargetModel);
@@ -194,7 +194,8 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             var i = 0;
             var j = 0;
 
-            while (i < localMigrations.Count && j < databaseMigrations.Count)
+            while (i < localMigrations.Count
+                   && j < databaseMigrations.Count)
             {
                 var compareResult = MigrationMetadataComparer.Instance.Compare(
                     localMigrations[i], databaseMigrations[j]);
@@ -233,7 +234,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             public readonly IMigrationMetadata DatabaseMigration;
 
             public MigrationPair(
-                IMigrationMetadata localMigration, 
+                IMigrationMetadata localMigration,
                 IMigrationMetadata databaseMigration)
             {
                 LocalMigration = localMigration;

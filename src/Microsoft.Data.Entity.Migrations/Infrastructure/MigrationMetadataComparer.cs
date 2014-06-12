@@ -7,7 +7,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 {
     public class MigrationMetadataComparer : IComparer<IMigrationMetadata>
     {
-        public readonly static MigrationMetadataComparer Instance = new MigrationMetadataComparer();
+        public static readonly MigrationMetadataComparer Instance = new MigrationMetadataComparer();
 
         private MigrationMetadataComparer()
         {

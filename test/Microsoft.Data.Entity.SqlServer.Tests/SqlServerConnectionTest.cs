@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             return new DbContext(serviceCollection.BuildServiceProvider(),
                 new DbContextOptions()
                     .UseSqlServer("Server=(localdb)\v11.0;Database=SqlServerConnectionTest;Trusted_Connection=True;"))
-                    .Configuration;
+                .Configuration;
         }
     }
 }

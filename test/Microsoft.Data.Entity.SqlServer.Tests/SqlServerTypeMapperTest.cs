@@ -49,6 +49,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.Equal("real", GetTypeMapping(typeof(float?)).StoreTypeName);
             Assert.Equal("datetimeoffset", GetTypeMapping(typeof(DateTimeOffset?)).StoreTypeName);
         }
+
         [Fact]
         public void Does_simple_SQL_Server_mappings_for_enums_to_DDL_types()
         {
@@ -69,7 +70,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.Equal("smallint", GetTypeMapping(typeof(ShortEnum?)).StoreTypeName);
             Assert.Equal("bigint", GetTypeMapping(typeof(LongEnum?)).StoreTypeName);
         }
-        
+
         [Fact]
         public void Does_simple_SQL_Server_mappings_to_DbTypes()
         {

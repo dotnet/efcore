@@ -37,9 +37,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 migrationBuilder.CreateTable(
                     "dbo.MyTable",
                     c => new
-                             {
-                                 Id = c.Int()
-                             })
+                        {
+                            Id = c.Int()
+                        })
                     .PrimaryKey("MyPK", t => t.Id);
 
                 migrationBuilder.AddColumn("dbo.MyTable", "Foo", c => c.String());

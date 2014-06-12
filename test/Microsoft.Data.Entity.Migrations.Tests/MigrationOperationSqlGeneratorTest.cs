@@ -78,7 +78,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 "dbo.MyTable",
                 new[]
                     {
-                        foo = new Column("Foo", "int") { IsNullable = false, ValueGenerationStrategy = ValueGenerationOnSave.WhenInserting},
+                        foo = new Column("Foo", "int") { IsNullable = false, ValueGenerationStrategy = ValueGenerationOnSave.WhenInserting },
                         bar = new Column("Bar", "int") { IsNullable = true }
                     })
                 {

@@ -599,7 +599,7 @@ namespace MyNamespace
         }
     }
 }",
-        stringBuilder.ToString());
+                stringBuilder.ToString());
         }
     }
 }

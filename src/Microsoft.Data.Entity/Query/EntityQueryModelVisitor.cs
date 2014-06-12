@@ -494,8 +494,8 @@ namespace Microsoft.Data.Entity.Query
                 = resultOperator.GetOutputDataInfo(_streamedSequenceInfo);
 
             var expression
-               = _queryCompilationContext.ResultOperatorHandler
-                   .HandleResultOperator(this, streamedDataInfo, resultOperator, queryModel);
+                = _queryCompilationContext.ResultOperatorHandler
+                    .HandleResultOperator(this, streamedDataInfo, resultOperator, queryModel);
 
             if (expression != null)
             {

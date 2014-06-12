@@ -174,7 +174,6 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
         private class BronieContext : DbContext
         {
-
             public BronieContext(IServiceProvider serviceProvider)
                 : base(serviceProvider)
             {

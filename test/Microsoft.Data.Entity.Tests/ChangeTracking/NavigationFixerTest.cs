@@ -158,10 +158,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             Assert.Null(entity1.AlternateProduct);
             Assert.Null(entity1.OriginalProduct);
-            
+
             Assert.Null(entity2.AlternateProduct);
             Assert.Null(entity2.OriginalProduct);
-            
+
             Assert.Null(entity3.AlternateProduct);
             Assert.Null(entity3.OriginalProduct);
 

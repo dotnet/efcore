@@ -302,10 +302,10 @@ namespace Microsoft.Data.Entity.Migrations.Design.Tests
 
             var migration
                 = new MigrationMetadata("Name", "Timestamp")
-                      {
-                          UpgradeOperations = upgradeOperations,
-                          DowngradeOperations = downgradeOperations
-                      };
+                    {
+                        UpgradeOperations = upgradeOperations,
+                        DowngradeOperations = downgradeOperations
+                    };
 
             var codeGenerator = new CSharpMigrationCodeGenerator(new CSharpModelCodeGenerator());
             var stringBuilder = new IndentedStringBuilder();
@@ -348,9 +348,9 @@ namespace MyNamespace
 
             var migration
                 = new MigrationMetadata("Name", "Timestamp")
-                {
-                    TargetModel = model
-                };
+                    {
+                        TargetModel = model
+                    };
 
             var codeGenerator = new CSharpMigrationCodeGenerator(new CSharpModelCodeGenerator());
             var stringBuilder = new IndentedStringBuilder();

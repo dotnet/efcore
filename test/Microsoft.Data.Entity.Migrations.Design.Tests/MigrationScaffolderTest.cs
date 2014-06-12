@@ -235,7 +235,7 @@ namespace MyNamespace
         }
     }
 }",
-                modelSnapshotClass);            
+                modelSnapshotClass);
         }
 
         #region Fixture
@@ -303,9 +303,9 @@ namespace MyNamespace
                 Action<string, string, string> migrationValidation,
                 Action<string, string> modelValidation)
                 : base(
-                    contextConfiguration, 
-                    migrationAssembly, 
-                    modelDiffer, 
+                    contextConfiguration,
+                    migrationAssembly,
+                    modelDiffer,
                     migrationCodeGenerator)
             {
                 _migrationValidation = migrationValidation;

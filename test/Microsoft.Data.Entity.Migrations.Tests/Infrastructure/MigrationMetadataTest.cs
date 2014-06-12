@@ -18,11 +18,11 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
 
             var migration
                 = new MigrationMetadata("Name", "Timestamp")
-                      {
-                          TargetModel = targetModel,
-                          UpgradeOperations = upgradeOperations,
-                          DowngradeOperations = downgradeOperations,
-                      };
+                    {
+                        TargetModel = targetModel,
+                        UpgradeOperations = upgradeOperations,
+                        DowngradeOperations = downgradeOperations,
+                    };
 
             Assert.Equal("Name", migration.Name);
             Assert.Equal("Timestamp", migration.Timestamp);

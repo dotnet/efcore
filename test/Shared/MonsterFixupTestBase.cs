@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Utilities;
 using Xunit;
 
 namespace Microsoft.Data.Entity.FunctionalTests

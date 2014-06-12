@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.Identity
         public virtual IValueGenerator GetGenerator()
         {
             _currentPosition = (_currentPosition + 1) % _pool.Length;
-            
+
             return _pool[_currentPosition].Value;
         }
     }

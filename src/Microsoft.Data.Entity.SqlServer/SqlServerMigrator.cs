@@ -22,9 +22,9 @@ namespace Microsoft.Data.Entity.SqlServer
             [NotNull] SqlServerSqlGenerator sqlGenerator,
             [NotNull] SqlStatementExecutor sqlStatementExecutor)
             : base(
-                contextConfiguration, 
-                historyRepository, 
-                migrationAssembly, 
+                contextConfiguration,
+                historyRepository,
+                migrationAssembly,
                 databaseBuilder,
                 sqlGeneratorFactory,
                 sqlGenerator,

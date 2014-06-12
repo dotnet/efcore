@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
         public override void GenerateModelSnapshotClass(
             string @namespace,
             string className,
-            IModel model, 
+            IModel model,
             IndentedStringBuilder stringBuilder)
         {
             Check.NotEmpty(className, "className");

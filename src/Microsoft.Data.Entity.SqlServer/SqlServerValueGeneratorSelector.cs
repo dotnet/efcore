@@ -37,7 +37,8 @@ namespace Microsoft.Data.Entity.SqlServer
             switch (property.ValueGenerationOnAdd)
             {
                 case ValueGenerationOnAdd.Client:
-                    if (property.PropertyType.IsInteger() && property.PropertyType != typeof(byte))
+                    if (property.PropertyType.IsInteger()
+                        && property.PropertyType != typeof(byte))
                     {
                         return _tempFactory;
                     }

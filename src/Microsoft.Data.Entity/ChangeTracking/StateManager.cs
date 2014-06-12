@@ -203,8 +203,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotNull(foreignKey, "foreignKey");
 
             var dependentKeyValue = useForeignKeySnapshot
-             ? dependentEntry.GetDependentKeySnapshot(foreignKey)
-             : dependentEntry.GetDependentKeyValue(foreignKey);
+                ? dependentEntry.GetDependentKeySnapshot(foreignKey)
+                : dependentEntry.GetDependentKeyValue(foreignKey);
 
             if (dependentKeyValue == null)
             {

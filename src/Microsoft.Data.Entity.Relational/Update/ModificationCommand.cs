@@ -108,7 +108,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                     var isCondition = isKey || (!adding && property.IsConcurrencyToken);
 
                     var readValue = !deleting && (property.ValueGenerationOnSave == ValueGenerationOnSave.WhenInsertingAndUpdating
-                                    || (adding && property.ValueGenerationOnSave == ValueGenerationOnSave.WhenInserting));
+                                                  || (adding && property.ValueGenerationOnSave == ValueGenerationOnSave.WhenInserting));
 
                     // TODO: Default values
                     // TODO: Should not need to filter key values here but they currently can get marked as modified
