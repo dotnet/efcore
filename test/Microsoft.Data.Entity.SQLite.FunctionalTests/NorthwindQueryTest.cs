@@ -27,28 +27,24 @@ LIMIT 1",
 
         public override void String_StartsWith_Literal()
         {
-            // TODO: Not sure why this query returns nothing
+            base.String_StartsWith_Literal();
 
-//            base.String_StartsWith_Literal();
-//
-//            Assert.Equal(
-//                @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
-//FROM Customers
-//WHERE ContactName LIKE @p0 || '%'",
-//                _fixture.Sql);
+            Assert.Equal(
+                @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
+FROM Customers
+WHERE ContactName LIKE @p0 || '%'",
+                _fixture.Sql);
         }
 
         public override void String_StartsWith_MethodCall()
         {
-            // TODO: Not sure why this query returns nothing
+            base.String_StartsWith_MethodCall();
 
-//            base.String_StartsWith_MethodCall();
-//
-//            Assert.Equal(
-//                @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
-//FROM Customers
-//WHERE ContactName LIKE @p0 || '%'",
-//                _fixture.Sql);
+            Assert.Equal(
+                @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
+FROM Customers
+WHERE ContactName LIKE @p0 || '%'",
+                _fixture.Sql);
         }
 
         public override void String_EndsWith_Literal()
