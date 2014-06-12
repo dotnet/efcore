@@ -68,6 +68,20 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         }
 
         [Fact]
+        public void Entities_indexes_can_be_obtained_from_compiled_model()
+        {
+            var compiledModel = new _OneTwoThreeContextModel();
+
+            var indexes = compiledModel.EntityTypes.First().Indexes;
+
+            Assert.Equal(2, indexes.Count);
+            Assert.Equal(new[] { "Goo1" }, indexes[0].Properties.Select(p => p.Name));
+            Assert.False(indexes[0].IsUnique);
+            Assert.Equal(new[] { "Foo1", "Goo1" }, indexes[1].Properties.Select(p => p.Name));
+            Assert.True(indexes[1].IsUnique);
+        }        
+
+        [Fact]
         public void Property_values_can_be_read_and_set_using_compiled_metadata_without_reflection()
         {
             var options = new DbContextOptions().UseModel(new _OneTwoThreeContextModel());

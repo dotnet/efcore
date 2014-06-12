@@ -264,6 +264,80 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
+        public void Can_add_retrieve_and_remove_indexes()
+        {
+            var entityType = new EntityType(typeof(Order));
+            var property1 = entityType.AddProperty(Order.IdProperty);
+            var property2 = entityType.AddProperty(Order.CustomerIdProperty);
+
+            Assert.Equal(0, entityType.Indexes.Count);
+            
+            var index1 = entityType.AddIndex(property1);
+
+            Assert.Equal(1, index1.Properties.Count);
+            Assert.Same(property1, index1.Properties[0]);
+
+            var index2 = entityType.AddIndex(property1, property2);
+
+            Assert.Equal(2, index2.Properties.Count);
+            Assert.Same(property1, index2.Properties[0]);
+            Assert.Same(property2, index2.Properties[1]);
+
+            Assert.Equal(2, entityType.Indexes.Count);
+            Assert.Same(index1, entityType.Indexes[0]);
+            Assert.Same(index2, entityType.Indexes[1]);
+
+            entityType.RemoveIndex(index1);
+
+            Assert.Equal(1, entityType.Indexes.Count);
+            Assert.Same(index2, entityType.Indexes[0]);
+
+            entityType.RemoveIndex(index2);
+
+            Assert.Equal(0, entityType.Indexes.Count);
+        }
+
+        [Fact]
+        public void AddIndex_check_arguments()
+        {
+            var entityType = new EntityType(typeof(Order));
+
+            Assert.Equal(
+                "properties",
+                // ReSharper disable once AssignNullToNotNullAttribute
+                Assert.Throws<ArgumentNullException>(() => entityType.AddIndex(null)).ParamName);
+
+            Assert.Equal(
+                Strings.FormatCollectionArgumentIsEmpty("properties"),
+                Assert.Throws<ArgumentException>(() => entityType.AddIndex(new Property[0])).Message);
+        }
+
+        [Fact]
+        public void RemoveIndex_check_arguments()
+        {
+            var entityType = new EntityType(typeof(Order));
+
+            Assert.Equal(
+                "index",
+                // ReSharper disable once AssignNullToNotNullAttribute
+                Assert.Throws<ArgumentNullException>(() => entityType.RemoveIndex(null)).ParamName);
+        }
+
+        [Fact]
+        public void AddIndex_validates_properties_from_same_entity()
+        {
+            var entityType1 = new EntityType("E1");
+            var entityType2 = new EntityType("E2");
+
+            var property1 = entityType1.AddProperty(Customer.IdProperty);
+            var property2 = entityType1.AddProperty(Customer.NameProperty);
+
+            Assert.Equal(Strings.FormatIndexPropertiesWrongEntity(entityType2.Name),
+                Assert.Throws<ArgumentException>(
+                    () => entityType2.AddIndex(property1, property2)).Message);
+        }
+
+        [Fact]
         public void Properties_is_IList_to_ensure_collecting_the_count_is_fast()
         {
             Assert.IsAssignableFrom<IList<Property>>(new EntityType(typeof(Customer)).Properties);

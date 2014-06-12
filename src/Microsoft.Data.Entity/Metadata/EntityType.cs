@@ -19,6 +19,7 @@ namespace Microsoft.Data.Entity.Metadata
         private readonly Type _type;
         private readonly LazyRef<List<ForeignKey>> _foreignKeys = new LazyRef<List<ForeignKey>>(() => new List<ForeignKey>());
         private readonly LazyRef<List<Navigation>> _navigations = new LazyRef<List<Navigation>>(() => new List<Navigation>());
+        private readonly LazyRef<List<Index>> _indexes = new LazyRef<List<Index>>(() => new List<Index>());
         private readonly List<Property> _properties = new List<Property>();
 
         private Key _key;
@@ -177,6 +178,44 @@ namespace Microsoft.Data.Entity.Metadata
                 return _navigations.HasValue
                     ? (IReadOnlyList<Navigation>)_navigations.Value
                     : ImmutableList<Navigation>.Empty;
+            }
+        }
+
+        public virtual Index AddIndex([NotNull] params Property[] properties)
+        {
+            Check.NotNull(properties, "properties");
+            Check.NotEmpty(properties, "properties");
+
+            var index = new Index(properties);
+
+            if (index.EntityType != this)
+            {
+                throw new ArgumentException(
+                    Strings.FormatIndexPropertiesWrongEntity(Name));
+            }
+
+            _indexes.Value.Add(index);
+
+            return index;
+        }
+
+        public virtual void RemoveIndex([NotNull] Index index)
+        {
+            Check.NotNull(index, "index");
+
+            if (_indexes.HasValue)
+            {
+                _indexes.Value.Remove(index);
+            }
+        }
+
+        public virtual IReadOnlyList<Index> Indexes
+        {
+            get
+            {
+                return _indexes.HasValue
+                    ? (IReadOnlyList<Index>)_indexes.Value
+                    : ImmutableList<Index>.Empty;
             }
         }
 
@@ -425,6 +464,11 @@ namespace Microsoft.Data.Entity.Metadata
         IReadOnlyList<INavigation> IEntityType.Navigations
         {
             get { return Navigations; }
+        }
+
+        IReadOnlyList<IIndex> IEntityType.Indexes
+        {
+            get { return Indexes; }
         }
 
         private class PropertyComparer : IComparer<Property>

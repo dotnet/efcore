@@ -7,5 +7,6 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
     {
         public static readonly INavigation[] Navigations = new INavigation[0];
         public static readonly IForeignKey[] ForeignKeys = new IForeignKey[0];
+        public static readonly IIndex[] Indexes = new IIndex[0];
     }
 }

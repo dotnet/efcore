@@ -177,6 +177,9 @@
   <data name="ForeignKeyPropertiesWrongEntity" xml:space="preserve">
     <value>The specified foreign key properties are not declared on the entity type '{entityType}'. Ensure foreign key properties are declared on the target entity type.</value>
   </data>
+  <data name="IndexPropertiesWrongEntity" xml:space="preserve">
+    <value>The specified index properties are not declared on the entity type '{entityType}'. Ensure index properties are declared on the target entity type.</value>
+  </data>
   <data name="IQueryableNotAsync" xml:space="preserve">
     <value>The source IQueryable doesn't implement IAsyncEnumerable{genericParameter}. Only sources that implement IAsyncEnumerable can be used for Entity Framework asynchronous operations.</value>
   </data>

@@ -85,6 +85,7 @@
     <Compile Include="Identity\ValueGeneratorCacheTest.cs" />
     <Compile Include="Identity\ValueGeneratorPoolTest.cs" />
     <Compile Include="Identity\ValueGeneratorSelectorTest.cs" />
+    <Compile Include="Metadata\IndexTest.cs" />
     <Compile Include="Metadata\NavigationAccessorSourceTest.cs" />
     <Compile Include="QueryableExtensionsTest.cs" />
     <Compile Include="ServiceProviderCacheTest.cs" />

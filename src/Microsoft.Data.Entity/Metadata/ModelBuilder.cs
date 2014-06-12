@@ -142,14 +142,52 @@ namespace Microsoft.Data.Entity.Metadata
                 return this;
             }
 
-            // TODO: Implement mechanism to add annotations to key.
             public EntityBuilderBase<TMetadataBuilder> Key([NotNull] params string[] propertyNames)
             {
                 Check.NotNull(propertyNames, "propertyNames");
 
-                Metadata.SetKey(propertyNames.Select(n => Metadata.GetProperty(n)).ToArray());
+                return Key(k => k.Properties(propertyNames));
+            }
+
+            public EntityBuilderBase<TMetadataBuilder> Key([NotNull] Action<KeyBuilder> keyBuilder)
+            {
+                Check.NotNull(keyBuilder, "keyBuilder");
+
+                keyBuilder(new KeyBuilder(Metadata));
 
                 return this;
+            }
+
+            public class KeyBuilder
+            {
+                private readonly EntityType _entityType;
+
+                internal KeyBuilder(EntityType entityType)
+                {
+                    _entityType = entityType;
+                }
+
+                protected EntityType EntityType
+                {
+                    get { return _entityType; }
+                }
+
+                public KeyMetadataBuilder Properties([NotNull] params string[] propertyNames)
+                {
+                    Check.NotNull(propertyNames, "propertyNames");
+
+                    _entityType.SetKey(propertyNames.Select(n => _entityType.GetProperty(n)).ToArray());
+
+                    return new KeyMetadataBuilder(_entityType.GetKey());
+                }
+            }
+
+            public class KeyMetadataBuilder : MetadataBuilder<Key, KeyMetadataBuilder>
+            {
+                internal KeyMetadataBuilder(Key key)
+                    : base(key)
+                {
+                }
             }
 
             public EntityBuilderBase<TMetadataBuilder> Properties([NotNull] Action<PropertiesBuilder> propertiesBuilder)
@@ -290,6 +328,62 @@ namespace Microsoft.Data.Entity.Metadata
                     }
                 }
             }
+
+            public EntityBuilderBase<TMetadataBuilder> Indexes([NotNull] Action<IndexesBuilder> indexesBuilder)
+            {
+                Check.NotNull(indexesBuilder, "indexesBuilder");
+
+                indexesBuilder(new IndexesBuilder(Metadata));
+
+                return this;
+            }
+
+            public class IndexesBuilder
+            {
+                private readonly EntityType _entityType;
+
+                internal IndexesBuilder(EntityType entityType)
+                {
+                    _entityType = entityType;
+                }
+
+                protected EntityType EntityType
+                {
+                    get { return _entityType; }
+                }
+
+                public IndexBuilder Index([NotNull] params string[] propertyNames)
+                {
+                    Check.NotNull(propertyNames, "propertyNames");
+
+                    var properties = propertyNames.Select(n => _entityType.GetProperty(n)).ToArray();
+                    var index = _entityType.AddIndex(properties);
+
+                    return new IndexBuilder(index);
+                }
+
+                public class IndexBuilder : MetadataBuilder<Index, IndexBuilder>
+                {
+                    internal IndexBuilder(Index index)
+                        : base(index)
+                    {
+                    }
+
+                    public IndexBuilder StorageName([NotNull] string storageName)
+                    {
+                        Metadata.StorageName = storageName;
+
+                        return this;
+                    }
+
+                    public IndexBuilder IsUnique()
+                    {
+                        Metadata.IsUnique = true;
+
+                        return this;
+                    }
+                }
+            }
         }
 
         public class EntityBuilder : EntityBuilderBase<EntityBuilder>
@@ -307,18 +401,41 @@ namespace Microsoft.Data.Entity.Metadata
             {
             }
 
-            // TODO: Implement mechanism to add annotations to key.
             public EntityBuilder<TEntity> Key([NotNull] Expression<Func<TEntity, object>> keyExpression)
             {
                 Check.NotNull(keyExpression, "keyExpression");
 
-                Metadata.SetKey(
-                    keyExpression.GetPropertyAccessList()
-                        .Select(pi => Metadata.TryGetProperty(pi.Name)
-                                      ?? Metadata.AddProperty(pi))
-                        .ToArray());
+                return Key(k => k.Properties(keyExpression));
+            }
+
+            public EntityBuilder<TEntity> Key([NotNull] Action<KeyBuilder> keyBuilder)
+            {
+                Check.NotNull(keyBuilder, "keyBuilder");
+
+                keyBuilder(new KeyBuilder(Metadata));
 
                 return this;
+            }
+
+            public new class KeyBuilder : EntityBuilderBase<EntityBuilder<TEntity>>.KeyBuilder
+            {
+                internal KeyBuilder(EntityType entityType)
+                    : base(entityType)
+                {
+                }
+
+                public virtual KeyMetadataBuilder Properties([NotNull] Expression<Func<TEntity, object>> keyExpression)
+                {
+                    Check.NotNull(keyExpression, "keyExpression");
+
+                    EntityType.SetKey(
+                        keyExpression.GetPropertyAccessList()
+                            .Select(pi => EntityType.TryGetProperty(pi.Name)
+                                          ?? EntityType.AddProperty(pi))
+                            .ToArray());
+
+                    return new KeyMetadataBuilder(EntityType.GetKey());
+                }
             }
 
             public EntityBuilder<TEntity> Properties([NotNull] Action<PropertiesBuilder> propertiesBuilder)
@@ -382,6 +499,36 @@ namespace Microsoft.Data.Entity.Metadata
                     foreignKey.IsUnique = isUnique;
 
                     return new ForeignKeyBuilder(foreignKey);
+                }
+            }
+
+            public EntityBuilder<TEntity> Indexes([NotNull] Action<IndexesBuilder> indexesBuilder)
+            {
+                Check.NotNull(indexesBuilder, "indexesBuilder");
+
+                indexesBuilder(new IndexesBuilder(Metadata));
+
+                return this;
+            }
+
+            public new class IndexesBuilder : EntityBuilderBase<EntityBuilder<TEntity>>.IndexesBuilder
+            {
+                internal IndexesBuilder(EntityType entityType)
+                    : base(entityType)
+                {
+                }
+
+                public IndexBuilder Index([NotNull] Expression<Func<TEntity, object>> indexExpression)
+                {
+                    Check.NotNull(indexExpression, "indexExpression");
+
+                    var properties
+                        = indexExpression.GetPropertyAccessList()
+                            .Select(pi => EntityType.TryGetProperty(pi.Name) ?? EntityType.AddProperty(pi))
+                            .ToArray();
+                    var index = EntityType.AddIndex(properties);
+
+                    return new IndexBuilder(index);
                 }
             }
         }

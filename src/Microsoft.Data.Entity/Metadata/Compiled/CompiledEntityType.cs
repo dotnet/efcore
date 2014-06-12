@@ -16,6 +16,7 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
         private IProperty[] _properties;
         private IForeignKey[] _foreignKeys;
         private INavigation[] _navigations;
+        private IIndex[] _indexes;
 
         protected CompiledEntityType(IModel model)
         {
@@ -56,6 +57,11 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
             return Empty.Navigations;
         }
 
+        protected virtual IIndex[] LoadIndexes()
+        {
+            return Empty.Indexes;
+        }
+
         public IKey GetKey()
         {
             return LazyInitializer.EnsureInitialized(ref _key, LoadKey);
@@ -69,6 +75,11 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
         public IReadOnlyList<INavigation> Navigations
         {
             get { return LazyInitializer.EnsureInitialized(ref _navigations, LoadNavigations); }
+        }
+
+        public IReadOnlyList<IIndex> Indexes
+        {
+            get { return LazyInitializer.EnsureInitialized(ref _indexes, LoadIndexes); }
         }
 
         public IReadOnlyList<IProperty> Properties

@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -8,7 +8,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public class Key : MetadataBase, IKey
+    public class Index : MetadataBase, IIndex
     {
         private readonly IReadOnlyList<Property> _properties;
 
@@ -17,12 +17,13 @@ namespace Microsoft.Data.Entity.Metadata
         ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
         ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
         /// </summary>
-        protected Key()
+        protected Index()
         {
         }
 
-        internal Key([NotNull] IReadOnlyList<Property> properties)
+        internal Index([NotNull] IReadOnlyList<Property> properties)
         {
+            Check.NotNull(properties, "properties");
             Check.NotEmpty(properties, "properties");
             MetadataHelper.CheckSameEntityType(properties, "properties");
 
@@ -30,6 +31,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         public virtual string StorageName { get; [param: CanBeNull] set; }
+        public bool IsUnique { get; set; }
 
         public virtual IReadOnlyList<Property> Properties
         {
@@ -41,12 +43,12 @@ namespace Microsoft.Data.Entity.Metadata
             get { return Properties[0].EntityType; }
         }
 
-        IReadOnlyList<IProperty> IKey.Properties
+        IReadOnlyList<IProperty> IIndex.Properties
         {
             get { return Properties; }
         }
 
-        IEntityType IKey.EntityType
+        IEntityType IIndex.EntityType
         {
             get { return EntityType; }
         }

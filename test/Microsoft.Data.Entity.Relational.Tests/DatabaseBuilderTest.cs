@@ -1,10 +1,8 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational.Model;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Relational.Tests
@@ -50,6 +48,13 @@ namespace Microsoft.Data.Entity.Relational.Tests
             Assert.Same(table0.Columns[0], foreignKey.Columns[0]);
             Assert.Same(table1.Columns[0], foreignKey.ReferencedColumns[0]);
             Assert.True(foreignKey.CascadeDelete);
+
+            var index = table0.Indexes[0];
+
+            Assert.Equal("MyIndex", index.Name);
+            Assert.Same(table0, index.Table);
+            Assert.Same(table0.Columns[0], index.Columns[0]);
+            Assert.True(index.IsUnique);
         }
 
         [Fact]
@@ -70,7 +75,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
                         p.Property(e => e.PostId);
                         p.Property(e => e.BelongsToBlogId);
                     })
-                .ForeignKeys(f => f.ForeignKey<Blog>(p => p.BelongsToBlogId));
+                .ForeignKeys(f => f.ForeignKey<Blog>(p => p.BelongsToBlogId))
+                .Indexes(ixs => ixs.Index(ix => ix.PostId));
 
             var database = new DatabaseBuilder().GetDatabase(modelBuilder.Model);
 
@@ -85,6 +91,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
             Assert.Equal("PK_Post", database.GetTable("Post").PrimaryKey.Name);
 
             Assert.Equal("FK_Post_Blog_BelongsToBlogId", database.GetTable("Post").ForeignKeys.Single().Name);
+
+            Assert.Equal("IX_Post_PostId", database.GetTable("Post").Indexes.Single().Name);
         }
 
         private class Blog
@@ -132,11 +140,23 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public void Name_for_multi_column_Indexes()
         {
-            var table = new Table("MyTable");
-            var columnOne = new Column("ColumnZzz", "int");
-            var columnTwo = new Column("ColumnAaa", "int");
+            var modelBuilder = new ModelBuilder();
 
-            var name = DatabaseBuilder.IndexName(table, new List<Column> { columnOne, columnTwo });
+            modelBuilder.Entity<Dependent>()
+                .ToTable("MyTable")
+                .Properties(
+                    ps =>
+                        {
+                            ps.Property(e => e.Id);
+                            ps.Property(e => e.FkAAA).StorageName("ColumnAaa");
+                            ps.Property(e => e.FkZZZ).StorageName("ColumnZzz");
+                        })
+                .Key(e => e.Id)
+                .Indexes(
+                    ixs => ixs.Index(e => new { e.FkAAA, e.FkZZZ }));
+
+            var builder = new DatabaseBuilder();
+            var name = builder.GetDatabase(modelBuilder.Model).GetTable("MyTable").Indexes.Single().Name;
 
             Assert.Equal("IX_MyTable_ColumnAaa_ColumnZzz", name);
         }
@@ -169,6 +189,10 @@ namespace Microsoft.Data.Entity.Relational.Tests
             foreignKey.StorageName = "MyFK";
             foreignKey.Annotations.Add(new Annotation(
                 MetadataExtensions.Annotations.CascadeDelete, "True"));
+
+            var index = dependentEntityType.AddIndex(dependentProperty);
+            index.StorageName = "MyIndex";
+            index.IsUnique = true;
 
             return model;
         }

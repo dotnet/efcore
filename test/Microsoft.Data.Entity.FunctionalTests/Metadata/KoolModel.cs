@@ -325,6 +325,11 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             return new INavigation[] { new _KoolEntity1NavTo2(Model), new _KoolEntity1NavTo2s(Model) };
         }
 
+        protected override IIndex[] LoadIndexes()
+        {
+            return new IIndex[] { new _KoolEntity1Index1(Model), new _KoolEntity1Index2(Model) };
+        }
+
         protected override IAnnotation[] LoadAnnotations()
         {
             return ZipAnnotations(
@@ -343,6 +348,32 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         protected override KeyDefinition Definition
         {
             get { return new KeyDefinition(0, new short[] { 2 }); }
+        }
+    }
+
+    public class _KoolEntity1Index1 : CompiledIndex, IIndex
+    {
+        public _KoolEntity1Index1(IModel model)
+            : base(model)
+        {
+        }
+
+        protected override IndexDefinition Definition
+        {
+            get { return new IndexDefinition(0, new short[] { 1 }, false); }
+        }
+    }
+
+    public class _KoolEntity1Index2 : CompiledIndex, IIndex
+    {
+        public _KoolEntity1Index2(IModel model)
+            : base(model)
+        {
+        }
+
+        protected override IndexDefinition Definition
+        {
+            get { return new IndexDefinition(0, new short[] { 0, 1 }, true); }
         }
     }
 

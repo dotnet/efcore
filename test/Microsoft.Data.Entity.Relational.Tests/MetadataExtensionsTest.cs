@@ -28,6 +28,10 @@ namespace Microsoft.Data.Entity.Relational.Tests
             modelBuilder.Entity<Customer>().ToTable("customers");
 
             Assert.Equal("customers", model.EntityTypes.Single().StorageName);
+
+            modelBuilder.Entity("Customer").ToTable("CUSTOMERS");
+
+            Assert.Equal("CUSTOMERS", model.EntityTypes.Single().StorageName);
         }
 
         [Fact]
@@ -39,6 +43,10 @@ namespace Microsoft.Data.Entity.Relational.Tests
             modelBuilder.Entity<Customer>().Properties(ps => ps.Property(c => c.Id).ColumnName("id"));
 
             Assert.Equal("id", model.EntityTypes.Single().Properties.Single().StorageName);
+
+            modelBuilder.Entity<Customer>().Properties(ps => ps.Property<int>("Id").ColumnName("ID"));
+
+            Assert.Equal("ID", model.EntityTypes.Single().Properties.Single().StorageName);
         }
 
         [Fact]
@@ -50,6 +58,10 @@ namespace Microsoft.Data.Entity.Relational.Tests
             modelBuilder.Entity<Customer>().Properties(ps => ps.Property(c => c.Id).ColumnType("bigint"));
 
             Assert.Equal("bigint", model.EntityTypes.Single().Properties.Single()[MetadataExtensions.Annotations.StorageTypeName]);
+
+            modelBuilder.Entity<Customer>().Properties(ps => ps.Property<int>("Id").ColumnType("BIGINT"));
+
+            Assert.Equal("BIGINT", model.EntityTypes.Single().Properties.Single()[MetadataExtensions.Annotations.StorageTypeName]);
         }
 
         [Fact]

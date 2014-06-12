@@ -11,6 +11,7 @@ using Microsoft.Data.Entity.Migrations.Utilities;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Model;
 using ForeignKey = Microsoft.Data.Entity.Relational.Model.ForeignKey;
+using Index = Microsoft.Data.Entity.Relational.Model.Index;
 
 namespace Microsoft.Data.Entity.Migrations
 {
@@ -171,11 +172,11 @@ namespace Microsoft.Data.Entity.Migrations
                 FindAddedForeignKeys(tablePair, foreignKeyPairs);
                 FindDroppedForeignKeys(tablePair, foreignKeyPairs);
 
-                // TODO: Determine how to specify an index in the model to be able to build index pairs.
+                var indexPairs = FindIndexPairs(FindIndexPairs(entityTypePair));
 
-                //FindRenamedIndexes(indexPairs);
-                //FindCreatedIndexes(tablePair, indexPairs);
-                //FindDroppedIndexes(tablePair, indexPairs);
+                FindRenamedIndexes(indexPairs);
+                FindCreatedIndexes(tablePair, indexPairs);
+                FindDroppedIndexes(tablePair, indexPairs);
             }
         }
 
@@ -601,6 +602,30 @@ namespace Microsoft.Data.Entity.Migrations
                         new DropForeignKeyOperation(
                             fk.Table.Name,
                             fk.Name)));
+        }
+
+        private IEnumerable<Tuple<IIndex, IIndex>> FindIndexPairs(
+            Tuple<IEntityType, IEntityType> entityTypePair)
+        {
+            return
+                (from ix1 in entityTypePair.Item1.Indexes
+                 from ix2 in entityTypePair.Item2.Indexes
+                 where SameNames(ix1.Properties, ix2.Properties)
+                       && ix1.IsUnique == ix2.IsUnique
+                       && ix1.IsClustered() == ix2.IsClustered()
+                 select Tuple.Create(ix1, ix2))
+                    .ToArray();
+        }
+
+        private IReadOnlyList<Tuple<Index, Index>> FindIndexPairs(
+            IEnumerable<Tuple<IIndex, IIndex>> indexPairs)
+        {
+            return indexPairs
+                .Select(pair =>
+                    Tuple.Create(
+                        _sourceMapping.GetDatabaseObject<Index>(pair.Item1),
+                        _targetMapping.GetDatabaseObject<Index>(pair.Item2)))
+                .ToArray();
         }
 
         private void FindRenamedIndexes(

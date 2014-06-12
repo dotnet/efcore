@@ -331,6 +331,22 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
+        /// The specified index properties are not declared on the entity type '{entityType}'. Ensure index properties are declared on the target entity type.
+        /// </summary>
+        internal static string IndexPropertiesWrongEntity
+        {
+            get { return GetString("IndexPropertiesWrongEntity"); }
+        }
+
+        /// <summary>
+        /// The specified index properties are not declared on the entity type '{entityType}'. Ensure index properties are declared on the target entity type.
+        /// </summary>
+        internal static string FormatIndexPropertiesWrongEntity(object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("IndexPropertiesWrongEntity", "entityType"), entityType);
+        }
+
+        /// <summary>
         /// The source IQueryable doesn't implement IAsyncEnumerable{genericParameter}. Only sources that implement IAsyncEnumerable can be used for Entity Framework asynchronous operations.
         /// </summary>
         internal static string IQueryableNotAsync

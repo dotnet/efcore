@@ -206,6 +206,52 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
+        public void Can_set_entity_key_with_annotations()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+
+            modelBuilder
+                .Entity<Customer>()
+                .Key(k => k.Properties(e => new { e.Id, e.Name })
+                    .Annotation("A1", "V1")
+                    .Annotation("A2", "V2"));
+
+            var entity = model.GetEntityType(typeof(Customer));
+
+            Assert.Equal(2, entity.GetKey().Properties.Count());
+            Assert.Equal(new [] { "Id", "Name" }, entity.GetKey().Properties.Select(p => p.Name));
+            Assert.Equal("V1", entity.GetKey()["A1"]);
+            Assert.Equal("V2", entity.GetKey()["A2"]);
+        }
+
+        [Fact]
+        public void Can_set_entity_key_with_annotations_when_no_clr_type()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+
+            modelBuilder
+                .Entity("Customer")
+                .Properties(
+                    ps =>
+                    {
+                        ps.Property<int>("Id");
+                        ps.Property<string>("Name");
+                    })
+                .Key(k => k.Properties("Id", "Name")
+                    .Annotation("A1", "V1")
+                    .Annotation("A2", "V2"));
+
+            var entity = model.GetEntityType(typeof(Customer));
+
+            Assert.Equal(2, entity.GetKey().Properties.Count());
+            Assert.Equal(new[] { "Id", "Name" }, entity.GetKey().Properties.Select(p => p.Name));
+            Assert.Equal("V1", entity.GetKey()["A1"]);
+            Assert.Equal("V2", entity.GetKey()["A2"]);
+        }
+
+        [Fact]
         public void Can_set_entity_annotation()
         {
             var model = new Model();
@@ -589,6 +635,89 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(2, entityType.ForeignKeys.Count());
             Assert.True(entityType.ForeignKeys.Last().IsUnique);
+        }
+
+        [Fact]
+        public void Can_add_index()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+
+            modelBuilder
+                .Entity<Customer>()
+                .Indexes(ixs => ixs.Index(ix => ix.Name));
+
+            var entityType = model.GetEntityType(typeof(Customer));
+
+            Assert.Equal(1, entityType.Indexes.Count());
+        }
+
+        [Fact]
+        public void Can_add_index_when_no_clr_type()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+
+            modelBuilder
+                .Entity("Customer")
+                .Properties(ps => ps.Property<string>("Name"))
+                .Indexes(ixs => ixs.Index("Name"));
+
+            var entityType = model.GetEntityType(typeof(Customer));
+
+            Assert.Equal(1, entityType.Indexes.Count());
+        }
+
+        [Fact]
+        public void Can_add_multiple_indexes()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+
+            modelBuilder
+                .Entity<Customer>()
+                .Indexes(
+                    ixs =>
+                        {
+                            ixs.Index(ix => ix.Id).IsUnique();
+                            ixs.Index(ix => ix.Name).Annotation("A1", "V1");;                            
+                        });
+
+            var entityType = model.GetEntityType(typeof(Customer));
+
+            Assert.Equal(2, entityType.Indexes.Count());
+            Assert.True(entityType.Indexes.First().IsUnique);
+            Assert.False(entityType.Indexes.Last().IsUnique);
+            Assert.Equal("V1", entityType.Indexes.Last()["A1"]);
+        }
+
+        [Fact]
+        public void Can_add_multiple_indexes_when_no_clr_type()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+
+            modelBuilder
+                .Entity("Customer")
+                .Properties(
+                    ps =>
+                        {
+                            ps.Property<int>("Id");
+                            ps.Property<string>("Name");
+                        })
+                .Indexes(
+                    ixs =>
+                    {
+                        ixs.Index("Id").IsUnique();
+                        ixs.Index("Name").Annotation("A1", "V1");
+                    });
+
+            var entityType = model.GetEntityType(typeof(Customer));
+
+            Assert.Equal(2, entityType.Indexes.Count());
+            Assert.True(entityType.Indexes.First().IsUnique);
+            Assert.False(entityType.Indexes.Last().IsUnique);
+            Assert.Equal("V1", entityType.Indexes.Last()["A1"]);
         }
     }
 }

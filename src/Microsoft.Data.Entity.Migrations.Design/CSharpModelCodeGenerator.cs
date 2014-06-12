@@ -225,17 +225,29 @@ namespace Microsoft.Data.Entity.Migrations.Design
                 return;
             }
 
-            stringBuilder
-                .AppendLine()
-                .Append(".Key(")
-                .Append(key.Properties.Select(p => DelimitString(p.Name)).Join())
-                .Append(")");
-
-            using (stringBuilder.Indent())
+            if (key.Annotations.Any())
             {
-                // TODO: ModelBuilder does not support adding annotations to key.
-                //GenerateAnnotations(key.Annotations.ToArray(), stringBuilder);
+                stringBuilder
+                    .AppendLine()
+                    .Append(".Key(k => k.Properties(")
+                    .Append(key.Properties.Select(p => DelimitString(p.Name)).Join())
+                    .Append(")");
+
+                using (stringBuilder.Indent())
+                {
+                    GenerateAnnotations(key.Annotations.ToArray(), stringBuilder);
+                }
+
+                stringBuilder.Append(")");
             }
+            else
+            {
+                stringBuilder
+                    .AppendLine()
+                    .Append(".Key(")
+                    .Append(key.Properties.Select(p => DelimitString(p.Name)).Join())
+                    .Append(")");
+            }            
         }
 
         protected virtual void GenerateForeignKeys(

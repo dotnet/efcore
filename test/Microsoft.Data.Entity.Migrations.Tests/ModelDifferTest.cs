@@ -15,15 +15,17 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         {
             var operations = new ModelDiffer(new DatabaseBuilder()).CreateSchema(CreateModel());
 
-            Assert.Equal(3, operations.Count);
+            Assert.Equal(4, operations.Count);
 
             var createTableOperation0 = (CreateTableOperation)operations[0];
             var createTableOperation1 = (CreateTableOperation)operations[1];
             var addForeignKeyOperation = (AddForeignKeyOperation)operations[2];
+            var createIndexOperation = (CreateIndexOperation)operations[3];
 
             Assert.Equal("dbo.MyTable0", createTableOperation0.Table.Name);
             Assert.Equal("dbo.MyTable1", createTableOperation1.Table.Name);
             Assert.Equal("MyFK", addForeignKeyOperation.ForeignKeyName);
+            Assert.Equal("MyIndex", createIndexOperation.IndexName);
         }
 
         [Fact]
@@ -450,6 +452,96 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         }
 
         [Fact]
+        public void Diff_finds_added_index()
+        {
+            var sourceModel = CreateModel();
+            var targetModel = CreateModel();
+
+            var entityType = sourceModel.GetEntityType("Dependent");
+            entityType.RemoveIndex(entityType.Indexes[0]);
+
+            var operations = new ModelDiffer(new DatabaseBuilder()).Diff(sourceModel, targetModel);
+
+            Assert.Equal(1, operations.Count);
+            Assert.IsType<CreateIndexOperation>(operations[0]);
+
+            var createIndexOperation = (CreateIndexOperation)operations[0];
+
+            Assert.Equal("dbo.MyTable0", createIndexOperation .TableName);
+            Assert.Equal("MyIndex", createIndexOperation.IndexName);
+            Assert.Equal(new[] { "Id" }, createIndexOperation.ColumnNames);
+            Assert.True(createIndexOperation.IsUnique);
+        }
+
+        [Fact]
+        public void Diff_finds_removed_index()
+        {
+            var sourceModel = CreateModel();
+            var targetModel = CreateModel();
+
+            var entityType = targetModel.GetEntityType("Dependent");
+            entityType.RemoveIndex(entityType.Indexes[0]);
+
+            var operations = new ModelDiffer(new DatabaseBuilder()).Diff(sourceModel, targetModel);
+
+            Assert.Equal(1, operations.Count);
+            Assert.IsType<DropIndexOperation>(operations[0]);
+
+            var dropIndexOperation = (DropIndexOperation)operations[0];
+
+            Assert.Equal("dbo.MyTable0", dropIndexOperation.TableName);
+            Assert.Equal("MyIndex", dropIndexOperation.IndexName);
+        }
+
+        [Fact]
+        public void Diff_finds_renamed_index()
+        {
+            var sourceModel = CreateModel();
+            var targetModel = CreateModel();
+
+            var entityType = targetModel.GetEntityType("Dependent");
+            var index = entityType.Indexes[0];
+            index.StorageName = "MyNewIndex";
+
+            var operations = new ModelDiffer(new DatabaseBuilder()).Diff(sourceModel, targetModel);
+
+            Assert.Equal(1, operations.Count);
+            Assert.IsType<RenameIndexOperation>(operations[0]);
+
+            var renameIndexOperation = (RenameIndexOperation)operations[0];
+
+            Assert.Equal("dbo.MyTable0", renameIndexOperation.TableName);
+            Assert.Equal("MyIndex", renameIndexOperation.IndexName);
+            Assert.Equal("MyNewIndex", renameIndexOperation.NewIndexName);
+        }
+
+        [Fact]
+        public void Diff_finds_index_with_unique_updated()
+        {
+            var sourceModel = CreateModel();
+            var targetModel = CreateModel();
+
+            var entityType = targetModel.GetEntityType("Dependent");
+            var index = entityType.Indexes[0];
+            index.IsUnique = false;
+
+            var operations = new ModelDiffer(new DatabaseBuilder()).Diff(sourceModel, targetModel);
+
+            Assert.Equal(2, operations.Count);
+            Assert.IsType<DropIndexOperation>(operations[0]);
+            Assert.IsType<CreateIndexOperation>(operations[1]);
+
+            var dropIndexOperation = (DropIndexOperation)operations[0];
+            var createIndexOperation = (CreateIndexOperation)operations[1];
+
+            Assert.Equal("dbo.MyTable0", dropIndexOperation.TableName);
+            Assert.Equal("MyIndex", dropIndexOperation.IndexName);
+            Assert.Equal("dbo.MyTable0", createIndexOperation.TableName);
+            Assert.Equal("MyIndex", createIndexOperation.IndexName);
+            Assert.False(createIndexOperation.IsUnique);
+        }
+
+        [Fact]
         public void Diff_handles_transitive_table_renames()
         {
             var sourceModel = CreateModel();
@@ -519,6 +611,48 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             Assert.Equal("C2", renameColumnOperation2.NewColumnName);
         }
 
+        [Fact]
+        public void Diff_handles_transitive_index_renames()
+        {
+            var sourceModel = CreateModel();
+            var targetModel = CreateModel();
+
+            var principalEntityType = sourceModel.GetEntityType("Principal");
+            var property = principalEntityType.AddProperty("P1", typeof(string));
+            var index = principalEntityType.AddIndex(property);
+            index.StorageName = "IX1";
+            property = principalEntityType.AddProperty("P2", typeof(string));
+            index = principalEntityType.AddIndex(property);
+            index.StorageName = "IX2";
+
+            principalEntityType = targetModel.GetEntityType("Principal");
+            property = principalEntityType.AddProperty("P1", typeof(string));
+            index = principalEntityType.AddIndex(property);
+            index.StorageName = "IX2";
+            property = principalEntityType.AddProperty("P2", typeof(string));
+            index = principalEntityType.AddIndex(property);
+            index.StorageName = "IX1";
+
+            var operations = new ModelDiffer(new DatabaseBuilder()).Diff(sourceModel, targetModel);
+
+            Assert.Equal(3, operations.Count);
+
+            Assert.IsType<RenameIndexOperation>(operations[0]);
+            Assert.IsType<RenameIndexOperation>(operations[1]);
+            Assert.IsType<RenameIndexOperation>(operations[2]);
+
+            var renameIndexOperation0 = (RenameIndexOperation)operations[0];
+            var renameIndexOperation1 = (RenameIndexOperation)operations[1];
+            var renameIndexOperation2 = (RenameIndexOperation)operations[2];
+
+            Assert.Equal("IX1", renameIndexOperation0.IndexName);
+            Assert.Equal("__mig_tmp__0", renameIndexOperation0.NewIndexName);
+            Assert.Equal("IX2", renameIndexOperation1.IndexName);
+            Assert.Equal("IX1", renameIndexOperation1.NewIndexName);
+            Assert.Equal("__mig_tmp__0", renameIndexOperation2.IndexName);
+            Assert.Equal("IX2", renameIndexOperation2.NewIndexName);
+        }
+
         private static Metadata.Model CreateModel()
         {
             var model = new Metadata.Model() { StorageName = "MyDatabase" };
@@ -550,6 +684,10 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             foreignKey.StorageName = "MyFK";
             foreignKey.Annotations.Add(new Annotation(
                 MetadataExtensions.Annotations.CascadeDelete, "True"));
+
+            var index = dependentEntityType.AddIndex(dependentProperty);
+            index.StorageName = "MyIndex";
+            index.IsUnique = true;
 
             return model;
         }

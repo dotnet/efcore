@@ -84,6 +84,9 @@
     <Compile Include="Infrastructure\IDbContextOptionsExtensions.cs" />
     <Compile Include="INotifyPropertyChanging.cs" />
     <Compile Include="Metadata\CollectionNavigationAccessor.cs" />
+    <Compile Include="Metadata\Compiled\CompiledIndex.cs" />
+    <Compile Include="Metadata\IIndex.cs" />
+    <Compile Include="Metadata\Index.cs" />
     <Compile Include="Metadata\NavigationAccessor.cs" />
     <Compile Include="Metadata\NavigationAccessorSource.cs" />
     <Compile Include="Query\AsyncResultOperatorHandler.cs" />
@@ -218,6 +221,7 @@
     <Compile Include="Utilities\ExpressionExtensions.cs" />
     <Compile Include="Utilities\IndentedStringBuilder.cs" />
     <Compile Include="Utilities\LazyRef.cs" />
+    <Compile Include="Utilities\MetadataHelper.cs" />
     <Compile Include="Utilities\PropertyInfoExtensions.cs" />
     <Compile Include="Utilities\ReferenceEqualityComparer.cs" />
     <Compile Include="Utilities\ServiceProviderExtensions.cs" />
@@ -229,6 +233,7 @@
     <Compile Include="..\Shared\SharedTypeExtensions.cs" />
     <EmbeddedResource Include="Properties\Strings.resx">
       <LogicalName>Microsoft.Data.Entity.Strings.resources</LogicalName>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="..\..\packages\KoreBuild\build\Resources.tt">
       <Link>Properties\Resources.tt</Link>

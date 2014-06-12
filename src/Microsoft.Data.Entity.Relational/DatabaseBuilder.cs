@@ -9,6 +9,7 @@ using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.Relational.Utilities;
 using Microsoft.Data.Entity.Utilities;
 using ForeignKey = Microsoft.Data.Entity.Relational.Model.ForeignKey;
+using Index = Microsoft.Data.Entity.Relational.Model.Index;
 
 namespace Microsoft.Data.Entity.Relational
 {
@@ -49,6 +50,11 @@ namespace Microsoft.Data.Entity.Relational
 
                         var primaryKey = entityType.GetKey();
                         mapping.Map(primaryKey, BuildPrimaryKey(database, primaryKey));
+
+                        foreach (var index in entityType.Indexes)
+                        {
+                            mapping.Map(index, BuildIndex(database, index));
+                        }                        
                     }
 
                     foreach (var entityType in m.EntityTypes)
@@ -63,14 +69,14 @@ namespace Microsoft.Data.Entity.Relational
                 });
         }
 
-        private string PrimaryKeyName([NotNull] IKey primaryKey)
+        private static string PrimaryKeyName([NotNull] IKey primaryKey)
         {
             Check.NotNull(primaryKey, "primaryKey");
 
             return primaryKey.StorageName ?? string.Format("PK_{0}", primaryKey.EntityType.StorageName);
         }
 
-        private string ForeignKeyName([NotNull] IForeignKey foreignKey)
+        private static string ForeignKeyName([NotNull] IForeignKey foreignKey)
         {
             Check.NotNull(foreignKey, "foreignKey");
 
@@ -81,16 +87,14 @@ namespace Microsoft.Data.Entity.Relational
                 string.Join("_", foreignKey.Properties.OrderBy(p => p.Name).Select(p => p.StorageName)));
         }
 
-        // TODO: Use this or remove it
-        public static string IndexName([NotNull] Table table, [NotNull] IEnumerable<Column> columns)
+        private static string IndexName([NotNull] IIndex index)
         {
-            Check.NotNull(table, "table");
-            Check.NotNull(columns, "columns");
+            Check.NotNull(index, "index");
 
-            return string.Format(
+            return index.StorageName ?? string.Format(
                 "IX_{0}_{1}",
-                table.Name,
-                string.Join("_", columns.OrderBy(c => c.Name).Select(c => c.Name)));
+                index.EntityType.StorageName,
+                string.Join("_", index.Properties.OrderBy(p => p.Name).Select(p => p.StorageName)));
         }
 
         private static Table BuildTable(DatabaseModel database, IEntityType entityType)
@@ -151,6 +155,22 @@ namespace Microsoft.Data.Entity.Relational
             table.AddForeignKey(storeForeignKey);
 
             return storeForeignKey;
+        }
+
+        private static Index BuildIndex(DatabaseModel database, IIndex index)
+        {
+            Check.NotNull(index, "index");
+
+            var table = database.GetTable(index.EntityType.StorageName);
+            var columns = index.Properties.Select(
+                p => table.GetColumn(p.StorageName)).ToArray();
+
+            var storeIndex = new Index(
+                IndexName(index), columns, index.IsUnique, index.IsClustered());
+
+            table.AddIndex(storeIndex);
+
+            return storeIndex;
         }
     }
 }

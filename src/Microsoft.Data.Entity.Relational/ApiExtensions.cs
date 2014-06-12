@@ -20,9 +20,10 @@ namespace Microsoft.Data.Entity.Metadata
             public const string CascadeDelete = "CascadeDelete";
         }
 
-        public static ModelBuilder.EntityBuilder ToTable(
-            [NotNull] this ModelBuilder.EntityBuilder entityBuilder,
+        public static TEntityBuilder ToTable<TEntityBuilder>(
+            [NotNull] this TEntityBuilder entityBuilder,
             SchemaQualifiedName tableName)
+            where TEntityBuilder : ModelBuilder.EntityBuilderBase<TEntityBuilder>
         {
             Check.NotNull(entityBuilder, "entityBuilder");
 
@@ -31,22 +32,10 @@ namespace Microsoft.Data.Entity.Metadata
             return entityBuilder;
         }
 
-        public static ModelBuilder.EntityBuilder<TEntity> ToTable<TEntity>(
-            [NotNull] this ModelBuilder.EntityBuilder<TEntity> entityBuilder,
-            SchemaQualifiedName tableName)
-            where TEntity : class
-        {
-            Check.NotNull(entityBuilder, "entityBuilder");
-
-            entityBuilder.StorageName(tableName);
-
-            return entityBuilder;
-        }
-
-        public static ModelBuilder.EntityBuilderBase<ModelBuilder.EntityBuilder<TEntity>>.PropertiesBuilder.PropertyBuilder ColumnName<TEntity>(
-            [NotNull] this ModelBuilder.EntityBuilderBase<ModelBuilder.EntityBuilder<TEntity>>.PropertiesBuilder.PropertyBuilder propertyBuilder,
+        public static ModelBuilder.EntityBuilderBase<TEntityBuilder>.PropertiesBuilder.PropertyBuilder ColumnName<TEntityBuilder>(
+            [NotNull] this ModelBuilder.EntityBuilderBase<TEntityBuilder>.PropertiesBuilder.PropertyBuilder propertyBuilder,
             [NotNull] string columnName)
-            where TEntity : class
+            where TEntityBuilder : ModelBuilder.EntityBuilderBase<TEntityBuilder>
         {
             Check.NotNull(propertyBuilder, "propertyBuilder");
 
@@ -55,10 +44,10 @@ namespace Microsoft.Data.Entity.Metadata
             return propertyBuilder;
         }
 
-        public static ModelBuilder.EntityBuilderBase<ModelBuilder.EntityBuilder<TEntity>>.PropertiesBuilder.PropertyBuilder ColumnType<TEntity>(
-            [NotNull] this ModelBuilder.EntityBuilderBase<ModelBuilder.EntityBuilder<TEntity>>.PropertiesBuilder.PropertyBuilder propertyBuilder,
+        public static ModelBuilder.EntityBuilderBase<TEntityBuilder>.PropertiesBuilder.PropertyBuilder ColumnType<TEntityBuilder>(
+            [NotNull] this ModelBuilder.EntityBuilderBase<TEntityBuilder>.PropertiesBuilder.PropertyBuilder propertyBuilder,
             [NotNull] string typeName)
-            where TEntity : class
+            where TEntityBuilder : ModelBuilder.EntityBuilderBase<TEntityBuilder>
         {
             Check.NotNull(propertyBuilder, "propertyBuilder");
 
@@ -67,10 +56,10 @@ namespace Microsoft.Data.Entity.Metadata
             return propertyBuilder;
         }
 
-        public static ModelBuilder.EntityBuilderBase<ModelBuilder.EntityBuilder<TEntity>>.PropertiesBuilder.PropertyBuilder ColumnDefaultSql<TEntity>(
-            [NotNull] this ModelBuilder.EntityBuilderBase<ModelBuilder.EntityBuilder<TEntity>>.PropertiesBuilder.PropertyBuilder propertyBuilder,
+        public static ModelBuilder.EntityBuilderBase<TEntityBuilder>.PropertiesBuilder.PropertyBuilder ColumnDefaultSql<TEntityBuilder>(
+            [NotNull] this ModelBuilder.EntityBuilderBase<TEntityBuilder>.PropertiesBuilder.PropertyBuilder propertyBuilder,
             [NotNull] string columnDefaultSql)
-            where TEntity : class
+            where TEntityBuilder : ModelBuilder.EntityBuilderBase<TEntityBuilder>
         {
             Check.NotNull(propertyBuilder, "propertyBuilder");
 
@@ -79,16 +68,28 @@ namespace Microsoft.Data.Entity.Metadata
             return propertyBuilder;
         }
 
-        public static ModelBuilder.EntityBuilderBase<ModelBuilder.EntityBuilder<TEntity>>.ForeignKeysBuilder.ForeignKeyBuilder CascadeDelete<TEntity>(
-            [NotNull] this ModelBuilder.EntityBuilderBase<ModelBuilder.EntityBuilder<TEntity>>.ForeignKeysBuilder.ForeignKeyBuilder foreignKeyBuilder,
+        public static ModelBuilder.EntityBuilderBase<TEntityBuilder>.ForeignKeysBuilder.ForeignKeyBuilder CascadeDelete<TEntityBuilder>(
+            [NotNull] this ModelBuilder.EntityBuilderBase<TEntityBuilder>.ForeignKeysBuilder.ForeignKeyBuilder foreignKeyBuilder,
             bool cascadeDelete)
-            where TEntity : class
+            where TEntityBuilder : ModelBuilder.EntityBuilderBase<TEntityBuilder>
         {
             Check.NotNull(foreignKeyBuilder, "foreignKeyBuilder");
 
             foreignKeyBuilder.Annotation(Annotations.CascadeDelete, cascadeDelete.ToString());
 
             return foreignKeyBuilder;
+        }
+
+        public static ModelBuilder.EntityBuilderBase<TEntityBuilder>.IndexesBuilder.IndexBuilder IsClustered<TEntityBuilder>(
+            [NotNull] this ModelBuilder.EntityBuilderBase<TEntityBuilder>.IndexesBuilder.IndexBuilder indexesBuilder,
+            bool clustered)
+            where TEntityBuilder : ModelBuilder.EntityBuilderBase<TEntityBuilder>
+        {
+            Check.NotNull(indexesBuilder, "indexesBuilder");
+
+            indexesBuilder.Annotation(Annotations.IsClustered, clustered.ToString());
+
+            return indexesBuilder;
         }
 
         public static string ColumnType([NotNull] this IProperty property)
@@ -142,6 +143,23 @@ namespace Microsoft.Data.Entity.Metadata
             }
 
             return cascadeDelete;
+        }
+
+        // TODO: Move this to Microsoft.Data.Entity.SqlServer
+        public static bool IsClustered([NotNull] this IIndex index)
+        {
+            Check.NotNull(index, "index");
+
+            var isClusteredString = index[Annotations.IsClustered];
+
+            bool isClustered;
+            if (isClusteredString == null
+                || !bool.TryParse(isClusteredString, out isClustered))
+            {
+                isClustered = true;
+            }
+
+            return isClustered;
         }
     }
 }

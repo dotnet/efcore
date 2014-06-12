@@ -243,7 +243,9 @@ return builder.Model;",
                             ps.Property(e => e.Id);
                             ps.Property(e => e.Name);
                         })
-                .Key(e => new { e.Id, e.Name });
+                .Key(k => k.Properties(e => new { e.Id, e.Name })
+                    .Annotation("A1", "V1")
+                    .Annotation("A2", "V2"));
 
             var stringBuilder = new IndentedStringBuilder();
             new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
@@ -257,7 +259,9 @@ builder.Entity(""Customer"")
                 ps.Property<int>(""Id"");
                 ps.Property<string>(""Name"");
             })
-    .Key(""Id"", ""Name"");
+    .Key(k => k.Properties(""Id"", ""Name"")
+        .Annotation(""A1"", ""V1"")
+        .Annotation(""A2"", ""V2""));
 return builder.Model;",
                 stringBuilder.ToString());
         }
