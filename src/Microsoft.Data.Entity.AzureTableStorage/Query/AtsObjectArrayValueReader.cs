@@ -7,40 +7,60 @@ using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Query
 {
-    public class AtsObjectArrayValueReader : ObjectArrayValueReader
+    //TODO generalize this functionality
+    public class AtsObjectArrayValueReader : IValueReader
     {
+        private readonly object[] _values;
+
         public AtsObjectArrayValueReader(object[] valueBuffer)
-            : base(valueBuffer)
         {
+            _values = valueBuffer;
         }
 
-        public override T ReadValue<T>(int index)
+        public bool IsNull(int index)
         {
-            try
+            return _values[index] == null;
+        }
+
+        public T ReadValue<T>(int index)
+        {
+            if (IsNull(index))
             {
-                return base.ReadValue<T>(index);
+                return default(T);
             }
-            catch (InvalidCastException)
+            if (_values[index] is T)
             {
-                var readValue = base.ReadValue<string>(index);
-                var parsed = FromString<T>(readValue);
+                return (T)_values[index];
+            }
+            if (_values[index] is string)
+            {
+                var parsed = FromString<T>(_values[index] as string);
                 if (parsed != null)
                 {
                     return (T)parsed;
                 }
-                throw;
             }
+            throw new TypeAccessException(Strings.FormatInvalidReadType(typeof(T).Name, index));
+        }
+
+        public int Count
+        {
+            get { return _values.Length; }
         }
 
         private static object FromString<T>(string readValue)
         {
+            if (readValue == null)
+            {
+                return null;
+            }
             if (typeof(int).IsAssignableFrom(typeof(T)))
             {
                 int i;
                 if (int.TryParse(readValue, out i))
                 {
                     return i;
-                } 
+                }
             }
             else if (typeof(double).IsAssignableFrom(typeof(T)))
             {
@@ -58,6 +78,14 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
                     return l;
                 }
             }
+            else if (typeof(bool).IsAssignableFrom(typeof(T)))
+            {
+                bool b;
+                if (bool.TryParse(readValue, out b))
+                {
+                    return b;
+                }
+            }
             else if (typeof(Guid).IsAssignableFrom(typeof(T)))
             {
                 Guid g;
@@ -69,7 +97,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
             else if (typeof(DateTimeOffset).IsAssignableFrom(typeof(T)))
             {
                 DateTimeOffset d;
-                if (DateTimeOffset.TryParse(readValue,CultureInfo.InvariantCulture,DateTimeStyles.AdjustToUniversal, out d))
+                if (DateTimeOffset.TryParse(readValue, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out d))
                 {
                     return d;
                 }
@@ -77,14 +105,12 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
             else if (typeof(DateTime).IsAssignableFrom(typeof(T)))
             {
                 DateTime d;
-                if (DateTime.TryParse(readValue,CultureInfo.InvariantCulture,DateTimeStyles.AdjustToUniversal, out d))
+                if (DateTime.TryParse(readValue, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out d))
                 {
                     return d;
                 }
             }
             return null;
         }
-
-
     }
 }

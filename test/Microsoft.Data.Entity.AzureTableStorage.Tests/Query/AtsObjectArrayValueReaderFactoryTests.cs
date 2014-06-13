@@ -65,9 +65,23 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
             var buffer = new AtsNamedValueBuffer(new Dictionary<string, EntityProperty>());
             var reader = _factory.Create(entityType, buffer);
 
-            Assert.Equal(2,reader.Count);
+            Assert.Equal(2, reader.Count);
             Assert.True(reader.IsNull(0));
             Assert.True(reader.IsNull(1));
+            Assert.DoesNotThrow(() => reader.ReadValue<string>(0));
+        }
+
+        [Fact]
+        public void Reader_uses_default_clr_for_unmapped_properties()
+        {
+            var entityType = new EntityType("TestType");
+            entityType.AddProperty("BoolProp", typeof(bool));
+
+            var buffer = new AtsNamedValueBuffer(new Dictionary<string, EntityProperty>());
+            var reader = _factory.Create(entityType, buffer);
+
+            Assert.False(reader.ReadValue<bool>(0));
+            Assert.True(reader.IsNull(0));
         }
     }
 }
