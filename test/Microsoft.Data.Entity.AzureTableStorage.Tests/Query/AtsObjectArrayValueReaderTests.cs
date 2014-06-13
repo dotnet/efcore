@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
         [Fact]
         public void It_reads_dates_from_string()
         {
-            var reader = new AtsObjectArrayValueReader(new object[] { "11/11/2011 8:11:11.000000 AM -3:00"});
+            var reader = new AtsObjectArrayValueReader(new object[] { "11/11/2011 8:11:11.000000 AM -3:00" });
             Assert.Equal(new DateTimeOffset(2011, 11, 11, 11, 11, 11, 0, TimeSpan.Zero), reader.ReadValue<DateTimeOffset>(0));
             Assert.Equal(new DateTime(2011, 11, 11, 11, 11, 11, 0, DateTimeKind.Utc), reader.ReadValue<DateTime>(0));
         }
@@ -45,7 +45,15 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
         public void It_reads_doubles_from_string()
         {
             var reader = new AtsObjectArrayValueReader(new object[] { "3.14159" });
-            Assert.Equal(3.14159,reader.ReadValue<double>(0));
+            Assert.Equal(3.14159, reader.ReadValue<double>(0));
+        }
+
+        [Fact]
+        public void It_parses_bool_from_string()
+        {
+            var reader = new AtsObjectArrayValueReader(new object[] { "true", "false" });
+            Assert.True(reader.ReadValue<bool>(0));
+            Assert.False(reader.ReadValue<bool>(1));
         }
 
         [Fact]
@@ -55,19 +63,34 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
             PocoTestType p = null;
 
             var reader = new AtsObjectArrayValueReader(new object[] { null, i, p });
-            Assert.Equal(3,reader.Count);
+            Assert.Equal(3, reader.Count);
             for (var idx = 0; idx < reader.Count; idx++)
             {
                 Assert.True(reader.IsNull(idx));
-                Assert.Null(reader.ReadValue<object>(idx));
             }
         }
 
         [Fact]
-        public void Throws_if_cannot_parse()
+        public void Throws_if_read_type_mismatch()
         {
             var reader = new AtsObjectArrayValueReader(new object[] { "value" });
-            Assert.Throws<InvalidCastException>(() => reader.ReadValue<bool>(0));
+            Assert.Equal(
+                Strings.FormatInvalidReadType("Boolean", 0),
+                Assert.Throws<TypeAccessException>(() => reader.ReadValue<bool>(0)).Message);
+        }
+
+        [Fact]
+        public void Returns_default_clr_when_null()
+        {
+            var reader = new AtsObjectArrayValueReader(new object[] { null });
+            Assert.True(reader.IsNull(0));
+            Assert.Equal(default(bool), reader.ReadValue<bool>(0));
+            Assert.Equal(default(int), reader.ReadValue<int>(0));
+            Assert.Equal(default(double), reader.ReadValue<double>(0));
+            Assert.Equal(default(float), reader.ReadValue<float>(0));
+            Assert.Equal(default(long), reader.ReadValue<long>(0));
+            Assert.Equal(default(char), reader.ReadValue<char>(0));
+            Assert.Equal(default(string), reader.ReadValue<string>(0));
         }
     }
 }

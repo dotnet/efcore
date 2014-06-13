@@ -9,7 +9,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
 {
     public class AtsNamedValueBuffer
     {
-        private IDictionary<string, EntityProperty> _values;
+        private readonly IDictionary<string, EntityProperty> _values;
 
         internal AtsNamedValueBuffer(IDictionary<string, EntityProperty> values)
         {
@@ -18,14 +18,12 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
 
         public object TryGet(string key)
         {
-            try
+            EntityProperty obj;
+            if (_values.TryGetValue(key, out obj))
             {
-                return this[key];
+                return obj.PropertyAsObject;
             }
-            catch (KeyNotFoundException)
-            {
-                return null;
-            }
+            return null;
         }
 
         public object this[string key]

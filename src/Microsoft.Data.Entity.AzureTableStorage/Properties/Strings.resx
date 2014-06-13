@@ -135,4 +135,7 @@
   <data name="AtsDatabaseNotInUse" xml:space="preserve">
     <value>This database cannot be used as an AzureTableStorageDatabase</value>
   </data>
+  <data name="InvalidReadType" xml:space="preserve">
+    <value>Cannot read value of type '{typeName}' from '{accessName}'</value>
+  </data>
 </root>

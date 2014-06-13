@@ -106,6 +106,22 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             return GetString("AtsDatabaseNotInUse");
         }
 
+        /// <summary>
+        /// Cannot read value of type '{typeName}' from '{accessName}'
+        /// </summary>
+        internal static string InvalidReadType
+        {
+            get { return GetString("InvalidReadType"); }
+        }
+
+        /// <summary>
+        /// Cannot read value of type '{typeName}' from '{accessName}'
+        /// </summary>
+        internal static string FormatInvalidReadType(object typeName, object accessName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidReadType", "typeName", "accessName"), typeName, accessName);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

@@ -96,7 +96,7 @@
     <Compile Include="Query\AtsObjectArrayValueReaderFactoryTests.cs" />
     <Compile Include="Query\AtsObjectArrayValueReaderTests.cs" />
     <Compile Include="Query\StateEntryTableEntityAdapterTest.cs" />
-    <Compile Include="Query\ModelVisitorTests.cs" />
+    <Compile Include="Query\AtsQueryModelVisitorTests.cs" />
     <Compile Include="Query\TableFilterFactoryTests.cs" />
     <Compile Include="Query\TableQueryTest.cs" />
   </ItemGroup>
