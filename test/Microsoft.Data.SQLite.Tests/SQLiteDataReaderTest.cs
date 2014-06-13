@@ -702,6 +702,27 @@ namespace Microsoft.Data.SQLite
         }
 
         [Fact]
+        public void GetFieldValue_throws_when_null()
+        {
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT NULL";
+                connection.Open();
+
+                using (var reader = command.ExecuteReader())
+                {
+                    reader.Read();
+
+                    Assert.Throws<InvalidCastException>(() => reader.GetFieldValue<long>(0));
+                    Assert.Throws<InvalidCastException>(() => reader.GetFieldValue<double>(0));
+                    Assert.Throws<InvalidCastException>(() => reader.GetFieldValue<string>(0));
+                    Assert.Throws<InvalidCastException>(() => reader.GetFieldValue<byte[]>(0));
+                }
+            }
+        }
+
+        [Fact]
         public void GetValue_throws_when_closed()
         {
             var reader = CreateReader();
