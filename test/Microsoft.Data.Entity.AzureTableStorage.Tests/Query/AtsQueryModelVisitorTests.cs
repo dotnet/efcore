@@ -4,30 +4,27 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using Microsoft.Data.Entity.AzureTableStorage.Adapters;
 using Microsoft.Data.Entity.AzureTableStorage.Query;
 using Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.WindowsAzure.Storage.Table;
 using Xunit;
-
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
 {
-    public class ModelVisitorTests : AtsQueryModelVisitor, IClassFixture<TestModelFixture>
+    public class AtsQueryModelVisitorTests : AtsQueryModelVisitor, IClassFixture<TestModelFixture>
     {
         private Model _model;
         private readonly TestModelFixture _fixture;
 
-        public ModelVisitorTests(TestModelFixture fixture)
-            : base(new AtsQueryCompilationContext(SetupModel(fixture),new TableFilterFactory()))
+        public AtsQueryModelVisitorTests(TestModelFixture fixture)
+            : base(new AtsQueryCompilationContext(SetupModel(fixture), new TableFilterFactory()))
         {
             _fixture = fixture;
         }
 
         private static IModel SetupModel(TestModelFixture fixture)
         {
-            var model=fixture.CreateTestModel("TestModel");
+            var model = fixture.CreateTestModel("TestModel");
             model.AddEntityType(PocoTestType.EntityType());
             return model;
         }
@@ -47,7 +44,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
             visitor.VisitExpression(querySource.FromExpression);
 
             Assert.True(TryGetTableQuery(querySource, out query));
-            Assert.IsType<AzureTableStorage.Query.AtsTableQuery>(query);
+            Assert.IsType<AtsTableQuery>(query);
             Assert.NotNull(query);
         }
 
@@ -74,7 +71,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
         }
 
         public static readonly DateTime ConstantDateTime = new DateTime(2014, 5, 23, 18, 0, 0, DateTimeKind.Utc);
-        public static readonly byte[] TestByteArray = new byte[] { 5, 8, 15, 16, 23, 42 };
+        public static readonly byte[] TestByteArray = { 5, 8, 15, 16, 23, 42 };
 
         public static IEnumerable<object[]> DataTypeWhereExpressions
         {
