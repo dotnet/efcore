@@ -366,7 +366,7 @@ namespace Microsoft.Data.Entity.Metadata
                 }
 
                 public ForeignKeyBuilder ForeignKey<TReferencedEntityType>(
-                    [NotNull] Expression<Func<TEntity, object>> foreignKeyExpression)
+                    [NotNull] Expression<Func<TEntity, object>> foreignKeyExpression, bool isUnique = false)
                 {
                     Check.NotNull(foreignKeyExpression, "foreignKeyExpression");
 
@@ -378,8 +378,8 @@ namespace Microsoft.Data.Entity.Metadata
                             .ToArray();
 
                     // TODO: This code currently assumes that the FK maps to a PK on the principal end
-                    var foreignKey
-                        = EntityType.AddForeignKey(principalType.GetKey(), dependentProperties);
+                    var foreignKey = EntityType.AddForeignKey(principalType.GetKey(), dependentProperties);
+                    foreignKey.IsUnique = isUnique;
 
                     return new ForeignKeyBuilder(foreignKey);
                 }

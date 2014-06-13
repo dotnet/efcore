@@ -4,7 +4,6 @@
 using System;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
-using Moq;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.ChangeTracking
@@ -14,22 +13,15 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Creates_a_new_primary_key_for_key_values_in_the_given_entry()
         {
-            var keyPart1 = new Mock<IProperty>().Object;
-            var keyPart2 = new Mock<IProperty>().Object;
-            var keyPart3 = new Mock<IProperty>().Object;
-
-            var typeMock = new Mock<IEntityType>();
-            typeMock.Setup(m => m.GetKey().Properties).Returns(new[] { keyPart1, keyPart2, keyPart3 });
+            var model = BuildModel();
+            var type = model.GetEntityType(typeof(Banana));
 
             var random = new Random();
-            var entryMock = new Mock<StateEntry>();
-            entryMock.Setup(m => m[keyPart1]).Returns(7);
-            entryMock.Setup(m => m[keyPart2]).Returns("Ate");
-            entryMock.Setup(m => m[keyPart3]).Returns(random);
-            entryMock.Setup(m => m.EntityType).Returns(typeMock.Object);
+            var entity = new Banana { P1 = 7, P2 = "Ate", P3 = random };
 
-            var key = (CompositeEntityKey)new CompositeEntityKeyFactory().Create(
-                typeMock.Object, typeMock.Object.GetKey().Properties, entryMock.Object);
+            var entry = new ClrStateEntry(TestHelpers.CreateContextConfiguration(model), type, entity);
+
+            var key = (CompositeEntityKey)new CompositeEntityKeyFactory().Create(type, type.GetKey().Properties, entry);
 
             Assert.Equal(new object[] { 7, "Ate", random }, key.Value);
         }
@@ -37,114 +29,126 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Creates_a_new_key_for_non_primary_key_values_in_the_given_entry()
         {
-            var keyProp = new Mock<IProperty>().Object;
-            var nonKeyPart1 = new Mock<IProperty>().Object;
-            var nonKeyPart2 = new Mock<IProperty>().Object;
-
-            var typeMock = new Mock<IEntityType>();
-            typeMock.Setup(m => m.GetKey().Properties).Returns(new[] { keyProp });
+            var model = BuildModel();
+            var type = model.GetEntityType(typeof(Banana));
 
             var random = new Random();
-            var entryMock = new Mock<StateEntry>();
-            entryMock.Setup(m => m[keyProp]).Returns(7);
-            entryMock.Setup(m => m[nonKeyPart1]).Returns("Ate");
-            entryMock.Setup(m => m[nonKeyPart2]).Returns(random);
-            entryMock.Setup(m => m.EntityType).Returns(typeMock.Object);
+            var entity = new Banana { P5 = "Ate", P6 = random };
+
+            var entry = new ClrStateEntry(TestHelpers.CreateContextConfiguration(model), type, entity);
 
             var key = (CompositeEntityKey)new CompositeEntityKeyFactory().Create(
-                typeMock.Object, new[] { nonKeyPart2, nonKeyPart1 }, entryMock.Object);
+                type, new[] { type.GetProperty("P6"), type.GetProperty("P5") }, entry);
 
             Assert.Equal(new object[] { random, "Ate" }, key.Value);
         }
 
         [Fact]
-        public void Returns_null_if_any_value_in_the_entry_properties_is_null()
+        public void Creates_a_new_key_for_values_from_a_sidecar()
         {
-            var keyProp = new Mock<IProperty>().Object;
-            var nonKeyPart1 = new Mock<IProperty>().Object;
-            var nonKeyPart2 = new Mock<IProperty>().Object;
-
-            var typeMock = new Mock<IEntityType>();
-            typeMock.Setup(m => m.GetKey().Properties).Returns(new[] { keyProp });
+            var model = BuildModel();
+            var type = model.GetEntityType(typeof(Banana));
 
             var random = new Random();
-            var entryMock = new Mock<StateEntry>();
-            entryMock.Setup(m => m[keyProp]).Returns(7);
-            entryMock.Setup(m => m[nonKeyPart1]).Returns("Ate");
-            entryMock.Setup(m => m[nonKeyPart2]).Returns(null);
-            entryMock.Setup(m => m.EntityType).Returns(typeMock.Object);
+            var entity = new Banana { P4 = 7, P5 = "Ate", P6 = random };
 
-            Assert.Null(new CompositeEntityKeyFactory().Create(
-                typeMock.Object, new[] { nonKeyPart2, nonKeyPart1 }, entryMock.Object));
+            var entry = new ClrStateEntry(TestHelpers.CreateContextConfiguration(model), type, entity);
+
+            var sidecar = new ForeignKeysSnapshot(entry);
+            sidecar[type.GetProperty("P4")] = 77;
+
+            var key = (CompositeEntityKey)new CompositeEntityKeyFactory().Create(
+                type, new[] { type.GetProperty("P6"), type.GetProperty("P4"), type.GetProperty("P5") }, sidecar);
+
+            Assert.Equal(new object[] { random, 77, "Ate" }, key.Value);
+        }
+
+        [Fact]
+        public void Returns_null_if_any_value_in_the_entry_properties_is_null()
+        {
+            var model = BuildModel();
+            var type = model.GetEntityType(typeof(Banana));
+
+            var random = new Random();
+            var entity = new Banana { P1 = 7, P2 = null, P3 = random };
+
+            var entry = new ClrStateEntry(TestHelpers.CreateContextConfiguration(model), type, entity);
+
+            Assert.Null(new CompositeEntityKeyFactory().Create(type, type.GetKey().Properties, entry));
         }
 
         [Fact]
         public void Creates_a_new_primary_key_for_key_values_in_the_given_value_buffer()
         {
-            var keyPart1Mock = new Mock<IProperty>();
-            keyPart1Mock.Setup(m => m.Index).Returns(0);
-            var keyPart2Mock = new Mock<IProperty>();
-            keyPart2Mock.Setup(m => m.Index).Returns(1);
-            var keyPart3Mock = new Mock<IProperty>();
-            keyPart3Mock.Setup(m => m.Index).Returns(2);
-
-            var typeMock = new Mock<IEntityType>();
-            typeMock.Setup(m => m.GetKey().Properties).Returns(new[] { keyPart1Mock.Object, keyPart2Mock.Object, keyPart3Mock.Object });
+            var model = BuildModel();
+            var type = model.GetEntityType(typeof(Banana));
 
             var random = new Random();
 
             var key = (CompositeEntityKey)new CompositeEntityKeyFactory().Create(
-                typeMock.Object, typeMock.Object.GetKey().Properties, new ObjectArrayValueReader(new object[] { 7, "Ate", random }));
+                type, type.GetKey().Properties, new ObjectArrayValueReader(new object[] { 7, "Ate", random }));
 
-            Assert.Equal(new Object[] { 7, "Ate", random }, key.Value);
+            Assert.Equal(new object[] { 7, "Ate", random }, key.Value);
         }
 
         [Fact]
         public void Creates_a_new_key_for_non_primary_key_values_in_the_given_value_buffer()
         {
-            var keyPropMock = new Mock<IProperty>();
-            keyPropMock.Setup(m => m.Index).Returns(0);
-            var nonKeyPart1Mock = new Mock<IProperty>();
-            nonKeyPart1Mock.Setup(m => m.Index).Returns(1);
-            var nonKeyPart2Mock = new Mock<IProperty>();
-            nonKeyPart2Mock.Setup(m => m.Index).Returns(2);
-
-            var typeMock = new Mock<IEntityType>();
-            typeMock.Setup(m => m.GetKey().Properties).Returns(new[] { keyPropMock.Object });
+            var model = BuildModel();
+            var type = model.GetEntityType(typeof(Banana));
 
             var random = new Random();
 
             var key = (CompositeEntityKey)new CompositeEntityKeyFactory().Create(
-                typeMock.Object, new[] { nonKeyPart2Mock.Object, nonKeyPart1Mock.Object }, new ObjectArrayValueReader(new object[] { 7, "Ate", random }));
+                type,
+                new[] { type.GetProperty("P6"), type.GetProperty("P5") },
+                new ObjectArrayValueReader(new object[] { null, null, null, null, "Ate", random }));
 
-            Assert.Equal(new Object[] { random, "Ate" }, key.Value);
+            Assert.Equal(new object[] { random, "Ate" }, key.Value);
         }
 
         [Fact]
         public void Returns_null_if_any_value_in_the_given_buffer_is_null()
         {
-            var keyPropMock = new Mock<IProperty>();
-            keyPropMock.Setup(m => m.Index).Returns(0);
-            var nonKeyPart1Mock = new Mock<IProperty>();
-            nonKeyPart1Mock.Setup(m => m.Index).Returns(1);
-            var nonKeyPart2Mock = new Mock<IProperty>();
-            nonKeyPart2Mock.Setup(m => m.Index).Returns(2);
-
-            var typeMock = new Mock<IEntityType>();
-            typeMock.Setup(m => m.GetKey().Properties).Returns(new[] { keyPropMock.Object });
+            var model = BuildModel();
+            var type = model.GetEntityType(typeof(Banana));
 
             var random = new Random();
 
-            var key = new CompositeEntityKeyFactory().Create(
-                typeMock.Object,
-                new[]
-                    {
-                        nonKeyPart2Mock.Object,
-                        nonKeyPart1Mock.Object
-                    },
-                new ObjectArrayValueReader(new object[] { 7, null, random }));
+            Assert.Null(new CompositeEntityKeyFactory().Create(
+                type, 
+                new[] { type.GetProperty("P6"), type.GetProperty("P5") }, 
+                new ObjectArrayValueReader(new object[] { 7, "Ate", random, 77, null, random })));
+        }
 
-            Assert.Null(key);
+        private static Model BuildModel()
+        {
+            var model = new Model();
+
+            var entityType = new EntityType(typeof(Banana));
+            var property1 = entityType.AddProperty("P1", typeof(int));
+            var property2 = entityType.AddProperty("P2", typeof(string));
+            var property3 = entityType.AddProperty("P3", typeof(Random));
+            var property4 = entityType.AddProperty("P4", typeof(int));
+            var property5 = entityType.AddProperty("P5", typeof(string));
+            var property6 = entityType.AddProperty("P6", typeof(Random));
+
+            entityType.SetKey(property1, property2, property3);
+            entityType.AddForeignKey(entityType.GetKey(), property6, property4, property5);
+
+            model.AddEntityType(entityType);
+
+            return model;
+        }
+
+        private class Banana
+        {
+            public int P1 { get; set; }
+            public string P2 { get; set; }
+            public Random P3 { get; set; }
+            public int P4 { get; set; }
+            public string P5 { get; set; }
+            public Random P6 { get; set; }
         }
     }
 }

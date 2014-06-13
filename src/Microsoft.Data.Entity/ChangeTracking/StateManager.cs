@@ -124,7 +124,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             return foundChanges;
         }
 
-        public virtual void StartTracking([NotNull] StateEntry entry)
+        public virtual StateEntry StartTracking([NotNull] StateEntry entry)
         {
             Check.NotNull(entry, "entry");
 
@@ -168,6 +168,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
             {
                 _identityMap[keyValue] = entry;
             }
+
+            return entry;
         }
 
         public virtual void StopTracking([NotNull] StateEntry entry)

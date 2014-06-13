@@ -197,10 +197,82 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var entry = CreateStateEntry(configuration, entityType, new SomeDependentEntity());
             entry[fkProperty] = 77;
+            entry.ForeignKeysSnapshot[fkProperty] = 78;
 
             var keyValue = entry.GetDependentKeyValue(entityType.ForeignKeys.Single());
             Assert.IsType<SimpleEntityKey<int>>(keyValue);
             Assert.Equal(77, keyValue.Value);
+        }
+
+        [Fact]
+        public void Can_create_foreign_key_value_based_on_snapshot_dependent_values()
+        {
+            var model = BuildModel();
+            var entityType = model.GetEntityType("SomeDependentEntity");
+            var fkProperty = entityType.GetProperty("SomeEntityId");
+            var configuration = TestHelpers.CreateContextConfiguration(model);
+
+            var entry = CreateStateEntry(configuration, entityType, new SomeDependentEntity());
+            entry[fkProperty] = 77;
+            entry.ForeignKeysSnapshot[fkProperty] = 78;
+
+            var keyValue = entry.GetDependentKeySnapshot(entityType.ForeignKeys.Single());
+            Assert.IsType<SimpleEntityKey<int>>(keyValue);
+            Assert.Equal(78, keyValue.Value);
+        }
+
+        [Fact]
+        public void Can_create_foreign_key_value_based_on_snapshot_dependent_values_if_value_not_yet_snapshotted()
+        {
+            var model = BuildModel();
+            var entityType = model.GetEntityType("SomeDependentEntity");
+            var fkProperty = entityType.GetProperty("SomeEntityId");
+            var configuration = TestHelpers.CreateContextConfiguration(model);
+
+            var entry = CreateStateEntry(configuration, entityType, new SomeDependentEntity());
+            entry[fkProperty] = 77;
+
+            var keyValue = entry.GetDependentKeySnapshot(entityType.ForeignKeys.Single());
+            Assert.IsType<SimpleEntityKey<int>>(keyValue);
+            Assert.Equal(77, keyValue.Value);
+        }
+
+        [Fact]
+        public void Notification_that_an_FK_property_has_changed_updates_the_snapshot()
+        {
+            var model = BuildModel();
+            var entityType = model.GetEntityType("SomeDependentEntity");
+            var fkProperty = entityType.GetProperty("SomeEntityId");
+            var configuration = TestHelpers.CreateContextConfiguration(model);
+
+            var entry = CreateStateEntry(configuration, entityType, new SomeDependentEntity());
+            entry[fkProperty] = 77;
+            entry.ForeignKeysSnapshot[fkProperty] = 78;
+
+            entry[fkProperty] = 79;
+
+            var keyValue = entry.GetDependentKeySnapshot(entityType.ForeignKeys.Single());
+            Assert.IsType<SimpleEntityKey<int>>(keyValue);
+            Assert.Equal(79, keyValue.Value);
+        }
+
+        [Fact]
+        public void Setting_property_to_the_same_value_does_not_update_the_snapshot()
+        {
+            var model = BuildModel();
+            var entityType = model.GetEntityType("SomeDependentEntity");
+            var fkProperty = entityType.GetProperty("SomeEntityId");
+            var configuration = TestHelpers.CreateContextConfiguration(model);
+
+            var entry = CreateStateEntry(configuration, entityType, new SomeDependentEntity());
+            entry[fkProperty] = 77;
+            entry.ForeignKeysSnapshot[fkProperty] = 78;
+
+            entry[fkProperty] = 77;
+
+            var keyValue = entry.GetDependentKeySnapshot(entityType.ForeignKeys.Single());
+            Assert.IsType<SimpleEntityKey<int>>(keyValue);
+            Assert.Equal(78, keyValue.Value);
         }
 
         [Fact]

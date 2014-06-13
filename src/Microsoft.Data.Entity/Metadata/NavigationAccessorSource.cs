@@ -43,23 +43,14 @@ namespace Microsoft.Data.Entity.Metadata
 
         private NavigationAccessor Create(INavigation navigation)
         {
-            var elementType = navigation.EntityType.Type.GetAnyProperty(navigation.Name).PropertyType.TryGetElementType(typeof(IEnumerable<>));
-
-            var targetType = navigation.PointsToPrincipal
-                ? navigation.ForeignKey.ReferencedEntityType
-                : navigation.ForeignKey.EntityType;
-
-            // TODO: Consider allowing an annotation to force treating a reference to an Entity which is an IEnumerable of
-            // itself as a reference instead of a collection. Currently it will be considered a collection nav prop, which it isn't.
-
-            return elementType != null && elementType.GetTypeInfo().IsAssignableFrom(targetType.Type.GetTypeInfo())
-                ? new CollectionNavigationAccessor(
+            return navigation.PointsToPrincipal || navigation.ForeignKey.IsUnique
+                ? new NavigationAccessor(
+                    () => _getterSource.GetAccessor(navigation),
+                    () => _setterSource.GetAccessor(navigation))
+                : new CollectionNavigationAccessor(
                     () => _getterSource.GetAccessor(navigation),
                     () => _setterSource.GetAccessor(navigation),
-                    () => _collectionAccessorSource.GetAccessor(navigation))
-                : new NavigationAccessor(
-                    () => _getterSource.GetAccessor(navigation),
-                    () => _setterSource.GetAccessor(navigation));
+                    () => _collectionAccessorSource.GetAccessor(navigation));
         }
     }
 }

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
@@ -41,16 +42,29 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             foreach (var foreignKey in entry.EntityType.ForeignKeys.Where(p => p.Properties.Contains(property)).Distinct())
             {
+                var navigations = _stateManager.Model.GetNavigations(foreignKey).ToArray();
+
                 var oldPrincipalEntry = _stateManager.GetPrincipal(entry, foreignKey, useForeignKeySnapshot: true);
                 if (oldPrincipalEntry != null)
                 {
-                    UndoFixup(foreignKey, oldPrincipalEntry, entry);
+                    Unfixup(navigations, oldPrincipalEntry, entry);
                 }
 
                 var principalEntry = _stateManager.GetPrincipal(entry, foreignKey, useForeignKeySnapshot: false);
                 if (principalEntry != null)
                 {
-                    DoFixup(foreignKey, principalEntry, new[] { entry });
+                    if (foreignKey.IsUnique)
+                    {
+                        var oldDependents = _stateManager.GetDependents(principalEntry, foreignKey).Where(e => e != entry).ToArray();
+
+                        // TODO: Decide how to handle case where multiple values found (negative case)
+                        if (oldDependents.Length > 0)
+                        {
+                            StealReference(foreignKey, oldDependents[0]);
+                        }
+                    }
+
+                    DoFixup(navigations, principalEntry, new[] { entry });
                 }
             }
         }
@@ -95,7 +109,12 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         private void DoFixup(IForeignKey foreignKey, StateEntry principalEntry, StateEntry[] dependentEntries)
         {
-            foreach (var navigation in _stateManager.Model.GetNavigations(foreignKey))
+            DoFixup(_stateManager.Model.GetNavigations(foreignKey).ToArray(), principalEntry, dependentEntries);
+        }
+
+        private void DoFixup(IEnumerable<INavigation> navigations, StateEntry principalEntry, StateEntry[] dependentEntries)
+        {
+            foreach (var navigation in navigations)
             {
                 var accessor = _accessorSource.GetAccessor(navigation);
 
@@ -128,9 +147,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
         }
 
-        private void UndoFixup(IForeignKey foreignKey, StateEntry oldPrincipalEntry, StateEntry dependentEntry)
+        private void Unfixup(IEnumerable<INavigation> navigations, StateEntry oldPrincipalEntry, StateEntry dependentEntry)
         {
-            foreach (var navigation in _stateManager.Model.GetNavigations(foreignKey))
+            foreach (var navigation in navigations)
             {
                 var accessor = _accessorSource.GetAccessor(navigation);
 
@@ -153,6 +172,30 @@ namespace Microsoft.Data.Entity.ChangeTracking
                         accessor.Setter.SetClrValue(oldPrincipalEntry.Entity, null);
                     }
                 }
+            }
+        }
+
+        private void StealReference(IForeignKey foreignKey, StateEntry dependentEntry)
+        {
+            foreach (var navigation in dependentEntry.EntityType.Navigations.Where(n => n.ForeignKey == foreignKey))
+            {
+                if (navigation.PointsToPrincipal)
+                {
+                    _accessorSource.GetAccessor(navigation).Setter.SetClrValue(dependentEntry.Entity, null);
+                }
+            }
+
+            var nullableProperties = foreignKey.Properties.Where(p => p.IsNullable).ToArray();
+            if (nullableProperties.Length > 0)
+            {
+                foreach (var property in nullableProperties)
+                {
+                    dependentEntry[property] = null;
+                }
+            }
+            else
+            {
+                // TODO: Handle conceptual null
             }
         }
     }

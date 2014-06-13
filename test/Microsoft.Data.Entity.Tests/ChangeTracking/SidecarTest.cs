@@ -156,6 +156,40 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
+        public void Can_snapshot_individual_values()
+        {
+            var entity = new Banana { Id = 77, Name = "Stand", State = "Frozen" };
+            var sidecar = CreateSidecar(CreateStateEntry(entity));
+
+            sidecar.TakeSnapshot(StateProperty);
+
+            Assert.Equal(77, sidecar[IdProperty]);
+            Assert.Equal("Frozen", sidecar[StateProperty]);
+
+            sidecar[StateProperty] = "Thawed";
+
+            Assert.Equal(77, sidecar[IdProperty]);
+            Assert.Equal("Thawed", sidecar[StateProperty]);
+
+            Assert.Equal(77, entity.Id);
+            Assert.Equal("Frozen", entity.State);
+
+            entity.Id = 76;
+            entity.State = "Banana vapor";
+
+            Assert.Equal(76, sidecar[IdProperty]);
+            Assert.Equal("Thawed", sidecar[StateProperty]);
+
+            Assert.Equal(76, entity.Id);
+            Assert.Equal("Banana vapor", entity.State);
+
+            sidecar.TakeSnapshot(StateProperty);
+
+            Assert.Equal(76, sidecar[IdProperty]);
+            Assert.Equal("Banana vapor", sidecar[StateProperty]);
+        }
+
+        [Fact]
         public void Can_snapshot_null_values()
         {
             var entity = new Banana { Id = 77, Name = "Stand", State = null };
@@ -274,6 +308,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entityType.AddProperty("Id", typeof(int), shadowProperty: false, concurrencyToken: true);
             entityType.AddProperty("Name", typeof(string));
             entityType.AddProperty("State", typeof(string), shadowProperty: false, concurrencyToken: true);
+            
             model.AddEntityType(entityType);
 
             return model;
@@ -299,6 +334,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             public int Id { get; set; }
             public string Name { get; set; }
             public string State { get; set; }
+            public int Fk { get; set; }
 
 #pragma warning disable 67
             public event PropertyChangedEventHandler PropertyChanged;
