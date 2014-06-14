@@ -12,6 +12,7 @@ using Microsoft.Data.Entity.Relational.Query.Expressions;
 using Microsoft.Data.Entity.Relational.Utilities;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Parsing;
+using System.Diagnostics.Contracts;
 
 namespace Microsoft.Data.Entity.Relational.Query.Sql
 {
@@ -64,7 +65,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             {
                 _sql.AppendJoin(
                     expression.Projection.Any()
-                        ? expression.Projection.Select(p => p.StorageName)
+                        ? expression.Projection.Select(p => DelimitIdentifier(p.StorageName))
                         : new[] { "1" });
             }
 
@@ -83,7 +84,9 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             }
             else
             {
-                _sql.Append(expression.TableSource);
+                Contract.Assert(expression.TableSource is string, "Expecting TableSource to be a table name at this point.");
+
+                _sql.Append(DelimitIdentifier((string)expression.TableSource));
             }
 
             if (expression.Predicate != null)
@@ -101,8 +104,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                     .AppendJoin(
                         expression.OrderBy
                             .Select(o => o.Item2 == OrderingDirection.Asc
-                                ? o.Item1.StorageName
-                                : o.Item1.StorageName + " DESC"));
+                                ? DelimitIdentifier(o.Item1.StorageName)
+                                : DelimitIdentifier(o.Item1.StorageName) + " DESC"));
             }
 
             GenerateLimitOffset(expression);
@@ -193,11 +196,21 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             get { return "+"; }
         }
 
+        protected virtual string DelimitIdentifier(string identifier)
+        {
+            return "\"" + identifier + "\""; 
+        }
+
+        protected virtual string DelimitLiteral(string literal)
+        {
+            return "'" + literal + "'";
+        }
+
         public virtual Expression VisitPropertyAccessExpression(PropertyAccessExpression expression)
         {
             Check.NotNull(expression, "expression");
 
-            _sql.Append(expression.Property.StorageName);
+            _sql.Append(DelimitIdentifier(expression.Property.StorageName));
 
             return expression;
         }
@@ -241,9 +254,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
         {
             Check.NotNull(expression, "expression");
 
-            _sql.Append("'")
-                .Append(expression.Literal)
-                .Append("'");
+            _sql.Append(DelimitLiteral(expression.Literal));
 
             return expression;
         }
