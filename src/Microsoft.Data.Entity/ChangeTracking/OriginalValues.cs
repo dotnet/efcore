@@ -24,14 +24,16 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
         }
 
-        protected override int Index(IProperty property)
+        protected override int Index(IPropertyBase property)
         {
             Check.NotNull(property, "property");
 
-            return property.OriginalValueIndex;
+            var asProperty = property as IProperty;
+
+            return asProperty != null ? asProperty.OriginalValueIndex : -1;
         }
 
-        protected override void ThrowInvalidIndexException(IProperty property)
+        protected override void ThrowInvalidIndexException(IPropertyBase property)
         {
             Check.NotNull(property, "property");
 

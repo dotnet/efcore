@@ -53,18 +53,22 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
         }
 
-        protected override object ReadPropertyValue(IProperty property)
+        protected override object ReadPropertyValue(IPropertyBase propertyBase)
         {
-            Check.NotNull(property, "property");
+            Check.NotNull(propertyBase, "propertyBase");
 
-            Contract.Assert(!property.IsClrProperty);
+            var property = propertyBase as IProperty;
+            Contract.Assert(property != null && !property.IsClrProperty);
 
             return _propertyValues[property.ShadowIndex];
         }
 
-        protected override void WritePropertyValue(IProperty property, object value)
+        protected override void WritePropertyValue(IPropertyBase propertyBase, object value)
         {
-            Check.NotNull(property, "property");
+            Check.NotNull(propertyBase, "propertyBase");
+
+            var property = propertyBase as IProperty;
+            Contract.Assert(property != null && !property.IsClrProperty);
 
             _propertyValues[property.ShadowIndex] = value;
         }

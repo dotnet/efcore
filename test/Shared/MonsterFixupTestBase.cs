@@ -160,6 +160,124 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual async Task One_to_many_fixup_happens_when_reference_changes_for_snapshot_entities()
+        {
+            await One_to_many_fixup_happens_when_reference_changes_test(CreateSnapshotMonsterContext, SnapshotDatabaseName, useDetectChanges: true);
+        }
+
+        [Fact]
+        public virtual async Task One_to_many_fixup_happens_when_reference_changes_for_full_notification_entities()
+        {
+            await One_to_many_fixup_happens_when_reference_changes_test(CreateChangedChangingMonsterContext, FullNotifyDatabaseName, useDetectChanges: false);
+        }
+
+        [Fact]
+        public virtual async Task One_to_many_fixup_happens_when_reference_changes_for_changed_only_notification_entities()
+        {
+            await One_to_many_fixup_happens_when_reference_changes_test(CreateChangedOnlyMonsterContext, ChangedOnlyDatabaseName, useDetectChanges: false);
+        }
+
+        private async Task One_to_many_fixup_happens_when_reference_changes_test(
+            Func<IServiceProvider, MonsterContext> createContext, string databaseName, bool useDetectChanges)
+        {
+            var serviceProvider = CreateServiceProvider();
+
+            await CreateAndSeedDatabase(databaseName, () => createContext(serviceProvider));
+
+            using (var context = createContext(serviceProvider))
+            {
+                var login1 = context.Logins.Single(e => e.Username == "MrsKoalie73");
+                var login2 = context.Logins.Single(e => e.Username == "MrsBossyPants");
+                var login3 = context.Logins.Single(e => e.Username == "TheStripedMenace");
+
+                var message1 = context.Messages.Single(e => e.Body.StartsWith("Fancy"));
+                var message2 = context.Messages.Single(e => e.Body.StartsWith("Love"));
+                var message3 = context.Messages.Single(e => e.Body.StartsWith("I'll"));
+
+                Assert.Same(login2, message2.Sender);
+                Assert.Same(message2, login2.SentMessages.Single());
+
+                Assert.Same(login2, message1.Recipient);
+                Assert.Same(login2, message3.Recipient);
+                Assert.Equal(new[] { message1, message3 }, login2.ReceivedMessages.OrderBy(m => m.Body).ToArray());
+
+                Assert.Same(login1, message2.Recipient);
+                Assert.Same(message2, login1.ReceivedMessages.Single());
+
+                Assert.Empty(login3.SentMessages);
+
+                Assert.Equal(login1.Username, message1.FromUsername);
+                Assert.Equal(login2.Username, message1.ToUsername);
+                Assert.Equal(login2.Username, message2.FromUsername);
+                Assert.Equal(login1.Username, message2.ToUsername);
+                Assert.Equal(login1.Username, message3.FromUsername);
+                Assert.Equal(login2.Username, message3.ToUsername);
+
+                // Simple change
+                message2.Sender = login3;
+
+                if (useDetectChanges)
+                {
+                    context.ChangeTracker.StateManager.DetectChanges();
+                }
+
+                // TODO: Just testing FK fixup for now; inverse nav fixup comes later
+
+                Assert.Equal(login1.Username, message1.FromUsername);
+                Assert.Equal(login2.Username, message1.ToUsername);
+                Assert.Equal(login3.Username, message2.FromUsername);
+                Assert.Equal(login1.Username, message2.ToUsername);
+                Assert.Equal(login1.Username, message3.FromUsername);
+                Assert.Equal(login2.Username, message3.ToUsername);
+
+                // Change back
+                message2.Sender = login2;
+
+                if (useDetectChanges)
+                {
+                    context.ChangeTracker.StateManager.DetectChanges();
+                }
+
+                Assert.Equal(login1.Username, message1.FromUsername);
+                Assert.Equal(login2.Username, message1.ToUsername);
+                Assert.Equal(login2.Username, message2.FromUsername);
+                Assert.Equal(login1.Username, message2.ToUsername);
+                Assert.Equal(login1.Username, message3.FromUsername);
+                Assert.Equal(login2.Username, message3.ToUsername);
+
+                // Remove the relationship
+                message2.Sender = null;
+
+                if (useDetectChanges)
+                {
+                    context.ChangeTracker.StateManager.DetectChanges();
+                }
+
+                Assert.Equal(login1.Username, message1.FromUsername);
+                Assert.Equal(login2.Username, message1.ToUsername);
+                Assert.Null(message2.FromUsername);
+                Assert.Equal(login1.Username, message2.ToUsername);
+                Assert.Equal(login1.Username, message3.FromUsername);
+                Assert.Equal(login2.Username, message3.ToUsername);
+
+                // Put the relationship back
+                message2.Sender = login3;
+
+                if (useDetectChanges)
+                {
+                    context.ChangeTracker.StateManager.DetectChanges();
+                }
+
+                Assert.Equal(login1.Username, message1.FromUsername);
+                Assert.Equal(login2.Username, message1.ToUsername);
+                Assert.Equal(login3.Username, message2.FromUsername);
+                Assert.Equal(login1.Username, message2.ToUsername);
+                Assert.Equal(login1.Username, message3.FromUsername);
+                Assert.Equal(login2.Username, message3.ToUsername);
+            }
+        }
+
+        [Fact]
         public virtual async Task One_to_one_fixup_happens_when_FKs_change_for_snapshot_entities()
         {
             await One_to_one_fixup_happens_when_FKs_change_test(CreateSnapshotMonsterContext, SnapshotDatabaseName, useDetectChanges: true);

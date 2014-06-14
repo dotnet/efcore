@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
@@ -26,31 +27,31 @@ namespace Microsoft.Data.Entity.ChangeTracking
             _values = new object[count];
         }
 
-        protected abstract int Index([NotNull] IProperty property);
-        protected abstract void ThrowInvalidIndexException([NotNull] IProperty property);
+        protected abstract int Index([NotNull] IPropertyBase property);
+        protected abstract void ThrowInvalidIndexException([NotNull] IPropertyBase property);
 
-        public override bool CanStoreValue(IProperty property)
+        public override bool CanStoreValue(IPropertyBase property)
         {
             Check.NotNull(property, "property");
 
             return Index(property) != -1;
         }
 
-        protected override object ReadValue(IProperty property)
+        protected override object ReadValue(IPropertyBase property)
         {
             Check.NotNull(property, "property");
 
             return _values[IndexChecked(property)];
         }
 
-        protected override void WriteValue(IProperty property, object value)
+        protected override void WriteValue(IPropertyBase property, object value)
         {
             Check.NotNull(property, "property");
 
             _values[IndexChecked(property)] = value;
         }
 
-        private int IndexChecked(IProperty property)
+        private int IndexChecked(IPropertyBase property)
         {
             var index = Index(property);
             if (index == -1)
