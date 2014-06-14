@@ -2,13 +2,16 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking
 {
     // TODO: Consider using ArraySidecar with pre-defined indexes
+    // TODO: Rename to reflect that navigations are now also handled
     public class ForeignKeysSnapshot : DictionarySidecar
     {
         /// <summary>
@@ -21,8 +24,16 @@ namespace Microsoft.Data.Entity.ChangeTracking
         }
 
         public ForeignKeysSnapshot([NotNull] StateEntry stateEntry)
-            : base(stateEntry, Check.NotNull(stateEntry, "stateEntry").EntityType.ForeignKeys.SelectMany(fk => fk.Properties).Distinct())
+            : base(stateEntry, GetProperties(Check.NotNull(stateEntry, "stateEntry")))
         {
+        }
+
+        private static IEnumerable<IPropertyBase> GetProperties(StateEntry stateEntry)
+        {
+            var entityType = stateEntry.EntityType;
+
+            return entityType.ForeignKeys.SelectMany(fk => fk.Properties).Distinct()
+                .Concat<IPropertyBase>(entityType.Navigations);
         }
 
         public override string Name

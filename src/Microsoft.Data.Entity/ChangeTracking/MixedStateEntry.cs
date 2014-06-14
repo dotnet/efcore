@@ -55,22 +55,26 @@ namespace Microsoft.Data.Entity.ChangeTracking
             get { return _entity; }
         }
 
-        protected override object ReadPropertyValue(IProperty property)
+        protected override object ReadPropertyValue(IPropertyBase propertyBase)
         {
-            Check.NotNull(property, "property");
+            Check.NotNull(propertyBase, "propertyBase");
 
-            return property.IsClrProperty
-                ? Configuration.Services.ClrPropertyGetterSource.GetAccessor(property).GetClrValue(_entity)
+            var property = propertyBase as IProperty;
+
+            return property == null || property.IsClrProperty
+                ? base.ReadPropertyValue(propertyBase)
                 : _shadowValues[property.ShadowIndex];
         }
 
-        protected override void WritePropertyValue(IProperty property, object value)
+        protected override void WritePropertyValue(IPropertyBase propertyBase, object value)
         {
-            Check.NotNull(property, "property");
+            Check.NotNull(propertyBase, "propertyBase");
 
-            if (property.IsClrProperty)
+            var property = propertyBase as IProperty;
+
+            if (property == null || property.IsClrProperty)
             {
-                Configuration.Services.ClrPropertySetterSource.GetAccessor(property).SetClrValue(_entity, value);
+                base.WritePropertyValue(propertyBase, value);
             }
             else
             {

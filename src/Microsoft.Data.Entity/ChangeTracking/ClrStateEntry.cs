@@ -38,19 +38,5 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             get { return _entity; }
         }
-
-        protected override object ReadPropertyValue(IProperty property)
-        {
-            Check.NotNull(property, "property");
-
-            return Configuration.Services.ClrPropertyGetterSource.GetAccessor(property).GetClrValue(_entity);
-        }
-
-        protected override void WritePropertyValue(IProperty property, object value)
-        {
-            Check.NotNull(property, "property");
-
-            Configuration.Services.ClrPropertySetterSource.GetAccessor(property).SetClrValue(_entity, value);
-        }
     }
 }

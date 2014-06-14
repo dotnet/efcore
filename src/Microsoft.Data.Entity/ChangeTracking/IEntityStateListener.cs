@@ -12,5 +12,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
         void StateChanging([NotNull] StateEntry entry, EntityState newState);
         void StateChanged([NotNull] StateEntry entry, EntityState oldState);
         void ForeignKeyPropertyChanged([NotNull] StateEntry entry, [NotNull] IProperty property, [CanBeNull] object oldValue, [CanBeNull] object newValue);
+        void NavigationReferenceChanged([NotNull] StateEntry entry, [NotNull] INavigation property, [CanBeNull] object oldValue, [CanBeNull] object newValue);
     }
 }

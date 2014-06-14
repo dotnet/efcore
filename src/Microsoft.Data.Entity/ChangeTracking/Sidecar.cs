@@ -40,22 +40,22 @@ namespace Microsoft.Data.Entity.ChangeTracking
             get { return _stateEntry; }
         }
 
-        public abstract bool CanStoreValue([NotNull] IProperty property);
-        protected abstract object ReadValue([NotNull] IProperty property);
-        protected abstract void WriteValue([NotNull] IProperty property, [CanBeNull] object value);
+        public abstract bool CanStoreValue([NotNull] IPropertyBase property);
+        protected abstract object ReadValue([NotNull] IPropertyBase property);
+        protected abstract void WriteValue([NotNull] IPropertyBase property, [CanBeNull] object value);
         public abstract string Name { get; }
         public abstract bool TransparentRead { get; }
         public abstract bool TransparentWrite { get; }
         public abstract bool AutoCommit { get; }
 
-        public virtual bool HasValue([NotNull] IProperty property)
+        public virtual bool HasValue([NotNull] IPropertyBase property)
         {
             Check.NotNull(property, "property");
 
             return CanStoreValue(property) && ReadValue(property) != null;
         }
 
-        public virtual object this[[param: NotNull] IProperty property]
+        public virtual object this[[param: NotNull] IPropertyBase property]
         {
             get
             {
@@ -116,7 +116,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
         }
 
-        public virtual void EnsureSnapshot([NotNull] IProperty property)
+        public virtual void EnsureSnapshot([NotNull] IPropertyBase property)
         {
             Check.NotNull(property, "property");
 
@@ -127,7 +127,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
         }
 
-        public virtual void TakeSnapshot([NotNull] IProperty property)
+        public virtual void TakeSnapshot([NotNull] IPropertyBase property)
         {
             Check.NotNull(property, "property");
 

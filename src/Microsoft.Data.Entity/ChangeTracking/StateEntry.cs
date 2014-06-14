@@ -284,10 +284,25 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
         }
 
-        protected abstract object ReadPropertyValue([NotNull] IProperty property);
-        protected abstract void WritePropertyValue([NotNull] IProperty property, [CanBeNull] object value);
+        protected virtual object ReadPropertyValue([NotNull] IPropertyBase propertyBase)
+        {
+            Check.NotNull(propertyBase, "propertyBase");
 
-        public virtual object this[[param: NotNull] IProperty property]
+            Contract.Assert(!(propertyBase is IProperty) || ((IProperty)propertyBase).IsClrProperty);
+
+            return _configuration.Services.ClrPropertyGetterSource.GetAccessor(propertyBase).GetClrValue(Entity);
+        }
+
+        protected virtual void WritePropertyValue([NotNull] IPropertyBase propertyBase, [CanBeNull] object value)
+        {
+            Check.NotNull(propertyBase, "propertyBase");
+
+            Contract.Assert(!(propertyBase is IProperty) || ((IProperty)propertyBase).IsClrProperty);
+
+            _configuration.Services.ClrPropertySetterSource.GetAccessor(propertyBase).SetClrValue(Entity, value);
+        }
+
+        public virtual object this[[param: NotNull] IPropertyBase property]
         {
             get
             {
@@ -304,6 +319,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                         }
                     }
                 }
+
                 return ReadPropertyValue(property);
             }
             [param: CanBeNull]
@@ -382,27 +398,45 @@ namespace Microsoft.Data.Entity.ChangeTracking
             return _entityType.Properties.Select(p => this[p]).ToArray();
         }
 
-        public virtual void PropertyChanging([NotNull] IProperty property)
+        public virtual void PropertyChanging([NotNull] IPropertyBase propertyBase)
         {
-            Check.NotNull(property, "property");
+            Check.NotNull(propertyBase, "propertyBase");
 
             if (_entityType.UseLazyOriginalValues)
             {
-                OriginalValues.EnsureSnapshot(property);
-                ForeignKeysSnapshot.TakeSnapshot(property);
+                OriginalValues.EnsureSnapshot(propertyBase);
+
+                // TODO: Consider making snapshot temporary here since it is no longer required after PropertyChanged is called
+                ForeignKeysSnapshot.TakeSnapshot(propertyBase);
             }
         }
 
-        public virtual void PropertyChanged([NotNull] IProperty property)
+        public virtual void PropertyChanged([NotNull] IPropertyBase propertyBase)
         {
-            Check.NotNull(property, "property");
+            Check.NotNull(propertyBase, "propertyBase");
 
-            SetPropertyModified(property, true);
+            var property = propertyBase as IProperty;
 
-            var newSnapshot = DetectForeignKeyChange(property);
-            if (newSnapshot != null)
+            if (property != null)
             {
-                ForeignKeysSnapshot[newSnapshot.Item1] = newSnapshot.Item2;
+                SetPropertyModified(property, true);
+
+                if (DetectForeignKeyChange(property))
+                {
+                    ForeignKeysSnapshot.TakeSnapshot(property);
+                }
+            }
+            else
+            {
+                var navigation = propertyBase as INavigation;
+
+                if (navigation != null)
+                {
+                    if (DetectNavigationChange(navigation))
+                    {
+                        ForeignKeysSnapshot.TakeSnapshot(navigation);
+                    }
+                }
             }
         }
 
@@ -418,7 +452,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 return false;
             }
 
-            var newForeignKeySnapshots = new List<Tuple<IProperty, object>>();
+            var changedFkProperties = new List<IProperty>();
             var foundChanges = false;
             foreach (var property in EntityType.Properties)
             {
@@ -429,22 +463,29 @@ namespace Microsoft.Data.Entity.ChangeTracking
                     foundChanges = true;
                 }
 
-                var newSnapshot = DetectForeignKeyChange(property);
-                if (newSnapshot != null)
+                if (DetectForeignKeyChange(property))
                 {
-                    newForeignKeySnapshots.Add(newSnapshot);
+                    changedFkProperties.Add(property);
                 }
             }
 
-            foreach (var newSnapshot in newForeignKeySnapshots)
+            foreach (var property in changedFkProperties)
             {
-                ForeignKeysSnapshot[newSnapshot.Item1] = newSnapshot.Item2;
+                ForeignKeysSnapshot.TakeSnapshot(property);
+            }
+
+            foreach (var navigation in EntityType.Navigations)
+            {
+                if (DetectNavigationChange(navigation))
+                {
+                    ForeignKeysSnapshot.TakeSnapshot(navigation);
+                }
             }
 
             return foundChanges;
         }
 
-        private Tuple<IProperty, object> DetectForeignKeyChange(IProperty property)
+        private bool DetectForeignKeyChange(IProperty property)
         {
             // TODO: Consider flag/index for fast check for FK
             if (_entityType.ForeignKeys.SelectMany(fk => fk.Properties).Contains(property))
@@ -458,11 +499,35 @@ namespace Microsoft.Data.Entity.ChangeTracking
                     var notifier = _configuration.Services.StateEntryNotifier;
                     notifier.ForeignKeyPropertyChanged(this, property, snapshotValue, currentValue);
 
-                    return Tuple.Create(property, currentValue);
+                    return true;
                 }
             }
 
-            return null;
+            return false;
+        }
+
+        private bool DetectNavigationChange(INavigation navigation)
+        {
+            if (navigation.PointsToPrincipal
+                || navigation.ForeignKey.IsUnique)
+            {
+                var snapshotValue = ForeignKeysSnapshot[navigation];
+                var currentValue = this[navigation];
+
+                if (!ReferenceEquals(currentValue, snapshotValue))
+                {
+                    var notifier = _configuration.Services.StateEntryNotifier;
+                    notifier.NavigationReferenceChanged(this, navigation, snapshotValue, currentValue);
+
+                    return true;
+                }
+            }
+            else
+            {
+                // TODO: Handle collections
+            }
+
+            return false;
         }
 
         public virtual void AcceptChanges()

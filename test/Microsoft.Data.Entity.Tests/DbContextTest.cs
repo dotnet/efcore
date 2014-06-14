@@ -864,6 +864,10 @@ namespace Microsoft.Data.Entity.Tests
             public void ForeignKeyPropertyChanged(StateEntry entry, IProperty property, object oldValue, object newValue)
             {
             }
+
+            public void NavigationReferenceChanged(StateEntry entry, INavigation navigation, object oldValue, object newValue)
+            {
+            }
         }
 
         private class FakeLoggerFactory : ILoggerFactory

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
@@ -14,6 +15,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
     {
         private readonly StateManager _stateManager;
         private readonly NavigationAccessorSource _accessorSource;
+        private bool _inFixup;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -40,6 +42,11 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotNull(entry, "entry");
             Check.NotNull(property, "property");
 
+            PerformFixup(() => ForeignKeyPropertyChangedAction(entry, property, oldValue, newValue));
+        }
+
+        private void ForeignKeyPropertyChangedAction(StateEntry entry, IProperty property, object oldValue, object newValue)
+        {
             foreach (var foreignKey in entry.EntityType.ForeignKeys.Where(p => p.Properties.Contains(property)).Distinct())
             {
                 var navigations = _stateManager.Model.GetNavigations(foreignKey).ToArray();
@@ -69,6 +76,45 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
         }
 
+        public virtual void NavigationReferenceChanged(StateEntry entry, INavigation navigation, object oldValue, object newValue)
+        {
+            Check.NotNull(entry, "entry");
+            Check.NotNull(navigation, "navigation");
+
+            PerformFixup(() => NavigationReferenceChangedAction(entry, navigation, oldValue, newValue));
+        }
+
+        private void NavigationReferenceChangedAction(StateEntry entry, INavigation navigation, object oldValue, object newValue)
+        {
+            if (navigation.PointsToPrincipal)
+            {
+                var dependentProperties = navigation.ForeignKey.Properties;
+
+                if (newValue != null)
+                {
+                    // TODO: What if the principal is not yet being tracked?
+                    var newPrincipalEntry = _stateManager.GetOrCreateEntry(newValue);
+
+                    var principalProperties = navigation.ForeignKey.ReferencedProperties;
+                    Contract.Assert(principalProperties.Count == dependentProperties.Count);
+
+                    for (var i = 0; i < dependentProperties.Count; i++)
+                    {
+                        // TODO: Consider nullable/non-nullable assignment issues
+                        entry[dependentProperties[i]] = newPrincipalEntry[principalProperties[i]];
+                    }
+                }
+                else
+                {
+                    foreach (var dependentProperty in dependentProperties)
+                    {
+                        // TODO: Conceptual nulls
+                        entry[dependentProperty] = null;
+                    }
+                }
+            }
+        }
+
         public virtual void StateChanging(StateEntry entry, EntityState newState)
         {
         }
@@ -78,14 +124,20 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotNull(entry, "entry");
             Check.IsDefined(oldState, "oldState");
 
-            // TODO: Lots to do here; for now just fixup references when entity begins tracking
             if (oldState != EntityState.Unknown)
             {
                 return;
             }
 
+            PerformFixup(() => InitialFixup(entry, oldState));
+        }
+
+        private void InitialFixup(StateEntry entry, EntityState oldState)
+        {
+            var entityType = entry.EntityType;
+
             // Handle case where the new entity is the dependent
-            foreach (var foreignKey in entry.EntityType.ForeignKeys)
+            foreach (var foreignKey in entityType.ForeignKeys)
             {
                 var principalEntry = _stateManager.GetPrincipal(entry, foreignKey, useForeignKeySnapshot: false);
                 if (principalEntry != null)
@@ -96,7 +148,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             // Handle case where the new entity is the principal
             foreach (var foreignKey in _stateManager.Model.EntityTypes.SelectMany(
-                e => e.ForeignKeys.Where(f => f.ReferencedEntityType == entry.EntityType)))
+                e => e.ForeignKeys.Where(f => f.ReferencedEntityType == entityType)))
             {
                 var dependents = _stateManager.GetDependents(entry, foreignKey).ToArray();
 
@@ -104,6 +156,25 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 {
                     DoFixup(foreignKey, entry, dependents);
                 }
+            }
+        }
+
+        private void PerformFixup(Action fixupAction)
+        {
+            if (_inFixup)
+            {
+                return;
+            }
+
+            try
+            {
+                _inFixup = true;
+
+                fixupAction();
+            }
+            finally
+            {
+                _inFixup = false;
             }
         }
 
@@ -123,6 +194,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                     foreach (var dependent in dependentEntries)
                     {
                         accessor.Setter.SetClrValue(dependent.Entity, principalEntry.Entity);
+                        dependent.ForeignKeysSnapshot.TakeSnapshot(navigation);
                     }
                 }
                 else
@@ -143,6 +215,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                         // TODO: Decide how to handle case where multiple values match non-collection nav prop
                         accessor.Setter.SetClrValue(principalEntry.Entity, dependentEntries.Single().Entity);
                     }
+                    principalEntry.ForeignKeysSnapshot.TakeSnapshot(navigation);
                 }
             }
         }
@@ -156,6 +229,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 if (navigation.PointsToPrincipal)
                 {
                     accessor.Setter.SetClrValue(dependentEntry.Entity, null);
+                    dependentEntry.ForeignKeysSnapshot.TakeSnapshot(navigation);
                 }
                 else
                 {
@@ -171,6 +245,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                     {
                         accessor.Setter.SetClrValue(oldPrincipalEntry.Entity, null);
                     }
+                    oldPrincipalEntry.ForeignKeysSnapshot.TakeSnapshot(navigation);
                 }
             }
         }
@@ -182,6 +257,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 if (navigation.PointsToPrincipal)
                 {
                     _accessorSource.GetAccessor(navigation).Setter.SetClrValue(dependentEntry.Entity, null);
+                    dependentEntry.ForeignKeysSnapshot.TakeSnapshot(navigation);
                 }
             }
 
