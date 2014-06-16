@@ -8,7 +8,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.AzureTableStorage.Utilities;
 using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Query
@@ -16,87 +15,53 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
     [DebuggerDisplay("TableFilter")]
     public class TableFilter
     {
-        protected string _storageName;
+        private readonly string _storageName;
+        private readonly string _operator;
+        protected Func<string, string, object, string> QueryStringMethod;
 
         private TableFilter(string storageName, FilterComparisonOperator op)
         {
-            ComparisonOperator = op;
+            _operator = FilterComparison.ToString(op);
             _storageName = storageName;
         }
 
-        public object Right { get; protected set; }
 
-        public FilterComparisonOperator ComparisonOperator { get; protected set; }
-
-        protected static MethodInfo FilterMethodForConstant(Type type)
+        private string CreateQueryStringFromObject(object obj)
         {
-            if (type.IsAssignableFrom(typeof(string)))
+            if (obj == null)
             {
-                return typeof(TableQuery).GetMethod("GenerateFilterCondition");
+                return String.Empty;
             }
-            else if (type.IsAssignableFrom(typeof(double)))
+            if (_storageName == "PartitionKey"
+                || _storageName == "RowKey")
             {
-                return typeof(TableQuery).GetMethod("GenerateFilterConditionForDouble");
+                return TableQuery.GenerateFilterCondition(_storageName, _operator, obj.ToString());
             }
-            else if (type.IsAssignableFrom(typeof(int)))
-            {
-                return typeof(TableQuery).GetMethod("GenerateFilterConditionForInt");
-            }
-            else if (type.IsAssignableFrom(typeof(long)))
-            {
-                return typeof(TableQuery).GetMethod("GenerateFilterConditionForLong");
-            }
-            else if (type.IsAssignableFrom(typeof(byte[])))
-            {
-                return typeof(TableQuery).GetMethod("GenerateFilterConditionForBinary");
-            }
-            else if (type.IsAssignableFrom(typeof(bool)))
-            {
-                return typeof(TableQuery).GetMethod("GenerateFilterConditionForBool");
-            }
-            else if (type.IsAssignableFrom(typeof(DateTimeOffset)))
-            {
-                return typeof(TableQuery).GetMethod("GenerateFilterConditionForDate");
-            }
-            else if (type.IsAssignableFrom(typeof(DateTime)))
-            {
-                var action = new Func<string, string, DateTime, string>(
-                    (prop, op, time) => TableQuery.GenerateFilterConditionForDate(prop, op, new DateTimeOffset(time))
-                    );
-                return action.Method;
-            }
-            else if (type.IsAssignableFrom(typeof(Guid)))
-            {
-                return typeof(TableQuery).GetMethod("GenerateFilterConditionForGuid");
-            }
-            throw new ArgumentOutOfRangeException("type", "Cannot generate filter method for this type");
+            return QueryStringMethod(_storageName, _operator, obj);
         }
-
 
         internal class ConstantTableFilter : TableFilter
         {
-            private readonly MethodInfo _stringMethod;
+            public object Right { get; protected set; }
 
             public ConstantTableFilter(string storageName, FilterComparisonOperator op, ConstantExpression right)
                 : base(storageName, op)
             {
                 Right = right.Value;
-                _stringMethod = FilterMethodForConstant(right.Type);
+                QueryStringMethod = StringMethodFromType(right.Type);
             }
 
             public override string ToString()
             {
-                return (string)_stringMethod.Invoke(null, new object[] { _storageName, FilterComparison.ToString(ComparisonOperator), Right });
+                return CreateQueryStringFromObject(Right);
             }
         }
 
         internal class MemberTableFilter : TableFilter
         {
-            private readonly MethodInfo _stringMethod;
             private readonly Func<object> _getRightValue;
-            public new MemberInfo Right { get; protected set; }
+            public MemberInfo Right { get; protected set; }
 
-            [UsedImplicitly]
             public MemberTableFilter(string storageName, FilterComparisonOperator op, MemberExpression right)
                 : base(storageName, op)
             {
@@ -115,13 +80,13 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
                 if (right.Member is FieldInfo)
                 {
                     var fieldInfo = (FieldInfo)Right;
-                    _stringMethod = FilterMethodForConstant(fieldInfo.FieldType);
+                    QueryStringMethod = StringMethodFromType(fieldInfo.FieldType);
                     _getRightValue = () => fieldInfo.GetValue(getTarget());
                 }
                 else if (right.Member is PropertyInfo)
                 {
                     var propInfo = (PropertyInfo)Right;
-                    _stringMethod = FilterMethodForConstant(propInfo.PropertyType);
+                    QueryStringMethod = StringMethodFromType(propInfo.PropertyType);
 
                     if (!constantTarget)
                     {
@@ -133,41 +98,76 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
                 {
                     throw new ArgumentException("Cannot get member info", "right");
                 }
-
             }
 
             public override string ToString()
             {
-                return (string)_stringMethod.Invoke(null, new[] { _storageName, FilterComparison.ToString(ComparisonOperator), _getRightValue() });
+                return CreateQueryStringFromObject(_getRightValue());
             }
         }
 
         internal class NewObjTableFilter : TableFilter
         {
-            private readonly ConstructorInfo objCtor;
+            private readonly ConstructorInfo _objCtor;
             private readonly IReadOnlyCollection<Expression> _args;
-            private readonly MethodInfo _stringMethod;
 
-            [UsedImplicitly]
             public NewObjTableFilter(string storageName, FilterComparisonOperator op, NewExpression right)
                 : base(storageName, op)
             {
-                objCtor = right.Constructor;
+                _objCtor = right.Constructor;
                 _args = right.Arguments;
-                _stringMethod = FilterMethodForConstant(right.Type);
+                QueryStringMethod = StringMethodFromType(right.Type);
             }
 
             public override string ToString()
             {
-                return (string)_stringMethod.Invoke(null, new[]
-                    {
-                        _storageName,
-                        FilterComparison.ToString(ComparisonOperator),
-                        objCtor.Invoke(
-                            _args.Select(a => ((ConstantExpression)a).Value).ToArray()
-                            )
-                    });
+                return CreateQueryStringFromObject(_objCtor.Invoke(_args.Select(a => ((ConstantExpression)a).Value).ToArray()));
             }
         }
+
+
+        protected static Func<string, string, object, string> StringMethodFromType(Type type)
+        {
+            if (type.IsAssignableFrom(typeof(string)))
+            {
+                return (name, op, value) => TableQuery.GenerateFilterCondition(name, op, value.ToString());
+            }
+            else if (type.IsAssignableFrom(typeof(double)))
+            {
+                return (name, op, value) => TableQuery.GenerateFilterConditionForDouble(name, op, (double)value);
+            }
+            else if (type.IsAssignableFrom(typeof(int)))
+            {
+                return (name, op, value) => TableQuery.GenerateFilterConditionForInt(name, op, (int)value);
+            }
+            else if (type.IsAssignableFrom(typeof(long)))
+            {
+                return (name, op, value) => TableQuery.GenerateFilterConditionForLong(name, op, (long)value);
+            }
+            else if (type.IsAssignableFrom(typeof(byte[])))
+            {
+                return (name, op, value) => TableQuery.GenerateFilterConditionForBinary(name, op, value as byte[]);
+            }
+            else if (type.IsAssignableFrom(typeof(bool)))
+            {
+                return (name, op, value) => TableQuery.GenerateFilterConditionForBool(name, op, (bool)value);
+                ;
+            }
+            else if (type.IsAssignableFrom(typeof(DateTimeOffset)))
+            {
+                return (name, op, value) => TableQuery.GenerateFilterConditionForDate(name, op, (DateTimeOffset)value);
+                ;
+            }
+            else if (type.IsAssignableFrom(typeof(DateTime)))
+            {
+                return (prop, op, time) => TableQuery.GenerateFilterConditionForDate(prop, op, new DateTimeOffset((DateTime)time));
+            }
+            else if (type.IsAssignableFrom(typeof(Guid)))
+            {
+                return (name, op, value) => TableQuery.GenerateFilterConditionForGuid(name, op, (Guid)value);
+            }
+            throw new ArgumentOutOfRangeException("type", "Cannot generate filter method for this type");
+        }
+
     }
 }

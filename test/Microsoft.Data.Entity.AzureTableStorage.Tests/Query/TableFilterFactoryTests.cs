@@ -6,7 +6,6 @@ using System.Linq.Expressions;
 using Microsoft.Data.Entity.AzureTableStorage.Query;
 using Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Compiled;
 using Xunit;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
@@ -20,8 +19,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
         {
             _factory = new TableFilterFactory();
             _entityType = PocoTestType.EntityType();
-
         }
+
         [Fact]
         public void It_makes_member_to_constant_expression()
         {
