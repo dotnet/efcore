@@ -95,5 +95,11 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers
             _propertyBag[property] = value;
             return this;
         }
+
+        public TestStateEntry WithEntity(object entity)
+        {
+            _entity = entity;
+            return this;
+        }
     }
 }

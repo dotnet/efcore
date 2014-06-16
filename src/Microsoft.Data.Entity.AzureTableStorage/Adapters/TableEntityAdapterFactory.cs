@@ -2,11 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
-using System.Reflection;
+using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.AzureTableStorage.Utilities;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Adapters
@@ -17,21 +17,30 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Adapters
         {
             Check.NotNull(entry, "entry");
 
-            var type = entry.Entity.GetType();
-            var ctor = GetOrMakeStateAdapterCtor(type);
-            return (ITableEntity) ctor.Invoke(new object[] { entry });
+            var entityType = entry.Entity.GetType();
+            var ctor = GetOrMakeCreator(entityType);
+            return ctor(entry);
         }
-        private readonly IDictionary<Type, ConstructorInfo> _stateCtors = new Dictionary<Type, ConstructorInfo>();
 
-        private ConstructorInfo GetOrMakeStateAdapterCtor(Type objType)
+        private readonly ThreadSafeDictionaryCache<Type, Func<StateEntry, ITableEntity>> _instanceCreatorCache = new ThreadSafeDictionaryCache<Type, Func<StateEntry, ITableEntity>>();
+        private Func<StateEntry, ITableEntity> GetOrMakeCreator(Type objType)
         {
-            if (_stateCtors.ContainsKey(objType))
-            {
-                return _stateCtors[objType];
-            }
-            var ctor = typeof(StateEntryTableEntityAdapter<>).MakeGenericType(objType).GetConstructor(new[] { typeof(StateEntry) });
-            _stateCtors[objType] = ctor;
-            return ctor;
+            return _instanceCreatorCache.GetOrAdd(objType, type =>
+                {
+                    var paramExpression = new[]
+                        {
+                            Expression.Parameter(typeof(StateEntry), "entry")
+                        };
+                    var ctorExpression = Expression.New(
+                        typeof(StateEntryTableEntityAdapter<>)
+                            .MakeGenericType(type)
+                            .GetConstructor(new[] { typeof(StateEntry) }),
+                        paramExpression
+                        );
+
+                    var lambda = Expression.Lambda<Func<StateEntry, ITableEntity>>(ctorExpression, paramExpression);
+                    return lambda.Compile();
+                });
         }
     }
 }
