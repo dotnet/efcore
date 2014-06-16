@@ -6,7 +6,7 @@ using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.AzureTableStorage
 {
-    internal class AtsDataStoreSource : DataStoreSource<
+    public class AtsDataStoreSource : DataStoreSource<
         AtsDataStore,
         AtsOptionsExtension,
         AtsDataStoreCreator,
