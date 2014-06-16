@@ -18,13 +18,13 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
         public TableFilterFactory TableFilterFactory { get; private set; }
 
         public AtsQueryCompilationContext([NotNull] IModel model, [NotNull] TableFilterFactory tableFilterFactory)
-            : base(model)
+            : base(model, new LinqOperatorProvider(), new ResultOperatorHandler())
         {
             Check.NotNull(tableFilterFactory, "tableFilterFactory");
             TableFilterFactory = tableFilterFactory;
         }
 
-        public override EntityQueryModelVisitor CreateVisitor()
+        public override EntityQueryModelVisitor CreateQueryModelVisitor()
         {
             return new AtsQueryModelVisitor(this);
         }

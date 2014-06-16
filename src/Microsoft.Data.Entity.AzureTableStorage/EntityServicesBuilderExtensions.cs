@@ -2,13 +2,15 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.AzureTableStorage;
 using Microsoft.Data.Entity.AzureTableStorage.Adapters;
 using Microsoft.Data.Entity.AzureTableStorage.Query;
 using Microsoft.Data.Entity.AzureTableStorage.Utilities;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Framework.DependencyInjection;
 
-namespace Microsoft.Data.Entity.AzureTableStorage
+// ReSharper disable once CheckNamespace
+namespace Microsoft.Framework.DependencyInjection
 {
     public static class EntityServicesBuilderExtensions
     {

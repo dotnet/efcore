@@ -3,10 +3,12 @@
 
 using System;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.AzureTableStorage;
 using Microsoft.Data.Entity.AzureTableStorage.Utilities;
 using Microsoft.Data.Entity.Infrastructure;
 
-namespace Microsoft.Data.Entity.AzureTableStorage
+// ReSharper disable once CheckNamespace
+namespace Microsoft.Data.Entity
 {
     public static class AtsDatabaseExtensions
     {
