@@ -2,16 +2,18 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using Microsoft.Data.Entity.AzureTableStorage.Adapters;
 using Microsoft.Data.Entity.AzureTableStorage.Query;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
+using Microsoft.WindowsAzure.Storage.Table;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
+namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
 {
     public class StateEntryTableEntityAdapterTest
     {
@@ -45,6 +47,12 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
             public int RowID { get; set; }
         }
 
+        public class ClrPocoWithProp : ClrPoco
+        {
+            public string StringProp { get; set; }
+            public int IntProp { get; set; }
+        }
+
         private IModel CreateModel()
         {
             var model = new Model();
@@ -74,6 +82,15 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
                     pb.RowKey(s => s.RowID);
                     pb.Timestamp("Timestamp", true);
                 });
+            builder.Entity<ClrPocoWithProp>()
+                .Properties(pb =>
+                    {
+                        pb.Property(s => s.PartitionKey);
+                        pb.Property(s => s.RowKey);
+                        pb.Property(s => s.Timestamp);
+                        pb.Property(s => s.StringProp);
+                        pb.Property(s => s.IntProp);
+                    });
             return model;
         }
 
@@ -157,6 +174,69 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
 
             Assert.Equal(new Guid("80d401da-ef77-4bc6-a2b0-300025098a0e"), adapter.Entity.PartitionGuid);
             Assert.Equal(new Guid("4b240e4f-b886-4d23-a63c-017a3d79885a"), adapter.Entity.RowGuid);
+        }
+
+        [Fact]
+        public void It_reads_from_dictionary()
+        {
+            var data = new Dictionary<string, EntityProperty>
+                {
+                    { "StringProp", new EntityProperty("StringVal") },
+                    { "IntProp", new EntityProperty(5) },
+                };
+            var instance = new ClrPocoWithProp();
+
+            var entityType = CreateModel().GetEntityType(typeof(ClrPocoWithProp));
+            var entry = _factory.Create(entityType, instance);
+            var adapter = new StateEntryTableEntityAdapter<ClrPocoWithProp>(entry);
+
+            adapter.ReadEntity(data, null);
+
+            Assert.Equal("StringVal", instance.StringProp);
+            Assert.Equal(5, instance.IntProp);
+        }
+
+        [Fact]
+        public void It_skips_mismatched_types()
+        {
+            var data = new Dictionary<string, EntityProperty>
+                {
+                    { "StringProp", new EntityProperty(5) },
+                    { "IntProp", new EntityProperty("string input") },
+                };
+            var instance = new ClrPocoWithProp();
+
+            var entityType = CreateModel().GetEntityType(typeof(ClrPocoWithProp));
+            var entry = _factory.Create(entityType, instance);
+            var adapter = new StateEntryTableEntityAdapter<ClrPocoWithProp>(entry);
+
+            adapter.ReadEntity(data, null);
+
+            Assert.Equal(default(string), instance.StringProp);
+            Assert.Equal(default(int), instance.IntProp);
+        }
+
+        [Fact]
+        public void It_writes_to_dictionary()
+        {
+            var instance = new ClrPocoWithProp
+                {
+                    PartitionKey = "A",
+                    RowKey = "B",
+                    StringProp = "C",
+                    IntProp = 5,
+                    Timestamp = DateTimeOffset.UtcNow,
+                };
+            var entry = _factory.Create(CreateModel().GetEntityType(typeof(ClrPocoWithProp)), instance);
+            var adapter = new StateEntryTableEntityAdapter<ClrPocoWithProp>(entry);
+
+            var expected = new Dictionary<string, EntityProperty>
+                {
+                    { "IntProp", new EntityProperty(instance.IntProp) },
+                    { "StringProp", new EntityProperty(instance.StringProp) },
+                };
+
+            Assert.Equal(expected,adapter.WriteEntity(null));
         }
     }
 }

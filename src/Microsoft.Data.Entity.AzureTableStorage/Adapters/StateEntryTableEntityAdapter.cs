@@ -44,12 +44,11 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Adapters
             foreach (var property in properties)
             {
                 var entityProp = entityType.TryGetPropertyByStorageName(property.Key);
-                if (entityProp == null
-                    || entityProp.IsClrProperty && MismatchedTypes(property.Value.PropertyType, entityProp.PropertyType))
+                if (entityProp != null
+                    && entityProp.IsClrProperty && EdmTypeMatchesClrType(property.Value.PropertyType, entityProp.PropertyType))
                 {
-                    continue;
+                    SetProperty(entityProp,property.Value.PropertyAsObject);
                 }
-                SetProperty(entityProp,property.Value.PropertyAsObject);
             }
         }
 
@@ -125,9 +124,9 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Adapters
             }
         }
 
-        private bool MismatchedTypes(EdmType propertyType, Type clrType)
+        private static bool EdmTypeMatchesClrType(EdmType edmType, Type clrType)
         {
-            switch (propertyType)
+            switch (edmType)
             {
                 case EdmType.String:
                     return typeof(string).IsAssignableFrom(clrType);
