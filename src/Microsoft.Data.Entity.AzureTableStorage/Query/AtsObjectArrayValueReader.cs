@@ -7,6 +7,7 @@ using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Query
 {
+    //TODO generalize this functionality
     public class AtsObjectArrayValueReader : IValueReader
     {
         private readonly object[] _values;
