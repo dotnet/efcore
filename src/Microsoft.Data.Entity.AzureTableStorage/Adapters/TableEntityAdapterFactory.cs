@@ -11,6 +11,7 @@ using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Adapters
 {
+    //TODO investigate the performance possibilities such as using reflection instead and/or caching instances
     public class TableEntityAdapterFactory
     {
         public ITableEntity CreateFromStateEntry([NotNull] StateEntry entry)

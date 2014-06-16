@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             Check.NotNull(stateManager, "stateManager");
 
             var compilationContext = _queryFactory.MakeCompilationContext(Model);
-            var queryExecutor = compilationContext.CreateVisitor().CreateQueryExecutor<TResult>(queryModel);
+            var queryExecutor = compilationContext.CreateQueryModelVisitor().CreateQueryExecutor<TResult>(queryModel);
             var queryContext = _queryFactory.MakeQueryContext(Model, Logger, stateManager, Connection);
             return queryExecutor(queryContext, null);
         }

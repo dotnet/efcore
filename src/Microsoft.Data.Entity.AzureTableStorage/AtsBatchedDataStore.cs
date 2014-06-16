@@ -30,12 +30,16 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         {
         }
 
-        public AtsBatchedDataStore([NotNull] DbContextConfiguration configuration, [NotNull] AtsConnection connection, [NotNull] AtsQueryFactory queryFactory, [NotNull] TableEntityAdapterFactory tableEntityFactory)
+        public AtsBatchedDataStore([NotNull] DbContextConfiguration configuration, 
+            [NotNull] AtsConnection connection, 
+            [NotNull] AtsQueryFactory queryFactory, 
+            [NotNull] TableEntityAdapterFactory tableEntityFactory)
             : base(configuration, connection, queryFactory, tableEntityFactory)
         {
         }
 
-        public override async Task<int> SaveChangesAsync(IReadOnlyList<StateEntry> stateEntries, CancellationToken cancellationToken = new CancellationToken())
+        public override async Task<int> SaveChangesAsync(IReadOnlyList<StateEntry> stateEntries, 
+            CancellationToken cancellationToken = new CancellationToken())
         {
             cancellationToken.ThrowIfCancellationRequested();
             var tableGroups = stateEntries.GroupBy(s => s.EntityType.StorageName);
@@ -53,7 +57,10 @@ namespace Microsoft.Data.Entity.AzureTableStorage
                 foreach (var partitionGroup in partitionGroups)
                 {
                     var batch = new TableBatchOperation();
-                    foreach (var operation in partitionGroup.Select(entry => GetOperation(entry, EntityFactory.CreateFromStateEntry(entry))).Where(operation => operation != null))
+                    foreach (var operation in partitionGroup
+                        .Select(entry => GetOperation(entry, EntityFactory.CreateFromStateEntry(entry)))
+                        .Where(operation => operation != null)
+                        )
                     {
                         // TODO allow user access to config options: Retry Policy, Secondary Storage, Timeout 
                         batch.Add(operation);

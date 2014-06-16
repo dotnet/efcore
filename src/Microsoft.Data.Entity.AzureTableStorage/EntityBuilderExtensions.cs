@@ -5,9 +5,9 @@ using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.AzureTableStorage.Utilities;
-using Microsoft.Data.Entity.Metadata;
 
-namespace Microsoft.Data.Entity.AzureTableStorage
+// ReSharper disable once CheckNamespace
+namespace Microsoft.Data.Entity.Metadata
 {
     public static class EntityBuilderExtensions
     {
