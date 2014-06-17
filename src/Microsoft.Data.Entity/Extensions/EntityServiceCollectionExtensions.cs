@@ -37,7 +37,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddSingleton<StateEntrySubscriber>()
                 .AddSingleton<FieldMatcher>()
                 .AddSingleton<OriginalValuesFactory>()
-                .AddSingleton<ForeignKeysSnapshotFactory>()
+                .AddSingleton<RelationshipsSnapshotFactory>()
                 .AddSingleton<StoreGeneratedValuesFactory>()
                 .AddSingleton<DataStoreSelector>()
                 .AddScoped<StateEntryFactory>()

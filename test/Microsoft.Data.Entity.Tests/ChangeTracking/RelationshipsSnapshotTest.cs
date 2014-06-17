@@ -9,11 +9,11 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.ChangeTracking
 {
-    public class ForeignKeysSnapshotTest
+    public class RelationshipsSnapshotTest
     {
         private readonly Model _model;
 
-        public ForeignKeysSnapshotTest()
+        public RelationshipsSnapshotTest()
         {
             _model = BuildModel();
         }
@@ -31,12 +31,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Has_expected_name()
         {
-            Assert.Equal(Sidecar.WellKnownNames.ForeignKeysSnapshot, CreateSidecar().Name);
+            Assert.Equal(Sidecar.WellKnownNames.RelationshipsSnapshot, CreateSidecar().Name);
         }
 
         private Sidecar CreateSidecar(StateEntry entry = null)
         {
-            return new ForeignKeysSnapshotFactory().Create(entry ?? CreateStateEntry());
+            return new RelationshipsSnapshotFactory().Create(entry ?? CreateStateEntry());
         }
 
         [Fact]

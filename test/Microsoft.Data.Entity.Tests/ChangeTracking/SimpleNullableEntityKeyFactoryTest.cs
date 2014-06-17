@@ -66,7 +66,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entity = new Banana { P1 = 7, P2 = 77 };
             var entry = new ClrStateEntry(TestHelpers.CreateContextConfiguration(model), type, entity);
 
-            var sidecar = new ForeignKeysSnapshot(entry);
+            var sidecar = new RelationshipsSnapshot(entry);
             sidecar[type.GetProperty("P2")] = 78;
 
             var key = (SimpleEntityKey<int>)new SimpleNullableEntityKeyFactory<int, int?>().Create(
@@ -84,7 +84,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entity = new Banana { P1 = 7, P2 = 77 };
             var entry = new ClrStateEntry(TestHelpers.CreateContextConfiguration(model), type, entity);
 
-            var sidecar = new ForeignKeysSnapshot(entry);
+            var sidecar = new RelationshipsSnapshot(entry);
 
             var key = (SimpleEntityKey<int>)new SimpleNullableEntityKeyFactory<int, int?>().Create(
                 type, new[] { type.GetProperty("P2") }, sidecar);
