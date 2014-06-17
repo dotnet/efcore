@@ -2,8 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
@@ -43,14 +41,14 @@ namespace Microsoft.Data.Entity.Metadata
 
         private NavigationAccessor Create(INavigation navigation)
         {
-            return navigation.PointsToPrincipal || navigation.ForeignKey.IsUnique
-                ? new NavigationAccessor(
-                    () => _getterSource.GetAccessor(navigation),
-                    () => _setterSource.GetAccessor(navigation))
-                : new CollectionNavigationAccessor(
+            return navigation.IsCollection()
+                ? new CollectionNavigationAccessor(
                     () => _getterSource.GetAccessor(navigation),
                     () => _setterSource.GetAccessor(navigation),
-                    () => _collectionAccessorSource.GetAccessor(navigation));
+                    () => _collectionAccessorSource.GetAccessor(navigation))
+                : new NavigationAccessor(
+                    () => _getterSource.GetAccessor(navigation),
+                    () => _setterSource.GetAccessor(navigation));
         }
     }
 }

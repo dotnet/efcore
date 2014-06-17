@@ -58,6 +58,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.tt</DependentUpon>
     </Compile>
+    <Compile Include="ChangeTracking\ChangeDetector.cs" />
     <Compile Include="ChangeTracking\RelationshipsSnapshot.cs" />
     <Compile Include="ChangeTracking\RelationshipsSnapshotFactory.cs" />
     <Compile Include="ChangeTracking\SimpleNullableEntityKeyFactory.cs" />
@@ -89,6 +90,7 @@
     <Compile Include="Metadata\Index.cs" />
     <Compile Include="Metadata\NavigationAccessor.cs" />
     <Compile Include="Metadata\NavigationAccessorSource.cs" />
+    <Compile Include="Metadata\NavigationExtensions.cs" />
     <Compile Include="Query\AsyncResultOperatorHandler.cs" />
     <Compile Include="Query\IResultOperatorHandler.cs" />
     <Compile Include="Query\QueryCompilationContext.cs" />
