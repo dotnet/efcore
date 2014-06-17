@@ -24,6 +24,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         private readonly StateEntryFactory _factory;
         private readonly StateEntrySubscriber _subscriber;
         private readonly DbContextConfiguration _configuration;
+        private readonly ChangeDetector _changeDetector;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -38,16 +39,19 @@ namespace Microsoft.Data.Entity.ChangeTracking
             [NotNull] DbContextConfiguration configuration,
             [NotNull] StateEntryFactory factory,
             [NotNull] EntityKeyFactorySource entityKeyFactorySource,
-            [NotNull] StateEntrySubscriber subscriber)
+            [NotNull] StateEntrySubscriber subscriber,
+            [NotNull] ChangeDetector changeDetector)
         {
             Check.NotNull(entityKeyFactorySource, "entityKeyFactorySource");
             Check.NotNull(factory, "factory");
             Check.NotNull(entityKeyFactorySource, "entityKeyFactorySource");
+            Check.NotNull(changeDetector, "changeDetector");
 
             _configuration = configuration;
             _keyFactorySource = entityKeyFactorySource;
             _factory = factory;
             _subscriber = subscriber;
+            _changeDetector = changeDetector;
         }
 
         public virtual StateEntry CreateNewEntry([NotNull] IEntityType entityType)
@@ -115,7 +119,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             var foundChanges = false;
             foreach (var entry in _identityMap.Values)
             {
-                if (entry.DetectChanges())
+                if (_changeDetector.DetectChanges(entry))
                 {
                     foundChanges = true;
                 }

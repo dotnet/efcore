@@ -2,9 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.ChangeTracking;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
@@ -295,36 +295,49 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         public void DetectChanges_is_called_for_all_tracked_entities_and_returns_true_if_any_changes_detected()
         {
             var model = BuildModel();
-            var config = TestHelpers.CreateContextConfiguration(model);
+
+            var services = new ServiceCollection();
+            services.AddEntityFramework().AddInMemoryStore();
+            services.AddScoped<ChangeDetector, FakeChangeDetector>();
+
+            var config = TestHelpers.CreateContextConfiguration(services.BuildServiceProvider(), model);
             var stateManager = config.Services.StateManager;
+            var changeDetector = (FakeChangeDetector)config.Services.ChangeDetector;
 
-            var entryMock1 = CreateEntryMock(model, config, changes: false, key: 1);
-            var entryMock2 = CreateEntryMock(model, config, changes: false, key: 2);
-            var entryMock3 = CreateEntryMock(model, config, changes: false, key: 3);
+            var entry1 = stateManager.GetOrCreateEntry(new Category { Id = 77, Name = "Beverages" });
+            var entry2 = stateManager.GetOrCreateEntry(new Category { Id = 78, Name = "Foods" });
+            var entry3 = stateManager.GetOrCreateEntry(new Category { Id = 79, Name = "Stuff" });
 
-            stateManager.StartTracking(entryMock1.Object);
-            stateManager.StartTracking(entryMock2.Object);
-            stateManager.StartTracking(entryMock3.Object);
+            stateManager.StartTracking(entry1);
+            stateManager.StartTracking(entry2);
+            stateManager.StartTracking(entry3);
 
             Assert.False(stateManager.DetectChanges());
 
-            entryMock1.Verify(m => m.DetectChanges());
-            entryMock2.Verify(m => m.DetectChanges());
-            entryMock3.Verify(m => m.DetectChanges());
+            Assert.Equal(new[] { 77, 78, 79 }, changeDetector.Entries.Select(e => ((Category)e.Entity).Id).ToArray());
 
-            var entryMock4 = CreateEntryMock(model, config, changes: true, key: 4);
-            var entryMock5 = CreateEntryMock(model, config, changes: false, key: 5);
-
-            stateManager.StartTracking(entryMock4.Object);
-            stateManager.StartTracking(entryMock5.Object);
+            ((Category)entry2.Entity).Name = "Snacks";
 
             Assert.True(stateManager.DetectChanges());
 
-            entryMock1.Verify(m => m.DetectChanges());
-            entryMock2.Verify(m => m.DetectChanges());
-            entryMock3.Verify(m => m.DetectChanges());
-            entryMock4.Verify(m => m.DetectChanges());
-            entryMock5.Verify(m => m.DetectChanges());
+            Assert.Equal(new[] { 77, 78, 79, 77, 78, 79 }, changeDetector.Entries.Select(e => ((Category)e.Entity).Id).ToArray());
+        }
+
+        internal class FakeChangeDetector : ChangeDetector
+        {
+            private readonly List<StateEntry> _entries = new List<StateEntry>();
+
+            public List<StateEntry> Entries
+            {
+                get { return _entries; }
+            }
+
+            public override bool DetectChanges(StateEntry entry)
+            {
+                _entries.Add(entry);
+
+                return base.DetectChanges(entry);
+            }
         }
 
         [Fact]
@@ -355,17 +368,6 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.Equal(EntityState.Unchanged, entry1.EntityState);
             Assert.Equal(EntityState.Unchanged, entry2.EntityState);
             Assert.Equal(EntityState.Unchanged, entry3.EntityState);
-        }
-
-        private static Mock<StateEntry> CreateEntryMock(IModel model, DbContextConfiguration config, bool changes, int key)
-        {
-            var entryMock = new Mock<StateEntry>();
-            entryMock.Setup(m => m.Configuration).Returns(config);
-            entryMock.Setup(m => m.EntityType).Returns(model.GetEntityType("Location"));
-            entryMock.Setup(m => m[It.IsAny<IProperty>()]).Returns(key);
-            entryMock.Setup(m => m.DetectChanges()).Returns(changes);
-
-            return entryMock;
         }
 
         private static StateManager CreateStateManager(IModel model)
