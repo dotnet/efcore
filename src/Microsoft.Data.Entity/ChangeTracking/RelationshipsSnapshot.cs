@@ -12,18 +12,18 @@ namespace Microsoft.Data.Entity.ChangeTracking
 {
     // TODO: Consider using ArraySidecar with pre-defined indexes
     // TODO: Rename to reflect that navigations are now also handled
-    public class ForeignKeysSnapshot : DictionarySidecar
+    public class RelationshipsSnapshot : DictionarySidecar
     {
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
         ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
         ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
         /// </summary>
-        protected ForeignKeysSnapshot()
+        protected RelationshipsSnapshot()
         {
         }
 
-        public ForeignKeysSnapshot([NotNull] StateEntry stateEntry)
+        public RelationshipsSnapshot([NotNull] StateEntry stateEntry)
             : base(stateEntry, GetProperties(Check.NotNull(stateEntry, "stateEntry")))
         {
         }
@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         public override string Name
         {
-            get { return WellKnownNames.ForeignKeysSnapshot; }
+            get { return WellKnownNames.RelationshipsSnapshot; }
         }
 
         public override bool TransparentRead

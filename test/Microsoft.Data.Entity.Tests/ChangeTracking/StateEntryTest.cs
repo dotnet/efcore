@@ -197,7 +197,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var entry = CreateStateEntry(configuration, entityType, new SomeDependentEntity());
             entry[fkProperty] = 77;
-            entry.ForeignKeysSnapshot[fkProperty] = 78;
+            entry.RelationshipsSnapshot[fkProperty] = 78;
 
             var keyValue = entry.GetDependentKeyValue(entityType.ForeignKeys.Single());
             Assert.IsType<SimpleEntityKey<int>>(keyValue);
@@ -214,7 +214,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var entry = CreateStateEntry(configuration, entityType, new SomeDependentEntity());
             entry[fkProperty] = 77;
-            entry.ForeignKeysSnapshot[fkProperty] = 78;
+            entry.RelationshipsSnapshot[fkProperty] = 78;
 
             var keyValue = entry.GetDependentKeySnapshot(entityType.ForeignKeys.Single());
             Assert.IsType<SimpleEntityKey<int>>(keyValue);
@@ -247,7 +247,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var entry = CreateStateEntry(configuration, entityType, new SomeDependentEntity());
             entry[fkProperty] = 77;
-            entry.ForeignKeysSnapshot[fkProperty] = 78;
+            entry.RelationshipsSnapshot[fkProperty] = 78;
 
             entry[fkProperty] = 79;
 
@@ -266,7 +266,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var entry = CreateStateEntry(configuration, entityType, new SomeDependentEntity());
             entry[fkProperty] = 77;
-            entry.ForeignKeysSnapshot[fkProperty] = 78;
+            entry.RelationshipsSnapshot[fkProperty] = 78;
 
             entry[fkProperty] = 77;
 

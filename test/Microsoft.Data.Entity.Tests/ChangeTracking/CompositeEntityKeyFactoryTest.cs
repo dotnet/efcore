@@ -54,7 +54,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var entry = new ClrStateEntry(TestHelpers.CreateContextConfiguration(model), type, entity);
 
-            var sidecar = new ForeignKeysSnapshot(entry);
+            var sidecar = new RelationshipsSnapshot(entry);
             sidecar[type.GetProperty("P4")] = 77;
 
             var key = (CompositeEntityKey)new CompositeEntityKeyFactory().Create(

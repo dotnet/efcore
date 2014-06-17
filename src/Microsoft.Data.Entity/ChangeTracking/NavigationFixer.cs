@@ -194,7 +194,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                     foreach (var dependent in dependentEntries)
                     {
                         accessor.Setter.SetClrValue(dependent.Entity, principalEntry.Entity);
-                        dependent.ForeignKeysSnapshot.TakeSnapshot(navigation);
+                        dependent.RelationshipsSnapshot.TakeSnapshot(navigation);
                     }
                 }
                 else
@@ -215,7 +215,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                         // TODO: Decide how to handle case where multiple values match non-collection nav prop
                         accessor.Setter.SetClrValue(principalEntry.Entity, dependentEntries.Single().Entity);
                     }
-                    principalEntry.ForeignKeysSnapshot.TakeSnapshot(navigation);
+                    principalEntry.RelationshipsSnapshot.TakeSnapshot(navigation);
                 }
             }
         }
@@ -229,7 +229,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 if (navigation.PointsToPrincipal)
                 {
                     accessor.Setter.SetClrValue(dependentEntry.Entity, null);
-                    dependentEntry.ForeignKeysSnapshot.TakeSnapshot(navigation);
+                    dependentEntry.RelationshipsSnapshot.TakeSnapshot(navigation);
                 }
                 else
                 {
@@ -245,7 +245,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                     {
                         accessor.Setter.SetClrValue(oldPrincipalEntry.Entity, null);
                     }
-                    oldPrincipalEntry.ForeignKeysSnapshot.TakeSnapshot(navigation);
+                    oldPrincipalEntry.RelationshipsSnapshot.TakeSnapshot(navigation);
                 }
             }
         }
@@ -257,7 +257,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 if (navigation.PointsToPrincipal)
                 {
                     _accessorSource.GetAccessor(navigation).Setter.SetClrValue(dependentEntry.Entity, null);
-                    dependentEntry.ForeignKeysSnapshot.TakeSnapshot(navigation);
+                    dependentEntry.RelationshipsSnapshot.TakeSnapshot(navigation);
                 }
             }
 
