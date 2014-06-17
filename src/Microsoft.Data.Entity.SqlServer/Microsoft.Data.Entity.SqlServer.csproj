@@ -33,6 +33,9 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Remotion.Linq">
+      <TargetFramework>portable-net45+wp80+win</TargetFramework>
+    </PackageReference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <PackageReference Include="Microsoft.Data.Common">
@@ -52,6 +55,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.tt</DependentUpon>
     </Compile>
+    <Compile Include="Query\SqlServerQueryCompilationContext.cs" />
+    <Compile Include="Query\SqlServerQueryGenerator.cs" />
     <Compile Include="SequentialGuidValueGenerator.cs" />
     <Compile Include="SqlServerBatchExecutor.cs" />
     <Compile Include="SqlServerMigrationOperationSqlGeneratorFactory.cs" />

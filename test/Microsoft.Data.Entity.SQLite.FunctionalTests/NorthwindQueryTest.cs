@@ -18,9 +18,9 @@ namespace Microsoft.Data.Entity.SQLite.FunctionalTests
             base.Take_with_single();
 
             Assert.Equal(
-                @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
-FROM Customers
-ORDER BY CustomerID
+                @"SELECT ""Address"", ""City"", ""CompanyName"", ""ContactName"", ""ContactTitle"", ""Country"", ""CustomerID"", ""Fax"", ""Phone"", ""PostalCode"", ""Region""
+FROM ""Customers""
+ORDER BY ""CustomerID""
 LIMIT 1",
                 _fixture.Sql);
         }
@@ -30,9 +30,9 @@ LIMIT 1",
             base.String_StartsWith_Literal();
 
             Assert.Equal(
-                @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
-FROM Customers
-WHERE ContactName LIKE @p0 || '%'",
+                @"SELECT ""Address"", ""City"", ""CompanyName"", ""ContactName"", ""ContactTitle"", ""Country"", ""CustomerID"", ""Fax"", ""Phone"", ""PostalCode"", ""Region""
+FROM ""Customers""
+WHERE ""ContactName"" LIKE @p0 || '%'",
                 _fixture.Sql);
         }
 
@@ -41,9 +41,9 @@ WHERE ContactName LIKE @p0 || '%'",
             base.String_StartsWith_MethodCall();
 
             Assert.Equal(
-                @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
-FROM Customers
-WHERE ContactName LIKE @p0 || '%'",
+                @"SELECT ""Address"", ""City"", ""CompanyName"", ""ContactName"", ""ContactTitle"", ""Country"", ""CustomerID"", ""Fax"", ""Phone"", ""PostalCode"", ""Region""
+FROM ""Customers""
+WHERE ""ContactName"" LIKE @p0 || '%'",
                 _fixture.Sql);
         }
 
@@ -52,9 +52,9 @@ WHERE ContactName LIKE @p0 || '%'",
             base.String_EndsWith_Literal();
 
             Assert.Equal(
-                @"SELECT Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
-FROM Customers
-WHERE ContactName LIKE '%' || @p0",
+                @"SELECT ""Address"", ""City"", ""CompanyName"", ""ContactName"", ""ContactTitle"", ""Country"", ""CustomerID"", ""Fax"", ""Phone"", ""PostalCode"", ""Region""
+FROM ""Customers""
+WHERE ""ContactName"" LIKE '%' || @p0",
                 _fixture.Sql);
         }
 
