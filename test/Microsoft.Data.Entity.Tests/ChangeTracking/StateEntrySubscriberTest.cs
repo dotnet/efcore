@@ -20,11 +20,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entityTypeMock.Setup(m => m.UseLazyOriginalValues).Returns(false);
 
             var originalValuesMock = new Mock<OriginalValues>();
-            var fkSnapshotMock = new Mock<ForeignKeysSnapshot>();
+            var fkSnapshotMock = new Mock<RelationshipsSnapshot>();
             var entryMock = new Mock<StateEntry>();
             entryMock.Setup(m => m.EntityType).Returns(entityTypeMock.Object);
             entryMock.Setup(m => m.OriginalValues).Returns(originalValuesMock.Object);
-            entryMock.Setup(m => m.ForeignKeysSnapshot).Returns(fkSnapshotMock.Object);
+            entryMock.Setup(m => m.RelationshipsSnapshot).Returns(fkSnapshotMock.Object);
 
             new StateEntrySubscriber().SnapshotAndSubscribe(entryMock.Object);
 

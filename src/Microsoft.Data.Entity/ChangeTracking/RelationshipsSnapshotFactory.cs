@@ -6,13 +6,13 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking
 {
-    public class ForeignKeysSnapshotFactory
+    public class RelationshipsSnapshotFactory
     {
         public virtual Sidecar Create([NotNull] StateEntry stateEntry)
         {
             Check.NotNull(stateEntry, "stateEntry");
 
-            return new ForeignKeysSnapshot(stateEntry);
+            return new RelationshipsSnapshot(stateEntry);
         }
     }
 }

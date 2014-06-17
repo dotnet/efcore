@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             if (!entityType.UseLazyOriginalValues)
             {
                 entry.OriginalValues.TakeSnapshot();
-                entry.ForeignKeysSnapshot.TakeSnapshot();
+                entry.RelationshipsSnapshot.TakeSnapshot();
             }
 
             var changing = entry.Entity as INotifyPropertyChanging;

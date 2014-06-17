@@ -67,12 +67,12 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
         }
 
-        public virtual Sidecar ForeignKeysSnapshot
+        public virtual Sidecar RelationshipsSnapshot
         {
             get
             {
-                return TryGetSidecar(Sidecar.WellKnownNames.ForeignKeysSnapshot)
-                       ?? AddSidecar(_configuration.Services.ForeignKeysSnapshotFactory.Create(this));
+                return TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot)
+                       ?? AddSidecar(_configuration.Services.RelationshipsSnapshotFactory.Create(this));
             }
         }
 
@@ -390,7 +390,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             return _configuration.Services.EntityKeyFactorySource
                 .GetKeyFactory(foreignKey.Properties)
-                .Create(foreignKey.ReferencedEntityType, foreignKey.Properties, ForeignKeysSnapshot);
+                .Create(foreignKey.ReferencedEntityType, foreignKey.Properties, RelationshipsSnapshot);
         }
 
         public virtual object[] GetValueBuffer()
@@ -407,7 +407,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 OriginalValues.EnsureSnapshot(propertyBase);
 
                 // TODO: Consider making snapshot temporary here since it is no longer required after PropertyChanged is called
-                ForeignKeysSnapshot.TakeSnapshot(propertyBase);
+                RelationshipsSnapshot.TakeSnapshot(propertyBase);
             }
         }
 
@@ -423,7 +423,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
                 if (DetectForeignKeyChange(property))
                 {
-                    ForeignKeysSnapshot.TakeSnapshot(property);
+                    RelationshipsSnapshot.TakeSnapshot(property);
                 }
             }
             else
@@ -434,7 +434,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 {
                     if (DetectNavigationChange(navigation))
                     {
-                        ForeignKeysSnapshot.TakeSnapshot(navigation);
+                        RelationshipsSnapshot.TakeSnapshot(navigation);
                     }
                 }
             }
@@ -471,14 +471,14 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             foreach (var property in changedFkProperties)
             {
-                ForeignKeysSnapshot.TakeSnapshot(property);
+                RelationshipsSnapshot.TakeSnapshot(property);
             }
 
             foreach (var navigation in EntityType.Navigations)
             {
                 if (DetectNavigationChange(navigation))
                 {
-                    ForeignKeysSnapshot.TakeSnapshot(navigation);
+                    RelationshipsSnapshot.TakeSnapshot(navigation);
                 }
             }
 
@@ -490,7 +490,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             // TODO: Consider flag/index for fast check for FK
             if (_entityType.ForeignKeys.SelectMany(fk => fk.Properties).Contains(property))
             {
-                var snapshotValue = ForeignKeysSnapshot[property];
+                var snapshotValue = RelationshipsSnapshot[property];
                 var currentValue = this[property];
 
                 // TODO: Ensure structural equality where necessary--e.g. byte arrays
@@ -511,7 +511,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             if (navigation.PointsToPrincipal
                 || navigation.ForeignKey.IsUnique)
             {
-                var snapshotValue = ForeignKeysSnapshot[navigation];
+                var snapshotValue = RelationshipsSnapshot[navigation];
                 var currentValue = this[navigation];
 
                 if (!ReferenceEquals(currentValue, snapshotValue))

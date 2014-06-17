@@ -84,9 +84,9 @@ namespace Microsoft.Data.Entity.Infrastructure
             get { return _serviceProvider.GetService<OriginalValuesFactory>(); }
         }
 
-        public virtual ForeignKeysSnapshotFactory ForeignKeysSnapshotFactory
+        public virtual RelationshipsSnapshotFactory RelationshipsSnapshotFactory
         {
-            get { return _serviceProvider.GetService<ForeignKeysSnapshotFactory>(); }
+            get { return _serviceProvider.GetService<RelationshipsSnapshotFactory>(); }
         }
 
         public virtual StateEntryNotifier StateEntryNotifier

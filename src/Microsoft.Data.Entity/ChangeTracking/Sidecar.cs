@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         public static class WellKnownNames
         {
             public const string OriginalValues = "OriginalValues";
-            public const string ForeignKeysSnapshot = "ForeignKeysSnapshot";
+            public const string RelationshipsSnapshot = "RelationshipsSnapshot";
             public const string StoreGeneratedValues = "StoreGeneratedValues";
         }
 
