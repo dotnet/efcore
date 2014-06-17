@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entryMock.Setup(m => m.OriginalValues).Returns(originalValuesMock.Object);
             entryMock.Setup(m => m.RelationshipsSnapshot).Returns(fkSnapshotMock.Object);
 
-            new StateEntrySubscriber().SnapshotAndSubscribe(entryMock.Object);
+            new StateEntrySubscriber(new ChangeDetector()).SnapshotAndSubscribe(entryMock.Object);
 
             originalValuesMock.Verify(m => m.TakeSnapshot());
             fkSnapshotMock.Verify(m => m.TakeSnapshot());
@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entryMock.Setup(m => m.EntityType).Returns(entityTypeMock.Object);
             entryMock.Setup(m => m.OriginalValues).Returns(originalValuesMock.Object);
 
-            new StateEntrySubscriber().SnapshotAndSubscribe(entryMock.Object);
+            new StateEntrySubscriber(new ChangeDetector()).SnapshotAndSubscribe(entryMock.Object);
 
             originalValuesMock.Verify(m => m.TakeSnapshot(), Times.Never);
         }
@@ -60,12 +60,13 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entryMock.Setup(m => m.EntityType).Returns(entityType);
             entryMock.Setup(m => m.Entity).Returns(entity);
 
-            new StateEntrySubscriber().SnapshotAndSubscribe(entryMock.Object);
+            var detectorMock = new Mock<ChangeDetector>();
+            new StateEntrySubscriber(detectorMock.Object).SnapshotAndSubscribe(entryMock.Object);
 
             entity.Name = "George";
 
-            entryMock.Verify(m => m.PropertyChanging(property));
-            entryMock.Verify(m => m.PropertyChanged(property));
+            detectorMock.Verify(m => m.PropertyChanging(entryMock.Object, property));
+            detectorMock.Verify(m => m.PropertyChanged(entryMock.Object, property));
         }
 
         [Fact]
@@ -80,12 +81,13 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entryMock.Setup(m => m.EntityType).Returns(entityType);
             entryMock.Setup(m => m.Entity).Returns(entity);
 
-            new StateEntrySubscriber().SnapshotAndSubscribe(entryMock.Object);
+            var detectorMock = new Mock<ChangeDetector>();
+            new StateEntrySubscriber(detectorMock.Object).SnapshotAndSubscribe(entryMock.Object);
 
             entity.NotMapped = "Formby";
 
-            entryMock.Verify(m => m.PropertyChanging(It.IsAny<IProperty>()), Times.Never);
-            entryMock.Verify(m => m.PropertyChanged(It.IsAny<IProperty>()), Times.Never);
+            detectorMock.Verify(m => m.PropertyChanging(It.IsAny<StateEntry>(), It.IsAny<IProperty>()), Times.Never);
+            detectorMock.Verify(m => m.PropertyChanged(It.IsAny<StateEntry>(), It.IsAny<IProperty>()), Times.Never);
         }
 
         private class FullNotificationEntity : INotifyPropertyChanging, INotifyPropertyChanged

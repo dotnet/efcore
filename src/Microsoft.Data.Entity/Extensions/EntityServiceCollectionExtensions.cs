@@ -34,7 +34,6 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddSingleton<EntityMaterializerSource>()
                 .AddSingleton<CompositeEntityKeyFactory>()
                 .AddSingleton<MemberMapper>()
-                .AddSingleton<StateEntrySubscriber>()
                 .AddSingleton<FieldMatcher>()
                 .AddSingleton<OriginalValuesFactory>()
                 .AddSingleton<RelationshipsSnapshotFactory>()
@@ -43,6 +42,8 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddScoped<StateEntryFactory>()
                 .AddScoped<IEntityStateListener, NavigationFixer>()
                 .AddScoped<StateEntryNotifier>()
+                .AddScoped<ChangeDetector>()
+                .AddScoped<StateEntrySubscriber>()
                 .AddScoped<DbContextConfiguration>()
                 .AddScoped<ContextSets>()
                 .AddScoped<StateManager>();

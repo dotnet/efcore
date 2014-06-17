@@ -5,11 +5,21 @@ using System.ComponentModel;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking
 {
     public class StateEntrySubscriber
     {
+        private readonly ChangeDetector _changeDetector;
+
+        public StateEntrySubscriber([NotNull] ChangeDetector changeDetector)
+        {
+            Check.NotNull(changeDetector, "changeDetector");
+
+            _changeDetector = changeDetector;
+        }
+
         public virtual StateEntry SnapshotAndSubscribe([NotNull] StateEntry entry)
         {
             var entityType = entry.EntityType;
@@ -28,7 +38,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                         var property = TryGetPropertyBase(entityType, e.PropertyName);
                         if (property != null)
                         {
-                            entry.PropertyChanging(property);
+                            _changeDetector.PropertyChanging(entry, property);
                         }
                     };
             }
@@ -41,7 +51,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                         var property = TryGetPropertyBase(entityType, e.PropertyName);
                         if (property != null)
                         {
-                            entry.PropertyChanged(property);
+                            _changeDetector.PropertyChanged(entry, property);
                         }
                     };
             }

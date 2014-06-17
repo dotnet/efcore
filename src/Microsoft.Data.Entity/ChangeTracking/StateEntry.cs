@@ -3,10 +3,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics.Contracts;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -349,11 +347,13 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
                 if (!Equals(currentValue, value))
                 {
-                    PropertyChanging(property);
+                    var changeDetector = _configuration.Services.ChangeDetector;
+
+                    changeDetector.PropertyChanging(this, property);
 
                     WritePropertyValue(property, value);
 
-                    PropertyChanged(property);
+                    changeDetector.PropertyChanged(this, property);
                 }
             }
         }
@@ -398,136 +398,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
             return _entityType.Properties.Select(p => this[p]).ToArray();
         }
 
-        public virtual void PropertyChanging([NotNull] IPropertyBase propertyBase)
-        {
-            Check.NotNull(propertyBase, "propertyBase");
-
-            if (_entityType.UseLazyOriginalValues)
-            {
-                OriginalValues.EnsureSnapshot(propertyBase);
-
-                // TODO: Consider making snapshot temporary here since it is no longer required after PropertyChanged is called
-                RelationshipsSnapshot.TakeSnapshot(propertyBase);
-            }
-        }
-
-        public virtual void PropertyChanged([NotNull] IPropertyBase propertyBase)
-        {
-            Check.NotNull(propertyBase, "propertyBase");
-
-            var property = propertyBase as IProperty;
-
-            if (property != null)
-            {
-                SetPropertyModified(property, true);
-
-                if (DetectForeignKeyChange(property))
-                {
-                    RelationshipsSnapshot.TakeSnapshot(property);
-                }
-            }
-            else
-            {
-                var navigation = propertyBase as INavigation;
-
-                if (navigation != null)
-                {
-                    if (DetectNavigationChange(navigation))
-                    {
-                        RelationshipsSnapshot.TakeSnapshot(navigation);
-                    }
-                }
-            }
-        }
-
         public virtual bool DetectChanges()
         {
-            var originalValues = TryGetSidecar(Sidecar.WellKnownNames.OriginalValues);
-
-            // TODO: Consider more efficient/higher-level/abstract mechanism for checking if DetectChanges is needed
-            if (_entityType.Type == null
-                || originalValues == null
-                || typeof(INotifyPropertyChanged).GetTypeInfo().IsAssignableFrom(_entityType.Type.GetTypeInfo()))
-            {
-                return false;
-            }
-
-            var changedFkProperties = new List<IProperty>();
-            var foundChanges = false;
-            foreach (var property in EntityType.Properties)
-            {
-                // TODO: Perf: don't lookup accessor twice
-                if (!Equals(this[property], originalValues[property]))
-                {
-                    SetPropertyModified(property, true);
-                    foundChanges = true;
-                }
-
-                if (DetectForeignKeyChange(property))
-                {
-                    changedFkProperties.Add(property);
-                }
-            }
-
-            foreach (var property in changedFkProperties)
-            {
-                RelationshipsSnapshot.TakeSnapshot(property);
-            }
-
-            foreach (var navigation in EntityType.Navigations)
-            {
-                if (DetectNavigationChange(navigation))
-                {
-                    RelationshipsSnapshot.TakeSnapshot(navigation);
-                }
-            }
-
-            return foundChanges;
-        }
-
-        private bool DetectForeignKeyChange(IProperty property)
-        {
-            // TODO: Consider flag/index for fast check for FK
-            if (_entityType.ForeignKeys.SelectMany(fk => fk.Properties).Contains(property))
-            {
-                var snapshotValue = RelationshipsSnapshot[property];
-                var currentValue = this[property];
-
-                // TODO: Ensure structural equality where necessary--e.g. byte arrays
-                if (!Equals(currentValue, snapshotValue))
-                {
-                    var notifier = _configuration.Services.StateEntryNotifier;
-                    notifier.ForeignKeyPropertyChanged(this, property, snapshotValue, currentValue);
-
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        private bool DetectNavigationChange(INavigation navigation)
-        {
-            if (navigation.PointsToPrincipal
-                || navigation.ForeignKey.IsUnique)
-            {
-                var snapshotValue = RelationshipsSnapshot[navigation];
-                var currentValue = this[navigation];
-
-                if (!ReferenceEquals(currentValue, snapshotValue))
-                {
-                    var notifier = _configuration.Services.StateEntryNotifier;
-                    notifier.NavigationReferenceChanged(this, navigation, snapshotValue, currentValue);
-
-                    return true;
-                }
-            }
-            else
-            {
-                // TODO: Handle collections
-            }
-
-            return false;
+            return _configuration.Services.ChangeDetector.DetectChanges(this);
         }
 
         public virtual void AcceptChanges()

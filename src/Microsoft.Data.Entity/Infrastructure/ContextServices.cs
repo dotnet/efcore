@@ -94,6 +94,11 @@ namespace Microsoft.Data.Entity.Infrastructure
             get { return ServiceProvider.GetService<StateEntryNotifier>(); }
         }
 
+        public virtual ChangeDetector ChangeDetector
+        {
+            get { return ServiceProvider.GetService<ChangeDetector>(); }
+        }
+
         public virtual StoreGeneratedValuesFactory StoreGeneratedValuesFactory
         {
             get { return _serviceProvider.GetService<StoreGeneratedValuesFactory>(); }
