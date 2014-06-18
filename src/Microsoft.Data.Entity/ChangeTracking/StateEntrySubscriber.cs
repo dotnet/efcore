@@ -2,7 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.ComponentModel;
+using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.ChangeTracking
 {
@@ -10,7 +12,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
     {
         public virtual StateEntry SnapshotAndSubscribe([NotNull] StateEntry entry)
         {
-            if (!entry.EntityType.UseLazyOriginalValues)
+            var entityType = entry.EntityType;
+
+            if (!entityType.UseLazyOriginalValues)
             {
                 entry.OriginalValues.TakeSnapshot();
                 entry.ForeignKeysSnapshot.TakeSnapshot();
@@ -21,7 +25,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             {
                 changing.PropertyChanging += (s, e) =>
                     {
-                        var property = entry.EntityType.TryGetProperty(e.PropertyName);
+                        var property = TryGetPropertyBase(entityType, e.PropertyName);
                         if (property != null)
                         {
                             entry.PropertyChanging(property);
@@ -34,7 +38,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             {
                 changed.PropertyChanged += (s, e) =>
                     {
-                        var property = entry.EntityType.TryGetProperty(e.PropertyName);
+                        var property = TryGetPropertyBase(entityType, e.PropertyName);
                         if (property != null)
                         {
                             entry.PropertyChanged(property);
@@ -43,6 +47,13 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
 
             return entry;
+        }
+
+        private static IPropertyBase TryGetPropertyBase(IEntityType entityType, string propertyName)
+        {
+            // TODO: Consider optimizing/consolidating property/navigation lookup
+            return (IPropertyBase)entityType.TryGetProperty(propertyName)
+                   ?? entityType.Navigations.FirstOrDefault(n => n.Name == propertyName);
         }
     }
 }

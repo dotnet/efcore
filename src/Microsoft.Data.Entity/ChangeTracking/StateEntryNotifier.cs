@@ -57,6 +57,15 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Dispatch(l => l.ForeignKeyPropertyChanged(entry, property, oldValue, newValue));
         }
 
+        public virtual void NavigationReferenceChanged(
+            [NotNull] StateEntry entry, [NotNull] INavigation navigation, [CanBeNull] object oldValue, [CanBeNull] object newValue)
+        {
+            Check.NotNull(entry, "entry");
+            Check.NotNull(navigation, "navigation");
+
+            Dispatch(l => l.NavigationReferenceChanged(entry, navigation, oldValue, newValue));
+        }
+
         private void Dispatch(Action<IEntityStateListener> action)
         {
             if (_entityStateListeners == null)

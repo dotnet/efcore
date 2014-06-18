@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -11,7 +12,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 {
     public abstract class DictionarySidecar : Sidecar
     {
-        private readonly Dictionary<IProperty, object> _values;
+        private readonly Dictionary<IPropertyBase, object> _values;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -24,7 +25,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         protected DictionarySidecar(
             [NotNull] StateEntry stateEntry,
-            [NotNull] IEnumerable<IProperty> properties)
+            [NotNull] IEnumerable<IPropertyBase> properties)
             : base(stateEntry)
         {
             Check.NotNull(properties, "properties");
@@ -32,21 +33,21 @@ namespace Microsoft.Data.Entity.ChangeTracking
             _values = properties.ToDictionary(p => p, p => (object)null);
         }
 
-        public override bool CanStoreValue(IProperty property)
+        public override bool CanStoreValue(IPropertyBase property)
         {
             Check.NotNull(property, "property");
 
             return _values.ContainsKey(property);
         }
 
-        protected override object ReadValue(IProperty property)
+        protected override object ReadValue(IPropertyBase property)
         {
             Check.NotNull(property, "property");
 
             return _values[property];
         }
 
-        protected override void WriteValue(IProperty property, object value)
+        protected override void WriteValue(IPropertyBase property, object value)
         {
             Check.NotNull(property, "property");
 
