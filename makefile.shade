@@ -7,7 +7,7 @@ use namespace='System.Net.Http'
 
 var VERSION='0.1'
 var FULL_VERSION='0.1'
-var AUTHORS='Microsoft'
+var AUTHORS='Microsoft Open Technologies, Inc.'
 
 use-standard-lifecycle
 k-standard-goals
