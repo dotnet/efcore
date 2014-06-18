@@ -86,32 +86,66 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         private void NavigationReferenceChangedAction(StateEntry entry, INavigation navigation, object oldValue, object newValue)
         {
+            var foreignKey = navigation.ForeignKey;
+            var dependentProperties = foreignKey.Properties;
+            var principalProperties = foreignKey.ReferencedProperties;
+
+            // TODO: What if the other entry is not yet being tracked?
+
             if (navigation.PointsToPrincipal)
             {
-                var dependentProperties = navigation.ForeignKey.Properties;
-
                 if (newValue != null)
                 {
-                    // TODO: What if the principal is not yet being tracked?
-                    var newPrincipalEntry = _stateManager.GetOrCreateEntry(newValue);
-
-                    var principalProperties = navigation.ForeignKey.ReferencedProperties;
-                    Contract.Assert(principalProperties.Count == dependentProperties.Count);
-
-                    for (var i = 0; i < dependentProperties.Count; i++)
-                    {
-                        // TODO: Consider nullable/non-nullable assignment issues
-                        entry[dependentProperties[i]] = newPrincipalEntry[principalProperties[i]];
-                    }
+                    SetForeignKeyValue(entry, dependentProperties, _stateManager.GetOrCreateEntry(newValue), principalProperties);
                 }
                 else
                 {
-                    foreach (var dependentProperty in dependentProperties)
-                    {
-                        // TODO: Conceptual nulls
-                        entry[dependentProperty] = null;
-                    }
+                    SetNullForeignKey(entry, dependentProperties);
                 }
+            }
+            else
+            {
+                Contract.Assert(foreignKey.IsUnique);
+
+                if (newValue != null)
+                {
+                    SetForeignKeyValue(_stateManager.GetOrCreateEntry(newValue), dependentProperties, entry, principalProperties);
+                }
+
+                if (oldValue != null)
+                {
+                    ConditionallySetNullForeignKey(_stateManager.GetOrCreateEntry(oldValue), dependentProperties, entry, principalProperties);
+                }
+            }
+        }
+
+        public virtual void NavigationCollectionChanged(StateEntry entry, INavigation navigation, ISet<object> added, ISet<object> removed)
+        {
+            Check.NotNull(entry, "entry");
+            Check.NotNull(navigation, "navigation");
+            Check.NotNull(added, "added");
+            Check.NotNull(removed, "removed");
+
+            PerformFixup(() => NavigationCollectionChangedAction(entry, navigation, added, removed));
+        }
+
+        private void NavigationCollectionChangedAction(StateEntry entry, INavigation navigation, ISet<object> added, ISet<object> removed)
+        {
+            Contract.Assert(navigation.IsCollection());
+
+            var dependentProperties = navigation.ForeignKey.Properties;
+            var principalValues = navigation.ForeignKey.ReferencedProperties.Select(p => entry[p]).ToArray();
+
+            // TODO: What if the entity is not yet being tracked?
+
+            foreach (var entity in removed)
+            {
+                ConditionallySetNullForeignKey(_stateManager.GetOrCreateEntry(entity), dependentProperties, principalValues);
+            }
+
+            foreach (var entity in added)
+            {
+                SetForeignKeyValue(_stateManager.GetOrCreateEntry(entity), dependentProperties, principalValues);
             }
         }
 
@@ -272,6 +306,55 @@ namespace Microsoft.Data.Entity.ChangeTracking
             else
             {
                 // TODO: Handle conceptual null
+            }
+        }
+
+        private static void SetForeignKeyValue(
+            StateEntry dependentEntry, IReadOnlyList<IProperty> dependentProperties,
+            StateEntry principalEntry, IReadOnlyList<IProperty> principalProperties)
+        {
+            Contract.Assert(principalProperties.Count == dependentProperties.Count);
+
+            SetForeignKeyValue(dependentEntry, dependentProperties, principalProperties.Select(p => principalEntry[p]).ToArray());
+        }
+
+        private static void SetForeignKeyValue(
+            StateEntry dependentEntry, IReadOnlyList<IProperty> dependentProperties, IReadOnlyList<object> principalValues)
+        {
+            for (var i = 0; i < dependentProperties.Count; i++)
+            {
+                // TODO: Consider nullable/non-nullable assignment issues
+                var dependentProperty = dependentProperties[i];
+                dependentEntry[dependentProperty] = principalValues[i];
+                dependentEntry.RelationshipsSnapshot.TakeSnapshot(dependentProperty);
+            }
+        }
+
+        private static void ConditionallySetNullForeignKey(
+            StateEntry dependentEntry, IReadOnlyList<IProperty> dependentProperties,
+            StateEntry principalEntry, IReadOnlyList<IProperty> principalProperties)
+        {
+            ConditionallySetNullForeignKey(dependentEntry, dependentProperties, principalProperties.Select(p => principalEntry[p]).ToArray());
+        }
+
+        private static void ConditionallySetNullForeignKey(
+            StateEntry dependentEntry, IReadOnlyList<IProperty> dependentProperties, IReadOnlyList<object> principalValues)
+        {
+            // Don't null out the FK if it has already be set to point to a different principal
+            // TODO: Use structural equality
+            if (dependentProperties.Select(p => dependentEntry[p]).SequenceEqual(principalValues))
+            {
+                SetNullForeignKey(dependentEntry, dependentProperties);
+            }
+        }
+
+        private static void SetNullForeignKey(StateEntry dependentEntry, IReadOnlyList<IProperty> dependentProperties)
+        {
+            foreach (var dependentProperty in dependentProperties)
+            {
+                // TODO: Conceptual nulls
+                dependentEntry[dependentProperty] = null;
+                dependentEntry.RelationshipsSnapshot.TakeSnapshot(dependentProperty);
             }
         }
     }

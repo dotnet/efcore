@@ -985,7 +985,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
         protected virtual StateEntry CreateStateEntry(DbContextConfiguration configuration, IEntityType entityType, object entity)
         {
-            return new StateEntrySubscriber(new ChangeDetector()).SnapshotAndSubscribe(
+            return CreateSubscriber().SnapshotAndSubscribe(
                 new StateEntryFactory(
                     configuration,
                     configuration.Services.ServiceProvider.GetService<EntityMaterializerSource>())
@@ -994,11 +994,19 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
         protected virtual StateEntry CreateStateEntry(DbContextConfiguration configuration, IEntityType entityType, IValueReader valueReader)
         {
-            return new StateEntrySubscriber(new ChangeDetector()).SnapshotAndSubscribe(
+            return CreateSubscriber().SnapshotAndSubscribe(
                 new StateEntryFactory(
                     configuration,
                     configuration.Services.ServiceProvider.GetService<EntityMaterializerSource>())
                     .Create(entityType, valueReader));
+        }
+
+        private static StateEntrySubscriber CreateSubscriber()
+        {
+            return new StateEntrySubscriber(
+                new ChangeDetector(
+                    new NavigationAccessorSource(
+                        new ClrPropertyGetterSource(), new ClrPropertySetterSource(), new ClrCollectionAccessorSource())));
         }
 
         protected virtual Model BuildModel()

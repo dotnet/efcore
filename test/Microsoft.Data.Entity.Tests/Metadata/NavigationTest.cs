@@ -25,7 +25,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_create_navigation_to_principal()
         {
-            var foreignKey = new Mock<ForeignKey>().Object;
+            var keyMock = new Mock<ForeignKey>();
+            keyMock.Setup(m => m.IsUnique).Returns(false);
+            var foreignKey = keyMock.Object;
 
             var navigation = new Navigation(foreignKey, "Deception", pointsToPrincipal: true);
 
@@ -33,15 +35,18 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal("Deception", navigation.Name);
             Assert.Null(navigation.EntityType);
             Assert.True(navigation.PointsToPrincipal);
+            Assert.False(navigation.IsCollection());
 
             Assert.Same(foreignKey, ((INavigation)navigation).ForeignKey);
             Assert.Null(((INavigation)navigation).EntityType);
         }
 
         [Fact]
-        public void Can_create_navigation_to_dependents()
+        public void Can_create_navigation_to_unique_dependent()
         {
-            var foreignKey = new Mock<ForeignKey>().Object;
+            var keyMock = new Mock<ForeignKey>();
+            keyMock.Setup(m => m.IsUnique).Returns(true);
+            var foreignKey = keyMock.Object;
 
             var navigation = new Navigation(foreignKey, "Deception", pointsToPrincipal: false);
 
@@ -49,6 +54,26 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal("Deception", navigation.Name);
             Assert.Null(navigation.EntityType);
             Assert.False(navigation.PointsToPrincipal);
+            Assert.False(navigation.IsCollection());
+
+            Assert.Same(foreignKey, ((INavigation)navigation).ForeignKey);
+            Assert.Null(((INavigation)navigation).EntityType);
+        }
+
+        [Fact]
+        public void Can_create_navigation_to_collection_of_dependents()
+        {
+            var keyMock = new Mock<ForeignKey>();
+            keyMock.Setup(m => m.IsUnique).Returns(false);
+            var foreignKey = keyMock.Object;
+
+            var navigation = new Navigation(foreignKey, "Deception", pointsToPrincipal: false);
+
+            Assert.Same(foreignKey, navigation.ForeignKey);
+            Assert.Equal("Deception", navigation.Name);
+            Assert.Null(navigation.EntityType);
+            Assert.False(navigation.PointsToPrincipal);
+            Assert.True(navigation.IsCollection());
 
             Assert.Same(foreignKey, ((INavigation)navigation).ForeignKey);
             Assert.Null(((INavigation)navigation).EntityType);

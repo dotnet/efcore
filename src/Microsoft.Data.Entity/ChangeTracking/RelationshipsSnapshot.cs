@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -11,7 +12,6 @@ using Microsoft.Data.Entity.Utilities;
 namespace Microsoft.Data.Entity.ChangeTracking
 {
     // TODO: Consider using ArraySidecar with pre-defined indexes
-    // TODO: Rename to reflect that navigations are now also handled
     public class RelationshipsSnapshot : DictionarySidecar
     {
         /// <summary>
@@ -34,6 +34,30 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             return entityType.ForeignKeys.SelectMany(fk => fk.Properties).Distinct()
                 .Concat<IPropertyBase>(entityType.Navigations);
+        }
+
+        protected override object CopyValueFromEntry(IPropertyBase property)
+        {
+            var value = base.CopyValueFromEntry(property);
+
+            var navigation = property as INavigation;
+            if (value == null
+                || navigation == null
+                || !navigation.IsCollection())
+            {
+                return value;
+            }
+
+            // TODO: Perf: Consider updating the snapshot with what has changed rather than making a new snapshot every time.
+            // TODO: This may need to be strongly typed to entity type--not just object
+            var snapshot = new HashSet<object>(ReferenceEqualityComparer.Instance);
+
+            foreach (var entity in (IEnumerable)value)
+            {
+                snapshot.Add(entity);
+            }
+
+            return snapshot;
         }
 
         public override string Name

@@ -66,6 +66,17 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Dispatch(l => l.NavigationReferenceChanged(entry, navigation, oldValue, newValue));
         }
 
+        public virtual void NavigationCollectionChanged(
+            [NotNull] StateEntry entry, [NotNull] INavigation navigation, [NotNull] ISet<object> added, [NotNull] ISet<object> removed)
+        {
+            Check.NotNull(entry, "entry");
+            Check.NotNull(navigation, "navigation");
+            Check.NotNull(added, "added");
+            Check.NotNull(removed, "removed");
+
+            Dispatch(l => l.NavigationCollectionChanged(entry, navigation, added, removed));
+        }
+
         private void Dispatch(Action<IEntityStateListener> action)
         {
             if (_entityStateListeners == null)

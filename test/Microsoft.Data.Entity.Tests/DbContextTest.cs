@@ -868,6 +868,10 @@ namespace Microsoft.Data.Entity.Tests
             public void NavigationReferenceChanged(StateEntry entry, INavigation navigation, object oldValue, object newValue)
             {
             }
+
+            public virtual void NavigationCollectionChanged(StateEntry entry, INavigation navigation, ISet<object> added, ISet<object> removed)
+            {
+            }
         }
 
         private class FakeLoggerFactory : ILoggerFactory

@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -13,6 +15,24 @@ namespace Microsoft.Data.Entity.ChangeTracking
 {
     public class ChangeDetector
     {
+        private readonly NavigationAccessorSource _accessorSource;
+
+        /// <summary>
+        ///     This constructor is intended only for use when creating test doubles that will override members
+        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
+        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
+        /// </summary>
+        protected ChangeDetector()
+        {
+        }
+
+        public ChangeDetector([NotNull] NavigationAccessorSource accessorSource)
+        {
+            Check.NotNull(accessorSource, "accessorSource");
+
+            _accessorSource = accessorSource;
+        }
+
         public virtual void PropertyChanged([NotNull] StateEntry entry, [NotNull] IPropertyBase propertyBase)
         {
             Check.NotNull(entry, "entry");
@@ -129,22 +149,45 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         private bool DetectNavigationChange(StateEntry entry, INavigation navigation)
         {
+            var snapshotValue = entry.RelationshipsSnapshot[navigation];
+            var currentValue = entry[navigation];
+
             if (navigation.IsCollection())
             {
-                // TODO: Handle collections
-            }
-            else
-            {
-                var snapshotValue = entry.RelationshipsSnapshot[navigation];
-                var currentValue = entry[navigation];
+                var snapshotCollection = (IEnumerable)snapshotValue;
+                var currentCollection = (IEnumerable)currentValue;
 
-                if (!ReferenceEquals(currentValue, snapshotValue))
+                var added = new HashSet<object>(ReferenceEqualityComparer.Instance);
+
+                var removed = new HashSet<object>(ReferenceEqualityComparer.Instance);
+                foreach (var entity in snapshotCollection)
+                {
+                    removed.Add(entity);
+                }
+
+                foreach (var entity in currentCollection)
+                {
+                    if (!removed.Remove(entity))
+                    {
+                        added.Add(entity);
+                    }
+                }
+
+                if (added.Any()
+                    || removed.Any())
                 {
                     var notifier = entry.Configuration.Services.StateEntryNotifier;
-                    notifier.NavigationReferenceChanged(entry, navigation, snapshotValue, currentValue);
+                    notifier.NavigationCollectionChanged(entry, navigation, added, removed);
 
                     return true;
                 }
+            }
+            else if (!ReferenceEquals(currentValue, snapshotValue))
+            {
+                var notifier = entry.Configuration.Services.StateEntryNotifier;
+                notifier.NavigationReferenceChanged(entry, navigation, snapshotValue, currentValue);
+
+                return true;
             }
 
             return false;

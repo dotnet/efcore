@@ -278,6 +278,114 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual async Task One_to_many_fixup_happens_when_collection_changes_for_snapshot_entities()
+        {
+            await One_to_many_fixup_happens_when_collection_changes_test(CreateSnapshotMonsterContext, SnapshotDatabaseName, useDetectChanges: true);
+        }
+
+        //[Fact] TODO: Support INotifyCollectionChanging so that collection change detection without DetectChanges works
+        public virtual async Task One_to_many_fixup_happens_when_collection_changes_for_full_notification_entities()
+        {
+            await One_to_many_fixup_happens_when_collection_changes_test(CreateChangedChangingMonsterContext, FullNotifyDatabaseName, useDetectChanges: false);
+        }
+
+        //[Fact] TODO: Support INotifyCollectionChanging so that collection change detection without DetectChanges works
+        public virtual async Task One_to_many_fixup_happens_when_collection_changes_for_changed_only_notification_entities()
+        {
+            await One_to_many_fixup_happens_when_collection_changes_test(CreateChangedOnlyMonsterContext, ChangedOnlyDatabaseName, useDetectChanges: false);
+        }
+
+        private async Task One_to_many_fixup_happens_when_collection_changes_test(
+            Func<IServiceProvider, MonsterContext> createContext, string databaseName, bool useDetectChanges)
+        {
+            var serviceProvider = CreateServiceProvider();
+
+            await CreateAndSeedDatabase(databaseName, () => createContext(serviceProvider));
+
+            using (var context = createContext(serviceProvider))
+            {
+                var login1 = context.Logins.Single(e => e.Username == "MrsKoalie73");
+                var login2 = context.Logins.Single(e => e.Username == "MrsBossyPants");
+                var login3 = context.Logins.Single(e => e.Username == "TheStripedMenace");
+
+                var message1 = context.Messages.Single(e => e.Body.StartsWith("Fancy"));
+                var message2 = context.Messages.Single(e => e.Body.StartsWith("Love"));
+                var message3 = context.Messages.Single(e => e.Body.StartsWith("I'll"));
+
+                Assert.Same(login2, message2.Sender);
+                Assert.Same(message2, login2.SentMessages.Single());
+
+                Assert.Same(login2, message1.Recipient);
+                Assert.Same(login2, message3.Recipient);
+                Assert.Equal(new[] { message1, message3 }, login2.ReceivedMessages.OrderBy(m => m.Body).ToArray());
+
+                Assert.Same(login1, message2.Recipient);
+                Assert.Same(message2, login1.ReceivedMessages.Single());
+
+                Assert.Empty(login3.SentMessages);
+
+                Assert.Equal(login1.Username, message1.FromUsername);
+                Assert.Equal(login2.Username, message1.ToUsername);
+                Assert.Equal(login2.Username, message2.FromUsername);
+                Assert.Equal(login1.Username, message2.ToUsername);
+                Assert.Equal(login1.Username, message3.FromUsername);
+                Assert.Equal(login2.Username, message3.ToUsername);
+
+                // Remove entities
+                login2.ReceivedMessages.Remove(message3);
+                login1.ReceivedMessages.Remove(message2);
+
+                if (useDetectChanges)
+                {
+                    context.ChangeTracker.StateManager.DetectChanges();
+                }
+
+                // TODO: Just testing FK fixup for now; inverse nav fixup comes later
+
+                Assert.Equal(login1.Username, message1.FromUsername);
+                Assert.Equal(login2.Username, message1.ToUsername);
+                Assert.Equal(login2.Username, message2.FromUsername);
+                Assert.Null(message2.ToUsername);
+                Assert.Equal(login1.Username, message3.FromUsername);
+                Assert.Null(message3.ToUsername);
+
+                // Add entities
+                login1.ReceivedMessages.Add(message3);
+                login2.ReceivedMessages.Add(message2);
+
+                if (useDetectChanges)
+                {
+                    context.ChangeTracker.StateManager.DetectChanges();
+                }
+
+                Assert.Equal(login1.Username, message1.FromUsername);
+                Assert.Equal(login2.Username, message1.ToUsername);
+                Assert.Equal(login2.Username, message2.FromUsername);
+                Assert.Equal(login2.Username, message2.ToUsername);
+                Assert.Equal(login1.Username, message3.FromUsername);
+                Assert.Equal(login1.Username, message3.ToUsername);
+
+                // Remove and add at the same time
+                login2.ReceivedMessages.Remove(message2);
+                login1.ReceivedMessages.Remove(message3);
+                login1.ReceivedMessages.Add(message2);
+                login2.ReceivedMessages.Add(message3);
+
+                if (useDetectChanges)
+                {
+                    context.ChangeTracker.StateManager.DetectChanges();
+                }
+
+                Assert.Equal(login1.Username, message1.FromUsername);
+                Assert.Equal(login2.Username, message1.ToUsername);
+                Assert.Equal(login2.Username, message2.FromUsername);
+                Assert.Equal(login1.Username, message2.ToUsername);
+                Assert.Equal(login1.Username, message3.FromUsername);
+                Assert.Equal(login2.Username, message3.ToUsername);
+            }
+        }
+
+        [Fact]
         public virtual async Task One_to_one_fixup_happens_when_FKs_change_for_snapshot_entities()
         {
             await One_to_one_fixup_happens_when_FKs_change_test(CreateSnapshotMonsterContext, SnapshotDatabaseName, useDetectChanges: true);
@@ -400,6 +508,112 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 Assert.Same(customer2, customer3.Husband);
                 Assert.Same(customer2, customer3.Wife);
+            }
+        }
+
+        [Fact]
+        public virtual async Task One_to_one_fixup_happens_when_reference_change_for_snapshot_entities()
+        {
+            await One_to_one_fixup_happens_when_reference_change_test(CreateSnapshotMonsterContext, SnapshotDatabaseName, useDetectChanges: true);
+        }
+
+        [Fact]
+        public virtual async Task One_to_one_fixup_happens_when_reference_change_for_full_notification_entities()
+        {
+            await One_to_one_fixup_happens_when_reference_change_test(CreateChangedChangingMonsterContext, FullNotifyDatabaseName, useDetectChanges: false);
+        }
+
+        [Fact]
+        public virtual async Task One_to_one_fixup_happens_when_reference_change_for_changed_only_notification_entities()
+        {
+            await One_to_one_fixup_happens_when_reference_change_test(CreateChangedOnlyMonsterContext, ChangedOnlyDatabaseName, useDetectChanges: false);
+        }
+
+        private async Task One_to_one_fixup_happens_when_reference_change_test(
+            Func<IServiceProvider, MonsterContext> createContext, string databaseName, bool useDetectChanges)
+        {
+            var serviceProvider = CreateServiceProvider();
+
+            await CreateAndSeedDatabase(databaseName, () => createContext(serviceProvider));
+
+            using (var context = createContext(serviceProvider))
+            {
+                var customer0 = context.Customers.Single(e => e.Name == "Eeky Bear");
+                var customer1 = context.Customers.Single(e => e.Name == "Sheila Koalie");
+                var customer2 = context.Customers.Single(e => e.Name == "Sue Pandy");
+                var customer3 = context.Customers.Single(e => e.Name == "Tarquin Tiger");
+
+                Assert.Null(customer0.Husband);
+                Assert.Same(customer2, customer0.Wife);
+
+                Assert.Null(customer1.Husband);
+                Assert.Null(customer1.Wife);
+
+                Assert.Same(customer0, customer2.Husband);
+                Assert.Null(customer2.Wife);
+
+                Assert.Null(customer3.Husband);
+                Assert.Null(customer3.Wife);
+
+                Assert.Null(customer0.HusbandId);
+                Assert.Null(customer1.HusbandId);
+                Assert.Equal(customer0.CustomerId, customer2.HusbandId);
+                Assert.Null(customer3.HusbandId);
+
+                // Set a dependent
+                customer1.Husband = customer3;
+
+                if (useDetectChanges)
+                {
+                    context.ChangeTracker.StateManager.DetectChanges();
+                }
+
+                // TODO: Just testing FK fixup for now; inverse nav fixup comes later
+
+                Assert.Null(customer0.HusbandId);
+                Assert.Equal(customer3.CustomerId, customer1.HusbandId);
+                Assert.Equal(customer0.CustomerId, customer2.HusbandId);
+                Assert.Null(customer3.HusbandId);
+
+                // Remove a dependent
+                customer2.Husband = null;
+
+                if (useDetectChanges)
+                {
+                    context.ChangeTracker.StateManager.DetectChanges();
+                }
+
+                Assert.Null(customer0.HusbandId);
+                Assert.Equal(customer3.CustomerId, customer1.HusbandId);
+                Assert.Null(customer2.HusbandId);
+                Assert.Null(customer3.HusbandId);
+
+                // Set a principal
+                customer0.Wife = customer3;
+
+                if (useDetectChanges)
+                {
+                    context.ChangeTracker.StateManager.DetectChanges();
+                }
+
+
+                Assert.Null(customer0.HusbandId);
+                Assert.Equal(customer3.CustomerId, customer1.HusbandId);
+                Assert.Null(customer2.HusbandId);
+                Assert.Equal(customer0.CustomerId, customer3.HusbandId);
+
+                // Remove a principal
+                customer0.Wife = null;
+
+                if (useDetectChanges)
+                {
+                    context.ChangeTracker.StateManager.DetectChanges();
+                }
+
+                Assert.Null(customer0.HusbandId);
+                Assert.Equal(customer3.CustomerId, customer1.HusbandId);
+                Assert.Null(customer2.HusbandId);
+                Assert.Null(customer3.HusbandId);
             }
         }
 

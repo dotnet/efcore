@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     ConnectTimeout = 30
                 }.ConnectionString;
         }
-
+        
         protected override async Task CreateAndSeedDatabase(string databaseName, Func<MonsterContext> createContext)
         {
             var creationLock = _creationLocks.GetOrAdd(databaseName, n => new AsyncLock());

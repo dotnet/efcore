@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entryMock.Setup(m => m.OriginalValues).Returns(originalValuesMock.Object);
             entryMock.Setup(m => m.RelationshipsSnapshot).Returns(fkSnapshotMock.Object);
 
-            new StateEntrySubscriber(new ChangeDetector()).SnapshotAndSubscribe(entryMock.Object);
+            CreateSubscriber().SnapshotAndSubscribe(entryMock.Object);
 
             originalValuesMock.Verify(m => m.TakeSnapshot());
             fkSnapshotMock.Verify(m => m.TakeSnapshot());
@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entryMock.Setup(m => m.EntityType).Returns(entityTypeMock.Object);
             entryMock.Setup(m => m.OriginalValues).Returns(originalValuesMock.Object);
 
-            new StateEntrySubscriber(new ChangeDetector()).SnapshotAndSubscribe(entryMock.Object);
+            CreateSubscriber().SnapshotAndSubscribe(entryMock.Object);
 
             originalValuesMock.Verify(m => m.TakeSnapshot(), Times.Never);
         }
@@ -88,6 +88,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             detectorMock.Verify(m => m.PropertyChanging(It.IsAny<StateEntry>(), It.IsAny<IProperty>()), Times.Never);
             detectorMock.Verify(m => m.PropertyChanged(It.IsAny<StateEntry>(), It.IsAny<IProperty>()), Times.Never);
+        }
+
+        private static StateEntrySubscriber CreateSubscriber()
+        {
+            return new StateEntrySubscriber(
+                new ChangeDetector(
+                    new NavigationAccessorSource(
+                        new ClrPropertyGetterSource(), new ClrPropertySetterSource(), new ClrCollectionAccessorSource())));
         }
 
         private class FullNotificationEntity : INotifyPropertyChanging, INotifyPropertyChanged

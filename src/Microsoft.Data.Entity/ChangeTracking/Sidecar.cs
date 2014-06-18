@@ -80,11 +80,11 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             _stateEntry.RemoveSidecar(Name);
 
-            foreach (var property in _stateEntry.EntityType.Properties)
+            foreach (var property in _stateEntry.EntityType.GetPropertiesAndNavigations())
             {
                 if (HasValue(property))
                 {
-                    _stateEntry[property] = this[property];
+                    CopyValueToEntry(property, this[property]);
                 }
             }
         }
@@ -96,22 +96,22 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         public virtual void TakeSnapshot()
         {
-            foreach (var property in _stateEntry.EntityType.Properties)
+            foreach (var property in _stateEntry.EntityType.GetPropertiesAndNavigations())
             {
                 if (CanStoreValue(property))
                 {
-                    this[property] = _stateEntry[property];
+                    this[property] = CopyValueFromEntry(property);
                 }
             }
         }
 
         public virtual void UpdateSnapshot()
         {
-            foreach (var property in _stateEntry.EntityType.Properties)
+            foreach (var property in _stateEntry.EntityType.GetPropertiesAndNavigations())
             {
                 if (HasValue(property))
                 {
-                    this[property] = _stateEntry[property];
+                    this[property] = CopyValueFromEntry(property);
                 }
             }
         }
@@ -123,7 +123,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             if (CanStoreValue(property)
                 && !HasValue(property))
             {
-                this[property] = _stateEntry[property];
+                this[property] = CopyValueFromEntry(property);
             }
         }
 
@@ -133,10 +133,20 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             if (CanStoreValue(property))
             {
-                this[property] = _stateEntry[property];
+                this[property] = CopyValueFromEntry(property);
             }
         }
 
+        protected virtual object CopyValueFromEntry(IPropertyBase property)
+        {
+            return _stateEntry[property];
+        }
+
+        protected virtual void CopyValueToEntry(IPropertyBase property, object value)
+        {
+            _stateEntry[property] = value;
+        }
+        
         protected sealed class NullSentinel
         {
             public static readonly NullSentinel Value = new NullSentinel();

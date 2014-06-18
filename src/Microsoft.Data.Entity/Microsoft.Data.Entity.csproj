@@ -71,8 +71,7 @@
     <Compile Include="EntitySet`.cs" />
     <Compile Include="EntityState.cs" />
     <Compile Include="EntityStateExtensions.cs" />
-    <Compile Include="Extensions\EntityTypeExtensions.cs" />
-    <Compile Include="Extensions\PropertyBagExtensions.cs" />
+    <Compile Include="ChangeTracking\PropertyBagExtensions.cs" />
     <Compile Include="Identity\GuidValueGenerator.cs" />
     <Compile Include="Identity\IValueGenerator.cs" />
     <Compile Include="Identity\IValueGeneratorFactory.cs" />
@@ -88,6 +87,7 @@
     <Compile Include="INotifyPropertyChanging.cs" />
     <Compile Include="Metadata\CollectionNavigationAccessor.cs" />
     <Compile Include="Metadata\Compiled\CompiledIndex.cs" />
+    <Compile Include="Metadata\EntityTypeExtensions.cs" />
     <Compile Include="Metadata\IIndex.cs" />
     <Compile Include="Metadata\Index.cs" />
     <Compile Include="Metadata\NavigationAccessor.cs" />
