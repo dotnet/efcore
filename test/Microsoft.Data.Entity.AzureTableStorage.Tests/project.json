@@ -17,6 +17,7 @@
   "commands": {
     "test": "Xunit.KRunner"
   },
+  "code": "**\\*.cs;..\\Shared\\ApiConsistencyTestBase.cs",
   "configurations": {
     "net451": {
       "dependencies": {

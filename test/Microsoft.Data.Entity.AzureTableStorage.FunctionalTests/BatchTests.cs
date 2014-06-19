@@ -2,11 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Configuration;
 using Xunit;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
 {
+    [RunIfConfigured]
     public class BatchTests : IClassFixture<EndToEndFixture>
     {
         private readonly string _testPartition;
@@ -15,6 +15,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
         public BatchTests(EndToEndFixture fixture)
         {
             _testPartition = "unittests-" + DateTime.UtcNow.ToBinary();
+            fixture.UseTableNamePrefixAndLock("Batch");
             fixture.SetContextOptions(useBatching: true);
             _context = fixture.CreateContext();
         }

@@ -5,9 +5,11 @@ using System;
 using System.Globalization;
 using System.Linq;
 using Xunit;
+using Xunit.Sdk;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
 {
+    [RunIfConfigured]
     public class EndToEndTests : IClassFixture<EndToEndFixture>
     {
         private readonly DbContext _context;
@@ -16,6 +18,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
         public EndToEndTests(EndToEndFixture fixture)
         {
             _testPartition = "unittests-" + DateTime.UtcNow.ToBinary();
+            fixture.UseTableNamePrefixAndLock("EndToEnd");
             _context = fixture.CreateContext();
             _context.Set<Purchase>().AddRange(EndToEndFixture.SampleData(_testPartition));
             _context.SaveChanges();
