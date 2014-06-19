@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Globalization;
 using Microsoft.Data.Entity.Metadata;
 
@@ -12,22 +11,26 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
     public class EndToEndFixture : IDisposable
     {
         private DbContextOptions _options;
+        private bool _locked = false;
+        public bool _created;
 
         public EndToEndFixture()
         {
             TableName = "Table" + DateTime.UtcNow.ToBinary();
             SetContextOptions(false);
-            using (var context = CreateContext()) 
-            {
-                context.Database.AsAzureTableStorageDatabase().CreateTables();
-            }
         }
 
-        public string TableName { get; set; }
+        public string TableName { get; private set; }
 
         public DbContext CreateContext()
         {
-            return new DbContext(_options);
+            var context = new DbContext(_options);
+            if (!_created)
+            {
+                context.Database.AsAzureTableStorageDatabase().CreateTables();
+                _created = true;
+            }
+            return context;
         }
 
         public static IEnumerable<Purchase> SampleData(string testPartition)
@@ -80,7 +83,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
         {
             _options = new DbContextOptions()
                .UseModel(CreateModel())
-               .UseAzureTableStorage(ConfigurationManager.AppSettings["TestConnectionString"], useBatching); ;
+               .UseAzureTableStorage(TestConfig.Instance.ConnectionString, useBatching); ;
         }
 
         public void Dispose()
@@ -91,6 +94,14 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
             }
         }
 
+        public void UseTableNamePrefixAndLock(string prefix)
+        {
+            if (!_locked)
+            {
+                TableName = prefix + TableName;
+                _locked = true;
+            }
+        }
     }
 
     public class Purchase

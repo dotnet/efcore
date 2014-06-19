@@ -2,8 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Configuration;
-using System.Linq;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.FunctionalTests;
 using Northwind;
@@ -11,6 +9,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
 {
+    [RunIfConfigured]
     public class NorthwindQueryTest : NorthwindQueryTestBase, IClassFixture<NorthwindQueryFixture>
     {
         private readonly NorthwindQueryFixture _fixture;
@@ -33,7 +32,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
         public IModel CreateAzureTableStorageModel()
         {
             var model = CreateModel();
-            var tableSuffix = DateTime.UtcNow.ToBinary(); //keep separate from other tests
+            var tableSuffix = "FunctionalTests";
             var builder = new ModelBuilder(model);
             builder.Entity<Customer>()
                 .AzureTableProperties(atp =>
@@ -84,7 +83,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
             _options
                 = new DbContextOptions()
                     .UseModel(CreateAzureTableStorageModel())
-                    .UseAzureTableStorage(ConfigurationManager.AppSettings["TestConnectionString"], batchRequests: false);
+                    .UseAzureTableStorage(TestConfig.Instance.ConnectionString, batchRequests: false);
 
             using (var context = new DbContext(_options))
             {

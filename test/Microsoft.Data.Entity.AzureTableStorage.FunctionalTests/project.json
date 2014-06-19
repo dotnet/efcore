@@ -7,18 +7,18 @@
     "Microsoft.Data.Entity": "",
     "Microsoft.Data.Entity.AzureTableStorage": "",
     "Microsoft.Framework.ConfigurationModel":"0.1-alpha-*",
+    "Microsoft.Framework.ConfigurationModel.Xml": "0.1-alpha-*",
     "Microsoft.Framework.DependencyInjection": "0.1-alpha-*",
     "Moq":  "4.2.1402.2112",
     "Xunit.KRunner": "0.1-alpha-*"
   },
-  "include": "App.config",
   "commands": {
     "test": "Xunit.KRunner"
   },
+  "code": "**\\*.cs;..\\Shared\\TestFileLogger.cs;..\\Shared\\Northwind.cs;..\\Shared\\NorthwindQueryTestBase.cs;..\\Shared\\NorthwindQueryFixtureBase.cs;",
   "configurations": {
-    "net45": {
+    "net451": {
       "dependencies": {
-        "System.Configuration": "",
         "System.Threading.Tasks": ""
       }
     }
