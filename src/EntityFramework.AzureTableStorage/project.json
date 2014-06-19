@@ -1,0 +1,19 @@
+{
+  "version": "7.0.0-*",
+  "compilationOptions": {
+    "warningsAsErrors": true
+  },
+  "dependencies": {
+    "Ix-Async": "1.2.2",
+    "WindowsAzure.Storage": "4.0.1",
+    "Remotion.Linq": "1.15.13.0",
+    "Microsoft.Framework.ConfigurationModel": "1.0.0-*",
+    "Microsoft.Framework.DependencyInjection": "1.0.0-*",
+    "Microsoft.Framework.Logging": "1.0.0-*",
+    "EntityFramework": ""
+  },
+  "code": "**\\*.cs;..\\Shared\\*.cs",
+  "configurations": {
+    "net451": {}
+  }
+}

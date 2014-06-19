@@ -587,22 +587,6 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        /// A property with the storage name '{property}' on entity type '{entityType}' could not be found. Ensure that the property exists, has been included in the model, and has been configured with storage name specified.
-        /// </summary>
-        internal static string PropertyWithStorageNameNotFound
-        {
-            get { return GetString("PropertyWithStorageNameNotFound"); }
-        }
-
-        /// <summary>
-        /// A property with the storage name '{property}' on entity type '{entityType}' could not be found. Ensure that the property exists, has been included in the model, and has been configured with storage name specified.
-        /// </summary>
-        internal static string FormatPropertyWithStorageNameNotFound(object property, object entityType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("PropertyWithStorageNameNotFound", "property", "entityType"), property, entityType);
-        }
-
-        /// <summary>
         /// CurrentValues are always in sync with the entity state.
         /// </summary>
         internal static string CurrentValuesAlwaysInSync
@@ -639,7 +623,7 @@ namespace Microsoft.Data.Entity
             var value = _resourceManager.GetString(name);
 
             System.Diagnostics.Debug.Assert(value != null);
-
+    
             if (formatterNames != null)
             {
                 for (var i = 0; i < formatterNames.Length; i++)

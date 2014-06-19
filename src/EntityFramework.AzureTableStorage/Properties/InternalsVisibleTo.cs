@@ -1,13 +1,11 @@
-// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Runtime.CompilerServices;
 
 #if !INTERNALS_INVISIBLE
 
-[assembly: InternalsVisibleTo("EntityFramework.Tests")]
 [assembly: InternalsVisibleTo("EntityFramework.AzureTableStorage.Tests")]
-[assembly: InternalsVisibleTo("EntityFramework.SqlServer.Tests")]
 
 // for Moq
 
