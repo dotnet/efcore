@@ -73,7 +73,7 @@ namespace Microsoft.Data.Entity.Utilities
             }
 
             var result = new List<List<TVertex>>();
-            int currentRootIndex = 0;
+            var currentRootIndex = 0;
 
             while (currentRootIndex < currentRootsPriorityQueue.Count)
             {
@@ -106,7 +106,7 @@ namespace Microsoft.Data.Entity.Utilities
             if (result.Sum(b => b.Count) != _vertices.Count)
             {
                 // TODO: Support cycle-breaking?
-                
+
                 var currentCycleVertex = predecessorCounts.First(p => p.Value != 0).Key;
                 var cycle = new List<TVertex>();
                 cycle.Add(currentCycleVertex);
@@ -132,7 +132,7 @@ namespace Microsoft.Data.Entity.Utilities
                     Strings.FormatCircularDependency(
                         cycle.Select(vertex => vertex.ToString()).Join(" -> ")));
             }
-            
+
             return result;
         }
 
@@ -157,8 +157,8 @@ namespace Microsoft.Data.Entity.Utilities
         public override IEnumerable<TVertex> GetIncomingNeighbours(TVertex to)
         {
             return from vertexSuccessors in _successorMap
-                   where vertexSuccessors.Value.Contains(to)
-                   select vertexSuccessors.Key;
+                where vertexSuccessors.Value.Contains(to)
+                select vertexSuccessors.Key;
         }
     }
 }

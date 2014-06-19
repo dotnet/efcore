@@ -467,7 +467,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
 
             var createIndexOperation = (CreateIndexOperation)operations[0];
 
-            Assert.Equal("dbo.MyTable0", createIndexOperation .TableName);
+            Assert.Equal("dbo.MyTable0", createIndexOperation.TableName);
             Assert.Equal("MyIndex", createIndexOperation.IndexName);
             Assert.Equal(new[] { "Id" }, createIndexOperation.ColumnNames);
             Assert.True(createIndexOperation.IsUnique);

@@ -271,7 +271,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var property2 = entityType.AddProperty(Order.CustomerIdProperty);
 
             Assert.Equal(0, entityType.Indexes.Count);
-            
+
             var index1 = entityType.AddIndex(property1);
 
             Assert.Equal(1, index1.Properties.Count);

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
@@ -12,7 +13,6 @@ using Microsoft.Data.Entity.Relational.Query.Expressions;
 using Microsoft.Data.Entity.Relational.Utilities;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Parsing;
-using System.Diagnostics.Contracts;
 
 namespace Microsoft.Data.Entity.Relational.Query.Sql
 {
@@ -198,7 +198,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
         protected virtual string DelimitIdentifier(string identifier)
         {
-            return "\"" + identifier + "\""; 
+            return "\"" + identifier + "\"";
         }
 
         protected virtual string GenerateLiteral(string literal)

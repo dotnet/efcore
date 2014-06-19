@@ -220,7 +220,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var entity = model.GetEntityType(typeof(Customer));
 
             Assert.Equal(2, entity.GetKey().Properties.Count());
-            Assert.Equal(new [] { "Id", "Name" }, entity.GetKey().Properties.Select(p => p.Name));
+            Assert.Equal(new[] { "Id", "Name" }, entity.GetKey().Properties.Select(p => p.Name));
             Assert.Equal("V1", entity.GetKey()["A1"]);
             Assert.Equal("V2", entity.GetKey()["A2"]);
         }
@@ -235,10 +235,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .Entity("Customer")
                 .Properties(
                     ps =>
-                    {
-                        ps.Property<int>("Id");
-                        ps.Property<string>("Name");
-                    })
+                        {
+                            ps.Property<int>("Id");
+                            ps.Property<string>("Name");
+                        })
                 .Key(k => k.Properties("Id", "Name")
                     .Annotation("A1", "V1")
                     .Annotation("A2", "V2"));
@@ -680,7 +680,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                     ixs =>
                         {
                             ixs.Index(ix => ix.Id).IsUnique();
-                            ixs.Index(ix => ix.Name).Annotation("A1", "V1");;                            
+                            ixs.Index(ix => ix.Name).Annotation("A1", "V1");
+                            ;
                         });
 
             var entityType = model.GetEntityType(typeof(Customer));
@@ -707,10 +708,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                         })
                 .Indexes(
                     ixs =>
-                    {
-                        ixs.Index("Id").IsUnique();
-                        ixs.Index("Name").Annotation("A1", "V1");
-                    });
+                        {
+                            ixs.Index("Id").IsUnique();
+                            ixs.Index("Name").Annotation("A1", "V1");
+                        });
 
             var entityType = model.GetEntityType(typeof(Customer));
 

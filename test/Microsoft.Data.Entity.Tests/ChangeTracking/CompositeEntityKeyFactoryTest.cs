@@ -116,8 +116,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var random = new Random();
 
             var key = new CompositeEntityKeyFactory().Create(
-                type, 
-                new[] { type.GetProperty("P6"), type.GetProperty("P5") }, 
+                type,
+                new[] { type.GetProperty("P6"), type.GetProperty("P5") },
                 new ObjectArrayValueReader(new object[] { 7, "Ate", random, 77, null, random }));
 
             Assert.Equal(EntityKey.NullEntityKey, key);

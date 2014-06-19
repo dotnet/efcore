@@ -200,7 +200,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             Check.NotNull(dependentEntry, "dependentEntry");
             Check.NotNull(foreignKey, "foreignKey");
-            
+
             var dependentKeyValue = dependentEntry.GetDependentKeyValue(foreignKey);
 
             if (dependentKeyValue == EntityKey.NullEntityKey)
@@ -228,7 +228,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotNull(foreignKey, "foreignKey");
 
             var principalKeyValue = principalEntry.GetPrincipalKeyValue(foreignKey);
-            
+
             // TODO: Add additional indexes so that this isn't a linear lookup
             return StateEntries.Where(
                 e => e.EntityType == foreignKey.EntityType

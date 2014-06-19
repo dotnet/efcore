@@ -609,11 +609,11 @@ namespace Microsoft.Data.Entity.Migrations
         {
             return
                 (from ix1 in entityTypePair.Item1.Indexes
-                 from ix2 in entityTypePair.Item2.Indexes
-                 where SameNames(ix1.Properties, ix2.Properties)
-                       && ix1.IsUnique == ix2.IsUnique
-                       && ix1.IsClustered() == ix2.IsClustered()
-                 select Tuple.Create(ix1, ix2))
+                    from ix2 in entityTypePair.Item2.Indexes
+                    where SameNames(ix1.Properties, ix2.Properties)
+                          && ix1.IsUnique == ix2.IsUnique
+                          && ix1.IsClustered() == ix2.IsClustered()
+                    select Tuple.Create(ix1, ix2))
                     .ToArray();
         }
 

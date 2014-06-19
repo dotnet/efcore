@@ -7,16 +7,16 @@ using System.Collections.Generic;
 namespace Microsoft.Data.Entity.MonsterModel
 {
     public class SnapshotMonsterContext : MonsterContext<
-        SnapshotMonsterContext.Customer, SnapshotMonsterContext.Barcode, SnapshotMonsterContext.IncorrectScan, 
-        SnapshotMonsterContext.BarcodeDetail, SnapshotMonsterContext.Complaint, SnapshotMonsterContext.Resolution, 
-        SnapshotMonsterContext.Login, SnapshotMonsterContext.SuspiciousActivity, SnapshotMonsterContext.SmartCard, 
-        SnapshotMonsterContext.RsaToken, SnapshotMonsterContext.PasswordReset, SnapshotMonsterContext.PageView, 
-        SnapshotMonsterContext.LastLogin, SnapshotMonsterContext.Message, SnapshotMonsterContext.AnOrder, 
-        SnapshotMonsterContext.OrderNote, SnapshotMonsterContext.OrderQualityCheck, SnapshotMonsterContext.OrderLine, 
-        SnapshotMonsterContext.Product, SnapshotMonsterContext.ProductDetail, SnapshotMonsterContext.ProductReview, 
-        SnapshotMonsterContext.ProductPhoto, SnapshotMonsterContext.ProductWebFeature, SnapshotMonsterContext.Supplier, 
-        SnapshotMonsterContext.SupplierLogo, SnapshotMonsterContext.SupplierInfo, SnapshotMonsterContext.CustomerInfo, 
-        SnapshotMonsterContext.Computer, SnapshotMonsterContext.ComputerDetail, SnapshotMonsterContext.Driver, 
+        SnapshotMonsterContext.Customer, SnapshotMonsterContext.Barcode, SnapshotMonsterContext.IncorrectScan,
+        SnapshotMonsterContext.BarcodeDetail, SnapshotMonsterContext.Complaint, SnapshotMonsterContext.Resolution,
+        SnapshotMonsterContext.Login, SnapshotMonsterContext.SuspiciousActivity, SnapshotMonsterContext.SmartCard,
+        SnapshotMonsterContext.RsaToken, SnapshotMonsterContext.PasswordReset, SnapshotMonsterContext.PageView,
+        SnapshotMonsterContext.LastLogin, SnapshotMonsterContext.Message, SnapshotMonsterContext.AnOrder,
+        SnapshotMonsterContext.OrderNote, SnapshotMonsterContext.OrderQualityCheck, SnapshotMonsterContext.OrderLine,
+        SnapshotMonsterContext.Product, SnapshotMonsterContext.ProductDetail, SnapshotMonsterContext.ProductReview,
+        SnapshotMonsterContext.ProductPhoto, SnapshotMonsterContext.ProductWebFeature, SnapshotMonsterContext.Supplier,
+        SnapshotMonsterContext.SupplierLogo, SnapshotMonsterContext.SupplierInfo, SnapshotMonsterContext.CustomerInfo,
+        SnapshotMonsterContext.Computer, SnapshotMonsterContext.ComputerDetail, SnapshotMonsterContext.Driver,
         SnapshotMonsterContext.License>
     {
         public SnapshotMonsterContext(IServiceProvider serviceProvider, DbContextOptions options)

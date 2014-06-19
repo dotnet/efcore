@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
@@ -54,7 +53,7 @@ namespace Microsoft.Data.Entity.Relational
                         foreach (var index in entityType.Indexes)
                         {
                             mapping.Map(index, BuildIndex(database, index));
-                        }                        
+                        }
                     }
 
                     foreach (var entityType in m.EntityTypes)

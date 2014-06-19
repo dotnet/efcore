@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -407,17 +406,17 @@ namespace Microsoft.Data.FunctionalTests
                     .OrderBy(o => o),
                 asserter:
                     (l2oResults, efResults) =>
-                    {
-                        var l2oObjects
-                            = l2oResults
-                                .SelectMany(q1 => ((IEnumerable<int>)q1));
+                        {
+                            var l2oObjects
+                                = l2oResults
+                                    .SelectMany(q1 => ((IEnumerable<int>)q1));
 
-                        var efObjects
-                            = efResults
-                                .SelectMany(q1 => ((IEnumerable<int>)q1));
+                            var efObjects
+                                = efResults
+                                    .SelectMany(q1 => ((IEnumerable<int>)q1));
 
-                        Assert.Equal(l2oObjects, efObjects);
-                    });
+                            Assert.Equal(l2oObjects, efObjects);
+                        });
         }
 
         // TODO: Re-linq parser
@@ -522,22 +521,22 @@ namespace Microsoft.Data.FunctionalTests
                     select (from o2 in os
                         where o1.CustomerID == c.CustomerID
                         orderby o2.OrderID
-                            select o1.OrderID)),
+                        select o1.OrderID)),
                 asserter:
                     (l2oResults, efResults) =>
-                    {
-                        var l2oObjects
-                            = l2oResults
-                                .SelectMany(q1 => ((IEnumerable<object>)q1)
-                                    .SelectMany(q2 => (IEnumerable<int>)q2));
+                        {
+                            var l2oObjects
+                                = l2oResults
+                                    .SelectMany(q1 => ((IEnumerable<object>)q1)
+                                        .SelectMany(q2 => (IEnumerable<int>)q2));
 
-                        var efObjects
-                            = efResults
-                                .SelectMany(q1 => ((IEnumerable<object>)q1)
-                                    .SelectMany(q2 => (IEnumerable<int>)q2));
+                            var efObjects
+                                = efResults
+                                    .SelectMany(q1 => ((IEnumerable<object>)q1)
+                                        .SelectMany(q2 => (IEnumerable<int>)q2));
 
-                        Assert.Equal(l2oObjects, efObjects);
-                    });
+                            Assert.Equal(l2oObjects, efObjects);
+                        });
         }
 
         [Fact]
@@ -1256,7 +1255,7 @@ namespace Microsoft.Data.FunctionalTests
                 // ReSharper disable once ReplaceWithSingleCallToFirstOrDefault
                 cs => cs.OrderBy(c => c.ContactName).Where(c => c.City == "London").FirstOrDefaultAsync());
         }
-        
+
         [Fact]
         public virtual void All_top_level()
         {

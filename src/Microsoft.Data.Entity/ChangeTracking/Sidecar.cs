@@ -146,7 +146,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             _stateEntry[property] = value;
         }
-        
+
         protected sealed class NullSentinel
         {
             public static readonly NullSentinel Value = new NullSentinel();

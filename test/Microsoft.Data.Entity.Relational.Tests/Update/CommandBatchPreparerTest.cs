@@ -91,7 +91,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             Assert.False(columnMod.IsRead);
             Assert.True(columnMod.IsWrite);
         }
-        
+
         [Fact]
         public async Task BatchCommands_creates_valid_batch_for_deleted_entities()
         {
@@ -119,7 +119,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             Assert.False(columnMod.IsRead);
             Assert.False(columnMod.IsWrite);
         }
-        
+
         [Fact]
         public async Task BatchCommands_sorts_related_added_entities()
         {
@@ -142,7 +142,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 new[] { stateEntry, relatedStateEntry },
                 commandBatches.Select(cb => cb.ModificationCommands.Single()).Select(mc => mc.StateEntries.Single()));
         }
-        
+
         [Fact]
         public async Task BatchCommands_sorts_added_and_related_modified_entities()
         {
@@ -187,7 +187,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 Strings.FormatPrincipalKeyModified(),
                 Assert.Throws<InvalidOperationException>(() => CreateCommandBatchPreparer().BatchCommands(new[] { relatedStateEntry, stateEntry })).Message);
         }
-        
+
         [Fact]
         public async Task BatchCommands_sorts_unrelated_entities()
         {
@@ -221,7 +221,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 configuration,
                 model.GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
             await previousParent.SetEntityStateAsync(EntityState.Deleted);
-            
+
             var newParent = new MixedStateEntry(
                 configuration,
                 model.GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 3, Value = "Test" });
@@ -229,7 +229,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
             var relatedStateEntry = new MixedStateEntry(
                 configuration,
-                model.GetEntityType(typeof(RelatedFakeEntity)), new RelatedFakeEntity { Id = 1, RelatedId = 3});
+                model.GetEntityType(typeof(RelatedFakeEntity)), new RelatedFakeEntity { Id = 1, RelatedId = 3 });
             await relatedStateEntry.SetEntityStateAsync(EntityState.Modified);
             relatedStateEntry.OriginalValues[relatedStateEntry.EntityType.GetProperty("RelatedId")] = 42;
             relatedStateEntry.SetPropertyModified(relatedStateEntry.EntityType.GetKey().Properties.Single(), isModified: false);
@@ -281,7 +281,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 .Entity<FakeEntity>()
                 .Key(c => c.Id)
                 .Properties(ps => ps.Property(c => c.Value));
-            
+
             modelBuilder
                 .Entity<RelatedFakeEntity>()
                 .Key(c => c.Id)

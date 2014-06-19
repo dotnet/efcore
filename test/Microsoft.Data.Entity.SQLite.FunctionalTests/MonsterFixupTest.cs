@@ -5,7 +5,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.MonsterModel;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;

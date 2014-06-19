@@ -68,7 +68,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
             Assert.Equal(compiledModel.EntityTypes.Select(e => compiledModel.GetReferencingForeignKeys(e).Select(fk => fk.EntityType.Name)),
                 builtModel.EntityTypes.Select(e => builtModel.GetReferencingForeignKeys(e).Select(fk => fk.EntityType.Name)));
-
         }
 
         [Fact]
@@ -83,7 +82,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             Assert.False(indexes[0].IsUnique);
             Assert.Equal(new[] { "Foo1", "Goo1" }, indexes[1].Properties.Select(p => p.Name));
             Assert.True(indexes[1].IsUnique);
-        }        
+        }
 
         [Fact]
         public void Property_values_can_be_read_and_set_using_compiled_metadata_without_reflection()

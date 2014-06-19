@@ -291,7 +291,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.IsType<SimpleEntityKey<int>>(keyValue);
             Assert.Equal(77, keyValue.Value);
         }
-        
+
         [Fact]
         public void Can_create_composite_foreign_key_value_based_on_dependent_values()
         {

@@ -247,7 +247,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
                     .Append(".Key(")
                     .Append(key.Properties.Select(p => DelimitString(p.Name)).Join())
                     .Append(")");
-            }            
+            }
         }
 
         protected virtual void GenerateForeignKeys(

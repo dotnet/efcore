@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         }
 
         protected abstract object GetValue();
-        
+
         private class NullEntityKeySentinel : EntityKey
         {
             protected override object GetValue()

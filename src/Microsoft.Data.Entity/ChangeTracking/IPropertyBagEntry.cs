@@ -8,12 +8,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 {
     public interface IPropertyBagEntry
     {
-        object this[[param: NotNull] IPropertyBase property]
-        {
-            get;
-            [param: CanBeNull]
-            set;
-        }
+        object this[[param: NotNull] IPropertyBase property] { get; [param: CanBeNull] set; }
 
         StateEntry StateEntry { get; }
     }

@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             Assert.Equal("Kake", new ConcreteKey().Value);
         }
-        
+
         public class ConcreteKey : EntityKey
         {
             protected override object GetValue()

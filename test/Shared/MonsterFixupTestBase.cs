@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.MonsterModel;
 using Xunit;
 
@@ -38,7 +37,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             Func<IServiceProvider, MonsterContext> createContext, string databaseName)
         {
             var serviceProvider = CreateServiceProvider();
-            
+
             await CreateAndSeedDatabase(databaseName, () => createContext(serviceProvider));
 
             SimpleVerification(() => createContext(serviceProvider));
@@ -595,7 +594,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 {
                     context.ChangeTracker.StateManager.DetectChanges();
                 }
-
 
                 Assert.Null(customer0.HusbandId);
                 Assert.Equal(customer3.CustomerId, customer1.HusbandId);

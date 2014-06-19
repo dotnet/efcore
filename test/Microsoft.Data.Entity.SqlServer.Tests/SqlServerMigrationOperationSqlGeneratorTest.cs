@@ -78,12 +78,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 "dbo.MyTable",
                 new[]
                     {
-                        foo = new Column("Foo", "int") { IsNullable = false, ValueGenerationStrategy = ValueGenerationOnSave.WhenInserting},
+                        foo = new Column("Foo", "int") { IsNullable = false, ValueGenerationStrategy = ValueGenerationOnSave.WhenInserting },
                         bar = new Column("Bar", "int") { IsNullable = true }
                     })
-            {
-                PrimaryKey = new PrimaryKey("MyPK", new[] { foo }, isClustered: false)
-            };
+                {
+                    PrimaryKey = new PrimaryKey("MyPK", new[] { foo }, isClustered: false)
+                };
 
             Assert.Equal(
                 @"CREATE TABLE [dbo].[MyTable] (

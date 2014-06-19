@@ -52,8 +52,10 @@ namespace Microsoft.Data.Entity.Utilities
 
         private class NamedEntityType : EntityType
         {
-            public NamedEntityType(Type type) : base(type)
-            { }
+            public NamedEntityType(Type type)
+                : base(type)
+            {
+            }
 
             public override string ToString()
             {
@@ -81,7 +83,7 @@ namespace Microsoft.Data.Entity.Utilities
             model.Populate(entityTypeA, entityTypeB, entityTypeC);
 
             Assert.Equal(
-                new [] { entityTypeB.Name, entityTypeA.Name, entityTypeC.Name },
+                new[] { entityTypeB.Name, entityTypeA.Name, entityTypeC.Name },
                 model.TopologicalSort().SelectMany(e => e).Select(e => e.Name).ToArray());
         }
 
@@ -105,7 +107,7 @@ namespace Microsoft.Data.Entity.Utilities
             model.Populate(entityTypeA, entityTypeB, entityTypeC);
 
             Assert.Equal(
-                new [] { entityTypeC.Name, entityTypeB.Name, entityTypeA.Name },
+                new[] { entityTypeC.Name, entityTypeB.Name, entityTypeA.Name },
                 model.TopologicalSort().SelectMany(e => e).Select(e => e.Name).ToArray());
         }
 
@@ -170,7 +172,7 @@ namespace Microsoft.Data.Entity.Utilities
             model.Populate(entityTypeA, entityTypeB, entityTypeC);
 
             Assert.Equal(
-                new [] { entityTypeA.Name, entityTypeC.Name, entityTypeB.Name },
+                new[] { entityTypeA.Name, entityTypeC.Name, entityTypeB.Name },
                 model.TopologicalSort().SelectMany(e => e).Select(e => e.Name).ToArray());
         }
 
@@ -194,7 +196,7 @@ namespace Microsoft.Data.Entity.Utilities
                 new[] { entityTypeC.Name, entityTypeA.Name, entityTypeB.Name, },
                 model.TopologicalSort().SelectMany(e => e).Select(e => e.Name).ToArray());
         }
-        
+
         [Fact]
         public void Sort_self_ref()
         {
@@ -283,7 +285,7 @@ namespace Microsoft.Data.Entity.Utilities
             entityTypeA.AddForeignKey(entityTypeB.GetKey(), entityTypeA.AddProperty("P", typeof(int)));
             entityTypeB.AddForeignKey(entityTypeC.GetKey(), entityTypeB.AddProperty("P", typeof(int)));
             entityTypeC.AddForeignKey(entityTypeA.GetKey(), entityTypeC.AddProperty("P", typeof(int)));
-            
+
             // A -> E -> D -> A
             entityTypeA.AddForeignKey(entityTypeD.GetKey(), entityTypeA.AddProperty("P", typeof(int)));
             entityTypeD.AddForeignKey(entityTypeE.GetKey(), entityTypeD.AddProperty("P", typeof(int)));

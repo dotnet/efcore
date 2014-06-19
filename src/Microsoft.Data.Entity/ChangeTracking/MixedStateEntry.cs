@@ -72,7 +72,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             var property = propertyBase as IProperty;
 
-            if (property == null || property.IsClrProperty)
+            if (property == null
+                || property.IsClrProperty)
             {
                 base.WritePropertyValue(propertyBase, value);
             }
