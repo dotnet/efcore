@@ -103,6 +103,128 @@ namespace System.Linq
             throw new InvalidOperationException(Strings.FormatIQueryableProviderNotAsync());
         }
 
+        private static readonly MethodInfo _first
+            = GetMethod("First", t => new[] { typeof(IQueryable<>).MakeGenericType(t) });
+
+        public static Task<TSource> FirstAsync<TSource>(
+            [NotNull] this IQueryable<TSource> source,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Check.NotNull(source, "source");
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var provider = source.Provider as IAsyncQueryProvider;
+
+            if (provider != null)
+            {
+                return provider.ExecuteAsync<TSource>(
+                    Expression.Call(
+                        null,
+                        _first.MakeGenericMethod(typeof(TSource)),
+                        new[] { source.Expression }),
+                    cancellationToken);
+            }
+
+            throw new InvalidOperationException(Strings.FormatIQueryableProviderNotAsync());
+        }
+
+        private static readonly MethodInfo _firstPredicate
+            = GetMethod("First",
+                t => new[]
+                    {
+                        typeof(IQueryable<>).MakeGenericType(t),
+                        typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(t, typeof(bool)))
+                    });
+
+        public static Task<TSource> FirstAsync<TSource>(
+            [NotNull] this IQueryable<TSource> source,
+            [NotNull] Expression<Func<TSource, bool>> predicate,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Check.NotNull(source, "source");
+            Check.NotNull(predicate, "predicate");
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var provider = source.Provider as IAsyncQueryProvider;
+
+            if (provider != null)
+            {
+                return provider.ExecuteAsync<TSource>(
+                    Expression.Call(
+                        null,
+                        _firstPredicate.MakeGenericMethod(typeof(TSource)),
+                        new[] { source.Expression, Expression.Quote(predicate) }
+                        ),
+                    cancellationToken);
+            }
+
+            throw new InvalidOperationException(Strings.FormatIQueryableProviderNotAsync());
+        }
+
+        private static readonly MethodInfo _firstOrDefault
+            = GetMethod("FirstOrDefault", t => new[] { typeof(IQueryable<>).MakeGenericType(t) });
+
+        public static Task<TSource> FirstOrDefaultAsync<TSource>(
+            [NotNull] this IQueryable<TSource> source,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Check.NotNull(source, "source");
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var provider = source.Provider as IAsyncQueryProvider;
+
+            if (provider != null)
+            {
+                return provider.ExecuteAsync<TSource>(
+                    Expression.Call(
+                        null,
+                        _firstOrDefault.MakeGenericMethod(typeof(TSource)),
+                        new[] { source.Expression }
+                        ),
+                    cancellationToken);
+            }
+
+            throw new InvalidOperationException(Strings.FormatIQueryableProviderNotAsync());
+        }
+
+        private static readonly MethodInfo _firstOrDefaultPredicate
+            = GetMethod(
+                "FirstOrDefault",
+                t => new[]
+                    {
+                        typeof(IQueryable<>).MakeGenericType(t),
+                        typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(t, typeof(bool)))
+                    });
+
+        public static Task<TSource> FirstOrDefaultAsync<TSource>(
+            [NotNull] this IQueryable<TSource> source,
+            [NotNull] Expression<Func<TSource, bool>> predicate,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Check.NotNull(source, "source");
+            Check.NotNull(predicate, "predicate");
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var provider = source.Provider as IAsyncQueryProvider;
+
+            if (provider != null)
+            {
+                return provider.ExecuteAsync<TSource>(
+                    Expression.Call(
+                        null,
+                        _firstOrDefaultPredicate.MakeGenericMethod(typeof(TSource)),
+                        new[] { source.Expression, Expression.Quote(predicate) }
+                        ),
+                    cancellationToken);
+            }
+
+            throw new InvalidOperationException(Strings.FormatIQueryableProviderNotAsync());
+        }
+
         private static readonly MethodInfo _single
             = GetMethod("Single", t => new[] { typeof(IQueryable<>).MakeGenericType(t) });
 
