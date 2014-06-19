@@ -708,6 +708,11 @@ WHERE [ContactName] LIKE '%' + @p0",
                 _fixture.Sql);
         }
 
+        public override void Select_subquery_recursive_trivial()
+        {
+            base.Select_subquery_recursive_trivial();
+        }
+
         private readonly NorthwindQueryFixture _fixture;
 
         public NorthwindQueryTest(NorthwindQueryFixture fixture)

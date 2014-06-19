@@ -287,6 +287,11 @@ namespace Northwind
             {
             }
 
+            private AsyncEnumerable(Expression expression)
+                : base(expression)
+            {
+            }
+
             public Task<object> ExecuteAsync(Expression expression, CancellationToken cancellationToken)
             {
                 return Task.FromResult(((IQueryProvider)this).Execute(expression));
@@ -295,6 +300,11 @@ namespace Northwind
             public Task<S> ExecuteAsync<S>(Expression expression, CancellationToken cancellationToken)
             {
                 return Task.FromResult(((IQueryProvider)this).Execute<S>(expression));
+            }
+
+            public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
+            {
+                return new AsyncEnumerable<TElement>(expression);
             }
         }
 

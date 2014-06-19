@@ -21,8 +21,10 @@ namespace Microsoft.Data.Entity.Query
         private static readonly Dictionary<Type, Func<Expression, Type, ResultOperatorBase, Expression>>
             _asyncHandlers = new Dictionary<Type, Func<Expression, Type, ResultOperatorBase, Expression>>
                 {
-                    { typeof(AnyResultOperator), (e, t, r) => ProcessResultOperator(e, t, (AnyResultOperator)r) },
-                    { typeof(CountResultOperator), (e, t, r) => ProcessResultOperator(e, t, (CountResultOperator)r) }
+                    { typeof(AnyResultOperator), (e, t, r) => HandleResultOperator(e, t, (AnyResultOperator)r) },
+                    { typeof(CountResultOperator), (e, t, r) => HandleResultOperator(e, t, (CountResultOperator)r) },
+                    { typeof(SingleResultOperator), (e, t, r) => HandleResultOperator(e, t, (SingleResultOperator)r) },
+                    { typeof(FirstResultOperator), (e, t, r) => HandleResultOperator(e, t, (FirstResultOperator)r) }
                 };
 
         public virtual Expression HandleResultOperator(
@@ -49,34 +51,94 @@ namespace Microsoft.Data.Entity.Query
                 resultOperator);
         }
 
-        private static Expression ProcessResultOperator(Expression expression, Type expressionItemType, AnyResultOperator _)
+        private static Expression HandleResultOperator(Expression expression, Type expressionItemType, AnyResultOperator _)
         {
-            return Expression.Call(_anyAsyncShim.MakeGenericMethod(expressionItemType), expression);
+            return Expression.Call(_any.MakeGenericMethod(expressionItemType), expression);
         }
 
-        private static readonly MethodInfo _anyAsyncShim
+        private static readonly MethodInfo _any
             = typeof(AsyncResultOperatorHandler)
-                .GetTypeInfo().GetDeclaredMethod("AnyAsyncShim");
+                .GetTypeInfo().GetDeclaredMethod("_Any");
 
         [UsedImplicitly]
-        private static Task<bool> AnyAsyncShim<TSource>(IAsyncEnumerable<TSource> source)
+        private static Task<bool> _Any<TSource>(IAsyncEnumerable<TSource> source)
         {
             return source.Any();
         }
 
-        private static Expression ProcessResultOperator(Expression expression, Type expressionItemType, CountResultOperator _)
+        private static Expression HandleResultOperator(Expression expression, Type expressionItemType, CountResultOperator _)
         {
-            return Expression.Call(_countAsyncShim.MakeGenericMethod(expressionItemType), expression);
+            return Expression.Call(_count.MakeGenericMethod(expressionItemType), expression);
         }
 
-        private static readonly MethodInfo _countAsyncShim
+        private static readonly MethodInfo _count
             = typeof(AsyncResultOperatorHandler)
-                .GetTypeInfo().GetDeclaredMethod("CountAsyncShim");
+                .GetTypeInfo().GetDeclaredMethod("_Count");
 
         [UsedImplicitly]
-        private static Task<int> CountAsyncShim<TSource>(IAsyncEnumerable<TSource> source)
+        private static Task<int> _Count<TSource>(IAsyncEnumerable<TSource> source)
         {
             return source.Count();
+        }
+
+        private static Expression HandleResultOperator(
+            Expression expression, Type expressionItemType, SingleResultOperator singleResultOperator)
+        {
+            return Expression.Call(
+                (singleResultOperator.ReturnDefaultWhenEmpty
+                    ? _singleOrDefault
+                    : _single)
+                    .MakeGenericMethod(expressionItemType), expression);
+        }
+
+        private static readonly MethodInfo _single
+            = typeof(AsyncResultOperatorHandler)
+                .GetTypeInfo().GetDeclaredMethod("_Single");
+
+        [UsedImplicitly]
+        private static Task<TSource> _Single<TSource>(IAsyncEnumerable<TSource> source)
+        {
+            return source.Single();
+        }
+
+        private static readonly MethodInfo _singleOrDefault
+            = typeof(AsyncResultOperatorHandler)
+                .GetTypeInfo().GetDeclaredMethod("_SingleOrDefault");
+
+        [UsedImplicitly]
+        private static Task<TSource> _SingleOrDefault<TSource>(IAsyncEnumerable<TSource> source)
+        {
+            return source.SingleOrDefault();
+        }
+
+        private static Expression HandleResultOperator(
+            Expression expression, Type expressionItemType, FirstResultOperator firstResultOperator)
+        {
+            return Expression.Call(
+                (firstResultOperator.ReturnDefaultWhenEmpty
+                    ? _firstOrDefault
+                    : _first)
+                    .MakeGenericMethod(expressionItemType), expression);
+        }
+
+        private static readonly MethodInfo _first
+            = typeof(AsyncResultOperatorHandler)
+                .GetTypeInfo().GetDeclaredMethod("_First");
+
+        [UsedImplicitly]
+        private static Task<TSource> _First<TSource>(IAsyncEnumerable<TSource> source)
+        {
+            return source.First();
+        }
+
+        private static readonly MethodInfo _firstOrDefault
+            = typeof(AsyncResultOperatorHandler)
+                .GetTypeInfo().GetDeclaredMethod("_FirstOrDefault");
+
+        [UsedImplicitly]
+        private static Task<TSource> _FirstOrDefault<TSource>(IAsyncEnumerable<TSource> source)
+        {
+            return source.FirstOrDefault();
         }
     }
 }
