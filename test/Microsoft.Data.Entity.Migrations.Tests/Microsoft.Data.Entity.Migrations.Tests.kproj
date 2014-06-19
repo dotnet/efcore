@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="__ToolsVersion__" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(VSToolsPath)\AspNet\Microsoft.Web.AspNet.Props" Condition="'$(VSToolsPath)' != ''" />
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>110bc752-f3fa-46e0-880b-15dcfbf378e2</ProjectGuid>
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+  <PropertyGroup Condition="$(OutputType) == 'Console'">
+    <DebuggerFlavor>ConsoleDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="$(OutputType) == 'Web'">
+    <DebuggerFlavor>WebDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'" Label="Configuration">
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'" Label="Configuration">
+  </PropertyGroup>
+  <PropertyGroup>
+    <SchemaVersion>2.0</SchemaVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="Project.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ApiConsistencyTest.cs" />
+    <Compile Include="Builders\ColumnBuilderTest.cs" />
+    <Compile Include="Builders\MigrationBuilderTest.cs" />
+    <Compile Include="Builders\TableBuilderTest.cs" />
+    <Compile Include="Infrastructure\HistoryRepositoryTest.cs" />
+    <Compile Include="Infrastructure\MigrationAssemblyTest.cs" />
+    <Compile Include="Infrastructure\MigrationMetadataTest.cs" />
+    <Compile Include="Infrastructure\MigratorTest.cs" />
+    <Compile Include="MigrationOperationSqlGeneratorTest.cs" />
+    <Compile Include="MigrationTest.cs" />
+    <Compile Include="ModelDifferTest.cs" />
+    <Compile Include="Model\AddColumnOperationTest.cs" />
+    <Compile Include="Model\AddDefaultConstraintOperationTest.cs" />
+    <Compile Include="Model\AddForeignKeyOperationTest.cs" />
+    <Compile Include="Model\AddPrimaryKeyOperationTest.cs" />
+    <Compile Include="Model\AlterColumnOperationTest.cs" />
+    <Compile Include="Model\CreateDatabaseOperationTest.cs" />
+    <Compile Include="Model\CreateIndexOperationTest.cs" />
+    <Compile Include="Model\CreateSequenceOperationTest.cs" />
+    <Compile Include="Model\CreateTableOperationTest.cs" />
+    <Compile Include="Model\DropColumnOperationTest.cs" />
+    <Compile Include="Model\DropDatabaseOperationTest.cs" />
+    <Compile Include="Model\DropDefaultConstraintOperationTest.cs" />
+    <Compile Include="Model\DropForeignKeyOperation.cs" />
+    <Compile Include="Model\DropIndexOperationTest.cs" />
+    <Compile Include="Model\DropPrimaryKeyOperationTest.cs" />
+    <Compile Include="Model\DropSequenceOperationTest.cs" />
+    <Compile Include="Model\DropTableOperationTest.cs" />
+    <Compile Include="Model\MoveTableOperationTest.cs" />
+    <Compile Include="Model\RenameColumnOperationTest.cs" />
+    <Compile Include="Model\RenameIndexOperationTest.cs" />
+    <Compile Include="Model\RenameTableOperationTest.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+  <Import Project="$(VSToolsPath)\AspNet\Microsoft.Web.AspNet.targets" Condition="'$(VSToolsPath)' != ''" />
+</Project>

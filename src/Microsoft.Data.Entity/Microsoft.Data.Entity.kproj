@@ -1,0 +1,211 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="__ToolsVersion__" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(VSToolsPath)\AspNet\Microsoft.Web.AspNet.Props" Condition="'$(VSToolsPath)' != ''" />
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>ce8f7d9c-fac7-4ba9-868f-47a8ba3c381b</ProjectGuid>
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+  <PropertyGroup Condition="$(OutputType) == 'Console'">
+    <DebuggerFlavor>ConsoleDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="$(OutputType) == 'Web'">
+    <DebuggerFlavor>WebDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'" Label="Configuration">
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'" Label="Configuration">
+  </PropertyGroup>
+  <PropertyGroup>
+    <SchemaVersion>2.0</SchemaVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="Project.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ChangeTracking\ArraySidecar.cs" />
+    <Compile Include="ChangeTracking\ChangeDetector.cs" />
+    <Compile Include="ChangeTracking\ChangeTracker.cs" />
+    <Compile Include="ChangeTracking\ClrStateEntry.cs" />
+    <Compile Include="ChangeTracking\CompositeEntityKey.cs" />
+    <Compile Include="ChangeTracking\CompositeEntityKeyFactory.cs" />
+    <Compile Include="ChangeTracking\DictionarySidecar.cs" />
+    <Compile Include="ChangeTracking\EntityEntry.cs" />
+    <Compile Include="ChangeTracking\EntityEntry`.cs" />
+    <Compile Include="ChangeTracking\EntityKey.cs" />
+    <Compile Include="ChangeTracking\EntityKeyFactory.cs" />
+    <Compile Include="ChangeTracking\EntityKeyFactorySource.cs" />
+    <Compile Include="ChangeTracking\IEntityStateListener.cs" />
+    <Compile Include="ChangeTracking\IPropertyBagEntry.cs" />
+    <Compile Include="ChangeTracking\MixedStateEntry.cs" />
+    <Compile Include="ChangeTracking\NavigationFixer.cs" />
+    <Compile Include="ChangeTracking\OriginalValues.cs" />
+    <Compile Include="ChangeTracking\OriginalValuesFactory.cs" />
+    <Compile Include="ChangeTracking\PropertyBagExtensions.cs" />
+    <Compile Include="ChangeTracking\PropertyEntry.cs" />
+    <Compile Include="ChangeTracking\PropertyEntry`.cs" />
+    <Compile Include="ChangeTracking\RelationshipsSnapshot.cs" />
+    <Compile Include="ChangeTracking\RelationshipsSnapshotFactory.cs" />
+    <Compile Include="ChangeTracking\ShadowStateEntry.cs" />
+    <Compile Include="ChangeTracking\Sidecar.cs" />
+    <Compile Include="ChangeTracking\SimpleEntityKey.cs" />
+    <Compile Include="ChangeTracking\SimpleEntityKeyFactory.cs" />
+    <Compile Include="ChangeTracking\SimpleNullableEntityKeyFactory.cs" />
+    <Compile Include="ChangeTracking\StateData.cs" />
+    <Compile Include="ChangeTracking\StateEntry.cs" />
+    <Compile Include="ChangeTracking\StateEntryFactory.cs" />
+    <Compile Include="ChangeTracking\StateEntryNotifier.cs" />
+    <Compile Include="ChangeTracking\StateEntrySubscriber.cs" />
+    <Compile Include="ChangeTracking\StateManager.cs" />
+    <Compile Include="ChangeTracking\StoreGeneratedValues.cs" />
+    <Compile Include="ChangeTracking\StoreGeneratedValuesFactory.cs" />
+    <Compile Include="DbContext.cs" />
+    <Compile Include="DbContextOptions.cs" />
+    <Compile Include="DbContextOptions`.cs" />
+    <Compile Include="DbSet.cs" />
+    <Compile Include="EntityServicesBuilder.cs" />
+    <Compile Include="EntitySet`.cs" />
+    <Compile Include="EntityState.cs" />
+    <Compile Include="EntityStateExtensions.cs" />
+    <Compile Include="Extensions\AdvancedEntityServicesBuilderExtensions.cs" />
+    <Compile Include="Extensions\EntityServiceCollectionExtensions.cs" />
+    <Compile Include="Extensions\QueryableExtensions.cs" />
+    <Compile Include="Identity\GuidValueGenerator.cs" />
+    <Compile Include="Identity\IValueGenerator.cs" />
+    <Compile Include="Identity\IValueGeneratorFactory.cs" />
+    <Compile Include="Identity\IValueGeneratorPool.cs" />
+    <Compile Include="Identity\SimpleValueGenerator.cs" />
+    <Compile Include="Identity\SimpleValueGeneratorFactory.cs" />
+    <Compile Include="Identity\SingleValueGeneratorPool.cs" />
+    <Compile Include="Identity\TemporaryValueGenerator.cs" />
+    <Compile Include="Identity\ValueGeneratorCache.cs" />
+    <Compile Include="Identity\ValueGeneratorPool.cs" />
+    <Compile Include="Identity\ValueGeneratorSelector.cs" />
+    <Compile Include="Infrastructure\ContextServices.cs" />
+    <Compile Include="Infrastructure\ContextSets.cs" />
+    <Compile Include="Infrastructure\Database.cs" />
+    <Compile Include="Infrastructure\DbContextConfiguration.cs" />
+    <Compile Include="Infrastructure\DbContextOptionsExtension.cs" />
+    <Compile Include="Infrastructure\DbSetFinder.cs" />
+    <Compile Include="Infrastructure\DbSetInitializer.cs" />
+    <Compile Include="Infrastructure\DbSetSource.cs" />
+    <Compile Include="Infrastructure\DefaultModelSource.cs" />
+    <Compile Include="Infrastructure\IDbContextOptionsExtensions.cs" />
+    <Compile Include="Infrastructure\IModelSource.cs" />
+    <Compile Include="INotifyPropertyChanging.cs" />
+    <Compile Include="Metadata\Annotation.cs" />
+    <Compile Include="Metadata\Annotations.cs" />
+    <Compile Include="Metadata\ClrAccessorSource.cs" />
+    <Compile Include="Metadata\ClrCollectionAccessorSource.cs" />
+    <Compile Include="Metadata\ClrICollectionAccessor.cs" />
+    <Compile Include="Metadata\ClrPropertyGetter.cs" />
+    <Compile Include="Metadata\ClrPropertyGetterSource.cs" />
+    <Compile Include="Metadata\ClrPropertySetter.cs" />
+    <Compile Include="Metadata\ClrPropertySetterSource.cs" />
+    <Compile Include="Metadata\CollectionNavigationAccessor.cs" />
+    <Compile Include="Metadata\Compiled\CompiledEntityType.cs" />
+    <Compile Include="Metadata\Compiled\CompiledForeignKey.cs" />
+    <Compile Include="Metadata\Compiled\CompiledIndex.cs" />
+    <Compile Include="Metadata\Compiled\CompiledKey.cs" />
+    <Compile Include="Metadata\Compiled\CompiledMetadataBase.cs" />
+    <Compile Include="Metadata\Compiled\CompiledModel.cs" />
+    <Compile Include="Metadata\Compiled\CompiledNavigation.cs" />
+    <Compile Include="Metadata\Compiled\CompiledProperty.cs" />
+    <Compile Include="Metadata\Compiled\CompiledPropertyNoAnnotations.cs" />
+    <Compile Include="Metadata\Compiled\CompiledSimpleForeignKey.cs" />
+    <Compile Include="Metadata\Compiled\Empty.cs" />
+    <Compile Include="Metadata\Compiled\NoAnnotations.cs" />
+    <Compile Include="Metadata\ConventionModelBuilder.cs" />
+    <Compile Include="Metadata\EntityMaterializerSource.cs" />
+    <Compile Include="Metadata\EntityType.cs" />
+    <Compile Include="Metadata\EntityTypeExtensions.cs" />
+    <Compile Include="Metadata\EntityTypeNameComparer.cs" />
+    <Compile Include="Metadata\FieldMatcher.cs" />
+    <Compile Include="Metadata\ForeignKey.cs" />
+    <Compile Include="Metadata\IAnnotation.cs" />
+    <Compile Include="Metadata\IClrCollectionAccessor.cs" />
+    <Compile Include="Metadata\IClrPropertyGetter.cs" />
+    <Compile Include="Metadata\IClrPropertySetter.cs" />
+    <Compile Include="Metadata\IEntityMaterializer.cs" />
+    <Compile Include="Metadata\IEntityType.cs" />
+    <Compile Include="Metadata\IForeignKey.cs" />
+    <Compile Include="Metadata\IIndex.cs" />
+    <Compile Include="Metadata\IKey.cs" />
+    <Compile Include="Metadata\IMetadata.cs" />
+    <Compile Include="Metadata\IModel.cs" />
+    <Compile Include="Metadata\INavigation.cs" />
+    <Compile Include="Metadata\Index.cs" />
+    <Compile Include="Metadata\IProperty.cs" />
+    <Compile Include="Metadata\IPropertyBase.cs" />
+    <Compile Include="Metadata\IValueReader.cs" />
+    <Compile Include="Metadata\Key.cs" />
+    <Compile Include="Metadata\MemberMapper.cs" />
+    <Compile Include="Metadata\MetadataBase.cs" />
+    <Compile Include="Metadata\Model.cs" />
+    <Compile Include="Metadata\ModelBuilder.cs" />
+    <Compile Include="Metadata\ModelConventions\IModelConvention.cs" />
+    <Compile Include="Metadata\ModelConventions\KeyConvention.cs" />
+    <Compile Include="Metadata\ModelConventions\PropertiesConvention.cs" />
+    <Compile Include="Metadata\ModelExtensions.cs" />
+    <Compile Include="Metadata\ModelItemNotFoundException.cs" />
+    <Compile Include="Metadata\NamedMetadataBase.cs" />
+    <Compile Include="Metadata\Navigation.cs" />
+    <Compile Include="Metadata\NavigationAccessor.cs" />
+    <Compile Include="Metadata\NavigationAccessorSource.cs" />
+    <Compile Include="Metadata\NavigationExtensions.cs" />
+    <Compile Include="Metadata\ObjectArrayValueReader.cs" />
+    <Compile Include="Metadata\Property.cs" />
+    <Compile Include="Metadata\ValueGenerationOnSave.cs" />
+    <Compile Include="Metadata\ValueGenerationStrategy.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\InternalsVisibleTo.cs" />
+    <Compile Include="Properties\Strings.Designer.cs" />
+    <Compile Include="Query\AsyncLinqOperatorProvider.cs" />
+    <Compile Include="Query\AsyncResultOperatorHandler.cs" />
+    <Compile Include="Query\EntityQueryable`.cs" />
+    <Compile Include="Query\EntityQueryExecutor.cs" />
+    <Compile Include="Query\EntityQueryModelVisitor.cs" />
+    <Compile Include="Query\EntityQueryProvider.cs" />
+    <Compile Include="Query\IAsyncQueryProvider.cs" />
+    <Compile Include="Query\ILinqOperatorProvider.cs" />
+    <Compile Include="Query\IResultOperatorHandler.cs" />
+    <Compile Include="Query\LinqOperatorProvider.cs" />
+    <Compile Include="Query\QueryCompilationContext.cs" />
+    <Compile Include="Query\QueryContext.cs" />
+    <Compile Include="Query\QuerySourceScope.cs" />
+    <Compile Include="Query\ResultOperatorHandler.cs" />
+    <Compile Include="Query\TaskResultAsyncEnumerable.cs" />
+    <Compile Include="ServiceProviderCache.cs" />
+    <Compile Include="Services\NullLoggerFactory.cs" />
+    <Compile Include="Storage\DataStore.cs" />
+    <Compile Include="Storage\DataStoreConnection.cs" />
+    <Compile Include="Storage\DataStoreCreator.cs" />
+    <Compile Include="Storage\DataStoreSelector.cs" />
+    <Compile Include="Storage\DataStoreSource.cs" />
+    <Compile Include="Storage\DataStoreSource`.cs" />
+    <Compile Include="Utilities\AsyncLock.cs" />
+    <Compile Include="Utilities\BidirectionalAdjacencyListGraph.cs" />
+    <Compile Include="Utilities\BidirectionalAdjacencyListGraphFactory.cs" />
+    <Compile Include="Utilities\Check.cs" />
+    <Compile Include="Utilities\EnumerableExtensions.cs" />
+    <Compile Include="Utilities\ExpressionExtensions.cs" />
+    <Compile Include="Utilities\Graph.cs" />
+    <Compile Include="Utilities\GraphFactory.cs" />
+    <Compile Include="Utilities\IndentedStringBuilder.cs" />
+    <Compile Include="Utilities\LazyRef.cs" />
+    <Compile Include="Utilities\MetadataHelper.cs" />
+    <Compile Include="Utilities\PropertyInfoExtensions.cs" />
+    <Compile Include="Utilities\ReferenceEqualityComparer.cs" />
+    <Compile Include="Utilities\ServiceProviderExtensions.cs" />
+    <Compile Include="Utilities\ThreadSafeDictionaryCache.cs" />
+    <Compile Include="Utilities\ThreadSafeLazyRef.cs" />
+    <Compile Include="Utilities\TypeExtensions.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Strings.resx" />
+  </ItemGroup>
+  <Import Project="$(VSToolsPath)\AspNet\Microsoft.Web.AspNet.targets" Condition="'$(VSToolsPath)' != ''" />
+</Project>
