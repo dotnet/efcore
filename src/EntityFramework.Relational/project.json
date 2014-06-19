@@ -1,0 +1,16 @@
+{
+  "version": "7.0.0-*",
+  "compilationOptions": {
+    "warningsAsErrors": true
+  },
+  "dependencies": {
+    "System.Data.Common": "1.0.0-*",
+    "EntityFramework": ""
+  },
+  "code": "**\\*.cs;..\\Shared\\*.cs",
+  "configurations": {
+    "net451": {},
+    "k10": {},
+    ".NETPortable,Version=v4.6,Profile=Profile44": {}
+  }
+}

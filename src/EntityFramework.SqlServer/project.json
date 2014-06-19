@@ -1,0 +1,15 @@
+{
+  "version": "7.0.0-*",
+  "compilationOptions": {
+    "warningsAsErrors": true
+  },
+  "dependencies": {
+    "EntityFramework.Migrations": "",
+    "System.Data.SqlClient": "1.0.0-*"
+  },
+  "code": "**\\*.cs;..\\Shared\\*.cs",
+  "configurations": {
+    "net451": {},
+    "k10": {}
+  }
+}

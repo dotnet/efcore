@@ -1,0 +1,121 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="..\..\tools\EntityFramework.props" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{A4604758-4D80-4C71-A972-5655FFF38089}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Microsoft.Data.Entity.SQLite.FunctionalTests</RootNamespace>
+    <AssemblyName>EntityFramework.SQLite.FunctionalTests</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <PackageReference Include="Microsoft.Framework.Logging">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Ix-Async">
+      <TargetFramework>net45</TargetFramework>
+      <Assemblies>System.Interactive.Async</Assemblies>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Data.Common">
+      <TargetFramework>net451</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Data.SQLite">
+      <TargetFramework>net451</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Framework.DependencyInjection">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="xunit.abstractions">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="xunit.assert">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="xunit.core">
+      <TargetFramework>net45</TargetFramework>
+      <Assemblies>xunit.core;xunit.runner.tdnet</Assemblies>
+    </PackageReference>
+    <PackageReference Include="xunit.execution">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\Shared\TestSqlLoggerFactory.cs" />
+    <Compile Include="..\Shared\Northwind.cs">
+      <Link>Northwind.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\NorthwindQueryFixtureBase.cs">
+      <Link>NorthwindQueryFixtureBase.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\NorthwindQueryTestBase.cs">
+      <Link>NorthwindQueryTestBase.cs</Link>
+    </Compile>
+    <Compile Include="MonsterFixupTest.cs" />
+    <Compile Include="NorthwindQueryTest.cs" />
+    <Compile Include="TestDatabase.cs" />
+    <None Include="northwind.db">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <Compile Include="..\Shared\MonsterFixupTestBase.cs" />
+    <Compile Include="..\Shared\ChangedChangingMonsterContext.cs" />
+    <Compile Include="..\Shared\ChangedOnlyMonsterContext.cs" />
+    <Compile Include="..\Shared\MonsterContext.cs" />
+    <Compile Include="..\Shared\MonsterContext`.cs" />
+    <Compile Include="..\Shared\MonsterModel.cs" />
+    <Compile Include="..\Shared\SnapshotMonsterContext.cs" />
+    <None Include="project.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\EntityFramework\EntityFramework.csproj">
+      <Project>{71415cec-8111-4c73-8751-512d22f10602}</Project>
+      <Name>EntityFramework</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\EntityFramework.SQLite\EntityFramework.SQLite.csproj">
+      <Project>{4cc98896-fe91-4f16-ae60-d6ff9e905836}</Project>
+      <Name>EntityFramework.SQLite</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\EntityFramework.Relational\EntityFramework.Relational.csproj">
+      <Project>{75C5A774-A3F3-43EB-97D3-DBE0CF2825D8}</Project>
+      <Name>EntityFramework.Relational</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

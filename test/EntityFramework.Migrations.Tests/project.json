@@ -1,0 +1,14 @@
+{
+  "dependencies": {
+    "EntityFramework.Migrations" : "",
+    "Moq" : "4.2.1312.1622",
+    "Xunit.KRunner": "1.0.0-*"
+  },
+  "code": "**\\*.cs;..\\Shared\\ApiConsistencyTestBase.cs",
+  "commands": {
+    "test": "Xunit.KRunner"
+  },
+  "configurations": {
+    "net451": {}
+  }
+}

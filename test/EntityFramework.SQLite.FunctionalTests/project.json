@@ -1,0 +1,18 @@
+{
+  "dependencies": {
+    "EntityFramework.SQLite": "",
+    "Xunit.KRunner": "1.0.0-*"
+  },
+  "code": "**\\*.cs;..\\Shared\\TestSqlLoggerFactory.cs;..\\Shared\\Northwind.cs;..\\Shared\\NorthwindQueryFixtureBase.cs;..\\Shared\\NorthwindQueryTestBase.cs;..\\Shared\\*Monster*.cs",
+  "commands": {
+    "test": "Xunit.KRunner"
+  },
+  "configurations": {
+    "net451": {},
+    "k10": {
+      "dependencies": {
+        "System.Threading.ExecutionContext": "4.0.0.0"
+      }
+    }
+  }
+}

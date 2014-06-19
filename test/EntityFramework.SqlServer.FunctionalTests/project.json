@@ -1,0 +1,19 @@
+{
+  "dependencies": {
+    "EntityFramework.InMemory" : "",
+    "EntityFramework.SqlServer": "",
+    "Xunit.KRunner": "1.0.0-*"
+  },
+  "code": "**\\*.cs;..\\Shared\\TestFileLogger.cs;..\\Shared\\TestSqlLoggerFactory.cs;..\\Shared\\Northwind.cs;..\\Shared\\NorthwindQueryTestBase.cs;..\\Shared\\NorthwindQueryFixtureBase.cs;..\\Shared\\*Monster*.cs",
+  "commands": {
+    "test": "Xunit.KRunner"
+  },
+  "configurations": {
+    "net451": {},
+    "k10": {
+      "dependencies": {
+        "System.Threading.ExecutionContext": "4.0.0.0"
+      }
+    }
+  }
+}

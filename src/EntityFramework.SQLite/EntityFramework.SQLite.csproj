@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="..\..\tools\EntityFramework.props" />
+  <PropertyGroup>
+    <MinimumVisualStudioVersion>12.0</MinimumVisualStudioVersion>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{4CC98896-FE91-4F16-AE60-D6FF9E905836}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Microsoft.Data.Entity.SQLite</RootNamespace>
+    <AssemblyName>EntityFramework.SQLite</AssemblyName>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <TargetFrameworkProfile>Profile44</TargetFrameworkProfile>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.Common" />
+    <PackageReference Include="Microsoft.Data.SQLite" />
+    <PackageReference Include="Microsoft.Framework.DependencyInjection" />
+    <PackageReference Include="Remotion.Linq">
+      <TargetFramework>portable-net45+wp80+win</TargetFramework>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\packages\KoreBuild\build\Resources.cs">
+      <Link>Properties\Resources.cs</Link>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.tt</DependentUpon>
+    </Compile>
+    <Compile Include="..\Shared\SharedTypeExtensions.cs">
+      <Link>Extensions\SharedTypeExtensions.cs</Link>
+    </Compile>
+    <Compile Include="Query\SQLiteQueryCompilationContext.cs" />
+    <Compile Include="Query\SQLiteSqlQueryGenerator.cs" />
+    <Compile Include="SQLiteBatchExecutor.cs" />
+    <Compile Include="SqLiteOptionsExtension.cs" />
+    <Compile Include="SQLiteConnection.cs" />
+    <Compile Include="SQLiteDataStore.cs" />
+    <Compile Include="SQLiteDataStoreCreator.cs" />
+    <Compile Include="SQLiteDataStoreSource.cs" />
+    <Compile Include="SQLiteMigrationOperationSqlGenerator.cs" />
+    <Compile Include="SQLiteSqlGenerator.cs" />
+    <Compile Include="SQLiteTypeMapper.cs" />
+    <Compile Include="Extensions\SQLiteDbContextOptionsExtensions.cs" />
+    <Compile Include="Extensions\SQLiteEntityServicesBuilderExtensions.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\InternalsVisibleTo.cs" />
+    <Compile Include="Properties\Strings.Designer.cs">
+      <DependentUpon>Strings.resx</DependentUpon>
+    </Compile>
+    <Compile Include="SQLiteValueGeneratorCache.cs" />
+    <Compile Include="Utilities\Check.cs" />
+    <Compile Include="..\Shared\CodeAnnotations.cs" />
+    <Compile Include="..\Shared\StringBuilderExtensions.cs" />
+    <EmbeddedResource Include="Properties\Strings.resx">
+      <LogicalName>Microsoft.Data.Entity.SQLite.Strings.resources</LogicalName>
+    </EmbeddedResource>
+    <None Include="..\..\packages\KoreBuild\build\Resources.tt">
+      <Link>Properties\Resources.tt</Link>
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <CustomToolNamespace>Microsoft.Data.Entity.SQLite</CustomToolNamespace>
+      <LastGenOutput>Resources.cs</LastGenOutput>
+    </None>
+    <None Include="project.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EntityFramework.Migrations\EntityFramework.Migrations.csproj">
+      <Project>{6e38b72f-31da-4aef-8f34-b8269572ec6b}</Project>
+      <Name>EntityFramework.Migrations</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EntityFramework.Relational\EntityFramework.Relational.csproj">
+      <Project>{75c5a774-a3f3-43eb-97d3-dbe0cf2825d8}</Project>
+      <Name>EntityFramework.Relational</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EntityFramework\EntityFramework.csproj">
+      <Project>{71415cec-8111-4c73-8751-512d22f10602}</Project>
+      <Name>EntityFramework</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

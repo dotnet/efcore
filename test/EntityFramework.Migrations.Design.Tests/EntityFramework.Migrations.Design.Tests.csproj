@@ -1,0 +1,94 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="..\..\tools\EntityFramework.props" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{38F9AD16-B3B4-48A5-B814-77660CF409AE}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Microsoft.Data.Entity.Migrations.Design.Tests</RootNamespace>
+    <AssemblyName>EntityFramework.Migrations.Design.Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.Common">
+      <TargetFramework>net451</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="xunit.abstractions">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="xunit.assert">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="xunit.core">
+      <TargetFramework>net45</TargetFramework>
+      <Assemblies>xunit.core;xunit.runner.tdnet</Assemblies>
+    </PackageReference>
+    <PackageReference Include="xunit.execution">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Moq">
+      <TargetFramework>net40</TargetFramework>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ApiConsistencyTest.cs" />
+    <Compile Include="CSharpMigrationCodeGeneratorTest.cs" />
+    <Compile Include="CSharpModelCodeGeneratorTest.cs" />
+    <Compile Include="..\Shared\ApiConsistencyTestBase.cs" />
+    <Compile Include="MigrationScaffolderTest.cs" />
+    <None Include="project.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\EntityFramework.Migrations.Design\EntityFramework.Migrations.Design.csproj">
+      <Project>{10ca97eb-e724-4f08-86af-f301f2b0bfff}</Project>
+      <Name>EntityFramework.Migrations.Design</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\EntityFramework.Relational\EntityFramework.Relational.csproj">
+      <Project>{75c5a774-a3f3-43eb-97d3-dbe0cf2825d8}</Project>
+      <Name>EntityFramework.Relational</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\EntityFramework.Migrations\EntityFramework.Migrations.csproj">
+      <Project>{6E38B72F-31DA-4AEF-8F34-B8269572EC6B}</Project>
+      <Name>EntityFramework.Migrations</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\EntityFramework\EntityFramework.csproj">
+      <Project>{71415cec-8111-4c73-8751-512d22f10602}</Project>
+      <Name>EntityFramework</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

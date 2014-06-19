@@ -1,0 +1,13 @@
+{
+  "dependencies": {
+    "EntityFramework.SQLite": "",
+    "Xunit.KRunner": "1.0.0-*"
+  },
+  "code": "**\\*.cs;..\\Shared\\ApiConsistencyTestBase.cs",
+  "commands": {
+    "test": "Xunit.KRunner"
+  },
+  "configurations": {
+    "net451": {}
+  }
+}
