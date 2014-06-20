@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             {
                 var migrationAssembly = new MigrationAssembly(context.Configuration);
 
-                Assert.Equal("Microsoft.Data.Entity.Migrations.Tests", migrationAssembly.Assembly.GetName().Name);
+                Assert.Equal("EntityFramework.Migrations.Tests", migrationAssembly.Assembly.GetName().Name);
                 Assert.Equal("Microsoft.Data.Entity.Migrations.Tests.Infrastructure.Migrations", migrationAssembly.Namespace);
             }
         }
