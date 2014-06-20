@@ -5,6 +5,6 @@ using System.Runtime.CompilerServices;
 
 #if !INTERNALS_INVISIBLE
 
-[assembly: InternalsVisibleTo("Microsoft.Data.Entity.SQLite.Tests")]
+[assembly: InternalsVisibleTo("EntityFramework.SQLite.Tests")]
 
 #endif

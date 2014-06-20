@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 
 #if !INTERNALS_INVISIBLE
 
-[assembly: InternalsVisibleTo("Microsoft.Data.Entity.Migrations.Design.Tests")]
+[assembly: InternalsVisibleTo("EntityFramework.Migrations.Design.Tests")]
 
 // for Moq
 

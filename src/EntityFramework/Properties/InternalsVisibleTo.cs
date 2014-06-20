@@ -5,8 +5,8 @@ using System.Runtime.CompilerServices;
 
 #if !INTERNALS_INVISIBLE
 
-[assembly: InternalsVisibleTo("Microsoft.Data.Entity.Tests")]
-[assembly: InternalsVisibleTo("Microsoft.Data.Entity.SqlServer.Tests")]
+[assembly: InternalsVisibleTo("EntityFramework.Tests")]
+[assembly: InternalsVisibleTo("EntityFramework.SqlServer.Tests")]
 
 // for Moq
 
