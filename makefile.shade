@@ -43,7 +43,7 @@ var sqliteDllPath='src/Microsoft.Data.SQLite/redist/x86/sqlite3.dll'
 
 #nupkg-patch target='compile'
     @{
-        var packagePath = Directory.EnumerateFiles(@"artifacts\build", "Microsoft.Data.SQLite.0.1-alpha-*.nupkg").First();
+        var packagePath = Directory.EnumerateFiles(@"artifacts\build", "Microsoft.Data.SQLite.1.0.0-*.nupkg").First();
         using (var package = Package.Open(packagePath, FileMode.Open, FileAccess.ReadWrite))
         {
             CreatePartFromFile(
