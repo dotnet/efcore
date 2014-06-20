@@ -12,7 +12,7 @@ k-standard-goals
   for each='var projectFile in Files.Include("src/**/*.csproj").Include("test/**/*.csproj")'
     exec program='${buildProgram}' commandline='${projectFile} /t:WritePackageReferences'
 
-var sqliteTestDir='test/Microsoft.Data.Entity.SQLite.FunctionalTests/bin/Debug'
+var sqliteTestDir='test/EntityFramework.SQLite.FunctionalTests/bin/Debug'
 #copy-sqlite target='initialize' if='!File.Exists(sqliteTestDir + "/sqlite3.dll")'
     var sourceDir='${Directory.EnumerateDirectories("packages", "Microsoft.Data.SQLite.0.1-alpha-*").OrderByDescending(d => d).First() + "/redist/x86"}'
     copy outputDir='${sqliteTestDir}'
