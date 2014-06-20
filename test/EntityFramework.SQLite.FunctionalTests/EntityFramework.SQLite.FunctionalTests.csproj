@@ -41,7 +41,7 @@
       <TargetFramework>net45</TargetFramework>
       <Assemblies>System.Interactive.Async</Assemblies>
     </PackageReference>
-    <PackageReference Include="Microsoft.Data.Common">
+    <PackageReference Include="System.Data.Common">
       <TargetFramework>net451</TargetFramework>
     </PackageReference>
     <PackageReference Include="Microsoft.Data.SQLite">

@@ -32,7 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System.Data" />
-    <PackageReference Include="Microsoft.Data.Common">
+    <PackageReference Include="System.Data.Common">
       <TargetFramework>net451</TargetFramework>
     </PackageReference>
     <PackageReference Include="xunit.abstractions">
