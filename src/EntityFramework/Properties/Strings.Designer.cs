@@ -8,7 +8,7 @@ namespace Microsoft.Data.Entity
     internal static class Strings
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("Microsoft.Data.Entity.Strings", typeof(Strings).GetTypeInfo().Assembly);
+            = new ResourceManager("EntityFramework.Strings", typeof(Strings).GetTypeInfo().Assembly);
 
         /// <summary>
         /// The string argument '{argumentName}' cannot be empty.
@@ -639,7 +639,7 @@ namespace Microsoft.Data.Entity
             var value = _resourceManager.GetString(name);
 
             System.Diagnostics.Debug.Assert(value != null);
-    
+
             if (formatterNames != null)
             {
                 for (var i = 0; i < formatterNames.Length; i++)
