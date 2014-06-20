@@ -41,7 +41,7 @@
       <TargetFramework>portable-windows8+net45+wp8</TargetFramework>
       <Assemblies>System.Interactive.Async</Assemblies>
     </PackageReference>
-    <PackageReference Include="Microsoft.Data.Common" />
+    <PackageReference Include="System.Data.Common" />
     <PackageReference Include="Microsoft.Framework.ConfigurationModel" />
     <PackageReference Include="Microsoft.Framework.DependencyInjection" />
     <PackageReference Include="Microsoft.Framework.Logging" />

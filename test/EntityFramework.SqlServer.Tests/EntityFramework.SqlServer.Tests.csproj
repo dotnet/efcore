@@ -33,10 +33,10 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
-    <PackageReference Include="Microsoft.Data.Common">
+    <PackageReference Include="System.Data.Common">
       <TargetFramework>net451</TargetFramework>
     </PackageReference>
-    <PackageReference Include="Microsoft.Data.SqlServer">
+    <PackageReference Include="System.Data.SqlClient">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <PackageReference Include="Microsoft.Framework.ConfigurationModel">
