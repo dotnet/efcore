@@ -241,7 +241,7 @@
     <Compile Include="..\Shared\StringBuilderExtensions.cs" />
     <Compile Include="..\Shared\SharedTypeExtensions.cs" />
     <EmbeddedResource Include="Properties\Strings.resx">
-      <LogicalName>Microsoft.Data.Entity.Strings.resources</LogicalName>
+      <LogicalName>EntityFramework.Strings.resources</LogicalName>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="..\..\packages\KoreBuild\build\Resources.tt">

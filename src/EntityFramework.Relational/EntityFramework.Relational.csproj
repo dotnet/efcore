@@ -134,7 +134,7 @@
     <Compile Include="..\Shared\SharedTypeExtensions.cs" />
     <Compile Include="Utilities\ExpressionExtensions.cs" />
     <EmbeddedResource Include="Properties\Strings.resx">
-      <LogicalName>Microsoft.Data.Entity.Relational.Strings.resources</LogicalName>
+      <LogicalName>EntityFramework.Relational.Strings.resources</LogicalName>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="..\..\packages\KoreBuild\build\Resources.tt">

@@ -77,7 +77,7 @@
     <Compile Include="..\Shared\CodeAnnotations.cs" />
     <Compile Include="..\Shared\StringBuilderExtensions.cs" />
     <EmbeddedResource Include="Properties\Strings.resx">
-      <LogicalName>Microsoft.Data.Entity.SQLite.Strings.resources</LogicalName>
+      <LogicalName>EntityFramework.SQLite.Strings.resources</LogicalName>
     </EmbeddedResource>
     <None Include="..\..\packages\KoreBuild\build\Resources.tt">
       <Link>Properties\Resources.tt</Link>
