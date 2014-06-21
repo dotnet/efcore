@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.MonsterModel;
@@ -80,17 +82,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var message2 = context.Messages.Single(e => e.Body.StartsWith("Love"));
                 var message3 = context.Messages.Single(e => e.Body.StartsWith("I'll"));
 
-                Assert.Same(login2, message2.Sender);
-                Assert.Same(message2, login2.SentMessages.Single());
+                AssertReceivedMessagesConsistent(login1, message2);
+                AssertReceivedMessagesConsistent(login2, message1, message3);
+                AssertReceivedMessagesConsistent(login3);
 
-                Assert.Same(login2, message1.Recipient);
-                Assert.Same(login2, message3.Recipient);
-                Assert.Equal(new[] { message1, message3 }, login2.ReceivedMessages.OrderBy(m => m.Body).ToArray());
-
-                Assert.Same(login1, message2.Recipient);
-                Assert.Same(message2, login1.ReceivedMessages.Single());
-
-                Assert.Empty(login3.SentMessages);
+                AssertSentMessagesConsistent(login1, message1, message3);
+                AssertSentMessagesConsistent(login2, message2);
+                AssertSentMessagesConsistent(login3);
 
                 // Simple change
                 message2.FromUsername = login3.Username;
@@ -100,13 +98,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     context.ChangeTracker.StateManager.DetectChanges();
                 }
 
-                Assert.Same(login3, message2.Sender);
-                Assert.Same(message2, login3.SentMessages.Single());
+                AssertReceivedMessagesConsistent(login1, message2);
+                AssertReceivedMessagesConsistent(login2, message1, message3);
+                AssertReceivedMessagesConsistent(login3);
 
-                Assert.Same(login1, message2.Recipient);
-                Assert.Same(message2, login1.ReceivedMessages.Single());
-
-                Assert.Empty(login2.SentMessages);
+                AssertSentMessagesConsistent(login1, message1, message3);
+                AssertSentMessagesConsistent(login2);
+                AssertSentMessagesConsistent(login3, message2);
 
                 // Change back
                 message2.FromUsername = login2.Username;
@@ -116,13 +114,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     context.ChangeTracker.StateManager.DetectChanges();
                 }
 
-                Assert.Same(login2, message2.Sender);
-                Assert.Same(message2, login2.SentMessages.Single());
+                AssertReceivedMessagesConsistent(login1, message2);
+                AssertReceivedMessagesConsistent(login2, message1, message3);
+                AssertReceivedMessagesConsistent(login3);
 
-                Assert.Same(login1, message2.Recipient);
-                Assert.Same(message2, login1.ReceivedMessages.Single());
-
-                Assert.Empty(login3.SentMessages);
+                AssertSentMessagesConsistent(login1, message1, message3);
+                AssertSentMessagesConsistent(login2, message2);
+                AssertSentMessagesConsistent(login3);
 
                 // Remove the relationship
                 message2.FromUsername = null;
@@ -132,13 +130,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     context.ChangeTracker.StateManager.DetectChanges();
                 }
 
-                Assert.Null(message2.Sender);
-                Assert.Empty(login2.SentMessages);
+                AssertReceivedMessagesConsistent(login1, message2);
+                AssertReceivedMessagesConsistent(login2, message1, message3);
+                AssertReceivedMessagesConsistent(login3);
 
-                Assert.Same(login1, message2.Recipient);
-                Assert.Same(message2, login1.ReceivedMessages.Single());
-
-                Assert.Empty(login3.SentMessages);
+                AssertSentMessagesConsistent(login1, message1, message3);
+                AssertSentMessagesConsistent(login2);
+                AssertSentMessagesConsistent(login3);
+                AssertSentMessagesConsistent(null, message2);
 
                 // Put the relationship back
                 message2.FromUsername = login3.Username;
@@ -148,13 +147,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     context.ChangeTracker.StateManager.DetectChanges();
                 }
 
-                Assert.Same(login3, message2.Sender);
-                Assert.Same(message2, login3.SentMessages.Single());
+                AssertReceivedMessagesConsistent(login1, message2);
+                AssertReceivedMessagesConsistent(login2, message1, message3);
+                AssertReceivedMessagesConsistent(login3);
 
-                Assert.Same(login1, message2.Recipient);
-                Assert.Same(message2, login1.ReceivedMessages.Single());
-
-                Assert.Empty(login2.SentMessages);
+                AssertSentMessagesConsistent(login1, message1, message3);
+                AssertSentMessagesConsistent(login2);
+                AssertSentMessagesConsistent(login3, message2);
             }
         }
 
@@ -193,24 +192,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var message2 = context.Messages.Single(e => e.Body.StartsWith("Love"));
                 var message3 = context.Messages.Single(e => e.Body.StartsWith("I'll"));
 
-                Assert.Same(login2, message2.Sender);
-                Assert.Same(message2, login2.SentMessages.Single());
+                AssertReceivedMessagesConsistent(login1, message2);
+                AssertReceivedMessagesConsistent(login2, message1, message3);
+                AssertReceivedMessagesConsistent(login3);
 
-                Assert.Same(login2, message1.Recipient);
-                Assert.Same(login2, message3.Recipient);
-                Assert.Equal(new[] { message1, message3 }, login2.ReceivedMessages.OrderBy(m => m.Body).ToArray());
-
-                Assert.Same(login1, message2.Recipient);
-                Assert.Same(message2, login1.ReceivedMessages.Single());
-
-                Assert.Empty(login3.SentMessages);
-
-                Assert.Equal(login1.Username, message1.FromUsername);
-                Assert.Equal(login2.Username, message1.ToUsername);
-                Assert.Equal(login2.Username, message2.FromUsername);
-                Assert.Equal(login1.Username, message2.ToUsername);
-                Assert.Equal(login1.Username, message3.FromUsername);
-                Assert.Equal(login2.Username, message3.ToUsername);
+                AssertSentMessagesConsistent(login1, message1, message3);
+                AssertSentMessagesConsistent(login2, message2);
+                AssertSentMessagesConsistent(login3);
 
                 // Simple change
                 message2.Sender = login3;
@@ -220,14 +208,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     context.ChangeTracker.StateManager.DetectChanges();
                 }
 
-                // TODO: Just testing FK fixup for now; inverse nav fixup comes later
+                AssertReceivedMessagesConsistent(login1, message2);
+                AssertReceivedMessagesConsistent(login2, message1, message3);
+                AssertReceivedMessagesConsistent(login3);
 
-                Assert.Equal(login1.Username, message1.FromUsername);
-                Assert.Equal(login2.Username, message1.ToUsername);
-                Assert.Equal(login3.Username, message2.FromUsername);
-                Assert.Equal(login1.Username, message2.ToUsername);
-                Assert.Equal(login1.Username, message3.FromUsername);
-                Assert.Equal(login2.Username, message3.ToUsername);
+                AssertSentMessagesConsistent(login1, message1, message3);
+                AssertSentMessagesConsistent(login2);
+                AssertSentMessagesConsistent(login3, message2);
 
                 // Change back
                 message2.Sender = login2;
@@ -237,12 +224,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     context.ChangeTracker.StateManager.DetectChanges();
                 }
 
-                Assert.Equal(login1.Username, message1.FromUsername);
-                Assert.Equal(login2.Username, message1.ToUsername);
-                Assert.Equal(login2.Username, message2.FromUsername);
-                Assert.Equal(login1.Username, message2.ToUsername);
-                Assert.Equal(login1.Username, message3.FromUsername);
-                Assert.Equal(login2.Username, message3.ToUsername);
+                AssertReceivedMessagesConsistent(login1, message2);
+                AssertReceivedMessagesConsistent(login2, message1, message3);
+                AssertReceivedMessagesConsistent(login3);
+
+                AssertSentMessagesConsistent(login1, message1, message3);
+                AssertSentMessagesConsistent(login2, message2);
+                AssertSentMessagesConsistent(login3);
 
                 // Remove the relationship
                 message2.Sender = null;
@@ -252,12 +240,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     context.ChangeTracker.StateManager.DetectChanges();
                 }
 
-                Assert.Equal(login1.Username, message1.FromUsername);
-                Assert.Equal(login2.Username, message1.ToUsername);
-                Assert.Null(message2.FromUsername);
-                Assert.Equal(login1.Username, message2.ToUsername);
-                Assert.Equal(login1.Username, message3.FromUsername);
-                Assert.Equal(login2.Username, message3.ToUsername);
+                AssertReceivedMessagesConsistent(login1, message2);
+                AssertReceivedMessagesConsistent(login2, message1, message3);
+                AssertReceivedMessagesConsistent(login3);
+
+                AssertSentMessagesConsistent(login1, message1, message3);
+                AssertSentMessagesConsistent(login2);
+                AssertSentMessagesConsistent(login3);
+                AssertSentMessagesConsistent(null, message2);
 
                 // Put the relationship back
                 message2.Sender = login3;
@@ -267,12 +257,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     context.ChangeTracker.StateManager.DetectChanges();
                 }
 
-                Assert.Equal(login1.Username, message1.FromUsername);
-                Assert.Equal(login2.Username, message1.ToUsername);
-                Assert.Equal(login3.Username, message2.FromUsername);
-                Assert.Equal(login1.Username, message2.ToUsername);
-                Assert.Equal(login1.Username, message3.FromUsername);
-                Assert.Equal(login2.Username, message3.ToUsername);
+                AssertReceivedMessagesConsistent(login1, message2);
+                AssertReceivedMessagesConsistent(login2, message1, message3);
+                AssertReceivedMessagesConsistent(login3);
+
+                AssertSentMessagesConsistent(login1, message1, message3);
+                AssertSentMessagesConsistent(login2);
+                AssertSentMessagesConsistent(login3, message2);
             }
         }
 
@@ -311,24 +302,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var message2 = context.Messages.Single(e => e.Body.StartsWith("Love"));
                 var message3 = context.Messages.Single(e => e.Body.StartsWith("I'll"));
 
-                Assert.Same(login2, message2.Sender);
-                Assert.Same(message2, login2.SentMessages.Single());
+                AssertReceivedMessagesConsistent(login1, message2);
+                AssertReceivedMessagesConsistent(login2, message1, message3);
+                AssertReceivedMessagesConsistent(login3);
 
-                Assert.Same(login2, message1.Recipient);
-                Assert.Same(login2, message3.Recipient);
-                Assert.Equal(new[] { message1, message3 }, login2.ReceivedMessages.OrderBy(m => m.Body).ToArray());
-
-                Assert.Same(login1, message2.Recipient);
-                Assert.Same(message2, login1.ReceivedMessages.Single());
-
-                Assert.Empty(login3.SentMessages);
-
-                Assert.Equal(login1.Username, message1.FromUsername);
-                Assert.Equal(login2.Username, message1.ToUsername);
-                Assert.Equal(login2.Username, message2.FromUsername);
-                Assert.Equal(login1.Username, message2.ToUsername);
-                Assert.Equal(login1.Username, message3.FromUsername);
-                Assert.Equal(login2.Username, message3.ToUsername);
+                AssertSentMessagesConsistent(login1, message1, message3);
+                AssertSentMessagesConsistent(login2, message2);
+                AssertSentMessagesConsistent(login3);
 
                 // Remove entities
                 login2.ReceivedMessages.Remove(message3);
@@ -339,14 +319,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     context.ChangeTracker.StateManager.DetectChanges();
                 }
 
-                // TODO: Just testing FK fixup for now; inverse nav fixup comes later
+                AssertReceivedMessagesConsistent(login1);
+                AssertReceivedMessagesConsistent(login2, message1);
+                AssertReceivedMessagesConsistent(login3);
+                AssertReceivedMessagesConsistent(null, message2, message3);
 
-                Assert.Equal(login1.Username, message1.FromUsername);
-                Assert.Equal(login2.Username, message1.ToUsername);
-                Assert.Equal(login2.Username, message2.FromUsername);
-                Assert.Null(message2.ToUsername);
-                Assert.Equal(login1.Username, message3.FromUsername);
-                Assert.Null(message3.ToUsername);
+                AssertSentMessagesConsistent(login1, message1, message3);
+                AssertSentMessagesConsistent(login2, message2);
+                AssertSentMessagesConsistent(login3);
 
                 // Add entities
                 login1.ReceivedMessages.Add(message3);
@@ -357,12 +337,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     context.ChangeTracker.StateManager.DetectChanges();
                 }
 
-                Assert.Equal(login1.Username, message1.FromUsername);
-                Assert.Equal(login2.Username, message1.ToUsername);
-                Assert.Equal(login2.Username, message2.FromUsername);
-                Assert.Equal(login2.Username, message2.ToUsername);
-                Assert.Equal(login1.Username, message3.FromUsername);
-                Assert.Equal(login1.Username, message3.ToUsername);
+                AssertReceivedMessagesConsistent(login1, message3);
+                AssertReceivedMessagesConsistent(login2, message1, message2);
+                AssertReceivedMessagesConsistent(login3);
+
+                AssertSentMessagesConsistent(login1, message1, message3);
+                AssertSentMessagesConsistent(login2, message2);
+                AssertSentMessagesConsistent(login3);
 
                 // Remove and add at the same time
                 login2.ReceivedMessages.Remove(message2);
@@ -375,12 +356,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     context.ChangeTracker.StateManager.DetectChanges();
                 }
 
-                Assert.Equal(login1.Username, message1.FromUsername);
-                Assert.Equal(login2.Username, message1.ToUsername);
-                Assert.Equal(login2.Username, message2.FromUsername);
-                Assert.Equal(login1.Username, message2.ToUsername);
-                Assert.Equal(login1.Username, message3.FromUsername);
-                Assert.Equal(login2.Username, message3.ToUsername);
+                AssertReceivedMessagesConsistent(login1, message2);
+                AssertReceivedMessagesConsistent(login2, message1, message3);
+                AssertReceivedMessagesConsistent(login3);
+
+                AssertSentMessagesConsistent(login1, message1, message3);
+                AssertSentMessagesConsistent(login2, message2);
+                AssertSentMessagesConsistent(login3);
             }
         }
 
@@ -416,17 +398,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var customer2 = context.Customers.Single(e => e.Name == "Sue Pandy");
                 var customer3 = context.Customers.Single(e => e.Name == "Tarquin Tiger");
 
-                Assert.Null(customer0.Husband);
-                Assert.Same(customer2, customer0.Wife);
-
-                Assert.Null(customer1.Husband);
-                Assert.Null(customer1.Wife);
-
-                Assert.Same(customer0, customer2.Husband);
-                Assert.Null(customer2.Wife);
-
-                Assert.Null(customer3.Husband);
-                Assert.Null(customer3.Wife);
+                AssertSpousesConsistent(customer0, null);
+                AssertSpousesConsistent(customer1, null);
+                AssertSpousesConsistent(customer2, customer0);
+                AssertSpousesConsistent(customer3, null);
+                AssertSpousesConsistent(null, customer1);
+                AssertSpousesConsistent(null, customer2);
+                AssertSpousesConsistent(null, customer3);
 
                 // Add a new relationship
                 customer1.HusbandId = customer3.CustomerId;
@@ -436,17 +414,12 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     context.ChangeTracker.StateManager.DetectChanges();
                 }
 
-                Assert.Null(customer0.Husband);
-                Assert.Same(customer2, customer0.Wife);
-
-                Assert.Same(customer3, customer1.Husband);
-                Assert.Null(customer1.Wife);
-
-                Assert.Same(customer0, customer2.Husband);
-                Assert.Null(customer2.Wife);
-
-                Assert.Null(customer3.Husband);
-                Assert.Same(customer1, customer3.Wife);
+                AssertSpousesConsistent(customer0, null);
+                AssertSpousesConsistent(customer1, customer3);
+                AssertSpousesConsistent(customer2, customer0);
+                AssertSpousesConsistent(customer3, null);
+                AssertSpousesConsistent(null, customer1);
+                AssertSpousesConsistent(null, customer2);
 
                 // Remove the relationship
                 customer1.HusbandId = null;
@@ -456,17 +429,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     context.ChangeTracker.StateManager.DetectChanges();
                 }
 
-                Assert.Null(customer0.Husband);
-                Assert.Same(customer2, customer0.Wife);
-
-                Assert.Null(customer1.Husband);
-                Assert.Null(customer1.Wife);
-
-                Assert.Same(customer0, customer2.Husband);
-                Assert.Null(customer2.Wife);
-
-                Assert.Null(customer3.Husband);
-                Assert.Null(customer3.Wife);
+                AssertSpousesConsistent(customer0, null);
+                AssertSpousesConsistent(customer1, null);
+                AssertSpousesConsistent(customer2, customer0);
+                AssertSpousesConsistent(customer3, null);
+                AssertSpousesConsistent(null, customer1);
+                AssertSpousesConsistent(null, customer2);
+                AssertSpousesConsistent(null, customer3);
 
                 // Change existing relationship
                 customer2.HusbandId = customer3.CustomerId;
@@ -476,17 +445,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     context.ChangeTracker.StateManager.DetectChanges();
                 }
 
-                Assert.Null(customer0.Husband);
-                Assert.Null(customer0.Wife);
-
-                Assert.Null(customer1.Husband);
-                Assert.Null(customer1.Wife);
-
-                Assert.Same(customer3, customer2.Husband);
-                Assert.Null(customer2.Wife);
-
-                Assert.Null(customer3.Husband);
-                Assert.Same(customer2, customer3.Wife);
+                AssertSpousesConsistent(customer0, null);
+                AssertSpousesConsistent(customer1, null);
+                AssertSpousesConsistent(customer2, customer3);
+                AssertSpousesConsistent(customer3, null);
+                AssertSpousesConsistent(null, customer0);
+                AssertSpousesConsistent(null, customer1);
+                AssertSpousesConsistent(null, customer2);
 
                 // Give Tarquin a husband and a wife
                 customer3.HusbandId = customer2.CustomerId;
@@ -496,17 +461,12 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     context.ChangeTracker.StateManager.DetectChanges();
                 }
 
-                Assert.Null(customer0.Husband);
-                Assert.Null(customer0.Wife);
-
-                Assert.Null(customer1.Husband);
-                Assert.Null(customer1.Wife);
-
-                Assert.Same(customer3, customer2.Husband);
-                Assert.Same(customer3, customer2.Wife);
-
-                Assert.Same(customer2, customer3.Husband);
-                Assert.Same(customer2, customer3.Wife);
+                AssertSpousesConsistent(customer0, null);
+                AssertSpousesConsistent(customer1, null);
+                AssertSpousesConsistent(customer2, customer3);
+                AssertSpousesConsistent(customer3, customer2);
+                AssertSpousesConsistent(null, customer0);
+                AssertSpousesConsistent(null, customer1);
             }
         }
 
@@ -542,22 +502,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var customer2 = context.Customers.Single(e => e.Name == "Sue Pandy");
                 var customer3 = context.Customers.Single(e => e.Name == "Tarquin Tiger");
 
-                Assert.Null(customer0.Husband);
-                Assert.Same(customer2, customer0.Wife);
-
-                Assert.Null(customer1.Husband);
-                Assert.Null(customer1.Wife);
-
-                Assert.Same(customer0, customer2.Husband);
-                Assert.Null(customer2.Wife);
-
-                Assert.Null(customer3.Husband);
-                Assert.Null(customer3.Wife);
-
-                Assert.Null(customer0.HusbandId);
-                Assert.Null(customer1.HusbandId);
-                Assert.Equal(customer0.CustomerId, customer2.HusbandId);
-                Assert.Null(customer3.HusbandId);
+                AssertSpousesConsistent(customer0, null);
+                AssertSpousesConsistent(customer1, null);
+                AssertSpousesConsistent(customer2, customer0);
+                AssertSpousesConsistent(customer3, null);
+                AssertSpousesConsistent(null, customer1);
+                AssertSpousesConsistent(null, customer2);
+                AssertSpousesConsistent(null, customer3);
 
                 // Set a dependent
                 customer1.Husband = customer3;
@@ -567,12 +518,12 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     context.ChangeTracker.StateManager.DetectChanges();
                 }
 
-                // TODO: Just testing FK fixup for now; inverse nav fixup comes later
-
-                Assert.Null(customer0.HusbandId);
-                Assert.Equal(customer3.CustomerId, customer1.HusbandId);
-                Assert.Equal(customer0.CustomerId, customer2.HusbandId);
-                Assert.Null(customer3.HusbandId);
+                AssertSpousesConsistent(customer0, null);
+                AssertSpousesConsistent(customer1, customer3);
+                AssertSpousesConsistent(customer2, customer0);
+                AssertSpousesConsistent(customer3, null);
+                AssertSpousesConsistent(null, customer1);
+                AssertSpousesConsistent(null, customer2);
 
                 // Remove a dependent
                 customer2.Husband = null;
@@ -582,10 +533,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     context.ChangeTracker.StateManager.DetectChanges();
                 }
 
-                Assert.Null(customer0.HusbandId);
-                Assert.Equal(customer3.CustomerId, customer1.HusbandId);
-                Assert.Null(customer2.HusbandId);
-                Assert.Null(customer3.HusbandId);
+                AssertSpousesConsistent(customer0, null);
+                AssertSpousesConsistent(customer1, customer3);
+                AssertSpousesConsistent(customer2, null);
+                AssertSpousesConsistent(customer3, null);
+                AssertSpousesConsistent(null, customer0);
+                AssertSpousesConsistent(null, customer1);
+                AssertSpousesConsistent(null, customer2);
 
                 // Set a principal
                 customer0.Wife = customer3;
@@ -595,10 +549,12 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     context.ChangeTracker.StateManager.DetectChanges();
                 }
 
-                Assert.Null(customer0.HusbandId);
-                Assert.Equal(customer3.CustomerId, customer1.HusbandId);
-                Assert.Null(customer2.HusbandId);
-                Assert.Equal(customer0.CustomerId, customer3.HusbandId);
+                AssertSpousesConsistent(customer0, null);
+                AssertSpousesConsistent(customer1, customer3);
+                AssertSpousesConsistent(customer2, null);
+                AssertSpousesConsistent(customer3, customer0);
+                AssertSpousesConsistent(null, customer1);
+                AssertSpousesConsistent(null, customer2);
 
                 // Remove a principal
                 customer0.Wife = null;
@@ -608,10 +564,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     context.ChangeTracker.StateManager.DetectChanges();
                 }
 
-                Assert.Null(customer0.HusbandId);
-                Assert.Equal(customer3.CustomerId, customer1.HusbandId);
-                Assert.Null(customer2.HusbandId);
-                Assert.Null(customer3.HusbandId);
+                AssertSpousesConsistent(customer0, null);
+                AssertSpousesConsistent(customer1, customer3);
+                AssertSpousesConsistent(customer2, null);
+                AssertSpousesConsistent(customer3, null);
+                AssertSpousesConsistent(null, customer0);
+                AssertSpousesConsistent(null, customer1);
+                AssertSpousesConsistent(null, customer2);
             }
         }
 
@@ -657,20 +616,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var productWebFeature1 = context.ProductWebFeatures.Single(e => e.Heading.StartsWith("Waffle"));
                 var productWebFeature2 = context.ProductWebFeatures.Single(e => e.Heading.StartsWith("What"));
 
-                Assert.Same(productPhoto1, productWebFeature1.Photo);
-                Assert.Same(productWebFeature1, productPhoto1.Features.Single());
+                AssertPhotosConsistent(productPhoto1, productWebFeature1);
+                AssertPhotosConsistent(productPhoto2);
+                AssertPhotosConsistent(productPhoto3);
+                AssertPhotosConsistent(null, productWebFeature2);
 
-                Assert.Same(productReview1, productWebFeature1.Review);
-                Assert.Same(productWebFeature1, productReview1.Features.Single());
-
-                Assert.Null(productWebFeature2.Photo);
-                Assert.Empty(productPhoto2.Features);
-
-                Assert.Same(productReview3, productWebFeature2.Review);
-                Assert.Same(productWebFeature2, productReview3.Features.Single());
-
-                Assert.Empty(productPhoto3.Features);
-                Assert.Empty(productReview2.Features);
+                AssertReviewsConsistent(productReview1, productWebFeature1);
+                AssertReviewsConsistent(productReview2);
+                AssertReviewsConsistent(productReview3, productWebFeature2);
 
                 // Change one part of the key
                 productWebFeature1.ProductId = product2.ProductId;
@@ -680,20 +633,20 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     context.ChangeTracker.StateManager.DetectChanges();
                 }
 
+                AssertPhotosConsistent(productPhoto1);
+                AssertPhotosConsistent(productPhoto2);
+                AssertPhotosConsistent(productPhoto3);
+                AssertPhotosConsistent(null, productWebFeature2);
+                Assert.Equal(product2.ProductId, productWebFeature1.ProductId);
+                Assert.Equal(productPhoto1.PhotoId, productWebFeature1.PhotoId);
                 Assert.Null(productWebFeature1.Photo);
-                Assert.Empty(productPhoto1.Features);
 
+                AssertReviewsConsistent(productReview1);
+                AssertReviewsConsistent(productReview2);
+                AssertReviewsConsistent(productReview3, productWebFeature2);
+                Assert.Equal(product2.ProductId, productWebFeature1.ProductId);
+                Assert.Equal(productReview1.ReviewId, productWebFeature1.ReviewId);
                 Assert.Null(productWebFeature1.Review);
-                Assert.Empty(productReview1.Features);
-
-                Assert.Null(productWebFeature2.Photo);
-                Assert.Empty(productPhoto2.Features);
-
-                Assert.Same(productReview3, productWebFeature2.Review);
-                Assert.Same(productWebFeature2, productReview3.Features.Single());
-
-                Assert.Empty(productPhoto3.Features);
-                Assert.Empty(productReview2.Features);
 
                 // Change the other part of the key
                 productWebFeature1.ReviewId = productReview3.ReviewId;
@@ -703,24 +656,17 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     context.ChangeTracker.StateManager.DetectChanges();
                 }
 
+                AssertPhotosConsistent(productPhoto1);
+                AssertPhotosConsistent(productPhoto2);
+                AssertPhotosConsistent(productPhoto3);
+                AssertPhotosConsistent(null, productWebFeature2);
+                Assert.Equal(product2.ProductId, productWebFeature1.ProductId);
+                Assert.Equal(productPhoto1.PhotoId, productWebFeature1.PhotoId);
                 Assert.Null(productWebFeature1.Photo);
-                Assert.Empty(productPhoto1.Features);
 
-                Assert.Same(productReview3, productWebFeature1.Review);
-                Assert.Equal(
-                    new[] { productWebFeature1, productWebFeature2 },
-                    productReview3.Features.OrderBy(f => f.Heading).ToArray());
-
-                Assert.Null(productWebFeature2.Photo);
-                Assert.Empty(productPhoto2.Features);
-
-                Assert.Same(productReview3, productWebFeature2.Review);
-                Assert.Equal(
-                    new[] { productWebFeature1, productWebFeature2 },
-                    productReview3.Features.OrderBy(f => f.Heading).ToArray());
-
-                Assert.Empty(productPhoto3.Features);
-                Assert.Empty(productReview2.Features);
+                AssertReviewsConsistent(productReview1);
+                AssertReviewsConsistent(productReview2);
+                AssertReviewsConsistent(productReview3, productWebFeature1, productWebFeature2);
 
                 // Change both at the same time
                 productWebFeature1.ReviewId = productReview1.ReviewId;
@@ -731,20 +677,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     context.ChangeTracker.StateManager.DetectChanges();
                 }
 
-                Assert.Same(productPhoto1, productWebFeature1.Photo);
-                Assert.Same(productWebFeature1, productPhoto1.Features.Single());
+                AssertPhotosConsistent(productPhoto1, productWebFeature1);
+                AssertPhotosConsistent(productPhoto2);
+                AssertPhotosConsistent(productPhoto3);
+                AssertPhotosConsistent(null, productWebFeature2);
 
-                Assert.Same(productReview1, productWebFeature1.Review);
-                Assert.Same(productWebFeature1, productReview1.Features.Single());
-
-                Assert.Null(productWebFeature2.Photo);
-                Assert.Empty(productPhoto2.Features);
-
-                Assert.Same(productReview3, productWebFeature2.Review);
-                Assert.Same(productWebFeature2, productReview3.Features.Single());
-
-                Assert.Empty(productPhoto3.Features);
-                Assert.Empty(productReview2.Features);
+                AssertReviewsConsistent(productReview1, productWebFeature1);
+                AssertReviewsConsistent(productReview2);
+                AssertReviewsConsistent(productReview3, productWebFeature2);
             }
         }
 
@@ -1396,6 +1336,122 @@ namespace Microsoft.Data.Entity.FunctionalTests
         private ChangedOnlyMonsterContext CreateChangedOnlyMonsterContext(IServiceProvider serviceProvider)
         {
             return new ChangedOnlyMonsterContext(serviceProvider, CreateOptions(ChangedOnlyDatabaseName));
+        }
+
+        private static void AssertPhotosConsistent(IProductPhoto expectedPrincipal, params IProductWebFeature[] expectedDependents)
+        {
+            AssertConsistent(
+                expectedPrincipal,
+                expectedDependents,
+                e => e.Features.OrderBy(f => f.Heading),
+                e => e.Photo,
+                e => Tuple.Create(e.PhotoId, e.ProductId),
+                e => e.ProductId == null || e.PhotoId == null ? null : Tuple.Create(e.ReviewId, e.ProductId));
+        }
+
+        private static void AssertReviewsConsistent(IProductReview expectedPrincipal, params IProductWebFeature[] expectedDependents)
+        {
+            AssertConsistent(
+                expectedPrincipal,
+                expectedDependents,
+                e => e.Features.OrderBy(f => f.Heading),
+                e => e.Review,
+                e => Tuple.Create(e.ReviewId, e.ProductId),
+                e => e.ProductId == null ? null : Tuple.Create(e.ReviewId, e.ProductId));
+        }
+
+        private static void AssertReceivedMessagesConsistent(ILogin expectedPrincipal, params IMessage[] expectedDependents)
+        {
+            AssertConsistent(
+                expectedPrincipal,
+                expectedDependents,
+                e => e.ReceivedMessages.OrderBy(m => m.Body),
+                e => e.Recipient,
+                e => e.Username,
+                e => e.ToUsername);
+        }
+
+        private static void AssertSentMessagesConsistent(ILogin expectedPrincipal, params IMessage[] expectedDependents)
+        {
+            AssertConsistent(
+                expectedPrincipal,
+                expectedDependents,
+                e => e.SentMessages.OrderBy(m => m.Body),
+                e => e.Sender,
+                e => e.Username,
+                e => e.FromUsername);
+        }
+
+        private static void AssertConsistent<TPrincipal, TDependent>(
+            TPrincipal expectedPrincipal,
+            TDependent[] expectedDependents,
+            Func<TPrincipal, IEnumerable<TDependent>> getDependents,
+            Func<TDependent, TPrincipal> getPrincipal,
+            Func<TPrincipal, object> getPrincipalKey,
+            Func<TDependent, object> getForeignKey)
+            where TPrincipal : class
+            where TDependent : class
+        {
+            if (expectedPrincipal == null)
+            {
+                foreach (var dependent in expectedDependents)
+                {
+                    Assert.Null(getPrincipal(dependent));
+                    Assert.Null(getForeignKey(dependent));
+                }
+            }
+            else
+            {
+                var dependents = getDependents(expectedPrincipal).ToArray();
+                var principalKey = getPrincipalKey(expectedPrincipal);
+
+                Assert.Equal(expectedDependents.Length, dependents.Length);
+                for (var i = 0; i < expectedDependents.Length; i++)
+                {
+                    Assert.Same(expectedDependents[i], dependents[i]);
+                    Assert.Same(expectedPrincipal, getPrincipal(dependents[i]));
+                    StructuralComparisons.StructuralEqualityComparer.Equals(principalKey, getForeignKey(dependents[i]));
+                }
+            }
+        }
+
+        private static void AssertSpousesConsistent(ICustomer wife, ICustomer husband)
+        {
+            AssertConsistent(
+                husband,
+                wife,
+                e => e.Wife,
+                e => e.Husband,
+                e => e.CustomerId,
+                e => e.HusbandId);
+        }
+
+        private static void AssertConsistent<TPrincipal, TDependent>(
+            TPrincipal expectedPrincipal,
+            TDependent expectedDependent,
+            Func<TPrincipal, TDependent> getDependent,
+            Func<TDependent, TPrincipal> getPrincipal,
+            Func<TPrincipal, object> getPrincipalKey,
+            Func<TDependent, object> getForeignKey)
+            where TPrincipal : class
+            where TDependent : class
+        {
+            if (expectedDependent != null)
+            {
+                Assert.Same(expectedPrincipal, getPrincipal(expectedDependent));
+            }
+
+            if (expectedPrincipal != null)
+            {
+                Assert.Same(expectedDependent, getDependent(expectedPrincipal));
+            }
+
+            if (expectedDependent != null)
+            {
+                Assert.True(StructuralComparisons.StructuralEqualityComparer.Equals(
+                    expectedPrincipal == null ? null : getPrincipalKey(expectedPrincipal),
+                    getForeignKey(expectedDependent)));
+            }
         }
     }
 }

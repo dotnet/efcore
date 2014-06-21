@@ -87,6 +87,7 @@
     <Compile Include="Metadata\EntityTypeExtensionsTest.cs" />
     <Compile Include="Metadata\IndexTest.cs" />
     <Compile Include="Metadata\NavigationAccessorSourceTest.cs" />
+    <Compile Include="Metadata\NavigationExtensionsTest.cs" />
     <Compile Include="QueryableExtensionsTest.cs" />
     <Compile Include="ServiceProviderCacheTest.cs" />
     <Compile Include="TestHelpers.cs" />

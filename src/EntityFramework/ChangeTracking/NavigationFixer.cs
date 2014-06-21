@@ -117,6 +117,16 @@ namespace Microsoft.Data.Entity.ChangeTracking
                     ConditionallySetNullForeignKey(_stateManager.GetOrCreateEntry(oldValue), dependentProperties, entry, principalProperties);
                 }
             }
+
+            if (oldValue != null)
+            {
+                ConditionallyClearInverse(entry, navigation, oldValue);
+            }
+
+            if (newValue != null)
+            {
+                SetInverse(entry, navigation, newValue);
+            }
         }
 
         public virtual void NavigationCollectionChanged(StateEntry entry, INavigation navigation, ISet<object> added, ISet<object> removed)
@@ -141,11 +151,13 @@ namespace Microsoft.Data.Entity.ChangeTracking
             foreach (var entity in removed)
             {
                 ConditionallySetNullForeignKey(_stateManager.GetOrCreateEntry(entity), dependentProperties, principalValues);
+                ConditionallyClearInverse(entry, navigation, entity);
             }
 
             foreach (var entity in added)
             {
                 SetForeignKeyValue(_stateManager.GetOrCreateEntry(entity), dependentProperties, principalValues);
+                SetInverse(entry, navigation, entity);
             }
         }
 
@@ -355,6 +367,56 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 // TODO: Conceptual nulls
                 dependentEntry[dependentProperty] = null;
                 dependentEntry.RelationshipsSnapshot.TakeSnapshot(dependentProperty);
+            }
+        }
+
+        private void SetInverse(StateEntry entry, INavigation navigation, object entity)
+        {
+            var inverse = navigation.TryGetInverse();
+
+            if (inverse != null)
+            {
+                var navigationAccessor = _accessorSource.GetAccessor(inverse);
+
+                if (inverse.IsCollection())
+                {
+                    var collectionAccessor = ((CollectionNavigationAccessor)navigationAccessor).Collection;
+
+                    if (!collectionAccessor.Contains(entity, entry.Entity))
+                    {
+                        collectionAccessor.Add(entity, entry.Entity);
+                    }
+                }
+                else
+                {
+                    navigationAccessor.Setter.SetClrValue(entity, entry.Entity);
+                }
+
+                _stateManager.GetOrCreateEntry(entity).RelationshipsSnapshot.TakeSnapshot(inverse);
+            }
+        }
+
+        private void ConditionallyClearInverse(StateEntry entry, INavigation navigation, object entity)
+        {
+            var inverse = navigation.TryGetInverse();
+
+            if (inverse != null)
+            {
+                var navigationAccessor = _accessorSource.GetAccessor(inverse);
+
+                if (inverse.IsCollection())
+                {
+                    ((CollectionNavigationAccessor)navigationAccessor).Collection.Remove(entity, entry.Entity);
+                }
+                else
+                {
+                    if (ReferenceEquals(navigationAccessor.Getter.GetClrValue(entity), entry.Entity))
+                    {
+                        navigationAccessor.Setter.SetClrValue(entity, null);
+                    }
+                }
+
+                _stateManager.GetOrCreateEntry(entity).RelationshipsSnapshot.TakeSnapshot(inverse);
             }
         }
     }
