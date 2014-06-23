@@ -14,7 +14,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
     public class NavigationFixer : IEntityStateListener
     {
         private readonly StateManager _stateManager;
-        private readonly NavigationAccessorSource _accessorSource;
+        private readonly ClrCollectionAccessorSource _collectionAccessorSource;
+        private readonly ClrPropertySetterSource _setterSource;
+        private readonly ClrPropertyGetterSource _getterSource;
         private bool _inFixup;
 
         /// <summary>
@@ -28,13 +30,19 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         public NavigationFixer(
             [NotNull] StateManager stateManager,
-            [NotNull] NavigationAccessorSource accessorSource)
+            [NotNull] ClrPropertyGetterSource getterSource,
+            [NotNull] ClrPropertySetterSource setterSource,
+            [NotNull] ClrCollectionAccessorSource collectionAccessorSource)
         {
             Check.NotNull(stateManager, "stateManager");
-            Check.NotNull(accessorSource, "accessorSource");
+            Check.NotNull(getterSource, "getterSource");
+            Check.NotNull(setterSource, "setterSource");
+            Check.NotNull(collectionAccessorSource, "collectionAccessorSource");
 
             _stateManager = stateManager;
-            _accessorSource = accessorSource;
+            _getterSource = getterSource;
+            _setterSource = setterSource;
+            _collectionAccessorSource = collectionAccessorSource;
         }
 
         public virtual void ForeignKeyPropertyChanged(StateEntry entry, IProperty property, object oldValue, object newValue)
@@ -233,33 +241,34 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             foreach (var navigation in navigations)
             {
-                var accessor = _accessorSource.GetAccessor(navigation);
-
                 if (navigation.PointsToPrincipal)
                 {
+                    var setter = _setterSource.GetAccessor(navigation);
+
                     foreach (var dependent in dependentEntries)
                     {
-                        accessor.Setter.SetClrValue(dependent.Entity, principalEntry.Entity);
+                        setter.SetClrValue(dependent.Entity, principalEntry.Entity);
                         dependent.RelationshipsSnapshot.TakeSnapshot(navigation);
                     }
                 }
                 else
                 {
-                    var collectionAccessor = accessor as CollectionNavigationAccessor;
-                    if (collectionAccessor != null)
+                    if (navigation.IsCollection())
                     {
+                        var collectionAccessor = _collectionAccessorSource.GetAccessor(navigation);
+
                         foreach (var dependent in dependentEntries)
                         {
-                            if (!collectionAccessor.Collection.Contains(principalEntry.Entity, dependent.Entity))
+                            if (!collectionAccessor.Contains(principalEntry.Entity, dependent.Entity))
                             {
-                                collectionAccessor.Collection.Add(principalEntry.Entity, dependent.Entity);
+                                collectionAccessor.Add(principalEntry.Entity, dependent.Entity);
                             }
                         }
                     }
                     else
                     {
                         // TODO: Decide how to handle case where multiple values match non-collection nav prop
-                        accessor.Setter.SetClrValue(principalEntry.Entity, dependentEntries.Single().Entity);
+                        _setterSource.GetAccessor(navigation).SetClrValue(principalEntry.Entity, dependentEntries.Single().Entity);
                     }
                     principalEntry.RelationshipsSnapshot.TakeSnapshot(navigation);
                 }
@@ -270,26 +279,24 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             foreach (var navigation in navigations)
             {
-                var accessor = _accessorSource.GetAccessor(navigation);
-
                 if (navigation.PointsToPrincipal)
                 {
-                    accessor.Setter.SetClrValue(dependentEntry.Entity, null);
+                    _setterSource.GetAccessor(navigation).SetClrValue(dependentEntry.Entity, null);
                     dependentEntry.RelationshipsSnapshot.TakeSnapshot(navigation);
                 }
                 else
                 {
-                    var collectionAccessor = accessor as CollectionNavigationAccessor;
-                    if (collectionAccessor != null)
+                    if (navigation.IsCollection())
                     {
-                        if (collectionAccessor.Collection.Contains(oldPrincipalEntry.Entity, dependentEntry.Entity))
+                        var collectionAccessor = _collectionAccessorSource.GetAccessor(navigation);
+                        if (collectionAccessor.Contains(oldPrincipalEntry.Entity, dependentEntry.Entity))
                         {
-                            collectionAccessor.Collection.Remove(oldPrincipalEntry.Entity, dependentEntry.Entity);
+                            collectionAccessor.Remove(oldPrincipalEntry.Entity, dependentEntry.Entity);
                         }
                     }
                     else
                     {
-                        accessor.Setter.SetClrValue(oldPrincipalEntry.Entity, null);
+                        _setterSource.GetAccessor(navigation).SetClrValue(oldPrincipalEntry.Entity, null);
                     }
                     oldPrincipalEntry.RelationshipsSnapshot.TakeSnapshot(navigation);
                 }
@@ -302,7 +309,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             {
                 if (navigation.PointsToPrincipal)
                 {
-                    _accessorSource.GetAccessor(navigation).Setter.SetClrValue(dependentEntry.Entity, null);
+                    _setterSource.GetAccessor(navigation).SetClrValue(dependentEntry.Entity, null);
                     dependentEntry.RelationshipsSnapshot.TakeSnapshot(navigation);
                 }
             }
@@ -376,11 +383,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             if (inverse != null)
             {
-                var navigationAccessor = _accessorSource.GetAccessor(inverse);
-
                 if (inverse.IsCollection())
                 {
-                    var collectionAccessor = ((CollectionNavigationAccessor)navigationAccessor).Collection;
+                    var collectionAccessor = _collectionAccessorSource.GetAccessor(inverse);
 
                     if (!collectionAccessor.Contains(entity, entry.Entity))
                     {
@@ -389,7 +394,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 }
                 else
                 {
-                    navigationAccessor.Setter.SetClrValue(entity, entry.Entity);
+                    _setterSource.GetAccessor(inverse).SetClrValue(entity, entry.Entity);
                 }
 
                 _stateManager.GetOrCreateEntry(entity).RelationshipsSnapshot.TakeSnapshot(inverse);
@@ -402,17 +407,15 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             if (inverse != null)
             {
-                var navigationAccessor = _accessorSource.GetAccessor(inverse);
-
                 if (inverse.IsCollection())
                 {
-                    ((CollectionNavigationAccessor)navigationAccessor).Collection.Remove(entity, entry.Entity);
+                    _collectionAccessorSource.GetAccessor(inverse).Remove(entity, entry.Entity);
                 }
                 else
                 {
-                    if (ReferenceEquals(navigationAccessor.Getter.GetClrValue(entity), entry.Entity))
+                    if (ReferenceEquals(_getterSource.GetAccessor(inverse).GetClrValue(entity), entry.Entity))
                     {
-                        navigationAccessor.Setter.SetClrValue(entity, null);
+                        _setterSource.GetAccessor(inverse).SetClrValue(entity, null);
                     }
                 }
 

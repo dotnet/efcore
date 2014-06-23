@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Members_check_arguments()
         {
-            var fixer = new NavigationFixer(Mock.Of<StateManager>(), CreateAccessorSource());
+            var fixer = CreateNavigationFixer();
 
             Assert.Equal(
                 "entry",
@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var dependentEntry = manager.StartTracking(manager.GetOrCreateEntry(dependent));
 
-            var fixer = new NavigationFixer(manager, CreateAccessorSource());
+            var fixer = CreateNavigationFixer(manager);
             fixer.StateChanged(dependentEntry, EntityState.Unknown);
 
             Assert.Same(dependent.Category, principal2);
@@ -67,7 +67,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var principalEntry = manager.StartTracking(manager.GetOrCreateEntry(principal));
 
-            var fixer = new NavigationFixer(manager, CreateAccessorSource());
+            var fixer = CreateNavigationFixer(manager);
             fixer.StateChanged(principalEntry, EntityState.Unknown);
 
             Assert.Same(dependent1.Category, principal);
@@ -100,7 +100,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var dependentEntry2 = manager.StartTracking(manager.GetOrCreateEntry(dependent2));
             var dependentEntry4 = manager.StartTracking(manager.GetOrCreateEntry(dependent4));
 
-            var fixer = new NavigationFixer(manager, CreateAccessorSource());
+            var fixer = CreateNavigationFixer(manager);
 
             Assert.Null(principal1.Detail);
             Assert.Null(dependent1.Product);
@@ -141,7 +141,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entry2 = manager.StartTracking(manager.GetOrCreateEntry(entity2));
             var entry3 = manager.StartTracking(manager.GetOrCreateEntry(entity3));
 
-            var fixer = new NavigationFixer(manager, CreateAccessorSource());
+            var fixer = CreateNavigationFixer(manager);
 
             Assert.Null(entity1.AlternateProduct);
             Assert.Null(entity1.OriginalProduct);
@@ -190,7 +190,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var dependentEntry = manager.StartTracking(manager.GetOrCreateEntry(dependent));
 
-            var fixer = new NavigationFixer(manager, CreateAccessorSource());
+            var fixer = CreateNavigationFixer(manager);
             fixer.StateChanged(dependentEntry, EntityState.Unknown);
 
             Assert.Null(dependent.Category);
@@ -221,7 +221,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var dependentEntry = manager.StartTracking(manager.GetOrCreateEntry(dependent));
 
-            var fixer = new NavigationFixer(manager, CreateAccessorSource());
+            var fixer = CreateNavigationFixer(manager);
             fixer.StateChanged(dependentEntry, EntityState.Unknown);
 
             Assert.Same(dependent.Category, principal2);
@@ -252,7 +252,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var dependentEntry = manager.StartTracking(manager.GetOrCreateEntry(dependent));
 
-            var fixer = new NavigationFixer(manager, CreateAccessorSource());
+            var fixer = CreateNavigationFixer(manager);
             fixer.StateChanged(dependentEntry, EntityState.Unknown);
 
             Assert.Same(dependent.Category, principal2);
@@ -282,7 +282,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var principalEntry2 = manager.StartTracking(manager.GetOrCreateEntry(principal2));
             var dependentEntry = manager.StartTracking(manager.GetOrCreateEntry(dependent));
 
-            var fixer = new NavigationFixer(manager, CreateAccessorSource());
+            var fixer = CreateNavigationFixer(manager);
 
             fixer.StateChanged(principalEntry1, EntityState.Unknown);
 
@@ -311,7 +311,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var principalEntry = manager.StartTracking(manager.GetOrCreateEntry(principal));
             var dependentEntry = manager.StartTracking(manager.GetOrCreateEntry(dependent));
 
-            var fixer = new NavigationFixer(manager, CreateAccessorSource());
+            var fixer = CreateNavigationFixer(manager);
 
             fixer.StateChanged(principalEntry, EntityState.Unknown);
 
@@ -338,7 +338,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var principalEntry = manager.StartTracking(manager.GetOrCreateEntry(principal));
             var dependentEntry = manager.StartTracking(manager.GetOrCreateEntry(dependent));
 
-            var fixer = new NavigationFixer(manager, CreateAccessorSource());
+            var fixer = CreateNavigationFixer(manager);
 
             fixer.StateChanged(principalEntry, EntityState.Unknown);
 
@@ -369,7 +369,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var dependentEntry1 = manager.StartTracking(manager.GetOrCreateEntry(dependent1));
             var dependentEntry2 = manager.StartTracking(manager.GetOrCreateEntry(dependent2));
 
-            var fixer = new NavigationFixer(manager, CreateAccessorSource());
+            var fixer = CreateNavigationFixer(manager);
 
             fixer.StateChanged(principalEntry1, EntityState.Unknown);
             fixer.StateChanged(principalEntry2, EntityState.Unknown);
@@ -403,7 +403,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entry2 = manager.StartTracking(manager.GetOrCreateEntry(entity2));
             var entry3 = manager.StartTracking(manager.GetOrCreateEntry(entity3));
 
-            var fixer = new NavigationFixer(manager, CreateAccessorSource());
+            var fixer = CreateNavigationFixer(manager);
 
             fixer.StateChanged(entry1, EntityState.Unknown);
             fixer.StateChanged(entry1, EntityState.Unknown);
@@ -446,7 +446,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entry2 = manager.StartTracking(manager.GetOrCreateEntry(entity2));
             var entry3 = manager.StartTracking(manager.GetOrCreateEntry(entity3));
 
-            var fixer = new NavigationFixer(manager, CreateAccessorSource());
+            var fixer = CreateNavigationFixer(manager);
 
             fixer.StateChanged(entry1, EntityState.Unknown);
             fixer.StateChanged(entry1, EntityState.Unknown);
@@ -523,7 +523,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var tagEntry7 = manager.StartTracking(manager.GetOrCreateEntry(tag7));
             var tagEntry8 = manager.StartTracking(manager.GetOrCreateEntry(tag8));
 
-            var fixer = new NavigationFixer(manager, CreateAccessorSource());
+            var fixer = CreateNavigationFixer(manager);
 
             fixer.StateChanged(photoEntry1, EntityState.Unknown);
             fixer.StateChanged(photoEntry2, EntityState.Unknown);
@@ -733,9 +733,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             return model;
         }
 
-        private static NavigationAccessorSource CreateAccessorSource()
+        private static NavigationFixer CreateNavigationFixer(StateManager stateManager = null)
         {
-            return new NavigationAccessorSource(new ClrPropertyGetterSource(), new ClrPropertySetterSource(), new ClrCollectionAccessorSource());
+            return new NavigationFixer(stateManager ?? Mock.Of<StateManager>(), new ClrPropertyGetterSource(), new ClrPropertySetterSource(), new ClrCollectionAccessorSource());
         }
     }
 }

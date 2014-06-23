@@ -92,10 +92,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
         private static StateEntrySubscriber CreateSubscriber()
         {
-            return new StateEntrySubscriber(
-                new ChangeDetector(
-                    new NavigationAccessorSource(
-                        new ClrPropertyGetterSource(), new ClrPropertySetterSource(), new ClrCollectionAccessorSource())));
+            return new StateEntrySubscriber(new ChangeDetector());
         }
 
         private class FullNotificationEntity : INotifyPropertyChanging, INotifyPropertyChanged
