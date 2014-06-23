@@ -37,7 +37,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Data.Common" />
+    <PackageReference Include="System.Data.Common" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Interop\Constants.cs" />
