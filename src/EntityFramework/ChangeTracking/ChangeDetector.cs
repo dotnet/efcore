@@ -114,8 +114,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 var snapshotValue = entry.RelationshipsSnapshot[property];
                 var currentValue = entry[property];
 
-                // TODO: Ensure structural equality where necessary--e.g. byte arrays
-                if (!Equals(currentValue, snapshotValue))
+                // Note that mutation of a byte[] key is not supported or detected, but two different instances
+                // of byte[] with the same content must be detected as equal.
+                if (!StructuralComparisons.StructuralEqualityComparer.Equals(currentValue, snapshotValue))
                 {
                     // TODO: Constructor injection
                     var notifier = entry.Configuration.Services.StateEntryNotifier;

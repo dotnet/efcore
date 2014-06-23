@@ -49,5 +49,27 @@ namespace System.Collections.Generic
         {
             return string.Join(separator, source);
         }
+
+        public static bool StructuralSequenceEqual<TSource>(this IEnumerable<TSource> first, IEnumerable<TSource> second)
+        {
+            if (ReferenceEquals(first, second))
+            {
+                return true;
+            }
+
+            var firstEnumerator = first.GetEnumerator();
+            var secondEnumerator = second.GetEnumerator();
+
+            while (firstEnumerator.MoveNext())
+            {
+                if (!secondEnumerator.MoveNext()
+                    || !StructuralComparisons.StructuralEqualityComparer.Equals(firstEnumerator.Current, secondEnumerator.Current))
+                {
+                    return false;
+                }
+            }
+
+            return !secondEnumerator.MoveNext();
+        }
     }
 }
