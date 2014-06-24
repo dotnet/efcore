@@ -120,6 +120,9 @@
   <data name="ArgumentIsNullOrWhitespace" xml:space="preserve">
     <value>The argument '{argumentName}' cannot be null, empty or contain only white space.</value>
   </data>
+  <data name="BatchNotSupported" xml:space="preserve">
+    <value>CommandText contains more than one SQL statement. Queries must be a single statement. Batch queries are not supported.</value>
+  </data>
   <data name="CallRequiresOpenConnection" xml:space="preserve">
     <value>{methodName} can only be called when the connection is open.</value>
   </data>

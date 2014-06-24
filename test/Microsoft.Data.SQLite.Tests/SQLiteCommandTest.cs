@@ -169,6 +169,21 @@ namespace Microsoft.Data.SQLite
         }
 
         [Fact]
+        public void Prepare_throws_when_batching()
+        {
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT 1; SELECT 2;";
+                connection.Open();
+
+                var ex = Assert.Throws<InvalidOperationException>(() => command.Prepare());
+
+                Assert.Equal(Strings.BatchNotSupported, ex.Message);
+            }
+        }
+
+        [Fact]
         public void ExecuteScalar_throws_when_open_reader()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))

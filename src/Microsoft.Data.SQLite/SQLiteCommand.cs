@@ -175,9 +175,8 @@ namespace Microsoft.Data.SQLite
                 out tail);
             MarshalEx.ThrowExceptionForRC(rc);
 
-            // TODO: Handle this. Only the first statement is compiled. This is what remains
-            //       uncompiled.
-            Debug.Assert(string.IsNullOrEmpty(tail), "CommandText contains more than one statement.");
+            if (!string.IsNullOrEmpty(tail))
+                throw new InvalidOperationException(Strings.BatchNotSupported);
 
             _prepared = true;
         }

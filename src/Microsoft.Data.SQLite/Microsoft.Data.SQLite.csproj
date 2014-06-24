@@ -40,6 +40,12 @@
     <PackageReference Include="System.Data.Common" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\packages\KoreBuild\build\Resources.cs">
+      <Link>Properties\Resources.cs</Link>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.tt</DependentUpon>
+    </Compile>
     <Compile Include="Interop\Constants.cs" />
     <Compile Include="Interop\DatabaseHandle.cs" />
     <Compile Include="Interop\MarshalEx.cs" />

@@ -27,6 +27,22 @@ namespace Microsoft.Data.SQLite
         }
 
         /// <summary>
+        /// CommandText contains more than one SQL statement. Queries must be a single statement. Batch queries are not supported.
+        /// </summary>
+        internal static string BatchNotSupported
+        {
+            get { return GetString("BatchNotSupported"); }
+        }
+
+        /// <summary>
+        /// CommandText contains more than one SQL statement. Queries must be a single statement. Batch queries are not supported.
+        /// </summary>
+        internal static string FormatBatchNotSupported()
+        {
+            return GetString("BatchNotSupported");
+        }
+
+        /// <summary>
         /// {methodName} can only be called when the connection is open.
         /// </summary>
         internal static string CallRequiresOpenConnection
