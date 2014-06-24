@@ -44,9 +44,12 @@ namespace Microsoft.Data.Entity.MonsterModel
         where TDriver : class, IDriver, new()
         where TLicense : class, ILicense, new()
     {
-        public MonsterContext(IServiceProvider serviceProvider, DbContextOptions options)
+        private readonly Action<ModelBuilder> _onModelCreating;
+
+        public MonsterContext(IServiceProvider serviceProvider, DbContextOptions options, Action<ModelBuilder> onModelCreating)
             : base(serviceProvider, options)
         {
+            _onModelCreating = onModelCreating;
         }
 
         public override IQueryable<ICustomer> Customers
@@ -390,6 +393,11 @@ namespace Microsoft.Data.Entity.MonsterModel
             AddNavigationToDependent(model, typeof(TLogin), typeof(TMessage), "FromUsername", "SentMessages");
             AddNavigationToDependent(model, typeof(TLogin), typeof(TMessage), "ToUsername", "ReceivedMessages");
             AddNavigationToDependent(model, typeof(TLogin), typeof(TAnOrder), "Username", "Orders");
+
+            if (_onModelCreating != null)
+            {
+                _onModelCreating(builder);
+            }
         }
 
         private static void AddNavigationToPrincipal(Model model, Type type, string fk, string navigation)

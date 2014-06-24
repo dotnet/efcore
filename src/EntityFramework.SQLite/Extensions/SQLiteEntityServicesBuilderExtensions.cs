@@ -3,7 +3,6 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity;
-using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Update;
@@ -24,7 +23,7 @@ namespace Microsoft.Framework.DependencyInjection
             builder.AddRelational().ServiceCollection
                 .AddSingleton<DataStoreSource, SQLiteDataStoreSource>()
                 .AddSingleton<SQLiteValueGeneratorCache>()
-                .AddSingleton<ValueGeneratorSelector>()
+                .AddSingleton<SQLiteValueGeneratorSelector>()
                 .AddSingleton<SQLiteSqlGenerator>()
                 .AddSingleton<SqlStatementExecutor>()
                 .AddSingleton<SQLiteTypeMapper>()

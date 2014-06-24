@@ -4,7 +4,9 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.MonsterModel;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
@@ -12,7 +14,7 @@ using Microsoft.Framework.DependencyInjection.Fallback;
 
 namespace Microsoft.Data.Entity.SQLite.FunctionalTests
 {
-    // TODO: EnsureCreated fails with "SQL logic error or missing database" for SQLite
+    // TODO: SaveChanges fails with "Batch queries are not supported." for SQLite
     public class MonsterFixupTest //: MonsterFixupTestBase
     {
         private static readonly HashSet<string> _createdDatabases = new HashSet<string>();
@@ -46,6 +48,23 @@ namespace Microsoft.Data.Entity.SQLite.FunctionalTests
 
                     _createdDatabases.Add(databaseName);
                 }
+            }
+        }
+
+        protected /*override*/ void OnModelCreating(ModelBuilder builder)
+        {
+            var keyProperties =
+                from t in builder.Model.EntityTypes
+                let ps = t.GetKey().Properties
+                where ps.Count == 1
+                let p = ps[0]
+                where p.PropertyType == typeof(int)
+                select p;
+
+            foreach (var property in keyProperties)
+            {
+                // Fix-up int properties to be INTEGER columns so rowid aliasing is enabled
+                property[MetadataExtensions.Annotations.StorageTypeName] = "INTEGER";
             }
         }
     }

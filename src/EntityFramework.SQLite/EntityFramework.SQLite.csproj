@@ -74,6 +74,7 @@
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
     <Compile Include="SQLiteValueGeneratorCache.cs" />
+    <Compile Include="SQLiteValueGeneratorSelector.cs" />
     <Compile Include="Utilities\Check.cs" />
     <Compile Include="..\Shared\CodeAnnotations.cs" />
     <Compile Include="..\Shared\StringBuilderExtensions.cs" />

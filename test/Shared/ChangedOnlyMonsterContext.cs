@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.MonsterModel
 {
@@ -22,8 +23,8 @@ namespace Microsoft.Data.Entity.MonsterModel
         ChangedOnlyMonsterContext.Computer, ChangedOnlyMonsterContext.ComputerDetail, ChangedOnlyMonsterContext.Driver,
         ChangedOnlyMonsterContext.License>
     {
-        public ChangedOnlyMonsterContext(IServiceProvider serviceProvider, DbContextOptions options)
-            : base(serviceProvider, options)
+        public ChangedOnlyMonsterContext(IServiceProvider serviceProvider, DbContextOptions options, Action<ModelBuilder> onModelCreating)
+            : base(serviceProvider, options, onModelCreating)
         {
         }
 
