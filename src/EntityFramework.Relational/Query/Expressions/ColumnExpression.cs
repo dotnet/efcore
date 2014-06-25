@@ -11,17 +11,28 @@ using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Relational.Query.Expressions
 {
-    public class PropertyAccessExpression : ExtensionExpression
+    public class ColumnExpression : ExtensionExpression
     {
         private readonly IProperty _property;
+        private readonly string _alias;
 
-        public PropertyAccessExpression([NotNull] IProperty property)
+        public ColumnExpression([NotNull] IProperty property, [NotNull] string alias)
             : base(Check.NotNull(property, "property").PropertyType)
         {
+            Check.NotEmpty(alias, "alias");
+
             _property = property;
+            _alias = alias;
         }
 
-        public new virtual IProperty Property
+        public virtual string Alias
+        {
+            get { return _alias; }
+        }
+
+#pragma warning disable 108
+        public virtual IProperty Property
+#pragma warning restore 108
         {
             get { return _property; }
         }
@@ -34,7 +45,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
             if (specificVisitor != null)
             {
-                return specificVisitor.VisitPropertyAccessExpression(this);
+                return specificVisitor.VisitColumnExpression(this);
             }
 
             return base.Accept(visitor);

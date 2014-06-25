@@ -70,13 +70,14 @@
     <Compile Include="Query\Expressions\LikeExpression.cs" />
     <Compile Include="Query\Expressions\LiteralExpression.cs" />
     <Compile Include="Query\Expressions\SelectExpression.cs" />
+    <Compile Include="Query\Expressions\TableExpression.cs" />
     <Compile Include="Query\IEnumerableMethodProvider.cs" />
     <Compile Include="Query\Methods\CompositeMethodCallTranslator.cs" />
     <Compile Include="Query\Methods\EndsWithTranslator.cs" />
     <Compile Include="Query\Methods\IMethodCallTranslator.cs" />
     <Compile Include="Query\Methods\StartsWithTranslator.cs" />
     <Compile Include="Query\Sql\ISqlExpressionVisitor.cs" />
-    <Compile Include="Query\Expressions\PropertyAccessExpression.cs" />
+    <Compile Include="Query\Expressions\ColumnExpression.cs" />
     <Compile Include="Query\RelationalQueryCompilationContext.cs" />
     <Compile Include="Query\RelationalQueryModelVisitor.cs" />
     <Compile Include="Query\RelationalResultOperatorHandler.cs" />

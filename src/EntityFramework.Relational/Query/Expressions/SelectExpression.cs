@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
@@ -17,22 +16,19 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 {
     public class SelectExpression : ExtensionExpression
     {
-        private readonly List<IProperty> _projection = new List<IProperty>();
+        private readonly List<ColumnExpression> _projection = new List<ColumnExpression>();
+        private readonly List<Ordering> _orderBy = new List<Ordering>();
 
-        private readonly List<Tuple<IProperty, OrderingDirection>> _orderBy
-            = new List<Tuple<IProperty, OrderingDirection>>();
+        private TableExpression _tableSource;
 
-        private object _tableSource;
         private int? _limit;
-        private bool _star;
-        private bool _distinct;
 
         public SelectExpression([NotNull] Type type)
             : base(Check.NotNull(type, "type"))
         {
         }
 
-        public virtual object TableSource
+        public virtual TableExpression TableSource
         {
             get { return _tableSource; }
             [param: NotNull]
@@ -44,34 +40,10 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             }
         }
 
-        public virtual bool TryMakeDistinct()
-        {
-            _distinct
-                = _orderBy
-                    .Select(t => t.Item1)
-                    .All(p => !_projection.Contains(p));
-
-            return _distinct;
-        }
-
-        public virtual bool IsDistinct
-        {
-            get { return _distinct; }
-        }
+        public virtual bool IsDistinct { get; set; }
 
         public virtual void AddLimit(int limit)
         {
-            if (_limit != null)
-            {
-                _tableSource
-                    = new SelectExpression(Type)
-                        {
-                            _tableSource = _tableSource,
-                            _limit = _limit,
-                            _star = true
-                        };
-            }
-
             _limit = limit;
         }
 
@@ -80,7 +52,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             get { return _limit; }
         }
 
-        public virtual IReadOnlyList<IProperty> Projection
+        public virtual IReadOnlyList<Expression> Projection
         {
             get { return _projection; }
         }
@@ -89,9 +61,9 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
         {
             Check.NotNull(property, "property");
 
-            if (!_projection.Contains(property))
+            if (GetProjectionIndex(property) == -1)
             {
-                _projection.Add(property);
+                _projection.Add(new ColumnExpression(property, _tableSource.Alias));
             }
         }
 
@@ -104,26 +76,28 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
         {
             Check.NotNull(property, "property");
 
-            return _projection.IndexOf(property);
-        }
-
-        public virtual bool IsStar
-        {
-            get { return _star; }
+            return _projection.FindIndex(ce => ce.Property == property);
         }
 
         public virtual Expression Predicate { get; [param: CanBeNull] set; }
-
+        
         public virtual void AddToOrderBy([NotNull] IProperty property, OrderingDirection orderingDirection)
         {
             Check.NotNull(property, "property");
 
-            _orderBy.Add(Tuple.Create(property, orderingDirection));
+            var columnExpression = new ColumnExpression(property, _tableSource.Alias);
+
+            _orderBy.Add(new Ordering(columnExpression, orderingDirection));
         }
 
-        public virtual IReadOnlyList<Tuple<IProperty, OrderingDirection>> OrderBy
+        public virtual IReadOnlyList<Ordering> OrderBy
         {
             get { return _orderBy; }
+        }
+
+        public virtual void ClearOrderBy()
+        {
+            _orderBy.Clear();
         }
 
         public override Expression Accept([NotNull] ExpressionTreeVisitor visitor)

@@ -192,8 +192,8 @@ namespace Microsoft.Data.Entity.Relational.Query
                         && constant.Value == null)
                     {
                         var propertyAccess
-                            = left as PropertyAccessExpression
-                              ?? right as PropertyAccessExpression;
+                            = left as ColumnExpression
+                              ?? right as ColumnExpression;
 
                         if (propertyAccess != null)
                         {
@@ -248,7 +248,8 @@ namespace Microsoft.Data.Entity.Relational.Query
                     .BindMemberExpression(
                         memberExpression,
                         _querySource,
-                        (property, _) => new PropertyAccessExpression(property));
+                        (property, selectExpression)
+                            => new ColumnExpression(property, selectExpression.TableSource.Alias));
             }
 
             protected override Expression VisitConstantExpression(ConstantExpression expression)
@@ -406,7 +407,11 @@ namespace Microsoft.Data.Entity.Relational.Query
                 var selectExpression
                     = new SelectExpression(elementType)
                         {
-                            TableSource = entityType.StorageName
+                            TableSource
+                                = new TableExpression(
+                                    entityType.StorageName,
+                                    _querySource.ItemName.Replace("<generated>_", "t"),
+                                    _querySource)
                         };
 
                 _queryModelVisitor._queriesBySource.Add(_querySource, selectExpression);

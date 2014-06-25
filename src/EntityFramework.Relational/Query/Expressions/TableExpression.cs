@@ -5,24 +5,44 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Query.Sql;
 using Microsoft.Data.Entity.Relational.Utilities;
+using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Relational.Query.Expressions
 {
-    public class IsNotNullExpression : ExtensionExpression
+    public class TableExpression : ExtensionExpression
     {
-        private readonly Expression _operand;
+        private readonly string _table;
+        private readonly string _alias;
 
-        public IsNotNullExpression([NotNull] Expression operand)
-            : base(Check.NotNull(operand, "operand").Type)
+        private readonly IQuerySource _querySource;
+
+        public TableExpression([NotNull] string table, [NotNull] string alias, [NotNull] IQuerySource querySource)
+            : base(typeof(object))
         {
-            _operand = operand;
+            Check.NotEmpty(table, "table");
+            Check.NotEmpty(alias, "alias");
+            Check.NotNull(querySource, "querySource");
+
+            _table = table;
+            _alias = alias;
+            _querySource = querySource;
         }
 
-        public virtual Expression Operand
+        public virtual string Table
         {
-            get { return _operand; }
+            get { return _table; }
+        }
+
+        public string Alias
+        {
+            get { return _alias; }
+        }
+
+        public virtual IQuerySource QuerySource
+        {
+            get { return _querySource; }
         }
 
         public override Expression Accept([NotNull] ExpressionTreeVisitor visitor)
@@ -33,7 +53,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
             if (specificVisitor != null)
             {
-                return specificVisitor.VisitIsNotNullExpression(this);
+                return specificVisitor.VisitTableExpression(this);
             }
 
             return base.Accept(visitor);
@@ -41,11 +61,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         protected override Expression VisitChildren(ExpressionTreeVisitor visitor)
         {
-            var newExpression = visitor.VisitExpression(_operand);
-
-            return newExpression != _operand
-                ? new IsNotNullExpression(newExpression)
-                : this;
+            return this;
         }
     }
 }
