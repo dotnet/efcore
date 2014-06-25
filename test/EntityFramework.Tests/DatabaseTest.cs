@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Tests
             var model = Mock.Of<IModel>();
             var creatorMock = new Mock<DataStoreCreator>();
             creatorMock.Setup(m => m.EnsureCreated(model)).Returns(true);
-            creatorMock.Setup(m => m.EnsureDeleted()).Returns(true);
+            creatorMock.Setup(m => m.EnsureDeleted(model)).Returns(true);
 
             var connection = Mock.Of<DataStoreConnection>();
             var configurationMock = new Mock<DbContextConfiguration>();
@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.Tests
             creatorMock.Verify(m => m.EnsureCreated(model), Times.Once);
 
             Assert.True(database.EnsureDeleted());
-            creatorMock.Verify(m => m.EnsureDeleted(), Times.Once);
+            creatorMock.Verify(m => m.EnsureDeleted(model), Times.Once);
 
             Assert.Same(connection, database.Connection);
         }
@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.Tests
 
             var creatorMock = new Mock<DataStoreCreator>();
             creatorMock.Setup(m => m.EnsureCreatedAsync(model, cancellationToken)).Returns(Task.FromResult(true));
-            creatorMock.Setup(m => m.EnsureDeletedAsync(cancellationToken)).Returns(Task.FromResult(true));
+            creatorMock.Setup(m => m.EnsureDeletedAsync(null, cancellationToken: cancellationToken)).Returns(Task.FromResult(true));
 
             var configurationMock = new Mock<DbContextConfiguration>();
             configurationMock.Setup(m => m.DataStoreCreator).Returns(creatorMock.Object);
@@ -58,7 +58,7 @@ namespace Microsoft.Data.Entity.Tests
             creatorMock.Verify(m => m.EnsureCreatedAsync(model, cancellationToken), Times.Once);
 
             Assert.True(await database.EnsureDeletedAsync(cancellationToken));
-            creatorMock.Verify(m => m.EnsureDeletedAsync(cancellationToken), Times.Once);
+            creatorMock.Verify(m => m.EnsureDeletedAsync(null, cancellationToken: cancellationToken), Times.Once);
         }
     }
 }

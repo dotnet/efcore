@@ -10,8 +10,8 @@ namespace Microsoft.Data.Entity.Storage
 {
     public abstract class DataStoreCreator
     {
-        public abstract bool EnsureDeleted();
-        public abstract Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default(CancellationToken));
+        public abstract bool EnsureDeleted([NotNull] IModel model);
+        public abstract Task<bool> EnsureDeletedAsync([NotNull] IModel model, CancellationToken cancellationToken = default(CancellationToken));
         public abstract bool EnsureCreated([NotNull] IModel model);
         public abstract Task<bool> EnsureCreatedAsync([NotNull] IModel model, CancellationToken cancellationToken = default(CancellationToken));
     }

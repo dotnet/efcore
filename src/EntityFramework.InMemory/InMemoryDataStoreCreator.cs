@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.InMemory
             _dataStore = dataStore;
         }
 
-        public override bool EnsureDeleted()
+        public override bool EnsureDeleted(IModel model)
         {
             if (_dataStore.Database.Any())
             {
@@ -32,9 +32,9 @@ namespace Microsoft.Data.Entity.InMemory
             return false;
         }
 
-        public override Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public override Task<bool> EnsureDeletedAsync(IModel model, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return Task.FromResult(EnsureDeleted());
+            return Task.FromResult(EnsureDeleted(model));
         }
 
         public override bool EnsureCreated(IModel model)

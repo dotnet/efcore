@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.Relational
 
         public abstract Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken));
 
-        public override bool EnsureDeleted()
+        public override bool EnsureDeleted(IModel model)
         {
             if (Exists())
             {
@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.Relational
             return false;
         }
 
-        public override async Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task<bool> EnsureDeletedAsync(IModel model, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (await ExistsAsync(cancellationToken))
             {
