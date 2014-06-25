@@ -22,6 +22,15 @@ namespace Microsoft.Data.Entity.Relational.Update
             = new LazyRef<IReadOnlyList<ColumnModification>>(() => new ColumnModification[0]);
 
         private bool _requiresResultPropagation;
+        
+        /// <summary>
+        ///     This constructor is intended only for use when creating test doubles that will override members
+        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
+        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
+        /// </summary>
+        protected ModificationCommand()
+        {
+        }
 
         public ModificationCommand([NotNull] string tableName, [NotNull] ParameterNameGenerator parameterNameGenerator)
         {

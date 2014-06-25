@@ -61,6 +61,7 @@
     <Compile Include="SqlServerBatchExecutor.cs" />
     <Compile Include="SqlServerMigrationOperationSqlGeneratorFactory.cs" />
     <Compile Include="SqlServerMigrator.cs" />
+    <Compile Include="SqlServerModificationCommandBatchFactory.cs" />
     <Compile Include="SqlServerOptionsExtension.cs" />
     <Compile Include="SqlServerConnection.cs" />
     <Compile Include="SqlServerDataStore.cs" />

@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
@@ -9,10 +9,8 @@ namespace Microsoft.Data.Entity.SQLite
     public class SQLiteBatchExecutor : BatchExecutor
     {
         public SQLiteBatchExecutor(
-            [NotNull] SQLiteSqlGenerator sqlGenerator,
-            [NotNull] SQLiteConnection connection,
-            [NotNull] SQLiteTypeMapper parameterFactory)
-            : base(sqlGenerator, connection, parameterFactory)
+            [NotNull] SQLiteTypeMapper typeMapper)
+            : base(typeMapper)
         {
         }
     }

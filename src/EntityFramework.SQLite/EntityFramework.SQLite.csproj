@@ -57,6 +57,7 @@
     <Compile Include="Query\SQLiteQueryCompilationContext.cs" />
     <Compile Include="Query\SQLiteSqlQueryGenerator.cs" />
     <Compile Include="SQLiteBatchExecutor.cs" />
+    <Compile Include="SQLiteModificationCommandBatchFactory.cs" />
     <Compile Include="SqLiteOptionsExtension.cs" />
     <Compile Include="SQLiteConnection.cs" />
     <Compile Include="SQLiteDataStore.cs" />

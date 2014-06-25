@@ -9,10 +9,8 @@ namespace Microsoft.Data.Entity.SqlServer
     public class SqlServerBatchExecutor : BatchExecutor
     {
         public SqlServerBatchExecutor(
-            [NotNull] SqlServerSqlGenerator sqlGenerator,
-            [NotNull] SqlServerConnection connection,
-            [NotNull] SqlServerTypeMapper parameterFactory)
-            : base(sqlGenerator, connection, parameterFactory)
+            [NotNull] SqlServerTypeMapper typeMapper)
+            : base(typeMapper)
         {
         }
     }

@@ -42,6 +42,9 @@
     <PackageReference Include="Microsoft.Framework.DependencyInjection">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
+    <PackageReference Include="Microsoft.Framework.Logging">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
     <PackageReference Include="xunit.abstractions">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
@@ -67,6 +70,7 @@
     <Compile Include="RelationalConnectionTest.cs" />
     <Compile Include="RelationalDatabaseExtensionsTest.cs" />
     <Compile Include="RelationalDatabaseTest.cs" />
+    <Compile Include="RelationalDataStoreTest.cs" />
     <Compile Include="RelationalObjectArrayValueReaderFactoryTest.cs" />
     <Compile Include="RelationalObjectArrayValueReaderTest.cs" />
     <Compile Include="RelationalTypedValueReaderFactoryTest.cs" />
@@ -83,6 +87,7 @@
     <Compile Include="Model\TableTest.cs" />
     <Compile Include="Update\BatchExecutorTest.cs" />
     <Compile Include="Update\CommandBatchPreparerTest.cs" />
+    <Compile Include="Update\ModificationCommandBatchFactoryTest.cs" />
     <Compile Include="Update\ModificationCommandBatchTest.cs" />
     <Compile Include="Update\ModificationCommandComparerTest.cs" />
     <Compile Include="Update\ModificationCommandTest.cs" />

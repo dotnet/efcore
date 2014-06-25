@@ -54,26 +54,15 @@ namespace Microsoft.Data.Entity.Relational
             get { return new RelationalTypedValueReaderFactory(); }
         }
 
-        public override async Task<int> SaveChangesAsync(
+        public override Task<int> SaveChangesAsync(
             IReadOnlyList<StateEntry> stateEntries,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(stateEntries, "stateEntries");
 
-            var commands = _batchPreparer.BatchCommands(stateEntries);
+            var commandBatches = _batchPreparer.BatchCommands(stateEntries);
 
-            await _connection.OpenAsync(cancellationToken);
-            try
-            {
-                await _batchExecutor.ExecuteAsync(commands, cancellationToken);
-            }
-            finally
-            {
-                _connection.Close();
-            }
-
-            // TODO Return the actual results once we can get them
-            return stateEntries.Count();
+            return _batchExecutor.ExecuteAsync(commandBatches, _connection, cancellationToken);
         }
 
         public override IEnumerable<TResult> Query<TResult>(QueryModel queryModel, StateManager stateManager)
