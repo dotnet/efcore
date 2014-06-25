@@ -98,7 +98,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             command.AddStateEntry(stateEntry);
 
             var batch = new ModificationCommandBatch();
-            batch.AddCommand(command, new ConcreteSqlGenerator());
+            batch.AddCommand(command, new ConcreteSqlGenerator(useBatchHeader: false));
 
             await VerifySqlAsync(batch,
                 "DELETE FROM [T1] WHERE [Col1] = @p0$" + Environment.NewLine);
