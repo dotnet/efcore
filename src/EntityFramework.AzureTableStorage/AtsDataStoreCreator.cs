@@ -11,12 +11,12 @@ namespace Microsoft.Data.Entity.AzureTableStorage
 {
     public class AtsDataStoreCreator : DataStoreCreator
     {
-        public override bool EnsureDeleted()
+        public override bool EnsureDeleted(IModel model)
         {
             throw new NotImplementedException();
         }
 
-        public override Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = new CancellationToken())
+        public override Task<bool> EnsureDeletedAsync(IModel model, CancellationToken cancellationToken = new CancellationToken())
         {
             throw new NotImplementedException();
         }
