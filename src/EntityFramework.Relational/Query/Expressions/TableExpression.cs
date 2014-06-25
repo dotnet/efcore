@@ -3,27 +3,46 @@
 
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Query.Sql;
 using Microsoft.Data.Entity.Relational.Utilities;
+using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Relational.Query.Expressions
 {
-    public class PropertyAccessExpression : ExtensionExpression
+    public class TableExpression : ExtensionExpression
     {
-        private readonly IProperty _property;
+        private readonly string _table;
+        private readonly string _alias;
 
-        public PropertyAccessExpression([NotNull] IProperty property)
-            : base(Check.NotNull(property, "property").PropertyType)
+        private readonly IQuerySource _querySource;
+
+        public TableExpression([NotNull] string table, [NotNull] string alias, [NotNull] IQuerySource querySource)
+            : base(typeof(object))
         {
-            _property = property;
+            Check.NotEmpty(table, "table");
+            Check.NotEmpty(alias, "alias");
+            Check.NotNull(querySource, "querySource");
+
+            _table = table;
+            _alias = alias;
+            _querySource = querySource;
         }
 
-        public new virtual IProperty Property
+        public virtual string Table
         {
-            get { return _property; }
+            get { return _table; }
+        }
+
+        public virtual string Alias
+        {
+            get { return _alias; }
+        }
+
+        public virtual IQuerySource QuerySource
+        {
+            get { return _querySource; }
         }
 
         public override Expression Accept([NotNull] ExpressionTreeVisitor visitor)
@@ -34,7 +53,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
             if (specificVisitor != null)
             {
-                return specificVisitor.VisitPropertyAccessExpression(this);
+                return specificVisitor.VisitTableExpression(this);
             }
 
             return base.Accept(visitor);

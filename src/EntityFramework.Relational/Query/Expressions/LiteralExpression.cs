@@ -15,10 +15,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
         private readonly string _literal;
 
         public LiteralExpression([NotNull] string literal)
-            : base(typeof(string))
+            : base(Check.NotEmpty(literal, "literal").GetType())
         {
-            Check.NotEmpty(literal, "literal");
-
             _literal = literal;
         }
 

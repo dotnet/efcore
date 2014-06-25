@@ -3,8 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
-using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -19,11 +17,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
     public class DefaultSqlQueryGenerator : ThrowingExpressionTreeVisitor, ISqlExpressionVisitor, ISqlQueryGenerator
     {
         private StringBuilder _sql;
-
         private List<CommandParameter> _parameters;
-
-        private int _aliasCount;
-
         private Expression _binaryExpression;
 
         public virtual string GenerateSql(SelectExpression expression)
@@ -32,7 +26,6 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
             _sql = new StringBuilder();
             _parameters = new List<CommandParameter>();
-            _aliasCount = 0;
 
             expression.Accept(this);
 
@@ -44,75 +37,89 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             get { return _sql; }
         }
 
-        public virtual Expression VisitSelectExpression(SelectExpression expression)
+        public virtual Expression VisitSelectExpression(SelectExpression selectExpression)
         {
-            Check.NotNull(expression, "expression");
+            Check.NotNull(selectExpression, "selectExpression");
 
             _sql.Append("SELECT ");
 
-            if (expression.IsDistinct)
+            if (selectExpression.IsDistinct)
             {
                 _sql.Append("DISTINCT ");
             }
 
-            GenerateTop(expression);
+            GenerateTop(selectExpression);
 
-            if (expression.IsStar)
+            if (selectExpression.Projection.Any())
             {
-                _sql.Append("*");
+                VisitJoin(selectExpression.Projection);
             }
             else
             {
-                _sql.AppendJoin(
-                    expression.Projection.Any()
-                        ? expression.Projection.Select(p => DelimitIdentifier(p.StorageName))
-                        : new[] { "1" });
+                _sql.Append("1");
             }
 
             _sql.AppendLine()
                 .Append("FROM ");
 
-            var subSelectExpression = expression.TableSource as SelectExpression;
+            VisitExpression(selectExpression.TableSource);
 
-            if (subSelectExpression != null)
-            {
-                _sql.Append("(")
-                    .Append(VisitExpression(subSelectExpression))
-                    .Append(") AS ")
-                    .Append("t")
-                    .Append(_aliasCount++.ToString(CultureInfo.InvariantCulture));
-            }
-            else
-            {
-                Contract.Assert(expression.TableSource is string, "Expecting TableSource to be a table name at this point.");
-
-                _sql.Append(DelimitIdentifier((string)expression.TableSource));
-            }
-
-            if (expression.Predicate != null)
+            if (selectExpression.Predicate != null)
             {
                 _sql.AppendLine()
                     .Append("WHERE ");
 
-                VisitExpression(expression.Predicate);
+                VisitExpression(selectExpression.Predicate);
             }
 
-            if (expression.OrderBy.Any())
+            if (selectExpression.OrderBy.Any())
             {
                 _sql.AppendLine()
-                    .Append("ORDER BY ")
-                    .AppendJoin(
-                        expression.OrderBy
-                            .Select(o => o.Item2 == OrderingDirection.Asc
-                                ? DelimitIdentifier(o.Item1.StorageName)
-                                : DelimitIdentifier(o.Item1.StorageName) + " DESC"));
+                    .Append("ORDER BY ");
+
+                VisitJoin(selectExpression.OrderBy, t =>
+                    {
+                        VisitExpression(t.Expression);
+
+                        if (t.OrderingDirection == OrderingDirection.Desc)
+                        {
+                            _sql.Append(" DESC");
+                        }
+                    });
             }
 
-            GenerateLimitOffset(expression);
+            GenerateLimitOffset(selectExpression);
 
-            return expression;
+            return selectExpression;
         }
 
+        private void VisitJoin(IReadOnlyList<Expression> expressions)
+        {
+            VisitJoin(expressions, e => VisitExpression(e));
+        }
+
+        private void VisitJoin<T>(IReadOnlyList<T> items, Action<T> itemAction)
+        {
+            for (var i = 0; i < items.Count; i++)
+            {
+                if (i > 0)
+                {
+                    _sql.Append(", ");
+                }
+
+                itemAction(items[i]);
+            }
+        }
+
+        public virtual Expression VisitTableExpression(TableExpression tableExpression)
+        {
+            _sql.Append(DelimitIdentifier(tableExpression.Table))
+                .Append(" AS ")
+                .Append(tableExpression.Alias);
+
+            return tableExpression;
+        }
+  
         protected virtual void GenerateTop([NotNull] SelectExpression expression)
         {
             Check.NotNull(expression, "expression");
@@ -206,57 +213,59 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             return "'" + literal.Replace("'", "''") + "'";
         }
 
-        public virtual Expression VisitPropertyAccessExpression(PropertyAccessExpression expression)
+        public virtual Expression VisitColumnExpression(ColumnExpression columnExpression)
         {
-            Check.NotNull(expression, "expression");
+            Check.NotNull(columnExpression, "columnExpression");
 
-            _sql.Append(DelimitIdentifier(expression.Property.StorageName));
+            _sql.Append(columnExpression.Alias)
+                .Append(".")
+                .Append(DelimitIdentifier(columnExpression.Property.StorageName));
 
-            return expression;
+            return columnExpression;
         }
 
-        public virtual Expression VisitIsNullExpression(IsNullExpression expression)
+        public virtual Expression VisitIsNullExpression(IsNullExpression isNullExpression)
         {
-            Check.NotNull(expression, "expression");
+            Check.NotNull(isNullExpression, "isNullExpression");
 
-            VisitExpression(expression.Operand);
+            VisitExpression(isNullExpression.Operand);
 
             _sql.Append(" IS NULL");
 
-            return expression;
+            return isNullExpression;
         }
 
-        public virtual Expression VisitIsNotNullExpression(IsNotNullExpression expression)
+        public virtual Expression VisitIsNotNullExpression(IsNotNullExpression isNotNullExpression)
         {
-            Check.NotNull(expression, "expression");
+            Check.NotNull(isNotNullExpression, "isNotNullExpression");
 
-            VisitExpression(expression.Operand);
+            VisitExpression(isNotNullExpression.Operand);
 
             _sql.Append(" IS NOT NULL");
 
-            return expression;
+            return isNotNullExpression;
         }
 
-        public virtual Expression VisitLikeExpression(LikeExpression expression)
+        public virtual Expression VisitLikeExpression(LikeExpression likeExpression)
         {
-            Check.NotNull(expression, "expression");
+            Check.NotNull(likeExpression, "likeExpression");
 
-            VisitExpression(expression.Match);
+            VisitExpression(likeExpression.Match);
 
             _sql.Append(" LIKE ");
 
-            VisitExpression(expression.Pattern);
+            VisitExpression(likeExpression.Pattern);
 
-            return expression;
+            return likeExpression;
         }
 
-        public virtual Expression VisitLiteralExpression(LiteralExpression expression)
+        public virtual Expression VisitLiteralExpression(LiteralExpression literalExpression)
         {
-            Check.NotNull(expression, "expression");
+            Check.NotNull(literalExpression, "literalExpression");
 
-            _sql.Append(GenerateLiteral(expression.Literal));
+            _sql.Append(GenerateLiteral(literalExpression.Literal));
 
-            return expression;
+            return literalExpression;
         }
 
         protected override Expression VisitConstantExpression(ConstantExpression expression)
