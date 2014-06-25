@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
 
         protected override void ApplyServices(EntityServicesBuilder builder)
         {
-            builder.AddAzureTableStorage(batching: UseBatching);
+            builder.AddAzureTableStorage();
         }
     }
 }

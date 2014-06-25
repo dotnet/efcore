@@ -25,6 +25,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         private readonly AtsQueryFactory _queryFactory;
         protected readonly AtsConnection Connection;
         internal TableEntityAdapterFactory EntityFactory;
+        private const int MaxBatchOperations = 100;
 
         /// <summary>
         ///     Provided only for testing purposes. Do not use.
@@ -50,6 +51,15 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             Connection = connection;
         }
 
+        public override Task<int> SaveChangesAsync(IReadOnlyList<StateEntry> stateEntries, CancellationToken cancellationToken = new CancellationToken())
+        {
+            if (Connection.Batching)
+            {
+                return ExecuteBatchedChangesAsync(stateEntries, cancellationToken);
+            }
+            return ExecuteChangesAsync(stateEntries, cancellationToken);
+        }
+
         public override IEnumerable<TResult> Query<TResult>(QueryModel queryModel, StateManager stateManager)
         {
             Check.NotNull(queryModel, "queryModel");
@@ -70,7 +80,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             return Query<TResult>(queryModel, stateManager).ToAsyncEnumerable();
         }
 
-        public override async Task<int> SaveChangesAsync(IReadOnlyList<StateEntry> stateEntries, CancellationToken cancellationToken = default(CancellationToken))
+        private async Task<int> ExecuteChangesAsync(IReadOnlyList<StateEntry> stateEntries, CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(stateEntries, "stateEntries");
 
@@ -103,6 +113,61 @@ namespace Microsoft.Data.Entity.AzureTableStorage
                         throw new DbUpdateException("Could not add entity: " + task.Result);
                     }
                     return 1;
+                });
+        }
+
+        private async Task<int> ExecuteBatchedChangesAsync(IReadOnlyList<StateEntry> stateEntries,
+            CancellationToken cancellationToken = new CancellationToken())
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            var tableGroups = stateEntries.GroupBy(s => s.EntityType.StorageName);
+            var allBatchTasks = new List<Task<IList<ITableResult>>>();
+
+            foreach (var tableGroup in tableGroups)
+            {
+                var table = Connection.GetTableReference(tableGroup.Key);
+                var partitionGroups = tableGroup.GroupBy(s =>
+                    {
+                        var property = s.EntityType.GetPropertyByStorageName("PartitionKey");
+                        return s[property];
+                    }
+                    );
+                foreach (var partitionGroup in partitionGroups)
+                {
+                    var batch = new TableBatchOperation();
+                    foreach (var operation in partitionGroup
+                        .Select(entry => GetOperation(entry, EntityFactory.CreateFromStateEntry(entry)))
+                        .Where(operation => operation != null)
+                        )
+                    {
+                        // TODO allow user access to config options: Retry Policy, Secondary Storage, Timeout 
+                        batch.Add(operation);
+                        if (batch.Count >= MaxBatchOperations)
+                        {
+                            allBatchTasks.Add(table.ExecuteBatchAsync(batch, cancellationToken));
+                            batch = new TableBatchOperation();
+                        }
+                    }
+                    if (batch.Count != 0)
+                    {
+                        allBatchTasks.Add(table.ExecuteBatchAsync(batch, cancellationToken));
+                    }
+                }
+            }
+            await Task.WhenAll(allBatchTasks);
+            return InspectBatchResults(allBatchTasks);
+        }
+
+        protected int InspectBatchResults(IList<Task<IList<ITableResult>>> arg)
+        {
+            return CountTableResults(arg, task =>
+                {
+                    var failedResult = task.Result.FirstOrDefault(result => result.HttpStatusCode >= HttpStatusCode.BadRequest);
+                    if (failedResult != default(ITableResult))
+                    {
+                        throw new DbUpdateException("Could not add entity: " + failedResult.Result);
+                    }
+                    return task.Result.Count;
                 });
         }
 

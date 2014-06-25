@@ -7,7 +7,6 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.AzureTableStorage.Adapters;
 using Microsoft.Data.Entity.AzureTableStorage.Interfaces;
-using Microsoft.Data.Entity.AzureTableStorage.Query;
 using Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.WindowsAzure.Storage.Table;
@@ -22,7 +21,9 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
             : base(connection,new TableEntityAdapterFactory())
         {
             _fakeConnection = connection;
+            _fakeConnection.Batching = false;
             _fakeConnection.ClearQueue();
+            _fakeConnection.Tables.TryAdd("Test1", new FakeConnection.TestCloudTable(_fakeConnection, "Test1"));
         }
 
         private Task<TResult>[] SetupResults<TResult>(IEnumerable<TResult> tableResults)
@@ -86,7 +87,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
         [Fact]
         public void It_saves_changes()
         {
-            _fakeConnection.QueueResult("Test1", TestTableResult.OK());
+            _fakeConnection.QueueResult(TestTableResult.OK());
             var testEntries = new List<StateEntry> { TestStateEntry.Mock().WithState(EntityState.Added).WithType("Test1") };
             var changes = SaveChangesAsync(testEntries).Result;
             Assert.Equal(1, changes);

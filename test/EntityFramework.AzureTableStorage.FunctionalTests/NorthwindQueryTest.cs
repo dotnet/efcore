@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.FunctionalTests;
 using Northwind;
@@ -25,54 +24,34 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
         }
     }
 
-    public class NorthwindQueryFixture : NorthwindQueryFixtureBase, IDisposable
+    public class NorthwindQueryFixture : NorthwindQueryFixtureBase
     {
         private readonly DbContextOptions _options;
 
         public IModel CreateAzureTableStorageModel()
         {
             var model = CreateModel();
-            var tableSuffix = "FunctionalTests";
+            const string tableSuffix = "FunctionalTests";
             var builder = new ModelBuilder(model);
             builder.Entity<Customer>()
-                .AzureTableProperties(atp =>
-                {
-                    atp.PartitionKey(s => s.City);
-                    atp.RowKey(s => s.CustomerID);
-                    atp.Timestamp("Timestamp", true);
-                })
+                .PartitionAndRowKey(s => s.City, s => s.CustomerID)
+                .Timestamp("Timestamp", true)
                 .StorageName("Customer" + tableSuffix);
             builder.Entity<Employee>()
-                .AzureTableProperties(atp =>
-                {
-                    atp.PartitionKey(s => s.City);
-                    atp.RowKey(s => s.EmployeeID);
-                    atp.Timestamp("Timestamp", true);
-                })
+                .PartitionAndRowKey(s => s.City, s => s.EmployeeID)
+                .Timestamp("Timestamp", true)
                 .StorageName("Employee" + tableSuffix);
             builder.Entity<Order>()
-                .AzureTableProperties(atp =>
-                {
-                    atp.PartitionKey(s => s.CustomerID);
-                    atp.RowKey(s => s.OrderID);
-                    atp.Timestamp("Timestamp", true);
-                })
+                .PartitionAndRowKey(s => s.CustomerID, s => s.OrderID)
+                .Timestamp("Timestamp", true)
                 .StorageName("Order" + tableSuffix);
             builder.Entity<Product>()
-                .AzureTableProperties(atp =>
-                {
-                    atp.PartitionKey(s => s.SupplierID);
-                    atp.RowKey(s => s.ProductID);
-                    atp.Timestamp("Timestamp", true);
-                })
+                .PartitionAndRowKey(s => s.SupplierID, s => s.ProductID)
+                .Timestamp("Timestamp", true)
                 .StorageName("Product" + tableSuffix);
             builder.Entity<OrderDetail>()
-                .AzureTableProperties(atp =>
-                {
-                    atp.PartitionKey(s => s.OrderID);
-                    atp.RowKey(s => s.ProductID);
-                    atp.Timestamp("Timestamp", true);
-                })
+                .PartitionAndRowKey(s => s.OrderID, s => s.ProductID)
+                .Timestamp("Timestamp", true)
                 .StorageName("OrderDetail" + tableSuffix);
 
             return builder.Model;
@@ -87,7 +66,10 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
 
             using (var context = new DbContext(_options))
             {
-                context.Database.AsAzureTableStorageDatabase().CreateTables();
+                if (!context.Database.EnsureCreated())
+                {
+                    return;
+                }
                 context.Set<Customer>().AddRange(NorthwindData.Customers);
                 context.Set<Employee>().AddRange(NorthwindData.Employees);
                 context.Set<Order>().AddRange(NorthwindData.Orders);
@@ -100,14 +82,6 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
         public DbContext CreateContext()
         {
             return new DbContext(_options);
-        }
-
-        public void Dispose()
-        {
-            using (var context = new DbContext(_options))
-            {
-                context.Database.AsAzureTableStorageDatabase().DeleteTables();
-            }
         }
     }
 }

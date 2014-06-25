@@ -13,8 +13,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage
 {
     public class AtsConnection : DataStoreConnection
     {
-        private readonly string _connectionString;
         private readonly CloudStorageAccountWrapper _account;
+        private bool _batching;
 
         /// <summary>
         ///     For testing
@@ -33,14 +33,21 @@ namespace Microsoft.Data.Entity.AzureTableStorage
                 .OfType<AtsOptionsExtension>()
                 .Single();
 
-            _connectionString = storeConfig.ConnectionString;
+            var connectionString = storeConfig.ConnectionString;
+            _batching = storeConfig.UseBatching;
 
-            _account = new CloudStorageAccountWrapper(_connectionString);
+            _account = new CloudStorageAccountWrapper(connectionString);
         }
 
         public virtual CloudStorageAccountWrapper Account
         {
             get { return _account; }
+        }
+
+        public virtual bool Batching
+        {
+            get { return _batching; }
+            internal set { _batching = value; }
         }
 
         public virtual ICloudTable GetTableReference([NotNull] string tableName)

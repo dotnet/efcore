@@ -133,12 +133,15 @@
     <value>Cannot access a public setter and getter for the property '{propertyName}' of type '{typeName}'</value>
   </data>
   <data name="AtsDatabaseNotInUse" xml:space="preserve">
-    <value>This database cannot be used as an AzureTableStorageDatabase</value>
+    <value>This database cannot be used as an Azure Table Storage Database</value>
   </data>
   <data name="InvalidReadType" xml:space="preserve">
     <value>Cannot read value of type '{typeName}' from '{accessName}'</value>
   </data>
   <data name="PropertyWithStorageNameNotFound" xml:space="preserve">
     <value>A property with the storage name '{property}' on entity type '{entityType}' could not be found. Ensure that the property exists, has been included in the model, and has been configured with storage name specified.</value>
+  </data>
+  <data name="AtsConnectionNotInUse" xml:space="preserve">
+    <value>This connection cannot be used as an Azure Table Storage Connection</value>
   </data>
 </root>

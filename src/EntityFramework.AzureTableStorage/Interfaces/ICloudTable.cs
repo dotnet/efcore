@@ -15,9 +15,10 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Interfaces
     {
         Task<ITableResult> ExecuteAsync([NotNull] TableOperation operation, CancellationToken cancellationToken = default(CancellationToken));
         Task<IList<ITableResult>> ExecuteBatchAsync([NotNull] TableBatchOperation batch, CancellationToken cancellationToken = default(CancellationToken));
-        void CreateIfNotExists();
-        Task CreateIfNotExistsAsync(CancellationToken cancellationToken = default(CancellationToken));
+        bool CreateIfNotExists();
+        Task<bool> CreateIfNotExistsAsync(CancellationToken cancellationToken = default(CancellationToken));
+        bool DeleteIfExists();
+        Task<bool> DeleteIfExistsAsync(CancellationToken cancellationToken = default(CancellationToken));
         IEnumerable<TElement> ExecuteQuery<TElement>([NotNull] AtsTableQuery query, [NotNull] Func<AtsNamedValueBuffer, TElement> resolver) where TElement : class;
-        void DeleteIfExists();
     }
 }

@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
 {
     using ResultTaskList = IList<ITableResult>;
 
-    public class AtsBatchedDataStoreTests : AtsBatchedDataStore, IClassFixture<FakeConnection>
+    public class AtsBatchedDataStoreTests : AtsDataStore, IClassFixture<FakeConnection>
     {
         private readonly FakeConnection _fakeConnection;
 
@@ -24,6 +24,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
             : base(connection, new TableEntityAdapterFactory())
         {
             _fakeConnection = connection;
+            _fakeConnection.Batching = true;
             _fakeConnection.ClearQueue();
         }
 
@@ -99,8 +100,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
             var testEntries = new List<StateEntry>();
             for (var i = 0; i < expectedChanges; i++)
             {
-                var title = "TestType";
-                _fakeConnection.QueueResult(title, TestTableResult.OK());
+                const string title = "TestType";
+                _fakeConnection.QueueResult(TestTableResult.OK());
                 testEntries.Add(TestStateEntry.Mock().WithState(EntityState.Added).WithType(title).WithProperty("PartitionKey", "A"));
             }
             var actualChanges = SaveChangesAsync(testEntries).Result;

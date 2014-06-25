@@ -68,19 +68,19 @@
       <DependentUpon>Resources.tt</DependentUpon>
     </Compile>
     <Compile Include="AtsDatabase.cs" />
-    <Compile Include="AtsDatabaseExtensions.cs" />
-    <Compile Include="AtsBatchedDataStore.cs" />
     <Compile Include="AtsConnection.cs" />
     <Compile Include="AtsDataStore.cs" />
     <Compile Include="AtsDataStoreCreator.cs" />
     <Compile Include="AtsDataStoreSource.cs" />
-    <Compile Include="AtsDbContextExtensions.cs" />
-    <Compile Include="EntityServicesBuilderExtensions.cs" />
+    <Compile Include="AzureAccountException.cs" />
+    <Compile Include="DbUpdateException.cs" />
     <Compile Include="AtsOptionsExtension.cs" />
     <Compile Include="AtsValueGeneratorCache.cs" />
-    <Compile Include="EntityBuilderExtensions.cs" />
-    <Compile Include="Exceptions\AzureAccountException.cs" />
-    <Compile Include="Exceptions\DbUpdateException.cs" />
+    <Compile Include="Extensions\AtsDatabaseExtensions.cs" />
+    <Compile Include="Extensions\AtsDbContextExtensions.cs" />
+    <Compile Include="Extensions\DataStoreConnectionExtensions.cs" />
+    <Compile Include="Extensions\EntityBuilderExtensions.cs" />
+    <Compile Include="Extensions\EntityServicesBuilderExtensions.cs" />
     <Compile Include="Interfaces\ICloudStorageAccount.cs" />
     <Compile Include="Interfaces\ICloudTable.cs" />
     <Compile Include="Interfaces\ICloudTableClient.cs" />

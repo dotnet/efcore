@@ -2,90 +2,98 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.AzureTableStorage.Interfaces;
 using Microsoft.Data.Entity.AzureTableStorage.Query;
-using Microsoft.Data.Entity.AzureTableStorage.Wrappers;
 using Microsoft.WindowsAzure.Storage.Table;
-using Moq;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers
 {
     public class FakeConnection : AtsConnection
     {
-        private Dictionary<string, TestCloudTable> _tables = new Dictionary<string, TestCloudTable>();
-        private Mock<CloudStorageAccountWrapper> _account;
+        public ConcurrentDictionary<string, TestCloudTable> Tables = new ConcurrentDictionary<string, TestCloudTable>();
+        private readonly Queue<ITableResult> _queue = new Queue<ITableResult>();
 
-        public FakeConnection()
-        {
-            _account = new Mock<CloudStorageAccountWrapper>();
-            var client = new Mock<ICloudTableClient>();
-            _account.Setup(s => s.CreateCloudTableClient()).Returns(client.Object);
-            client.Setup(s => s.ListTables()).Returns(_tables.Values);
-        }
         public override ICloudTable GetTableReference(string tableName)
         {
-            _tables[tableName] = _tables.ContainsKey(tableName) ? _tables[tableName] : new TestCloudTable(this);
-            return _tables[tableName];
+            TestCloudTable table;
+            if (Tables.TryGetValue(tableName, out table))
+            {
+                return table;
+            }
+            return new TestCloudTable(this, tableName);
         }
 
-        public void QueueResult(string tableName, ITableResult nextResult)
+        public void QueueResult(ITableResult nextResult)
         {
-            ((TestCloudTable)GetTableReference(tableName)).Queue.Enqueue(nextResult);
+            _queue.Enqueue(nextResult);
         }
 
         public int CreateTableRequests { get; private set; }
 
         public void ClearQueue()
         {
-            _tables = new Dictionary<string, TestCloudTable>();
+            Tables = new ConcurrentDictionary<string, TestCloudTable>();
         }
 
-        public override CloudStorageAccountWrapper Account
+        public class TestCloudTable : ICloudTable
         {
-            get { return _account.Object; }
-        }
-
-        private class TestCloudTable : ICloudTable
-        {
-            public TestCloudTable(FakeConnection context)
+            public TestCloudTable(FakeConnection context, string name)
             {
                 _context = context;
+                Name = name;
             }
 
-            public readonly Queue<ITableResult> Queue = new Queue<ITableResult>();
+            public string Name { get; private set; }
+
             private readonly FakeConnection _context;
 
             public Task<ITableResult> ExecuteAsync(TableOperation operation, CancellationToken cancellationToken = new CancellationToken())
             {
-                return Task.FromResult<ITableResult>(Queue.Dequeue());
+                return Task.FromResult(_context._queue.Dequeue());
             }
 
             public Task<IList<ITableResult>> ExecuteBatchAsync(TableBatchOperation batch, CancellationToken cancellationToken = new CancellationToken())
             {
-                return Task.FromResult<IList<ITableResult>>(Queue.Take(batch.Count).ToList());
+                return Task.FromResult<IList<ITableResult>>(_context._queue.Take(batch.Count).ToList());
             }
 
-            public void CreateIfNotExists()
+            public bool CreateIfNotExists()
             {
-                _context.CreateTableRequests++;
+                if (_context.Tables.ContainsKey(Name))
+                {
+                    return false;
+                }
+                _context.Tables.GetOrAdd(Name, this);
+                return true;
             }
 
-            public Task CreateIfNotExistsAsync(CancellationToken cancellationToken = new CancellationToken())
+            public Task<bool> CreateIfNotExistsAsync(CancellationToken cancellationToken = default(CancellationToken))
             {
-                _context.CreateTableRequests++;
-                return Task.Factory.StartNew(() => true);
+                return Task.Run(() => CreateIfNotExists(), cancellationToken);
+            }
+
+            public Task<bool> DeleteIfExistsAsync(CancellationToken cancellationToken = new CancellationToken())
+            {
+                return Task.Run(() => DeleteIfExists(), cancellationToken);
+            }
+
+            public bool DeleteIfExists()
+            {
+                if (_context.Tables.ContainsKey(Name))
+                {
+                    TestCloudTable value;
+                    _context.Tables.TryRemove(Name, out value);
+                    return true;
+                }
+                return false;
             }
 
             public IEnumerable<TElement> ExecuteQuery<TElement>(AtsTableQuery query, Func<AtsNamedValueBuffer, TElement> resolver) where TElement : class
-            {
-                throw new NotImplementedException();
-            }
-
-            public void DeleteIfExists()
             {
                 throw new NotImplementedException();
             }
