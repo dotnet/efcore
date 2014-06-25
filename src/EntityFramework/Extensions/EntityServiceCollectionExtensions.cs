@@ -30,7 +30,6 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddSingleton<ClrPropertyGetterSource>()
                 .AddSingleton<ClrPropertySetterSource>()
                 .AddSingleton<ClrCollectionAccessorSource>()
-                .AddSingleton<NavigationAccessorSource>()
                 .AddSingleton<EntityMaterializerSource>()
                 .AddSingleton<CompositeEntityKeyFactory>()
                 .AddSingleton<MemberMapper>()

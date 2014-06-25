@@ -14,19 +14,32 @@ namespace Microsoft.Data.Entity.Relational.Update
 {
     public class CommandBatchPreparer
     {
+        private readonly ModificationCommandBatchFactory _modificationCommandBatchFactory;
         private readonly ParameterNameGeneratorFactory _parameterNameGeneratorFactory;
         private readonly GraphFactory _graphFactory;
         private readonly ModificationCommandComparer _modificationCommandComparer;
+        
+        /// <summary>
+        ///     This constructor is intended only for use when creating test doubles that will override members
+        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
+        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
+        /// </summary>
+        protected CommandBatchPreparer()
+        {
+        }
 
         public CommandBatchPreparer(
+            [NotNull] ModificationCommandBatchFactory modificationCommandBatchFactory,
             [NotNull] ParameterNameGeneratorFactory parameterNameGeneratorFactory,
             [NotNull] GraphFactory graphFactory,
             [NotNull] ModificationCommandComparer modificationCommandComparer)
         {
+            Check.NotNull(modificationCommandBatchFactory, "modificationCommandBatchFactory");
             Check.NotNull(parameterNameGeneratorFactory, "parameterNameGeneratorFactory");
             Check.NotNull(graphFactory, "graphFactory");
             Check.NotNull(modificationCommandComparer, "modificationCommandComparer");
 
+            _modificationCommandBatchFactory = modificationCommandBatchFactory;
             _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
             _graphFactory = graphFactory;
             _modificationCommandComparer = modificationCommandComparer;
@@ -37,9 +50,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             Check.NotNull(stateEntries, "stateEntries");
 
             var modificationCommandGraph = _graphFactory.Create<ModificationCommand>();
-            var parameterNameGenerator = _parameterNameGeneratorFactory.Create();
-            // TODO: Handle multiple state entries that update the same row
-            var commands = stateEntries.Select(e => new ModificationCommand(e.EntityType.StorageName, parameterNameGenerator).AddStateEntry(e));
+            var commands = CreateModificationCommands(stateEntries);
 
             PopulateModificationCommandGraph(modificationCommandGraph, commands);
             var sortedCommandSets = modificationCommandGraph.TopologicalSort();
@@ -51,7 +62,19 @@ namespace Microsoft.Data.Entity.Relational.Update
 
             // TODO: Note that the code below appears to do batching, but it doesn't really do it because
             // it always creates a new batch for each insert, update, or delete operation.
-            return sortedCommandSets.SelectMany(mc => mc).Select(mc => new ModificationCommandBatch(new[] { mc }));
+            return sortedCommandSets.SelectMany(mc => mc).Select(mc =>
+                {
+                    var batch = _modificationCommandBatchFactory.Create();
+                    _modificationCommandBatchFactory.AddCommand(batch, mc);
+                    return batch;
+                });
+        }
+
+        protected virtual IEnumerable<ModificationCommand> CreateModificationCommands([NotNull] IReadOnlyList<StateEntry> stateEntries)
+        {
+            var parameterNameGenerator = _parameterNameGeneratorFactory.Create();
+            // TODO: Handle multiple state entries that update the same row
+            return stateEntries.Select(e => new ModificationCommand(e.EntityType.StorageName, parameterNameGenerator).AddStateEntry(e));
         }
 
         // To avoid violating store constraints the modification commands must be sorted
@@ -62,7 +85,7 @@ namespace Microsoft.Data.Entity.Relational.Update
         // 2. Commands deleting rows or modifying the foreign key values must precede
         //     commands deleting rows or modifying the candidate key values (when supported) of rows
         //     that are currently being referenced by the former
-        public virtual void PopulateModificationCommandGraph(
+        protected virtual void PopulateModificationCommandGraph(
             [NotNull] Graph<ModificationCommand> modificationCommandGraph,
             [NotNull] IEnumerable<ModificationCommand> commands)
         {

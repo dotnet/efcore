@@ -96,58 +96,6 @@ namespace Microsoft.Data.Entity.Metadata
             return EntityTypes.SelectMany(et => et.ForeignKeys).Where(fk => fk.ReferencedEntityType == entityType);
         }
 
-        public virtual IReadOnlyList<IEntityType> TopologicalSort()
-        {
-            if (!_entities.HasValue)
-            {
-                return ImmutableList<EntityType>.Empty;
-            }
-
-            var sorted = new List<IEntityType>();
-            var visiting = new HashSet<IEntityType>();
-            var visited = new HashSet<IEntityType>();
-
-            foreach (var entityType in EntityTypes)
-            {
-                TopologicalSortVisit(entityType, sorted, visiting, visited);
-            }
-
-            return sorted;
-        }
-
-        private static void TopologicalSortVisit(
-            IEntityType entityType,
-            ICollection<IEntityType> sorted,
-            ISet<IEntityType> visiting,
-            ISet<IEntityType> visited)
-        {
-            if (visiting.Contains(entityType)) // TODO: Support cycle-breaking in UP?
-            {
-                throw new InvalidOperationException(
-                    Strings.FormatCircularDependency(
-                        visiting
-                            .Concat(new[] { entityType })
-                            .Reverse()
-                            .Select(et => et.Name).Join(" -> ")));
-            }
-
-            if (visited.Contains(entityType))
-            {
-                return;
-            }
-
-            visited.Add(entityType);
-            visiting.Add(entityType);
-
-            foreach (var predecessor in entityType.ForeignKeys.Select(fk => fk.ReferencedEntityType))
-            {
-                TopologicalSortVisit(predecessor, sorted, visiting, visited);
-            }
-
-            visiting.Remove(entityType);
-            sorted.Add(entityType);
-        }
-
         public virtual string StorageName { get; [param: CanBeNull] set; }
 
         IEntityType IModel.TryGetEntityType(Type type)

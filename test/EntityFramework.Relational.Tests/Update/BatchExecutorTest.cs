@@ -1,20 +1,13 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Common;
+using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.ChangeTracking;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.Relational.Update;
-using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Fallback;
 using Moq;
-using Moq.Protected;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Relational.Tests.Update
@@ -22,252 +15,48 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
     public class BatchExecutorTest
     {
         [Fact]
-        public async void ExecuteAsync_executes_batch_commands_and_consumes_reader()
+        public void Constructor_checks_arguments()
         {
-            var stateEntry = CreateStateEntry(EntityState.Added);
-            var command = new ModificationCommand("T1", new ParameterNameGenerator());
-            command.AddStateEntry(stateEntry);
-
-            var batch = new ModificationCommandBatch(new[] { command });
-            var mockReader = SetupMockDataReader();
-            var connection = SetupMockConnection(mockReader.Object);
-
-            var executor = new BatchExecutor(new Mock<SqlGenerator> { CallBase = true }.Object, connection, new RelationalTypeMapper());
-
-            await executor.ExecuteAsync(new[] { batch });
-
-            mockReader.Verify(r => r.ReadAsync(It.IsAny<CancellationToken>()), Times.Once);
-            mockReader.Verify(r => r.NextResultAsync(It.IsAny<CancellationToken>()), Times.Once);
+            Assert.Equal(
+                "typeMapper",
+                // ReSharper disable once AssignNullToNotNullAttribute
+                Assert.Throws<ArgumentNullException>(() =>
+                    new BatchExecutor(null)).ParamName);
         }
 
         [Fact]
-        public async void ExecuteAsync_saves_store_generated_values()
+        public async Task ExecuteAsync_checks_arguments()
         {
-            var stateEntry = CreateStateEntry(EntityState.Added, ValueGenerationOnSave.WhenInserting);
-            var command = new ModificationCommand("T1", new ParameterNameGenerator());
-            command.AddStateEntry(stateEntry);
+            var batchExecutor = new BatchExecutor(new RelationalTypeMapper());
 
-            var batch = new ModificationCommandBatch(new[] { command });
-            var mockReader = SetupMockDataReader(new[] { "Col1" }, new List<object[]> { new object[] { 42 } });
-            var connection = SetupMockConnection(mockReader.Object);
+            Assert.Equal(
+                "commandBatches",
+                // ReSharper disable once AssignNullToNotNullAttribute
+                (await Assert.ThrowsAsync<ArgumentNullException>(() =>
+                    batchExecutor.ExecuteAsync(null, new Mock<RelationalConnection>().Object))).ParamName);
 
-            var executor = new BatchExecutor(new Mock<SqlGenerator> { CallBase = true }.Object, connection, new RelationalTypeMapper());
-
-            await executor.ExecuteAsync(new[] { batch });
-
-            Assert.Equal(42, stateEntry[stateEntry.EntityType.GetProperty("Col1")]);
-            Assert.Equal("Test", stateEntry[stateEntry.EntityType.GetProperty("Col2")]);
+            Assert.Equal(
+                "connection",
+                // ReSharper disable once AssignNullToNotNullAttribute
+                (await Assert.ThrowsAsync<ArgumentNullException>(() =>
+                    batchExecutor.ExecuteAsync(Enumerable.Empty<ModificationCommandBatch>(), null))).ParamName);
         }
 
         [Fact]
-        public async void ExecuteAsync_saves_store_generated_values_on_non_key_columns()
+        public async Task ExecuteAsync_delegates()
         {
-            var stateEntry = CreateStateEntry(
-                EntityState.Added, ValueGenerationOnSave.WhenInserting, ValueGenerationOnSave.WhenInsertingAndUpdating);
+            var relationalTypeMapper = new RelationalTypeMapper();
+            var batchExecutor = new BatchExecutor(relationalTypeMapper);
 
-            var command = new ModificationCommand("T1", new ParameterNameGenerator());
-            command.AddStateEntry(stateEntry);
-
-            var batch = new ModificationCommandBatch(new[] { command });
-            var mockReader = SetupMockDataReader(new[] { "Col1", "Col2" }, new List<object[]> { new object[] { 42, "FortyTwo" } });
-            var connection = SetupMockConnection(mockReader.Object);
-
-            var executor = new BatchExecutor(new Mock<SqlGenerator> { CallBase = true }.Object, connection, new RelationalTypeMapper());
-
-            await executor.ExecuteAsync(new[] { batch });
-
-            Assert.Equal(42, stateEntry[stateEntry.EntityType.GetProperty("Col1")]);
-            Assert.Equal("FortyTwo", stateEntry[stateEntry.EntityType.GetProperty("Col2")]);
-        }
-
-        [Fact]
-        public async void ExecuteAsync_saves_store_generated_values_when_updating()
-        {
-            var stateEntry = CreateStateEntry(
-                EntityState.Modified, ValueGenerationOnSave.WhenInserting, ValueGenerationOnSave.WhenInsertingAndUpdating);
-
-            var command = new ModificationCommand("T1", new ParameterNameGenerator());
-            command.AddStateEntry(stateEntry);
-
-            var batch = new ModificationCommandBatch(new[] { command });
-            var mockReader = SetupMockDataReader(new[] { "Col2" }, new List<object[]> { new object[] { "FortyTwo" } });
-            var connection = SetupMockConnection(mockReader.Object);
-
-            var executor = new BatchExecutor(new Mock<SqlGenerator> { CallBase = true }.Object, connection, new RelationalTypeMapper());
-
-            await executor.ExecuteAsync(new[] { batch });
-
-            Assert.Equal(1, stateEntry[stateEntry.EntityType.GetProperty("Col1")]);
-            Assert.Equal("FortyTwo", stateEntry[stateEntry.EntityType.GetProperty("Col2")]);
-        }
-
-        [Fact]
-        public async void Exception_thrown_for_more_than_one_row_returned_for_single_command()
-        {
-            var stateEntry = CreateStateEntry(EntityState.Added, ValueGenerationOnSave.WhenInserting);
-            var command = new ModificationCommand("T1", new ParameterNameGenerator());
-            command.AddStateEntry(stateEntry);
-
-            var batch = new ModificationCommandBatch(new[] { command });
-            var mockReader = SetupMockDataReader(new[] { "Col1" }, new List<object[]>
-                {
-                    new object[] { 42 },
-                    new object[] { 43 }
-                });
-            var connection = SetupMockConnection(mockReader.Object);
-
-            var executor = new BatchExecutor(new Mock<SqlGenerator> { CallBase = true }.Object, connection, new RelationalTypeMapper());
-
-            Assert.Equal(Strings.TooManyRowsForModificationCommand,
-                (await Assert.ThrowsAsync<DbUpdateException>(
-                    async () => await executor.ExecuteAsync(new[] { batch }))).Message);
-        }
-
-        [Fact]
-        public async void Exception_thrown_if_rows_returned_for_command_without_store_generated_values()
-        {
-            var stateEntry = CreateStateEntry(EntityState.Added);
-            var command = new ModificationCommand("T1", new ParameterNameGenerator());
-            command.AddStateEntry(stateEntry);
-
-            var batch = new ModificationCommandBatch(new[] { command });
-            var mockReader = SetupMockDataReader(new[] { "Col1" }, new List<object[]> { new object[] { 42 } });
-            var connection = SetupMockConnection(mockReader.Object);
-
-            var executor = new BatchExecutor(new Mock<SqlGenerator> { CallBase = true }.Object, connection, new RelationalTypeMapper());
-
-            Assert.Equal(Strings.FormatUpdateConcurrencyException(0, 1),
-                (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
-                    async () => await executor.ExecuteAsync(new[] { batch }))).Message);
-        }
-
-        [Fact]
-        public async void Exception_thrown_if_no_rows_returned_for_command_with_store_generated_values()
-        {
-            var stateEntry = CreateStateEntry(EntityState.Added, ValueGenerationOnSave.WhenInserting);
-            var command = new ModificationCommand("T1", new ParameterNameGenerator());
-            command.AddStateEntry(stateEntry);
-
-            var batch = new ModificationCommandBatch(new[] { command });
-            var mockReader = SetupMockDataReader(new[] { "Col1" });
-            var connection = SetupMockConnection(mockReader.Object);
-
-            var executor = new BatchExecutor(new Mock<SqlGenerator> { CallBase = true }.Object, connection, new RelationalTypeMapper());
-
-            Assert.Equal(Strings.FormatUpdateConcurrencyException(1, 0),
-                (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
-                    async () => await executor.ExecuteAsync(new[] { batch }))).Message);
-        }
-
-        private RelationalConnection SetupMockConnection(DbDataReader dataReader)
-        {
-            var mockConnection = new Mock<DbConnection>();
-            var mockCommand = new Mock<DbCommand>();
-            mockConnection
-                .Protected()
-                .Setup<DbCommand>("CreateDbCommand")
-                .Returns(mockCommand.Object);
-            mockCommand
-                .Protected()
-                .Setup<DbParameter>("CreateDbParameter")
-                .Returns(Mock.Of<DbParameter>());
-            mockCommand
-                .Protected()
-                .SetupGet<DbParameterCollection>("DbParameterCollection")
-                .Returns(Mock.Of<DbParameterCollection>());
-
-            var tcs = new TaskCompletionSource<DbDataReader>();
-            tcs.SetResult(dataReader);
-
-            mockCommand
-                .Protected()
-                .Setup<Task<DbDataReader>>("ExecuteDbDataReaderAsync", ItExpr.IsAny<CommandBehavior>(), ItExpr.IsAny<CancellationToken>())
-                .Returns(tcs.Task);
-
+            var mockModificationCommandBatch = new Mock<ModificationCommandBatch>();
             var mockRelationalConnection = new Mock<RelationalConnection>();
-            mockRelationalConnection.Setup(m => m.DbConnection).Returns(mockConnection.Object);
+            var cancellationToken = new CancellationTokenSource().Token;
 
-            return mockRelationalConnection.Object;
-        }
+            await batchExecutor.ExecuteAsync(new[] { mockModificationCommandBatch.Object }, mockRelationalConnection.Object, cancellationToken);
 
-        private static Mock<DbDataReader> SetupMockDataReader(string[] columnNames = null, IList<object[]> results = null)
-        {
-            results = results ?? new List<object[]>();
-            columnNames = columnNames ?? new string[0];
-            var rowIndex = 0;
-            object[] currentRow = null;
-
-            var mockDataReader = new Mock<DbDataReader>();
-
-            mockDataReader.Setup(r => r.FieldCount).Returns(columnNames.Length);
-            mockDataReader.Setup(r => r.GetName(It.IsAny<int>())).Returns((int columnIdx) => columnNames[columnIdx]);
-            mockDataReader.Setup(r => r.GetValue(It.IsAny<int>())).Returns((int columnIdx) => currentRow[columnIdx]);
-            mockDataReader.Setup(r => r.GetFieldValue<int>(It.IsAny<int>())).Returns((int columnIdx) => (int)currentRow[columnIdx]);
-            mockDataReader.Setup(r => r.GetFieldValue<string>(It.IsAny<int>())).Returns((int columnIdx) => (string)currentRow[columnIdx]);
-            mockDataReader.Setup(r => r.GetFieldValue<object>(It.IsAny<int>())).Returns((int columnIdx) => currentRow[columnIdx]);
-
-            mockDataReader
-                .Setup(r => r.ReadAsync(It.IsAny<CancellationToken>()))
-                .Callback(() => currentRow = rowIndex < results.Count ? results[rowIndex++] : null)
-                .Returns(() =>
-                    {
-                        var tcs = new TaskCompletionSource<bool>();
-                        tcs.SetResult(currentRow != null);
-                        return tcs.Task;
-                    });
-
-            return mockDataReader;
-        }
-
-        private class T1
-        {
-            public int Col1 { get; set; }
-            public string Col2 { get; set; }
-        }
-
-        private static IModel BuildModel(ValueGenerationOnSave keyStrategy, ValueGenerationOnSave nonKeyStrategy)
-        {
-            var model = new Metadata.Model();
-
-            var entityType = new EntityType(typeof(T1));
-
-            var key = entityType.AddProperty("Col1", typeof(int));
-            key.ValueGenerationOnSave = keyStrategy;
-            entityType.SetKey(key);
-
-            var nonKey = entityType.AddProperty("Col2", typeof(string));
-            nonKey.ValueGenerationOnSave = nonKeyStrategy;
-
-            model.AddEntityType(entityType);
-
-            return model;
-        }
-
-        private static DbContextConfiguration CreateConfiguration(IModel model)
-        {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddEntityFramework().AddInMemoryStore();
-            return new DbContext(serviceCollection.BuildServiceProvider(),
-                new DbContextOptions()
-                    .UseInMemoryStore(persist: false)
-                    .UseModel(model))
-                .Configuration;
-        }
-
-        private static StateEntry CreateStateEntry(
-            EntityState entityState,
-            ValueGenerationOnSave keyStrategy = ValueGenerationOnSave.None,
-            ValueGenerationOnSave nonKeyStrategy = ValueGenerationOnSave.None)
-        {
-            var model = BuildModel(keyStrategy, nonKeyStrategy);
-
-            var configuration = CreateConfiguration(model);
-            var stateEntry = configuration.Services.StateEntryFactory.Create(
-                model.GetEntityType("T1"), new T1 { Col1 = 1, Col2 = "Test" });
-
-            stateEntry.EntityState = entityState;
-
-            return stateEntry;
+            mockRelationalConnection.Verify(rc => rc.OpenAsync(cancellationToken));
+            mockRelationalConnection.Verify(rc => rc.Close());
+            mockModificationCommandBatch.Verify(mcb => mcb.ExecuteAsync(mockRelationalConnection.Object, relationalTypeMapper, cancellationToken));
         }
     }
 }

@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 #if !INTERNALS_INVISIBLE
 
 [assembly: InternalsVisibleTo("EntityFramework.Tests")]
+[assembly: InternalsVisibleTo("EntityFramework.AzureTableStorage.Tests")]
 [assembly: InternalsVisibleTo("EntityFramework.SqlServer.Tests")]
 
 // for Moq

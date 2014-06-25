@@ -125,6 +125,7 @@
     <Compile Include="Update\DbUpdateException.cs" />
     <Compile Include="Update\ModificationCommand.cs" />
     <Compile Include="Update\ModificationCommandBatch.cs" />
+    <Compile Include="Update\ModificationCommandBatchFactory.cs" />
     <Compile Include="Update\ModificationCommandComparer.cs" />
     <Compile Include="Update\ParameterNameGenerator.cs" />
     <Compile Include="Update\ParameterNameGeneratorFactory.cs" />

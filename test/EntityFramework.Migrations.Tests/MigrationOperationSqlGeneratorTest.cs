@@ -218,7 +218,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         public void Generate_when_drop_index_operation()
         {
             Assert.Equal(
-                @"DROP INDEX ""MyIndex"" ON ""dbo"".""MyTable""",
+                @"DROP INDEX ""MyIndex""",
                 Generate(new DropIndexOperation("dbo.MyTable", "MyIndex")).Sql);
         }
 

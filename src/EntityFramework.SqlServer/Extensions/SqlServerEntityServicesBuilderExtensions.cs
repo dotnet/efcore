@@ -7,6 +7,7 @@ using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational;
+using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.SqlServer;
 using Microsoft.Data.Entity.SqlServer.Utilities;
 using Microsoft.Data.Entity.Storage;
@@ -30,10 +31,11 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddSingleton<SqlServerSqlGenerator>()
                 .AddSingleton<SqlStatementExecutor>()
                 .AddSingleton<SqlServerTypeMapper>()
+                .AddSingleton<SqlServerBatchExecutor>()
+                .AddSingleton<ModificationCommandBatchFactory, SqlServerModificationCommandBatchFactory>()
                 .AddScoped<SqlServerDataStore>()
                 .AddScoped<SqlServerConnection>()
-                .AddScoped<SqlServerBatchExecutor>()
-                .AddScoped<ModelDiffer, ModelDiffer>()
+                .AddScoped<ModelDiffer>()
                 .AddScoped<SqlServerMigrationOperationSqlGeneratorFactory>()
                 // TODO: Update code to use SqlServerMigrationOperationSqlGeneratorFactory, then remove the line below.
                 .AddScoped<SqlServerMigrationOperationSqlGenerator>()

@@ -48,7 +48,7 @@ namespace Microsoft.Data.Entity.Migrations
             }
         }
 
-        public virtual IEnumerable<SqlStatement> Generate([NotNull] IReadOnlyList<MigrationOperation> migrationOperations)
+        public virtual IEnumerable<SqlStatement> Generate([NotNull] IEnumerable<MigrationOperation> migrationOperations)
         {
             Check.NotNull(migrationOperations, "migrationOperations");
 
@@ -134,11 +134,17 @@ namespace Microsoft.Data.Entity.Migrations
                             primaryKey.IsClustered),
                         stringBuilder);
                 }
+
+                GenerateTableConstraints(createTableOperation, stringBuilder);
             }
 
             stringBuilder
                 .AppendLine()
                 .Append(")");
+        }
+
+        protected virtual void GenerateTableConstraints([NotNull] CreateTableOperation createTableOperation, [NotNull] IndentedStringBuilder stringBuilder)
+        {
         }
 
         public virtual void Generate([NotNull] DropTableOperation dropTableOperation, [NotNull] IndentedStringBuilder stringBuilder)
@@ -267,20 +273,9 @@ namespace Microsoft.Data.Entity.Migrations
             stringBuilder
                 .Append("ALTER TABLE ")
                 .Append(DelimitIdentifier(addForeignKeyOperation.TableName))
-                .Append(" ADD CONSTRAINT ")
-                .Append(DelimitIdentifier(addForeignKeyOperation.ForeignKeyName))
-                .Append(" FOREIGN KEY (")
-                .Append(addForeignKeyOperation.ColumnNames.Select(DelimitIdentifier).Join())
-                .Append(") REFERENCES ")
-                .Append(DelimitIdentifier(addForeignKeyOperation.ReferencedTableName))
-                .Append(" (")
-                .Append(addForeignKeyOperation.ReferencedColumnNames.Select(DelimitIdentifier).Join())
-                .Append(")");
+                .Append(" ADD ");
 
-            if (addForeignKeyOperation.CascadeDelete)
-            {
-                stringBuilder.Append(" ON DELETE CASCADE");
-            }
+            GenerateForeignKey(addForeignKeyOperation, stringBuilder);
         }
 
         public virtual void Generate([NotNull] DropForeignKeyOperation dropForeignKeyOperation, [NotNull] IndentedStringBuilder stringBuilder)
@@ -305,6 +300,7 @@ namespace Microsoft.Data.Entity.Migrations
                 stringBuilder.Append(" UNIQUE");
             }
 
+            // TODO: Move to SqlServer
             if (createIndexOperation.IsClustered)
             {
                 stringBuilder.Append(" CLUSTERED");
@@ -323,12 +319,11 @@ namespace Microsoft.Data.Entity.Migrations
         public virtual void Generate([NotNull] DropIndexOperation dropIndexOperation, [NotNull] IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(dropIndexOperation, "dropIndexOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
 
             stringBuilder
                 .Append("DROP INDEX ")
-                .Append(DelimitIdentifier(dropIndexOperation.IndexName))
-                .Append(" ON ")
-                .Append(DelimitIdentifier(dropIndexOperation.TableName));
+                .Append(DelimitIdentifier(dropIndexOperation.IndexName));
         }
 
         public virtual void Generate([NotNull] RenameIndexOperation renameIndexOperation, [NotNull] IndentedStringBuilder stringBuilder)
@@ -345,10 +340,14 @@ namespace Microsoft.Data.Entity.Migrations
                 return column.DataType;
             }
 
-            var table = Database.GetTable(tableName);
-            var isKey = table.PrimaryKey != null
+            var isKey = false;
+            if (Database != null)
+            {
+                var table = Database.GetTable(tableName);
+                isKey = table.PrimaryKey != null
                         && table.PrimaryKey.Columns.Contains(column)
                         || table.ForeignKeys.SelectMany(k => k.Columns).Contains(column);
+            }
 
             return _typeMapper.GetTypeMapping(column.DataType, column.Name, column.ClrType, isKey, column.IsTimestamp).StoreTypeName;
         }
@@ -523,6 +522,30 @@ namespace Microsoft.Data.Entity.Migrations
             [NotNull] AddPrimaryKeyOperation primaryKeyOperation,
             [NotNull] IndentedStringBuilder stringBuilder)
         {
+        }
+
+        protected virtual void GenerateForeignKey(
+            [NotNull] AddForeignKeyOperation foreignKeyOperation,
+            [NotNull] IndentedStringBuilder stringBuilder)
+        {
+            Check.NotNull(foreignKeyOperation, "foreignKeyOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
+
+            stringBuilder
+                .Append("CONSTRAINT ")
+                .Append(DelimitIdentifier(foreignKeyOperation.ForeignKeyName))
+                .Append(" FOREIGN KEY (")
+                .Append(foreignKeyOperation.ColumnNames.Select(DelimitIdentifier).Join())
+                .Append(") REFERENCES ")
+                .Append(DelimitIdentifier(foreignKeyOperation.ReferencedTableName))
+                .Append(" (")
+                .Append(foreignKeyOperation.ReferencedColumnNames.Select(DelimitIdentifier).Join())
+                .Append(")");
+
+            if (foreignKeyOperation.CascadeDelete)
+            {
+                stringBuilder.Append(" ON DELETE CASCADE");
+            }
         }
     }
 }

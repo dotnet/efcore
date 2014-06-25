@@ -31,6 +31,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="System" />
     <Reference Include="System.Data" />
     <PackageReference Include="System.Data.Common">
       <TargetFramework>net451</TargetFramework>
@@ -53,20 +54,25 @@
     <Compile Include="ApiConsistencyTest.cs" />
     <Compile Include="..\Shared\ApiConsistencyTestBase.cs" />
     <Compile Include="SQLiteDbContextOptionsExtensionsTest.cs" />
+    <Compile Include="SQLiteMigrationOperationSqlGeneratorTest.cs" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\EntityFramework.Migrations\EntityFramework.Migrations.csproj">
+      <Project>{6e38b72f-31da-4aef-8f34-b8269572ec6b}</Project>
+      <Name>EntityFramework.Migrations</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\EntityFramework.Relational\EntityFramework.Relational.csproj">
       <Project>{75c5a774-a3f3-43eb-97d3-dbe0cf2825d8}</Project>
-      <Name>Microsoft.Data.Entity.Relational</Name>
+      <Name>EntityFramework.Relational</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\src\EntityFramework.SQLite\EntityFramework.SQLite.csproj">
       <Project>{4CC98896-FE91-4F16-AE60-D6FF9E905836}</Project>
-      <Name>Microsoft.Data.Entity.SQLite</Name>
+      <Name>EntityFramework.SQLite</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\src\EntityFramework\EntityFramework.csproj">
       <Project>{71415cec-8111-4c73-8751-512d22f10602}</Project>
-      <Name>Microsoft.Data.Entity</Name>
+      <Name>EntityFramework</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

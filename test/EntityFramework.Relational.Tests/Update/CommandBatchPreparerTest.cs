@@ -9,12 +9,57 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.Utilities;
+using Moq;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Relational.Tests.Update
 {
     public class CommandBatchPreparerTest
     {
+        [Fact]
+        public void Constructor_checks_arguments()
+        {
+            Assert.Equal(
+                "modificationCommandBatchFactory",
+                // ReSharper disable once AssignNullToNotNullAttribute
+                Assert.Throws<ArgumentNullException>(() =>
+                    new CommandBatchPreparer(
+                        null,
+                        new ParameterNameGeneratorFactory(),
+                        new BidirectionalAdjacencyListGraphFactory(),
+                        new ModificationCommandComparer())).ParamName);
+
+            Assert.Equal(
+                "parameterNameGeneratorFactory",
+                // ReSharper disable once AssignNullToNotNullAttribute
+                Assert.Throws<ArgumentNullException>(() =>
+                    new CommandBatchPreparer(
+                        new Mock<ModificationCommandBatchFactory>().Object,
+                        null,
+                        new BidirectionalAdjacencyListGraphFactory(),
+                        new ModificationCommandComparer())).ParamName);
+
+            Assert.Equal(
+                "graphFactory",
+                // ReSharper disable once AssignNullToNotNullAttribute
+                Assert.Throws<ArgumentNullException>(() =>
+                    new CommandBatchPreparer(
+                        new Mock<ModificationCommandBatchFactory>().Object,
+                        new ParameterNameGeneratorFactory(),
+                        null,
+                        new ModificationCommandComparer())).ParamName);
+
+            Assert.Equal(
+                "modificationCommandComparer",
+                // ReSharper disable once AssignNullToNotNullAttribute
+                Assert.Throws<ArgumentNullException>(() =>
+                    new CommandBatchPreparer(
+                        new Mock<ModificationCommandBatchFactory>().Object,
+                        new ParameterNameGeneratorFactory(),
+                        new BidirectionalAdjacencyListGraphFactory(),
+                        null)).ParamName);
+        }
+
         [Fact]
         public async Task BatchCommands_creates_valid_batch_for_added_entities()
         {
@@ -241,14 +286,46 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 commandBatches.Select(cb => cb.ModificationCommands.Single()).Select(mc => mc.StateEntries.Single()));
         }
 
+        [Fact]
+        public async Task BatchCommands_creates_batches_lazily()
+        {
+            var configuration = CreateConfiguration();
+            var model = CreateSimpleFKModel();
+
+            var fakeEntity = new FakeEntity { Id = 42, Value = "Test" };
+            var stateEntry = new MixedStateEntry(
+                configuration,
+                model.GetEntityType(typeof(FakeEntity)), fakeEntity);
+            await stateEntry.SetEntityStateAsync(EntityState.Added);
+
+            var relatedStateEntry = new MixedStateEntry(
+                configuration,
+                model.GetEntityType(typeof(RelatedFakeEntity)), new RelatedFakeEntity { Id = 42 });
+            await relatedStateEntry.SetEntityStateAsync(EntityState.Added);
+
+            var modificationCommandBatchFactoryMock = new Mock<ModificationCommandBatchFactory>();
+
+            var commandBatches = CreateCommandBatchPreparer(modificationCommandBatchFactoryMock.Object).BatchCommands(new[] { relatedStateEntry, stateEntry });
+
+            var commandBatchesEnumerator = commandBatches.GetEnumerator();
+            commandBatchesEnumerator.MoveNext();
+
+            modificationCommandBatchFactoryMock.Verify(mcb => mcb.Create(), Times.Once);
+
+            commandBatchesEnumerator.MoveNext();
+
+            modificationCommandBatchFactoryMock.Verify(mcb => mcb.Create(), Times.Exactly(2));
+        }
+
         private static DbContextConfiguration CreateConfiguration()
         {
             return new DbContext(new DbContextOptions().UseInMemoryStore(persist: false)).Configuration;
         }
 
-        private static CommandBatchPreparer CreateCommandBatchPreparer()
+        private static CommandBatchPreparer CreateCommandBatchPreparer(ModificationCommandBatchFactory modificationCommandBatchFactory = null)
         {
             return new CommandBatchPreparer(
+                modificationCommandBatchFactory ?? new ModificationCommandBatchFactory(new Mock<SqlGenerator> { CallBase = true }.Object),
                 new ParameterNameGeneratorFactory(),
                 new BidirectionalAdjacencyListGraphFactory(),
                 new ModificationCommandComparer());
