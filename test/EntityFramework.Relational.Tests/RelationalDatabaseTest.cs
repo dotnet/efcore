@@ -64,7 +64,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
             creatorMock.Setup(m => m.ExistsAsync(cancellationToken)).Returns(Task.FromResult(true));
             creatorMock.Setup(m => m.HasTablesAsync(cancellationToken)).Returns(Task.FromResult(true));
             creatorMock.Setup(m => m.EnsureCreatedAsync(model, cancellationToken)).Returns(Task.FromResult(true));
-            creatorMock.Setup(m => m.EnsureDeletedAsync(null, cancellationToken: cancellationToken)).Returns(Task.FromResult(true));
+            creatorMock.Setup(m => m.EnsureDeletedAsync(model, cancellationToken)).Returns(Task.FromResult(true));
 
             var configurationMock = new Mock<DbContextConfiguration>();
             configurationMock.Setup(m => m.DataStoreCreator).Returns(creatorMock.Object);
@@ -91,7 +91,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
             creatorMock.Verify(m => m.EnsureCreatedAsync(model, cancellationToken), Times.Once);
 
             Assert.True(await database.EnsureDeletedAsync(cancellationToken));
-            creatorMock.Verify(m => m.EnsureDeletedAsync(null, cancellationToken: cancellationToken), Times.Once);
+            creatorMock.Verify(m => m.EnsureDeletedAsync(model, cancellationToken), Times.Once);
         }
     }
 }
