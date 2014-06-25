@@ -360,8 +360,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             StateEntry dependentEntry, IReadOnlyList<IProperty> dependentProperties, IReadOnlyList<object> principalValues)
         {
             // Don't null out the FK if it has already be set to point to a different principal
-            // TODO: Use structural equality
-            if (dependentProperties.Select(p => dependentEntry[p]).SequenceEqual(principalValues))
+            if (dependentProperties.Select(p => dependentEntry[p]).StructuralSequenceEqual(principalValues))
             {
                 SetNullForeignKey(dependentEntry, dependentProperties);
             }

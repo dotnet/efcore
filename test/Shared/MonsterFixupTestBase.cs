@@ -688,6 +688,194 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
+        [Fact]
+        public virtual async Task Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_for_snapshot_entities()
+        {
+            await Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_test(CreateSnapshotMonsterContext, SnapshotDatabaseName, useDetectChanges: true);
+        }
+
+        //[Fact] TODO: Support INotifyCollectionChanging so that collection change detection without DetectChanges works
+        public virtual async Task Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_for_full_notification_entities()
+        {
+            await Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_test(CreateChangedChangingMonsterContext, FullNotifyDatabaseName, useDetectChanges: false);
+        }
+
+        //[Fact] TODO: Support INotifyCollectionChanging so that collection change detection without DetectChanges works
+        public virtual async Task Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_for_changed_only_notification_entities()
+        {
+            await Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_test(CreateChangedOnlyMonsterContext, ChangedOnlyDatabaseName, useDetectChanges: false);
+        }
+
+        private async Task Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_test(
+            Func<IServiceProvider, MonsterContext> createContext, string databaseName, bool useDetectChanges)
+        {
+            var serviceProvider = CreateServiceProvider();
+
+            await CreateAndSeedDatabase(databaseName, () => createContext(serviceProvider));
+
+            using (var context = createContext(serviceProvider))
+            {
+                var barcode1 = context.Barcodes.Single(e => e.Text == "Barcode 1 2 3 4");
+                var barcode2 = context.Barcodes.Single(e => e.Text == "Barcode 2 2 3 4");
+                var barcode3 = context.Barcodes.Single(e => e.Text == "Barcode 3 2 3 4");
+
+                var incorrectScan1 = context.IncorrectScans.Single(e => e.Details.StartsWith("Treats"));
+                var incorrectScan2 = context.IncorrectScans.Single(e => e.Details.StartsWith("Wot"));
+
+                var barcodeDetails1 = context.BarcodeDetails.Single(e => e.RegisteredTo == "Eeky Bear");
+                var barcodeDetails2 = context.BarcodeDetails.Single(e => e.RegisteredTo == "Trent");
+
+                AssertBadScansConsistent(barcode1, incorrectScan2);
+                AssertBadScansConsistent(barcode2, incorrectScan1);
+                AssertBadScansConsistent(barcode3);
+
+                AssertActualBarcodeConsistent(barcode1);
+                AssertActualBarcodeConsistent(barcode2, incorrectScan2);
+                AssertActualBarcodeConsistent(barcode3, incorrectScan1);
+
+                AssertBarcodeDetailsConsistent(barcode1, barcodeDetails1);
+                AssertBarcodeDetailsConsistent(barcode2, barcodeDetails2);
+                AssertBarcodeDetailsConsistent(barcode3, null);
+
+                // Binary FK change
+                incorrectScan1.ExpectedCode = barcode3.Code.ToArray();
+
+                if (useDetectChanges)
+                {
+                    context.ChangeTracker.StateManager.DetectChanges();
+                }
+
+                AssertBadScansConsistent(barcode1, incorrectScan2);
+                AssertBadScansConsistent(barcode2);
+                AssertBadScansConsistent(barcode3, incorrectScan1);
+
+                AssertActualBarcodeConsistent(barcode1);
+                AssertActualBarcodeConsistent(barcode2, incorrectScan2);
+                AssertActualBarcodeConsistent(barcode3, incorrectScan1);
+
+                AssertBarcodeDetailsConsistent(barcode1, barcodeDetails1);
+                AssertBarcodeDetailsConsistent(barcode2, barcodeDetails2);
+                AssertBarcodeDetailsConsistent(barcode3, null);
+
+                // Binary FK change
+                incorrectScan2.ActualCode = barcode1.Code.ToArray();
+
+                if (useDetectChanges)
+                {
+                    context.ChangeTracker.StateManager.DetectChanges();
+                }
+
+                AssertBadScansConsistent(barcode1, incorrectScan2);
+                AssertBadScansConsistent(barcode2);
+                AssertBadScansConsistent(barcode3, incorrectScan1);
+
+                AssertActualBarcodeConsistent(barcode1, incorrectScan2);
+                AssertActualBarcodeConsistent(barcode2);
+                AssertActualBarcodeConsistent(barcode3, incorrectScan1);
+
+                AssertBarcodeDetailsConsistent(barcode1, barcodeDetails1);
+                AssertBarcodeDetailsConsistent(barcode2, barcodeDetails2);
+                AssertBarcodeDetailsConsistent(barcode3, null);
+
+                // Change both back
+                incorrectScan1.ExpectedCode = barcode2.Code.ToArray();
+                incorrectScan2.ActualCode = barcode2.Code.ToArray();
+
+                if (useDetectChanges)
+                {
+                    context.ChangeTracker.StateManager.DetectChanges();
+                }
+
+                AssertBadScansConsistent(barcode1, incorrectScan2);
+                AssertBadScansConsistent(barcode2, incorrectScan1);
+                AssertBadScansConsistent(barcode3);
+
+                AssertActualBarcodeConsistent(barcode1);
+                AssertActualBarcodeConsistent(barcode2, incorrectScan2);
+                AssertActualBarcodeConsistent(barcode3, incorrectScan1);
+
+                AssertBarcodeDetailsConsistent(barcode1, barcodeDetails1);
+                AssertBarcodeDetailsConsistent(barcode2, barcodeDetails2);
+                AssertBarcodeDetailsConsistent(barcode3, null);
+
+                // Change FK objects without changing values
+                incorrectScan1.ExpectedCode = incorrectScan1.ExpectedCode.ToArray();
+                incorrectScan2.ExpectedCode = incorrectScan2.ExpectedCode.ToArray();
+                incorrectScan1.ActualCode = incorrectScan1.ActualCode.ToArray();
+                incorrectScan2.ActualCode = incorrectScan2.ActualCode.ToArray();
+
+                // Change PK objects without changing values
+                // This is not really allowed so if/when it starts to throw this part of the test can be removed
+                barcode1.Code = barcode1.Code.ToArray();
+                barcode2.Code = barcode2.Code.ToArray();
+                barcode3.Code = barcode3.Code.ToArray();
+                barcodeDetails1.Code = barcodeDetails1.Code.ToArray();
+                barcodeDetails2.Code = barcodeDetails2.Code.ToArray();
+
+                if (useDetectChanges)
+                {
+                    context.ChangeTracker.StateManager.DetectChanges();
+                }
+
+                AssertBadScansConsistent(barcode1, incorrectScan2);
+                AssertBadScansConsistent(barcode2, incorrectScan1);
+                AssertBadScansConsistent(barcode3);
+
+                AssertActualBarcodeConsistent(barcode1);
+                AssertActualBarcodeConsistent(barcode2, incorrectScan2);
+                AssertActualBarcodeConsistent(barcode3, incorrectScan1);
+
+                AssertBarcodeDetailsConsistent(barcode1, barcodeDetails1);
+                AssertBarcodeDetailsConsistent(barcode2, barcodeDetails2);
+                AssertBarcodeDetailsConsistent(barcode3, null);
+
+                // Collection navigation changes
+                barcode1.BadScans.Remove(incorrectScan2);
+                barcode2.BadScans.Add(incorrectScan2);
+
+                if (useDetectChanges)
+                {
+                    context.ChangeTracker.StateManager.DetectChanges();
+                }
+
+                AssertBadScansConsistent(barcode1);
+                AssertBadScansConsistent(barcode2, incorrectScan1, incorrectScan2);
+                AssertBadScansConsistent(barcode3);
+
+                AssertActualBarcodeConsistent(barcode1);
+                AssertActualBarcodeConsistent(barcode2, incorrectScan2);
+                AssertActualBarcodeConsistent(barcode3, incorrectScan1);
+
+                AssertBarcodeDetailsConsistent(barcode1, barcodeDetails1);
+                AssertBarcodeDetailsConsistent(barcode2, barcodeDetails2);
+                AssertBarcodeDetailsConsistent(barcode3, null);
+
+                // Reference navigation changes
+                incorrectScan1.ExpectedBarcode = barcode1;
+                incorrectScan2.ExpectedBarcode = barcode1;
+                incorrectScan1.ActualBarcode = barcode3;
+                incorrectScan2.ActualBarcode = barcode3;
+                barcode2.BadScans.Add(incorrectScan2);
+
+                if (useDetectChanges)
+                {
+                    context.ChangeTracker.StateManager.DetectChanges();
+                }
+
+                AssertBadScansConsistent(barcode1, incorrectScan1, incorrectScan2);
+                AssertBadScansConsistent(barcode2);
+                AssertBadScansConsistent(barcode3);
+
+                AssertActualBarcodeConsistent(barcode1);
+                AssertActualBarcodeConsistent(barcode2);
+                AssertActualBarcodeConsistent(barcode3, incorrectScan1, incorrectScan2);
+
+                AssertBarcodeDetailsConsistent(barcode1, barcodeDetails1);
+                AssertBarcodeDetailsConsistent(barcode2, barcodeDetails2);
+                AssertBarcodeDetailsConsistent(barcode3, null);
+            }
+        }
+
         protected void SimpleVerification(Func<MonsterContext> createContext)
         {
             using (var context = createContext())
@@ -1338,6 +1526,28 @@ namespace Microsoft.Data.Entity.FunctionalTests
             return new ChangedOnlyMonsterContext(serviceProvider, CreateOptions(ChangedOnlyDatabaseName));
         }
 
+        private static void AssertBadScansConsistent(IBarcode expectedPrincipal, params IIncorrectScan[] expectedDependents)
+        {
+            AssertConsistent(
+                expectedPrincipal,
+                expectedDependents,
+                e => e.BadScans.OrderBy(m => m.Details),
+                e => e.ExpectedBarcode,
+                e => e.Code,
+                e => e.ExpectedCode);
+        }
+
+        private static void AssertActualBarcodeConsistent(IBarcode expectedPrincipal, params IIncorrectScan[] expectedDependents)
+        {
+            AssertConsistent(
+                expectedPrincipal,
+                expectedDependents,
+                null,
+                e => e.ActualBarcode,
+                e => e.Code,
+                e => e.ActualCode);
+        }
+
         private static void AssertPhotosConsistent(IProductPhoto expectedPrincipal, params IProductWebFeature[] expectedDependents)
         {
             AssertConsistent(
@@ -1402,15 +1612,27 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
             else
             {
-                var dependents = getDependents(expectedPrincipal).ToArray();
+                var dependents = getDependents == null ? null : getDependents(expectedPrincipal).ToArray();
                 var principalKey = getPrincipalKey(expectedPrincipal);
 
-                Assert.Equal(expectedDependents.Length, dependents.Length);
+                if (getDependents != null)
+                {
+                    Assert.Equal(expectedDependents.Length, dependents.Length);
+                }
+
                 for (var i = 0; i < expectedDependents.Length; i++)
                 {
-                    Assert.Same(expectedDependents[i], dependents[i]);
-                    Assert.Same(expectedPrincipal, getPrincipal(dependents[i]));
-                    StructuralComparisons.StructuralEqualityComparer.Equals(principalKey, getForeignKey(dependents[i]));
+                    if (getDependents != null)
+                    {
+                        Assert.Same(expectedDependents[i], dependents[i]);
+                    }
+
+                    if (getPrincipal != null)
+                    {
+                        Assert.Same(expectedPrincipal, getPrincipal(expectedDependents[i]));
+                    }
+
+                    StructuralComparisons.StructuralEqualityComparer.Equals(principalKey, getForeignKey(expectedDependents[i]));
                 }
             }
         }
@@ -1426,6 +1648,17 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 e => e.HusbandId);
         }
 
+        private static void AssertBarcodeDetailsConsistent(IBarcode principal, IBarcodeDetail dependent)
+        {
+            AssertConsistent(
+                principal,
+                dependent,
+                e => e.Detail,
+                null,
+                e => e.Code,
+                e => e.Code);
+        }
+
         private static void AssertConsistent<TPrincipal, TDependent>(
             TPrincipal expectedPrincipal,
             TDependent expectedDependent,
@@ -1436,12 +1669,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
             where TPrincipal : class
             where TDependent : class
         {
-            if (expectedDependent != null)
+            if (expectedDependent != null
+                && getPrincipal != null)
             {
                 Assert.Same(expectedPrincipal, getPrincipal(expectedDependent));
             }
 
-            if (expectedPrincipal != null)
+            if (expectedPrincipal != null
+                && getDependent != null)
             {
                 Assert.Same(expectedDependent, getDependent(expectedPrincipal));
             }
