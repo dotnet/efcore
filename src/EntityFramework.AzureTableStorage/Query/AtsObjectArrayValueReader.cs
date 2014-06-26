@@ -68,7 +68,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
             else if (typeof(double).IsAssignableFrom(typeof(T)))
             {
                 double d;
-                if (double.TryParse(readValue, out d))
+                if (double.TryParse(readValue, NumberStyles.AllowDecimalPoint | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out d))
                 {
                     return d;
                 }
