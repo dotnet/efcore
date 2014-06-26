@@ -38,6 +38,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.Data.Common" />
+    <PackageReference Include="Microsoft.Framework.DependencyInjection" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\packages\KoreBuild\build\Resources.cs">

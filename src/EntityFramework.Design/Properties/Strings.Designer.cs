@@ -58,12 +58,236 @@ namespace Microsoft.Data.Entity.Design
             return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateMigrationName", "migrationName"), migrationName);
         }
 
+        /// <summary>
+        /// Please specify an assembly that contains a class that derives from DbContext, using the ContextAssembly option.
+        /// </summary>
+        internal static string ContextAssemblyNotSpecified
+        {
+            get { return GetString("ContextAssemblyNotSpecified"); }
+        }
+
+        /// <summary>
+        /// Please specify an assembly that contains a class that derives from DbContext, using the ContextAssembly option.
+        /// </summary>
+        internal static string FormatContextAssemblyNotSpecified()
+        {
+            return GetString("ContextAssemblyNotSpecified");
+        }
+
+        /// <summary>
+        /// The assembly '{contextAssemblyName}' does not contain the type '{contextTypeName}'.
+        /// </summary>
+        internal static string AssemblyDoesNotContainType
+        {
+            get { return GetString("AssemblyDoesNotContainType"); }
+        }
+
+        /// <summary>
+        /// The assembly '{contextAssemblyName}' does not contain the type '{contextTypeName}'.
+        /// </summary>
+        internal static string FormatAssemblyDoesNotContainType(object contextAssemblyName, object contextTypeName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("AssemblyDoesNotContainType", "contextAssemblyName", "contextTypeName"), contextAssemblyName, contextTypeName);
+        }
+
+        /// <summary>
+        /// The type '{contextTypeName}' does not derive from DbContext.
+        /// </summary>
+        internal static string TypeIsNotDbContext
+        {
+            get { return GetString("TypeIsNotDbContext"); }
+        }
+
+        /// <summary>
+        /// The type '{contextTypeName}' does not derive from DbContext.
+        /// </summary>
+        internal static string FormatTypeIsNotDbContext(object contextTypeName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("TypeIsNotDbContext", "contextTypeName"), contextTypeName);
+        }
+
+        /// <summary>
+        /// The assembly '{contextAssemblyName}' does not contain a class that derives from DbContext.
+        /// </summary>
+        internal static string AssemblyDoesNotContainDbContext
+        {
+            get { return GetString("AssemblyDoesNotContainDbContext"); }
+        }
+
+        /// <summary>
+        /// The assembly '{contextAssemblyName}' does not contain a class that derives from DbContext.
+        /// </summary>
+        internal static string FormatAssemblyDoesNotContainDbContext(object contextAssemblyName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("AssemblyDoesNotContainDbContext", "contextAssemblyName"), contextAssemblyName);
+        }
+
+        /// <summary>
+        /// The assembly '{contextAssemblyName}' contains multiple classes that derive from DbContext. Please specify the context type using the ContextType option.
+        /// </summary>
+        internal static string AssemblyContainsMultipleDbContext
+        {
+            get { return GetString("AssemblyContainsMultipleDbContext"); }
+        }
+
+        /// <summary>
+        /// The assembly '{contextAssemblyName}' contains multiple classes that derive from DbContext. Please specify the context type using the ContextType option.
+        /// </summary>
+        internal static string FormatAssemblyContainsMultipleDbContext(object contextAssemblyName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("AssemblyContainsMultipleDbContext", "contextAssemblyName"), contextAssemblyName);
+        }
+
+        /// <summary>
+        /// Please specify a migration name using the MigrationName option.
+        /// </summary>
+        internal static string MigrationNameNotSpecified
+        {
+            get { return GetString("MigrationNameNotSpecified"); }
+        }
+
+        /// <summary>
+        /// Please specify a migration name using the MigrationName option.
+        /// </summary>
+        internal static string FormatMigrationNameNotSpecified()
+        {
+            return GetString("MigrationNameNotSpecified");
+        }
+
+        /// <summary>
+        /// The source of migrations specified using the Source option must be one of the following: database, local, pending.
+        /// </summary>
+        internal static string InvalidMigrationSource
+        {
+            get { return GetString("InvalidMigrationSource"); }
+        }
+
+        /// <summary>
+        /// The source of migrations specified using the Source option must be one of the following: database, local, pending.
+        /// </summary>
+        internal static string FormatInvalidMigrationSource()
+        {
+            return GetString("InvalidMigrationSource");
+        }
+
+        /// <summary>
+        /// 
+        /// Usage: 
+        /// 
+        ///   &lt;runner&gt; command --option=value
+        /// 
+        /// Commands:
+        /// 
+        ///   config    Writes configuration
+        ///   create    Scaffolds a new migration
+        ///   list      Lists migrations
+        ///   script    Generates SQL script
+        ///   apply     Updates the database
+        /// 
+        /// Options:
+        /// 
+        ///   config
+        ///     [--ContextAssembly=&lt;assembly&gt;] [--ContextType=&lt;type&gt;]
+        ///     [--MigrationAssembly=&lt;assembly&gt;] [--MigrationNamespace=&lt;namespace&gt;] [--MigrationDirectory=&lt;directory&gt;]
+        ///     [--References=&lt;assembly[;...n]&gt;]
+        ///     [--ConfigFile=&lt;file&gt;]
+        /// 
+        ///   create
+        ///     --MigrationName=&lt;name&gt;
+        ///     [--ConfigFile=&lt;file&gt;]
+        ///     [--ContextAssembly=&lt;assembly&gt;] [--ContextType=&lt;type&gt;]
+        ///     [--MigrationAssembly=&lt;assembly&gt;] [--MigrationNamespace=&lt;namespace&gt;] [--MigrationDirectory=&lt;directory&gt;]
+        ///     [--References=&lt;assembly[;...n]&gt;]
+        /// 
+        ///   list
+        ///     [--ConfigFile=&lt;file&gt;]  
+        ///     [--MigrationSource=Database|Local|Pending]
+        ///     [--ContextAssembly=&lt;assembly&gt;] [--ContextType=&lt;type&gt;]
+        ///     [--References=&lt;assembly[;...n]&gt;]
+        /// 
+        ///   script
+        ///     [--ConfigFile=&lt;file&gt;]
+        ///     [--TargetMigration=&lt;name&gt;]
+        ///     [--ContextAssembly=&lt;assembly&gt;] [--ContextType=&lt;type&gt;]
+        ///     [--MigrationAssembly=&lt;assembly&gt;] [--MigrationNamespace=&lt;namespace&gt;] [--MigrationDirectory=&lt;directory&gt;]
+        ///     [--References=&lt;assembly[;...n]&gt;]
+        /// 
+        ///   apply
+        ///     [--ConfigFile=&lt;file&gt;]
+        ///     [--TargetMigration=&lt;name&gt;]
+        ///     [--ContextAssembly=&lt;assembly&gt;] [--ContextType=&lt;type&gt;]
+        ///     [--MigrationAssembly=&lt;assembly&gt;] [--MigrationNamespace=&lt;namespace&gt;] [--MigrationDirectory=&lt;directory&gt;]
+        ///     [--References=&lt;assembly[;...n]&gt;]
+        /// 
+        ///     
+        /// </summary>
+        internal static string ToolUsage
+        {
+            get { return GetString("ToolUsage"); }
+        }
+
+        /// <summary>
+        /// 
+        /// Usage: 
+        /// 
+        ///   &lt;runner&gt; command --option=value
+        /// 
+        /// Commands:
+        /// 
+        ///   config    Writes configuration
+        ///   create    Scaffolds a new migration
+        ///   list      Lists migrations
+        ///   script    Generates SQL script
+        ///   apply     Updates the database
+        /// 
+        /// Options:
+        /// 
+        ///   config
+        ///     [--ContextAssembly=&lt;assembly&gt;] [--ContextType=&lt;type&gt;]
+        ///     [--MigrationAssembly=&lt;assembly&gt;] [--MigrationNamespace=&lt;namespace&gt;] [--MigrationDirectory=&lt;directory&gt;]
+        ///     [--References=&lt;assembly[;...n]&gt;]
+        ///     [--ConfigFile=&lt;file&gt;]
+        /// 
+        ///   create
+        ///     --MigrationName=&lt;name&gt;
+        ///     [--ConfigFile=&lt;file&gt;]
+        ///     [--ContextAssembly=&lt;assembly&gt;] [--ContextType=&lt;type&gt;]
+        ///     [--MigrationAssembly=&lt;assembly&gt;] [--MigrationNamespace=&lt;namespace&gt;] [--MigrationDirectory=&lt;directory&gt;]
+        ///     [--References=&lt;assembly[;...n]&gt;]
+        /// 
+        ///   list
+        ///     [--ConfigFile=&lt;file&gt;]  
+        ///     [--MigrationSource=Database|Local|Pending]
+        ///     [--ContextAssembly=&lt;assembly&gt;] [--ContextType=&lt;type&gt;]
+        ///     [--References=&lt;assembly[;...n]&gt;]
+        /// 
+        ///   script
+        ///     [--ConfigFile=&lt;file&gt;]
+        ///     [--TargetMigration=&lt;name&gt;]
+        ///     [--ContextAssembly=&lt;assembly&gt;] [--ContextType=&lt;type&gt;]
+        ///     [--MigrationAssembly=&lt;assembly&gt;] [--MigrationNamespace=&lt;namespace&gt;] [--MigrationDirectory=&lt;directory&gt;]
+        ///     [--References=&lt;assembly[;...n]&gt;]
+        /// 
+        ///   apply
+        ///     [--ConfigFile=&lt;file&gt;]
+        ///     [--TargetMigration=&lt;name&gt;]
+        ///     [--ContextAssembly=&lt;assembly&gt;] [--ContextType=&lt;type&gt;]
+        ///     [--MigrationAssembly=&lt;assembly&gt;] [--MigrationNamespace=&lt;namespace&gt;] [--MigrationDirectory=&lt;directory&gt;]
+        ///     [--References=&lt;assembly[;...n]&gt;]
+        /// 
+        ///     
+        /// </summary>
+        internal static string FormatToolUsage()
+        {
+            return GetString("ToolUsage");
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
 
             System.Diagnostics.Debug.Assert(value != null);
-
+    
             if (formatterNames != null)
             {
                 for (var i = 0; i < formatterNames.Length; i++)

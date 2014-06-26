@@ -126,4 +126,76 @@
   <data name="DuplicateMigrationName" xml:space="preserve">
     <value>The name '{migrationName}' is used by an existing migration.</value>
   </data>
+  <data name="ContextAssemblyNotSpecified" xml:space="preserve">
+    <value>Please specify an assembly that contains a class that derives from DbContext, using the ContextAssembly option.</value>
+  </data>
+  <data name="AssemblyDoesNotContainType" xml:space="preserve">
+    <value>The assembly '{contextAssemblyName}' does not contain the type '{contextTypeName}'.</value>
+  </data>
+  <data name="TypeIsNotDbContext" xml:space="preserve">
+    <value>The type '{contextTypeName}' does not derive from DbContext.</value>
+  </data>
+  <data name="AssemblyDoesNotContainDbContext" xml:space="preserve">
+    <value>The assembly '{contextAssemblyName}' does not contain a class that derives from DbContext.</value>
+  </data>
+  <data name="AssemblyContainsMultipleDbContext" xml:space="preserve">
+    <value>The assembly '{contextAssemblyName}' contains multiple classes that derive from DbContext. Please specify the context type using the ContextType option.</value>
+  </data>
+  <data name="MigrationNameNotSpecified" xml:space="preserve">
+    <value>Please specify a migration name using the MigrationName option.</value>
+  </data>
+  <data name="InvalidMigrationSource" xml:space="preserve">
+    <value>The source of migrations specified using the Source option must be one of the following: database, local, pending.</value>
+  </data>
+  <data name="ToolUsage" xml:space="preserve">
+    <value>
+<![CDATA[Usage: 
+
+  <runner> command --option=value
+
+Commands:
+
+  config    Writes configuration
+  create    Scaffolds a new migration
+  list      Lists migrations
+  script    Generates SQL script
+  apply     Updates the database
+
+Options:
+
+  config
+    [--ContextAssembly=<assembly>] [--ContextType=<type>]
+    [--MigrationAssembly=<assembly>] [--MigrationNamespace=<namespace>] [--MigrationDirectory=<directory>]
+    [--References=<assembly[;...n]>]
+    [--ConfigFile=<file>]
+
+  create
+    --MigrationName=<name>
+    [--ConfigFile=<file>]
+    [--ContextAssembly=<assembly>] [--ContextType=<type>]
+    [--MigrationAssembly=<assembly>] [--MigrationNamespace=<namespace>] [--MigrationDirectory=<directory>]
+    [--References=<assembly[;...n]>]
+
+  list
+    [--ConfigFile=<file>]  
+    [--MigrationSource=Database|Local|Pending]
+    [--ContextAssembly=<assembly>] [--ContextType=<type>]
+    [--References=<assembly[;...n]>]
+
+  script
+    [--ConfigFile=<file>]
+    [--TargetMigration=<name>]
+    [--ContextAssembly=<assembly>] [--ContextType=<type>]
+    [--MigrationAssembly=<assembly>] [--MigrationNamespace=<namespace>] [--MigrationDirectory=<directory>]
+    [--References=<assembly[;...n]>]
+
+  apply
+    [--ConfigFile=<file>]
+    [--TargetMigration=<name>]
+    [--ContextAssembly=<assembly>] [--ContextType=<type>]
+    [--MigrationAssembly=<assembly>] [--MigrationNamespace=<namespace>] [--MigrationDirectory=<directory>]
+    [--References=<assembly[;...n]>]
+]]>
+    </value>
+  </data>
 </root>

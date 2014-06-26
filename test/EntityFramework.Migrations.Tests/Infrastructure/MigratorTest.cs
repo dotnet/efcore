@@ -60,6 +60,34 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         }
 
         [Fact]
+        public void Get_pending_migrations()
+        {
+            var databaseMigrations
+                = new IMigrationMetadata[]
+                    {
+                        new MigrationMetadata("M1", "T1"),
+                        new MigrationMetadata("M3", "T3")
+                    };
+
+            var localMigrations
+                = new IMigrationMetadata[]
+                    {
+                        new MigrationMetadata("M1", "T1"),
+                        new MigrationMetadata("M2", "T2"),
+                        new MigrationMetadata("M3", "T3"),
+                        new MigrationMetadata("M4", "T4")
+                    };
+
+            var migrator = MockMigrator(databaseMigrations, localMigrations);
+            var migrations = migrator.GetPendingMigrations();
+
+            Assert.Equal(2, migrations.Count);
+
+            Assert.Equal(localMigrations[1], migrations[0]);
+            Assert.Equal(localMigrations[3], migrations[1]);
+        }
+
+        [Fact]
         public void GenerateUpdateDatabaseSql_with_single_initial_migration()
         {
             var migrator = MockMigrator(

@@ -9,6 +9,6 @@
     "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
     "exclude": "tools\\Handler.cs",
     "configurations": {
-        "net451": { }
+        "net451": {}
     }
 }

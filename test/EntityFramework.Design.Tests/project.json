@@ -1,6 +1,7 @@
 {
     "dependencies": {
         "EntityFramework.Design": "",
+        "EntityFramework.SqlServer": "",
         "Moq": "4.2.1312.1622",
         "Xunit.KRunner": "1.0.0-*"
     },

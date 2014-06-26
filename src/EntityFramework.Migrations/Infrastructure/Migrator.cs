@@ -25,6 +25,15 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         private readonly SqlGenerator _dmlSqlGenerator;
         private readonly SqlStatementExecutor _sqlExecutor;
 
+        /// <summary>
+        ///     This constructor is intended only for use when creating test doubles that will override members
+        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
+        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
+        /// </summary>
+        protected Migrator()
+        {
+        }
+
         public Migrator(
             [NotNull] DbContextConfiguration contextConfiguration,
             [NotNull] HistoryRepository historyRepository,
@@ -97,6 +106,17 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             return GetDatabaseMigrations(out historyRepositoryExists);
         }
 
+        public virtual IReadOnlyList<IMigrationMetadata> GetPendingMigrations()
+        {
+            var migrationPairs = PairMigrations(GetLocalMigrations(), GetDatabaseMigrations());
+
+            return
+                migrationPairs
+                    .Where(p => p.DatabaseMigration == null)
+                    .Select(p => p.LocalMigration)
+                    .ToArray();
+        }
+
         protected virtual IReadOnlyList<IMigrationMetadata> GetDatabaseMigrations(out bool historyRepositoryExists)
         {
             IReadOnlyList<IMigrationMetadata> migrations;
@@ -130,7 +150,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         protected virtual void UpdateDatabase(IReadOnlyList<SqlStatement> sqlStatements)
         {
             var dbConnection = ((RelationalConnection)ContextConfiguration.Connection).DbConnection;
-
+            
             SqlExecutor.ExecuteNonQuery(dbConnection, sqlStatements);
         }
 

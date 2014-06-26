@@ -860,14 +860,20 @@ namespace MyNamespace
                 return "Timestamp";
             }
 
-            protected override void OnMigrationScaffolded(string className, string migrationClass, string migrationMetadataClass)
+            public override ScaffoldedMigration ScaffoldMigration(string migrationName)
             {
-                _migrationValidation(className, migrationClass, migrationMetadataClass);
-            }
+                var scaffoldedMigration = base.ScaffoldMigration(migrationName);
 
-            protected override void OnModelScaffolded(string className, string modelSnapshotClass)
-            {
-                _modelValidation(className, modelSnapshotClass);
+                _migrationValidation(
+                    scaffoldedMigration.MigrationClass, 
+                    scaffoldedMigration.MigrationCode, 
+                    scaffoldedMigration.MigrationMetadataCode);
+
+                _modelValidation(
+                    scaffoldedMigration.SnapshotModelClass,
+                    scaffoldedMigration.SnapshotModelCode);
+
+                return scaffoldedMigration;
             }
         }
 

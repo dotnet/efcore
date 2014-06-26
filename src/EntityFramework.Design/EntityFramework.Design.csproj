@@ -12,13 +12,17 @@
     <AssemblyName>EntityFramework.Design</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <RootNamespace>Microsoft.Data.Entity.Design</RootNamespace>
+    <AssemblyName>EntityFramework.Design</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -35,6 +39,11 @@
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
+    <PackageReference Include="System.Data.Common" />
+    <PackageReference Include="Microsoft.Framework.ConfigurationModel">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Framework.DependencyInjection" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\packages\KoreBuild\build\Resources.cs">
@@ -43,6 +52,9 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.tt</DependentUpon>
     </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="ScaffoldedMigration.cs" />
+    <Compile Include="MigrationTool.cs" />
     <Compile Include="CSharpMigrationCodeGenerator.cs" />
     <Compile Include="CSharpModelCodeGenerator.cs" />
     <Compile Include="Executor.cs" />
@@ -55,6 +67,7 @@
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
     <None Include="tools\Handler.cs" />
+    <Compile Include="Utilities\AssemblyExtensions.cs" />
     <Compile Include="Utilities\Check.cs" />
     <Compile Include="Utilities\CSharpHelper.cs" />
     <Compile Include="Utilities\DbContextConfigurationExtensions.cs" />
@@ -62,12 +75,14 @@
     <Compile Include="Utilities\ForwardingProxy.cs" />
     <EmbeddedResource Include="Properties\Strings.resx">
       <LogicalName>EntityFramework.Design.Strings.resources</LogicalName>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="..\..\packages\KoreBuild\build\Resources.tt">
       <Link>Properties\Resources.tt</Link>
       <Generator>TextTemplatingFileGenerator</Generator>
       <CustomToolNamespace>Microsoft.Data.Entity.Design</CustomToolNamespace>
       <LastGenOutput>Resources.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </None>
     <None Include="project.json" />
     <None Include="tools\EntityFramework.psd1" />
@@ -90,6 +105,10 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

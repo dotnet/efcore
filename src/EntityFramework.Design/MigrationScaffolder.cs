@@ -16,7 +16,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Design
 {
-    public abstract class MigrationScaffolder
+    public class MigrationScaffolder
     {
         private readonly DbContextConfiguration _contextConfiguration;
         private readonly MigrationAssembly _migrationAssembly;
@@ -40,6 +40,8 @@ namespace Microsoft.Data.Entity.Design
             _migrationCodeGenerator = migrationCodeGenerator;
         }
 
+        public virtual string MigrationDirectory { get; set; }
+
         protected virtual DbContextConfiguration ContextConfiguration
         {
             get { return _contextConfiguration; }
@@ -60,12 +62,12 @@ namespace Microsoft.Data.Entity.Design
             get { return _migrationCodeGenerator; }
         }
 
-        public virtual string Namespace
+        public virtual string MigrationNamespace
         {
             get { return ContextConfiguration.GetMigrationNamespace(); }
         }
 
-        public virtual void ScaffoldMigration([NotNull] string migrationName)
+        public virtual ScaffoldedMigration ScaffoldMigration([NotNull] string migrationName)
         {
             Check.NotEmpty(migrationName, "migrationName");
 
@@ -76,22 +78,23 @@ namespace Microsoft.Data.Entity.Design
 
             var migration = CreateMigration(migrationName);
 
-            ScaffoldMigration(migration);
-            ScaffoldModel(migration.TargetModel);
-        }
+            var migrationCode = new IndentedStringBuilder();
+            var migrationMetadataCode = new IndentedStringBuilder();
+            var snapshotModelCode = new IndentedStringBuilder();
 
-        public virtual void ScaffoldMigration([NotNull] IMigrationMetadata migration)
-        {
-            Check.NotNull(migration, "migration");
+            ScaffoldMigration(migration, migrationCode, migrationMetadataCode);
+            ScaffoldSnapshotModel(migration.TargetModel, snapshotModelCode);
 
-            var className = GetClassName(migration);
-            var stringBuilder = new IndentedStringBuilder();
-            var metadataStringBuilder = new IndentedStringBuilder();
-
-            MigrationCodeGenerator.GenerateMigrationClass(Namespace, className, migration, stringBuilder);
-            MigrationCodeGenerator.GenerateMigrationMetadataClass(Namespace, className, migration, metadataStringBuilder);
-
-            OnMigrationScaffolded(className, stringBuilder.ToString(), metadataStringBuilder.ToString());
+            return
+                new ScaffoldedMigration()
+                    {
+                        MigrationNamespace = MigrationNamespace,
+                        MigrationClass = GetClassName(migration),
+                        SnapshotModelClass = GetClassName(migration.TargetModel),
+                        MigrationCode = migrationCode.ToString(),
+                        MigrationMetadataCode = migrationMetadataCode.ToString(),
+                        SnapshotModelCode = snapshotModelCode.ToString()
+                    };
         }
 
         protected virtual IMigrationMetadata CreateMigration([NotNull] string migrationName)
@@ -127,16 +130,30 @@ namespace Microsoft.Data.Entity.Design
             return DateTime.UtcNow.ToString("yyyyMMddHHmmssf", CultureInfo.InvariantCulture);
         }
 
-        protected virtual void ScaffoldModel([NotNull] IModel model)
+        protected virtual void ScaffoldMigration(
+            [NotNull] IMigrationMetadata migration, 
+            [NotNull] IndentedStringBuilder migrationCode, 
+            [NotNull] IndentedStringBuilder migrationMetadataCode)
+        {
+            Check.NotNull(migration, "migration");
+            Check.NotNull(migrationCode, "migrationCode");
+            Check.NotNull(migrationMetadataCode, "migrationMetadataCode");
+
+            var className = GetClassName(migration);
+
+            MigrationCodeGenerator.GenerateMigrationClass(MigrationNamespace, className, migration, migrationCode);
+            MigrationCodeGenerator.GenerateMigrationMetadataClass(MigrationNamespace, className, migration, migrationMetadataCode);
+        }
+
+        protected virtual void ScaffoldSnapshotModel(
+            [NotNull] IModel model,
+            [NotNull] IndentedStringBuilder snapshotModelCode)
         {
             Check.NotNull(model, "model");
 
             var className = GetClassName(model);
-            var stringBuilder = new IndentedStringBuilder();
 
-            MigrationCodeGenerator.ModelCodeGenerator.GenerateModelSnapshotClass(Namespace, className, model, stringBuilder);
-
-            OnModelScaffolded(className, stringBuilder.ToString());
+            MigrationCodeGenerator.ModelCodeGenerator.GenerateModelSnapshotClass(MigrationNamespace, className, model, snapshotModelCode);
         }
 
         protected virtual string GetClassName([NotNull] IMigrationMetadata migration)
@@ -152,9 +169,5 @@ namespace Microsoft.Data.Entity.Design
 
             return _contextConfiguration.Context.GetType().Name + "ModelSnapshot";
         }
-
-        protected abstract void OnMigrationScaffolded(string className, string migrationClass, string migrationMetadataClass);
-
-        protected abstract void OnModelScaffolded(string className, string modelSnapshotClass);
     }
 }
