@@ -584,6 +584,7 @@ return builder.Model;",
 
             Assert.Equal(
                 @"using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Migrations.Infrastructure;
 using System;
 
 namespace MyNamespace

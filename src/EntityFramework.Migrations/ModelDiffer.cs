@@ -41,6 +41,13 @@ namespace Microsoft.Data.Entity.Migrations
 
             var database = _databaseBuilder.GetDatabase(model);
 
+            return CreateSchema(database);
+        }
+
+        public virtual IReadOnlyList<MigrationOperation> CreateSchema([NotNull] DatabaseModel database)
+        {
+            Check.NotNull(database, "database");
+
             var createSequenceOperations = database.Sequences.Select(
                 s => new CreateSequenceOperation(s));
 
@@ -78,6 +85,13 @@ namespace Microsoft.Data.Entity.Migrations
             Check.NotNull(model, "model");
 
             var database = _databaseBuilder.GetDatabase(model);
+
+            return DropSchema(database);
+        }
+
+        public virtual IReadOnlyList<MigrationOperation> DropSchema([NotNull] DatabaseModel database)
+        {
+            Check.NotNull(database, "database");
 
             var dropSequenceOperations = database.Sequences.Select(
                 s => new DropSequenceOperation(s.Name));

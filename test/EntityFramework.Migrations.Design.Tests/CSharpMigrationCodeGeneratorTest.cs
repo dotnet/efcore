@@ -111,12 +111,7 @@ namespace Microsoft.Data.Entity.Migrations.Design.Tests
             Foo = c.Int(nullable: false, defaultValue: 5),
             Bar = c.Int()
         })
-    .PrimaryKey(""MyPK"",
-        t => new
-            {
-                Foo => t.Foo,
-                Bar => t.Bar
-            })",
+    .PrimaryKey(""MyPK"", t => new { t.Foo, t.Bar })",
                 CSharpMigrationCodeGenerator.Generate(new CreateTableOperation(table)));
         }
 

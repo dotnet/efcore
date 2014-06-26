@@ -287,21 +287,9 @@ namespace Microsoft.Data.Entity.Migrations.Design
                         .AppendLine()
                         .Append(".PrimaryKey(")
                         .Append(GenerateLiteral(primaryKey.Name))
-                        .Append(",");
+                        .Append(", ");
 
-                    if (primaryKey.Columns.Count == 1)
-                    {
-                        stringBuilder.Append(" ");
-
-                        GenerateColumnReference(primaryKey.Columns[0], stringBuilder);
-                    }
-                    else
-                    {
-                        using (stringBuilder.AppendLine().Indent())
-                        {
-                            GenerateColumnReferences(primaryKey.Columns, stringBuilder);
-                        }
-                    }
+                    GenerateColumnReferences(primaryKey.Columns, stringBuilder);
 
                     stringBuilder.Append(")");
                 }
@@ -740,45 +728,22 @@ namespace Microsoft.Data.Entity.Migrations.Design
                 .Append(")");
         }
 
-        protected virtual void GenerateColumnReference(
-            [NotNull] Column column, [NotNull] IndentedStringBuilder stringBuilder)
-        {
-            stringBuilder
-                .Append("t => t.")
-                .Append(GenerateColumnIdentifier(column.Name));
-        }
-
         protected virtual void GenerateColumnReferences(
             [NotNull] IReadOnlyList<Column> columns, [NotNull] IndentedStringBuilder stringBuilder)
         {
-            stringBuilder.AppendLine("t => new");
-
-            using (stringBuilder.Indent())
+            if (columns.Count == 1)
             {
-                stringBuilder.AppendLine("{");
-
-                using (stringBuilder.Indent())
-                {
-                    for (var i = 0; i < columns.Count; i++)
-                    {
-                        var columnIdentifier = GenerateColumnIdentifier(columns[i].Name);
-
-                        if (i > 0)
-                        {
-                            stringBuilder.AppendLine(",");
-                        }
-
-                        stringBuilder
-                            .Append(columnIdentifier)
-                            .Append(" => t.")
-                            .Append(columnIdentifier);
-                    }
-                }
-
                 stringBuilder
-                    .AppendLine()
-                    .Append("}");
+                    .Append("t => t.")
+                    .Append(GenerateColumnIdentifier(columns[0].Name));
+
+                return;
             }
+
+            stringBuilder
+                .Append("t => new { ")
+                .Append(columns.Select(c => "t." + GenerateColumnIdentifier(c.Name)).Join())
+                .Append(" }");
         }
 
         protected virtual string GenerateColumnIdentifier([NotNull] string columnName)

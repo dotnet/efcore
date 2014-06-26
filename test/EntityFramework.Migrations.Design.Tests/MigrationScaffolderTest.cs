@@ -119,6 +119,7 @@ namespace MyNamespace
 
             Assert.Equal(
                 @"using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Migrations.Infrastructure;
 using System;
 
 namespace MyNamespace
@@ -216,6 +217,7 @@ namespace MyNamespace
 
             Assert.Equal(
                 @"using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Migrations.Infrastructure;
 using System;
 
 namespace MyNamespace

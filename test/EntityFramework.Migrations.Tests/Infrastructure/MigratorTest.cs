@@ -444,6 +444,142 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         }
 
         [Fact]
+        public void GenerateUpdateDatabaseSql_with_InitialDatabase()
+        {
+            var databaseMigrations
+                = new[]
+                      {
+                          new MigrationMetadata("Migration1", "Timestamp1"),
+                          new MigrationMetadata("Migration2", "Timestamp2")
+                      };
+            var localMigrations
+                = new[]
+                      {
+                          new MigrationMetadata("Migration1", "Timestamp1")
+                              {
+                                  TargetModel = new Metadata.Model(),
+                                  DowngradeOperations
+                                      = new MigrationOperation[]
+                                            {
+                                                new DropTableOperation("MyTable1")
+                                            }
+                              },
+                          new MigrationMetadata("Migration2", "Timestamp2")
+                              {
+                                  TargetModel = new Metadata.Model(),
+                                  DowngradeOperations
+                                      = new MigrationOperation[]
+                                            {
+                                                new DropColumnOperation("MyTable1", "Foo"),
+                                                new DropTableOperation("MyTable2")
+                                            }
+                              }
+                      };
+
+            var contextConfiguration = new Mock<DbContextConfiguration>().Object;
+            var historyRepository = MockHistoryRepository(contextConfiguration, databaseMigrations);
+            historyRepository.CallBase = true;
+
+            var sqlGenerator = new Mock<MigrationOperationSqlGenerator>(new RelationalTypeMapper());
+
+            sqlGenerator.Setup(mosg => mosg.Generate(It.IsAny<IReadOnlyList<MigrationOperation>>()))
+                .Returns<IReadOnlyList<MigrationOperation>>(
+                    operations => operations.Select(
+                        op => new SqlStatement(
+                            (op is DropTableOperation
+                                ? "Drop" + ((DropTableOperation)op).TableName.Name
+                                : op.GetType().Name)
+                            + "Sql")));
+
+            var sqlGeneratorFactory = new Mock<IMigrationOperationSqlGeneratorFactory>();
+
+            sqlGeneratorFactory.Setup(mosgf => mosgf.Create(It.IsAny<DatabaseModel>()))
+                .Returns(sqlGenerator.Object);
+
+            var migrator
+                = new Mock<Migrator>(
+                    contextConfiguration,
+                    historyRepository.Object,
+                    MockMigrationAssembly(contextConfiguration, localMigrations).Object,
+                    new ModelDiffer(new DatabaseBuilder()),
+                    sqlGeneratorFactory.Object,
+                    new Mock<SqlGenerator>().Object,
+                    new Mock<SqlStatementExecutor>().Object)
+                {
+                    CallBase = true
+                }
+                    .Object;
+
+            var sqlStatements = migrator.GenerateUpdateDatabaseSql(Migrator.InitialDatabase);
+
+            Assert.Equal(6, sqlStatements.Count);
+            Assert.Equal("DropColumnOperationSql", sqlStatements[0].Sql);
+            Assert.Equal("DropMyTable2Sql", sqlStatements[1].Sql);
+            Assert.Equal("Migration2DeleteSql", sqlStatements[2].Sql);
+            Assert.Equal("DropMyTable1Sql", sqlStatements[3].Sql);
+            Assert.Equal("Migration1DeleteSql", sqlStatements[4].Sql);
+            Assert.Equal("Drop__MigrationHistorySql", sqlStatements[5].Sql);
+        }
+
+        [Fact]
+        public void GenerateUpdateDatabaseSql_when_history_repository_does_not_exist()
+        {
+            var localMigrations
+                = new[]
+                      {
+                          new MigrationMetadata("Migration1", "Timestamp1")
+                              {
+                                  TargetModel = new Metadata.Model(),
+                                  UpgradeOperations
+                                      = new MigrationOperation[]
+                                            {
+                                                new CreateTableOperation(new Table("MyTable1"))
+                                            }
+                              }
+                      };
+
+            var contextConfiguration = new Mock<DbContextConfiguration>().Object;
+            var historyRepository = new Mock<HistoryRepository>(contextConfiguration) { CallBase = true };
+            var dbException = new Mock<DbException>();
+
+            historyRepository.SetupGet(hr => hr.Migrations).Throws(dbException.Object);
+            historyRepository.Setup(hr => hr.GenerateInsertMigrationSql(It.IsAny<IMigrationMetadata>(), It.IsAny<SqlGenerator>()))
+                .Returns<IMigrationMetadata, SqlGenerator>((m, sg) => new[] { new SqlStatement(m.Name + "InsertSql") });
+
+            var sqlGenerator = new Mock<MigrationOperationSqlGenerator>(new RelationalTypeMapper());
+
+            sqlGenerator.Setup(mosg => mosg.Generate(It.IsAny<IReadOnlyList<MigrationOperation>>()))
+                .Returns<IReadOnlyList<MigrationOperation>>(
+                    operations => operations.Select(op => new SqlStatement("Create" + ((CreateTableOperation)op).Table.Name + "Sql")));
+
+            var sqlGeneratorFactory = new Mock<IMigrationOperationSqlGeneratorFactory>();
+
+            sqlGeneratorFactory.Setup(mosgf => mosgf.Create(It.IsAny<DatabaseModel>()))
+                .Returns(sqlGenerator.Object);
+
+            var migrator
+                = new Mock<Migrator>(
+                    contextConfiguration,
+                    historyRepository.Object,
+                    MockMigrationAssembly(contextConfiguration, localMigrations).Object,
+                    new ModelDiffer(new DatabaseBuilder()),
+                    sqlGeneratorFactory.Object,
+                    new Mock<SqlGenerator>().Object,
+                    new Mock<SqlStatementExecutor>().Object)
+                      {
+                          CallBase = true
+                      }
+                    .Object;
+
+            var sqlStatements = migrator.GenerateUpdateDatabaseSql();
+
+            Assert.Equal(3, sqlStatements.Count);
+            Assert.Equal("Create__MigrationHistorySql", sqlStatements[0].Sql);
+            Assert.Equal("CreateMyTable1Sql", sqlStatements[1].Sql);
+            Assert.Equal("Migration1InsertSql", sqlStatements[2].Sql);            
+        }
+
+        [Fact]
         public void GenerateUpdateDatabaseSql_throws_if_local_migrations_do_not_include_all_database_migrations()
         {
             var migrator = MockMigrator(
@@ -523,7 +659,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     contextConfigurationMock.Object,
                     MockHistoryRepository(contextConfigurationMock.Object, new IMigrationMetadata[0]).Object,
                     MockMigrationAssembly(contextConfigurationMock.Object, new IMigrationMetadata[0]).Object,
-                    new DatabaseBuilder(),
+                    new ModelDiffer(new DatabaseBuilder()),
                     MockMigrationOperationSqlGeneratorFactory().Object,
                     new Mock<SqlGenerator>().Object,
                     sqlStatementExecutorMock.Object)
@@ -549,7 +685,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     contextConfiguration,
                     MockHistoryRepository(contextConfiguration, databaseMigrations).Object,
                     MockMigrationAssembly(contextConfiguration, localMigrations).Object,
-                    new DatabaseBuilder(),
+                    new ModelDiffer(new DatabaseBuilder()),
                     MockMigrationOperationSqlGeneratorFactory().Object,
                     new Mock<SqlGenerator>().Object,
                     new Mock<SqlStatementExecutor>().Object)
@@ -591,7 +727,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
 
             mock.Setup(mosg => mosg.Generate(It.IsAny<IReadOnlyList<MigrationOperation>>()))
                 .Returns<IReadOnlyList<MigrationOperation>>(
-                    (operations) => operations.Select(op => new SqlStatement(op.GetType().Name + "Sql")));
+                    operations => operations.Select(op => new SqlStatement(op.GetType().Name + "Sql")));
 
             return mock;
         }

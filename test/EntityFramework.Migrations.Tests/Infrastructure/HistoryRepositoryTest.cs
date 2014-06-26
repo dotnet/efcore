@@ -83,14 +83,13 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
 
                     var expression = (MethodCallExpression)query.Expression;
 
-                    Assert.Equal("OrderBy", expression.Method.Name);
-                    Assert.Equal("m => m", expression.Arguments[1].ToString());
-                    Assert.Equal("value(Microsoft.Data.Entity.Migrations.Infrastructure.MigrationMetadataComparer)", expression.Arguments[2].ToString());
+                    Assert.Equal("Select", expression.Method.Name);
+                    Assert.Equal("h => new MigrationMetadata(h.MigrationName, h.Timestamp)", expression.Arguments[1].ToString());
 
                     expression = (MethodCallExpression)expression.Arguments[0];
 
-                    Assert.Equal("Select", expression.Method.Name);
-                    Assert.Equal("h => new MigrationMetadata(h.MigrationName, h.Timestamp)", expression.Arguments[1].ToString());
+                    Assert.Equal("OrderBy", expression.Method.Name);
+                    Assert.Equal("h => (h.Timestamp + h.MigrationName)", expression.Arguments[1].ToString());
 
                     expression = (MethodCallExpression)expression.Arguments[0];
 

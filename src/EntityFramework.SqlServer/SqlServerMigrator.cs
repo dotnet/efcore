@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational;
 
@@ -17,7 +18,7 @@ namespace Microsoft.Data.Entity.SqlServer
             [NotNull] DbContextConfiguration contextConfiguration,
             [NotNull] HistoryRepository historyRepository,
             [NotNull] MigrationAssembly migrationAssembly,
-            [NotNull] DatabaseBuilder databaseBuilder,
+            [NotNull] ModelDiffer modelDiffer,
             [NotNull] SqlServerMigrationOperationSqlGeneratorFactory sqlGeneratorFactory,
             [NotNull] SqlServerSqlGenerator sqlGenerator,
             [NotNull] SqlStatementExecutor sqlStatementExecutor)
@@ -25,7 +26,7 @@ namespace Microsoft.Data.Entity.SqlServer
                 contextConfiguration,
                 historyRepository,
                 migrationAssembly,
-                databaseBuilder,
+                modelDiffer,
                 sqlGeneratorFactory,
                 sqlGenerator,
                 sqlStatementExecutor)
