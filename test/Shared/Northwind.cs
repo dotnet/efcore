@@ -313,6 +313,11 @@ namespace Northwind
             return DateTime.Parse(date, new System.Globalization.CultureInfo("en-US"));
         }
 
+        static DateTime ParseDate(string date)
+        {
+            return DateTime.Parse(date, new System.Globalization.CultureInfo("en-US"));
+        }
+
         #region Customers
 
         public static readonly Customer[] Customers =
