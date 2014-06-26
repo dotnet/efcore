@@ -13,7 +13,6 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
 {
     public class AtsQueryModelVisitorTests : AtsQueryModelVisitor, IClassFixture<TestModelFixture>
     {
-        private Model _model;
         private readonly TestModelFixture _fixture;
 
         public AtsQueryModelVisitorTests(TestModelFixture fixture)

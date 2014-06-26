@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
     public class ModificationCommandBatchTest
     {
         [Fact]
-        public async Task AddCommand_checks_arguments()
+        public void AddCommand_checks_arguments()
         {
             var batch = new ModificationCommandBatch();
 
