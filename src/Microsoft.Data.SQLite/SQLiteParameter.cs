@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
@@ -94,48 +95,51 @@ namespace Microsoft.Data.SQLite
             throw new NotSupportedException();
         }
 
-        internal void Bind(StatementHandle handle)
+        internal void Bind(IEnumerable<StatementHandle> handles)
         {
-            Debug.Assert(handle != null && !handle.IsInvalid, "handle is null.");
+            Debug.Assert(handles != null, "handles is null.");
             if (_parameterName == null)
                 throw new InvalidOperationException(Strings.FormatRequiresSet("ParameterName"));
             if (_value == null)
                 throw new InvalidOperationException(Strings.FormatRequiresSet("Value"));
 
-            var index = NativeMethods.sqlite3_bind_parameter_index(handle, _parameterName);
-            if (index != 0)
+            foreach (var handle in handles)
             {
-                var typeMap = SQLiteTypeMap.FromClrType(_value.GetType());
-                switch (typeMap.SQLiteType)
+                var index = NativeMethods.sqlite3_bind_parameter_index(handle, _parameterName);
+                if (index != 0)
                 {
-                    case SQLiteType.Integer:
-                        var rc = NativeMethods.sqlite3_bind_int64(handle, index, (long)typeMap.ToInterop(_value));
-                        MarshalEx.ThrowExceptionForRC(rc);
-                        break;
+                    var typeMap = SQLiteTypeMap.FromClrType(_value.GetType());
+                    switch (typeMap.SQLiteType)
+                    {
+                        case SQLiteType.Integer:
+                            var rc = NativeMethods.sqlite3_bind_int64(handle, index, (long)typeMap.ToInterop(_value));
+                            MarshalEx.ThrowExceptionForRC(rc);
+                            break;
 
-                    case SQLiteType.Float:
-                        rc = NativeMethods.sqlite3_bind_double(handle, index, (double)typeMap.ToInterop(_value));
-                        MarshalEx.ThrowExceptionForRC(rc);
-                        break;
+                        case SQLiteType.Float:
+                            rc = NativeMethods.sqlite3_bind_double(handle, index, (double)typeMap.ToInterop(_value));
+                            MarshalEx.ThrowExceptionForRC(rc);
+                            break;
 
-                    case SQLiteType.Text:
-                        rc = NativeMethods.sqlite3_bind_text(handle, index, (string)typeMap.ToInterop(_value));
-                        MarshalEx.ThrowExceptionForRC(rc);
-                        break;
+                        case SQLiteType.Text:
+                            rc = NativeMethods.sqlite3_bind_text(handle, index, (string)typeMap.ToInterop(_value));
+                            MarshalEx.ThrowExceptionForRC(rc);
+                            break;
 
-                    case SQLiteType.Blob:
-                        rc = NativeMethods.sqlite3_bind_blob(handle, index, (byte[])typeMap.ToInterop(_value));
-                        MarshalEx.ThrowExceptionForRC(rc);
-                        break;
+                        case SQLiteType.Blob:
+                            rc = NativeMethods.sqlite3_bind_blob(handle, index, (byte[])typeMap.ToInterop(_value));
+                            MarshalEx.ThrowExceptionForRC(rc);
+                            break;
 
-                    case SQLiteType.Null:
-                        rc = NativeMethods.sqlite3_bind_null(handle, index);
-                        MarshalEx.ThrowExceptionForRC(rc);
-                        break;
+                        case SQLiteType.Null:
+                            rc = NativeMethods.sqlite3_bind_null(handle, index);
+                            MarshalEx.ThrowExceptionForRC(rc);
+                            break;
 
-                    default:
-                        Debug.Assert(false, "Unexpected value.");
-                        break;
+                        default:
+                            Debug.Assert(false, "Unexpected value.");
+                            break;
+                    }
                 }
             }
 

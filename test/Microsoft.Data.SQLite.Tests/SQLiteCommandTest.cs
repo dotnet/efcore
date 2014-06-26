@@ -3,6 +3,7 @@
 
 using System;
 using System.Data;
+using Microsoft.Data.SQLite.Utilities;
 using Xunit;
 
 namespace Microsoft.Data.SQLite
@@ -165,21 +166,6 @@ namespace Microsoft.Data.SQLite
                 var ex = Assert.Throws<SQLiteException>(() => command.Prepare());
 
                 Assert.Equal(1, ex.ErrorCode);
-            }
-        }
-
-        [Fact]
-        public void Prepare_throws_when_batching()
-        {
-            using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
-            {
-                command.CommandText = "SELECT 1; SELECT 2;";
-                connection.Open();
-
-                var ex = Assert.Throws<InvalidOperationException>(() => command.Prepare());
-
-                Assert.Equal(Strings.BatchNotSupported, ex.Message);
             }
         }
 
@@ -394,6 +380,75 @@ namespace Microsoft.Data.SQLite
         }
 
         [Fact]
+        public void ExecuteScalar_returns_long_when_batching()
+        {
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT 42; SELECT 43;";
+                connection.Open();
+
+                Assert.Equal(42L, command.ExecuteScalar());
+            }
+        }
+
+        [Fact]
+        public void ExecuteScalar_returns_long_when_batching_with_insert()
+        {
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
+            using (var command = connection.CreateCommand())
+            {
+                connection.Open();
+                CreateTestTable(connection);
+
+                command.CommandText = @"
+                    INSERT INTO TestTable (StringColumn) VALUES (0);
+                    SELECT 42;";
+
+                Assert.Equal(42L, command.ExecuteScalar());
+            }
+        }
+
+        [Fact]
+        public void ExecuteScalar_returns_null_when_batching()
+        {
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT 42 WHERE 0 = 1; SELECT 43;";
+                connection.Open();
+
+                Assert.Null(command.ExecuteScalar());
+            }
+        }
+
+        [Fact]
+        public void ExecuteScalar_returns_long_when_multiple_columns()
+        {
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT 42, 43";
+                connection.Open();
+
+                Assert.Equal(42L, command.ExecuteScalar());
+            }
+        }
+
+        [Fact]
+        public void ExecuteScalar_returns_long_when_multiple_rows()
+        {
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT 42 UNION SELECT 43";
+                connection.Open();
+
+                Assert.Equal(42L, command.ExecuteScalar());
+            }
+        }
+
+        [Fact]
         public void ExecuteNonQuery_throws_when_open_reader()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
@@ -560,6 +615,44 @@ namespace Microsoft.Data.SQLite
         }
 
         [Fact]
+        public void ExecuteNonQuery_returns_changes_when_batching()
+        {
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
+            using (var command = connection.CreateCommand())
+            {
+                connection.Open();
+                CreateTestTable(connection);
+
+                command.CommandText = @"
+                    INSERT INTO TestTable (StringColumn) VALUES ('test');
+                    INSERT INTO TestTable (StringColumn) VALUES ('again');";
+
+                var result = command.ExecuteNonQuery();
+
+                Assert.Equal(2, result);
+            }
+        }
+
+        [Fact]
+        public void ExecuteNonQuery_returns_changes_when_batching_and_select()
+        {
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
+            using (var command = connection.CreateCommand())
+            {
+                connection.Open();
+                CreateTestTable(connection);
+
+                command.CommandText = @"
+                    INSERT INTO TestTable (StringColumn) VALUES ('test');
+                    SELECT last_insert_rowid();";
+
+                var result = command.ExecuteNonQuery();
+
+                Assert.Equal(1, result);
+            }
+        }
+
+        [Fact]
         public void ExecuteReader_throws_when_open_reader()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
@@ -651,6 +744,31 @@ namespace Microsoft.Data.SQLite
         }
 
         [Fact]
+        public void ExecuteReader_works_when_batching()
+        {
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT @Parameter; SELECT @Parameter + 1;";
+                command.Parameters.AddWithValue("@Parameter", 1);
+                connection.Open();
+
+                using (var reader = command.ExecuteReader())
+                {
+                    Assert.True(command.Parameters.Bound);
+                    Assert.NotNull(command.OpenReader);
+                    Assert.NotNull(reader);
+
+                    reader.Read();
+                    Assert.Equal(1L, reader[0]);
+                    reader.NextResult();
+                    reader.Read();
+                    Assert.Equal(2L, reader[0]);
+                }
+            }
+        }
+
+        [Fact]
         public void Cancel_not_supported()
         {
             using (var command = new SQLiteCommand())
@@ -676,6 +794,14 @@ namespace Microsoft.Data.SQLite
                     Assert.True(reader.IsClosed);
                 }
             }
+        }
+
+        private void CreateTestTable(SQLiteConnection connection)
+        {
+            connection.ExecuteNonQuery(@"
+                CREATE TABLE TestTable (
+                    StringColumn TEXT
+                )");
         }
     }
 }

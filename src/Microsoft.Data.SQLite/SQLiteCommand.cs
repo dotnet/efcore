@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
@@ -17,7 +18,7 @@ namespace Microsoft.Data.SQLite
         private CommandType _commandType = CommandType.Text;
         private string _commandText;
         private bool _prepared;
-        private StatementHandle _handle;
+        private IEnumerable<StatementHandle> _handles;
         private SQLiteParameterCollection _parameters = null;
 
         public SQLiteCommand()
@@ -136,11 +137,6 @@ namespace Microsoft.Data.SQLite
         public override bool DesignTimeVisible { get; set; }
         public override UpdateRowSource UpdatedRowSource { get; set; }
 
-        internal StatementHandle Handle
-        {
-            get { return _handle; }
-        }
-
         internal SQLiteDataReader OpenReader { get; set; }
 
         public new SQLiteParameter CreateParameter()
@@ -165,19 +161,24 @@ namespace Microsoft.Data.SQLite
                 return;
 
             Debug.Assert(_connection.Handle != null && !_connection.Handle.IsInvalid, "_connection.Handle is null.");
-            Debug.Assert(_handle == null, "_handle is not null.");
+            Debug.Assert(_handles == null, "_handles is not null.");
 
-            string tail;
-            var rc = NativeMethods.sqlite3_prepare_v2(
-                _connection.Handle,
-                _commandText,
-                out _handle,
-                out tail);
-            MarshalEx.ThrowExceptionForRC(rc);
+            var handles = new List<StatementHandle>();
+            var remainingSql = _commandText;
+            do
+            {
+                StatementHandle handle;
+                var rc = NativeMethods.sqlite3_prepare_v2(
+                    _connection.Handle,
+                    remainingSql,
+                    out handle,
+                    out remainingSql);
+                MarshalEx.ThrowExceptionForRC(rc);
 
-            if (!string.IsNullOrEmpty(tail))
-                throw new InvalidOperationException(Strings.BatchNotSupported);
+                handles.Add(handle);
+            } while (!string.IsNullOrWhiteSpace(remainingSql));
 
+            _handles = handles;
             _prepared = true;
         }
 
@@ -200,7 +201,27 @@ namespace Microsoft.Data.SQLite
             Prepare();
             Bind();
 
-            return OpenReader = new SQLiteDataReader(this);
+            var changes = 0;
+            var resultHandles = new List<StatementHandle>();
+            foreach (var handle in _handles)
+            {
+                var hasResults = NativeMethods.sqlite3_stmt_readonly(handle) != 0;
+
+                var rc = NativeMethods.sqlite3_step(handle);
+                if (rc == Constants.SQLITE_ROW || (rc == Constants.SQLITE_DONE && hasResults))
+                {
+                    resultHandles.Add(handle);
+
+                    continue;
+                }
+
+                rc = NativeMethods.sqlite3_reset(handle);
+                MarshalEx.ThrowExceptionForRC(rc);
+
+                changes += NativeMethods.sqlite3_changes(_connection.Handle);
+            }
+
+            return OpenReader = new SQLiteDataReader(this, resultHandles, changes);
         }
 
         protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
@@ -221,13 +242,22 @@ namespace Microsoft.Data.SQLite
             Prepare();
             Bind();
 
-            NativeMethods.sqlite3_step(_handle);
-            var rc = NativeMethods.sqlite3_reset(_handle);
-            MarshalEx.ThrowExceptionForRC(rc);
-
             Debug.Assert(_connection.Handle != null && !_connection.Handle.IsInvalid, "_connection.Handle is null.");
 
-            return NativeMethods.sqlite3_changes(_connection.Handle);
+            var changes = 0;
+            foreach (var handle in _handles)
+            {
+                var hasChanges = NativeMethods.sqlite3_stmt_readonly(handle) == 0;
+
+                NativeMethods.sqlite3_step(handle);
+                var rc = NativeMethods.sqlite3_reset(handle);
+                MarshalEx.ThrowExceptionForRC(rc);
+
+                if (hasChanges)
+                    changes += NativeMethods.sqlite3_changes(_connection.Handle);
+            }
+
+            return changes;
         }
 
         public override object ExecuteScalar()
@@ -243,26 +273,41 @@ namespace Microsoft.Data.SQLite
             Prepare();
             Bind();
 
-            try
+            object result = null;
+            var gotResult = false;
+            foreach (var handle in _handles)
             {
-                var rc = NativeMethods.sqlite3_step(_handle);
-                if (rc == Constants.SQLITE_DONE)
-                    return null;
-                if (rc != Constants.SQLITE_ROW)
+                try
+                {
+                    var rc = NativeMethods.sqlite3_step(handle);
+                    if (rc != Constants.SQLITE_DONE && rc != Constants.SQLITE_ROW)
+                        MarshalEx.ThrowExceptionForRC(rc);
+
+                    var hasResults = NativeMethods.sqlite3_stmt_readonly(handle) != 0;
+
+                    if (!gotResult && hasResults)
+                    {
+                        if (rc == Constants.SQLITE_ROW)
+                        {
+                            var declaredType = NativeMethods.sqlite3_column_decltype(handle, 0);
+                            var sqliteType = (SQLiteType)NativeMethods.sqlite3_column_type(handle, 0);
+                            var map = SQLiteTypeMap.FromDeclaredType(declaredType, sqliteType);
+                            var value = ColumnReader.Read(map.SQLiteType, handle, 0);
+
+                            result = map.FromInterop(value);
+                        }
+
+                        gotResult = true;
+                    }
+                }
+                finally
+                {
+                    var rc = NativeMethods.sqlite3_reset(handle);
                     MarshalEx.ThrowExceptionForRC(rc);
-
-                var declaredType = NativeMethods.sqlite3_column_decltype(_handle, 0);
-                var sqliteType = (SQLiteType)NativeMethods.sqlite3_column_type(_handle, 0);
-                var map = SQLiteTypeMap.FromDeclaredType(declaredType, sqliteType);
-                var value = ColumnReader.Read(map.SQLiteType, _handle, 0);
-
-                return map.FromInterop(value);
+                }
             }
-            finally
-            {
-                var rc = NativeMethods.sqlite3_reset(_handle);
-                MarshalEx.ThrowExceptionForRC(rc);
-            }
+
+            return result;
         }
 
         public override void Cancel()
@@ -289,24 +334,29 @@ namespace Microsoft.Data.SQLite
         private void Bind()
         {
             Debug.Assert(_prepared, "_prepared is false.");
-            Debug.Assert(_handle != null && !_handle.IsInvalid, "_connection.Handle is null.");
+            Debug.Assert(_handles != null, "_handles is null.");
             Debug.Assert(OpenReader == null, "ActiveReader is not null.");
             if (_parameters == null || _parameters.Bound)
                 return;
 
-            var rc = NativeMethods.sqlite3_clear_bindings(_handle);
-            MarshalEx.ThrowExceptionForRC(rc);
+            foreach (var handle in _handles)
+            {
+                var rc = NativeMethods.sqlite3_clear_bindings(handle);
+                MarshalEx.ThrowExceptionForRC(rc);
+            }
 
-            _parameters.Bind(_handle);
+            _parameters.Bind(_handles);
         }
 
         private void ReleaseNativeObjects()
         {
-            if (_handle == null || _handle.IsInvalid)
+            if (_handles == null)
                 return;
 
-            _handle.Dispose();
-            _handle = null;
+            foreach (var handle in _handles)
+                handle.Dispose();
+
+            _handles = null;
         }
 
         private void ValidateTransaction()

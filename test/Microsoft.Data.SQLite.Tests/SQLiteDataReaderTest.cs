@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
+using Microsoft.Data.SQLite.Interop;
 using Microsoft.Data.SQLite.Utilities;
 using Xunit;
 
@@ -41,6 +43,20 @@ namespace Microsoft.Data.SQLite
         }
 
         [Fact]
+        public void HasRows_works()
+        {
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT 1";
+                connection.Open();
+
+                using (var reader = command.ExecuteReader())
+                    Assert.True(reader.HasRows);
+            }
+        }
+
+        [Fact]
         public void IsClosed_works()
         {
             var reader = CreateReader();
@@ -57,14 +73,34 @@ namespace Microsoft.Data.SQLite
             using (var connection = new SQLiteConnection("Filename=:memory:"))
             using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT 1";
                 connection.Open();
+                CreateTestTable(connection);
+
+                command.CommandText = "INSERT INTO TestTable (Int32Column) VALUES (2)";
 
                 using (var reader = command.ExecuteReader())
                 {
-                    reader.Read();
+                    Assert.Equal(1, reader.RecordsAffected);
+                }
+            }
+        }
 
-                    Assert.Equal(0, reader.RecordsAffected);
+        [Fact]
+        public void RecordsAffected_works_when_batching()
+        {
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
+            using (var command = connection.CreateCommand())
+            {
+                connection.Open();
+                CreateTestTable(connection);
+
+                command.CommandText = @"
+                    INSERT INTO TestTable (Int32Column) VALUES (2);
+                    INSERT INTO TestTable (Int32Column) VALUES (3);";
+
+                using (var reader = command.ExecuteReader())
+                {
+                    Assert.Equal(2, reader.RecordsAffected);
                 }
             }
         }
@@ -133,9 +169,29 @@ namespace Microsoft.Data.SQLite
         }
 
         [Fact]
-        public void NextResult_returns_false()
+        public void NextResult_works()
         {
-            Assert.False(CreateReader().NextResult());
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT 1; SELECT 2;";
+                connection.Open();
+
+                using (var reader = command.ExecuteReader())
+                {
+                    reader.Read();
+                    Assert.Equal(1L, reader[0]);
+
+                    var result = reader.NextResult();
+                    Assert.True(result);
+
+                    reader.Read();
+                    Assert.Equal(2L, reader[0]);
+
+                    result = reader.NextResult();
+                    Assert.False(result);
+                }
+            }
         }
 
         [Fact]
@@ -789,7 +845,7 @@ namespace Microsoft.Data.SQLite
         private static SQLiteDataReader CreateReader()
         {
             var command = new SQLiteCommand();
-            var reader = new SQLiteDataReader(command);
+            var reader = new SQLiteDataReader(command, new StatementHandle[0], 0);
             command.OpenReader = reader;
 
             return reader;

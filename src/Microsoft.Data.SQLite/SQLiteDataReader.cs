@@ -3,8 +3,10 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics;
+using System.Linq;
 using Microsoft.Data.SQLite.Interop;
 using Microsoft.Data.SQLite.Utilities;
 
@@ -12,15 +14,33 @@ namespace Microsoft.Data.SQLite
 {
     public class SQLiteDataReader : DbDataReader
     {
-        private readonly SQLiteCommand _command;
-        private bool _closed;
+        private static readonly IList<StatementHandle> _empty = new StatementHandle[0];
 
-        // TODO: Step once
-        internal SQLiteDataReader(SQLiteCommand command)
+        private readonly SQLiteCommand _command;
+        private readonly bool _hasRows;
+        private int _currentIndex;
+        private StatementHandle _currentHandle;
+        private IList<StatementHandle> _handles;
+        private readonly int _recordsAffected;
+
+        private bool _closed;
+        private bool _hasRead;
+
+        internal SQLiteDataReader(SQLiteCommand command, IList<StatementHandle> handles, int recordsAffected)
         {
             Debug.Assert(command != null, "command is null.");
+            Debug.Assert(handles != null, "handles is null.");
 
             _command = command;
+
+            if (handles.Count > 0)
+            {
+                _hasRows = true;
+                _currentHandle = handles[0];
+            }
+
+            _handles = handles;
+            _recordsAffected = recordsAffected;
         }
 
         public override int Depth
@@ -34,17 +54,13 @@ namespace Microsoft.Data.SQLite
             {
                 CheckClosed("FieldCount");
 
-                return NativeMethods.sqlite3_column_count(_command.Handle);
+                return NativeMethods.sqlite3_column_count(_currentHandle);
             }
         }
 
         public override bool HasRows
         {
-            get
-            {
-                // TODO
-                throw new NotImplementedException();
-            }
+            get { return _hasRows; }
         }
 
         public override bool IsClosed
@@ -54,16 +70,7 @@ namespace Microsoft.Data.SQLite
 
         public override int RecordsAffected
         {
-            get
-            {
-                Debug.Assert(
-                    _command.Connection != null
-                        && _command.Connection.Handle != null
-                        && !_command.Connection.Handle.IsInvalid,
-                    "_command.Connection.Handle is null.");
-
-                return NativeMethods.sqlite3_changes(_command.Connection.Handle);
-            }
+            get { return _recordsAffected; }
         }
 
         public override object this[string name]
@@ -86,8 +93,15 @@ namespace Microsoft.Data.SQLite
         {
             CheckClosed("Read");
 
-            Debug.Assert(_command.Handle != null && !_command.Handle.IsInvalid, "_command.Handle is null.");
-            var rc = NativeMethods.sqlite3_step(_command.Handle);
+            if (!_hasRead)
+            {
+                _hasRead = true;
+
+                return true;
+            }
+
+            Debug.Assert(_currentHandle != null && !_currentHandle.IsInvalid, "_currentHandle is null.");
+            var rc = NativeMethods.sqlite3_step(_currentHandle);
             if (rc == Constants.SQLITE_DONE)
                 return false;
             if (rc != Constants.SQLITE_ROW)
@@ -98,7 +112,17 @@ namespace Microsoft.Data.SQLite
 
         public override bool NextResult()
         {
-            return false;
+            CheckClosed("NextResult");
+
+            _currentIndex++;
+
+            if (_currentIndex >= _handles.Count)
+                return false;
+
+            _hasRead = false;
+            _currentHandle = _handles[_currentIndex];
+
+            return true;
         }
 
         public override void Close()
@@ -108,10 +132,19 @@ namespace Microsoft.Data.SQLite
 
             Debug.Assert(_command.OpenReader == this, "_command.ActiveReader is not this.");
 
-            if (_command.Handle != null && !_command.Handle.IsInvalid)
+
+            if (_handles.Any())
             {
-                var rc = NativeMethods.sqlite3_reset(_command.Handle);
-                MarshalEx.ThrowExceptionForRC(rc);
+                foreach (var handle in _handles)
+                {
+                    if (handle != null && !handle.IsInvalid)
+                    {
+                        var rc = NativeMethods.sqlite3_reset(handle);
+                        MarshalEx.ThrowExceptionForRC(rc);
+                    }
+                }
+
+                _handles = _empty;
             }
 
             _command.OpenReader = null;
@@ -123,7 +156,7 @@ namespace Microsoft.Data.SQLite
             CheckClosed("GetName");
 
             // TODO: Cache results #Perf
-            return NativeMethods.sqlite3_column_name(_command.Handle, ordinal);
+            return NativeMethods.sqlite3_column_name(_currentHandle, ordinal);
         }
 
         public override int GetOrdinal(string name)
@@ -141,7 +174,7 @@ namespace Microsoft.Data.SQLite
         {
             CheckClosed("GetDataTypeName");
 
-            return NativeMethods.sqlite3_column_decltype(_command.Handle, ordinal);
+            return NativeMethods.sqlite3_column_decltype(_currentHandle, ordinal);
         }
 
         public override Type GetFieldType(int ordinal)
@@ -160,7 +193,7 @@ namespace Microsoft.Data.SQLite
         {
             Debug.Assert(!_closed, "_closed is true.");
 
-            return (SQLiteType)NativeMethods.sqlite3_column_type(_command.Handle, ordinal);
+            return (SQLiteType)NativeMethods.sqlite3_column_type(_currentHandle, ordinal);
         }
 
         public override bool IsDBNull(int ordinal)
@@ -269,7 +302,7 @@ namespace Microsoft.Data.SQLite
             CheckClosed("GetFieldValue");
 
             var map = SQLiteTypeMap.FromClrType<T>();
-            var value = ColumnReader.Read(map.SQLiteType, _command.Handle, ordinal);
+            var value = ColumnReader.Read(map.SQLiteType, _currentHandle, ordinal);
 
             return (T)map.FromInterop(value);
         }
@@ -279,7 +312,7 @@ namespace Microsoft.Data.SQLite
             CheckClosed("GetValue");
 
             var map = GetTypeMap(ordinal);
-            var value = ColumnReader.Read(map.SQLiteType, _command.Handle, ordinal);
+            var value = ColumnReader.Read(map.SQLiteType, _currentHandle, ordinal);
 
             return map.FromInterop(value);
         }

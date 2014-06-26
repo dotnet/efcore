@@ -176,10 +176,10 @@ namespace Microsoft.Data.SQLite
             SetParameter(IndexOfChecked(parameterName), value);
         }
 
-        internal void Bind(StatementHandle handle)
+        internal void Bind(IEnumerable<StatementHandle> handles)
         {
             foreach (var parameter in _parameters)
-                parameter.Bind(handle);
+                parameter.Bind(handles);
 
             _bound = true;
         }
