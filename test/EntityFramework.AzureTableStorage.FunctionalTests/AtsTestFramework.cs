@@ -2,6 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
@@ -9,27 +12,25 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
 {
     public class AtsTestFramework : XunitTestFramework
     {
-        protected override ITestFrameworkDiscoverer CreateDiscoverer(IAssemblyInfo assemblyInfo)
+        protected override ITestFrameworkExecutor CreateExecutor(AssemblyName assemblyName)
         {
-            return new AtsTestDiscoverer(assemblyInfo, SourceInformationProvider);
+            return new AtsTestExecutor(assemblyName, SourceInformationProvider);
         }
     }
 
-    public class AtsTestDiscoverer : XunitTestFrameworkDiscoverer
+    public class AtsTestExecutor : XunitTestFrameworkExecutor
     {
-        public AtsTestDiscoverer(IAssemblyInfo assemblyInfo, ISourceInformationProvider sourceProvider)
-            : base(assemblyInfo, sourceProvider)
+        public AtsTestExecutor(AssemblyName assemblyName, ISourceInformationProvider sourceInformationProvider)
+            : base(assemblyName, sourceInformationProvider)
         {
         }
 
-        protected override bool FindTestsForType(ITypeInfo type, bool includeSourceInformation, IMessageBus messageBus)
+        protected override void RunTestCases(IEnumerable<IXunitTestCase> testCases, IMessageSink messageSink, ITestFrameworkOptions executionOptions)
         {
-            if (type.GetCustomAttributes(typeof(RunIfConfiguredAttribute)) == null
-                || TestConfig.Instance.IsConfigured)
-            {
-                return base.FindTestsForType(type, includeSourceInformation, messageBus);
-            }
-            throw new Exception(String.Format("Warning: could not run tests for {0} because configuration is missing", type.Name));
+            var cases = testCases.Where(t =>
+                t.Class.GetCustomAttributes(typeof(RunIfConfiguredAttribute)) == null
+                || TestConfig.Instance.IsConfigured);
+            base.RunTestCases(cases, messageSink, executionOptions);
         }
     }
 
