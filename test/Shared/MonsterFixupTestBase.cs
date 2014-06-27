@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.MonsterModel;
 using Xunit;
 
@@ -1513,17 +1514,21 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         private SnapshotMonsterContext CreateSnapshotMonsterContext(IServiceProvider serviceProvider)
         {
-            return new SnapshotMonsterContext(serviceProvider, CreateOptions(SnapshotDatabaseName));
+            return new SnapshotMonsterContext(serviceProvider, CreateOptions(SnapshotDatabaseName), OnModelCreating);
         }
 
         private ChangedChangingMonsterContext CreateChangedChangingMonsterContext(IServiceProvider serviceProvider)
         {
-            return new ChangedChangingMonsterContext(serviceProvider, CreateOptions(FullNotifyDatabaseName));
+            return new ChangedChangingMonsterContext(serviceProvider, CreateOptions(FullNotifyDatabaseName), OnModelCreating);
         }
 
         private ChangedOnlyMonsterContext CreateChangedOnlyMonsterContext(IServiceProvider serviceProvider)
         {
-            return new ChangedOnlyMonsterContext(serviceProvider, CreateOptions(ChangedOnlyDatabaseName));
+            return new ChangedOnlyMonsterContext(serviceProvider, CreateOptions(ChangedOnlyDatabaseName), OnModelCreating);
+        }
+
+        protected virtual void OnModelCreating(ModelBuilder builder)
+        {
         }
 
         private static void AssertBadScansConsistent(IBarcode expectedPrincipal, params IIncorrectScan[] expectedDependents)

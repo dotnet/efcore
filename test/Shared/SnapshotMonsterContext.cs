@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.MonsterModel
 {
@@ -19,8 +20,8 @@ namespace Microsoft.Data.Entity.MonsterModel
         SnapshotMonsterContext.Computer, SnapshotMonsterContext.ComputerDetail, SnapshotMonsterContext.Driver,
         SnapshotMonsterContext.License>
     {
-        public SnapshotMonsterContext(IServiceProvider serviceProvider, DbContextOptions options)
-            : base(serviceProvider, options)
+        public SnapshotMonsterContext(IServiceProvider serviceProvider, DbContextOptions options, Action<ModelBuilder> onModelCreating)
+            : base(serviceProvider, options, onModelCreating)
         {
         }
 

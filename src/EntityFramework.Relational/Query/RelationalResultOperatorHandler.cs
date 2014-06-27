@@ -92,7 +92,10 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         private static bool ProcessDistinct(SelectExpression selectExpression)
         {
-            return !selectExpression.TryMakeDistinct();
+            selectExpression.IsDistinct = true;
+            selectExpression.ClearOrderBy();
+
+            return true; // TODO: Remove client-eval and ensure projection is correct
         }
     }
 }

@@ -55,6 +55,7 @@
     <Compile Include="..\Shared\ApiConsistencyTestBase.cs" />
     <Compile Include="SQLiteDbContextOptionsExtensionsTest.cs" />
     <Compile Include="SQLiteMigrationOperationSqlGeneratorTest.cs" />
+    <Compile Include="SQLiteValueGeneratorSelectorTest.cs" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>

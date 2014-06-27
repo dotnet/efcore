@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.WindowsAzure.Storage.Table;
-using Moq;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers
 {
@@ -14,7 +13,6 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers
     {
         private object _entity;
         private IEntityType _entityType;
-        private EntityState _entityState;
         private Dictionary<string,object> _propertyBag = new Dictionary<string, object>();
 
         public override object Entity

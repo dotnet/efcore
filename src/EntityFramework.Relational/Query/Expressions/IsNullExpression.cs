@@ -41,7 +41,11 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         protected override Expression VisitChildren(ExpressionTreeVisitor visitor)
         {
-            return this;
+            var newExpression = visitor.VisitExpression(_operand);
+
+            return newExpression != _operand
+                ? new IsNullExpression(newExpression)
+                : this;
         }
     }
 }
