@@ -2,7 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
@@ -128,49 +130,81 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             }
         }
 
-        //  [Fact] Disabling this test while investigation takes place. Issue #266
+        [Fact] // TODO: Using instrumentation for issue #266
         public async Task Can_use_sequence_end_to_end_from_multiple_contexts_concurrently_async()
         {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
-                .ServiceCollection
-                .BuildServiceProvider();
+            var generators = new List<SqlServerSequenceValueGenerator>();
 
-            using (var context = new BronieContext(serviceProvider, "ManyBronies"))
+            try
             {
-                context.Database.EnsureDeleted();
-                context.Database.EnsureCreated();
+                var serviceProvider = new ServiceCollection()
+                    .AddEntityFramework()
+                    .AddSqlServer()
+                    .ServiceCollection
+                    .BuildServiceProvider();
 
-                // TODO: Integrate sequence generation into Migrations
-                CreateDatabaseSequence(context, context.Database.AsRelational().Connection);
-            }
-
-            const int threadCount = 50;
-
-            var tests = new Func<Task>[threadCount];
-            for (var i = 0; i < threadCount; i++)
-            {
-                var closureProvider = serviceProvider;
-                tests[i] = () => AddEntitiesAsync(closureProvider, "ManyBronies");
-            }
-
-            var tasks = tests.Select(Task.Run).ToArray();
-
-            foreach (var t in tasks)
-            {
-                await t;
-            }
-
-            using (var context = new BronieContext(serviceProvider, "ManyBronies"))
-            {
-                var pegasuses = await context.Pegasuses.ToListAsync();
-
-                for (var i = 0; i < 50; i++)
+                using (var context = new BronieContext(serviceProvider, "ManyBronies"))
                 {
-                    Assert.Equal(threadCount, pegasuses.Count(p => p.Name == "Rainbow Dash " + i));
-                    Assert.Equal(threadCount, pegasuses.Count(p => p.Name == "Fluttershy " + i));
+                    context.Database.EnsureDeleted();
+                    context.Database.EnsureCreated();
+
+                    // TODO: Integrate sequence generation into Migrations
+                    CreateDatabaseSequence(context, context.Database.AsRelational().Connection);
+
+                    var property = context.Model.GetEntityType(typeof(Pegasus)).GetProperty("Identifier");
+
+                    var valueGeneratorCache = serviceProvider.GetService<SqlServerValueGeneratorCache>();
+
+                    var generator = (SqlServerSequenceValueGenerator)valueGeneratorCache.GetGenerator(property);
+                    while (!generators.Contains(generator))
+                    {
+                        generators.Add(generator);
+                        generator = (SqlServerSequenceValueGenerator)valueGeneratorCache.GetGenerator(property);
+                    }
+
+                    Assert.Equal(5, generators.Count);
                 }
+
+                const int threadCount = 50;
+
+                var tests = new Func<Task>[threadCount];
+                for (var i = 0; i < threadCount; i++)
+                {
+                    var closureProvider = serviceProvider;
+                    tests[i] = () => AddEntitiesAsync(closureProvider, "ManyBronies");
+                }
+
+                var tasks = tests.Select(Task.Run).ToArray();
+
+                foreach (var t in tasks)
+                {
+                    await t;
+                }
+
+                using (var context = new BronieContext(serviceProvider, "ManyBronies"))
+                {
+                    var pegasuses = await context.Pegasuses.ToListAsync();
+
+                    for (var i = 0; i < 50; i++)
+                    {
+                        Assert.Equal(threadCount, pegasuses.Count(p => p.Name == "Rainbow Dash " + i));
+                        Assert.Equal(threadCount, pegasuses.Count(p => p.Name == "Fluttershy " + i));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                var messageBuilder = new StringBuilder();
+                foreach (var generator in generators)
+                {
+                    messageBuilder.Append("Generator got: ");
+                    foreach (var sequence in generator.ReturnedSequences)
+                    {
+                        messageBuilder.Append(sequence).Append(" ");
+                    }
+                }
+
+                throw new Exception(messageBuilder.ToString(), ex);
             }
         }
 
