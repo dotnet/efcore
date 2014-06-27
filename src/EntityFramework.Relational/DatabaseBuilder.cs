@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
@@ -83,7 +84,7 @@ namespace Microsoft.Data.Entity.Relational
                 "FK_{0}_{1}_{2}",
                 foreignKey.EntityType.StorageName,
                 foreignKey.ReferencedEntityType.StorageName,
-                string.Join("_", foreignKey.Properties.OrderBy(p => p.Name).Select(p => p.StorageName)));
+                string.Join("_", foreignKey.Properties.OrderBy(p => p.Name, StringComparer.OrdinalIgnoreCase).Select(p => p.StorageName)));
         }
 
         private static string IndexName([NotNull] IIndex index)
@@ -93,7 +94,7 @@ namespace Microsoft.Data.Entity.Relational
             return index.StorageName ?? string.Format(
                 "IX_{0}_{1}",
                 index.EntityType.StorageName,
-                string.Join("_", index.Properties.OrderBy(p => p.Name).Select(p => p.StorageName)));
+                string.Join("_", index.Properties.OrderBy(p => p.Name, StringComparer.OrdinalIgnoreCase).Select(p => p.StorageName)));
         }
 
         private static Table BuildTable(DatabaseModel database, IEntityType entityType)
