@@ -5,7 +5,6 @@ using System;
 using System.Globalization;
 using System.Linq;
 using Xunit;
-using Xunit.Sdk;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
 {

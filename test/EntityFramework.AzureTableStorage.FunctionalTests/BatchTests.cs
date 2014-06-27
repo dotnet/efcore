@@ -16,8 +16,9 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
         {
             _testPartition = "unittests-" + DateTime.UtcNow.ToBinary();
             fixture.UseTableNamePrefixAndLock("Batch");
-            fixture.SetContextOptions(useBatching: true);
             _context = fixture.CreateContext();
+            _context.Configuration.Connection.UseBatching(true);
+
         }
 
         [Theory]

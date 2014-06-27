@@ -91,7 +91,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         }
 
         /// <summary>
-        /// This database cannot be used as an AzureTableStorageDatabase
+        /// This database cannot be used as an Azure Table Storage Database
         /// </summary>
         internal static string AtsDatabaseNotInUse
         {
@@ -99,7 +99,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         }
 
         /// <summary>
-        /// This database cannot be used as an AzureTableStorageDatabase
+        /// This database cannot be used as an Azure Table Storage Database
         /// </summary>
         internal static string FormatAtsDatabaseNotInUse()
         {
@@ -136,6 +136,22 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         internal static string FormatPropertyWithStorageNameNotFound(object property, object entityType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("PropertyWithStorageNameNotFound", "property", "entityType"), property, entityType);
+        }
+
+        /// <summary>
+        /// This connection cannot be used as an Azure Table Storage Connection
+        /// </summary>
+        internal static string AtsConnectionNotInUse
+        {
+            get { return GetString("AtsConnectionNotInUse"); }
+        }
+
+        /// <summary>
+        /// This connection cannot be used as an Azure Table Storage Connection
+        /// </summary>
+        internal static string FormatAtsConnectionNotInUse()
+        {
+            return GetString("AtsConnectionNotInUse");
         }
 
         private static string GetString(string name, params string[] formatterNames)

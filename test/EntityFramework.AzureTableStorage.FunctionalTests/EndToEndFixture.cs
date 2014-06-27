@@ -10,14 +10,17 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
 {
     public class EndToEndFixture : IDisposable
     {
-        private DbContextOptions _options;
+        private readonly DbContextOptions _options;
         private bool _locked = false;
         public bool _created;
 
         public EndToEndFixture()
         {
             TableName = "Table" + DateTime.UtcNow.ToBinary();
-            SetContextOptions(false);
+            _options = new DbContextOptions()
+               .UseModel(CreateModel())
+               .UseAzureTableStorage(TestConfig.Instance.ConnectionString);
+            ;
         }
 
         public string TableName { get; private set; }
@@ -74,16 +77,9 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
                         pb.Property(s => s.RowKey);
                         pb.Property(s => s.Timestamp);
                     })
-                .UseDefaultAzureTableKey()
+                .PartitionAndRowKey(s => s.PartitionKey, s => s.RowKey)
                 .StorageName(TableName);
             return builder.Model;
-        }
-
-        public void SetContextOptions(bool useBatching)
-        {
-            _options = new DbContextOptions()
-               .UseModel(CreateModel())
-               .UseAzureTableStorage(TestConfig.Instance.ConnectionString, useBatching); ;
         }
 
         public void Dispose()

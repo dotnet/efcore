@@ -6,7 +6,7 @@ using System.Linq;
 using Microsoft.Data.Entity.Infrastructure;
 using Xunit;
 
-namespace Microsoft.Data.Entity.AzureTableStorage.Tests
+namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Extensions
 {
     public class AtsDbContextExtensionsTests
     {

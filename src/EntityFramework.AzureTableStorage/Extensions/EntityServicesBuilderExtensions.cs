@@ -14,7 +14,7 @@ namespace Microsoft.Framework.DependencyInjection
 {
     public static class EntityServicesBuilderExtensions
     {
-        public static EntityServicesBuilder AddAzureTableStorage([NotNull] this EntityServicesBuilder builder, bool batching = false)
+        public static EntityServicesBuilder AddAzureTableStorage([NotNull] this EntityServicesBuilder builder)
         {
             Check.NotNull(builder, "builder");
 
@@ -25,18 +25,11 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddSingleton<AtsValueReaderFactory>()
                 .AddSingleton<TableFilterFactory>()
                 .AddScoped<AtsDatabase>()
+                .AddScoped<AtsDataStore>()
                 .AddScoped<AtsConnection>()
                 .AddScoped<AtsDataStoreCreator>()
                 .AddScoped<AtsValueGeneratorCache>();
 
-            if (batching)
-            {
-                builder.ServiceCollection.AddScoped<AtsDataStore, AtsBatchedDataStore>();
-            }
-            else
-            {
-                builder.ServiceCollection.AddScoped<AtsDataStore, AtsDataStore>();
-            }
             return builder;
         }
     }

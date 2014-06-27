@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
 using Microsoft.Data.Entity.AzureTableStorage.Adapters;
 using Microsoft.Data.Entity.AzureTableStorage.Query;
 using Microsoft.Data.Entity.ChangeTracking;
@@ -57,12 +58,9 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
         {
             var model = new Model();
             var builder = new ModelBuilder(model);
-            builder.Entity<ClrPoco>().AzureTableProperties(pb =>
-                {
-                    pb.PartitionKey(s => s.PartitionKey);
-                    pb.RowKey(s => s.RowKey);
-                    pb.Timestamp(s => s.Timestamp);
-                })
+            builder.Entity<ClrPoco>()
+                .PartitionAndRowKey(s => s.PartitionKey,s => s.RowKey)
+                .Timestamp(s => s.Timestamp)
                 ;
             builder.Entity("ShadowEntity").Properties(pb =>
                 {
@@ -70,18 +68,11 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
                     pb.Property<object>("RowKey", true);
                     pb.Property<object>("Timestamp", true);
                 });
-            builder.Entity<GuidKeysPoco>().AzureTableProperties(pb =>
-                {
-                    pb.PartitionKey(s => s.PartitionGuid);
-                    pb.RowKey(s => s.RowGuid);
-                    pb.Timestamp("Timestamp", true);
-                });
-            builder.Entity<IntKeysPoco>().AzureTableProperties(pb =>
-                {
-                    pb.PartitionKey(s => s.PartitionID);
-                    pb.RowKey(s => s.RowID);
-                    pb.Timestamp("Timestamp", true);
-                });
+            builder.Entity<GuidKeysPoco>()
+                .PartitionAndRowKey(s => s.PartitionGuid, s => s.RowGuid)
+                .Timestamp("Timestamp", true);
+            builder.Entity<IntKeysPoco>()
+                .PartitionAndRowKey(s => s.PartitionID,s => s.RowID);
             builder.Entity<ClrPocoWithProp>()
                 .Properties(pb =>
                     {
@@ -236,7 +227,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
                     { "StringProp", new EntityProperty(instance.StringProp) },
                 };
 
-            Assert.Equal(expected,adapter.WriteEntity(null));
+            Assert.Equal(expected, adapter.WriteEntity(null));
         }
     }
 }

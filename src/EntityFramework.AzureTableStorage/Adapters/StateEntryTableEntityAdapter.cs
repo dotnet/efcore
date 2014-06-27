@@ -17,8 +17,10 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Adapters
         private readonly StateEntry _entry;
         private readonly IProperty _partitionKeyProp;
         private readonly IProperty _rowKeyProp;
+
         [CanBeNull]
         private readonly IProperty _etagProp;
+
         private readonly IProperty _timestampProp;
         private string _etag;
 
@@ -29,14 +31,21 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Adapters
 
             _partitionKeyProp = entry.EntityType.GetPropertyByStorageName("PartitionKey");
             _rowKeyProp = entry.EntityType.GetPropertyByStorageName("RowKey");
-            _timestampProp = entry.EntityType.GetPropertyByStorageName("Timestamp");
 
-            // An optional field: required DTO
+            // An optional CLR fields: required DTO
+            _timestampProp = entry.EntityType.TryGetPropertyByStorageName("Timestamp");
             _etagProp = entry.EntityType.TryGetPropertyByStorageName("ETag");
         }
 
-        public virtual StateEntry StateEntry { get { return _entry; } }
-        public virtual T Entity { get { return (T)_entry.Entity; } }
+        public virtual StateEntry StateEntry
+        {
+            get { return _entry; }
+        }
+
+        public virtual T Entity
+        {
+            get { return (T)_entry.Entity; }
+        }
 
         public virtual void ReadEntity(IDictionary<string, EntityProperty> properties, OperationContext operationContext)
         {
@@ -45,9 +54,10 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Adapters
             {
                 var entityProp = entityType.TryGetPropertyByStorageName(property.Key);
                 if (entityProp != null
-                    && entityProp.IsClrProperty && EdmTypeMatchesClrType(property.Value.PropertyType, entityProp.PropertyType))
+                    && entityProp.IsClrProperty
+                    && EdmTypeMatchesClrType(property.Value.PropertyType, entityProp.PropertyType))
                 {
-                    SetProperty(entityProp,property.Value.PropertyAsObject);
+                    SetProperty(entityProp, property.Value.PropertyAsObject);
                 }
             }
         }
@@ -76,7 +86,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Adapters
         public virtual string PartitionKey
         {
             get { return _entry[_partitionKeyProp].ToString(); }
-            set { SetProperty(_partitionKeyProp,value);}
+            set { SetProperty(_partitionKeyProp, value); }
         }
 
         public virtual string RowKey
@@ -87,18 +97,22 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Adapters
 
         public virtual DateTimeOffset Timestamp
         {
-            get { return (DateTimeOffset)_entry[_timestampProp]; } //TODO handle DateTime and shadow states
-            set { SetProperty(_timestampProp, value); }
+            get { return (_timestampProp != null) ? (DateTimeOffset)_entry[_timestampProp] : default(DateTimeOffset); }
+            set
+            {
+                if (_timestampProp != null)
+                {
+                    SetProperty(_timestampProp, value);
+                }
+            }
         }
 
         // An optional field: required for DTO
         public virtual string ETag
         {
-            get
+            get { return _etagProp != null ? _entry[_etagProp].ToString() : _etag; }
+            set
             {
-                return _etagProp != null ? _entry[_etagProp].ToString() : _etag;
-            }
-            set {
                 if (_etagProp == null)
                 {
                     _etag = value;

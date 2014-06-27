@@ -6,7 +6,7 @@ using Microsoft.Data.Entity.Infrastructure;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity.AzureTableStorage.Tests
+namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Extensions
 {
     public class AtsDatabaseExtensionTests
     {
@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
         public void Returns_typed_database_object()
         {
             var configurationMock = new Mock<DbContextConfiguration>();
-            var database = new AtsDatabase(configurationMock.Object, Mock.Of<AtsConnection>());
+            var database = new AtsDatabase(configurationMock.Object);
 
             Assert.Same(database, database.AsAzureTableStorageDatabase());
         }

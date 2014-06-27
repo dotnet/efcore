@@ -43,34 +43,39 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Wrappers
                 cancellationToken);
         }
 
-        public virtual void CreateIfNotExists()
+        public virtual bool CreateIfNotExists()
         {
-            CreateIfNotExistsAsync().Wait();
+            return _table.CreateIfNotExists();
         }
 
-        public virtual Task CreateIfNotExistsAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<bool> CreateIfNotExistsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             return _table.CreateIfNotExistsAsync(cancellationToken);
         }
 
-        public virtual IEnumerable<TElement> ExecuteQuery<TElement>([NotNull] AtsTableQuery query, [NotNull] Func<AtsNamedValueBuffer,TElement> resolver) where TElement : class
+        public virtual bool DeleteIfExists()
+        {
+            return _table.DeleteIfExists();
+        }
+
+        public virtual Task<bool> DeleteIfExistsAsync(CancellationToken cancellationToken = new CancellationToken())
+        {
+            return _table.DeleteIfExistsAsync(cancellationToken);
+        }
+
+        public virtual IEnumerable<TElement> ExecuteQuery<TElement>([NotNull] AtsTableQuery query, [NotNull] Func<AtsNamedValueBuffer, TElement> resolver) where TElement : class
         {
             Check.NotNull(query, "query");
             Check.NotNull(resolver, "resolver");
             return _table.ExecuteQuery(query.ToExecutableQuery(), (key, rowKey, timestamp, properties, etag) =>
                 {
                     var buffer = new AtsNamedValueBuffer(properties);
-                    buffer.Add("PartitionKey",key);
-                    buffer.Add("RowKey",rowKey);
-                    buffer.Add("Timestamp",timestamp);
-                    buffer.Add("ETag",etag);
+                    buffer.Add("PartitionKey", key);
+                    buffer.Add("RowKey", rowKey);
+                    buffer.Add("Timestamp", timestamp);
+                    buffer.Add("ETag", etag);
                     return resolver(buffer);
                 });
-        }
-
-        public virtual void DeleteIfExists()
-        {
-            _table.DeleteIfExists();
         }
     }
 }
