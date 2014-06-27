@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Concurrent;
 using System.Data.Common;
 using System.Globalization;
 using System.Threading;
@@ -84,9 +83,6 @@ namespace Microsoft.Data.Entity.SqlServer
             return Convert.ChangeType(newValue.Current, property.PropertyType);
         }
 
-        // TODO: This is temporary instrumentation to root out concurrency issue--GitHub #266
-        public ConcurrentStack<long> ReturnedSequences = new ConcurrentStack<long>();
-
         public virtual async Task<object> NextAsync(
             DbContextConfiguration contextConfiguration,
             IProperty property,
@@ -111,7 +107,6 @@ namespace Microsoft.Data.Entity.SqlServer
                         var commandInfo = PrepareCommand(contextConfiguration);
 
                         var newCurrent = (long)await _executor.ExecuteScalarAsync(commandInfo.Item1, commandInfo.Item2, cancellationToken).ConfigureAwait(false);
-                        ReturnedSequences.Push(newCurrent);
                         newValue = new SequenceValue(newCurrent, newCurrent + _blockSize);
                         _currentValue = newValue;
                     }
