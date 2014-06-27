@@ -10,6 +10,10 @@
   "code": "**\\*.cs;..\\Shared\\*.cs",
   "configurations": {
     "net451": {},
-    "k10": {}
+    "k10": {
+      "dependencies": {
+        "System.Threading.Thread": "4.0.0.0"
+      }
+    }
   }
 }

@@ -177,6 +177,7 @@ namespace Microsoft.Data.Entity.SqlServer
                 && retryCount++ < 3)
             {
                 ClearPool();
+                Thread.Sleep(10);
                 return true;
             }
             return false;
