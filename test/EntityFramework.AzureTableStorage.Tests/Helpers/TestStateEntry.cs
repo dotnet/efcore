@@ -15,6 +15,10 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers
         private IEntityType _entityType;
         private Dictionary<string,object> _propertyBag = new Dictionary<string, object>();
 
+        private TestStateEntry()
+        {
+            _propertyBag["ETag"] = "*";
+        }
         public override object Entity
         {
             get { return _entity; }

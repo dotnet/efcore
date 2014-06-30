@@ -1,25 +1,39 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Data.Entity.AzureTableStorage.Requests;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Framework.Logging;
+using Moq;
 using Xunit;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Tests
 {
     public class AtsDataStoreCreatorTests
     {
+        private readonly Mock<AtsConnection> _connection;
         private readonly AtsDataStoreCreator _creator;
-        private readonly FakeConnection _connection;
-        private readonly Model _model;
+        private readonly Metadata.Model _model;
 
         public AtsDataStoreCreatorTests()
         {
-            _connection = new FakeConnection();
-            _creator = new AtsDataStoreCreator(_connection);
-            _model = new Model();
+            _connection = new Mock<AtsConnection>();
+            _connection.Setup(
+               s => s.ExecuteRequest(
+                   It.IsAny<TableRequest<bool>>(),
+                   It.IsAny<ILogger>())
+               ).Returns(true);
+            _connection.Setup(
+                s => s.ExecuteRequestAsync(
+                    It.IsAny<TableRequest<bool>>(),
+                    It.IsAny<ILogger>(),
+                    It.IsAny<CancellationToken>())
+                ).Returns(Task.FromResult(true));
+
+            _creator = new AtsDataStoreCreator(_connection.Object);
+            _model = new Metadata.Model();
             var builder = new ModelBuilder(_model);
             builder.Entity("Test1");
             builder.Entity("Test2");
@@ -30,55 +44,45 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
         public void Ensure_creation()
         {
             Assert.True(_creator.EnsureCreated(_model));
-            AssertLists(_model.EntityTypes.Select(s => s.Name), _connection.Tables.Keys);
+            _connection.Verify(m => m.ExecuteRequest(
+                It.IsAny<CreateTableRequest>(),
+                It.IsAny<ILogger>()),
+                Times.Exactly(3));
         }
 
         [Fact]
         public void Ensures_creation_async()
         {
             Assert.True(_creator.EnsureCreatedAsync(_model).Result);
-            AssertLists(_model.EntityTypes.Select(s => s.Name), _connection.Tables.Keys);
+            _connection.Verify(m => m.ExecuteRequestAsync(
+                It.IsAny<CreateTableRequest>(),
+                It.IsAny<ILogger>(),
+                It.IsAny<CancellationToken>()),
+                Times.Exactly(3));
         }
 
         [Fact]
         public void Ensures_deletion()
         {
-            _creator.EnsureCreated(_model);
             Assert.True(_creator.EnsureDeleted(_model));
-            Assert.Equal(0, _connection.Tables.Keys.Count);
+            _connection.Verify(m => m.ExecuteRequest(
+                It.IsAny<DeleteTableRequest>(),
+                It.IsAny<ILogger>()),
+                Times.Exactly(3));
+            ;
         }
 
         [Fact]
         public void Ensures_deletion_async()
         {
-            _creator.EnsureCreated(_model);
             Assert.True(_creator.EnsureDeletedAsync(_model).Result);
-            Assert.Equal(0, _connection.Tables.Keys.Count);
-        }
-
-        [Fact]
-        public void Only_deletes_tables_in_model()
-        {
-            _connection.Tables.TryAdd("Invariant", new FakeConnection.TestCloudTable(_connection, "Invariant"));
-            _creator.EnsureCreated(_model);
-            Assert.True(_creator.EnsureDeleted(_model));
-            Assert.Equal(1, _connection.Tables.Keys.Count);
-            Assert.Equal("Invariant", _connection.Tables.Keys.First());
-        }
-
-        [Fact]
-        public void Only_deletes_async_tables_in_model()
-        {
-            _connection.Tables.TryAdd("Invariant", new FakeConnection.TestCloudTable(_connection, "Invariant"));
-            _creator.EnsureCreated(_model);
-            Assert.True(_creator.EnsureDeletedAsync(_model).Result);
-            Assert.Equal(1, _connection.Tables.Keys.Count);
-            Assert.Equal("Invariant", _connection.Tables.Keys.First());
-        }
-
-        private static void AssertLists(IEnumerable<string> expected, IEnumerable<string> actual)
-        {
-            Assert.Equal(expected.ToList().OrderBy(s => s), actual.ToList().OrderBy(s => s));
+            _connection.Verify(m => m.ExecuteRequestAsync(
+                It.IsAny<DeleteTableRequest>(),
+                It.IsAny<ILogger>(),
+                It.IsAny<CancellationToken>()),
+                Times.Exactly(3));
+            ;
+            ;
         }
     }
 }

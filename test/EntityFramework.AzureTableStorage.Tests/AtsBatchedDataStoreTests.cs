@@ -3,29 +3,31 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.AzureTableStorage.Adapters;
 using Microsoft.Data.Entity.AzureTableStorage.Interfaces;
+using Microsoft.Data.Entity.AzureTableStorage.Requests;
 using Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Framework.Logging;
+using Moq;
 using Xunit;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Tests
 {
     using ResultTaskList = IList<ITableResult>;
 
-    public class AtsBatchedDataStoreTests : AtsDataStore, IClassFixture<FakeConnection>
+    public class AtsBatchedDataStoreTests : AtsDataStore, IClassFixture<Mock<AtsConnection>>
     {
-        private readonly FakeConnection _fakeConnection;
+        private readonly Mock<AtsConnection> _connection;
 
         private readonly TableEntityAdapterFactory _entityFactory = new TableEntityAdapterFactory();
 
-        public AtsBatchedDataStoreTests(FakeConnection connection)
-            : base(connection, new TableEntityAdapterFactory())
+        public AtsBatchedDataStoreTests(Mock<AtsConnection> connection)
+            : base(connection.Object, new TableEntityAdapterFactory())
         {
-            _fakeConnection = connection;
-            _fakeConnection.Batching = true;
-            _fakeConnection.ClearQueue();
+            _connection = connection;
         }
 
         private Task<TResult>[] SetupResults<TResult>(IEnumerable<TResult> tableResults)
@@ -101,7 +103,12 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
             for (var i = 0; i < expectedChanges; i++)
             {
                 const string title = "TestType";
-                _fakeConnection.QueueResult(TestTableResult.OK());
+                _connection.Setup(s => s.ExecuteRequestAsync(
+                    It.IsAny<AtsAsyncRequest<ITableResult>>(), 
+                    It.IsAny<ILogger>(),
+                    It.IsAny<CancellationToken>()))
+                    .Returns(Task.Run(()=>TestTableResult.OK()));
+
                 testEntries.Add(TestStateEntry.Mock().WithState(EntityState.Added).WithType(title).WithProperty("PartitionKey", "A"));
             }
             var actualChanges = SaveChangesAsync(testEntries).Result;

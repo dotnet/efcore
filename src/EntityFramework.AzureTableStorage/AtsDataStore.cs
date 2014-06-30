@@ -11,11 +11,11 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.AzureTableStorage.Adapters;
 using Microsoft.Data.Entity.AzureTableStorage.Interfaces;
 using Microsoft.Data.Entity.AzureTableStorage.Query;
+using Microsoft.Data.Entity.AzureTableStorage.Requests;
 using Microsoft.Data.Entity.AzureTableStorage.Utilities;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.WindowsAzure.Storage.Table;
 using Remotion.Linq;
 
 namespace Microsoft.Data.Entity.AzureTableStorage
@@ -89,10 +89,10 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             var allTasks = new List<Task<ITableResult>>();
             foreach (var tableGroup in tableGroups)
             {
-                var table = Connection.GetTableReference(tableGroup.Key.StorageName);
-                var tasks = tableGroup.Select(entry => GetOperation(entry, EntityFactory.CreateFromStateEntry(entry)))
+                var table = new AtsTable{Name = tableGroup.Key.StorageName};
+                var tasks = tableGroup.Select(entry => CreateRequest(table, entry))
                     .TakeWhile(operation => !cancellationToken.IsCancellationRequested)
-                    .Select(operation => table.ExecuteAsync(operation, cancellationToken));
+                    .Select(request => Connection.ExecuteRequestAsync(request, Logger, cancellationToken));
                 allTasks.AddRange(tasks);
 
                 if (cancellationToken.IsCancellationRequested)
@@ -125,7 +125,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
 
             foreach (var tableGroup in tableGroups)
             {
-                var table = Connection.GetTableReference(tableGroup.Key);
+                var table = new AtsTable{Name = tableGroup.Key};
                 var partitionGroups = tableGroup.GroupBy(s =>
                     {
                         var property = s.EntityType.GetPropertyByStorageName("PartitionKey");
@@ -134,23 +134,23 @@ namespace Microsoft.Data.Entity.AzureTableStorage
                     );
                 foreach (var partitionGroup in partitionGroups)
                 {
-                    var batch = new TableBatchOperation();
+                    var request = new TableBatchRequest(table);
                     foreach (var operation in partitionGroup
-                        .Select(entry => GetOperation(entry, EntityFactory.CreateFromStateEntry(entry)))
+                        .Select(entry => CreateRequest(table, entry))
                         .Where(operation => operation != null)
                         )
                     {
                         // TODO allow user access to config options: Retry Policy, Secondary Storage, Timeout 
-                        batch.Add(operation);
-                        if (batch.Count >= MaxBatchOperations)
+                        request.Add(operation);
+                        if (request.Count >= MaxBatchOperations)
                         {
-                            allBatchTasks.Add(table.ExecuteBatchAsync(batch, cancellationToken));
-                            batch = new TableBatchOperation();
+                            allBatchTasks.Add(Connection.ExecuteRequestAsync(request, Logger,cancellationToken));
+                            request = new TableBatchRequest(table);
                         }
                     }
-                    if (batch.Count != 0)
+                    if (request.Count != 0)
                     {
-                        allBatchTasks.Add(table.ExecuteBatchAsync(batch, cancellationToken));
+                        allBatchTasks.Add(Connection.ExecuteRequestAsync(request, Logger, cancellationToken));
                     }
                 }
             }
@@ -183,20 +183,19 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             return tasks.Aggregate(0, (current, task) => current + inspect(task));
         }
 
-        protected TableOperation GetOperation(StateEntry entry, ITableEntity entity)
+        protected TableOperationRequest CreateRequest(AtsTable table, StateEntry entry)
         {
+            var entity = EntityFactory.CreateFromStateEntry(entry);
             switch (entry.EntityState)
             {
                 case EntityState.Added:
-                    return TableOperation.Insert(entity);
+                    return new CreateRowRequest(table, entity);
 
                 case EntityState.Deleted:
-                    entity.ETag = entity.ETag ?? "*"; // TODO use ETag for concurrency checks
-                    return TableOperation.Delete(entity);
+                    return new DeleteRowRequest(table, entity);
 
                 case EntityState.Modified:
-                    entity.ETag = entity.ETag ?? "*";
-                    return TableOperation.Replace(entity);
+                    return new InsertOrMergeRowRequest(table, entity);
 
                 case EntityState.Unchanged:
                 case EntityState.Unknown:

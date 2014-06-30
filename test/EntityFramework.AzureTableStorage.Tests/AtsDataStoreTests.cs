@@ -4,26 +4,28 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.AzureTableStorage.Adapters;
 using Microsoft.Data.Entity.AzureTableStorage.Interfaces;
+using Microsoft.Data.Entity.AzureTableStorage.Requests;
 using Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Framework.Logging;
 using Microsoft.WindowsAzure.Storage.Table;
+using Moq;
 using Xunit;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Tests
 {
-    public class AtsDataStoreTests : AtsDataStore, IClassFixture<FakeConnection>
+    public class AtsDataStoreTests : AtsDataStore, IClassFixture<Mock<AtsConnection>>
     {
-        private readonly FakeConnection _fakeConnection;
-        public AtsDataStoreTests(FakeConnection connection)
-            : base(connection,new TableEntityAdapterFactory())
+        private readonly Mock<AtsConnection> _connection;
+
+        public AtsDataStoreTests(Mock<AtsConnection> connection)
+            : base(connection.Object, new TableEntityAdapterFactory())
         {
-            _fakeConnection = connection;
-            _fakeConnection.Batching = false;
-            _fakeConnection.ClearQueue();
-            _fakeConnection.Tables.TryAdd("Test1", new FakeConnection.TestCloudTable(_fakeConnection, "Test1"));
+            _connection = connection;
         }
 
         private Task<TResult>[] SetupResults<TResult>(IEnumerable<TResult> tableResults)
@@ -63,23 +65,23 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
 
         [Theory]
         [InlineData(EntityState.Added, TableOperationType.Insert)]
-        [InlineData(EntityState.Modified, TableOperationType.Replace)]
+        [InlineData(EntityState.Modified, TableOperationType.InsertOrMerge)]
         [InlineData(EntityState.Deleted, TableOperationType.Delete)]
         [InlineData(EntityState.Unknown, null)]
         [InlineData(EntityState.Unchanged, null)]
         public void It_maps_entity_state_to_table_operations(EntityState entityState, TableOperationType operationType)
         {
             var entry = TestStateEntry.Mock().WithState(entityState);
-            var operation = GetOperation(entry, new TableEntity());
+            var request = CreateRequest(new AtsTable(), entry);
 
-            if (operation == null)
+            if (request == null)
             {
                 Assert.True(EntityState.Unknown.HasFlag(entityState) || EntityState.Unchanged.HasFlag(entityState));
             }
             else
             {
                 var propInfo = typeof(TableOperation).GetProperty("OperationType", BindingFlags.NonPublic | BindingFlags.Instance);
-                var type = (TableOperationType)propInfo.GetValue(operation);
+                var type = (TableOperationType)propInfo.GetValue(request.Operation);
                 Assert.Equal(operationType, type);
             }
         }
@@ -87,7 +89,11 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
         [Fact]
         public void It_saves_changes()
         {
-            _fakeConnection.QueueResult(TestTableResult.OK());
+            _connection.Setup(s => s.ExecuteRequestAsync(
+                It.IsAny<AtsAsyncRequest<ITableResult>>(),
+                It.IsAny<ILogger>(),
+                It.IsAny<CancellationToken>()))
+                .Returns(Task.Run(() => TestTableResult.OK()));
             var testEntries = new List<StateEntry> { TestStateEntry.Mock().WithState(EntityState.Added).WithType("Test1") };
             var changes = SaveChangesAsync(testEntries).Result;
             Assert.Equal(1, changes);

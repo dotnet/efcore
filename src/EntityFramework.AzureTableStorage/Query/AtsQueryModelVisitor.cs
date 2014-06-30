@@ -4,11 +4,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Net.Configuration;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.AzureTableStorage.Requests;
 using Microsoft.Data.Entity.AzureTableStorage.Utilities;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
+using Microsoft.WindowsAzure.Storage.Table;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Parsing;
@@ -143,14 +146,15 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
             where TResult : class, new()
         {
             var context = ((AtsQueryContext)queryContext);
-            var table = context.Connection.GetTableReference(entityType.StorageName);
-
-            return table.ExecuteQuery(tableQuery, s =>
+            var table = new AtsTable{Name = entityType.StorageName};
+            var request = new QueryTableRequest<TResult>(
+                table,
+                tableQuery, s =>
                 (TResult)context.StateManager.GetOrMaterializeEntry(
                     entityType,
                     context.ValueReaderFactory.Create(entityType, s)
-                    ).Entity
-                );
+                    ).Entity);
+            return context.Connection.ExecuteRequest(request, context.Logger);
         }
     }
 }

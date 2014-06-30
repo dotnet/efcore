@@ -8,6 +8,7 @@
     "EntityFramework.AzureTableStorage": "",
     "Microsoft.Framework.ConfigurationModel":"1.0.0-*",
     "Microsoft.Framework.DependencyInjection": "1.0.0-*",
+    "Microsoft.Framework.Logging": "1.0.0-*",
     "Ix-Async": "1.2.2",
     "Moq":  "4.2.1402.2112",
     "Remotion.Linq": "1.15.13.0",
