@@ -409,7 +409,8 @@ namespace Microsoft.Data.Entity.Relational.Query
                         {
                             TableSource
                                 = new TableExpression(
-                                    entityType.StorageName,
+                                    entityType.TableName(),
+                                    entityType.Schema(),
                                     _querySource.ItemName.Replace("<generated>_", "t"),
                                     _querySource)
                         };

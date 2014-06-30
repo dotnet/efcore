@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Relational.Update
         {
             var stateEntry = CreateStateEntry(EntityState.Added, ValueGenerationOnSave.WhenInserting);
 
-            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator());
             command.AddStateEntry(stateEntry);
 
             Assert.Equal("T1", command.TableName);
@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.Relational.Update
         {
             var stateEntry = CreateStateEntry(EntityState.Added);
 
-            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator());
             command.AddStateEntry(stateEntry);
 
             Assert.Equal("T1", command.TableName);
@@ -85,7 +85,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             var stateEntry = CreateStateEntry(EntityState.Modified, ValueGenerationOnSave.WhenInserting);
             stateEntry.SetPropertyModified(stateEntry.EntityType.GetKey().Properties[0], isModified: false);
 
-            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator());
             command.AddStateEntry(stateEntry);
 
             Assert.Equal("T1", command.TableName);
@@ -119,7 +119,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             var stateEntry = CreateStateEntry(EntityState.Modified);
             stateEntry.SetPropertyModified(stateEntry.EntityType.GetKey().Properties[0], isModified: false);
 
-            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator());
             command.AddStateEntry(stateEntry);
 
             Assert.Equal("T1", command.TableName);
@@ -152,7 +152,7 @@ namespace Microsoft.Data.Entity.Relational.Update
         {
             var stateEntry = CreateStateEntry(EntityState.Deleted);
 
-            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator());
             command.AddStateEntry(stateEntry);
 
             Assert.Equal("T1", command.TableName);
@@ -175,7 +175,7 @@ namespace Microsoft.Data.Entity.Relational.Update
         {
             var stateEntry = CreateStateEntry(EntityState.Unchanged);
 
-            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator());
 
             Assert.Equal(
                 Strings.FormatModificationFunctionInvalidEntityState(EntityState.Unchanged),
@@ -187,7 +187,7 @@ namespace Microsoft.Data.Entity.Relational.Update
         {
             var stateEntry = CreateStateEntry(EntityState.Unknown);
 
-            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator());
 
             Assert.Equal(
                 Strings.FormatModificationFunctionInvalidEntityState(EntityState.Unknown),
@@ -200,7 +200,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             var stateEntry = CreateStateEntry(
                 EntityState.Deleted, ValueGenerationOnSave.WhenInserting, ValueGenerationOnSave.WhenInsertingAndUpdating);
 
-            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator());
             command.AddStateEntry(stateEntry);
 
             Assert.False(command.RequiresResultPropagation);
@@ -212,7 +212,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             var stateEntry = CreateStateEntry(
                 EntityState.Added, ValueGenerationOnSave.WhenInserting, ValueGenerationOnSave.WhenInsertingAndUpdating);
 
-            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator());
             command.AddStateEntry(stateEntry);
 
             Assert.True(command.RequiresResultPropagation);
@@ -223,7 +223,7 @@ namespace Microsoft.Data.Entity.Relational.Update
         {
             var stateEntry = CreateStateEntry(EntityState.Added);
 
-            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator());
             command.AddStateEntry(stateEntry);
 
             Assert.False(command.RequiresResultPropagation);
@@ -235,7 +235,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             var stateEntry = CreateStateEntry(
                 EntityState.Modified, ValueGenerationOnSave.WhenInserting, ValueGenerationOnSave.WhenInsertingAndUpdating);
 
-            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator());
             command.AddStateEntry(stateEntry);
 
             Assert.True(command.RequiresResultPropagation);
@@ -246,7 +246,7 @@ namespace Microsoft.Data.Entity.Relational.Update
         {
             var stateEntry = CreateStateEntry(EntityState.Modified, ValueGenerationOnSave.WhenInserting);
 
-            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator());
             command.AddStateEntry(stateEntry);
 
             Assert.False(command.RequiresResultPropagation);
@@ -266,11 +266,11 @@ namespace Microsoft.Data.Entity.Relational.Update
 
             var key = entityType.AddProperty("Id", typeof(int));
             key.ValueGenerationOnSave = keyStrategy;
-            key.StorageName = "Col1";
+            key.SetColumnName("Col1");
             entityType.SetKey(key);
 
             var nonKey = entityType.AddProperty("Name", typeof(string));
-            nonKey.StorageName = "Col2";
+            nonKey.SetColumnName("Col2");
             nonKey.ValueGenerationOnSave = nonKeyStrategy;
 
             model.AddEntityType(entityType);

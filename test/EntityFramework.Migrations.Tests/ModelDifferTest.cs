@@ -50,7 +50,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModel = CreateModel();
             var targetModel = CreateModel();
 
-            targetModel.GetEntityType("Dependent").StorageName = "newdbo.MyTable0";
+            var dependentEntity = targetModel.GetEntityType("Dependent");
+            dependentEntity.SetTableName("MyTable0");
+            dependentEntity.SetSchema("newdbo");
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(sourceModel, targetModel);
 
@@ -69,7 +71,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModel = CreateModel();
             var targetModel = CreateModel();
 
-            targetModel.GetEntityType("Dependent").StorageName = "dbo.MyNewTable0";
+            var dependentEntity = targetModel.GetEntityType("Dependent");
+            dependentEntity.SetTableName("MyNewTable0");
+            dependentEntity.SetSchema("dbo");
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(sourceModel, targetModel);
 
@@ -89,7 +93,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var targetModel = CreateModel();
 
             var principalEntityType = targetModel.GetEntityType("Principal");
-            var dependentEntityType = new EntityType("NewDependent") { StorageName = "dbo.MyNewTable" };
+            var dependentEntityType = new EntityType("NewDependent");
+            dependentEntityType.SetTableName("MyNewTable");
+            dependentEntityType.SetSchema("dbo"); 
             var dependentProperty = dependentEntityType.AddProperty("Id", typeof(int));
 
             targetModel.AddEntityType(dependentEntityType);
@@ -98,10 +104,10 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 MetadataExtensions.Annotations.StorageTypeName, "int"));
 
             dependentEntityType.SetKey(dependentProperty);
-            dependentEntityType.GetKey().StorageName = "MyNewPK";
+            dependentEntityType.GetKey().SetKeyName("MyNewPK");
 
             var foreignKey = dependentEntityType.AddForeignKey(principalEntityType.GetKey(), dependentProperty);
-            foreignKey.StorageName = "MyNewFK";
+            foreignKey.SetKeyName("MyNewFK");
             foreignKey.Annotations.Add(new Annotation(
                 MetadataExtensions.Annotations.CascadeDelete, "True"));
 
@@ -140,7 +146,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var targetModel = CreateModel();
 
             var principalEntityType = targetModel.GetEntityType("Principal");
-            var dependentEntityType = new EntityType("OldDependent") { StorageName = "dbo.MyOldTable" };
+            var dependentEntityType = new EntityType("OldDependent");
+            dependentEntityType.SetTableName("MyOldTable");
+            dependentEntityType.SetSchema("dbo"); 
             var dependentProperty = dependentEntityType.AddProperty("Id", typeof(int));
 
             sourceModel.AddEntityType(dependentEntityType);
@@ -149,10 +157,10 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 MetadataExtensions.Annotations.StorageTypeName, "int"));
 
             dependentEntityType.SetKey(dependentProperty);
-            dependentEntityType.GetKey().StorageName = "MyOldPK";
+            dependentEntityType.GetKey().SetKeyName("MyOldPK");
 
             var foreignKey = dependentEntityType.AddForeignKey(principalEntityType.GetKey(), dependentProperty);
-            foreignKey.StorageName = "MyOldFK";
+            foreignKey.SetKeyName("MyOldFK");
             foreignKey.Annotations.Add(new Annotation(
                 MetadataExtensions.Annotations.CascadeDelete, "True"));
 
@@ -172,7 +180,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModel = CreateModel();
             var targetModel = CreateModel();
 
-            targetModel.GetEntityType("Dependent").GetProperty("Id").StorageName = "NewId";
+            targetModel.GetEntityType("Dependent").GetProperty("Id").SetColumnName("NewId");
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(sourceModel, targetModel);
 
@@ -193,7 +201,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var targetModel = CreateModel();
 
             var property = targetModel.GetEntityType("Dependent").AddProperty("MyNewProperty", typeof(string));
-            property.StorageName = "MyNewColumn";
+            property.SetColumnName("MyNewColumn");
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(sourceModel, targetModel);
 
@@ -214,7 +222,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var targetModel = CreateModel();
 
             var property = sourceModel.GetEntityType("Dependent").AddProperty("MyOldProperty", typeof(string));
-            property.StorageName = "MyOldColumn";
+            property.SetColumnName("MyOldColumn");
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(sourceModel, targetModel);
 
@@ -259,7 +267,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
 
             entityType.RemoveProperty(property);
             property = entityType.AddProperty("MyProperty", typeof(double));
-            property.StorageName = "MyColumn";
+            property.SetColumnName("MyColumn");
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(sourceModel, targetModel);
 
@@ -391,7 +399,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
 
             var entityType = targetModel.GetEntityType("Dependent");
             entityType.SetKey(entityType.GetProperty("MyProperty"));
-            entityType.GetKey().StorageName = "MyNewPK";
+            entityType.GetKey().SetKeyName("MyNewPK");
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(sourceModel, targetModel);
 
@@ -501,7 +509,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
 
             var entityType = targetModel.GetEntityType("Dependent");
             var index = entityType.Indexes[0];
-            index.StorageName = "MyNewIndex";
+            index.SetIndexName("MyNewIndex");
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(sourceModel, targetModel);
 
@@ -549,9 +557,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests
 
             var dependentEntityType = targetModel.GetEntityType("Dependent");
             var principalEntityType = targetModel.GetEntityType("Principal");
-            var principalTableName = principalEntityType.StorageName;
-            principalEntityType.StorageName = dependentEntityType.StorageName;
-            dependentEntityType.StorageName = principalTableName;
+            var principalTableName = principalEntityType.TableName();
+            principalEntityType.SetTableName(dependentEntityType.TableName());
+            dependentEntityType.SetTableName(principalTableName);
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(sourceModel, targetModel);
 
@@ -581,15 +589,15 @@ namespace Microsoft.Data.Entity.Migrations.Tests
 
             var principalEntityType = sourceModel.GetEntityType("Principal");
             var property = principalEntityType.AddProperty("P1", typeof(string));
-            property.StorageName = "C1";
+            property.SetColumnName("C1");
             property = principalEntityType.AddProperty("P2", typeof(string));
-            property.StorageName = "C2";
+            property.SetColumnName("C2");
 
             principalEntityType = targetModel.GetEntityType("Principal");
             property = principalEntityType.AddProperty("P1", typeof(string));
-            property.StorageName = "C2";
+            property.SetColumnName("C2");
             property = principalEntityType.AddProperty("P2", typeof(string));
-            property.StorageName = "C1";
+            property.SetColumnName("C1");
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(sourceModel, targetModel);
 
@@ -620,18 +628,18 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var principalEntityType = sourceModel.GetEntityType("Principal");
             var property = principalEntityType.AddProperty("P1", typeof(string));
             var index = principalEntityType.AddIndex(property);
-            index.StorageName = "IX1";
+            index.SetIndexName("IX1");
             property = principalEntityType.AddProperty("P2", typeof(string));
             index = principalEntityType.AddIndex(property);
-            index.StorageName = "IX2";
+            index.SetIndexName("IX2");
 
             principalEntityType = targetModel.GetEntityType("Principal");
             property = principalEntityType.AddProperty("P1", typeof(string));
             index = principalEntityType.AddIndex(property);
-            index.StorageName = "IX2";
+            index.SetIndexName("IX2");
             property = principalEntityType.AddProperty("P2", typeof(string));
             index = principalEntityType.AddIndex(property);
-            index.StorageName = "IX1";
+            index.SetIndexName("IX1");
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(sourceModel, targetModel);
 
@@ -657,15 +665,21 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         {
             var model = new Metadata.Model() { StorageName = "MyDatabase" };
 
-            var dependentEntityType = new EntityType("Dependent") { StorageName = "dbo.MyTable0" };
-            var principalEntityType = new EntityType("Principal") { StorageName = "dbo.MyTable1" };
+            var dependentEntityType = new EntityType("Dependent");
+            dependentEntityType.SetTableName("MyTable0");
+            dependentEntityType.SetSchema("dbo");
+
+            var principalEntityType = new EntityType("Principal");
+            principalEntityType.SetTableName("MyTable1");
+            principalEntityType.SetSchema("dbo");
+
             var dependentProperty = dependentEntityType.AddProperty("Id", typeof(int));
             var principalProperty = principalEntityType.AddProperty("Id", typeof(int));
 
             var property = dependentEntityType.AddProperty("MyProperty", typeof(string));
-            property.StorageName = "MyColumn";
+            property.SetColumnName("MyColumn");
             property = principalEntityType.AddProperty("MyProperty", typeof(string));
-            property.StorageName = "MyColumn";
+            property.SetColumnName("MyColumn");
 
             model.AddEntityType(principalEntityType);
             model.AddEntityType(dependentEntityType);
@@ -677,16 +691,16 @@ namespace Microsoft.Data.Entity.Migrations.Tests
 
             dependentEntityType.SetKey(dependentProperty);
             principalEntityType.SetKey(principalProperty);
-            dependentEntityType.GetKey().StorageName = "MyPK0";
-            principalEntityType.GetKey().StorageName = "MyPK1";
+            dependentEntityType.GetKey().SetKeyName("MyPK0");
+            principalEntityType.GetKey().SetKeyName("MyPK1");
 
             var foreignKey = dependentEntityType.AddForeignKey(principalEntityType.GetKey(), dependentProperty);
-            foreignKey.StorageName = "MyFK";
+            foreignKey.SetKeyName("MyFK");
             foreignKey.Annotations.Add(new Annotation(
                 MetadataExtensions.Annotations.CascadeDelete, "True"));
 
             var index = dependentEntityType.AddIndex(dependentProperty);
-            index.StorageName = "MyIndex";
+            index.SetIndexName("MyIndex");
             index.IsUnique = true;
 
             return model;

@@ -107,6 +107,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
                 GenerateEntityType(entityType, stringBuilder);
 
                 stringBuilder.Append(";");
+                stringBuilder.AppendLine();
             }
 
             foreach (var entityType in entityTypes.Where(entityType => entityType.ForeignKeys.Count > 0))
@@ -125,6 +126,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
                     }
 
                     stringBuilder.Append(";");
+                    stringBuilder.AppendLine();
                 }
             }
         }
@@ -140,7 +142,10 @@ namespace Microsoft.Data.Entity.Migrations.Design
 
                 GenerateKey(entityType.GetKey(), stringBuilder);
 
-                GenerateAnnotations(entityType.Annotations.ToArray(), stringBuilder);
+                var scaffoldableAnnotations = entityType.Annotations.Where(a => a.Name != "TableName" && a.Name != "Schema").ToArray();
+                GenerateAnnotations(scaffoldableAnnotations, stringBuilder);
+
+                GenerateTableName(entityType["TableName"], entityType["Schema"], stringBuilder);
             }
         }
 
@@ -211,9 +216,19 @@ namespace Microsoft.Data.Entity.Migrations.Design
 
             stringBuilder.Append(")");
 
+            var columnNameAnnotation = property.Annotations.Where(a => a.Name == "ColumnName").FirstOrDefault();
+            if (columnNameAnnotation != null)
+            {
+                stringBuilder
+                    .Append(".ColumnName(")
+                    .Append(DelimitString(columnNameAnnotation.Value))
+                    .Append(")");
+            }
+
+            var scaffoldableAnnotations = property.Annotations.Where(a => a.Name != "ColumnName").ToArray();
             using (stringBuilder.Indent())
             {
-                GenerateAnnotations(property.Annotations.ToArray(), stringBuilder);
+                GenerateAnnotations(scaffoldableAnnotations, stringBuilder);
             }
         }
 
@@ -233,9 +248,26 @@ namespace Microsoft.Data.Entity.Migrations.Design
                     .Append(key.Properties.Select(p => DelimitString(p.Name)).Join())
                     .Append(")");
 
-                using (stringBuilder.Indent())
+                var keyNameAnnotation = key.Annotations.Where(a => a.Name == "KeyName").FirstOrDefault();
+                var scaffoldableAnnotations = key.Annotations.Where(a => a.Name != "KeyName");
+                if (scaffoldableAnnotations.Any())
                 {
-                    GenerateAnnotations(key.Annotations.ToArray(), stringBuilder);
+                    using (stringBuilder.Indent())
+                    {
+                        GenerateAnnotations(scaffoldableAnnotations.ToArray(), stringBuilder);
+                    }
+                }
+
+                if (keyNameAnnotation != null)
+                {
+                    using (stringBuilder.Indent())
+                    {
+                        stringBuilder
+                            .AppendLine()
+                            .Append(".KeyName(")
+                            .Append(DelimitString(keyNameAnnotation.Value))
+                            .Append(")");
+                    }
                 }
 
                 stringBuilder.Append(")");
@@ -247,6 +279,26 @@ namespace Microsoft.Data.Entity.Migrations.Design
                     .Append(".Key(")
                     .Append(key.Properties.Select(p => DelimitString(p.Name)).Join())
                     .Append(")");
+            }
+        }
+
+        protected virtual void GenerateTableName(
+            [CanBeNull] string tableName,
+            [CanBeNull] string schema,
+            [NotNull] IndentedStringBuilder stringBuilder)
+        {
+            if (!string.IsNullOrEmpty(tableName))
+            {
+                stringBuilder.AppendLine();
+                stringBuilder.Append(".TableName(");
+                stringBuilder.Append(DelimitString(tableName));
+                if (!string.IsNullOrEmpty(schema))
+                {
+                    stringBuilder.Append(", ");
+                    stringBuilder.Append(DelimitString(schema));
+                }
+
+                stringBuilder.Append(")");
             }
         }
 
@@ -306,9 +358,23 @@ namespace Microsoft.Data.Entity.Migrations.Design
                 .Append(foreignKey.Properties.Select(p => DelimitString(p.Name)).Join())
                 .Append(")");
 
+            var foreignKeyNameAnnotation = foreignKey.Annotations.Where(a => a.Name == "KeyName").FirstOrDefault();
+            if (foreignKeyNameAnnotation != null)
+            {
+                using (stringBuilder.Indent())
+                {
+                    stringBuilder
+                        .AppendLine()
+                        .Append(".KeyName(")
+                        .Append(DelimitString(foreignKeyNameAnnotation.Value))
+                        .Append(")");
+                }
+            }
+
+            var scaffoldableAnnotations = foreignKey.Annotations.Where(a => a.Name != "KeyName").ToArray();
             using (stringBuilder.Indent())
             {
-                GenerateAnnotations(foreignKey.Annotations.ToArray(), stringBuilder);
+                GenerateAnnotations(scaffoldableAnnotations, stringBuilder);
             }
         }
 

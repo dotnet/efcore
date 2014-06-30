@@ -41,7 +41,20 @@ namespace Microsoft.Data.Entity.SqlServer
             Check.NotNull(property, "property");
 
             // TODO: StoreSequenceName string should be in a constant somewhere--not sure where yet
-            return TryFindAnnotation(property, "StoreSequenceName") ?? (property.EntityType.StorageName + "_Sequence");
+            var sequenceName = TryFindAnnotation(property, "StoreSequenceName");
+            if (sequenceName != null)
+            {
+                return sequenceName;
+            }
+            else
+            {
+
+                var entityName = !string.IsNullOrEmpty(property.EntityType.Schema())
+                    ? property.EntityType.Schema() + "_" + property.EntityType.TableName()
+                    : property.EntityType.TableName();
+
+                return entityName + "_Sequence";
+            }
         }
 
         private static string DelimitSequenceName(string sequenceName)

@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Utilities
         {
             var entityType = new EntityType("Customer");
             var property = entityType.AddProperty("Name", typeof(string));
-            property.StorageName = "FirstName";
+            property.SetColumnName("FirstName");
             Assert.Equal(property, entityType.GetPropertyByStorageName("FirstName"));
             Assert.Equal(property, entityType.TryGetPropertyByStorageName("FirstName"));
         }

@@ -345,7 +345,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 builder
                     .Entity<Customer>()
                     .Key(c => c.CustomerID)
-                    .StorageName("Customers");
+                    .TableName("Customers");
             }
         }
 
@@ -394,7 +394,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             protected override void OnModelCreating(ModelBuilder builder)
             {
-                builder.Entity<TBlog>().StorageName("Blog");
+                builder.Entity<TBlog>().TableName("Blog");
             }
 
             public DbSet<TBlog> Blogs { get; set; }

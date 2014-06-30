@@ -151,7 +151,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                     command.Parameters.Add(
                         typeMapper
                             .GetTypeMapping(
-                                property.ColumnType(), property.StorageName, property.PropertyType, isKey, property.IsConcurrencyToken)
+                                property.ColumnType(), property.ColumnName(), property.PropertyType, isKey, property.IsConcurrencyToken)
                             .CreateParameter(command, columnModification));
                 }
             }

@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
             var valueBuffer = new object[type.Properties.Count];
             foreach (var property in type.Properties)
             {
-                valueBuffer[property.Index] = source.TryGet(property.StorageName);
+                valueBuffer[property.Index] = source.TryGet(property.ColumnName());
             }
             return new AtsObjectArrayValueReader(valueBuffer);
         }
