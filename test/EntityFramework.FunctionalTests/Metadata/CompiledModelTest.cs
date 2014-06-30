@@ -31,9 +31,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             Assert.True(
                 compiledModel.EntityTypes.Select(e => e.Name)
                     .SequenceEqual(builtModel.EntityTypes.Select(a => a.Name)));
-            //Assert.True(
-            //    compiledModel.EntityTypes.Select(e => e.StorageName)
-            //        .SequenceEqual(builtModel.EntityTypes.Select(a => a.StorageName)));
             Assert.True(
                 compiledModel.EntityTypes.Select(e => e.Type)
                     .SequenceEqual(builtModel.EntityTypes.Select(a => a.Type)));
@@ -45,9 +42,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             Assert.True(
                 compiledModel.EntityTypes.First().Properties.Select(p => p.Name)
                     .SequenceEqual(builtModel.EntityTypes.First().Properties.Select(p => p.Name)));
-            //Assert.True(
-            //    compiledModel.EntityTypes.First().Properties.Select(p => p.StorageName)
-            //        .SequenceEqual(builtModel.EntityTypes.First().Properties.Select(p => p.StorageName)));
             Assert.True(
                 compiledModel.EntityTypes.First().Properties.Select(p => p.PropertyType)
                     .SequenceEqual(builtModel.EntityTypes.First().Properties.Select(p => p.PropertyType)));
@@ -367,9 +361,8 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
             var entityType1 = new EntityType(typeof(KoolEntity1));
             var property = entityType1.AddProperty("Id1", typeof(int));
-            //property.StorageName = "MyKey1";
             entityType1.SetKey(property);
-            entityType1.AddProperty("Id2", typeof(Guid));//.StorageName = "MyKey2";
+            entityType1.AddProperty("Id2", typeof(Guid));
             entityType1.AddProperty("KoolEntity2Id", typeof(int));
             model.AddEntityType(entityType1);
 
@@ -408,7 +401,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
                 var entityType = model.GetEntityType(type);
                 var id = entityType.AddProperty(entityType.Type.GetProperty("Id"));
-                //id.StorageName = "MyKey";
                 entityType.SetKey(id);
             }
 
@@ -417,7 +409,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
                 var type = Type.GetType("Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity" + i);
 
                 var entityType = model.GetEntityType(type);
-                //entityType.StorageName = entityType.Name + "Table";
 
                 entityType.Annotations.Add(new Annotation("Annotation1", "Value1"));
                 entityType.Annotations.Add(new Annotation("Annotation2", "Value2"));

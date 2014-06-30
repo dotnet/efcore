@@ -19,16 +19,23 @@ namespace Microsoft.Data.Entity.Metadata
 
         public static void SetColumnName([NotNull] this Property property, [NotNull] string columnName)
         {
+            Check.NotNull(property, "property");
+            Check.NotEmpty(columnName, "columnName");
+
             property[Annotations.ColumnName] = columnName;
         }
 
         public static string TableName([NotNull] this IEntityType entityType)
         {
+            Check.NotNull(entityType, "entityType");
+
             return entityType[Annotations.TableName] ?? entityType.Name;
         }
 
         public static string ColumnName([NotNull] this IPropertyBase property)
         {
+            Check.NotNull(property, "property");
+
             return property[Annotations.ColumnName] ?? property.Name;
         }
 
@@ -37,6 +44,9 @@ namespace Microsoft.Data.Entity.Metadata
             [NotNull] string tableName)
             where TMetadataBuilder : Microsoft.Data.Entity.Metadata.ModelBuilder.MetadataBuilder<EntityType, TMetadataBuilder>
         {
+            Check.NotNull(builder, "builder");
+            Check.NotEmpty(tableName, "tableName");
+
             builder.Annotation(Annotations.TableName, tableName);
 
             return builder;
@@ -47,6 +57,9 @@ namespace Microsoft.Data.Entity.Metadata
             [NotNull] string columnName)
             where TMetadataBuilder : Microsoft.Data.Entity.Metadata.ModelBuilder.MetadataBuilder<EntityType, TMetadataBuilder>
         {
+            Check.NotNull(builder, "builder");
+            Check.NotEmpty(columnName, "columnName");
+
             builder.Annotation(Annotations.ColumnName, columnName);
 
             return builder;
