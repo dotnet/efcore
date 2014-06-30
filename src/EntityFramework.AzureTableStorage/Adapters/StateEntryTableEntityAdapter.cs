@@ -68,7 +68,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Adapters
 
             foreach (var property in _entry.EntityType.Properties)
             {
-                if (IsReservedStorageProperty(property.StorageName))
+                if (IsReservedStorageProperty(property.ColumnName()))
                 {
                     continue;
                 }
@@ -77,7 +77,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Adapters
                 // property will be null if unknown type
                 if (newProperty != null)
                 {
-                    retVals.Add(property.StorageName, newProperty);
+                    retVals.Add(property.ColumnName(), newProperty);
                 }
             }
             return retVals;

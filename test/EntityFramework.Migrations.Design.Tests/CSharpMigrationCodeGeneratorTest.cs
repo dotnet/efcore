@@ -114,8 +114,8 @@ namespace Microsoft.Data.Entity.Migrations.Design.Tests
     .PrimaryKey(""MyPK"",
         t => new
             {
-                Foo => t.Foo,
-                Bar => t.Bar
+                Foo = t.Foo,
+                Bar = t.Bar
             })",
                 CSharpMigrationCodeGenerator.Generate(new CreateTableOperation(table)));
         }
@@ -324,12 +324,14 @@ namespace MyNamespace
         public override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn(""dbo.MyTable"", ""Foo"", c => c.Int());
+            
             migrationBuilder.AddColumn(""dbo.MyTable"", ""Bar"", c => c.Int());
         }
         
         public override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(""dbo.MyTable"", ""Foo"");
+            
             migrationBuilder.DropColumn(""dbo.MyTable"", ""Bar"");
         }
     }
@@ -390,6 +392,7 @@ namespace MyNamespace
                 builder.Entity(""Entity"")
                     .Properties(ps => ps.Property<int>(""Id""))
                     .Key(""Id"");
+                
                 return builder.Model;
             }
         }

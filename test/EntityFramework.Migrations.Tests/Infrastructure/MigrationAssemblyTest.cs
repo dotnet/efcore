@@ -71,7 +71,6 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                 var model2 = migrationAssembly.Model;
 
                 Assert.Same(model1, model2);
-                Assert.Equal("ContextModelSnapshot", model1.StorageName);
             }
         }
 

@@ -258,12 +258,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var categoryIdFk
                     = productType.AddForeignKey(
                         categoryType.GetKey(), new[] { productType.GetProperty("CategoryId") });
-                categoryIdFk.StorageName = "Category_Products";
 
                 var productIdFk
                     = offerType.AddForeignKey(
                         productType.GetKey(), new[] { offerType.GetProperty("ProductId") });
-                productIdFk.StorageName = "Product_Offers";
 
                 categoryType.AddNavigation(new Navigation(categoryIdFk, "Products", pointsToPrincipal: false));
                 productType.AddNavigation(new Navigation(categoryIdFk, "Category", pointsToPrincipal: true));

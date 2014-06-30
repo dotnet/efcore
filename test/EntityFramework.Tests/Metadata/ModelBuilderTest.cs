@@ -278,32 +278,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
-        public void Can_set_entity_storage_name()
-        {
-            var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
-
-            modelBuilder
-                .Entity<Customer>()
-                .StorageName("foo");
-
-            Assert.Equal("foo", model.GetEntityType(typeof(Customer)).StorageName);
-        }
-
-        [Fact]
-        public void Can_set_entity_storage_name_when_no_clr_type()
-        {
-            var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
-
-            modelBuilder
-                .Entity("Customer")
-                .StorageName("foo");
-
-            Assert.Equal("foo", model.GetEntityType(typeof(Customer)).StorageName);
-        }
-
-        [Fact]
         public void Can_set_property_annotation()
         {
             var model = new Model();
@@ -340,45 +314,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .Properties(ps => ps.Property<string>("Name").Annotation("foo", "bar"));
 
             Assert.Equal("bar", model.GetEntityType(typeof(Customer)).GetProperty("Name")["foo"]);
-        }
-
-        [Fact]
-        public void Can_set_property_storage_name()
-        {
-            var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
-
-            modelBuilder
-                .Entity<Customer>()
-                .Properties(ps => ps.Property(c => c.Name).StorageName("foo"));
-
-            Assert.Equal("foo", model.GetEntityType(typeof(Customer)).GetProperty("Name").StorageName);
-        }
-
-        [Fact]
-        public void Can_set_property_storage_name_when_no_clr_property()
-        {
-            var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
-
-            modelBuilder
-                .Entity<Customer>()
-                .Properties(ps => ps.Property<string>("Name").StorageName("foo"));
-
-            Assert.Equal("foo", model.GetEntityType(typeof(Customer)).GetProperty("Name").StorageName);
-        }
-
-        [Fact]
-        public void Can_set_property_storage_name_when_no_clr_type()
-        {
-            var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
-
-            modelBuilder
-                .Entity("Customer")
-                .Properties(ps => ps.Property<string>("Name").StorageName("foo"));
-
-            Assert.Equal("foo", model.GetEntityType(typeof(Customer)).GetProperty("Name").StorageName);
         }
 
         [Fact]

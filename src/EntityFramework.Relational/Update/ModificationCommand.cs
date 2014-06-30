@@ -16,6 +16,7 @@ namespace Microsoft.Data.Entity.Relational.Update
     {
         private readonly ParameterNameGenerator _parameterNameGenerator;
         private readonly string _tableName;
+        private readonly string _schema;
         private readonly List<StateEntry> _stateEntries = new List<StateEntry>();
 
         private readonly LazyRef<IReadOnlyList<ColumnModification>> _columnModifications
@@ -32,18 +33,24 @@ namespace Microsoft.Data.Entity.Relational.Update
         {
         }
 
-        public ModificationCommand([NotNull] string tableName, [NotNull] ParameterNameGenerator parameterNameGenerator)
+        public ModificationCommand([NotNull] string tableName, [CanBeNull] string schema, [NotNull] ParameterNameGenerator parameterNameGenerator)
         {
             Check.NotEmpty(tableName, "tableName");
             Check.NotNull(parameterNameGenerator, "parameterNameGenerator");
 
             _tableName = tableName;
+            _schema = schema;
             _parameterNameGenerator = parameterNameGenerator;
         }
 
         public virtual string TableName
         {
             get { return _tableName; }
+        }
+
+        public virtual string Schema
+        {
+            get { return _schema; }
         }
 
         public virtual IReadOnlyList<StateEntry> StateEntries

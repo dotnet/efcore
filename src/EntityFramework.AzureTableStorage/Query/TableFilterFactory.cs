@@ -120,7 +120,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
                 throw new ArgumentException("Nested member access not supported", "memberExpression");
             }
             var typeName = memberExpression.Member.Name;
-            return entityType.GetProperty(typeName).StorageName;
+            return entityType.GetProperty(typeName).ColumnName();
         }
     }
 }
