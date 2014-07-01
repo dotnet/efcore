@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using Microsoft.Data.SQLite.Interop;
 using Microsoft.Data.SQLite.Utilities;
 using Xunit;
@@ -822,6 +821,46 @@ namespace Microsoft.Data.SQLite
                         reader.Read();
 
                         Assert.Equal(1L, reader.GetFieldValue<long>(0));
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void GetFieldValue_works_when_casting()
+        {
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "SELECT 1";
+                    connection.Open();
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        reader.Read();
+
+                        Assert.Equal(1, reader.GetFieldValue<int>(0));
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void GetFieldValue_works_when_object()
+        {
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "SELECT 1";
+                    connection.Open();
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        reader.Read();
+
+                        Assert.Equal(1L, reader.GetFieldValue<object>(0));
                     }
                 }
             }

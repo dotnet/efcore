@@ -313,6 +313,11 @@ namespace Microsoft.Data.SQLite
         {
             CheckClosed("GetFieldValue");
 
+            if (typeof(T) == typeof(object))
+            {
+                return (T)GetValue(ordinal);
+            }
+
             var map = SQLiteTypeMap.FromClrType<T>();
             var value = ColumnReader.Read(map.SQLiteType, _currentHandle, ordinal);
 
