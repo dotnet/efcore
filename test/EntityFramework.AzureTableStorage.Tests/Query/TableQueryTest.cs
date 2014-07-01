@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
             _tableQuery.WithFilter(filter);
 
             testObj.InstanceIntField = -87;
-            Assert.Equal("Count eq -87", _tableQuery.Where);
+            Assert.Equal("Count eq -87", _tableQuery.ToString());
         }
 
         internal class FieldType : PocoTestType

@@ -16,6 +16,7 @@ using Microsoft.Data.Entity.AzureTableStorage.Utilities;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Framework.Logging;
 using Remotion.Linq;
 
 namespace Microsoft.Data.Entity.AzureTableStorage

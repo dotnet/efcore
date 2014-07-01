@@ -45,7 +45,7 @@
     <PackageReference Include="Microsoft.Framework.DependencyInjection">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
-      <PackageReference Include="Microsoft.Framework.Logging">
+    <PackageReference Include="Microsoft.Framework.Logging">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <PackageReference Include="xunit.abstractions">
@@ -80,6 +80,9 @@
     <Compile Include="..\Shared\ApiConsistencyTestBase.cs">
       <Link>ApiConsistencyTestBase.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\Northwind.cs">
+      <Link>Query\Northwind.cs</Link>
+    </Compile>
     <Compile Include="Adapters\StateEntryTableEntityAdapterTest.cs" />
     <Compile Include="Adapters\TableEntityAdapterFactoryTests.cs" />
     <Compile Include="ApiConsistencyTest.cs" />
@@ -100,7 +103,9 @@
     <Compile Include="Query\AtsNamedValueBufferTests.cs" />
     <Compile Include="Query\AtsObjectArrayValueReaderFactoryTests.cs" />
     <Compile Include="Query\AtsObjectArrayValueReaderTests.cs" />
-    <Compile Include="Query\AtsQueryModelVisitorTests.cs" />
+    <Compile Include="Query\QueryGenerationTests.cs" />
+    <Compile Include="Query\QueryCachingTests.cs" />
+    <Compile Include="Query\QueryModelVisitorTests.cs" />
     <Compile Include="Query\TableFilterFactoryTests.cs" />
     <Compile Include="Query\TableFilterTests.cs" />
     <Compile Include="Query\TableQueryTest.cs" />

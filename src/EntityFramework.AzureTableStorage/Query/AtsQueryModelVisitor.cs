@@ -150,11 +150,12 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
             var request = new QueryTableRequest<TResult>(
                 table,
                 tableQuery, s =>
-                (TResult)context.StateManager.GetOrMaterializeEntry(
-                    entityType,
-                    context.ValueReaderFactory.Create(entityType, s)
-                    ).Entity);
-            return context.Connection.ExecuteRequest(request, context.Logger);
+                    (TResult)context.StateManager.GetOrMaterializeEntry(
+                        entityType,
+                        context.ValueReaderFactory.Create(entityType, s)
+                        ).Entity);
+
+            return context.GetOrAddQueryResults(request);
         }
     }
 }

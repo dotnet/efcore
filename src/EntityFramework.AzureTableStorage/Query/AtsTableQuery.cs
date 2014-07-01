@@ -7,7 +7,6 @@ using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.AzureTableStorage.Utilities;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Query
@@ -20,31 +19,23 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
         internal TableQuery ToExecutableQuery()
         {
             var query = new TableQuery();
-            query.Where(Where);
+            query.Where(ToString());
             return query;
-        }
-
-        public virtual string Where
-        {
-            get
-            {
-                if (_filters.Count == 0)
-                {
-                    return "";
-                }
-                return _filters
-                    .Select(f => f.ToString())
-                    .Aggregate((combined, piece) =>
-                        String.IsNullOrWhiteSpace(piece) ?
-                            combined :
-                            TableQuery.CombineFilters(combined, TableOperators.And, piece)
-                    );
-            }
         }
 
         public override string ToString()
         {
-            return Where;
+            if (_filters.Count == 0)
+            {
+                return "";
+            }
+            return _filters
+                .Select(f => f.ToString())
+                .Aggregate((combined, piece) =>
+                    String.IsNullOrWhiteSpace(piece) ?
+                        combined :
+                        TableQuery.CombineFilters(combined, TableOperators.And, piece)
+                );
         }
 
         public virtual AtsTableQuery WithFilter([NotNull] TableFilter filter)
@@ -52,6 +43,33 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
             Check.NotNull(filter, "filter");
             _filters.Add(filter);
             return this;
+        }
+
+        protected bool Equals(AtsTableQuery other)
+        {
+            return ToString().Equals(other.ToString());
+        }
+
+        public override bool Equals([CanBeNull] object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+            if (obj.GetType() != GetType())
+            {
+                return false;
+            }
+            return Equals((AtsTableQuery)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return ToString().GetHashCode();
         }
     }
 }

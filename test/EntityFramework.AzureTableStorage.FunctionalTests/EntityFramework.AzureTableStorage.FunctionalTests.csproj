@@ -48,6 +48,9 @@
     <PackageReference Include="Microsoft.Framework.DependencyInjection">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
+    <PackageReference Include="Microsoft.Framework.Logging">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
     <PackageReference Include="Moq">
       <TargetFramework>net40</TargetFramework>
     </PackageReference>
@@ -78,6 +81,9 @@
     </Compile>
     <Compile Include="..\Shared\NorthwindQueryTestBase.cs">
       <Link>NorthwindQueryTestBase.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\TestFileLogger.cs">
+      <Link>TestFileLogger.cs</Link>
     </Compile>
     <Compile Include="AtsTestFramework.cs" />
     <Compile Include="BatchTests.cs" />

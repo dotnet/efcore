@@ -10,7 +10,6 @@ using Microsoft.Data.Entity.AzureTableStorage.Utilities;
 namespace Microsoft.Data.Entity.AzureTableStorage.Requests
 {
     public class QueryTableRequest<TElement> : AtsRequest<IEnumerable<TElement>>
-        where TElement : class
     {
         private readonly AtsTableQuery _query;
         private readonly Func<AtsNamedValueBuffer, TElement> _resolver;
@@ -34,6 +33,16 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Requests
             get { return "QueryTableRequest"; }
         }
 
+        public virtual AtsTableQuery Query
+        {
+            get { return _query; }
+        }
+
+        public virtual AtsTable Table
+        {
+            get { return _table; }
+        }
+
         public override IEnumerable<TElement> Execute([NotNull] RequestContext requestContext)
         {
             Check.NotNull(requestContext, "requestContext");
@@ -51,6 +60,36 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Requests
                     },
                     null,
                     requestContext.OperationContext);
+        }
+
+        protected bool Equals(QueryTableRequest<TElement> other)
+        {
+            return Equals(_query, other._query) && Equals(_table, other._table);
+        }
+
+        public override bool Equals([CanBeNull] object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+            if (obj.GetType() != this.GetType())
+            {
+                return false;
+            }
+            return Equals((QueryTableRequest<TElement>)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return ((_query != null ? _query.GetHashCode() : 0) * 397) ^ (_table != null ? _table.GetHashCode() : 0);
+            }
         }
     }
 }

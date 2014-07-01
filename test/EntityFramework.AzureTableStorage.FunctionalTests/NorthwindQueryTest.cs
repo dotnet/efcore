@@ -1,8 +1,13 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Tests;
 using Microsoft.Data.FunctionalTests;
+using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Advanced;
+using Microsoft.Framework.DependencyInjection.Fallback;
 using Northwind;
 using Xunit;
 
@@ -27,6 +32,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
     public class NorthwindQueryFixture : NorthwindQueryFixtureBase
     {
         private readonly DbContextOptions _options;
+        private IServiceProvider _serviceProvider;
 
         public IModel CreateAzureTableStorageModel()
         {
@@ -64,6 +70,10 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
                     .UseModel(CreateAzureTableStorageModel())
                     .UseAzureTableStorage(TestConfig.Instance.ConnectionString, batchRequests: false);
 
+            var services = new ServiceCollection();
+            services.AddEntityFramework().UseLoggerFactory(TestFileLogger.Factory).AddAzureTableStorage();
+            _serviceProvider = services.BuildServiceProvider();
+
             using (var context = new DbContext(_options))
             {
                 if (!context.Database.EnsureCreated())
@@ -81,7 +91,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
 
         public DbContext CreateContext()
         {
-            return new DbContext(_options);
+            return new DbContext(_serviceProvider,_options);
         }
     }
 }

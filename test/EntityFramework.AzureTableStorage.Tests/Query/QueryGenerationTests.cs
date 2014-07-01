@@ -11,11 +11,11 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
 {
-    public class AtsQueryModelVisitorTests : AtsQueryModelVisitor, IClassFixture<TestModelFixture>
+    public class QueryGenerationTests : AtsQueryModelVisitor, IClassFixture<TestModelFixture>
     {
         private readonly TestModelFixture _fixture;
 
-        public AtsQueryModelVisitorTests(TestModelFixture fixture)
+        public QueryGenerationTests(TestModelFixture fixture)
             : base(new AtsQueryCompilationContext(SetupModel(fixture), new TableFilterFactory()))
         {
             _fixture = fixture;
