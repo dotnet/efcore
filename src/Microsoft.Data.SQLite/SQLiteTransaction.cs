@@ -23,11 +23,17 @@ namespace Microsoft.Data.SQLite
             _isolationLevel = isolationLevel;
 
             if (_isolationLevel == IsolationLevel.ReadUncommitted)
+            {
                 _connection.ExecuteNonQuery("PRAGMA read_uncommitted = 1");
+            }
             else if (_isolationLevel == IsolationLevel.Serializable)
+            {
                 _connection.ExecuteNonQuery("PRAGMA read_uncommitted = 0");
+            }
             else if (_isolationLevel != IsolationLevel.Unspecified)
+            {
                 throw new ArgumentException(Strings.FormatInvalidIsolationLevel(isolationLevel));
+            }
 
             _connection.ExecuteNonQuery("BEGIN");
         }
@@ -49,9 +55,11 @@ namespace Microsoft.Data.SQLite
                 CheckCompleted();
 
                 if (_isolationLevel == IsolationLevel.Unspecified)
+                {
                     _isolationLevel = _connection.ExecuteScalar<long>("PRAGMA read_uncommitted") != 0
                         ? IsolationLevel.ReadUncommitted
                         : IsolationLevel.Serializable;
+                }
 
                 return _isolationLevel;
             }
@@ -75,11 +83,16 @@ namespace Microsoft.Data.SQLite
 
         protected override void Dispose(bool disposing)
         {
-            if (!disposing || _connection == null)
+            if (!disposing
+                || _connection == null)
+            {
                 return;
+            }
 
             if (_connection.State == ConnectionState.Open)
+            {
                 _connection.ExecuteNonQuery("ROLLBACK");
+            }
 
             _connection.Transaction = null;
             _connection = null;
@@ -87,8 +100,11 @@ namespace Microsoft.Data.SQLite
 
         private void CheckCompleted()
         {
-            if (_connection == null || _connection.State != ConnectionState.Open)
+            if (_connection == null
+                || _connection.State != ConnectionState.Open)
+            {
                 throw new InvalidOperationException(Strings.TransactionCompleted);
+            }
         }
     }
 }

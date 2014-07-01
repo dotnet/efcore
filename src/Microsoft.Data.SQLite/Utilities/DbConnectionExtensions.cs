@@ -28,7 +28,9 @@ namespace Microsoft.Data.SQLite.Utilities
 
             var value = connection.ExecuteScalar(commandText);
             if (!(value is T))
+            {
                 return default(T);
+            }
 
             return (T)value;
         }

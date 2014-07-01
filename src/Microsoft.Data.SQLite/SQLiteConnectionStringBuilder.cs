@@ -16,7 +16,7 @@ namespace Microsoft.Data.SQLite
     public class SQLiteConnectionStringBuilder : DbConnectionStringBuilder
     {
         // NOTE: Order must match the Keywords enum
-        private readonly static string[] _validKeywords = new[]
+        private static readonly string[] _validKeywords = new[]
             {
                 "Cache",
                 "Filename",
@@ -26,16 +26,16 @@ namespace Microsoft.Data.SQLite
                 "VFS"
             };
 
-        private readonly static IDictionary<string, Keywords> _keywords = new Dictionary<string, Keywords>(
-                7,
-                StringComparer.OrdinalIgnoreCase)
+        private static readonly IDictionary<string, Keywords> _keywords = new Dictionary<string, Keywords>(
+            7,
+            StringComparer.OrdinalIgnoreCase)
             {
                 { "Cache", Keywords.Cache },
                 { "Data Source", Keywords.Filename },
                 { "Filename", Keywords.Filename },
                 { "Mode", Keywords.Mode },
                 { "Mutex", Keywords.Mutex },
-                { "Uri", Keywords.Uri},
+                { "Uri", Keywords.Uri },
                 { "VFS", Keywords.VirtualFileSystem }
             };
 
@@ -63,13 +63,21 @@ namespace Microsoft.Data.SQLite
             set
             {
                 if (string.Equals(value, "Private", StringComparison.OrdinalIgnoreCase))
+                {
                     value = "Private";
+                }
                 else if (string.Equals(value, "Shared", StringComparison.OrdinalIgnoreCase))
+                {
                     value = "Shared";
+                }
                 else if (string.IsNullOrEmpty(value))
+                {
                     value = null;
+                }
                 else
+                {
                     throw new ArgumentException(Strings.FormatInvalidConnectionOptionValue("Cache", value));
+                }
 
                 base["Cache"] = value;
                 _cache = value;
@@ -92,13 +100,22 @@ namespace Microsoft.Data.SQLite
             set
             {
                 if (string.Equals(value, "RO", StringComparison.OrdinalIgnoreCase))
+                {
                     value = "RO";
+                }
                 else if (string.Equals(value, "RW", StringComparison.OrdinalIgnoreCase))
+                {
                     value = "RW";
-                else if (string.IsNullOrEmpty(value) || value.Equals("RWC", StringComparison.OrdinalIgnoreCase))
+                }
+                else if (string.IsNullOrEmpty(value)
+                         || value.Equals("RWC", StringComparison.OrdinalIgnoreCase))
+                {
                     value = "RWC";
+                }
                 else
+                {
                     throw new ArgumentException(Strings.FormatInvalidConnectionOptionValue("Mode", value));
+                }
 
                 base["Mode"] = value;
                 _mode = value;
@@ -111,13 +128,21 @@ namespace Microsoft.Data.SQLite
             set
             {
                 if (string.Equals(value, "None", StringComparison.OrdinalIgnoreCase))
+                {
                     value = "None";
+                }
                 else if (string.Equals(value, "Full", StringComparison.OrdinalIgnoreCase))
+                {
                     value = "Full";
+                }
                 else if (string.IsNullOrEmpty(value))
+                {
                     value = null;
+                }
                 else
+                {
                     throw new ArgumentException(Strings.FormatInvalidConnectionOptionValue("Mutex", value));
+                }
 
                 base["Mutex"] = value;
                 _mutex = value;
@@ -160,7 +185,9 @@ namespace Microsoft.Data.SQLite
             {
                 var values = new object[_validKeywords.Length];
                 for (var i = 0; i < _validKeywords.Length; i++)
+                {
                     values[i] = GetAt((Keywords)i);
+                }
 
                 return new ReadOnlyCollection<object>(values);
             }
@@ -254,7 +281,9 @@ namespace Microsoft.Data.SQLite
             }
 
             if (Uri)
+            {
                 flags |= Constants.SQLITE_OPEN_URI;
+            }
 
             return flags;
         }
@@ -264,7 +293,9 @@ namespace Microsoft.Data.SQLite
             base.Clear();
 
             for (var i = 0; i < _validKeywords.Length; i++)
+            {
                 Reset((Keywords)i);
+            }
         }
 
         public override bool ContainsKey(string keyword)
@@ -279,8 +310,11 @@ namespace Microsoft.Data.SQLite
             Check.NotEmpty(keyword, "keyword");
 
             Keywords index;
-            if (!_keywords.TryGetValue(keyword, out index) || !base.Remove(_validKeywords[(int)index]))
+            if (!_keywords.TryGetValue(keyword, out index)
+                || !base.Remove(_validKeywords[(int)index]))
+            {
                 return false;
+            }
 
             Reset(index);
 
@@ -293,7 +327,9 @@ namespace Microsoft.Data.SQLite
 
             Keywords index;
             if (!_keywords.TryGetValue(keyword, out index))
+            {
                 return false;
+            }
 
             return base.ShouldSerialize(_validKeywords[(int)index]);
         }
@@ -345,7 +381,9 @@ namespace Microsoft.Data.SQLite
 
             Keywords index;
             if (!_keywords.TryGetValue(keyword, out index))
+            {
                 throw new ArgumentException(Strings.FormatKeywordNotSupported(keyword));
+            }
 
             return index;
         }

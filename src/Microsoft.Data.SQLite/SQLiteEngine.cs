@@ -22,7 +22,9 @@ namespace Microsoft.Data.SQLite
             finally
             {
                 if (ptrFilename != IntPtr.Zero)
+                {
                     Marshal.FreeHGlobal(ptrFilename);
+                }
             }
         }
     }

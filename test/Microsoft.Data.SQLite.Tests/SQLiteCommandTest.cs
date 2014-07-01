@@ -19,9 +19,11 @@ namespace Microsoft.Data.SQLite
             Assert.Throws<ArgumentNullException>("connection", () => new SQLiteCommand("SELECT 1", null));
 
             using (var connection = new SQLiteConnection())
+            {
                 Assert.Throws<ArgumentNullException>(
                     "transaction",
                     () => new SQLiteCommand("SELECT 1", connection, null));
+            }
         }
 
         [Fact]
@@ -59,7 +61,9 @@ namespace Microsoft.Data.SQLite
         public void Connection_validates_value()
         {
             using (var command = new SQLiteCommand())
+            {
                 Assert.Throws<ArgumentNullException>("value", () => command.Connection = null);
+            }
         }
 
         [Fact]
@@ -87,14 +91,16 @@ namespace Microsoft.Data.SQLite
         public void Prepare_can_be_called_when_disposed()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT 1";
-                command.Dispose();
-                command.Connection = connection;
-                connection.Open();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "SELECT 1";
+                    command.Dispose();
+                    command.Connection = connection;
+                    connection.Open();
 
-                command.Prepare();
+                    command.Prepare();
+                }
             }
         }
 
@@ -102,17 +108,19 @@ namespace Microsoft.Data.SQLite
         public void Prepare_throws_when_open_reader()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT 1";
-                connection.Open();
-
-                using (command.ExecuteReader())
+                using (var command = connection.CreateCommand())
                 {
-                    command.CommandText = "SELECT 2";
+                    command.CommandText = "SELECT 1";
+                    connection.Open();
 
-                    var ex = Assert.Throws<InvalidOperationException>(() => command.Prepare());
-                    Assert.Equal(Strings.OpenReaderExists, ex.Message);
+                    using (command.ExecuteReader())
+                    {
+                        command.CommandText = "SELECT 2";
+
+                        var ex = Assert.Throws<InvalidOperationException>(() => command.Prepare());
+                        Assert.Equal(Strings.OpenReaderExists, ex.Message);
+                    }
                 }
             }
         }
@@ -132,11 +140,13 @@ namespace Microsoft.Data.SQLite
         public void Prepare_throws_when_connection_closed()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                var ex = Assert.Throws<InvalidOperationException>(() => command.Prepare());
+                using (var command = connection.CreateCommand())
+                {
+                    var ex = Assert.Throws<InvalidOperationException>(() => command.Prepare());
 
-                Assert.Equal(Strings.FormatCallRequiresOpenConnection("Prepare"), ex.Message);
+                    Assert.Equal(Strings.FormatCallRequiresOpenConnection("Prepare"), ex.Message);
+                }
             }
         }
 
@@ -144,13 +154,15 @@ namespace Microsoft.Data.SQLite
         public void Prepare_throws_when_no_command_text()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                connection.Open();
+                using (var command = connection.CreateCommand())
+                {
+                    connection.Open();
 
-                var ex = Assert.Throws<InvalidOperationException>(() => command.Prepare());
+                    var ex = Assert.Throws<InvalidOperationException>(() => command.Prepare());
 
-                Assert.Equal(Strings.FormatCallRequiresSetCommandText("Prepare"), ex.Message);
+                    Assert.Equal(Strings.FormatCallRequiresSetCommandText("Prepare"), ex.Message);
+                }
             }
         }
 
@@ -158,14 +170,16 @@ namespace Microsoft.Data.SQLite
         public void Prepare_throws_on_error()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "INVALID";
-                connection.Open();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "INVALID";
+                    connection.Open();
 
-                var ex = Assert.Throws<SQLiteException>(() => command.Prepare());
+                    var ex = Assert.Throws<SQLiteException>(() => command.Prepare());
 
-                Assert.Equal(1, ex.ErrorCode);
+                    Assert.Equal(1, ex.ErrorCode);
+                }
             }
         }
 
@@ -173,15 +187,17 @@ namespace Microsoft.Data.SQLite
         public void ExecuteScalar_throws_when_open_reader()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT 1";
-                connection.Open();
-
-                using (command.ExecuteReader())
+                using (var command = connection.CreateCommand())
                 {
-                    var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteScalar());
-                    Assert.Equal(Strings.OpenReaderExists, ex.Message);
+                    command.CommandText = "SELECT 1";
+                    connection.Open();
+
+                    using (command.ExecuteReader())
+                    {
+                        var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteScalar());
+                        Assert.Equal(Strings.OpenReaderExists, ex.Message);
+                    }
                 }
             }
         }
@@ -201,11 +217,13 @@ namespace Microsoft.Data.SQLite
         public void ExecuteScalar_throws_when_connection_closed()
         {
             using (var connection = new SQLiteConnection())
-            using (var command = connection.CreateCommand())
             {
-                var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteScalar());
+                using (var command = connection.CreateCommand())
+                {
+                    var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteScalar());
 
-                Assert.Equal(Strings.FormatCallRequiresOpenConnection("ExecuteScalar"), ex.Message);
+                    Assert.Equal(Strings.FormatCallRequiresOpenConnection("ExecuteScalar"), ex.Message);
+                }
             }
         }
 
@@ -213,16 +231,18 @@ namespace Microsoft.Data.SQLite
         public void ExecuteScalar_throws_when_transaction_required()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT 1";
-                connection.Open();
-
-                using (connection.BeginTransaction())
+                using (var command = connection.CreateCommand())
                 {
-                    var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteScalar());
+                    command.CommandText = "SELECT 1";
+                    connection.Open();
 
-                    Assert.Equal(Strings.TransactionRequired, ex.Message);
+                    using (connection.BeginTransaction())
+                    {
+                        var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteScalar());
+
+                        Assert.Equal(Strings.TransactionRequired, ex.Message);
+                    }
                 }
             }
         }
@@ -231,13 +251,15 @@ namespace Microsoft.Data.SQLite
         public void ExecuteScalar_throws_when_no_command_text()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                connection.Open();
+                using (var command = connection.CreateCommand())
+                {
+                    connection.Open();
 
-                var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteScalar());
+                    var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteScalar());
 
-                Assert.Equal(Strings.FormatCallRequiresSetCommandText("ExecuteScalar"), ex.Message);
+                    Assert.Equal(Strings.FormatCallRequiresSetCommandText("ExecuteScalar"), ex.Message);
+                }
             }
         }
 
@@ -245,12 +267,14 @@ namespace Microsoft.Data.SQLite
         public void ExecuteScalar_returns_null_when_empty()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT 1 WHERE 0 = 1";
-                connection.Open();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "SELECT 1 WHERE 0 = 1";
+                    connection.Open();
 
-                Assert.Null(command.ExecuteScalar());
+                    Assert.Null(command.ExecuteScalar());
+                }
             }
         }
 
@@ -258,12 +282,14 @@ namespace Microsoft.Data.SQLite
         public void ExecuteScalar_returns_long_when_integer()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT 1";
-                connection.Open();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "SELECT 1";
+                    connection.Open();
 
-                Assert.Equal(1L, command.ExecuteScalar());
+                    Assert.Equal(1L, command.ExecuteScalar());
+                }
             }
         }
 
@@ -271,12 +297,14 @@ namespace Microsoft.Data.SQLite
         public void ExecuteScalar_returns_double_when_float()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT 3.14";
-                connection.Open();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "SELECT 3.14";
+                    connection.Open();
 
-                Assert.Equal(3.14, command.ExecuteScalar());
+                    Assert.Equal(3.14, command.ExecuteScalar());
+                }
             }
         }
 
@@ -284,12 +312,14 @@ namespace Microsoft.Data.SQLite
         public void ExecuteScalar_returns_string_when_text()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT 'test'";
-                connection.Open();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "SELECT 'test'";
+                    connection.Open();
 
-                Assert.Equal("test", command.ExecuteScalar());
+                    Assert.Equal("test", command.ExecuteScalar());
+                }
             }
         }
 
@@ -297,12 +327,14 @@ namespace Microsoft.Data.SQLite
         public void ExecuteScalar_returns_byte_array_when_blob()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT x'7e57'";
-                connection.Open();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "SELECT x'7e57'";
+                    connection.Open();
 
-                Assert.Equal(new byte[] { 0x7e, 0x57 }, command.ExecuteScalar());
+                    Assert.Equal(new byte[] { 0x7e, 0x57 }, command.ExecuteScalar());
+                }
             }
         }
 
@@ -310,12 +342,14 @@ namespace Microsoft.Data.SQLite
         public void ExecuteScalar_returns_DBNull_when_null()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT NULL";
-                connection.Open();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "SELECT NULL";
+                    connection.Open();
 
-                Assert.Equal(DBNull.Value, command.ExecuteScalar());
+                    Assert.Equal(DBNull.Value, command.ExecuteScalar());
+                }
             }
         }
 
@@ -323,16 +357,18 @@ namespace Microsoft.Data.SQLite
         public void ExecuteScalar_binds_parameters()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT @Parameter";
-                command.Parameters.AddWithValue("@Parameter", 1);
-                connection.Open();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "SELECT @Parameter";
+                    command.Parameters.AddWithValue("@Parameter", 1);
+                    connection.Open();
 
-                var result = command.ExecuteScalar();
+                    var result = command.ExecuteScalar();
 
-                Assert.True(command.Parameters.Bound);
-                Assert.Equal(1L, result);
+                    Assert.True(command.Parameters.Bound);
+                    Assert.Equal(1L, result);
+                }
             }
         }
 
@@ -340,15 +376,17 @@ namespace Microsoft.Data.SQLite
         public void ExecuteScalar_unbinds_parameters()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT @Parameter";
-                var parameter = command.Parameters.AddWithValue("@Parameter", 1);
-                connection.Open();
-                command.ExecuteNonQuery();
-                command.Parameters.Remove(parameter);
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "SELECT @Parameter";
+                    var parameter = command.Parameters.AddWithValue("@Parameter", 1);
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                    command.Parameters.Remove(parameter);
 
-                Assert.Equal(DBNull.Value, command.ExecuteScalar());
+                    Assert.Equal(DBNull.Value, command.ExecuteScalar());
+                }
             }
         }
 
@@ -356,13 +394,15 @@ namespace Microsoft.Data.SQLite
         public void ExecuteScalar_can_be_called_more_than_once()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT 1";
-                connection.Open();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "SELECT 1";
+                    connection.Open();
 
-                Assert.Equal(1L, command.ExecuteScalar());
-                Assert.Equal(1L, command.ExecuteScalar());
+                    Assert.Equal(1L, command.ExecuteScalar());
+                    Assert.Equal(1L, command.ExecuteScalar());
+                }
             }
         }
 
@@ -370,12 +410,14 @@ namespace Microsoft.Data.SQLite
         public void ExecuteScalar_can_be_called_when_parameter_unset()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT @Parameter";
-                connection.Open();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "SELECT @Parameter";
+                    connection.Open();
 
-                Assert.Equal(DBNull.Value, command.ExecuteScalar());
+                    Assert.Equal(DBNull.Value, command.ExecuteScalar());
+                }
             }
         }
 
@@ -383,12 +425,14 @@ namespace Microsoft.Data.SQLite
         public void ExecuteScalar_returns_long_when_batching()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT 42; SELECT 43;";
-                connection.Open();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "SELECT 42; SELECT 43;";
+                    connection.Open();
 
-                Assert.Equal(42L, command.ExecuteScalar());
+                    Assert.Equal(42L, command.ExecuteScalar());
+                }
             }
         }
 
@@ -396,16 +440,18 @@ namespace Microsoft.Data.SQLite
         public void ExecuteScalar_returns_long_when_batching_with_insert()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                connection.Open();
-                CreateTestTable(connection);
+                using (var command = connection.CreateCommand())
+                {
+                    connection.Open();
+                    CreateTestTable(connection);
 
-                command.CommandText = @"
+                    command.CommandText = @"
                     INSERT INTO TestTable (StringColumn) VALUES (0);
                     SELECT 42;";
 
-                Assert.Equal(42L, command.ExecuteScalar());
+                    Assert.Equal(42L, command.ExecuteScalar());
+                }
             }
         }
 
@@ -413,12 +459,14 @@ namespace Microsoft.Data.SQLite
         public void ExecuteScalar_returns_null_when_batching()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT 42 WHERE 0 = 1; SELECT 43;";
-                connection.Open();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "SELECT 42 WHERE 0 = 1; SELECT 43;";
+                    connection.Open();
 
-                Assert.Null(command.ExecuteScalar());
+                    Assert.Null(command.ExecuteScalar());
+                }
             }
         }
 
@@ -426,12 +474,14 @@ namespace Microsoft.Data.SQLite
         public void ExecuteScalar_returns_long_when_multiple_columns()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT 42, 43";
-                connection.Open();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "SELECT 42, 43";
+                    connection.Open();
 
-                Assert.Equal(42L, command.ExecuteScalar());
+                    Assert.Equal(42L, command.ExecuteScalar());
+                }
             }
         }
 
@@ -439,12 +489,14 @@ namespace Microsoft.Data.SQLite
         public void ExecuteScalar_returns_long_when_multiple_rows()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT 42 UNION SELECT 43";
-                connection.Open();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "SELECT 42 UNION SELECT 43";
+                    connection.Open();
 
-                Assert.Equal(42L, command.ExecuteScalar());
+                    Assert.Equal(42L, command.ExecuteScalar());
+                }
             }
         }
 
@@ -452,15 +504,17 @@ namespace Microsoft.Data.SQLite
         public void ExecuteNonQuery_throws_when_open_reader()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT 1";
-                connection.Open();
-
-                using (command.ExecuteReader())
+                using (var command = connection.CreateCommand())
                 {
-                    var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteNonQuery());
-                    Assert.Equal(Strings.OpenReaderExists, ex.Message);
+                    command.CommandText = "SELECT 1";
+                    connection.Open();
+
+                    using (command.ExecuteReader())
+                    {
+                        var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteNonQuery());
+                        Assert.Equal(Strings.OpenReaderExists, ex.Message);
+                    }
                 }
             }
         }
@@ -480,11 +534,13 @@ namespace Microsoft.Data.SQLite
         public void ExecuteNonQuery_throws_when_connection_closed()
         {
             using (var connection = new SQLiteConnection())
-            using (var command = connection.CreateCommand())
             {
-                var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteNonQuery());
+                using (var command = connection.CreateCommand())
+                {
+                    var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteNonQuery());
 
-                Assert.Equal(Strings.FormatCallRequiresOpenConnection("ExecuteNonQuery"), ex.Message);
+                    Assert.Equal(Strings.FormatCallRequiresOpenConnection("ExecuteNonQuery"), ex.Message);
+                }
             }
         }
 
@@ -492,13 +548,15 @@ namespace Microsoft.Data.SQLite
         public void ExecuteNonQuery_throws_when_no_command_text()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                connection.Open();
+                using (var command = connection.CreateCommand())
+                {
+                    connection.Open();
 
-                var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteNonQuery());
+                    var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteNonQuery());
 
-                Assert.Equal(Strings.FormatCallRequiresSetCommandText("ExecuteNonQuery"), ex.Message);
+                    Assert.Equal(Strings.FormatCallRequiresSetCommandText("ExecuteNonQuery"), ex.Message);
+                }
             }
         }
 
@@ -506,16 +564,18 @@ namespace Microsoft.Data.SQLite
         public void ExecuteNonQuery_throws_when_transaction_required()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT 1";
-                connection.Open();
-
-                using (connection.BeginTransaction())
+                using (var command = connection.CreateCommand())
                 {
-                    var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteNonQuery());
+                    command.CommandText = "SELECT 1";
+                    connection.Open();
 
-                    Assert.Equal(Strings.TransactionRequired, ex.Message);
+                    using (connection.BeginTransaction())
+                    {
+                        var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteNonQuery());
+
+                        Assert.Equal(Strings.TransactionRequired, ex.Message);
+                    }
                 }
             }
         }
@@ -524,22 +584,24 @@ namespace Microsoft.Data.SQLite
         public void ExecuteNonQuery_throws_when_transaction_mismatched()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT 1";
-                connection.Open();
-
-                using (var otherConnection = new SQLiteConnection("Filename=:memory:"))
+                using (var command = connection.CreateCommand())
                 {
-                    otherConnection.Open();
+                    command.CommandText = "SELECT 1";
+                    connection.Open();
 
-                    using (var transction = otherConnection.BeginTransaction())
+                    using (var otherConnection = new SQLiteConnection("Filename=:memory:"))
                     {
-                        command.Transaction = transction;
+                        otherConnection.Open();
 
-                        var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteNonQuery());
+                        using (var transction = otherConnection.BeginTransaction())
+                        {
+                            command.Transaction = transction;
 
-                        Assert.Equal(Strings.TransactionConnectionMismatch, ex.Message);
+                            var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteNonQuery());
+
+                            Assert.Equal(Strings.TransactionConnectionMismatch, ex.Message);
+                        }
                     }
                 }
             }
@@ -549,16 +611,18 @@ namespace Microsoft.Data.SQLite
         public void ExecuteNonQuery_works()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT @Parameter";
-                command.Parameters.AddWithValue("@Parameter", 1);
-                connection.Open();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "SELECT @Parameter";
+                    command.Parameters.AddWithValue("@Parameter", 1);
+                    connection.Open();
 
-                var result = command.ExecuteNonQuery();
+                    var result = command.ExecuteNonQuery();
 
-                Assert.True(command.Parameters.Bound);
-                Assert.Equal(0, result);
+                    Assert.True(command.Parameters.Bound);
+                    Assert.Equal(0, result);
+                }
             }
         }
 
@@ -566,13 +630,15 @@ namespace Microsoft.Data.SQLite
         public void ExecuteNonQuery_can_be_called_more_than_once()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT 1";
-                connection.Open();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "SELECT 1";
+                    connection.Open();
 
-                command.ExecuteNonQuery();
-                command.ExecuteNonQuery();
+                    command.ExecuteNonQuery();
+                    command.ExecuteNonQuery();
+                }
             }
         }
 
@@ -580,14 +646,16 @@ namespace Microsoft.Data.SQLite
         public void ExecuteNonQuery_can_be_called_more_than_once_when_text_changed()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT 1";
-                connection.Open();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "SELECT 1";
+                    connection.Open();
 
-                command.ExecuteNonQuery();
-                command.CommandText = "SELECT 0";
-                command.ExecuteNonQuery();
+                    command.ExecuteNonQuery();
+                    command.CommandText = "SELECT 0";
+                    command.ExecuteNonQuery();
+                }
             }
         }
 
@@ -618,18 +686,20 @@ namespace Microsoft.Data.SQLite
         public void ExecuteNonQuery_returns_changes_when_batching()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                connection.Open();
-                CreateTestTable(connection);
+                using (var command = connection.CreateCommand())
+                {
+                    connection.Open();
+                    CreateTestTable(connection);
 
-                command.CommandText = @"
+                    command.CommandText = @"
                     INSERT INTO TestTable (StringColumn) VALUES ('test');
                     INSERT INTO TestTable (StringColumn) VALUES ('again');";
 
-                var result = command.ExecuteNonQuery();
+                    var result = command.ExecuteNonQuery();
 
-                Assert.Equal(2, result);
+                    Assert.Equal(2, result);
+                }
             }
         }
 
@@ -637,18 +707,20 @@ namespace Microsoft.Data.SQLite
         public void ExecuteNonQuery_returns_changes_when_batching_and_select()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                connection.Open();
-                CreateTestTable(connection);
+                using (var command = connection.CreateCommand())
+                {
+                    connection.Open();
+                    CreateTestTable(connection);
 
-                command.CommandText = @"
+                    command.CommandText = @"
                     INSERT INTO TestTable (StringColumn) VALUES ('test');
                     SELECT last_insert_rowid();";
 
-                var result = command.ExecuteNonQuery();
+                    var result = command.ExecuteNonQuery();
 
-                Assert.Equal(1, result);
+                    Assert.Equal(1, result);
+                }
             }
         }
 
@@ -656,15 +728,17 @@ namespace Microsoft.Data.SQLite
         public void ExecuteReader_throws_when_open_reader()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT 1";
-                connection.Open();
-
-                using (command.ExecuteReader())
+                using (var command = connection.CreateCommand())
                 {
-                    var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteReader());
-                    Assert.Equal(Strings.OpenReaderExists, ex.Message);
+                    command.CommandText = "SELECT 1";
+                    connection.Open();
+
+                    using (command.ExecuteReader())
+                    {
+                        var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteReader());
+                        Assert.Equal(Strings.OpenReaderExists, ex.Message);
+                    }
                 }
             }
         }
@@ -684,11 +758,13 @@ namespace Microsoft.Data.SQLite
         public void ExecuteReader_throws_when_connection_closed()
         {
             using (var connection = new SQLiteConnection())
-            using (var command = connection.CreateCommand())
             {
-                var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteReader());
+                using (var command = connection.CreateCommand())
+                {
+                    var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteReader());
 
-                Assert.Equal(Strings.FormatCallRequiresOpenConnection("ExecuteReader"), ex.Message);
+                    Assert.Equal(Strings.FormatCallRequiresOpenConnection("ExecuteReader"), ex.Message);
+                }
             }
         }
 
@@ -696,13 +772,15 @@ namespace Microsoft.Data.SQLite
         public void ExecuteReader_throws_when_no_command_text()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                connection.Open();
+                using (var command = connection.CreateCommand())
+                {
+                    connection.Open();
 
-                var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteReader());
+                    var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteReader());
 
-                Assert.Equal(Strings.FormatCallRequiresSetCommandText("ExecuteReader"), ex.Message);
+                    Assert.Equal(Strings.FormatCallRequiresSetCommandText("ExecuteReader"), ex.Message);
+                }
             }
         }
 
@@ -710,16 +788,18 @@ namespace Microsoft.Data.SQLite
         public void ExecuteReader_throws_when_transaction_required()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT 1";
-                connection.Open();
-
-                using (connection.BeginTransaction())
+                using (var command = connection.CreateCommand())
                 {
-                    var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteReader());
+                    command.CommandText = "SELECT 1";
+                    connection.Open();
 
-                    Assert.Equal(Strings.TransactionRequired, ex.Message);
+                    using (connection.BeginTransaction())
+                    {
+                        var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteReader());
+
+                        Assert.Equal(Strings.TransactionRequired, ex.Message);
+                    }
                 }
             }
         }
@@ -728,17 +808,19 @@ namespace Microsoft.Data.SQLite
         public void ExecuteReader_works()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT @Parameter";
-                command.Parameters.AddWithValue("@Parameter", 1);
-                connection.Open();
-
-                using (var reader = command.ExecuteReader())
+                using (var command = connection.CreateCommand())
                 {
-                    Assert.True(command.Parameters.Bound);
-                    Assert.NotNull(command.OpenReader);
-                    Assert.NotNull(reader);
+                    command.CommandText = "SELECT @Parameter";
+                    command.Parameters.AddWithValue("@Parameter", 1);
+                    connection.Open();
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        Assert.True(command.Parameters.Bound);
+                        Assert.NotNull(command.OpenReader);
+                        Assert.NotNull(reader);
+                    }
                 }
             }
         }
@@ -747,13 +829,17 @@ namespace Microsoft.Data.SQLite
         public void ExecuteReader_works_when_empty()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT 42 WHERE 0 = 1";
-                connection.Open();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "SELECT 42 WHERE 0 = 1";
+                    connection.Open();
 
-                using (var reader = command.ExecuteReader())
-                    Assert.False(reader.Read());
+                    using (var reader = command.ExecuteReader())
+                    {
+                        Assert.False(reader.Read());
+                    }
+                }
             }
         }
 
@@ -761,23 +847,25 @@ namespace Microsoft.Data.SQLite
         public void ExecuteReader_works_when_batching()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT @Parameter; SELECT @Parameter + 1;";
-                command.Parameters.AddWithValue("@Parameter", 1);
-                connection.Open();
-
-                using (var reader = command.ExecuteReader())
+                using (var command = connection.CreateCommand())
                 {
-                    Assert.True(command.Parameters.Bound);
-                    Assert.NotNull(command.OpenReader);
-                    Assert.NotNull(reader);
+                    command.CommandText = "SELECT @Parameter; SELECT @Parameter + 1;";
+                    command.Parameters.AddWithValue("@Parameter", 1);
+                    connection.Open();
 
-                    reader.Read();
-                    Assert.Equal(1L, reader[0]);
-                    reader.NextResult();
-                    reader.Read();
-                    Assert.Equal(2L, reader[0]);
+                    using (var reader = command.ExecuteReader())
+                    {
+                        Assert.True(command.Parameters.Bound);
+                        Assert.NotNull(command.OpenReader);
+                        Assert.NotNull(reader);
+
+                        reader.Read();
+                        Assert.Equal(1L, reader[0]);
+                        reader.NextResult();
+                        reader.Read();
+                        Assert.Equal(2L, reader[0]);
+                    }
                 }
             }
         }
@@ -795,17 +883,19 @@ namespace Microsoft.Data.SQLite
         public void Dispose_closes_open_reader()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT @Parameter";
-                command.Parameters.AddWithValue("@Parameter", 1);
-                connection.Open();
-
-                using (var reader = command.ExecuteReader())
+                using (var command = connection.CreateCommand())
                 {
-                    command.Dispose();
+                    command.CommandText = "SELECT @Parameter";
+                    command.Parameters.AddWithValue("@Parameter", 1);
+                    connection.Open();
 
-                    Assert.True(reader.IsClosed);
+                    using (var reader = command.ExecuteReader())
+                    {
+                        command.Dispose();
+
+                        Assert.True(reader.IsClosed);
+                    }
                 }
             }
         }

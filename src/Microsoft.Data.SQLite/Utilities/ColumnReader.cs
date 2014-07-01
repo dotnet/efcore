@@ -14,8 +14,10 @@ namespace Microsoft.Data.SQLite.Utilities
             Debug.Assert(handle != null && !handle.IsInvalid, "handle is null.");
 
             if (sqliteType == SQLiteType.Null
-                    || NativeMethods.sqlite3_column_type(handle, ordinal) == Constants.SQLITE_NULL)
+                || NativeMethods.sqlite3_column_type(handle, ordinal) == Constants.SQLITE_NULL)
+            {
                 return DBNull.Value;
+            }
 
             switch (sqliteType)
             {

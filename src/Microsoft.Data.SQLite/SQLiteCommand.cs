@@ -61,7 +61,9 @@ namespace Microsoft.Data.SQLite
             set
             {
                 if (value != CommandType.Text)
+                {
                     throw new ArgumentException(Strings.FormatInvalidCommandType(value));
+                }
 
                 _commandType = value;
             }
@@ -122,7 +124,9 @@ namespace Microsoft.Data.SQLite
             get
             {
                 if (_parameters == null)
+                {
                     _parameters = new SQLiteParameterCollection();
+                }
 
                 return _parameters;
             }
@@ -152,13 +156,22 @@ namespace Microsoft.Data.SQLite
         public override void Prepare()
         {
             if (OpenReader != null)
+            {
                 throw new InvalidOperationException(Strings.OpenReaderExists);
-            if (_connection == null || _connection.State != ConnectionState.Open)
+            }
+            if (_connection == null
+                || _connection.State != ConnectionState.Open)
+            {
                 throw new InvalidOperationException(Strings.FormatCallRequiresOpenConnection("Prepare"));
+            }
             if (string.IsNullOrWhiteSpace(_commandText))
+            {
                 throw new InvalidOperationException(Strings.FormatCallRequiresSetCommandText("Prepare"));
+            }
             if (_prepared)
+            {
                 return;
+            }
 
             Debug.Assert(_connection.Handle != null && !_connection.Handle.IsInvalid, "_connection.Handle is null.");
             Debug.Assert(_handles == null, "_handles is not null.");
@@ -176,7 +189,8 @@ namespace Microsoft.Data.SQLite
                 MarshalEx.ThrowExceptionForRC(rc);
 
                 handles.Add(handle);
-            } while (!string.IsNullOrWhiteSpace(remainingSql));
+            }
+            while (!string.IsNullOrWhiteSpace(remainingSql));
 
             _handles = handles;
             _prepared = true;
@@ -191,11 +205,18 @@ namespace Microsoft.Data.SQLite
         public new SQLiteDataReader ExecuteReader(CommandBehavior behavior)
         {
             if (OpenReader != null)
+            {
                 throw new InvalidOperationException(Strings.OpenReaderExists);
-            if (_connection == null || _connection.State != ConnectionState.Open)
+            }
+            if (_connection == null
+                || _connection.State != ConnectionState.Open)
+            {
                 throw new InvalidOperationException(Strings.FormatCallRequiresOpenConnection("ExecuteReader"));
+            }
             if (string.IsNullOrWhiteSpace(_commandText))
+            {
                 throw new InvalidOperationException(Strings.FormatCallRequiresSetCommandText("ExecuteReader"));
+            }
 
             ValidateTransaction();
             Prepare();
@@ -208,7 +229,8 @@ namespace Microsoft.Data.SQLite
                 var hasResults = NativeMethods.sqlite3_stmt_readonly(handle) != 0;
 
                 var rc = NativeMethods.sqlite3_step(handle);
-                if (rc == Constants.SQLITE_ROW || (rc == Constants.SQLITE_DONE && hasResults))
+                if (rc == Constants.SQLITE_ROW
+                    || (rc == Constants.SQLITE_DONE && hasResults))
                 {
                     resultHandles.Add(handle);
 
@@ -232,11 +254,18 @@ namespace Microsoft.Data.SQLite
         public override int ExecuteNonQuery()
         {
             if (OpenReader != null)
+            {
                 throw new InvalidOperationException(Strings.OpenReaderExists);
-            if (_connection == null || _connection.State != ConnectionState.Open)
+            }
+            if (_connection == null
+                || _connection.State != ConnectionState.Open)
+            {
                 throw new InvalidOperationException(Strings.FormatCallRequiresOpenConnection("ExecuteNonQuery"));
+            }
             if (string.IsNullOrWhiteSpace(_commandText))
+            {
                 throw new InvalidOperationException(Strings.FormatCallRequiresSetCommandText("ExecuteNonQuery"));
+            }
 
             ValidateTransaction();
             Prepare();
@@ -254,7 +283,9 @@ namespace Microsoft.Data.SQLite
                 MarshalEx.ThrowExceptionForRC(rc);
 
                 if (hasChanges)
+                {
                     changes += NativeMethods.sqlite3_changes(_connection.Handle);
+                }
             }
 
             return changes;
@@ -263,11 +294,18 @@ namespace Microsoft.Data.SQLite
         public override object ExecuteScalar()
         {
             if (OpenReader != null)
+            {
                 throw new InvalidOperationException(Strings.OpenReaderExists);
-            if (_connection == null || _connection.State != ConnectionState.Open)
+            }
+            if (_connection == null
+                || _connection.State != ConnectionState.Open)
+            {
                 throw new InvalidOperationException(Strings.FormatCallRequiresOpenConnection("ExecuteScalar"));
+            }
             if (string.IsNullOrWhiteSpace(_commandText))
+            {
                 throw new InvalidOperationException(Strings.FormatCallRequiresSetCommandText("ExecuteScalar"));
+            }
 
             ValidateTransaction();
             Prepare();
@@ -280,8 +318,11 @@ namespace Microsoft.Data.SQLite
                 try
                 {
                     var rc = NativeMethods.sqlite3_step(handle);
-                    if (rc != Constants.SQLITE_DONE && rc != Constants.SQLITE_ROW)
+                    if (rc != Constants.SQLITE_DONE
+                        && rc != Constants.SQLITE_ROW)
+                    {
                         MarshalEx.ThrowExceptionForRC(rc);
+                    }
 
                     var hasResults = NativeMethods.sqlite3_stmt_readonly(handle) != 0;
 
@@ -323,7 +364,9 @@ namespace Microsoft.Data.SQLite
                 _prepared = false;
 
                 if (OpenReader != null)
+                {
                     OpenReader.Close();
+                }
             }
 
             ReleaseNativeObjects();
@@ -336,8 +379,11 @@ namespace Microsoft.Data.SQLite
             Debug.Assert(_prepared, "_prepared is false.");
             Debug.Assert(_handles != null, "_handles is null.");
             Debug.Assert(OpenReader == null, "ActiveReader is not null.");
-            if (_parameters == null || _parameters.Bound)
+            if (_parameters == null
+                || _parameters.Bound)
+            {
                 return;
+            }
 
             foreach (var handle in _handles)
             {
@@ -351,10 +397,14 @@ namespace Microsoft.Data.SQLite
         private void ReleaseNativeObjects()
         {
             if (_handles == null)
+            {
                 return;
+            }
 
             foreach (var handle in _handles)
+            {
                 handle.Dispose();
+            }
 
             _handles = null;
         }
@@ -364,7 +414,9 @@ namespace Microsoft.Data.SQLite
             if (Transaction != _connection.Transaction)
             {
                 if (Transaction == null)
+                {
                     throw new InvalidOperationException(Strings.TransactionRequired);
+                }
 
                 throw new InvalidOperationException(Strings.TransactionConnectionMismatch);
             }

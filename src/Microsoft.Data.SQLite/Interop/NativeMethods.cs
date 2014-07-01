@@ -3,6 +3,7 @@
 
 using System;
 using System.Runtime.InteropServices;
+
 #if NET451 || K10
 using Microsoft.Data.SQLite.Utilities;
 #endif
@@ -60,7 +61,9 @@ namespace Microsoft.Data.SQLite.Interop
             finally
             {
                 if (ptr != IntPtr.Zero)
+                {
                     Marshal.FreeHGlobal(ptr);
+                }
             }
         }
 
@@ -78,7 +81,9 @@ namespace Microsoft.Data.SQLite.Interop
             finally
             {
                 if (ptr != IntPtr.Zero)
+                {
                     Marshal.FreeHGlobal(ptr);
+                }
             }
         }
 
@@ -98,7 +103,9 @@ namespace Microsoft.Data.SQLite.Interop
         {
             var ptr = sqlite3_column_blob_raw(pStmt, iCol);
             if (ptr == IntPtr.Zero)
+            {
                 return null;
+            }
 
             var bytes = sqlite3_column_bytes(pStmt, iCol);
 
@@ -160,7 +167,9 @@ namespace Microsoft.Data.SQLite.Interop
             finally
             {
                 if (ptr != IntPtr.Zero)
+                {
                     Marshal.FreeHGlobal(ptr);
+                }
             }
         }
 
@@ -205,9 +214,13 @@ namespace Microsoft.Data.SQLite.Interop
             finally
             {
                 if (filenamePtr != IntPtr.Zero)
+                {
                     Marshal.FreeHGlobal(filenamePtr);
+                }
                 if (zVfsPtr != IntPtr.Zero)
+                {
                     Marshal.FreeHGlobal(zVfsPtr);
+                }
             }
         }
 
@@ -238,7 +251,9 @@ namespace Microsoft.Data.SQLite.Interop
             finally
             {
                 if (zSqlPtr != IntPtr.Zero)
+                {
                     Marshal.FreeHGlobal(zSqlPtr);
+                }
             }
         }
 

@@ -76,7 +76,9 @@ namespace Microsoft.Data.SQLite
                 connection.ExecuteNonQuery("PRAGMA read_uncommitted = 1");
 
                 using (var transaction = connection.BeginTransaction())
+                {
                     Assert.Equal(IsolationLevel.ReadUncommitted, transaction.IsolationLevel);
+                }
             }
         }
 
@@ -122,15 +124,17 @@ namespace Microsoft.Data.SQLite
                 CreateTestTable(connection);
 
                 using (var transaction = connection.BeginTransaction())
-                using (var command = connection.CreateCommand())
                 {
-                    command.CommandText = "INSERT INTO TestTable VALUES (1)";
-                    command.ExecuteNonQuery();
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandText = "INSERT INTO TestTable VALUES (1)";
+                        command.ExecuteNonQuery();
 
-                    transaction.Commit();
+                        transaction.Commit();
 
-                    Assert.Null(connection.Transaction);
-                    Assert.Null(transaction.Connection);
+                        Assert.Null(connection.Transaction);
+                        Assert.Null(transaction.Connection);
+                    }
                 }
 
                 Assert.Equal(1L, connection.ExecuteScalar<long>("SELECT COUNT(*) FROM TestTable"));
@@ -161,15 +165,17 @@ namespace Microsoft.Data.SQLite
                 CreateTestTable(connection);
 
                 using (var transaction = connection.BeginTransaction())
-                using (var command = connection.CreateCommand())
                 {
-                    command.CommandText = "INSERT INTO TestTable VALUES (1)";
-                    command.ExecuteNonQuery();
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandText = "INSERT INTO TestTable VALUES (1)";
+                        command.ExecuteNonQuery();
 
-                    transaction.Rollback();
+                        transaction.Rollback();
 
-                    Assert.Null(connection.Transaction);
-                    Assert.Null(transaction.Connection);
+                        Assert.Null(connection.Transaction);
+                        Assert.Null(transaction.Connection);
+                    }
                 }
 
                 Assert.Equal(0L, connection.ExecuteScalar<long>("SELECT COUNT(*) FROM TestTable"));
@@ -184,15 +190,17 @@ namespace Microsoft.Data.SQLite
                 CreateTestTable(connection);
 
                 using (var transaction = connection.BeginTransaction())
-                using (var command = connection.CreateCommand())
                 {
-                    command.CommandText = "INSERT INTO TestTable VALUES (1)";
-                    command.ExecuteNonQuery();
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandText = "INSERT INTO TestTable VALUES (1)";
+                        command.ExecuteNonQuery();
 
-                    transaction.Dispose();
+                        transaction.Dispose();
 
-                    Assert.Null(connection.Transaction);
-                    Assert.Null(transaction.Connection);
+                        Assert.Null(connection.Transaction);
+                        Assert.Null(transaction.Connection);
+                    }
                 }
 
                 Assert.Equal(0L, connection.ExecuteScalar<long>("SELECT COUNT(*) FROM TestTable"));

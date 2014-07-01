@@ -3,4 +3,4 @@
 
 using System.Resources;
 
-[assembly: NeutralResourcesLanguageAttribute("en-US")]
+[assembly: NeutralResourcesLanguage("en-US")]

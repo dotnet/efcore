@@ -247,13 +247,13 @@ namespace Microsoft.Data.SQLite
 
             var raised = false;
             StateChangeEventHandler handler = (sender, e) =>
-            {
-                raised = true;
+                {
+                    raised = true;
 
-                Assert.Equal(connection, sender);
-                Assert.Equal(ConnectionState.Open, e.OriginalState);
-                Assert.Equal(ConnectionState.Closed, e.CurrentState);
-            };
+                    Assert.Equal(connection, sender);
+                    Assert.Equal(ConnectionState.Open, e.OriginalState);
+                    Assert.Equal(ConnectionState.Closed, e.CurrentState);
+                };
 
             connection.StateChange += handler;
             try
@@ -283,10 +283,12 @@ namespace Microsoft.Data.SQLite
         public void CreateCommand_returns_command()
         {
             using (var connection = new SQLiteConnection())
-            using (var command = connection.CreateCommand())
             {
-                Assert.NotNull(command);
-                Assert.Same(connection, command.Connection);
+                using (var command = connection.CreateCommand())
+                {
+                    Assert.NotNull(command);
+                    Assert.Same(connection, command.Connection);
+                }
             }
         }
 

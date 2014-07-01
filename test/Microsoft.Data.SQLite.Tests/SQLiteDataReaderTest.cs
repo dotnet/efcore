@@ -32,13 +32,17 @@ namespace Microsoft.Data.SQLite
         public void FieldCount_works()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT 1";
-                connection.Open();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "SELECT 1";
+                    connection.Open();
 
-                using (var reader = command.ExecuteReader())
-                    Assert.Equal(1, reader.FieldCount);
+                    using (var reader = command.ExecuteReader())
+                    {
+                        Assert.Equal(1, reader.FieldCount);
+                    }
+                }
             }
         }
 
@@ -46,13 +50,17 @@ namespace Microsoft.Data.SQLite
         public void HasRows_works()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT 1";
-                connection.Open();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "SELECT 1";
+                    connection.Open();
 
-                using (var reader = command.ExecuteReader())
-                    Assert.True(reader.HasRows);
+                    using (var reader = command.ExecuteReader())
+                    {
+                        Assert.True(reader.HasRows);
+                    }
+                }
             }
         }
 
@@ -71,16 +79,18 @@ namespace Microsoft.Data.SQLite
         public void RecordsAffected_works()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                connection.Open();
-                CreateTestTable(connection);
-
-                command.CommandText = "INSERT INTO TestTable (Int32Column) VALUES (2)";
-
-                using (var reader = command.ExecuteReader())
+                using (var command = connection.CreateCommand())
                 {
-                    Assert.Equal(1, reader.RecordsAffected);
+                    connection.Open();
+                    CreateTestTable(connection);
+
+                    command.CommandText = "INSERT INTO TestTable (Int32Column) VALUES (2)";
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        Assert.Equal(1, reader.RecordsAffected);
+                    }
                 }
             }
         }
@@ -89,18 +99,20 @@ namespace Microsoft.Data.SQLite
         public void RecordsAffected_works_when_batching()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                connection.Open();
-                CreateTestTable(connection);
+                using (var command = connection.CreateCommand())
+                {
+                    connection.Open();
+                    CreateTestTable(connection);
 
-                command.CommandText = @"
+                    command.CommandText = @"
                     INSERT INTO TestTable (Int32Column) VALUES (2);
                     INSERT INTO TestTable (Int32Column) VALUES (3);";
 
-                using (var reader = command.ExecuteReader())
-                {
-                    Assert.Equal(2, reader.RecordsAffected);
+                    using (var reader = command.ExecuteReader())
+                    {
+                        Assert.Equal(2, reader.RecordsAffected);
+                    }
                 }
             }
         }
@@ -109,16 +121,18 @@ namespace Microsoft.Data.SQLite
         public void Item_string_works()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT 1 AS Column1";
-                connection.Open();
-
-                using (var reader = command.ExecuteReader())
+                using (var command = connection.CreateCommand())
                 {
-                    reader.Read();
+                    command.CommandText = "SELECT 1 AS Column1";
+                    connection.Open();
 
-                    Assert.Equal(1L, reader["Column1"]);
+                    using (var reader = command.ExecuteReader())
+                    {
+                        reader.Read();
+
+                        Assert.Equal(1L, reader["Column1"]);
+                    }
                 }
             }
         }
@@ -127,16 +141,18 @@ namespace Microsoft.Data.SQLite
         public void Item_int_works()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT 1";
-                connection.Open();
-
-                using (var reader = command.ExecuteReader())
+                using (var command = connection.CreateCommand())
                 {
-                    reader.Read();
+                    command.CommandText = "SELECT 1";
+                    connection.Open();
 
-                    Assert.Equal(1L, reader[0]);
+                    using (var reader = command.ExecuteReader())
+                    {
+                        reader.Read();
+
+                        Assert.Equal(1L, reader[0]);
+                    }
                 }
             }
         }
@@ -155,15 +171,17 @@ namespace Microsoft.Data.SQLite
         public void Read_works()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT 1";
-                connection.Open();
-
-                using (var reader = command.ExecuteReader())
+                using (var command = connection.CreateCommand())
                 {
-                    Assert.True(reader.Read());
-                    Assert.False(reader.Read());
+                    command.CommandText = "SELECT 1";
+                    connection.Open();
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        Assert.True(reader.Read());
+                        Assert.False(reader.Read());
+                    }
                 }
             }
         }
@@ -172,24 +190,26 @@ namespace Microsoft.Data.SQLite
         public void NextResult_works()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT 1; SELECT 2;";
-                connection.Open();
-
-                using (var reader = command.ExecuteReader())
+                using (var command = connection.CreateCommand())
                 {
-                    reader.Read();
-                    Assert.Equal(1L, reader[0]);
+                    command.CommandText = "SELECT 1; SELECT 2;";
+                    connection.Open();
 
-                    var result = reader.NextResult();
-                    Assert.True(result);
+                    using (var reader = command.ExecuteReader())
+                    {
+                        reader.Read();
+                        Assert.Equal(1L, reader[0]);
 
-                    reader.Read();
-                    Assert.Equal(2L, reader[0]);
+                        var result = reader.NextResult();
+                        Assert.True(result);
 
-                    result = reader.NextResult();
-                    Assert.False(result);
+                        reader.Read();
+                        Assert.Equal(2L, reader[0]);
+
+                        result = reader.NextResult();
+                        Assert.False(result);
+                    }
                 }
             }
         }
@@ -198,23 +218,25 @@ namespace Microsoft.Data.SQLite
         public void Close_works()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT 1 UNION SELECT 2";
-                connection.Open();
-
-                using (var reader = command.ExecuteReader())
+                using (var command = connection.CreateCommand())
                 {
-                    reader.Read();
-                    reader.Read();
-                    reader.Close();
+                    command.CommandText = "SELECT 1 UNION SELECT 2";
+                    connection.Open();
 
-                    Assert.Null(command.OpenReader);
-                    Assert.True(reader.IsClosed);
+                    using (var reader = command.ExecuteReader())
+                    {
+                        reader.Read();
+                        reader.Read();
+                        reader.Close();
+
+                        Assert.Null(command.OpenReader);
+                        Assert.True(reader.IsClosed);
+                    }
+
+                    // NOTE: This would equal two if not reset
+                    Assert.Equal(1L, command.ExecuteScalar());
                 }
-
-                // NOTE: This would equal two if not reset
-                Assert.Equal(1L, command.ExecuteScalar());
             }
         }
 
@@ -241,13 +263,17 @@ namespace Microsoft.Data.SQLite
         public void GetName_works()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT 1 AS Column1";
-                connection.Open();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "SELECT 1 AS Column1";
+                    connection.Open();
 
-                using (var reader = command.ExecuteReader())
-                    Assert.Equal("Column1", reader.GetName(0));
+                    using (var reader = command.ExecuteReader())
+                    {
+                        Assert.Equal("Column1", reader.GetName(0));
+                    }
+                }
             }
         }
 
@@ -265,15 +291,17 @@ namespace Microsoft.Data.SQLite
         public void GetOrdinal_throws_when_unknown()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT 1";
-                connection.Open();
-
-                using (var reader = command.ExecuteReader())
+                using (var command = connection.CreateCommand())
                 {
-                    var ex = Assert.Throws<IndexOutOfRangeException>(() => reader.GetOrdinal("Unknown"));
-                    Assert.Equal("Unknown", ex.Message);
+                    command.CommandText = "SELECT 1";
+                    connection.Open();
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        var ex = Assert.Throws<IndexOutOfRangeException>(() => reader.GetOrdinal("Unknown"));
+                        Assert.Equal("Unknown", ex.Message);
+                    }
                 }
             }
         }
@@ -282,13 +310,17 @@ namespace Microsoft.Data.SQLite
         public void GetOrdinal_works()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT 1 AS Column1";
-                connection.Open();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "SELECT 1 AS Column1";
+                    connection.Open();
 
-                using (var reader = command.ExecuteReader())
-                    Assert.Equal(0, reader.GetOrdinal("Column1"));
+                    using (var reader = command.ExecuteReader())
+                    {
+                        Assert.Equal(0, reader.GetOrdinal("Column1"));
+                    }
+                }
             }
         }
 
@@ -306,14 +338,18 @@ namespace Microsoft.Data.SQLite
         public void GetDataTypeName_works()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                CreateTestTable(connection);
+                using (var command = connection.CreateCommand())
+                {
+                    CreateTestTable(connection);
 
-                command.CommandText = "SELECT Int32Column FROM TestTable";
+                    command.CommandText = "SELECT Int32Column FROM TestTable";
 
-                using (var reader = command.ExecuteReader())
-                    Assert.Equal("INT", reader.GetDataTypeName(0));
+                    using (var reader = command.ExecuteReader())
+                    {
+                        Assert.Equal("INT", reader.GetDataTypeName(0));
+                    }
+                }
             }
         }
 
@@ -331,14 +367,18 @@ namespace Microsoft.Data.SQLite
         public void GetFieldType_works()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                CreateTestTable(connection);
+                using (var command = connection.CreateCommand())
+                {
+                    CreateTestTable(connection);
 
-                command.CommandText = "SELECT Int32Column FROM TestTable";
+                    command.CommandText = "SELECT Int32Column FROM TestTable";
 
-                using (var reader = command.ExecuteReader())
-                    Assert.Equal(typeof(int), reader.GetFieldType(0));
+                    using (var reader = command.ExecuteReader())
+                    {
+                        Assert.Equal(typeof(int), reader.GetFieldType(0));
+                    }
+                }
             }
         }
 
@@ -356,13 +396,17 @@ namespace Microsoft.Data.SQLite
         public void IsDBNull_works()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT NULL";
-                connection.Open();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "SELECT NULL";
+                    connection.Open();
 
-                using (var reader = command.ExecuteReader())
-                    Assert.True(reader.IsDBNull(0));
+                    using (var reader = command.ExecuteReader())
+                    {
+                        Assert.True(reader.IsDBNull(0));
+                    }
+                }
             }
         }
 
@@ -380,17 +424,19 @@ namespace Microsoft.Data.SQLite
         public void GetBoolean_works()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                CreateTestTable(connection);
-
-                command.CommandText = "SELECT BooleanColumn FROM TestTable";
-
-                using (var reader = command.ExecuteReader())
+                using (var command = connection.CreateCommand())
                 {
-                    reader.Read();
+                    CreateTestTable(connection);
 
-                    Assert.True(reader.GetBoolean(0));
+                    command.CommandText = "SELECT BooleanColumn FROM TestTable";
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        reader.Read();
+
+                        Assert.True(reader.GetBoolean(0));
+                    }
                 }
             }
         }
@@ -409,17 +455,19 @@ namespace Microsoft.Data.SQLite
         public void GetByte_works()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                CreateTestTable(connection);
-
-                command.CommandText = "SELECT ByteColumn FROM TestTable";
-
-                using (var reader = command.ExecuteReader())
+                using (var command = connection.CreateCommand())
                 {
-                    reader.Read();
+                    CreateTestTable(connection);
 
-                    Assert.Equal((byte)1, reader.GetByte(0));
+                    command.CommandText = "SELECT ByteColumn FROM TestTable";
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        reader.Read();
+
+                        Assert.Equal((byte)1, reader.GetByte(0));
+                    }
                 }
             }
         }
@@ -438,17 +486,19 @@ namespace Microsoft.Data.SQLite
         public void GetChar_not_supported()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT 't'";
-                connection.Open();
-
-                using (var reader = command.ExecuteReader())
+                using (var command = connection.CreateCommand())
                 {
-                    reader.Read();
+                    command.CommandText = "SELECT 't'";
+                    connection.Open();
 
-                    var ex = Assert.Throws<ArgumentException>(() => reader.GetChar(0));
-                    Assert.Equal(Strings.FormatUnknownDataType(typeof(char)), ex.Message);
+                    using (var reader = command.ExecuteReader())
+                    {
+                        reader.Read();
+
+                        var ex = Assert.Throws<ArgumentException>(() => reader.GetChar(0));
+                        Assert.Equal(Strings.FormatUnknownDataType(typeof(char)), ex.Message);
+                    }
                 }
             }
         }
@@ -467,17 +517,19 @@ namespace Microsoft.Data.SQLite
         public void GetDateTime_works()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                CreateTestTable(connection);
-
-                command.CommandText = "SELECT DateTimeColumn FROM TestTable";
-
-                using (var reader = command.ExecuteReader())
+                using (var command = connection.CreateCommand())
                 {
-                    reader.Read();
+                    CreateTestTable(connection);
 
-                    Assert.Equal(new DateTime(2014, 4, 1, 14, 45, 0), reader.GetDateTime(0));
+                    command.CommandText = "SELECT DateTimeColumn FROM TestTable";
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        reader.Read();
+
+                        Assert.Equal(new DateTime(2014, 4, 1, 14, 45, 0), reader.GetDateTime(0));
+                    }
                 }
             }
         }
@@ -496,17 +548,19 @@ namespace Microsoft.Data.SQLite
         public void GetDecimal_works()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                CreateTestTable(connection);
-
-                command.CommandText = "SELECT DecimalColumn FROM TestTable";
-
-                using (var reader = command.ExecuteReader())
+                using (var command = connection.CreateCommand())
                 {
-                    reader.Read();
+                    CreateTestTable(connection);
 
-                    Assert.Equal(3.14m, reader.GetDecimal(0));
+                    command.CommandText = "SELECT DecimalColumn FROM TestTable";
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        reader.Read();
+
+                        Assert.Equal(3.14m, reader.GetDecimal(0));
+                    }
                 }
             }
         }
@@ -525,16 +579,18 @@ namespace Microsoft.Data.SQLite
         public void GetDouble_works()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT 3.14";
-                connection.Open();
-
-                using (var reader = command.ExecuteReader())
+                using (var command = connection.CreateCommand())
                 {
-                    reader.Read();
+                    command.CommandText = "SELECT 3.14";
+                    connection.Open();
 
-                    Assert.Equal(3.14, reader.GetDouble(0));
+                    using (var reader = command.ExecuteReader())
+                    {
+                        reader.Read();
+
+                        Assert.Equal(3.14, reader.GetDouble(0));
+                    }
                 }
             }
         }
@@ -553,17 +609,19 @@ namespace Microsoft.Data.SQLite
         public void GetFloat_works()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                CreateTestTable(connection);
-
-                command.CommandText = "SELECT FloatColumn FROM TestTable";
-
-                using (var reader = command.ExecuteReader())
+                using (var command = connection.CreateCommand())
                 {
-                    reader.Read();
+                    CreateTestTable(connection);
 
-                    Assert.Equal(3.14f, reader.GetFloat(0));
+                    command.CommandText = "SELECT FloatColumn FROM TestTable";
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        reader.Read();
+
+                        Assert.Equal(3.14f, reader.GetFloat(0));
+                    }
                 }
             }
         }
@@ -582,17 +640,19 @@ namespace Microsoft.Data.SQLite
         public void GetGuid_works()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                CreateTestTable(connection);
-
-                command.CommandText = "SELECT GuidColumn FROM TestTable";
-
-                using (var reader = command.ExecuteReader())
+                using (var command = connection.CreateCommand())
                 {
-                    reader.Read();
+                    CreateTestTable(connection);
 
-                    Assert.Equal(new Guid("dc13b11c-e6fb-449f-a892-5e2a47b05350"), reader.GetGuid(0));
+                    command.CommandText = "SELECT GuidColumn FROM TestTable";
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        reader.Read();
+
+                        Assert.Equal(new Guid("dc13b11c-e6fb-449f-a892-5e2a47b05350"), reader.GetGuid(0));
+                    }
                 }
             }
         }
@@ -611,17 +671,19 @@ namespace Microsoft.Data.SQLite
         public void GetInt16_works()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                CreateTestTable(connection);
-
-                command.CommandText = "SELECT Int16Column FROM TestTable";
-
-                using (var reader = command.ExecuteReader())
+                using (var command = connection.CreateCommand())
                 {
-                    reader.Read();
+                    CreateTestTable(connection);
 
-                    Assert.Equal((short)1, reader.GetInt16(0));
+                    command.CommandText = "SELECT Int16Column FROM TestTable";
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        reader.Read();
+
+                        Assert.Equal((short)1, reader.GetInt16(0));
+                    }
                 }
             }
         }
@@ -640,17 +702,19 @@ namespace Microsoft.Data.SQLite
         public void GetInt32_works()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                CreateTestTable(connection);
-
-                command.CommandText = "SELECT Int32Column FROM TestTable";
-
-                using (var reader = command.ExecuteReader())
+                using (var command = connection.CreateCommand())
                 {
-                    reader.Read();
+                    CreateTestTable(connection);
 
-                    Assert.Equal(1, reader.GetInt32(0));
+                    command.CommandText = "SELECT Int32Column FROM TestTable";
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        reader.Read();
+
+                        Assert.Equal(1, reader.GetInt32(0));
+                    }
                 }
             }
         }
@@ -669,16 +733,18 @@ namespace Microsoft.Data.SQLite
         public void GetInt64_works()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT 1";
-                connection.Open();
-
-                using (var reader = command.ExecuteReader())
+                using (var command = connection.CreateCommand())
                 {
-                    reader.Read();
+                    command.CommandText = "SELECT 1";
+                    connection.Open();
 
-                    Assert.Equal(1L, reader.GetInt64(0));
+                    using (var reader = command.ExecuteReader())
+                    {
+                        reader.Read();
+
+                        Assert.Equal(1L, reader.GetInt64(0));
+                    }
                 }
             }
         }
@@ -697,16 +763,18 @@ namespace Microsoft.Data.SQLite
         public void GetString_works()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT 'test'";
-                connection.Open();
-
-                using (var reader = command.ExecuteReader())
+                using (var command = connection.CreateCommand())
                 {
-                    reader.Read();
+                    command.CommandText = "SELECT 'test'";
+                    connection.Open();
 
-                    Assert.Equal("test", reader.GetString(0));
+                    using (var reader = command.ExecuteReader())
+                    {
+                        reader.Read();
+
+                        Assert.Equal("test", reader.GetString(0));
+                    }
                 }
             }
         }
@@ -743,16 +811,18 @@ namespace Microsoft.Data.SQLite
         public void GetFieldValue_works()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT 1";
-                connection.Open();
-
-                using (var reader = command.ExecuteReader())
+                using (var command = connection.CreateCommand())
                 {
-                    reader.Read();
+                    command.CommandText = "SELECT 1";
+                    connection.Open();
 
-                    Assert.Equal(1L, reader.GetFieldValue<long>(0));
+                    using (var reader = command.ExecuteReader())
+                    {
+                        reader.Read();
+
+                        Assert.Equal(1L, reader.GetFieldValue<long>(0));
+                    }
                 }
             }
         }
@@ -761,19 +831,21 @@ namespace Microsoft.Data.SQLite
         public void GetFieldValue_throws_when_null()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT NULL";
-                connection.Open();
-
-                using (var reader = command.ExecuteReader())
+                using (var command = connection.CreateCommand())
                 {
-                    reader.Read();
+                    command.CommandText = "SELECT NULL";
+                    connection.Open();
 
-                    Assert.Throws<InvalidCastException>(() => reader.GetFieldValue<long>(0));
-                    Assert.Throws<InvalidCastException>(() => reader.GetFieldValue<double>(0));
-                    Assert.Throws<InvalidCastException>(() => reader.GetFieldValue<string>(0));
-                    Assert.Throws<InvalidCastException>(() => reader.GetFieldValue<byte[]>(0));
+                    using (var reader = command.ExecuteReader())
+                    {
+                        reader.Read();
+
+                        Assert.Throws<InvalidCastException>(() => reader.GetFieldValue<long>(0));
+                        Assert.Throws<InvalidCastException>(() => reader.GetFieldValue<double>(0));
+                        Assert.Throws<InvalidCastException>(() => reader.GetFieldValue<string>(0));
+                        Assert.Throws<InvalidCastException>(() => reader.GetFieldValue<byte[]>(0));
+                    }
                 }
             }
         }
@@ -792,16 +864,18 @@ namespace Microsoft.Data.SQLite
         public void GetValue_works()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT 1";
-                connection.Open();
-
-                using (var reader = command.ExecuteReader())
+                using (var command = connection.CreateCommand())
                 {
-                    reader.Read();
+                    command.CommandText = "SELECT 1";
+                    connection.Open();
 
-                    Assert.Equal(1L, reader.GetValue(0));
+                    using (var reader = command.ExecuteReader())
+                    {
+                        reader.Read();
+
+                        Assert.Equal(1L, reader.GetValue(0));
+                    }
                 }
             }
         }
@@ -820,24 +894,26 @@ namespace Microsoft.Data.SQLite
         public void GetValues_works()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))
-            using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT NULL, 1, 3.14, 'test', x'7e57'";
-                connection.Open();
-
-                using (var reader = command.ExecuteReader())
+                using (var command = connection.CreateCommand())
                 {
-                    reader.Read();
+                    command.CommandText = "SELECT NULL, 1, 3.14, 'test', x'7e57'";
+                    connection.Open();
 
-                    var values = new object[5];
-                    var count = reader.GetValues(values);
+                    using (var reader = command.ExecuteReader())
+                    {
+                        reader.Read();
 
-                    Assert.Equal(5, count);
-                    Assert.Equal(DBNull.Value, values[0]);
-                    Assert.Equal(1L, values[1]);
-                    Assert.Equal(3.14, values[2]);
-                    Assert.Equal("test", values[3]);
-                    Assert.Equal(new byte[] { 0x7e, 0x57 }, values[4]);
+                        var values = new object[5];
+                        var count = reader.GetValues(values);
+
+                        Assert.Equal(5, count);
+                        Assert.Equal(DBNull.Value, values[0]);
+                        Assert.Equal(1L, values[1]);
+                        Assert.Equal(3.14, values[2]);
+                        Assert.Equal("test", values[3]);
+                        Assert.Equal(new byte[] { 0x7e, 0x57 }, values[4]);
+                    }
                 }
             }
         }

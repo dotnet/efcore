@@ -41,7 +41,9 @@ namespace Microsoft.Data.SQLite
             set
             {
                 if (value != ParameterDirection.Input)
+                {
                     throw new ArgumentException(Strings.FormatInvalidParameterDirection(value));
+                }
             }
         }
 
@@ -55,7 +57,9 @@ namespace Microsoft.Data.SQLite
             {
                 Check.NotEmpty(value, "value");
                 if (_parameterName == value)
+                {
                     return;
+                }
 
                 _parameterName = value;
                 _bound = false;
@@ -76,7 +80,9 @@ namespace Microsoft.Data.SQLite
 
                 // NOTE: Using Equals here avoids reference comparison
                 if (value.Equals(_value))
+                {
                     return;
+                }
 
                 _value = value;
                 _bound = false;
@@ -99,9 +105,13 @@ namespace Microsoft.Data.SQLite
         {
             Debug.Assert(handles != null, "handles is null.");
             if (_parameterName == null)
+            {
                 throw new InvalidOperationException(Strings.FormatRequiresSet("ParameterName"));
+            }
             if (_value == null)
+            {
                 throw new InvalidOperationException(Strings.FormatRequiresSet("Value"));
+            }
 
             foreach (var handle in handles)
             {

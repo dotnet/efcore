@@ -12,7 +12,9 @@ namespace Microsoft.Data.SQLite.Interop
         public static SQLiteException GetExceptionForRC(int errorCode)
         {
             if (errorCode == Constants.SQLITE_OK)
+            {
                 return null;
+            }
 
             return new SQLiteException(NativeMethods.sqlite3_errstr(errorCode), errorCode);
         }
@@ -20,11 +22,15 @@ namespace Microsoft.Data.SQLite.Interop
         public static string PtrToStringUTF8(IntPtr ptr)
         {
             if (ptr == IntPtr.Zero)
+            {
                 return null;
+            }
 
             var i = 0;
             while (Marshal.ReadByte(ptr, i) != 0)
+            {
                 i++;
+            }
 
             var bytes = new byte[i];
             Marshal.Copy(ptr, bytes, 0, i);
@@ -58,7 +64,9 @@ namespace Microsoft.Data.SQLite.Interop
         public static void ThrowExceptionForRC(int errorCode)
         {
             if (errorCode == Constants.SQLITE_OK)
+            {
                 return;
+            }
 
             throw GetExceptionForRC(errorCode);
         }

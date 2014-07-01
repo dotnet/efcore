@@ -103,9 +103,13 @@ namespace Microsoft.Data.SQLite
             Debug.Assert(_currentHandle != null && !_currentHandle.IsInvalid, "_currentHandle is null.");
             var rc = NativeMethods.sqlite3_step(_currentHandle);
             if (rc == Constants.SQLITE_DONE)
+            {
                 return false;
+            }
             if (rc != Constants.SQLITE_ROW)
+            {
                 MarshalEx.ThrowExceptionForRC(rc);
+            }
 
             return true;
         }
@@ -117,7 +121,9 @@ namespace Microsoft.Data.SQLite
             _currentIndex++;
 
             if (_currentIndex >= _handles.Count)
+            {
                 return false;
+            }
 
             _hasRead = false;
             _currentHandle = _handles[_currentIndex];
@@ -128,16 +134,18 @@ namespace Microsoft.Data.SQLite
         public override void Close()
         {
             if (_closed)
+            {
                 return;
+            }
 
             Debug.Assert(_command.OpenReader == this, "_command.ActiveReader is not this.");
-
 
             if (_handles.Any())
             {
                 foreach (var handle in _handles)
                 {
-                    if (handle != null && !handle.IsInvalid)
+                    if (handle != null
+                        && !handle.IsInvalid)
                     {
                         var rc = NativeMethods.sqlite3_reset(handle);
                         MarshalEx.ThrowExceptionForRC(rc);
@@ -164,8 +172,12 @@ namespace Microsoft.Data.SQLite
             CheckClosed("GetOrdinal");
 
             for (var i = 0; i < FieldCount; i++)
+            {
                 if (GetName(i) == name)
+                {
                     return i;
+                }
+            }
 
             throw new IndexOutOfRangeException(name);
         }
@@ -322,7 +334,9 @@ namespace Microsoft.Data.SQLite
             CheckClosed("GetValues");
 
             for (var i = 0; i < FieldCount; i++)
+            {
                 values[i] = GetValue(i);
+            }
 
             return FieldCount;
         }
@@ -330,7 +344,9 @@ namespace Microsoft.Data.SQLite
         private void CheckClosed(string operation)
         {
             if (_closed)
+            {
                 throw new InvalidOperationException(Strings.FormatDataReaderClosed(operation));
+            }
         }
     }
 }

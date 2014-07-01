@@ -42,7 +42,9 @@ namespace Microsoft.Data.SQLite
                 var current = _parameters[index];
 
                 if (current == value)
+                {
                     return;
+                }
 
                 Validate(index, value);
                 _bound = false;
@@ -70,7 +72,9 @@ namespace Microsoft.Data.SQLite
         public override void AddRange(Array values)
         {
             foreach (var value in values)
+            {
                 Add(value);
+            }
         }
 
         public SQLiteParameter AddWithValue(string parameterName, object value)
@@ -86,7 +90,9 @@ namespace Microsoft.Data.SQLite
             _bound = false;
 
             foreach (var parameter in _parameters)
+            {
                 parameter.Parent = null;
+            }
 
             _parameters.Clear();
         }
@@ -129,8 +135,12 @@ namespace Microsoft.Data.SQLite
         public override int IndexOf(string parameterName)
         {
             for (var index = 0; index < _parameters.Count; index++)
+            {
                 if (_parameters[index].ParameterName == parameterName)
+                {
                     return index;
+                }
+            }
 
             return -1;
         }
@@ -179,7 +189,9 @@ namespace Microsoft.Data.SQLite
         internal void Bind(IEnumerable<StatementHandle> handles)
         {
             foreach (var parameter in _parameters)
+            {
                 parameter.Bind(handles);
+            }
 
             _bound = true;
         }
@@ -188,7 +200,9 @@ namespace Microsoft.Data.SQLite
         {
             var index = IndexOf(parameterName);
             if (index == -1)
+            {
                 throw new IndexOutOfRangeException(Strings.FormatParameterNotFound(parameterName));
+            }
 
             return index;
         }
@@ -198,9 +212,13 @@ namespace Microsoft.Data.SQLite
             if (parameter.Parent != null)
             {
                 if (parameter.Parent != this)
+                {
                     throw new ArgumentException(Strings.CollectionIsNotParent);
+                }
                 if (IndexOf(parameter) != index)
+                {
                     throw new ArgumentException(Strings.CollectionIsParent);
+                }
             }
 
             parameter.Parent = this;

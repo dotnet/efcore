@@ -60,12 +60,12 @@ namespace Microsoft.Data.SQLite.Utilities
         }
 
         private SQLiteTypeMap(
-                Type clrType,
-                SQLiteType sqliteType,
-                Func<object, object> toInterop,
-                Func<object, object> fromInterop,
-                IEnumerable<string> declaredTypes,
-                DbType dbType)
+            Type clrType,
+            SQLiteType sqliteType,
+            Func<object, object> toInterop,
+            Func<object, object> fromInterop,
+            IEnumerable<string> declaredTypes,
+            DbType dbType)
             : this(clrType, sqliteType, declaredTypes, dbType)
         {
             Debug.Assert(toInterop != null, "toInterop is null.");
@@ -128,13 +128,21 @@ namespace Microsoft.Data.SQLite.Utilities
         private static SQLiteType GetSQLiteType<T>()
         {
             if (typeof(T) == typeof(DBNull))
+            {
                 return SQLiteType.Null;
+            }
             if (typeof(T) == typeof(long))
+            {
                 return SQLiteType.Integer;
+            }
             if (typeof(T) == typeof(double))
+            {
                 return SQLiteType.Float;
+            }
             if (typeof(T) == typeof(string))
+            {
                 return SQLiteType.Text;
+            }
 
             Debug.Assert(typeof(T) == typeof(byte[]), "T is not byte[]");
 
@@ -150,12 +158,16 @@ namespace Microsoft.Data.SQLite.Utilities
         {
             type = Nullable.GetUnderlyingType(type) ?? type;
             if (type.GetTypeInfo().IsEnum)
+            {
                 type = Enum.GetUnderlyingType(type);
+            }
 
             // TODO: Consider derived types
             var map = _typeMaps.FirstOrDefault(m => m._clrType == type);
             if (map == null)
+            {
                 throw new ArgumentException(Strings.FormatUnknownDataType(type));
+            }
 
             return map;
         }
@@ -168,13 +180,17 @@ namespace Microsoft.Data.SQLite.Utilities
                 // Strip length, precision & scale
                 var i = declaredType.IndexOf('(');
                 if (i != -1)
+                {
                     declaredType = declaredType.Substring(0, i).TrimEnd();
+                }
 
                 map = _typeMaps.FirstOrDefault(m => m._declaredTypes.Contains(declaredType));
             }
 
             if (map == null)
+            {
                 map = FromSQLiteType(sqliteType);
+            }
 
             return map;
         }
@@ -206,7 +222,9 @@ namespace Microsoft.Data.SQLite.Utilities
             Debug.Assert(value != null, "value is null.");
 
             if (_toInterop == null)
+            {
                 return value;
+            }
 
             return _toInterop(value);
         }
@@ -216,7 +234,9 @@ namespace Microsoft.Data.SQLite.Utilities
             Debug.Assert(value != null, "value is null.");
 
             if (_fromInterop == null)
+            {
                 return value;
+            }
 
             return _fromInterop(value);
         }

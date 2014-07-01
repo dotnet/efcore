@@ -45,7 +45,9 @@ namespace Microsoft.Data.SQLite
             {
                 Check.NotEmpty(value, "value");
                 if (_state != ConnectionState.Closed)
+                {
                     throw new InvalidOperationException(Strings.ConnectionStringRequiresClosedConnection);
+                }
 
                 _connectionString = value;
                 _connectionOptions = new SQLiteConnectionStringBuilder(value);
@@ -82,7 +84,9 @@ namespace Microsoft.Data.SQLite
         private void SetState(ConnectionState value)
         {
             if (_state == value)
+            {
                 return;
+            }
 
             var originalState = _state;
             _state = value;
@@ -92,9 +96,13 @@ namespace Microsoft.Data.SQLite
         public override void Open()
         {
             if (_state == ConnectionState.Open)
+            {
                 return;
+            }
             if (_connectionString == null)
+            {
                 throw new InvalidOperationException(Strings.OpenRequiresSetConnectionString);
+            }
 
             Debug.Assert(_handle == null, "_handle is not null.");
             Debug.Assert(_connectionOptions != null, "_connectionOptions is null.");
@@ -130,8 +138,11 @@ namespace Microsoft.Data.SQLite
 
         private void ReleaseNativeObjects()
         {
-            if (_handle == null || _handle.IsInvalid)
+            if (_handle == null
+                || _handle.IsInvalid)
+            {
                 return;
+            }
 
             _handle.Dispose();
             _handle = null;
@@ -160,9 +171,13 @@ namespace Microsoft.Data.SQLite
         public new SQLiteTransaction BeginTransaction(IsolationLevel isolationLevel)
         {
             if (_state != ConnectionState.Open)
+            {
                 throw new InvalidOperationException(Strings.FormatCallRequiresOpenConnection("BeginTransaction"));
+            }
             if (Transaction != null)
+            {
                 throw new InvalidOperationException(Strings.ParallelTransactionsNotSupported);
+            }
 
             return Transaction = new SQLiteTransaction(this, isolationLevel);
         }
