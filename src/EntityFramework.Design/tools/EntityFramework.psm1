@@ -1,5 +1,137 @@
 $ErrorActionPreference = "Stop"
 
+$EFDefaultParameterValues = @{
+    ProjectName = ''
+    ContextName = ''
+}
+
+#
+# Use-EFContext
+#
+
+Register-TabExpansion Use-EFContext @{
+    ProjectName = { GetProjectNames }
+}
+
+function Use-EFContext {
+    [CmdletBinding()]
+    param ([Parameter(Mandatory = $true)] [string] $ContextName, [string] $ProjectName)
+
+    $project = GetProject $ProjectName
+
+    # TODO: Validate
+    $EFDefaultParameterValues.ContextName = $ContextName
+    $EFDefaultParameterValues.ProjectName = $project.ProjectName
+}
+
+#
+# Add-Migration
+#
+
+Register-TabExpansion Add-Migration @{
+    ProjectName = { GetProjectNames }
+}
+
+function Add-Migration {
+    [CmdletBinding()]
+    param ([Parameter(Mandatory = $true)] [string] $MigrationName, [string] $ContextName, [string] $ProjectName)
+
+    $normalArgs = NormalizeArgs $ProjectName $ContextName
+    $fullPath = GetProperty $normalArgs.Project.Properties FullPath
+    $migrationsDir = Join-Path $fullPath Migrations
+
+    $artifacts = InvokeOperation $normalArgs.Project CreateMigration @{
+        migrationName = $MigrationName
+        contextName = $normalArgs.ContextName
+        migrationsDir = [string] $migrationsDir
+    }
+
+    $artifacts | %{ $normalArgs.Project.ProjectItems.AddFromFile($_) | Out-Null }
+
+    $DTE.ItemOperations.OpenFile($artifacts[0]) | Out-Null
+    FocusPMC
+}
+
+#
+# Update-Database
+#
+
+Register-TabExpansion Update-Database @{
+    ProjectName = { Get-ProjectNames }
+}
+
+function Update-Database {
+    [CmdletBinding()]
+    param ([string] $TargetMigration, [string] $ContextName, [string] $ProjectName, [switch] $Script)
+
+    $normalArgs = NormalizeArgs $ProjectName $ContextName
+    
+    if (!$Script) {
+        InvokeOperation $normalArgs.Project PublishMigration @{
+            targetMigration = $TargetMigration
+            contextName = $normalArgs.ContextName
+        }
+    }
+    else {
+        $sql = InvokeOperation $normalArgs.Project CreateMigrationScript @{
+            targetMigration = $TargetMigration
+            contextName = $normalArgs.ContextName
+        }
+
+        # TODO: New SQL File
+        $window = $DTE.ItemOperations.NewFile('General\Text File')
+        $textDocument = $window.Document.Object('TextDocument')
+        $editPoint = $textDocument.StartPoint.CreateEditPoint();
+        $editPoint.Insert($sql);
+        FocusPMC
+    }
+}
+
+#
+# (Private Helpers)
+#
+
+function GetProjectNames {
+    $projects = Get-Project -All
+
+    return @(
+        $projects | select -ExpandProperty ProjectName
+        $projects | group Name | ? Count -eq 1 | select -ExpandProperty Name
+    ) | sort -Unique
+}
+
+function NormalizeArgs($projectName, $contextName) {
+    if (!$contextName) {
+        $projectName = $EFDefaultParameterValues.ProjectName
+        $contextName = $EFDefaultParameterValues.ContextName
+    }
+
+    if (!$projectName) {
+        $projectName = $EFDefaultParameterValues.ProjectName
+    }
+
+    $project = GetProject $projectName
+
+    return @{
+        Project = $project
+        ContextName = $contextName
+    }
+}
+
+function GetProject($projectName) {
+    if ($projectName) {
+        return Get-Project $projectName
+    }
+
+    return Get-Project
+}
+
+function FocusPMC {
+    $componentModel = Get-VSComponentModel
+    $powerConsoleWindow = $componentModel.GetService([NuGetConsole.IPowerConsoleWindow])
+    $powerConsoleWindow.Show()
+}
+
 function InvokeOperation($project, $operation, $arguments) {
     $projectName = $project.ProjectName
 
@@ -55,6 +187,7 @@ function InvokeOperation($project, $operation, $arguments) {
         $assemblyName = 'EntityFramework.Design'
         $typeName = 'Microsoft.Data.Entity.Design.Executor'
         $targetFileName = GetProperty $properties OutputFileName
+        $targetPath = Join-Path $targetDir $targetFileName
 
         Write-Verbose "Using assembly '$targetFileName'"
 
@@ -64,20 +197,27 @@ function InvokeOperation($project, $operation, $arguments) {
             $false,
             0,
             $null,
-            @(@{ assemblyFileName = $targetFileName }),
+            @(@{ targetPath = [string] $targetPath }),
             $null,
             $null)
 
-        # TODO: Set CurrentDirectory
-        $domain.CreateInstance(
-            $assemblyName,
-            "$typeName+$operation",
-            $false,
-            0,
-            $null,
-            ($executor, [MarshalByRefObject] $handler, $arguments),
-            $null,
-            $null) | Out-Null
+        $currentDirectory = [IO.Directory]::GetCurrentDirectory()
+
+        [IO.Directory]::SetCurrentDirectory($targetDir)
+        try {
+            $domain.CreateInstance(
+                $assemblyName,
+                "$typeName+$operation",
+                $false,
+                0,
+                $null,
+                ($executor, [MarshalByRefObject] $handler, $arguments),
+                $null,
+                $null) | Out-Null
+        }
+        finally {
+            [IO.Directory]::SetCurrentDirectory($currentDirectory)
+        }
     }
     finally {
         [AppDomain]::Unload($domain)
