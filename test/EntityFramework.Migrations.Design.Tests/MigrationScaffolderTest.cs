@@ -420,6 +420,7 @@ namespace MyNamespace
 
             Assert.Equal(
                 @"using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Migrations.Infrastructure;
 using System;
 
 namespace MyNamespace
@@ -495,12 +496,7 @@ namespace MyNamespace
                         Foo = c.Int(nullable: false),
                         Id = c.Int(nullable: false)
                     })
-                .PrimaryKey(""MyPK2"",
-                    t => new
-                        {
-                            Id = t.Id,
-                            Foo = t.Foo
-                        });
+                .PrimaryKey(""MyPK2"", t => new { t.Id, t.Foo });
             
             migrationBuilder.CreateTable(""EntityWithNamedKeyAndAnnotations"",
                 c => new
@@ -508,12 +504,7 @@ namespace MyNamespace
                         Foo = c.Int(nullable: false),
                         Id = c.Int(nullable: false)
                     })
-                .PrimaryKey(""MyPK1"",
-                    t => new
-                        {
-                            Id = t.Id,
-                            Foo = t.Foo
-                        });
+                .PrimaryKey(""MyPK1"", t => new { t.Id, t.Foo });
             
             migrationBuilder.CreateTable(""EntityWithUnnamedKey"",
                 c => new
@@ -521,12 +512,7 @@ namespace MyNamespace
                         Foo = c.Int(nullable: false),
                         Id = c.Int(nullable: false)
                     })
-                .PrimaryKey(""PK_EntityWithUnnamedKey"",
-                    t => new
-                        {
-                            Id = t.Id,
-                            Foo = t.Foo
-                        });
+                .PrimaryKey(""PK_EntityWithUnnamedKey"", t => new { t.Id, t.Foo });
             
             migrationBuilder.CreateTable(""EntityWithUnnamedKeyAndAnnotations"",
                 c => new
@@ -534,12 +520,7 @@ namespace MyNamespace
                         Foo = c.Int(nullable: false),
                         Id = c.Int(nullable: false)
                     })
-                .PrimaryKey(""PK_EntityWithUnnamedKeyAndAnnotations"",
-                    t => new
-                        {
-                            Id = t.Id,
-                            Foo = t.Foo
-                        });
+                .PrimaryKey(""PK_EntityWithUnnamedKeyAndAnnotations"", t => new { t.Id, t.Foo });
         }
         
         public override void Down(MigrationBuilder migrationBuilder)
@@ -648,6 +629,7 @@ namespace MyNamespace
 
             Assert.Equal(
                 @"using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Migrations.Infrastructure;
 using System;
 
 namespace MyNamespace
