@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 "sqlGenerator",
                 // ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(() =>
-                    batch.AddCommand(new ModificationCommand("T1", new ParameterNameGenerator()), null)).ParamName);
+                    batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator()), null)).ParamName);
         }
 
         [Fact]
@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var stateEntry = CreateStateEntry(EntityState.Added);
 
-            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator());
             command.AddStateEntry(stateEntry);
 
             var batch = new ModificationCommandBatch();
@@ -62,7 +62,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var stateEntry = CreateStateEntry(EntityState.Modified, ValueGenerationOnSave.WhenInserting);
 
-            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator());
             command.AddStateEntry(stateEntry);
 
             var batch = new ModificationCommandBatch();
@@ -78,7 +78,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var stateEntry = CreateStateEntry(EntityState.Deleted);
 
-            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator());
             command.AddStateEntry(stateEntry);
 
             var batch = new ModificationCommandBatch();
@@ -94,7 +94,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var stateEntry = CreateStateEntry(EntityState.Deleted);
 
-            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator());
             command.AddStateEntry(stateEntry);
 
             var batch = new ModificationCommandBatch();
@@ -126,7 +126,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         public async void ExecuteAsync_executes_batch_commands_and_consumes_reader()
         {
             var stateEntry = CreateStateEntry(EntityState.Added);
-            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator());
             command.AddStateEntry(stateEntry);
 
             var batch = new ModificationCommandBatch();
@@ -144,7 +144,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         public async void ExecuteAsync_saves_store_generated_values()
         {
             var stateEntry = CreateStateEntry(EntityState.Added, ValueGenerationOnSave.WhenInserting);
-            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator());
             command.AddStateEntry(stateEntry);
 
             var batch = new ModificationCommandBatch();
@@ -164,7 +164,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var stateEntry = CreateStateEntry(
                 EntityState.Added, ValueGenerationOnSave.WhenInserting, ValueGenerationOnSave.WhenInsertingAndUpdating);
 
-            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator());
             command.AddStateEntry(stateEntry);
 
             var batch = new ModificationCommandBatch();
@@ -184,7 +184,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var stateEntry = CreateStateEntry(
                 EntityState.Modified, ValueGenerationOnSave.WhenInserting, ValueGenerationOnSave.WhenInsertingAndUpdating);
 
-            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator());
             command.AddStateEntry(stateEntry);
 
             var batch = new ModificationCommandBatch();
@@ -202,7 +202,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         public async void Exception_thrown_for_more_than_one_row_returned_for_single_command()
         {
             var stateEntry = CreateStateEntry(EntityState.Added, ValueGenerationOnSave.WhenInserting);
-            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator());
             command.AddStateEntry(stateEntry);
 
             var batch = new ModificationCommandBatch();
@@ -223,7 +223,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         public async void Exception_thrown_if_rows_returned_for_command_without_store_generated_values()
         {
             var stateEntry = CreateStateEntry(EntityState.Added);
-            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator());
             command.AddStateEntry(stateEntry);
 
             var batch = new ModificationCommandBatch();
@@ -240,7 +240,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         public async void Exception_thrown_if_no_rows_returned_for_command_with_store_generated_values()
         {
             var stateEntry = CreateStateEntry(EntityState.Added, ValueGenerationOnSave.WhenInserting);
-            var command = new ModificationCommand("T1", new ParameterNameGenerator());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator());
             command.AddStateEntry(stateEntry);
 
             var batch = new ModificationCommandBatch();
@@ -338,11 +338,11 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
             var key = entityType.AddProperty("Id", typeof(int));
             key.ValueGenerationOnSave = keyStrategy;
-            key.StorageName = "Col1";
+            key.SetColumnName("Col1");
             entityType.SetKey(key);
 
             var nonKey = entityType.AddProperty("Name", typeof(string));
-            nonKey.StorageName = "Col2";
+            nonKey.SetColumnName("Col2");
             nonKey.ValueGenerationOnSave = nonKeyStrategy;
 
             model.AddEntityType(entityType);

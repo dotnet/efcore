@@ -169,12 +169,15 @@ namespace Microsoft.Data.Entity.Migrations.Design
 
             using (stringBuilder.Indent())
             {
-                foreach (var operation in migrationOperations)
+                for (int i = 0; i < migrationOperations.Count; i++)
                 {
+                    if (i > 0)
+                    {
+                        stringBuilder.AppendLine();
+                    }
+
                     stringBuilder.Append("migrationBuilder.");
-
-                    operation.GenerateCode(this, stringBuilder);
-
+                    migrationOperations[i].GenerateCode(this, stringBuilder);
                     stringBuilder.AppendLine(";");
                 }
             }

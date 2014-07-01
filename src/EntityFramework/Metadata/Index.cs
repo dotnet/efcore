@@ -30,7 +30,6 @@ namespace Microsoft.Data.Entity.Metadata
             _properties = properties;
         }
 
-        public virtual string StorageName { get; [param: CanBeNull] set; }
         public bool IsUnique { get; set; }
 
         public virtual IReadOnlyList<Property> Properties

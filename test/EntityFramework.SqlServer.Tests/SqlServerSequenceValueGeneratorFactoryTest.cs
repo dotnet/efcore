@@ -188,7 +188,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             var entityType = new EntityType("MyType");
             var property = entityType.AddProperty("MyProperty", typeof(string));
-            entityType.StorageName = "MyTable";
+            entityType.SetTableName("MyTable");
 
             new Model().AddEntityType(entityType);
 

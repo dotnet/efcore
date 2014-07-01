@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             var deleted = false;
             foreach (var type in model.EntityTypes)
             {
-                var table = _connection.GetTableReference(type.StorageName);
+                var table = _connection.GetTableReference(type.TableName());
                 if (table != null)
                 {
                     deleted |= table.DeleteIfExists();
@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             var tasks = new List<Task<bool>>();
             foreach (var type in model.EntityTypes)
             {
-                var table = _connection.GetTableReference(type.StorageName);
+                var table = _connection.GetTableReference(type.TableName());
                 if (table != null)
                 {
                     tasks.Add(table.DeleteIfExistsAsync(cancellationToken));
@@ -60,7 +60,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             var created = false;
             foreach (var type in model.EntityTypes)
             {
-                var table = _connection.GetTableReference(type.StorageName);
+                var table = _connection.GetTableReference(type.TableName());
                 if (table != null)
                 {
                     created |= table.CreateIfNotExists();
@@ -75,7 +75,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             var tasks = new List<Task<bool>>();
             foreach (var type in model.EntityTypes)
             {
-                var table = _connection.GetTableReference(type.StorageName);
+                var table = _connection.GetTableReference(type.TableName());
                 if (table != null)
                 {
                     tasks.Add(table.CreateIfNotExistsAsync(cancellationToken));

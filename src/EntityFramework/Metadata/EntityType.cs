@@ -356,10 +356,12 @@ namespace Microsoft.Data.Entity.Metadata
             if (_key != null
                 && _key.Properties.Contains(property))
             {
-                _key = new Key(_key.Properties.Except(new[] { property }).ToArray())
-                    {
-                        StorageName = _key.StorageName
-                    };
+                var oldKey = _key;
+                _key = new Key(_key.Properties.Except(new[] { property }).ToArray());
+                foreach (var oldKeyAnnotation in oldKey.Annotations)
+                {
+                    _key.Annotations.Add(oldKeyAnnotation);
+                }                    
             }
         }
 

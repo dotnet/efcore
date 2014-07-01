@@ -20,18 +20,30 @@ namespace Microsoft.Data.Entity.Relational.Tests
         #endregion
 
         [Fact]
-        public void ToTable_sets_storage_name_on_entity()
+        public void ToTable_sets_table_name_on_entity()
         {
             var model = new Metadata.Model();
             var modelBuilder = new ModelBuilder(model);
 
             modelBuilder.Entity<Customer>().ToTable("customers");
 
-            Assert.Equal("customers", model.EntityTypes.Single().StorageName);
+            Assert.Equal("customers", model.EntityTypes.Single().TableName());
+            Assert.True(string.IsNullOrEmpty(model.EntityTypes.Single().Schema()));
 
             modelBuilder.Entity("Customer").ToTable("CUSTOMERS");
 
-            Assert.Equal("CUSTOMERS", model.EntityTypes.Single().StorageName);
+            Assert.Equal("CUSTOMERS", model.EntityTypes.Single().TableName());
+            Assert.True(string.IsNullOrEmpty(model.EntityTypes.Single().Schema()));
+
+            modelBuilder.Entity<Customer>().ToTable("my.table");
+
+            Assert.Equal("my.table", model.EntityTypes.Single().TableName());
+            Assert.True(string.IsNullOrEmpty(model.EntityTypes.Single().Schema()));
+
+            modelBuilder.Entity<Customer>().ToTable("my.table", "my.schema");
+
+            Assert.Equal("my.table", model.EntityTypes.Single().TableName());
+            Assert.Equal("my.schema", model.EntityTypes.Single().Schema());
         }
 
         [Fact]
@@ -42,11 +54,11 @@ namespace Microsoft.Data.Entity.Relational.Tests
 
             modelBuilder.Entity<Customer>().Properties(ps => ps.Property(c => c.Id).ColumnName("id"));
 
-            Assert.Equal("id", model.EntityTypes.Single().Properties.Single().StorageName);
+            Assert.Equal("id", model.EntityTypes.Single().Properties.Single().ColumnName());
 
             modelBuilder.Entity<Customer>().Properties(ps => ps.Property<int>("Id").ColumnName("ID"));
 
-            Assert.Equal("ID", model.EntityTypes.Single().Properties.Single().StorageName);
+            Assert.Equal("ID", model.EntityTypes.Single().Properties.Single().ColumnName());
         }
 
         [Fact]
