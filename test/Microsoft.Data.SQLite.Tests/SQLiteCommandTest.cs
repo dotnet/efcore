@@ -744,6 +744,20 @@ namespace Microsoft.Data.SQLite
         }
 
         [Fact]
+        public void ExecuteReader_works_when_empty()
+        {
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT 42 WHERE 0 = 1";
+                connection.Open();
+
+                using (var reader = command.ExecuteReader())
+                    Assert.False(reader.Read());
+            }
+        }
+
+        [Fact]
         public void ExecuteReader_works_when_batching()
         {
             using (var connection = new SQLiteConnection("Filename=:memory:"))

@@ -97,7 +97,7 @@ namespace Microsoft.Data.SQLite
             {
                 _hasRead = true;
 
-                return true;
+                return NativeMethods.sqlite3_stmt_busy(_currentHandle) != 0;
             }
 
             Debug.Assert(_currentHandle != null && !_currentHandle.IsInvalid, "_currentHandle is null.");
