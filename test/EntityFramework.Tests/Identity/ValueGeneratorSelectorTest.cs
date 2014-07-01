@@ -50,7 +50,6 @@ namespace Microsoft.Data.Entity.Tests.Identity
             var entityType = new EntityType("MyType");
             var property = entityType.AddProperty("MyProperty", propertyType);
             property.ValueGenerationOnAdd = valueGeneration;
-            entityType.StorageName = "MyTable";
 
             new Model().AddEntityType(entityType);
 

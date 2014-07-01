@@ -32,6 +32,12 @@ namespace Microsoft.Data.Entity.Relational.Update
                 return result;
             }
 
+            result = StringComparer.Ordinal.Compare(x.Schema, y.Schema);
+            if (0 != result)
+            {
+                return result;
+            }
+
             result = (int)x.EntityState - (int)y.EntityState;
             if (0 != result)
             {

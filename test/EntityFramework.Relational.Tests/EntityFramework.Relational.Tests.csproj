@@ -64,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
+    <Compile Include="ApiExtensionsTest.cs" />
     <Compile Include="ConnectionStringResolverTest.cs" />
     <Compile Include="DatabaseBuilderTest.cs" />
     <Compile Include="MetadataExtensionsTest.cs" />

@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
         {
             var entityType = new EntityType("TestType");
             var property = entityType.AddProperty("ClrName", typeof(object));
-            property.StorageName = "StorageName";
+            property.SetColumnName("StorageName");
 
             var data = new Dictionary<string, EntityProperty>
                 {

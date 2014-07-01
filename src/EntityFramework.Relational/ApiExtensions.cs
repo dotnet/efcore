@@ -18,16 +18,38 @@ namespace Microsoft.Data.Entity.Metadata
             public const string ColumnDefaultSql = "ColumnDefaultSql";
             public const string IsClustered = "IsClustered";
             public const string CascadeDelete = "CascadeDelete";
+            public const string TableName = "TableName";
+            public const string Schema = "Schema";
+            public const string ColumnName = "ColumnName";
+            public const string KeyName = "KeyName";
+            public const string IndexName = "IndexName";
         }
 
         public static TEntityBuilder ToTable<TEntityBuilder>(
             [NotNull] this TEntityBuilder entityBuilder,
-            SchemaQualifiedName tableName)
+            [NotNull] string tableName)
             where TEntityBuilder : ModelBuilder.EntityBuilderBase<TEntityBuilder>
         {
             Check.NotNull(entityBuilder, "entityBuilder");
+            Check.NotEmpty(tableName, "tableName");
+            
+            entityBuilder.Annotation(Annotations.TableName, tableName);
 
-            entityBuilder.StorageName(tableName);
+            return entityBuilder;
+        }
+
+        public static TEntityBuilder ToTable<TEntityBuilder>(
+            [NotNull] this TEntityBuilder entityBuilder,
+            [NotNull] string tableName,
+            [NotNull] string schema)
+            where TEntityBuilder : ModelBuilder.EntityBuilderBase<TEntityBuilder>
+        {
+            Check.NotNull(entityBuilder, "entityBuilder");
+            Check.NotEmpty(tableName, "tableName");
+            Check.NotNull(schema, "schema");
+
+            entityBuilder.Annotation(Annotations.TableName, tableName);
+            entityBuilder.Annotation(Annotations.Schema, schema);
 
             return entityBuilder;
         }
@@ -38,8 +60,9 @@ namespace Microsoft.Data.Entity.Metadata
             where TEntityBuilder : ModelBuilder.EntityBuilderBase<TEntityBuilder>
         {
             Check.NotNull(propertyBuilder, "propertyBuilder");
+            Check.NotEmpty(columnName, "columnName");
 
-            propertyBuilder.StorageName(columnName);
+            propertyBuilder.Annotation(Annotations.ColumnName, columnName);
 
             return propertyBuilder;
         }
@@ -50,6 +73,7 @@ namespace Microsoft.Data.Entity.Metadata
             where TEntityBuilder : ModelBuilder.EntityBuilderBase<TEntityBuilder>
         {
             Check.NotNull(propertyBuilder, "propertyBuilder");
+            Check.NotNull(typeName, "typeName");
 
             propertyBuilder.Annotation(Annotations.StorageTypeName, typeName);
 
@@ -62,6 +86,7 @@ namespace Microsoft.Data.Entity.Metadata
             where TEntityBuilder : ModelBuilder.EntityBuilderBase<TEntityBuilder>
         {
             Check.NotNull(propertyBuilder, "propertyBuilder");
+            Check.NotNull(columnDefaultSql, "columnDefaultSql");
 
             propertyBuilder.Annotation(Annotations.ColumnDefaultSql, columnDefaultSql);
 
@@ -160,6 +185,156 @@ namespace Microsoft.Data.Entity.Metadata
             }
 
             return isClustered;
+        }
+
+        public static string TableName([NotNull] this IEntityType entityType)
+        {
+            Check.NotNull(entityType, "entityType");
+
+            return entityType[Annotations.TableName] ?? entityType.Name;
+        }
+
+        public static string Schema([NotNull] this IEntityType entityType)
+        {
+            Check.NotNull(entityType, "entityType");
+
+            return entityType[Annotations.Schema];
+        }
+
+        public static string ColumnName([NotNull] this IPropertyBase property)
+        {
+            Check.NotNull(property, "property");
+
+            return property[Annotations.ColumnName] ?? property.Name;
+        }
+
+        public static string KeyName([NotNull] this IKey key)
+        {
+            Check.NotNull(key, "key");
+
+            return key[Annotations.KeyName];
+        }
+
+        public static string KeyName([NotNull] this IForeignKey foreignKey)
+        {
+            Check.NotNull(foreignKey, "foreignKey");
+
+            return foreignKey[Annotations.KeyName];
+        }
+
+        public static string IndexName([NotNull] this IIndex index)
+        {
+            Check.NotNull(index, "index");
+
+            return index[Annotations.IndexName];
+        }
+
+        public static void SetTableName([NotNull] this EntityType entityType, [NotNull] string tableName)
+        {
+            Check.NotNull(entityType, "entityType");
+            Check.NotEmpty(tableName, "tableName");
+
+            entityType[Annotations.TableName] = tableName;
+        }
+
+        public static void SetSchema([NotNull] this EntityType entityType, [NotNull] string schema)
+        {
+            Check.NotNull(entityType, "entityType");
+            Check.NotEmpty(schema, "schema");
+
+            entityType[Annotations.Schema] = schema;
+        }
+
+        public static void SetColumnName([NotNull] this Property property, [NotNull] string columnName)
+        {
+            Check.NotNull(property, "property");
+            Check.NotEmpty(columnName, "columnName");
+
+            property[Annotations.ColumnName] = columnName;
+        }
+
+        public static void SetKeyName([NotNull] this Key key, [NotNull] string keyName)
+        {
+            Check.NotNull(key, "key");
+            Check.NotEmpty(keyName, "keyName");
+
+            key[Annotations.KeyName] = keyName;
+        }
+
+        public static void SetIndexName([NotNull] this Index index, [NotNull] string indexName)
+        {
+            Check.NotNull(index, "index");
+            Check.NotEmpty(indexName, "indexName");
+
+            index[Annotations.IndexName] = indexName;
+        }
+
+        public static ModelBuilder.EntityBuilderBase<TMetadataBuilder> TableName<TMetadataBuilder>(
+            [NotNull] this ModelBuilder.EntityBuilderBase<TMetadataBuilder> builder,
+            [NotNull] string tableName)
+            where TMetadataBuilder : Microsoft.Data.Entity.Metadata.ModelBuilder.MetadataBuilder<EntityType, TMetadataBuilder>
+        {
+            Check.NotNull(builder, "builder");
+            Check.NotEmpty(tableName, "tableName");
+
+            builder.Annotation(Annotations.TableName, tableName);
+
+            return builder;
+        }
+
+        public static ModelBuilder.EntityBuilderBase<TMetadataBuilder> TableName<TMetadataBuilder>(
+            [NotNull] this ModelBuilder.EntityBuilderBase<TMetadataBuilder> builder,
+            [NotNull] string tableName,
+            [NotNull] string schema)
+            where TMetadataBuilder : Microsoft.Data.Entity.Metadata.ModelBuilder.MetadataBuilder<EntityType, TMetadataBuilder>
+        {
+            Check.NotNull(builder, "builder");
+            Check.NotEmpty(tableName, "tableName");
+            Check.NotNull(schema, "schema");
+
+            builder.Annotation(Annotations.TableName, tableName);
+            builder.Annotation(Annotations.Schema, schema);
+
+            return builder;
+        }
+
+        public static ModelBuilder.EntityBuilderBase<TMetadataBuilder>.ForeignKeysBuilder.ForeignKeyBuilder KeyName<TMetadataBuilder>(
+            [NotNull] this ModelBuilder.EntityBuilderBase<TMetadataBuilder>.ForeignKeysBuilder.ForeignKeyBuilder builder,
+            [NotNull] string keyName)
+            where TMetadataBuilder : Microsoft.Data.Entity.Metadata.ModelBuilder.MetadataBuilder<EntityType, TMetadataBuilder>
+        {
+            Check.NotNull(builder, "builder");
+            Check.NotEmpty(keyName, "keyName");
+
+            builder.Annotation(Annotations.KeyName, keyName);
+
+            return builder;
+        }
+
+        public static ModelBuilder.EntityBuilderBase<TMetadataBuilder>.IndexesBuilder.IndexBuilder IndexName<TMetadataBuilder>(
+            [NotNull] this ModelBuilder.EntityBuilderBase<TMetadataBuilder>.IndexesBuilder.IndexBuilder builder,
+            [NotNull] string indexName)
+            where TMetadataBuilder : Microsoft.Data.Entity.Metadata.ModelBuilder.MetadataBuilder<EntityType, TMetadataBuilder>
+        {
+            Check.NotNull(builder, "builder");
+            Check.NotEmpty(indexName, "indexName");
+
+            builder.Annotation(Annotations.IndexName, indexName);
+
+            return builder;
+        }
+
+        public static ModelBuilder.EntityBuilderBase<TMetadataBuilder>.KeyMetadataBuilder KeyName<TMetadataBuilder>(
+            [NotNull] this ModelBuilder.EntityBuilderBase<TMetadataBuilder>.KeyMetadataBuilder builder,
+            [NotNull] string keyName)
+            where TMetadataBuilder : Microsoft.Data.Entity.Metadata.ModelBuilder.MetadataBuilder<EntityType, TMetadataBuilder>
+        {
+            Check.NotNull(builder, "builder");
+            Check.NotEmpty(keyName, "keyName");
+
+            builder.Annotation(Annotations.KeyName, keyName);
+
+            return builder;
         }
     }
 }

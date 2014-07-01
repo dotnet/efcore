@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.Relational.Update
 
             _stateEntry = stateEntry;
             _property = property;
-            _columnName = property.StorageName;
+            _columnName = property.ColumnName();
             _parameterName = parameterName;
             _isRead = isRead;
             _isWrite = isWrite;

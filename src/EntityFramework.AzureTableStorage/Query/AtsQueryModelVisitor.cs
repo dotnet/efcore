@@ -143,7 +143,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
             where TResult : class, new()
         {
             var context = ((AtsQueryContext)queryContext);
-            var table = context.Connection.GetTableReference(entityType.StorageName);
+            var table = context.Connection.GetTableReference(entityType.TableName());
 
             return table.ExecuteQuery(tableQuery, s =>
                 (TResult)context.StateManager.GetOrMaterializeEntry(

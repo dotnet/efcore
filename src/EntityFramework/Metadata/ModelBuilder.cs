@@ -135,13 +135,6 @@ namespace Microsoft.Data.Entity.Metadata
             {
             }
 
-            public EntityBuilderBase<TMetadataBuilder> StorageName([NotNull] string storageName)
-            {
-                Metadata.StorageName = storageName;
-
-                return this;
-            }
-
             public EntityBuilderBase<TMetadataBuilder> Key([NotNull] params string[] propertyNames)
             {
                 Check.NotNull(propertyNames, "propertyNames");
@@ -232,13 +225,6 @@ namespace Microsoft.Data.Entity.Metadata
                     {
                     }
 
-                    public PropertyBuilder StorageName([NotNull] string storageName)
-                    {
-                        Metadata.StorageName = storageName;
-
-                        return this;
-                    }
-
                     // TODO Consider if this should be relational only
                     public PropertyBuilder UseStoreSequence()
                     {
@@ -313,13 +299,6 @@ namespace Microsoft.Data.Entity.Metadata
                     {
                     }
 
-                    public ForeignKeyBuilder StorageName([NotNull] string storageName)
-                    {
-                        ((ForeignKey)Metadata).StorageName = storageName;
-
-                        return this;
-                    }
-
                     public ForeignKeyBuilder IsUnique()
                     {
                         Metadata.IsUnique = true;
@@ -367,13 +346,6 @@ namespace Microsoft.Data.Entity.Metadata
                     internal IndexBuilder(Index index)
                         : base(index)
                     {
-                    }
-
-                    public IndexBuilder StorageName([NotNull] string storageName)
-                    {
-                        Metadata.StorageName = storageName;
-
-                        return this;
                     }
 
                     public IndexBuilder IsUnique()

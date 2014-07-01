@@ -148,8 +148,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
                     ps =>
                         {
                             ps.Property(e => e.Id);
-                            ps.Property(e => e.FkAAA).StorageName("ColumnAaa");
-                            ps.Property(e => e.FkZZZ).StorageName("ColumnZzz");
+                            ps.Property(e => e.FkAAA).ColumnName("ColumnAaa");
+                            ps.Property(e => e.FkZZZ).ColumnName("ColumnZzz");
                         })
                 .Key(e => e.Id)
                 .Indexes(
@@ -165,8 +165,13 @@ namespace Microsoft.Data.Entity.Relational.Tests
         {
             var model = new Metadata.Model { StorageName = "MyDatabase" };
 
-            var dependentEntityType = new EntityType("Dependent") { StorageName = "dbo.MyTable0" };
-            var principalEntityType = new EntityType("Principal") { StorageName = "dbo.MyTable1" };
+            var dependentEntityType = new EntityType("Dependent");
+            dependentEntityType.SetSchema("dbo");
+            dependentEntityType.SetTableName("MyTable0");
+
+            var principalEntityType = new EntityType("Principal");
+            principalEntityType.SetSchema("dbo");
+            principalEntityType.SetTableName("MyTable1");
 
             var dependentProperty = dependentEntityType.AddProperty("Id", typeof(int));
             var principalProperty = principalEntityType.AddProperty("Id", typeof(int));
@@ -182,16 +187,16 @@ namespace Microsoft.Data.Entity.Relational.Tests
 
             dependentEntityType.SetKey(dependentProperty);
             principalEntityType.SetKey(principalProperty);
-            dependentEntityType.GetKey().StorageName = "MyPK0";
-            principalEntityType.GetKey().StorageName = "MyPK1";
+            dependentEntityType.GetKey().SetKeyName("MyPK0");
+            principalEntityType.GetKey().SetKeyName("MyPK1");
 
             var foreignKey = dependentEntityType.AddForeignKey(principalEntityType.GetKey(), dependentProperty);
-            foreignKey.StorageName = "MyFK";
+            foreignKey.SetKeyName("MyFK");
             foreignKey.Annotations.Add(new Annotation(
                 MetadataExtensions.Annotations.CascadeDelete, "True"));
 
             var index = dependentEntityType.AddIndex(dependentProperty);
-            index.StorageName = "MyIndex";
+            index.SetIndexName("MyIndex");
             index.IsUnique = true;
 
             return model;
