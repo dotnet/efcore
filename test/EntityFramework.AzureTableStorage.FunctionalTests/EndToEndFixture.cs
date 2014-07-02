@@ -18,8 +18,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
         {
             TableName = "Table" + DateTime.UtcNow.ToBinary();
             _options = new DbContextOptions()
-               .UseModel(CreateModel())
-               .UseAzureTableStorage(TestConfig.Instance.ConnectionString);
+                .UseModel(CreateModel())
+                .UseAzureTableStorage(TestConfig.Instance.ConnectionString);
             ;
         }
 

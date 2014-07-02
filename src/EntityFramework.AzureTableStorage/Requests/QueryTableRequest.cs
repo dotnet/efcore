@@ -16,8 +16,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Requests
         private readonly AtsTable _table;
 
         public QueryTableRequest(
-            [NotNull] AtsTable table, 
-            [NotNull] AtsTableQuery query, 
+            [NotNull] AtsTable table,
+            [NotNull] AtsTableQuery query,
             [NotNull] Func<AtsNamedValueBuffer, TElement> resolver)
         {
             Check.NotNull(table, "table");
@@ -77,7 +77,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Requests
             {
                 return true;
             }
-            if (obj.GetType() != this.GetType())
+            if (obj.GetType() != GetType())
             {
                 return false;
             }

@@ -7,7 +7,6 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.AzureTableStorage.Adapters;
-using Microsoft.Data.Entity.AzureTableStorage.Interfaces;
 using Microsoft.Data.Entity.AzureTableStorage.Requests;
 using Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers;
 using Microsoft.Data.Entity.ChangeTracking;
@@ -43,7 +42,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
         [Fact]
         public void It_counts_results()
         {
-            var results = SetupResults<ITableResult>(new[] { TestTableResult.OK(), TestTableResult.OK() });
+            var results = SetupResults(new[] { TestTableResult.OK(), TestTableResult.OK() });
             var succeeded = InspectResults(results);
             Assert.Equal(2, succeeded);
         }
@@ -51,7 +50,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
         [Fact]
         public void It_throws_exception()
         {
-            var exceptedBatch = new TaskCompletionSource<ITableResult>();
+            var exceptedBatch = new TaskCompletionSource<TableResult>();
             exceptedBatch.SetException(new AggregateException());
             Assert.Throws<AggregateException>(() => InspectResults(new[] { exceptedBatch.Task }));
         }
@@ -59,7 +58,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
         [Fact]
         public void It_fails_bad_tasks()
         {
-            var results = SetupResults<ITableResult>(new[] { TestTableResult.OK(), TestTableResult.BadRequest(), TestTableResult.OK() });
+            var results = SetupResults(new[] { TestTableResult.OK(), TestTableResult.BadRequest(), TestTableResult.OK() });
             Assert.Throws<DbUpdateException>(() => InspectResults(results));
         }
 
@@ -72,7 +71,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
         public void It_maps_entity_state_to_table_operations(EntityState entityState, TableOperationType operationType)
         {
             var entry = TestStateEntry.Mock().WithState(entityState);
-            var request = CreateRequest(new AtsTable(), entry);
+            var request = CreateRequest(new AtsTable("Test"), entry);
 
             if (request == null)
             {
@@ -90,7 +89,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
         public void It_saves_changes()
         {
             _connection.Setup(s => s.ExecuteRequestAsync(
-                It.IsAny<AtsAsyncRequest<ITableResult>>(),
+                It.IsAny<AtsAsyncRequest<TableResult>>(),
                 It.IsAny<ILogger>(),
                 It.IsAny<CancellationToken>()))
                 .Returns(Task.Run(() => TestTableResult.OK()));

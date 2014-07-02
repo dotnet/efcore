@@ -15,16 +15,16 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
     {
         private readonly Mock<AtsConnection> _connection;
         private readonly AtsDataStoreCreator _creator;
-        private readonly Metadata.Model _model;
+        private readonly Model _model;
 
         public AtsDataStoreCreatorTests()
         {
             _connection = new Mock<AtsConnection>();
             _connection.Setup(
-               s => s.ExecuteRequest(
-                   It.IsAny<TableRequest<bool>>(),
-                   It.IsAny<ILogger>())
-               ).Returns(true);
+                s => s.ExecuteRequest(
+                    It.IsAny<TableRequest<bool>>(),
+                    It.IsAny<ILogger>())
+                ).Returns(true);
             _connection.Setup(
                 s => s.ExecuteRequestAsync(
                     It.IsAny<TableRequest<bool>>(),
@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
                 ).Returns(Task.FromResult(true));
 
             _creator = new AtsDataStoreCreator(_connection.Object);
-            _model = new Metadata.Model();
+            _model = new Model();
             var builder = new ModelBuilder(_model);
             builder.Entity("Test1");
             builder.Entity("Test2");

@@ -9,14 +9,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.AzureTableStorage.Adapters;
-using Microsoft.Data.Entity.AzureTableStorage.Interfaces;
 using Microsoft.Data.Entity.AzureTableStorage.Query;
 using Microsoft.Data.Entity.AzureTableStorage.Requests;
 using Microsoft.Data.Entity.AzureTableStorage.Utilities;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Framework.Logging;
+using Microsoft.WindowsAzure.Storage.Table;
 using Remotion.Linq;
 
 namespace Microsoft.Data.Entity.AzureTableStorage
@@ -87,10 +86,10 @@ namespace Microsoft.Data.Entity.AzureTableStorage
 
             cancellationToken.ThrowIfCancellationRequested();
             var tableGroups = stateEntries.GroupBy(s => s.EntityType);
-            var allTasks = new List<Task<ITableResult>>();
+            var allTasks = new List<Task<TableResult>>();
             foreach (var tableGroup in tableGroups)
             {
-                var table = new AtsTable{Name = tableGroup.Key.StorageName};
+                var table = new AtsTable(tableGroup.Key.StorageName);
                 var tasks = tableGroup.Select(entry => CreateRequest(table, entry))
                     .TakeWhile(operation => !cancellationToken.IsCancellationRequested)
                     .Select(request => Connection.ExecuteRequestAsync(request, Logger, cancellationToken));
@@ -105,11 +104,11 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             return InspectResults(allTasks);
         }
 
-        protected int InspectResults(IList<Task<ITableResult>> tasks)
+        protected int InspectResults(IList<Task<TableResult>> tasks)
         {
             return CountTableResults(tasks, task =>
                 {
-                    if (task.Result.HttpStatusCode >= HttpStatusCode.BadRequest)
+                    if (task.Result.HttpStatusCode >= (int)HttpStatusCode.BadRequest)
                     {
                         throw new DbUpdateException("Could not add entity: " + task.Result);
                     }
@@ -122,11 +121,11 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         {
             cancellationToken.ThrowIfCancellationRequested();
             var tableGroups = stateEntries.GroupBy(s => s.EntityType.StorageName);
-            var allBatchTasks = new List<Task<IList<ITableResult>>>();
+            var allBatchTasks = new List<Task<IList<TableResult>>>();
 
             foreach (var tableGroup in tableGroups)
             {
-                var table = new AtsTable{Name = tableGroup.Key};
+                var table = new AtsTable(tableGroup.Key);
                 var partitionGroups = tableGroup.GroupBy(s =>
                     {
                         var property = s.EntityType.GetPropertyByStorageName("PartitionKey");
@@ -145,7 +144,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
                         request.Add(operation);
                         if (request.Count >= MaxBatchOperations)
                         {
-                            allBatchTasks.Add(Connection.ExecuteRequestAsync(request, Logger,cancellationToken));
+                            allBatchTasks.Add(Connection.ExecuteRequestAsync(request, Logger, cancellationToken));
                             request = new TableBatchRequest(table);
                         }
                     }
@@ -159,12 +158,12 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             return InspectBatchResults(allBatchTasks);
         }
 
-        protected int InspectBatchResults(IList<Task<IList<ITableResult>>> arg)
+        protected int InspectBatchResults(IList<Task<IList<TableResult>>> arg)
         {
             return CountTableResults(arg, task =>
                 {
-                    var failedResult = task.Result.FirstOrDefault(result => result.HttpStatusCode >= HttpStatusCode.BadRequest);
-                    if (failedResult != default(ITableResult))
+                    var failedResult = task.Result.FirstOrDefault(result => result.HttpStatusCode >= (int)HttpStatusCode.BadRequest);
+                    if (failedResult != default(TableResult))
                     {
                         throw new DbUpdateException("Could not add entity: " + failedResult.Result);
                     }

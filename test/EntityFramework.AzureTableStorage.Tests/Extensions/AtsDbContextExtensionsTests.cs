@@ -49,17 +49,16 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Extensions
         }
 
         [Theory]
-        [InlineData("","key","accountName")]
-        [InlineData("name","","accountKey")]
+        [InlineData("", "key", "accountName")]
+        [InlineData("name", "", "accountKey")]
         public void It_disallows_empty_account_creds(string name, string key, string paramName)
         {
             var options = new DbContextOptions();
 
             Assert.Equal(
                 Strings.FormatArgumentIsEmpty(paramName),
-                Assert.Throws<ArgumentException>(() => AtsDbContextExtensions.UseAzureTableStorage(options, name,key)).Message
+                Assert.Throws<ArgumentException>(() => AtsDbContextExtensions.UseAzureTableStorage(options, name, key)).Message
                 );
- 
         }
 
         [Fact]

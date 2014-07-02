@@ -7,7 +7,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Query
@@ -24,7 +23,6 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
             _operator = FilterComparison.ToString(op);
             _storageName = storageName;
         }
-
 
         private string CreateQueryStringFromObject(object obj)
         {
@@ -125,7 +123,6 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
             }
         }
 
-
         protected static Func<string, string, object, string> StringMethodFromType(Type type)
         {
             if (type.IsAssignableFrom(typeof(string)))
@@ -168,6 +165,5 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
             }
             throw new ArgumentOutOfRangeException("type", "Cannot generate filter method for this type");
         }
-
     }
 }

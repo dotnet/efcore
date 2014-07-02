@@ -24,6 +24,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Adapters
         }
 
         private readonly ThreadSafeDictionaryCache<Type, Func<StateEntry, ITableEntity>> _instanceCreatorCache = new ThreadSafeDictionaryCache<Type, Func<StateEntry, ITableEntity>>();
+
         private Func<StateEntry, ITableEntity> GetOrMakeCreator(Type objType)
         {
             return _instanceCreatorCache.GetOrAdd(objType, type =>

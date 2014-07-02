@@ -2,12 +2,20 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.AzureTableStorage.Utilities;
 
 namespace Microsoft.Data.Entity.AzureTableStorage
 {
     public class AtsTable
     {
-        public virtual string Name { get; [param: NotNull] set; }
+        public AtsTable([NotNull] string name)
+        {
+            Check.NotEmpty(name, "name");
+
+            Name = name;
+        }
+
+        public virtual string Name { get; private set; }
 
         protected bool Equals(AtsTable other)
         {
@@ -24,7 +32,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             {
                 return true;
             }
-            if (obj.GetType() != this.GetType())
+            if (obj.GetType() != GetType())
             {
                 return false;
             }

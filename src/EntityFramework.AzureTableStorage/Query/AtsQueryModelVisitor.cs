@@ -4,14 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Net.Configuration;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.AzureTableStorage.Requests;
 using Microsoft.Data.Entity.AzureTableStorage.Utilities;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
-using Microsoft.WindowsAzure.Storage.Table;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Parsing;
@@ -31,7 +29,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
 
         private AtsQueryModelVisitor(AtsQueryModelVisitor visitor)
             : this(visitor._queryCompilationContext)
-        {}
+        {
+        }
 
         [NotNull]
         public virtual AtsTableQuery GetTableQuery([NotNull] IQuerySource key)
@@ -115,7 +114,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
 
             protected override Expression VisitBinaryExpression(BinaryExpression expression)
             {
-                var filter = _parent._queryCompilationContext.TableFilterFactory.TryCreate(expression,_entityType);
+                var filter = _parent._queryCompilationContext.TableFilterFactory.TryCreate(expression, _entityType);
                 AtsTableQuery query;
                 if (filter != null
                     && _parent._queriesBySource.TryGetValue(_querySource, out query))
@@ -140,13 +139,12 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
         private static readonly MethodInfo _entityScanMethodInfo
             = typeof(AtsQueryModelVisitor).GetTypeInfo().GetDeclaredMethod("EntityScan");
 
-
         [UsedImplicitly]
         private static IEnumerable<TResult> EntityScan<TResult>(QueryContext queryContext, AtsTableQuery tableQuery, IEntityType entityType)
             where TResult : class, new()
         {
             var context = ((AtsQueryContext)queryContext);
-            var table = new AtsTable{Name = entityType.StorageName};
+            var table = new AtsTable(entityType.StorageName);
             var request = new QueryTableRequest<TResult>(
                 table,
                 tableQuery, s =>

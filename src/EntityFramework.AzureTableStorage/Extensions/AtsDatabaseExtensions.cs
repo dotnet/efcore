@@ -8,6 +8,7 @@ using Microsoft.Data.Entity.AzureTableStorage.Utilities;
 using Microsoft.Data.Entity.Infrastructure;
 
 // ReSharper disable once CheckNamespace
+
 namespace Microsoft.Data.Entity
 {
     public static class AtsDatabaseExtensions
@@ -21,6 +22,6 @@ namespace Microsoft.Data.Entity
                 throw new InvalidOperationException(Strings.AtsDatabaseNotInUse);
             }
             return atsdb;
-        } 
+        }
     }
 }

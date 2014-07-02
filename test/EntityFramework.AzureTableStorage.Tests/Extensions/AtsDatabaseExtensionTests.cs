@@ -10,7 +10,6 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Extensions
 {
     public class AtsDatabaseExtensionTests
     {
-
         [Fact]
         public void Returns_typed_database_object()
         {
@@ -29,6 +28,6 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Extensions
             Assert.Equal(
                 Strings.AtsDatabaseNotInUse,
                 Assert.Throws<InvalidOperationException>(() => database.AsAzureTableStorageDatabase()).Message);
-        } 
+        }
     }
 }

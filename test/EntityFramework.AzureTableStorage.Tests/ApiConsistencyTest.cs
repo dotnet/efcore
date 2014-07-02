@@ -6,7 +6,7 @@ using Microsoft.Data.Entity.Tests;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Tests
 {
-    public class ApiConsistencyTest :ApiConsistencyTestBase
+    public class ApiConsistencyTest : ApiConsistencyTestBase
     {
         protected override Assembly TargetAssembly
         {

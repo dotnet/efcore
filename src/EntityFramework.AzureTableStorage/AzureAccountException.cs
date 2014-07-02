@@ -6,6 +6,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.AzureTableStorage.Utilities;
 
 // ReSharper disable once CheckNamespace
+
 namespace Microsoft.Data.Entity.AzureTableStorage
 {
     public class AzureAccountException : Exception

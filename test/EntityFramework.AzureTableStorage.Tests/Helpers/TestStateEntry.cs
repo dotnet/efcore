@@ -13,12 +13,13 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers
     {
         private object _entity;
         private IEntityType _entityType;
-        private Dictionary<string,object> _propertyBag = new Dictionary<string, object>();
+        private readonly Dictionary<string, object> _propertyBag = new Dictionary<string, object>();
 
         private TestStateEntry()
         {
             _propertyBag["ETag"] = "*";
         }
+
         public override object Entity
         {
             get { return _entity; }
@@ -44,14 +45,14 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers
         public override object this[IPropertyBase property]
         {
             get { return ReadPropertyValue(property); }
-            set { WritePropertyValue(property,value); }
+            set { WritePropertyValue(property, value); }
         }
 
         public static TestStateEntry Mock()
         {
             var entry = new TestStateEntry
                 {
-                    _entity = new TableEntity { ETag = "*"}
+                    _entity = new TableEntity { ETag = "*" }
                 }
                 .WithType(typeof(TableEntity));
 

@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
     public class TableEntityAdapterFactoryTests
     {
         private EntityType _entityType;
-        private TableEntityAdapterFactory _factory;
+        private readonly TableEntityAdapterFactory _factory;
 
         public TableEntityAdapterFactoryTests()
         {
@@ -22,6 +22,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
             _entityType.AddProperty("RowKey", typeof(string));
             _entityType.AddProperty("Timestamp", typeof(DateTime));
         }
+
         [Fact]
         public void It_creates_state_entry_adapter()
         {

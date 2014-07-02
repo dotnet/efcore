@@ -25,9 +25,12 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         private bool _batching;
 
         /// <summary>
-        /// For testing. Improper usage may lead to NullReference exceptions
+        ///     For testing. Improper usage may lead to NullReference exceptions
         /// </summary>
-        internal AtsConnection() { }
+        internal AtsConnection()
+        {
+        }
+
         public AtsConnection([NotNull] DbContextConfiguration configuration)
         {
             Check.NotNull(configuration, "configuration");
@@ -59,13 +62,15 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         public virtual TResult ExecuteRequest<TResult>([NotNull] AtsRequest<TResult> request, [CanBeNull] ILogger logger = null)
         {
             Check.NotNull(request, "request");
+
             var requestContext = SetupRequestContext(request, logger);
             return request.Execute(requestContext);
         }
-   
+
         public virtual Task<TResult> ExecuteRequestAsync<TResult>([NotNull] AtsAsyncRequest<TResult> request, [CanBeNull] ILogger logger = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(request, "request");
+
             var requestContext = SetupRequestContext(request, logger);
             return request.ExecuteAsync(requestContext, cancellationToken);
         }

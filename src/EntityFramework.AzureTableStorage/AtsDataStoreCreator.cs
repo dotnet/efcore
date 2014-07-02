@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             var deleted = false;
             foreach (var type in model.EntityTypes)
             {
-                var request = new DeleteTableRequest(new AtsTable { Name = type.StorageName });
+                var request = new DeleteTableRequest(new AtsTable(type.StorageName));
                 deleted |= _connection.ExecuteRequest(request);
             }
             return deleted;
@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         {
             Check.NotNull(model, "model");
             var tasks = model.EntityTypes
-                .Select(type => new DeleteTableRequest(new AtsTable { Name = type.StorageName }))
+                .Select(type => new DeleteTableRequest(new AtsTable(type.StorageName)))
                 .Select(request => _connection.ExecuteRequestAsync(request, cancellationToken: cancellationToken))
                 .ToList();
             await Task.WhenAll(tasks);
@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             var created = false;
             foreach (var type in model.EntityTypes)
             {
-                var request = new CreateTableRequest(new AtsTable { Name = type.StorageName });
+                var request = new CreateTableRequest(new AtsTable(type.StorageName));
                 created |= _connection.ExecuteRequest(request);
             }
             return created;
@@ -62,7 +62,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         {
             Check.NotNull(model, "model");
             var tasks = model.EntityTypes
-                .Select(type => new CreateTableRequest(new AtsTable { Name = type.StorageName }))
+                .Select(type => new CreateTableRequest(new AtsTable(type.StorageName)))
                 .Select(request => _connection.ExecuteRequestAsync(request, cancellationToken: cancellationToken))
                 .ToList();
             await Task.WhenAll(tasks);

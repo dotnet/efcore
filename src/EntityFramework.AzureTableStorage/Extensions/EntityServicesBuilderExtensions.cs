@@ -10,6 +10,7 @@ using Microsoft.Data.Entity.AzureTableStorage.Utilities;
 using Microsoft.Data.Entity.Storage;
 
 // ReSharper disable once CheckNamespace
+
 namespace Microsoft.Framework.DependencyInjection
 {
     public static class EntityServicesBuilderExtensions

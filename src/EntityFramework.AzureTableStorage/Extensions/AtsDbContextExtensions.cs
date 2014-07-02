@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity
             Check.NotEmpty(accountName, "accountName");
             Check.NotEmpty(accountKey, "accountKey");
 
-            var connectionString = string.Format("DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1};",  accountName, accountKey);
+            var connectionString = string.Format("DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1};", accountName, accountKey);
             options.UseAzureTableStorage(connectionString, batchRequests);
             return options;
         }

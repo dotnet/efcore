@@ -10,17 +10,17 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
 {
     public class AtsDataStoreSourceTests
     {
-        private AtsDataStoreSource _source = new AtsDataStoreSource();
+        private readonly AtsDataStoreSource _source = new AtsDataStoreSource();
 
         [Fact]
         public void Available_when_configured()
         {
             var config = new DbContextConfiguration();
             config.Initialize(
-                Mock.Of<IServiceProvider>(), 
-                Mock.Of<IServiceProvider>(), 
-                new DbContextOptions(), 
-                Mock.Of<DbContext>(), 
+                Mock.Of<IServiceProvider>(),
+                Mock.Of<IServiceProvider>(),
+                new DbContextOptions(),
+                Mock.Of<DbContext>(),
                 DbContextConfiguration.ServiceProviderSource.Implicit)
                 ;
 

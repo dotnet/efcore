@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
     public class NorthwindQueryFixture : NorthwindQueryFixtureBase
     {
         private readonly DbContextOptions _options;
-        private IServiceProvider _serviceProvider;
+        private readonly IServiceProvider _serviceProvider;
 
         public IModel CreateAzureTableStorageModel()
         {
@@ -91,7 +91,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
 
         public DbContext CreateContext()
         {
-            return new DbContext(_serviceProvider,_options);
+            return new DbContext(_serviceProvider, _options);
         }
     }
 }

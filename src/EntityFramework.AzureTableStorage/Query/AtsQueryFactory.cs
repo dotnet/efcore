@@ -27,9 +27,9 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
             return new AtsQueryCompilationContext(model, _tableFilterFactory);
         }
 
-        public virtual AtsQueryContext MakeQueryContext([NotNull] IModel model, 
-            [NotNull] ILogger logger, 
-            [NotNull] StateManager stateManager, 
+        public virtual AtsQueryContext MakeQueryContext([NotNull] IModel model,
+            [NotNull] ILogger logger,
+            [NotNull] StateManager stateManager,
             [NotNull] AtsConnection connection)
         {
             return new AtsQueryContext(model, logger, stateManager, connection, _valueReaderFactory);

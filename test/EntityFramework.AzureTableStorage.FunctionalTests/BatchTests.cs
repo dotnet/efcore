@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
     public class BatchTests : IClassFixture<EndToEndFixture>
     {
         private readonly string _testPartition;
-        private DbContext _context;
+        private readonly DbContext _context;
 
         public BatchTests(EndToEndFixture fixture)
         {
@@ -18,7 +18,6 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
             fixture.UseTableNamePrefixAndLock("Batch");
             _context = fixture.CreateContext();
             _context.Configuration.Connection.UseBatching(true);
-
         }
 
         [Theory]

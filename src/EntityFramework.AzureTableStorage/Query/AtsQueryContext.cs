@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
         public virtual IEnumerable<TResult> GetOrAddQueryResults<TResult>([NotNull] QueryTableRequest<TResult> request)
         {
             Check.NotNull(request, "request");
-            return _requestCache.GetOrAdd(new QueryKey(request.Table,request.Query), 
+            return _requestCache.GetOrAdd(new QueryKey(request.Table, request.Query),
                 q => Connection
                     .ExecuteRequest(request, Logger)
                     .ToList() // prevent multiple execution

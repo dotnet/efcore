@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
 using Microsoft.Data.Entity.AzureTableStorage.Adapters;
 using Microsoft.Data.Entity.AzureTableStorage.Query;
 using Microsoft.Data.Entity.ChangeTracking;
@@ -59,7 +58,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
             var model = new Model();
             var builder = new ModelBuilder(model);
             builder.Entity<ClrPoco>()
-                .PartitionAndRowKey(s => s.PartitionKey,s => s.RowKey)
+                .PartitionAndRowKey(s => s.PartitionKey, s => s.RowKey)
                 .Timestamp(s => s.Timestamp)
                 ;
             builder.Entity("ShadowEntity").Properties(pb =>
@@ -72,7 +71,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
                 .PartitionAndRowKey(s => s.PartitionGuid, s => s.RowGuid)
                 .Timestamp("Timestamp", true);
             builder.Entity<IntKeysPoco>()
-                .PartitionAndRowKey(s => s.PartitionID,s => s.RowID);
+                .PartitionAndRowKey(s => s.PartitionID, s => s.RowID);
             builder.Entity<ClrPocoWithProp>()
                 .Properties(pb =>
                     {

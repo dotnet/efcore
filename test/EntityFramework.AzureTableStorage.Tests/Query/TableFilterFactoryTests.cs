@@ -12,8 +12,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
 {
     public class TableFilterFactoryTests
     {
-        private TableFilterFactory _factory;
-        private EntityType _entityType;
+        private readonly TableFilterFactory _factory;
+        private readonly EntityType _entityType;
 
         public TableFilterFactoryTests()
         {

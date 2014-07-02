@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
         public void It_always_uses_string_comparison_for_row_key()
         {
             var filter = new TableFilter.ConstantTableFilter("RowKey", FilterComparisonOperator.Equal, Expression.Constant(123456));
-            Assert.Equal("RowKey eq '123456'",filter.ToString());
+            Assert.Equal("RowKey eq '123456'", filter.ToString());
         }
 
         [Fact]
