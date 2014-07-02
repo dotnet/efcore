@@ -31,10 +31,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var property1 = entityType.AddProperty(Customer.IdProperty);
             var property2 = entityType.AddProperty(Customer.NameProperty);
 
-            var index = new Index(new[] { property1, property2 }) { StorageName = "MyIndex" };
+            var index = new Index(new[] { property1, property2 });
 
             Assert.True(new[] { property1, property2 }.SequenceEqual(index.Properties));
-            Assert.Equal("MyIndex", index.StorageName);
             Assert.False(index.IsUnique);
         }
 
@@ -45,10 +44,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var property1 = entityType.AddProperty(Customer.IdProperty);
             var property2 = entityType.AddProperty(Customer.NameProperty);
 
-            var index = new Index(new[] { property1, property2 }) { IsUnique = true, StorageName = "MyIndex" };
+            var index = new Index(new[] { property1, property2 }) { IsUnique = true, };
 
             Assert.True(new[] { property1, property2 }.SequenceEqual(index.Properties));
-            Assert.Equal("MyIndex", index.StorageName);
             Assert.True(index.IsUnique);
         }
 

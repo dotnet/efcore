@@ -10,7 +10,6 @@ namespace Microsoft.Data.Entity.Metadata
     public abstract class NamedMetadataBase : MetadataBase
     {
         private readonly string _name;
-        private string _storageName;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -31,12 +30,6 @@ namespace Microsoft.Data.Entity.Metadata
         public virtual string Name
         {
             get { return _name; }
-        }
-
-        public virtual string StorageName
-        {
-            get { return _storageName ?? Name; }
-            [param: CanBeNull] set { _storageName = value; }
         }
     }
 }

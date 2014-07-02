@@ -14,11 +14,12 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
     public class TableExpression : ExtensionExpression
     {
         private readonly string _table;
+        private readonly string _schema;
         private readonly string _alias;
 
         private readonly IQuerySource _querySource;
 
-        public TableExpression([NotNull] string table, [NotNull] string alias, [NotNull] IQuerySource querySource)
+        public TableExpression([NotNull] string table, [CanBeNull] string schema, [NotNull] string alias, [NotNull] IQuerySource querySource)
             : base(typeof(object))
         {
             Check.NotEmpty(table, "table");
@@ -26,6 +27,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             Check.NotNull(querySource, "querySource");
 
             _table = table;
+            _schema = schema;
             _alias = alias;
             _querySource = querySource;
         }
@@ -33,6 +35,11 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
         public virtual string Table
         {
             get { return _table; }
+        }
+
+        public virtual string Schema
+        {
+            get { return _schema; }
         }
 
         public virtual string Alias

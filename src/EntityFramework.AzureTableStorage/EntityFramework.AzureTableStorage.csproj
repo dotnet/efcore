@@ -67,6 +67,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.tt</DependentUpon>
     </Compile>
+    <Compile Include="ApiExtensions.cs" />
     <Compile Include="AtsDatabase.cs" />
     <Compile Include="AtsConnection.cs" />
     <Compile Include="AtsDataStore.cs" />
@@ -79,7 +80,6 @@
     <Compile Include="Extensions\AtsDatabaseExtensions.cs" />
     <Compile Include="Extensions\AtsDbContextExtensions.cs" />
     <Compile Include="Extensions\DataStoreConnectionExtensions.cs" />
-    <Compile Include="Extensions\EntityBuilderExtensions.cs" />
     <Compile Include="Extensions\EntityServicesBuilderExtensions.cs" />
     <Compile Include="Interfaces\ITableResult.cs" />
     <Compile Include="Adapters\ITableEntityAdapter.cs" />

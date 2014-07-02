@@ -74,7 +74,7 @@ namespace Microsoft.Data.Entity.Relational.Update
         {
             var parameterNameGenerator = _parameterNameGeneratorFactory.Create();
             // TODO: Handle multiple state entries that update the same row
-            return stateEntries.Select(e => new ModificationCommand(e.EntityType.StorageName, parameterNameGenerator).AddStateEntry(e));
+            return stateEntries.Select(e => new ModificationCommand(e.EntityType.TableName(), e.EntityType.Schema(), parameterNameGenerator).AddStateEntry(e));
         }
 
         // To avoid violating store constraints the modification commands must be sorted

@@ -1,13 +1,15 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-using System.Threading.Tasks;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Tests;
 using Microsoft.Data.FunctionalTests;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
+using Northwind;
+using System;
+using System.Threading.Tasks;
 using Xunit;
 
 #if K10
@@ -750,8 +752,19 @@ WHERE c.[ContactName] LIKE '%' + @p0",
 
             _options
                 = new DbContextOptions()
-                    .UseModel(CreateModel())
+                    .UseModel(SetTableNames(CreateModel()))
                     .UseSqlServer(_testDatabase.Connection.ConnectionString);
+        }
+
+        public Model SetTableNames(Model model)
+        {
+            model.GetEntityType(typeof(Customer)).SetTableName("Customers");
+            model.GetEntityType(typeof(Employee)).SetTableName("Employees");
+            model.GetEntityType(typeof(Product)).SetTableName("Products");
+            model.GetEntityType(typeof(Order)).SetTableName("Orders");
+            model.GetEntityType(typeof(OrderDetail)).SetTableName("OrderDetails");
+
+            return model;
         }
 
         public string Sql
