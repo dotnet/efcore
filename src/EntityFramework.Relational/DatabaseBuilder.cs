@@ -73,7 +73,7 @@ namespace Microsoft.Data.Entity.Relational
         {
             Check.NotNull(primaryKey, "primaryKey");
 
-            return primaryKey.KeyName() ?? string.Format("PK_{0}", GetTableQualifiedName(primaryKey.EntityType));
+            return primaryKey.KeyName() ?? string.Format("PK_{0}", GetFullTableName(primaryKey.EntityType));
         }
 
         private static string ForeignKeyName([NotNull] IForeignKey foreignKey)
@@ -82,8 +82,8 @@ namespace Microsoft.Data.Entity.Relational
 
             return foreignKey.KeyName() ?? string.Format(
                 "FK_{0}_{1}_{2}",
-                GetTableQualifiedName(foreignKey.EntityType),
-                GetTableQualifiedName(foreignKey.ReferencedEntityType),
+                GetFullTableName(foreignKey.EntityType),
+                GetFullTableName(foreignKey.ReferencedEntityType),
                 string.Join("_", foreignKey.Properties.OrderBy(p => p.Name, StringComparer.OrdinalIgnoreCase).Select(p => p.ColumnName())));
         }
 
@@ -93,20 +93,25 @@ namespace Microsoft.Data.Entity.Relational
 
             return index.IndexName() ?? string.Format(
                 "IX_{0}_{1}",
-                GetTableQualifiedName(index.EntityType),
+                GetFullTableName(index.EntityType),
                 string.Join("_", index.Properties.OrderBy(p => p.Name, StringComparer.OrdinalIgnoreCase).Select(p => p.ColumnName())));
         }
 
-        private static string GetTableQualifiedName(IEntityType entityType)
+        private static string GetFullTableName(IEntityType entityType)
         {
             var schema = entityType.Schema();
             var tableName = entityType.TableName();
             return !string.IsNullOrEmpty(schema) ? schema + "." + tableName : tableName;
         }
 
+        private static SchemaQualifiedName GetSchemaQualifiedName(IEntityType entityType)
+        {
+            return new SchemaQualifiedName(entityType.TableName(), entityType.Schema());
+        }
+
         private static Table BuildTable(DatabaseModel database, IEntityType entityType)
         {
-            var table = new Table(new SchemaQualifiedName(entityType.TableName(), entityType.Schema()));
+            var table = new Table(GetSchemaQualifiedName(entityType));
 
             database.AddTable(table);
 
@@ -134,7 +139,7 @@ namespace Microsoft.Data.Entity.Relational
         {
             Check.NotNull(primaryKey, "primaryKey");
 
-            var table = database.GetTable(new SchemaQualifiedName(primaryKey.EntityType.TableName(), primaryKey.EntityType.Schema()));
+            var table = database.GetTable(GetSchemaQualifiedName(primaryKey.EntityType));
             var columns = primaryKey.Properties.Select(
                 p => table.GetColumn(p.ColumnName())).ToArray();
             var isClustered = primaryKey.IsClustered();
@@ -148,8 +153,8 @@ namespace Microsoft.Data.Entity.Relational
         {
             Check.NotNull(foreignKey, "foreignKey");
 
-            var table = database.GetTable(new SchemaQualifiedName(foreignKey.EntityType.TableName(), foreignKey.EntityType.Schema()));
-            var referencedTable = database.GetTable(new SchemaQualifiedName(foreignKey.ReferencedEntityType.TableName(), foreignKey.ReferencedEntityType.Schema()));
+            var table = database.GetTable(GetSchemaQualifiedName(foreignKey.EntityType));
+            var referencedTable = database.GetTable(GetSchemaQualifiedName(foreignKey.ReferencedEntityType));
             var columns = foreignKey.Properties.Select(
                 p => table.GetColumn(p.ColumnName())).ToArray();
             var referenceColumns = foreignKey.ReferencedProperties.Select(
@@ -168,7 +173,7 @@ namespace Microsoft.Data.Entity.Relational
         {
             Check.NotNull(index, "index");
 
-            var table = database.GetTable(new SchemaQualifiedName(index.EntityType.TableName(), index.EntityType.Schema()));
+            var table = database.GetTable(GetSchemaQualifiedName(index.EntityType));
             var columns = index.Properties.Select(
                 p => table.GetColumn(p.ColumnName())).ToArray();
 

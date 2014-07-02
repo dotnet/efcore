@@ -146,7 +146,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
             where TResult : class, new()
         {
             var context = ((AtsQueryContext)queryContext);
-            var table = new AtsTable{Name = entityType.StorageName};
+            var table = new AtsTable { Name = entityType.TableName() };
             var request = new QueryTableRequest<TResult>(
                 table,
                 tableQuery, s =>
