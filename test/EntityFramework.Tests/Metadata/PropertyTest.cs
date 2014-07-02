@@ -37,25 +37,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
-        public void Storage_name_defaults_to_name()
-        {
-            var property = new Property("Name", typeof(string));
-
-            Assert.Equal("Name", property.StorageName);
-        }
-
-        [Fact]
-        public void Storage_name_can_be_different_from_name()
-        {
-            var property = new Property("Name", typeof(string))
-                {
-                    StorageName = "CustomerName"
-                };
-
-            Assert.Equal("CustomerName", property.StorageName);
-        }
-
-        [Fact]
         public void Can_create_property_from_property_info()
         {
             var property = new Property("Name", typeof(string));

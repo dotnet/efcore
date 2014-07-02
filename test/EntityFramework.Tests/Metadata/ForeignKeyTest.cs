@@ -21,14 +21,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 = new ForeignKey(entityType.GetKey(), new[] { dependentProp })
                     {
                         IsUnique = true,
-                        StorageName = "FK_Foo"
                     };
 
             Assert.Same(entityType, foreignKey.ReferencedEntityType);
             Assert.Same(principalProp, foreignKey.ReferencedProperties.Single());
             Assert.Same(dependentProp, foreignKey.Properties.Single());
             Assert.True(foreignKey.IsUnique);
-            Assert.Equal("FK_Foo", foreignKey.StorageName);
         }
 
         [Fact]
@@ -44,14 +42,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 = new ForeignKey(new Key(new[] { principalProp }), new[] { dependentProp })
                     {
                         IsUnique = true,
-                        StorageName = "FK_Foo"
                     };
 
             Assert.Same(entityType, foreignKey.ReferencedEntityType);
             Assert.Same(principalProp, foreignKey.ReferencedProperties.Single());
             Assert.Same(dependentProp, foreignKey.Properties.Single());
             Assert.True(foreignKey.IsUnique);
-            Assert.Equal("FK_Foo", foreignKey.StorageName);
         }
 
         [Fact]

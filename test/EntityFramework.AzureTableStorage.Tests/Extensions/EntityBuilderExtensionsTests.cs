@@ -21,8 +21,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Extensions
 
             var key = model.EntityTypes.First().GetKey();
             Assert.Equal(2, key.Properties.Count);
-            Assert.Equal("BigCount", key.Properties.First(s => s.StorageName == "PartitionKey").Name);
-            Assert.Equal("IsEnchanted", key.Properties.First(s => s.StorageName == "RowKey").Name);
+            Assert.Equal("BigCount", key.Properties.First(s => s.ColumnName() == "PartitionKey").Name);
+            Assert.Equal("IsEnchanted", key.Properties.First(s => s.ColumnName() == "RowKey").Name);
         }
     }
 }

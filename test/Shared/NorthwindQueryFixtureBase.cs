@@ -28,8 +28,7 @@ namespace Microsoft.Data.FunctionalTests
                         ps.Property(c => c.Country);
                         ps.Property(c => c.Phone);
                         ps.Property(c => c.Fax);
-                    })
-                .StorageName("Customers");
+                    });
 
             modelBuilder
                 .Entity<Employee>()
@@ -38,14 +37,12 @@ namespace Microsoft.Data.FunctionalTests
                     {
                         ps.Property(c => c.City);
                         ps.Property(c => c.Country);
-                    })
-                .StorageName("Employees");
+                    });
 
             modelBuilder
                 .Entity<Product>()
                 .Key(e => e.ProductID)
-                .Properties(ps => ps.Property(c => c.ProductName))
-                .StorageName("Products");
+                .Properties(ps => ps.Property(c => c.ProductName));
 
             modelBuilder
                 .Entity<Order>()
@@ -54,8 +51,7 @@ namespace Microsoft.Data.FunctionalTests
                     {
                         ps.Property(c => c.CustomerID);
                         ps.Property(c => c.OrderDate);
-                    })
-                .StorageName("Orders");
+                    });
 
             modelBuilder
                 .Entity<OrderDetail>()
@@ -65,8 +61,7 @@ namespace Microsoft.Data.FunctionalTests
                         ps.Property(c => c.UnitPrice);
                         ps.Property(c => c.Quantity);
                         ps.Property(c => c.Discount);
-                    })
-                .StorageName("Order Details");
+                    });
 
             // TODO: Use FAPIS when avail.
             var productType = model.GetEntityType(typeof(Product));

@@ -109,7 +109,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 builder
                     .Entity<Customer>()
                     .Key(c => c.CustomerID)
-                    .StorageName("Customers");
+                    .ToTable("Customers");
             }
         }
 

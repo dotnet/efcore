@@ -76,6 +76,7 @@ return builder.Model;",
 builder.Entity(""Customer"")
     .Properties(ps => ps.Property<int>(""Id""))
     .Key(""Id"");
+
 return builder.Model;",
                 stringBuilder.ToString());
         }
@@ -96,6 +97,7 @@ return builder.Model;",
 builder.Entity(""Customer"")
     .Properties(ps => ps.Property<int>(""Id"", shadowProperty: true))
     .Key(""Id"");
+
 return builder.Model;",
                 stringBuilder.ToString());
         }
@@ -116,6 +118,7 @@ return builder.Model;",
 builder.Entity(""Customer"")
     .Properties(ps => ps.Property<int>(""Id"", concurrencyToken: true))
     .Key(""Id"");
+
 return builder.Model;",
                 stringBuilder.ToString());
         }
@@ -136,6 +139,7 @@ return builder.Model;",
 builder.Entity(""Customer"")
     .Properties(ps => ps.Property<int>(""Id"", shadowProperty: true, concurrencyToken: true))
     .Key(""Id"");
+
 return builder.Model;",
                 stringBuilder.ToString());
         }
@@ -160,6 +164,7 @@ builder.Entity(""Customer"")
         .Annotation(""A1"", ""V1"")
         .Annotation(""A2"", ""V2""))
     .Key(""Id"");
+
 return builder.Model;",
                 stringBuilder.ToString());
         }
@@ -190,6 +195,7 @@ builder.Entity(""Customer"")
                 ps.Property<string>(""Name"");
             })
     .Key(""Id"");
+
 return builder.Model;",
                 stringBuilder.ToString());
         }
@@ -228,6 +234,7 @@ builder.Entity(""Customer"")
                     .Annotation(""A2"", ""V2"");
             })
     .Key(""Id"");
+
 return builder.Model;",
                 stringBuilder.ToString());
         }
@@ -262,6 +269,7 @@ builder.Entity(""Customer"")
     .Key(k => k.Properties(""Id"", ""Name"")
         .Annotation(""A1"", ""V1"")
         .Annotation(""A2"", ""V2""));
+
 return builder.Model;",
                 stringBuilder.ToString());
         }
@@ -302,6 +310,7 @@ builder.Entity(""Customer"")
                 ps.Property<string>(""Name"");
             })
     .Key(""Id"");
+
 builder.Entity(""Order"")
     .Properties(
         ps =>
@@ -310,8 +319,10 @@ builder.Entity(""Order"")
                 ps.Property<int>(""Id"");
             })
     .Key(""Id"");
+
 builder.Entity(""Order"")
     .ForeignKeys(fks => fks.ForeignKey(""Customer"", ""CustomerId""));
+
 return builder.Model;",
                 stringBuilder.ToString());
         }
@@ -353,6 +364,7 @@ builder.Entity(""Customer"")
                 ps.Property<string>(""Name"");
             })
     .Key(""Id"", ""Name"");
+
 builder.Entity(""Order"")
     .Properties(
         ps =>
@@ -362,8 +374,10 @@ builder.Entity(""Order"")
                 ps.Property<int>(""Id"");
             })
     .Key(""Id"");
+
 builder.Entity(""Order"")
     .ForeignKeys(fks => fks.ForeignKey(""Customer"", ""CustomerId"", ""CustomerName""));
+
 return builder.Model;",
                 stringBuilder.ToString());
         }
@@ -406,6 +420,7 @@ builder.Entity(""Customer"")
                 ps.Property<string>(""Name"");
             })
     .Key(""Id"");
+
 builder.Entity(""Order"")
     .Properties(
         ps =>
@@ -414,10 +429,12 @@ builder.Entity(""Order"")
                 ps.Property<int>(""Id"");
             })
     .Key(""Id"");
+
 builder.Entity(""Order"")
     .ForeignKeys(fks => fks.ForeignKey(""Customer"", ""CustomerId"")
         .Annotation(""A1"", ""V1"")
         .Annotation(""A2"", ""V2""));
+
 return builder.Model;",
                 stringBuilder.ToString());
         }
@@ -468,6 +485,7 @@ builder.Entity(""Customer"")
                 ps.Property<string>(""Name"");
             })
     .Key(""Id"", ""Name"");
+
 builder.Entity(""Order"")
     .Properties(
         ps =>
@@ -478,9 +496,11 @@ builder.Entity(""Order"")
                 ps.Property<int>(""ProductId"");
             })
     .Key(""Id"");
+
 builder.Entity(""Product"")
     .Properties(ps => ps.Property<int>(""Id""))
     .Key(""Id"");
+
 builder.Entity(""Order"")
     .ForeignKeys(
         fks =>
@@ -488,6 +508,7 @@ builder.Entity(""Order"")
                 fks.ForeignKey(""Customer"", ""CustomerId"", ""CustomerName"");
                 fks.ForeignKey(""Product"", ""ProductId"");
             });
+
 return builder.Model;",
                 stringBuilder.ToString());
         }
@@ -542,6 +563,7 @@ builder.Entity(""Customer"")
                 ps.Property<string>(""Name"");
             })
     .Key(""Id"", ""Name"");
+
 builder.Entity(""Order"")
     .Properties(
         ps =>
@@ -552,9 +574,11 @@ builder.Entity(""Order"")
                 ps.Property<int>(""ProductId"");
             })
     .Key(""Id"");
+
 builder.Entity(""Product"")
     .Properties(ps => ps.Property<int>(""Id""))
     .Key(""Id"");
+
 builder.Entity(""Order"")
     .ForeignKeys(
         fks =>
@@ -566,6 +590,7 @@ builder.Entity(""Order"")
                     .Annotation(""A1"", ""V1"")
                     .Annotation(""A2"", ""V2"");
             });
+
 return builder.Model;",
                 stringBuilder.ToString());
         }
@@ -599,6 +624,7 @@ namespace MyNamespace
                 builder.Entity(""Entity"")
                     .Properties(ps => ps.Property<int>(""Id""))
                     .Key(""Id"");
+                
                 return builder.Model;
             }
         }
