@@ -24,7 +24,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
         private readonly StateEntryFactory _factory;
         private readonly StateEntrySubscriber _subscriber;
         private readonly DbContextConfiguration _configuration;
-        private readonly ChangeDetector _changeDetector;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -39,20 +38,17 @@ namespace Microsoft.Data.Entity.ChangeTracking
             [NotNull] DbContextConfiguration configuration,
             [NotNull] StateEntryFactory factory,
             [NotNull] EntityKeyFactorySource entityKeyFactorySource,
-            [NotNull] StateEntrySubscriber subscriber,
-            [NotNull] ChangeDetector changeDetector)
+            [NotNull] StateEntrySubscriber subscriber)
         {
             Check.NotNull(configuration, "configuration");
             Check.NotNull(factory, "factory");
             Check.NotNull(entityKeyFactorySource, "entityKeyFactorySource");
             Check.NotNull(subscriber, "subscriber");
-            Check.NotNull(changeDetector, "changeDetector");
 
             _configuration = configuration;
             _keyFactorySource = entityKeyFactorySource;
             _factory = factory;
             _subscriber = subscriber;
-            _changeDetector = changeDetector;
         }
 
         public virtual StateEntry CreateNewEntry([NotNull] IEntityType entityType)
@@ -89,8 +85,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
             var keyProperties = entityType.GetKey().Properties;
             var keyValue = _keyFactorySource.GetKeyFactory(keyProperties).Create(entityType, keyProperties, valueReader);
 
-            StateEntry existingEntry;
-            if (_identityMap.TryGetValue(keyValue, out existingEntry))
+            var existingEntry = TryGetEntry(keyValue);
+            if (existingEntry != null)
             {
                 return existingEntry;
             }
@@ -110,23 +106,18 @@ namespace Microsoft.Data.Entity.ChangeTracking
             return newEntry;
         }
 
+        public virtual StateEntry TryGetEntry([NotNull] EntityKey keyValue)
+        {
+            Check.NotNull(keyValue, "keyValue");
+
+            StateEntry entry;
+            _identityMap.TryGetValue(keyValue, out entry);
+            return entry;
+        }
+
         public virtual IEnumerable<StateEntry> StateEntries
         {
             get { return _identityMap.Values; }
-        }
-
-        public virtual bool DetectChanges()
-        {
-            var foundChanges = false;
-            foreach (var entry in _identityMap.Values)
-            {
-                if (_changeDetector.DetectChanges(entry))
-                {
-                    foundChanges = true;
-                }
-            }
-
-            return foundChanges;
         }
 
         public virtual StateEntry StartTracking([NotNull] StateEntry entry)
@@ -135,7 +126,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             var entityType = entry.EntityType;
 
-            if (entry.Configuration.Services.StateManager != this)
+            if (entry.Configuration.StateManager != this)
             {
                 throw new InvalidOperationException(Strings.FormatWrongStateManager(entityType.Name));
             }
@@ -153,7 +144,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 }
             }
 
-            var keyValue = entry.GetPrimaryKeyValue();
+            var keyValue = GetPrimaryKeyValueChecked(entry);
 
             if (_identityMap.TryGetValue(keyValue, out existingEntry))
             {
@@ -222,6 +213,46 @@ namespace Microsoft.Data.Entity.ChangeTracking
             return principals.FirstOrDefault();
         }
 
+        public virtual void UpdateIdentityMap([NotNull] StateEntry entry, [NotNull] EntityKey oldKey)
+        {
+            Check.NotNull(entry, "entry");
+            Check.NotNull(oldKey, "oldKey");
+
+            if (entry.EntityState == EntityState.Unknown)
+            {
+                return;
+            }
+
+            var newKey = GetPrimaryKeyValueChecked(entry);
+
+            if (oldKey.Equals(newKey))
+            {
+                return;
+            }
+
+            StateEntry existingEntry;
+            if (_identityMap.TryGetValue(newKey, out existingEntry)
+                && existingEntry != entry)
+            {
+                throw new InvalidOperationException(Strings.FormatIdentityConflict(entry.EntityType.Name));
+            }
+
+            _identityMap.Remove(oldKey);
+            _identityMap[newKey] = entry;
+        }
+
+        private EntityKey GetPrimaryKeyValueChecked(StateEntry entry)
+        {
+            var keyValue = entry.GetPrimaryKeyValue();
+
+            if (keyValue == EntityKey.NullEntityKey)
+            {
+                throw new InvalidOperationException(Strings.FormatNullPrimaryKey(entry.EntityType.Name));
+            }
+
+            return keyValue;
+        }
+
         public virtual IEnumerable<StateEntry> GetDependents([NotNull] StateEntry principalEntry, [NotNull] IForeignKey foreignKey)
         {
             Check.NotNull(principalEntry, "principalEntry");
@@ -230,9 +261,11 @@ namespace Microsoft.Data.Entity.ChangeTracking
             var principalKeyValue = principalEntry.GetPrincipalKeyValue(foreignKey);
 
             // TODO: Add additional indexes so that this isn't a linear lookup
-            return StateEntries.Where(
-                e => e.EntityType == foreignKey.EntityType
-                     && principalKeyValue.Equals(e.GetDependentKeyValue(foreignKey)));
+            return principalKeyValue == EntityKey.NullEntityKey
+                ? Enumerable.Empty<StateEntry>()
+                : StateEntries.Where(
+                    e => e.EntityType == foreignKey.EntityType
+                         && principalKeyValue.Equals(e.GetDependentKeyValue(foreignKey)));
         }
 
         public virtual async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
@@ -249,9 +282,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             try
             {
-                var result = await _configuration.DataStore
-                    .SaveChangesAsync(entriesToSave, cancellationToken)
-                    .ConfigureAwait(false);
+                var result = await SaveChangesAsync(entriesToSave, cancellationToken);
 
                 // TODO: When transactions supported, make it possible to commit/accept at end of all transactions
                 foreach (var entry in entriesToSave)
@@ -270,6 +301,17 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 }
                 throw;
             }
+        }
+
+        protected virtual async Task<int> SaveChangesAsync(
+            [NotNull] IReadOnlyList<StateEntry> entriesToSave, 
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Check.NotNull(entriesToSave, "entriesToSave");
+
+            return await _configuration.DataStore
+                .SaveChangesAsync(entriesToSave, cancellationToken)
+                .ConfigureAwait(false);
         }
     }
 }

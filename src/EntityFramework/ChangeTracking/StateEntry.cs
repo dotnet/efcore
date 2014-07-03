@@ -211,8 +211,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             _configuration.Services.StateEntryNotifier.StateChanging(this, newState);
 
-            _stateData.EntityState = newState;
-
             if (newState == EntityState.Added)
             {
                 foreach (var generatedValue in generatedValues.Where(v => v != null))
@@ -225,14 +223,16 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 Contract.Assert(generatedValues == null);
             }
 
+            _stateData.EntityState = newState;
+
             if (oldState == EntityState.Unknown)
             {
-                _configuration.Services.StateManager.StartTracking(this);
+                _configuration.StateManager.StartTracking(this);
             }
             else if (newState == EntityState.Unknown)
             {
                 // TODO: Does changing to Unknown really mean stop tracking?
-                _configuration.Services.StateManager.StopTracking(this);
+                _configuration.StateManager.StopTracking(this);
             }
 
             _configuration.Services.StateEntryNotifier.StateChanged(this, oldState);
@@ -338,8 +338,13 @@ namespace Microsoft.Data.Entity.ChangeTracking
                         if (sidecar.TransparentWrite
                             && sidecar.CanStoreValue(property))
                         {
+                            var changeDetector = _configuration.Services.ChangeDetector;
+                            changeDetector.SidecarPropertyChanging(this, property);
+
                             sidecar[property] = value;
                             wrote = true;
+
+                            changeDetector.SidecarPropertyChanged(this, property);
                         }
                     }
                     if (wrote)
@@ -361,19 +366,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
                     changeDetector.PropertyChanged(this, property);
                 }
             }
-        }
-
-        [NotNull]
-        public virtual EntityKey GetPrimaryKeyValue()
-        {
-            var keyValue = CreateKey(_entityType, _entityType.GetKey().Properties, this);
-
-            if (keyValue == EntityKey.NullEntityKey)
-            {
-                throw new InvalidOperationException(Strings.FormatNullPrimaryKey(EntityType.Name));
-            }
-
-            return keyValue;
         }
 
         [NotNull]
@@ -452,12 +444,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         public virtual StateEntry PrepareToSave()
         {
-            var storeGenerated = _entityType.Properties
-                .Where(p => p.ValueGenerationOnSave != ValueGenerationOnSave.None).ToList();
-
-            if (storeGenerated.Any())
+            if (_entityType.Properties.Any(p => p.ValueGenerationOnSave != ValueGenerationOnSave.None))
             {
-                AddSidecar(_configuration.Services.StoreGeneratedValuesFactory.Create(this, storeGenerated));
+                AddSidecar(_configuration.Services.StoreGeneratedValuesFactory.Create(this));
             }
 
             return this;
@@ -479,7 +468,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         public override string ToString()
         {
-            return GetPrimaryKeyValue() + " - " + EntityState;
+            return this.GetPrimaryKeyValue() + " - " + EntityState;
         }
 
         StateEntry IPropertyBagEntry.StateEntry

@@ -3,6 +3,7 @@
 
 using System;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Services;
@@ -29,6 +30,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         private LazyRef<DataStoreSource> _dataStoreSource;
         private LazyRef<DataStore> _dataStore;
         private LazyRef<DataStoreConnection> _connection;
+        private LazyRef<StateManager> _stateManager;
         private ServiceProviderSource _serviceProviderSource;
         private LazyRef<ILoggerFactory> _loggerFactory;
         private LazyRef<Database> _database;
@@ -57,6 +59,7 @@ namespace Microsoft.Data.Entity.Infrastructure
             _connection = new LazyRef<DataStoreConnection>(() => _dataStoreSource.Value.GetConnection(this));
             _loggerFactory = new LazyRef<ILoggerFactory>(() => _externalProvider.TryGetService<ILoggerFactory>() ?? new NullLoggerFactory());
             _database = new LazyRef<Database>(() => _dataStoreSource.Value.GetDatabase(this));
+            _stateManager = new LazyRef<StateManager>(() => _services.StateManager);
 
             return this;
         }
@@ -114,6 +117,11 @@ namespace Microsoft.Data.Entity.Infrastructure
         public virtual ILoggerFactory LoggerFactory
         {
             get { return _loggerFactory.Value; }
+        }
+
+        public virtual StateManager StateManager
+        {
+            get { return _stateManager.Value; }
         }
     }
 }

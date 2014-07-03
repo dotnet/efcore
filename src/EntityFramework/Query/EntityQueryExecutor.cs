@@ -79,7 +79,7 @@ namespace Microsoft.Data.Entity.Query
             LogQueryModel(queryModel);
 
             return _context.Configuration.DataStore
-                .Query<T>(queryModel, _context.Configuration.Services.StateManager);
+                .Query<T>(queryModel, _context.Configuration.StateManager);
         }
 
         public virtual IAsyncEnumerable<T> AsyncExecuteCollection<T>([NotNull] QueryModel queryModel)
@@ -91,7 +91,7 @@ namespace Microsoft.Data.Entity.Query
             LogQueryModel(queryModel);
 
             return _context.Configuration.DataStore
-                .AsyncQuery<T>(queryModel, _context.Configuration.Services.StateManager);
+                .AsyncQuery<T>(queryModel, _context.Configuration.StateManager);
         }
 
         private void LogQueryModel(QueryModel queryModel)

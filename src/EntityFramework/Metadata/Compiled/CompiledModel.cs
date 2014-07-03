@@ -45,5 +45,12 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
             // TODO: Perf: Add additional indexes so that this isn't a linear lookup
             return EntityTypes.SelectMany(et => et.ForeignKeys).Where(fk => fk.ReferencedEntityType == entityType);
         }
+
+        public virtual IEnumerable<IForeignKey> GetReferencingForeignKeys([NotNull] IProperty property)
+        {
+            // TODO: Perf: Add additional indexes so that this isn't a linear lookup
+            return EntityTypes.SelectMany(e => e.ForeignKeys.Where(f => f.ReferencedProperties.Contains(property))).ToArray();
+        }
+
     }
 }

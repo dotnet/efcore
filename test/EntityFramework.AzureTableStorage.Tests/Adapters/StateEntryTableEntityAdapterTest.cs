@@ -13,22 +13,18 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
-using Moq;
 using Xunit;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
 {
     public class StateEntryTableEntityAdapterTest
     {
-        private readonly StateEntryFactory _factory;
+        private readonly StateEntryFactory _factory 
+            = new StateEntryFactory(CreateConfiguration(), new EntityMaterializerSource(new MemberMapper(new FieldMatcher())));
 
-        public StateEntryTableEntityAdapterTest()
+        private static DbContextConfiguration CreateConfiguration()
         {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddEntityFramework();
-            var contextConfig = new DbContextConfiguration();
-            contextConfig.Initialize(Mock.Of<IServiceProvider>(), ServiceProviderCache.Instance.GetOrAdd(new DbContextOptions()), Mock.Of<DbContextOptions>(), Mock.Of<DbContext>(), new DbContextConfiguration.ServiceProviderSource());
-            _factory = new StateEntryFactory(contextConfig, new EntityMaterializerSource(new MemberMapper(new FieldMatcher())));
+            return new DbContext(new DbContextOptions().UseAzureTableStorage("Moria", "mellon")).Configuration;
         }
 
         public class ClrPoco
@@ -62,25 +58,24 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
             var builder = new ModelBuilder(model);
             builder.Entity<ClrPoco>()
                 .PartitionAndRowKey(s => s.PartitionKey, s => s.RowKey)
-                .Timestamp(s => s.Timestamp)
-                ;
+                .Timestamp(s => s.Timestamp);
             builder.Entity("ShadowEntity").Properties(pb =>
                 {
                     pb.Property<object>("PartitionKey", true);
                     pb.Property<object>("RowKey", true);
                     pb.Property<object>("Timestamp", true);
                     pb.Property<object>("SomeProperty", true);
-                });
+                })
+                .Key("PartitionKey", "RowKey");
             builder.Entity<GuidKeysPoco>()
                 .PartitionAndRowKey(s => s.PartitionGuid, s => s.RowGuid)
                 .Timestamp("Timestamp", true);
             builder.Entity<IntKeysPoco>()
                 .PartitionAndRowKey(s => s.PartitionID, s => s.RowID);
             builder.Entity<ClrPocoWithProp>()
+                .PartitionAndRowKey(s => s.PartitionKey, s => s.RowKey)
                 .Properties(pb =>
                     {
-                        pb.Property(s => s.PartitionKey);
-                        pb.Property(s => s.RowKey);
                         pb.Property(s => s.Timestamp);
                         pb.Property(s => s.StringProp);
                         pb.Property(s => s.IntProp);

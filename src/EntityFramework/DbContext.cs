@@ -117,12 +117,11 @@ namespace Microsoft.Data.Entity
 
         public virtual Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var stateManager = Configuration.Services.StateManager;
-
+            var stateManager = Configuration.StateManager;
+            
             // TODO: Allow auto-detect changes to be switched off
-            stateManager.DetectChanges();
+            Configuration.Services.ChangeDetector.DetectChanges(stateManager);
 
-            // TODO: StateManager could get data store from config itself
             return stateManager.SaveChangesAsync(cancellationToken);
         }
 
@@ -147,7 +146,7 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(entity, "entity");
 
-            await Configuration.Services.StateManager.GetOrCreateEntry(entity).SetEntityStateAsync(EntityState.Added, cancellationToken).ConfigureAwait(false);
+            await Configuration.StateManager.GetOrCreateEntry(entity).SetEntityStateAsync(EntityState.Added, cancellationToken).ConfigureAwait(false);
 
             return entity;
         }
@@ -184,7 +183,7 @@ namespace Microsoft.Data.Entity
 
         public virtual ChangeTracker ChangeTracker
         {
-            get { return new ChangeTracker(Configuration.Services.StateManager); }
+            get { return new ChangeTracker(Configuration.StateManager, Configuration.Services.ChangeDetector); }
         }
 
         public virtual IModel Model

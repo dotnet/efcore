@@ -45,6 +45,6 @@ namespace Microsoft.Data.Entity.MonsterModel
         public abstract IQueryable<IDriver> Drivers { get; }
         public abstract IQueryable<ILicense> Licenses { get; }
 
-        public abstract void SeedUsingFKs();
+        public abstract void SeedUsingFKs(bool saveChanges = true);
     }
 }

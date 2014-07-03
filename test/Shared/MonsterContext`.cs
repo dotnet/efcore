@@ -259,6 +259,7 @@ namespace Microsoft.Data.Entity.MonsterModel
             builder.Entity<TProductDetail>().ForeignKeys(fk => fk.ForeignKey<TProduct>(e => e.ProductId, isUnique: true));
             builder.Entity<TProductReview>().ForeignKeys(fk => fk.ForeignKey<TProduct>(e => e.ProductId));
             builder.Entity<TProductPhoto>().ForeignKeys(fk => fk.ForeignKey<TProduct>(e => e.ProductId));
+            builder.Entity<TProductWebFeature>().ForeignKeys(fk => fk.ForeignKey<TProduct>(e => e.ProductId));
             builder.Entity<TProductWebFeature>().ForeignKeys(fk => fk.ForeignKey<TProductPhoto>(e => new { e.ProductId, e.PhotoId }));
             builder.Entity<TProductWebFeature>().ForeignKeys(fk => fk.ForeignKey<TProductReview>(e => new { e.ProductId, e.ReviewId }));
             builder.Entity<TResolution>().ForeignKeys(fk => fk.ForeignKey<TComplaint>(e => e.ResolutionId, isUnique: true));
@@ -454,35 +455,24 @@ namespace Microsoft.Data.Entity.MonsterModel
                         navigation, pointsToPrincipal: true));
         }
 
-        public override void SeedUsingFKs()
+        public override void SeedUsingFKs(bool saveChanges = true)
         {
             var customer0 = Add(new TCustomer { Name = "Eeky Bear" });
             var customer1 = Add(new TCustomer { Name = "Sheila Koalie" });
             var customer3 = Add(new TCustomer { Name = "Tarquin Tiger" });
 
-            // TODO: Key propagation so all the additional SaveChanges calls can be removed
-            SaveChanges();
-
             var customer2 = Add(new TCustomer { Name = "Sue Pandy", HusbandId = customer0.CustomerId });
-
-            SaveChanges();
 
             var product1 = Add(new TProduct { Description = "Mrs Koalie's Famous Waffles", BaseConcurrency = "Pounds Sterling" });
             var product2 = Add(new TProduct { Description = "Chocolate Donuts", BaseConcurrency = "US Dollars" });
             var product3 = Add(new TProduct { Description = "Assorted Dog Treats", BaseConcurrency = "Stuffy Money" });
 
-            SaveChanges();
-
             var barcode1 = Add(new TBarcode { Code = new byte[] { 1, 2, 3, 4 }, ProductId = product1.ProductId, Text = "Barcode 1 2 3 4" });
             var barcode2 = Add(new TBarcode { Code = new byte[] { 2, 2, 3, 4 }, ProductId = product2.ProductId, Text = "Barcode 2 2 3 4" });
             var barcode3 = Add(new TBarcode { Code = new byte[] { 3, 2, 3, 4 }, ProductId = product3.ProductId, Text = "Barcode 3 2 3 4" });
 
-            SaveChanges();
-
             var barcodeDetails1 = Add(new TBarcodeDetail { Code = barcode1.Code, RegisteredTo = "Eeky Bear" });
             var barcodeDetails2 = Add(new TBarcodeDetail { Code = barcode2.Code, RegisteredTo = "Trent" });
-
-            SaveChanges();
 
             var incorrectScan1 = Add(
                 new TIncorrectScan
@@ -502,8 +492,6 @@ namespace Microsoft.Data.Entity.MonsterModel
                         ExpectedCode = barcode1.Code
                     });
 
-            SaveChanges();
-
             var complaint1 = Add(new TComplaint
                 {
                     CustomerId = customer2.CustomerId,
@@ -518,33 +506,21 @@ namespace Microsoft.Data.Entity.MonsterModel
                     Logged = new DateTime(2014, 5, 28, 19, 22, 26)
                 });
 
-            SaveChanges();
-
             var resolution = Add(new TResolution { ResolutionId = complaint2.ComplaintId, Details = "Destroyed all coffee in Redmond area." });
-
-            SaveChanges();
 
             var login1 = Add(new TLogin { CustomerId = customer1.CustomerId, Username = "MrsKoalie73" });
             var login2 = Add(new TLogin { CustomerId = customer2.CustomerId, Username = "MrsBossyPants" });
             var login3 = Add(new TLogin { CustomerId = customer3.CustomerId, Username = "TheStripedMenace" });
 
-            SaveChanges();
-
             var suspiciousActivity1 = Add(new TSuspiciousActivity { Activity = "Pig prints on keyboard", Username = login3.Username });
             var suspiciousActivity2 = Add(new TSuspiciousActivity { Activity = "Crumbs in the cupboard", Username = login3.Username });
             var suspiciousActivity3 = Add(new TSuspiciousActivity { Activity = "Donuts gone missing", Username = login3.Username });
 
-            SaveChanges();
-
             var rsaToken1 = Add(new TRsaToken { Issued = DateTime.Now, Serial = "1234", Username = login1.Username });
             var rsaToken2 = Add(new TRsaToken { Issued = DateTime.Now, Serial = "2234", Username = login2.Username });
 
-            SaveChanges();
-
             var smartCard1 = Add(new TSmartCard { Username = login1.Username, CardSerial = rsaToken1.Serial, Issued = rsaToken1.Issued });
             var smartCard2 = Add(new TSmartCard { Username = login2.Username, CardSerial = rsaToken2.Serial, Issued = rsaToken2.Issued });
-
-            SaveChanges();
 
             var reset1 = Add(new TPasswordReset
                 {
@@ -554,13 +530,9 @@ namespace Microsoft.Data.Entity.MonsterModel
                     Username = login3.Username
                 });
 
-            SaveChanges();
-
             var pageView1 = Add(new TPageView { PageUrl = "somePage1", Username = login1.Username, Viewed = DateTime.Now });
             var pageView2 = Add(new TPageView { PageUrl = "somePage2", Username = login1.Username, Viewed = DateTime.Now });
             var pageView3 = Add(new TPageView { PageUrl = "somePage3", Username = login1.Username, Viewed = DateTime.Now });
-
-            SaveChanges();
 
             var lastLogin1 = Add(new TLastLogin
                 {
@@ -577,8 +549,6 @@ namespace Microsoft.Data.Entity.MonsterModel
                     Username = login2.Username,
                     SmartcardUsername = smartCard2.Username
                 });
-
-            SaveChanges();
 
             var message1 = Add(new TMessage
                 {
@@ -607,25 +577,17 @@ namespace Microsoft.Data.Entity.MonsterModel
                     Sent = DateTime.Now,
                 });
 
-            SaveChanges();
-
             var order1 = Add(new TAnOrder { CustomerId = customer1.CustomerId, Username = login1.Username });
             var order2 = Add(new TAnOrder { CustomerId = customer2.CustomerId, Username = login2.Username });
             var order3 = Add(new TAnOrder { CustomerId = customer3.CustomerId, Username = login3.Username });
-
-            SaveChanges();
 
             var orderNote1 = Add(new TOrderNote { Note = "Must have tea!", OrderId = order1.AnOrderId });
             var orderNote2 = Add(new TOrderNote { Note = "And donuts!", OrderId = order1.AnOrderId });
             var orderNote3 = Add(new TOrderNote { Note = "But no coffee. :-(", OrderId = order1.AnOrderId });
 
-            SaveChanges();
-
             var orderQualityCheck1 = Add(new TOrderQualityCheck { OrderId = order1.AnOrderId, CheckedBy = "Eeky Bear" });
             var orderQualityCheck2 = Add(new TOrderQualityCheck { OrderId = order2.AnOrderId, CheckedBy = "Eeky Bear" });
             var orderQualityCheck3 = Add(new TOrderQualityCheck { OrderId = order3.AnOrderId, CheckedBy = "Eeky Bear" });
-
-            SaveChanges();
 
             var orderLine1 = Add(new TOrderLine { OrderId = order1.AnOrderId, ProductId = product1.ProductId, Quantity = 7 });
             var orderLine2 = Add(new TOrderLine { OrderId = order1.AnOrderId, ProductId = product2.ProductId, Quantity = 1 });
@@ -634,24 +596,16 @@ namespace Microsoft.Data.Entity.MonsterModel
             var orderLine5 = Add(new TOrderLine { OrderId = order2.AnOrderId, ProductId = product1.ProductId, Quantity = 4 });
             var orderLine6 = Add(new TOrderLine { OrderId = order3.AnOrderId, ProductId = product2.ProductId, Quantity = 5 });
 
-            SaveChanges();
-
             var productDetail1 = Add(new TProductDetail { Details = "A Waffle Cart specialty!", ProductId = product1.ProductId });
             var productDetail2 = Add(new TProductDetail { Details = "Eeky Bear's favorite!", ProductId = product2.ProductId });
-
-            SaveChanges();
 
             var productReview1 = Add(new TProductReview { ProductId = product1.ProductId, Review = "Better than Tarqies!" });
             var productReview2 = Add(new TProductReview { ProductId = product1.ProductId, Review = "Good with maple syrup." });
             var productReview3 = Add(new TProductReview { ProductId = product2.ProductId, Review = "Eeky says yes!" });
 
-            SaveChanges();
-
             var productPhoto1 = Add(new TProductPhoto { ProductId = product1.ProductId, Photo = new byte[] { 101, 102 } });
             var productPhoto2 = Add(new TProductPhoto { ProductId = product1.ProductId, Photo = new byte[] { 103, 104 } });
             var productPhoto3 = Add(new TProductPhoto { ProductId = product3.ProductId, Photo = new byte[] { 105, 106 } });
-
-            SaveChanges();
 
             var productWebFeature1 = Add(new TProductWebFeature
                 {
@@ -668,32 +622,20 @@ namespace Microsoft.Data.Entity.MonsterModel
                     ReviewId = productReview3.ReviewId
                 });
 
-            SaveChanges();
-
             var supplier1 = Add(new TSupplier { Name = "Trading As Trent" });
             var supplier2 = Add(new TSupplier { Name = "Ants By Boris" });
 
-            SaveChanges();
-
             var supplierLogo1 = Add(new TSupplierLogo { SupplierId = supplier1.SupplierId, Logo = new byte[] { 201, 202 } });
-
-            SaveChanges();
 
             var supplierInfo1 = Add(new TSupplierInfo { SupplierId = supplier1.SupplierId, Information = "Seems a bit dodgy." });
             var supplierInfo2 = Add(new TSupplierInfo { SupplierId = supplier1.SupplierId, Information = "Orange fur?" });
             var supplierInfo3 = Add(new TSupplierInfo { SupplierId = supplier2.SupplierId, Information = "Very expensive!" });
 
-            SaveChanges();
-
             var customerInfo1 = Add(new TCustomerInfo { CustomerInfoId = customer1.CustomerId, Information = "Really likes tea." });
             var customerInfo2 = Add(new TCustomerInfo { CustomerInfoId = customer2.CustomerId, Information = "Mrs Bossy Pants!" });
 
-            SaveChanges();
-
             var computer1 = Add(new TComputer { Name = "markash420" });
             var computer2 = Add(new TComputer { Name = "unicorns420" });
-
-            SaveChanges();
 
             var computerDetail1 = Add(new TComputerDetail
                 {
@@ -715,12 +657,8 @@ namespace Microsoft.Data.Entity.MonsterModel
                     Specifications = "It's not a Dell!"
                 });
 
-            SaveChanges();
-
             var driver1 = Add(new TDriver { BirthDate = new DateTime(2006, 9, 19), Name = "Eeky Bear" });
             var driver2 = Add(new TDriver { BirthDate = new DateTime(2007, 9, 19), Name = "Splash Bear" });
-
-            SaveChanges();
 
             var license1 = Add(new TLicense
                 {
@@ -742,7 +680,10 @@ namespace Microsoft.Data.Entity.MonsterModel
                     ExpirationDate = new DateTime(2018, 9, 19)
                 });
 
-            SaveChanges();
+            if (saveChanges)
+            {
+                SaveChanges();
+            }
         }
     }
 }

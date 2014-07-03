@@ -135,20 +135,24 @@ namespace Microsoft.Data.Entity.Tests
         public void SaveChanges_calls_DetectChanges()
         {
             var services = new ServiceCollection();
-            services.AddEntityFramework().UseStateManager<FakeStateManager>();
+            services.AddEntityFramework()
+                .ServiceCollection
+                .AddScoped<StateManager, FakeStateManager>()
+                .AddScoped<ChangeDetector, FakeChangeDetector>();
+
             var serviceProvider = services.BuildServiceProvider();
 
             var options = new DbContextOptions();
 
             using (var context = new DbContext(serviceProvider, options))
             {
-                var stateManager = (FakeStateManager)context.Configuration.Services.StateManager;
+                var changeDetector = (FakeChangeDetector)context.Configuration.Services.ChangeDetector;
 
-                Assert.False(stateManager.DetectChangesCalled);
+                Assert.False(changeDetector.DetectChangesCalled);
 
                 context.SaveChanges();
 
-                Assert.True(stateManager.DetectChangesCalled);
+                Assert.True(changeDetector.DetectChangesCalled);
             }
         }
 
@@ -156,14 +160,18 @@ namespace Microsoft.Data.Entity.Tests
         public void SaveChanges_calls_state_manager_SaveChanges()
         {
             var services = new ServiceCollection();
-            services.AddEntityFramework().UseStateManager<FakeStateManager>();
+            services.AddEntityFramework()
+                .ServiceCollection
+                .AddScoped<StateManager, FakeStateManager>()
+                .AddScoped<ChangeDetector, FakeChangeDetector>();
+
             var serviceProvider = services.BuildServiceProvider();
 
             var options = new DbContextOptions();
 
             using (var context = new DbContext(serviceProvider, options))
             {
-                var stateManager = (FakeStateManager)context.Configuration.Services.StateManager;
+                var stateManager = (FakeStateManager)context.Configuration.StateManager;
 
                 var entryMock = new Mock<StateEntry>();
                 entryMock.Setup(m => m.EntityState).Returns(EntityState.Modified);
@@ -180,14 +188,7 @@ namespace Microsoft.Data.Entity.Tests
         private class FakeStateManager : StateManager
         {
             public IEnumerable<StateEntry> Entries { get; set; }
-            public bool DetectChangesCalled { get; set; }
             public bool SaveChangesCalled { get; set; }
-
-            public override bool DetectChanges()
-            {
-                DetectChangesCalled = true;
-                return false;
-            }
 
             public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
             {
@@ -198,6 +199,17 @@ namespace Microsoft.Data.Entity.Tests
             public override IEnumerable<StateEntry> StateEntries
             {
                 get { return Entries ?? Enumerable.Empty<StateEntry>(); }
+            }
+        }
+
+        private class FakeChangeDetector : ChangeDetector
+        {
+            public bool DetectChangesCalled { get; set; }
+
+            public override bool DetectChanges(StateManager stateManager)
+            {
+                DetectChangesCalled = true;
+                return false;
             }
         }
 
@@ -870,6 +882,10 @@ namespace Microsoft.Data.Entity.Tests
             }
 
             public virtual void NavigationCollectionChanged(StateEntry entry, INavigation navigation, ISet<object> added, ISet<object> removed)
+            {
+            }
+
+            public void PrincipalKeyPropertyChanged(StateEntry entry, IProperty property, object oldValue, object newValue)
             {
             }
         }

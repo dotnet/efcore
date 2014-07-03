@@ -6,6 +6,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.MonsterModel;
 using Microsoft.Data.Entity.Utilities;
@@ -22,9 +23,16 @@ namespace Microsoft.Data.Entity.SQLite.FunctionalTests
         private static readonly ConcurrentDictionary<string, AsyncLock> _creationLocks
             = new ConcurrentDictionary<string, AsyncLock>();
 
-        protected /*override*/ IServiceProvider CreateServiceProvider()
+        protected /*override*/ IServiceProvider CreateServiceProvider(bool throwingStateManager = false)
         {
-            return new ServiceCollection().AddEntityFramework().AddSQLite().ServiceCollection.BuildServiceProvider();
+            var serviceCollection = new ServiceCollection().AddEntityFramework().AddSQLite().ServiceCollection;
+
+            if (throwingStateManager)
+            {
+                serviceCollection.AddScoped<StateManager, ThrowingMonsterStateManager>();
+            }
+
+            return serviceCollection.BuildServiceProvider();
         }
 
         protected /*override*/ DbContextOptions CreateOptions(string databaseName)

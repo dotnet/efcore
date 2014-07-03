@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entry.EntityState = EntityState.Added;
 
             Assert.Equal(EntityState.Added, entry.EntityState);
-            Assert.Contains(entry, configuration.Services.StateManager.StateEntries);
+            Assert.Contains(entry, configuration.StateManager.StateEntries);
         }
 
         [Fact]
@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entry.EntityState = EntityState.Unknown;
 
             Assert.Equal(EntityState.Unknown, entry.EntityState);
-            Assert.DoesNotContain(entry, configuration.Services.StateManager.StateEntries);
+            Assert.DoesNotContain(entry, configuration.StateManager.StateEntries);
         }
 
         [Fact] // GitHub #251
@@ -70,7 +70,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entry.EntityState = EntityState.Deleted;
 
             Assert.Equal(EntityState.Unknown, entry.EntityState);
-            Assert.DoesNotContain(entry, configuration.Services.StateManager.StateEntries);
+            Assert.DoesNotContain(entry, configuration.StateManager.StateEntries);
         }
 
         [Fact]
@@ -340,11 +340,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entry[keyProperties[0]] = 77;
             entry[keyProperties[1]] = null;
 
-            Assert.Equal(
-                Strings.FormatNullPrincipalKey(principalType.Name, "Id1, Id2"),
-                Assert.Throws<InvalidOperationException>(() => entry.GetPrincipalKeyValue(dependentType.ForeignKeys.Single())).Message);
+            Assert.Same(EntityKey.NullEntityKey, entry.GetPrincipalKeyValue(dependentType.ForeignKeys.Single()));
         }
-
+        
         [Fact]
         public void Can_get_property_value_after_creation_from_value_buffer()
         {
@@ -985,7 +983,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
         protected virtual StateEntry CreateStateEntry(DbContextConfiguration configuration, IEntityType entityType, object entity)
         {
-            return CreateSubscriber().SnapshotAndSubscribe(
+            return configuration.Services.ServiceProvider.GetService<StateEntrySubscriber>().SnapshotAndSubscribe(
                 new StateEntryFactory(
                     configuration,
                     configuration.Services.ServiceProvider.GetService<EntityMaterializerSource>())
@@ -994,16 +992,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
         protected virtual StateEntry CreateStateEntry(DbContextConfiguration configuration, IEntityType entityType, IValueReader valueReader)
         {
-            return CreateSubscriber().SnapshotAndSubscribe(
+            return configuration.Services.ServiceProvider.GetService<StateEntrySubscriber>().SnapshotAndSubscribe(
                 new StateEntryFactory(
                     configuration,
                     configuration.Services.ServiceProvider.GetService<EntityMaterializerSource>())
                     .Create(entityType, valueReader));
-        }
-
-        private static StateEntrySubscriber CreateSubscriber()
-        {
-            return new StateEntrySubscriber(new ChangeDetector());
         }
 
         protected virtual Model BuildModel()

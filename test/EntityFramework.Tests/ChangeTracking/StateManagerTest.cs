@@ -38,17 +38,17 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var categoryType = model.GetEntityType(typeof(Category));
             var stateManager = CreateStateManager(model);
 
-            var stateEntry = stateManager.GetOrMaterializeEntry(categoryType, new ObjectArrayValueReader(new object[] { 77, "Bjork" }));
+            var stateEntry = stateManager.GetOrMaterializeEntry(categoryType, new ObjectArrayValueReader(new object[] { 77, "Bjork", null }));
 
             Assert.Equal(EntityState.Unchanged, stateEntry.EntityState);
-            Assert.Same(stateEntry, stateManager.GetOrMaterializeEntry(categoryType, new ObjectArrayValueReader(new object[] { 77, "Bjork" })));
+            Assert.Same(stateEntry, stateManager.GetOrMaterializeEntry(categoryType, new ObjectArrayValueReader(new object[] { 77, "Bjork", null })));
 
             stateEntry.EntityState = EntityState.Modified;
 
-            Assert.Same(stateEntry, stateManager.GetOrMaterializeEntry(categoryType, new ObjectArrayValueReader(new object[] { 77, "Bjork" })));
+            Assert.Same(stateEntry, stateManager.GetOrMaterializeEntry(categoryType, new ObjectArrayValueReader(new object[] { 77, "Bjork", null })));
             Assert.Equal(EntityState.Modified, stateEntry.EntityState);
 
-            Assert.NotSame(stateEntry, stateManager.GetOrMaterializeEntry(categoryType, new ObjectArrayValueReader(new object[] { 78, "Bjork" })));
+            Assert.NotSame(stateEntry, stateManager.GetOrMaterializeEntry(categoryType, new ObjectArrayValueReader(new object[] { 78, "Bjork", null })));
         }
 
         [Fact]
@@ -265,7 +265,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 new DbContextOptions().UseModel(BuildModel()))
                 .Configuration;
 
-            var stateManager = config.Services.StateManager;
+            var stateManager = config.StateManager;
 
             var entry = stateManager.GetOrCreateEntry(new Category { Id = 77 });
             entry.EntityState = EntityState.Added;
@@ -298,11 +298,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var services = new ServiceCollection();
             services.AddEntityFramework().AddInMemoryStore();
-            services.AddScoped<ChangeDetector, FakeChangeDetector>();
 
             var config = TestHelpers.CreateContextConfiguration(services.BuildServiceProvider(), model);
             var stateManager = config.Services.StateManager;
-            var changeDetector = (FakeChangeDetector)config.Services.ChangeDetector;
 
             var entry1 = stateManager.GetOrCreateEntry(new Category { Id = 77, Name = "Beverages" });
             var entry2 = stateManager.GetOrCreateEntry(new Category { Id = 78, Name = "Foods" });
@@ -312,13 +310,15 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             stateManager.StartTracking(entry2);
             stateManager.StartTracking(entry3);
 
-            Assert.False(stateManager.DetectChanges());
+            var changeDetector = new FakeChangeDetector();
+
+            Assert.False(changeDetector.DetectChanges(stateManager));
 
             Assert.Equal(new[] { 77, 78, 79 }, changeDetector.Entries.Select(e => ((Category)e.Entity).Id).ToArray());
 
             ((Category)entry2.Entity).Name = "Snacks";
 
-            Assert.True(stateManager.DetectChanges());
+            Assert.True(changeDetector.DetectChanges(stateManager));
 
             Assert.Equal(new[] { 77, 78, 79, 77, 78, 79 }, changeDetector.Entries.Select(e => ((Category)e.Entity).Id).ToArray());
         }
@@ -370,22 +370,52 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.Equal(EntityState.Unchanged, entry3.EntityState);
         }
 
+        [Fact]
+        public void Can_get_all_dependent_entries()
+        {
+            var model = BuildModel();
+            var stateManager = CreateStateManager(model);
+
+            var categoryEntry1 = stateManager.StartTracking(stateManager.GetOrCreateEntry(new Category { Id = 1, PrincipalId = 77 }));
+            var categoryEntry2 = stateManager.StartTracking(stateManager.GetOrCreateEntry(new Category { Id = 2, PrincipalId = 78 }));
+            var categoryEntry3 = stateManager.StartTracking(stateManager.GetOrCreateEntry(new Category { Id = 3, PrincipalId = 79 }));
+            var categoryEntry4 = stateManager.StartTracking(stateManager.GetOrCreateEntry(new Category { Id = 4, PrincipalId = null }));
+            var productEntry1 = stateManager.StartTracking(stateManager.GetOrCreateEntry(new Product { Id = Guid.NewGuid(), DependentId = 77 }));
+            var productEntry2 = stateManager.StartTracking(stateManager.GetOrCreateEntry(new Product { Id = Guid.NewGuid(), DependentId = 77 }));
+            var productEntry3 = stateManager.StartTracking(stateManager.GetOrCreateEntry(new Product { Id = Guid.NewGuid(), DependentId = 78 }));
+            var productEntry4 = stateManager.StartTracking(stateManager.GetOrCreateEntry(new Product { Id = Guid.NewGuid(), DependentId = 78 }));
+            var productEntry5 = stateManager.StartTracking(stateManager.GetOrCreateEntry(new Product { Id = Guid.NewGuid(), DependentId = null }));
+
+            var fk = model.GetEntityType(typeof(Product)).ForeignKeys.Single();
+
+            Assert.Equal(
+                new[] { productEntry1, productEntry2 },
+                stateManager.GetDependents(categoryEntry1, fk).ToArray());
+
+            Assert.Equal(
+                new[] { productEntry3, productEntry4 },
+                stateManager.GetDependents(categoryEntry2, fk).ToArray());
+
+            Assert.Empty(stateManager.GetDependents(categoryEntry3, fk).ToArray());
+            Assert.Empty(stateManager.GetDependents(categoryEntry4, fk).ToArray());
+        }
+
         private static StateManager CreateStateManager(IModel model)
         {
             return TestHelpers.CreateContextConfiguration(model).Services.StateManager;
         }
 
-        #region Fixture
-
         private class Category
         {
             public int Id { get; set; }
+            public int? PrincipalId { get; set; }
             public string Name { get; set; }
         }
 
         private class Product
         {
             public Guid Id { get; set; }
+            public int? DependentId { get; set; }
             public string Name { get; set; }
             public decimal Price { get; set; }
         }
@@ -404,6 +434,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             builder.Entity<Category>();
             builder.Entity<Dogegory>();
 
+            var productType = model.GetEntityType(typeof(Product));
+            var categoryType = model.GetEntityType(typeof(Category));
+
+            productType.AddForeignKey(new Key(new[] { categoryType.GetProperty("PrincipalId") }), productType.GetProperty("DependentId"));
+
             var locationType = new EntityType("Location");
             var idProperty = locationType.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false);
             locationType.AddProperty("Planet", typeof(string), shadowProperty: true, concurrencyToken: false);
@@ -412,7 +447,5 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             return model;
         }
-
-        #endregion
     }
 }

@@ -92,8 +92,18 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual IEnumerable<IForeignKey> GetReferencingForeignKeys(IEntityType entityType)
         {
+            Check.NotNull(entityType, "entityType");
+
             // TODO: Perf: Add additional indexes so that this isn't a linear lookup
             return EntityTypes.SelectMany(et => et.ForeignKeys).Where(fk => fk.ReferencedEntityType == entityType);
+        }
+
+        public virtual IEnumerable<IForeignKey> GetReferencingForeignKeys(IProperty property)
+        {
+            Check.NotNull(property, "property");
+
+            // TODO: Perf: Add additional indexes so that this isn't a linear lookup
+            return EntityTypes.SelectMany(e => e.ForeignKeys.Where(f => f.ReferencedProperties.Contains(property))).ToArray();
         }
 
         public virtual string StorageName { get; [param: CanBeNull] set; }

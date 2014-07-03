@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
         protected override Sidecar CreateSidecar(StateEntry entry = null)
         {
-            return new StoreGeneratedValuesFactory().Create(entry ?? CreateStateEntry(), new[] { IdProperty, StateProperty });
+            return new StoreGeneratedValuesFactory().Create(entry ?? CreateStateEntry());
         }
     }
 }

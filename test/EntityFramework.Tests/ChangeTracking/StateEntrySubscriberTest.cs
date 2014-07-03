@@ -5,6 +5,7 @@ using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Moq;
 using Xunit;
@@ -92,7 +93,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
         private static StateEntrySubscriber CreateSubscriber()
         {
-            return new StateEntrySubscriber(new ChangeDetector());
+            return new StateEntrySubscriber(new ChangeDetector(Mock.Of<DbContextConfiguration>(), Mock.Of<StateEntryNotifier>()));
         }
 
         private class FullNotificationEntity : INotifyPropertyChanging, INotifyPropertyChanged

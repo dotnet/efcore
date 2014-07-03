@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             Assert.True(sidecar.CanStoreValue(IdProperty));
             Assert.False(sidecar.CanStoreValue(NameProperty));
-            Assert.True(sidecar.CanStoreValue(StateProperty));
+            Assert.True(sidecar.CanStoreValue(FkProperty));
         }
 
         [Fact]
@@ -35,66 +35,66 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             Assert.False(sidecar.HasValue(IdProperty));
             Assert.False(sidecar.HasValue(NameProperty));
-            Assert.False(sidecar.HasValue(StateProperty));
+            Assert.False(sidecar.HasValue(FkProperty));
 
             sidecar[IdProperty] = 78;
-            sidecar[StateProperty] = "Thawed";
+            sidecar[FkProperty] = 89;
 
             Assert.True(sidecar.HasValue(IdProperty));
             Assert.False(sidecar.HasValue(NameProperty));
-            Assert.True(sidecar.HasValue(StateProperty));
+            Assert.True(sidecar.HasValue(FkProperty));
         }
 
         [Fact]
         public void Can_read_and_write_values()
         {
-            var entity = new Banana { Id = 77, Name = "Stand", State = "Frozen" };
+            var entity = new Banana { Id = 77, Name = "Stand", Fk = 88 };
             var sidecar = CreateSidecar(CreateStateEntry(entity));
 
             Assert.Equal(77, sidecar[IdProperty]);
-            Assert.Equal("Frozen", sidecar[StateProperty]);
+            Assert.Equal(88, sidecar[FkProperty]);
 
             sidecar[IdProperty] = 78;
-            sidecar[StateProperty] = "Thawed";
+            sidecar[FkProperty] = 89;
 
             Assert.Equal(78, sidecar[IdProperty]);
-            Assert.Equal("Thawed", sidecar[StateProperty]);
+            Assert.Equal(89, sidecar[FkProperty]);
 
             Assert.Equal(77, entity.Id);
-            Assert.Equal("Frozen", entity.State);
+            Assert.Equal(88, entity.Fk);
         }
 
         [Fact]
         public void Can_read_and_write_null()
         {
-            var entity = new Banana { Id = 77, Name = "Stand", State = "Frozen" };
+            var entity = new Banana { Id = 77, Name = "Stand", Fk = 88 };
             var sidecar = CreateSidecar(CreateStateEntry(entity));
 
-            sidecar[StateProperty] = null;
+            sidecar[FkProperty] = null;
 
-            Assert.True(sidecar.HasValue(StateProperty));
-            Assert.Null(sidecar[StateProperty]);
+            Assert.True(sidecar.HasValue(FkProperty));
+            Assert.Null(sidecar[FkProperty]);
 
-            Assert.Equal("Frozen", entity.State);
+            Assert.Equal(88, entity.Fk);
         }
 
         [Fact]
         public void Can_commit_values_into_state_entry()
         {
-            var entity = new Banana { Id = 77, Name = "Stand", State = "Frozen" };
+            var entity = new Banana { Id = 77, Name = "Stand", Fk = 88 };
             var sidecar = CreateSidecar(CreateStateEntry(entity));
 
-            sidecar[StateProperty] = "Thawed";
+            sidecar[FkProperty] = 89;
             sidecar.Commit();
 
             Assert.Equal(77, entity.Id);
-            Assert.Equal("Thawed", entity.State);
+            Assert.Equal(89, entity.Fk);
         }
 
         [Fact]
         public void Committing_detaches_sidecar()
         {
-            var entity = new Banana { Id = 77, Name = "Stand", State = "Frozen" };
+            var entity = new Banana { Id = 77, Name = "Stand", Fk = 88 };
             var stateEntry = CreateStateEntry(entity);
 
             var sidecar = stateEntry.AddSidecar(CreateSidecar(stateEntry));
@@ -107,87 +107,87 @@ namespace Microsoft.Data.Entity.ChangeTracking
         [Fact]
         public void Rolling_back_detaches_sidecar_without_committing_values()
         {
-            var entity = new Banana { Id = 77, Name = "Stand", State = "Frozen" };
+            var entity = new Banana { Id = 77, Name = "Stand", Fk = 88 };
             var stateEntry = CreateStateEntry(entity);
 
             var sidecar = stateEntry.AddSidecar(CreateSidecar(stateEntry));
 
-            sidecar[StateProperty] = "Thawed";
+            sidecar[FkProperty] = 89;
             sidecar.Rollback();
 
             Assert.Null(stateEntry.TryGetSidecar(sidecar.Name));
 
             Assert.Equal(77, entity.Id);
-            Assert.Equal("Frozen", entity.State);
+            Assert.Equal(88, entity.Fk);
         }
 
         [Fact]
         public void Can_snapshot_values()
         {
-            var entity = new Banana { Id = 77, Name = "Stand", State = "Frozen" };
+            var entity = new Banana { Id = 77, Name = "Stand", Fk = 88 };
             var sidecar = CreateSidecar(CreateStateEntry(entity));
 
             sidecar.TakeSnapshot();
 
             Assert.Equal(77, sidecar[IdProperty]);
-            Assert.Equal("Frozen", sidecar[StateProperty]);
+            Assert.Equal(88, sidecar[FkProperty]);
 
             sidecar[IdProperty] = 78;
-            sidecar[StateProperty] = "Thawed";
+            sidecar[FkProperty] = 89;
 
             Assert.Equal(78, sidecar[IdProperty]);
-            Assert.Equal("Thawed", sidecar[StateProperty]);
+            Assert.Equal(89, sidecar[FkProperty]);
 
             Assert.Equal(77, entity.Id);
-            Assert.Equal("Frozen", entity.State);
+            Assert.Equal(88, entity.Fk);
 
             entity.Id = 76;
-            entity.State = "Banana vapor";
+            entity.Fk = 90;
 
             Assert.Equal(78, sidecar[IdProperty]);
-            Assert.Equal("Thawed", sidecar[StateProperty]);
+            Assert.Equal(89, sidecar[FkProperty]);
 
             Assert.Equal(76, entity.Id);
-            Assert.Equal("Banana vapor", entity.State);
+            Assert.Equal(90, entity.Fk);
 
             sidecar.TakeSnapshot();
 
             Assert.Equal(76, sidecar[IdProperty]);
-            Assert.Equal("Banana vapor", sidecar[StateProperty]);
+            Assert.Equal(90, sidecar[FkProperty]);
         }
 
         [Fact]
         public void Can_snapshot_individual_values()
         {
-            var entity = new Banana { Id = 77, Name = "Stand", State = "Frozen" };
+            var entity = new Banana { Id = 77, Name = "Stand", Fk = 88 };
             var sidecar = CreateSidecar(CreateStateEntry(entity));
 
-            sidecar.TakeSnapshot(StateProperty);
+            sidecar.TakeSnapshot(FkProperty);
 
             Assert.Equal(77, sidecar[IdProperty]);
-            Assert.Equal("Frozen", sidecar[StateProperty]);
+            Assert.Equal(88, sidecar[FkProperty]);
 
-            sidecar[StateProperty] = "Thawed";
+            sidecar[FkProperty] = 89;
 
             Assert.Equal(77, sidecar[IdProperty]);
-            Assert.Equal("Thawed", sidecar[StateProperty]);
+            Assert.Equal(89, sidecar[FkProperty]);
 
             Assert.Equal(77, entity.Id);
-            Assert.Equal("Frozen", entity.State);
+            Assert.Equal(88, entity.Fk);
 
             entity.Id = 76;
-            entity.State = "Banana vapor";
+            entity.Fk = 90;
 
             Assert.Equal(76, sidecar[IdProperty]);
-            Assert.Equal("Thawed", sidecar[StateProperty]);
+            Assert.Equal(89, sidecar[FkProperty]);
 
             Assert.Equal(76, entity.Id);
-            Assert.Equal("Banana vapor", entity.State);
+            Assert.Equal(90, entity.Fk);
 
-            sidecar.TakeSnapshot(StateProperty);
+            sidecar.TakeSnapshot(FkProperty);
 
             Assert.Equal(76, sidecar[IdProperty]);
-            Assert.Equal("Banana vapor", sidecar[StateProperty]);
+            Assert.Equal(90, sidecar[FkProperty]);
         }
 
         [Fact]
@@ -198,53 +198,53 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             sidecar.TakeSnapshot();
 
-            Assert.Null(sidecar[StateProperty]);
+            Assert.Null(sidecar[FkProperty]);
             Assert.Null(entity.State);
 
-            sidecar[StateProperty] = "Thawed";
+            sidecar[FkProperty] = 89;
 
-            Assert.Equal("Thawed", sidecar[StateProperty]);
+            Assert.Equal(89, sidecar[FkProperty]);
             Assert.Null(entity.State);
 
-            entity.State = "Banana vapor";
+            entity.Fk = 90;
 
-            Assert.Equal("Thawed", sidecar[StateProperty]);
-            Assert.Equal("Banana vapor", entity.State);
+            Assert.Equal(89, sidecar[FkProperty]);
+            Assert.Equal(90, entity.Fk);
 
             sidecar.TakeSnapshot();
 
-            Assert.Equal("Banana vapor", sidecar[StateProperty]);
+            Assert.Equal(90, sidecar[FkProperty]);
         }
 
         [Fact]
         public void Can_update_already_saved_values()
         {
-            var entity = new Banana { Id = 77, Name = "Stand", State = "Frozen" };
+            var entity = new Banana { Id = 77, Name = "Stand", Fk = 88 };
             var sidecar = CreateSidecar(CreateStateEntry(entity));
 
             sidecar[IdProperty] = 78;
             entity.Id = 76;
-            entity.State = "Banana vapor";
+            entity.Fk = 90;
 
             Assert.True(sidecar.HasValue(IdProperty));
-            Assert.False(sidecar.HasValue(StateProperty));
+            Assert.False(sidecar.HasValue(FkProperty));
 
             Assert.Equal(78, sidecar[IdProperty]);
-            Assert.Equal("Banana vapor", sidecar[StateProperty]);
+            Assert.Equal(90, sidecar[FkProperty]);
 
             sidecar.UpdateSnapshot();
 
             Assert.True(sidecar.HasValue(IdProperty));
-            Assert.False(sidecar.HasValue(StateProperty));
+            Assert.False(sidecar.HasValue(FkProperty));
 
             Assert.Equal(76, sidecar[IdProperty]);
-            Assert.Equal("Banana vapor", sidecar[StateProperty]);
+            Assert.Equal(90, sidecar[FkProperty]);
         }
 
         [Fact]
         public void Can_ensure_value_is_snapshotted_but_not_overwrite_existing_snapshot_value()
         {
-            var entity = new Banana { Id = 77, Name = "Stand", State = "Frozen" };
+            var entity = new Banana { Id = 77, Name = "Stand", Fk = 88 };
             var sidecar = CreateSidecar(CreateStateEntry(entity));
 
             sidecar.EnsureSnapshot(IdProperty);
@@ -266,23 +266,23 @@ namespace Microsoft.Data.Entity.ChangeTracking
             var entity = new Banana { Id = 77, Name = "Stand", State = null };
             var sidecar = CreateSidecar(CreateStateEntry(entity));
 
-            sidecar.EnsureSnapshot(StateProperty);
+            sidecar.EnsureSnapshot(FkProperty);
 
-            Assert.True(sidecar.HasValue(StateProperty));
-            Assert.Null(sidecar[StateProperty]);
+            Assert.True(sidecar.HasValue(FkProperty));
+            Assert.Null(sidecar[FkProperty]);
 
-            entity.State = "Banana vapor";
+            entity.Fk = 90;
 
-            sidecar.EnsureSnapshot(StateProperty);
+            sidecar.EnsureSnapshot(FkProperty);
 
-            Assert.True(sidecar.HasValue(StateProperty));
-            Assert.Null(sidecar[StateProperty]);
+            Assert.True(sidecar.HasValue(FkProperty));
+            Assert.Null(sidecar[FkProperty]);
         }
 
         [Fact]
         public void Ensuring_snapshot_does_nothing_for_property_that_cannot_be_stored()
         {
-            var entity = new Banana { Id = 77, Name = "Stand", State = "Frozen" };
+            var entity = new Banana { Id = 77, Name = "Stand", Fk = 88 };
             var sidecar = CreateSidecar(CreateStateEntry(entity));
 
             sidecar.EnsureSnapshot(NameProperty);
@@ -316,6 +316,18 @@ namespace Microsoft.Data.Entity.ChangeTracking
             sidecar[foreignKey.ReferencedProperties.Single()] = 42;
 
             var keyValue = sidecar.GetPrincipalKeyValue(foreignKey);
+            Assert.IsType<SimpleEntityKey<int>>(keyValue);
+            Assert.Equal(42, keyValue.Value);
+        }
+
+        [Fact]
+        public void Can_create_primary_key()
+        {
+            var entry = CreateStateEntry();
+            var sidecar = CreateSidecar(entry);
+            sidecar[IdProperty] = 42;
+
+            var keyValue = sidecar.GetPrimaryKeyValue();
             Assert.IsType<SimpleEntityKey<int>>(keyValue);
             Assert.Equal(42, keyValue.Value);
         }
@@ -356,7 +368,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         protected StateEntry CreateStateEntry(Banana entity = null)
         {
-            entity = entity ?? new Banana { Id = 77, Name = "Stand", State = "Frozen" };
+            entity = entity ?? new Banana { Id = 77, Name = "Stand", Fk = 88 };
 
             return CreateStateEntry<Banana>(entity);
         }
@@ -373,11 +385,15 @@ namespace Microsoft.Data.Entity.ChangeTracking
             var model = new Model();
 
             var entityType = new EntityType(typeof(Banana));
+            
             var idProperty = entityType.AddProperty("Id", typeof(int), shadowProperty: false, concurrencyToken: true);
+            idProperty.ValueGenerationOnSave = ValueGenerationOnSave.WhenInserting;
             entityType.SetKey(idProperty);
+
             entityType.AddProperty("Name", typeof(string));
             entityType.AddProperty("State", typeof(string), shadowProperty: false, concurrencyToken: true);
-            var fkProperty = entityType.AddProperty("RelatedId", typeof(int), shadowProperty: true, concurrencyToken: true);
+            
+            var fkProperty = entityType.AddProperty("Fk", typeof(int?), shadowProperty: false, concurrencyToken: true);
             entityType.AddForeignKey(new Key(new[] { idProperty }), fkProperty);
 
             model.AddEntityType(entityType);
@@ -414,9 +430,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
             get { return _model.GetEntityType(typeof(Banana)).GetProperty("Name"); }
         }
 
-        protected IProperty StateProperty
+        protected IProperty FkProperty
         {
-            get { return _model.GetEntityType(typeof(Banana)).GetProperty("State"); }
+            get { return _model.GetEntityType(typeof(Banana)).GetProperty("Fk"); }
         }
 
         protected class Banana : INotifyPropertyChanged, INotifyPropertyChanging
@@ -424,7 +440,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             public int Id { get; set; }
             public string Name { get; set; }
             public string State { get; set; }
-            public int Fk { get; set; }
+            public int? Fk { get; set; }
 
 #pragma warning disable 67
             public event PropertyChangedEventHandler PropertyChanged;

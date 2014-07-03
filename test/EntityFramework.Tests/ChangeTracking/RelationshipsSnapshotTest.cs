@@ -42,11 +42,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Can_store_properties_for_FKs_and_navigations()
+        public void Can_store_properties_for_PKs_FKs_and_navigations()
         {
             var sidecar = CreateSidecar();
 
-            Assert.False(sidecar.CanStoreValue(IdProperty));
+            Assert.False(sidecar.CanStoreValue(NameProperty));
+            Assert.True(sidecar.CanStoreValue(IdProperty));
             Assert.True(sidecar.CanStoreValue(FkProperty));
             Assert.True(sidecar.CanStoreValue(CollectionNavigation));
             Assert.True(sidecar.CanStoreValue(ReferenceNavigation));
@@ -57,16 +58,19 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var sidecar = CreateSidecar();
 
+            Assert.False(sidecar.HasValue(NameProperty));
             Assert.False(sidecar.HasValue(IdProperty));
             Assert.False(sidecar.HasValue(FkProperty));
             Assert.False(sidecar.HasValue(CollectionNavigation));
             Assert.False(sidecar.HasValue(ReferenceNavigation));
 
+            sidecar[IdProperty] = 11;
             sidecar[FkProperty] = 78;
             sidecar[CollectionNavigation] = new List<Banana>();
             sidecar[ReferenceNavigation] = new Banana();
 
-            Assert.False(sidecar.HasValue(IdProperty));
+            Assert.False(sidecar.HasValue(NameProperty));
+            Assert.True(sidecar.HasValue(IdProperty));
             Assert.True(sidecar.HasValue(FkProperty));
             Assert.True(sidecar.HasValue(CollectionNavigation));
             Assert.True(sidecar.HasValue(ReferenceNavigation));
@@ -297,6 +301,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entityType.SetKey(pkProperty);
             var fk = entityType.AddForeignKey(entityType.GetKey(), fkProperty);
 
+            entityType.AddProperty("Name", typeof(string));
+
             model.AddEntityType(entityType);
 
             entityType.AddNavigation(new Navigation(fk, "LesserBananas", pointsToPrincipal: false));
@@ -313,6 +319,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         protected IProperty FkProperty
         {
             get { return _model.GetEntityType(typeof(Banana)).GetProperty("Fk"); }
+        }
+
+        protected IProperty NameProperty
+        {
+            get { return _model.GetEntityType(typeof(Banana)).GetProperty("Name"); }
         }
 
         protected INavigation CollectionNavigation
@@ -334,6 +345,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             public int Id { get; set; }
             public int Fk { get; set; }
+            public string Name { get; set; }
             public ICollection<Banana> LesserBananas { get; set; }
             public Banana TopBanana { get; set; }
 

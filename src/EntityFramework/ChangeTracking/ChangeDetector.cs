@@ -1,12 +1,14 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
@@ -14,6 +16,44 @@ namespace Microsoft.Data.Entity.ChangeTracking
 {
     public class ChangeDetector
     {
+        private readonly DbContextConfiguration _configuration;
+        private readonly StateEntryNotifier _notifier;
+
+        /// <summary>
+        ///     This constructor is intended only for use when creating test doubles that will override members
+        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
+        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
+        /// </summary>
+        protected ChangeDetector()
+        {
+        }
+
+        public ChangeDetector([NotNull] DbContextConfiguration configuration, [NotNull] StateEntryNotifier notifier)
+        {
+            Check.NotNull(configuration, "configuration");
+            Check.NotNull(notifier, "notifier");
+
+            _configuration = configuration;
+            _notifier = notifier;
+        }
+
+        public virtual void SidecarPropertyChanged([NotNull] StateEntry entry, [NotNull] IPropertyBase propertyBase)
+        {
+            Check.NotNull(entry, "entry");
+            Check.NotNull(propertyBase, "propertyBase");
+
+            var property = propertyBase as IProperty;
+            if (property != null)
+            {
+                DetectPrincipalKeyChange(entry, property);
+            }
+        }
+
+        public virtual void SidecarPropertyChanging([NotNull] StateEntry entry, [NotNull] IPropertyBase propertyBase)
+        {
+            PropertyChanging(entry, propertyBase);
+        }
+
         public virtual void PropertyChanged([NotNull] StateEntry entry, [NotNull] IPropertyBase propertyBase)
         {
             Check.NotNull(entry, "entry");
@@ -25,7 +65,11 @@ namespace Microsoft.Data.Entity.ChangeTracking
             {
                 entry.SetPropertyModified(property, true);
 
-                if (DetectForeignKeyChange(entry, property))
+                // Note: Make sure DetectPrincipalKeyChange is called even if DetectForeignKeyChange has returned true
+                var foreignKeyChange = DetectForeignKeyChange(entry, property);
+                var principalKeyChange = DetectPrincipalKeyChange(entry, property);
+                if (foreignKeyChange
+                    || principalKeyChange)
                 {
                     entry.RelationshipsSnapshot.TakeSnapshot(property);
                 }
@@ -57,6 +101,23 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 entry.RelationshipsSnapshot.TakeSnapshot(propertyBase);
             }
         }
+
+        public virtual bool DetectChanges([NotNull] StateManager stateManager)
+        {
+            Check.NotNull(stateManager, "stateManager");
+
+            var foundChanges = false;
+            foreach (var entry in stateManager.StateEntries.ToArray())
+            {
+                if (DetectChanges(entry))
+                {
+                    foundChanges = true;
+                }
+            }
+
+            return foundChanges;
+        }
+
 
         public virtual bool DetectChanges([NotNull] StateEntry entry)
         {
@@ -118,9 +179,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 // of byte[] with the same content must be detected as equal.
                 if (!StructuralComparisons.StructuralEqualityComparer.Equals(currentValue, snapshotValue))
                 {
-                    // TODO: Constructor injection
-                    var notifier = entry.Configuration.Services.StateEntryNotifier;
-                    notifier.ForeignKeyPropertyChanged(entry, property, snapshotValue, currentValue);
+                    _notifier.ForeignKeyPropertyChanged(entry, property, snapshotValue, currentValue);
 
                     return true;
                 }
@@ -158,21 +217,51 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 if (added.Any()
                     || removed.Any())
                 {
-                    var notifier = entry.Configuration.Services.StateEntryNotifier;
-                    notifier.NavigationCollectionChanged(entry, navigation, added, removed);
+                    _notifier.NavigationCollectionChanged(entry, navigation, added, removed);
 
                     return true;
                 }
             }
             else if (!ReferenceEquals(currentValue, snapshotValue))
             {
-                var notifier = entry.Configuration.Services.StateEntryNotifier;
-                notifier.NavigationReferenceChanged(entry, navigation, snapshotValue, currentValue);
+                _notifier.NavigationReferenceChanged(entry, navigation, snapshotValue, currentValue);
 
                 return true;
             }
 
             return false;
         }
+
+        private bool DetectPrincipalKeyChange(StateEntry entry, IProperty property)
+        {
+            // TODO: Perf: make it fast to check if a property is part of the primary key
+            var isPrimaryKey = entry.EntityType.GetKey().Properties.Contains(property);
+
+            // TODO: Perf: make it faster to check if the property is at the principal end or not
+            var foreignKeys = _configuration.Model.GetReferencingForeignKeys(property).ToArray();
+
+            if (isPrimaryKey || foreignKeys.Length > 0)
+            {
+                var snapshotValue = entry.RelationshipsSnapshot[property];
+                var currentValue = entry[property];
+
+                if (!StructuralComparisons.StructuralEqualityComparer.Equals(currentValue, snapshotValue))
+                {
+                    if (isPrimaryKey)
+                    {
+                        _configuration.StateManager.UpdateIdentityMap(entry, entry.RelationshipsSnapshot.GetPrimaryKeyValue());
+                    }
+
+                    _notifier.PrincipalKeyPropertyChanged(entry, property, snapshotValue, currentValue);
+
+                    entry.RelationshipsSnapshot.TakeSnapshot(property);
+
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
     }
 }

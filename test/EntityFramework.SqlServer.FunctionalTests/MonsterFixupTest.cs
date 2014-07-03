@@ -6,11 +6,13 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.MonsterModel;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
+using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
@@ -21,9 +23,16 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         private static readonly ConcurrentDictionary<string, AsyncLock> _creationLocks
             = new ConcurrentDictionary<string, AsyncLock>();
 
-        protected override IServiceProvider CreateServiceProvider()
+        protected override IServiceProvider CreateServiceProvider(bool throwingStateManager = false)
         {
-            return new ServiceCollection().AddEntityFramework().AddSqlServer().ServiceCollection.BuildServiceProvider();
+            var serviceCollection = new ServiceCollection().AddEntityFramework().AddSqlServer().ServiceCollection;
+
+            if (throwingStateManager)
+            {
+                serviceCollection.AddScoped<StateManager, ThrowingMonsterStateManager>();
+            }
+
+            return serviceCollection.BuildServiceProvider();
         }
 
         protected override DbContextOptions CreateOptions(string databaseName)

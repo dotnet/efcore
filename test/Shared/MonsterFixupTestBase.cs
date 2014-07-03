@@ -21,19 +21,19 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual async Task Can_build_monster_model_and_seed_data_using_FKs()
         {
-            await Can_build_monster_model_and_seed_data_using_FKs_test(CreateSnapshotMonsterContext, SnapshotDatabaseName);
+            await Can_build_monster_model_and_seed_data_using_FKs_test(p => CreateSnapshotMonsterContext(p), SnapshotDatabaseName);
         }
 
         [Fact]
         public virtual async Task Can_build_monster_model_with_full_notification_entities_and_seed_data_using_FKs()
         {
-            await Can_build_monster_model_and_seed_data_using_FKs_test(CreateChangedChangingMonsterContext, FullNotifyDatabaseName);
+            await Can_build_monster_model_and_seed_data_using_FKs_test(p => CreateChangedChangingMonsterContext(p), FullNotifyDatabaseName);
         }
 
         [Fact]
         public virtual async Task Can_build_monster_model_with_changed_only_notification_entities_and_seed_data_using_FKs()
         {
-            await Can_build_monster_model_and_seed_data_using_FKs_test(CreateChangedOnlyMonsterContext, ChangedOnlyDatabaseName);
+            await Can_build_monster_model_and_seed_data_using_FKs_test(p => CreateChangedOnlyMonsterContext(p), ChangedOnlyDatabaseName);
         }
 
         private async Task Can_build_monster_model_and_seed_data_using_FKs_test(
@@ -49,21 +49,67 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual async Task Store_generated_values_are_discarded_if_saving_changes_fails()
+        {
+            const string databaseName = SnapshotDatabaseName + "_Bad";
+            await Store_generated_values_are_discarded_if_saving_changes_fails_test(p => CreateSnapshotMonsterContext(p, databaseName), databaseName);
+        }
+
+        [Fact]
+        public virtual async Task Store_generated_values_are_discarded_if_saving_changes_fails_with_full_notification_entities()
+        {
+            const string databaseName = FullNotifyDatabaseName + "_Bad";
+            await Store_generated_values_are_discarded_if_saving_changes_fails_test(p => CreateChangedChangingMonsterContext(p, databaseName), databaseName);
+        }
+
+        [Fact]
+        public virtual async Task Store_generated_values_are_discarded_if_saving_changes_fails_with_changed_only_notification_entities()
+        {
+            const string databaseName = ChangedOnlyDatabaseName + "_Bad";
+            await Store_generated_values_are_discarded_if_saving_changes_fails_test(p => CreateChangedOnlyMonsterContext(p, databaseName), databaseName);
+        }
+
+        private async Task Store_generated_values_are_discarded_if_saving_changes_fails_test(
+            Func<IServiceProvider, MonsterContext> createContext, string databaseName)
+        {
+            var serviceProvider = CreateServiceProvider(throwingStateManager: true);
+
+            using (var context = createContext(serviceProvider))
+            {
+                context.Database.EnsureDeleted();
+                context.Database.EnsureCreated();
+                context.SeedUsingFKs(saveChanges: false);
+
+                var stateManager = context.ChangeTracker.StateManager;
+
+                var beforeSnapshot = stateManager.StateEntries.SelectMany(e => e.EntityType.Properties.Select(p => e[p])).ToList();
+
+                Assert.Equal(
+                    "Aborting.",
+                    (await Assert.ThrowsAsync<Exception>(async () => await context.SaveChangesAsync())).Message);
+
+                var afterSnapshot = stateManager.StateEntries.SelectMany(e => e.EntityType.Properties.Select(p => e[p])).ToList();
+
+                Assert.Equal(beforeSnapshot, afterSnapshot);
+            }
+        }
+
+        [Fact]
         public virtual async Task One_to_many_fixup_happens_when_FKs_change_for_snapshot_entities()
         {
-            await One_to_many_fixup_happens_when_FKs_change_test(CreateSnapshotMonsterContext, SnapshotDatabaseName, useDetectChanges: true);
+            await One_to_many_fixup_happens_when_FKs_change_test(p => CreateSnapshotMonsterContext(p), SnapshotDatabaseName, useDetectChanges: true);
         }
 
         [Fact]
         public virtual async Task One_to_many_fixup_happens_when_FKs_change_for_full_notification_entities()
         {
-            await One_to_many_fixup_happens_when_FKs_change_test(CreateChangedChangingMonsterContext, FullNotifyDatabaseName, useDetectChanges: false);
+            await One_to_many_fixup_happens_when_FKs_change_test(p => CreateChangedChangingMonsterContext(p), FullNotifyDatabaseName, useDetectChanges: false);
         }
 
         [Fact]
         public virtual async Task One_to_many_fixup_happens_when_FKs_change_for_changed_only_notification_entities()
         {
-            await One_to_many_fixup_happens_when_FKs_change_test(CreateChangedOnlyMonsterContext, ChangedOnlyDatabaseName, useDetectChanges: false);
+            await One_to_many_fixup_happens_when_FKs_change_test(p => CreateChangedOnlyMonsterContext(p), ChangedOnlyDatabaseName, useDetectChanges: false);
         }
 
         private async Task One_to_many_fixup_happens_when_FKs_change_test(
@@ -92,27 +138,27 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 AssertSentMessagesConsistent(login3);
 
                 // Simple change
-                message2.FromUsername = login3.Username;
+                message2.ToUsername = login3.Username;
 
                 if (useDetectChanges)
                 {
-                    context.ChangeTracker.StateManager.DetectChanges();
+                    context.ChangeTracker.DetectChanges();
                 }
 
-                AssertReceivedMessagesConsistent(login1, message2);
+                AssertReceivedMessagesConsistent(login1);
                 AssertReceivedMessagesConsistent(login2, message1, message3);
-                AssertReceivedMessagesConsistent(login3);
+                AssertReceivedMessagesConsistent(login3, message2);
 
                 AssertSentMessagesConsistent(login1, message1, message3);
-                AssertSentMessagesConsistent(login2);
-                AssertSentMessagesConsistent(login3, message2);
+                AssertSentMessagesConsistent(login2, message2);
+                AssertSentMessagesConsistent(login3);
 
                 // Change back
-                message2.FromUsername = login2.Username;
+                message2.ToUsername = login1.Username;
 
                 if (useDetectChanges)
                 {
-                    context.ChangeTracker.StateManager.DetectChanges();
+                    context.ChangeTracker.DetectChanges();
                 }
 
                 AssertReceivedMessagesConsistent(login1, message2);
@@ -124,56 +170,56 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 AssertSentMessagesConsistent(login3);
 
                 // Remove the relationship
-                message2.FromUsername = null;
+                message2.ToUsername = null;
 
                 if (useDetectChanges)
                 {
-                    context.ChangeTracker.StateManager.DetectChanges();
+                    context.ChangeTracker.DetectChanges();
                 }
 
-                AssertReceivedMessagesConsistent(login1, message2);
+                AssertReceivedMessagesConsistent(login1);
                 AssertReceivedMessagesConsistent(login2, message1, message3);
                 AssertReceivedMessagesConsistent(login3);
+                AssertReceivedMessagesConsistent(null, message2);
 
                 AssertSentMessagesConsistent(login1, message1, message3);
-                AssertSentMessagesConsistent(login2);
+                AssertSentMessagesConsistent(login2, message2);
                 AssertSentMessagesConsistent(login3);
-                AssertSentMessagesConsistent(null, message2);
 
                 // Put the relationship back
-                message2.FromUsername = login3.Username;
+                message2.ToUsername = login3.Username;
 
                 if (useDetectChanges)
                 {
-                    context.ChangeTracker.StateManager.DetectChanges();
+                    context.ChangeTracker.DetectChanges();
                 }
 
-                AssertReceivedMessagesConsistent(login1, message2);
+                AssertReceivedMessagesConsistent(login1);
                 AssertReceivedMessagesConsistent(login2, message1, message3);
-                AssertReceivedMessagesConsistent(login3);
+                AssertReceivedMessagesConsistent(login3, message2);
 
                 AssertSentMessagesConsistent(login1, message1, message3);
-                AssertSentMessagesConsistent(login2);
-                AssertSentMessagesConsistent(login3, message2);
+                AssertSentMessagesConsistent(login2, message2);
+                AssertSentMessagesConsistent(login3);
             }
         }
 
         [Fact]
         public virtual async Task One_to_many_fixup_happens_when_reference_changes_for_snapshot_entities()
         {
-            await One_to_many_fixup_happens_when_reference_changes_test(CreateSnapshotMonsterContext, SnapshotDatabaseName, useDetectChanges: true);
+            await One_to_many_fixup_happens_when_reference_changes_test(p => CreateSnapshotMonsterContext(p), SnapshotDatabaseName, useDetectChanges: true);
         }
 
         [Fact]
         public virtual async Task One_to_many_fixup_happens_when_reference_changes_for_full_notification_entities()
         {
-            await One_to_many_fixup_happens_when_reference_changes_test(CreateChangedChangingMonsterContext, FullNotifyDatabaseName, useDetectChanges: false);
+            await One_to_many_fixup_happens_when_reference_changes_test(p => CreateChangedChangingMonsterContext(p), FullNotifyDatabaseName, useDetectChanges: false);
         }
 
         [Fact]
         public virtual async Task One_to_many_fixup_happens_when_reference_changes_for_changed_only_notification_entities()
         {
-            await One_to_many_fixup_happens_when_reference_changes_test(CreateChangedOnlyMonsterContext, ChangedOnlyDatabaseName, useDetectChanges: false);
+            await One_to_many_fixup_happens_when_reference_changes_test(p => CreateChangedOnlyMonsterContext(p), ChangedOnlyDatabaseName, useDetectChanges: false);
         }
 
         private async Task One_to_many_fixup_happens_when_reference_changes_test(
@@ -202,27 +248,27 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 AssertSentMessagesConsistent(login3);
 
                 // Simple change
-                message2.Sender = login3;
+                message2.Recipient = login3;
 
                 if (useDetectChanges)
                 {
-                    context.ChangeTracker.StateManager.DetectChanges();
+                    context.ChangeTracker.DetectChanges();
                 }
 
-                AssertReceivedMessagesConsistent(login1, message2);
+                AssertReceivedMessagesConsistent(login1);
                 AssertReceivedMessagesConsistent(login2, message1, message3);
-                AssertReceivedMessagesConsistent(login3);
+                AssertReceivedMessagesConsistent(login3, message2);
 
                 AssertSentMessagesConsistent(login1, message1, message3);
-                AssertSentMessagesConsistent(login2);
-                AssertSentMessagesConsistent(login3, message2);
+                AssertSentMessagesConsistent(login2, message2);
+                AssertSentMessagesConsistent(login3);
 
                 // Change back
-                message2.Sender = login2;
+                message2.Recipient = login1;
 
                 if (useDetectChanges)
                 {
-                    context.ChangeTracker.StateManager.DetectChanges();
+                    context.ChangeTracker.DetectChanges();
                 }
 
                 AssertReceivedMessagesConsistent(login1, message2);
@@ -234,56 +280,56 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 AssertSentMessagesConsistent(login3);
 
                 // Remove the relationship
-                message2.Sender = null;
+                message2.Recipient = null;
 
                 if (useDetectChanges)
                 {
-                    context.ChangeTracker.StateManager.DetectChanges();
+                    context.ChangeTracker.DetectChanges();
                 }
 
-                AssertReceivedMessagesConsistent(login1, message2);
+                AssertReceivedMessagesConsistent(login1);
                 AssertReceivedMessagesConsistent(login2, message1, message3);
                 AssertReceivedMessagesConsistent(login3);
+                AssertReceivedMessagesConsistent(null, message2);
 
                 AssertSentMessagesConsistent(login1, message1, message3);
-                AssertSentMessagesConsistent(login2);
+                AssertSentMessagesConsistent(login2, message2);
                 AssertSentMessagesConsistent(login3);
-                AssertSentMessagesConsistent(null, message2);
 
                 // Put the relationship back
-                message2.Sender = login3;
+                message2.Recipient = login3;
 
                 if (useDetectChanges)
                 {
-                    context.ChangeTracker.StateManager.DetectChanges();
+                    context.ChangeTracker.DetectChanges();
                 }
 
-                AssertReceivedMessagesConsistent(login1, message2);
+                AssertReceivedMessagesConsistent(login1);
                 AssertReceivedMessagesConsistent(login2, message1, message3);
-                AssertReceivedMessagesConsistent(login3);
+                AssertReceivedMessagesConsistent(login3, message2);
 
                 AssertSentMessagesConsistent(login1, message1, message3);
-                AssertSentMessagesConsistent(login2);
-                AssertSentMessagesConsistent(login3, message2);
+                AssertSentMessagesConsistent(login2, message2);
+                AssertSentMessagesConsistent(login3);
             }
         }
 
         [Fact]
         public virtual async Task One_to_many_fixup_happens_when_collection_changes_for_snapshot_entities()
         {
-            await One_to_many_fixup_happens_when_collection_changes_test(CreateSnapshotMonsterContext, SnapshotDatabaseName, useDetectChanges: true);
+            await One_to_many_fixup_happens_when_collection_changes_test(p => CreateSnapshotMonsterContext(p), SnapshotDatabaseName, useDetectChanges: true);
         }
 
         //[Fact] TODO: Support INotifyCollectionChanging so that collection change detection without DetectChanges works
         public virtual async Task One_to_many_fixup_happens_when_collection_changes_for_full_notification_entities()
         {
-            await One_to_many_fixup_happens_when_collection_changes_test(CreateChangedChangingMonsterContext, FullNotifyDatabaseName, useDetectChanges: false);
+            await One_to_many_fixup_happens_when_collection_changes_test(p => CreateChangedChangingMonsterContext(p), FullNotifyDatabaseName, useDetectChanges: false);
         }
 
         //[Fact] TODO: Support INotifyCollectionChanging so that collection change detection without DetectChanges works
         public virtual async Task One_to_many_fixup_happens_when_collection_changes_for_changed_only_notification_entities()
         {
-            await One_to_many_fixup_happens_when_collection_changes_test(CreateChangedOnlyMonsterContext, ChangedOnlyDatabaseName, useDetectChanges: false);
+            await One_to_many_fixup_happens_when_collection_changes_test(p => CreateChangedOnlyMonsterContext(p), ChangedOnlyDatabaseName, useDetectChanges: false);
         }
 
         private async Task One_to_many_fixup_happens_when_collection_changes_test(
@@ -317,7 +363,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 if (useDetectChanges)
                 {
-                    context.ChangeTracker.StateManager.DetectChanges();
+                    context.ChangeTracker.DetectChanges();
                 }
 
                 AssertReceivedMessagesConsistent(login1);
@@ -335,7 +381,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 if (useDetectChanges)
                 {
-                    context.ChangeTracker.StateManager.DetectChanges();
+                    context.ChangeTracker.DetectChanges();
                 }
 
                 AssertReceivedMessagesConsistent(login1, message3);
@@ -354,7 +400,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 if (useDetectChanges)
                 {
-                    context.ChangeTracker.StateManager.DetectChanges();
+                    context.ChangeTracker.DetectChanges();
                 }
 
                 AssertReceivedMessagesConsistent(login1, message2);
@@ -370,19 +416,19 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual async Task One_to_one_fixup_happens_when_FKs_change_for_snapshot_entities()
         {
-            await One_to_one_fixup_happens_when_FKs_change_test(CreateSnapshotMonsterContext, SnapshotDatabaseName, useDetectChanges: true);
+            await One_to_one_fixup_happens_when_FKs_change_test(p => CreateSnapshotMonsterContext(p), SnapshotDatabaseName, useDetectChanges: true);
         }
 
         [Fact]
         public virtual async Task One_to_one_fixup_happens_when_FKs_change_for_full_notification_entities()
         {
-            await One_to_one_fixup_happens_when_FKs_change_test(CreateChangedChangingMonsterContext, FullNotifyDatabaseName, useDetectChanges: false);
+            await One_to_one_fixup_happens_when_FKs_change_test(p => CreateChangedChangingMonsterContext(p), FullNotifyDatabaseName, useDetectChanges: false);
         }
 
         [Fact]
         public virtual async Task One_to_one_fixup_happens_when_FKs_change_for_changed_only_notification_entities()
         {
-            await One_to_one_fixup_happens_when_FKs_change_test(CreateChangedOnlyMonsterContext, ChangedOnlyDatabaseName, useDetectChanges: false);
+            await One_to_one_fixup_happens_when_FKs_change_test(p => CreateChangedOnlyMonsterContext(p), ChangedOnlyDatabaseName, useDetectChanges: false);
         }
 
         private async Task One_to_one_fixup_happens_when_FKs_change_test(
@@ -412,7 +458,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 if (useDetectChanges)
                 {
-                    context.ChangeTracker.StateManager.DetectChanges();
+                    context.ChangeTracker.DetectChanges();
                 }
 
                 AssertSpousesConsistent(customer0, null);
@@ -427,7 +473,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 if (useDetectChanges)
                 {
-                    context.ChangeTracker.StateManager.DetectChanges();
+                    context.ChangeTracker.DetectChanges();
                 }
 
                 AssertSpousesConsistent(customer0, null);
@@ -443,7 +489,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 if (useDetectChanges)
                 {
-                    context.ChangeTracker.StateManager.DetectChanges();
+                    context.ChangeTracker.DetectChanges();
                 }
 
                 AssertSpousesConsistent(customer0, null);
@@ -459,7 +505,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 if (useDetectChanges)
                 {
-                    context.ChangeTracker.StateManager.DetectChanges();
+                    context.ChangeTracker.DetectChanges();
                 }
 
                 AssertSpousesConsistent(customer0, null);
@@ -474,19 +520,19 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual async Task One_to_one_fixup_happens_when_reference_change_for_snapshot_entities()
         {
-            await One_to_one_fixup_happens_when_reference_change_test(CreateSnapshotMonsterContext, SnapshotDatabaseName, useDetectChanges: true);
+            await One_to_one_fixup_happens_when_reference_change_test(p => CreateSnapshotMonsterContext(p), SnapshotDatabaseName, useDetectChanges: true);
         }
 
         [Fact]
         public virtual async Task One_to_one_fixup_happens_when_reference_change_for_full_notification_entities()
         {
-            await One_to_one_fixup_happens_when_reference_change_test(CreateChangedChangingMonsterContext, FullNotifyDatabaseName, useDetectChanges: false);
+            await One_to_one_fixup_happens_when_reference_change_test(p => CreateChangedChangingMonsterContext(p), FullNotifyDatabaseName, useDetectChanges: false);
         }
 
         [Fact]
         public virtual async Task One_to_one_fixup_happens_when_reference_change_for_changed_only_notification_entities()
         {
-            await One_to_one_fixup_happens_when_reference_change_test(CreateChangedOnlyMonsterContext, ChangedOnlyDatabaseName, useDetectChanges: false);
+            await One_to_one_fixup_happens_when_reference_change_test(p => CreateChangedOnlyMonsterContext(p), ChangedOnlyDatabaseName, useDetectChanges: false);
         }
 
         private async Task One_to_one_fixup_happens_when_reference_change_test(
@@ -516,7 +562,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 if (useDetectChanges)
                 {
-                    context.ChangeTracker.StateManager.DetectChanges();
+                    context.ChangeTracker.DetectChanges();
                 }
 
                 AssertSpousesConsistent(customer0, null);
@@ -531,7 +577,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 if (useDetectChanges)
                 {
-                    context.ChangeTracker.StateManager.DetectChanges();
+                    context.ChangeTracker.DetectChanges();
                 }
 
                 AssertSpousesConsistent(customer0, null);
@@ -547,7 +593,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 if (useDetectChanges)
                 {
-                    context.ChangeTracker.StateManager.DetectChanges();
+                    context.ChangeTracker.DetectChanges();
                 }
 
                 AssertSpousesConsistent(customer0, null);
@@ -562,7 +608,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 if (useDetectChanges)
                 {
-                    context.ChangeTracker.StateManager.DetectChanges();
+                    context.ChangeTracker.DetectChanges();
                 }
 
                 AssertSpousesConsistent(customer0, null);
@@ -578,19 +624,19 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual async Task Composite_fixup_happens_when_FKs_change_for_snapshot_entities()
         {
-            await Composite_fixup_happens_when_FKs_change_test(CreateSnapshotMonsterContext, SnapshotDatabaseName, useDetectChanges: true);
+            await Composite_fixup_happens_when_FKs_change_test(p => CreateSnapshotMonsterContext(p), SnapshotDatabaseName, useDetectChanges: true);
         }
 
         [Fact]
         public virtual async Task Composite_fixup_happens_when_FKs_change_for_full_notification_entities()
         {
-            await Composite_fixup_happens_when_FKs_change_test(CreateChangedChangingMonsterContext, FullNotifyDatabaseName, useDetectChanges: false);
+            await Composite_fixup_happens_when_FKs_change_test(p => CreateChangedChangingMonsterContext(p), FullNotifyDatabaseName, useDetectChanges: false);
         }
 
         [Fact]
         public virtual async Task Composite_fixup_happens_when_FKs_change_for_changed_only_notification_entities()
         {
-            await Composite_fixup_happens_when_FKs_change_test(CreateChangedOnlyMonsterContext, ChangedOnlyDatabaseName, useDetectChanges: false);
+            await Composite_fixup_happens_when_FKs_change_test(p => CreateChangedOnlyMonsterContext(p), ChangedOnlyDatabaseName, useDetectChanges: false);
         }
 
         private async Task Composite_fixup_happens_when_FKs_change_test(
@@ -627,25 +673,25 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 AssertReviewsConsistent(productReview3, productWebFeature2);
 
                 // Change one part of the key
-                productWebFeature1.ProductId = product2.ProductId;
+                productWebFeature1.ProductId = product3.ProductId;
 
                 if (useDetectChanges)
                 {
-                    context.ChangeTracker.StateManager.DetectChanges();
+                    context.ChangeTracker.DetectChanges();
                 }
 
                 AssertPhotosConsistent(productPhoto1);
                 AssertPhotosConsistent(productPhoto2);
                 AssertPhotosConsistent(productPhoto3);
                 AssertPhotosConsistent(null, productWebFeature2);
-                Assert.Equal(product2.ProductId, productWebFeature1.ProductId);
+                Assert.Equal(product3.ProductId, productWebFeature1.ProductId);
                 Assert.Equal(productPhoto1.PhotoId, productWebFeature1.PhotoId);
                 Assert.Null(productWebFeature1.Photo);
 
                 AssertReviewsConsistent(productReview1);
                 AssertReviewsConsistent(productReview2);
                 AssertReviewsConsistent(productReview3, productWebFeature2);
-                Assert.Equal(product2.ProductId, productWebFeature1.ProductId);
+                Assert.Equal(product3.ProductId, productWebFeature1.ProductId);
                 Assert.Equal(productReview1.ReviewId, productWebFeature1.ReviewId);
                 Assert.Null(productWebFeature1.Review);
 
@@ -654,20 +700,20 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 if (useDetectChanges)
                 {
-                    context.ChangeTracker.StateManager.DetectChanges();
+                    context.ChangeTracker.DetectChanges();
                 }
 
                 AssertPhotosConsistent(productPhoto1);
                 AssertPhotosConsistent(productPhoto2);
                 AssertPhotosConsistent(productPhoto3);
                 AssertPhotosConsistent(null, productWebFeature2);
-                Assert.Equal(product2.ProductId, productWebFeature1.ProductId);
+                Assert.Equal(product3.ProductId, productWebFeature1.ProductId);
                 Assert.Equal(productPhoto1.PhotoId, productWebFeature1.PhotoId);
                 Assert.Null(productWebFeature1.Photo);
 
                 AssertReviewsConsistent(productReview1);
                 AssertReviewsConsistent(productReview2);
-                AssertReviewsConsistent(productReview3, productWebFeature1, productWebFeature2);
+                AssertReviewsConsistent(productReview3, productWebFeature2);
 
                 // Change both at the same time
                 productWebFeature1.ReviewId = productReview1.ReviewId;
@@ -675,7 +721,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 if (useDetectChanges)
                 {
-                    context.ChangeTracker.StateManager.DetectChanges();
+                    context.ChangeTracker.DetectChanges();
                 }
 
                 AssertPhotosConsistent(productPhoto1, productWebFeature1);
@@ -692,19 +738,19 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual async Task Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_for_snapshot_entities()
         {
-            await Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_test(CreateSnapshotMonsterContext, SnapshotDatabaseName, useDetectChanges: true);
+            await Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_test(p => CreateSnapshotMonsterContext(p), SnapshotDatabaseName, useDetectChanges: true);
         }
 
         //[Fact] TODO: Support INotifyCollectionChanging so that collection change detection without DetectChanges works
         public virtual async Task Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_for_full_notification_entities()
         {
-            await Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_test(CreateChangedChangingMonsterContext, FullNotifyDatabaseName, useDetectChanges: false);
+            await Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_test(p => CreateChangedChangingMonsterContext(p), FullNotifyDatabaseName, useDetectChanges: false);
         }
 
         //[Fact] TODO: Support INotifyCollectionChanging so that collection change detection without DetectChanges works
         public virtual async Task Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_for_changed_only_notification_entities()
         {
-            await Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_test(CreateChangedOnlyMonsterContext, ChangedOnlyDatabaseName, useDetectChanges: false);
+            await Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_test(p => CreateChangedOnlyMonsterContext(p), ChangedOnlyDatabaseName, useDetectChanges: false);
         }
 
         private async Task Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_test(
@@ -743,7 +789,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 if (useDetectChanges)
                 {
-                    context.ChangeTracker.StateManager.DetectChanges();
+                    context.ChangeTracker.DetectChanges();
                 }
 
                 AssertBadScansConsistent(barcode1, incorrectScan2);
@@ -763,7 +809,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 if (useDetectChanges)
                 {
-                    context.ChangeTracker.StateManager.DetectChanges();
+                    context.ChangeTracker.DetectChanges();
                 }
 
                 AssertBadScansConsistent(barcode1, incorrectScan2);
@@ -784,7 +830,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 if (useDetectChanges)
                 {
-                    context.ChangeTracker.StateManager.DetectChanges();
+                    context.ChangeTracker.DetectChanges();
                 }
 
                 AssertBadScansConsistent(barcode1, incorrectScan2);
@@ -815,7 +861,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 if (useDetectChanges)
                 {
-                    context.ChangeTracker.StateManager.DetectChanges();
+                    context.ChangeTracker.DetectChanges();
                 }
 
                 AssertBadScansConsistent(barcode1, incorrectScan2);
@@ -836,7 +882,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 if (useDetectChanges)
                 {
-                    context.ChangeTracker.StateManager.DetectChanges();
+                    context.ChangeTracker.DetectChanges();
                 }
 
                 AssertBadScansConsistent(barcode1);
@@ -860,7 +906,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 if (useDetectChanges)
                 {
-                    context.ChangeTracker.StateManager.DetectChanges();
+                    context.ChangeTracker.DetectChanges();
                 }
 
                 AssertBadScansConsistent(barcode1, incorrectScan1, incorrectScan2);
@@ -1506,25 +1552,25 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        protected abstract IServiceProvider CreateServiceProvider();
+        protected abstract IServiceProvider CreateServiceProvider(bool throwingStateManager = false);
 
         protected abstract DbContextOptions CreateOptions(string databaseName);
 
         protected abstract Task CreateAndSeedDatabase(string databaseName, Func<MonsterContext> createContext);
 
-        private SnapshotMonsterContext CreateSnapshotMonsterContext(IServiceProvider serviceProvider)
+        private SnapshotMonsterContext CreateSnapshotMonsterContext(IServiceProvider serviceProvider, string databaseName = SnapshotDatabaseName)
         {
-            return new SnapshotMonsterContext(serviceProvider, CreateOptions(SnapshotDatabaseName), OnModelCreating);
+            return new SnapshotMonsterContext(serviceProvider, CreateOptions(databaseName), OnModelCreating);
         }
 
-        private ChangedChangingMonsterContext CreateChangedChangingMonsterContext(IServiceProvider serviceProvider)
+        private ChangedChangingMonsterContext CreateChangedChangingMonsterContext(IServiceProvider serviceProvider, string databaseName = FullNotifyDatabaseName)
         {
-            return new ChangedChangingMonsterContext(serviceProvider, CreateOptions(FullNotifyDatabaseName), OnModelCreating);
+            return new ChangedChangingMonsterContext(serviceProvider, CreateOptions(databaseName), OnModelCreating);
         }
 
-        private ChangedOnlyMonsterContext CreateChangedOnlyMonsterContext(IServiceProvider serviceProvider)
+        private ChangedOnlyMonsterContext CreateChangedOnlyMonsterContext(IServiceProvider serviceProvider, string databaseName = ChangedOnlyDatabaseName)
         {
-            return new ChangedOnlyMonsterContext(serviceProvider, CreateOptions(ChangedOnlyDatabaseName), OnModelCreating);
+            return new ChangedOnlyMonsterContext(serviceProvider, CreateOptions(databaseName), OnModelCreating);
         }
 
         protected virtual void OnModelCreating(ModelBuilder builder)

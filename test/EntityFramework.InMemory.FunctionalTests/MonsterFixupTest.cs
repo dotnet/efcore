@@ -3,6 +3,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.MonsterModel;
 using Microsoft.Framework.DependencyInjection;
@@ -12,9 +13,16 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 {
     public class MonsterFixupTest : MonsterFixupTestBase
     {
-        protected override IServiceProvider CreateServiceProvider()
+        protected override IServiceProvider CreateServiceProvider(bool throwingStateManager = false)
         {
-            return new ServiceCollection().AddEntityFramework().AddInMemoryStore().ServiceCollection.BuildServiceProvider();
+            var serviceCollection = new ServiceCollection().AddEntityFramework().AddInMemoryStore().ServiceCollection;
+
+            if (throwingStateManager)
+            {
+                serviceCollection.AddScoped<StateManager, ThrowingMonsterStateManager>();
+            }
+
+            return serviceCollection.BuildServiceProvider();
         }
 
         protected override DbContextOptions CreateOptions(string databaseName)

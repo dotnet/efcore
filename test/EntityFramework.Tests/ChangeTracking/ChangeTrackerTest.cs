@@ -17,9 +17,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.Equal(
                 "stateManager",
                 // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => new ChangeTracker(null)).ParamName);
+                Assert.Throws<ArgumentNullException>(() => new ChangeTracker(null, null)).ParamName);
 
-            var changeTracker = new ChangeTracker(new Mock<StateManager>().Object);
+            var changeTracker = new ChangeTracker(Mock.Of<StateManager>(), Mock.Of<ChangeDetector>());
 
             Assert.Equal(
                 "entity",
@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var stateEntry = new Mock<StateEntry>().Object;
             stateManagerMock.Setup(m => m.GetOrCreateEntry(entity)).Returns(stateEntry);
 
-            var changeTracker = new ChangeTracker(stateManagerMock.Object);
+            var changeTracker = new ChangeTracker(stateManagerMock.Object, Mock.Of<ChangeDetector>());
 
             Assert.Same(stateEntry, changeTracker.Entry(entity).StateEntry);
             Assert.Same(stateEntry, changeTracker.Entry((object)entity).StateEntry);
@@ -54,7 +54,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             Assert.Equal(
                 stateEntries,
-                new ChangeTracker(stateManagerMock.Object).Entries().Select(e => e.StateEntry).ToArray());
+                new ChangeTracker(stateManagerMock.Object, Mock.Of<ChangeDetector>()).Entries().Select(e => e.StateEntry).ToArray());
         }
 
         [Fact]
@@ -73,15 +73,15 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             Assert.Equal(
                 new[] { stateEntryMock1.Object, stateEntryMock3.Object },
-                new ChangeTracker(stateManagerMock.Object).Entries<Random>().Select(e => e.StateEntry).ToArray());
+                new ChangeTracker(stateManagerMock.Object, Mock.Of<ChangeDetector>()).Entries<Random>().Select(e => e.StateEntry).ToArray());
 
             Assert.Equal(
                 new[] { stateEntryMock2.Object },
-                new ChangeTracker(stateManagerMock.Object).Entries<string>().Select(e => e.StateEntry).ToArray());
+                new ChangeTracker(stateManagerMock.Object, Mock.Of<ChangeDetector>()).Entries<string>().Select(e => e.StateEntry).ToArray());
 
             Assert.Equal(
                 new[] { stateEntryMock1.Object, stateEntryMock2.Object, stateEntryMock3.Object },
-                new ChangeTracker(stateManagerMock.Object).Entries<object>().Select(e => e.StateEntry).ToArray());
+                new ChangeTracker(stateManagerMock.Object, Mock.Of<ChangeDetector>()).Entries<object>().Select(e => e.StateEntry).ToArray());
         }
 
         [Fact]
@@ -89,7 +89,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var stateManager = new Mock<StateManager>().Object;
 
-            Assert.Same(stateManager, new ChangeTracker(stateManager).StateManager);
+            Assert.Same(stateManager, new ChangeTracker(stateManager, Mock.Of<ChangeDetector>()).StateManager);
         }
     }
 }

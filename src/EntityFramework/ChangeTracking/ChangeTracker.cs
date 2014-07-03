@@ -13,6 +13,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
     public class ChangeTracker
     {
         private readonly StateManager _stateManager;
+        private readonly ChangeDetector _changeDetector;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -23,11 +24,13 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
         }
 
-        public ChangeTracker([NotNull] StateManager stateManager)
+        public ChangeTracker([NotNull] StateManager stateManager, [NotNull] ChangeDetector changeDetector)
         {
             Check.NotNull(stateManager, "stateManager");
+            Check.NotNull(changeDetector, "changeDetector");
 
             _stateManager = stateManager;
+            _changeDetector = changeDetector;
         }
 
         public virtual EntityEntry<TEntity> Entry<TEntity>([NotNull] TEntity entity)
@@ -59,6 +62,12 @@ namespace Microsoft.Data.Entity.ChangeTracking
         public virtual StateManager StateManager
         {
             get { return _stateManager; }
+        }
+
+
+        public virtual bool DetectChanges()
+        {
+            return _changeDetector.DetectChanges(_stateManager);
         }
     }
 }

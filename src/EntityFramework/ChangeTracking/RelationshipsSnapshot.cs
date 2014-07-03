@@ -32,7 +32,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             var entityType = stateEntry.EntityType;
 
-            return entityType.ForeignKeys.SelectMany(fk => fk.Properties).Distinct()
+            return entityType.GetKey().Properties.Concat(
+                entityType.ForeignKeys.SelectMany(fk => fk.Properties)).Distinct()
                 .Concat<IPropertyBase>(entityType.Navigations);
         }
 
