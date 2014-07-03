@@ -12,6 +12,7 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
+using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Query
 {
@@ -37,6 +38,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
 
             _connection = connection;
             ValueReaderFactory = readerFactory;
+            TableQueryGenerator = new TableQueryGenerator();
         }
 
         public virtual AtsConnection Connection
@@ -45,6 +47,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
         }
 
         public virtual AtsValueReaderFactory ValueReaderFactory { get; private set; }
+        public virtual TableQueryGenerator TableQueryGenerator { get; private set; }
 
         public virtual IEnumerable<TResult> GetOrAddQueryResults<TResult>([NotNull] QueryTableRequest<TResult> request)
         {
@@ -59,9 +62,10 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
         private struct QueryKey
         {
             public readonly AtsTable Table;
-            public readonly AtsTableQuery Query;
+            //for now, ignore SelectColumns
+            public readonly TableQuery Query;
 
-            public QueryKey(AtsTable table, AtsTableQuery query)
+            public QueryKey(AtsTable table, TableQuery query)
             {
                 Table = table;
                 Query = query;
@@ -69,7 +73,9 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
 
             public bool Equals(QueryKey other)
             {
-                return Table.Equals(other.Table) && Query.Equals(other.Query);
+                return Equals(Table, other.Table)
+                       && Equals(Query.FilterString, other.Query.FilterString)
+                       && Equals(Query.TakeCount, other.Query.TakeCount);
             }
 
             public override bool Equals(object obj)
@@ -85,7 +91,10 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
             {
                 unchecked
                 {
-                    return (Table.GetHashCode() * 397) ^ Query.GetHashCode();
+                    var hashCode = Query.TakeCount.GetHashCode();
+                    hashCode = (hashCode * 397) ^ (Query.FilterString != null ? Query.FilterString.GetHashCode() : 0);
+                    hashCode = (hashCode * 397) ^ (Table != null ? Table.GetHashCode() : 0);
+                    return hashCode;
                 }
             }
         }

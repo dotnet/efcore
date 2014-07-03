@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
             _dataStore = new AtsDataStore(
                 configuration.Object,
                 _connection.Object,
-                new AtsQueryFactory(new AtsValueReaderFactory(), new TableFilterFactory()),
+                new AtsQueryFactory(new AtsValueReaderFactory()),
                 new TableEntityAdapterFactory());
         }
 

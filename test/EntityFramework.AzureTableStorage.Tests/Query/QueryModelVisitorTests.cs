@@ -89,7 +89,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
 
         public int CountQueryModel(QueryModel queryModel)
         {
-            var context = new AtsQueryCompilationContext(CreateModel(), new TableFilterFactory());
+            var context = new AtsQueryCompilationContext(CreateModel());
             var visitor = context.CreateQueryModelVisitor();
             visitor.VisitQueryModel(queryModel);
 
@@ -162,7 +162,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
         protected override Expression VisitMethodCallExpression(MethodCallExpression expression)
         {
             if (expression.Method.DeclaringType == typeof(AtsQueryModelVisitor)
-                && expression.Method.Name == "EntityScan")
+                && expression.Method.Name == "ExecuteSelectExpression")
             {
                 EntityScanCount++;
             }

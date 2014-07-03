@@ -24,7 +24,6 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddSingleton<AtsQueryFactory>()
                 .AddSingleton<TableEntityAdapterFactory>()
                 .AddSingleton<AtsValueReaderFactory>()
-                .AddSingleton<TableFilterFactory>()
                 .AddScoped<AtsDatabase>()
                 .AddScoped<AtsDataStore>()
                 .AddScoped<AtsConnection>()

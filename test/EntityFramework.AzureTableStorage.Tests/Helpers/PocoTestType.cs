@@ -33,5 +33,12 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers
             }
             return entityType;
         }
+
+        public static IModel Model()
+        {
+            var model = new Model();
+            model.AddEntityType(EntityType());
+            return model;
+        }
     }
 }

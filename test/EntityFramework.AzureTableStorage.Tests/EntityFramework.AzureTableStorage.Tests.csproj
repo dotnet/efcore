@@ -97,7 +97,6 @@
     <Compile Include="Extensions\AtsDbContextExtensionsTests.cs" />
     <Compile Include="Extensions\EntityBuilderExtensionsTests.cs" />
     <Compile Include="Helpers\PocoTestType.cs" />
-    <Compile Include="Helpers\TestModelFixture.cs" />
     <Compile Include="Helpers\TestStateEntry.cs" />
     <Compile Include="Helpers\TestTableResult.cs" />
     <Compile Include="Query\AtsNamedValueBufferTests.cs" />
@@ -106,9 +105,7 @@
     <Compile Include="Query\QueryGenerationTests.cs" />
     <Compile Include="Query\QueryCachingTests.cs" />
     <Compile Include="Query\QueryModelVisitorTests.cs" />
-    <Compile Include="Query\TableFilterFactoryTests.cs" />
-    <Compile Include="Query\TableFilterTests.cs" />
-    <Compile Include="Query\TableQueryTest.cs" />
+    <Compile Include="Query\TableQueryGeneratorTests.cs" />
     <Compile Include="Utilities\EntityTypeExtensionsTest.cs" />
   </ItemGroup>
   <ItemGroup>

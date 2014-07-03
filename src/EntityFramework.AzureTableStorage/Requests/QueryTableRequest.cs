@@ -6,18 +6,19 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.AzureTableStorage.Query;
 using Microsoft.Data.Entity.AzureTableStorage.Utilities;
+using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Requests
 {
     public class QueryTableRequest<TElement> : AtsRequest<IEnumerable<TElement>>
     {
-        private readonly AtsTableQuery _query;
+        private readonly TableQuery _query;
         private readonly Func<AtsNamedValueBuffer, TElement> _resolver;
         private readonly AtsTable _table;
 
         public QueryTableRequest(
             [NotNull] AtsTable table,
-            [NotNull] AtsTableQuery query,
+            [NotNull] TableQuery query,
             [NotNull] Func<AtsNamedValueBuffer, TElement> resolver)
         {
             Check.NotNull(table, "table");
@@ -33,7 +34,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Requests
             get { return "QueryTableRequest"; }
         }
 
-        public virtual AtsTableQuery Query
+        public virtual TableQuery Query
         {
             get { return _query; }
         }
@@ -49,7 +50,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Requests
             return requestContext
                 .TableClient
                 .GetTableReference(_table.Name)
-                .ExecuteQuery(_query.ToExecutableQuery(), (key, rowKey, timestamp, properties, etag) =>
+                .ExecuteQuery(_query, (key, rowKey, timestamp, properties, etag) =>
                     {
                         var buffer = new AtsNamedValueBuffer(properties);
                         buffer.Add("PartitionKey", key);

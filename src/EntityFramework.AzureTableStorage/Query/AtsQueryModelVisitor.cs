@@ -7,19 +7,23 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.AzureTableStorage.Metadata;
+using Microsoft.Data.Entity.AzureTableStorage.Query.Expressions;
 using Microsoft.Data.Entity.AzureTableStorage.Requests;
 using Microsoft.Data.Entity.AzureTableStorage.Utilities;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
+using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Query
 {
-    public class AtsQueryModelVisitor : EntityQueryModelVisitor
+    public partial class AtsQueryModelVisitor : EntityQueryModelVisitor
     {
-        private readonly Dictionary<IQuerySource, AtsTableQuery> _queriesBySource = new Dictionary<IQuerySource, AtsTableQuery>();
+        private readonly Dictionary<IQuerySource, SelectExpression> _queriesBySource
+            = new Dictionary<IQuerySource, SelectExpression>();
+
         private readonly AtsQueryCompilationContext _queryCompilationContext;
 
         public AtsQueryModelVisitor([NotNull] AtsQueryCompilationContext queryCompilationContext)
@@ -34,13 +38,13 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
         }
 
         [NotNull]
-        public virtual AtsTableQuery GetTableQuery([NotNull] IQuerySource key)
+        public virtual SelectExpression GetSelectExpression([NotNull] IQuerySource key)
         {
             Check.NotNull(key, "key");
             return _queriesBySource[key];
         }
 
-        public virtual bool TryGetTableQuery([NotNull] IQuerySource key, [CanBeNull] out AtsTableQuery query)
+        public virtual bool TryGetSelectExpression([NotNull] IQuerySource key, [CanBeNull] out SelectExpression query)
         {
             Check.NotNull(key, "key");
             return _queriesBySource.TryGetValue(key, out query);
@@ -48,107 +52,73 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
 
         protected override ExpressionTreeVisitor CreateQueryingExpressionTreeVisitor(IQuerySource querySource)
         {
-            return new AzureTableStorageQueryingExpressionTreeVisitor(this, querySource);
+            return new AtsQueryingExpressionTreeVisitor(this, querySource);
         }
 
-        protected class AzureTableStorageQueryingExpressionTreeVisitor : QueryingExpressionTreeVisitor
+        public override void VisitWhereClause(WhereClause whereClause, QueryModel queryModel, int index)
         {
-            private readonly AtsQueryModelVisitor _parent;
-            private readonly IQuerySource _querySource;
-            private readonly IEntityType _entityType;
+            base.VisitWhereClause(whereClause, queryModel, index);
 
-            public AzureTableStorageQueryingExpressionTreeVisitor(AtsQueryModelVisitor parent, IQuerySource querySource)
-                : base(parent.QueryCompilationContext)
+            foreach (var sourceQuery in _queriesBySource)
             {
-                _parent = parent;
-                _querySource = querySource;
-                _entityType = _parent._queryCompilationContext.Model.TryGetEntityType(_querySource.ItemType);
-            }
+                var filteringVisitor
+                    = new FilteringExpressionTreeVisitor(this, sourceQuery.Key);
 
-            protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
-            {
-                var visitor = new AtsQueryModelVisitor(_parent);
-                visitor.VisitQueryModel(expression.QueryModel);
-                return visitor.Expression;
-            }
+                filteringVisitor.VisitExpression(whereClause.Predicate);
 
-            protected override Expression VisitEntityQueryable(Type elementType)
-            {
-                var query = new AtsTableQuery();
-                _parent._queriesBySource[_querySource] = query;
-
-                var entityType = _parent.QueryCompilationContext.Model.GetEntityType(elementType);
-
-                return Expression.Call(
-                    _entityScanMethodInfo.MakeGenericMethod(elementType),
-                    QueryContextParameter,
-                    Expression.Constant(query),
-                    Expression.Constant(entityType)
-                    );
-            }
-
-            protected override Expression VisitUnaryExpression(UnaryExpression expression)
-            {
-                var filter = _parent._queryCompilationContext.TableFilterFactory.TryCreate(expression, _entityType);
-                AtsTableQuery query;
-                if (filter != null
-                    && _parent._queriesBySource.TryGetValue(_querySource, out query))
-                {
-                    query.WithFilter(filter);
-                    return expression;
-                }
-                return base.VisitUnaryExpression(expression);
-            }
-
-            protected override Expression VisitMemberExpression(MemberExpression expression)
-            {
-                var filter = _parent._queryCompilationContext.TableFilterFactory.TryCreate(expression, _entityType);
-                AtsTableQuery query;
-                if (filter != null
-                    && _parent._queriesBySource.TryGetValue(_querySource, out query))
-                {
-                    //TODO replace expression
-                    query.WithFilter(filter);
-                }
-                return base.VisitMemberExpression(expression);
-            }
-
-            protected override Expression VisitBinaryExpression(BinaryExpression expression)
-            {
-                var filter = _parent._queryCompilationContext.TableFilterFactory.TryCreate(expression, _entityType);
-                AtsTableQuery query;
-                if (filter != null
-                    && _parent._queriesBySource.TryGetValue(_querySource, out query))
-                {
-                    query.WithFilter(filter);
-                }
-                if (expression.NodeType == ExpressionType.AndAlso)
-                {
-                    //TODO add support composite logical statements
-                    return Expression.MakeBinary(expression.NodeType, VisitExpression(expression.Left), VisitExpression(expression.Right));
-                }
-                else if (expression.NodeType == ExpressionType.OrElse)
-                {
-                    //TODO refactor to handle else statements
-                    return expression;
-                }
-                //TODO replace expression
-                return base.VisitBinaryExpression(expression);
+                sourceQuery.Value.Predicate = filteringVisitor.Predicate;
             }
         }
 
-        private static readonly MethodInfo _entityScanMethodInfo
-            = typeof(AtsQueryModelVisitor).GetTypeInfo().GetDeclaredMethod("EntityScan");
+        private TResult BindMemberExpression<TResult>(
+            MemberExpression memberExpression,
+            IQuerySource querySource,
+            Func<IProperty, SelectExpression, TResult> memberBinder)
+        {
+            var querySourceReferenceExpression
+                = memberExpression.Expression as QuerySourceReferenceExpression;
+
+            if (querySourceReferenceExpression != null
+                && (querySource == null
+                    || querySource == querySourceReferenceExpression.ReferencedQuerySource))
+            {
+                var entityType
+                    = QueryCompilationContext.Model
+                        .TryGetEntityType(
+                            querySourceReferenceExpression.ReferencedQuerySource.ItemType);
+
+                if (entityType != null)
+                {
+                    var property = entityType.TryGetProperty(memberExpression.Member.Name);
+
+                    if (property != null)
+                    {
+                        SelectExpression selectExpression;
+                        if (_queriesBySource
+                            .TryGetValue(querySourceReferenceExpression.ReferencedQuerySource, out selectExpression))
+                        {
+                            return memberBinder(property, selectExpression);
+                        }
+                    }
+                }
+            }
+
+            return default(TResult);
+        }
+
+        private static readonly MethodInfo _executeQueryMethodInfo
+            = typeof(AtsQueryModelVisitor).GetTypeInfo().GetDeclaredMethod("ExecuteSelectExpression");
 
         [UsedImplicitly]
-        private static IEnumerable<TResult> EntityScan<TResult>(QueryContext queryContext, AtsTableQuery tableQuery, IEntityType entityType)
+        private static IEnumerable<TResult> ExecuteSelectExpression<TResult>(QueryContext queryContext, IEntityType entityType, SelectExpression selectExpression)
             where TResult : class, new()
         {
             var context = ((AtsQueryContext)queryContext);
             var table = new AtsTable(entityType.TableName());
+            var query = context.TableQueryGenerator.GenerateTableQuery(selectExpression);
             var request = new QueryTableRequest<TResult>(
                 table,
-                tableQuery, s =>
+                query, s =>
                     (TResult)context.StateManager.GetOrMaterializeEntry(
                         entityType,
                         context.ValueReaderFactory.Create(entityType, s)

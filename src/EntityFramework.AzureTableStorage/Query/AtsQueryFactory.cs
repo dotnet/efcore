@@ -12,19 +12,16 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
     public class AtsQueryFactory
     {
         private readonly AtsValueReaderFactory _valueReaderFactory;
-        private readonly TableFilterFactory _tableFilterFactory;
 
-        public AtsQueryFactory([NotNull] AtsValueReaderFactory valueReaderFactory, [NotNull] TableFilterFactory tableFilterFactory)
+        public AtsQueryFactory([NotNull] AtsValueReaderFactory valueReaderFactory)
         {
             Check.NotNull(valueReaderFactory, "valueReaderFactory");
-            Check.NotNull(tableFilterFactory, "tableFilterFactory");
             _valueReaderFactory = valueReaderFactory;
-            _tableFilterFactory = tableFilterFactory;
         }
 
         public virtual AtsQueryCompilationContext MakeCompilationContext([NotNull] IModel model)
         {
-            return new AtsQueryCompilationContext(model, _tableFilterFactory);
+            return new AtsQueryCompilationContext(model);
         }
 
         public virtual AtsQueryContext MakeQueryContext([NotNull] IModel model,
