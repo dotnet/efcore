@@ -55,5 +55,20 @@ namespace Microsoft.Data.Entity.Tests
 
             return true;
         }
+
+        public IDisposable BeginScope(object state)
+        {
+            return NullScope.Instance;
+        }
+    }
+
+    public class NullScope : IDisposable
+    {
+        public static NullScope Instance = new NullScope();
+
+        public void Dispose()
+        {
+            // intentionally does nothing
+        }
     }
 }

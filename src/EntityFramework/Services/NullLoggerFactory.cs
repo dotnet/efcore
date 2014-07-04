@@ -27,5 +27,20 @@ namespace Microsoft.Data.Entity.Services
         {
             return false;
         }
+
+        public IDisposable BeginScope(object state)
+        {
+            return NullScope.Instance;
+        }
+    }
+
+    public sealed class NullScope : IDisposable
+    {
+        public static NullScope Instance = new NullScope();
+
+        public void Dispose()
+        {
+            // intentionally does nothing
+        }
     }
 }
