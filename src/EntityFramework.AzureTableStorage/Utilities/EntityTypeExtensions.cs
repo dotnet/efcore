@@ -3,6 +3,7 @@
 
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.AzureTableStorage.Metadata;
 using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Utilities
@@ -14,7 +15,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Utilities
         {
             Check.NotNull(entityType, "entityType");
             Check.NotEmpty(name, "name");
-            return entityType.Properties.FirstOrDefault(s => s.StorageName == name);
+            return entityType.Properties.FirstOrDefault(s => s.ColumnName() == name);
         }
 
         [NotNull]

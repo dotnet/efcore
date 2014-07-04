@@ -50,22 +50,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
-        public void Storage_name_defaults_to_name()
-        {
-            var entityType = new EntityType(typeof(Customer));
-
-            Assert.Equal("Customer", entityType.StorageName);
-        }
-
-        [Fact]
-        public void Storage_name_can_be_different_from_name()
-        {
-            var entityType = new EntityType(typeof(Customer)) { StorageName = "CustomerTable" };
-
-            Assert.Equal("CustomerTable", entityType.StorageName);
-        }
-
-        [Fact]
         public void Can_create_entity_type()
         {
             var entityType = new EntityType(typeof(Customer));

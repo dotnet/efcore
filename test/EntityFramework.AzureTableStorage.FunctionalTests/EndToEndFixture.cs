@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using Microsoft.Data.Entity.AzureTableStorage.Metadata;
 using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
@@ -78,7 +79,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
                         pb.Property(s => s.Timestamp);
                     })
                 .PartitionAndRowKey(s => s.PartitionKey, s => s.RowKey)
-                .StorageName(TableName);
+                .TableName(TableName);
             return builder.Model;
         }
 

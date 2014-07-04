@@ -73,33 +73,45 @@ namespace Microsoft.Data.Entity.Relational
         {
             Check.NotNull(primaryKey, "primaryKey");
 
-            return primaryKey.StorageName ?? string.Format("PK_{0}", primaryKey.EntityType.StorageName);
+            return primaryKey.KeyName() ?? string.Format("PK_{0}", GetFullTableName(primaryKey.EntityType));
         }
 
         private static string ForeignKeyName([NotNull] IForeignKey foreignKey)
         {
             Check.NotNull(foreignKey, "foreignKey");
 
-            return foreignKey.StorageName ?? string.Format(
+            return foreignKey.KeyName() ?? string.Format(
                 "FK_{0}_{1}_{2}",
-                foreignKey.EntityType.StorageName,
-                foreignKey.ReferencedEntityType.StorageName,
-                string.Join("_", foreignKey.Properties.OrderBy(p => p.Name, StringComparer.OrdinalIgnoreCase).Select(p => p.StorageName)));
+                GetFullTableName(foreignKey.EntityType),
+                GetFullTableName(foreignKey.ReferencedEntityType),
+                string.Join("_", foreignKey.Properties.OrderBy(p => p.Name, StringComparer.OrdinalIgnoreCase).Select(p => p.ColumnName())));
         }
 
         private static string IndexName([NotNull] IIndex index)
         {
             Check.NotNull(index, "index");
 
-            return index.StorageName ?? string.Format(
+            return index.IndexName() ?? string.Format(
                 "IX_{0}_{1}",
-                index.EntityType.StorageName,
-                string.Join("_", index.Properties.OrderBy(p => p.Name, StringComparer.OrdinalIgnoreCase).Select(p => p.StorageName)));
+                GetFullTableName(index.EntityType),
+                string.Join("_", index.Properties.OrderBy(p => p.Name, StringComparer.OrdinalIgnoreCase).Select(p => p.ColumnName())));
+        }
+
+        private static string GetFullTableName(IEntityType entityType)
+        {
+            var schema = entityType.Schema();
+            var tableName = entityType.TableName();
+            return !string.IsNullOrEmpty(schema) ? schema + "." + tableName : tableName;
+        }
+
+        private static SchemaQualifiedName GetSchemaQualifiedName(IEntityType entityType)
+        {
+            return new SchemaQualifiedName(entityType.TableName(), entityType.Schema());
         }
 
         private static Table BuildTable(DatabaseModel database, IEntityType entityType)
         {
-            var table = new Table(entityType.StorageName);
+            var table = new Table(GetSchemaQualifiedName(entityType));
 
             database.AddTable(table);
 
@@ -109,7 +121,7 @@ namespace Microsoft.Data.Entity.Relational
         private static Column BuildColumn(Table table, IProperty property)
         {
             var column =
-                new Column(property.StorageName, property.PropertyType, property.ColumnType())
+                new Column(property.ColumnName(), property.PropertyType, property.ColumnType())
                     {
                         IsNullable = property.IsNullable,
                         DefaultValue = property.ColumnDefaultValue(),
@@ -127,9 +139,9 @@ namespace Microsoft.Data.Entity.Relational
         {
             Check.NotNull(primaryKey, "primaryKey");
 
-            var table = database.GetTable(primaryKey.EntityType.StorageName);
+            var table = database.GetTable(GetSchemaQualifiedName(primaryKey.EntityType));
             var columns = primaryKey.Properties.Select(
-                p => table.GetColumn(p.StorageName)).ToArray();
+                p => table.GetColumn(p.ColumnName())).ToArray();
             var isClustered = primaryKey.IsClustered();
 
             table.PrimaryKey = new PrimaryKey(PrimaryKeyName(primaryKey), columns, isClustered);
@@ -141,12 +153,12 @@ namespace Microsoft.Data.Entity.Relational
         {
             Check.NotNull(foreignKey, "foreignKey");
 
-            var table = database.GetTable(foreignKey.EntityType.StorageName);
-            var referencedTable = database.GetTable(foreignKey.ReferencedEntityType.StorageName);
+            var table = database.GetTable(GetSchemaQualifiedName(foreignKey.EntityType));
+            var referencedTable = database.GetTable(GetSchemaQualifiedName(foreignKey.ReferencedEntityType));
             var columns = foreignKey.Properties.Select(
-                p => table.GetColumn(p.StorageName)).ToArray();
+                p => table.GetColumn(p.ColumnName())).ToArray();
             var referenceColumns = foreignKey.ReferencedProperties.Select(
-                p => referencedTable.GetColumn(p.StorageName)).ToArray();
+                p => referencedTable.GetColumn(p.ColumnName())).ToArray();
             var cascadeDelete = foreignKey.CascadeDelete();
 
             var storeForeignKey = new ForeignKey(
@@ -161,9 +173,9 @@ namespace Microsoft.Data.Entity.Relational
         {
             Check.NotNull(index, "index");
 
-            var table = database.GetTable(index.EntityType.StorageName);
+            var table = database.GetTable(GetSchemaQualifiedName(index.EntityType));
             var columns = index.Properties.Select(
-                p => table.GetColumn(p.StorageName)).ToArray();
+                p => table.GetColumn(p.ColumnName())).ToArray();
 
             var storeIndex = new Index(
                 IndexName(index), columns, index.IsUnique, index.IsClustered());

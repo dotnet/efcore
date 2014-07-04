@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using Microsoft.Data.Entity.AzureTableStorage.Metadata;
 using Microsoft.Data.Entity.AzureTableStorage.Query;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.WindowsAzure.Storage.Table;
@@ -18,7 +19,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
         {
             var entityType = new EntityType("TestType");
             var property = entityType.AddProperty("ClrName", typeof(object));
-            property.StorageName = "StorageName";
+            property.SetColumnName("StorageName");
 
             var data = new Dictionary<string, EntityProperty>
                 {

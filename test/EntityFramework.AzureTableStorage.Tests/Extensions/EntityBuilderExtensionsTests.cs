@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
+using Microsoft.Data.Entity.AzureTableStorage.Metadata;
 using Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers;
 using Microsoft.Data.Entity.Metadata;
 using Xunit;
@@ -21,8 +22,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Extensions
 
             var key = model.EntityTypes.First().GetKey();
             Assert.Equal(2, key.Properties.Count);
-            Assert.Equal("BigCount", key.Properties.First(s => s.StorageName == "PartitionKey").Name);
-            Assert.Equal("IsEnchanted", key.Properties.First(s => s.StorageName == "RowKey").Name);
+            Assert.Equal("BigCount", key.Properties.First(s => s.ColumnName() == "PartitionKey").Name);
+            Assert.Equal("IsEnchanted", key.Properties.First(s => s.ColumnName() == "RowKey").Name);
         }
     }
 }

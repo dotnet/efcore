@@ -4,6 +4,7 @@
 using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.AzureTableStorage.Metadata;
 using Microsoft.Data.Entity.AzureTableStorage.Utilities;
 using Microsoft.Data.Entity.Metadata;
 
@@ -120,7 +121,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
                 throw new ArgumentException("Nested member access not supported", "memberExpression");
             }
             var typeName = memberExpression.Member.Name;
-            return entityType.GetProperty(typeName).StorageName;
+            return entityType.GetProperty(typeName).ColumnName();
         }
     }
 }

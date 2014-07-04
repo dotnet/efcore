@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.Data.Entity.AzureTableStorage.Utilities;
+using Microsoft.Data.Entity.AzureTableStorage.Metadata;
 using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
@@ -14,7 +15,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Utilities
         {
             var entityType = new EntityType("Customer");
             var property = entityType.AddProperty("Name", typeof(string));
-            property.StorageName = "FirstName";
+            property.SetColumnName("FirstName");
             Assert.Equal(property, entityType.GetPropertyByStorageName("FirstName"));
             Assert.Equal(property, entityType.TryGetPropertyByStorageName("FirstName"));
         }

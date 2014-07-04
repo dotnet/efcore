@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.AzureTableStorage.Metadata;
 using Microsoft.Data.Entity.AzureTableStorage.Requests;
 using Microsoft.Data.Entity.AzureTableStorage.Utilities;
 using Microsoft.Data.Entity.Metadata;
@@ -144,7 +145,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
             where TResult : class, new()
         {
             var context = ((AtsQueryContext)queryContext);
-            var table = new AtsTable(entityType.StorageName);
+            var table = new AtsTable(entityType.TableName());
             var request = new QueryTableRequest<TResult>(
                 table,
                 tableQuery, s =>

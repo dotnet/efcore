@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
 using Microsoft.Data.Entity.Relational.Utilities;
 using Remotion.Linq.Clauses;
@@ -219,7 +220,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
             _sql.Append(columnExpression.Alias)
                 .Append(".")
-                .Append(DelimitIdentifier(columnExpression.Property.StorageName));
+                .Append(DelimitIdentifier(columnExpression.Property.ColumnName()));
 
             return columnExpression;
         }

@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.AzureTableStorage.Adapters;
+using Microsoft.Data.Entity.AzureTableStorage.Metadata;
 using Microsoft.Data.Entity.AzureTableStorage.Query;
 using Microsoft.Data.Entity.AzureTableStorage.Requests;
 using Microsoft.Data.Entity.AzureTableStorage.Utilities;
@@ -89,7 +90,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             var allTasks = new List<Task<TableResult>>();
             foreach (var tableGroup in tableGroups)
             {
-                var table = new AtsTable(tableGroup.Key.StorageName);
+                var table = new AtsTable(tableGroup.Key.TableName());
                 var tasks = tableGroup.Select(entry => CreateRequest(table, entry))
                     .TakeWhile(operation => !cancellationToken.IsCancellationRequested)
                     .Select(request => Connection.ExecuteRequestAsync(request, Logger, cancellationToken));
@@ -120,7 +121,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             CancellationToken cancellationToken = new CancellationToken())
         {
             cancellationToken.ThrowIfCancellationRequested();
-            var tableGroups = stateEntries.GroupBy(s => s.EntityType.StorageName);
+            var tableGroups = stateEntries.GroupBy(s => s.EntityType.TableName());
             var allBatchTasks = new List<Task<IList<TableResult>>>();
 
             foreach (var tableGroup in tableGroups)
