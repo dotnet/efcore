@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -40,7 +41,7 @@ namespace Microsoft.Data.Entity.Relational.Query
             SelectExpression selectExpression;
             return _queriesBySource.TryGetValue(querySource, out selectExpression)
                 ? selectExpression
-                : null;
+                : _queriesBySource.Values.SingleOrDefault(se => se.HandlesQuerySource(querySource));
         }
 
         protected override ExpressionTreeVisitor CreateQueryingExpressionTreeVisitor(IQuerySource querySource)
@@ -58,14 +59,138 @@ namespace Microsoft.Data.Entity.Relational.Query
             return new RelationalOrderingSubQueryExpressionTreeVisitor(this, ordering);
         }
 
+        public override void VisitAdditionalFromClause(AdditionalFromClause fromClause, QueryModel queryModel, int index)
+        {
+            base.VisitAdditionalFromClause(fromClause, queryModel, index);
+
+            var selectExpression = TryGetSelectExpression(fromClause);
+
+            if (selectExpression != null)
+            {
+                var previousQuerySource
+                    = index == 0
+                        ? queryModel.MainFromClause
+                        : queryModel.BodyClauses[index - 1] as IQuerySource;
+
+                if (previousQuerySource != null)
+                {
+                    var previousSelectExpression = TryGetSelectExpression(previousQuerySource);
+
+                    if (previousSelectExpression != null)
+                    {
+                        var readerOffset = previousSelectExpression.Projection.Count;
+
+                        selectExpression.Merge(previousSelectExpression);
+
+                        _queriesBySource.Remove(previousQuerySource);
+
+                        Expression
+                            = new QueryFlatteningExpressionTreeVisitor(
+                                previousQuerySource,
+                                fromClause,
+                                (RelationalQueryCompilationContext)QueryCompilationContext,
+                                readerOffset)
+                                .VisitExpression(Expression);
+                    }
+                }
+            }
+        }
+
+        private class QueryFlatteningExpressionTreeVisitor : ExpressionTreeVisitor
+        {
+            private readonly IQuerySource _outerQuerySource;
+            private readonly IQuerySource _innerQuerySource;
+            private readonly RelationalQueryCompilationContext _relationalQueryCompilationContext;
+            private readonly int _readerOffset;
+
+            private MethodCallExpression _outerSelectManyExpression;
+            private Expression _outerShaperExpression;
+
+            public QueryFlatteningExpressionTreeVisitor(
+                IQuerySource outerQuerySource,
+                IQuerySource innerQuerySource,
+                RelationalQueryCompilationContext relationalQueryCompilationContext,
+                int readerOffset)
+            {
+                _outerQuerySource = outerQuerySource;
+                _innerQuerySource = innerQuerySource;
+                _relationalQueryCompilationContext = relationalQueryCompilationContext;
+                _readerOffset = readerOffset;
+            }
+
+            protected override Expression VisitMethodCallExpression(MethodCallExpression expression)
+            {
+                var newExpression
+                    = (MethodCallExpression)base.VisitMethodCallExpression(expression);
+
+                if ((ReferenceEquals(newExpression.Method, RelationalQueryingExpressionTreeVisitor.CreateValueReaderMethodInfo)
+                     || MethodIsClosedFormOf(newExpression.Method, RelationalQueryingExpressionTreeVisitor.CreateEntityMethodInfo)))
+                {
+                    var constantExpression = (ConstantExpression)newExpression.Arguments[0];
+
+                    if (constantExpression.Value == _outerQuerySource)
+                    {
+                        _outerShaperExpression = newExpression;
+                    }
+                    else if (constantExpression.Value == _innerQuerySource)
+                    {
+                        var newArguments = new List<Expression>(newExpression.Arguments);
+                        newArguments[2] = _outerShaperExpression;
+
+                        if (newArguments.Count == 5)
+                        {
+                            newArguments[4]
+                                = Expression.Constant(
+                                    _readerOffset
+                                    + (int)((ConstantExpression)newArguments[4]).Value);
+                        }
+
+                        newExpression
+                            = Expression.Call(newExpression.Method, newArguments);
+                    }
+                }
+                else if (_outerShaperExpression != null
+                         && _outerSelectManyExpression == null
+                         && MethodIsClosedFormOf(
+                             newExpression.Method,
+                             _relationalQueryCompilationContext.LinqOperatorProvider.SelectMany))
+                {
+                    _outerSelectManyExpression = newExpression;
+                }
+                else if (_outerSelectManyExpression != null
+                         && MethodIsClosedFormOf(
+                             newExpression.Method,
+                             _relationalQueryCompilationContext.LinqOperatorProvider.SelectMany))
+                {
+                    newExpression
+                        = Expression.Call(
+                            _relationalQueryCompilationContext.LinqOperatorProvider.SelectMany
+                                .MakeGenericMethod(
+                                    typeof(QuerySourceScope),
+                                    typeof(QuerySourceScope)),
+                            _outerSelectManyExpression.Arguments[0],
+                            newExpression.Arguments[1]);
+                }
+
+                return newExpression;
+            }
+
+            private static bool MethodIsClosedFormOf(MethodInfo method, MethodInfo genericMethod)
+            {
+                return method.IsGenericMethod
+                       && ReferenceEquals(
+                           method.GetGenericMethodDefinition(),
+                           genericMethod);
+            }
+        }
+
         public override void VisitWhereClause(WhereClause whereClause, QueryModel queryModel, int index)
         {
             base.VisitWhereClause(whereClause, queryModel, index);
 
             foreach (var sourceQuery in _queriesBySource)
             {
-                var filteringVisitor
-                    = new FilteringExpressionTreeVisitor(this, sourceQuery.Key);
+                var filteringVisitor = new FilteringExpressionTreeVisitor(this);
 
                 filteringVisitor.VisitExpression(whereClause.Predicate);
 
@@ -76,15 +201,12 @@ namespace Microsoft.Data.Entity.Relational.Query
         private class FilteringExpressionTreeVisitor : ThrowingExpressionTreeVisitor
         {
             private readonly RelationalQueryModelVisitor _queryModelVisitor;
-            private readonly IQuerySource _querySource;
 
             private Expression _predicate;
 
-            public FilteringExpressionTreeVisitor(
-                RelationalQueryModelVisitor queryModelVisitor, IQuerySource querySource)
+            public FilteringExpressionTreeVisitor(RelationalQueryModelVisitor queryModelVisitor)
             {
                 _queryModelVisitor = queryModelVisitor;
-                _querySource = querySource;
             }
 
             public Expression Predicate
@@ -104,49 +226,49 @@ namespace Microsoft.Data.Entity.Relational.Query
                     case ExpressionType.GreaterThanOrEqual:
                     case ExpressionType.LessThan:
                     case ExpressionType.LessThanOrEqual:
-                    {
-                        _predicate = ProcessComparisonExpression(expression);
+                        {
+                            _predicate = ProcessComparisonExpression(expression);
 
-                        break;
-                    }
+                            break;
+                        }
 
                     case ExpressionType.AndAlso:
-                    {
-                        VisitExpression(expression.Left);
+                        {
+                            VisitExpression(expression.Left);
 
-                        var left = _predicate;
+                            var left = _predicate;
 
-                        VisitExpression(expression.Right);
+                            VisitExpression(expression.Right);
 
-                        var right = _predicate;
+                            var right = _predicate;
 
-                        _predicate
-                            = left != null
-                              && right != null
-                                ? Expression.AndAlso(left, right)
-                                : (left ?? right);
+                            _predicate
+                                = left != null
+                                  && right != null
+                                    ? Expression.AndAlso(left, right)
+                                    : (left ?? right);
 
-                        break;
-                    }
+                            break;
+                        }
 
                     case ExpressionType.OrElse:
-                    {
-                        VisitExpression(expression.Left);
+                        {
+                            VisitExpression(expression.Left);
 
-                        var left = _predicate;
+                            var left = _predicate;
 
-                        VisitExpression(expression.Right);
+                            VisitExpression(expression.Right);
 
-                        var right = _predicate;
+                            var right = _predicate;
 
-                        _predicate
-                            = left != null
-                              && right != null
-                                ? Expression.OrElse(left, right)
-                                : null;
+                            _predicate
+                                = left != null
+                                  && right != null
+                                    ? Expression.OrElse(left, right)
+                                    : null;
 
-                        break;
-                    }
+                            break;
+                        }
 
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -247,9 +369,10 @@ namespace Microsoft.Data.Entity.Relational.Query
                 return _queryModelVisitor
                     .BindMemberExpression(
                         memberExpression,
-                        _querySource,
-                        (property, selectExpression)
-                            => new ColumnExpression(property, selectExpression.TableSource.Alias));
+                        (property, querySource, selectExpression)
+                            => new ColumnExpression(
+                                property,
+                                selectExpression.FindTableForQuerySource(querySource).Alias));
             }
 
             protected override Expression VisitConstantExpression(ConstantExpression expression)
@@ -303,13 +426,13 @@ namespace Microsoft.Data.Entity.Relational.Query
                 {
                     return newExpression.Type == typeof(IValueReader)
                         ? (Expression)_queryModelVisitor.BindMemberExpression(expression,
-                            (property, selectExpression) =>
+                            (property, querySource, selectExpression) =>
                                 Expression.Call(
                                     newExpression,
                                     _readValueMethodInfo.MakeGenericMethod(expression.Type),
                                     new Expression[]
                                         {
-                                            Expression.Constant(selectExpression.GetProjectionIndex(property))
+                                            Expression.Constant(selectExpression.GetProjectionIndex(property, querySource))
                                         }))
                         : Expression.MakeMemberAccess(newExpression, expression.Member);
                 }
@@ -320,20 +443,20 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         private void BindMemberExpression(
             MemberExpression memberExpression,
-            Action<IProperty, SelectExpression> memberBinder)
+            Action<IProperty, IQuerySource, SelectExpression> memberBinder)
         {
             BindMemberExpression(memberExpression, null,
-                (property, selectExpression) =>
-                    {
-                        memberBinder(property, selectExpression);
+                (property, querySource, selectExpression) =>
+                {
+                    memberBinder(property, querySource, selectExpression);
 
-                        return default(object);
-                    });
+                    return default(object);
+                });
         }
 
         private TResult BindMemberExpression<TResult>(
             MemberExpression memberExpression,
-            Func<IProperty, SelectExpression, TResult> memberBinder)
+            Func<IProperty, IQuerySource, SelectExpression, TResult> memberBinder)
         {
             return BindMemberExpression(memberExpression, null, memberBinder);
         }
@@ -341,7 +464,7 @@ namespace Microsoft.Data.Entity.Relational.Query
         private TResult BindMemberExpression<TResult>(
             MemberExpression memberExpression,
             IQuerySource querySource,
-            Func<IProperty, SelectExpression, TResult> memberBinder)
+            Func<IProperty, IQuerySource, SelectExpression, TResult> memberBinder)
         {
             var querySourceReferenceExpression
                 = memberExpression.Expression as QuerySourceReferenceExpression;
@@ -361,11 +484,15 @@ namespace Microsoft.Data.Entity.Relational.Query
 
                     if (property != null)
                     {
-                        SelectExpression selectExpression;
-                        if (_queriesBySource
-                            .TryGetValue(querySourceReferenceExpression.ReferencedQuerySource, out selectExpression))
+                        var selectExpression
+                            = TryGetSelectExpression(querySourceReferenceExpression.ReferencedQuerySource);
+
+                        if (selectExpression != null)
                         {
-                            return memberBinder(property, selectExpression);
+                            return memberBinder(
+                                property,
+                                querySourceReferenceExpression.ReferencedQuerySource,
+                                selectExpression);
                         }
                     }
                 }
@@ -376,6 +503,9 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         private class RelationalQueryingExpressionTreeVisitor : QueryingExpressionTreeVisitor
         {
+            private static readonly ParameterExpression _readerParameter
+                = Expression.Parameter(typeof(DbDataReader));
+
             private readonly RelationalQueryModelVisitor _queryModelVisitor;
             private readonly IQuerySource _querySource;
 
@@ -392,8 +522,8 @@ namespace Microsoft.Data.Entity.Relational.Query
                 _queryModelVisitor
                     .BindMemberExpression(
                         expression,
-                        (property, selectExpression)
-                            => selectExpression.AddToProjection(property));
+                        (property, querySource, selectExpression)
+                            => selectExpression.AddToProjection(property, querySource));
 
                 return base.VisitMemberExpression(expression);
             }
@@ -401,38 +531,128 @@ namespace Microsoft.Data.Entity.Relational.Query
             protected override Expression VisitEntityQueryable(Type elementType)
             {
                 var relationalQueryCompilationContext = ((RelationalQueryCompilationContext)QueryCompilationContext);
-                var queryMethodInfo = relationalQueryCompilationContext.EnumerableMethodProvider.QueryValues;
+                var queryMethodInfo = CreateValueReaderMethodInfo;
                 var entityType = QueryCompilationContext.Model.GetEntityType(elementType);
 
-                var selectExpression
-                    = new SelectExpression(elementType)
-                        {
-                            TableSource
-                                = new TableExpression(
-                                    entityType.TableName(),
-                                    entityType.Schema(),
-                                    _querySource.ItemName.Replace("<generated>_", "t"),
-                                    _querySource)
-                        };
+                var selectExpression = new SelectExpression();
+
+                selectExpression
+                    .AddTable(
+                        new TableExpression(
+                            entityType.TableName(),
+                            entityType.Schema(),
+                            _querySource.ItemName.Replace("<generated>_", "t"),
+                            _querySource));
 
                 _queryModelVisitor._queriesBySource.Add(_querySource, selectExpression);
+
+                var queryMethodArguments
+                    = new List<Expression>
+                        {
+                            Expression.Constant(_querySource),
+                            QueryContextParameter,
+                            QuerySourceScopeParameter,
+                            _readerParameter
+                        };
 
                 if (_queryModelVisitor.QuerySourceRequiresMaterialization(_querySource))
                 {
                     foreach (var property in entityType.Properties)
                     {
-                        selectExpression.AddToProjection(property);
+                        selectExpression.AddToProjection(property, _querySource);
                     }
 
-                    queryMethodInfo
-                        = relationalQueryCompilationContext.EnumerableMethodProvider.QueryEntities
-                            .MakeGenericMethod(elementType);
+                    queryMethodInfo = CreateEntityMethodInfo.MakeGenericMethod(elementType);
+                    queryMethodArguments.Add(Expression.Constant(0));
                 }
 
                 return Expression.Call(
-                    queryMethodInfo,
+                    relationalQueryCompilationContext.QueryMethodProvider.QueryMethod
+                        .MakeGenericMethod(queryMethodInfo.ReturnType),
                     QueryContextParameter,
-                    Expression.Constant(new CommandBuilder(selectExpression, relationalQueryCompilationContext)));
+                    Expression.Constant(new CommandBuilder(selectExpression, relationalQueryCompilationContext)),
+                    Expression.Lambda(
+                        Expression.Call(queryMethodInfo, queryMethodArguments),
+                        _readerParameter));
+            }
+
+            public static readonly MethodInfo CreateValueReaderMethodInfo
+                = typeof(RelationalQueryingExpressionTreeVisitor).GetTypeInfo()
+                    .GetDeclaredMethod("CreateValueReader");
+
+            [UsedImplicitly]
+            private static QuerySourceScope<IValueReader> CreateValueReader(
+                IQuerySource querySource,
+                QueryContext queryContext,
+                QuerySourceScope parentQuerySourceScope,
+                DbDataReader dataReader)
+            {
+                var relationalQueryContext = (RelationalQueryContext)queryContext;
+
+                return new QuerySourceScope<IValueReader>(
+                    querySource,
+                    relationalQueryContext.ValueReaderFactory.Create(dataReader),
+                    parentQuerySourceScope);
+            }
+
+            public static readonly MethodInfo CreateEntityMethodInfo
+                = typeof(RelationalQueryingExpressionTreeVisitor).GetTypeInfo()
+                    .GetDeclaredMethod("CreateEntity");
+
+            [UsedImplicitly]
+            private static QuerySourceScope<TEntity> CreateEntity<TEntity>(
+                IQuerySource querySource,
+                QueryContext queryContext,
+                QuerySourceScope parentQuerySourceScope,
+                DbDataReader dataReader,
+                int readerOffset)
+            {
+                var relationalQueryContext = (RelationalQueryContext)queryContext;
+
+                var valueReader
+                    = relationalQueryContext.ValueReaderFactory.Create(dataReader);
+
+                if (readerOffset > 0)
+                {
+                    valueReader
+                        = new OffsetValueReaderDecorator(valueReader, readerOffset);
+                }
+
+                return new QuerySourceScope<TEntity>(
+                    querySource,
+                    // ReSharper disable once AssignNullToNotNullAttribute
+                    (TEntity)queryContext.StateManager
+                        .GetOrMaterializeEntry(
+                            queryContext.Model.GetEntityType(typeof(TEntity)),
+                            valueReader).Entity,
+                    parentQuerySourceScope);
+            }
+
+            private class OffsetValueReaderDecorator : IValueReader
+            {
+                private readonly IValueReader _valueReader;
+                private readonly int _offset;
+
+                public OffsetValueReaderDecorator(IValueReader valueReader, int offset)
+                {
+                    _valueReader = valueReader;
+                    _offset = offset;
+                }
+
+                public bool IsNull(int index)
+                {
+                    return _valueReader.IsNull(_offset + index);
+                }
+
+                public T ReadValue<T>(int index)
+                {
+                    return _valueReader.ReadValue<T>(_offset + index);
+                }
+
+                public int Count
+                {
+                    get { return _valueReader.Count; }
+                }
             }
         }
 
@@ -451,8 +671,8 @@ namespace Microsoft.Data.Entity.Relational.Query
                 _queryModelVisitor
                     .BindMemberExpression(
                         expression,
-                        (property, selectExpression)
-                            => selectExpression.AddToProjection(property));
+                        (property, querySource, selectExpression)
+                            => selectExpression.AddToProjection(property, querySource));
 
                 return base.VisitMemberExpression(expression);
             }
@@ -476,8 +696,8 @@ namespace Microsoft.Data.Entity.Relational.Query
                 _queryModelVisitor
                     .BindMemberExpression(
                         expression,
-                        (property, selectExpression)
-                            => selectExpression.AddToOrderBy(property, _ordering.OrderingDirection));
+                        (property, querySource, selectExpression)
+                            => selectExpression.AddToOrderBy(property, querySource, _ordering.OrderingDirection));
 
                 // TODO: Remove expressions when fully server eval'd
                 return base.VisitMemberExpression(expression);

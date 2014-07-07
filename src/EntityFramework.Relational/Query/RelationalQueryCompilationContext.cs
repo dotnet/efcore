@@ -11,21 +11,21 @@ namespace Microsoft.Data.Entity.Relational.Query
 {
     public class RelationalQueryCompilationContext : QueryCompilationContext
     {
-        private readonly IEnumerableMethodProvider _enumerableMethodProvider;
+        private readonly IQueryMethodProvider _queryMethodProvider;
 
         public RelationalQueryCompilationContext(
             [NotNull] IModel model,
             [NotNull] ILinqOperatorProvider linqOperatorProvider,
             [NotNull] IResultOperatorHandler resultOperatorHandler,
-            [NotNull] IEnumerableMethodProvider enumerableMethodProvider)
+            [NotNull] IQueryMethodProvider queryMethodProvider)
             : base(
                 Check.NotNull(model, "model"),
                 Check.NotNull(linqOperatorProvider, "linqOperatorProvider"),
                 Check.NotNull(resultOperatorHandler, "resultOperatorHandler"))
         {
-            Check.NotNull(enumerableMethodProvider, "enumerableMethodProvider");
+            Check.NotNull(queryMethodProvider, "queryMethodProvider");
 
-            _enumerableMethodProvider = enumerableMethodProvider;
+            _queryMethodProvider = queryMethodProvider;
         }
 
         public override EntityQueryModelVisitor CreateQueryModelVisitor()
@@ -33,9 +33,9 @@ namespace Microsoft.Data.Entity.Relational.Query
             return new RelationalQueryModelVisitor(this);
         }
 
-        public virtual IEnumerableMethodProvider EnumerableMethodProvider
+        public virtual IQueryMethodProvider QueryMethodProvider
         {
-            get { return _enumerableMethodProvider; }
+            get { return _queryMethodProvider; }
         }
 
         public virtual ISqlQueryGenerator CreateSqlQueryGenerator()

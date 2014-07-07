@@ -7,58 +7,30 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Relational.Query
 {
-    public class EnumerableMethodProvider : IEnumerableMethodProvider
+    public class QueryMethodProvider : IQueryMethodProvider
     {
-        public virtual MethodInfo QueryValues
+        public virtual MethodInfo QueryMethod
         {
-            get { return _queryValuesMethodInfo; }
+            get { return _queryMethodInfo; }
         }
 
-        private static readonly MethodInfo _queryValuesMethodInfo
-            = typeof(EnumerableMethodProvider).GetTypeInfo()
-                .GetDeclaredMethod("_QueryValues");
+        private static readonly MethodInfo _queryMethodInfo
+            = typeof(QueryMethodProvider).GetTypeInfo()
+                .GetDeclaredMethod("_Query");
 
         [UsedImplicitly]
-        private static IEnumerable<IValueReader> _QueryValues(
-            QueryContext queryContext, CommandBuilder commandBuilder)
+        private static IEnumerable<T> _Query<T>(
+            QueryContext queryContext, CommandBuilder commandBuilder, Func<DbDataReader, T> shaper)
         {
-            var relationalQueryContext = (RelationalQueryContext)queryContext;
-
-            return new Enumerable<IValueReader>(
-                relationalQueryContext.Connection,
+            return new Enumerable<T>(
+                ((RelationalQueryContext)queryContext).Connection,
                 commandBuilder,
-                r => relationalQueryContext.ValueReaderFactory.Create(r),
-                queryContext.Logger);
-        }
-
-        public virtual MethodInfo QueryEntities
-        {
-            get { return _queryEntitiesMethodInfo; }
-        }
-
-        private static readonly MethodInfo _queryEntitiesMethodInfo
-            = typeof(EnumerableMethodProvider).GetTypeInfo()
-                .GetDeclaredMethod("_QueryEntities");
-
-        [UsedImplicitly]
-        private static IEnumerable<TEntity> _QueryEntities<TEntity>(
-            QueryContext queryContext, CommandBuilder commandBuilder)
-        {
-            var relationalQueryContext = ((RelationalQueryContext)queryContext);
-
-            return new Enumerable<TEntity>(
-                relationalQueryContext.Connection,
-                commandBuilder,
-                r => (TEntity)queryContext.StateManager
-                    .GetOrMaterializeEntry(
-                        queryContext.Model.GetEntityType(typeof(TEntity)),
-                        relationalQueryContext.ValueReaderFactory.Create(r)).Entity,
+                shaper,
                 queryContext.Logger);
         }
 

@@ -55,5 +55,10 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
         {
             return this;
         }
+
+        public override string ToString()
+        {
+            return _alias + "." + _property.ColumnName();
+        }
     }
 }

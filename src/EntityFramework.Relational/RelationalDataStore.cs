@@ -74,7 +74,7 @@ namespace Microsoft.Data.Entity.Relational
                 = CreateQueryCompilationContext(
                     new LinqOperatorProvider(),
                     new RelationalResultOperatorHandler(new ResultOperatorHandler()),
-                    new EnumerableMethodProvider());
+                    new QueryMethodProvider());
 
             var queryExecutor = queryCompilationContext.CreateQueryModelVisitor().CreateQueryExecutor<TResult>(queryModel);
             var queryContext = new RelationalQueryContext(Model, Logger, stateManager, _connection, ValueReaderFactory);
@@ -91,7 +91,7 @@ namespace Microsoft.Data.Entity.Relational
                 = CreateQueryCompilationContext(
                     new AsyncLinqOperatorProvider(),
                     new RelationalResultOperatorHandler(new AsyncResultOperatorHandler()),
-                    new AsyncEnumerableMethodProvider());
+                    new AsyncQueryMethodProvider());
 
             var queryExecutor = queryCompilationContext.CreateQueryModelVisitor().CreateAsyncQueryExecutor<TResult>(queryModel);
             var queryContext = new RelationalQueryContext(Model, Logger, stateManager, _connection, ValueReaderFactory);
@@ -102,14 +102,14 @@ namespace Microsoft.Data.Entity.Relational
         protected virtual RelationalQueryCompilationContext CreateQueryCompilationContext(
             [NotNull] ILinqOperatorProvider linqOperatorProvider,
             [NotNull] IResultOperatorHandler resultOperatorHandler,
-            [NotNull] IEnumerableMethodProvider enumerableMethodProvider)
+            [NotNull] IQueryMethodProvider queryMethodProvider)
         {
             Check.NotNull(linqOperatorProvider, "linqOperatorProvider");
             Check.NotNull(resultOperatorHandler, "resultOperatorHandler");
-            Check.NotNull(enumerableMethodProvider, "enumerableMethodProvider");
+            Check.NotNull(queryMethodProvider, "queryMethodProvider");
 
             return new RelationalQueryCompilationContext(
-                Model, linqOperatorProvider, resultOperatorHandler, enumerableMethodProvider);
+                Model, linqOperatorProvider, resultOperatorHandler, queryMethodProvider);
         }
     }
 }

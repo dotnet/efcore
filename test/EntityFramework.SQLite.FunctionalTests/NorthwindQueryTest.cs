@@ -60,6 +60,17 @@ WHERE c.""ContactName"" LIKE '%' || @p0",
                 _fixture.Sql);
         }
 
+        public override void Where_select_many_and()
+        {
+            base.Where_select_many_and();
+
+            Assert.Equal(
+                @"SELECT c.""Address"", c.""City"", c.""CompanyName"", c.""ContactName"", c.""ContactTitle"", c.""Country"", c.""CustomerID"", c.""Fax"", c.""Phone"", c.""PostalCode"", c.""Region"", e.""City"", e.""Country"", e.""EmployeeID"", e.""FirstName""
+FROM ""Customers"" AS c, ""Employees"" AS e
+WHERE ((c.""City"" = @p0 AND c.""Country"" = @p1) AND (e.""City"" = @p0 AND e.""Country"" = @p1))",
+                _fixture.Sql);
+        }
+
         private readonly NorthwindQueryFixture _fixture;
 
         public NorthwindQueryTest(NorthwindQueryFixture fixture)

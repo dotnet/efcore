@@ -12,20 +12,6 @@ namespace Microsoft.Data.Entity.Query
 {
     public abstract class QuerySourceScope
     {
-        private class TypedScope<TResult> : QuerySourceScope
-        {
-            public readonly TResult _result;
-
-            public TypedScope(
-                [NotNull] IQuerySource querySource,
-                [NotNull] TResult result,
-                [CanBeNull] QuerySourceScope parentScope)
-                : base(querySource, parentScope)
-            {
-                _result = result;
-            }
-        }
-
         private static readonly MethodInfo _createMethodInfo
             = typeof(QuerySourceScope).GetTypeInfo()
                 .GetDeclaredMethods("Create").FirstOrDefault(m => m.IsStatic && !m.IsPublic);
@@ -60,24 +46,24 @@ namespace Microsoft.Data.Entity.Query
         private readonly QuerySourceScope _parentScope;
         private readonly IQuerySource _querySource;
 
-        private QuerySourceScope(IQuerySource querySource, QuerySourceScope parentScope)
+        protected QuerySourceScope(IQuerySource querySource, QuerySourceScope parentScope)
         {
             _querySource = querySource;
             _parentScope = parentScope;
         }
 
         [UsedImplicitly]
-        private static TypedScope<TResult> Create<TResult>(
+        private static QuerySourceScope<TResult> Create<TResult>(
             IQuerySource querySource, TResult result, QuerySourceScope parentScope)
         {
-            return new TypedScope<TResult>(querySource, result, parentScope);
+            return new QuerySourceScope<TResult>(querySource, result, parentScope);
         }
 
         [UsedImplicitly]
         private TResult GetResult<TResult>(IQuerySource querySource)
         {
             return _querySource == querySource
-                ? ((TypedScope<TResult>)this)._result
+                ? ((QuerySourceScope<TResult>)this)._result
                 : _parentScope.GetResult<TResult>(querySource);
         }
     }

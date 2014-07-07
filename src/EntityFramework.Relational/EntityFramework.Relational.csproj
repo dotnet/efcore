@@ -61,7 +61,7 @@
     <Compile Include="DatabaseBuilder.cs" />
     <Compile Include="IDbCommandExecutor.cs" />
     <Compile Include="ModelDatabaseMapping.cs" />
-    <Compile Include="Query\AsyncEnumerableMethodProvider.cs" />
+    <Compile Include="Query\AsyncQueryMethodProvider.cs" />
     <Compile Include="Query\CommandBuilder.cs" />
     <Compile Include="Query\CommandParameter.cs" />
     <Compile Include="Query\EnumerableMethodProvider.cs" />
@@ -71,7 +71,7 @@
     <Compile Include="Query\Expressions\LiteralExpression.cs" />
     <Compile Include="Query\Expressions\SelectExpression.cs" />
     <Compile Include="Query\Expressions\TableExpression.cs" />
-    <Compile Include="Query\IEnumerableMethodProvider.cs" />
+    <Compile Include="Query\IQueryMethodProvider.cs" />
     <Compile Include="Query\Methods\CompositeMethodCallTranslator.cs" />
     <Compile Include="Query\Methods\EndsWithTranslator.cs" />
     <Compile Include="Query\Methods\IMethodCallTranslator.cs" />

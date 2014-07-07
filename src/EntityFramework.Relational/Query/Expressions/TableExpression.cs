@@ -19,7 +19,11 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         private readonly IQuerySource _querySource;
 
-        public TableExpression([NotNull] string table, [CanBeNull] string schema, [NotNull] string alias, [NotNull] IQuerySource querySource)
+        public TableExpression(
+            [NotNull] string table, 
+            [CanBeNull] string schema, 
+            [NotNull] string alias, 
+            [NotNull] IQuerySource querySource)
             : base(typeof(object))
         {
             Check.NotEmpty(table, "table");
@@ -69,6 +73,11 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
         protected override Expression VisitChildren(ExpressionTreeVisitor visitor)
         {
             return this;
+        }
+
+        public override string ToString()
+        {
+            return _table + " " + _alias;
         }
     }
 }

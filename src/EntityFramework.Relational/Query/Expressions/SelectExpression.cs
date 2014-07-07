@@ -1,8 +1,9 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
+using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
@@ -17,27 +18,40 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
     public class SelectExpression : ExtensionExpression
     {
         private readonly List<ColumnExpression> _projection = new List<ColumnExpression>();
+        private readonly List<TableExpression> _tables = new List<TableExpression>();
         private readonly List<Ordering> _orderBy = new List<Ordering>();
-
-        private TableExpression _tableSource;
 
         private int? _limit;
 
-        public SelectExpression([NotNull] Type type)
-            : base(Check.NotNull(type, "type"))
+        public SelectExpression()
+            : base(typeof(object))
         {
         }
 
-        public virtual TableExpression TableSource
+        public virtual IReadOnlyList<TableExpression> Tables
         {
-            get { return _tableSource; }
-            [param: NotNull]
-            set
-            {
-                Check.NotNull(value, "value");
+            get { return _tables; }
+        }
 
-                _tableSource = value;
-            }
+        public virtual void AddTable([NotNull] TableExpression tableExpression)
+        {
+            Check.NotNull(tableExpression, "tableExpression");
+
+            _tables.Add(tableExpression);
+        }
+
+        public virtual bool HandlesQuerySource([NotNull] IQuerySource querySource)
+        {
+            Check.NotNull(querySource, "querySource");
+
+            return _tables.Any(tableExpression => tableExpression.QuerySource == querySource);
+        }
+
+        public virtual TableExpression FindTableForQuerySource([NotNull] IQuerySource querySource)
+        {
+            Check.NotNull(querySource, "querySource");
+
+            return _tables.Single(t => t.QuerySource == querySource);
         }
 
         public virtual bool IsDistinct { get; set; }
@@ -52,40 +66,44 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             get { return _limit; }
         }
 
-        public virtual IReadOnlyList<Expression> Projection
+        public virtual IReadOnlyList<ColumnExpression> Projection
         {
             get { return _projection; }
         }
 
-        public virtual void AddToProjection([NotNull] IProperty property)
+        public virtual void AddToProjection([NotNull] IProperty property, [NotNull] IQuerySource querySource)
         {
             Check.NotNull(property, "property");
+            Check.NotNull(querySource, "querySource");
 
-            if (GetProjectionIndex(property) == -1)
+            if (GetProjectionIndex(property, querySource) == -1)
             {
-                _projection.Add(new ColumnExpression(property, _tableSource.Alias));
+                _projection.Add(new ColumnExpression(property, FindTableForQuerySource(querySource).Alias));
             }
         }
 
-        public virtual bool IsEmptyProjection
-        {
-            get { return _projection.Count == 0; }
-        }
-
-        public virtual int GetProjectionIndex([NotNull] IProperty property)
+        public virtual int GetProjectionIndex([NotNull] IProperty property, [NotNull] IQuerySource querySource)
         {
             Check.NotNull(property, "property");
+            Check.NotNull(querySource, "querySource");
 
-            return _projection.FindIndex(ce => ce.Property == property);
+            var table = FindTableForQuerySource(querySource);
+
+            return _projection.FindIndex(ce => ce.Property == property && ce.Alias == table.Alias);
         }
 
         public virtual Expression Predicate { get; [param: CanBeNull] set; }
-        
-        public virtual void AddToOrderBy([NotNull] IProperty property, OrderingDirection orderingDirection)
+
+        public virtual void AddToOrderBy(
+            [NotNull] IProperty property,
+            [NotNull] IQuerySource querySource,
+            OrderingDirection orderingDirection)
         {
             Check.NotNull(property, "property");
+            Check.NotNull(property, "querySource");
 
-            var columnExpression = new ColumnExpression(property, _tableSource.Alias);
+            var columnExpression
+                = new ColumnExpression(property, FindTableForQuerySource(querySource).Alias);
 
             _orderBy.Add(new Ordering(columnExpression, orderingDirection));
         }
@@ -98,6 +116,15 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
         public virtual void ClearOrderBy()
         {
             _orderBy.Clear();
+        }
+
+        public virtual void Merge([NotNull] SelectExpression selectExpression)
+        {
+            Check.NotNull(selectExpression, "selectExpression");
+            Contract.Assert(!selectExpression.OrderBy.Any());
+
+            _tables.InsertRange(0, selectExpression.Tables);
+            _projection.InsertRange(0, selectExpression.Projection);
         }
 
         public override Expression Accept([NotNull] ExpressionTreeVisitor visitor)

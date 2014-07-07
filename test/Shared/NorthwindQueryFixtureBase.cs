@@ -37,6 +37,7 @@ namespace Microsoft.Data.FunctionalTests
                     {
                         ps.Property(c => c.City);
                         ps.Property(c => c.Country);
+                        ps.Property(e => e.FirstName);
                     });
 
             modelBuilder

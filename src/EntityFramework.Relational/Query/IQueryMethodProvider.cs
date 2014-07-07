@@ -5,9 +5,8 @@ using System.Reflection;
 
 namespace Microsoft.Data.Entity.Relational.Query
 {
-    public interface IEnumerableMethodProvider
+    public interface IQueryMethodProvider
     {
-        MethodInfo QueryValues { get; }
-        MethodInfo QueryEntities { get; }
+        MethodInfo QueryMethod { get; }
     }
 }

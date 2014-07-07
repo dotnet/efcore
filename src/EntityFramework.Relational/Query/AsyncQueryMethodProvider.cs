@@ -8,56 +8,30 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Relational.Query
 {
-    public class AsyncEnumerableMethodProvider : IEnumerableMethodProvider
+    public class AsyncQueryMethodProvider : IQueryMethodProvider
     {
-        public virtual MethodInfo QueryValues
+        public virtual MethodInfo QueryMethod
         {
-            get { return _queryValuesMethodInfo; }
+            get { return _queryMethodInfo; }
         }
 
-        private static readonly MethodInfo _queryValuesMethodInfo
-            = typeof(AsyncEnumerableMethodProvider).GetTypeInfo()
-                .GetDeclaredMethod("_QueryValues");
+        private static readonly MethodInfo _queryMethodInfo
+            = typeof(AsyncQueryMethodProvider).GetTypeInfo()
+                .GetDeclaredMethod("_Query");
 
         [UsedImplicitly]
-        private static IAsyncEnumerable<IValueReader> _QueryValues(QueryContext queryContext, CommandBuilder commandBuilder)
+        private static IAsyncEnumerable<T> _Query<T>(
+            QueryContext queryContext, CommandBuilder commandBuilder, Func<DbDataReader, T> shaper)
         {
-            var relationalQueryContext = (RelationalQueryContext)queryContext;
-
-            return new AsyncEnumerable<IValueReader>(
-                relationalQueryContext.Connection,
+            return new AsyncEnumerable<T>(
+                ((RelationalQueryContext)queryContext).Connection,
                 commandBuilder,
-                r => relationalQueryContext.ValueReaderFactory.Create(r),
-                queryContext.Logger);
-        }
-
-        public virtual MethodInfo QueryEntities
-        {
-            get { return _queryEntitiesMethodInfo; }
-        }
-
-        private static readonly MethodInfo _queryEntitiesMethodInfo
-            = typeof(AsyncEnumerableMethodProvider).GetTypeInfo()
-                .GetDeclaredMethod("_QueryEntities");
-
-        [UsedImplicitly]
-        private static IAsyncEnumerable<TEntity> _QueryEntities<TEntity>(QueryContext queryContext, CommandBuilder commandBuilder)
-        {
-            var relationalQueryContext = ((RelationalQueryContext)queryContext);
-
-            return new AsyncEnumerable<TEntity>(
-                relationalQueryContext.Connection,
-                commandBuilder,
-                r => (TEntity)queryContext.StateManager
-                    .GetOrMaterializeEntry(
-                        queryContext.Model.GetEntityType(typeof(TEntity)),
-                        relationalQueryContext.ValueReaderFactory.Create(r)).Entity,
+                shaper,
                 queryContext.Logger);
         }
 
@@ -97,11 +71,20 @@ namespace Microsoft.Data.Entity.Relational.Query
                     _enumerable = enumerable;
                 }
 
-                public Task<bool> MoveNext(CancellationToken cancellationToken)
+                public async Task<bool> MoveNext(CancellationToken cancellationToken)
                 {
-                    return _reader == null
-                        ? InitializeAndReadAsync(cancellationToken)
-                        : _reader.ReadAsync(cancellationToken);
+                    var hasNext
+                        = await (_reader == null
+                            ? InitializeAndReadAsync(cancellationToken)
+                            : _reader.ReadAsync(cancellationToken));
+
+                    if (!hasNext)
+                    {
+                        // HACK: Workaround https://github.com/Reactive-Extensions/Rx.NET/issues/5
+                        Dispose();
+                    }
+
+                    return hasNext;
                 }
 
                 private async Task<bool> InitializeAndReadAsync(
