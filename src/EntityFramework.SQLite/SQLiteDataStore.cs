@@ -31,14 +31,14 @@ namespace Microsoft.Data.Entity.SQLite
         protected override RelationalQueryCompilationContext CreateQueryCompilationContext(
             ILinqOperatorProvider linqOperatorProvider,
             IResultOperatorHandler resultOperatorHandler,
-            IEnumerableMethodProvider enumerableMethodProvider)
+            IQueryMethodProvider queryMethodProvider)
         {
             Check.NotNull(linqOperatorProvider, "linqOperatorProvider");
             Check.NotNull(resultOperatorHandler, "resultOperatorHandler");
-            Check.NotNull(enumerableMethodProvider, "enumerableMethodProvider");
+            Check.NotNull(queryMethodProvider, "queryMethodProvider");
 
             return new SQLiteQueryCompilationContext(
-                Model, linqOperatorProvider, resultOperatorHandler, enumerableMethodProvider);
+                Model, linqOperatorProvider, resultOperatorHandler, queryMethodProvider);
         }
     }
 }

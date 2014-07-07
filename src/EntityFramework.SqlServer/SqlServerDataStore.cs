@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.SqlServer
         protected override RelationalQueryCompilationContext CreateQueryCompilationContext(
             ILinqOperatorProvider linqOperatorProvider,
             IResultOperatorHandler resultOperatorHandler,
-            IEnumerableMethodProvider enumerableMethodProvider)
+            IQueryMethodProvider enumerableMethodProvider)
         {
             Check.NotNull(linqOperatorProvider, "linqOperatorProvider");
             Check.NotNull(resultOperatorHandler, "resultOperatorHandler");

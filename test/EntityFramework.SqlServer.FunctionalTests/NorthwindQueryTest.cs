@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Threading.Tasks;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Tests;
 using Microsoft.Data.FunctionalTests;
@@ -8,8 +10,6 @@ using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Northwind;
-using System;
-using System.Threading.Tasks;
 using Xunit;
 
 #if K10
@@ -100,7 +100,7 @@ FROM [Customers] AS c",
             base.Select_scalar_primitive_after_take();
 
             Assert.Equal(
-                @"SELECT TOP 9 t1.[City], t1.[Country], t1.[EmployeeID]
+                @"SELECT TOP 9 t1.[City], t1.[Country], t1.[EmployeeID], t1.[FirstName]
 FROM [Employees] AS t1",
                 _fixture.Sql);
         }
@@ -219,15 +219,10 @@ WHERE c.[City] = @p0",
         {
             base.Where_select_many_or();
 
-            Assert.StartsWith(
-                @"SELECT c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region]
-FROM [Customers] AS c
-
-SELECT e.[City], e.[Country], e.[EmployeeID]
-FROM [Employees] AS e
-
-SELECT e.[City], e.[Country], e.[EmployeeID]
-FROM [Employees] AS e",
+            Assert.Equal(
+                @"SELECT c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region], e.[City], e.[Country], e.[EmployeeID], e.[FirstName]
+FROM [Customers] AS c, [Employees] AS e
+WHERE (c.[City] = @p0 OR e.[City] = @p0)",
                 _fixture.Sql);
         }
 
@@ -236,15 +231,9 @@ FROM [Employees] AS e",
             base.Where_select_many_or2();
 
             Assert.StartsWith(
-                @"SELECT c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region]
-FROM [Customers] AS c
-WHERE (c.[City] = @p0 OR c.[City] = @p1)
-
-SELECT e.[City], e.[Country], e.[EmployeeID]
-FROM [Employees] AS e
-
-SELECT e.[City], e.[Country], e.[EmployeeID]
-FROM [Employees] AS e",
+                @"SELECT c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region], e.[City], e.[Country], e.[EmployeeID], e.[FirstName]
+FROM [Customers] AS c, [Employees] AS e
+WHERE (c.[City] = @p0 OR c.[City] = @p1)",
                 _fixture.Sql);
         }
 
@@ -252,18 +241,10 @@ FROM [Employees] AS e",
         {
             base.Where_select_many_and();
 
-            Assert.StartsWith(
-                @"SELECT c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region]
-FROM [Customers] AS c
-WHERE (c.[City] = @p0 AND c.[Country] = @p1)
-
-SELECT e.[City], e.[Country], e.[EmployeeID]
-FROM [Employees] AS e
-WHERE (e.[City] = @p0 AND e.[Country] = @p1)
-
-SELECT e.[City], e.[Country], e.[EmployeeID]
-FROM [Employees] AS e
-WHERE (e.[City] = @p0 AND e.[Country] = @p1)",
+            Assert.Equal(
+                @"SELECT c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region], e.[City], e.[Country], e.[EmployeeID], e.[FirstName]
+FROM [Customers] AS c, [Employees] AS e
+WHERE ((c.[City] = @p0 AND c.[Country] = @p1) AND (e.[City] = @p0 AND e.[Country] = @p1))",
                 _fixture.Sql);
         }
 
@@ -300,40 +281,70 @@ WHERE c.[City] = @p0",
                 _fixture.Sql);
         }
 
+        public override void SelectMany_mixed()
+        {
+            base.SelectMany_mixed();
+
+            Assert.Equal(3399, _fixture.Sql.Length);
+            Assert.StartsWith(
+                @"SELECT e1.[City], e1.[Country], e1.[EmployeeID], e1.[FirstName]
+FROM [Employees] AS e1
+
+SELECT c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region]
+FROM [Customers] AS c
+
+SELECT c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region]
+FROM [Customers] AS c",
+                _fixture.Sql);
+        }
+
         public override void SelectMany_simple1()
         {
             base.SelectMany_simple1();
 
             Assert.Equal(
-                @"SELECT e1.[City], e1.[Country], e1.[EmployeeID]
-FROM [Employees] AS e1
+                @"SELECT e.[City], e.[Country], e.[EmployeeID], e.[FirstName], c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region]
+FROM [Employees] AS e, [Customers] AS c",
+                _fixture.Sql);
+        }
 
-SELECT e2.[City], e2.[Country], e2.[EmployeeID]
-FROM [Employees] AS e2
+        public override void SelectMany_simple2()
+        {
+            base.SelectMany_simple2();
 
-SELECT e2.[City], e2.[Country], e2.[EmployeeID]
-FROM [Employees] AS e2
+            Assert.Equal(
+                @"SELECT e1.[City], e1.[Country], e1.[EmployeeID], e1.[FirstName], c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region], e2.[FirstName]
+FROM [Employees] AS e1, [Customers] AS c, [Employees] AS e2",
+                _fixture.Sql);
+        }
 
-SELECT e2.[City], e2.[Country], e2.[EmployeeID]
-FROM [Employees] AS e2
+        public override void SelectMany_entity_deep()
+        {
+            base.SelectMany_entity_deep();
 
-SELECT e2.[City], e2.[Country], e2.[EmployeeID]
-FROM [Employees] AS e2
+            Assert.Equal(
+                @"SELECT e1.[City], e1.[Country], e1.[EmployeeID], e1.[FirstName], e2.[City], e2.[Country], e2.[EmployeeID], e2.[FirstName], e3.[City], e3.[Country], e3.[EmployeeID], e3.[FirstName]
+FROM [Employees] AS e1, [Employees] AS e2, [Employees] AS e3",
+                _fixture.Sql);
+        }
 
-SELECT e2.[City], e2.[Country], e2.[EmployeeID]
-FROM [Employees] AS e2
+        public override void SelectMany_projection1()
+        {
+            base.SelectMany_projection1();
 
-SELECT e2.[City], e2.[Country], e2.[EmployeeID]
-FROM [Employees] AS e2
+            Assert.Equal(
+                @"SELECT e1.[City], e2.[Country]
+FROM [Employees] AS e1, [Employees] AS e2",
+                _fixture.Sql);
+        }
 
-SELECT e2.[City], e2.[Country], e2.[EmployeeID]
-FROM [Employees] AS e2
+        public override void SelectMany_projection2()
+        {
+            base.SelectMany_projection2();
 
-SELECT e2.[City], e2.[Country], e2.[EmployeeID]
-FROM [Employees] AS e2
-
-SELECT e2.[City], e2.[Country], e2.[EmployeeID]
-FROM [Employees] AS e2",
+            Assert.Equal(
+                @"SELECT e1.[City], e2.[Country], e3.[FirstName]
+FROM [Employees] AS e1, [Employees] AS e2, [Employees] AS e3",
                 _fixture.Sql);
         }
 
@@ -347,50 +358,6 @@ FROM [Orders] AS o
 
 SELECT c.[CustomerID], c.[ContactName]
 FROM [Customers] AS c",
-                _fixture.Sql);
-        }
-
-        public override void SelectMany_simple2()
-        {
-            base.SelectMany_simple2();
-
-            Assert.Equal(6470, _fixture.Sql.Length);
-            Assert.StartsWith(
-                @"SELECT e1.[City], e1.[Country], e1.[EmployeeID]
-FROM [Employees] AS e1
-
-SELECT 1
-FROM [Employees] AS e2
-
-SELECT e3.[City], e3.[Country], e3.[EmployeeID]
-FROM [Employees] AS e3
-
-SELECT e3.[City], e3.[Country], e3.[EmployeeID]
-FROM [Employees] AS e3
-
-SELECT e3.[City], e3.[Country], e3.[EmployeeID]
-FROM [Employees] AS e3
-
-SELECT e3.[City], e3.[Country], e3.[EmployeeID]
-FROM [Employees] AS e3
-
-SELECT e3.[City], e3.[Country], e3.[EmployeeID]
-FROM [Employees] AS e3
-
-SELECT e3.[City], e3.[Country], e3.[EmployeeID]
-FROM [Employees] AS e3
-
-SELECT e3.[City], e3.[Country], e3.[EmployeeID]
-FROM [Employees] AS e3
-
-SELECT e3.[City], e3.[Country], e3.[EmployeeID]
-FROM [Employees] AS e3
-
-SELECT e3.[City], e3.[Country], e3.[EmployeeID]
-FROM [Employees] AS e3
-
-SELECT 1
-FROM [Employees] AS e2",
                 _fixture.Sql);
         }
 
@@ -408,19 +375,11 @@ FROM [Orders] AS o",
         {
             base.SelectMany_cartesian_product_with_ordering();
 
-            Assert.Equal(5761, _fixture.Sql.Length);
             Assert.StartsWith(
-                @"SELECT c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region]
-FROM [Customers] AS c
-ORDER BY c.[CustomerID] DESC
-
-SELECT e.[City]
-FROM [Employees] AS e
-ORDER BY e.[City]
-
-SELECT e.[City]
-FROM [Employees] AS e
-ORDER BY e.[City]",
+                @"SELECT c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region], e.[City]
+FROM [Customers] AS c, [Employees] AS e
+WHERE c.[City] = e.[City]
+ORDER BY e.[City], c.[CustomerID] DESC",
                 _fixture.Sql);
         }
 
@@ -438,17 +397,17 @@ FROM [Customers] AS c",
         }
 
         // TODO: Single
-//        public override void Take_with_single()
-//        {
-//            base.Take_with_single();
-//
-//            Assert.Equal(
-//                @"SELECT TOP 2 c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region]
-//FROM (SELECT TOP 1 *
-//FROM [Customers] AS c) AS t0
-//ORDER BY [CustomerID]",
-//                _fixture.Sql);
-//        }
+        //        public override void Take_with_single()
+        //        {
+        //            base.Take_with_single();
+        //
+        //            Assert.Equal(
+        //                @"SELECT TOP 2 c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region]
+        //FROM (SELECT TOP 1 *
+        //FROM [Customers] AS c) AS t0
+        //ORDER BY [CustomerID]",
+        //                _fixture.Sql);
+        //        }
 
         public override void Distinct()
         {
@@ -497,20 +456,20 @@ FROM [Customers] AS c",
         {
             base.Where_subquery_recursive_trivial();
 
-            Assert.Equal(1681, _fixture.Sql.Length);
+            Assert.Equal(1985, _fixture.Sql.Length);
             Assert.StartsWith(
-                @"SELECT e1.[City], e1.[Country], e1.[EmployeeID]
+                @"SELECT e1.[City], e1.[Country], e1.[EmployeeID], e1.[FirstName]
 FROM [Employees] AS e1
 ORDER BY e1.[EmployeeID]
 
-SELECT e2.[City], e2.[Country], e2.[EmployeeID]
+SELECT e2.[City], e2.[Country], e2.[EmployeeID], e2.[FirstName]
 FROM [Employees] AS e2
 
-SELECT e3.[City], e3.[Country], e3.[EmployeeID]
+SELECT e3.[City], e3.[Country], e3.[EmployeeID], e3.[FirstName]
 FROM [Employees] AS e3
 ORDER BY e3.[EmployeeID]
 
-SELECT e2.[City], e2.[Country], e2.[EmployeeID]
+SELECT e2.[City], e2.[Country], e2.[EmployeeID], e2.[FirstName]
 FROM [Employees] AS e2",
                 _fixture.Sql);
         }
@@ -588,16 +547,16 @@ FROM [Customers] AS c",
         }
 
         // TODO: Single
-//        public override void Single_Predicate()
-//        {
-//            base.Single_Predicate();
-//
-//            Assert.Equal(
-//                    @"SELECT TOP 2 c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region]
-//FROM [Customers] AS c
-//WHERE [CustomerID] = @p0",
-//                    _fixture.Sql);
-//        }
+        //        public override void Single_Predicate()
+        //        {
+        //            base.Single_Predicate();
+        //
+        //            Assert.Equal(
+        //                    @"SELECT TOP 2 c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region]
+        //FROM [Customers] AS c
+        //WHERE [CustomerID] = @p0",
+        //                    _fixture.Sql);
+        //        }
 
         public override void Projection_when_null_value()
         {
@@ -709,11 +668,6 @@ WHERE c.[ContactName] LIKE '%' + c.[ContactName]",
 FROM [Customers] AS c
 WHERE c.[ContactName] LIKE '%' + @p0",
                 _fixture.Sql);
-        }
-
-        public override void Select_subquery_recursive_trivial()
-        {
-            base.Select_subquery_recursive_trivial();
         }
 
         private readonly NorthwindQueryFixture _fixture;

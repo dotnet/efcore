@@ -15,8 +15,8 @@ namespace Microsoft.Data.Entity.SqlServer.Query
             [NotNull] IModel model,
             [NotNull] ILinqOperatorProvider linqOperatorProvider,
             [NotNull] IResultOperatorHandler resultOperatorHandler,
-            [NotNull] IEnumerableMethodProvider enumerableMethodProvider)
-            : base(model, linqOperatorProvider, resultOperatorHandler, enumerableMethodProvider)
+            [NotNull] IQueryMethodProvider queryMethodProvider)
+            : base(model, linqOperatorProvider, resultOperatorHandler, queryMethodProvider)
         {
         }
 

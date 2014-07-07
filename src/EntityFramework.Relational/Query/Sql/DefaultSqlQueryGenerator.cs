@@ -62,8 +62,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
             _sql.AppendLine()
                 .Append("FROM ");
-
-            VisitExpression(selectExpression.TableSource);
+            
+            VisitJoin(selectExpression.Tables);
 
             if (selectExpression.Predicate != null)
             {
