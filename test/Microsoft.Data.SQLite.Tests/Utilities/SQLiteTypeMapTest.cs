@@ -139,6 +139,14 @@ namespace Microsoft.Data.SQLite.Utilities
         }
 
         [Fact]
+        public void FromDeclaredType_ignores_case()
+        {
+            var map = SQLiteTypeMap.FromDeclaredType("int", SQLiteType.Integer);
+
+            Assert.Equal(typeof(int), map.ClrType);
+        }
+
+        [Fact]
         public void FromDeclaredType_ignores_sqlitetype()
         {
             var map = SQLiteTypeMap.FromDeclaredType("INTEGER", SQLiteType.Text);

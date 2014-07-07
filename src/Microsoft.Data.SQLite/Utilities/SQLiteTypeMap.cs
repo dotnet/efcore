@@ -184,7 +184,8 @@ namespace Microsoft.Data.SQLite.Utilities
                     declaredType = declaredType.Substring(0, i).TrimEnd();
                 }
 
-                map = _typeMaps.FirstOrDefault(m => m._declaredTypes.Contains(declaredType));
+                map = _typeMaps.FirstOrDefault(
+                    m => m._declaredTypes.Contains(declaredType, StringComparer.OrdinalIgnoreCase));
             }
 
             if (map == null)
