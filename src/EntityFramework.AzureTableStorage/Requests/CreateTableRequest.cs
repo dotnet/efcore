@@ -25,14 +25,16 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Requests
         {
             Check.NotNull(table, "table");
             Check.NotNull(requestContext, "requestContext");
-            return table.CreateIfNotExists(null, requestContext.OperationContext);
+            
+            return table.CreateIfNotExists(requestContext.TableRequestOptions, requestContext.OperationContext);
         }
 
         protected override Task<bool> ExecuteOnTableAsync([NotNull] CloudTable table, [NotNull] RequestContext requestContext, CancellationToken cancellationToken)
         {
             Check.NotNull(table, "table");
             Check.NotNull(requestContext, "requestContext");
-            return table.CreateIfNotExistsAsync(null, requestContext.OperationContext, cancellationToken);
+            
+            return table.CreateIfNotExistsAsync(requestContext.TableRequestOptions, requestContext.OperationContext, cancellationToken);
         }
     }
 }

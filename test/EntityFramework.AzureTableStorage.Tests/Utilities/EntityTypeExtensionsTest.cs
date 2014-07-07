@@ -16,8 +16,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Utilities
             var entityType = new EntityType("Customer");
             var property = entityType.AddProperty("Name", typeof(string));
             property.SetColumnName("FirstName");
-            Assert.Equal(property, entityType.GetPropertyByStorageName("FirstName"));
-            Assert.Equal(property, entityType.TryGetPropertyByStorageName("FirstName"));
+            Assert.Equal(property, entityType.GetPropertyByColumnName("FirstName"));
+            Assert.Equal(property, entityType.TryGetPropertyByColumnName("FirstName"));
         }
 
         [Fact]
@@ -28,8 +28,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Utilities
 
             Assert.Equal(
                 Strings.FormatPropertyWithStorageNameNotFound("FirstName", "Customer"),
-                Assert.Throws<ModelItemNotFoundException>(() => entityType.GetPropertyByStorageName("FirstName")).Message);
-            Assert.Null(entityType.TryGetPropertyByStorageName("FirstName"));
+                Assert.Throws<ModelItemNotFoundException>(() => entityType.GetPropertyByColumnName("FirstName")).Message);
+            Assert.Null(entityType.TryGetPropertyByColumnName("FirstName"));
         }
     }
 }

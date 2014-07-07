@@ -6,10 +6,12 @@ using System.Collections.Generic;
 using Microsoft.Data.Entity.AzureTableStorage.Adapters;
 using Microsoft.Data.Entity.AzureTableStorage.Metadata;
 using Microsoft.Data.Entity.AzureTableStorage.Query;
+using Microsoft.Data.Entity.AzureTableStorage.Utilities;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
+using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 using Moq;
 using Xunit;
@@ -67,6 +69,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
                     pb.Property<object>("PartitionKey", true);
                     pb.Property<object>("RowKey", true);
                     pb.Property<object>("Timestamp", true);
+                    pb.Property<object>("SomeProperty", true);
                 });
             builder.Entity<GuidKeysPoco>()
                 .PartitionAndRowKey(s => s.PartitionGuid, s => s.RowGuid)
@@ -117,17 +120,51 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
         public void It_writes_to_shadow_state_properties()
         {
             var entityType = CreateModel().GetEntityType("ShadowEntity");
-            var entry = _factory.Create(entityType, new AtsObjectArrayValueReader(new object[3]));
+            var entry = _factory.Create(entityType, new AtsObjectArrayValueReader(new object[4]));
             var adapter = new StateEntryTableEntityAdapter<object>(entry);
+            var pkProp = entry.EntityType.GetPropertyByColumnName("PartitionKey");
+            var rkProp = entry.EntityType.GetPropertyByColumnName("RowKey");
+            var tmProp = entry.EntityType.GetPropertyByColumnName("Timestamp");
+            var someProp = entry.EntityType.GetPropertyByColumnName("SomeProperty");
 
-            adapter.PartitionKey = "PartitionKey";
-            adapter.RowKey = "RowKey";
-            var timestamp = DateTime.Now;
+            adapter.PartitionKey = "PK";
+            adapter.RowKey = "RK";
+            var timestamp = DateTimeOffset.UtcNow;
             adapter.Timestamp = timestamp;
+            adapter.ReadEntity(new Dictionary<string, EntityProperty>
+                {
+                    {"SomeProperty",new EntityProperty(324890)}
+                }, null);
 
-            Assert.Equal("PartitionKey", adapter.PartitionKey);
-            Assert.Equal("RowKey", adapter.RowKey);
+            Assert.Equal("PK", entry[pkProp]);
+            Assert.Equal("RK", entry[rkProp]);
+            Assert.Equal(timestamp, entry[tmProp]);
+            Assert.Equal(324890, entry[someProp]);
+        }
+
+        [Fact]
+        public void It_reads_from_shadow_state_properties()
+        {
+            var entityType = CreateModel().GetEntityType("ShadowEntity");
+            var entry = _factory.Create(entityType, new AtsObjectArrayValueReader(new object[4]));
+            var adapter = new StateEntryTableEntityAdapter<object>(entry);
+            var pkProp = entry.EntityType.GetPropertyByColumnName("PartitionKey");
+            var rkProp = entry.EntityType.GetPropertyByColumnName("RowKey");
+            var tmProp = entry.EntityType.GetPropertyByColumnName("Timestamp");
+            var someProp = entry.EntityType.GetPropertyByColumnName("SomeProperty");
+
+            entry[pkProp] = "PK";
+            entry[rkProp] = "RK";
+            var timestamp = DateTimeOffset.UtcNow;
+            entry[tmProp] = timestamp;
+            entry[someProp] = 65134;
+
+            var values = adapter.WriteEntity(null);
+
+            Assert.Equal("PK", adapter.PartitionKey);
+            Assert.Equal("RK", adapter.RowKey);
             Assert.Equal(timestamp, adapter.Timestamp);
+            Assert.Equal(65134, values["SomeProperty"].Int32Value);
         }
 
         [Fact]

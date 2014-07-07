@@ -17,6 +17,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
         public AtsObjectArrayValueReader([NotNull] object[] valueBuffer)
         {
             Check.NotNull(valueBuffer, "valueBuffer");
+            
             _values = valueBuffer;
         }
 

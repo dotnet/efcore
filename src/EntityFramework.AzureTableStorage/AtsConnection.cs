@@ -22,7 +22,6 @@ namespace Microsoft.Data.Entity.AzureTableStorage
     {
         private readonly ThreadSafeLazyRef<CloudStorageAccount> _account;
         private readonly ThreadSafeLazyRef<CloudTableClient> _tableClient;
-        private bool _batching;
 
         /// <summary>
         ///     For testing. Improper usage may lead to NullReference exceptions
@@ -42,17 +41,14 @@ namespace Microsoft.Data.Entity.AzureTableStorage
                 .Single();
 
             var connectionString = storeConfig.ConnectionString;
-            _batching = storeConfig.UseBatching;
+            Batching = storeConfig.UseBatching;
 
             _account = new ThreadSafeLazyRef<CloudStorageAccount>(() => CloudStorageAccount.Parse(connectionString));
             _tableClient = new ThreadSafeLazyRef<CloudTableClient>(() => _account.Value.CreateCloudTableClient());
         }
 
-        public virtual bool Batching
-        {
-            get { return _batching; }
-            internal set { _batching = value; }
-        }
+        public virtual bool Batching { get; internal set; }
+        public virtual TableRequestOptions TableRequestOptions { get; internal set; }
 
         public virtual CloudStorageAccount Account
         {
@@ -80,12 +76,17 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             var operationContext = new OperationContext();
             if (logger != null)
             {
-                operationContext.Retrying += (sender, args) => logger.WriteInformation(args.Request.RequestUri.ToString());
+                operationContext.Retrying += (sender, args) => logger.WriteInformation(
+                    String.Format("Retrying request to '{0}'", args.Request.RequestUri.ToString())
+                    );
 
-                operationContext.SendingRequest += (sender, args) => logger.WriteVerbose(args.Request.RequestUri.ToString());
+                operationContext.SendingRequest += (sender, args) =>
+                    logger.WriteVerbose(
+                        String.Format("Sending request to '{0}'", args.Request.RequestUri.ToString())
+                        );
                 operationContext.ResponseReceived += (sender, args) =>
                     {
-                        var msg = String.Format("{0} {1}", args.Response.StatusCode, args.Response.StatusDescription);
+                        var msg = String.Format("Response from '{0}' = {1} {2}", args.Request.RequestUri.ToString(), (int)args.Response.StatusCode, args.Response.StatusDescription);
                         if (args.Response.StatusCode >= HttpStatusCode.BadRequest)
                         {
                             logger.WriteError(msg);
@@ -95,12 +96,14 @@ namespace Microsoft.Data.Entity.AzureTableStorage
                             logger.WriteVerbose(msg);
                         }
                     };
-                logger.WriteInformation("Executing request: " + request.Name);
+                logger.WriteInformation(String.Format("Executing request '{0}'", request.Name));
             }
+
             return new RequestContext
                 {
                     OperationContext = operationContext,
                     TableClient = _tableClient.Value,
+                    TableRequestOptions = TableRequestOptions
                 };
         }
     }

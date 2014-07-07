@@ -129,7 +129,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
                 var table = new AtsTable(tableGroup.Key);
                 var partitionGroups = tableGroup.GroupBy(s =>
                     {
-                        var property = s.EntityType.GetPropertyByStorageName("PartitionKey");
+                        var property = s.EntityType.GetPropertyByColumnName("PartitionKey");
                         return s[property];
                     }
                     );
@@ -141,7 +141,6 @@ namespace Microsoft.Data.Entity.AzureTableStorage
                         .Where(operation => operation != null)
                         )
                     {
-                        // TODO allow user access to config options: Retry Policy, Secondary Storage, Timeout 
                         request.Add(operation);
                         if (request.Count >= MaxBatchOperations)
                         {

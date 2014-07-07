@@ -16,6 +16,7 @@ namespace Microsoft.Data.Entity
         public static AtsDatabase AsAzureTableStorageDatabase([NotNull] this Database database)
         {
             Check.NotNull(database, "database");
+            
             var atsdb = database as AtsDatabase;
             if (atsdb == null)
             {

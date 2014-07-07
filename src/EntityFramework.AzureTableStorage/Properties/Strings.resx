@@ -144,4 +144,10 @@
   <data name="AtsConnectionNotInUse" xml:space="preserve">
     <value>This connection cannot be used as an Azure Table Storage Connection</value>
   </data>
+  <data name="MissingFilterString" xml:space="preserve">
+    <value>This query command has no filter string. This will pull the entire table into memory. Best practices recommend filtering with a partition and row key.</value>
+  </data>
+  <data name="MissingPartitionOrRowKey" xml:space="preserve">
+    <value>This query command has no partition key and/or row key in the query filter. This can produce a large table scan that will reduce performance and may increase costs. Best practices recommend filtering with a partition and row key.</value>
+  </data>
 </root>

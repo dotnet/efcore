@@ -24,6 +24,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Requests
         public virtual void Add([NotNull] TableOperationRequest operation)
         {
             Check.NotNull(operation, "operation");
+            
             _batch.Add(operation.Operation);
         }
 
@@ -37,11 +38,25 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Requests
             get { return "TableBatchRequest"; }
         }
 
+        public override IList<TableResult> Execute([NotNull] RequestContext requestContext)
+        {
+            Check.NotNull(requestContext, "requestContext");
+
+            return requestContext
+                .TableClient
+                .GetTableReference(_table.Name)
+                .ExecuteBatch(_batch, null, requestContext.OperationContext);
+        }
+
         public override Task<IList<TableResult>> ExecuteAsync([NotNull] RequestContext requestContext, CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(requestContext, "requestContext");
+
             return Task.Run(
-                () => requestContext.TableClient.GetTableReference(_table.Name).ExecuteBatchAsync(_batch, null, requestContext.OperationContext, cancellationToken)
+                () => requestContext
+                    .TableClient
+                    .GetTableReference(_table.Name)
+                    .ExecuteBatchAsync(_batch, requestContext.TableRequestOptions, requestContext.OperationContext, cancellationToken)
                 , cancellationToken);
         }
     }

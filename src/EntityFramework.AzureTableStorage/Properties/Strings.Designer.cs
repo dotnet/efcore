@@ -154,6 +154,38 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             return GetString("AtsConnectionNotInUse");
         }
 
+        /// <summary>
+        /// This query command has no filter string .This will pull the entire table into memory. Best practices recommend filtering with a partition and row key.
+        /// </summary>
+        internal static string MissingFilterString
+        {
+            get { return GetString("MissingFilterString"); }
+        }
+
+        /// <summary>
+        /// This query command has no filter string .This will pull the entire table into memory. Best practices recommend filtering with a partition and row key.
+        /// </summary>
+        internal static string FormatMissingFilterString()
+        {
+            return GetString("MissingFilterString");
+        }
+
+        /// <summary>
+        /// This query command has no partition key and/or row key in the query filter. This can produce a large table scan that will reduce performance and may increase costs. Best practices recommend filtering with a partition and row key.
+        /// </summary>
+        internal static string MissingPartitionOrRowKey
+        {
+            get { return GetString("MissingPartitionOrRowKey"); }
+        }
+
+        /// <summary>
+        /// This query command has no partition key and/or row key in the query filter. This can produce a large table scan that will reduce performance and may increase costs. Best practices recommend filtering with a partition and row key.
+        /// </summary>
+        internal static string FormatMissingPartitionOrRowKey()
+        {
+            return GetString("MissingPartitionOrRowKey");
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

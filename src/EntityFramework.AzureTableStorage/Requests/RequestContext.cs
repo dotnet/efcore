@@ -20,5 +20,6 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Requests
         public virtual CloudTableClient TableClient { get; [param: NotNull] set; }
 
         public virtual ILogger Logger { get; [param: NotNull] set; }
+        public virtual TableRequestOptions TableRequestOptions { get; [param: NotNull] set; }
     }
 }

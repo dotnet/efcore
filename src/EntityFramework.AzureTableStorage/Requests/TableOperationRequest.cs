@@ -17,6 +17,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Requests
             : base(table)
         {
             Check.NotNull(operation, "operation");
+            
             _operation = operation;
         }
 
@@ -30,15 +31,17 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Requests
         {
             Check.NotNull(table, "table");
             Check.NotNull(requestContext, "requestContext");
-            return table.Execute(_operation, null, requestContext.OperationContext);
+            
+            return table.Execute(_operation, requestContext.TableRequestOptions, requestContext.OperationContext);
         }
 
         protected override Task<TableResult> ExecuteOnTableAsync([NotNull] CloudTable table, [NotNull] RequestContext requestContext, CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(table, "table");
             Check.NotNull(requestContext, "requestContext");
+            
             return Task.Run(
-                () => table.ExecuteAsync(_operation, null, requestContext.OperationContext, cancellationToken)
+                () => table.ExecuteAsync(_operation, requestContext.TableRequestOptions, requestContext.OperationContext, cancellationToken)
                 , cancellationToken);
         }
     }

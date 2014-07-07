@@ -20,12 +20,14 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         public AtsDataStoreCreator([NotNull] AtsConnection connection)
         {
             Check.NotNull(connection, "connection");
+            
             _connection = connection;
         }
 
         public override bool EnsureDeleted([NotNull] IModel model)
         {
             Check.NotNull(model, "model");
+            
             var deleted = false;
             foreach (var type in model.EntityTypes)
             {
@@ -38,6 +40,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         public override async Task<bool> EnsureDeletedAsync([NotNull] IModel model, CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(model, "model");
+            
             var tasks = model.EntityTypes
                 .Select(type => new DeleteTableRequest(new AtsTable(type.TableName())))
                 .Select(request => _connection.ExecuteRequestAsync(request, cancellationToken: cancellationToken))
@@ -50,6 +53,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         public override bool EnsureCreated([NotNull] IModel model)
         {
             Check.NotNull(model, "model");
+            
             var created = false;
             foreach (var type in model.EntityTypes)
             {
@@ -62,6 +66,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         public override async Task<bool> EnsureCreatedAsync([NotNull] IModel model, CancellationToken cancellationToken = new CancellationToken())
         {
             Check.NotNull(model, "model");
+            
             var tasks = model.EntityTypes
                 .Select(type => new CreateTableRequest(new AtsTable(type.TableName())))
                 .Select(request => _connection.ExecuteRequestAsync(request, cancellationToken: cancellationToken))

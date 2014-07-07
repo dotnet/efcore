@@ -11,23 +11,22 @@ using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Adapters
 {
-    //TODO investigate the performance possibilities such as using reflection instead and/or caching instances
     public class TableEntityAdapterFactory
     {
         public virtual ITableEntity CreateFromStateEntry([NotNull] StateEntry entry)
         {
             Check.NotNull(entry, "entry");
 
-            var entityType = entry.Entity.GetType();
-            var ctor = GetOrMakeCreator(entityType);
+            var ctor = GetOrMakeAdapter(entry);
             return ctor(entry);
         }
 
-        private readonly ThreadSafeDictionaryCache<Type, Func<StateEntry, ITableEntity>> _instanceCreatorCache = new ThreadSafeDictionaryCache<Type, Func<StateEntry, ITableEntity>>();
+        private readonly ThreadSafeDictionaryCache<StateEntry, Func<StateEntry, ITableEntity>> _instanceCreatorCache
+            = new ThreadSafeDictionaryCache<StateEntry, Func<StateEntry, ITableEntity>>();
 
-        private Func<StateEntry, ITableEntity> GetOrMakeCreator(Type objType)
+        private Func<StateEntry, ITableEntity> GetOrMakeAdapter(StateEntry entry)
         {
-            return _instanceCreatorCache.GetOrAdd(objType, type =>
+            return _instanceCreatorCache.GetOrAdd(entry, e =>
                 {
                     var paramExpression = new[]
                         {
@@ -35,7 +34,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Adapters
                         };
                     var ctorExpression = Expression.New(
                         typeof(StateEntryTableEntityAdapter<>)
-                            .MakeGenericType(type)
+                            .MakeGenericType(e.Entity.GetType())
                             .GetConstructor(new[] { typeof(StateEntry) }),
                         paramExpression
                         );

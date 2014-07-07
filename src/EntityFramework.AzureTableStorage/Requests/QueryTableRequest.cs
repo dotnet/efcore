@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.AzureTableStorage.Query;
 using Microsoft.Data.Entity.AzureTableStorage.Utilities;
+using Microsoft.Framework.Logging;
 using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Requests
@@ -24,6 +25,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Requests
             Check.NotNull(table, "table");
             Check.NotNull(query, "query");
             Check.NotNull(resolver, "resolver");
+            
             _query = query;
             _resolver = resolver;
             _table = table;
@@ -47,6 +49,21 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Requests
         public override IEnumerable<TElement> Execute([NotNull] RequestContext requestContext)
         {
             Check.NotNull(requestContext, "requestContext");
+
+            if (requestContext.Logger != null)
+            {
+                var queryString = _query.FilterString;
+                if (String.IsNullOrEmpty(queryString))
+                {
+                    requestContext.Logger.WriteWarning(Strings.MissingFilterString);
+                }
+                else if (!queryString.Contains("PartitionKey")
+                         || !queryString.Contains("RowKey"))
+                {
+                    requestContext.Logger.WriteWarning(Strings.MissingPartitionOrRowKey);
+                }
+            }
+
             return requestContext
                 .TableClient
                 .GetTableReference(_table.Name)
@@ -59,7 +76,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Requests
                         buffer.Add("ETag", etag);
                         return _resolver(buffer);
                     },
-                    null,
+                    requestContext.TableRequestOptions,
                     requestContext.OperationContext);
         }
 

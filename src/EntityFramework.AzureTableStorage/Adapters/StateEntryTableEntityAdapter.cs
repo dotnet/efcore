@@ -28,14 +28,15 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Adapters
         public StateEntryTableEntityAdapter([NotNull] StateEntry entry)
         {
             Check.NotNull(entry, "entry");
+
             _entry = entry;
 
-            _partitionKeyProp = entry.EntityType.GetPropertyByStorageName("PartitionKey");
-            _rowKeyProp = entry.EntityType.GetPropertyByStorageName("RowKey");
+            _partitionKeyProp = entry.EntityType.GetPropertyByColumnName("PartitionKey");
+            _rowKeyProp = entry.EntityType.GetPropertyByColumnName("RowKey");
 
             // An optional CLR fields: required DTO
-            _timestampProp = entry.EntityType.TryGetPropertyByStorageName("Timestamp");
-            _etagProp = entry.EntityType.TryGetPropertyByStorageName("ETag");
+            _timestampProp = entry.EntityType.TryGetPropertyByColumnName("Timestamp");
+            _etagProp = entry.EntityType.TryGetPropertyByColumnName("ETag");
         }
 
         public virtual StateEntry StateEntry
@@ -53,10 +54,10 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Adapters
             var entityType = _entry.EntityType;
             foreach (var property in properties)
             {
-                var entityProp = entityType.TryGetPropertyByStorageName(property.Key);
+                var entityProp = entityType.TryGetPropertyByColumnName(property.Key);
                 if (entityProp != null
-                    && entityProp.IsClrProperty
-                    && EdmTypeMatchesClrType(property.Value.PropertyType, entityProp.PropertyType))
+                    && (!entityProp.IsClrProperty
+                        || EdmTypeMatchesClrType(property.Value.PropertyType, entityProp.PropertyType)))
                 {
                     SetProperty(entityProp, property.Value.PropertyAsObject);
                 }
@@ -127,16 +128,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Adapters
 
         private void SetProperty(IProperty prop, object value)
         {
-            if (prop.IsClrProperty)
-            {
-                //TODO type checking/formatting
-                _entry[prop] = value;
-            }
-            else
-            {
-                //TODO set shadow state properties
-                _entry[prop] = value;
-            }
+            _entry[prop] = value;
         }
 
         private static bool EdmTypeMatchesClrType(EdmType edmType, Type clrType)

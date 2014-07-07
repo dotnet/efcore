@@ -11,20 +11,21 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Utilities
     internal static class EntityTypeExtensions
     {
         [CanBeNull]
-        public static IProperty TryGetPropertyByStorageName([NotNull] this IEntityType entityType, [NotNull] string name)
+        public static IProperty TryGetPropertyByColumnName([NotNull] this IEntityType entityType, [NotNull] string name)
         {
             Check.NotNull(entityType, "entityType");
             Check.NotEmpty(name, "name");
+            
             return entityType.Properties.FirstOrDefault(s => s.ColumnName() == name);
         }
 
         [NotNull]
-        public static IProperty GetPropertyByStorageName([NotNull] this IEntityType entityType, [NotNull] string name)
+        public static IProperty GetPropertyByColumnName([NotNull] this IEntityType entityType, [NotNull] string name)
         {
             Check.NotNull(entityType, "entityType");
             Check.NotEmpty(name, "name");
 
-            var property = TryGetPropertyByStorageName(entityType, name);
+            var property = TryGetPropertyByColumnName(entityType, name);
             if (property == null)
             {
                 throw new ModelItemNotFoundException(Strings.FormatPropertyWithStorageNameNotFound(name, entityType.Name));
