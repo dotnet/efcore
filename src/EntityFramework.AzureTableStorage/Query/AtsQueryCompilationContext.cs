@@ -14,7 +14,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
         {
         }
 
-        public override EntityQueryModelVisitor CreateQueryModelVisitor()
+        public override EntityQueryModelVisitor CreateQueryModelVisitor(
+            EntityQueryModelVisitor parentEntityQueryModelVisitor)
         {
             return new AtsQueryModelVisitor(this);
         }

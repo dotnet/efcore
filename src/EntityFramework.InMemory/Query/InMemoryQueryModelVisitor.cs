@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.InMemory.Query
 
         protected override ExpressionTreeVisitor CreateQueryingExpressionTreeVisitor(IQuerySource querySource)
         {
-            return new InMemoryQueryingExpressionTreeVisitor(QueryCompilationContext);
+            return new InMemoryQueryingExpressionTreeVisitor(this);
         }
 
         private static readonly MethodInfo _entityScanMethodInfo
@@ -43,8 +43,8 @@ namespace Microsoft.Data.Entity.InMemory.Query
 
         private class InMemoryQueryingExpressionTreeVisitor : QueryingExpressionTreeVisitor
         {
-            public InMemoryQueryingExpressionTreeVisitor(QueryCompilationContext queryCompilationContext)
-                : base(queryCompilationContext)
+            public InMemoryQueryingExpressionTreeVisitor(EntityQueryModelVisitor entityQueryModelVisitor)
+                : base(entityQueryModelVisitor)
             {
             }
 

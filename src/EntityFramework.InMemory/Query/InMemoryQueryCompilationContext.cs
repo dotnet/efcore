@@ -15,7 +15,8 @@ namespace Microsoft.Data.Entity.InMemory.Query
         {
         }
 
-        public override EntityQueryModelVisitor CreateQueryModelVisitor()
+        public override EntityQueryModelVisitor CreateQueryModelVisitor(
+            EntityQueryModelVisitor parentEntityQueryModelVisitor)
         {
             return new InMemoryQueryModelVisitor(this);
         }

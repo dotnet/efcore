@@ -69,7 +69,7 @@ ORDER BY c.[CustomerID]",
             base.Take_simple_projection();
 
             Assert.Equal(
-                @"SELECT TOP 10 c.[CustomerID], c.[City]
+                @"SELECT TOP 10 c.[City]
 FROM [Customers] AS c
 ORDER BY c.[CustomerID]",
                 _fixture.Sql);
@@ -433,9 +433,8 @@ FROM [Customers] AS c",
         {
             base.OrderBy_Distinct();
 
-            // TODO: Projection incorrect
             Assert.Equal(
-                @"SELECT DISTINCT c.[CustomerID], c.[City]
+                @"SELECT DISTINCT c.[City]
 FROM [Customers] AS c",
                 _fixture.Sql);
         }
@@ -450,6 +449,17 @@ FROM [Customers] AS c",
             //FROM [Customers] AS c
             //ORDER BY [City]",
             //                _fixture.Sql);
+        }
+
+        public override void OrderBy_multiple()
+        {
+            base.OrderBy_multiple();
+
+            Assert.Equal(
+                @"SELECT c.[City]
+FROM [Customers] AS c
+ORDER BY c.[Country], c.[CustomerID]",
+                _fixture.Sql);
         }
 
         public override void Where_subquery_recursive_trivial()
@@ -667,6 +677,54 @@ WHERE c.[ContactName] LIKE '%' + c.[ContactName]",
                 @"SELECT c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region]
 FROM [Customers] AS c
 WHERE c.[ContactName] LIKE '%' + @p0",
+                _fixture.Sql);
+        }
+
+        public override void Select_nested_collection()
+        {
+            base.Select_nested_collection();
+
+            Assert.StartsWith(
+                @"SELECT c.[City], c.[CustomerID]
+FROM [Customers] AS c
+WHERE c.[City] = @p0
+ORDER BY c.[CustomerID]
+
+SELECT o.[CustomerID], o.[OrderDate], o.[OrderID]
+FROM [Orders] AS o
+ORDER BY o.[OrderID]
+
+",
+                _fixture.Sql);
+        }
+
+        public override void Select_correlated_subquery_projection()
+        {
+            base.Select_correlated_subquery_projection();
+
+            Assert.StartsWith(
+                @"SELECT c.[CustomerID]
+FROM [Customers] AS c
+
+SELECT o.[CustomerID], o.[OrderDate], o.[OrderID]
+FROM [Orders] AS o
+
+",
+                _fixture.Sql);
+        }
+
+        public override void Select_correlated_subquery_ordered()
+        {
+            base.Select_correlated_subquery_ordered();
+
+            Assert.StartsWith(
+                @"SELECT c.[CustomerID]
+FROM [Customers] AS c
+
+SELECT o.[CustomerID], o.[OrderDate], o.[OrderID]
+FROM [Orders] AS o
+
+",
                 _fixture.Sql);
         }
 

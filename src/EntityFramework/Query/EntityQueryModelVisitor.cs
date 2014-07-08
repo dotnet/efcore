@@ -69,12 +69,12 @@ namespace Microsoft.Data.Entity.Query
 
         protected virtual ExpressionTreeVisitor CreateProjectionExpressionTreeVisitor()
         {
-            return new ProjectionExpressionTreeVisitor(_queryCompilationContext);
+            return new ProjectionExpressionTreeVisitor(this);
         }
 
         protected virtual ExpressionTreeVisitor CreateOrderingExpressionTreeVisitor(Ordering ordering)
         {
-            return new DefaultExpressionTreeVisitor(_queryCompilationContext);
+            return new DefaultExpressionTreeVisitor(this);
         }
 
         public Func<QueryContext, QuerySourceScope, IEnumerable<TResult>> CreateQueryExecutor<TResult>([NotNull] QueryModel queryModel)
@@ -613,34 +613,40 @@ namespace Microsoft.Data.Entity.Query
 
         protected class DefaultExpressionTreeVisitor : ExpressionTreeVisitor
         {
-            private readonly QueryCompilationContext _queryCompilationContext;
+            private readonly EntityQueryModelVisitor _entityQueryModelVisitor;
 
-            public DefaultExpressionTreeVisitor([NotNull] QueryCompilationContext queryCompilationContext)
+            public DefaultExpressionTreeVisitor([NotNull] EntityQueryModelVisitor entityQueryModelVisitor)
             {
-                Check.NotNull(queryCompilationContext, "queryCompilationContext");
+                Check.NotNull(entityQueryModelVisitor, "entityQueryModelVisitor");
 
-                _queryCompilationContext = queryCompilationContext;
+                _entityQueryModelVisitor = entityQueryModelVisitor;
             }
 
             public QueryCompilationContext QueryCompilationContext
             {
-                get { return _queryCompilationContext; }
+                get { return _entityQueryModelVisitor.QueryCompilationContext; }
             }
 
             protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
             {
-                var queryModelVisitor = QueryCompilationContext.CreateQueryModelVisitor();
+                var queryModelVisitor = CreateQueryModelVisitor();
 
                 queryModelVisitor.VisitQueryModel(expression.QueryModel);
 
                 return queryModelVisitor.Expression;
             }
+
+            protected EntityQueryModelVisitor CreateQueryModelVisitor()
+            {
+                return QueryCompilationContext
+                    .CreateQueryModelVisitor(_entityQueryModelVisitor);
+            }
         }
 
         protected abstract class QueryingExpressionTreeVisitor : DefaultExpressionTreeVisitor
         {
-            protected QueryingExpressionTreeVisitor([NotNull] QueryCompilationContext queryCompilationContext)
-                : base(queryCompilationContext)
+            protected QueryingExpressionTreeVisitor([NotNull] EntityQueryModelVisitor entityQueryModelVisitor)
+                : base(entityQueryModelVisitor)
             {
             }
 
@@ -660,14 +666,14 @@ namespace Microsoft.Data.Entity.Query
 
         protected class ProjectionExpressionTreeVisitor : DefaultExpressionTreeVisitor
         {
-            public ProjectionExpressionTreeVisitor([NotNull] QueryCompilationContext queryCompilationContext)
-                : base(queryCompilationContext)
+            public ProjectionExpressionTreeVisitor([NotNull] EntityQueryModelVisitor entityQueryModelVisitor)
+                : base(entityQueryModelVisitor)
             {
             }
 
             protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
             {
-                var queryModelVisitor = QueryCompilationContext.CreateQueryModelVisitor();
+                var queryModelVisitor = CreateQueryModelVisitor();
 
                 queryModelVisitor.VisitQueryModel(expression.QueryModel);
 

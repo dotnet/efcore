@@ -82,6 +82,26 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             }
         }
 
+        public virtual void AddToProjection([NotNull] ColumnExpression columnExpression)
+        {
+            Check.NotNull(columnExpression, "columnExpression");
+
+            if (_projection
+                .FindIndex(ce =>
+                    ce.Property == columnExpression.Property
+                    && ce.Alias == columnExpression.Alias) == -1)
+            {
+                _projection.Add(columnExpression);
+            }
+        }
+
+        public virtual void RemoveFromProjection([NotNull] IEnumerable<Ordering> orderBy)
+        {
+            Check.NotNull(orderBy, "orderBy");
+
+            _projection.RemoveAll(ce => orderBy.Any(o => o.Expression == ce));
+        }
+
         public virtual int GetProjectionIndex([NotNull] IProperty property, [NotNull] IQuerySource querySource)
         {
             Check.NotNull(property, "property");
@@ -94,7 +114,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public virtual Expression Predicate { get; [param: CanBeNull] set; }
 
-        public virtual void AddToOrderBy(
+        public virtual ColumnExpression AddToOrderBy(
             [NotNull] IProperty property,
             [NotNull] IQuerySource querySource,
             OrderingDirection orderingDirection)
@@ -106,6 +126,15 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
                 = new ColumnExpression(property, FindTableForQuerySource(querySource).Alias);
 
             _orderBy.Add(new Ordering(columnExpression, orderingDirection));
+
+            return columnExpression;
+        }
+
+        public virtual void AddToOrderBy([NotNull] IEnumerable<Ordering> orderings)
+        {
+            Check.NotNull(orderings, "orderings");
+
+            _orderBy.AddRange(orderings);
         }
 
         public virtual IReadOnlyList<Ordering> OrderBy
