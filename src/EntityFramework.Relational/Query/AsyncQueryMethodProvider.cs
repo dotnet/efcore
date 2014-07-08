@@ -80,7 +80,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
                     if (!hasNext)
                     {
-                        // HACK: Workaround https://github.com/Reactive-Extensions/Rx.NET/issues/5
+                        // H.A.C.K.: Workaround https://github.com/Reactive-Extensions/Rx.NET/issues/5
                         Dispose();
                     }
 
