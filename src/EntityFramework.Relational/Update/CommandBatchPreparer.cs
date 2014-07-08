@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Relational.Update
         private readonly ParameterNameGeneratorFactory _parameterNameGeneratorFactory;
         private readonly GraphFactory _graphFactory;
         private readonly ModificationCommandComparer _modificationCommandComparer;
-        
+
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
         ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
@@ -128,15 +128,18 @@ namespace Microsoft.Data.Entity.Relational.Update
                             if (command.EntityState == EntityState.Added
                                 || candidateKeyValueColumnModifications.Any())
                             {
-                                var candidateKeyValue = CreatePrincipalKeyValue(stateEntry, foreignKey);
+                                var principalKeyValue = CreatePrincipalKeyValue(stateEntry, foreignKey, ValueType.Current);
 
-                                List<ModificationCommand> predecessorCommands;
-                                if (!predecessorsMap.TryGetValue(candidateKeyValue, out predecessorCommands))
+                                if (principalKeyValue.Key != EntityKey.NullEntityKey)
                                 {
-                                    predecessorCommands = new List<ModificationCommand>();
-                                    predecessorsMap.Add(candidateKeyValue, predecessorCommands);
+                                    List<ModificationCommand> predecessorCommands;
+                                    if (!predecessorsMap.TryGetValue(principalKeyValue, out predecessorCommands))
+                                    {
+                                        predecessorCommands = new List<ModificationCommand>();
+                                        predecessorsMap.Add(principalKeyValue, predecessorCommands);
+                                    }
+                                    predecessorCommands.Add(command);
                                 }
-                                predecessorCommands.Add(command);
                             }
                         }
                     }
@@ -157,15 +160,18 @@ namespace Microsoft.Data.Entity.Relational.Update
                             if (command.EntityState == EntityState.Deleted
                                 || foreignKeyValueColumnModifications.Any())
                             {
-                                var foreignKeyValue = CreateDependentKeyValue(stateEntry.OriginalValues, foreignKey);
+                                var dependentKeyValue = CreateDependentKeyValue(stateEntry.OriginalValues, foreignKey, ValueType.Original);
 
-                                List<ModificationCommand> predecessorCommands;
-                                if (!predecessorsMap.TryGetValue(foreignKeyValue, out predecessorCommands))
+                                if (dependentKeyValue.Key != EntityKey.NullEntityKey)
                                 {
-                                    predecessorCommands = new List<ModificationCommand>();
-                                    predecessorsMap.Add(foreignKeyValue, predecessorCommands);
+                                    List<ModificationCommand> predecessorCommands;
+                                    if (!predecessorsMap.TryGetValue(dependentKeyValue, out predecessorCommands))
+                                    {
+                                        predecessorCommands = new List<ModificationCommand>();
+                                        predecessorsMap.Add(dependentKeyValue, predecessorCommands);
+                                    }
+                                    predecessorCommands.Add(command);
                                 }
-                                predecessorCommands.Add(command);
                             }
                         }
                     }
@@ -187,16 +193,19 @@ namespace Microsoft.Data.Entity.Relational.Update
                     {
                         foreach (var foreignKey in stateEntry.EntityType.ForeignKeys)
                         {
-                            var foreignKeyValue = CreateDependentKeyValue(stateEntry, foreignKey);
+                            var dependentKeyValue = CreateDependentKeyValue(stateEntry, foreignKey, ValueType.Current);
 
-                            List<ModificationCommand> predecessorCommands;
-                            if (predecessorsMap.TryGetValue(foreignKeyValue, out predecessorCommands))
+                            if (dependentKeyValue.Key != EntityKey.NullEntityKey)
                             {
-                                foreach (var predecessor in predecessorCommands)
+                                List<ModificationCommand> predecessorCommands;
+                                if (predecessorsMap.TryGetValue(dependentKeyValue, out predecessorCommands))
                                 {
-                                    if (predecessor != command)
+                                    foreach (var predecessor in predecessorCommands)
                                     {
-                                        commandGraph.AddEdge(predecessor, command);
+                                        if (predecessor != command)
+                                        {
+                                            commandGraph.AddEdge(predecessor, command);
+                                        }
                                     }
                                 }
                             }
@@ -211,16 +220,19 @@ namespace Microsoft.Data.Entity.Relational.Update
                     {
                         foreach (var foreignKey in stateEntry.EntityType.GetReferencingForeignKeys())
                         {
-                            var candidateKeyValue = CreatePrincipalKeyValue(stateEntry.OriginalValues, foreignKey);
+                            var principalKeyValue = CreatePrincipalKeyValue(stateEntry.OriginalValues, foreignKey, ValueType.Original);
 
-                            List<ModificationCommand> predecessorCommands;
-                            if (predecessorsMap.TryGetValue(candidateKeyValue, out predecessorCommands))
+                            if (principalKeyValue.Key != EntityKey.NullEntityKey)
                             {
-                                foreach (var predecessor in predecessorCommands)
+                                List<ModificationCommand> predecessorCommands;
+                                if (predecessorsMap.TryGetValue(principalKeyValue, out predecessorCommands))
                                 {
-                                    if (predecessor != command)
+                                    foreach (var predecessor in predecessorCommands)
                                     {
-                                        commandGraph.AddEdge(predecessor, command);
+                                        if (predecessor != command)
+                                        {
+                                            commandGraph.AddEdge(predecessor, command);
+                                        }
                                     }
                                 }
                             }
@@ -230,47 +242,53 @@ namespace Microsoft.Data.Entity.Relational.Update
             }
         }
 
-        private KeyValue CreatePrincipalKeyValue(IPropertyBagEntry propertyBagEntry, IForeignKey foreignKey)
+        private KeyValue CreatePrincipalKeyValue(IPropertyBagEntry propertyBagEntry, IForeignKey foreignKey, ValueType valueType)
         {
             var key = propertyBagEntry.GetPrincipalKeyValue(foreignKey);
-            return new KeyValue(foreignKey, key, propertyBagEntry.GetType());
+            return new KeyValue(foreignKey, key, valueType);
         }
 
-        private KeyValue CreateDependentKeyValue(IPropertyBagEntry propertyBagEntry, IForeignKey foreignKey)
+        private KeyValue CreateDependentKeyValue(IPropertyBagEntry propertyBagEntry, IForeignKey foreignKey, ValueType valueType)
         {
             var key = propertyBagEntry.GetDependentKeyValue(foreignKey);
-            return new KeyValue(foreignKey, key, propertyBagEntry.GetType());
+            return new KeyValue(foreignKey, key, valueType);
+        }
+
+        private enum ValueType
+        {
+            Original,
+            Current
         }
 
         private struct KeyValue
         {
             public KeyValue(
-                [NotNull] IForeignKey foreignKey, EntityKey keyValue, [NotNull] Type propertyBagEntryType)
+                [NotNull] IForeignKey foreignKey, EntityKey keyValue, [NotNull] ValueType valueType)
             {
                 ForeignKey = foreignKey;
                 Key = keyValue;
-                PropertyBagEntryType = propertyBagEntryType;
+                ValueType = valueType;
             }
 
             internal readonly IForeignKey ForeignKey;
 
             internal readonly EntityKey Key;
 
-            internal readonly Type PropertyBagEntryType;
+            internal readonly ValueType ValueType;
         }
 
         private class KeyValueComparer : IEqualityComparer<KeyValue>
         {
             public bool Equals(KeyValue x, KeyValue y)
             {
-                return x.PropertyBagEntryType == y.PropertyBagEntryType
+                return x.ValueType == y.ValueType
                        && x.ForeignKey == y.ForeignKey
                        && x.Key.Equals(y.Key);
             }
 
             public int GetHashCode(KeyValue obj)
             {
-                return (((obj.PropertyBagEntryType.GetHashCode() * 397)
+                return (((obj.ValueType.GetHashCode() * 397)
                          ^ obj.ForeignKey.GetHashCode()) * 397)
                        ^ obj.Key.GetHashCode();
             }

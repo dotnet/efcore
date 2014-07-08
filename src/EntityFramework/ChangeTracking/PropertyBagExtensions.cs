@@ -33,9 +33,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotNull(propertyBagEntry, "propertyBagEntry");
 
             var entityType = propertyBagEntry.StateEntry.EntityType;
-            var keyValue = propertyBagEntry.StateEntry.CreateKey(entityType, entityType.GetKey().Properties, propertyBagEntry);
-
-            return keyValue;
+            return propertyBagEntry.StateEntry.CreateKey(entityType, entityType.GetKey().Properties, propertyBagEntry);
         }
     }
 }

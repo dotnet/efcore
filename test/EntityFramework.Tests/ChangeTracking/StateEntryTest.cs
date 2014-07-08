@@ -328,7 +328,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Null_composite_foreign_key_value_based_on_principal_end_values_throws()
+        public void Can_create_composite_foreign_key_value_based_on_principal_end_values_with_nulls()
         {
             var model = BuildModel();
             var principalType = model.GetEntityType("SomeDependentEntity");
@@ -342,7 +342,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             Assert.Same(EntityKey.NullEntityKey, entry.GetPrincipalKeyValue(dependentType.ForeignKeys.Single()));
         }
-        
+
         [Fact]
         public void Can_get_property_value_after_creation_from_value_buffer()
         {
