@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
             private readonly IQuerySource _querySource;
 
             public AtsQueryingExpressionTreeVisitor(AtsQueryModelVisitor parent, IQuerySource querySource)
-                : base(parent.QueryCompilationContext)
+                : base(parent)
             {
                 _parent = parent;
                 _querySource = querySource;

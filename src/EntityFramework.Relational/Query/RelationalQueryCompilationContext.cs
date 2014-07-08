@@ -28,9 +28,11 @@ namespace Microsoft.Data.Entity.Relational.Query
             _queryMethodProvider = queryMethodProvider;
         }
 
-        public override EntityQueryModelVisitor CreateQueryModelVisitor()
+        public override EntityQueryModelVisitor CreateQueryModelVisitor(
+            EntityQueryModelVisitor parentEntityQueryModelVisitor)
         {
-            return new RelationalQueryModelVisitor(this);
+            return new RelationalQueryModelVisitor(
+                this, (RelationalQueryModelVisitor)parentEntityQueryModelVisitor);
         }
 
         public virtual IQueryMethodProvider QueryMethodProvider

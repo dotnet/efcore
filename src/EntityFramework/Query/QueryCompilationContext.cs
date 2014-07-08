@@ -42,6 +42,12 @@ namespace Microsoft.Data.Entity.Query
             get { return _resultOperatorHandler; }
         }
 
-        public abstract EntityQueryModelVisitor CreateQueryModelVisitor();
+        public virtual EntityQueryModelVisitor CreateQueryModelVisitor()
+        {
+            return CreateQueryModelVisitor(null);
+        }
+
+        public abstract EntityQueryModelVisitor CreateQueryModelVisitor(
+            [CanBeNull] EntityQueryModelVisitor parentEntityQueryModelVisitor);
     }
 }
