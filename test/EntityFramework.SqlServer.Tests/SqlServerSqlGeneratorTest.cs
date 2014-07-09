@@ -2,17 +2,20 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Data.SqlClient;
 using System.Text;
-using Microsoft.Data.Entity.Relational.Update;
-using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Fallback;
+using Microsoft.Data.Entity.Relational;
+using Microsoft.Data.Entity.Relational.Tests;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.Tests
 {
-    public class SqlServerSqlGeneratorTest
+    public class SqlServerSqlGeneratorTest : SqlGeneratorTestBase
     {
+        protected override SqlGenerator CreateSqlGenerator()
+        {
+            return new SqlServerSqlGenerator();
+        }
+
         [Fact]
         public void AppendBatchHeader_should_append_SET_NOCOUNT_OFF()
         {
@@ -20,68 +23,90 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             new SqlServerSqlGenerator().AppendBatchHeader(sb);
 
-            Assert.Equal("SET NOCOUNT OFF", sb.ToString());
+            Assert.Equal("SET NOCOUNT OFF;" + Environment.NewLine, sb.ToString());
         }
 
-        [Fact]
-        public void AppendInsertOperation_test_appends_Select_for_insert_operation_with_identity_key()
+        protected override void AppendInsertOperation_appends_insert_and_select_store_generated_columns_but_no_identity_verification(StringBuilder stringBuilder)
         {
-            var stringBuilder = new StringBuilder();
-            var operations = CreateInsertOperations();
-
-            new SqlServerSqlGenerator().AppendInsertOperation(stringBuilder, "Ducks", operations);
-
             Assert.Equal(
-                "INSERT INTO [Ducks] ([Name], [Quacks]) VALUES (@p2, @p3);" + Environment.NewLine +
-                "SELECT [Id] FROM [Ducks] WHERE [Id] = scope_identity()",
+                "INSERT INTO [Ducks] ([Id], [Name], [Quacks], [ConcurrencyToken])" + Environment.NewLine +
+                "OUTPUT INSERTED.[Computed]" + Environment.NewLine +
+                "VALUES (@p1, @p2, @p3, @p5);" + Environment.NewLine,
                 stringBuilder.ToString());
         }
 
-        private ColumnModification[] CreateInsertOperations()
+        protected override void AppendInsertOperation_appends_insert_and_select_and_where_if_store_generated_columns_exist_verification(StringBuilder stringBuilder)
         {
-            using (var context = new DuckDuckGooseContext())
-            {
-                var entry = context.ChangeTracker.Entry(context.Add(new Duck())).StateEntry;
-
-                return new[]
-                    {
-                        new ColumnModification(
-                            entry, entry.EntityType.GetProperty("Id"), "@p1",
-                            isRead: true, isWrite: false, isKey: true, isCondition: true),
-                        new ColumnModification(
-                            entry, entry.EntityType.GetProperty("Name"), "@p2",
-                            isRead: false, isWrite: true, isKey: false, isCondition: false),
-                        new ColumnModification(
-                            entry, entry.EntityType.GetProperty("Quacks"), "@p3",
-                            isRead: false, isWrite: true, isKey: false, isCondition: false)
-                    };
-            }
+            Assert.Equal(
+                "INSERT INTO [Ducks] ([Name], [Quacks], [ConcurrencyToken])" + Environment.NewLine +
+                "OUTPUT INSERTED.[Id], INSERTED.[Computed]" + Environment.NewLine +
+                "VALUES (@p2, @p3, @p5);" + Environment.NewLine,
+                stringBuilder.ToString());
         }
 
-        private class DuckDuckGooseContext : DbContext
+        protected override void AppendInsertOperation_appends_insert_and_select_for_only_single_identity_columns_verification(StringBuilder stringBuilder)
         {
-            public DuckDuckGooseContext()
-                : base(new ServiceCollection()
-                    .AddEntityFramework()
-                    .AddSqlServer()
-                    .ServiceCollection
-                    .BuildServiceProvider())
-            {
-            }
-
-            public DbSet<Duck> Blogs { get; set; }
-
-            protected internal override void OnConfiguring(DbContextOptions options)
-            {
-                options.UseSqlServer(new SqlConnection());
-            }
+            Assert.Equal(
+                "INSERT INTO [Ducks]" + Environment.NewLine +
+                "OUTPUT INSERTED.[Id]" + Environment.NewLine +
+                "DEFAULT VALUES;" + Environment.NewLine,
+                stringBuilder.ToString());
         }
 
-        private class Duck
+        protected override void AppendInsertOperation_appends_insert_and_select_for_only_identity_verification(StringBuilder stringBuilder)
         {
-            private int Id { get; set; }
-            private string Name { get; set; }
-            private bool Quacks { get; set; }
+            Assert.Equal(
+                "INSERT INTO [Ducks] ([Name], [Quacks], [ConcurrencyToken])" + Environment.NewLine +
+                "OUTPUT INSERTED.[Id]" + Environment.NewLine +
+                "VALUES (@p2, @p3, @p5);" + Environment.NewLine,
+                stringBuilder.ToString());
+        }
+
+        protected override void AppendInsertOperation_appends_insert_and_select_for_all_store_generated_columns_verification(StringBuilder stringBuilder)
+        {
+            Assert.Equal(
+                "INSERT INTO [Ducks]" + Environment.NewLine +
+                "OUTPUT INSERTED.[Id], INSERTED.[Computed]" + Environment.NewLine +
+                "DEFAULT VALUES;" + Environment.NewLine,
+                stringBuilder.ToString());
+        }
+
+        protected override void AppendUpdateOperation_appends_update_and_select_if_store_generated_columns_exist_verification(StringBuilder stringBuilder)
+        {
+            Assert.Equal(
+                "UPDATE [Ducks] SET [Name] = @p2, [Quacks] = @p3, [ConcurrencyToken] = @p5" + Environment.NewLine +
+                "OUTPUT INSERTED.[Computed]" + Environment.NewLine +
+                "WHERE [Id] = @o1 AND [ConcurrencyToken] = @o5;" + Environment.NewLine,
+                stringBuilder.ToString());
+        }
+
+        protected override void AppendUpdateOperation_appends_select_for_computed_property_verification(StringBuilder stringBuilder)
+        {
+            Assert.Equal(
+                "UPDATE [Ducks] SET [Name] = @p2, [Quacks] = @p3, [ConcurrencyToken] = @p5" + Environment.NewLine +
+                "OUTPUT INSERTED.[Computed]" + Environment.NewLine +
+                "WHERE [Id] = @o1;" + Environment.NewLine,
+                stringBuilder.ToString());
+        }
+
+        protected override string RowsAffected
+        {
+            get { return "@@ROWCOUNT"; }
+        }
+
+        protected override string Identity
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        protected override string OpenDelimeter
+        {
+            get { return "["; }
+        }
+
+        protected override string CloseDelimeter
+        {
+            get { return "]"; }
         }
     }
 }

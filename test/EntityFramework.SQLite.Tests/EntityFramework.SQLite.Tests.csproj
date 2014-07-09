@@ -49,12 +49,17 @@
     <PackageReference Include="xunit.execution">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
+    <PackageReference Include="Moq">
+      <TargetFramework>net40</TargetFramework>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
     <Compile Include="..\Shared\ApiConsistencyTestBase.cs" />
+    <Compile Include="..\EntityFramework.Relational.Tests\SqlGeneratorTestBase.cs" />
     <Compile Include="SQLiteDbContextOptionsExtensionsTest.cs" />
     <Compile Include="SQLiteMigrationOperationSqlGeneratorTest.cs" />
+    <Compile Include="SQLiteSqlGeneratorTest.cs" />
     <Compile Include="SQLiteValueGeneratorSelectorTest.cs" />
     <None Include="project.json" />
   </ItemGroup>

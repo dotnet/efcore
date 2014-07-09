@@ -250,6 +250,22 @@ namespace Microsoft.Data.Entity.Relational
             return GetString("PrincipalKeyModified");
         }
 
+        /// <summary>
+        /// The property '{property}' of the argument '{argument}' cannot be null.
+        /// </summary>
+        internal static string ArgumentPropertyNull
+        {
+            get { return GetString("ArgumentPropertyNull"); }
+        }
+
+        /// <summary>
+        /// The property '{property}' of the argument '{argument}' cannot be null.
+        /// </summary>
+        internal static string FormatArgumentPropertyNull(object property, object argument)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ArgumentPropertyNull", "property", "argument"), property, argument);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

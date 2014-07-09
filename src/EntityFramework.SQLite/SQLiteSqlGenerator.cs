@@ -4,6 +4,7 @@
 using System.Text;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Update;
+using Microsoft.Data.Entity.SQLite.Utilities;
 
 namespace Microsoft.Data.Entity.SQLite
 {
@@ -12,9 +13,24 @@ namespace Microsoft.Data.Entity.SQLite
         protected override void AppendIdentityWhereCondition(StringBuilder commandStringBuilder, ColumnModification columnModification)
         {
             commandStringBuilder
-                .Append(QuoteIdentifier(columnModification.ColumnName))
+                .Append(DelimitIdentifier(columnModification.ColumnName))
                 .Append(" = ")
                 .Append("last_insert_rowid()");
+        }
+
+        public override void AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string tableName)
+        {
+            commandStringBuilder
+                .Append("SELECT changes()")
+                .Append(BatchCommandSeparator).AppendLine();
+        }
+
+        protected override void AppendRowsAffectedWhereCondition(StringBuilder commandStringBuilder, int expectedRowsAffected)
+        {
+            Check.NotNull(commandStringBuilder, "commandStringBuilder");
+
+            commandStringBuilder
+                .Append("changes() = " + expectedRowsAffected);
         }
     }
 }

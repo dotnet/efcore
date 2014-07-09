@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.Relational.Utilities;
 
@@ -23,16 +22,19 @@ namespace Microsoft.Data.Entity.Relational
             Check.NotNull(operations, "operations");
 
             var writeOperations = operations.Where(o => o.IsWrite).ToArray();
+            var readOperations = operations.Where(o => o.IsRead).ToArray();
 
             AppendInsertCommand(commandStringBuilder, tableName, writeOperations);
 
-            var readOperations = operations.Where(o => o.IsRead).ToArray();
             if (readOperations.Length > 0)
             {
                 var keyOperations = operations.Where(o => o.IsKey).ToArray();
 
-                commandStringBuilder.Append(BatchCommandSeparator).AppendLine();
-                AppendSelectCommand(commandStringBuilder, tableName, readOperations, keyOperations);
+                AppendSelectAffectedCommand(commandStringBuilder, tableName, readOperations, keyOperations);
+            }
+            else
+            {
+                AppendSelectAffectedCountCommand(commandStringBuilder, tableName);
             }
         }
 
@@ -47,17 +49,19 @@ namespace Microsoft.Data.Entity.Relational
 
             var writeOperations = operations.Where(o => o.IsWrite).ToArray();
             var conditionOperations = operations.Where(o => o.IsCondition).ToArray();
+            var readOperations = operations.Where(o => o.IsRead).ToArray();
 
             AppendUpdateCommand(commandStringBuilder, tableName, writeOperations, conditionOperations);
-
-            var readOperations = operations.Where(o => o.IsRead).ToArray();
 
             if (readOperations.Length > 0)
             {
                 var keyOperations = operations.Where(o => o.IsKey).ToArray();
 
-                commandStringBuilder.Append(BatchCommandSeparator).AppendLine();
-                AppendSelectCommand(commandStringBuilder, tableName, readOperations, keyOperations);
+                AppendSelectAffectedCommand(commandStringBuilder, tableName, readOperations, keyOperations);
+            }
+            else
+            {
+                AppendSelectAffectedCountCommand(commandStringBuilder, tableName);
             }
         }
 
@@ -72,58 +76,75 @@ namespace Microsoft.Data.Entity.Relational
 
             var conditionOperations = operations.Where(o => o.IsCondition).ToArray();
 
+            AppendDeleteCommand(commandStringBuilder, tableName, conditionOperations);
+
+            AppendSelectAffectedCountCommand(commandStringBuilder, tableName);
+        }
+
+        public virtual void AppendInsertCommand(
+            [NotNull] StringBuilder commandStringBuilder,
+            [NotNull] string tableName,
+            [NotNull] IReadOnlyList<ColumnModification> writeOperations)
+        {
+            Check.NotNull(commandStringBuilder, "commandStringBuilder");
+            Check.NotEmpty(tableName, "tableName");
+            Check.NotNull(writeOperations, "writeOperations");
+
+            AppendInsertCommandHeader(commandStringBuilder, tableName, writeOperations);
+            AppendValues(commandStringBuilder, writeOperations);
+            commandStringBuilder.Append(BatchCommandSeparator).AppendLine();
+        }
+
+        public virtual void AppendUpdateCommand(
+            [NotNull] StringBuilder commandStringBuilder,
+            [NotNull] string tableName,
+            [NotNull] IReadOnlyList<ColumnModification> writeOperations,
+            [NotNull] IReadOnlyList<ColumnModification> conditionOperations)
+        {
+            Check.NotNull(commandStringBuilder, "commandStringBuilder");
+            Check.NotEmpty(tableName, "tableName");
+            Check.NotNull(writeOperations, "writeOperations");
+            Check.NotNull(conditionOperations, "conditionOperations");
+
+            AppendUpdateCommandHeader(commandStringBuilder, tableName, writeOperations);
+            AppendWhereClause(commandStringBuilder, conditionOperations);
+            commandStringBuilder.Append(BatchCommandSeparator).AppendLine();
+        }
+
+        public virtual void AppendDeleteCommand(
+            [NotNull] StringBuilder commandStringBuilder,
+            [NotNull] string tableName,
+            [NotNull] IReadOnlyList<ColumnModification> conditionOperations)
+        {
+            Check.NotNull(commandStringBuilder, "commandStringBuilder");
+            Check.NotEmpty(tableName, "tableName");
+            Check.NotNull(conditionOperations, "conditionOperations");
+
             AppendDeleteCommandHeader(commandStringBuilder, tableName);
-            commandStringBuilder.Append(" ");
             AppendWhereClause(commandStringBuilder, conditionOperations);
+            commandStringBuilder.Append(BatchCommandSeparator).AppendLine();
         }
 
-        protected virtual void AppendInsertCommand(
+        public abstract void AppendSelectAffectedCountCommand(
+            [NotNull] StringBuilder commandStringBuilder,
+            [NotNull] string tableName);
+
+        public virtual void AppendSelectAffectedCommand(
             [NotNull] StringBuilder commandStringBuilder,
             [NotNull] string tableName,
-            [NotNull] IReadOnlyList<ColumnModification> operations)
-        {
-            Check.NotNull(commandStringBuilder, "commandStringBuilder");
-            Check.NotEmpty(tableName, "tableName");
-            Check.NotNull(operations, "operations");
-
-            AppendInsertCommandHeader(commandStringBuilder, tableName, operations);
-            commandStringBuilder.Append(" ");
-            AppendValues(commandStringBuilder, operations);
-        }
-
-        protected virtual void AppendUpdateCommand(
-            [NotNull] StringBuilder commandStringBuilder,
-            [NotNull] string tableName,
-            [NotNull] IReadOnlyList<ColumnModification> operations,
+            [NotNull] IReadOnlyList<ColumnModification> readOperations,
             [NotNull] IReadOnlyList<ColumnModification> conditionOperations)
         {
             Check.NotNull(commandStringBuilder, "commandStringBuilder");
             Check.NotEmpty(tableName, "tableName");
-            Check.NotNull(operations, "operations");
+            Check.NotNull(readOperations, "readOperations");
             Check.NotNull(conditionOperations, "conditionOperations");
 
-            AppendUpdateCommandHeader(commandStringBuilder, tableName, operations);
-            commandStringBuilder.Append(" ");
-            AppendWhereClause(commandStringBuilder, conditionOperations);
-        }
-
-        protected virtual void AppendSelectCommand(
-            [NotNull] StringBuilder commandStringBuilder,
-            [NotNull] string tableName,
-            [NotNull] IReadOnlyList<ColumnModification> operations,
-            [NotNull] IReadOnlyList<ColumnModification> conditionOperations)
-        {
-            Check.NotNull(commandStringBuilder, "commandStringBuilder");
-            Check.NotEmpty(tableName, "tableName");
-            Check.NotNull(operations, "operations");
-            Check.NotNull(conditionOperations, "conditionOperations");
-
-            AppendSelectCommandHeader(commandStringBuilder, operations);
-            commandStringBuilder.Append(" ");
+            AppendSelectCommandHeader(commandStringBuilder, readOperations);
             AppendFromClause(commandStringBuilder, tableName);
-            commandStringBuilder.Append(" ");
             // TODO: there is no notion of operator - currently all the where conditions check equality
-            AppendWhereClause(commandStringBuilder, conditionOperations);
+            AppendWhereAffectedClause(commandStringBuilder, conditionOperations);
+            commandStringBuilder.Append(BatchCommandSeparator).AppendLine();
         }
 
         protected virtual void AppendInsertCommandHeader(
@@ -137,13 +158,13 @@ namespace Microsoft.Data.Entity.Relational
 
             commandStringBuilder
                 .Append("INSERT INTO ")
-                .Append(QuoteIdentifier(tableName));
+                .Append(DelimitIdentifier(tableName));
 
             if (operations.Count > 0)
             {
                 commandStringBuilder
                     .Append(" (")
-                    .AppendJoin(operations.Select(o => QuoteIdentifier(o.ColumnName)))
+                    .AppendJoin(operations.Select(o => DelimitIdentifier(o.ColumnName)))
                     .Append(")");
             }
         }
@@ -157,7 +178,7 @@ namespace Microsoft.Data.Entity.Relational
 
             commandStringBuilder
                 .Append("DELETE FROM ")
-                .Append(QuoteIdentifier(tableName));
+                .Append(DelimitIdentifier(tableName));
         }
 
         protected virtual void AppendUpdateCommandHeader(
@@ -171,11 +192,11 @@ namespace Microsoft.Data.Entity.Relational
 
             commandStringBuilder
                 .Append("UPDATE ")
-                .Append(QuoteIdentifier(tableName))
+                .Append(DelimitIdentifier(tableName))
                 .Append(" SET ")
                 .AppendJoin(
                     operations,
-                    (sb, v) => sb.Append(QuoteIdentifier(v.ColumnName)).Append(" = ").Append(v.ParameterName), ", ");
+                    (sb, v) => sb.Append(DelimitIdentifier(v.ColumnName)).Append(" = ").Append(v.ParameterName), ", ");
         }
 
         protected virtual void AppendSelectCommandHeader(
@@ -187,7 +208,7 @@ namespace Microsoft.Data.Entity.Relational
 
             commandStringBuilder
                 .Append("SELECT ")
-                .AppendJoin(operations.Select(c => QuoteIdentifier(c.ColumnName)));
+                .AppendJoin(operations.Select(c => DelimitIdentifier(c.ColumnName)));
         }
 
         protected virtual void AppendFromClause(
@@ -198,8 +219,9 @@ namespace Microsoft.Data.Entity.Relational
             Check.NotEmpty(tableName, "tableName");
 
             commandStringBuilder
+                .AppendLine()
                 .Append("FROM ")
-                .Append(QuoteIdentifier(tableName));
+                .Append(DelimitIdentifier(tableName));
         }
 
         protected virtual void AppendValues(
@@ -209,6 +231,7 @@ namespace Microsoft.Data.Entity.Relational
             Check.NotNull(commandStringBuilder, "commandStringBuilder");
             Check.NotNull(operations, "operations");
 
+            commandStringBuilder.AppendLine();
             if (operations.Count > 0)
             {
                 commandStringBuilder
@@ -233,33 +256,62 @@ namespace Microsoft.Data.Entity.Relational
             if (operations.Count > 0)
             {
                 commandStringBuilder
+                    .AppendLine()
                     .Append("WHERE ")
+                    .AppendJoin(operations, (sb, v) => AppendWhereCondition(sb, v, useOriginalValue: true), " AND ");
+            }
+        }
+
+        protected virtual void AppendWhereAffectedClause(
+            [NotNull] StringBuilder commandStringBuilder,
+            [NotNull] IReadOnlyList<ColumnModification> operations)
+        {
+            Check.NotNull(commandStringBuilder, "commandStringBuilder");
+            Check.NotNull(operations, "operations");
+
+            commandStringBuilder
+                .AppendLine()
+                .Append("WHERE ");
+
+            AppendRowsAffectedWhereCondition(commandStringBuilder, 1);
+
+            if (operations.Count > 0)
+            {
+                commandStringBuilder
+                    .Append(" AND ")
                     .AppendJoin(operations, (sb, v) =>
                         {
-                            if (v.Property.ValueGenerationOnSave == ValueGenerationOnSave.WhenInserting
-                                && v.IsRead)
+                            if (v.IsKey)
                             {
-                                AppendIdentityWhereCondition(sb, v);
-                            }
-                            else
-                            {
-                                AppendWhereCondition(sb, v);
+                                if (v.IsRead)
+                                {
+                                    AppendIdentityWhereCondition(sb, v);
+                                }
+                                else
+                                {
+                                    AppendWhereCondition(sb, v, useOriginalValue: !v.IsWrite);
+                                }
                             }
                         }, " AND ");
             }
         }
 
+        protected abstract void AppendRowsAffectedWhereCondition([NotNull] StringBuilder commandStringBuilder, int expectedRowsAffected);
+
         protected virtual void AppendWhereCondition(
             [NotNull] StringBuilder commandStringBuilder,
-            [NotNull] ColumnModification columnModification)
+            [NotNull] ColumnModification columnModification,
+            bool useOriginalValue)
         {
             Check.NotNull(commandStringBuilder, "commandStringBuilder");
             Check.NotNull(columnModification, "columnModification");
 
             commandStringBuilder
-                .Append(QuoteIdentifier(columnModification.ColumnName))
+                .Append(DelimitIdentifier(columnModification.ColumnName))
                 .Append(" = ")
-                .Append(columnModification.ParameterName);
+                .Append(useOriginalValue
+                    ? columnModification.OriginalParameterName
+                    : columnModification.ParameterName);
         }
 
         protected abstract void AppendIdentityWhereCondition(
@@ -273,14 +325,6 @@ namespace Microsoft.Data.Entity.Relational
         public virtual string BatchCommandSeparator
         {
             get { return ";"; }
-        }
-
-        // TODO: Remove QuoteIdentifier and use DelimitIdentifier instead.
-        public virtual string QuoteIdentifier([NotNull] string identifier)
-        {
-            Check.NotNull(identifier, "identifier");
-
-            return "[" + identifier.Replace("]", "]]") + "]";
         }
 
         // TODO: Consider adding a base class for all SQL generators (DDL, DML),

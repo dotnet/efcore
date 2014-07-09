@@ -178,6 +178,16 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             {
                 throw new NotImplementedException();
             }
+
+            public override void AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string tableName)
+            {
+                throw new NotImplementedException();
+            }
+
+            protected override void AppendRowsAffectedWhereCondition(StringBuilder commandStringBuilder, int expectedRowsAffected)
+            {
+                throw new NotImplementedException();
+            }
         }
 
         #endregion

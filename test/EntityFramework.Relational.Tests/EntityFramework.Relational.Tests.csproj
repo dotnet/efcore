@@ -68,6 +68,7 @@
     <Compile Include="ConnectionStringResolverTest.cs" />
     <Compile Include="DatabaseBuilderTest.cs" />
     <Compile Include="MetadataExtensionsTest.cs" />
+    <Compile Include="Model\RelationalTypeMappingTest.cs" />
     <Compile Include="RelationalConnectionTest.cs" />
     <Compile Include="RelationalDatabaseExtensionsTest.cs" />
     <Compile Include="RelationalDatabaseTest.cs" />
@@ -86,7 +87,9 @@
     <Compile Include="Model\RelationalTypeMapperTest.cs" />
     <Compile Include="Model\SequenceTest.cs" />
     <Compile Include="Model\TableTest.cs" />
+    <Compile Include="SqlGeneratorTestBase.cs" />
     <Compile Include="Update\BatchExecutorTest.cs" />
+    <Compile Include="Update\ColumnModificationTest.cs" />
     <Compile Include="Update\CommandBatchPreparerTest.cs" />
     <Compile Include="Update\ModificationCommandBatchFactoryTest.cs" />
     <Compile Include="Update\ModificationCommandBatchTest.cs" />

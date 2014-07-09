@@ -162,4 +162,7 @@
   <data name="PrincipalKeyModified" xml:space="preserve">
     <value>The principal key value cannot be modified.</value>
   </data>
+  <data name="ArgumentPropertyNull" xml:space="preserve">
+    <value>The property '{property}' of the argument '{argument}' cannot be null.</value>
+  </data>
 </root>

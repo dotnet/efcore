@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             Check.NotNull(sqlGenerator, "sqlGenerator");
 
             _modificationCommands.Add(modificationCommand);
-            _sql = CompileBatch(sqlGenerator);
+            _sql = GenerateCommandText(sqlGenerator);
 
             return false;
         }
@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             get { return _modificationCommands; }
         }
         
-        protected virtual string CompileBatch([NotNull] SqlGenerator sqlGenerator)
+        protected virtual string GenerateCommandText([NotNull] SqlGenerator sqlGenerator)
         {
             var stringBuilder = new StringBuilder();
 
@@ -99,12 +99,18 @@ namespace Microsoft.Data.Entity.Relational.Update
 
                         if (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
                         {
-                            if (!tableModification.RequiresResultPropagation)
+                            if (tableModification.RequiresResultPropagation)
                             {
-                                throw new DbUpdateConcurrencyException(string.Format(Strings.FormatUpdateConcurrencyException(0, 1)));
+                                tableModification.PropagateResults(new RelationalTypedValueReader(reader));
                             }
-
-                            tableModification.PropagateResults(new RelationalTypedValueReader(reader));
+                            else
+                            {
+                                var rowsAffected = reader.GetFieldValue<int>(0);
+                                if (rowsAffected != 1)
+                                {
+                                    throw new DbUpdateConcurrencyException(string.Format(Strings.FormatUpdateConcurrencyException(1, rowsAffected)));
+                                }
+                            }
 
                             if (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
                             {
@@ -137,22 +143,31 @@ namespace Microsoft.Data.Entity.Relational.Update
 
             foreach (var columnModification in ModificationCommands.SelectMany(t => t.ColumnModifications))
             {
-                if (columnModification.ParameterName != null)
+                if (columnModification.ParameterName != null
+                    || columnModification.OriginalParameterName != null)
                 {
                     // TODO: It would be nice to just pass IProperty to the type mapper, but Migrations uses its own
                     // store model for which there is no easy way to get an IProperty.
 
                     var property = columnModification.Property;
 
-                    // TODO: Avoid doing Contains check everywhere we need to know if a property is part of a key
-                    var isKey = property.EntityType.GetKey().Properties.Contains(property)
+                    // TODO: Perf: Avoid doing Contains check everywhere we need to know if a property is part of a foreign key
+                    var isKey = columnModification.IsKey
                                 || property.EntityType.ForeignKeys.SelectMany(k => k.Properties).Contains(property);
 
-                    command.Parameters.Add(
-                        typeMapper
-                            .GetTypeMapping(
-                                property.ColumnType(), property.ColumnName(), property.PropertyType, isKey, property.IsConcurrencyToken)
-                            .CreateParameter(command, columnModification));
+                    var typeMapping = typeMapper
+                        .GetTypeMapping(
+                            property.ColumnType(), property.ColumnName(), property.PropertyType, isKey, property.IsConcurrencyToken);
+
+                    if (columnModification.ParameterName != null)
+                    {
+                        command.Parameters.Add(typeMapping.CreateParameter(command, columnModification, useOriginalValue: false));
+                    }
+
+                    if (columnModification.OriginalParameterName != null)
+                    {
+                        command.Parameters.Add(typeMapping.CreateParameter(command, columnModification, useOriginalValue: true));
+                    }
                 }
             }
 

@@ -15,6 +15,15 @@ namespace Microsoft.Data.Entity.Relational.Model
         private readonly string _storeTypeName;
         private readonly DbType _storeType;
 
+        /// <summary>
+        ///     This constructor is intended only for use when creating test doubles that will override members
+        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
+        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
+        /// </summary>
+        protected RelationalTypeMapping()
+        {
+        }
+
         public RelationalTypeMapping([NotNull] string storeTypeName, DbType storeType)
         {
             Check.NotEmpty(storeTypeName, "storeTypeName");
@@ -33,14 +42,25 @@ namespace Microsoft.Data.Entity.Relational.Model
             get { return _storeType; }
         }
 
-        public virtual DbParameter CreateParameter([NotNull] DbCommand command, [NotNull] ColumnModification columnModification)
+        public virtual DbParameter CreateParameter([NotNull] DbCommand command, [NotNull] ColumnModification columnModification, bool useOriginalValue)
         {
             Check.NotNull(command, "command");
             Check.NotNull(columnModification, "columnModification");
 
             var parameter = command.CreateParameter();
             parameter.Direction = ParameterDirection.Input;
-            parameter.ParameterName = columnModification.ParameterName;
+            if (useOriginalValue)
+            {
+                Check.NotNull(columnModification.OriginalParameterName, "columnModification", "OriginalParameterName");
+                parameter.ParameterName = columnModification.OriginalParameterName;
+                parameter.Value = columnModification.OriginalValue ?? DBNull.Value;
+            }
+            else
+            {
+                Check.NotNull(columnModification.ParameterName, "columnModification", "ParameterName");
+                parameter.ParameterName = columnModification.ParameterName;
+                parameter.Value = columnModification.Value ?? DBNull.Value;
+            }
 
             ConfigureParameter(parameter, columnModification);
 
@@ -54,7 +74,6 @@ namespace Microsoft.Data.Entity.Relational.Model
 
             parameter.DbType = _storeType;
             parameter.IsNullable = columnModification.Property.IsNullable;
-            parameter.Value = columnModification.StateEntry[columnModification.Property] ?? DBNull.Value;
         }
     }
 }

@@ -24,6 +24,23 @@ namespace Microsoft.Data.Entity.Relational.Utilities
         }
 
         [ContractAnnotation("value:null => halt")]
+        public static T NotNull<T>(
+            [NoEnumeration] T value,
+            [InvokerParameterName] [NotNull] string parameterName,
+            [NotNull] string propertyName)
+        {
+            NotEmpty(parameterName, "parameterName");
+            NotEmpty(propertyName, "propertyName");
+
+            if (ReferenceEquals(value, null))
+            {
+                throw new ArgumentException(Strings.FormatArgumentPropertyNull(propertyName, parameterName));
+            }
+
+            return value;
+        }
+
+        [ContractAnnotation("value:null => halt")]
         public static string NotEmpty(string value, [InvokerParameterName] [NotNull] string parameterName)
         {
             if (ReferenceEquals(parameterName, null))
