@@ -9,32 +9,36 @@ using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
 {
-    public class EndToEndFixture : IDisposable
+    public class EndToEndFixture
     {
-        private readonly DbContextOptions _options;
-        private bool _locked = false;
-        public bool _created;
-
-        public EndToEndFixture()
+        public DbContext CreateContext(string tableName)
         {
-            TableName = "Table" + DateTime.UtcNow.ToBinary();
-            _options = new DbContextOptions()
-                .UseModel(CreateModel())
+            var options = new DbContextOptions()
+                .UseModel(CreateModel(tableName))
                 .UseAzureTableStorage(TestConfig.Instance.ConnectionString);
-            ;
+            return new DbContext(options);
         }
 
-        public string TableName { get; private set; }
-
-        public DbContext CreateContext()
+        public IModel CreateModel(string tableName)
         {
-            var context = new DbContext(_options);
-            if (!_created)
-            {
-                context.Database.AsAzureTableStorageDatabase().CreateTables();
-                _created = true;
-            }
-            return context;
+            var model = new Model();
+            var builder = new ModelBuilder(model);
+            builder.Entity<Purchase>()
+                .Properties(pb =>
+                    {
+                        pb.Property(s => s.Awesomeness);
+                        pb.Property(s => s.Cost);
+                        pb.Property(s => s.Count);
+                        pb.Property(s => s.GlobalGuid);
+                        pb.Property(s => s.Name);
+                        pb.Property(s => s.PartitionKey);
+                        pb.Property(s => s.Purchased);
+                        pb.Property(s => s.RowKey);
+                        pb.Property(s => s.Timestamp);
+                    })
+                .PartitionAndRowKey(s => s.PartitionKey, s => s.RowKey)
+                .TableName(tableName);
+            return model;
         }
 
         public static IEnumerable<Purchase> SampleData(string testPartition)
@@ -59,45 +63,6 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
                             Awesomeness = true,
                         },
                 };
-        }
-
-        public IModel CreateModel()
-        {
-            var model = new Model();
-            var builder = new ModelBuilder(model);
-            builder.Entity<Purchase>()
-                .Properties(pb =>
-                    {
-                        pb.Property(s => s.Awesomeness);
-                        pb.Property(s => s.Cost);
-                        pb.Property(s => s.Count);
-                        pb.Property(s => s.GlobalGuid);
-                        pb.Property(s => s.Name);
-                        pb.Property(s => s.PartitionKey);
-                        pb.Property(s => s.Purchased);
-                        pb.Property(s => s.RowKey);
-                        pb.Property(s => s.Timestamp);
-                    })
-                .PartitionAndRowKey(s => s.PartitionKey, s => s.RowKey)
-                .TableName(TableName);
-            return builder.Model;
-        }
-
-        public void Dispose()
-        {
-            using (var context = CreateContext())
-            {
-                context.Database.AsAzureTableStorageDatabase().DeleteTables();
-            }
-        }
-
-        public void UseTableNamePrefixAndLock(string prefix)
-        {
-            if (!_locked)
-            {
-                TableName = prefix + TableName;
-                _locked = true;
-            }
         }
     }
 

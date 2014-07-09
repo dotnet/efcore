@@ -9,16 +9,16 @@ using Xunit;
 namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
 {
     [RunIfConfigured]
-    public class EndToEndTests : IClassFixture<EndToEndFixture>
+    public class EndToEndTests : IClassFixture<EndToEndFixture>, IDisposable
     {
         private readonly DbContext _context;
         private readonly string _testPartition;
 
         public EndToEndTests(EndToEndFixture fixture)
         {
-            _testPartition = "unittests-" + DateTime.UtcNow.ToBinary();
-            fixture.UseTableNamePrefixAndLock("EndToEnd");
-            _context = fixture.CreateContext();
+            _testPartition = "endtoendtests" + DateTime.UtcNow.ToBinary();
+            _context = fixture.CreateContext(_testPartition);
+            _context.Database.EnsureCreated();
             _context.Set<Purchase>().AddRange(EndToEndFixture.SampleData(_testPartition));
             _context.SaveChanges();
         }
@@ -73,6 +73,11 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
 
             var afterDelete = _context.Set<Purchase>().FirstOrDefault(s => s.PartitionKey == _testPartition && s.RowKey == "It_deletes_entity_test");
             Assert.Null(afterDelete);
+        }
+
+        public void Dispose()
+        {
+            _context.Database.EnsureDeleted();
         }
     }
 }
