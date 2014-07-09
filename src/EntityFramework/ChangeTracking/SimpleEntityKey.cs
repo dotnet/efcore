@@ -2,12 +2,14 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking
 {
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class SimpleEntityKey<TKey> : EntityKey
     {
         private readonly IEntityType _entityType;
@@ -55,9 +57,10 @@ namespace Microsoft.Data.Entity.ChangeTracking
                    ^ EqualityComparer<TKey>.Default.GetHashCode(_keyValue);
         }
 
-        public override string ToString()
+        [UsedImplicitly]
+        private string DebuggerDisplay
         {
-            return _entityType.Type + "[" + _keyValue + "]";
+            get { return string.Format("{0}({1})", _entityType.Type.Name, string.Join(", ", _keyValue)); }
         }
     }
 }

@@ -111,6 +111,7 @@ namespace Microsoft.Data.Entity.Relational.Update
         {
             var adding = EntityState == EntityState.Added;
             var deleting = EntityState == EntityState.Deleted;
+            var modifying = EntityState == EntityState.Modified;
             var columnModifications = new List<ColumnModification>();
 
             foreach (var stateEntry in _stateEntries)
@@ -119,20 +120,20 @@ namespace Microsoft.Data.Entity.Relational.Update
 
                 foreach (var property in entityType.Properties)
                 {
-                    // TODO: Concurrency columns
                     var isKey = entityType.GetKey().Properties.Contains(property);
-                    var isCondition = isKey || (!adding && property.IsConcurrencyToken);
 
-                    var readValue = !deleting && (property.ValueGenerationOnSave == ValueGenerationOnSave.WhenInsertingAndUpdating
-                                                  || (adding && property.ValueGenerationOnSave == ValueGenerationOnSave.WhenInserting));
+                    var isCondition = !adding && (isKey || property.IsConcurrencyToken);
+
+                    var readValue = (!deleting && property.ValueGenerationOnSave == ValueGenerationOnSave.WhenInsertingAndUpdating)
+                                    || (adding && property.ValueGenerationOnSave == ValueGenerationOnSave.WhenInserting);
 
                     // TODO: Default values
                     var writeValue = (adding && property.ValueGenerationOnSave == ValueGenerationOnSave.None)
-                                     || (!deleting && stateEntry.IsPropertyModified(property));
+                                     || (modifying && stateEntry.IsPropertyModified(property)
+                                         && property.ValueGenerationOnSave != ValueGenerationOnSave.WhenInsertingAndUpdating);
 
                     if (readValue
                         || writeValue
-                        || isKey
                         || isCondition)
                     {
                         if (readValue)
@@ -152,6 +153,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                     }
                 }
             }
+
             return columnModifications;
         }
 
@@ -165,7 +167,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             var columnOperations = ColumnModifications.Where(o => o.IsRead).ToArray();
             for (var i = 0; i < columnOperations.Length; i++)
             {
-                columnOperations[i].StateEntry[columnOperations[i].Property] = reader.ReadValue<object>(i);
+                columnOperations[i].Value = reader.ReadValue<object>(i);
             }
         }
     }

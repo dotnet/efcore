@@ -23,16 +23,18 @@ namespace Microsoft.Data.Entity
 
         public ILogger Create(string name)
         {
-            return Logger;
+            return Logger ?? Init();
         }
 
-        public void Init()
+        public SqlLogger Init()
         {
+            var logger = new SqlLogger();
 #if K10
-            _logger.Value = new SqlLogger();
+            _logger.Value = logger;
 #else
-            CallContext.LogicalSetData(ContextName, new SqlLogger());
+            CallContext.LogicalSetData(ContextName, logger);
 #endif
+            return logger;
         }
 
         public static SqlLogger Logger

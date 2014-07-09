@@ -132,9 +132,6 @@
   <data name="UpdateConcurrencyException" xml:space="preserve">
     <value>Update failed. Expected {expectedRows} row(s) but {actualRows} row(s) returned.</value>
   </data>
-  <data name="TooManyRowsForModificationCommand" xml:space="preserve">
-    <value>A modification command returned more than one row. Each modification command must return at most one row.</value>
-  </data>
   <data name="MultipleDataStoresConfigured" xml:space="preserve">
     <value>Multiple relational data store configurations found. A context can only be configured to use a single data store.</value>
   </data>
@@ -162,7 +159,13 @@
   <data name="PrincipalKeyModified" xml:space="preserve">
     <value>The principal key value cannot be modified.</value>
   </data>
+  <data name="UpdateStoreException" xml:space="preserve">
+    <value>An error occurred while updating the entries. See the inner exception for details.</value>
+  </data>
   <data name="ArgumentPropertyNull" xml:space="preserve">
     <value>The property '{property}' of the argument '{argument}' cannot be null.</value>
+  </data>
+  <data name="CollectionArgumentIsEmpty" xml:space="preserve">
+    <value>The collection argument '{argumentName}' must contain at least one element.</value>
   </data>
 </root>

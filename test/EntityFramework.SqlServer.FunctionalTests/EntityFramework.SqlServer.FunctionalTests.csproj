@@ -72,6 +72,7 @@
     <Compile Include="CompositeKeyEndToEndTest.cs" />
     <Compile Include="ExistingConnectionTest.cs" />
     <Compile Include="NorthwindQueryTest.cs" />
+    <Compile Include="OptimisticConcurrencyTest.cs" />
     <Compile Include="SequenceEndToEndTest.cs" />
     <Compile Include="SequentialGuidEndToEndTest.cs" />
     <Compile Include="SqlFileLogger.cs" />
@@ -95,6 +96,20 @@
     <Compile Include="..\Shared\MonsterModel.cs" />
     <Compile Include="..\Shared\SnapshotMonsterContext.cs" />
     <Compile Include="..\Shared\ThrowingMonsterStateManager.cs" />
+    <Compile Include="TestModels\ConcurrencyModel\Chassis.cs" />
+    <Compile Include="TestModels\ConcurrencyModel\ConcurrencyModelInitializer.cs" />
+    <Compile Include="TestModels\ConcurrencyModel\Driver.cs" />
+    <Compile Include="TestModels\ConcurrencyModel\Engine.cs" />
+    <Compile Include="TestModels\ConcurrencyModel\EngineSupplier.cs" />
+    <Compile Include="TestModels\ConcurrencyModel\F1Context.cs" />
+    <Compile Include="TestModels\ConcurrencyModel\Gearbox.cs" />
+    <Compile Include="TestModels\ConcurrencyModel\Location.cs" />
+    <Compile Include="TestModels\ConcurrencyModel\Sponsor.cs" />
+    <Compile Include="TestModels\ConcurrencyModel\SponsorDetails.cs" />
+    <Compile Include="TestModels\ConcurrencyModel\Team.cs" />
+    <Compile Include="TestModels\ConcurrencyModel\TestDriver.cs" />
+    <Compile Include="TestModels\ConcurrencyModel\TitleSponsor.cs" />
+    <Compile Include="TestUtilities\Extensions.cs" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>

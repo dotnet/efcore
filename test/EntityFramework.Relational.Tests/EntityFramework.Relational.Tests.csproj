@@ -79,6 +79,7 @@
     <Compile Include="RelationalTypedValueReaderTest.cs" />
     <Compile Include="SchemaQualifiedNameTest.cs" />
     <Compile Include="SqlGeneratorTest.cs" />
+    <Compile Include="SqlGeneratorTestBase.cs" />
     <Compile Include="Model\ColumnTest.cs" />
     <Compile Include="Model\DatabaseModelTest.cs" />
     <Compile Include="Model\ForeignKeyTest.cs" />
@@ -87,7 +88,6 @@
     <Compile Include="Model\RelationalTypeMapperTest.cs" />
     <Compile Include="Model\SequenceTest.cs" />
     <Compile Include="Model\TableTest.cs" />
-    <Compile Include="SqlGeneratorTestBase.cs" />
     <Compile Include="Update\BatchExecutorTest.cs" />
     <Compile Include="Update\ColumnModificationTest.cs" />
     <Compile Include="Update\CommandBatchPreparerTest.cs" />

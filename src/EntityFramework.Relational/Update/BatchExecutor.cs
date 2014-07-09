@@ -44,9 +44,14 @@ namespace Microsoft.Data.Entity.Relational.Update
             await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
             try
             {
-                foreach (var commandbatch in commandBatches)
+                using (var transaction = connection.DbConnection.BeginTransaction())
                 {
-                    rowsAffected += await commandbatch.ExecuteAsync(connection, _typeMapper, cancellationToken).ConfigureAwait(false);
+                    foreach (var commandbatch in commandBatches)
+                    {
+                        rowsAffected += await commandbatch.ExecuteAsync(transaction, _typeMapper, cancellationToken: cancellationToken).ConfigureAwait(false);
+                    }
+
+                    transaction.Commit();
                 }
             }
             finally

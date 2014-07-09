@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -43,10 +44,6 @@ namespace Microsoft.Data.Entity.Relational.Update
             var stringBuilder = new StringBuilder();
 
             sqlGenerator.AppendBatchHeader(stringBuilder);
-            if (stringBuilder.Length > 0)
-            {
-                stringBuilder.Append(sqlGenerator.BatchCommandSeparator).AppendLine();
-            }
 
             foreach (var modificationCommand in _modificationCommands)
             {
@@ -68,64 +65,65 @@ namespace Microsoft.Data.Entity.Relational.Update
                 {
                     sqlGenerator.AppendDeleteOperation(stringBuilder, tableName, operations);
                 }
-
-                stringBuilder.Append(sqlGenerator.BatchCommandSeparator).AppendLine();
             }
 
             return stringBuilder.ToString();
         }
 
         public virtual async Task<int> ExecuteAsync(
-            [NotNull] RelationalConnection connection,
+            [NotNull] DbTransaction transaction,
             [NotNull] RelationalTypeMapper typeMapper,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(connection, "connection");
+            Check.NotNull(transaction, "transaction");
             Check.NotNull(typeMapper, "typeMapper");
 
-            // TODO: It is likely the code below won't really work correctly in the wild because
-            // we currently don't actually create batches of commands and because there is no mechanism
-            // for getting back affected rows for update/delete commands. Leaving the code here right now
-            // because it might be a decent starting point for a real implementation.
-            using (var storeCommand = CreateStoreCommand(connection.DbConnection, typeMapper))
+            using (var storeCommand = CreateStoreCommand(transaction, typeMapper))
             {
-                using (var reader = await storeCommand.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false))
+                var commandIndex = 0;
+                try
                 {
-                    var commandIndex = -1;
-                    do
+                    using (var reader = await storeCommand.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false))
                     {
-                        commandIndex++;
-                        var tableModification = ModificationCommands[commandIndex];
-
-                        if (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+                        do
                         {
-                            if (tableModification.RequiresResultPropagation)
-                            {
-                                tableModification.PropagateResults(new RelationalTypedValueReader(reader));
-                            }
-                            else
-                            {
-                                var rowsAffected = reader.GetFieldValue<int>(0);
-                                if (rowsAffected != 1)
-                                {
-                                    throw new DbUpdateConcurrencyException(string.Format(Strings.FormatUpdateConcurrencyException(1, rowsAffected)));
-                                }
-                            }
+                            var tableModification = ModificationCommands[commandIndex];
 
                             if (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
                             {
-                                throw new DbUpdateException(Strings.TooManyRowsForModificationCommand);
+                                if (tableModification.RequiresResultPropagation)
+                                {
+                                    tableModification.PropagateResults(new RelationalTypedValueReader(reader));
+                                }
+                                else
+                                {
+                                    var rowsAffected = reader.GetFieldValue<int>(0);
+                                    if (rowsAffected != 1)
+                                    {
+                                        throw new DbUpdateConcurrencyException(string.Format(Strings.FormatUpdateConcurrencyException(1, rowsAffected)), tableModification.StateEntries);
+                                    }
+                                }
                             }
-                        }
-                        else
-                        {
-                            if (tableModification.RequiresResultPropagation)
+                            else
                             {
-                                throw new DbUpdateConcurrencyException(string.Format(Strings.FormatUpdateConcurrencyException(1, 0)));
+                                throw new DbUpdateConcurrencyException(string.Format(Strings.FormatUpdateConcurrencyException(1, 0)), tableModification.StateEntries);
                             }
+
+                            commandIndex++;
                         }
+                        while (await reader.NextResultAsync(cancellationToken).ConfigureAwait(false));
                     }
-                    while (await reader.NextResultAsync(cancellationToken).ConfigureAwait(false));
+                }
+                catch (DbUpdateException)
+                {
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    throw new DbUpdateException(
+                        Strings.FormatUpdateStoreException(),
+                        ex,
+                        commandIndex < ModificationCommands.Count ? ModificationCommands[commandIndex].StateEntries : null);
                 }
             }
 
@@ -134,12 +132,13 @@ namespace Microsoft.Data.Entity.Relational.Update
         }
 
         protected virtual DbCommand CreateStoreCommand(
-            [NotNull] DbConnection connection,
+            [NotNull] DbTransaction transaction,
             [NotNull] RelationalTypeMapper typeMapper)
         {
-            var command = connection.CreateCommand();
+            var command = transaction.Connection.CreateCommand();
             command.CommandType = CommandType.Text;
             command.CommandText = _sql;
+            command.Transaction = transaction;
 
             foreach (var columnModification in ModificationCommands.SelectMany(t => t.ColumnModifications))
             {

@@ -91,22 +91,6 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         /// <summary>
-        /// A modification command returned more than one row. Each modification command must return at most one row.
-        /// </summary>
-        internal static string TooManyRowsForModificationCommand
-        {
-            get { return GetString("TooManyRowsForModificationCommand"); }
-        }
-
-        /// <summary>
-        /// A modification command returned more than one row. Each modification command must return at most one row.
-        /// </summary>
-        internal static string FormatTooManyRowsForModificationCommand()
-        {
-            return GetString("TooManyRowsForModificationCommand");
-        }
-
-        /// <summary>
         /// Multiple relational data store configurations found. A context can only be configured to use a single data store.
         /// </summary>
         internal static string MultipleDataStoresConfigured
@@ -251,6 +235,22 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         /// <summary>
+        /// An error occurred while updating the entries. See the inner exception for details.
+        /// </summary>
+        internal static string UpdateStoreException
+        {
+            get { return GetString("UpdateStoreException"); }
+        }
+
+        /// <summary>
+        /// An error occurred while updating the entries. See the inner exception for details.
+        /// </summary>
+        internal static string FormatUpdateStoreException()
+        {
+            return GetString("UpdateStoreException");
+        }
+
+        /// <summary>
         /// The property '{property}' of the argument '{argument}' cannot be null.
         /// </summary>
         internal static string ArgumentPropertyNull
@@ -264,6 +264,22 @@ namespace Microsoft.Data.Entity.Relational
         internal static string FormatArgumentPropertyNull(object property, object argument)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("ArgumentPropertyNull", "property", "argument"), property, argument);
+        }
+
+        /// <summary>
+        /// The collection argument '{argumentName}' must contain at least one element.
+        /// </summary>
+        internal static string CollectionArgumentIsEmpty
+        {
+            get { return GetString("CollectionArgumentIsEmpty"); }
+        }
+
+        /// <summary>
+        /// The collection argument '{argumentName}' must contain at least one element.
+        /// </summary>
+        internal static string FormatCollectionArgumentIsEmpty(object argumentName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("CollectionArgumentIsEmpty", "argumentName"), argumentName);
         }
 
         private static string GetString(string name, params string[] formatterNames)

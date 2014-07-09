@@ -82,7 +82,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             Assert.Equal("Id", columnMod.ColumnName);
             Assert.Same(stateEntry, columnMod.StateEntry);
             Assert.Equal("Id", columnMod.Property.Name);
-            Assert.True(columnMod.IsCondition);
+            Assert.False(columnMod.IsCondition);
             Assert.True(columnMod.IsKey);
             Assert.False(columnMod.IsRead);
             Assert.True(columnMod.IsWrite);

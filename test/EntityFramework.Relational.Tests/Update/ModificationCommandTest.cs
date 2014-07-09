@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             Assert.Equal("Col1", columnMod.ColumnName);
             Assert.Same(stateEntry, columnMod.StateEntry);
             Assert.Equal("Id", columnMod.Property.Name);
-            Assert.True(columnMod.IsCondition);
+            Assert.False(columnMod.IsCondition);
             Assert.True(columnMod.IsKey);
             Assert.True(columnMod.IsRead);
             Assert.False(columnMod.IsWrite);
@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             Assert.Equal("Col1", columnMod.ColumnName);
             Assert.Same(stateEntry, columnMod.StateEntry);
             Assert.Equal("Id", columnMod.Property.Name);
-            Assert.True(columnMod.IsCondition);
+            Assert.False(columnMod.IsCondition);
             Assert.True(columnMod.IsKey);
             Assert.False(columnMod.IsRead);
             Assert.True(columnMod.IsWrite);
@@ -146,6 +146,40 @@ namespace Microsoft.Data.Entity.Relational.Update
             Assert.False(columnMod.IsRead);
             Assert.True(columnMod.IsWrite);
         }
+        
+        [Fact]
+        public void ModificationCommand_initialized_correctly_for_modified_entities_with_concurrency_token()
+        {
+            var stateEntry = CreateStateEntry(EntityState.Modified, nonKeyStrategy: ValueGenerationOnSave.WhenInsertingAndUpdating);
+            stateEntry.SetPropertyModified(stateEntry.EntityType.GetKey().Properties[0], isModified: false);
+
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator());
+            command.AddStateEntry(stateEntry);
+
+            Assert.Equal("T1", command.TableName);
+            Assert.Equal(EntityState.Modified, command.EntityState);
+            Assert.Equal(2, command.ColumnModifications.Count);
+
+            var columnMod = command.ColumnModifications[0];
+
+            Assert.Equal("Col1", columnMod.ColumnName);
+            Assert.Same(stateEntry, columnMod.StateEntry);
+            Assert.Equal("Id", columnMod.Property.Name);
+            Assert.True(columnMod.IsCondition);
+            Assert.True(columnMod.IsKey);
+            Assert.False(columnMod.IsRead);
+            Assert.False(columnMod.IsWrite);
+
+            columnMod = command.ColumnModifications[1];
+
+            Assert.Equal("Col2", columnMod.ColumnName);
+            Assert.Same(stateEntry, columnMod.StateEntry);
+            Assert.Equal("Name", columnMod.Property.Name);
+            Assert.True(columnMod.IsCondition);
+            Assert.False(columnMod.IsKey);
+            Assert.True(columnMod.IsRead);
+            Assert.False(columnMod.IsWrite);
+        }
 
         [Fact]
         public void ModificationCommand_initialized_correctly_for_deleted_entities()
@@ -166,6 +200,39 @@ namespace Microsoft.Data.Entity.Relational.Update
             Assert.Equal("Id", columnMod.Property.Name);
             Assert.True(columnMod.IsCondition);
             Assert.True(columnMod.IsKey);
+            Assert.False(columnMod.IsRead);
+            Assert.False(columnMod.IsWrite);
+        }
+
+        [Fact]
+        public void ModificationCommand_initialized_correctly_for_deleted_entities_with_concurrency_token()
+        {
+            var stateEntry = CreateStateEntry(EntityState.Deleted, nonKeyStrategy: ValueGenerationOnSave.WhenInsertingAndUpdating);
+
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator());
+            command.AddStateEntry(stateEntry);
+
+            Assert.Equal("T1", command.TableName);
+            Assert.Equal(EntityState.Deleted, command.EntityState);
+            Assert.Equal(2, command.ColumnModifications.Count);
+
+            var columnMod = command.ColumnModifications[0];
+
+            Assert.Equal("Col1", columnMod.ColumnName);
+            Assert.Same(stateEntry, columnMod.StateEntry);
+            Assert.Equal("Id", columnMod.Property.Name);
+            Assert.True(columnMod.IsCondition);
+            Assert.True(columnMod.IsKey);
+            Assert.False(columnMod.IsRead);
+            Assert.False(columnMod.IsWrite);
+
+            columnMod = command.ColumnModifications[1];
+
+            Assert.Equal("Col2", columnMod.ColumnName);
+            Assert.Same(stateEntry, columnMod.StateEntry);
+            Assert.Equal("Name", columnMod.Property.Name);
+            Assert.True(columnMod.IsCondition);
+            Assert.False(columnMod.IsKey);
             Assert.False(columnMod.IsRead);
             Assert.False(columnMod.IsWrite);
         }
@@ -269,7 +336,10 @@ namespace Microsoft.Data.Entity.Relational.Update
             key.SetColumnName("Col1");
             entityType.SetKey(key);
 
-            var nonKey = entityType.AddProperty("Name", typeof(string));
+            var nonKey = entityType.AddProperty("Name",
+                typeof(string),
+                shadowProperty: false,
+                concurrencyToken: nonKeyStrategy == ValueGenerationOnSave.WhenInsertingAndUpdating);
             nonKey.SetColumnName("Col2");
             nonKey.ValueGenerationOnSave = nonKeyStrategy;
 

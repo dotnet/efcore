@@ -125,7 +125,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 using (var db = new BloggingContext(options))
                 {
-                    await CreateBlogDatabase<Blog>(db);
+                    await CreateBlogDatabaseAsync<Blog>(db);
                 }
 
                 using (var db = new BloggingContext(options))
@@ -213,7 +213,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 using (var context = new BloggingContext<TBlog>(options))
                 {
-                    var blogs = await CreateBlogDatabase<TBlog>(context);
+                    var blogs = await CreateBlogDatabaseAsync<TBlog>(context);
                     blog1Id = blogs[0].Id;
                     blog2Id = blogs[1].Id;
 
@@ -278,7 +278,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             }
         }
 
-        private static async Task<TBlog[]> CreateBlogDatabase<TBlog>(DbContext context) where TBlog : class, IBlog, new()
+        private static async Task<TBlog[]> CreateBlogDatabaseAsync<TBlog>(DbContext context) where TBlog : class, IBlog, new()
         {
             await context.Database.EnsureCreatedAsync();
             var blog1 = await context.AddAsync(new TBlog()

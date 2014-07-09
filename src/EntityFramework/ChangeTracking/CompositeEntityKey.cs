@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections;
+using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
@@ -9,6 +10,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking
 {
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class CompositeEntityKey : EntityKey
     {
         private readonly IEntityType _entityType;
@@ -79,9 +81,10 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 (t, v) => (t * 397) ^ (v != null ? StructuralComparisons.StructuralEqualityComparer.GetHashCode(v) : 0));
         }
 
-        public override string ToString()
+        [UsedImplicitly]
+        private string DebuggerDisplay
         {
-            return _entityType.Type + "[" + string.Join(", ", _keyValueParts.Select(k => k.ToString())) + "]";
+            get { return string.Format("{0}({1})", _entityType.Type.Name, string.Join(", ", _keyValueParts.Select(k => k.ToString()))); }
         }
     }
 }

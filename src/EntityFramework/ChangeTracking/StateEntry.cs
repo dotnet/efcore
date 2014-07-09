@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Threading;
@@ -15,6 +16,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking
 {
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public abstract partial class StateEntry : IPropertyBagEntry
     {
         private readonly DbContextConfiguration _configuration;
@@ -466,9 +468,10 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
         }
 
-        public override string ToString()
+        [UsedImplicitly]
+        private string DebuggerDisplay
         {
-            return this.GetPrimaryKeyValue() + " - " + EntityState;
+            get { return this.GetPrimaryKeyValue() + " - " + EntityState; }
         }
 
         StateEntry IPropertyBagEntry.StateEntry
