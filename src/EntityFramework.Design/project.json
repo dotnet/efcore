@@ -7,6 +7,7 @@
         "EntityFramework.Migrations": ""
     },
     "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
+    "exclude": "tools\\Handler.cs",
     "configurations": {
         "net451": { }
     }

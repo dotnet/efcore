@@ -31,6 +31,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="System" />
     <PackageReference Include="System.Data.Common">
       <TargetFramework>net451</TargetFramework>
     </PackageReference>
@@ -52,11 +53,16 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\src\EntityFramework.Design\tools\Handler.cs">
+      <Link>Handler.cs</Link>
+    </Compile>
     <Compile Include="ApiConsistencyTest.cs" />
     <Compile Include="CSharpMigrationCodeGeneratorTest.cs" />
     <Compile Include="CSharpModelCodeGeneratorTest.cs" />
     <Compile Include="..\Shared\ApiConsistencyTestBase.cs" />
+    <Compile Include="ExecutorTest.cs" />
     <Compile Include="MigrationScaffolderTest.cs" />
+    <Compile Include="HandlerTest.cs" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>

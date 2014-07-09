@@ -1,3 +1,5 @@
+use assembly='WindowsBase, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35'
+use namespace='System.IO.Packaging'
 
 var VERSION='0.1'
 var FULL_VERSION='0.1'
@@ -16,3 +18,51 @@ var sqliteTestDir='test/EntityFramework.SQLite.FunctionalTests/bin/Debug'
 #copy-sqlite target='initialize' if='!File.Exists(sqliteTestDir + "/sqlite3.dll")'
     var sourceDir='${Directory.EnumerateDirectories("packages", "Microsoft.Data.SQLite.1.0.0-*").OrderByDescending(d => d).First() + "/redist/x86"}'
     copy outputDir='${sqliteTestDir}'
+
+#nupkg-patch target='compile'
+    @{
+        var packagePath = Directory.EnumerateFiles(@"artifacts\build", "EntityFramework.Design.*.nupkg").First();
+        using (var package = Package.Open(packagePath, FileMode.Open, FileAccess.ReadWrite))
+        {
+            CreatePartFromFile(
+                package,
+                @"src\EntityFramework.Design\tools\EntityFramework.psd1",
+                @"tools\EntityFramework.psd1");
+            CreatePartFromFile(
+                package,
+                @"src\EntityFramework.Design\tools\EntityFramework.psm1",
+                @"tools\EntityFramework.psm1");
+            CreatePartFromFile(
+                package,
+                @"src\EntityFramework.Design\tools\Handler.cs",
+                @"tools\Handler.cs");
+            CreatePartFromFile(
+                package,
+                @"src\EntityFramework.Design\IHandler.cs",
+                @"tools\IHandler.cs");
+            CreatePartFromFile(
+                package,
+                @"src\EntityFramework.Design\tools\init.ps1",
+                @"tools\init.ps1");
+        }
+    }
+
+functions
+    @{
+        PackagePart CreatePartFromFile(
+            Package destination,
+            string sourceFileName,
+            string partUriString)
+        {
+            var partUri = PackUriHelper.CreatePartUri(new Uri(partUriString, UriKind.Relative));
+            var packagePart = destination.CreatePart(partUri, "application/octet", CompressionOption.Maximum);
+
+            using (var sourceStream = File.OpenRead(sourceFileName))
+            using (var stream = packagePart.GetStream())
+            {
+                sourceStream.CopyTo(stream);
+            }
+
+            return packagePart;
+        }
+    }
