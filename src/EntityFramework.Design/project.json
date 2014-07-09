@@ -1,0 +1,13 @@
+{
+    "version": "7.0.0-*",
+    "compilationOptions": {
+        "warningsAsErrors": true
+    },
+    "dependencies": {
+        "EntityFramework.Migrations": ""
+    },
+    "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
+    "configurations": {
+        "net451": { }
+    }
+}

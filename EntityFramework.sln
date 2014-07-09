@@ -37,9 +37,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.InMemory.Fu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.SQLite.Tests", "test\EntityFramework.SQLite.Tests\EntityFramework.SQLite.Tests.csproj", "{1F060759-25F6-47FB-AEBB-3D88195F3DF7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Migrations.Design", "src\EntityFramework.Migrations.Design\EntityFramework.Migrations.Design.csproj", "{10CA97EB-E724-4F08-86AF-F301F2B0BFFF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Design", "src\EntityFramework.Design\EntityFramework.Design.csproj", "{10CA97EB-E724-4F08-86AF-F301F2B0BFFF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Migrations.Design.Tests", "test\EntityFramework.Migrations.Design.Tests\EntityFramework.Migrations.Design.Tests.csproj", "{38F9AD16-B3B4-48A5-B814-77660CF409AE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Design.Tests", "test\EntityFramework.Design.Tests\EntityFramework.Design.Tests.csproj", "{38F9AD16-B3B4-48A5-B814-77660CF409AE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.SQLite.FunctionalTests", "test\EntityFramework.SQLite.FunctionalTests\EntityFramework.SQLite.FunctionalTests.csproj", "{A4604758-4D80-4C71-A972-5655FFF38089}"
 EndProject

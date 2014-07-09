@@ -4,7 +4,7 @@
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational;
 
-namespace Microsoft.Data.Entity.Migrations.Design.Utilities
+namespace Microsoft.Data.Entity.Design.Utilities
 {
     internal static class DbContextConfigurationExtensions
     {

@@ -7,14 +7,15 @@ using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Design.Utilities;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Migrations.Design.Utilities;
+using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Migrations.Design
+namespace Microsoft.Data.Entity.Design
 {
     public class CSharpMigrationCodeGenerator : MigrationCodeGenerator
     {

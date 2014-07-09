@@ -5,11 +5,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{38F9AD16-B3B4-48A5-B814-77660CF409AE}</ProjectGuid>
+    <ProjectGuid>{10CA97EB-E724-4F08-86AF-F301F2B0BFFF}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.Data.Entity.Migrations.Design.Tests</RootNamespace>
-    <AssemblyName>EntityFramework.Migrations.Design.Tests</AssemblyName>
+    <RootNamespace>Microsoft.Data.Entity.Design</RootNamespace>
+    <AssemblyName>EntityFramework.Design</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -29,59 +30,59 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="System.Data.Common">
-      <TargetFramework>net451</TargetFramework>
-    </PackageReference>
-    <PackageReference Include="xunit.abstractions">
-      <TargetFramework>net45</TargetFramework>
-    </PackageReference>
-    <PackageReference Include="xunit.assert">
-      <TargetFramework>net45</TargetFramework>
-    </PackageReference>
-    <PackageReference Include="xunit.core">
-      <TargetFramework>net45</TargetFramework>
-      <Assemblies>xunit.core;xunit.runner.tdnet</Assemblies>
-    </PackageReference>
-    <PackageReference Include="xunit.execution">
-      <TargetFramework>net45</TargetFramework>
-    </PackageReference>
-    <PackageReference Include="Moq">
-      <TargetFramework>net40</TargetFramework>
-    </PackageReference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ApiConsistencyTest.cs" />
-    <Compile Include="CSharpMigrationCodeGeneratorTest.cs" />
-    <Compile Include="CSharpModelCodeGeneratorTest.cs" />
-    <Compile Include="..\Shared\ApiConsistencyTestBase.cs" />
-    <Compile Include="MigrationScaffolderTest.cs" />
+    <Compile Include="..\..\packages\KoreBuild\build\Resources.cs">
+      <Link>Properties\Resources.cs</Link>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.tt</DependentUpon>
+    </Compile>
+    <Compile Include="CSharpMigrationCodeGenerator.cs" />
+    <Compile Include="CSharpModelCodeGenerator.cs" />
+    <Compile Include="MigrationScaffolder.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\InternalsVisibleTo.cs" />
+    <Compile Include="..\Shared\CodeAnnotations.cs" />
+    <Compile Include="Properties\Strings.Designer.cs">
+      <DependentUpon>Strings.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Utilities\Check.cs" />
+    <Compile Include="Utilities\CSharpHelper.cs" />
+    <Compile Include="Utilities\DbContextConfigurationExtensions.cs" />
+    <Compile Include="Utilities\EnumerableExtensions.cs" />
+    <EmbeddedResource Include="Properties\Strings.resx">
+      <LogicalName>EntityFramework.Design.Strings.resources</LogicalName>
+    </EmbeddedResource>
+    <None Include="..\..\packages\KoreBuild\build\Resources.tt">
+      <Link>Properties\Resources.tt</Link>
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <CustomToolNamespace>Microsoft.Data.Entity.Design</CustomToolNamespace>
+      <LastGenOutput>Resources.cs</LastGenOutput>
+    </None>
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\EntityFramework.Migrations.Design\EntityFramework.Migrations.Design.csproj">
-      <Project>{10ca97eb-e724-4f08-86af-f301f2b0bfff}</Project>
-      <Name>EntityFramework.Migrations.Design</Name>
+    <ProjectReference Include="..\EntityFramework.Migrations\EntityFramework.Migrations.csproj">
+      <Project>{6e38b72f-31da-4aef-8f34-b8269572ec6b}</Project>
+      <Name>EntityFramework.Migrations</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\EntityFramework.Relational\EntityFramework.Relational.csproj">
+    <ProjectReference Include="..\EntityFramework.Relational\EntityFramework.Relational.csproj">
       <Project>{75c5a774-a3f3-43eb-97d3-dbe0cf2825d8}</Project>
       <Name>EntityFramework.Relational</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\EntityFramework.Migrations\EntityFramework.Migrations.csproj">
-      <Project>{6E38B72F-31DA-4AEF-8F34-B8269572EC6B}</Project>
-      <Name>EntityFramework.Migrations</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\src\EntityFramework\EntityFramework.csproj">
+    <ProjectReference Include="..\EntityFramework\EntityFramework.csproj">
       <Project>{71415cec-8111-4c73-8751-512d22f10602}</Project>
       <Name>EntityFramework</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Properties\" />
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
