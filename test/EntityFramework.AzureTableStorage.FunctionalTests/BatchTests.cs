@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
             _context.Configuration.Connection.UseBatching(true);
         }
 
-        [Theory]
+        //[Theory]
         [InlineData(99)]
         [InlineData(100)]
         [InlineData(101)]
@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
             Assert.Equal(count, changes);
         }
 
-        [Fact]
+        //[Fact]
         public void It_separates_by_partition_key()
         {
             var partition1 = new Purchase { PartitionKey = _testPartition + "A", RowKey = "0" };
