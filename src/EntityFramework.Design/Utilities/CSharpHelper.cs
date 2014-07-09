@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Microsoft.Data.Entity.Migrations.Design.Utilities
+namespace Microsoft.Data.Entity.Design.Utilities
 {
     internal static class CSharpHelper
     {

@@ -4,12 +4,13 @@
 using System;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Migrations.Design.Tests
+namespace Microsoft.Data.Entity.Design.Tests
 {
     public class MigrationScaffolderTest
     {

@@ -6,14 +6,15 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Design.Utilities;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Migrations.Design.Utilities;
+using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Migrations.Design
+namespace Microsoft.Data.Entity.Design
 {
     public abstract class MigrationScaffolder
     {

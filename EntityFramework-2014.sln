@@ -15,7 +15,7 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.Migrations"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.Relational", "src\EntityFramework.Relational\EntityFramework.Relational.kproj", "{AD2D13EB-AA07-45FB-B946-1F61CCC0D9F7}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.Migrations.Design", "src\EntityFramework.Migrations.Design\EntityFramework.Migrations.Design.kproj", "{3D1C73AF-11B3-4B33-81C9-E833DD9C5107}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.Design", "src\EntityFramework.Design\EntityFramework.Design.kproj", "{3D1C73AF-11B3-4B33-81C9-E833DD9C5107}"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.SQLite", "src\EntityFramework.SQLite\EntityFramework.SQLite.kproj", "{42D24BAF-FB0F-4C85-B39F-F42BD81FE681}"
 EndProject
@@ -29,7 +29,7 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.FunctionalT
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.InMemory.Tests", "test\EntityFramework.InMemory.Tests\EntityFramework.InMemory.Tests.kproj", "{02C7760F-E138-4D54-AEDE-59CB17B503D9}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.Migrations.Design.Tests", "test\EntityFramework.Migrations.Design.Tests\EntityFramework.Migrations.Design.Tests.kproj", "{0BD27265-9890-45FD-97F0-6E05933CDD47}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.Design.Tests", "test\EntityFramework.Design.Tests\EntityFramework.Design.Tests.kproj", "{0BD27265-9890-45FD-97F0-6E05933CDD47}"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.Migrations.Tests", "test\EntityFramework.Migrations.Tests\EntityFramework.Migrations.Tests.kproj", "{110BC752-F3FA-46E0-880B-15DCFBF378E2}"
 EndProject

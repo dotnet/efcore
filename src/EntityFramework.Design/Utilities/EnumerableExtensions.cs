@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace Microsoft.Data.Entity.Migrations.Design.Utilities
+namespace Microsoft.Data.Entity.Design.Utilities
 {
     [DebuggerStepThrough]
     internal static class EnumerableExtensions

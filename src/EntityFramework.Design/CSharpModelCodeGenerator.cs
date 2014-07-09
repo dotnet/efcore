@@ -4,11 +4,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Design.Utilities;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Migrations.Design.Utilities;
+using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Migrations.Design
+namespace Microsoft.Data.Entity.Design
 {
     public class CSharpModelCodeGenerator : ModelCodeGenerator
     {

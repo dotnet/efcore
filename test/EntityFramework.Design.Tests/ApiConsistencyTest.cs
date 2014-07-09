@@ -5,7 +5,7 @@ using System.Reflection;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Tests;
 
-namespace Microsoft.Data.Entity.Migrations.Design.Tests
+namespace Microsoft.Data.Entity.Design.Tests
 {
     public class ApiConsistencyTest : ApiConsistencyTestBase
     {

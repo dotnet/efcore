@@ -8,7 +8,7 @@ using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.Utilities;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Migrations.Design.Tests
+namespace Microsoft.Data.Entity.Design.Tests
 {
     public class CSharpMigrationCodeGeneratorTest
     {
