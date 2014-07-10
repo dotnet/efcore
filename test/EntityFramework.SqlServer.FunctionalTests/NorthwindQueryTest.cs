@@ -395,18 +395,34 @@ FROM [Customers] AS c",
                 _fixture.Sql);
         }
 
-        // TODO: Single
-        //        public override void Take_with_single()
-        //        {
-        //            base.Take_with_single();
-        //
-        //            Assert.Equal(
-        //                @"SELECT TOP 2 c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region]
-        //FROM (SELECT TOP 1 *
-        //FROM [Customers] AS c) AS t0
-        //ORDER BY [CustomerID]",
-        //                _fixture.Sql);
-        //        }
+        public override void Take_with_single()
+        {
+            base.Take_with_single();
+
+            Assert.Equal(
+                @"SELECT TOP 2 *
+FROM (
+    SELECT TOP 1 c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region]
+    FROM [Customers] AS c
+    ORDER BY c.[CustomerID]
+) AS t0",
+                _fixture.Sql);
+        }
+
+        public override void Take_with_single_select_many()
+        {
+            base.Take_with_single_select_many();
+
+            Assert.Equal(
+
+                 @"SELECT TOP 2 *
+FROM (
+    SELECT TOP 1 c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region], o.[CustomerID] AS c0, o.[OrderDate], o.[OrderID]
+    FROM [Customers] AS c, [Orders] AS o
+    ORDER BY c.[CustomerID], o.[OrderID]
+) AS t0",
+                 _fixture.Sql);
+        }
 
         public override void Distinct()
         {
@@ -442,12 +458,11 @@ FROM [Customers] AS c",
         {
             base.Distinct_OrderBy();
 
-            // TODO: 
-            //            Assert.Equal(
-            //                @"SELECT DISTINCT [City]
-            //FROM [Customers] AS c
-            //ORDER BY [City]",
-            //                _fixture.Sql);
+            Assert.Equal(
+                @"SELECT DISTINCT c.[City]
+FROM [Customers] AS c",
+                //ORDER BY c.[City]", // TODO: Sub-query flattening
+                _fixture.Sql);
         }
 
         public override void OrderBy_multiple()
@@ -555,17 +570,16 @@ FROM [Customers] AS c",
                 _fixture.Sql);
         }
 
-        // TODO: Single
-        //        public override void Single_Predicate()
-        //        {
-        //            base.Single_Predicate();
-        //
-        //            Assert.Equal(
-        //                    @"SELECT TOP 2 c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region]
-        //FROM [Customers] AS c
-        //WHERE [CustomerID] = @p0",
-        //                    _fixture.Sql);
-        //        }
+        public override void Single_Predicate()
+        {
+            base.Single_Predicate();
+
+            Assert.Equal(
+                    @"SELECT TOP 2 c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region]
+FROM [Customers] AS c
+WHERE c.[CustomerID] = @p0",
+                    _fixture.Sql);
+        }
 
         public override void Projection_when_null_value()
         {
