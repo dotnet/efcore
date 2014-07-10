@@ -22,6 +22,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
         private readonly List<Ordering> _orderBy = new List<Ordering>();
 
         private int? _limit;
+        private bool _projectStar;
+        private SelectExpression _subquery;
 
         public SelectExpression()
             : base(typeof(object))
@@ -31,6 +33,16 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
         public virtual IReadOnlyList<TableExpression> Tables
         {
             get { return _tables; }
+        }
+
+        public virtual bool IsProjectStar
+        {
+            get { return _projectStar; }
+        }
+
+        public virtual SelectExpression Subquery
+        {
+            get { return _subquery; }
         }
 
         public virtual void AddTable([NotNull] TableExpression tableExpression)
@@ -58,6 +70,34 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public virtual void AddLimit(int limit)
         {
+            if (_limit != null)
+            {
+                var subquery = new SelectExpression();
+
+                var columnAliasCounter = 0;
+
+                foreach (var columnExpression in _projection)
+                {
+                    if (subquery._projection.FindIndex(ce => ce.Name == columnExpression.Name) != -1)
+                    {
+                        columnExpression.Alias = "c" + columnAliasCounter++;
+                    }
+
+                    subquery._projection.Add(columnExpression);
+                }
+
+                subquery._tables.AddRange(_tables);
+                subquery._orderBy.AddRange(_orderBy);
+                subquery._limit = _limit;
+
+                _projection.Clear();
+                _tables.Clear();
+                _orderBy.Clear();
+
+                _projectStar = true;
+                _subquery = subquery;
+            }
+
             _limit = limit;
         }
 
@@ -89,7 +129,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             if (_projection
                 .FindIndex(ce =>
                     ce.Property == columnExpression.Property
-                    && ce.Alias == columnExpression.Alias) == -1)
+                    && ce.TableAlias == columnExpression.TableAlias) == -1)
             {
                 _projection.Add(columnExpression);
             }
@@ -109,7 +149,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
             var table = FindTableForQuerySource(querySource);
 
-            return _projection.FindIndex(ce => ce.Property == property && ce.Alias == table.Alias);
+            return _projection.FindIndex(ce => ce.Property == property && ce.TableAlias == table.Alias);
         }
 
         public virtual Expression Predicate { get; [param: CanBeNull] set; }

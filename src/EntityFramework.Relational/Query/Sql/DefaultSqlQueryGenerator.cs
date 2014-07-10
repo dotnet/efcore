@@ -5,11 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
 using Microsoft.Data.Entity.Relational.Utilities;
+using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Parsing;
 
@@ -17,15 +16,17 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 {
     public class DefaultSqlQueryGenerator : ThrowingExpressionTreeVisitor, ISqlExpressionVisitor, ISqlQueryGenerator
     {
-        private StringBuilder _sql;
+        private IndentedStringBuilder _sql;
         private List<CommandParameter> _parameters;
         private Expression _binaryExpression;
+
+        private int _localAliasCount;
 
         public virtual string GenerateSql(SelectExpression expression)
         {
             Check.NotNull(expression, "expression");
 
-            _sql = new StringBuilder();
+            _sql = new IndentedStringBuilder();
             _parameters = new List<CommandParameter>();
 
             expression.Accept(this);
@@ -33,7 +34,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             return _sql.ToString();
         }
 
-        protected virtual StringBuilder Sql
+        protected virtual IndentedStringBuilder Sql
         {
             get { return _sql; }
         }
@@ -57,13 +58,29 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             }
             else
             {
-                _sql.Append("1");
+                _sql.Append(selectExpression.IsProjectStar ? "*" : "1");
             }
 
             _sql.AppendLine()
                 .Append("FROM ");
 
-            VisitJoin(selectExpression.Tables);
+            if (selectExpression.Subquery != null)
+            {
+                _sql.AppendLine("(");
+
+                using (_sql.Indent())
+                {
+                    selectExpression.Subquery.Accept(this);
+                }
+
+                _sql.AppendLine();
+                _sql.Append(") AS t");
+                _sql.Append(_localAliasCount++.ToString());
+            }
+            else
+            {
+                VisitJoin(selectExpression.Tables);
+            }
 
             if (selectExpression.Predicate != null)
             {
@@ -79,14 +96,14 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                     .Append("ORDER BY ");
 
                 VisitJoin(selectExpression.OrderBy, t =>
-                    {
-                        VisitExpression(t.Expression);
+                {
+                    VisitExpression(t.Expression);
 
-                        if (t.OrderingDirection == OrderingDirection.Desc)
-                        {
-                            _sql.Append(" DESC");
-                        }
-                    });
+                    if (t.OrderingDirection == OrderingDirection.Desc)
+                    {
+                        _sql.Append(" DESC");
+                    }
+                });
             }
 
             GenerateLimitOffset(selectExpression);
@@ -218,9 +235,15 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
         {
             Check.NotNull(columnExpression, "columnExpression");
 
-            _sql.Append(columnExpression.Alias)
+            _sql.Append(columnExpression.TableAlias)
                 .Append(".")
-                .Append(DelimitIdentifier(columnExpression.Property.ColumnName()));
+                .Append(DelimitIdentifier(columnExpression.Name));
+
+            if (columnExpression.Alias != null)
+            {
+                _sql.Append(" AS ")
+                    .Append(columnExpression.Alias);
+            }
 
             return columnExpression;
         }

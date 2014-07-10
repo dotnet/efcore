@@ -85,6 +85,18 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         [Fact]
+        public virtual void Take_with_single_select_many()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                (from c in cs
+                 from o in os
+                 orderby c.CustomerID, o.OrderID
+                 select new { c, o })
+                    .Take(1)
+                    .Single());
+        }
+
+        [Fact]
         public virtual void Where_simple()
         {
             AssertQuery<Customer>(cs => cs.Where(c => c.City == "London"));
@@ -1470,6 +1482,21 @@ namespace Microsoft.Data.FunctionalTests
                 return AssertResults(
                     new[] { query(NorthwindData.Set<TItem>()) },
                     new[] { query(context.Set<TItem>()) },
+                    assertOrder);
+            }
+        }
+        
+        private int AssertQuery<TItem1, TItem2>(
+            Func<IQueryable<TItem1>, IQueryable<TItem2>, object> query,
+            bool assertOrder = false)
+            where TItem1 : class
+            where TItem2 : class
+        {
+            using (var context = CreateContext())
+            {
+                return AssertResults(
+                    new[] { query(NorthwindData.Set<TItem1>(), NorthwindData.Set<TItem2>()) },
+                    new[] { query(context.Set<TItem1>(), context.Set<TItem2>()) },
                     assertOrder);
             }
         }
