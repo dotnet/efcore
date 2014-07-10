@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational;
@@ -78,23 +79,26 @@ namespace Microsoft.Data.Entity.Design
 
         public virtual void CommitConfiguration(string[] commandArgs)
         {
-            var tool = CreateMigrationTool(CommandCode.CommitConfiguration, commandArgs);
+            var tool = CreateMigrationTool();
+            var configuration = CreateConfiguration(tool, CommandCode.CommitConfiguration, commandArgs);
 
-            tool.CommitConfiguration();
+            tool.CommitConfiguration(configuration);
         }
 
         public virtual void CreateMigration(string[] commandArgs)
         {
-            var tool = CreateMigrationTool(CommandCode.CreateMigration, commandArgs);
+            var tool = CreateMigrationTool();
+            var configuration = CreateConfiguration(tool, CommandCode.CreateMigration, commandArgs);
 
-            tool.CreateMigration();
+            tool.CreateMigration(configuration);
         }
 
         public virtual void ListMigrations(string[] commandArgs)
         {
-            var tool = CreateMigrationTool(CommandCode.ListMigrations, commandArgs);
+            var tool = CreateMigrationTool();
+            var configuration = CreateConfiguration(tool, CommandCode.ListMigrations, commandArgs);
 
-            OutputMigrations(tool.GetMigrations());
+            OutputMigrations(tool.GetMigrations(configuration));
         }
 
         protected virtual void OutputMigrations(IReadOnlyList<IMigrationMetadata> migrations)
@@ -107,9 +111,10 @@ namespace Microsoft.Data.Entity.Design
 
         public virtual void GenerateScript(string[] commandArgs)
         {
-            var tool = CreateMigrationTool(CommandCode.GenerateScript, commandArgs);
+            var tool = CreateMigrationTool();
+            var configuration = CreateConfiguration(tool, CommandCode.GenerateScript, commandArgs);
 
-            OutputScript(tool.GenerateScript());
+            OutputScript(tool.GenerateScript(configuration));
         }
 
         protected virtual void OutputScript(IReadOnlyList<SqlStatement> statements)
@@ -122,13 +127,17 @@ namespace Microsoft.Data.Entity.Design
 
         public virtual void UpdateDatabase(string[] commandArgs)
         {
-            var tool = CreateMigrationTool(CommandCode.UpdateDatabase, commandArgs);
+            var tool = CreateMigrationTool();
+            var configuration = CreateConfiguration(tool, CommandCode.UpdateDatabase, commandArgs);
 
-            tool.UpdateDatabase();
+            tool.UpdateDatabase(configuration);
         }
 
-        protected virtual MigrationTool CreateMigrationTool(CommandCode commandCode, string[] commandArgs)
+        protected virtual IConfigurationSourceContainer CreateConfiguration(
+            MigrationTool tool, CommandCode commandCode, string[] commandArgs)
         {
+            var configuration = CreateConfiguration();
+
             CommandLineConfigurationSource commandLineConfigSource;
             string configFile;
 
@@ -136,7 +145,7 @@ namespace Microsoft.Data.Entity.Design
             {
                 commandLineConfigSource = new CommandLineConfigurationSource(commandArgs);
                 commandLineConfigSource.Load();
-                commandLineConfigSource.TryGet(MigrationTool.Constants.ConfigFile, out configFile);
+                commandLineConfigSource.TryGet(MigrationTool.Constants.ConfigFileOption, out configFile);
             }
             else
             {
@@ -144,25 +153,38 @@ namespace Microsoft.Data.Entity.Design
                 configFile = null;
             }
 
-            var tool = CreateMigrationTool();
-
-            if (commandCode != CommandCode.CommitConfiguration
-                && !string.IsNullOrEmpty(configFile))
+            if (commandCode != CommandCode.CommitConfiguration)
             {
-                tool.Configuration.AddIniFile(tool.ResolvePath(configFile));
+                if (!string.IsNullOrEmpty(configFile))
+                {
+                    configuration.AddIniFile(tool.ResolvePath(configFile));
+                }
+                else
+                {
+                    configFile = tool.ResolvePath(MigrationTool.Constants.DefaultConfigFile);
+                    if (File.Exists(configFile))
+                    {
+                        configuration.AddIniFile(configFile);
+                    }
+                }
             }
 
             if (commandLineConfigSource != null)
             {
-                tool.Configuration.Add(commandLineConfigSource);
+                configuration.Add(commandLineConfigSource);
             }
 
-            return tool;
+            return configuration;
         }
 
         protected virtual MigrationTool CreateMigrationTool()
         {
             return new MigrationTool();
+        }
+
+        protected virtual IConfigurationSourceContainer CreateConfiguration()
+        {
+            return new Configuration();
         }
     }
 }

@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.Design.Utilities
         public static string GetMigrationNamespace(this DbContextConfiguration configuration)
         {
             return RelationalOptionsExtension.Extract(configuration).MigrationNamespace
-                   ?? configuration.Context.GetType().Namespace + "." + configuration.Context.GetType().Name + "Migrations";
+                   ?? configuration.Context.GetType().Namespace + ".Migrations";
         }
     }
 }

@@ -21,45 +21,33 @@ namespace Microsoft.Data.Entity.Design
     // TODO: Add logging.
     public class MigrationTool
     {
-        public class Constants
+        public static class Constants
         {
-            public const string ConfigFile = "ConfigFile";
-            public const string ContextAssembly = "ContextAssembly";
-            public const string ContextType = "ContextType";
-            public const string MigrationName = "MigrationName";
-            public const string MigrationSource = "MigrationSource";
-            public const string MigrationAssembly = "MigrationAssembly";
-            public const string MigrationNamespace = "MigrationNamespace";
-            public const string MigrationDirectory = "MigrationDirectory";
-            public const string TargetMigration = "TargetMigration";
-            public const string References = "References";
+            public const string ConfigFileOption = "ConfigFile";
+            public const string ContextAssemblyOption = "ContextAssembly";
+            public const string ContextTypeOption = "ContextType";
+            public const string MigrationNameOption = "MigrationName";
+            public const string MigrationSourceOption = "MigrationSource";
+            public const string MigrationAssemblyOption = "MigrationAssembly";
+            public const string MigrationNamespaceOption = "MigrationNamespace";
+            public const string MigrationDirectoryOption = "MigrationDirectory";
+            public const string TargetMigrationOption = "TargetMigration";
+            public const string ReferencesOption = "References";
+            public const string MigrationSourceDatabase = "Database";
+            public const string MigrationSourceLocal = "Local";
+            public const string MigrationSourcePending = "Pending";
+            public const string DefaultConfigFile = "migration.ini";
+            public const string DefaultMigrationDirectory = "Migrations";
         }
 
-        private readonly IConfigurationSourceContainer _configuration;
-
-        public MigrationTool([NotNull] IConfigurationSourceContainer configuration)
+        public virtual void CommitConfiguration([NotNull] IConfigurationSourceContainer configuration)
         {
             Check.NotNull(configuration, "configuration");
 
-            _configuration = configuration;
-        }
-
-        public MigrationTool()
-            : this(new Configuration())
-        {
-        }
-
-        public virtual IConfigurationSourceContainer Configuration
-        {
-            get { return _configuration; }
-        }
-
-        public virtual void CommitConfiguration()
-        {
-            var configFile = Configuration.Get(Constants.ConfigFile);
+            var configFile = configuration.Get(Constants.ConfigFileOption);
             if (string.IsNullOrEmpty(configFile))
             {
-                configFile = "migration.ini";
+                configFile = Constants.DefaultConfigFile;
             }
 
             configFile = ResolvePath(configFile);
@@ -74,7 +62,7 @@ namespace Microsoft.Data.Entity.Design
 
             foreach (var key in GetCommitableSettings())
             {
-                var value = Configuration.Get(key);
+                var value = configuration.Get(key);
                 if (!string.IsNullOrEmpty(value))
                 {
                     iniFileConfigurationSource.Set(key, value);
@@ -94,12 +82,12 @@ namespace Microsoft.Data.Entity.Design
             return
                 new[]
                     {
-                        Constants.ContextAssembly,
-                        Constants.ContextType,
-                        Constants.MigrationAssembly,
-                        Constants.MigrationNamespace,
-                        Constants.MigrationDirectory,
-                        Constants.References
+                        Constants.ContextAssemblyOption,
+                        Constants.ContextTypeOption,
+                        Constants.MigrationAssemblyOption,
+                        Constants.MigrationNamespaceOption,
+                        Constants.MigrationDirectoryOption,
+                        Constants.ReferencesOption
                     };
         }
 
@@ -116,23 +104,25 @@ namespace Microsoft.Data.Entity.Design
             return builder.ToString();
         }
 
-        public virtual ScaffoldedMigration CreateMigration()
+        public virtual ScaffoldedMigration CreateMigration([NotNull] IConfigurationSourceContainer configuration)
         {
-            var migrationName = Configuration.Get(Constants.MigrationName);
+            Check.NotNull(configuration, "configuration");
+
+            var migrationName = configuration.Get(Constants.MigrationNameOption);
             if (string.IsNullOrEmpty(migrationName))
             {
                 throw new InvalidOperationException(Strings.MigrationNameNotSpecified);
             }
 
-            var migrationDirectory = Configuration.Get(Constants.MigrationDirectory);
+            var migrationDirectory = configuration.Get(Constants.MigrationDirectoryOption);
             if (string.IsNullOrEmpty(migrationDirectory))
             {
-                migrationDirectory = string.Empty;
+                migrationDirectory = Constants.DefaultMigrationDirectory;
             }
 
-            using (var context = LoadContext())
+            using (var context = LoadContext(configuration))
             {
-                ConfigureContext(context);
+                ConfigureContext(context, configuration);
 
                 var scaffolder = CreateScaffolder(context.Configuration, migrationDirectory);
                 var scaffoldedMigration = scaffolder.ScaffoldMigration(migrationName);
@@ -183,21 +173,23 @@ namespace Microsoft.Data.Entity.Design
             }
         }
 
-        public virtual IReadOnlyList<IMigrationMetadata> GetMigrations()
+        public virtual IReadOnlyList<IMigrationMetadata> GetMigrations([NotNull] IConfigurationSourceContainer configuration)
         {
-            var source = Configuration.Get(Constants.MigrationSource);
+            Check.NotNull(configuration, "configuration");
+
+            var source = configuration.Get(Constants.MigrationSourceOption);
             Func<Migrator, IReadOnlyList<IMigrationMetadata>> getMigrationsFunc;
 
             if (string.IsNullOrEmpty(source)
-                || source.Equals("database", StringComparison.OrdinalIgnoreCase))
+                || source.Equals(Constants.MigrationSourceDatabase, StringComparison.OrdinalIgnoreCase))
             {
                 getMigrationsFunc = (m => m.GetDatabaseMigrations());
             }
-            else if (source.Equals("local", StringComparison.OrdinalIgnoreCase))
+            else if (source.Equals(Constants.MigrationSourceLocal, StringComparison.OrdinalIgnoreCase))
             {
                 getMigrationsFunc = (m => m.GetLocalMigrations());
             }
-            else if (source.Equals("pending", StringComparison.OrdinalIgnoreCase))
+            else if (source.Equals(Constants.MigrationSourcePending, StringComparison.OrdinalIgnoreCase))
             {
                 getMigrationsFunc = (m => m.GetPendingMigrations());
             }
@@ -206,9 +198,9 @@ namespace Microsoft.Data.Entity.Design
                 throw new InvalidOperationException(Strings.InvalidMigrationSource);
             }
 
-            using (var context = LoadContext())
+            using (var context = LoadContext(configuration))
             {
-                ConfigureContext(context);
+                ConfigureContext(context, configuration);
 
                 return getMigrationsFunc(GetMigrator(context.Configuration));
             }
@@ -220,13 +212,15 @@ namespace Microsoft.Data.Entity.Design
         }
 
         // TODO: Add support for --SourceMigration
-        public virtual IReadOnlyList<SqlStatement> GenerateScript()
+        public virtual IReadOnlyList<SqlStatement> GenerateScript([NotNull] IConfigurationSourceContainer configuration)
         {
-            var targetMigrationName = Configuration.Get(Constants.TargetMigration);
+            Check.NotNull(configuration, "configuration");
 
-            using (var context = LoadContext())
+            var targetMigrationName = configuration.Get(Constants.TargetMigrationOption);
+
+            using (var context = LoadContext(configuration))
             {
-                ConfigureContext(context);
+                ConfigureContext(context, configuration);
 
                 var migrator = GetMigrator(context.Configuration);
 
@@ -239,13 +233,15 @@ namespace Microsoft.Data.Entity.Design
 
         // TODO: Add support for --SourceMigration
         // TODO: Add support for --Verbose
-        public virtual void UpdateDatabase()
+        public virtual void UpdateDatabase([NotNull] IConfigurationSourceContainer configuration)
         {
-            var targetMigrationName = Configuration.Get(Constants.TargetMigration);
+            Check.NotNull(configuration, "configuration");
 
-            using (var context = LoadContext())
+            var targetMigrationName = configuration.Get(Constants.TargetMigrationOption);
+
+            using (var context = LoadContext(configuration))
             {
-                ConfigureContext(context);
+                ConfigureContext(context, configuration);
 
                 var migrator = GetMigrator(context.Configuration);
 
@@ -261,19 +257,19 @@ namespace Microsoft.Data.Entity.Design
         }
 
         // Internal for testing.
-        protected internal virtual DbContext LoadContext()
+        protected internal virtual DbContext LoadContext(IConfigurationSourceContainer configuration)
         {
-            var contextAssemblyRef = Configuration.Get(Constants.ContextAssembly);
-            if (string.IsNullOrEmpty(contextAssemblyRef))
+            var contextAssemblyFile = configuration.Get(Constants.ContextAssemblyOption);
+            if (string.IsNullOrEmpty(contextAssemblyFile))
             {
                 throw new InvalidOperationException(Strings.ContextAssemblyNotSpecified);
             }
 
-            var contextAssembly = LoadAssembly(contextAssemblyRef);
+            var contextAssembly = LoadAssembly(contextAssemblyFile);
 
-            LoadReferences();
+            LoadReferences(configuration.Get(Constants.ReferencesOption));
 
-            var contextTypeName = Configuration.Get(Constants.ContextType);
+            var contextTypeName = configuration.Get(Constants.ContextTypeOption);
             var contextType
                 = string.IsNullOrEmpty(contextTypeName)
                     ? FindContextType(contextAssembly)
@@ -319,13 +315,12 @@ namespace Microsoft.Data.Entity.Design
         {
             return
                 contextAssembly.GetAccessibleTypes()
-                    .Where(t => !typeof(DbContext).GetTypeInfo().IsAssignableFrom(t.GetTypeInfo()))
+                    .Where(t => typeof(DbContext).GetTypeInfo().IsAssignableFrom(t.GetTypeInfo()))
                     .ToArray();
         }
 
-        protected virtual void LoadReferences()
+        protected virtual void LoadReferences(string references)
         {
-            var references = Configuration.Get(Constants.References);
             if (string.IsNullOrEmpty(references))
             {
                 return;
@@ -337,15 +332,9 @@ namespace Microsoft.Data.Entity.Design
             }
         }
 
-        protected virtual Assembly LoadAssembly(string assemblyRef)
+        protected virtual Assembly LoadAssembly(string assemblyFile)
         {
-            // TODO: Figure out what we want to do about loading the context assembly and its references:
-            // 1. Assembly.LoadFile or Assembly.Load?
-            // 2. AppDomain.AssemblyResolve?
-            // 3. New AppDomain with ApplicationBase, DynamicBase, PrivateBinPath?
-            // 4. Something else?
-
-            return Assembly.LoadFile(ResolvePath(assemblyRef));
+            return Assembly.LoadFile(ResolvePath(assemblyFile));
         }
 
         protected virtual DbContext CreateContext(Type contextType)
@@ -353,25 +342,28 @@ namespace Microsoft.Data.Entity.Design
             return (DbContext)Activator.CreateInstance(contextType);
         }
 
-        protected virtual void ConfigureContext(DbContext context)
+        protected virtual void ConfigureContext(
+            DbContext context, IConfigurationSourceContainer configuration)
         {
             var extension = RelationalOptionsExtension.Extract(context.Configuration);
 
-            var migrationAssemblyFile = Configuration.Get(Constants.MigrationAssembly);
+            var migrationAssemblyFile = configuration.Get(Constants.MigrationAssemblyOption);
             if (!string.IsNullOrEmpty(migrationAssemblyFile))
             {
                 extension.MigrationAssembly = LoadAssembly(migrationAssemblyFile);
             }
 
-            var migrationNamespace = Configuration.Get(Constants.MigrationNamespace);
+            var migrationNamespace = configuration.Get(Constants.MigrationNamespaceOption);
             if (!string.IsNullOrEmpty(migrationNamespace))
             {
                 extension.MigrationNamespace = migrationNamespace;
             }
         }
 
-        public virtual string ResolvePath(string path)
+        public virtual string ResolvePath([NotNull] string path)
         {
+            Check.NotNull(path, "path");
+
             return Path.IsPathRooted(path) ? path : Path.Combine(Directory.GetCurrentDirectory(), path);
         }
     }
