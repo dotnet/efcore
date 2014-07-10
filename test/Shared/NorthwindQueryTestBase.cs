@@ -467,6 +467,55 @@ namespace Microsoft.Data.FunctionalTests
                         });
         }
 
+        [Fact]
+        public virtual void Select_correlated_subquery_projection()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                select os
+                    .Where(o => o.CustomerID == c.CustomerID),
+                asserter:
+                    (l2oResults, efResults) =>
+                        {
+                            var l2oObjects
+                                = l2oResults
+                                    .SelectMany(q1 => ((IEnumerable<Order>)q1))
+                                    .OrderBy(o => o.OrderID);
+
+                            var efObjects
+                                = efResults
+                                    .SelectMany(q1 => ((IEnumerable<Order>)q1))
+                                    .OrderBy(o => o.OrderID);
+
+                            Assert.Equal(l2oObjects, efObjects);
+                        });
+        }
+
+        [Fact]
+        public virtual void Select_correlated_subquery_ordered()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                select os
+                    .OrderBy(o => c.CustomerID),
+                asserter:
+                    (l2oResults, efResults) =>
+                    {
+                        var l2oObjects
+                            = l2oResults
+                                .SelectMany(q1 => ((IEnumerable<Order>)q1))
+                                .OrderBy(o => o.OrderID);
+
+                        var efObjects
+                            = efResults
+                                .SelectMany(q1 => ((IEnumerable<Order>)q1))
+                                .OrderBy(o => o.OrderID);
+
+                        Assert.Equal(l2oObjects, efObjects);
+                    });
+        }
+
+
         // TODO: Re-linq parser
         //        [Fact]
         //        public virtual void Select_nested_ordered_enumerable_collection()
