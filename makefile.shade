@@ -16,34 +16,38 @@ k-standard-goals
 
 var sqliteTestDir='test/EntityFramework.SQLite.FunctionalTests/bin/Debug'
 #copy-sqlite target='initialize' if='!File.Exists(sqliteTestDir + "/sqlite3.dll")'
-    var sourceDir='${Directory.EnumerateDirectories("packages", "Microsoft.Data.SQLite.1.0.0-*").OrderByDescending(d => d).First() + "/redist/x86"}'
+    var sourceDir='${Directory.EnumerateDirectories("packages", "Microsoft.Data.SQLite.*").OrderByDescending(d => d).First() + "/redist/x86"}'
     copy outputDir='${sqliteTestDir}'
 
 #nupkg-patch target='compile'
     @{
-        var packagePath = Directory.EnumerateFiles(@"artifacts\build", "EntityFramework.Design.*.nupkg").First();
-        using (var package = Package.Open(packagePath, FileMode.Open, FileAccess.ReadWrite))
+        var packagePaths = Files.Include("artifacts/build/**/EntityFramework.Design.*.nupkg")
+            .Exclude("**/*.symbols.nupkg");
+        foreach (var packagePath in packagePaths)
         {
-            CreatePartFromFile(
-                package,
-                @"src\EntityFramework.Design\tools\EntityFramework.psd1",
-                @"tools\EntityFramework.psd1");
-            CreatePartFromFile(
-                package,
-                @"src\EntityFramework.Design\tools\EntityFramework.psm1",
-                @"tools\EntityFramework.psm1");
-            CreatePartFromFile(
-                package,
-                @"src\EntityFramework.Design\tools\Handler.cs",
-                @"tools\Handler.cs");
-            CreatePartFromFile(
-                package,
-                @"src\EntityFramework.Design\IHandler.cs",
-                @"tools\IHandler.cs");
-            CreatePartFromFile(
-                package,
-                @"src\EntityFramework.Design\tools\init.ps1",
-                @"tools\init.ps1");
+            using (var package = Package.Open(packagePath, FileMode.Open, FileAccess.ReadWrite))
+            {
+                CreatePartFromFile(
+                    package,
+                    @"src\EntityFramework.Design\tools\EntityFramework.psd1",
+                    @"tools\EntityFramework.psd1");
+                CreatePartFromFile(
+                    package,
+                    @"src\EntityFramework.Design\tools\EntityFramework.psm1",
+                    @"tools\EntityFramework.psm1");
+                CreatePartFromFile(
+                    package,
+                    @"src\EntityFramework.Design\tools\Handler.cs",
+                    @"tools\Handler.cs");
+                CreatePartFromFile(
+                    package,
+                    @"src\EntityFramework.Design\IHandler.cs",
+                    @"tools\IHandler.cs");
+                CreatePartFromFile(
+                    package,
+                    @"src\EntityFramework.Design\tools\init.ps1",
+                    @"tools\init.ps1");
+            }
         }
     }
 
