@@ -140,7 +140,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     db.ChangeTracker.Entry(toUpdate).State = EntityState.Modified;
                     db.ChangeTracker.Entry(toDelete).State = EntityState.Deleted;
 
-                    var toAdd = db.Blogs.Add(new Blog()
+                    var toAdd = db.Add(new Blog()
                         {
                             Name = "Blog to Insert",
                             George = true,
@@ -179,6 +179,65 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                         CancellationToken.None);
 
                     Assert.Equal(1, rows);
+                }
+            }
+        }
+
+        [Fact]
+        public async Task Can_save_changes_in_tracked_entities()
+        {
+            using (var testDatabase = await TestDatabase.Scratch())
+            {
+                var options = new DbContextOptions().UseSqlServer(testDatabase.Connection.ConnectionString);
+
+                int updatedId;
+                int deletedId;
+                int addedId;
+                using (var db = new BloggingContext(options))
+                {
+                    var toAdd = db.Blogs.Add(new Blog()
+                    {
+                        Name = "Blog to Insert",
+                        George = true,
+                        TheGu = new Guid("0456AEF1-B7FC-47AA-8102-975D6BA3A9BF"),
+                        NotFigTime = new DateTime(1973, 9, 3, 0, 10, 33, 777),
+                        ToEat = 64,
+                        OrNothing = 0.123456789,
+                        Fuse = 777,
+                        WayRound = 9876543210,
+                        Away = 0.12345f,
+                        AndChew = new byte[16]
+                    });
+                    db.ChangeTracker.Entry(toAdd).State = EntityState.Unknown;
+
+                    var blogs = await CreateBlogDatabaseAsync<Blog>(db);
+
+                    var toUpdate = blogs[0];
+                    toUpdate.Name = "Blog is Updated";
+                    updatedId = toUpdate.Id;
+                    var toDelete = blogs[1];
+                    toDelete.Name = "Blog to delete";
+                    deletedId = toDelete.Id;
+
+                    db.Delete(toDelete);
+                    db.ChangeTracker.Entry(toAdd).State = EntityState.Added;
+
+                    await db.SaveChangesAsync();
+
+                    addedId = toAdd.Id;
+                    Assert.NotEqual(0, addedId);
+
+                    Assert.Equal(EntityState.Unchanged, db.ChangeTracker.Entry(toUpdate).State);
+                    Assert.Equal(EntityState.Unchanged, db.ChangeTracker.Entry(toAdd).State);
+                    Assert.DoesNotContain(toDelete, db.ChangeTracker.Entries().Select(e => e.Entity));
+                }
+
+                using (var db = new BloggingContext(options))
+                {
+                    var toUpdate = db.Blogs.Single(b => b.Id == updatedId);
+                    Assert.Equal("Blog is Updated", toUpdate.Name);
+                    Assert.Equal(0, db.Blogs.Count(b => b.Id == deletedId));
+                    Assert.Equal("Blog to Insert", db.Blogs.Single(b => b.Id == addedId).Name);
                 }
             }
         }

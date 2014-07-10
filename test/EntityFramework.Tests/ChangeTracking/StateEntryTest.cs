@@ -96,6 +96,12 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             Assert.False(entry.IsPropertyModified(keyProperty));
             Assert.False(entry.IsPropertyModified(nonKeyProperty));
+
+            entry.SetPropertyModified(keyProperty, isModified: true);
+
+            Assert.Equal(EntityState.Modified, entry.EntityState);
+            Assert.True(entry.IsPropertyModified(keyProperty));
+            Assert.False(entry.IsPropertyModified(nonKeyProperty));
         }
 
         [Fact]

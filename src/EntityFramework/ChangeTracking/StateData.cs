@@ -24,11 +24,18 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 _bits = new int[(propertyCount + BitsForAdditionalState - 1) / BitsPerInt + 1];
             }
 
-            public void SetAllPropertiesModified(int propertyCount)
+            public void SetAllPropertiesModified(int propertyCount, bool isModified)
             {
                 for (var i = 0; i < _bits.Length; i++)
                 {
-                    _bits[i] |= CreateMaskForWrite(i, propertyCount);
+                    if (isModified)
+                    {
+                        _bits[i] |= CreateMaskForWrite(i, propertyCount);
+                    }
+                    else
+                    {
+                        _bits[i] &= ~CreateMaskForWrite(i, propertyCount);
+                    }
                 }
             }
 

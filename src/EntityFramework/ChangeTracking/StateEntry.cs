@@ -188,13 +188,17 @@ namespace Microsoft.Data.Entity.ChangeTracking
             // set all properties to modified if the entity state is explicitly set to Modified.
             if (newState == EntityState.Modified)
             {
-                _stateData.SetAllPropertiesModified(_entityType.Properties.Count());
+                _stateData.SetAllPropertiesModified(_entityType.Properties.Count(), isModified: true);
 
                 // Assuming key properties are not modified
                 foreach (var keyProperty in EntityType.GetKey().Properties)
                 {
                     _stateData.SetPropertyModified(keyProperty.Index, isModified: false);
                 }
+            }
+            else if (newState == EntityState.Unchanged)
+            {
+                _stateData.SetAllPropertiesModified(_entityType.Properties.Count(), isModified: false);
             }
 
             var oldState = _stateData.EntityState;

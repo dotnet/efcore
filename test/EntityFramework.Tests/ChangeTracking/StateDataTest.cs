@@ -51,13 +51,22 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 Assert.False(data.IsPropertyModified(i));
             }
 
-            data.SetAllPropertiesModified(propertyCount);
+            data.SetAllPropertiesModified(propertyCount, isModified: true);
 
             Assert.Equal(propertyCount > 0, data.AnyPropertiesModified());
 
             for (var i = 0; i < propertyCount; i++)
             {
                 Assert.True(data.IsPropertyModified(i));
+            }
+
+            data.SetAllPropertiesModified(propertyCount, isModified: false);
+
+            Assert.False(data.AnyPropertiesModified());
+
+            for (var i = 0; i < propertyCount; i++)
+            {
+                Assert.False(data.IsPropertyModified(i));
             }
         }
 
@@ -80,7 +89,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             data.EntityState = EntityState.Deleted;
             Assert.Equal(EntityState.Deleted, data.EntityState);
 
-            data.SetAllPropertiesModified(70);
+            data.SetAllPropertiesModified(70, isModified:true);
 
             Assert.Equal(EntityState.Deleted, data.EntityState);
 
@@ -110,7 +119,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             data.TransparentSidecarInUse = false;
             Assert.False(data.TransparentSidecarInUse);
 
-            data.SetAllPropertiesModified(70);
+            data.SetAllPropertiesModified(70, isModified: true);
 
             Assert.False(data.TransparentSidecarInUse);
 
