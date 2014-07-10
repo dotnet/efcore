@@ -46,5 +46,6 @@ namespace Microsoft.Data.Entity.MonsterModel
         public abstract IQueryable<ILicense> Licenses { get; }
 
         public abstract void SeedUsingFKs(bool saveChanges = true);
+        public abstract void SeedUsingNavigations(bool dependentNavs, bool principalNavs, bool saveChanges = true);
     }
 }

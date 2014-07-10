@@ -20,13 +20,18 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(navigation, "navigation");
 
-            var foreignKey = navigation.ForeignKey;
+            return GetTargetType(navigation).Navigations.FirstOrDefault(
+                i => i.ForeignKey == navigation.ForeignKey && i.PointsToPrincipal != navigation.PointsToPrincipal);
+        }
+
+        public static IEntityType GetTargetType([NotNull] this INavigation navigation)
+        {
+            Check.NotNull(navigation, "navigation");
 
             // TODO: Ensure only one inverse can be created when building metadata
-            var otherType = navigation.PointsToPrincipal ? foreignKey.ReferencedEntityType : foreignKey.EntityType;
-
-            return otherType.Navigations.FirstOrDefault(
-                i => i.ForeignKey == foreignKey && i.PointsToPrincipal != navigation.PointsToPrincipal);
+            return navigation.PointsToPrincipal
+                ? navigation.ForeignKey.ReferencedEntityType
+                : navigation.ForeignKey.EntityType;
         }
     }
 }

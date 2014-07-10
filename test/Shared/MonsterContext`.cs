@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.Metadata;
 
@@ -679,6 +680,384 @@ namespace Microsoft.Data.Entity.MonsterModel
                     State = LicenseState.Revoked,
                     ExpirationDate = new DateTime(2018, 9, 19)
                 });
+
+            if (saveChanges)
+            {
+                SaveChanges();
+            }
+        }
+
+        public override void SeedUsingNavigations(bool dependentNavs, bool principalNavs, bool saveChanges = true)
+        {
+            var customer0 = Add(new TCustomer { Name = "Eeky Bear" });
+            var customer1 = Add(new TCustomer { Name = "Sheila Koalie" });
+            var customer3 = Add(new TCustomer { Name = "Tarquin Tiger" });
+
+            var customer2 = Add(new TCustomer { Name = "Sue Pandy", Husband = dependentNavs ? customer0 : null });
+            if (principalNavs)
+            {
+                customer0.Wife = customer2;
+            }
+
+            var product1 = Add(new TProduct { Description = "Mrs Koalie's Famous Waffles", BaseConcurrency = "Pounds Sterling" });
+            var product2 = Add(new TProduct { Description = "Chocolate Donuts", BaseConcurrency = "US Dollars" });
+            var product3 = Add(new TProduct { Description = "Assorted Dog Treats", BaseConcurrency = "Stuffy Money" });
+
+            var barcode1 = Add(new TBarcode { Code = new byte[] { 1, 2, 3, 4 }, Product = dependentNavs ? product1 : null, Text = "Barcode 1 2 3 4" });
+            var barcode2 = Add(new TBarcode { Code = new byte[] { 2, 2, 3, 4 }, Product = dependentNavs ? product2 : null, Text = "Barcode 2 2 3 4" });
+            var barcode3 = Add(new TBarcode { Code = new byte[] { 3, 2, 3, 4 }, Product = dependentNavs ? product3 : null, Text = "Barcode 3 2 3 4" });
+            if (principalNavs)
+            {
+                product1.Barcodes.Add(barcode1);
+                product2.Barcodes.Add(barcode2);
+                product3.Barcodes.Add(barcode3);
+            }
+
+            var barcodeDetails1 = Add(new TBarcodeDetail { Code = barcode1.Code, RegisteredTo = "Eeky Bear" });
+            var barcodeDetails2 = Add(new TBarcodeDetail { Code = barcode2.Code, RegisteredTo = "Trent" });
+            if (principalNavs)
+            {
+                barcode1.Detail = barcodeDetails1;
+                barcode2.Detail = barcodeDetails2;
+            }
+
+            var incorrectScan1 = Add(
+                new TIncorrectScan
+                    {
+                        ScanDate = new DateTime(2014, 5, 28, 19, 9, 6),
+                        Details = "Treats not Donuts",
+                        ActualBarcode = barcode3,
+                        ExpectedBarcode = dependentNavs ? barcode2 : null
+                    });
+            if (principalNavs)
+            {
+                barcode2.BadScans.Add(incorrectScan1);
+            }
+
+            var incorrectScan2 = Add(
+                new TIncorrectScan
+                    {
+                        ScanDate = new DateTime(2014, 5, 28, 19, 15, 31),
+                        Details = "Wot no waffles?",
+                        ActualBarcode = barcode2,
+                        ExpectedBarcode = dependentNavs ? barcode1 : null
+                    });
+            if (principalNavs)
+            {
+                barcode1.BadScans.Add(incorrectScan2);
+            }
+
+            var complaint1 = Add(new TComplaint
+                {
+                    Customer = customer2,
+                    Details = "Don't give coffee to Eeky!",
+                    Logged = new DateTime(2014, 5, 27, 19, 22, 26)
+                });
+
+            var complaint2 = Add(new TComplaint
+                {
+                    Customer = customer2,
+                    Details = "Really! Don't give coffee to Eeky!",
+                    Logged = new DateTime(2014, 5, 28, 19, 22, 26)
+                });
+
+            var resolution = Add(new TResolution { Complaint = dependentNavs ? complaint2 : null, Details = "Destroyed all coffee in Redmond area." });
+            if (principalNavs)
+            {
+                complaint2.Resolution = resolution;
+            }
+
+            var login1 = Add(new TLogin { Customer = dependentNavs ? customer1 : null, Username = "MrsKoalie73" });
+            var login2 = Add(new TLogin { Customer = dependentNavs ? customer2 : null, Username = "MrsBossyPants" });
+            var login3 = Add(new TLogin { Customer = dependentNavs ? customer3 : null, Username = "TheStripedMenace" });
+            if (principalNavs)
+            {
+                customer1.Logins.Add(login1);
+                customer2.Logins.Add(login2);
+                customer3.Logins.Add(login3);
+            }
+
+            var suspiciousActivity1 = Add(new TSuspiciousActivity { Activity = "Pig prints on keyboard", Username = login3.Username });
+            var suspiciousActivity2 = Add(new TSuspiciousActivity { Activity = "Crumbs in the cupboard", Username = login3.Username });
+            var suspiciousActivity3 = Add(new TSuspiciousActivity { Activity = "Donuts gone missing", Username = login3.Username });
+
+            var rsaToken1 = Add(new TRsaToken { Issued = DateTime.Now, Serial = "1234", Login = login1 });
+            var rsaToken2 = Add(new TRsaToken { Issued = DateTime.Now, Serial = "2234", Login = login2 });
+
+            // TODO: Dependent PK of identifying relationship should not need to be set
+            var smartCard1 = Add(new TSmartCard { Username = login1.Username, Login = dependentNavs ? login1 : null, CardSerial = rsaToken1.Serial, Issued = rsaToken1.Issued });
+            var smartCard2 = Add(new TSmartCard { Username = login2.Username, Login = dependentNavs ? login2 : null, CardSerial = rsaToken2.Serial, Issued = rsaToken2.Issued });
+
+            var reset1 = Add(new TPasswordReset
+                {
+                    EmailedTo = "trent@example.com",
+                    ResetNo = 1,
+                    TempPassword = "Rent-A-Mole",
+                    Username = login3.Username, // TODO: Dependent PK of identifying relationship should not need to be set
+                    Login = dependentNavs ? login3 : null
+                });
+
+            var pageView1 = Add(new TPageView { PageUrl = "somePage1", Login = login1, Viewed = DateTime.Now });
+            var pageView2 = Add(new TPageView { PageUrl = "somePage2", Login = login1, Viewed = DateTime.Now });
+            var pageView3 = Add(new TPageView { PageUrl = "somePage3", Login = login1, Viewed = DateTime.Now });
+
+            var lastLogin1 = Add(new TLastLogin
+                {
+                    LoggedIn = new DateTime(2014, 5, 27, 10, 22, 26),
+                    LoggedOut = new DateTime(2014, 5, 27, 11, 22, 26),
+                    Username = login1.Username, // TODO: Dependent PK of identifying relationship should not need to be set
+                    Login = dependentNavs ? login1 : null,
+                    SmartcardUsername = smartCard1.Username
+                });
+            if (principalNavs)
+            {
+                login1.LastLogin = lastLogin1;
+                smartCard1.LastLogin = lastLogin1;
+            }
+
+            var lastLogin2 = Add(new TLastLogin
+                {
+                    LoggedIn = new DateTime(2014, 5, 27, 12, 22, 26),
+                    LoggedOut = new DateTime(2014, 5, 27, 13, 22, 26),
+                    Username = login2.Username, // TODO: Dependent PK of identifying relationship should not need to be set
+                    Login = dependentNavs ? login2 : null,
+                    SmartcardUsername = smartCard2.Username
+                });
+            if (principalNavs)
+            {
+                login2.LastLogin = lastLogin2;
+                smartCard2.LastLogin = lastLogin2;
+            }
+
+            var message1 = Add(new TMessage
+                {
+                    Subject = "Tea?",
+                    Body = "Fancy a cup of tea?",
+                    FromUsername = login1.Username, // TODO: Dependent PK of identifying relationship should not need to be set
+                    Sender = dependentNavs ? login1 : null,
+                    Recipient = dependentNavs ? login2 : null,
+                    Sent = DateTime.Now,
+                });
+            if (principalNavs)
+            {
+                login1.SentMessages.Add(message1);
+                login2.ReceivedMessages.Add(message1);
+            }
+
+            var message2 = Add(new TMessage
+                {
+                    Subject = "Re: Tea?",
+                    Body = "Love one!",
+                    FromUsername = login2.Username, // TODO: Dependent PK of identifying relationship should not need to be set
+                    Sender = dependentNavs ? login2 : null,
+                    Recipient = dependentNavs ? login1 : null,
+                    Sent = DateTime.Now,
+                });
+            if (principalNavs)
+            {
+                login2.SentMessages.Add(message2);
+                login1.ReceivedMessages.Add(message2);
+            }
+
+            var message3 = Add(new TMessage
+                {
+                    Subject = "Re: Tea?",
+                    Body = "I'll put the kettle on.",
+                    FromUsername = login1.Username, // TODO: Dependent PK of identifying relationship should not need to be set
+                    Sender = dependentNavs ? login1 : null,
+                    Recipient = dependentNavs ? login2 : null,
+                    Sent = DateTime.Now,
+                });
+            if (principalNavs)
+            {
+                login1.SentMessages.Add(message3);
+                login2.ReceivedMessages.Add(message3);
+            }
+
+            var order1 = Add(new TAnOrder { Customer = dependentNavs ? customer1 : null, Login = dependentNavs ? login1 : null });
+            var order2 = Add(new TAnOrder { Customer = dependentNavs ? customer2 : null, Login = dependentNavs ? login2 : null });
+            var order3 = Add(new TAnOrder { Customer = dependentNavs ? customer3 : null, Login = dependentNavs ? login3 : null });
+            if (principalNavs)
+            {
+                customer1.Orders.Add(order1);
+                customer2.Orders.Add(order2);
+                customer3.Orders.Add(order3);
+                login1.Orders.Add(order1);
+                login2.Orders.Add(order2);
+                login3.Orders.Add(order3);
+            }
+
+            var orderNote1 = Add(new TOrderNote { Note = "Must have tea!", Order = dependentNavs ? order1 : null });
+            var orderNote2 = Add(new TOrderNote { Note = "And donuts!", Order = dependentNavs ? order1 : null });
+            var orderNote3 = Add(new TOrderNote { Note = "But no coffee. :-(", Order = dependentNavs ? order1 : null });
+            if (principalNavs)
+            {
+                order1.Notes.Add(orderNote1);
+                order1.Notes.Add(orderNote2);
+                order1.Notes.Add(orderNote3);
+            }
+
+            // TODO: Dependent PK of identifying relationship should not need to be set
+            var orderQualityCheck1 = Add(new TOrderQualityCheck { OrderId = order1.AnOrderId, Order = dependentNavs ? order1 : null, CheckedBy = "Eeky Bear" });
+            var orderQualityCheck2 = Add(new TOrderQualityCheck { OrderId = order2.AnOrderId, Order = dependentNavs ? order2 : null, CheckedBy = "Eeky Bear" });
+            var orderQualityCheck3 = Add(new TOrderQualityCheck { OrderId = order3.AnOrderId, Order = dependentNavs ? order3 : null, CheckedBy = "Eeky Bear" });
+
+            // TODO: Dependent PK of identifying relationship should not need to be set
+            var orderLine1 = Add(new TOrderLine { OrderId = order1.AnOrderId, ProductId = product1.ProductId, Order = dependentNavs ? order1 : null, Product = dependentNavs ? product1 : null, Quantity = 7 });
+            var orderLine2 = Add(new TOrderLine { OrderId = order1.AnOrderId, ProductId = product2.ProductId, Order = dependentNavs ? order1 : null, Product = dependentNavs ? product2 : null, Quantity = 1 });
+            var orderLine3 = Add(new TOrderLine { OrderId = order2.AnOrderId, ProductId = product3.ProductId, Order = dependentNavs ? order2 : null, Product = dependentNavs ? product3 : null, Quantity = 2 });
+            var orderLine4 = Add(new TOrderLine { OrderId = order2.AnOrderId, ProductId = product2.ProductId, Order = dependentNavs ? order2 : null, Product = dependentNavs ? product2 : null, Quantity = 3 });
+            var orderLine5 = Add(new TOrderLine { OrderId = order2.AnOrderId, ProductId = product1.ProductId, Order = dependentNavs ? order2 : null, Product = dependentNavs ? product1 : null, Quantity = 4 });
+            var orderLine6 = Add(new TOrderLine { OrderId = order3.AnOrderId, ProductId = product2.ProductId, Order = dependentNavs ? order3 : null, Product = dependentNavs ? product2 : null, Quantity = 5 });
+            if (principalNavs)
+            {
+                order1.OrderLines.Add(orderLine1);
+                order1.OrderLines.Add(orderLine2);
+                order2.OrderLines.Add(orderLine3);
+                order2.OrderLines.Add(orderLine4);
+                order2.OrderLines.Add(orderLine5);
+                order3.OrderLines.Add(orderLine6);
+            }
+
+            // TODO: Dependent PK of identifying relationship should not need to be set
+            var productDetail1 = Add(new TProductDetail { Details = "A Waffle Cart specialty!", ProductId = product1.ProductId, Product = dependentNavs ? product1 : null });
+            var productDetail2 = Add(new TProductDetail { Details = "Eeky Bear's favorite!", ProductId = product2.ProductId, Product = dependentNavs ? product2 : null });
+            if (principalNavs)
+            {
+                product1.Detail = productDetail1;
+                product2.Detail = productDetail2;
+            }
+
+            var productReview1 = Add(new TProductReview { Product = dependentNavs ? product1 : null, Review = "Better than Tarqies!" });
+            var productReview2 = Add(new TProductReview { Product = dependentNavs ? product1 : null, Review = "Good with maple syrup." });
+            var productReview3 = Add(new TProductReview { Product = dependentNavs ? product2 : null, Review = "Eeky says yes!" });
+            if (principalNavs)
+            {
+                product1.Reviews.Add(productReview1);
+                product1.Reviews.Add(productReview2);
+                product2.Reviews.Add(productReview3);
+            }
+
+            var productPhoto1 = Add(new TProductPhoto { ProductId = product1.ProductId, Photo = new byte[] { 101, 102 } });
+            var productPhoto2 = Add(new TProductPhoto { ProductId = product1.ProductId, Photo = new byte[] { 103, 104 } });
+            var productPhoto3 = Add(new TProductPhoto { ProductId = product3.ProductId, Photo = new byte[] { 105, 106 } });
+            if (principalNavs)
+            {
+                product1.Photos.Add(productPhoto1);
+                product1.Photos.Add(productPhoto2);
+                product3.Photos.Add(productPhoto3);
+            }
+
+            var productWebFeature1 = Add(new TProductWebFeature
+                {
+                    Heading = "Waffle Style",
+                    Photo = dependentNavs ? productPhoto1 : null,
+                    ProductId = product1.ProductId,
+                    Review = dependentNavs ? productReview1 : null
+                });
+            if (principalNavs)
+            {
+                productPhoto1.Features.Add(productWebFeature1);
+                productReview1.Features.Add(productWebFeature1);
+            }
+
+            var productWebFeature2 = Add(new TProductWebFeature
+                {
+                    Heading = "What does the waffle say?",
+                    ProductId = product2.ProductId,
+                    Review = dependentNavs ? productReview3 : null
+                });
+            if (principalNavs)
+            {
+                productReview3.Features.Add(productWebFeature2);
+            }
+
+            var supplier1 = Add(new TSupplier { Name = "Trading As Trent" });
+            var supplier2 = Add(new TSupplier { Name = "Ants By Boris" });
+
+            var supplierLogo1 = Add(new TSupplierLogo { SupplierId = !principalNavs ? supplier1.SupplierId : 0, Logo = new byte[] { 201, 202 } });
+            if (principalNavs)
+            {
+                supplier1.Logo = supplierLogo1;
+            }
+
+            var supplierInfo1 = Add(new TSupplierInfo { Supplier = supplier1, Information = "Seems a bit dodgy." });
+            var supplierInfo2 = Add(new TSupplierInfo { Supplier = supplier1, Information = "Orange fur?" });
+            var supplierInfo3 = Add(new TSupplierInfo { Supplier = supplier2, Information = "Very expensive!" });
+
+            var customerInfo1 = Add(new TCustomerInfo { CustomerInfoId = customer1.CustomerId, Information = "Really likes tea." });
+            var customerInfo2 = Add(new TCustomerInfo { CustomerInfoId = customer2.CustomerId, Information = "Mrs Bossy Pants!" });
+            if (principalNavs)
+            {
+                customer1.Info = customerInfo1;
+                customer2.Info = customerInfo2;
+            }
+
+            var computer1 = Add(new TComputer { Name = "markash420" });
+            var computer2 = Add(new TComputer { Name = "unicorns420" });
+
+            var computerDetail1 = Add(new TComputerDetail
+                {
+                    ComputerDetailId = computer1.ComputerId, // TODO: Dependent PK of identifying relationship should not need to be set
+                    Computer = dependentNavs ? computer1 : null,
+                    Manufacturer = "Dell",
+                    Model = "420",
+                    PurchaseDate = new DateTime(2008, 4, 1),
+                    Serial = "4201",
+                    Specifications = "It's a Dell!"
+                });
+            if (principalNavs)
+            {
+                computer1.ComputerDetail = computerDetail1;
+            }
+
+            var computerDetail2 = Add(new TComputerDetail
+                {
+                    ComputerDetailId = computer2.ComputerId, // TODO: Dependent PK of identifying relationship should not need to be set
+                    Computer = dependentNavs ? computer2 : null,
+                    Manufacturer = "Not A Dell",
+                    Model = "Not 420",
+                    PurchaseDate = new DateTime(2012, 4, 1),
+                    Serial = "4202",
+                    Specifications = "It's not a Dell!"
+                });
+            if (principalNavs)
+            {
+                computer2.ComputerDetail = computerDetail2;
+            }
+
+            var driver1 = Add(new TDriver { BirthDate = new DateTime(2006, 9, 19), Name = "Eeky Bear" });
+            var driver2 = Add(new TDriver { BirthDate = new DateTime(2007, 9, 19), Name = "Splash Bear" });
+
+            var license1 = Add(new TLicense
+                {
+                    Name = driver1.Name, // TODO: Dependent PK of identifying relationship should not need to be set
+                    Driver = dependentNavs ? driver1 : null,
+                    LicenseClass = "C",
+                    LicenseNumber = "10",
+                    Restrictions = "None",
+                    State = LicenseState.Active,
+                    ExpirationDate = new DateTime(2018, 9, 19)
+                });
+            if (principalNavs)
+            {
+                driver1.License = license1;
+            }
+
+            var license2 = Add(new TLicense
+                {
+                    Name = driver2.Name, // TODO: Dependent PK of identifying relationship should not need to be set
+                    Driver = dependentNavs ? driver2 : null,
+                    LicenseClass = "A",
+                    LicenseNumber = "11",
+                    Restrictions = "None",
+                    State = LicenseState.Revoked,
+                    ExpirationDate = new DateTime(2018, 9, 19)
+                });
+            if (principalNavs)
+            {
+                driver2.License = license2;
+            }
 
             if (saveChanges)
             {

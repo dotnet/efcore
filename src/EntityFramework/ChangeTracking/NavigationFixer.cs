@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
@@ -151,7 +152,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
             PerformFixup(() => NavigationCollectionChangedAction(entry, navigation, added, removed));
         }
 
-        private void NavigationCollectionChangedAction(StateEntry entry, INavigation navigation, ISet<object> added, ISet<object> removed)
+        private void NavigationCollectionChangedAction(
+            StateEntry entry, INavigation navigation, IEnumerable<object> added, IEnumerable<object> removed)
         {
             Contract.Assert(navigation.IsCollection());
 
@@ -229,7 +231,68 @@ namespace Microsoft.Data.Entity.ChangeTracking
             var stateManager = _configuration.StateManager;
             var entityType = entry.EntityType;
 
-            // Handle case where the new entity is the dependent
+            foreach (var navigation in entityType.Navigations)
+            {
+                var navigationValue = entry[navigation];
+
+                if (navigationValue != null)
+                {
+                    if (navigation.IsCollection())
+                    {
+                        NavigationCollectionChangedAction(
+                            entry,
+                            navigation,
+                            ((IEnumerable)navigationValue).Cast<object>(),
+                            Enumerable.Empty<object>());
+                    }
+                    else
+                    {
+                        NavigationReferenceChangedAction(
+                            entry,
+                            navigation,
+                            null,
+                            navigationValue);
+                    }
+                }
+            }
+
+            // TODO: Perf on this state manager query
+            foreach (var navigation in stateManager.Model.EntityTypes
+                .SelectMany(e => e.Navigations)
+                .Where(n => n.GetTargetType() == entityType))
+            {
+                // TODO: Perf on this
+                foreach (var relatedEntry in stateManager.StateEntries.Where(e => e.EntityType == navigation.EntityType && e != entry))
+                {
+                    var navigationValue = relatedEntry[navigation];
+
+                    if (navigationValue != null)
+                    {
+                        if (ReferenceEquals(navigationValue, entry.Entity))
+                        {
+                            NavigationReferenceChangedAction(
+                                relatedEntry,
+                                navigation,
+                                null,
+                                navigationValue);
+                        }
+                        else if (navigation.IsCollection())
+                        {
+                            var collectionAccessor = _collectionAccessorSource.GetAccessor(navigation);
+
+                            if (collectionAccessor.Contains(relatedEntry.Entity, entry.Entity))
+                            {
+                                NavigationCollectionChangedAction(
+                                    relatedEntry,
+                                    navigation,
+                                    new[] { entry.Entity },
+                                    Enumerable.Empty<object>());
+                            }
+                        }
+                    }
+                }
+            }
+
             foreach (var foreignKey in entityType.ForeignKeys)
             {
                 var principalEntry = stateManager.GetPrincipal(entry.RelationshipsSnapshot, foreignKey);
@@ -239,7 +302,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 }
             }
 
-            // Handle case where the new entity is the principal
             foreach (var foreignKey in stateManager.Model.GetReferencingForeignKeys(entityType))
             {
                 var dependents = stateManager.GetDependents(entry, foreignKey).ToArray();

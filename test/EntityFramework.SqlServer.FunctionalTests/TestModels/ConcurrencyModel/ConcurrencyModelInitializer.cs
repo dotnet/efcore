@@ -84,12 +84,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels.Concurrency
                     EngineSupplier = engineSuppliers.Single(s => s.Name == "Cosworth")
                 };
 
-            //TODO: Remove once #384 is fixed
-            mercedesEngine.EngineSupplierId = mercedesEngine.EngineSupplier.Id;
-            renaultEngine.EngineSupplierId = renaultEngine.EngineSupplier.Id;
-            ferrariEngine.EngineSupplierId = ferrariEngine.EngineSupplier.Id;
-            cosworthEngine.EngineSupplierId = cosworthEngine.EngineSupplier.Id;
-
             foreach (var engine in new List<Engine>
                 {
                     mercedesEngine,

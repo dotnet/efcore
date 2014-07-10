@@ -34,6 +34,21 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
+        public void Can_get_target_ends()
+        {
+            var model = BuildModel();
+
+            var productType = model.GetEntityType(typeof(Product));
+            var categoryType = model.GetEntityType(typeof(Category));
+
+            var category = productType.Navigations.Single(e => e.Name == "Category");
+            var products = categoryType.Navigations.Single(e => e.Name == "Products");
+
+            Assert.Same(productType, products.GetTargetType());
+            Assert.Same(categoryType, category.GetTargetType());
+        }
+
+        [Fact]
         public void Returns_null_when_no_inverse()
         {
             var products = BuildModel(createCategory: false).GetEntityType(typeof(Category)).Navigations.Single(e => e.Name == "Products");

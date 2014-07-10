@@ -49,6 +49,120 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Can_build_monster_model_and_seed_data_using_all_navigations()
+        {
+            const string databaseName = SnapshotDatabaseName + "_AllNavs";
+            Can_build_monster_model_and_seed_data_using_all_navigations_test(p => CreateSnapshotMonsterContext(p, databaseName), databaseName);
+        }
+
+        [Fact]
+        public virtual void Can_build_monster_model_with_full_notification_entities_and_seed_data_using_all_navigations()
+        {
+            const string databaseName = FullNotifyDatabaseName + "_AllNavs";
+            Can_build_monster_model_and_seed_data_using_all_navigations_test(p => CreateChangedChangingMonsterContext(p, databaseName), databaseName);
+        }
+
+        [Fact]
+        public virtual void Can_build_monster_model_with_changed_only_notification_entities_and_seed_data_using_all_navigations()
+        {
+            const string databaseName = ChangedOnlyDatabaseName + "_AllNavs";
+            Can_build_monster_model_and_seed_data_using_all_navigations_test(p => CreateChangedOnlyMonsterContext(p, databaseName), databaseName);
+        }
+
+        private void Can_build_monster_model_and_seed_data_using_all_navigations_test(
+            Func<IServiceProvider, MonsterContext> createContext, string databaseName)
+        {
+            var serviceProvider = CreateServiceProvider();
+
+            using (var context = createContext(serviceProvider))
+            {
+                context.Database.EnsureDeleted();
+                context.Database.EnsureCreated();
+                context.SeedUsingNavigations(principalNavs: true, dependentNavs: true);
+            }
+
+            SimpleVerification(() => createContext(serviceProvider));
+            FkVerification(() => createContext(serviceProvider));
+            NavigationVerification(() => createContext(serviceProvider));
+        }
+
+        [Fact]
+        public virtual void Can_build_monster_model_and_seed_data_using_dependent_navigations()
+        {
+            const string databaseName = SnapshotDatabaseName + "_DependentNavs";
+            Can_build_monster_model_and_seed_data_using_dependent_navigations_test(p => CreateSnapshotMonsterContext(p, databaseName), databaseName);
+        }
+
+        [Fact]
+        public virtual void Can_build_monster_model_with_full_notification_entities_and_seed_data_using_dependent_navigations()
+        {
+            const string databaseName = FullNotifyDatabaseName + "_DependentNavs";
+            Can_build_monster_model_and_seed_data_using_dependent_navigations_test(p => CreateChangedChangingMonsterContext(p, databaseName), databaseName);
+        }
+
+        [Fact]
+        public virtual void Can_build_monster_model_with_changed_only_notification_entities_and_seed_data_using_dependent_navigations()
+        {
+            const string databaseName = ChangedOnlyDatabaseName + "_DependentNavs";
+            Can_build_monster_model_and_seed_data_using_dependent_navigations_test(p => CreateChangedOnlyMonsterContext(p, databaseName), databaseName);
+        }
+
+        private void Can_build_monster_model_and_seed_data_using_dependent_navigations_test(
+            Func<IServiceProvider, MonsterContext> createContext, string databaseName)
+        {
+            var serviceProvider = CreateServiceProvider();
+
+            using (var context = createContext(serviceProvider))
+            {
+                context.Database.EnsureDeleted();
+                context.Database.EnsureCreated();
+                context.SeedUsingNavigations(principalNavs: false, dependentNavs: true);
+            }
+
+            SimpleVerification(() => createContext(serviceProvider));
+            FkVerification(() => createContext(serviceProvider));
+            NavigationVerification(() => createContext(serviceProvider));
+        }
+
+        [Fact]
+        public virtual void Can_build_monster_model_and_seed_data_using_principal_navigations()
+        {
+            const string databaseName = SnapshotDatabaseName + "_PrincipalNavs";
+            Can_build_monster_model_and_seed_data_using_principal_navigations_test(p => CreateSnapshotMonsterContext(p, databaseName), databaseName);
+        }
+
+        //[Fact] TODO: Support INotifyCollectionChanging so that collection change detection without DetectChanges works
+        public virtual void Can_build_monster_model_with_full_notification_entities_and_seed_data_using_principal_navigations()
+        {
+            const string databaseName = FullNotifyDatabaseName + "_PrincipalNavs";
+            Can_build_monster_model_and_seed_data_using_principal_navigations_test(p => CreateChangedChangingMonsterContext(p, databaseName), databaseName);
+        }
+
+        //[Fact] TODO: Support INotifyCollectionChanging so that collection change detection without DetectChanges works
+        public virtual void Can_build_monster_model_with_changed_only_notification_entities_and_seed_data_using_principal_navigations()
+        {
+            const string databaseName = ChangedOnlyDatabaseName + "_PrincipalNavs";
+            Can_build_monster_model_and_seed_data_using_principal_navigations_test(p => CreateChangedOnlyMonsterContext(p, databaseName), databaseName);
+        }
+
+        private void Can_build_monster_model_and_seed_data_using_principal_navigations_test(
+            Func<IServiceProvider, MonsterContext> createContext, string databaseName)
+        {
+            var serviceProvider = CreateServiceProvider();
+
+            using (var context = createContext(serviceProvider))
+            {
+                context.Database.EnsureDeleted();
+                context.Database.EnsureCreated();
+                context.SeedUsingNavigations(principalNavs: true, dependentNavs: false);
+            }
+
+            SimpleVerification(() => createContext(serviceProvider));
+            FkVerification(() => createContext(serviceProvider));
+            NavigationVerification(() => createContext(serviceProvider));
+        }
+
+        [Fact]
         public virtual async Task Store_generated_values_are_discarded_if_saving_changes_fails()
         {
             const string databaseName = SnapshotDatabaseName + "_Bad";

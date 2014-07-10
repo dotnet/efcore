@@ -180,6 +180,253 @@ namespace Microsoft.Data.Entity.ChangeTracking
         }
 
         [Fact]
+        public void Does_fixup_of_FKs_and_related_principals_using_dependent_navigations()
+        {
+            var configuration = CreateContextConfiguration();
+            var manager = configuration.StateManager;
+
+            var principal1 = new Category { Id = 11 };
+            var principal2 = new Category { Id = 12 };
+            var dependent = new Product { Id = 21, Category = principal2 };
+
+            manager.StartTracking(manager.GetOrCreateEntry(principal1));
+            manager.StartTracking(manager.GetOrCreateEntry(principal2));
+
+            var dependentEntry = manager.StartTracking(manager.GetOrCreateEntry(dependent));
+
+            var fixer = CreateNavigationFixer(configuration);
+            fixer.StateChanged(dependentEntry, EntityState.Unknown);
+
+            Assert.Equal(12, dependent.CategoryId);
+            Assert.Same(dependent.Category, principal2);
+            Assert.Contains(dependent, principal2.Products);
+            Assert.DoesNotContain(dependent, principal1.Products);
+        }
+
+        [Fact]
+        public void Does_fixup_of_FKs_and_related_principals_using_principal_navigations()
+        {
+            var configuration = CreateContextConfiguration();
+            var manager = configuration.StateManager;
+
+            var principal1 = new Category { Id = 11 };
+            var principal2 = new Category { Id = 12 };
+            var dependent = new Product { Id = 21 };
+            
+            principal2.Products.Add(dependent);
+
+            manager.StartTracking(manager.GetOrCreateEntry(principal1));
+            manager.StartTracking(manager.GetOrCreateEntry(principal2));
+
+            var dependentEntry = manager.StartTracking(manager.GetOrCreateEntry(dependent));
+
+            var fixer = CreateNavigationFixer(configuration);
+            fixer.StateChanged(dependentEntry, EntityState.Unknown);
+
+            Assert.Equal(12, dependent.CategoryId);
+            Assert.Same(dependent.Category, principal2);
+            Assert.Contains(dependent, principal2.Products);
+            Assert.DoesNotContain(dependent, principal1.Products);
+        }
+
+        [Fact]
+        public void Does_fixup_of_FKs_and_related_dependents_using_dependent_navigations()
+        {
+            var configuration = CreateContextConfiguration();
+            var manager = configuration.StateManager;
+
+            var principal = new Category { Id = 11 };
+
+            var dependent1 = new Product { Id = 21, Category = principal };
+            var dependent2 = new Product { Id = 22 };
+            var dependent3 = new Product { Id = 23, Category = principal };
+
+            manager.StartTracking(manager.GetOrCreateEntry(dependent1));
+            manager.StartTracking(manager.GetOrCreateEntry(dependent2));
+            manager.StartTracking(manager.GetOrCreateEntry(dependent3));
+
+            var principalEntry = manager.StartTracking(manager.GetOrCreateEntry(principal));
+
+            var fixer = CreateNavigationFixer(configuration);
+            fixer.StateChanged(principalEntry, EntityState.Unknown);
+
+            Assert.Equal(11, dependent1.CategoryId);
+            Assert.Equal(0, dependent2.CategoryId);
+            Assert.Equal(11, dependent3.CategoryId);
+
+            Assert.Same(dependent1.Category, principal);
+            Assert.Null(dependent2.Category);
+            Assert.Same(dependent3.Category, principal);
+
+            Assert.Contains(dependent1, principal.Products);
+            Assert.DoesNotContain(dependent2, principal.Products);
+            Assert.Contains(dependent3, principal.Products);
+        }
+
+        [Fact]
+        public void Does_fixup_of_FKs_and_related_dependents_using_principal_navigations()
+        {
+            var configuration = CreateContextConfiguration();
+            var manager = configuration.StateManager;
+
+            var principal = new Category { Id = 11 };
+
+            var dependent1 = new Product { Id = 21 };
+            var dependent2 = new Product { Id = 22 };
+            var dependent3 = new Product { Id = 23 };
+
+            principal.Products.Add(dependent1);
+            principal.Products.Add(dependent3);
+
+            manager.StartTracking(manager.GetOrCreateEntry(dependent1));
+            manager.StartTracking(manager.GetOrCreateEntry(dependent2));
+            manager.StartTracking(manager.GetOrCreateEntry(dependent3));
+
+            var principalEntry = manager.StartTracking(manager.GetOrCreateEntry(principal));
+
+            var fixer = CreateNavigationFixer(configuration);
+            fixer.StateChanged(principalEntry, EntityState.Unknown);
+
+            Assert.Equal(11, dependent1.CategoryId);
+            Assert.Equal(0, dependent2.CategoryId);
+            Assert.Equal(11, dependent3.CategoryId);
+
+            Assert.Same(dependent1.Category, principal);
+            Assert.Null(dependent2.Category);
+            Assert.Same(dependent3.Category, principal);
+
+            Assert.Contains(dependent1, principal.Products);
+            Assert.DoesNotContain(dependent2, principal.Products);
+            Assert.Contains(dependent3, principal.Products);
+        }
+
+        [Fact]
+        public void Does_fixup_of_one_to_one_self_referencing_relationship_using_dependent_navigations()
+        {
+            var configuration = CreateContextConfiguration();
+            var manager = configuration.StateManager;
+
+            var entity1 = new Product { Id = 21 };
+            var entity2 = new Product { Id = 22 };
+            var entity3 = new Product { Id = 23 };
+
+            entity1.AlternateProduct = entity2;
+            entity2.AlternateProduct = entity3;
+
+            var entry1 = manager.StartTracking(manager.GetOrCreateEntry(entity1));
+            var entry2 = manager.StartTracking(manager.GetOrCreateEntry(entity2));
+            var entry3 = manager.StartTracking(manager.GetOrCreateEntry(entity3));
+
+            var fixer = CreateNavigationFixer(configuration);
+
+            Assert.Null(entity1.AlternateProductId);
+            Assert.Null(entity2.AlternateProductId);
+            Assert.Null(entity3.AlternateProductId);
+
+            Assert.Same(entity2, entity1.AlternateProduct);
+            Assert.Null(entity1.OriginalProduct);
+
+            Assert.Same(entity3, entity2.AlternateProduct);
+            Assert.Null(entity2.OriginalProduct);
+
+            Assert.Null(entity3.AlternateProduct);
+            Assert.Null(entity3.OriginalProduct);
+
+            fixer.StateChanged(entry1, EntityState.Unknown);
+
+            Assert.Equal(22, entity1.AlternateProductId);
+            Assert.Null(entity2.AlternateProductId);
+            Assert.Null(entity3.AlternateProductId);
+
+            Assert.Same(entity2, entity1.AlternateProduct);
+            Assert.Null(entity1.OriginalProduct);
+
+            Assert.Same(entity3, entity2.AlternateProduct);
+            Assert.Same(entity1, entity2.OriginalProduct);
+
+            Assert.Null(entity3.AlternateProduct);
+            Assert.Null(entity3.OriginalProduct);
+
+            fixer.StateChanged(entry3, EntityState.Unknown);
+
+            Assert.Equal(22, entity1.AlternateProductId);
+            Assert.Equal(23, entity2.AlternateProductId);
+            Assert.Null(entity3.AlternateProductId);
+
+            Assert.Same(entity2, entity1.AlternateProduct);
+            Assert.Null(entity1.OriginalProduct);
+
+            Assert.Same(entity3, entity2.AlternateProduct);
+            Assert.Same(entity1, entity2.OriginalProduct);
+
+            Assert.Null(entity3.AlternateProduct);
+            Assert.Same(entity2, entity3.OriginalProduct);
+        }
+
+        [Fact]
+        public void Does_fixup_of_one_to_one_self_referencing_relationship_using_principal_navigations()
+        {
+            var configuration = CreateContextConfiguration();
+            var manager = configuration.StateManager;
+
+            var entity1 = new Product { Id = 21 };
+            var entity2 = new Product { Id = 22 };
+            var entity3 = new Product { Id = 23 };
+
+            entity2.OriginalProduct = entity1;
+            entity3.OriginalProduct = entity2;
+
+            var entry1 = manager.StartTracking(manager.GetOrCreateEntry(entity1));
+            var entry2 = manager.StartTracking(manager.GetOrCreateEntry(entity2));
+            var entry3 = manager.StartTracking(manager.GetOrCreateEntry(entity3));
+
+            var fixer = CreateNavigationFixer(configuration);
+
+            Assert.Null(entity1.AlternateProductId);
+            Assert.Null(entity2.AlternateProductId);
+            Assert.Null(entity3.AlternateProductId);
+
+            Assert.Null(entity1.AlternateProduct);
+            Assert.Null(entity1.OriginalProduct);
+
+            Assert.Null(entity2.AlternateProduct);
+            Assert.Same(entity1, entity2.OriginalProduct);
+
+            Assert.Null(entity3.AlternateProduct);
+            Assert.Same(entity2, entity3.OriginalProduct);
+
+            fixer.StateChanged(entry1, EntityState.Unknown);
+
+            Assert.Equal(22, entity1.AlternateProductId);
+            Assert.Null(entity2.AlternateProductId);
+            Assert.Null(entity3.AlternateProductId);
+
+            Assert.Same(entity2, entity1.AlternateProduct);
+            Assert.Null(entity1.OriginalProduct);
+
+            Assert.Null(entity2.AlternateProduct);
+            Assert.Same(entity1, entity2.OriginalProduct);
+
+            Assert.Null(entity3.AlternateProduct);
+            Assert.Same(entity2, entity3.OriginalProduct);
+
+            fixer.StateChanged(entry3, EntityState.Unknown);
+
+            Assert.Equal(22, entity1.AlternateProductId);
+            Assert.Equal(23, entity2.AlternateProductId);
+            Assert.Null(entity3.AlternateProductId);
+
+            Assert.Same(entity2, entity1.AlternateProduct);
+            Assert.Null(entity1.OriginalProduct);
+
+            Assert.Same(entity3, entity2.AlternateProduct);
+            Assert.Same(entity1, entity2.OriginalProduct);
+
+            Assert.Null(entity3.AlternateProduct);
+            Assert.Same(entity2, entity3.OriginalProduct);
+        }
+
+        [Fact]
         public void Does_fixup_of_related_principals_when_FK_is_set()
         {
             var model = BuildModel();
