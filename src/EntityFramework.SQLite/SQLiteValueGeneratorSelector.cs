@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
@@ -28,7 +31,8 @@ namespace Microsoft.Data.Entity.SQLite
             {
                 // If INTEGER PRIMARY KEY column...
                 var keyProperties = property.EntityType.GetKey().Properties;
-                if (keyProperties.Count == 1 && keyProperties[0] == property)
+                if (keyProperties.Count == 1
+                    && keyProperties[0] == property)
                 {
                     // TODO: Consider using RelationalTypeMapper service
                     var integerClrType = SQLiteTypeMap.FromDeclaredType("INTEGER", SQLiteType.Integer).ClrType;

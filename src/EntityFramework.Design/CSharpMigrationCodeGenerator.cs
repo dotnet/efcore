@@ -170,7 +170,7 @@ namespace Microsoft.Data.Entity.Design
 
             using (stringBuilder.Indent())
             {
-                for (int i = 0; i < migrationOperations.Count; i++)
+                for (var i = 0; i < migrationOperations.Count; i++)
                 {
                     if (i > 0)
                     {

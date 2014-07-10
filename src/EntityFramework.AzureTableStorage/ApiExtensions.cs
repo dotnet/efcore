@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
-using Microsoft.Data.Entity.AzureTableStorage.Utilities;
-using Microsoft.Data.Entity.Metadata;
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
+using Microsoft.Data.Entity.AzureTableStorage.Utilities;
+using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Metadata
 {
@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Metadata
         public static ModelBuilder.EntityBuilderBase<TMetadataBuilder> TableName<TMetadataBuilder>(
             [NotNull] this ModelBuilder.EntityBuilderBase<TMetadataBuilder> builder,
             [NotNull] string tableName)
-            where TMetadataBuilder : Microsoft.Data.Entity.Metadata.ModelBuilder.MetadataBuilder<EntityType, TMetadataBuilder>
+            where TMetadataBuilder : ModelBuilder.MetadataBuilder<EntityType, TMetadataBuilder>
         {
             Check.NotNull(builder, "builder");
             Check.NotEmpty(tableName, "tableName");
@@ -64,7 +64,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Metadata
         public static ModelBuilder.EntityBuilderBase<TMetadataBuilder>.PropertiesBuilder.PropertyBuilder ColumnName<TMetadataBuilder>(
             [NotNull] this ModelBuilder.EntityBuilderBase<TMetadataBuilder>.PropertiesBuilder.PropertyBuilder builder,
             [NotNull] string columnName)
-            where TMetadataBuilder : Microsoft.Data.Entity.Metadata.ModelBuilder.MetadataBuilder<EntityType, TMetadataBuilder>
+            where TMetadataBuilder : ModelBuilder.MetadataBuilder<EntityType, TMetadataBuilder>
         {
             Check.NotNull(builder, "builder");
             Check.NotEmpty(columnName, "columnName");
@@ -89,10 +89,10 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Metadata
             Check.NotNull(rowKeyExpression, "rowKeyExpression");
 
             builder.Properties(pb =>
-            {
-                pb.Property(partitionKeyExpression).ColumnName("PartitionKey");
-                pb.Property(rowKeyExpression).ColumnName("RowKey");
-            });
+                {
+                    pb.Property(partitionKeyExpression).ColumnName("PartitionKey");
+                    pb.Property(rowKeyExpression).ColumnName("RowKey");
+                });
 
             var properties = partitionKeyExpression.GetPropertyAccessList().ToList();
             properties.Add(rowKeyExpression.GetPropertyAccess());
@@ -117,4 +117,3 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Metadata
         }
     }
 }
-

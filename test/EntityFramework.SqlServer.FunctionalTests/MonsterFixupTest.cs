@@ -12,7 +12,6 @@ using Microsoft.Data.Entity.MonsterModel;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
-using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {

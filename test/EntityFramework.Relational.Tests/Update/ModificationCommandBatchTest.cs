@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -76,7 +75,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             sqlGeneratorMock.Verify(g => g.AppendBatchHeader(It.IsAny<StringBuilder>()));
             sqlGeneratorMock.Verify(g => g.AppendDeleteOperation(It.IsAny<StringBuilder>(), "T1", It.IsAny<IReadOnlyList<ColumnModification>>()));
         }
-        
+
         [Fact]
         public async Task ExecuteAsync_executes_batch_commands_and_consumes_reader()
         {
@@ -195,7 +194,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
                     async () => await batch.ExecuteAsync(new Mock<RelationalConnection>().Object, new RelationalTypeMapper()))).Message);
         }
-        
+
         [Fact]
         public void CreateStoreCommand_creates_parameters_for_each_ModificationCommand_with_non_null_parameter_name()
         {
@@ -237,7 +236,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         private RelationalConnection CreateMockRelationalConnection(DbDataReader dataReader = null, DbCommand dbCommand = null)
         {
             var mockConnection = CreateMockDbConnection(dbCommand);
-            
+
             var mockRelationalConnection = new Mock<RelationalConnection>();
             mockRelationalConnection.Setup(m => m.DbConnection).Returns(mockConnection.Object);
 
@@ -397,11 +396,10 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
         public class ModificationCommandBatchFake : ModificationCommandBatch
         {
-            private DbDataReader _reader;
+            private readonly DbDataReader _reader;
 
             public ModificationCommandBatchFake()
             {
-                
             }
 
             public ModificationCommandBatchFake(DbDataReader reader)

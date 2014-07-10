@@ -5,7 +5,7 @@ using System;
 using System.IO;
 using Microsoft.Framework.Logging;
 
-namespace Microsoft.Data.Entity.Tests
+namespace Microsoft.Data.Entity
 {
     // Watch the log in PS with: "tail -f $env:userprofile\.klog\data-test.log"
     public class TestFileLogger : ILogger

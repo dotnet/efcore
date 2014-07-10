@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Requests
         public virtual void Add([NotNull] TableOperationRequest operation)
         {
             Check.NotNull(operation, "operation");
-            
+
             _batch.Add(operation.Operation);
         }
 

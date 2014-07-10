@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Requests
         {
             Check.NotNull(table, "table");
             Check.NotNull(requestContext, "requestContext");
-            
+
             return table.CreateIfNotExists(requestContext.TableRequestOptions, requestContext.OperationContext);
         }
 
@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Requests
         {
             Check.NotNull(table, "table");
             Check.NotNull(requestContext, "requestContext");
-            
+
             return table.CreateIfNotExistsAsync(requestContext.TableRequestOptions, requestContext.OperationContext, cancellationToken);
         }
     }

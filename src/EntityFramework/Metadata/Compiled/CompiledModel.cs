@@ -51,6 +51,5 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
             // TODO: Perf: Add additional indexes so that this isn't a linear lookup
             return EntityTypes.SelectMany(e => e.ForeignKeys.Where(f => f.ReferencedProperties.Contains(property))).ToArray();
         }
-
     }
 }

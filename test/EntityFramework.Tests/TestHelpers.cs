@@ -7,7 +7,7 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 
-namespace Microsoft.Data.Entity.Tests
+namespace Microsoft.Data.Entity
 {
     public static class TestHelpers
     {

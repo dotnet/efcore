@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Design.Tests
         [Fact]
         public void Scaffold_empty_migration()
         {
-            using (var context = new Context(new Metadata.Model()))
+            using (var context = new Context(new Model()))
             {
                 var scaffolder
                     = new MyMigrationScaffolder(
@@ -696,7 +696,6 @@ namespace MyNamespace
     }
 }",
                 modelSnapshotClass);
-
         }
 
         #region Fixture
@@ -713,7 +712,7 @@ namespace MyNamespace
 
         private static IModel CreateModel()
         {
-            var model = new Metadata.Model();
+            var model = new Model();
             var entityType = new EntityType("Entity");
             var property = entityType.AddProperty("Id", typeof(int));
 
@@ -728,7 +727,7 @@ namespace MyNamespace
 
         private static IModel CreateModelWithForeignKeys()
         {
-            var model = new Metadata.Model();
+            var model = new Model();
 
             var houseType = new EntityType("Ho!use[]");
             var houseId = houseType.AddProperty("Id", typeof(int));
@@ -764,7 +763,7 @@ namespace MyNamespace
 
         private static IModel CreateModelWithCompositeKeys()
         {
-            var model = new Metadata.Model();
+            var model = new Model();
             var entity1 = new EntityType("EntityWithNamedKeyAndAnnotations");
 
             var id1 = entity1.AddProperty("Id", typeof(int));

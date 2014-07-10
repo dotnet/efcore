@@ -45,6 +45,5 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
                     );
             }
         }
-
     }
 }

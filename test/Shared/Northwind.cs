@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
@@ -308,9 +309,9 @@ namespace Northwind
             }
         }
 
-        static DateTime ParseDate(string date)
+        private static DateTime ParseDate(string date)
         {
-            return DateTime.Parse(date, new System.Globalization.CultureInfo("en-US"));
+            return DateTime.Parse(date, new CultureInfo("en-US"));
         }
 
         #region Customers

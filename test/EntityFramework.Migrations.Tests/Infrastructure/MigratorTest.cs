@@ -448,33 +448,33 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         {
             var databaseMigrations
                 = new[]
-                      {
-                          new MigrationMetadata("Migration1", "Timestamp1"),
-                          new MigrationMetadata("Migration2", "Timestamp2")
-                      };
+                    {
+                        new MigrationMetadata("Migration1", "Timestamp1"),
+                        new MigrationMetadata("Migration2", "Timestamp2")
+                    };
             var localMigrations
                 = new[]
-                      {
-                          new MigrationMetadata("Migration1", "Timestamp1")
-                              {
-                                  TargetModel = new Metadata.Model(),
-                                  DowngradeOperations
-                                      = new MigrationOperation[]
-                                            {
-                                                new DropTableOperation("MyTable1")
-                                            }
-                              },
-                          new MigrationMetadata("Migration2", "Timestamp2")
-                              {
-                                  TargetModel = new Metadata.Model(),
-                                  DowngradeOperations
-                                      = new MigrationOperation[]
-                                            {
-                                                new DropColumnOperation("MyTable1", "Foo"),
-                                                new DropTableOperation("MyTable2")
-                                            }
-                              }
-                      };
+                    {
+                        new MigrationMetadata("Migration1", "Timestamp1")
+                            {
+                                TargetModel = new Metadata.Model(),
+                                DowngradeOperations
+                                    = new MigrationOperation[]
+                                        {
+                                            new DropTableOperation("MyTable1")
+                                        }
+                            },
+                        new MigrationMetadata("Migration2", "Timestamp2")
+                            {
+                                TargetModel = new Metadata.Model(),
+                                DowngradeOperations
+                                    = new MigrationOperation[]
+                                        {
+                                            new DropColumnOperation("MyTable1", "Foo"),
+                                            new DropTableOperation("MyTable2")
+                                        }
+                            }
+                    };
 
             var contextConfiguration = new Mock<DbContextConfiguration>().Object;
             var historyRepository = MockHistoryRepository(contextConfiguration, databaseMigrations);
@@ -505,9 +505,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     sqlGeneratorFactory.Object,
                     new Mock<SqlGenerator>().Object,
                     new Mock<SqlStatementExecutor>().Object)
-                {
-                    CallBase = true
-                }
+                    {
+                        CallBase = true
+                    }
                     .Object;
 
             var sqlStatements = migrator.GenerateUpdateDatabaseSql(Migrator.InitialDatabase);
@@ -526,17 +526,17 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         {
             var localMigrations
                 = new[]
-                      {
-                          new MigrationMetadata("Migration1", "Timestamp1")
-                              {
-                                  TargetModel = new Metadata.Model(),
-                                  UpgradeOperations
-                                      = new MigrationOperation[]
-                                            {
-                                                new CreateTableOperation(new Table("MyTable1"))
-                                            }
-                              }
-                      };
+                    {
+                        new MigrationMetadata("Migration1", "Timestamp1")
+                            {
+                                TargetModel = new Metadata.Model(),
+                                UpgradeOperations
+                                    = new MigrationOperation[]
+                                        {
+                                            new CreateTableOperation(new Table("MyTable1"))
+                                        }
+                            }
+                    };
 
             var contextConfiguration = new Mock<DbContextConfiguration>().Object;
             var historyRepository = new Mock<HistoryRepository>(contextConfiguration) { CallBase = true };
@@ -566,9 +566,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     sqlGeneratorFactory.Object,
                     new Mock<SqlGenerator>().Object,
                     new Mock<SqlStatementExecutor>().Object)
-                      {
-                          CallBase = true
-                      }
+                    {
+                        CallBase = true
+                    }
                     .Object;
 
             var sqlStatements = migrator.GenerateUpdateDatabaseSql();
@@ -576,7 +576,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             Assert.Equal(3, sqlStatements.Count);
             Assert.Equal("Create__MigrationHistorySql", sqlStatements[0].Sql);
             Assert.Equal("CreateMyTable1Sql", sqlStatements[1].Sql);
-            Assert.Equal("Migration1InsertSql", sqlStatements[2].Sql);            
+            Assert.Equal("Migration1InsertSql", sqlStatements[2].Sql);
         }
 
         [Fact]

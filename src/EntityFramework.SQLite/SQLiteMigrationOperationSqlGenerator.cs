@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.SQLite
                 if (addForeignKeyOperation != null
                     && createTableOperations.Any(
                         o => o.Table.Name == addForeignKeyOperation.TableName
-                            && o.Table.ForeignKeys.Any(k => k.Name == addForeignKeyOperation.ForeignKeyName)))
+                             && o.Table.ForeignKeys.Any(k => k.Name == addForeignKeyOperation.ForeignKeyName)))
                 {
                     continue;
                 }

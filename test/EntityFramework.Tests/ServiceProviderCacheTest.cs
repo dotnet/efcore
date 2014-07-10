@@ -7,7 +7,7 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Tests
+namespace Microsoft.Data.Entity
 {
     public class ServiceProviderCacheTest
     {

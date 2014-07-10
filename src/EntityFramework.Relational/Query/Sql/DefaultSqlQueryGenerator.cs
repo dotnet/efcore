@@ -62,7 +62,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
             _sql.AppendLine()
                 .Append("FROM ");
-            
+
             VisitJoin(selectExpression.Tables);
 
             if (selectExpression.Predicate != null)
@@ -120,7 +120,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
             return tableExpression;
         }
-  
+
         protected virtual void GenerateTop([NotNull] SelectExpression expression)
         {
             Check.NotNull(expression, "expression");

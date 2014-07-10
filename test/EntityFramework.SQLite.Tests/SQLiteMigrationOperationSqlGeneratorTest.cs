@@ -202,7 +202,6 @@ namespace Microsoft.Data.Entity.SQLite.Tests
             Assert.Equal("\"my.Pony\"", sql);
         }
 
-
         private SQLiteMigrationOperationSqlGenerator CreateGenerator()
         {
             return new SQLiteMigrationOperationSqlGenerator(new SQLiteTypeMapper());

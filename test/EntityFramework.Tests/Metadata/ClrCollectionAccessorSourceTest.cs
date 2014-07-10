@@ -4,11 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Data.Entity.Metadata;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Tests.Metadata
+namespace Microsoft.Data.Entity.Metadata
 {
     public class ClrCollectionAccessorSourceTest
     {

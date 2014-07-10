@@ -1,9 +1,9 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.Data.Entity.Metadata;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Relational
@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.Relational
         [Fact]
         public void Can_set_entity_table_name()
         {
-            var model = new Microsoft.Data.Entity.Metadata.Model();
+            var model = new Metadata.Model();
             var modelBuilder = new ModelBuilder(model);
 
             modelBuilder
@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity.Relational
         [Fact]
         public void Can_set_entity_table_name_with_dot()
         {
-            var model = new Microsoft.Data.Entity.Metadata.Model();
+            var model = new Metadata.Model();
             var modelBuilder = new ModelBuilder(model);
 
             modelBuilder
@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.Relational
         [Fact]
         public void Can_set_entity_table_name_and_schema()
         {
-            var model = new Microsoft.Data.Entity.Metadata.Model();
+            var model = new Metadata.Model();
             var modelBuilder = new ModelBuilder(model);
 
             modelBuilder
@@ -70,7 +70,7 @@ namespace Microsoft.Data.Entity.Relational
         [Fact]
         public void Can_set_entity_table_name_when_no_clr_type()
         {
-            var model = new Microsoft.Data.Entity.Metadata.Model();
+            var model = new Metadata.Model();
             var modelBuilder = new ModelBuilder(model);
 
             modelBuilder
@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.Relational
         [Fact]
         public void Can_set_entity_table_name_and_schema_when_no_clr_type()
         {
-            var model = new Microsoft.Data.Entity.Metadata.Model();
+            var model = new Metadata.Model();
             var modelBuilder = new ModelBuilder(model);
 
             modelBuilder
@@ -97,7 +97,7 @@ namespace Microsoft.Data.Entity.Relational
         [Fact]
         public void Can_set_property_column_name()
         {
-            var model = new Microsoft.Data.Entity.Metadata.Model();
+            var model = new Metadata.Model();
             var modelBuilder = new ModelBuilder(model);
 
             modelBuilder
@@ -110,7 +110,7 @@ namespace Microsoft.Data.Entity.Relational
         [Fact]
         public void Can_set_property_column_name_when_no_clr_property()
         {
-            var model = new Microsoft.Data.Entity.Metadata.Model();
+            var model = new Metadata.Model();
             var modelBuilder = new ModelBuilder(model);
 
             modelBuilder
@@ -123,7 +123,7 @@ namespace Microsoft.Data.Entity.Relational
         [Fact]
         public void Can_set_property_column_name_when_no_clr_type()
         {
-            var model = new Microsoft.Data.Entity.Metadata.Model();
+            var model = new Metadata.Model();
             var modelBuilder = new ModelBuilder(model);
 
             modelBuilder
@@ -136,7 +136,7 @@ namespace Microsoft.Data.Entity.Relational
         [Fact]
         public void Can_set_foreign_key_name()
         {
-            var model = new Microsoft.Data.Entity.Metadata.Model();
+            var model = new Metadata.Model();
             var modelBuilder = new ModelBuilder(model);
 
             modelBuilder
@@ -172,7 +172,7 @@ namespace Microsoft.Data.Entity.Relational
         [Fact]
         public void Property_column_name_defaults_to_name()
         {
-            var model = new Microsoft.Data.Entity.Metadata.Model();
+            var model = new Metadata.Model();
             var modelBuilder = new ModelBuilder(model);
 
             modelBuilder
@@ -185,7 +185,7 @@ namespace Microsoft.Data.Entity.Relational
         [Fact]
         public void Property_column_name_can_be_different_from_name()
         {
-            var model = new Microsoft.Data.Entity.Metadata.Model();
+            var model = new Metadata.Model();
             var modelBuilder = new ModelBuilder(model);
 
             modelBuilder

@@ -304,7 +304,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         }
 
         protected virtual async Task<int> SaveChangesAsync(
-            [NotNull] IReadOnlyList<StateEntry> entriesToSave, 
+            [NotNull] IReadOnlyList<StateEntry> entriesToSave,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(entriesToSave, "entriesToSave");

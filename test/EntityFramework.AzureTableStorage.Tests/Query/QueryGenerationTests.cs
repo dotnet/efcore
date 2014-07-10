@@ -89,24 +89,24 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
             {
                 return new[]
                     {
-                        new object[] { Query(q=>q.Where(s => s.Name == "Unicorn")), "Name eq 'Unicorn'" },
-                        new object[] { Query(q=>q.Where(s => s.Name == " has ' quotes ' \" ")), "Name eq ' has '' quotes '' \" '" },
-                        new object[] { Query(q=>q.Where(s => s.Name == "rtl أنا لا أتكلم العربية rtl")), "Name eq 'rtl أنا لا أتكلم العربية rtl'" },
-                        new object[] { Query(q=>q.Where(s => s.Name == "獨角獸")), "Name eq '獨角獸'" },
-                        new object[] { Query(q=>q.Where(s => s.Count == 2147483647)), "Count eq 2147483647" },
-                        new object[] { Query(q=>q.Where(s => s.BigCount == 2147483648)), "BigCount eq 2147483648L" },
-                        new object[] { Query(q=>q.Where(s => s.Price == 100.75)), "Price eq 100.75" },
+                        new object[] { Query(q => q.Where(s => s.Name == "Unicorn")), "Name eq 'Unicorn'" },
+                        new object[] { Query(q => q.Where(s => s.Name == " has ' quotes ' \" ")), "Name eq ' has '' quotes '' \" '" },
+                        new object[] { Query(q => q.Where(s => s.Name == "rtl أنا لا أتكلم العربية rtl")), "Name eq 'rtl أنا لا أتكلم العربية rtl'" },
+                        new object[] { Query(q => q.Where(s => s.Name == "獨角獸")), "Name eq '獨角獸'" },
+                        new object[] { Query(q => q.Where(s => s.Count == 2147483647)), "Count eq 2147483647" },
+                        new object[] { Query(q => q.Where(s => s.BigCount == 2147483648)), "BigCount eq 2147483648L" },
+                        new object[] { Query(q => q.Where(s => s.Price == 100.75)), "Price eq 100.75" },
                         new object[]
                             {
-                                Query(q=>q.Where(s =>
+                                Query(q => q.Where(s =>
                                     s.CustomerSince == ConstantDateTime)),
                                 "CustomerSince eq datetime'2014-05-23T18:00:00.0000000Z'"
                             },
-                        new object[] { Query(q=>q.Where(s => s.IsEnchanted)), "IsEnchanted eq true" },
+                        new object[] { Query(q => q.Where(s => s.IsEnchanted)), "IsEnchanted eq true" },
                         new object[] { Query(q => q.Where(s => !s.IsEnchanted)), "IsEnchanted eq false" },
-                        new object[] { Query(q=>q.Where(s => s.Buffer == TestByteArray)), "Buffer eq X'05080f10172a'" },
-                        new object[] { Query(q=>q.Where(s => s.Guid == new Guid("ca761232ed4211cebacd00aa0057b223"))), "Guid eq guid'ca761232-ed42-11ce-bacd-00aa0057b223'" },
-                        new object[] { Query(q=>q.Where(s => s.NestedObj.Count == 3)), "" },
+                        new object[] { Query(q => q.Where(s => s.Buffer == TestByteArray)), "Buffer eq X'05080f10172a'" },
+                        new object[] { Query(q => q.Where(s => s.Guid == new Guid("ca761232ed4211cebacd00aa0057b223"))), "Guid eq guid'ca761232-ed42-11ce-bacd-00aa0057b223'" },
+                        new object[] { Query(q => q.Where(s => s.NestedObj.Count == 3)), "" },
                     };
             }
         }

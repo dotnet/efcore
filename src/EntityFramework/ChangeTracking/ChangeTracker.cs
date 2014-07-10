@@ -64,7 +64,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
             get { return _stateManager; }
         }
 
-
         public virtual bool DetectChanges()
         {
             return _changeDetector.DetectChanges(_stateManager);

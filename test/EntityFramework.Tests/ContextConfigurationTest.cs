@@ -9,7 +9,7 @@ using Microsoft.Framework.DependencyInjection.Fallback;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Tests
+namespace Microsoft.Data.Entity
 {
     public class ContextConfigurationTest
     {

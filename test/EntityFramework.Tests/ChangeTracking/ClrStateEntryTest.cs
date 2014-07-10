@@ -5,7 +5,7 @@ using System;
 using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Tests.ChangeTracking
+namespace Microsoft.Data.Entity.ChangeTracking
 {
     public class ClrStateEntryTest : StateEntryTest
     {

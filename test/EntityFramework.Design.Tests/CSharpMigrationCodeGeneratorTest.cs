@@ -337,7 +337,7 @@ namespace MyNamespace
         [Fact]
         public void Generate_migration_metadata_class()
         {
-            var model = new Metadata.Model();
+            var model = new Model();
             var entityType = new EntityType("Entity");
 
             entityType.SetKey(entityType.AddProperty("Id", typeof(int)));

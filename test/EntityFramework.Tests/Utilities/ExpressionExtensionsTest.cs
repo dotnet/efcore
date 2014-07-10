@@ -6,7 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Tests.Utilities
+namespace Microsoft.Data.Entity.Utilities
 {
     public class ExpressionExtensionsTest
     {

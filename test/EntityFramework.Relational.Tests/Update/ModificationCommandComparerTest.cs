@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity.Relational.Update
 
             Assert.True(0 > mCC.Compare(new ModificationCommand("A", null, new ParameterNameGenerator()), new ModificationCommand("A", "dbo", new ParameterNameGenerator())));
             Assert.True(0 < mCC.Compare(new ModificationCommand("A", "foo", new ParameterNameGenerator()), new ModificationCommand("A", "dbo", new ParameterNameGenerator())));
-            
+
             Assert.True(0 > mCC.Compare(null, new ModificationCommand("A", null, new ParameterNameGenerator())));
             Assert.True(0 < mCC.Compare(new ModificationCommand("A", null, new ParameterNameGenerator()), null));
 

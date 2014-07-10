@@ -3,15 +3,15 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.Data.Entity.Relational;
+using Microsoft.Framework.Logging;
 #if K10
 using System.Threading;
 #else
 using System.Runtime.Remoting.Messaging;
 #endif
-using Microsoft.Data.Entity.Relational;
-using Microsoft.Framework.Logging;
 
-namespace Microsoft.Data.Entity.Tests
+namespace Microsoft.Data.Entity
 {
     public class TestSqlLoggerFactory : ILoggerFactory
     {

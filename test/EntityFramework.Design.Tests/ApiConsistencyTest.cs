@@ -3,7 +3,6 @@
 
 using System.Reflection;
 using Microsoft.Data.Entity.Migrations.Model;
-using Microsoft.Data.Entity.Tests;
 
 namespace Microsoft.Data.Entity.Design.Tests
 {

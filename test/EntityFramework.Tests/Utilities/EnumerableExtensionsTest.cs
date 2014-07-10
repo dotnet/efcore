@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Tests.Utilities
+namespace Microsoft.Data.Entity.Utilities
 {
     public class EnumerableExtensionsTest
     {
@@ -48,7 +48,7 @@ namespace Microsoft.Data.Entity.Tests.Utilities
 
             Assert.True(new[] { value1A, value2A }.StructuralSequenceEqual(new[] { value1A, value2A }));
             Assert.True(new[] { value1A, value2A }.StructuralSequenceEqual(new[] { value1B, value2B }));
-            
+
             Assert.False(new[] { value1A, value2A }.StructuralSequenceEqual(new[] { value1B }));
             Assert.False(new[] { value1A }.StructuralSequenceEqual(new[] { value1B, value2B }));
             Assert.False(new[] { value1A, value2A }.StructuralSequenceEqual(new[] { value2A, value2B }));

@@ -118,7 +118,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
             return foundChanges;
         }
 
-
         public virtual bool DetectChanges([NotNull] StateEntry entry)
         {
             Check.NotNull(entry, "entry");
@@ -262,6 +261,5 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             return false;
         }
-
     }
 }

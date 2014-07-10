@@ -262,8 +262,15 @@ namespace Microsoft.Data.Entity.Relational.Tests
             return propertyMock.Object;
         }
 
-        protected virtual string OpenDelimeter { get { return "\""; } }
-        protected virtual string CloseDelimeter { get { return "\""; } }
+        protected virtual string OpenDelimeter
+        {
+            get { return "\""; }
+        }
+
+        protected virtual string CloseDelimeter
+        {
+            get { return "\""; }
+        }
 
         protected ColumnModification[] CreateInsertOperations(bool identityKey = true, bool computedProperty = true)
         {

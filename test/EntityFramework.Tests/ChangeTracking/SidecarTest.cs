@@ -4,7 +4,6 @@
 using System.ComponentModel;
 using System.Linq;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Tests;
 using Xunit;
 
 namespace Microsoft.Data.Entity.ChangeTracking
@@ -385,14 +384,14 @@ namespace Microsoft.Data.Entity.ChangeTracking
             var model = new Model();
 
             var entityType = new EntityType(typeof(Banana));
-            
+
             var idProperty = entityType.AddProperty("Id", typeof(int), shadowProperty: false, concurrencyToken: true);
             idProperty.ValueGenerationOnSave = ValueGenerationOnSave.WhenInserting;
             entityType.SetKey(idProperty);
 
             entityType.AddProperty("Name", typeof(string));
             entityType.AddProperty("State", typeof(string), shadowProperty: false, concurrencyToken: true);
-            
+
             var fkProperty = entityType.AddProperty("Fk", typeof(int?), shadowProperty: false, concurrencyToken: true);
             entityType.AddForeignKey(new Key(new[] { idProperty }), fkProperty);
 

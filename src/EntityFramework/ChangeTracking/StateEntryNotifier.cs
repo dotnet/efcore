@@ -78,14 +78,14 @@ namespace Microsoft.Data.Entity.ChangeTracking
         }
 
         public virtual void PrincipalKeyPropertyChanged(
-             [NotNull] StateEntry entry, [NotNull] IProperty property, [CanBeNull] object oldValue, [CanBeNull] object newValue)
+            [NotNull] StateEntry entry, [NotNull] IProperty property, [CanBeNull] object oldValue, [CanBeNull] object newValue)
         {
             Check.NotNull(entry, "entry");
             Check.NotNull(property, "property");
 
             Dispatch(l => l.PrincipalKeyPropertyChanged(entry, property, oldValue, newValue));
         }
-        
+
         private void Dispatch(Action<IEntityStateListener> action)
         {
             if (_entityStateListeners == null)

@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.Relational.Update
         {
             get { return _modificationCommands; }
         }
-        
+
         protected virtual string GenerateCommandText([NotNull] SqlGenerator sqlGenerator)
         {
             var stringBuilder = new StringBuilder();
@@ -74,7 +74,7 @@ namespace Microsoft.Data.Entity.Relational.Update
 
             return stringBuilder.ToString();
         }
-        
+
         public virtual async Task<int> ExecuteAsync(
             [NotNull] RelationalConnection connection,
             [NotNull] RelationalTypeMapper typeMapper,

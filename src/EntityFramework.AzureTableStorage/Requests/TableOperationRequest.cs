@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Requests
             : base(table)
         {
             Check.NotNull(operation, "operation");
-            
+
             _operation = operation;
         }
 
@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Requests
         {
             Check.NotNull(table, "table");
             Check.NotNull(requestContext, "requestContext");
-            
+
             return table.Execute(_operation, requestContext.TableRequestOptions, requestContext.OperationContext);
         }
 
@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Requests
         {
             Check.NotNull(table, "table");
             Check.NotNull(requestContext, "requestContext");
-            
+
             return Task.Run(
                 () => table.ExecuteAsync(_operation, requestContext.TableRequestOptions, requestContext.OperationContext, cancellationToken)
                 , cancellationToken);

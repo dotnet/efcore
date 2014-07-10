@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Requests
         protected TableRequest([NotNull] AtsTable table)
         {
             Check.NotNull(table, "table");
-            
+
             _table = table;
         }
 
@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Requests
         public override TResult Execute([NotNull] RequestContext requestContext)
         {
             Check.NotNull(requestContext, "requestContext");
-            
+
             var cloudTable = requestContext.TableClient.GetTableReference(_table.Name);
             return ExecuteOnTable(cloudTable, requestContext);
         }
@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Requests
         public override Task<TResult> ExecuteAsync([NotNull] RequestContext requestContext, CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(requestContext, "requestContext");
-            
+
             var cloudTable = requestContext.TableClient.GetTableReference(_table.Name);
             return ExecuteOnTableAsync(cloudTable, requestContext, cancellationToken);
         }

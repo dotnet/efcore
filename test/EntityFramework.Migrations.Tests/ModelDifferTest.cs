@@ -95,7 +95,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var principalEntityType = targetModel.GetEntityType("Principal");
             var dependentEntityType = new EntityType("NewDependent");
             dependentEntityType.SetTableName("MyNewTable");
-            dependentEntityType.SetSchema("dbo"); 
+            dependentEntityType.SetSchema("dbo");
             var dependentProperty = dependentEntityType.AddProperty("Id", typeof(int));
 
             targetModel.AddEntityType(dependentEntityType);
@@ -148,7 +148,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var principalEntityType = targetModel.GetEntityType("Principal");
             var dependentEntityType = new EntityType("OldDependent");
             dependentEntityType.SetTableName("MyOldTable");
-            dependentEntityType.SetSchema("dbo"); 
+            dependentEntityType.SetSchema("dbo");
             var dependentProperty = dependentEntityType.AddProperty("Id", typeof(int));
 
             sourceModel.AddEntityType(dependentEntityType);

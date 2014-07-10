@@ -118,7 +118,7 @@ namespace Microsoft.Data.Entity
         public virtual Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var stateManager = Configuration.StateManager;
-            
+
             // TODO: Allow auto-detect changes to be switched off
             Configuration.Services.ChangeDetector.DetectChanges(stateManager);
 

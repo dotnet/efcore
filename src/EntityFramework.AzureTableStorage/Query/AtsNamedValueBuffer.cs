@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
         public AtsNamedValueBuffer([NotNull] IDictionary<string, EntityProperty> values)
         {
             Check.NotNull(values, "values");
-            
+
             _values = values;
         }
 
@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
             get
             {
                 Check.NotNull(key, "key");
-            
+
                 return _values[key].PropertyAsObject;
             }
         }
@@ -43,14 +43,14 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
         public virtual void Add([NotNull] string key, [CanBeNull] string value)
         {
             Check.NotNull(key, "key");
-            
+
             _values[key] = new EntityProperty(value);
         }
 
         public virtual void Add([NotNull] string key, DateTimeOffset value)
         {
             Check.NotNull(key, "key");
-            
+
             _values[key] = new EntityProperty(value);
         }
     }

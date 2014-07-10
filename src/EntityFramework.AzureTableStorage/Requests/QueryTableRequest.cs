@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Requests
             Check.NotNull(table, "table");
             Check.NotNull(query, "query");
             Check.NotNull(resolver, "resolver");
-            
+
             _query = query;
             _resolver = resolver;
             _table = table;

@@ -206,7 +206,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 }
             }
         }
-        
+
         public virtual void StateChanging(StateEntry entry, EntityState newState)
         {
         }

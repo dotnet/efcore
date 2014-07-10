@@ -139,7 +139,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             bool historyRepositoryExists;
             var migrationPairs = PairMigrations(GetLocalMigrations(), GetDatabaseMigrations(out historyRepositoryExists));
 
-            return                
+            return
                 GenerateUpdateDatabaseSql(
                     new IMigrationMetadata[0],
                     migrationPairs
@@ -175,7 +175,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             }
 
             return
-                GenerateUpdateDatabaseSql(                    
+                GenerateUpdateDatabaseSql(
                     migrationPairs
                         .Skip(index + 1)
                         .Where(p => p.DatabaseMigration != null)
@@ -199,7 +199,8 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         {
             var sqlStatements = new List<SqlStatement>();
 
-            if (!historyRepositoryExists && upgradeMigrations.Count > 0)
+            if (!historyRepositoryExists
+                && upgradeMigrations.Count > 0)
             {
                 var database = ModelDiffer.DatabaseBuilder.GetDatabase(HistoryRepository.HistoryModel);
                 var ddlSqlGenerator = DdlSqlGeneratorFactory.Create(database);

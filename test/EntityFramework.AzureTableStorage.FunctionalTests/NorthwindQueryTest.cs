@@ -4,7 +4,6 @@
 using System;
 using Microsoft.Data.Entity.AzureTableStorage.Metadata;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Tests;
 using Microsoft.Data.FunctionalTests;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Advanced;

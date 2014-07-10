@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Utilities
         {
             Check.NotNull(entityType, "entityType");
             Check.NotEmpty(name, "name");
-            
+
             return entityType.Properties.FirstOrDefault(s => s.ColumnName() == name);
         }
 

@@ -10,10 +10,10 @@ using JetBrains.Annotations;
 namespace Microsoft.Data.Entity.Design.Utilities
 {
     /// <summary>
-    /// This is a small piece of Remoting magic. It enables us to invoke methods on a
-    /// remote object without knowing its actual type. The only restriction is that the
-    /// names and shapes of the types and their members must be the same on each side of
-    /// the boundary.
+    ///     This is a small piece of Remoting magic. It enables us to invoke methods on a
+    ///     remote object without knowing its actual type. The only restriction is that the
+    ///     names and shapes of the types and their members must be the same on each side of
+    ///     the boundary.
     /// </summary>
     public class ForwardingProxy<T> : RealProxy
     {
@@ -28,8 +28,8 @@ namespace Microsoft.Data.Entity.Design.Utilities
         }
 
         /// <summary>
-        /// Intercepts method invocations on the object represented by the current instance
-        /// and forwards them to the target to finish processing.
+        ///     Intercepts method invocations on the object represented by the current instance
+        ///     and forwards them to the target to finish processing.
         /// </summary>
         public override IMessage Invoke([NotNull] IMessage msg)
         {
@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.Design.Utilities
             return RemotingServices.GetEnvoyChainForProxy(_target).SyncProcessMessage(msg);
         }
 
-        public virtual new T GetTransparentProxy()
+        public new virtual T GetTransparentProxy()
         {
             return (T)base.GetTransparentProxy();
         }

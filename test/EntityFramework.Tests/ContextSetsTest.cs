@@ -5,7 +5,7 @@ using Microsoft.Data.Entity.Infrastructure;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Tests
+namespace Microsoft.Data.Entity
 {
     public class ContextSetsTest
     {

@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.Relational.Update
     public class BatchExecutor
     {
         private readonly RelationalTypeMapper _typeMapper;
-        
+
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
         ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected

@@ -2,16 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
-using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Fallback;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Tests.ChangeTracking
+namespace Microsoft.Data.Entity.ChangeTracking
 {
     public class ChangeDetectorTest
     {
@@ -155,7 +150,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             changeDetector.PropertyChanged(principalEntry, property);
 
             notifierMock.Verify(m => m.PrincipalKeyPropertyChanged(
-                    It.IsAny<StateEntry>(), It.IsAny<IProperty>(), It.IsAny<object>(), It.IsAny<object>()), Times.Never);
+                It.IsAny<StateEntry>(), It.IsAny<IProperty>(), It.IsAny<object>(), It.IsAny<object>()), Times.Never);
 
             Assert.Equal("Blue", principalEntry.RelationshipsSnapshot[property]);
             Assert.Same(principalEntry, stateManager.TryGetEntry(new SimpleEntityKey<int>(entityType, -1)));
@@ -185,7 +180,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             changeDetector.SidecarPropertyChanged(principalEntry, property);
 
             notifierMock.Verify(m => m.PrincipalKeyPropertyChanged(
-                    It.IsAny<StateEntry>(), It.IsAny<IProperty>(), It.IsAny<object>(), It.IsAny<object>()), Times.Never);
+                It.IsAny<StateEntry>(), It.IsAny<IProperty>(), It.IsAny<object>(), It.IsAny<object>()), Times.Never);
 
             Assert.Equal("Blue", principalEntry.RelationshipsSnapshot[property]);
             Assert.Same(principalEntry, stateManager.TryGetEntry(new SimpleEntityKey<int>(entityType, -1)));
@@ -214,7 +209,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             changeDetector.PropertyChanged(principalEntry, keyProperty);
 
             notifierMock.Verify(m => m.PrincipalKeyPropertyChanged(
-                    It.IsAny<StateEntry>(), It.IsAny<IProperty>(), It.IsAny<object>(), It.IsAny<object>()), Times.Never);
+                It.IsAny<StateEntry>(), It.IsAny<IProperty>(), It.IsAny<object>(), It.IsAny<object>()), Times.Never);
 
             Assert.Equal(77, principalEntry.RelationshipsSnapshot[keyProperty]);
             Assert.Same(principalEntry, stateManager.TryGetEntry(new SimpleEntityKey<int>(entityType, -1)));
@@ -244,12 +239,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             changeDetector.PropertyChanged(principalEntry, keyProperty);
 
             notifierMock.Verify(m => m.PrincipalKeyPropertyChanged(
-                    It.IsAny<StateEntry>(), It.IsAny<IProperty>(), It.IsAny<object>(), It.IsAny<object>()), Times.Never);
+                It.IsAny<StateEntry>(), It.IsAny<IProperty>(), It.IsAny<object>(), It.IsAny<object>()), Times.Never);
 
             Assert.Equal(77, principalEntry.RelationshipsSnapshot[keyProperty]);
             Assert.Same(principalEntry, stateManager.TryGetEntry(new SimpleEntityKey<int>(entityType, -1)));
         }
-
 
         private class Category
         {

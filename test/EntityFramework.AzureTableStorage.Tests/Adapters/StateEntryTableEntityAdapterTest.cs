@@ -10,8 +10,6 @@ using Microsoft.Data.Entity.AzureTableStorage.Utilities;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Framework.DependencyInjection;
-using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 using Xunit;
 
@@ -19,7 +17,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
 {
     public class StateEntryTableEntityAdapterTest
     {
-        private readonly StateEntryFactory _factory 
+        private readonly StateEntryFactory _factory
             = new StateEntryFactory(CreateConfiguration(), new EntityMaterializerSource(new MemberMapper(new FieldMatcher())));
 
         private static DbContextConfiguration CreateConfiguration()
@@ -128,7 +126,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
             adapter.Timestamp = timestamp;
             adapter.ReadEntity(new Dictionary<string, EntityProperty>
                 {
-                    {"SomeProperty",new EntityProperty(324890)}
+                    { "SomeProperty", new EntityProperty(324890) }
                 }, null);
 
             Assert.Equal("PK", entry[pkProp]);

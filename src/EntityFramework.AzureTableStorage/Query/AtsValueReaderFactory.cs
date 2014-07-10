@@ -2,8 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.AzureTableStorage.Utilities;
 using Microsoft.Data.Entity.AzureTableStorage.Metadata;
+using Microsoft.Data.Entity.AzureTableStorage.Utilities;
 using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Query
@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
         {
             Check.NotNull(type, "type");
             Check.NotNull(source, "source");
-            
+
             var valueBuffer = new object[type.Properties.Count];
             foreach (var property in type.Properties)
             {

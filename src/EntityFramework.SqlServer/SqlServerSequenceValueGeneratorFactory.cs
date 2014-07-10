@@ -48,7 +48,6 @@ namespace Microsoft.Data.Entity.SqlServer
             }
             else
             {
-
                 var entityName = !string.IsNullOrEmpty(property.EntityType.Schema())
                     ? property.EntityType.Schema() + "_" + property.EntityType.TableName()
                     : property.EntityType.TableName();

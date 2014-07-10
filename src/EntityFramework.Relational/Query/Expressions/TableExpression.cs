@@ -20,9 +20,9 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
         private readonly IQuerySource _querySource;
 
         public TableExpression(
-            [NotNull] string table, 
-            [CanBeNull] string schema, 
-            [NotNull] string alias, 
+            [NotNull] string table,
+            [CanBeNull] string schema,
+            [NotNull] string alias,
             [NotNull] IQuerySource querySource)
             : base(typeof(object))
         {

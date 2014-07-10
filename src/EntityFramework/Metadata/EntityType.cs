@@ -361,7 +361,7 @@ namespace Microsoft.Data.Entity.Metadata
                 foreach (var oldKeyAnnotation in oldKey.Annotations)
                 {
                     _key.Annotations.Add(oldKeyAnnotation);
-                }                    
+                }
             }
         }
 

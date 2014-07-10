@@ -10,7 +10,7 @@ using Microsoft.Data.Entity.Query;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Tests
+namespace Microsoft.Data.Entity
 {
     public class QueryableExtensionsTest
     {
