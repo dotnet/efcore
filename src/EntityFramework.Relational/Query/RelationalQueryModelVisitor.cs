@@ -193,7 +193,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         public override void VisitWhereClause(WhereClause whereClause, QueryModel queryModel, int index)
         {
-            var previousExpression = Expression;
+            //var previousExpression = Expression;
             var requiresClientEval = !_queriesBySource.Any();
 
             base.VisitWhereClause(whereClause, queryModel, index);
@@ -211,7 +211,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             if (!requiresClientEval)
             {
-                Expression = previousExpression;
+                //Expression = previousExpression;
             }
         }
 
