@@ -26,6 +26,11 @@ namespace Northwind
         public string Phone { get; set; }
         public string Fax { get; set; }
 
+        public bool IsLondon
+        {
+            get { return City == "London"; }
+        }
+
         protected bool Equals(Customer other)
         {
             return string.Equals(CustomerID, other.CustomerID);
