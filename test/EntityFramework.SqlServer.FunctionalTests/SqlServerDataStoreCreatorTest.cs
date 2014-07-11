@@ -264,11 +264,17 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 var creator = GetDataStoreCreator(testDatabase);
 
-                Assert.Equal(
-                    4060, // Login failed error number
-                    async
+                var errorNumber
+                    = async
                         ? (await Assert.ThrowsAsync<SqlException>(() => creator.CreateTablesAsync(new Model()))).Number
-                        : Assert.Throws<SqlException>(() => creator.CreateTables(new Model())).Number);
+                        : Assert.Throws<SqlException>(() => creator.CreateTables(new Model())).Number;
+
+                if (errorNumber != 233) // skip if no-process transient failure
+                {
+                    Assert.Equal(
+                        4060, // Login failed error number
+                        errorNumber);
+                }
             }
         }
 
