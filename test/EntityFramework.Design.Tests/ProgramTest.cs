@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Design.Tests
             var mock = new Mock<Program>() { CallBase = true };
 
             mock.Protected()
-                .Setup<MigrationTool>("CreateMigrationTool")
+                .Setup<IConfigurationSourceContainer>("CreateConfiguration")
                 .Returns(
                     () =>
                         {
@@ -46,9 +46,17 @@ namespace Microsoft.Data.Entity.Design.Tests
                                         callCount++;
                                     });
 
-                            var toolMock = new Mock<MigrationTool>(configurationMock.Object) { CallBase = true };
+                            return configurationMock.Object;
+                        });
 
-                            toolMock.Setup(m => m.CreateMigration());
+            mock.Protected()
+                .Setup<MigrationTool>("CreateMigrationTool")
+                .Returns(
+                    () =>
+                        {
+                            var toolMock = new Mock<MigrationTool>() { CallBase = true };
+
+                            toolMock.Setup(m => m.CreateMigration(It.IsAny<IConfigurationSourceContainer>()));
 
                             return toolMock.Object;
                         });
@@ -63,16 +71,17 @@ namespace Microsoft.Data.Entity.Design.Tests
             mock.Object.CreateMigration(args);
 
             mock.Protected().Verify<MigrationTool>("CreateMigrationTool", Times.Once());
+            mock.Protected().Verify<IConfigurationSourceContainer>("CreateConfiguration", Times.Once());
         }
 
         [Fact]
         public static void Command_is_dispatched_to_tool()
         {
-            Command_is_dispatched_to_tool("config", t => t.CommitConfiguration());
-            Command_is_dispatched_to_tool("create", t => t.CreateMigration());
-            Command_is_dispatched_to_tool("list", t => t.GetMigrations());
-            Command_is_dispatched_to_tool("script", t => t.GenerateScript());
-            Command_is_dispatched_to_tool("apply", t => t.UpdateDatabase());
+            Command_is_dispatched_to_tool("config", t => t.CommitConfiguration(It.IsAny<IConfigurationSourceContainer>()));
+            Command_is_dispatched_to_tool("create", t => t.CreateMigration(It.IsAny<IConfigurationSourceContainer>()));
+            Command_is_dispatched_to_tool("list", t => t.GetMigrations(It.IsAny<IConfigurationSourceContainer>()));
+            Command_is_dispatched_to_tool("script", t => t.GenerateScript(It.IsAny<IConfigurationSourceContainer>()));
+            Command_is_dispatched_to_tool("apply", t => t.UpdateDatabase(It.IsAny<IConfigurationSourceContainer>()));
         }
 
         public static void Command_is_dispatched_to_tool(string command, Expression<Action<MigrationTool>> expression)
