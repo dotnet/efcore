@@ -4,6 +4,7 @@
 using JetBrains.Annotations;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Migrations;
+using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.SQLite;
@@ -31,9 +32,15 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddSingleton<ModificationCommandBatchFactory, SQLiteModificationCommandBatchFactory>()
                 .AddScoped<SQLiteDataStore>()
                 .AddScoped<SQLiteConnection>()
-                .AddScoped<ModelDiffer>()
+                .AddScoped<SQLiteMigrationOperationSqlGeneratorFactory>()
+                // TODO: Update code to use SQLiteMigrationOperationSqlGeneratorFactory, then remove the line below.
                 .AddScoped<SQLiteMigrationOperationSqlGenerator>()
-                .AddScoped<SQLiteDataStoreCreator>();
+                .AddScoped<SQLiteDataStoreCreator>()
+                .AddScoped<Migrator, SQLiteMigrator>()
+                // TODO: Move to an AddMigrations extension method?
+                .AddScoped<ModelDiffer>()
+                .AddScoped<MigrationAssembly>()
+                .AddScoped<HistoryRepository>();
 
             return builder;
         }
