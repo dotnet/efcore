@@ -9,7 +9,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Methods
     {
         public virtual Expression Translate(MethodCallExpression expression)
         {
-            return new StartsWithTranslator().Translate(expression)
+            return new EqualsTranslator().Translate(expression)
+                   ?? new StartsWithTranslator().Translate(expression)
                    ?? new EndsWithTranslator().Translate(expression);
         }
     }

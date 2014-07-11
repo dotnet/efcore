@@ -115,6 +115,28 @@ WHERE c.[City] = @p0",
                 _fixture.Sql);
         }
 
+        public override void Where_equals_method_string()
+        {
+            base.Where_equals_method_string();
+
+            Assert.Equal(
+                @"SELECT c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region]
+FROM [Customers] AS c
+WHERE c.[City] = @p0",
+                _fixture.Sql);
+        }
+
+        public override void Where_equals_method_int()
+        {
+            base.Where_equals_method_int();
+
+            Assert.Equal(
+                @"SELECT e.[City], e.[Country], e.[EmployeeID], e.[FirstName]
+FROM [Employees] AS e
+WHERE e.[EmployeeID] = @p0",
+                _fixture.Sql);
+        }
+
         public override void Where_string_length()
         {
             base.Where_string_length();

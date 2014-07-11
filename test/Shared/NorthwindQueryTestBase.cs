@@ -91,6 +91,18 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         [Fact]
+        public virtual void Where_equals_method_string()
+        {
+            AssertQuery<Customer>(cs => cs.Where(c => c.City.Equals("London")));
+        }
+
+        [Fact]
+        public virtual void Where_equals_method_int()
+        {
+            AssertQuery<Employee>(es => es.Where(e => e.EmployeeID.Equals(1)));
+        }
+
+        [Fact]
         public virtual void Where_string_length()
         {
             AssertQuery<Customer>(cs => cs.Where(c => c.City.Length == 6));
