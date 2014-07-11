@@ -21,8 +21,8 @@ namespace Microsoft.Data.Entity.Relational.Query
             _resultHandlers = new Dictionary<Type, Func<SelectExpression, ResultOperatorBase, bool>>
                 {
                     { typeof(TakeResultOperator), (s, r) => ProcessTake(s, (TakeResultOperator)r) },
-                    //{ typeof(SingleResultOperator), (s, r) => ProcessSingle(s) },
-                    //{ typeof(FirstResultOperator), (s, r) => ProcessFirst(s) },
+                    { typeof(SingleResultOperator), (s, r) => ProcessSingle(s) },
+                    { typeof(FirstResultOperator), (s, r) => ProcessFirst(s) },
                     { typeof(DistinctResultOperator), (s, r) => ProcessDistinct(s) }
                 };
 
@@ -53,7 +53,8 @@ namespace Microsoft.Data.Entity.Relational.Query
                 = relationalQueryModelVisitor.TryGetSelectExpression(queryModel.MainFromClause);
 
             Func<SelectExpression, ResultOperatorBase, bool> resultHandler;
-            if (!_resultHandlers.TryGetValue(resultOperator.GetType(), out resultHandler)
+            if (relationalQueryModelVisitor.RequiresClientFilter
+                || !_resultHandlers.TryGetValue(resultOperator.GetType(), out resultHandler)
                 || selectExpression == null
                 || resultHandler(selectExpression, resultOperator))
             {
@@ -76,26 +77,27 @@ namespace Microsoft.Data.Entity.Relational.Query
             return false;
         }
 
-        //        private static bool ProcessSingle(SelectExpression selectExpression)
-//        {
-        //            selectExpression.AddLimit(2);
-//
-//            return false;
-//        }
-//
-        //        private static bool ProcessFirst(SelectExpression selectExpression)
-//        {
-        //            selectExpression.AddLimit(1);
-//
-//            return false;
-//        }
+        private static bool ProcessSingle(SelectExpression selectExpression)
+        {
+            selectExpression.AddLimit(2);
+
+            return false;
+        }
+
+        private static bool ProcessFirst(SelectExpression selectExpression)
+        {
+            selectExpression.AddLimit(1);
+
+            return false;
+        }
 
         private static bool ProcessDistinct(SelectExpression selectExpression)
         {
             selectExpression.IsDistinct = true;
             selectExpression.ClearOrderBy();
 
-            return true; // TODO: Remove client-eval and ensure projection is correct
+            return false;
+            //return true; // TODO: Remove client-eval and ensure projection is correct
         }
     }
 }

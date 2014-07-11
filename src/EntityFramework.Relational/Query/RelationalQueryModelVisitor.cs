@@ -33,12 +33,19 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         private Expression _preOrderingExpression;
 
+        private bool _requiresClientFilter;
+
         public RelationalQueryModelVisitor(
             [NotNull] RelationalQueryCompilationContext queryCompilationContext,
             [CanBeNull] RelationalQueryModelVisitor parentQueryModelVisitor)
             : base(Check.NotNull(queryCompilationContext, "queryCompilationContext"))
         {
             _parentQueryModelVisitor = parentQueryModelVisitor;
+        }
+
+        public virtual bool RequiresClientFilter
+        {
+            get { return _requiresClientFilter; }
         }
 
         public virtual SelectExpression TryGetSelectExpression([NotNull] IQuerySource querySource)
@@ -194,7 +201,7 @@ namespace Microsoft.Data.Entity.Relational.Query
         public override void VisitWhereClause(WhereClause whereClause, QueryModel queryModel, int index)
         {
             var previousExpression = Expression;
-            var requiresClientEval = !_queriesBySource.Any();
+            _requiresClientFilter = !_queriesBySource.Any();
 
             base.VisitWhereClause(whereClause, queryModel, index);
 
@@ -206,10 +213,10 @@ namespace Microsoft.Data.Entity.Relational.Query
 
                 sourceQuery.Value.Predicate = filteringVisitor.Predicate;
 
-                requiresClientEval |= filteringVisitor.RequiresClientEval;
+                _requiresClientFilter |= filteringVisitor.RequiresClientEval;
             }
 
-            if (!requiresClientEval)
+            if (!_requiresClientFilter)
             {
                 Expression = previousExpression;
             }
@@ -419,6 +426,13 @@ namespace Microsoft.Data.Entity.Relational.Query
                 }
 
                 return columnExpression;
+            }
+
+            protected override Expression VisitMemberExpression(MemberExpression expression)
+            {
+                _requiresClientEval = true;
+
+                return expression;
             }
 
             protected override Expression VisitConstantExpression(ConstantExpression expression)

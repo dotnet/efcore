@@ -14,20 +14,20 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
     public class ColumnExpression : ExtensionExpression
     {
         private readonly IProperty _property;
-        private readonly string _alias;
+        private readonly string _tableAlias;
 
-        public ColumnExpression([NotNull] IProperty property, [NotNull] string alias)
+        public ColumnExpression([NotNull] IProperty property, [NotNull] string tableAlias)
             : base(Check.NotNull(property, "property").PropertyType)
         {
-            Check.NotEmpty(alias, "alias");
+            Check.NotEmpty(tableAlias, "tableAlias");
 
             _property = property;
-            _alias = alias;
+            _tableAlias = tableAlias;
         }
 
-        public virtual string Alias
+        public virtual string TableAlias
         {
-            get { return _alias; }
+            get { return _tableAlias; }
         }
 
 #pragma warning disable 108
@@ -36,6 +36,13 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
         {
             get { return _property; }
         }
+
+        public virtual string Name
+        {
+            get { return Property.ColumnName(); }
+        }
+
+        public virtual string Alias { get; [param: CanBeNull] set; }
 
         public override Expression Accept([NotNull] ExpressionTreeVisitor visitor)
         {
@@ -58,7 +65,14 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public override string ToString()
         {
-            return _alias + "." + _property.ColumnName();
+            var s = _tableAlias + "." + _property.ColumnName();
+
+            if (Alias != null)
+            {
+                s += " " + Alias;
+            }
+
+            return s;
         }
     }
 }

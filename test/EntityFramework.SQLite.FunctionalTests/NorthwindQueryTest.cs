@@ -19,10 +19,14 @@ namespace Microsoft.Data.Entity.SQLite.FunctionalTests
             base.Take_with_single();
 
             Assert.Equal(
-                @"SELECT c.""Address"", c.""City"", c.""CompanyName"", c.""ContactName"", c.""ContactTitle"", c.""Country"", c.""CustomerID"", c.""Fax"", c.""Phone"", c.""PostalCode"", c.""Region""
-FROM ""Customers"" AS c
-ORDER BY c.""CustomerID""
-LIMIT 1",
+                @"SELECT *
+FROM (
+    SELECT c.""Address"", c.""City"", c.""CompanyName"", c.""ContactName"", c.""ContactTitle"", c.""Country"", c.""CustomerID"", c.""Fax"", c.""Phone"", c.""PostalCode"", c.""Region""
+    FROM ""Customers"" AS c
+    ORDER BY c.""CustomerID""
+    LIMIT 1
+) AS t0
+LIMIT 2",
                 _fixture.Sql);
         }
 
