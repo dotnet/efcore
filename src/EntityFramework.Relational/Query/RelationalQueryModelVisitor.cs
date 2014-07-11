@@ -193,6 +193,9 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         public override void VisitWhereClause(WhereClause whereClause, QueryModel queryModel, int index)
         {
+            var previousExpression = Expression;
+            var requiresClientEval = !_queriesBySource.Any();
+
             base.VisitWhereClause(whereClause, queryModel, index);
 
             foreach (var sourceQuery in _queriesBySource)
@@ -202,57 +205,13 @@ namespace Microsoft.Data.Entity.Relational.Query
                 filteringVisitor.VisitExpression(whereClause.Predicate);
 
                 sourceQuery.Value.Predicate = filteringVisitor.Predicate;
-            }
-        }
 
-        public override void VisitOrderByClause(OrderByClause orderByClause, QueryModel queryModel, int index)
-        {
-            if (_preOrderingExpression == null)
-            {
-                _preOrderingExpression = Expression;
+                requiresClientEval |= filteringVisitor.RequiresClientEval;
             }
 
-            var orderingCounts
-                = _queriesBySource
-                    .Where(kv => kv.Value.OrderBy.Count > 0)
-                    .Select(kv => new { kv.Key, kv.Value.OrderBy.Count })
-                    .ToList();
-
-            base.VisitOrderByClause(orderByClause, queryModel, index);
-
-            foreach (var querySourceOrdering in orderingCounts)
+            if (!requiresClientEval)
             {
-                var selectExpression = _queriesBySource[querySourceOrdering.Key];
-
-                if (querySourceOrdering.Count != selectExpression.OrderBy.Count)
-                {
-                    var orderBy = selectExpression.OrderBy.ToList();
-
-                    selectExpression.ClearOrderBy();
-                    selectExpression.AddToOrderBy(orderBy.Skip(querySourceOrdering.Count));
-                    selectExpression.AddToOrderBy(orderBy.Take(querySourceOrdering.Count));
-                }
-            }
-
-            if (index == queryModel.BodyClauses.Count - 1)
-            {
-                var queriesWithOrdering
-                    = _queriesBySource
-                        .Where(kv => kv.Value.OrderBy.Any())
-                        .Select(kv => kv.Value)
-                        .ToList();
-
-                if (queriesWithOrdering.Count == 1
-                    && queriesWithOrdering[0].OrderBy.Count
-                    == queryModel.BodyClauses
-                        .OfType<OrderByClause>()
-                        .SelectMany(ob => ob.Orderings)
-                        .Count())
-                {
-                    queriesWithOrdering[0].RemoveFromProjection(queriesWithOrdering[0].OrderBy);
-
-                    Expression = _preOrderingExpression;
-                }
+                Expression = previousExpression;
             }
         }
 
@@ -262,6 +221,8 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             private Expression _predicate;
 
+            private bool _requiresClientEval;
+
             public FilteringExpressionTreeVisitor(RelationalQueryModelVisitor queryModelVisitor)
             {
                 _queryModelVisitor = queryModelVisitor;
@@ -270,6 +231,11 @@ namespace Microsoft.Data.Entity.Relational.Query
             public Expression Predicate
             {
                 get { return _predicate; }
+            }
+
+            public bool RequiresClientEval
+            {
+                get { return _requiresClientEval; }
             }
 
             protected override Expression VisitBinaryExpression(BinaryExpression expression)
@@ -409,8 +375,12 @@ namespace Microsoft.Data.Entity.Relational.Query
                         _predicate
                             = _queryModelVisitor._methodCallTranslator
                                 .Translate(boundExpression);
+
+                        return expression;
                     }
                 }
+
+                _requiresClientEval = true;
 
                 return expression;
             }
@@ -421,16 +391,31 @@ namespace Microsoft.Data.Entity.Relational.Query
 
                 if (memberExpression == null)
                 {
-                    return expression as ConstantExpression;
+                    var constantExpression = expression as ConstantExpression;
+
+                    if (constantExpression == null)
+                    {
+                        _requiresClientEval = true;
+                    }
+
+                    return constantExpression;
                 }
 
-                return _queryModelVisitor
+                var columnExpression 
+                    = _queryModelVisitor
                     .BindMemberExpression(
                         memberExpression,
                         (property, querySource, selectExpression)
                             => new ColumnExpression(
                                 property,
                                 selectExpression.FindTableForQuerySource(querySource).Alias));
+
+                if (columnExpression == null)
+                {
+                    _requiresClientEval = true;
+                }
+
+                return columnExpression;
             }
 
             protected override Expression VisitConstantExpression(ConstantExpression expression)
@@ -442,12 +427,65 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
             {
+                _requiresClientEval = true;
+
                 return expression;
             }
 
             protected override Exception CreateUnhandledItemException<T>(T unhandledItem, string visitMethod)
             {
                 return new NotImplementedException("Filter expression not handled: " + unhandledItem.GetType().Name);
+            }
+        }
+
+        public override void VisitOrderByClause(OrderByClause orderByClause, QueryModel queryModel, int index)
+        {
+            if (_preOrderingExpression == null)
+            {
+                _preOrderingExpression = Expression;
+            }
+
+            var orderingCounts
+                = _queriesBySource
+                    .Where(kv => kv.Value.OrderBy.Count > 0)
+                    .Select(kv => new { kv.Key, kv.Value.OrderBy.Count })
+                    .ToList();
+
+            base.VisitOrderByClause(orderByClause, queryModel, index);
+
+            foreach (var querySourceOrdering in orderingCounts)
+            {
+                var selectExpression = _queriesBySource[querySourceOrdering.Key];
+
+                if (querySourceOrdering.Count != selectExpression.OrderBy.Count)
+                {
+                    var orderBy = selectExpression.OrderBy.ToList();
+
+                    selectExpression.ClearOrderBy();
+                    selectExpression.AddToOrderBy(orderBy.Skip(querySourceOrdering.Count));
+                    selectExpression.AddToOrderBy(orderBy.Take(querySourceOrdering.Count));
+                }
+            }
+
+            if (index == queryModel.BodyClauses.Count - 1)
+            {
+                var queriesWithOrdering
+                    = _queriesBySource
+                        .Where(kv => kv.Value.OrderBy.Any())
+                        .Select(kv => kv.Value)
+                        .ToList();
+
+                if (queriesWithOrdering.Count == 1
+                    && queriesWithOrdering[0].OrderBy.Count
+                    == queryModel.BodyClauses
+                        .OfType<OrderByClause>()
+                        .SelectMany(ob => ob.Orderings)
+                        .Count())
+                {
+                    queriesWithOrdering[0].RemoveFromProjection(queriesWithOrdering[0].OrderBy);
+
+                    Expression = _preOrderingExpression;
+                }
             }
         }
 

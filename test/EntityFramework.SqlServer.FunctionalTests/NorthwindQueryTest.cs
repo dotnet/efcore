@@ -115,6 +115,16 @@ WHERE c.[City] = @p0",
                 _fixture.Sql);
         }
 
+        public override void Where_string_length()
+        {
+            base.Where_string_length();
+
+            Assert.Equal(
+                @"SELECT c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region]
+FROM [Customers] AS c",
+                _fixture.Sql);
+        }
+
         public override void Where_is_null()
         {
             base.Where_is_null();

@@ -91,6 +91,12 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         [Fact]
+        public virtual void Where_string_length()
+        {
+            AssertQuery<Customer>(cs => cs.Where(c => c.City.Length == 6));
+        }
+
+        [Fact]
         public virtual void Where_simple_reversed()
         {
             AssertQuery<Customer>(cs => cs.Where(c => "London" == c.City));
@@ -1370,7 +1376,7 @@ namespace Microsoft.Data.FunctionalTests
         [Fact]
         public virtual void String_StartsWith_MethodCall()
         {
-            AssertQuery<Customer>(cs => cs.Where(c => c.ContactName.StartsWith(LocalMethod())));
+            AssertQuery<Customer>(cs => cs.Where(c => c.ContactName.StartsWith(LocalMethod1())));
         }
 
         [Fact]
@@ -1394,12 +1400,17 @@ namespace Microsoft.Data.FunctionalTests
         [Fact]
         public virtual void String_EndsWith_MethodCall()
         {
-            AssertQuery<Customer>(cs => cs.Where(c => c.ContactName.EndsWith(LocalMethod())));
+            AssertQuery<Customer>(cs => cs.Where(c => c.ContactName.EndsWith(LocalMethod2())));
         }
 
-        private static string LocalMethod()
+        private static string LocalMethod1()
         {
             return "M";
+        }
+
+        private static string LocalMethod2()
+        {
+            return "m";
         }
 
         protected abstract DbContext CreateContext();

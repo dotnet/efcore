@@ -458,9 +458,10 @@ namespace Microsoft.Data.Entity.Query
                                 groupJoinClause,
                                 innerElementScoped
                                     ? Expression.Call(
-                                        _queryCompilationContext.LinqOperatorProvider.Select.MakeGenericMethod(
-                                            innerSequenceType,
-                                            innerElementType),
+                                        _queryCompilationContext.LinqOperatorProvider.Select
+                                            .MakeGenericMethod(
+                                                innerSequenceType,
+                                                innerElementType),
                                         innerItemsParameter,
                                         Expression.Lambda(
                                             QuerySourceScope.GetResult(
@@ -494,7 +495,8 @@ namespace Microsoft.Data.Entity.Query
 
             _expression
                 = Expression.Call(
-                    _queryCompilationContext.LinqOperatorProvider.Where.MakeGenericMethod(typeof(QuerySourceScope)),
+                    _queryCompilationContext.LinqOperatorProvider.Where
+                        .MakeGenericMethod(typeof(QuerySourceScope)),
                     _expression,
                     Expression.Lambda(predicate, QuerySourceScopeParameter));
         }
