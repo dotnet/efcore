@@ -73,6 +73,7 @@
     <Compile Include="Query\Expressions\TableExpression.cs" />
     <Compile Include="Query\IQueryMethodProvider.cs" />
     <Compile Include="Query\Methods\CompositeMethodCallTranslator.cs" />
+    <Compile Include="Query\Methods\EqualsTranslator.cs" />
     <Compile Include="Query\Methods\EndsWithTranslator.cs" />
     <Compile Include="Query\Methods\IMethodCallTranslator.cs" />
     <Compile Include="Query\Methods\StartsWithTranslator.cs" />
