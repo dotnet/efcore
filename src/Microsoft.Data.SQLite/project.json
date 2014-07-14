@@ -1,9 +1,9 @@
-{
+﻿{
   "version": "1.0.0-*",
   "dependencies": {
     "System.Data.Common": "1.0.0-*"
   },
-  "configurations": {
+  "frameworks": {
     "net451": {
       "dependencies": {
         "System.Data": "",

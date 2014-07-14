@@ -1,4 +1,4 @@
-{
+﻿{
     "dependencies": {
         "Microsoft.Data.SQLite": "",
         "Xunit.KRunner": "1.0.0-*"
@@ -6,7 +6,7 @@
     "commands": {
         "test": "Xunit.KRunner"
     },
-    "configurations": {
+    "frameworks": {
         "net451": {},
         "k10": {}
     }
