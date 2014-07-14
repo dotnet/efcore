@@ -1,4 +1,4 @@
-{
+﻿{
   "version": "7.0.0-*",
   "compilationOptions": {
     "warningsAsErrors": true
@@ -7,7 +7,7 @@
     "EntityFramework.Relational": ""
   },
   "code": "**\\*.cs;..\\Shared\\*.cs",
-  "configurations": {
+  "frameworks": {
     "net451": {},
     "k10": {
       "dependencies": {

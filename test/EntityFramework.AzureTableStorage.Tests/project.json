@@ -1,4 +1,4 @@
-{
+﻿{
   "version": "0.1-alpha-*",
   "compilationOptions": {
     "warningAsErrors": false
@@ -19,7 +19,7 @@
     "test": "Xunit.KRunner"
   },
   "code": "**\\*.cs;..\\Shared\\ApiConsistencyTestBase.cs;..\\Shared\\Northwind.cs",
-  "configurations": {
+  "frameworks": {
     "net451": {
       "dependencies": {
           "System.Threading.Tasks": ""

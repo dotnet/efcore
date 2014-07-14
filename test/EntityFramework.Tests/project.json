@@ -1,4 +1,4 @@
-{
+﻿{
   "dependencies": {
     "EntityFramework.InMemory": "",
     "Moq" : "4.2.1312.1622",
@@ -8,7 +8,7 @@
   "commands": {
     "test": "Xunit.KRunner"
   },
-  "configurations": {
+  "frameworks": {
     "net45": {}
   }
 }

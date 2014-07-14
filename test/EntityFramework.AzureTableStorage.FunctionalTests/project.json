@@ -1,4 +1,4 @@
-{
+﻿{
   "version": "0.1-alpha-*",
   "compilationOptions": {
     "warningAsErrors": false
@@ -14,7 +14,7 @@
     "test": "Xunit.KRunner"
   },
   "code": "**\\*.cs;..\\Shared\\TestFileLogger.cs;..\\Shared\\Northwind.cs;..\\Shared\\NorthwindQueryTestBase.cs;..\\Shared\\NorthwindQueryFixtureBase.cs;",
-  "configurations": {
+  "frameworks": {
     "net451": {
       "dependencies": {
         "System.Threading.Tasks": ""

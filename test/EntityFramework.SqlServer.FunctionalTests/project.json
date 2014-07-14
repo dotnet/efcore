@@ -1,4 +1,4 @@
-{
+﻿{
   "dependencies": {
     "EntityFramework.InMemory" : "",
     "EntityFramework.SqlServer": "",
@@ -8,7 +8,7 @@
   "commands": {
     "test": "Xunit.KRunner"
   },
-  "configurations": {
+  "frameworks": {
     "net451": {},
     "k10": {
       "dependencies": {

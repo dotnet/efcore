@@ -1,4 +1,4 @@
-{
+﻿{
   "dependencies": {
     "EntityFramework.InMemory" : "",
     "Xunit.KRunner": "1.0.0-*"
@@ -7,7 +7,7 @@
   "commands": {
     "test": "Xunit.KRunner"
   },
-  "configurations": {
+  "frameworks": {
     "net45": {},
     "k10": {
       "dependencies": {

@@ -1,4 +1,4 @@
-{
+﻿{
   "version": "7.0.0-*",
   "compilationOptions": {
     "warningsAsErrors": true
@@ -11,7 +11,7 @@
     "Remotion.Linq": "1.15.13.0"
   },
   "code": "**\\*.cs;..\\Shared\\*.cs",
-  "configurations": {
+  "frameworks": {
     "net45": {
       "dependencies": {
         "System.Collections": "",

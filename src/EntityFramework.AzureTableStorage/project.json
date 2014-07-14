@@ -1,4 +1,4 @@
-{
+﻿{
   "version": "7.0.0-*",
   "compilationOptions": {
     "warningsAsErrors": true
@@ -13,7 +13,7 @@
     "EntityFramework": ""
   },
   "code": "**\\*.cs;..\\Shared\\*.cs",
-  "configurations": {
+  "frameworks": {
     "net451": {}
   }
 }
