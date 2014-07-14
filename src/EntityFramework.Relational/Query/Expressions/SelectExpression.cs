@@ -187,13 +187,21 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             _orderBy.Clear();
         }
 
-        public virtual void Merge([NotNull] SelectExpression selectExpression)
+        public virtual void AddCrossJoin([NotNull] SelectExpression selectExpression)
         {
             Check.NotNull(selectExpression, "selectExpression");
             Contract.Assert(!selectExpression.OrderBy.Any());
 
-            _tables.InsertRange(0, selectExpression.Tables);
-            _projection.InsertRange(0, selectExpression.Projection);
+            var joinedTable = selectExpression.Tables.Single();
+
+            _tables.Add(
+                new CrossJoinExpression(
+                    joinedTable.Table,
+                    joinedTable.Schema,
+                    joinedTable.Alias,
+                    joinedTable.QuerySource));
+
+            _projection.AddRange(selectExpression.Projection);
         }
 
         public override Expression Accept([NotNull] ExpressionTreeVisitor visitor)

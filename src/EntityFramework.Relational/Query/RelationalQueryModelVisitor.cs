@@ -94,9 +94,9 @@ namespace Microsoft.Data.Entity.Relational.Query
                     {
                         var readerOffset = previousSelectExpression.Projection.Count;
 
-                        selectExpression.Merge(previousSelectExpression);
+                        previousSelectExpression.AddCrossJoin(selectExpression);
 
-                        _queriesBySource.Remove(previousQuerySource);
+                        _queriesBySource.Remove(fromClause);
 
                         Expression
                             = new QueryFlatteningExpressionTreeVisitor(
@@ -132,10 +132,31 @@ namespace Microsoft.Data.Entity.Relational.Query
                 _readerOffset = readerOffset;
             }
 
+            private Expression _outerCommandBuilder = null;
+
             protected override Expression VisitMethodCallExpression(MethodCallExpression expression)
             {
                 var newExpression
                     = (MethodCallExpression)base.VisitMethodCallExpression(expression);
+
+                if (_outerShaperExpression != null)
+                {
+                    if (_outerCommandBuilder == null)
+                    {
+                        _outerCommandBuilder = expression.Arguments[1];
+                    }
+                    else if (MethodIsClosedFormOf(
+                        newExpression.Method,
+                        _relationalQueryCompilationContext.QueryMethodProvider.QueryMethod))
+                    {
+                        newExpression
+                            = Expression.Call(
+                                newExpression.Method,
+                                newExpression.Arguments[0],
+                                _outerCommandBuilder,
+                                newExpression.Arguments[2]);
+                    }
+                }
 
                 if ((ReferenceEquals(newExpression.Method, RelationalQueryingExpressionTreeVisitor.CreateValueReaderMethodInfo)
                      || MethodIsClosedFormOf(newExpression.Method, RelationalQueryingExpressionTreeVisitor.CreateEntityMethodInfo)))
@@ -411,14 +432,14 @@ namespace Microsoft.Data.Entity.Relational.Query
                     return constantExpression;
                 }
 
-                var columnExpression 
+                var columnExpression
                     = _queryModelVisitor
-                    .BindMemberExpression(
-                        memberExpression,
-                        (property, querySource, selectExpression)
-                            => new ColumnExpression(
-                                property,
-                                selectExpression.FindTableForQuerySource(querySource).Alias));
+                        .BindMemberExpression(
+                            memberExpression,
+                            (property, querySource, selectExpression)
+                                => new ColumnExpression(
+                                    property,
+                                    selectExpression.FindTableForQuerySource(querySource).Alias));
 
                 if (columnExpression == null)
                 {

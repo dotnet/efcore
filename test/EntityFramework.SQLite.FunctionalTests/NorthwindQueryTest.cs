@@ -69,7 +69,8 @@ WHERE c.""ContactName"" LIKE '%' || @p0",
 
             Assert.Equal(
                 @"SELECT c.""Address"", c.""City"", c.""CompanyName"", c.""ContactName"", c.""ContactTitle"", c.""Country"", c.""CustomerID"", c.""Fax"", c.""Phone"", c.""PostalCode"", c.""Region"", e.""City"", e.""Country"", e.""EmployeeID"", e.""FirstName""
-FROM ""Customers"" AS c, ""Employees"" AS e
+FROM ""Customers"" AS c
+CROSS JOIN ""Employees"" AS e
 WHERE ((c.""City"" = @p0 AND c.""Country"" = @p1) AND (e.""City"" = @p0 AND e.""Country"" = @p1))",
                 _fixture.Sql);
         }

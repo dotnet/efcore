@@ -273,7 +273,8 @@ WHERE c.[City] = @p0",
 
             Assert.Equal(
                 @"SELECT c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region], e.[City], e.[Country], e.[EmployeeID], e.[FirstName]
-FROM [Customers] AS c, [Employees] AS e
+FROM [Customers] AS c
+CROSS JOIN [Employees] AS e
 WHERE (c.[City] = @p0 OR e.[City] = @p0)",
                 _fixture.Sql);
         }
@@ -284,7 +285,8 @@ WHERE (c.[City] = @p0 OR e.[City] = @p0)",
 
             Assert.StartsWith(
                 @"SELECT c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region], e.[City], e.[Country], e.[EmployeeID], e.[FirstName]
-FROM [Customers] AS c, [Employees] AS e
+FROM [Customers] AS c
+CROSS JOIN [Employees] AS e
 WHERE (c.[City] = @p0 OR c.[City] = @p1)",
                 _fixture.Sql);
         }
@@ -295,7 +297,8 @@ WHERE (c.[City] = @p0 OR c.[City] = @p1)",
 
             Assert.Equal(
                 @"SELECT c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region], e.[City], e.[Country], e.[EmployeeID], e.[FirstName]
-FROM [Customers] AS c, [Employees] AS e
+FROM [Customers] AS c
+CROSS JOIN [Employees] AS e
 WHERE ((c.[City] = @p0 AND c.[Country] = @p1) AND (e.[City] = @p0 AND e.[Country] = @p1))",
                 _fixture.Sql);
         }
@@ -356,7 +359,8 @@ FROM [Customers] AS c",
 
             Assert.Equal(
                 @"SELECT e.[City], e.[Country], e.[EmployeeID], e.[FirstName], c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region]
-FROM [Employees] AS e, [Customers] AS c",
+FROM [Employees] AS e
+CROSS JOIN [Customers] AS c",
                 _fixture.Sql);
         }
 
@@ -366,7 +370,9 @@ FROM [Employees] AS e, [Customers] AS c",
 
             Assert.Equal(
                 @"SELECT e1.[City], e1.[Country], e1.[EmployeeID], e1.[FirstName], c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region], e2.[FirstName]
-FROM [Employees] AS e1, [Customers] AS c, [Employees] AS e2",
+FROM [Employees] AS e1
+CROSS JOIN [Customers] AS c
+CROSS JOIN [Employees] AS e2",
                 _fixture.Sql);
         }
 
@@ -376,7 +382,9 @@ FROM [Employees] AS e1, [Customers] AS c, [Employees] AS e2",
 
             Assert.Equal(
                 @"SELECT e1.[City], e1.[Country], e1.[EmployeeID], e1.[FirstName], e2.[City], e2.[Country], e2.[EmployeeID], e2.[FirstName], e3.[City], e3.[Country], e3.[EmployeeID], e3.[FirstName]
-FROM [Employees] AS e1, [Employees] AS e2, [Employees] AS e3",
+FROM [Employees] AS e1
+CROSS JOIN [Employees] AS e2
+CROSS JOIN [Employees] AS e3",
                 _fixture.Sql);
         }
 
@@ -386,7 +394,8 @@ FROM [Employees] AS e1, [Employees] AS e2, [Employees] AS e3",
 
             Assert.Equal(
                 @"SELECT e1.[City], e2.[Country]
-FROM [Employees] AS e1, [Employees] AS e2",
+FROM [Employees] AS e1
+CROSS JOIN [Employees] AS e2",
                 _fixture.Sql);
         }
 
@@ -396,7 +405,9 @@ FROM [Employees] AS e1, [Employees] AS e2",
 
             Assert.Equal(
                 @"SELECT e1.[City], e2.[Country], e3.[FirstName]
-FROM [Employees] AS e1, [Employees] AS e2, [Employees] AS e3",
+FROM [Employees] AS e1
+CROSS JOIN [Employees] AS e2
+CROSS JOIN [Employees] AS e3",
                 _fixture.Sql);
         }
 
@@ -429,7 +440,8 @@ FROM [Orders] AS o",
 
             Assert.StartsWith(
                 @"SELECT c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region], e.[City]
-FROM [Customers] AS c, [Employees] AS e
+FROM [Customers] AS c
+CROSS JOIN [Employees] AS e
 WHERE c.[City] = e.[City]
 ORDER BY e.[City], c.[CustomerID] DESC",
                 _fixture.Sql);
@@ -470,7 +482,8 @@ FROM (
                 @"SELECT TOP 2 *
 FROM (
     SELECT TOP 1 c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region], o.[CustomerID] AS c0, o.[OrderDate], o.[OrderID]
-    FROM [Customers] AS c, [Orders] AS o
+    FROM [Customers] AS c
+    CROSS JOIN [Orders] AS o
     ORDER BY c.[CustomerID], o.[OrderID]
 ) AS t0",
                 _fixture.Sql);

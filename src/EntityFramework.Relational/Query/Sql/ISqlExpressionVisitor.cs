@@ -16,5 +16,6 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
         Expression VisitLiteralExpression([NotNull] LiteralExpression literalExpression);
         Expression VisitSelectExpression([NotNull] SelectExpression selectExpression);
         Expression VisitTableExpression([NotNull] TableExpression tableExpression);
+        Expression VisitCrossJoinExpression([NotNull] CrossJoinExpression crossJoinExpression);
     }
 }

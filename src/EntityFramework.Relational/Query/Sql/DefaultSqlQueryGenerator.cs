@@ -79,7 +79,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             }
             else
             {
-                VisitJoin(selectExpression.Tables);
+                VisitJoin(selectExpression.Tables, sql => sql.AppendLine());
             }
 
             if (selectExpression.Predicate != null)
@@ -111,18 +111,22 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             return selectExpression;
         }
 
-        private void VisitJoin(IReadOnlyList<Expression> expressions)
+        private void VisitJoin(
+            IReadOnlyList<Expression> expressions, Action<IndentedStringBuilder> joinAction = null)
         {
-            VisitJoin(expressions, e => VisitExpression(e));
+            VisitJoin(expressions, e => VisitExpression(e), joinAction);
         }
 
-        private void VisitJoin<T>(IReadOnlyList<T> items, Action<T> itemAction)
+        private void VisitJoin<T>(
+            IReadOnlyList<T> items, Action<T> itemAction, Action<IndentedStringBuilder> joinAction = null)
         {
+            joinAction = joinAction ?? (isb => isb.Append(", "));
+
             for (var i = 0; i < items.Count; i++)
             {
                 if (i > 0)
                 {
-                    _sql.Append(", ");
+                    joinAction(_sql);
                 }
 
                 itemAction(items[i]);
@@ -136,6 +140,16 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                 .Append(tableExpression.Alias);
 
             return tableExpression;
+        }
+
+        public virtual Expression VisitCrossJoinExpression(CrossJoinExpression crossJoinExpression)
+        {
+            _sql.Append("CROSS JOIN ")
+                .Append(DelimitIdentifier(crossJoinExpression.Table))
+                .Append(" AS ")
+                .Append(crossJoinExpression.Alias);
+
+            return crossJoinExpression;
         }
 
         protected virtual void GenerateTop([NotNull] SelectExpression expression)

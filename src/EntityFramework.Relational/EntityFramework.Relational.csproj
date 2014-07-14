@@ -65,6 +65,7 @@
     <Compile Include="Query\CommandBuilder.cs" />
     <Compile Include="Query\CommandParameter.cs" />
     <Compile Include="Query\EnumerableMethodProvider.cs" />
+    <Compile Include="Query\Expressions\CrossJoinExpression.cs" />
     <Compile Include="Query\Expressions\IsNotNullExpression.cs" />
     <Compile Include="Query\Expressions\IsNullExpression.cs" />
     <Compile Include="Query\Expressions\LikeExpression.cs" />
