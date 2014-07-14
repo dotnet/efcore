@@ -24,7 +24,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="Northwind.sql" />
-    <Content Include="Project.json" />
+    <Content Include="project.json" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
