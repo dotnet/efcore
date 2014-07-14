@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         [Fact]
         public async Task Can_execute_scalar_command()
         {
-            using (var testDatabase = await TestDatabase.Default())
+            using (var testDatabase = await SqlServerTestDatabase.Default())
             {
                 var commandExecutor = new SqlServerSimpleCommandExecutor(testDatabase.Connection.ConnectionString);
 

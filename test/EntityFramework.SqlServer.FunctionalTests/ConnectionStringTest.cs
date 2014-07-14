@@ -40,9 +40,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         }
 
         [Fact]
-        public async Task Can_use_actula_connection_string_in_OnConfiguring()
+        public async Task Can_use_actual_connection_string_in_OnConfiguring()
         {
-            await Can_use_connection_string_name_in_OnConfiguring_test(TestDatabase.NorthwindConnectionString);
+            await Can_use_connection_string_name_in_OnConfiguring_test(SqlServerTestDatabase.NorthwindConnectionString);
         }
 
         private async Task Can_use_connection_string_name_in_OnConfiguring_test(string connectionName)
@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     new MemoryConfigurationSource(
                         new Dictionary<string, string>
                             {
-                                { "Data:Northwind:ConnectionString", TestDatabase.NorthwindConnectionString }
+                                { "Data:Northwind:ConnectionString", SqlServerTestDatabase.NorthwindConnectionString }
                             })
                 };
 
@@ -64,7 +64,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
-            using (await TestDatabase.Northwind())
+            using (await SqlServerTestDatabase.Northwind())
             {
                 using (var context = new NorthwindContext(serviceProvider, connectionName))
                 {

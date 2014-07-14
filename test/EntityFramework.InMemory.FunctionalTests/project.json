@@ -1,18 +1,14 @@
 ﻿{
   "dependencies": {
+    "EntityFramework.FunctionalTests" : "",
     "EntityFramework.InMemory" : "",
     "Xunit.KRunner": "1.0.0-*"
   },
-  "code": "**\\*.cs;..\\Shared\\TestFileLogger.cs;..\\Shared\\Northwind.cs;..\\Shared\\NorthwindQueryTestBase.cs;..\\Shared\\NorthwindQueryFixtureBase.cs;..\\Shared\\*Monster*.cs",
   "commands": {
     "test": "Xunit.KRunner"
   },
   "frameworks": {
     "net45": {},
-    "k10": {
-      "dependencies": {
-        "Microsoft.CSharp": "4.0.0.0"
-      }
-    }
+    "k10": {}
   }
 }

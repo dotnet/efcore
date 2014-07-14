@@ -111,7 +111,7 @@ namespace Microsoft.Data.Entity.SQLite
 
         public override async Task<bool> HasTablesAsync(CancellationToken cancellationToken = new CancellationToken())
         {
-            return (int)(await _executor.ExecuteScalarAsync(_connection.DbConnection, CreateHasTablesCommand(), cancellationToken)) != 0;
+            return (long)(await _executor.ExecuteScalarAsync(_connection.DbConnection, CreateHasTablesCommand(), cancellationToken)) != 0;
         }
 
         private SqlStatement CreateHasTablesCommand()

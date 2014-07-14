@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.Data.Entity.AzureTableStorage.Adapters;
@@ -14,7 +15,6 @@ using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Services;
 using Microsoft.Framework.Logging;
 using Moq;
-using Northwind;
 using Xunit;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
@@ -60,7 +60,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
             _connection.Setup(s => s.ExecuteRequest(
                 It.IsAny<QueryTableRequest<T>>(),
                 It.IsAny<ILogger>()))
-                .Returns(NorthwindData.Set<T>()
+                .Returns(() => new[] { new T() }
                 );
 
             _dataStore.Query<T>(queryModel, Mock.Of<StateManager>()).ToList();
@@ -79,6 +79,11 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
                 .Properties(pb => { pb.Property(s => s.CustomerID); });
 
             return model;
+        }
+
+        internal class Customer
+        {
+            public string CustomerID { get; set; }
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿{
+{
   "dependencies": {
     "EntityFramework.InMemory" : "",
     "Xunit.KRunner": "1.0.0-*"
@@ -7,7 +7,11 @@
     "test": "Xunit.KRunner"
   },
   "frameworks": {
-    "net45": {},
-    "k10": {}
+    "net451": {},
+    "k10": {
+      "dependencies": {
+        "Microsoft.CSharp": "4.0.0.0"
+      }
+    }
   }
 }

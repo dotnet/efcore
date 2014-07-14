@@ -1,8 +1,9 @@
-﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Microsoft.Data.FunctionalTests;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Advanced;
@@ -89,13 +90,13 @@ WHERE ((c.""City"" = @p0 AND c.""Country"" = @p1) AND (e.""City"" = @p0 AND e.""
         }
     }
 
-    public class NorthwindQueryFixture : NorthwindQueryFixtureBase, IDisposable
+    public class NorthwindQueryFixture : NorthwindQueryFixtureRelationalBase, IDisposable
     {
         private readonly TestSqlLoggerFactory _loggingFactory = new TestSqlLoggerFactory();
 
         private readonly IServiceProvider _serviceProvider;
         private readonly DbContextOptions _options;
-        private readonly TestDatabase _testDatabase;
+        private readonly SQLiteTestDatabase _testDatabase;
 
         public NorthwindQueryFixture()
         {
@@ -107,22 +108,11 @@ WHERE ((c.""City"" = @p0 AND c.""Country"" = @p1) AND (e.""City"" = @p0 AND e.""
                     .ServiceCollection
                     .BuildServiceProvider();
 
-            _testDatabase = TestDatabase.Northwind();
+            _testDatabase = SQLiteTestDatabase.Northwind().Result;
 
             _options = new DbContextOptions()
                 .UseModel(SetTableNames(CreateModel()))
                 .UseSQLite(_testDatabase.Connection.ConnectionString);
-        }
-
-        public Model SetTableNames(Model model)
-        {
-            model.GetEntityType(typeof(Customer)).SetTableName("Customers");
-            model.GetEntityType(typeof(Employee)).SetTableName("Employees");
-            model.GetEntityType(typeof(Product)).SetTableName("Products");
-            model.GetEntityType(typeof(Order)).SetTableName("Orders");
-            model.GetEntityType(typeof(OrderDetail)).SetTableName("OrderDetails");
-
-            return model;
         }
 
         public DbContext CreateContext()

@@ -12,6 +12,7 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.Relational.Update;
+using Microsoft.Data.Entity.Update;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Moq;

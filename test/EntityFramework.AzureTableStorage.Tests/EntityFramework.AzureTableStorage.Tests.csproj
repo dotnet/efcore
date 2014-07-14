@@ -80,9 +80,6 @@
     <Compile Include="..\Shared\ApiConsistencyTestBase.cs">
       <Link>ApiConsistencyTestBase.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\Northwind.cs">
-      <Link>Query\Northwind.cs</Link>
-    </Compile>
     <Compile Include="Adapters\StateEntryTableEntityAdapterTest.cs" />
     <Compile Include="Adapters\TableEntityAdapterFactoryTests.cs" />
     <Compile Include="ApiConsistencyTest.cs" />

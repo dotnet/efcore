@@ -69,18 +69,6 @@
     <Compile Include="MonsterFixupTest.cs" />
     <Compile Include="NorthwindQueryTest.cs" />
     <Compile Include="ShadowStateUpdateTest.cs" />
-    <Compile Include="..\Shared\TestFileLogger.cs" />
-    <Compile Include="..\Shared\Northwind.cs" />
-    <Compile Include="..\Shared\NorthwindQueryTestBase.cs" />
-    <Compile Include="..\Shared\NorthwindQueryFixtureBase.cs" />
-    <Compile Include="..\Shared\MonsterFixupTestBase.cs" />
-    <Compile Include="..\Shared\ChangedChangingMonsterContext.cs" />
-    <Compile Include="..\Shared\ChangedOnlyMonsterContext.cs" />
-    <Compile Include="..\Shared\MonsterContext.cs" />
-    <Compile Include="..\Shared\MonsterContext`.cs" />
-    <Compile Include="..\Shared\MonsterModel.cs" />
-    <Compile Include="..\Shared\SnapshotMonsterContext.cs" />
-    <Compile Include="..\Shared\ThrowingMonsterStateManager.cs" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
@@ -91,6 +79,10 @@
     <ProjectReference Include="..\..\src\EntityFramework.InMemory\EntityFramework.InMemory.csproj">
       <Project>{BA3F5DBC-EC16-4D5A-8298-8226E6C5ACCC}</Project>
       <Name>EntityFramework.InMemory</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EntityFramework.FunctionalTests\EntityFramework.FunctionalTests.csproj">
+      <Project>{6ab933c7-de2a-45f2-bdc6-e71a01ef7756}</Project>
+      <Name>EntityFramework.FunctionalTests</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

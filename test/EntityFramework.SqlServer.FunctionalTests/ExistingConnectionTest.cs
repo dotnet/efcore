@@ -36,13 +36,13 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             serviceCollection.AddEntityFramework().AddSqlServer();
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
-            using (await TestDatabase.Northwind())
+            using (await SqlServerTestDatabase.Northwind())
             {
                 var openCount = 0;
                 var closeCount = 0;
                 var disposeCount = 0;
 
-                using (var connection = new SqlConnection(TestDatabase.NorthwindConnectionString))
+                using (var connection = new SqlConnection(SqlServerTestDatabase.NorthwindConnectionString))
                 {
                     if (openConnection)
                     {

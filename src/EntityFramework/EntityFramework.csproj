@@ -218,6 +218,8 @@
     <Compile Include="Storage\DataStoreSelector.cs" />
     <Compile Include="Storage\DataStoreSource.cs" />
     <Compile Include="Storage\DataStoreSource`.cs" />
+    <Compile Include="Update\DbUpdateConcurrencyException.cs" />
+    <Compile Include="Update\DbUpdateException.cs" />
     <Compile Include="Utilities\AsyncLock.cs" />
     <Compile Include="Utilities\BidirectionalAdjacencyListGraphFactory.cs" />
     <Compile Include="Utilities\Check.cs" />

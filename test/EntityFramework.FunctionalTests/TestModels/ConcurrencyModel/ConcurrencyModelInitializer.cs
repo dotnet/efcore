@@ -1,19 +1,16 @@
-﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels.ConcurrencyModel
+namespace ConcurrencyModel
 {
     public class ConcurrencyModelInitializer
     {
-        public static async Task SeedAsync(IServiceProvider serviceProvider, DbContextOptions options)
+        public static async Task SeedAsync(F1Context context)
         {
-            var context = new F1Context(serviceProvider, options);
-
             await context.Database.EnsureCreatedAsync();
 
             foreach (var engineSupplier in new List<EngineSupplier>
@@ -329,7 +326,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels.Concurrency
             {
                 context.Teams.Add(team);
             }
-            
+
             foreach (var driver in new List<Driver>
                 {
                     new Driver
@@ -897,8 +894,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels.Concurrency
             context.Teams.Single(t => t.Id == Team.Ferrari).Sponsors.Add(shell);
 
             await context.SaveChangesAsync();
-
-            context.Dispose();
         }
     }
 }

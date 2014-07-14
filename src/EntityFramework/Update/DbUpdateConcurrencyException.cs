@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
-using Microsoft.Data.Entity.Relational.Utilities;
+using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Relational.Update
+namespace Microsoft.Data.Entity.Update
 {
     public class DbUpdateConcurrencyException : DbUpdateException
     {

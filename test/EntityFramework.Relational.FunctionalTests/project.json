@@ -1,11 +1,8 @@
-﻿{
+{
   "dependencies": {
-    "EntityFramework.Relational.FunctionalTests" : "",
-    "EntityFramework.SqlServer": "",
+    "EntityFramework.FunctionalTests" : "",
+    "EntityFramework.Relational" : "",
     "Xunit.KRunner": "1.0.0-*"
-  },
-  "commands": {
-    "test": "Xunit.KRunner"
   },
   "frameworks": {
     "net451": {},

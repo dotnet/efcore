@@ -1,10 +1,11 @@
-﻿{
+{
   "version": "0.1-alpha-*",
   "compilationOptions": {
     "warningAsErrors": false
   },
   "dependencies": {
     "EntityFramework.AzureTableStorage": "",
+    "EntityFramework.FunctionalTests" : "",
     "Microsoft.Framework.ConfigurationModel":"1.0.0-*",
     "Microsoft.Framework.ConfigurationModel.Xml": "1.0.0-*",
     "Microsoft.Framework.DependencyInjection": "1.0.0-*",
@@ -13,7 +14,6 @@
   "commands": {
     "test": "Xunit.KRunner"
   },
-  "code": "**\\*.cs;..\\Shared\\TestFileLogger.cs;..\\Shared\\Northwind.cs;..\\Shared\\NorthwindQueryTestBase.cs;..\\Shared\\NorthwindQueryFixtureBase.cs;",
   "frameworks": {
     "net451": {
       "dependencies": {

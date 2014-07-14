@@ -1,10 +1,10 @@
-﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
 using System;
-using System.Linq;
+using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Metadata;
 
-namespace Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels.ConcurrencyModel
+namespace ConcurrencyModel
 {
     public class F1Context : DbContext
     {
@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels.Concurrency
         public DbSet<EngineSupplier> EngineSuppliers { get; set; }
 
         // TODO: convert to OnModelCreated
-        public static Model CreateModel()
+        public static ModelBuilder CreateModel()
         {
             var model = new Model();
             var modelBuilder = new ConventionModelBuilder(model);
@@ -32,8 +32,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels.Concurrency
                 .Key(c => c.TeamId)
                 .Properties(ps =>
                     {
-                    })
-                .ToTable("Chassis");
+                    });
             
             modelBuilder
                 .Entity<Driver>()
@@ -49,8 +48,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels.Concurrency
                         ps.Property(d => d.Races);
                         ps.Property(d => d.TeamId);
                         ps.Property(d => d.Wins);
-                    })
-                .ToTable("Drivers");
+                    });
 
             modelBuilder
                 .Entity<Engine>()
@@ -59,14 +57,12 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels.Concurrency
                     {
                         // TODO: Complex type
                         //ps.Property(c => c.StorageLocation);
-                    })
-                .ToTable("Engines");
+                    });
 
             modelBuilder
                 .Entity<EngineSupplier>()
                 .Key(e => e.Id)
-                .Properties(ps => ps.Property(e => e.Name))
-                .ToTable("EngineSuppliers");
+                .Properties(ps => ps.Property(e => e.Name));
 
             modelBuilder
                 .Entity<Gearbox>()
@@ -75,8 +71,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels.Concurrency
                     {
                         ps.Property(g => g.Name);
                         ps.Property<int>("EngineId", shadowProperty: true);
-                    })
-                .ToTable("Gearboxes");
+                    });
 
             // TODO: Complex type
             //builder
@@ -95,8 +90,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels.Concurrency
                 .Properties(ps =>
                     {
                         ps.Property(s => s.Name);
-                    })
-                .ToTable("Sponsors");
+                    });
 
             // TODO: Complex type
             //builder
@@ -124,13 +118,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels.Concurrency
                         ps.Property(t => t.Races);
                         ps.Property(t => t.Tire);
                         ps.Property(t => t.Victories);
-                    })
-                .ToTable("Teams");
+                    });
             
             modelBuilder
                 .Entity<TestDriver>()
-                .Key(t => t.Id)
-                .ToTable("TestDrivers");
+                .Key(t => t.Id);
 
             modelBuilder
                 .Entity<TitleSponsor>()
@@ -138,8 +130,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels.Concurrency
                 {
                     // TODO: Complex type
                     //ps.Property(t => t.Details);
-                })
-                .ToTable("TitleSponsors");
+                });
             
             var chassisType = model.GetEntityType(typeof(Chassis));
             var driverType = model.GetEntityType(typeof(Driver));
@@ -171,18 +162,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels.Concurrency
                 driverType.AddNavigation(new Navigation(driverTeamIdFk, "Team", pointsToPrincipal: true));
                 teamType.AddNavigation(new Navigation(driverTeamIdFk, "Drivers", pointsToPrincipal: false));
             }
-
-            {
-                // Chasis 1 <-> 1 Team
-                modelBuilder
-                    .Entity<Chassis>()
-                    .ForeignKeys(fks => fks.ForeignKey<Team>(c => c.TeamId, isUnique: true).CascadeDelete(cascadeDelete: true));
-
-                var chassisTeamIdFk = chassisType.ForeignKeys.Single(fk => fk.Properties.Single().Name == "TeamId");
-                chassisType.AddNavigation(new Navigation(chassisTeamIdFk, "Team", pointsToPrincipal: true));
-                teamType.AddNavigation(new Navigation(chassisTeamIdFk, "Chassis", pointsToPrincipal: false));
-            }
-
+            
             {
                 // Engine * <-> 1 EngineSupplier
                 var engineEngineSupplierIdFk = engineType.AddForeignKey(engineSupplierType.GetKey(), engineType.GetProperty("EngineSupplierId"));
@@ -213,7 +193,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels.Concurrency
             sponsorType.AddProperty("Version", typeof(byte[]), shadowProperty: false, concurrencyToken: true)
                 .ValueGenerationOnSave = ValueGenerationOnSave.WhenInsertingAndUpdating;
 
-            return model;
+            return modelBuilder;
         }
     }
 }

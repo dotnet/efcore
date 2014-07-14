@@ -73,18 +73,6 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Shared\Northwind.cs">
-      <Link>Northwind.cs</Link>
-    </Compile>
-    <Compile Include="..\Shared\NorthwindQueryFixtureBase.cs">
-      <Link>NorthwindQueryFixtureBase.cs</Link>
-    </Compile>
-    <Compile Include="..\Shared\NorthwindQueryTestBase.cs">
-      <Link>NorthwindQueryTestBase.cs</Link>
-    </Compile>
-    <Compile Include="..\Shared\TestFileLogger.cs">
-      <Link>TestFileLogger.cs</Link>
-    </Compile>
     <Compile Include="AtsTestFramework.cs" />
     <Compile Include="BatchTests.cs" />
     <Compile Include="EndToEndFixture.cs" />
@@ -102,6 +90,10 @@
       <Project>{c059860c-039d-48c0-b381-987db950bb5d}</Project>
       <Name>Microsoft.Data.Entity.AzureTableStorage</Name>
       <TargetFramework>net451</TargetFramework>
+    </ProjectReference>
+    <ProjectReference Include="..\EntityFramework.FunctionalTests\EntityFramework.FunctionalTests.csproj">
+      <Project>{6ab933c7-de2a-45f2-bdc6-e71a01ef7756}</Project>
+      <Name>EntityFramework.FunctionalTests</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

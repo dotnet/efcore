@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private static async Task Exists_returns_false_when_database_doesnt_exist_test(bool async)
         {
-            using (var testDatabase = await TestDatabase.Scratch(createDatabase: false))
+            using (var testDatabase = await SqlServerTestDatabase.Scratch(createDatabase: false))
             {
                 using (var context = new BloggingContext(testDatabase))
                 {
@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private static async Task Exists_returns_true_when_database_exists_test(bool async)
         {
-            using (var testDatabase = await TestDatabase.Scratch(createDatabase: true))
+            using (var testDatabase = await SqlServerTestDatabase.Scratch(createDatabase: true))
             {
                 using (var context = new BloggingContext(testDatabase))
                 {
@@ -78,7 +78,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private static async Task EnsureDeleted_will_delete_database_test(bool async)
         {
-            using (var testDatabase = await TestDatabase.Scratch(createDatabase: true))
+            using (var testDatabase = await SqlServerTestDatabase.Scratch(createDatabase: true))
             {
                 testDatabase.Connection.Close();
 
@@ -118,7 +118,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private static async Task EnsuredDeleted_noop_when_database_doesnt_exist_test(bool async)
         {
-            using (var testDatabase = await TestDatabase.Scratch(createDatabase: false))
+            using (var testDatabase = await SqlServerTestDatabase.Scratch(createDatabase: false))
             {
                 using (var context = new BloggingContext(testDatabase))
                 {
@@ -156,7 +156,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private static async Task EnsureCreated_can_create_schema_in_existing_database_test(bool async)
         {
-            using (var testDatabase = await TestDatabase.Scratch())
+            using (var testDatabase = await SqlServerTestDatabase.Scratch())
             {
                 await RunDatabaseCreationTest(testDatabase, async);
             }
@@ -176,13 +176,13 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private static async Task EnsureCreated_can_create_physical_database_and_schema_test(bool async)
         {
-            using (var testDatabase = await TestDatabase.Scratch(createDatabase: false))
+            using (var testDatabase = await SqlServerTestDatabase.Scratch(createDatabase: false))
             {
                 await RunDatabaseCreationTest(testDatabase, async);
             }
         }
 
-        private static async Task RunDatabaseCreationTest(TestDatabase testDatabase, bool async)
+        private static async Task RunDatabaseCreationTest(SqlServerTestDatabase testDatabase, bool async)
         {
             using (var context = new BloggingContext(testDatabase))
             {
@@ -253,7 +253,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private static async Task EnsuredCreated_is_noop_when_database_exists_and_has_schema_test(bool async)
         {
-            using (var testDatabase = await TestDatabase.Scratch(createDatabase: false))
+            using (var testDatabase = await SqlServerTestDatabase.Scratch(createDatabase: false))
             {
                 using (var context = new BloggingContext(testDatabase))
                 {
@@ -282,9 +282,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private class BloggingContext : DbContext
         {
-            private readonly TestDatabase _testDatabase;
+            private readonly SqlServerTestDatabase _testDatabase;
 
-            public BloggingContext(TestDatabase testDatabase)
+            public BloggingContext(SqlServerTestDatabase testDatabase)
                 : base(CreateServiceProvider())
             {
                 _testDatabase = testDatabase;

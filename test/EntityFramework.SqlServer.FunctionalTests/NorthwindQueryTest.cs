@@ -3,12 +3,11 @@
 
 using System;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Microsoft.Data.FunctionalTests;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
-using Northwind;
 using Xunit;
 
 #if K10
@@ -820,13 +819,13 @@ FROM [Orders] AS o
         }
     }
 
-    public class NorthwindQueryFixture : NorthwindQueryFixtureBase, IDisposable
+    public class NorthwindQueryFixture : NorthwindQueryFixtureRelationalBase, IDisposable
     {
         private readonly TestSqlLoggerFactory _loggingFactory = new TestSqlLoggerFactory();
 
         private readonly IServiceProvider _serviceProvider;
         private readonly DbContextOptions _options;
-        private readonly TestDatabase _testDatabase;
+        private readonly SqlServerTestDatabase _testDatabase;
 
         public NorthwindQueryFixture()
         {
@@ -838,23 +837,12 @@ FROM [Orders] AS o
                     .ServiceCollection
                     .BuildServiceProvider();
 
-            _testDatabase = TestDatabase.Northwind().Result;
+            _testDatabase = SqlServerTestDatabase.Northwind().Result;
 
             _options
                 = new DbContextOptions()
                     .UseModel(SetTableNames(CreateModel()))
                     .UseSqlServer(_testDatabase.Connection.ConnectionString);
-        }
-
-        public Model SetTableNames(Model model)
-        {
-            model.GetEntityType(typeof(Customer)).SetTableName("Customers");
-            model.GetEntityType(typeof(Employee)).SetTableName("Employees");
-            model.GetEntityType(typeof(Product)).SetTableName("Products");
-            model.GetEntityType(typeof(Order)).SetTableName("Orders");
-            model.GetEntityType(typeof(OrderDetail)).SetTableName("OrderDetails");
-
-            return model;
         }
 
         public string Sql

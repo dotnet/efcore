@@ -65,30 +65,12 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Shared\TestSqlLoggerFactory.cs" />
-    <Compile Include="..\Shared\Northwind.cs">
-      <Link>Northwind.cs</Link>
-    </Compile>
-    <Compile Include="..\Shared\NorthwindQueryFixtureBase.cs">
-      <Link>NorthwindQueryFixtureBase.cs</Link>
-    </Compile>
-    <Compile Include="..\Shared\NorthwindQueryTestBase.cs">
-      <Link>NorthwindQueryTestBase.cs</Link>
-    </Compile>
     <Compile Include="MonsterFixupTest.cs" />
     <Compile Include="NorthwindQueryTest.cs" />
-    <Compile Include="TestDatabase.cs" />
+    <Compile Include="SQLiteTestDatabase.cs" />
     <None Include="northwind.db">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <Compile Include="..\Shared\MonsterFixupTestBase.cs" />
-    <Compile Include="..\Shared\ChangedChangingMonsterContext.cs" />
-    <Compile Include="..\Shared\ChangedOnlyMonsterContext.cs" />
-    <Compile Include="..\Shared\MonsterContext.cs" />
-    <Compile Include="..\Shared\MonsterContext`.cs" />
-    <Compile Include="..\Shared\MonsterModel.cs" />
-    <Compile Include="..\Shared\SnapshotMonsterContext.cs" />
-    <Compile Include="..\Shared\ThrowingMonsterStateManager.cs" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
@@ -103,6 +85,14 @@
     <ProjectReference Include="..\..\src\EntityFramework.Relational\EntityFramework.Relational.csproj">
       <Project>{75C5A774-A3F3-43EB-97D3-DBE0CF2825D8}</Project>
       <Name>EntityFramework.Relational</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EntityFramework.FunctionalTests\EntityFramework.FunctionalTests.csproj">
+      <Project>{6ab933c7-de2a-45f2-bdc6-e71a01ef7756}</Project>
+      <Name>EntityFramework.FunctionalTests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EntityFramework.Relational.FunctionalTests\EntityFramework.Relational.FunctionalTests.csproj">
+      <Project>{82fad20c-28c6-4b48-b7e4-971ac821e27a}</Project>
+      <Name>EntityFramework.Relational.FunctionalTests</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

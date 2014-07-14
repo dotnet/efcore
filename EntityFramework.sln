@@ -49,6 +49,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.AzureTableS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.AzureTableStorage.Tests", "test\EntityFramework.AzureTableStorage.Tests\EntityFramework.AzureTableStorage.Tests.csproj", "{075D9733-B40F-4684-8CAF-6FA17D25B5B5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Relational.FunctionalTests", "test\EntityFramework.Relational.FunctionalTests\EntityFramework.Relational.FunctionalTests.csproj", "{82FAD20C-28C6-4B48-B7E4-971AC821E27A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -139,6 +141,10 @@ Global
 		{075D9733-B40F-4684-8CAF-6FA17D25B5B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{075D9733-B40F-4684-8CAF-6FA17D25B5B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{075D9733-B40F-4684-8CAF-6FA17D25B5B5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{82FAD20C-28C6-4B48-B7E4-971AC821E27A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82FAD20C-28C6-4B48-B7E4-971AC821E27A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{82FAD20C-28C6-4B48-B7E4-971AC821E27A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82FAD20C-28C6-4B48-B7E4-971AC821E27A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -165,5 +171,6 @@ Global
 		{C059860C-039D-48C0-B381-987DB950BB5D} = {35BED7DE-CA6F-41EA-91E3-25CA7295C7B9}
 		{1D821EE4-8260-4B37-A11A-17327822774A} = {547020C0-976F-4542-81CE-7FD465595614}
 		{075D9733-B40F-4684-8CAF-6FA17D25B5B5} = {547020C0-976F-4542-81CE-7FD465595614}
+		{82FAD20C-28C6-4B48-B7E4-971AC821E27A} = {547020C0-976F-4542-81CE-7FD465595614}
 	EndGlobalSection
 EndGlobal
