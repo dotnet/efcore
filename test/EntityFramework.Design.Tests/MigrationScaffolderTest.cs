@@ -123,19 +123,11 @@ namespace MyNamespace
 {
     public partial class MyMigration : IMigrationMetadata
     {
-        string IMigrationMetadata.Name
+        string IMigrationMetadata.MigrationId
         {
             get
             {
-                return ""MyMigration"";
-            }
-        }
-        
-        string IMigrationMetadata.Timestamp
-        {
-            get
-            {
-                return ""Timestamp"";
+                return ""000000000000001_MyMigration"";
             }
         }
         
@@ -216,19 +208,11 @@ namespace MyNamespace
 {
     public partial class MyMigration : IMigrationMetadata
     {
-        string IMigrationMetadata.Name
+        string IMigrationMetadata.MigrationId
         {
             get
             {
-                return ""MyMigration"";
-            }
-        }
-        
-        string IMigrationMetadata.Timestamp
-        {
-            get
-            {
-                return ""Timestamp"";
+                return ""000000000000001_MyMigration"";
             }
         }
         
@@ -351,19 +335,11 @@ namespace MyNamespace
 {
     public partial class MyMigration : IMigrationMetadata
     {
-        string IMigrationMetadata.Name
+        string IMigrationMetadata.MigrationId
         {
             get
             {
-                return ""MyMigration"";
-            }
-        }
-        
-        string IMigrationMetadata.Timestamp
-        {
-            get
-            {
-                return ""Timestamp"";
+                return ""000000000000001_MyMigration"";
             }
         }
         
@@ -547,19 +523,11 @@ namespace MyNamespace
 {
     public partial class MyMigration : IMigrationMetadata
     {
-        string IMigrationMetadata.Name
+        string IMigrationMetadata.MigrationId
         {
             get
             {
-                return ""MyMigration"";
-            }
-        }
-        
-        string IMigrationMetadata.Timestamp
-        {
-            get
-            {
-                return ""Timestamp"";
+                return ""000000000000001_MyMigration"";
             }
         }
         
@@ -855,9 +823,9 @@ namespace MyNamespace
                 _modelValidation = modelValidation;
             }
 
-            protected override string CreateMigrationTimestamp()
+            protected override string CreateMigrationId(string migrationName)
             {
-                return "Timestamp";
+                return "000000000000001_" + migrationName;
             }
 
             public override ScaffoldedMigration ScaffoldMigration(string migrationName)

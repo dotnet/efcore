@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
@@ -11,26 +12,23 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 {
     public class MigrationMetadata : IMigrationMetadata
     {
-        private readonly string _name;
-        private readonly string _timestamp;
+        private readonly string _migrationId;
 
-        public MigrationMetadata([NotNull] string name, [NotNull] string timestamp)
+        public MigrationMetadata([NotNull] string migrationId)
         {
-            Check.NotEmpty(name, "name");
-            Check.NotEmpty(timestamp, "timestamp");
+            Check.NotEmpty(migrationId, "migrationId");
 
-            _name = name;
-            _timestamp = timestamp;
+            if (!MigrationMetadataExtensions.IsValidMigrationId(migrationId))
+            {
+                throw new ArgumentException(Strings.FormatInvalidMigrationId(migrationId));
+            }
+
+            _migrationId = migrationId;
         }
 
-        public virtual string Name
+        public virtual string MigrationId
         {
-            get { return _name; }
-        }
-
-        public virtual string Timestamp
-        {
-            get { return _timestamp; }
+            get { return _migrationId; }
         }
 
         public virtual IModel TargetModel { get; [param: NotNull] set; }

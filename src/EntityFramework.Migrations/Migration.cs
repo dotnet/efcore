@@ -17,12 +17,7 @@ namespace Microsoft.Data.Entity.Migrations
 
         public abstract void Down([NotNull] MigrationBuilder migrationBuilder);
 
-        string IMigrationMetadata.Name
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        string IMigrationMetadata.Timestamp
+        string IMigrationMetadata.MigrationId
         {
             get { throw new NotImplementedException(); }
         }

@@ -130,6 +130,9 @@
     <value>The target migration '{targetMigrationName}' was not found.</value>
   </data>
   <data name="LocalMigrationNotFound" xml:space="preserve">
-    <value>The history repository includes a migration with the name '{0}' and timestamp '{1}' but the migration assembly does not contain the corresponding migration class.</value>
+    <value>The history repository includes a migration with the identifier '{migrationId}' but the migration assembly does not contain the corresponding migration class.</value>
+  </data>
+  <data name="InvalidMigrationId" xml:space="preserve">
+    <value>'{migrationId}' is not a valid migration identifier.</value>
   </data>
 </root>

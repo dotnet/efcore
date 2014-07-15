@@ -68,8 +68,8 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             return
                 historyContext.Set<HistoryRow>()
                     .Where(h => h.ContextKey == GetContextKey())
-                    .OrderBy(h => h.Timestamp + h.MigrationName)
-                    .Select(h => new MigrationMetadata(h.MigrationName, h.Timestamp));
+                    .OrderBy(h => h.MigrationId)
+                    .Select(h => new MigrationMetadata(h.MigrationId));
         }
 
         public virtual IReadOnlyList<SqlStatement> GenerateInsertMigrationSql(
@@ -86,15 +86,11 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 .Append("INSERT INTO ")
                 .Append(sqlGenerator.DelimitIdentifier(TableName))
                 .Append(" (")
-                .Append(sqlGenerator.DelimitIdentifier("MigrationName"))
-                .Append(", ")
-                .Append(sqlGenerator.DelimitIdentifier("Timestamp"))
+                .Append(sqlGenerator.DelimitIdentifier("MigrationId"))
                 .Append(", ")
                 .Append(sqlGenerator.DelimitIdentifier("ContextKey"))
                 .Append(") VALUES (")
-                .Append(sqlGenerator.GenerateLiteral(migration.Name))
-                .Append(", ")
-                .Append(sqlGenerator.GenerateLiteral(migration.Timestamp))
+                .Append(sqlGenerator.GenerateLiteral(migration.MigrationId))
                 .Append(", ")
                 .Append(sqlGenerator.GenerateLiteral(GetContextKey()))
                 .Append(")");
@@ -116,9 +112,9 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 .Append("DELETE FROM ")
                 .Append(sqlGenerator.DelimitIdentifier(TableName))
                 .Append(" WHERE ")
-                .Append(sqlGenerator.DelimitIdentifier("MigrationName"))
+                .Append(sqlGenerator.DelimitIdentifier("MigrationId"))
                 .Append(" = ")
-                .Append(sqlGenerator.GenerateLiteral(migration.Name))
+                .Append(sqlGenerator.GenerateLiteral(migration.MigrationId))
                 .Append(" AND ")
                 .Append(sqlGenerator.DelimitIdentifier("ContextKey"))
                 .Append(" = ")
@@ -138,11 +134,10 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                     ps =>
                         {
                             // TODO: Add column constraints (FixedLength, MaxLength) where needed.
-                            ps.Property(e => e.MigrationName);
-                            ps.Property(e => e.Timestamp);
+                            ps.Property(e => e.MigrationId);
                             ps.Property(e => e.ContextKey);
                         })
-                .Key(e => new { e.MigrationName, e.ContextKey });
+                .Key(e => new { e.MigrationId, e.ContextKey });
 
             return builder.Model;
         }
@@ -170,8 +165,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
         private class HistoryRow
         {
-            public string MigrationName { get; set; }
-            public string Timestamp { get; set; }
+            public string MigrationId { get; set; }
             public string ContextKey { get; set; }
         }
     }

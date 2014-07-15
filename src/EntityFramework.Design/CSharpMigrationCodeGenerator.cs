@@ -118,20 +118,10 @@ namespace Microsoft.Data.Entity.Design
                 using (stringBuilder.Indent())
                 {
                     GenerateMigrationProperty(
-                        "string IMigrationMetadata.Name",
+                        "string IMigrationMetadata.MigrationId",
                         () => stringBuilder
                             .Append("return ")
-                            .Append(GenerateLiteral(migration.Name))
-                            .Append(";"),
-                        stringBuilder);
-
-                    stringBuilder.AppendLine().AppendLine();
-
-                    GenerateMigrationProperty(
-                        "string IMigrationMetadata.Timestamp",
-                        () => stringBuilder
-                            .Append("return ")
-                            .Append(GenerateLiteral(migration.Timestamp))
+                            .Append(GenerateLiteral(migration.MigrationId))
                             .Append(";"),
                         stringBuilder);
 

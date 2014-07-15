@@ -51,8 +51,8 @@
     <Compile Include="Infrastructure\HistoryRepository.cs" />
     <Compile Include="Infrastructure\IMigrationMetadata.cs" />
     <Compile Include="Infrastructure\MigrationAssembly.cs" />
+    <Compile Include="Infrastructure\MigrationMetadataExtensions.cs" />
     <Compile Include="Infrastructure\MigrationMetadata.cs" />
-    <Compile Include="Infrastructure\MigrationMetadataComparer.cs" />
     <Compile Include="Infrastructure\Migrator.cs" />
     <Compile Include="Infrastructure\ModelSnapshot.cs" />
     <Compile Include="Migration.cs" />
@@ -100,6 +100,7 @@
     <Compile Include="..\Shared\StringBuilderExtensions.cs" />
     <EmbeddedResource Include="Properties\Strings.resx">
       <LogicalName>EntityFramework.Migrations.Strings.resources</LogicalName>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="..\..\packages\KoreBuild\build\Resources.tt">
       <Link>Properties\Resources.tt</Link>

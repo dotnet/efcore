@@ -133,14 +133,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                 throw new NotImplementedException();
             }
 
-            string IMigrationMetadata.Name
+            string IMigrationMetadata.MigrationId
             {
-                get { return "Migration2"; }
-            }
-
-            string IMigrationMetadata.Timestamp
-            {
-                get { return "2"; }
+                get { return "000000000000002_Migration2"; }
             }
         }
 
@@ -156,14 +151,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                 throw new NotImplementedException();
             }
 
-            string IMigrationMetadata.Name
+            string IMigrationMetadata.MigrationId
             {
-                get { return "Migration1"; }
-            }
-
-            string IMigrationMetadata.Timestamp
-            {
-                get { return "1"; }
+                get { return "000000000000001_Migration1"; }
             }
         }
 

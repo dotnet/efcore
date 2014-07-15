@@ -296,7 +296,7 @@ namespace Microsoft.Data.Entity.Design.Tests
                     };
 
             var migration
-                = new MigrationMetadata("Name", "Timestamp")
+                = new MigrationMetadata("000000000000001_Name")
                     {
                         UpgradeOperations = upgradeOperations,
                         DowngradeOperations = downgradeOperations
@@ -344,7 +344,7 @@ namespace MyNamespace
             model.AddEntityType(entityType);
 
             var migration
-                = new MigrationMetadata("Name", "Timestamp")
+                = new MigrationMetadata("000000000000001_Name")
                     {
                         TargetModel = model
                     };
@@ -363,19 +363,11 @@ namespace MyNamespace
 {
     public partial class MyClass : IMigrationMetadata
     {
-        string IMigrationMetadata.Name
+        string IMigrationMetadata.MigrationId
         {
             get
             {
-                return ""Name"";
-            }
-        }
-        
-        string IMigrationMetadata.Timestamp
-        {
-            get
-            {
-                return ""Timestamp"";
+                return ""000000000000001_Name"";
             }
         }
         

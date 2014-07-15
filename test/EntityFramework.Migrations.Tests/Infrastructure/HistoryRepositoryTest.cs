@@ -41,8 +41,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
 
                 var entityType = historyModel1.EntityTypes[0];
                 Assert.Equal("HistoryRow", entityType.Name);
-                Assert.Equal(3, entityType.Properties.Count);
-                Assert.Equal(new[] { "ContextKey", "MigrationName", "Timestamp" }, entityType.Properties.Select(p => p.Name));
+                Assert.Equal(2, entityType.Properties.Count);
+                Assert.Equal(new[] { "ContextKey", "MigrationId" }, entityType.Properties.Select(p => p.Name));
             }
         }
 
@@ -84,12 +84,12 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     var expression = (MethodCallExpression)query.Expression;
 
                     Assert.Equal("Select", expression.Method.Name);
-                    Assert.Equal("h => new MigrationMetadata(h.MigrationName, h.Timestamp)", expression.Arguments[1].ToString());
+                    Assert.Equal("h => new MigrationMetadata(h.MigrationId)", expression.Arguments[1].ToString());
 
                     expression = (MethodCallExpression)expression.Arguments[0];
 
                     Assert.Equal("OrderBy", expression.Method.Name);
-                    Assert.Equal("h => (h.Timestamp + h.MigrationName)", expression.Arguments[1].ToString());
+                    Assert.Equal("h => h.MigrationId", expression.Arguments[1].ToString());
 
                     expression = (MethodCallExpression)expression.Arguments[0];
 
@@ -120,15 +120,15 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     .Returns(() =>
                         new IMigrationMetadata[]
                             {
-                                new MigrationMetadata("Migration1", "Timestamp1"),
-                                new MigrationMetadata("Migration2", "Timestamp2")
+                                new MigrationMetadata("000000000000001_Migration1"),
+                                new MigrationMetadata("000000000000002_Migration2")
                             }
                             .AsQueryable());
 
                 var migrations = historyRepositoryMock.Object.Migrations;
                 Assert.Equal(2, migrations.Count);
-                Assert.Equal("Migration1", migrations[0].Name);
-                Assert.Equal("Migration2", migrations[1].Name);
+                Assert.Equal("000000000000001_Migration1", migrations[0].MigrationId);
+                Assert.Equal("000000000000002_Migration2", migrations[1].MigrationId);
             }
         }
 
@@ -140,11 +140,11 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                 var historyRepository = new HistoryRepository(context.Configuration);
 
                 var sqlStatements = historyRepository.GenerateInsertMigrationSql(
-                    new MigrationMetadata("Foo", "Bar"), new DmlSqlGenerator());
+                    new MigrationMetadata("000000000000001_Foo"), new DmlSqlGenerator());
 
                 Assert.Equal(1, sqlStatements.Count);
                 Assert.Equal(
-                    @"INSERT INTO ""__MigrationHistory"" (""MigrationName"", ""Timestamp"", ""ContextKey"") VALUES ('Foo', 'Bar', 'Microsoft.Data.Entity.Migrations.Tests.Infrastructure.HistoryRepositoryTest+Context')",
+                    @"INSERT INTO ""__MigrationHistory"" (""MigrationId"", ""ContextKey"") VALUES ('000000000000001_Foo', 'Microsoft.Data.Entity.Migrations.Tests.Infrastructure.HistoryRepositoryTest+Context')",
                     sqlStatements[0].Sql);
             }
         }
@@ -157,11 +157,11 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                 var historyRepository = new HistoryRepository(context.Configuration);
 
                 var sqlStatements = historyRepository.GenerateDeleteMigrationSql(
-                    new MigrationMetadata("Foo", "Bar"), new DmlSqlGenerator());
+                    new MigrationMetadata("000000000000001_Foo"), new DmlSqlGenerator());
 
                 Assert.Equal(1, sqlStatements.Count);
                 Assert.Equal(
-                    @"DELETE FROM ""__MigrationHistory"" WHERE ""MigrationName"" = 'Foo' AND ""ContextKey"" = 'Microsoft.Data.Entity.Migrations.Tests.Infrastructure.HistoryRepositoryTest+Context'",
+                    @"DELETE FROM ""__MigrationHistory"" WHERE ""MigrationId"" = '000000000000001_Foo' AND ""ContextKey"" = 'Microsoft.Data.Entity.Migrations.Tests.Infrastructure.HistoryRepositoryTest+Context'",
                     sqlStatements[0].Sql);
             }
         }

@@ -210,7 +210,7 @@ namespace Microsoft.Data.Entity.Design.Tests
             migratorMock.Setup(m => m.GetDatabaseMigrations()).Returns(
                 new[]
                     {
-                        new MigrationMetadata("M1", "T1")
+                        new MigrationMetadata("000000000000001_M1")
                     });
 
             toolMock.Protected()
@@ -228,8 +228,7 @@ namespace Microsoft.Data.Entity.Design.Tests
             var migrations = tool.GetMigrations(configuration);
 
             Assert.Equal(1, migrations.Count);
-            Assert.Equal("M1", migrations[0].Name);
-            Assert.Equal("T1", migrations[0].Timestamp);
+            Assert.Equal("000000000000001_M1", migrations[0].MigrationId);
         }
 
         [Fact]
@@ -243,7 +242,7 @@ namespace Microsoft.Data.Entity.Design.Tests
             migratorMock.Setup(m => m.GetDatabaseMigrations()).Returns(
                 new[]
                     {
-                        new MigrationMetadata("M1", "T1")
+                        new MigrationMetadata("000000000000001_M1")
                     });
 
             toolMock.Protected()
@@ -260,8 +259,7 @@ namespace Microsoft.Data.Entity.Design.Tests
             var migrations = tool.GetMigrations(configuration);
 
             Assert.Equal(1, migrations.Count);
-            Assert.Equal("M1", migrations[0].Name);
-            Assert.Equal("T1", migrations[0].Timestamp);
+            Assert.Equal("000000000000001_M1", migrations[0].MigrationId);
         }
 
         [Fact]
@@ -275,8 +273,8 @@ namespace Microsoft.Data.Entity.Design.Tests
             migratorMock.Setup(m => m.GetLocalMigrations()).Returns(
                 new[]
                     {
-                        new MigrationMetadata("M1", "T1"),
-                        new MigrationMetadata("M2", "T2")
+                        new MigrationMetadata("000000000000001_M1"),
+                        new MigrationMetadata("000000000000002_M2")
                     });
 
             toolMock.Protected()
@@ -294,10 +292,8 @@ namespace Microsoft.Data.Entity.Design.Tests
             var migrations = tool.GetMigrations(configuration);
 
             Assert.Equal(2, migrations.Count);
-            Assert.Equal("M1", migrations[0].Name);
-            Assert.Equal("M2", migrations[1].Name);
-            Assert.Equal("T1", migrations[0].Timestamp);
-            Assert.Equal("T2", migrations[1].Timestamp);
+            Assert.Equal("000000000000001_M1", migrations[0].MigrationId);
+            Assert.Equal("000000000000002_M2", migrations[1].MigrationId);
         }
 
         [Fact]
@@ -311,7 +307,7 @@ namespace Microsoft.Data.Entity.Design.Tests
             migratorMock.Setup(m => m.GetPendingMigrations()).Returns(
                 new[]
                     {
-                        new MigrationMetadata("M2", "T2")
+                        new MigrationMetadata("000000000000002_M2")
                     });
 
             toolMock.Protected()
@@ -329,8 +325,7 @@ namespace Microsoft.Data.Entity.Design.Tests
             var migrations = tool.GetMigrations(configuration);
 
             Assert.Equal(1, migrations.Count);
-            Assert.Equal("M2", migrations[0].Name);
-            Assert.Equal("T2", migrations[0].Timestamp);
+            Assert.Equal("000000000000002_M2", migrations[0].MigrationId);
         }
 
         [Fact]

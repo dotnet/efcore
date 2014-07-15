@@ -60,7 +60,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                             && !t.GetTypeInfo().IsGenericType
                             && t.Namespace == Namespace)
                 .Select(t => (IMigrationMetadata)Activator.CreateInstance(t))
-                .OrderBy(m => m, MigrationMetadataComparer.Instance)
+                .OrderBy(m => m.MigrationId)
                 .ToArray();
         }
 

@@ -9,8 +9,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 {
     public interface IMigrationMetadata
     {
-        string Name { get; }
-        string Timestamp { get; }
+        string MigrationId { get; }
         IModel TargetModel { get; }
         IReadOnlyList<MigrationOperation> UpgradeOperations { get; }
         IReadOnlyList<MigrationOperation> DowngradeOperations { get; }

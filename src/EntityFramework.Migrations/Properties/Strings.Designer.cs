@@ -75,7 +75,7 @@ namespace Microsoft.Data.Entity.Migrations
         }
 
         /// <summary>
-        /// The history repository includes a migration with the name '{0}' and timestamp '{1}' but the migration assembly does not contain the corresponding migration class.
+        /// The history repository includes a migration with the identifier '{migrationId}' but the migration assembly does not contain the corresponding migration class.
         /// </summary>
         internal static string LocalMigrationNotFound
         {
@@ -83,11 +83,27 @@ namespace Microsoft.Data.Entity.Migrations
         }
 
         /// <summary>
-        /// The history repository includes a migration with the name '{0}' and timestamp '{1}' but the migration assembly does not contain the corresponding migration class.
+        /// The history repository includes a migration with the identifier '{migrationId}' but the migration assembly does not contain the corresponding migration class.
         /// </summary>
-        internal static string FormatLocalMigrationNotFound(object p0, object p1)
+        internal static string FormatLocalMigrationNotFound(object migrationId)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("LocalMigrationNotFound"), p0, p1);
+            return string.Format(CultureInfo.CurrentCulture, GetString("LocalMigrationNotFound", "migrationId"), migrationId);
+        }
+
+        /// <summary>
+        /// '{migrationId}' is not a valid migration identifier.
+        /// </summary>
+        internal static string InvalidMigrationId
+        {
+            get { return GetString("InvalidMigrationId"); }
+        }
+
+        /// <summary>
+        /// '{migrationId}' is not a valid migration identifier.
+        /// </summary>
+        internal static string FormatInvalidMigrationId(object migrationId)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidMigrationId", "migrationId"), migrationId);
         }
 
         private static string GetString(string name, params string[] formatterNames)
@@ -95,7 +111,7 @@ namespace Microsoft.Data.Entity.Migrations
             var value = _resourceManager.GetString(name);
 
             System.Diagnostics.Debug.Assert(value != null);
-
+    
             if (formatterNames != null)
             {
                 for (var i = 0; i < formatterNames.Length; i++)

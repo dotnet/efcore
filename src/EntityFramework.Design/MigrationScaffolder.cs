@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.Design
         {
             Check.NotEmpty(migrationName, "migrationName");
 
-            if (MigrationAssembly.Migrations.Any(m => m.Name == migrationName))
+            if (MigrationAssembly.Migrations.Any(m => m.GetMigrationName() == migrationName))
             {
                 throw new InvalidOperationException(Strings.FormatDuplicateMigrationName(migrationName));
             }
@@ -117,7 +117,7 @@ namespace Microsoft.Data.Entity.Design
             }
 
             return
-                new MigrationMetadata(migrationName, CreateMigrationTimestamp())
+                new MigrationMetadata(CreateMigrationId(migrationName))
                     {
                         TargetModel = targetModel,
                         UpgradeOperations = upgradeOperations,
@@ -125,9 +125,9 @@ namespace Microsoft.Data.Entity.Design
                     };
         }
 
-        protected virtual string CreateMigrationTimestamp()
+        protected virtual string CreateMigrationId(string migrationName)
         {
-            return DateTime.UtcNow.ToString("yyyyMMddHHmmssf", CultureInfo.InvariantCulture);
+            return MigrationMetadataExtensions.CreateMigrationId(migrationName);
         }
 
         protected virtual void ScaffoldMigration(
@@ -160,7 +160,8 @@ namespace Microsoft.Data.Entity.Design
         {
             Check.NotNull(migration, "migration");
 
-            return migration.Name;
+            // TODO: Generate valid C# class name from migration name.
+            return migration.GetMigrationName();
         }
 
         protected virtual string GetClassName([NotNull] IModel model)

@@ -105,7 +105,7 @@ namespace Microsoft.Data.Entity.Design
         {
             foreach (var migration in migrations)
             {
-                Console.WriteLine(migration.Timestamp + " " + migration.Name);
+                Console.WriteLine(migration.MigrationId);
             }            
         }
 

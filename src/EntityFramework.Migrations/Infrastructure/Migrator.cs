@@ -187,7 +187,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             }
             else
             {
-                index = migrationPairs.IndexOf(p => p.LocalMigration.Name == targetMigrationName);
+                index = migrationPairs.IndexOf(p => p.LocalMigration.GetMigrationName() == targetMigrationName);
                 if (index < 0)
                 {
                     throw new InvalidOperationException(Strings.FormatTargetMigrationNotFound(targetMigrationName));
@@ -272,8 +272,8 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             while (i < localMigrations.Count
                    && j < databaseMigrations.Count)
             {
-                var compareResult = MigrationMetadataComparer.Instance.Compare(
-                    localMigrations[i], databaseMigrations[j]);
+                var compareResult = string.CompareOrdinal(
+                    localMigrations[i].MigrationId, databaseMigrations[j].MigrationId);
 
                 if (compareResult == 0)
                 {
@@ -292,7 +292,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             if (j < databaseMigrations.Count)
             {
                 throw new InvalidOperationException(Strings.FormatLocalMigrationNotFound(
-                    databaseMigrations[j].Name, databaseMigrations[j].Timestamp));
+                    databaseMigrations[j].MigrationId));
             }
 
             while (i < localMigrations.Count)

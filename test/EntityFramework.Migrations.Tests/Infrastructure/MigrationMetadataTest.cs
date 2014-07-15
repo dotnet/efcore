@@ -17,15 +17,14 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             var downgradeOperations = new MigrationOperation[0];
 
             var migration
-                = new MigrationMetadata("Name", "Timestamp")
+                = new MigrationMetadata("000000000000001_Name")
                     {
                         TargetModel = targetModel,
                         UpgradeOperations = upgradeOperations,
                         DowngradeOperations = downgradeOperations,
                     };
 
-            Assert.Equal("Name", migration.Name);
-            Assert.Equal("Timestamp", migration.Timestamp);
+            Assert.Equal("000000000000001_Name", migration.MigrationId);
             Assert.Same(targetModel, migration.TargetModel);
             Assert.Same(upgradeOperations, migration.UpgradeOperations);
             Assert.Same(downgradeOperations, migration.DowngradeOperations);
