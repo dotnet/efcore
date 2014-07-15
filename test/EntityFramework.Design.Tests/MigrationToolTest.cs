@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.IO;
 using System.Reflection;
@@ -44,23 +43,23 @@ namespace Microsoft.Data.Entity.Design.Tests
                 .Setup(m => m.Commit())
                 .Callback(
                     () =>
-                        {
-                            Assert.Equal(configSourceMock.Object.Data["ContextAssembly"], "EntityFramework.Design.Tests.dll");
-                            Assert.Equal(configSourceMock.Object.Data["ContextType"], "Microsoft.Data.Entity.Design.Tests.MigrationToolTest+MyContext");
-                            Assert.Equal(configSourceMock.Object.Data["MigrationAssembly"], "EntityFramework.Design.Tests.dll");
-                            Assert.Equal(configSourceMock.Object.Data["MigrationNamespace"], "MyNamespace");
-                            Assert.Equal(configSourceMock.Object.Data["MigrationDirectory"], "MyDirectory");
-                            Assert.Equal(configSourceMock.Object.Data["References"], "Ref1;Ref2;Ref3");
-                        });
+                    {
+                        Assert.Equal(configSourceMock.Object.Data["ContextAssembly"], "EntityFramework.Design.Tests.dll");
+                        Assert.Equal(configSourceMock.Object.Data["ContextType"], "Microsoft.Data.Entity.Design.Tests.MigrationToolTest+MyContext");
+                        Assert.Equal(configSourceMock.Object.Data["MigrationAssembly"], "EntityFramework.Design.Tests.dll");
+                        Assert.Equal(configSourceMock.Object.Data["MigrationNamespace"], "MyNamespace");
+                        Assert.Equal(configSourceMock.Object.Data["MigrationDirectory"], "MyDirectory");
+                        Assert.Equal(configSourceMock.Object.Data["References"], "Ref1;Ref2;Ref3");
+                    });
 
             toolMock.Protected()
                 .Setup<IniFileConfigurationSource>("CreateIniFileConfigurationSource", ItExpr.IsAny<string>())
                 .Callback<string>(
                     configFile =>
-                        {
-                            Assert.True(configFile.EndsWith("MyConfig.ini"));
-                            Assert.True(Path.IsPathRooted(configFile));
-                        })
+                    {
+                        Assert.True(configFile.EndsWith("MyConfig.ini"));
+                        Assert.True(Path.IsPathRooted(configFile));
+                    })
                 .Returns(configSourceMock.Object);
 
             configuration.AddCommandLine(args);
@@ -74,7 +73,7 @@ namespace Microsoft.Data.Entity.Design.Tests
         [Fact]
         public void CommitConfiguration_with_default_config_file()
         {
-            var toolMock = new Mock<MyMigrationTool>() { CallBase = true };            
+            var toolMock = new Mock<MyMigrationTool>() { CallBase = true };
             var args
                 = new[]
                       {
@@ -91,17 +90,17 @@ namespace Microsoft.Data.Entity.Design.Tests
                 .Setup<IniFileConfigurationSource>("CreateIniFileConfigurationSource", ItExpr.IsAny<string>())
                 .Callback<string>(
                     configFile =>
-                        {
-                            Assert.True(configFile.EndsWith("migration.ini"));
-                            Assert.True(Path.IsPathRooted(configFile));
-                        })
+                    {
+                        Assert.True(configFile.EndsWith("migration.ini"));
+                        Assert.True(Path.IsPathRooted(configFile));
+                    })
                 .Returns(configSourceMock.Object);
 
             configuration.AddCommandLine(args);
 
             tool.CommitConfiguration(configuration);
 
-            toolMock.Protected().Verify<IniFileConfigurationSource>("CreateIniFileConfigurationSource", Times.Once(), ItExpr.IsAny<string>());            
+            toolMock.Protected().Verify<IniFileConfigurationSource>("CreateIniFileConfigurationSource", Times.Once(), ItExpr.IsAny<string>());
         }
 
         [Fact]
@@ -202,7 +201,7 @@ namespace Microsoft.Data.Entity.Design.Tests
         [Fact]
         public void GetMigrations_with_source_database()
         {
-            var toolMock = new Mock<MyMigrationTool> { CallBase = true };            
+            var toolMock = new Mock<MyMigrationTool> { CallBase = true };
             var migratorMock = new Mock<Migrator>();
             var tool = toolMock.Object;
             var configuration = new Configuration();
@@ -234,7 +233,7 @@ namespace Microsoft.Data.Entity.Design.Tests
         [Fact]
         public void GetMigrations_with_default_source()
         {
-            var toolMock = new Mock<MyMigrationTool> { CallBase = true };            
+            var toolMock = new Mock<MyMigrationTool> { CallBase = true };
             var migratorMock = new Mock<Migrator>();
             var tool = toolMock.Object;
             var configuration = new Configuration();
@@ -265,7 +264,7 @@ namespace Microsoft.Data.Entity.Design.Tests
         [Fact]
         public void GetMigrations_with_source_local()
         {
-            var toolMock = new Mock<MyMigrationTool> { CallBase = true };            
+            var toolMock = new Mock<MyMigrationTool> { CallBase = true };
             var migratorMock = new Mock<Migrator>();
             var tool = toolMock.Object;
             var configuration = new Configuration();
@@ -299,7 +298,7 @@ namespace Microsoft.Data.Entity.Design.Tests
         [Fact]
         public void GetMigrations_with_source_pending()
         {
-            var toolMock = new Mock<MyMigrationTool> { CallBase = true };            
+            var toolMock = new Mock<MyMigrationTool> { CallBase = true };
             var migratorMock = new Mock<Migrator>();
             var tool = toolMock.Object;
             var configuration = new Configuration();
@@ -510,7 +509,7 @@ namespace Microsoft.Data.Entity.Design.Tests
 
             Assert.Equal(
                 Strings.FormatAssemblyDoesNotContainType(
-                    Assembly.GetExecutingAssembly().FullName, 
+                    Assembly.GetExecutingAssembly().FullName,
                     "Microsoft.Data.Entity.Design.Tests.Vuvuzelas"),
                 Assert.Throws<InvalidOperationException>(() => tool.LoadContext(configuration)).Message);
         }
@@ -540,7 +539,7 @@ namespace Microsoft.Data.Entity.Design.Tests
             var tool = toolMock.Object;
             var configuration = new Configuration();
 
-            toolMock.Protected().Setup<IReadOnlyList<Type>>("GetContextTypes", ItExpr.IsAny<Assembly>()).Returns(new Type[0]);
+            toolMock.Setup(t => t.GetContextTypes(It.IsAny<Assembly>())).Returns(new Type[0]);
 
             configuration.AddCommandLine(
                 new[]
@@ -583,7 +582,7 @@ namespace Microsoft.Data.Entity.Design.Tests
         }
 
         public class NotAContext
-        {            
+        {
         }
 
         public class MyMigrationTool : MigrationTool

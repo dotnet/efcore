@@ -9,19 +9,21 @@ $EFDefaultParameterValues = @{
 # Use-EFContext
 #
 
-Register-TabExpansion Use-EFContext @{
+Register-TabExpansion Use-DbContext @{
+    ContextName = { param ($context) GetContextNames $context.ProjectName }
     ProjectName = { GetProjectNames }
 }
 
-function Use-EFContext {
+function Use-DbContext {
     [CmdletBinding()]
     param ([Parameter(Mandatory = $true)] [string] $ContextName, [string] $ProjectName)
 
     $project = GetProject $ProjectName
+    $ProjectName = $project.ProjectName
+    $ContextName = InvokeOperation $project GetContextName @{ contextName = $ContextName }
 
-    # TODO: Validate
     $EFDefaultParameterValues.ContextName = $ContextName
-    $EFDefaultParameterValues.ProjectName = $project.ProjectName
+    $EFDefaultParameterValues.ProjectName = $ProjectName
 }
 
 #
@@ -29,6 +31,7 @@ function Use-EFContext {
 #
 
 Register-TabExpansion Add-Migration @{
+    ContextName = { param ($context) GetContextNames $context.ProjectName }
     ProjectName = { GetProjectNames }
 }
 
@@ -36,20 +39,18 @@ function Add-Migration {
     [CmdletBinding()]
     param ([Parameter(Mandatory = $true)] [string] $MigrationName, [string] $ContextName, [string] $ProjectName)
 
-    $normalArgs = NormalizeArgs $ProjectName $ContextName
-    $fullPath = GetProperty $normalArgs.Project.Properties FullPath
-    $migrationsDir = Join-Path $fullPath Migrations
+    $values = ProcessCommonParameters $ContextName $ProjectName
+    $project = $values.Project
+    $ContextName = $values.ContextName
 
-    $artifacts = InvokeOperation $normalArgs.Project CreateMigration @{
+    $artifacts = InvokeOperation $project CreateMigration @{
         migrationName = $MigrationName
-        contextName = $normalArgs.ContextName
-        migrationsDir = [string] $migrationsDir
+        contextName = $ContextName
     }
 
-    $artifacts | %{ $normalArgs.Project.ProjectItems.AddFromFile($_) | Out-Null }
-
+    $artifacts | %{ $project.ProjectItems.AddFromFile($_) | Out-Null }
     $DTE.ItemOperations.OpenFile($artifacts[0]) | Out-Null
-    FocusPMC
+    ShowConsole
 }
 
 #
@@ -57,34 +58,64 @@ function Add-Migration {
 #
 
 Register-TabExpansion Update-Database @{
+    MigrationName = { param ($context) GetMigrationNames $context.ContextName $context.ProjectName }
+    ContextName = { param ($context) GetContextNames $context.ProjectName }
     ProjectName = { Get-ProjectNames }
 }
 
+# TODO: WhatIf
 function Update-Database {
     [CmdletBinding()]
-    param ([string] $TargetMigration, [string] $ContextName, [string] $ProjectName, [switch] $Script)
+    param ([string] $MigrationName, [string] $ContextName, [string] $ProjectName)
 
-    $normalArgs = NormalizeArgs $ProjectName $ContextName
-    
-    if (!$Script) {
-        InvokeOperation $normalArgs.Project PublishMigration @{
-            targetMigration = $TargetMigration
-            contextName = $normalArgs.ContextName
-        }
-    }
-    else {
-        $sql = InvokeOperation $normalArgs.Project CreateMigrationScript @{
-            targetMigration = $TargetMigration
-            contextName = $normalArgs.ContextName
-        }
+    $values = ProcessCommonParameters $ContextName $ProjectName
+    $project = $values.Project
+    $ContextName = $values.ContextName
 
-        # TODO: New SQL File
-        $window = $DTE.ItemOperations.NewFile('General\Text File')
-        $textDocument = $window.Document.Object('TextDocument')
-        $editPoint = $textDocument.StartPoint.CreateEditPoint();
-        $editPoint.Insert($sql);
-        FocusPMC
+    InvokeOperation $project PublishMigration @{
+        migrationName = $MigrationName
+        contextName = $ContextName
     }
+}
+
+#
+# Script-Migration
+#
+
+Register-TabExpansion Script-Migration @{
+    FromMigration = { param ($context) GetMigrationNames $context.ContextName $context.ProjectName }
+    ToMigration = { param ($context) GetMigrationNames $context.ContextName $context.ProjectName }
+    ContextName = { param ($context) GetContextNames $context.ProjectName }
+    ProjectName = { Get-ProjectNames }
+}
+
+function Script-Migration {
+    [CmdletBinding()]
+    param (
+        [string] $FromMigration,
+        [string] $ToMigration,
+        [switch] $Idempotent,
+        [string] $ContextName,
+        [string] $ProjectName
+    )
+
+    $values = ProcessCommonParameters $ContextName $ProjectName
+    $project = $values.Project
+    $ContextName = $values.ContextName
+
+    $script = InvokeOperation $project CreateMigrationScript @{
+        fromMigration = $FromMigration
+        toMigration = $ToMigration
+        idempotent = [bool]$Idempotent
+        contextName = $ContextName
+    }
+
+    # TODO: New SQL File
+    $window = $DTE.ItemOperations.NewFile('General\Text File')
+    $textDocument = $window.Document.Object('TextDocument')
+    $editPoint = $textDocument.StartPoint.CreateEditPoint();
+    $editPoint.Insert($script);
+    ShowConsole
 }
 
 #
@@ -93,17 +124,39 @@ function Update-Database {
 
 function GetProjectNames {
     $projects = Get-Project -All
+    $groups = $projects | group Name
 
-    return @(
-        $projects | select -ExpandProperty ProjectName
-        $projects | group Name | ? Count -eq 1 | select -ExpandProperty Name
-    ) | sort -Unique
+    return $projects | %{
+        if ($groups | ? Name -eq $_.Name | ? Count -eq 1) {
+            return $_.Name
+        }
+
+        return $_.ProjectName
+    }
 }
 
-function NormalizeArgs($projectName, $contextName) {
+function GetContextNames($projectName) {
+    $project = GetProject $projectName
+
+    $contextNames = InvokeOperation $project GetContextNames -skipBuild
+
+    return $contextNames | %{ $_.SafeName }
+}
+
+function GetMigrationNames($contextName, $projectName) {
+    $values = ProcessCommonParameters $contextName $projectName
+    $project = $values.Project
+    $contextName = $values.ContextName
+
+    $migrationNames = InvokeOperation $project GetMigrationNames @{ contextName = $contextName } -skipBuild
+
+    return $migrationNames | %{ $_.SafeName }
+}
+
+function ProcessCommonParameters($contextName, $projectName) {
     if (!$contextName) {
-        $projectName = $EFDefaultParameterValues.ProjectName
         $contextName = $EFDefaultParameterValues.ContextName
+        $projectName = $EFDefaultParameterValues.ProjectName
     }
 
     if (!$projectName) {
@@ -126,26 +179,28 @@ function GetProject($projectName) {
     return Get-Project
 }
 
-function FocusPMC {
+function ShowConsole {
     $componentModel = Get-VSComponentModel
     $powerConsoleWindow = $componentModel.GetService([NuGetConsole.IPowerConsoleWindow])
     $powerConsoleWindow.Show()
 }
 
-function InvokeOperation($project, $operation, $arguments) {
+function InvokeOperation($project, $operation, $arguments = @{}, [switch] $skipBuild) {
     $projectName = $project.ProjectName
 
     Write-Verbose "Using project '$projectName'"
 
-    Write-Verbose "Build started..."
-    
-    $solutionBuild = $DTE.Solution.SolutionBuild
-    $solutionBuild.BuildProject($solutionBuild.ActiveConfiguration.Name, $project.UniqueName, $true)
-    if ($solutionBuild.LastBuildInfo) {
-        throw "Build failed for project '$projectName'."
-    }
+    if (!$skipBuild) {
+        Write-Verbose "Build started..."
 
-    Write-Verbose "Build succeeded"
+        $solutionBuild = $DTE.Solution.SolutionBuild
+        $solutionBuild.BuildProject($solutionBuild.ActiveConfiguration.Name, $project.UniqueName, $true)
+        if ($solutionBuild.LastBuildInfo) {
+            throw "Build failed for project '$projectName'."
+        }
+
+        Write-Verbose "Build succeeded"
+    }
 
     if (![Type]::GetType('Microsoft.Data.Entity.Design.IHandler')) {
         $componentModel = Get-VSComponentModel
@@ -187,7 +242,7 @@ function InvokeOperation($project, $operation, $arguments) {
         $assemblyName = 'EntityFramework.Design'
         $typeName = 'Microsoft.Data.Entity.Design.Executor'
         $targetFileName = GetProperty $properties OutputFileName
-        $targetPath = Join-Path $targetDir $targetFileName
+        $rootNamespace = GetProperty $properties RootNamespace
 
         Write-Verbose "Using assembly '$targetFileName'"
 
@@ -197,7 +252,14 @@ function InvokeOperation($project, $operation, $arguments) {
             $false,
             0,
             $null,
-            @(@{ targetPath = [string] $targetPath }),
+            @(
+                @{
+                    targetDir = [string]$targetDir
+                    targetFileName = $targetFileName
+                    projectDir = $fullPath
+                    rootNamespace = $rootNamespace
+                }
+            ),
             $null,
             $null)
 
@@ -211,7 +273,7 @@ function InvokeOperation($project, $operation, $arguments) {
                 $false,
                 0,
                 $null,
-                ($executor, [MarshalByRefObject] $handler, $arguments),
+                ($executor, [MarshalByRefObject]$handler, $arguments),
                 $null,
                 $null) | Out-Null
         }

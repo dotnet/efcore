@@ -446,8 +446,10 @@ namespace Microsoft.Data.Entity.Design
             return contextTypes[0];
         }
 
-        protected virtual IReadOnlyList<Type> GetContextTypes(Assembly contextAssembly)
+        public virtual IReadOnlyList<Type> GetContextTypes([NotNull] Assembly contextAssembly)
         {
+            Check.NotNull(contextAssembly, "contextAssembly");
+
             return
                 contextAssembly.GetAccessibleTypes()
                     .Where(t => typeof(DbContext).GetTypeInfo().IsAssignableFrom(t.GetTypeInfo()))
