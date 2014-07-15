@@ -3,7 +3,7 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
@@ -11,17 +11,17 @@ namespace Microsoft.Data.Entity.Identity
 {
     public abstract class SimpleValueGenerator : IValueGenerator
     {
-        public abstract object Next(DbContextConfiguration contextConfiguration, IProperty property);
+        public abstract object Next(StateEntry entry, IProperty property);
 
         public virtual Task<object> NextAsync(
-            DbContextConfiguration contextConfiguration,
+            StateEntry stateEntry,
             IProperty property,
-            CancellationToken cancellationToken = new CancellationToken())
+            CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(contextConfiguration, "contextConfiguration");
+            Check.NotNull(stateEntry, "stateEntry");
             Check.NotNull(property, "property");
 
-            return Task.FromResult(Next(contextConfiguration, property));
+            return Task.FromResult(Next(stateEntry, property));
         }
     }
 }

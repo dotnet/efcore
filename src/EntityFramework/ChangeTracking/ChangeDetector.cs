@@ -168,8 +168,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         private bool DetectForeignKeyChange(StateEntry entry, IProperty property)
         {
-            // TODO: Consider flag/index for fast check for FK
-            if (entry.EntityType.ForeignKeys.SelectMany(fk => fk.Properties).Contains(property))
+            if (property.IsForeignKey())
             {
                 var snapshotValue = entry.RelationshipsSnapshot[property];
                 var currentValue = entry[property];
@@ -234,7 +233,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         private bool DetectPrincipalKeyChange(StateEntry entry, IProperty property)
         {
             // TODO: Perf: make it fast to check if a property is part of the primary key
-            var isPrimaryKey = entry.EntityType.GetKey().Properties.Contains(property);
+            var isPrimaryKey = property.IsPrimaryKey();
 
             // TODO: Perf: make it faster to check if the property is at the principal end or not
             var foreignKeys = _configuration.Model.GetReferencingForeignKeys(property).ToArray();

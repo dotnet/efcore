@@ -8,7 +8,6 @@ using Microsoft.Data.Entity.AzureTableStorage.Metadata;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Identity;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
@@ -131,7 +130,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
         {
             private class IntGenerator : SimpleValueGenerator
             {
-                public override object Next(DbContextConfiguration contextConfiguration, IProperty property)
+                public override object Next(StateEntry entry, IProperty property)
                 {
                     return Guid.NewGuid().GetHashCode();
                 }

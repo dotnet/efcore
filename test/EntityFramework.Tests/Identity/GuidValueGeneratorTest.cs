@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Moq;
 using Xunit;
@@ -33,8 +33,8 @@ namespace Microsoft.Data.Entity.Identity
             for (var i = 0; i < 100; i++)
             {
                 var guid = async
-                    ? await sequentialGuidIdentityGenerator.NextAsync(Mock.Of<DbContextConfiguration>(), Mock.Of<IProperty>())
-                    : sequentialGuidIdentityGenerator.Next(Mock.Of<DbContextConfiguration>(), Mock.Of<IProperty>());
+                    ? await sequentialGuidIdentityGenerator.NextAsync(Mock.Of<StateEntry>(), Mock.Of<IProperty>())
+                    : sequentialGuidIdentityGenerator.Next(Mock.Of<StateEntry>(), Mock.Of<IProperty>());
 
                 values.Add((Guid)guid);
             }

@@ -8,8 +8,10 @@ namespace Microsoft.Data.Entity.SQLite
 {
     public class SQLiteValueGeneratorCache : ValueGeneratorCache
     {
-        public SQLiteValueGeneratorCache([NotNull] SQLiteValueGeneratorSelector selector)
-            : base(selector)
+        public SQLiteValueGeneratorCache(
+            [NotNull] SQLiteValueGeneratorSelector selector,
+            [NotNull] ForeignKeyValueGenerator foreignKeyValueGenerator)
+            : base(selector, foreignKeyValueGenerator)
         {
         }
     }

@@ -3,8 +3,8 @@
 
 using System;
 using System.Threading;
+using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Identity;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.SqlServer.Utilities;
 
@@ -14,9 +14,9 @@ namespace Microsoft.Data.Entity.SqlServer
     {
         private long _counter = DateTime.UtcNow.Ticks;
 
-        public override object Next(DbContextConfiguration contextConfiguration, IProperty property)
+        public override object Next(StateEntry entry, IProperty property)
         {
-            Check.NotNull(contextConfiguration, "contextConfiguration");
+            Check.NotNull(entry, "entry");
             Check.NotNull(property, "property");
 
             var guidBytes = Guid.NewGuid().ToByteArray();

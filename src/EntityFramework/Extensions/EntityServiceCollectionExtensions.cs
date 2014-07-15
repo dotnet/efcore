@@ -32,6 +32,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddSingleton<ClrCollectionAccessorSource>()
                 .AddSingleton<EntityMaterializerSource>()
                 .AddSingleton<CompositeEntityKeyFactory>()
+                .AddSingleton<ForeignKeyValueGenerator>()
                 .AddSingleton<MemberMapper>()
                 .AddSingleton<FieldMatcher>()
                 .AddSingleton<OriginalValuesFactory>()

@@ -7,6 +7,7 @@ using System.Data.Common;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
@@ -23,27 +24,30 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var configMock = new Mock<DbContextConfiguration>();
             configMock.Setup(m => m.Connection).Returns(new Mock<RelationalConnection>().Object);
 
+            var entryMock = new Mock<StateEntry>();
+            entryMock.Setup(m => m.Configuration).Returns(configMock.Object);
+
             var executor = new FakeSqlStatementExecutor(10);
             var generator = new SqlServerSequenceValueGenerator(executor, "Foo", 10);
 
             for (var i = 0; i < 15; i++)
             {
-                Assert.Equal((long)i, generator.Next(configMock.Object, CreateProperty(typeof(long))));
+                Assert.Equal((long)i, generator.Next(entryMock.Object, CreateProperty(typeof(long))));
             }
 
             for (var i = 15; i < 30; i++)
             {
-                Assert.Equal(i, generator.Next(configMock.Object, CreateProperty(typeof(int))));
+                Assert.Equal(i, generator.Next(entryMock.Object, CreateProperty(typeof(int))));
             }
 
             for (var i = 30; i < 45; i++)
             {
-                Assert.Equal((short)i, generator.Next(configMock.Object, CreateProperty(typeof(short))));
+                Assert.Equal((short)i, generator.Next(entryMock.Object, CreateProperty(typeof(short))));
             }
 
             for (var i = 45; i < 60; i++)
             {
-                Assert.Equal((byte)i, generator.Next(configMock.Object, CreateProperty(typeof(byte))));
+                Assert.Equal((byte)i, generator.Next(entryMock.Object, CreateProperty(typeof(byte))));
             }
         }
 
@@ -53,27 +57,30 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var configMock = new Mock<DbContextConfiguration>();
             configMock.Setup(m => m.Connection).Returns(new Mock<RelationalConnection>().Object);
 
+            var entryMock = new Mock<StateEntry>();
+            entryMock.Setup(m => m.Configuration).Returns(configMock.Object);
+
             var executor = new FakeSqlStatementExecutor(10);
             var generator = new SqlServerSequenceValueGenerator(executor, "Foo", 10);
 
             for (var i = 0; i < 15; i++)
             {
-                Assert.Equal((long)i, await generator.NextAsync(configMock.Object, CreateProperty(typeof(long))));
+                Assert.Equal((long)i, await generator.NextAsync(entryMock.Object, CreateProperty(typeof(long))));
             }
 
             for (var i = 15; i < 30; i++)
             {
-                Assert.Equal(i, await generator.NextAsync(configMock.Object, CreateProperty(typeof(int))));
+                Assert.Equal(i, await generator.NextAsync(entryMock.Object, CreateProperty(typeof(int))));
             }
 
             for (var i = 30; i < 45; i++)
             {
-                Assert.Equal((short)i, await generator.NextAsync(configMock.Object, CreateProperty(typeof(short))));
+                Assert.Equal((short)i, await generator.NextAsync(entryMock.Object, CreateProperty(typeof(short))));
             }
 
             for (var i = 45; i < 60; i++)
             {
-                Assert.Equal((byte)i, await generator.NextAsync(configMock.Object, CreateProperty(typeof(byte))));
+                Assert.Equal((byte)i, await generator.NextAsync(entryMock.Object, CreateProperty(typeof(byte))));
             }
         }
 
@@ -82,6 +89,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             var configMock = new Mock<DbContextConfiguration>();
             configMock.Setup(m => m.Connection).Returns(new Mock<RelationalConnection>().Object);
+
+            var entryMock = new Mock<StateEntry>();
+            entryMock.Setup(m => m.Configuration).Returns(configMock.Object);
 
             var executor = new FakeSqlStatementExecutor(10);
             var generator = new SqlServerSequenceValueGenerator(executor, "Foo", 10);
@@ -99,7 +109,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                     {
                         for (var j = 0; j < valueCount; j++)
                         {
-                            generatedValues[testNumber].Add((long)generator.Next(configMock.Object, CreateProperty(typeof(long))));
+                            generatedValues[testNumber].Add((long)generator.Next(entryMock.Object, CreateProperty(typeof(long))));
                         }
                     };
             }
@@ -126,6 +136,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var configMock = new Mock<DbContextConfiguration>();
             configMock.Setup(m => m.Connection).Returns(new Mock<RelationalConnection>().Object);
 
+            var entryMock = new Mock<StateEntry>();
+            entryMock.Setup(m => m.Configuration).Returns(configMock.Object);
+
             var executor = new FakeSqlStatementExecutor(10);
             var generator = new SqlServerSequenceValueGenerator(executor, "Foo", 10);
 
@@ -142,7 +155,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                     {
                         for (var j = 0; j < valueCount; j++)
                         {
-                            generatedValues[testNumber].Add((long)await generator.NextAsync(configMock.Object, CreateProperty(typeof(long))));
+                            generatedValues[testNumber].Add((long)await generator.NextAsync(entryMock.Object, CreateProperty(typeof(long))));
                         }
                     };
             }

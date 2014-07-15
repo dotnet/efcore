@@ -153,7 +153,7 @@ namespace Microsoft.Data.Entity.Relational.Update
 
                     // TODO: Perf: Avoid doing Contains check everywhere we need to know if a property is part of a foreign key
                     var isKey = columnModification.IsKey
-                                || property.EntityType.ForeignKeys.SelectMany(k => k.Properties).Contains(property);
+                                || property.IsForeignKey();
 
                     var typeMapping = typeMapper
                         .GetTypeMapping(

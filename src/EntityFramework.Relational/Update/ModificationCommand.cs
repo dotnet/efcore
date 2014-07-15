@@ -120,7 +120,7 @@ namespace Microsoft.Data.Entity.Relational.Update
 
                 foreach (var property in entityType.Properties)
                 {
-                    var isKey = entityType.GetKey().Properties.Contains(property);
+                    var isKey = property.IsPrimaryKey();
 
                     var isCondition = !adding && (isKey || property.IsConcurrencyToken);
 

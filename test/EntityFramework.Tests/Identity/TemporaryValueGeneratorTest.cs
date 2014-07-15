@@ -3,7 +3,7 @@
 
 using System;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Moq;
 using Xunit;
@@ -19,13 +19,13 @@ namespace Microsoft.Data.Entity.Identity
 
             var property = CreateProperty(typeof(int));
 
-            Assert.Equal(-1, await generator.NextAsync(Mock.Of<DbContextConfiguration>(), property));
-            Assert.Equal(-2, await generator.NextAsync(Mock.Of<DbContextConfiguration>(), property));
-            Assert.Equal(-3, await generator.NextAsync(Mock.Of<DbContextConfiguration>(), property));
+            Assert.Equal(-1, await generator.NextAsync(Mock.Of<StateEntry>(), property));
+            Assert.Equal(-2, await generator.NextAsync(Mock.Of<StateEntry>(), property));
+            Assert.Equal(-3, await generator.NextAsync(Mock.Of<StateEntry>(), property));
 
-            Assert.Equal(-4, generator.Next(Mock.Of<DbContextConfiguration>(), property));
-            Assert.Equal(-5, generator.Next(Mock.Of<DbContextConfiguration>(), property));
-            Assert.Equal(-6, generator.Next(Mock.Of<DbContextConfiguration>(), property));
+            Assert.Equal(-4, generator.Next(Mock.Of<StateEntry>(), property));
+            Assert.Equal(-5, generator.Next(Mock.Of<StateEntry>(), property));
+            Assert.Equal(-6, generator.Next(Mock.Of<StateEntry>(), property));
         }
 
         [Fact]
@@ -33,13 +33,13 @@ namespace Microsoft.Data.Entity.Identity
         {
             var generator = new TemporaryValueGenerator();
 
-            Assert.Equal(-1L, await generator.NextAsync(Mock.Of<DbContextConfiguration>(), CreateProperty(typeof(long))));
-            Assert.Equal(-2, await generator.NextAsync(Mock.Of<DbContextConfiguration>(), CreateProperty(typeof(int))));
-            Assert.Equal((short)-3, await generator.NextAsync(Mock.Of<DbContextConfiguration>(), CreateProperty(typeof(short))));
+            Assert.Equal(-1L, await generator.NextAsync(Mock.Of<StateEntry>(), CreateProperty(typeof(long))));
+            Assert.Equal(-2, await generator.NextAsync(Mock.Of<StateEntry>(), CreateProperty(typeof(int))));
+            Assert.Equal((short)-3, await generator.NextAsync(Mock.Of<StateEntry>(), CreateProperty(typeof(short))));
 
-            Assert.Equal(-4L, generator.Next(Mock.Of<DbContextConfiguration>(), CreateProperty(typeof(long))));
-            Assert.Equal(-5, generator.Next(Mock.Of<DbContextConfiguration>(), CreateProperty(typeof(int))));
-            Assert.Equal((short)-6, generator.Next(Mock.Of<DbContextConfiguration>(), CreateProperty(typeof(short))));
+            Assert.Equal(-4L, generator.Next(Mock.Of<StateEntry>(), CreateProperty(typeof(long))));
+            Assert.Equal(-5, generator.Next(Mock.Of<StateEntry>(), CreateProperty(typeof(int))));
+            Assert.Equal((short)-6, generator.Next(Mock.Of<StateEntry>(), CreateProperty(typeof(short))));
         }
 
         [Fact]
@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.Identity
         {
             var generator = new TemporaryValueGenerator();
 
-            Assert.Throws<OverflowException>(() => generator.Next(Mock.Of<DbContextConfiguration>(), CreateProperty(typeof(byte))));
+            Assert.Throws<OverflowException>(() => generator.Next(Mock.Of<StateEntry>(), CreateProperty(typeof(byte))));
         }
 
         private static Property CreateProperty(Type propertyType)

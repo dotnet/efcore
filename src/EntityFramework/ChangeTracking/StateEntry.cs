@@ -145,7 +145,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             return generators == null
                 ? null
                 : generators
-                    .Select(t => t.Item2 == null ? null : Tuple.Create(t.Item1, t.Item2.Next(_configuration, t.Item1)))
+                    .Select(t => t.Item2 == null ? null : Tuple.Create(t.Item1, t.Item2.Next(this, t.Item1)))
                     .ToArray();
         }
 
@@ -165,7 +165,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 if (generator != null)
                 {
                     var property = generators[i].Item1;
-                    values[i] = Tuple.Create(property, await generator.NextAsync(_configuration, property, cancellationToken));
+                    values[i] = Tuple.Create(property, await generator.NextAsync(this, property, cancellationToken: cancellationToken));
                 }
             }
             return values;
@@ -178,7 +178,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             {
                 return null;
             }
-            var properties = _entityType.Properties.Where(p => p.ValueGenerationOnAdd != ValueGenerationOnAdd.None);
+            var properties = _entityType.Properties.Where(p => p.ValueGenerationOnAdd != ValueGenerationOnAdd.None || p.IsForeignKey());
             return properties.Select(p => Tuple.Create(p, _configuration.ValueGeneratorCache.GetGenerator(p))).ToArray();
         }
 
@@ -219,7 +219,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             if (newState == EntityState.Added)
             {
-                foreach (var generatedValue in generatedValues.Where(v => v != null))
+                foreach (var generatedValue in generatedValues.Where(v => v != null && v.Item2 != null))
                 {
                     this[generatedValue.Item1] = generatedValue.Item2;
                 }

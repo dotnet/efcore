@@ -265,7 +265,6 @@ namespace Microsoft.Data.Entity.MonsterModel
             builder.Entity<TProductWebFeature>().ForeignKeys(fk => fk.ForeignKey<TProductReview>(e => new { e.ProductId, e.ReviewId }));
             builder.Entity<TResolution>().ForeignKeys(fk => fk.ForeignKey<TComplaint>(e => e.ResolutionId, isUnique: true));
             builder.Entity<TIncorrectScan>().ForeignKeys(fk => fk.ForeignKey<TBarcode>(e => e.ExpectedCode));
-            builder.Entity<TCustomer>().ForeignKeys(fk => fk.ForeignKey<TCustomer>(e => e.CustomerId));
             builder.Entity<TCustomer>().ForeignKeys(fk => fk.ForeignKey<TCustomer>(e => e.HusbandId, isUnique: true));
             builder.Entity<TIncorrectScan>().ForeignKeys(fk => fk.ForeignKey<TBarcode>(e => e.ActualCode));
             builder.Entity<TBarcode>().ForeignKeys(fk => fk.ForeignKey<TProduct>(e => e.ProductId));
@@ -784,17 +783,15 @@ namespace Microsoft.Data.Entity.MonsterModel
             var rsaToken1 = Add(new TRsaToken { Issued = DateTime.Now, Serial = "1234", Login = login1 });
             var rsaToken2 = Add(new TRsaToken { Issued = DateTime.Now, Serial = "2234", Login = login2 });
 
-            // TODO: Dependent PK of identifying relationship should not need to be set
-            var smartCard1 = Add(new TSmartCard { Username = login1.Username, Login = dependentNavs ? login1 : null, CardSerial = rsaToken1.Serial, Issued = rsaToken1.Issued });
-            var smartCard2 = Add(new TSmartCard { Username = login2.Username, Login = dependentNavs ? login2 : null, CardSerial = rsaToken2.Serial, Issued = rsaToken2.Issued });
+            var smartCard1 = Add(new TSmartCard { Login = login1, CardSerial = rsaToken1.Serial, Issued = rsaToken1.Issued });
+            var smartCard2 = Add(new TSmartCard { Login = login2, CardSerial = rsaToken2.Serial, Issued = rsaToken2.Issued });
 
             var reset1 = Add(new TPasswordReset
                 {
                     EmailedTo = "trent@example.com",
                     ResetNo = 1,
                     TempPassword = "Rent-A-Mole",
-                    Username = login3.Username, // TODO: Dependent PK of identifying relationship should not need to be set
-                    Login = dependentNavs ? login3 : null
+                    Login = login3
                 });
 
             var pageView1 = Add(new TPageView { PageUrl = "somePage1", Login = login1, Viewed = DateTime.Now });
@@ -805,8 +802,7 @@ namespace Microsoft.Data.Entity.MonsterModel
                 {
                     LoggedIn = new DateTime(2014, 5, 27, 10, 22, 26),
                     LoggedOut = new DateTime(2014, 5, 27, 11, 22, 26),
-                    Username = login1.Username, // TODO: Dependent PK of identifying relationship should not need to be set
-                    Login = dependentNavs ? login1 : null,
+                    Login = login1,
                     SmartcardUsername = smartCard1.Username
                 });
             if (principalNavs)
@@ -819,8 +815,7 @@ namespace Microsoft.Data.Entity.MonsterModel
                 {
                     LoggedIn = new DateTime(2014, 5, 27, 12, 22, 26),
                     LoggedOut = new DateTime(2014, 5, 27, 13, 22, 26),
-                    Username = login2.Username, // TODO: Dependent PK of identifying relationship should not need to be set
-                    Login = dependentNavs ? login2 : null,
+                    Login = login2,
                     SmartcardUsername = smartCard2.Username
                 });
             if (principalNavs)
@@ -833,8 +828,7 @@ namespace Microsoft.Data.Entity.MonsterModel
                 {
                     Subject = "Tea?",
                     Body = "Fancy a cup of tea?",
-                    FromUsername = login1.Username, // TODO: Dependent PK of identifying relationship should not need to be set
-                    Sender = dependentNavs ? login1 : null,
+                    Sender = login1,
                     Recipient = dependentNavs ? login2 : null,
                     Sent = DateTime.Now,
                 });
@@ -848,8 +842,7 @@ namespace Microsoft.Data.Entity.MonsterModel
                 {
                     Subject = "Re: Tea?",
                     Body = "Love one!",
-                    FromUsername = login2.Username, // TODO: Dependent PK of identifying relationship should not need to be set
-                    Sender = dependentNavs ? login2 : null,
+                    Sender = login2,
                     Recipient = dependentNavs ? login1 : null,
                     Sent = DateTime.Now,
                 });
@@ -863,8 +856,7 @@ namespace Microsoft.Data.Entity.MonsterModel
                 {
                     Subject = "Re: Tea?",
                     Body = "I'll put the kettle on.",
-                    FromUsername = login1.Username, // TODO: Dependent PK of identifying relationship should not need to be set
-                    Sender = dependentNavs ? login1 : null,
+                    Sender = login1,
                     Recipient = dependentNavs ? login2 : null,
                     Sent = DateTime.Now,
                 });
@@ -897,18 +889,16 @@ namespace Microsoft.Data.Entity.MonsterModel
                 order1.Notes.Add(orderNote3);
             }
 
-            // TODO: Dependent PK of identifying relationship should not need to be set
-            var orderQualityCheck1 = Add(new TOrderQualityCheck { OrderId = order1.AnOrderId, Order = dependentNavs ? order1 : null, CheckedBy = "Eeky Bear" });
-            var orderQualityCheck2 = Add(new TOrderQualityCheck { OrderId = order2.AnOrderId, Order = dependentNavs ? order2 : null, CheckedBy = "Eeky Bear" });
-            var orderQualityCheck3 = Add(new TOrderQualityCheck { OrderId = order3.AnOrderId, Order = dependentNavs ? order3 : null, CheckedBy = "Eeky Bear" });
+            var orderQualityCheck1 = Add(new TOrderQualityCheck { Order = order1, CheckedBy = "Eeky Bear" });
+            var orderQualityCheck2 = Add(new TOrderQualityCheck { Order = order2, CheckedBy = "Eeky Bear" });
+            var orderQualityCheck3 = Add(new TOrderQualityCheck { Order = order3, CheckedBy = "Eeky Bear" });
 
-            // TODO: Dependent PK of identifying relationship should not need to be set
-            var orderLine1 = Add(new TOrderLine { OrderId = order1.AnOrderId, ProductId = product1.ProductId, Order = dependentNavs ? order1 : null, Product = dependentNavs ? product1 : null, Quantity = 7 });
-            var orderLine2 = Add(new TOrderLine { OrderId = order1.AnOrderId, ProductId = product2.ProductId, Order = dependentNavs ? order1 : null, Product = dependentNavs ? product2 : null, Quantity = 1 });
-            var orderLine3 = Add(new TOrderLine { OrderId = order2.AnOrderId, ProductId = product3.ProductId, Order = dependentNavs ? order2 : null, Product = dependentNavs ? product3 : null, Quantity = 2 });
-            var orderLine4 = Add(new TOrderLine { OrderId = order2.AnOrderId, ProductId = product2.ProductId, Order = dependentNavs ? order2 : null, Product = dependentNavs ? product2 : null, Quantity = 3 });
-            var orderLine5 = Add(new TOrderLine { OrderId = order2.AnOrderId, ProductId = product1.ProductId, Order = dependentNavs ? order2 : null, Product = dependentNavs ? product1 : null, Quantity = 4 });
-            var orderLine6 = Add(new TOrderLine { OrderId = order3.AnOrderId, ProductId = product2.ProductId, Order = dependentNavs ? order3 : null, Product = dependentNavs ? product2 : null, Quantity = 5 });
+            var orderLine1 = Add(new TOrderLine { Order = order1, Product = product1, Quantity = 7 });
+            var orderLine2 = Add(new TOrderLine { Order = order1, Product = product2, Quantity = 1 });
+            var orderLine3 = Add(new TOrderLine { Order = order2, Product = product3, Quantity = 2 });
+            var orderLine4 = Add(new TOrderLine { Order = order2, Product = product2, Quantity = 3 });
+            var orderLine5 = Add(new TOrderLine { Order = order2, Product = product1, Quantity = 4 });
+            var orderLine6 = Add(new TOrderLine { Order = order3, Product = product2, Quantity = 5 });
             if (principalNavs)
             {
                 order1.OrderLines.Add(orderLine1);
@@ -919,9 +909,8 @@ namespace Microsoft.Data.Entity.MonsterModel
                 order3.OrderLines.Add(orderLine6);
             }
 
-            // TODO: Dependent PK of identifying relationship should not need to be set
-            var productDetail1 = Add(new TProductDetail { Details = "A Waffle Cart specialty!", ProductId = product1.ProductId, Product = dependentNavs ? product1 : null });
-            var productDetail2 = Add(new TProductDetail { Details = "Eeky Bear's favorite!", ProductId = product2.ProductId, Product = dependentNavs ? product2 : null });
+            var productDetail1 = Add(new TProductDetail { Details = "A Waffle Cart specialty!", Product = product1 });
+            var productDetail2 = Add(new TProductDetail { Details = "Eeky Bear's favorite!", Product = product2 });
             if (principalNavs)
             {
                 product1.Detail = productDetail1;
@@ -998,8 +987,7 @@ namespace Microsoft.Data.Entity.MonsterModel
 
             var computerDetail1 = Add(new TComputerDetail
                 {
-                    ComputerDetailId = computer1.ComputerId, // TODO: Dependent PK of identifying relationship should not need to be set
-                    Computer = dependentNavs ? computer1 : null,
+                    Computer = computer1,
                     Manufacturer = "Dell",
                     Model = "420",
                     PurchaseDate = new DateTime(2008, 4, 1),
@@ -1013,8 +1001,7 @@ namespace Microsoft.Data.Entity.MonsterModel
 
             var computerDetail2 = Add(new TComputerDetail
                 {
-                    ComputerDetailId = computer2.ComputerId, // TODO: Dependent PK of identifying relationship should not need to be set
-                    Computer = dependentNavs ? computer2 : null,
+                    Computer = computer2,
                     Manufacturer = "Not A Dell",
                     Model = "Not 420",
                     PurchaseDate = new DateTime(2012, 4, 1),
@@ -1031,8 +1018,7 @@ namespace Microsoft.Data.Entity.MonsterModel
 
             var license1 = Add(new TLicense
                 {
-                    Name = driver1.Name, // TODO: Dependent PK of identifying relationship should not need to be set
-                    Driver = dependentNavs ? driver1 : null,
+                    Driver = driver1,
                     LicenseClass = "C",
                     LicenseNumber = "10",
                     Restrictions = "None",
@@ -1046,8 +1032,7 @@ namespace Microsoft.Data.Entity.MonsterModel
 
             var license2 = Add(new TLicense
                 {
-                    Name = driver2.Name, // TODO: Dependent PK of identifying relationship should not need to be set
-                    Driver = dependentNavs ? driver2 : null,
+                    Driver = driver2,
                     LicenseClass = "A",
                     LicenseNumber = "11",
                     Restrictions = "None",
@@ -1063,6 +1048,314 @@ namespace Microsoft.Data.Entity.MonsterModel
             {
                 SaveChanges();
             }
+        }
+
+        public override void SeedUsingNavigationsWithDeferredAdd(bool saveChanges = true)
+        {
+            var toAdd = new List<object>[4];
+
+            for (var i = 0; i < toAdd.Length; i++)
+            {
+                toAdd[i] = new List<object>();
+            }
+
+            var customer0 = toAdd[0].AddEx(new TCustomer { Name = "Eeky Bear" });
+            var customer1 = toAdd[0].AddEx(new TCustomer { Name = "Sheila Koalie" });
+            var customer3 = toAdd[0].AddEx(new TCustomer { Name = "Tarquin Tiger" });
+            var customer2 = toAdd[0].AddEx(new TCustomer { Name = "Sue Pandy", Husband = customer0 });
+
+            var product1 = toAdd[0].AddEx(new TProduct { Description = "Mrs Koalie's Famous Waffles", BaseConcurrency = "Pounds Sterling" });
+            var product2 = toAdd[0].AddEx(new TProduct { Description = "Chocolate Donuts", BaseConcurrency = "US Dollars" });
+            var product3 = toAdd[0].AddEx(new TProduct { Description = "Assorted Dog Treats", BaseConcurrency = "Stuffy Money" });
+
+            var barcode1 = toAdd[1].AddEx(new TBarcode { Code = new byte[] { 1, 2, 3, 4 }, Text = "Barcode 1 2 3 4" });
+            var barcode2 = toAdd[1].AddEx(new TBarcode { Code = new byte[] { 2, 2, 3, 4 }, Text = "Barcode 2 2 3 4" });
+            var barcode3 = toAdd[1].AddEx(new TBarcode { Code = new byte[] { 3, 2, 3, 4 }, Text = "Barcode 3 2 3 4" });
+
+            product1.Barcodes.Add(barcode1);
+            product2.Barcodes.Add(barcode2);
+            product3.Barcodes.Add(barcode3);
+
+            var barcodeDetails1 = toAdd[1].AddEx(new TBarcodeDetail { RegisteredTo = "Eeky Bear" });
+            var barcodeDetails2 = toAdd[1].AddEx(new TBarcodeDetail { RegisteredTo = "Trent" });
+
+            barcode1.Detail = barcodeDetails1;
+            barcode2.Detail = barcodeDetails2;
+
+            var incorrectScan1 = toAdd[1].AddEx(
+                new TIncorrectScan
+                    {
+                        ScanDate = new DateTime(2014, 5, 28, 19, 9, 6),
+                        Details = "Treats not Donuts",
+                        ActualBarcode = barcode3
+                    });
+            barcode2.BadScans.Add(incorrectScan1);
+
+            var incorrectScan2 = toAdd[1].AddEx(
+                new TIncorrectScan
+                    {
+                        ScanDate = new DateTime(2014, 5, 28, 19, 15, 31),
+                        Details = "Wot no waffles?",
+                        ActualBarcode = barcode2
+                    });
+            barcode1.BadScans.Add(incorrectScan2);
+
+            var complaint1 = toAdd[1].AddEx(new TComplaint
+                {
+                    Customer = customer2,
+                    Details = "Don't give coffee to Eeky!",
+                    Logged = new DateTime(2014, 5, 27, 19, 22, 26)
+                });
+
+            var complaint2 = toAdd[1].AddEx(new TComplaint
+                {
+                    Customer = customer2,
+                    Details = "Really! Don't give coffee to Eeky!",
+                    Logged = new DateTime(2014, 5, 28, 19, 22, 26)
+                });
+
+            var resolution = toAdd[2].AddEx(new TResolution { Details = "Destroyed all coffee in Redmond area." });
+            complaint2.Resolution = resolution;
+
+            var login1 = toAdd[1].AddEx(new TLogin { Username = "MrsKoalie73" });
+            var login2 = toAdd[1].AddEx(new TLogin { Username = "MrsBossyPants" });
+            var login3 = toAdd[1].AddEx(new TLogin { Username = "TheStripedMenace" });
+
+            customer1.Logins.Add(login1);
+            customer2.Logins.Add(login2);
+            customer3.Logins.Add(login3);
+
+            var suspiciousActivity1 = toAdd[2].AddEx(new TSuspiciousActivity { Activity = "Pig prints on keyboard", Username = login3.Username });
+            var suspiciousActivity2 = toAdd[2].AddEx(new TSuspiciousActivity { Activity = "Crumbs in the cupboard", Username = login3.Username });
+            var suspiciousActivity3 = toAdd[2].AddEx(new TSuspiciousActivity { Activity = "Donuts gone missing", Username = login3.Username });
+
+            var rsaToken1 = toAdd[2].AddEx(new TRsaToken { Issued = DateTime.Now, Serial = "1234", Login = login1 });
+            var rsaToken2 = toAdd[2].AddEx(new TRsaToken { Issued = DateTime.Now, Serial = "2234", Login = login2 });
+
+            var smartCard1 = toAdd[2].AddEx(new TSmartCard { Login = login1, CardSerial = rsaToken1.Serial, Issued = rsaToken1.Issued });
+            var smartCard2 = toAdd[2].AddEx(new TSmartCard { Login = login2, CardSerial = rsaToken2.Serial, Issued = rsaToken2.Issued });
+
+            var reset1 = toAdd[2].AddEx(new TPasswordReset
+                {
+                    EmailedTo = "trent@example.com",
+                    ResetNo = 1,
+                    TempPassword = "Rent-A-Mole",
+                    Login = login3
+                });
+
+            var pageView1 = toAdd[1].AddEx(new TPageView { PageUrl = "somePage1", Login = login1, Viewed = DateTime.Now });
+            var pageView2 = toAdd[1].AddEx(new TPageView { PageUrl = "somePage2", Login = login1, Viewed = DateTime.Now });
+            var pageView3 = toAdd[1].AddEx(new TPageView { PageUrl = "somePage3", Login = login1, Viewed = DateTime.Now });
+
+            var lastLogin1 = toAdd[2].AddEx(new TLastLogin
+                {
+                    LoggedIn = new DateTime(2014, 5, 27, 10, 22, 26),
+                    LoggedOut = new DateTime(2014, 5, 27, 11, 22, 26),
+                });
+
+            login1.LastLogin = lastLogin1;
+            smartCard1.LastLogin = lastLogin1;
+
+            var lastLogin2 = toAdd[2].AddEx(new TLastLogin
+                {
+                    LoggedIn = new DateTime(2014, 5, 27, 12, 22, 26),
+                    LoggedOut = new DateTime(2014, 5, 27, 13, 22, 26),
+                });
+
+            login2.LastLogin = lastLogin2;
+            smartCard2.LastLogin = lastLogin2;
+
+            var message1 = toAdd[2].AddEx(new TMessage
+                {
+                    Subject = "Tea?",
+                    Body = "Fancy a cup of tea?",
+                    Sent = DateTime.Now,
+                });
+
+            login1.SentMessages.Add(message1);
+            login2.ReceivedMessages.Add(message1);
+
+            var message2 = toAdd[2].AddEx(new TMessage
+                {
+                    Subject = "Re: Tea?",
+                    Body = "Love one!",
+                    Sent = DateTime.Now,
+                });
+
+            login2.SentMessages.Add(message2);
+            login1.ReceivedMessages.Add(message2);
+
+            var message3 = toAdd[2].AddEx(new TMessage
+                {
+                    Subject = "Re: Tea?",
+                    Body = "I'll put the kettle on.",
+                    Sent = DateTime.Now,
+                });
+
+            login1.SentMessages.Add(message3);
+            login2.ReceivedMessages.Add(message3);
+
+            var order1 = toAdd[2].AddEx(new TAnOrder { Customer = customer1, Login = login1 });
+            var order2 = toAdd[2].AddEx(new TAnOrder { Customer = customer2, Login = login2 });
+            var order3 = toAdd[2].AddEx(new TAnOrder { Customer = customer3, Login = login3 });
+
+            customer1.Orders.Add(order1);
+            customer2.Orders.Add(order2);
+            customer3.Orders.Add(order3);
+
+            login1.Orders.Add(order1);
+            login2.Orders.Add(order2);
+            login3.Orders.Add(order3);
+
+            var orderNote1 = toAdd[2].AddEx(new TOrderNote { Note = "Must have tea!" });
+            var orderNote2 = toAdd[2].AddEx(new TOrderNote { Note = "And donuts!" });
+            var orderNote3 = toAdd[2].AddEx(new TOrderNote { Note = "But no coffee. :-(" });
+
+            order1.Notes.Add(orderNote1);
+            order1.Notes.Add(orderNote2);
+            order1.Notes.Add(orderNote3);
+
+            var orderQualityCheck1 = toAdd[2].AddEx(new TOrderQualityCheck { Order = order1, CheckedBy = "Eeky Bear" });
+            var orderQualityCheck2 = toAdd[2].AddEx(new TOrderQualityCheck { Order = order2, CheckedBy = "Eeky Bear" });
+            var orderQualityCheck3 = toAdd[2].AddEx(new TOrderQualityCheck { Order = order3, CheckedBy = "Eeky Bear" });
+
+            var orderLine1 = toAdd[3].AddEx(new TOrderLine { Product = product1, Quantity = 7 });
+            var orderLine2 = toAdd[3].AddEx(new TOrderLine { Product = product2, Quantity = 1 });
+            var orderLine3 = toAdd[3].AddEx(new TOrderLine { Product = product3, Quantity = 2 });
+            var orderLine4 = toAdd[3].AddEx(new TOrderLine { Product = product2, Quantity = 3 });
+            var orderLine5 = toAdd[3].AddEx(new TOrderLine { Product = product1, Quantity = 4 });
+            var orderLine6 = toAdd[3].AddEx(new TOrderLine { Product = product2, Quantity = 5 });
+
+            order1.OrderLines.Add(orderLine1);
+            order1.OrderLines.Add(orderLine2);
+            order2.OrderLines.Add(orderLine3);
+            order2.OrderLines.Add(orderLine4);
+            order2.OrderLines.Add(orderLine5);
+            order3.OrderLines.Add(orderLine6);
+
+            var productDetail1 = toAdd[0].AddEx(new TProductDetail { Details = "A Waffle Cart specialty!" });
+            var productDetail2 = toAdd[0].AddEx(new TProductDetail { Details = "Eeky Bear's favorite!" });
+
+            product1.Detail = productDetail1;
+            product2.Detail = productDetail2;
+
+            var productReview1 = toAdd[0].AddEx(new TProductReview { Review = "Better than Tarqies!" });
+            var productReview2 = toAdd[0].AddEx(new TProductReview { Review = "Good with maple syrup." });
+            var productReview3 = toAdd[0].AddEx(new TProductReview { Review = "Eeky says yes!" });
+
+            product1.Reviews.Add(productReview1);
+            product1.Reviews.Add(productReview2);
+            product2.Reviews.Add(productReview3);
+
+            var productPhoto1 = toAdd[0].AddEx(new TProductPhoto { ProductId = product1.ProductId, Photo = new byte[] { 101, 102 } });
+            var productPhoto2 = toAdd[0].AddEx(new TProductPhoto { ProductId = product1.ProductId, Photo = new byte[] { 103, 104 } });
+            var productPhoto3 = toAdd[0].AddEx(new TProductPhoto { ProductId = product3.ProductId, Photo = new byte[] { 105, 106 } });
+
+            product1.Photos.Add(productPhoto1);
+            product1.Photos.Add(productPhoto2);
+            product3.Photos.Add(productPhoto3);
+
+            var productWebFeature1 = toAdd[0].AddEx(new TProductWebFeature
+                {
+                    Heading = "Waffle Style",
+                    ProductId = product1.ProductId,
+                });
+
+            productPhoto1.Features.Add(productWebFeature1);
+            productReview1.Features.Add(productWebFeature1);
+
+            var productWebFeature2 = toAdd[0].AddEx(new TProductWebFeature
+                {
+                    Heading = "What does the waffle say?",
+                    ProductId = product2.ProductId,
+                });
+
+            productReview3.Features.Add(productWebFeature2);
+
+            var supplier1 = toAdd[0].AddEx(new TSupplier { Name = "Trading As Trent" });
+            var supplier2 = toAdd[0].AddEx(new TSupplier { Name = "Ants By Boris" });
+
+            var supplierLogo1 = toAdd[0].AddEx(new TSupplierLogo { Logo = new byte[] { 201, 202 } });
+
+            supplier1.Logo = supplierLogo1;
+
+            var supplierInfo1 = toAdd[0].AddEx(new TSupplierInfo { Supplier = supplier1, Information = "Seems a bit dodgy." });
+            var supplierInfo2 = toAdd[0].AddEx(new TSupplierInfo { Supplier = supplier1, Information = "Orange fur?" });
+            var supplierInfo3 = toAdd[0].AddEx(new TSupplierInfo { Supplier = supplier2, Information = "Very expensive!" });
+
+            var customerInfo1 = toAdd[0].AddEx(new TCustomerInfo { Information = "Really likes tea." });
+            var customerInfo2 = toAdd[0].AddEx(new TCustomerInfo { Information = "Mrs Bossy Pants!" });
+
+            customer1.Info = customerInfo1;
+            customer2.Info = customerInfo2;
+
+            var computer1 = toAdd[0].AddEx(new TComputer { Name = "markash420" });
+            var computer2 = toAdd[0].AddEx(new TComputer { Name = "unicorns420" });
+
+            var computerDetail1 = toAdd[0].AddEx(new TComputerDetail
+                {
+                    Manufacturer = "Dell",
+                    Model = "420",
+                    PurchaseDate = new DateTime(2008, 4, 1),
+                    Serial = "4201",
+                    Specifications = "It's a Dell!"
+                });
+
+            computer1.ComputerDetail = computerDetail1;
+
+            var computerDetail2 = toAdd[0].AddEx(new TComputerDetail
+                {
+                    Manufacturer = "Not A Dell",
+                    Model = "Not 420",
+                    PurchaseDate = new DateTime(2012, 4, 1),
+                    Serial = "4202",
+                    Specifications = "It's not a Dell!"
+                });
+
+            computer2.ComputerDetail = computerDetail2;
+
+            var driver1 = toAdd[0].AddEx(new TDriver { BirthDate = new DateTime(2006, 9, 19), Name = "Eeky Bear" });
+            var driver2 = toAdd[0].AddEx(new TDriver { BirthDate = new DateTime(2007, 9, 19), Name = "Splash Bear" });
+
+            var license1 = toAdd[1].AddEx(new TLicense
+                {
+                    LicenseClass = "C",
+                    LicenseNumber = "10",
+                    Restrictions = "None",
+                    State = LicenseState.Active,
+                    ExpirationDate = new DateTime(2018, 9, 19)
+                });
+
+            driver1.License = license1;
+
+            var license2 = toAdd[1].AddEx(new TLicense
+                {
+                    LicenseClass = "A",
+                    LicenseNumber = "11",
+                    Restrictions = "None",
+                    State = LicenseState.Revoked,
+                    ExpirationDate = new DateTime(2018, 9, 19)
+                });
+            driver2.License = license2;
+
+            foreach (var entity in toAdd.SelectMany(l => l))
+            {
+                Add(entity);
+            }
+
+            if (saveChanges)
+            {
+                SaveChanges();
+            }
+        }
+    }
+
+    internal static class Adder
+    {
+        public static TValue AddEx<TValue>(this List<object> list, TValue value)
+        {
+            list.Add(value);
+            return value;
         }
     }
 }

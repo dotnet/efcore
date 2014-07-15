@@ -72,6 +72,7 @@
     <Compile Include="EntityState.cs" />
     <Compile Include="EntityStateExtensions.cs" />
     <Compile Include="ChangeTracking\PropertyBagExtensions.cs" />
+    <Compile Include="Identity\ForeignKeyValueGenerator.cs" />
     <Compile Include="Identity\GuidValueGenerator.cs" />
     <Compile Include="Identity\IValueGenerator.cs" />
     <Compile Include="Identity\IValueGeneratorFactory.cs" />
@@ -91,6 +92,7 @@
     <Compile Include="Metadata\Index.cs" />
     <Compile Include="Metadata\NavigationExtensions.cs" />
     <Compile Include="Metadata\EntityTypeNameComparer.cs" />
+    <Compile Include="Metadata\PropertyExtensions.cs" />
     <Compile Include="Query\AsyncResultOperatorHandler.cs" />
     <Compile Include="Query\IResultOperatorHandler.cs" />
     <Compile Include="Query\QueryCompilationContext.cs" />

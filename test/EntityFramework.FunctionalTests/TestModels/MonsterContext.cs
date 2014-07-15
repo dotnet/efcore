@@ -47,5 +47,6 @@ namespace Microsoft.Data.Entity.MonsterModel
 
         public abstract void SeedUsingFKs(bool saveChanges = true);
         public abstract void SeedUsingNavigations(bool dependentNavs, bool principalNavs, bool saveChanges = true);
+        public abstract void SeedUsingNavigationsWithDeferredAdd(bool saveChanges = true);
     }
 }

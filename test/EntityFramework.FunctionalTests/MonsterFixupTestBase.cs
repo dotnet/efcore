@@ -163,6 +163,44 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Can_build_monster_model_and_seed_data_using_navigations_with_deferred_add()
+        {
+            const string databaseName = SnapshotDatabaseName + "_AllNavsDeferred";
+            Can_build_monster_model_and_seed_data_using_navigations_with_deferred_add_test(p => CreateSnapshotMonsterContext(p, databaseName), databaseName);
+        }
+
+        [Fact]
+        public virtual void Can_build_monster_model_with_full_notification_entities_and_seed_data_using_navigations_with_deferred_add()
+        {
+            const string databaseName = FullNotifyDatabaseName + "_AllNavsDeferred";
+            Can_build_monster_model_and_seed_data_using_navigations_with_deferred_add_test(p => CreateChangedChangingMonsterContext(p, databaseName), databaseName);
+        }
+
+        [Fact]
+        public virtual void Can_build_monster_model_with_changed_only_notification_entities_and_seed_data_using_navigations_with_deferred_add()
+        {
+            const string databaseName = ChangedOnlyDatabaseName + "_AllNavsDeferred";
+            Can_build_monster_model_and_seed_data_using_navigations_with_deferred_add_test(p => CreateChangedOnlyMonsterContext(p, databaseName), databaseName);
+        }
+
+        private void Can_build_monster_model_and_seed_data_using_navigations_with_deferred_add_test(
+            Func<IServiceProvider, MonsterContext> createContext, string databaseName)
+        {
+            var serviceProvider = CreateServiceProvider();
+
+            using (var context = createContext(serviceProvider))
+            {
+                context.Database.EnsureDeleted();
+                context.Database.EnsureCreated();
+                context.SeedUsingNavigationsWithDeferredAdd();
+            }
+
+            SimpleVerification(() => createContext(serviceProvider));
+            FkVerification(() => createContext(serviceProvider));
+            NavigationVerification(() => createContext(serviceProvider));
+        }
+
+        [Fact]
         public virtual async Task Store_generated_values_are_discarded_if_saving_changes_fails()
         {
             const string databaseName = SnapshotDatabaseName + "_Bad";
@@ -1129,10 +1167,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     new[] { "Better than Tarqies!", "Eeky says yes!", "Good with maple syrup." },
                     context.ProductReviews.Select(c => c.Review).OrderBy(n => n));
 
-                // TODO: Remove ToArray once LINQ to EF7 can support this query
                 Assert.Equal(
                     new[] { "101", "103", "105" },
-                    context.ProductPhotos.ToArray().Select(c => c.Photo.First().ToString()).OrderBy(n => n));
+                    context.ProductPhotos.Select(c => c.Photo.First().ToString()).OrderBy(n => n));
 
                 Assert.Equal(
                     new[] { "Waffle Style", "What does the waffle say?" },

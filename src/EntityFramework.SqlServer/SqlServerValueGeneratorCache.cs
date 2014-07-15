@@ -8,8 +8,10 @@ namespace Microsoft.Data.Entity.SqlServer
 {
     public class SqlServerValueGeneratorCache : ValueGeneratorCache
     {
-        public SqlServerValueGeneratorCache([NotNull] SqlServerValueGeneratorSelector selector)
-            : base(selector)
+        public SqlServerValueGeneratorCache(
+            [NotNull] SqlServerValueGeneratorSelector selector, 
+            [NotNull] ForeignKeyValueGenerator foreignKeyValueGenerator)
+            : base(selector, foreignKeyValueGenerator)
         {
         }
     }

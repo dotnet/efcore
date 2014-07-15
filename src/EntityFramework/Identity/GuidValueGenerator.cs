@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
@@ -10,9 +10,9 @@ namespace Microsoft.Data.Entity.Identity
 {
     public class GuidValueGenerator : SimpleValueGenerator
     {
-        public override object Next(DbContextConfiguration contextConfiguration, IProperty property)
+        public override object Next(StateEntry entry, IProperty property)
         {
-            Check.NotNull(contextConfiguration, "contextConfiguration");
+            Check.NotNull(entry, "entry");
             Check.NotNull(property, "property");
 
             return Guid.NewGuid();

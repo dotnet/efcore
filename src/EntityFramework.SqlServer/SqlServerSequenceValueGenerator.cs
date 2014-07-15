@@ -7,6 +7,7 @@ using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
@@ -47,11 +48,9 @@ namespace Microsoft.Data.Entity.SqlServer
             get { return _blockSize; }
         }
 
-        public virtual object Next(
-            DbContextConfiguration contextConfiguration,
-            IProperty property)
+        public virtual object Next(StateEntry entry, IProperty property)
         {
-            Check.NotNull(contextConfiguration, "contextConfiguration");
+            Check.NotNull(entry, "entry");
             Check.NotNull(property, "property");
 
             var newValue = GetNextValue();
@@ -67,7 +66,7 @@ namespace Microsoft.Data.Entity.SqlServer
                     // case just get a value out of the new block instead of requesting one.
                     if (newValue.Max == _currentValue.Max)
                     {
-                        var commandInfo = PrepareCommand(contextConfiguration);
+                        var commandInfo = PrepareCommand(entry.Configuration);
 
                         var newCurrent = (long)_executor.ExecuteScalar(commandInfo.Item1, commandInfo.Item2);
                         newValue = new SequenceValue(newCurrent, newCurrent + _blockSize);
@@ -83,12 +82,9 @@ namespace Microsoft.Data.Entity.SqlServer
             return Convert.ChangeType(newValue.Current, property.PropertyType);
         }
 
-        public virtual async Task<object> NextAsync(
-            DbContextConfiguration contextConfiguration,
-            IProperty property,
-            CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task<object> NextAsync(StateEntry stateEntry, IProperty property, CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(contextConfiguration, "contextConfiguration");
+            Check.NotNull(stateEntry, "stateEntry");
             Check.NotNull(property, "property");
 
             var newValue = GetNextValue();
@@ -104,7 +100,7 @@ namespace Microsoft.Data.Entity.SqlServer
                 {
                     if (newValue.Max == _currentValue.Max)
                     {
-                        var commandInfo = PrepareCommand(contextConfiguration);
+                        var commandInfo = PrepareCommand(stateEntry.Configuration);
 
                         var newCurrent = (long)await _executor.ExecuteScalarAsync(commandInfo.Item1, commandInfo.Item2, cancellationToken).ConfigureAwait(false);
                         newValue = new SequenceValue(newCurrent, newCurrent + _blockSize);

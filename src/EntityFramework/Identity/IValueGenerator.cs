@@ -4,17 +4,17 @@
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.Identity
 {
     public interface IValueGenerator
     {
-        object Next([NotNull] DbContextConfiguration contextConfiguration, [NotNull] IProperty property);
+        object Next([NotNull] StateEntry entry, [NotNull] IProperty property);
 
         Task<object> NextAsync(
-            [NotNull] DbContextConfiguration contextConfiguration,
+            [NotNull] StateEntry stateEntry,
             [NotNull] IProperty property,
             CancellationToken cancellationToken = default(CancellationToken));
     }

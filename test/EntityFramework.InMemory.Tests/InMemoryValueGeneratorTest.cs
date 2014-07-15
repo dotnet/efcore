@@ -3,7 +3,7 @@
 
 using System;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Moq;
 using Xunit;
@@ -20,18 +20,18 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var propertyMock = new Mock<IProperty>();
             propertyMock.Setup(m => m.PropertyType).Returns(typeof(int));
 
-            Assert.Equal(1, await generator.NextAsync(Mock.Of<DbContextConfiguration>(), propertyMock.Object));
-            Assert.Equal(2, await generator.NextAsync(Mock.Of<DbContextConfiguration>(), propertyMock.Object));
-            Assert.Equal(3, await generator.NextAsync(Mock.Of<DbContextConfiguration>(), propertyMock.Object));
+            Assert.Equal(1, await generator.NextAsync(Mock.Of<StateEntry>(), propertyMock.Object));
+            Assert.Equal(2, await generator.NextAsync(Mock.Of<StateEntry>(), propertyMock.Object));
+            Assert.Equal(3, await generator.NextAsync(Mock.Of<StateEntry>(), propertyMock.Object));
 
-            Assert.Equal(4, generator.Next(Mock.Of<DbContextConfiguration>(), propertyMock.Object));
-            Assert.Equal(5, generator.Next(Mock.Of<DbContextConfiguration>(), propertyMock.Object));
-            Assert.Equal(6, generator.Next(Mock.Of<DbContextConfiguration>(), propertyMock.Object));
+            Assert.Equal(4, generator.Next(Mock.Of<StateEntry>(), propertyMock.Object));
+            Assert.Equal(5, generator.Next(Mock.Of<StateEntry>(), propertyMock.Object));
+            Assert.Equal(6, generator.Next(Mock.Of<StateEntry>(), propertyMock.Object));
 
             generator = new InMemoryValueGenerator();
 
-            Assert.Equal(1, await generator.NextAsync(Mock.Of<DbContextConfiguration>(), propertyMock.Object));
-            Assert.Equal(2, generator.Next(Mock.Of<DbContextConfiguration>(), propertyMock.Object));
+            Assert.Equal(1, await generator.NextAsync(Mock.Of<StateEntry>(), propertyMock.Object));
+            Assert.Equal(2, generator.Next(Mock.Of<StateEntry>(), propertyMock.Object));
         }
 
         [Fact]
@@ -39,15 +39,15 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         {
             var generator = new InMemoryValueGenerator();
 
-            Assert.Equal(1L, await generator.NextAsync(Mock.Of<DbContextConfiguration>(), CreateProperty(typeof(long))));
-            Assert.Equal(2, await generator.NextAsync(Mock.Of<DbContextConfiguration>(), CreateProperty(typeof(int))));
-            Assert.Equal((short)3, await generator.NextAsync(Mock.Of<DbContextConfiguration>(), CreateProperty(typeof(short))));
-            Assert.Equal((byte)4, await generator.NextAsync(Mock.Of<DbContextConfiguration>(), CreateProperty(typeof(byte))));
+            Assert.Equal(1L, await generator.NextAsync(Mock.Of<StateEntry>(), CreateProperty(typeof(long))));
+            Assert.Equal(2, await generator.NextAsync(Mock.Of<StateEntry>(), CreateProperty(typeof(int))));
+            Assert.Equal((short)3, await generator.NextAsync(Mock.Of<StateEntry>(), CreateProperty(typeof(short))));
+            Assert.Equal((byte)4, await generator.NextAsync(Mock.Of<StateEntry>(), CreateProperty(typeof(byte))));
 
-            Assert.Equal(5L, generator.Next(Mock.Of<DbContextConfiguration>(), CreateProperty(typeof(long))));
-            Assert.Equal(6, generator.Next(Mock.Of<DbContextConfiguration>(), CreateProperty(typeof(int))));
-            Assert.Equal((short)7, generator.Next(Mock.Of<DbContextConfiguration>(), CreateProperty(typeof(short))));
-            Assert.Equal((byte)8, generator.Next(Mock.Of<DbContextConfiguration>(), CreateProperty(typeof(byte))));
+            Assert.Equal(5L, generator.Next(Mock.Of<StateEntry>(), CreateProperty(typeof(long))));
+            Assert.Equal(6, generator.Next(Mock.Of<StateEntry>(), CreateProperty(typeof(int))));
+            Assert.Equal((short)7, generator.Next(Mock.Of<StateEntry>(), CreateProperty(typeof(short))));
+            Assert.Equal((byte)8, generator.Next(Mock.Of<StateEntry>(), CreateProperty(typeof(byte))));
         }
 
         [Fact]
@@ -58,10 +58,10 @@ namespace Microsoft.Data.Entity.InMemory.Tests
 
             for (var i = 1; i < 256; i++)
             {
-                generator.Next(Mock.Of<DbContextConfiguration>(), property);
+                generator.Next(Mock.Of<StateEntry>(), property);
             }
 
-            Assert.Throws<OverflowException>(() => generator.Next(Mock.Of<DbContextConfiguration>(), property));
+            Assert.Throws<OverflowException>(() => generator.Next(Mock.Of<StateEntry>(), property));
         }
 
         private static Property CreateProperty(Type propertyType)
