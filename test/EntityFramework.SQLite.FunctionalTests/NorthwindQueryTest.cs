@@ -2,13 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
-using Microsoft.Data.FunctionalTests;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
-using Northwind;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SQLite.FunctionalTests
@@ -69,11 +67,16 @@ WHERE c.""ContactName"" LIKE '%' || @p0",
             base.Where_select_many_and();
 
             Assert.Equal(
-                @"SELECT c.""Address"", c.""City"", c.""CompanyName"", c.""ContactName"", c.""ContactTitle"", c.""Country"", c.""CustomerID"", c.""Fax"", c.""Phone"", c.""PostalCode"", c.""Region"", e.""City"", e.""Country"", e.""EmployeeID"", e.""FirstName""
+                @"SELECT c.""Address"", c.""City"", c.""CompanyName"", c.""ContactName"", c.""ContactTitle"", c.""Country"", c.""CustomerID"", c.""Fax"", c.""Phone"", c.""PostalCode"", c.""Region"", e.""City"", e.""Country"", e.""EmployeeID"", e.""FirstName"", e.""ReportsTo""
 FROM ""Customers"" AS c
 CROSS JOIN ""Employees"" AS e
 WHERE ((c.""City"" = @p0 AND c.""Country"" = @p1) AND (e.""City"" = @p0 AND e.""Country"" = @p1))",
                 _fixture.Sql);
+        }
+
+        public override void Where_comparison_nullable_type_null()
+        {
+            base.Where_comparison_nullable_type_null();
         }
 
         private readonly NorthwindQueryFixture _fixture;

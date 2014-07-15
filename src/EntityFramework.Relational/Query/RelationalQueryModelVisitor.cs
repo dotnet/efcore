@@ -103,7 +103,8 @@ namespace Microsoft.Data.Entity.Relational.Query
                                 previousQuerySource,
                                 fromClause,
                                 (RelationalQueryCompilationContext)QueryCompilationContext,
-                                readerOffset)
+                                readerOffset,
+                                QueryCompilationContext.LinqOperatorProvider.SelectMany)
                                 .VisitExpression(Expression);
                     }
                 }
@@ -116,23 +117,25 @@ namespace Microsoft.Data.Entity.Relational.Query
             private readonly IQuerySource _innerQuerySource;
             private readonly RelationalQueryCompilationContext _relationalQueryCompilationContext;
             private readonly int _readerOffset;
+            private readonly MethodInfo _operatorToFlatten;
 
             private MethodCallExpression _outerSelectManyExpression;
             private Expression _outerShaperExpression;
+            private Expression _outerCommandBuilder;
 
             public QueryFlatteningExpressionTreeVisitor(
                 IQuerySource outerQuerySource,
                 IQuerySource innerQuerySource,
                 RelationalQueryCompilationContext relationalQueryCompilationContext,
-                int readerOffset)
+                int readerOffset,
+                MethodInfo operatorToFlatten)
             {
                 _outerQuerySource = outerQuerySource;
                 _innerQuerySource = innerQuerySource;
                 _relationalQueryCompilationContext = relationalQueryCompilationContext;
                 _readerOffset = readerOffset;
+                _operatorToFlatten = operatorToFlatten;
             }
-
-            private Expression _outerCommandBuilder = null;
 
             protected override Expression VisitMethodCallExpression(MethodCallExpression expression)
             {
@@ -193,9 +196,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                     _outerSelectManyExpression = newExpression;
                 }
                 else if (_outerSelectManyExpression != null
-                         && MethodIsClosedFormOf(
-                             newExpression.Method,
-                             _relationalQueryCompilationContext.LinqOperatorProvider.SelectMany))
+                         && MethodIsClosedFormOf(newExpression.Method, _operatorToFlatten))
                 {
                     newExpression
                         = Expression.Call(
@@ -204,7 +205,11 @@ namespace Microsoft.Data.Entity.Relational.Query
                                     typeof(QuerySourceScope),
                                     typeof(QuerySourceScope)),
                             _outerSelectManyExpression.Arguments[0],
-                            newExpression.Arguments[1]);
+                            newExpression.Arguments[1] is LambdaExpression
+                                ? newExpression.Arguments[1]
+                                : Expression.Lambda(
+                                    newExpression.Arguments[1],
+                                    QuerySourceScopeParameter));
                 }
 
                 return newExpression;
@@ -219,26 +224,108 @@ namespace Microsoft.Data.Entity.Relational.Query
             }
         }
 
+        public override void VisitJoinClause(JoinClause joinClause, QueryModel queryModel, int index)
+        {
+            var previousQuerySource
+                = index == 0
+                    ? queryModel.MainFromClause
+                    : queryModel.BodyClauses[index - 1] as IQuerySource;
+
+            var previousSelectExpression
+                = previousQuerySource != null
+                    ? TryGetSelectExpression(previousQuerySource)
+                    : null;
+
+            var previousSelectProjectionCount
+                = previousSelectExpression != null
+                    ? previousSelectExpression.Projection.Count
+                    : -1;
+
+            base.VisitJoinClause(joinClause, queryModel, index);
+
+            if (previousSelectExpression != null)
+            {
+                var selectExpression = TryGetSelectExpression(joinClause);
+
+                if (selectExpression != null)
+                {
+                    var innerJoinExpression
+                        = previousSelectExpression
+                            .AddInnerJoin(selectExpression, QuerySourceRequiresMaterialization(joinClause));
+
+                    var filteringExpressionTreeVisitor
+                        = new FilteringExpressionTreeVisitor(this);
+
+                    var predicate
+                        = filteringExpressionTreeVisitor
+                            .VisitExpression(
+                                Expression.Equal(
+                                    joinClause.OuterKeySelector,
+                                    joinClause.InnerKeySelector));
+
+                    if (predicate != null)
+                    {
+                        _queriesBySource.Remove(joinClause);
+
+                        if (!QuerySourceRequiresMaterialization(joinClause))
+                        {
+                            previousSelectExpression.RemoveRangeFromProjection(previousSelectProjectionCount);
+                        }
+
+                        innerJoinExpression.Predicate = predicate;
+
+                        Expression
+                            = new QueryFlatteningExpressionTreeVisitor(
+                                previousQuerySource,
+                                joinClause,
+                                (RelationalQueryCompilationContext)QueryCompilationContext,
+                                previousSelectProjectionCount,
+                                QueryCompilationContext.LinqOperatorProvider.Join)
+                                .VisitExpression(Expression);
+                    }
+                    else
+                    {
+                        previousSelectExpression.RemoveTable(innerJoinExpression);
+                        previousSelectExpression.RemoveRangeFromProjection(previousSelectProjectionCount);
+                    }
+                }
+            }
+        }
+
         public override void VisitWhereClause(WhereClause whereClause, QueryModel queryModel, int index)
         {
             var previousExpression = Expression;
+
+            var projectionCounts
+                = _queriesBySource
+                    .Select(kv => new
+                        {
+                            SelectExpression = kv.Value,
+                            kv.Value.Projection.Count
+                        })
+                    .ToList();
+
             _requiresClientFilter = !_queriesBySource.Any();
 
             base.VisitWhereClause(whereClause, queryModel, index);
 
-            foreach (var sourceQuery in _queriesBySource)
+            foreach (var selectExpression in _queriesBySource.Values)
             {
                 var filteringVisitor = new FilteringExpressionTreeVisitor(this);
 
-                filteringVisitor.VisitExpression(whereClause.Predicate);
-
-                sourceQuery.Value.Predicate = filteringVisitor.Predicate;
+                selectExpression.Predicate = filteringVisitor.VisitExpression(whereClause.Predicate);
 
                 _requiresClientFilter |= filteringVisitor.RequiresClientEval;
             }
 
             if (!_requiresClientFilter)
             {
+                foreach (var projectionCount in projectionCounts)
+                {
+                    projectionCount.SelectExpression
+                        .RemoveRangeFromProjection(projectionCount.Count);
+                }
+
                 Expression = previousExpression;
             }
         }
@@ -247,18 +334,11 @@ namespace Microsoft.Data.Entity.Relational.Query
         {
             private readonly RelationalQueryModelVisitor _queryModelVisitor;
 
-            private Expression _predicate;
-
             private bool _requiresClientEval;
 
             public FilteringExpressionTreeVisitor(RelationalQueryModelVisitor queryModelVisitor)
             {
                 _queryModelVisitor = queryModelVisitor;
-            }
-
-            public Expression Predicate
-            {
-                get { return _predicate; }
             }
 
             public bool RequiresClientEval
@@ -268,62 +348,83 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             protected override Expression VisitBinaryExpression(BinaryExpression expression)
             {
-                _predicate = null;
-
                 switch (expression.NodeType)
                 {
                     case ExpressionType.Equal:
                     case ExpressionType.NotEqual:
+                    {
+                        return UnfoldStructuralComparison(expression.NodeType, ProcessComparisonExpression(expression));
+                    }
                     case ExpressionType.GreaterThan:
                     case ExpressionType.GreaterThanOrEqual:
                     case ExpressionType.LessThan:
                     case ExpressionType.LessThanOrEqual:
                     {
-                        _predicate = ProcessComparisonExpression(expression);
-
-                        break;
+                        return ProcessComparisonExpression(expression);
                     }
 
                     case ExpressionType.AndAlso:
                     {
-                        VisitExpression(expression.Left);
+                        var left = VisitExpression(expression.Left);
+                        var right = VisitExpression(expression.Right);
 
-                        var left = _predicate;
-
-                        VisitExpression(expression.Right);
-
-                        var right = _predicate;
-
-                        _predicate
-                            = left != null
+                        return left != null
                               && right != null
                                 ? Expression.AndAlso(left, right)
                                 : (left ?? right);
-
-                        break;
                     }
 
                     case ExpressionType.OrElse:
                     {
-                        VisitExpression(expression.Left);
+                        var left = VisitExpression(expression.Left);
+                        var right = VisitExpression(expression.Right);
 
-                        var left = _predicate;
-
-                        VisitExpression(expression.Right);
-
-                        var right = _predicate;
-
-                        _predicate
-                            = left != null
+                        return left != null
                               && right != null
                                 ? Expression.OrElse(left, right)
                                 : null;
-
-                        break;
                     }
+                }
 
-                    default:
-                        throw new ArgumentOutOfRangeException();
+                _requiresClientEval = true;
+
+                return null;
+            }
+
+            private Expression UnfoldStructuralComparison(ExpressionType expressionType, Expression expression)
+            {
+                var binaryExpression = expression as BinaryExpression;
+
+                if (binaryExpression != null)
+                {
+                    var leftConstantExpression = binaryExpression.Left as ConstantExpression;
+
+                    if (leftConstantExpression != null)
+                    {
+                        var leftExpressions = leftConstantExpression.Value as Expression[];
+
+                        if (leftExpressions != null)
+                        {
+                            var rightConstantExpression = binaryExpression.Right as ConstantExpression;
+
+                            if (rightConstantExpression != null)
+                            {
+                                var rightExpressions = rightConstantExpression.Value as Expression[];
+
+                                if (rightExpressions != null
+                                    && leftExpressions.Length == rightExpressions.Length)
+                                {
+                                    return leftExpressions
+                                        .Zip(rightExpressions, (l, r) => 
+                                            Expression.MakeBinary(expressionType, l, r))
+                                        .Aggregate((e1, e2) =>
+                                            expressionType == ExpressionType.Equal
+                                                ? Expression.AndAlso(e1, e2)
+                                                : Expression.OrElse(e1, e2));
+                                }
+                            }
+                        }
+                    }
                 }
 
                 return expression;
@@ -331,8 +432,8 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             private Expression ProcessComparisonExpression(BinaryExpression expression)
             {
-                var leftExpression = BindOperand(expression.Left);
-                var rightExpression = BindOperand(expression.Right);
+                var leftExpression = VisitExpression(expression.Left);
+                var rightExpression = VisitExpression(expression.Right);
 
                 if (leftExpression == null
                     || rightExpression == null)
@@ -383,13 +484,14 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             protected override Expression VisitMethodCallExpression(MethodCallExpression expression)
             {
-                var operand = BindOperand(expression.Object);
+                var operand = VisitExpression(expression.Object);
 
                 if (operand != null)
                 {
                     var arguments
                         = expression.Arguments
-                            .Select(BindOperand)
+                            .Select(VisitExpression)
+                            .Where(e => e != null)
                             .ToArray();
 
                     if (arguments.Length == expression.Arguments.Count)
@@ -400,79 +502,122 @@ namespace Microsoft.Data.Entity.Relational.Query
                                 expression.Method,
                                 arguments);
 
-                        _predicate
+                        var translatedMethodExpression
                             = _queryModelVisitor._methodCallTranslator
                                 .Translate(boundExpression);
 
-                        if (_predicate != null)
+                        if (translatedMethodExpression != null)
                         {
-                            return expression;
+                            return translatedMethodExpression;
                         }
                     }
                 }
 
                 _requiresClientEval = true;
 
-                return expression;
+                return null;
             }
 
-            private Expression BindOperand(Expression expression)
+            protected override Expression VisitMemberExpression(MemberExpression expression)
             {
-                var memberExpression = expression as MemberExpression;
-
-                if (memberExpression == null)
-                {
-                    var constantExpression = expression as ConstantExpression;
-
-                    if (constantExpression == null)
-                    {
-                        _requiresClientEval = true;
-                    }
-
-                    return constantExpression;
-                }
-
                 var columnExpression
                     = _queryModelVisitor
                         .BindMemberExpression(
-                            memberExpression,
+                            expression,
                             (property, querySource, selectExpression)
                                 => new ColumnExpression(
                                     property,
                                     selectExpression.FindTableForQuerySource(querySource).Alias));
 
-                if (columnExpression == null)
+                if (columnExpression != null)
                 {
-                    _requiresClientEval = true;
+                    return columnExpression;
                 }
 
-                return columnExpression;
-            }
-
-            protected override Expression VisitMemberExpression(MemberExpression expression)
-            {
                 _requiresClientEval = true;
 
-                return expression;
+                return null;
             }
+
+            protected override Expression VisitNewExpression(NewExpression expression)
+            {
+                if (expression.Members != null
+                    && expression.Arguments.Count > 0
+                    && expression.Arguments.Count == expression.Members.Count)
+                {
+                    var memberBindings
+                        = expression.Arguments
+                            .Select(VisitExpression)
+                            .Where(e => e != null)
+                            .ToArray();
+
+                    if (memberBindings.Length == expression.Arguments.Count)
+                    {
+                        return Expression.Constant(memberBindings);
+                    }
+                }
+
+                _requiresClientEval = true;
+
+                return null;
+            }
+
+            private static readonly Type[] _supportedConstantTypes =
+                {
+                    typeof(bool),
+                    typeof(byte),
+                    typeof(byte[]),
+                    typeof(char),
+                    typeof(DateTime),
+                    typeof(DateTimeOffset),
+                    typeof(double),
+                    typeof(float),
+                    typeof(Guid),
+                    typeof(int),
+                    typeof(long),
+                    typeof(sbyte),
+                    typeof(short),
+                    typeof(string),
+                    typeof(uint),
+                    typeof(ulong),
+                    typeof(ushort)
+                };
 
             protected override Expression VisitConstantExpression(ConstantExpression expression)
             {
-                _predicate = expression;
+                if (expression.Value == null)
+                {
+                    return expression;
+                }
 
-                return expression;
+                var underlyingType = expression.Type.UnwrapNullableType();
+
+                if (underlyingType.GetTypeInfo().IsEnum)
+                {
+                    underlyingType = Enum.GetUnderlyingType(underlyingType);
+                }
+
+                if (_supportedConstantTypes.Contains(underlyingType))
+                {
+                    return expression;
+                }
+
+                _requiresClientEval = true;
+
+                return null;
             }
 
-            protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
+            protected override TResult VisitUnhandledItem<TItem, TResult>(
+                TItem unhandledItem, string visitMethod, Func<TItem, TResult> baseBehavior)
             {
                 _requiresClientEval = true;
 
-                return expression;
+                return default(TResult);
             }
-
+            
             protected override Exception CreateUnhandledItemException<T>(T unhandledItem, string visitMethod)
             {
-                return new NotImplementedException("Filter expression not handled: " + unhandledItem.GetType().Name);
+                return null; // never called
             }
         }
 

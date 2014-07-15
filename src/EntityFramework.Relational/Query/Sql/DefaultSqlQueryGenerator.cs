@@ -152,6 +152,19 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             return crossJoinExpression;
         }
 
+        public virtual Expression VisitInnerJoinExpression(InnerJoinExpression innerJoinExpression)
+        {
+            _sql.Append("INNER JOIN ")
+                .Append(DelimitIdentifier(innerJoinExpression.Table))
+                .Append(" AS ")
+                .Append(innerJoinExpression.Alias)
+                .Append(" ON ");
+
+            VisitExpression(innerJoinExpression.Predicate);
+
+            return innerJoinExpression;
+        }
+
         protected virtual void GenerateTop([NotNull] SelectExpression expression)
         {
             Check.NotNull(expression, "expression");

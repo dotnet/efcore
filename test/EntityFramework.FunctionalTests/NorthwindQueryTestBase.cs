@@ -5,11 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity;
 using Northwind;
 using Xunit;
 
-namespace Microsoft.Data.FunctionalTests
+namespace Microsoft.Data.Entity.FunctionalTests
 {
     public abstract class NorthwindQueryTestBase
     {
@@ -124,6 +123,18 @@ namespace Microsoft.Data.FunctionalTests
         public virtual void Where_equals_method_int()
         {
             AssertQuery<Employee>(es => es.Where(e => e.EmployeeID.Equals(1)));
+        }
+
+        [Fact]
+        public virtual void Where_comparison_nullable_type_not_null()
+        {
+            AssertQuery<Employee>(es => es.Where(e => e.ReportsTo == 2));
+        }
+
+        [Fact]
+        public virtual void Where_comparison_nullable_type_null()
+        {
+            AssertQuery<Employee>(es => es.Where(e => e.ReportsTo == null));
         }
 
         [Fact]
@@ -310,6 +321,12 @@ namespace Microsoft.Data.FunctionalTests
         {
             AssertQuery<Customer>(cs =>
                 cs.Where(c => new { x = c.City } == new { x = "London" }));
+        }
+
+        [Fact]
+        public virtual void Where_projection()
+        {
+            AssertQuery<Customer>(cs => cs.Where(c => c.City == "London").Select(c => c.CompanyName));
         }
 
         [Fact]
@@ -780,12 +797,21 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         [Fact]
-        public virtual void Join_customers_orders()
+        public virtual void Join_customers_orders_projection()
         {
             AssertQuery<Customer, Order>((cs, os) =>
                 from c in cs
                 join o in os on c.CustomerID equals o.CustomerID
                 select new { c.ContactName, o.OrderID });
+        }
+
+        [Fact]
+        public virtual void Join_customers_orders_entities()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                join o in os on c.CustomerID equals o.CustomerID
+                select new { c, o });
         }
 
         [Fact]
@@ -811,13 +837,27 @@ namespace Microsoft.Data.FunctionalTests
         }
 
         [Fact]
-        public virtual void Join_multi_key()
+        public virtual void Join_composite_key()
         {
             AssertQuery<Customer, Order>((cs, os) =>
                 from c in cs
                 join o in os on new { a = c.CustomerID, b = c.CustomerID }
                     equals new { a = o.CustomerID, b = o.CustomerID }
                 select new { c, o });
+        }
+        
+        [Fact]
+        public virtual void Join_client_new_expression()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                join o in os on new Foo { Bar = c.CustomerID } equals new Foo { Bar = o.CustomerID }
+                select new { c, o });
+        }
+
+        private class Foo
+        {
+            public string Bar { get; set; }
         }
 
         [Fact]
