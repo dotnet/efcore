@@ -14,9 +14,17 @@ k-standard-goals
   for each='var projectFile in Files.Include("src/**/*.csproj").Include("test/**/*.csproj")'
     exec program='${buildProgram}' commandline='${projectFile} /t:WritePackageReferences'
 
+@{
+    var packagesDir = Environment.GetEnvironmentVariable("KRE_PACKAGES")
+        ?? Path.Combine(
+            Environment.GetEnvironmentVariable("USERPROFILE") ?? Environment.GetEnvironmentVariable("HOME"),
+            ".kpm",
+            "packages");
+}
+
 var sqliteTestDir='test/EntityFramework.SQLite.FunctionalTests/bin/Debug'
 #copy-sqlite target='initialize' if='!File.Exists(sqliteTestDir + "/sqlite3.dll")'
-    var sourceDir='${Directory.EnumerateDirectories("packages", "Microsoft.Data.SQLite.*").OrderByDescending(d => d).First() + "/redist/x86"}'
+    var sourceDir='${Directory.EnumerateDirectories(packagesDir, "Microsoft.Data.SQLite/*").OrderByDescending(d => d).First() + "/redist/x86"}'
     copy outputDir='${sqliteTestDir}'
 
 #nupkg-patch target='compile'

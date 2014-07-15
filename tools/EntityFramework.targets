@@ -42,7 +42,7 @@
             writer.WriteLine("  <ItemGroup>");
 
             var installedPackages = Directory.EnumerateDirectories(packagesFolder).Select(d => Path.GetFileName(d))
-                .OrderByDescending(p => p).ToArray();
+                .ToArray();
             foreach (var package in PackageReferences)
             {
                 var id = package.ItemSpec;
@@ -51,13 +51,18 @@
                 if (string.IsNullOrEmpty(assemblies))
                   assemblies = id;
 
-                var latestVersion = installedPackages.FirstOrDefault(
-                    p => p.StartsWith(id) && Char.IsDigit(p[id.Length + 1]));
-                if (latestVersion == null)
+                if (!installedPackages.Contains(id))
                 {
                     Log.LogError("Package '{0}' not found.", id);
 
                     continue;
+                }
+                
+                var latestVersion = Directory.EnumerateDirectories(Path.Combine(packagesFolder, id))
+                    .OrderByDescending(p => p).FirstOrDefault();
+                if (latestVersion == null)
+                {
+                    Log.LogError("Package '{0}' version not found.", id);
                 }
 
                 foreach (var assembly in assemblies.Split(';'))
