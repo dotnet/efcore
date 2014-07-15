@@ -2,7 +2,6 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <PackagesTargetsFile>$(MSBuildProjectDirectory)\$(IntermediateOutputPath)Packages.targets</PackagesTargetsFile>
-    <PackagesFolder>$(SolutionDir)packages</PackagesFolder>
     <BuildDependsOn>CheckPackageReferences;$(BuildDependsOn)</BuildDependsOn>
   </PropertyGroup>
   <ItemDefinitionGroup>
@@ -19,12 +18,17 @@
     <ParameterGroup>
       <TargetsFile ParameterType="System.String" Required="true" />
       <PackageReferences ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
-      <PackagesFolder ParameterType="System.String" Required="true" />
     </ParameterGroup>
     <Task>
       <Code Type="Fragment" Language="cs">
         <![CDATA[
-        if (!Directory.Exists(PackagesFolder))
+        var packagesFolder = Environment.GetEnvironmentVariable("KRE_PACKAGES")
+            ?? Path.Combine(
+                Environment.GetEnvironmentVariable("USERPROFILE") ?? Environment.GetEnvironmentVariable("HOME"),
+                ".kpm",
+                "packages");
+        
+        if (!Directory.Exists(packagesFolder))
         {
             Log.LogError("No packages found.");
 
@@ -37,7 +41,7 @@
             writer.WriteLine("<Project xmlns='http://schemas.microsoft.com/developer/msbuild/2003'>");
             writer.WriteLine("  <ItemGroup>");
 
-            var installedPackages = Directory.EnumerateDirectories(PackagesFolder).Select(d => Path.GetFileName(d))
+            var installedPackages = Directory.EnumerateDirectories(packagesFolder).Select(d => Path.GetFileName(d))
                 .OrderByDescending(p => p).ToArray();
             foreach (var package in PackageReferences)
             {
@@ -59,7 +63,7 @@
                 foreach (var assembly in assemblies.Split(';'))
                 {
                     var hintPath = Path.Combine(
-                        PackagesFolder,
+                        packagesFolder,
                         latestVersion,
                         "lib",
                         targetFramework,
@@ -86,8 +90,7 @@
   <Target Name="WritePackageReferences">
     <WritePackageReferences
       TargetsFile="$(PackagesTargetsFile)"
-      PackageReferences="@(PackageReference)"
-      PackagesFolder="$(PackagesFolder)" />
+      PackageReferences="@(PackageReference)" />
   </Target>
   <Import Project="$(PackagesTargetsFile)" Condition="Exists('$(PackagesTargetsFile)')" />
 </Project>
