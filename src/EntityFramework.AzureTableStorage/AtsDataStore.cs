@@ -16,6 +16,8 @@ using Microsoft.Data.Entity.AzureTableStorage.Utilities;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Update;
+using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 using Remotion.Linq;
 
@@ -54,6 +56,9 @@ namespace Microsoft.Data.Entity.AzureTableStorage
 
         public override Task<int> SaveChangesAsync(IReadOnlyList<StateEntry> stateEntries, CancellationToken cancellationToken = new CancellationToken())
         {
+            Check.NotNull(stateEntries, "stateEntries");
+
+            cancellationToken.ThrowIfCancellationRequested();
             if (Connection.Batching)
             {
                 return ExecuteBatchedChangesAsync(stateEntries, cancellationToken);
@@ -81,11 +86,10 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             return Query<TResult>(queryModel, stateManager).ToAsyncEnumerable();
         }
 
-        private async Task<int> ExecuteChangesAsync(IReadOnlyList<StateEntry> stateEntries, CancellationToken cancellationToken = default(CancellationToken))
+        //TODO merge similarities with batch execution
+        private async Task<int> ExecuteChangesAsync(IReadOnlyList<StateEntry> stateEntries, 
+            CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(stateEntries, "stateEntries");
-
-            cancellationToken.ThrowIfCancellationRequested();
             var tableGroups = stateEntries.GroupBy(s => s.EntityType);
             var allTasks = new List<Task<TableResult>>();
             foreach (var tableGroup in tableGroups)
@@ -101,26 +105,25 @@ namespace Microsoft.Data.Entity.AzureTableStorage
                     break;
                 }
             }
-            await Task.WhenAll(allTasks);
-            return InspectResults(allTasks);
-        }
-
-        protected int InspectResults(IList<Task<TableResult>> tasks)
-        {
-            return CountTableResults(tasks, task =>
+            try
+            {
+                await Task.WhenAll(allTasks);
+            }
+            catch (StorageException exception)
+            {
+                //TODO identify which entity failed to update and add to exception
+                if (exception.RequestInformation.HttpStatusCode == (int)HttpStatusCode.PreconditionFailed)
                 {
-                    if (task.Result.HttpStatusCode >= (int)HttpStatusCode.BadRequest)
-                    {
-                        throw new DbUpdateException("Could not add entity: " + task.Result);
-                    }
-                    return 1;
-                });
+                    throw new DbUpdateConcurrencyException(Strings.ETagPreconditionFailed);
+                }
+                throw new DbUpdateException(Strings.SaveChangesFailed, exception);
+            }
+            return allTasks.Count(t=>t.Result.HttpStatusCode < (int) HttpStatusCode.BadRequest);
         }
 
         private async Task<int> ExecuteBatchedChangesAsync(IReadOnlyList<StateEntry> stateEntries,
             CancellationToken cancellationToken = new CancellationToken())
         {
-            cancellationToken.ThrowIfCancellationRequested();
             var tableGroups = stateEntries.GroupBy(s => s.EntityType.TableName());
             var allBatchTasks = new List<Task<IList<TableResult>>>();
 
@@ -154,33 +157,19 @@ namespace Microsoft.Data.Entity.AzureTableStorage
                     }
                 }
             }
-            await Task.WhenAll(allBatchTasks);
-            return InspectBatchResults(allBatchTasks);
-        }
-
-        protected int InspectBatchResults(IList<Task<IList<TableResult>>> arg)
-        {
-            return CountTableResults(arg, task =>
-                {
-                    var failedResult = task.Result.FirstOrDefault(result => result.HttpStatusCode >= (int)HttpStatusCode.BadRequest);
-                    if (failedResult != default(TableResult))
-                    {
-                        throw new DbUpdateException("Could not add entity: " + failedResult.Result);
-                    }
-                    return task.Result.Count;
-                });
-        }
-
-        protected int CountTableResults<TTask>(IList<Task<TTask>> tasks, Func<Task<TTask>, int> inspect)
-        {
-            var failedTask = tasks.FirstOrDefault(t => t.Exception != null);
-            if (failedTask != null
-                && failedTask.Exception != null)
+            try
             {
-                throw failedTask.Exception;
+                await Task.WhenAll(allBatchTasks);
             }
-            //TODO identify failed tasks and their associated identity: return to user.
-            return tasks.Aggregate(0, (current, task) => current + inspect(task));
+            catch (StorageException exception)
+            {
+                if (exception.RequestInformation.HttpStatusCode == (int)HttpStatusCode.PreconditionFailed)
+                {
+                    throw new DbUpdateConcurrencyException(Strings.ETagPreconditionFailed);
+                }
+                throw new DbUpdateException(Strings.SaveChangesFailed,exception);
+            }
+            return allBatchTasks.Sum(l => l.Result == null ? 0 : l.Result.Count(t => t.HttpStatusCode < (int)HttpStatusCode.BadRequest));
         }
 
         protected TableOperationRequest CreateRequest(AtsTable table, StateEntry entry)
@@ -195,7 +184,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
                     return new DeleteRowRequest(table, entity);
 
                 case EntityState.Modified:
-                    return new InsertOrMergeRowRequest(table, entity);
+                    return new MergeRowRequest(table, entity);
 
                 case EntityState.Unchanged:
                 case EntityState.Unknown:

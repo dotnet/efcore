@@ -9,7 +9,7 @@ using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
 {
-    public class EndToEndFixture
+    public class TestFixture
     {
         public DbContext CreateContext(string tableName)
         {
@@ -35,6 +35,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
                         pb.Property(s => s.Purchased);
                         pb.Property(s => s.RowKey);
                         pb.Property(s => s.Timestamp);
+                        pb.Property(s => s.ETag);
                     })
                 .PartitionAndRowKey(s => s.PartitionKey, s => s.RowKey)
                 .TableName(tableName);
@@ -61,6 +62,11 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
                             Count = 359,
                             Purchased = DateTime.Parse("Tue, 1 Jan 2013 22:11:20 GMT", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal),
                             Awesomeness = true,
+                        },
+                    new Purchase
+                        {
+                            PartitionKey = testPartition,
+                            RowKey = "Concurrency_entity",
                         },
                 };
         }
@@ -115,6 +121,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
         public int Count { get; set; }
         public Guid GlobalGuid { get; set; }
         public bool Awesomeness { get; set; }
+        public string ETag { get; set; }
 
         public override bool Equals(object obj)
         {

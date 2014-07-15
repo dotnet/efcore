@@ -7,16 +7,16 @@ using Xunit;
 namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
 {
     [RunIfConfigured]
-    public class BatchTests : IClassFixture<EndToEndFixture>, IDisposable
+    public class BatchTests : TestBase, IClassFixture<TestFixture>, IDisposable
     {
-        private readonly string _testPartition;
-        private readonly DbContext _context;
-
-        public BatchTests(EndToEndFixture fixture)
+        public BatchTests(TestFixture fixture)
         {
-            _testPartition = "batchunitest" + DateTime.UtcNow.ToBinary();
-            _context = fixture.CreateContext(_testPartition);
-            _context.Database.EnsureCreated();
+            TestPartition = "batchunitest" + DateTime.UtcNow.ToBinary();
+            Context = fixture.CreateContext(TestPartition);
+            Context.Database.EnsureCreated();
+            Context.Set<Purchase>().AddRange(TestFixture.SampleData(TestPartition));
+            Context.SaveChanges();
+            Context.Configuration.Connection.UseBatching(true);
         }
 
         [Theory]
@@ -24,33 +24,32 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
         [InlineData(100)]
         [InlineData(101)]
         [InlineData(1000)]
-        [InlineData(10000)]
+        [InlineData(10001)]
         public void It_creates_many_items(int count)
         {
-            _context.Configuration.Connection.UseBatching(true);
-            var pk = _testPartition + count;
+            var pk = TestPartition + count;
             for (var i = 0; i < count; i++)
             {
                 var item = new Purchase { Count = i, PartitionKey = pk, RowKey = i.ToString() };
-                _context.Set<Purchase>().Add(item);
+                Context.Set<Purchase>().Add(item);
             }
-            var changes = _context.SaveChanges();
+            var changes = Context.SaveChanges();
             Assert.Equal(count, changes);
         }
 
         [Fact]
         public void It_separates_by_partition_key()
         {
-            var partition1 = new Purchase { PartitionKey = _testPartition + "A", RowKey = "0" };
-            var partition2 = new Purchase { PartitionKey = _testPartition + "B", RowKey = "0" };
-            _context.Set<Purchase>().AddRange(new[] { partition1, partition2 });
-            var changes = _context.SaveChanges();
+            var partition1 = new Purchase { PartitionKey = TestPartition + "A", RowKey = "0" };
+            var partition2 = new Purchase { PartitionKey = TestPartition + "B", RowKey = "0" };
+            Context.Set<Purchase>().AddRange(new[] { partition1, partition2 });
+            var changes = Context.SaveChanges();
             Assert.Equal(2, changes);
         }
 
         public void Dispose()
         {
-            _context.Database.EnsureDeleted();
+            Context.Database.EnsureDeleted();
         }
     }
 }

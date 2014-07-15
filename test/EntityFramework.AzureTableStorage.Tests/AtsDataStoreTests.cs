@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,7 +11,9 @@ using Microsoft.Data.Entity.AzureTableStorage.Adapters;
 using Microsoft.Data.Entity.AzureTableStorage.Requests;
 using Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.Update;
 using Microsoft.Framework.Logging;
+using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 using Moq;
 using Xunit;
@@ -20,6 +23,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
     public class AtsDataStoreTests : AtsDataStore, IClassFixture<Mock<AtsConnection>>
     {
         private readonly Mock<AtsConnection> _connection;
+        private Queue<TableResult> _queue;
 
         public AtsDataStoreTests(Mock<AtsConnection> connection)
             : base(connection.Object, new TableEntityAdapterFactory())
@@ -27,44 +31,71 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
             _connection = connection;
         }
 
-        private Task<TResult>[] SetupResults<TResult>(IEnumerable<TResult> tableResults)
+        private void QueueResult(params TableResult[] results)
         {
-            var batch = new List<Task<TResult>>();
-            foreach (var tableResult in tableResults)
+            _queue = new Queue<TableResult>(results.Length);
+            foreach (var result in results)
             {
-                var taskSource = new TaskCompletionSource<TResult>();
-                taskSource.SetResult(tableResult);
-                batch.Add(taskSource.Task);
+                _queue.Enqueue(result);
             }
-            return batch.ToArray();
+
+            _connection.Setup(s => s.ExecuteRequestAsync(
+                It.IsAny<AtsAsyncRequest<TableResult>>(),
+                It.IsAny<ILogger>(),
+                It.IsAny<CancellationToken>()))
+                .Returns(() => Task.Run(() => _queue.Dequeue()));
+        }
+
+        private void QueueError(TableResult badRequest)
+        {
+            var res = new RequestResult { HttpStatusCode = badRequest.HttpStatusCode };
+            var exception = new StorageException(res, "error", Mock.Of<Exception>());
+            _connection.Setup(s => s.ExecuteRequestAsync(
+                It.IsAny<AtsAsyncRequest<TableResult>>(),
+                It.IsAny<ILogger>(),
+                It.IsAny<CancellationToken>()))
+                .ThrowsAsync(exception);
         }
 
         [Fact]
-        public void It_counts_results()
+        public void It_saves()
         {
-            var results = SetupResults(new[] { TestTableResult.OK(), TestTableResult.OK() });
-            var succeeded = InspectResults(results);
-            Assert.Equal(2, succeeded);
+            QueueResult(TestTableResult.OK(), TestTableResult.OK(), TestTableResult.OK());
+            var entries = new List<StateEntry>
+                {
+                    TestStateEntry.Mock().WithState(EntityState.Added).WithType("Test1"),
+                    TestStateEntry.Mock().WithState(EntityState.Modified).WithType("Test1"),
+                    TestStateEntry.Mock().WithState(EntityState.Deleted).WithType("Test1"),
+                };
+            var succeeded = SaveChangesAsync(entries).Result;
+            Assert.Equal(3, succeeded);
         }
 
         [Fact]
-        public void It_throws_exception()
+        public void It_throws_concurrency_exception()
         {
-            var exceptedBatch = new TaskCompletionSource<TableResult>();
-            exceptedBatch.SetException(new AggregateException());
-            Assert.Throws<AggregateException>(() => InspectResults(new[] { exceptedBatch.Task }));
+            QueueError(TestTableResult.WithStatus(HttpStatusCode.PreconditionFailed));
+            var entries = new List<StateEntry> { TestStateEntry.Mock().WithState(EntityState.Added).WithType("Test1") };
+
+            Assert.Equal(
+                Strings.ETagPreconditionFailed,
+                Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => SaveChangesAsync(entries)).Result.Message);
         }
 
         [Fact]
-        public void It_fails_bad_tasks()
+        public void It_throws_dbupdate_exception()
         {
-            var results = SetupResults(new[] { TestTableResult.OK(), TestTableResult.BadRequest(), TestTableResult.OK() });
-            Assert.Throws<DbUpdateException>(() => InspectResults(results));
+            QueueError(TestTableResult.BadRequest());
+            var entries = new List<StateEntry> { TestStateEntry.Mock().WithState(EntityState.Modified).WithType("Test1") };
+            Assert.Equal(
+                Strings.SaveChangesFailed,
+                Assert.ThrowsAsync<DbUpdateException>(() => SaveChangesAsync(entries)).Result.Message
+                );
         }
 
         [Theory]
         [InlineData(EntityState.Added, TableOperationType.Insert)]
-        [InlineData(EntityState.Modified, TableOperationType.InsertOrMerge)]
+        [InlineData(EntityState.Modified, TableOperationType.Merge)]
         [InlineData(EntityState.Deleted, TableOperationType.Delete)]
         [InlineData(EntityState.Unknown, null)]
         [InlineData(EntityState.Unchanged, null)]
@@ -83,19 +114,6 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
                 var type = (TableOperationType)propInfo.GetValue(request.Operation);
                 Assert.Equal(operationType, type);
             }
-        }
-
-        [Fact]
-        public void It_saves_changes()
-        {
-            _connection.Setup(s => s.ExecuteRequestAsync(
-                It.IsAny<AtsAsyncRequest<TableResult>>(),
-                It.IsAny<ILogger>(),
-                It.IsAny<CancellationToken>()))
-                .Returns(Task.Run(() => TestTableResult.OK()));
-            var testEntries = new List<StateEntry> { TestStateEntry.Mock().WithState(EntityState.Added).WithType("Test1") };
-            var changes = SaveChangesAsync(testEntries).Result;
-            Assert.Equal(1, changes);
         }
     }
 }

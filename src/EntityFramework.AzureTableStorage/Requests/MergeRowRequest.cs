@@ -7,19 +7,25 @@ using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Requests
 {
-    public class InsertOrMergeRowRequest : TableOperationRequest
+    public class MergeRowRequest : TableOperationRequest
     {
-        public InsertOrMergeRowRequest([NotNull] AtsTable table, [NotNull] ITableEntity entity)
+        public MergeRowRequest([NotNull] AtsTable table, [NotNull] ITableEntity entity)
             : base(
                 table,
-                TableOperation.InsertOrMerge(Check.NotNull(entity, "entity"))
+                TableOperation.Merge(ResetETag(Check.NotNull(entity, "entity")))
                 )
         {
         }
 
+        private static ITableEntity ResetETag(ITableEntity entity)
+        {
+            entity.ETag = entity.ETag ?? "*";
+            return entity;
+        }
+
         public override string Name
         {
-            get { return "InsertOrMergeRowRequest"; }
+            get { return "MergeRowRequest"; }
         }
     }
 }

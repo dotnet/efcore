@@ -155,7 +155,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         }
 
         /// <summary>
-        /// This query command has no filter string .This will pull the entire table into memory. Best practices recommend filtering with a partition and row key.
+        /// This query command has no filter string. This will pull the entire table into memory. Best practices recommend filtering with a partition and row key.
         /// </summary>
         internal static string MissingFilterString
         {
@@ -163,7 +163,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         }
 
         /// <summary>
-        /// This query command has no filter string .This will pull the entire table into memory. Best practices recommend filtering with a partition and row key.
+        /// This query command has no filter string. This will pull the entire table into memory. Best practices recommend filtering with a partition and row key.
         /// </summary>
         internal static string FormatMissingFilterString()
         {
@@ -186,12 +186,44 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             return GetString("MissingPartitionOrRowKey");
         }
 
+        /// <summary>
+        /// This entity has been modified on the server. Overwriting will destory changes that exist only on the server.
+        /// </summary>
+        internal static string ETagPreconditionFailed
+        {
+            get { return GetString("ETagPreconditionFailed"); }
+        }
+
+        /// <summary>
+        /// This entity has been modified on the server. Overwriting will destory changes that exist only on the server.
+        /// </summary>
+        internal static string FormatETagPreconditionFailed()
+        {
+            return GetString("ETagPreconditionFailed");
+        }
+
+        /// <summary>
+        /// Could not save changes. See inner exception for details.
+        /// </summary>
+        internal static string SaveChangesFailed
+        {
+            get { return GetString("SaveChangesFailed"); }
+        }
+
+        /// <summary>
+        /// Could not save changes. See inner exception for details.
+        /// </summary>
+        internal static string FormatSaveChangesFailed()
+        {
+            return GetString("SaveChangesFailed");
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
 
             System.Diagnostics.Debug.Assert(value != null);
-    
+
             if (formatterNames != null)
             {
                 for (var i = 0; i < formatterNames.Length; i++)

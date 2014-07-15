@@ -150,4 +150,10 @@
   <data name="MissingPartitionOrRowKey" xml:space="preserve">
     <value>This query command has no partition key and/or row key in the query filter. This can produce a large table scan that will reduce performance and may increase costs. Best practices recommend filtering with a partition and row key.</value>
   </data>
+  <data name="ETagPreconditionFailed" xml:space="preserve">
+    <value>This entity has been modified on the server. Overwriting will destory changes that exist only on the server.</value>
+  </data>
+  <data name="SaveChangesFailed" xml:space="preserve">
+    <value>Could not save changes. See inner exception for details.</value>
+  </data>
 </root>

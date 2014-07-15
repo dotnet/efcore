@@ -103,6 +103,7 @@
     <Compile Include="Query\QueryCachingTests.cs" />
     <Compile Include="Query\QueryModelVisitorTests.cs" />
     <Compile Include="Query\TableQueryGeneratorTests.cs" />
+    <Compile Include="Requests\TableOperationRequestTests.cs" />
     <Compile Include="Utilities\EntityTypeExtensionsTest.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -73,8 +73,6 @@
     <Compile Include="AtsDataStore.cs" />
     <Compile Include="AtsDataStoreCreator.cs" />
     <Compile Include="AtsDataStoreSource.cs" />
-    <Compile Include="AzureAccountException.cs" />
-    <Compile Include="DbUpdateException.cs" />
     <Compile Include="AtsOptionsExtension.cs" />
     <Compile Include="AtsValueGeneratorCache.cs" />
     <Compile Include="Extensions\AtsDatabaseExtensions.cs" />
@@ -106,7 +104,7 @@
     <Compile Include="Query\Expressions\SelectExpression.cs" />
     <Compile Include="Requests\AtsAsyncRequest.cs" />
     <Compile Include="Requests\AtsRequest.cs" />
-    <Compile Include="Requests\InsertOrMergeRowRequest.cs" />
+    <Compile Include="Requests\MergeRowRequest.cs" />
     <Compile Include="Requests\CreateRowRequest.cs" />
     <Compile Include="Requests\CreateTableRequest.cs" />
     <Compile Include="Requests\DeleteRowRequest.cs" />

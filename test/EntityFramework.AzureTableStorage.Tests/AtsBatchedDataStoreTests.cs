@@ -3,13 +3,17 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.AzureTableStorage.Adapters;
 using Microsoft.Data.Entity.AzureTableStorage.Requests;
 using Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.Update;
 using Microsoft.Framework.Logging;
+using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 using Moq;
 using Xunit;
@@ -21,71 +25,81 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
     public class AtsBatchedDataStoreTests : AtsDataStore, IClassFixture<Mock<AtsConnection>>
     {
         private readonly Mock<AtsConnection> _connection;
-
-        private readonly TableEntityAdapterFactory _entityFactory = new TableEntityAdapterFactory();
+        private readonly Queue<IList<TableResult>> _queue;
 
         public AtsBatchedDataStoreTests(Mock<AtsConnection> connection)
             : base(connection.Object, new TableEntityAdapterFactory())
         {
             _connection = connection;
+            _connection.SetupGet(s => s.Batching).Returns(true);
+            _queue = new Queue<IList<TableResult>>();
         }
 
-        private Task<TResult>[] SetupResults<TResult>(IEnumerable<TResult> tableResults)
+        private void QueueResult(params IList<TableResult>[] results)
         {
-            var batch = new List<Task<TResult>>();
-            foreach (var tableResult in tableResults)
+            foreach (var result in results)
             {
-                var taskSource = new TaskCompletionSource<TResult>();
-                taskSource.SetResult(tableResult);
-                batch.Add(taskSource.Task);
+                _queue.Enqueue(result.ToList());
             }
-            return batch.ToArray();
+
+            _connection.Setup(s => s.ExecuteRequestAsync(
+                It.IsAny<TableBatchRequest>(),
+                It.IsAny<ILogger>(),
+                It.IsAny<CancellationToken>()))
+                .Returns(() => Task.Run(() => _queue.Dequeue()));
+        }
+
+        private void QueueError(TableResult badResult)
+        {
+            var res = new RequestResult { HttpStatusCode = badResult.HttpStatusCode };
+            var exception = new StorageException(res, "error", Mock.Of<Exception>());
+            _connection.Setup(s => s.ExecuteRequestAsync(
+                It.IsAny<TableBatchRequest>(),
+                It.IsAny<ILogger>(),
+                It.IsAny<CancellationToken>()))
+                .ThrowsAsync(exception);
         }
 
         [Fact]
-        public void It_counts_batch_results()
+        public void It_separates_by_partition_key()
         {
-            var results = SetupResults<ResultTaskList>(new[] { new[] { TestTableResult.OK(), TestTableResult.OK() }, new[] { TestTableResult.OK(), TestTableResult.OK() } });
-            var succeeded = InspectBatchResults(results);
-            Assert.Equal(4, succeeded);
+            QueueResult(new[] { TestTableResult.OK(), TestTableResult.OK(), TestTableResult.OK() }, new[] { TestTableResult.OK(), TestTableResult.OK(), TestTableResult.OK() });
+            var entries = new List<StateEntry>
+                {
+                    TestStateEntry.Mock().WithState(EntityState.Added).WithProperty("PartitionKey", "A"),
+                    TestStateEntry.Mock().WithState(EntityState.Modified).WithProperty("PartitionKey", "A"),
+                    TestStateEntry.Mock().WithState(EntityState.Deleted).WithProperty("PartitionKey", "A"),
+                    TestStateEntry.Mock().WithState(EntityState.Added).WithProperty("PartitionKey", "B"),
+                    TestStateEntry.Mock().WithState(EntityState.Modified).WithProperty("PartitionKey", "B"),
+                    TestStateEntry.Mock().WithState(EntityState.Deleted).WithProperty("PartitionKey", "B"),
+                };
+            Assert.Equal(6, SaveChangesAsync(entries).Result);
         }
 
         [Fact]
-        public void It_fails_bad_batch_results()
+        public void It_throws_dbupdate_exception()
         {
-            var results = SetupResults<ResultTaskList>(new[] { new[] { TestTableResult.OK(), TestTableResult.OK() }, new[] { TestTableResult.OK(), TestTableResult.BadRequest(), TestTableResult.OK() } });
-            Assert.Throws<DbUpdateException>(() => InspectBatchResults(results));
+            QueueError(TestTableResult.BadRequest());
+            var entries = new List<StateEntry>
+                {
+                    TestStateEntry.Mock().WithState(EntityState.Added).WithProperty("PartitionKey", "A"),
+                };
+            Assert.Equal(
+                Strings.SaveChangesFailed,
+                Assert.ThrowsAsync<DbUpdateException>(() => SaveChangesAsync(entries)).Result.Message);
         }
 
         [Fact]
-        public void It_throws_batch_exception()
+        public void It_throws_concurrency_exception()
         {
-            var exceptedBatch = new TaskCompletionSource<ResultTaskList>();
-            exceptedBatch.SetException(new AggregateException());
-            Assert.Throws<AggregateException>(() => InspectBatchResults(new[] { exceptedBatch.Task }));
-        }
-
-        [Fact]
-        public void It_counts_results()
-        {
-            var results = SetupResults(new[] { TestTableResult.OK(), TestTableResult.OK() });
-            var succeeded = InspectResults(results);
-            Assert.Equal(2, succeeded);
-        }
-
-        [Fact]
-        public void It_throws_exception()
-        {
-            var exceptedBatch = new TaskCompletionSource<TableResult>();
-            exceptedBatch.SetException(new AggregateException());
-            Assert.Throws<AggregateException>(() => InspectResults(new[] { exceptedBatch.Task }));
-        }
-
-        [Fact]
-        public void It_fails_bad_tasks()
-        {
-            var results = SetupResults(new[] { TestTableResult.OK(), TestTableResult.BadRequest(), TestTableResult.OK() });
-            Assert.Throws<DbUpdateException>(() => InspectResults(results));
+            QueueError(TestTableResult.WithStatus(HttpStatusCode.PreconditionFailed));
+            var entries = new List<StateEntry>
+                {
+                    TestStateEntry.Mock().WithState(EntityState.Modified).WithProperty("PartitionKey", "A"),
+                };
+            Assert.Equal(
+                Strings.ETagPreconditionFailed,
+                Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => SaveChangesAsync(entries)).Result.Message);
         }
 
         [Theory]
@@ -99,19 +113,24 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
         [InlineData(201)]
         public void It_saves_changes(int expectedChanges)
         {
-            var testEntries = new List<StateEntry>();
+            var entries = new List<StateEntry>(expectedChanges);
+            var responses = new List<TableResult>(expectedChanges);
             for (var i = 0; i < expectedChanges; i++)
             {
-                const string title = "TestType";
-                _connection.Setup(s => s.ExecuteRequestAsync(
-                    It.IsAny<AtsAsyncRequest<TableResult>>(),
-                    It.IsAny<ILogger>(),
-                    It.IsAny<CancellationToken>()))
-                    .Returns(Task.Run(() => TestTableResult.OK()));
-
-                testEntries.Add(TestStateEntry.Mock().WithState(EntityState.Added).WithType(title).WithProperty("PartitionKey", "A"));
+                entries.Add(TestStateEntry.Mock().WithState(EntityState.Added).WithType("TestType").WithProperty("PartitionKey", "A"));
+                responses.Add(TestTableResult.OK());
+                if (responses.Count >= 100)
+                {
+                    QueueResult(responses);
+                    responses = new List<TableResult>();
+                }
             }
-            var actualChanges = SaveChangesAsync(testEntries).Result;
+            if (responses.Any())
+            {
+                QueueResult(responses);
+            }
+           
+            var actualChanges = SaveChangesAsync(entries).Result;
             Assert.Equal(expectedChanges, actualChanges);
         }
     }

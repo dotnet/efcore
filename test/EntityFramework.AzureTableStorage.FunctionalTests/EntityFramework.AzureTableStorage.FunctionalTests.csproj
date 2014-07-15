@@ -75,8 +75,9 @@
   <ItemGroup>
     <Compile Include="AtsTestFramework.cs" />
     <Compile Include="BatchTests.cs" />
-    <Compile Include="EndToEndFixture.cs" />
+    <Compile Include="TestFixture.cs" />
     <Compile Include="EndToEndTests.cs" />
+    <Compile Include="TestBase.cs" />
     <Compile Include="TestConfig.cs" />
     <Compile Include="NorthwindQueryTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

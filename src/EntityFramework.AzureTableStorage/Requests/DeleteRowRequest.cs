@@ -19,13 +19,13 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Requests
 
         private static ITableEntity ResetETag(ITableEntity entity)
         {
-            entity.ETag = entity.ETag ?? "*"; // TODO use ETag for concurrency checks
+            entity.ETag = entity.ETag ?? "*";
             return entity;
         }
 
         public override string Name
         {
-            get { return "CreateRowRequest"; }
+            get { return "DeleteRowRequest"; }
         }
     }
 }
