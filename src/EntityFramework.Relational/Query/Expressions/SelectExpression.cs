@@ -135,6 +135,14 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             }
         }
 
+        public virtual void RemoveRangeFromProjection(int index)
+        {
+            if (index < _projection.Count)
+            {
+                _projection.RemoveRange(index, _projection.Count - index);
+            }
+        }
+
         public virtual void RemoveFromProjection([NotNull] IEnumerable<Ordering> orderBy)
         {
             Check.NotNull(orderBy, "orderBy");
@@ -204,6 +212,38 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             _projection.AddRange(selectExpression.Projection);
         }
 
+        public virtual InnerJoinExpression AddInnerJoin(
+            [NotNull] SelectExpression selectExpression, bool mergeProjection)
+        {
+            Check.NotNull(selectExpression, "selectExpression");
+            Contract.Assert(!selectExpression.OrderBy.Any());
+
+            var joinedTable = selectExpression.Tables.Single();
+
+            var innerJoinExpression
+                = new InnerJoinExpression(
+                    joinedTable.Table,
+                    joinedTable.Schema,
+                    joinedTable.Alias,
+                    joinedTable.QuerySource);
+
+            _tables.Add(innerJoinExpression);
+
+            if (mergeProjection)
+            {
+                _projection.AddRange(selectExpression.Projection);
+            }
+
+            return innerJoinExpression;
+        }
+        
+        public virtual void RemoveTable([NotNull] TableExpression tableExpression)
+        {
+            Check.NotNull(tableExpression, "tableExpression");
+
+            _tables.Remove(tableExpression);
+        }
+
         public override Expression Accept([NotNull] ExpressionTreeVisitor visitor)
         {
             Check.NotNull(visitor, "visitor");
@@ -221,6 +261,11 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
         protected override Expression VisitChildren(ExpressionTreeVisitor visitor)
         {
             return this;
+        }
+
+        public override string ToString()
+        {
+            return new DefaultSqlQueryGenerator().GenerateSql(this);
         }
     }
 }

@@ -4,7 +4,7 @@
 using Microsoft.Data.Entity.Metadata;
 using Northwind;
 
-namespace Microsoft.Data.FunctionalTests
+namespace Microsoft.Data.Entity.FunctionalTests
 {
     public abstract class NorthwindQueryFixtureBase
     {
@@ -35,9 +35,10 @@ namespace Microsoft.Data.FunctionalTests
                 .Key(e => e.EmployeeID)
                 .Properties(ps =>
                     {
-                        ps.Property(c => c.City);
-                        ps.Property(c => c.Country);
+                        ps.Property(e => e.City);
+                        ps.Property(e => e.Country);
                         ps.Property(e => e.FirstName);
+                        ps.Property(e => e.ReportsTo);
                     });
 
             modelBuilder
@@ -50,8 +51,8 @@ namespace Microsoft.Data.FunctionalTests
                 .Key(o => o.OrderID)
                 .Properties(ps =>
                     {
-                        ps.Property(c => c.CustomerID);
-                        ps.Property(c => c.OrderDate);
+                        ps.Property(o => o.CustomerID);
+                        ps.Property(o => o.OrderDate);
                     });
 
             modelBuilder
@@ -59,9 +60,9 @@ namespace Microsoft.Data.FunctionalTests
                 .Key(od => new { od.OrderID, od.ProductID })
                 .Properties(ps =>
                     {
-                        ps.Property(c => c.UnitPrice);
-                        ps.Property(c => c.Quantity);
-                        ps.Property(c => c.Discount);
+                        ps.Property(od => od.UnitPrice);
+                        ps.Property(od => od.Quantity);
+                        ps.Property(od => od.Discount);
                     });
 
             // TODO: Use FAPIS when avail.

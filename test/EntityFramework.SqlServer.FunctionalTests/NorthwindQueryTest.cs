@@ -3,8 +3,8 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
-using Microsoft.Data.FunctionalTests;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
@@ -12,8 +12,6 @@ using Xunit;
 
 #if K10
 using System.Threading;
-#else
-
 #endif
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
@@ -98,7 +96,7 @@ FROM [Customers] AS c",
             base.Select_scalar_primitive_after_take();
 
             Assert.Equal(
-                @"SELECT TOP 9 t1.[City], t1.[Country], t1.[EmployeeID], t1.[FirstName]
+                @"SELECT TOP 9 t1.[City], t1.[Country], t1.[EmployeeID], t1.[FirstName], t1.[ReportsTo]
 FROM [Employees] AS t1",
                 _fixture.Sql);
         }
@@ -111,6 +109,28 @@ FROM [Employees] AS t1",
                 @"SELECT c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region]
 FROM [Customers] AS c
 WHERE c.[City] = @p0",
+                _fixture.Sql);
+        }
+
+        public override void Where_comparison_nullable_type_not_null()
+        {
+            base.Where_comparison_nullable_type_not_null();
+
+            Assert.Equal(
+                @"SELECT e.[City], e.[Country], e.[EmployeeID], e.[FirstName], e.[ReportsTo]
+FROM [Employees] AS e
+WHERE e.[ReportsTo] = @p0",
+                _fixture.Sql);
+        }
+
+        public override void Where_comparison_nullable_type_null()
+        {
+            base.Where_comparison_nullable_type_null();
+            
+            Assert.Equal(
+                @"SELECT e.[City], e.[Country], e.[EmployeeID], e.[FirstName], e.[ReportsTo]
+FROM [Employees] AS e
+WHERE e.[ReportsTo] IS NULL",
                 _fixture.Sql);
         }
 
@@ -151,7 +171,7 @@ WHERE c.[City] = @p0",
             base.Where_equals_method_int();
 
             Assert.Equal(
-                @"SELECT e.[City], e.[Country], e.[EmployeeID], e.[FirstName]
+                @"SELECT e.[City], e.[Country], e.[EmployeeID], e.[FirstName], e.[ReportsTo]
 FROM [Employees] AS e
 WHERE e.[EmployeeID] = @p0",
                 _fixture.Sql);
@@ -271,7 +291,7 @@ WHERE c.[City] = @p0",
             base.Where_select_many_or();
 
             Assert.Equal(
-                @"SELECT c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region], e.[City], e.[Country], e.[EmployeeID], e.[FirstName]
+                @"SELECT c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region], e.[City], e.[Country], e.[EmployeeID], e.[FirstName], e.[ReportsTo]
 FROM [Customers] AS c
 CROSS JOIN [Employees] AS e
 WHERE (c.[City] = @p0 OR e.[City] = @p0)",
@@ -283,7 +303,7 @@ WHERE (c.[City] = @p0 OR e.[City] = @p0)",
             base.Where_select_many_or2();
 
             Assert.StartsWith(
-                @"SELECT c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region], e.[City], e.[Country], e.[EmployeeID], e.[FirstName]
+                @"SELECT c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region], e.[City], e.[Country], e.[EmployeeID], e.[FirstName], e.[ReportsTo]
 FROM [Customers] AS c
 CROSS JOIN [Employees] AS e
 WHERE (c.[City] = @p0 OR c.[City] = @p1)",
@@ -295,7 +315,7 @@ WHERE (c.[City] = @p0 OR c.[City] = @p1)",
             base.Where_select_many_and();
 
             Assert.Equal(
-                @"SELECT c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region], e.[City], e.[Country], e.[EmployeeID], e.[FirstName]
+                @"SELECT c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region], e.[City], e.[Country], e.[EmployeeID], e.[FirstName], e.[ReportsTo]
 FROM [Customers] AS c
 CROSS JOIN [Employees] AS e
 WHERE ((c.[City] = @p0 AND c.[Country] = @p1) AND (e.[City] = @p0 AND e.[Country] = @p1))",
@@ -307,7 +327,7 @@ WHERE ((c.[City] = @p0 AND c.[Country] = @p1) AND (e.[City] = @p0 AND e.[Country
             base.Select_project_filter();
 
             Assert.Equal(
-                @"SELECT c.[City], c.[CompanyName]
+                @"SELECT c.[CompanyName]
 FROM [Customers] AS c
 WHERE c.[City] = @p0",
                 _fixture.Sql);
@@ -318,7 +338,7 @@ WHERE c.[City] = @p0",
             await base.Select_project_filter_async();
 
             Assert.Equal(
-                @"SELECT c.[City], c.[CompanyName]
+                @"SELECT c.[CompanyName]
 FROM [Customers] AS c
 WHERE c.[City] = @p0",
                 _fixture.Sql);
@@ -339,9 +359,9 @@ WHERE c.[City] = @p0",
         {
             base.SelectMany_mixed();
 
-            Assert.Equal(3399, _fixture.Sql.Length);
+            Assert.Equal(3415, _fixture.Sql.Length);
             Assert.StartsWith(
-                @"SELECT e1.[City], e1.[Country], e1.[EmployeeID], e1.[FirstName]
+                @"SELECT e1.[City], e1.[Country], e1.[EmployeeID], e1.[FirstName], e1.[ReportsTo]
 FROM [Employees] AS e1
 
 SELECT c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region]
@@ -357,7 +377,7 @@ FROM [Customers] AS c",
             base.SelectMany_simple1();
 
             Assert.Equal(
-                @"SELECT e.[City], e.[Country], e.[EmployeeID], e.[FirstName], c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region]
+                @"SELECT e.[City], e.[Country], e.[EmployeeID], e.[FirstName], e.[ReportsTo], c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region]
 FROM [Employees] AS e
 CROSS JOIN [Customers] AS c",
                 _fixture.Sql);
@@ -368,7 +388,7 @@ CROSS JOIN [Customers] AS c",
             base.SelectMany_simple2();
 
             Assert.Equal(
-                @"SELECT e1.[City], e1.[Country], e1.[EmployeeID], e1.[FirstName], c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region], e2.[FirstName]
+                @"SELECT e1.[City], e1.[Country], e1.[EmployeeID], e1.[FirstName], e1.[ReportsTo], c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region], e2.[FirstName]
 FROM [Employees] AS e1
 CROSS JOIN [Customers] AS c
 CROSS JOIN [Employees] AS e2",
@@ -380,7 +400,7 @@ CROSS JOIN [Employees] AS e2",
             base.SelectMany_entity_deep();
 
             Assert.Equal(
-                @"SELECT e1.[City], e1.[Country], e1.[EmployeeID], e1.[FirstName], e2.[City], e2.[Country], e2.[EmployeeID], e2.[FirstName], e3.[City], e3.[Country], e3.[EmployeeID], e3.[FirstName]
+                @"SELECT e1.[City], e1.[Country], e1.[EmployeeID], e1.[FirstName], e1.[ReportsTo], e2.[City], e2.[Country], e2.[EmployeeID], e2.[FirstName], e2.[ReportsTo], e3.[City], e3.[Country], e3.[EmployeeID], e3.[FirstName], e3.[ReportsTo]
 FROM [Employees] AS e1
 CROSS JOIN [Employees] AS e2
 CROSS JOIN [Employees] AS e3",
@@ -410,16 +430,36 @@ CROSS JOIN [Employees] AS e3",
                 _fixture.Sql);
         }
 
-        public override void Join_customers_orders()
+        public override void Join_customers_orders_projection()
         {
-            base.Join_customers_orders();
+            base.Join_customers_orders_projection();
 
             Assert.Equal(
-                @"SELECT o.[CustomerID], o.[OrderID]
-FROM [Orders] AS o
+                @"SELECT c.[ContactName], o.[OrderID]
+FROM [Customers] AS c
+INNER JOIN [Orders] AS o ON c.[CustomerID] = o.[CustomerID]",
+                _fixture.Sql);
+        }
 
-SELECT c.[CustomerID], c.[ContactName]
-FROM [Customers] AS c",
+        public override void Join_customers_orders_entities()
+        {
+            base.Join_customers_orders_entities();
+
+            Assert.Equal(
+                @"SELECT c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region], o.[CustomerID], o.[OrderDate], o.[OrderID]
+FROM [Customers] AS c
+INNER JOIN [Orders] AS o ON c.[CustomerID] = o.[CustomerID]",
+                _fixture.Sql);
+        }
+
+        public override void Join_composite_key()
+        {
+            base.Join_composite_key();
+
+            Assert.Equal(
+                @"SELECT c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region], o.[CustomerID], o.[OrderDate], o.[OrderID]
+FROM [Customers] AS c
+INNER JOIN [Orders] AS o ON (c.[CustomerID] = o.[CustomerID] AND c.[CustomerID] = o.[CustomerID])",
                 _fixture.Sql);
         }
 
@@ -544,20 +584,20 @@ ORDER BY c.[Country], c.[CustomerID]",
         {
             base.Where_subquery_recursive_trivial();
 
-            Assert.Equal(1985, _fixture.Sql.Length);
+            Assert.Equal(2289, _fixture.Sql.Length);
             Assert.StartsWith(
-                @"SELECT e1.[City], e1.[Country], e1.[EmployeeID], e1.[FirstName]
+                @"SELECT e1.[City], e1.[Country], e1.[EmployeeID], e1.[FirstName], e1.[ReportsTo]
 FROM [Employees] AS e1
 ORDER BY e1.[EmployeeID]
 
-SELECT e2.[City], e2.[Country], e2.[EmployeeID], e2.[FirstName]
+SELECT e2.[City], e2.[Country], e2.[EmployeeID], e2.[FirstName], e2.[ReportsTo]
 FROM [Employees] AS e2
 
-SELECT e3.[City], e3.[Country], e3.[EmployeeID], e3.[FirstName]
+SELECT e3.[City], e3.[Country], e3.[EmployeeID], e3.[FirstName], e3.[ReportsTo]
 FROM [Employees] AS e3
 ORDER BY e3.[EmployeeID]
 
-SELECT e2.[City], e2.[Country], e2.[EmployeeID], e2.[FirstName]
+SELECT e2.[City], e2.[Country], e2.[EmployeeID], e2.[FirstName], e2.[ReportsTo]
 FROM [Employees] AS e2",
                 _fixture.Sql);
         }
@@ -762,7 +802,7 @@ WHERE c.[ContactName] LIKE '%' + @p0",
             base.Select_nested_collection();
 
             Assert.StartsWith(
-                @"SELECT c.[City], c.[CustomerID]
+                @"SELECT c.[CustomerID]
 FROM [Customers] AS c
 WHERE c.[City] = @p0
 ORDER BY c.[CustomerID]
@@ -803,6 +843,11 @@ FROM [Orders] AS o
 
 ",
                 _fixture.Sql);
+        }
+
+        public override void SelectMany_correlated_subquery_hard()
+        {
+            base.SelectMany_correlated_subquery_hard();
         }
 
         private readonly NorthwindQueryFixture _fixture;
