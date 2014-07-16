@@ -44,7 +44,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
         [MemberData("SimpleWhereExpressions")]
         [MemberData("DataTypeWhereExpressions")]
         [MemberData("CompositeLogicWhereExpressions")]
-        public void It_generates_where_queries(QueryModel queryModel, string expectedQuery)
+        [MemberData("PartitionAndRowKeyExpression")]
+        public void It_generates_where_queries(string expectedQuery, QueryModel queryModel)
         {
             var selectExpression = GetSelectExpression(queryModel);
             var tableQuery = _generator.GenerateTableQuery(selectExpression);
@@ -64,18 +65,18 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
             {
                 return new[]
                     {
-                        new object[] { Query(q => q.Where(s => s.Count == 5)), "Count eq 5" },
-                        new object[] { Query(q => q.Where(s => 5 == s.Count)), "Count eq 5" },
-                        new object[] { Query(q => q.Where(s => s.Count != 10)), "Count ne 10" },
-                        new object[] { Query(q => q.Where(s => 10 != s.Count)), "Count ne 10" },
-                        new object[] { Query(q => q.Where(s => s.Count < 15)), "Count lt 15" },
-                        new object[] { Query(q => q.Where(s => 15 > s.Count)), "Count lt 15" },
-                        new object[] { Query(q => q.Where(s => s.Count <= 20)), "Count le 20" },
-                        new object[] { Query(q => q.Where(s => 20 >= s.Count)), "Count le 20" },
-                        new object[] { Query(q => q.Where(s => 25 <= s.Count)), "Count ge 25" },
-                        new object[] { Query(q => q.Where(s => s.Count >= 25)), "Count ge 25" },
-                        new object[] { Query(q => q.Where(s => 30 < s.Count)), "Count gt 30" },
-                        new object[] { Query(q => q.Where(s => s.Count > 30)), "Count gt 30" },
+                        new object[] { "Count eq 5", Query<PocoTestType>(q => q.Where(s => s.Count == 5)),},
+                        new object[] { "Count eq 5", Query<PocoTestType>(q => q.Where(s => 5 == s.Count)),},
+                        new object[] { "Count ne 10", Query<PocoTestType>(q => q.Where(s => s.Count != 10)),},
+                        new object[] { "Count ne 10", Query<PocoTestType>(q => q.Where(s => 10 != s.Count)),},
+                        new object[] { "Count lt 15", Query<PocoTestType>(q => q.Where(s => s.Count < 15)),},
+                        new object[] { "Count lt 15", Query<PocoTestType>(q => q.Where(s => 15 > s.Count)),},
+                        new object[] { "Count le 20", Query<PocoTestType>(q => q.Where(s => s.Count <= 20)),},
+                        new object[] { "Count le 20", Query<PocoTestType>(q => q.Where(s => 20 >= s.Count)),},
+                        new object[] { "Count ge 25", Query<PocoTestType>(q => q.Where(s => 25 <= s.Count)),},
+                        new object[] { "Count ge 25", Query<PocoTestType>(q => q.Where(s => s.Count >= 25)),},
+                        new object[] { "Count gt 30", Query<PocoTestType>(q => q.Where(s => 30 < s.Count)),},
+                        new object[] { "Count gt 30", Query<PocoTestType>(q => q.Where(s => s.Count > 30)),},
                     };
             }
         }
@@ -89,24 +90,27 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
             {
                 return new[]
                     {
-                        new object[] { Query(q => q.Where(s => s.Name == "Unicorn")), "Name eq 'Unicorn'" },
-                        new object[] { Query(q => q.Where(s => s.Name == " has ' quotes ' \" ")), "Name eq ' has '' quotes '' \" '" },
-                        new object[] { Query(q => q.Where(s => s.Name == "rtl أنا لا أتكلم العربية rtl")), "Name eq 'rtl أنا لا أتكلم العربية rtl'" },
-                        new object[] { Query(q => q.Where(s => s.Name == "獨角獸")), "Name eq '獨角獸'" },
-                        new object[] { Query(q => q.Where(s => s.Count == 2147483647)), "Count eq 2147483647" },
-                        new object[] { Query(q => q.Where(s => s.BigCount == 2147483648)), "BigCount eq 2147483648L" },
-                        new object[] { Query(q => q.Where(s => s.Price == 100.75)), "Price eq 100.75" },
+                        new object[] { "Name eq 'Unicorn'", Query<PocoTestType>(q => q.Where(s => s.Name == "Unicorn")),},
+                        new object[] { "Name eq ' has '' quotes '' \" '", Query<PocoTestType>(q => q.Where(s => s.Name == " has ' quotes ' \" ")),},
+                        new object[] { "Name eq 'rtl أنا لا أتكلم العربية rtl'", Query<PocoTestType>(q => q.Where(s => s.Name == "rtl أنا لا أتكلم العربية rtl")),},
+                        new object[] { "Name eq '獨角獸'", Query<PocoTestType>(q => q.Where(s => s.Name == "獨角獸")),},
+                        new object[] { "Count eq 2147483647", Query<PocoTestType>(q => q.Where(s => s.Count == 2147483647)),},
+                        new object[] { "BigCount eq 2147483648L", Query<PocoTestType>(q => q.Where(s => s.BigCount == 2147483648)),},
+                        new object[] { "Price eq 100.75", Query<PocoTestType>(q => q.Where(s => s.Price == 100.75)),},
                         new object[]
                             {
-                                Query(q => q.Where(s =>
-                                    s.CustomerSince == ConstantDateTime)),
-                                "CustomerSince eq datetime'2014-05-23T18:00:00.0000000Z'"
+                                "CustomerSince eq datetime'2014-05-23T18:00:00.0000000Z'",
+                                Query<PocoTestType>(q => q.Where(s =>
+                                    s.CustomerSince == ConstantDateTime))
                             },
-                        new object[] { Query(q => q.Where(s => s.IsEnchanted)), "IsEnchanted eq true" },
-                        new object[] { Query(q => q.Where(s => !s.IsEnchanted)), "IsEnchanted eq false" },
-                        new object[] { Query(q => q.Where(s => s.Buffer == TestByteArray)), "Buffer eq X'05080f10172a'" },
-                        new object[] { Query(q => q.Where(s => s.Guid == new Guid("ca761232ed4211cebacd00aa0057b223"))), "Guid eq guid'ca761232-ed42-11ce-bacd-00aa0057b223'" },
-                        new object[] { Query(q => q.Where(s => s.NestedObj.Count == 3)), "" },
+                        new object[] { "IsEnchanted eq true", Query<PocoTestType>(q => q.Where(s => s.IsEnchanted)),},
+                        new object[] { "IsEnchanted eq false", Query<PocoTestType>(q => q.Where(s => !s.IsEnchanted)),},
+                        new object[] { "Buffer eq X'05080f10172a'", Query<PocoTestType>(q => q.Where(s => s.Buffer == TestByteArray)),},
+                        new object[] { "Guid eq guid'ca761232-ed42-11ce-bacd-00aa0057b223'", Query<PocoTestType>(q => q.Where(s => s.Guid == new Guid("ca761232ed4211cebacd00aa0057b223"))),},
+                        new object[] { "", Query<PocoTestType>(q => q.Where(s => s.NestedObj.Count == 3)),},
+                        new object[] { "NullInt eq 9", Query<NullablePoco>(q => q.Where(s => s.NullInt == 9)),},
+                        new object[] { "NullDouble eq 3.149", Query<NullablePoco>(q => q.Where(s => s.NullDouble == 3.149)),},
+                        new object[] { "", Query<NullablePoco>(q => q.Where(s => s.NullInt.HasValue)),},
                     };
             }
         }
@@ -117,25 +121,39 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
             {
                 return new[]
                     {
-                        new object[] { Query(q => q.Where(s => s.Count == 10 && s.Count == 20)), "(Count eq 10) and (Count eq 20)" },
-                        new object[] { Query(q => q.Where(s => s.Name == "Dijkstra" && (s.Count == 10 || s.Count == 20))), "(Name eq 'Dijkstra') and ((Count eq 10) or (Count eq 20))" },
-                        new object[] { Query(q => q.Where(s => (s.Name == "Dijkstra" && !s.IsEnchanted) || (s.IsEnchanted && s.Count == 20))), "((Name eq 'Dijkstra') and (IsEnchanted eq false)) or ((IsEnchanted eq true) and (Count eq 20))" },
-                        new object[] { Query(q => q.Where(s => s.Count == 10 || s.Count == 20)), "(Count eq 10) or (Count eq 20)" },
-                        new object[] { Query(q => q.Where(s => s.Count < -10 && s.Name == "The Real Deal")), "(Count lt -10) and (Name eq 'The Real Deal')" },
+                        new object[] { "(Count eq 10) and (Count eq 20)", Query<PocoTestType>(q => q.Where(s => s.Count == 10 && s.Count == 20)),},
+                        new object[] { "(Name eq 'Dijkstra') and ((Count eq 10) or (Count eq 20))", Query<PocoTestType>(q => q.Where(s => s.Name == "Dijkstra" && (s.Count == 10 || s.Count == 20))),},
+                        new object[] { "((Name eq 'Dijkstra') and (IsEnchanted eq false)) or ((IsEnchanted eq true) and (Count eq 20))", Query<PocoTestType>(q => q.Where(s => (s.Name == "Dijkstra" && !s.IsEnchanted) || (s.IsEnchanted && s.Count == 20))),},
+                        new object[] { "(Count eq 10) or (Count eq 20)", Query<PocoTestType>(q => q.Where(s => s.Count == 10 || s.Count == 20)),},
+                        new object[] { "(Count lt -10) and (Name eq 'The Real Deal')", Query<PocoTestType>(q => q.Where(s => s.Count < -10 && s.Name == "The Real Deal")),},
                     };
             }
         }
 
+        public static IEnumerable<object[]> PartitionAndRowKeyExpression
+        {
+            get
+            {
+                return new[]
+                    {
+                        new object[] { "(RowKey eq '15') and (PartitionKey eq '16')", Query<IntKeysPoco>(s => s.Where(t => t.RowID == 15 && t.PartitionID == 16)),},
+                    };
+            }
+        }
+
+      
         private static IModel SetupModel()
         {
             var model = new Model { StorageName = "TestModel" };
             model.AddEntityType(PocoTestType.EntityType());
+            model.AddEntityType(IntKeysPoco.EntityType());
+            model.AddEntityType(NullablePoco.EntityType());
             return model;
         }
 
-        private static QueryModel Query(Expression<Func<DbSet<PocoTestType>, IQueryable>> expression)
+        private static QueryModel Query<T>(Expression<Func<DbSet<T>, IQueryable>> expression) where T : class
         {
-            var query = expression.Compile()(new DbSet<PocoTestType>(Mock.Of<DbContext>()));
+            var query = expression.Compile()(new DbSet<T>(Mock.Of<DbContext>()));
             return new EntityQueryProvider(new EntityQueryExecutor(Mock.Of<DbContext>())).GenerateQueryModel(query.Expression);
         }
 

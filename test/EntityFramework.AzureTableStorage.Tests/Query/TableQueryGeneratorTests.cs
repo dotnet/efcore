@@ -146,7 +146,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
             return Expression.MakeBinary(
                 expressionType,
                 new PropertyExpression(new Property(propertyName, constant.GetType())),
-                new QueryableConstantExpression(constant));
+                new QueryableConstantExpression(constant.GetType(), constant));
         }
     }
 }

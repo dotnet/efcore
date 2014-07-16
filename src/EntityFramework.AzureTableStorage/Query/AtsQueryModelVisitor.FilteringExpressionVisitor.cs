@@ -211,7 +211,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
                 if (constantExpression != null
                     && constantExpression.Value != null)
                 {
-                    return new QueryableConstantExpression(constantExpression.Value);
+                    return new QueryableConstantExpression(constantExpression.Type, constantExpression.Value);
                 }
                 return null;
             }

@@ -87,7 +87,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         }
 
         //TODO merge similarities with batch execution
-        private async Task<int> ExecuteChangesAsync(IReadOnlyList<StateEntry> stateEntries, 
+        private async Task<int> ExecuteChangesAsync(IReadOnlyList<StateEntry> stateEntries,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             var tableGroups = stateEntries.GroupBy(s => s.EntityType);
@@ -111,14 +111,14 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             }
             catch (StorageException exception)
             {
-                //TODO identify which entity failed to update and add to exception
-                if (exception.RequestInformation.HttpStatusCode == (int)HttpStatusCode.PreconditionFailed)
+                var handled = HandleStorageException(exception, stateEntries);
+                if (handled != null)
                 {
-                    throw new DbUpdateConcurrencyException(Strings.ETagPreconditionFailed);
+                    throw handled;
                 }
-                throw new DbUpdateException(Strings.SaveChangesFailed, exception);
+                throw;
             }
-            return allTasks.Count(t=>t.Result.HttpStatusCode < (int) HttpStatusCode.BadRequest);
+            return allTasks.Count(t => t.Result.HttpStatusCode < (int)HttpStatusCode.BadRequest);
         }
 
         private async Task<int> ExecuteBatchedChangesAsync(IReadOnlyList<StateEntry> stateEntries,
@@ -163,13 +163,36 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             }
             catch (StorageException exception)
             {
-                if (exception.RequestInformation.HttpStatusCode == (int)HttpStatusCode.PreconditionFailed)
+                var handled = HandleStorageException(exception, stateEntries);
+                if (handled != null)
                 {
-                    throw new DbUpdateConcurrencyException(Strings.ETagPreconditionFailed);
+                    throw handled;
                 }
-                throw new DbUpdateException(Strings.SaveChangesFailed,exception);
+                throw;
             }
             return allBatchTasks.Sum(l => l.Result == null ? 0 : l.Result.Count(t => t.HttpStatusCode < (int)HttpStatusCode.BadRequest));
+        }
+
+        protected Exception HandleStorageException(StorageException exception, IReadOnlyList<StateEntry> stateEntries)
+        {
+            var statusCode = exception.RequestInformation.HttpStatusCode;
+            if (statusCode == (int)HttpStatusCode.PreconditionFailed)
+            {
+                return new DbUpdateConcurrencyException(Strings.ETagPreconditionFailed, stateEntries);
+            }
+            if (statusCode == (int)HttpStatusCode.NotFound)
+            {
+                var extendedErrorCode = exception.RequestInformation.ExtendedErrorInformation.ErrorCode;
+                if (extendedErrorCode == StorageErrorCodes.ResourceNotFound)
+                {
+                    return new DbUpdateConcurrencyException(Strings.ResourceNotFound, stateEntries); 
+                }
+                if (extendedErrorCode == StorageErrorCodes.TableNotFoundError)
+                {
+                    return new DbUpdateException(Strings.TableNotFound, stateEntries);
+                }
+            }
+            return new DbUpdateException(Strings.SaveChangesFailed, exception, stateEntries);
         }
 
         protected TableOperationRequest CreateRequest(AtsTable table, StateEntry entry)

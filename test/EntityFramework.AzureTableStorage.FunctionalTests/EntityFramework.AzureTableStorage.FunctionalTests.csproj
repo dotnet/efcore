@@ -75,6 +75,7 @@
   <ItemGroup>
     <Compile Include="AtsTestFramework.cs" />
     <Compile Include="BatchTests.cs" />
+    <Compile Include="OptimisticConcurrencyTests.cs" />
     <Compile Include="TestFixture.cs" />
     <Compile Include="EndToEndTests.cs" />
     <Compile Include="TestBase.cs" />
