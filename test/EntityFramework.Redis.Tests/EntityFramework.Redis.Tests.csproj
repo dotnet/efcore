@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="..\..\tools\EntityFramework.props" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{7B30247D-BF61-46F3-ABC0-091F97842AA7}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Microsoft.Data.Entity.Redis</RootNamespace>
+    <AssemblyName>EntityFramework.Redis.Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <PackageReference Include="xunit.abstractions">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="xunit.assert">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="xunit.core">
+      <TargetFramework>net45</TargetFramework>
+      <Assemblies>xunit.core;xunit.runner.tdnet</Assemblies>
+    </PackageReference>
+    <PackageReference Include="xunit.execution">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Moq">
+      <TargetFramework>net40</TargetFramework>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\Shared\ApiConsistencyTestBase.cs">
+      <Link>ApiConsistencyTestBase.cs</Link>
+    </Compile>
+    <Compile Include="ApiConsistencyTest.cs" />
+    <Compile Include="RedisDatabaseTests.cs" />
+    <Compile Include="RedisDataStoreCreatorTests.cs" />
+    <Compile Include="RedisDataStoreSourceTests.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\EntityFramework.Redis\EntityFramework.Redis.csproj">
+      <Project>{4f810e8d-864a-4a3d-a653-0ccd3d3a29dd}</Project>
+      <Name>EntityFramework.Redis</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\EntityFramework\EntityFramework.csproj">
+      <Project>{71415cec-8111-4c73-8751-512d22f10602}</Project>
+      <Name>EntityFramework</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

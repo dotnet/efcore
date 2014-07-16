@@ -1,0 +1,25 @@
+{
+  "version": "0.1-alpha-*",
+  "compilationOptions": {
+    "warningAsErrors": false
+  },
+  "dependencies": {
+    "EntityFramework": "",
+    "EntityFramework.Redis": "",
+    "Moq":  "4.2.1402.2112",
+    "Remotion.Linq": "1.15.13.0",
+    "WindowsAzure.Storage": "4.1.0",
+    "Xunit.KRunner": "1.0.0-*"
+  },
+  "commands": {
+    "test": "Xunit.KRunner"
+  },
+  "code": "**\\*.cs;..\\Shared\\ApiConsistencyTestBase.cs",
+  "frameworks": {
+    "net45": {
+      "dependencies": {
+          "System.Threading.Tasks": ""
+      }
+    }
+  }
+}
