@@ -59,8 +59,5 @@
     <Compile Include="Model\RenameIndexOperationTest.cs" />
     <Compile Include="Model\RenameTableOperationTest.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
   <Import Project="$(VSToolsPath)\AspNet\Microsoft.Web.AspNet.targets" Condition="'$(VSToolsPath)' != ''" />
 </Project>

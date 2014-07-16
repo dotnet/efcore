@@ -27,6 +27,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
+    <Compile Include="ApiExtensionsTest.cs" />
     <Compile Include="ConnectionStringResolverTest.cs" />
     <Compile Include="DatabaseBuilderTest.cs" />
     <Compile Include="MetadataExtensionsTest.cs" />
@@ -36,26 +37,28 @@
     <Compile Include="Model\IndexTest.cs" />
     <Compile Include="Model\PrimaryKeyTest.cs" />
     <Compile Include="Model\RelationalTypeMapperTest.cs" />
+    <Compile Include="Model\RelationalTypeMappingTest.cs" />
     <Compile Include="Model\SequenceTest.cs" />
     <Compile Include="Model\TableTest.cs" />
     <Compile Include="RelationalConnectionTest.cs" />
     <Compile Include="RelationalDatabaseExtensionsTest.cs" />
     <Compile Include="RelationalDatabaseTest.cs" />
+    <Compile Include="RelationalDataStoreTest.cs" />
     <Compile Include="RelationalObjectArrayValueReaderFactoryTest.cs" />
     <Compile Include="RelationalObjectArrayValueReaderTest.cs" />
     <Compile Include="RelationalTypedValueReaderFactoryTest.cs" />
     <Compile Include="RelationalTypedValueReaderTest.cs" />
     <Compile Include="SchemaQualifiedNameTest.cs" />
     <Compile Include="SqlGeneratorTest.cs" />
+    <Compile Include="SqlGeneratorTestBase.cs" />
     <Compile Include="Update\BatchExecutorTest.cs" />
+    <Compile Include="Update\ColumnModificationTest.cs" />
     <Compile Include="Update\CommandBatchPreparerTest.cs" />
+    <Compile Include="Update\ModificationCommandBatchFactoryTest.cs" />
     <Compile Include="Update\ModificationCommandBatchTest.cs" />
     <Compile Include="Update\ModificationCommandComparerTest.cs" />
     <Compile Include="Update\ModificationCommandTest.cs" />
     <Compile Include="Utilities\StringBuilderExtensionsTest.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Properties\" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\AspNet\Microsoft.Web.AspNet.targets" Condition="'$(VSToolsPath)' != ''" />
 </Project>

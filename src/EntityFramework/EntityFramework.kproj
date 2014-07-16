@@ -105,7 +105,6 @@
     <Compile Include="Metadata\ClrPropertyGetterSource.cs" />
     <Compile Include="Metadata\ClrPropertySetter.cs" />
     <Compile Include="Metadata\ClrPropertySetterSource.cs" />
-    <Compile Include="Metadata\CollectionNavigationAccessor.cs" />
     <Compile Include="Metadata\Compiled\CompiledEntityType.cs" />
     <Compile Include="Metadata\Compiled\CompiledForeignKey.cs" />
     <Compile Include="Metadata\Compiled\CompiledIndex.cs" />
@@ -153,8 +152,6 @@
     <Compile Include="Metadata\ModelItemNotFoundException.cs" />
     <Compile Include="Metadata\NamedMetadataBase.cs" />
     <Compile Include="Metadata\Navigation.cs" />
-    <Compile Include="Metadata\NavigationAccessor.cs" />
-    <Compile Include="Metadata\NavigationAccessorSource.cs" />
     <Compile Include="Metadata\NavigationExtensions.cs" />
     <Compile Include="Metadata\ObjectArrayValueReader.cs" />
     <Compile Include="Metadata\Property.cs" />
@@ -176,6 +173,7 @@
     <Compile Include="Query\QueryCompilationContext.cs" />
     <Compile Include="Query\QueryContext.cs" />
     <Compile Include="Query\QuerySourceScope.cs" />
+    <Compile Include="Query\QuerySourceScope`.cs" />
     <Compile Include="Query\ResultOperatorHandler.cs" />
     <Compile Include="Query\TaskResultAsyncEnumerable.cs" />
     <Compile Include="ServiceProviderCache.cs" />
@@ -186,6 +184,8 @@
     <Compile Include="Storage\DataStoreSelector.cs" />
     <Compile Include="Storage\DataStoreSource.cs" />
     <Compile Include="Storage\DataStoreSource`.cs" />
+    <Compile Include="Update\DbUpdateConcurrencyException.cs" />
+    <Compile Include="Update\DbUpdateException.cs" />
     <Compile Include="Utilities\AsyncLock.cs" />
     <Compile Include="Utilities\BidirectionalAdjacencyListGraph.cs" />
     <Compile Include="Utilities\BidirectionalAdjacencyListGraphFactory.cs" />

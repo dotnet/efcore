@@ -42,6 +42,7 @@
     <Compile Include="SqlServerMigrationOperationSqlGenerator.cs" />
     <Compile Include="SqlServerMigrationOperationSqlGeneratorFactory.cs" />
     <Compile Include="SqlServerMigrator.cs" />
+    <Compile Include="SqlServerModificationCommandBatchFactory.cs" />
     <Compile Include="SqlServerOptionsExtension.cs" />
     <Compile Include="SqlServerSequenceValueGenerator.cs" />
     <Compile Include="SqlServerSequenceValueGeneratorFactory.cs" />

@@ -34,7 +34,7 @@
     <Compile Include="Infrastructure\IMigrationMetadata.cs" />
     <Compile Include="Infrastructure\MigrationAssembly.cs" />
     <Compile Include="Infrastructure\MigrationMetadata.cs" />
-    <Compile Include="Infrastructure\MigrationMetadataComparer.cs" />
+    <Compile Include="Infrastructure\MigrationMetadataExtensions.cs" />
     <Compile Include="Infrastructure\Migrator.cs" />
     <Compile Include="Infrastructure\ModelSnapshot.cs" />
     <Compile Include="Migration.cs" />
