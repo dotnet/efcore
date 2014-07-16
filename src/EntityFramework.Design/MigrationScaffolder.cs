@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Design.Utilities;
@@ -39,8 +38,6 @@ namespace Microsoft.Data.Entity.Design
             _modelDiffer = modelDiffer;
             _migrationCodeGenerator = migrationCodeGenerator;
         }
-
-        public virtual string MigrationDirectory { get; set; }
 
         protected virtual DbContextConfiguration ContextConfiguration
         {
@@ -131,8 +128,8 @@ namespace Microsoft.Data.Entity.Design
         }
 
         protected virtual void ScaffoldMigration(
-            [NotNull] IMigrationMetadata migration, 
-            [NotNull] IndentedStringBuilder migrationCode, 
+            [NotNull] IMigrationMetadata migration,
+            [NotNull] IndentedStringBuilder migrationCode,
             [NotNull] IndentedStringBuilder migrationMetadataCode)
         {
             Check.NotNull(migration, "migration");

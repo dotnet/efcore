@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using JetBrains.Annotations;
+using Microsoft.Data.Entity.Design.Utilities;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Framework.ConfigurationModel;
@@ -23,7 +25,7 @@ namespace Microsoft.Data.Entity.Design
             UpdateDatabase
         }
 
-        public virtual void Main(string[] args)
+        public virtual void Main([CanBeNull] string[] args)
         {
             try
             {
@@ -32,10 +34,10 @@ namespace Microsoft.Data.Entity.Design
             catch (Exception exception)
             {
                 Console.WriteLine(exception.Message);
-            }            
+            }
         }
 
-        public virtual void Run(params string[] args)
+        public virtual void Run([CanBeNull] params string[] args)
         {
             string command = null;
             string[] commandArgs = null;
@@ -49,7 +51,7 @@ namespace Microsoft.Data.Entity.Design
             Run(command, commandArgs);
         }
 
-        public virtual void Run(string command, params string[] commandArgs)
+        public virtual void Run([CanBeNull] string command, [CanBeNull] params string[] commandArgs)
         {
             if (string.Equals(command, "config", StringComparison.OrdinalIgnoreCase))
             {
@@ -77,24 +79,30 @@ namespace Microsoft.Data.Entity.Design
             }
         }
 
-        public virtual void CommitConfiguration(string[] commandArgs)
+        public virtual void CommitConfiguration([NotNull] string[] commandArgs)
         {
+            Check.NotNull(commandArgs, "commandArgs");
+
             var tool = CreateMigrationTool();
             var configuration = CreateConfiguration(tool, CommandCode.CommitConfiguration, commandArgs);
 
             tool.CommitConfiguration(configuration);
         }
 
-        public virtual void CreateMigration(string[] commandArgs)
+        public virtual void CreateMigration([NotNull] string[] commandArgs)
         {
+            Check.NotNull(commandArgs, "commandArgs");
+
             var tool = CreateMigrationTool();
             var configuration = CreateConfiguration(tool, CommandCode.CreateMigration, commandArgs);
 
             tool.CreateMigration(configuration);
         }
 
-        public virtual void ListMigrations(string[] commandArgs)
+        public virtual void ListMigrations([NotNull] string[] commandArgs)
         {
+            Check.NotNull(commandArgs, "commandArgs");
+
             var tool = CreateMigrationTool();
             var configuration = CreateConfiguration(tool, CommandCode.ListMigrations, commandArgs);
 
@@ -106,11 +114,13 @@ namespace Microsoft.Data.Entity.Design
             foreach (var migration in migrations)
             {
                 Console.WriteLine(migration.MigrationId);
-            }            
+            }
         }
 
-        public virtual void GenerateScript(string[] commandArgs)
+        public virtual void GenerateScript([NotNull] string[] commandArgs)
         {
+            Check.NotNull(commandArgs, "commandArgs");
+
             var tool = CreateMigrationTool();
             var configuration = CreateConfiguration(tool, CommandCode.GenerateScript, commandArgs);
 
@@ -125,8 +135,10 @@ namespace Microsoft.Data.Entity.Design
             }
         }
 
-        public virtual void UpdateDatabase(string[] commandArgs)
+        public virtual void UpdateDatabase([NotNull] string[] commandArgs)
         {
+            Check.NotNull(commandArgs, "commandArgs");
+
             var tool = CreateMigrationTool();
             var configuration = CreateConfiguration(tool, CommandCode.UpdateDatabase, commandArgs);
 

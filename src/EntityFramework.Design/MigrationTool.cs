@@ -176,10 +176,7 @@ namespace Microsoft.Data.Entity.Design
                     contextConfiguration,
                     contextConfiguration.Services.ServiceProvider.GetService<MigrationAssembly>(),
                     contextConfiguration.Services.ServiceProvider.GetService<ModelDiffer>(),
-                    new CSharpMigrationCodeGenerator(new CSharpModelCodeGenerator()))
-                    {
-                        MigrationDirectory = migrationDirectory
-                    };
+                    new CSharpMigrationCodeGenerator(new CSharpModelCodeGenerator()));
         }
 
         protected virtual void WriteMigration(string migrationDirectory, ScaffoldedMigration scaffoldedMigration)

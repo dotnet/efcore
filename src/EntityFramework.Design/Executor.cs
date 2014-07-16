@@ -4,7 +4,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Design.Utilities;
@@ -26,8 +25,11 @@ namespace Microsoft.Data.Entity.Design
         public class CreateMigration : OperationBase
         {
             public CreateMigration([NotNull] Executor executor, [NotNull] object handler, [NotNull] IDictionary args)
-                : base(Check.NotNull(handler, "handler"))
+                : base(handler)
             {
+                Check.NotNull(executor, "executor");
+                Check.NotNull(args, "args");
+
                 var migrationName = (string)args["migrationName"];
                 var contextName = (string)args["contextName"];
                 var migrationsDir = (string)args["migrationsDir"];
@@ -36,8 +38,13 @@ namespace Microsoft.Data.Entity.Design
             }
         }
 
-        public virtual IEnumerable<string> CreateMigrationImpl(string migrationName, string contextName, string migrationsDir)
+        public virtual IEnumerable<string> CreateMigrationImpl(
+            [NotNull] string migrationName,
+            [CanBeNull] string contextName,
+            [CanBeNull] string migrationsDir)
         {
+            Check.NotNull(migrationName, "migrationName");
+
             var migration = new MigrationTool().CreateMigration(
                 migrationName,
                 _targetPath,
@@ -52,8 +59,11 @@ namespace Microsoft.Data.Entity.Design
         public class PublishMigration : OperationBase
         {
             public PublishMigration([NotNull] Executor executor, [NotNull] object handler, [NotNull] IDictionary args)
-                : base(Check.NotNull(handler, "handler"))
+                : base(handler)
             {
+                Check.NotNull(executor, "executor");
+                Check.NotNull(args, "args");
+
                 var targetMigration = (string)args["targetMigration"];
                 var contextName = (string)args["contextName"];
 
@@ -61,7 +71,7 @@ namespace Microsoft.Data.Entity.Design
             }
         }
 
-        public virtual void PublishMigrationImpl(string targetMigration, string contextName)
+        public virtual void PublishMigrationImpl([CanBeNull] string targetMigration, [CanBeNull] string contextName)
         {
             new MigrationTool().UpdateDatabase(
                 _targetPath,
@@ -75,8 +85,11 @@ namespace Microsoft.Data.Entity.Design
                 [NotNull] Executor executor,
                 [NotNull] object handler,
                 [NotNull] IDictionary args)
-                : base(Check.NotNull(handler, "handler"))
+                : base(handler)
             {
+                Check.NotNull(executor, "executor");
+                Check.NotNull(args, "args");
+
                 var targetMigration = (string)args["targetMigration"];
                 var contextName = (string)args["contextName"];
 
@@ -84,7 +97,9 @@ namespace Microsoft.Data.Entity.Design
             }
         }
 
-        public virtual string CreateMigrationScriptImpl(string targetMigration, string contextName)
+        public virtual string CreateMigrationScriptImpl(
+            [CanBeNull] string targetMigration,
+            [CanBeNull] string contextName)
         {
             var statements = new MigrationTool().GenerateScript(
                 _targetPath,
