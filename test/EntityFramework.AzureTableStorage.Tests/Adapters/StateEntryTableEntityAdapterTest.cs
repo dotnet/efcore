@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Microsoft.Data.Entity.AzureTableStorage.Adapters;
 using Microsoft.Data.Entity.AzureTableStorage.Metadata;
 using Microsoft.Data.Entity.AzureTableStorage.Query;
+using Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers;
 using Microsoft.Data.Entity.AzureTableStorage.Utilities;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
@@ -23,31 +24,6 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
         private static DbContextConfiguration CreateConfiguration()
         {
             return new DbContext(new DbContextOptions().UseAzureTableStorage("Moria", "mellon")).Configuration;
-        }
-
-        public class ClrPoco
-        {
-            public string PartitionKey { get; set; }
-            public string RowKey { get; set; }
-            public DateTimeOffset Timestamp { get; set; }
-        }
-
-        public class GuidKeysPoco
-        {
-            public Guid PartitionGuid { get; set; }
-            public Guid RowGuid { get; set; }
-        }
-
-        public class IntKeysPoco
-        {
-            public int PartitionID { get; set; }
-            public int RowID { get; set; }
-        }
-
-        public class ClrPocoWithProp : ClrPoco
-        {
-            public string StringProp { get; set; }
-            public int IntProp { get; set; }
         }
 
         private IModel CreateModel()

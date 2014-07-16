@@ -93,6 +93,7 @@
     <Compile Include="Extensions\DataStoreConnectionExtensionsTests.cs" />
     <Compile Include="Extensions\AtsDbContextExtensionsTests.cs" />
     <Compile Include="Extensions\EntityBuilderExtensionsTests.cs" />
+    <Compile Include="Helpers\SimpleTestTypes.cs" />
     <Compile Include="Helpers\PocoTestType.cs" />
     <Compile Include="Helpers\TestStateEntry.cs" />
     <Compile Include="Helpers\TestTableResult.cs" />

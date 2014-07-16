@@ -218,6 +218,38 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             return GetString("SaveChangesFailed");
         }
 
+        /// <summary>
+        /// Table or row not found on server
+        /// </summary>
+        internal static string ResourceNotFound
+        {
+            get { return GetString("ResourceNotFound"); }
+        }
+
+        /// <summary>
+        /// Table or row not found on server
+        /// </summary>
+        internal static string FormatResourceNotFound()
+        {
+            return GetString("ResourceNotFound");
+        }
+
+        /// <summary>
+        /// Table not found on server
+        /// </summary>
+        internal static string TableNotFound
+        {
+            get { return GetString("TableNotFound"); }
+        }
+
+        /// <summary>
+        /// Table not found on server
+        /// </summary>
+        internal static string FormatTableNotFound()
+        {
+            return GetString("TableNotFound");
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

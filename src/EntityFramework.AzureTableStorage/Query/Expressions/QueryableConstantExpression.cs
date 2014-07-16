@@ -16,9 +16,11 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query.Expressions
     {
         private readonly dynamic _constant;
 
-        public QueryableConstantExpression([NotNull] object constant)
-            : base(Check.NotNull(constant, "constant").GetType())
+        public QueryableConstantExpression([NotNull] Type type, [NotNull] object constant)
+            : base(Check.NotNull(type, "type"))
         {
+            Check.NotNull(constant, "constant");
+
             IsStringProperty = false;
             _constant = constant;
         }
@@ -46,7 +48,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query.Expressions
             {
                 if (IsStringProperty)
                 {
-                    Escape(_constant.ToString());
+                    return Escape(_constant.ToString());
                 }
                 return Escape(_constant);
             }

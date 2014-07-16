@@ -156,4 +156,10 @@
   <data name="SaveChangesFailed" xml:space="preserve">
     <value>Could not save changes. See inner exception for details.</value>
   </data>
+  <data name="ResourceNotFound" xml:space="preserve">
+    <value>Table or row not found on server</value>
+  </data>
+  <data name="TableNotFound" xml:space="preserve">
+    <value>Table not found on server</value>
+  </data>
 </root>

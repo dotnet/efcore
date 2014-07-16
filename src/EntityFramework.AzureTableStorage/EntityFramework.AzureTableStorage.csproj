@@ -118,6 +118,7 @@
     <Compile Include="Utilities\Check.cs" />
     <Compile Include="Utilities\EntityTypeExtensions.cs" />
     <Compile Include="..\Shared\StringBuilderExtensions.cs" />
+    <Compile Include="Utilities\StorageErrorCodes.cs" />
     <EmbeddedResource Include="Properties\Strings.resx">
       <LogicalName>EntityFramework.AzureTableStorage.Strings.resources</LogicalName>
     </EmbeddedResource>

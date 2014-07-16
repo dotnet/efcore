@@ -139,6 +139,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     {
                         var driverEntry = ex.StateEntries.Single();
                         driverEntry.OriginalValues.SetValues(driverEntry.GetDatabaseValues(c));
+                        ResolveConcurrencyTokens(driverEntry);
                     });
         }
 
@@ -152,6 +153,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         var storeValues = driverEntry.GetDatabaseValues(c);
                         driverEntry.SetValues(storeValues);
                         driverEntry.OriginalValues.SetValues(storeValues);
+                        ResolveConcurrencyTokens(driverEntry);
                     });
         }
 
@@ -163,6 +165,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     {
                         var driverEntry = ex.StateEntries.Single();
                         driverEntry.OriginalValues.SetValues(driverEntry.GetDatabaseValues(c));
+                        ResolveConcurrencyTokens(driverEntry);
                         ((Driver)driverEntry.Entity).Podiums = 10;
                     });
         }
@@ -480,6 +483,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         var storeValues = entry.GetDatabaseValues(c);
                         entry.OriginalValues.SetValues(storeValues);
                         entry.SetValues(storeValues);
+                        ResolveConcurrencyTokens(entry);
                     },
                 c => Assert.Equal(1, c.Drivers.Single(d => d.Name == "Fernando Alonso").Wins));
         }
@@ -696,6 +700,11 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         private const int StorePodiums = 20;
         private const int ClientPodiums = 30;
+
+        protected virtual void ResolveConcurrencyTokens(StateEntry stateEntry)
+        {
+            // default do nothing. Allow provider-specific entry reset
+        }
 
         protected abstract Task<TTestStore> CreateTestDatabaseAsync();
 
