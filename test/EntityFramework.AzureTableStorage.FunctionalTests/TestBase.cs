@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
                     Purchased = DateTime.Parse("Dec 31, 1600 23:59:00 GMT", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal)
                 };
             Context.Set<Purchase>().Add(lowDate);
-            Assert.Throws<AggregateException>(() => { Context.SaveChanges(); });
+            Assert.Throws<DbUpdateException>(() => Context.SaveChanges());
         }
 
         [Fact]
@@ -75,8 +75,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
             Context.SaveChanges();
 
             entity.ETag = originalEtag;
-            var exception = Assert.Throws<AggregateException>(() => Context.SaveChanges()).InnerException;
-            Assert.IsType<DbUpdateConcurrencyException>(exception);
+            Assert.Throws<DbUpdateConcurrencyException>(() => Context.SaveChanges());
         }
     }
 }
