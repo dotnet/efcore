@@ -328,6 +328,11 @@ namespace Microsoft.Data.SQLite
         {
             CheckClosed("GetValue");
 
+            if (IsDBNull(ordinal))
+            {
+                return DBNull.Value;
+            }
+
             var map = GetTypeMap(ordinal);
             var value = ColumnReader.Read(map.SQLiteType, _currentHandle, ordinal);
 

@@ -957,6 +957,34 @@ namespace Microsoft.Data.SQLite
             }
         }
 
+        [Fact]
+        public void GetValues_when_null_scalar_column()
+        {
+            using (var connection = new SQLiteConnection("Filename=:memory:"))
+            {
+                connection.Open();
+                
+                connection.ExecuteNonQuery(@"CREATE TABLE TestTable (Int32Column INT)");
+                connection.ExecuteNonQuery(@"INSERT INTO TestTable VALUES (NULL)");
+
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "SELECT * FROM TestTable";
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        reader.Read();
+
+                        var values = new object[1];
+                        var count = reader.GetValues(values);
+
+                        Assert.Equal(1, count);
+                        Assert.Equal(DBNull.Value, values[0]);
+                    }
+                }
+            }
+        }
+
         private static SQLiteDataReader CreateReader()
         {
             var command = new SQLiteCommand();
