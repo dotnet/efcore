@@ -68,6 +68,7 @@
     <Compile Include="MonsterFixupTest.cs" />
     <Compile Include="NorthwindQueryTest.cs" />
     <Compile Include="SQLiteTestDatabase.cs" />
+    <Compile Include="SQLiteTransactionTest.cs" />
     <None Include="northwind.db">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

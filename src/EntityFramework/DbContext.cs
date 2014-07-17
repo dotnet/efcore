@@ -112,7 +112,7 @@ namespace Microsoft.Data.Entity
         public virtual int SaveChanges()
         {
             // TODO: May need a parallel code path :-(
-            return SaveChangesAsync().Result;
+            return SaveChangesAsync().GetAwaiter().GetResult();
         }
 
         public virtual Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))

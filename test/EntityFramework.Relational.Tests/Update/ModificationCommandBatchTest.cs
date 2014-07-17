@@ -88,7 +88,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var batch = new ModificationCommandBatchFake(mockReader.Object);
             batch.AddCommand(command, new Mock<SqlGenerator> { CallBase = true }.Object);
 
-            await batch.ExecuteAsync(new Mock<DbTransaction>().Object, new RelationalTypeMapper());
+            await batch.ExecuteAsync(new Mock<RelationalTransaction>().Object, new RelationalTypeMapper());
 
             mockReader.Verify(r => r.ReadAsync(It.IsAny<CancellationToken>()), Times.Exactly(1));
             mockReader.Verify(r => r.NextResultAsync(It.IsAny<CancellationToken>()), Times.Once);
@@ -104,7 +104,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var batch = new ModificationCommandBatchFake(CreateDataReaderMock(new[] { "Col1" }, new List<object[]> { new object[] { 42 } }).Object);
             batch.AddCommand(command, new Mock<SqlGenerator> { CallBase = true }.Object);
 
-            await batch.ExecuteAsync(new Mock<DbTransaction>().Object, new RelationalTypeMapper());
+            await batch.ExecuteAsync(new Mock<RelationalTransaction>().Object, new RelationalTypeMapper());
 
             Assert.Equal(42, stateEntry[stateEntry.EntityType.GetProperty("Id")]);
             Assert.Equal("Test", stateEntry[stateEntry.EntityType.GetProperty("Name")]);
@@ -122,7 +122,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var batch = new ModificationCommandBatchFake(CreateDataReaderMock(new[] { "Col1", "Col2" }, new List<object[]> { new object[] { 42, "FortyTwo" } }).Object);
             batch.AddCommand(command, new Mock<SqlGenerator> { CallBase = true }.Object);
 
-            await batch.ExecuteAsync(new Mock<DbTransaction>().Object, new RelationalTypeMapper());
+            await batch.ExecuteAsync(new Mock<RelationalTransaction>().Object, new RelationalTypeMapper());
 
             Assert.Equal(42, stateEntry[stateEntry.EntityType.GetProperty("Id")]);
             Assert.Equal("FortyTwo", stateEntry[stateEntry.EntityType.GetProperty("Name")]);
@@ -140,7 +140,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var batch = new ModificationCommandBatchFake(CreateDataReaderMock(new[] { "Col2" }, new List<object[]> { new object[] { "FortyTwo" } }).Object);
             batch.AddCommand(command, new Mock<SqlGenerator> { CallBase = true }.Object);
 
-            await batch.ExecuteAsync(new Mock<DbTransaction>().Object, new RelationalTypeMapper());
+            await batch.ExecuteAsync(new Mock<RelationalTransaction>().Object, new RelationalTypeMapper());
 
             Assert.Equal(1, stateEntry[stateEntry.EntityType.GetProperty("Id")]);
             Assert.Equal("FortyTwo", stateEntry[stateEntry.EntityType.GetProperty("Name")]);
@@ -161,7 +161,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var batch = new ModificationCommandBatchFake(mockReader.Object);
             batch.AddCommand(command, new Mock<SqlGenerator> { CallBase = true }.Object);
 
-            await batch.ExecuteAsync(new Mock<DbTransaction>().Object, new RelationalTypeMapper());
+            await batch.ExecuteAsync(new Mock<RelationalTransaction>().Object, new RelationalTypeMapper());
             
             Assert.Equal(42, stateEntry[stateEntry.EntityType.GetProperty("Id")]);
         }
@@ -178,7 +178,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
             Assert.Equal(Strings.FormatUpdateConcurrencyException(1, 42),
                 (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
-                    async () => await batch.ExecuteAsync(new Mock<DbTransaction>().Object, new RelationalTypeMapper()))).Message);
+                    async () => await batch.ExecuteAsync(new Mock<RelationalTransaction>().Object, new RelationalTypeMapper()))).Message);
         }
 
         [Fact]
@@ -193,7 +193,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
             Assert.Equal(Strings.FormatUpdateConcurrencyException(1, 0),
                 (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
-                    async () => await batch.ExecuteAsync(new Mock<DbTransaction>().Object, new RelationalTypeMapper()))).Message);
+                    async () => await batch.ExecuteAsync(new Mock<RelationalTransaction>().Object, new RelationalTypeMapper()))).Message);
         }
 
         [Fact]

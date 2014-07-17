@@ -24,13 +24,18 @@ namespace Microsoft.Data.Entity.Relational.Query
             _relationalQueryCompilationContext = relationalQueryCompilationContext;
         }
 
-        public virtual DbCommand Build([NotNull] DbConnection connection)
+        public virtual DbCommand Build([NotNull] RelationalConnection connection)
         {
             Check.NotNull(connection, "connection");
 
             // TODO: Cache command...
 
-            var command = connection.CreateCommand();
+            var command = connection.DbConnection.CreateCommand();
+            if (connection.Transaction != null)
+            {
+                command.Transaction = connection.Transaction.DbTransaction;
+            }
+
             var sqlGenerator = _relationalQueryCompilationContext.CreateSqlQueryGenerator();
 
             command.CommandText = sqlGenerator.GenerateSql(_selectExpression);

@@ -38,6 +38,9 @@
       <TargetFramework>net45</TargetFramework>
       <Assemblies>System.Interactive.Async</Assemblies>
     </PackageReference>
+    <PackageReference Include="System.Data.Common">
+      <TargetFramework>net451</TargetFramework>
+    </PackageReference>
     <PackageReference Include="Microsoft.Framework.ConfigurationModel">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
@@ -64,7 +67,9 @@
   <ItemGroup>
     <Compile Include="NorthwindQueryFixtureRelationalBase.cs" />
     <Compile Include="OptimisticConcurrencyRelationalTestBase.cs" />
+    <Compile Include="RelationalTestStore.cs" />
     <Compile Include="TestSqlLoggerFactory.cs" />
+    <Compile Include="TransactionTestBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="project.json" />

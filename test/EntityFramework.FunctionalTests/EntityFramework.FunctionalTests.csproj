@@ -87,6 +87,7 @@
     <Compile Include="TestModels\MonsterModel.cs" />
     <Compile Include="TestModels\Northwind.cs" />
     <Compile Include="TestModels\SnapshotMonsterContext.cs" />
+    <Compile Include="TestUtilities\Extensions.cs" />
     <Compile Include="ThrowingMonsterStateManager.cs" />
     <None Include="project.json" />
   </ItemGroup>

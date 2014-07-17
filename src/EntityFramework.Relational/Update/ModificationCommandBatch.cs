@@ -72,14 +72,14 @@ namespace Microsoft.Data.Entity.Relational.Update
         }
 
         public virtual async Task<int> ExecuteAsync(
-            [NotNull] DbTransaction transaction,
+            [NotNull] RelationalTransaction transaction,
             [NotNull] RelationalTypeMapper typeMapper,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(transaction, "transaction");
             Check.NotNull(typeMapper, "typeMapper");
 
-            using (var storeCommand = CreateStoreCommand(transaction, typeMapper))
+            using (var storeCommand = CreateStoreCommand(transaction.DbTransaction, typeMapper))
             {
                 var commandIndex = 0;
                 try

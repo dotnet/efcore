@@ -83,7 +83,7 @@
     <Compile Include="SqlServerSimpleCommandExecutorTest.cs" />
     <Compile Include="MonsterFixupTest.cs" />
     <Compile Include="SqlServerTestDatabase.cs" />
-    <Compile Include="TestUtilities\Extensions.cs" />
+    <Compile Include="SqlServerTransactionTest.cs" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>

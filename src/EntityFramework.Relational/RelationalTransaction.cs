@@ -1,0 +1,80 @@
+﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
+using System.Data.Common;
+using System.Diagnostics.Contracts;
+using JetBrains.Annotations;
+using Microsoft.Data.Entity.Relational.Utilities;
+using Microsoft.Data.Entity.Storage;
+
+namespace Microsoft.Data.Entity.Relational
+{
+    public class RelationalTransaction : DataStoreTransaction
+    {
+        private readonly DbTransaction _dbTransaction;
+        private readonly RelationalConnection _connection;
+        private bool _disposed;
+
+        /// <summary>
+        ///     This constructor is intended only for use when creating test doubles that will override members
+        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
+        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
+        /// </summary>
+        protected RelationalTransaction()
+        {
+        }
+
+        public RelationalTransaction([NotNull] RelationalConnection connection, [NotNull] DbTransaction dbTransaction)
+        {
+            Check.NotNull(connection, "connection");
+            Check.NotNull(dbTransaction, "dbTransaction");
+            if (connection.DbConnection != dbTransaction.Connection)
+            {
+                throw new InvalidOperationException(Strings.FormatTransactionAssociatedWithDifferentConnection());
+            }
+
+            _connection = connection;
+            _dbTransaction = dbTransaction;
+        }
+
+        public virtual DbTransaction DbTransaction
+        {
+            get { return _dbTransaction; }
+        }
+
+        public virtual RelationalConnection Connection
+        {
+            get { return _connection; }
+        }
+
+        public override void Commit()
+        {
+            DbTransaction.Commit();
+            ClearTransaction();
+        }
+
+        public override void Rollback()
+        {
+            DbTransaction.Rollback();
+            ClearTransaction();
+        }
+
+        public override void Dispose()
+        {
+            if (!_disposed)
+            {
+                _disposed = true;
+                DbTransaction.Dispose();
+                ClearTransaction();
+            }
+        }
+
+        private void ClearTransaction()
+        {
+            Contract.Assert(Connection.Transaction == null || Connection.Transaction == this);
+
+            Connection.UseTransaction(null);
+        }
+    }
+}

@@ -218,6 +218,7 @@
     <Compile Include="Storage\DataStoreSelector.cs" />
     <Compile Include="Storage\DataStoreSource.cs" />
     <Compile Include="Storage\DataStoreSource`.cs" />
+    <Compile Include="Storage\DataStoreTransaction.cs" />
     <Compile Include="Update\DbUpdateConcurrencyException.cs" />
     <Compile Include="Update\DbUpdateException.cs" />
     <Compile Include="Utilities\AsyncLock.cs" />

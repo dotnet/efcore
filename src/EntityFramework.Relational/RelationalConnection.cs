@@ -77,6 +77,81 @@ namespace Microsoft.Data.Entity.Relational
             get { return _connection.Value; }
         }
 
+        public virtual RelationalTransaction Transaction { get; protected set; }
+
+        [NotNull]
+        public virtual RelationalTransaction BeginTransaction()
+        {
+            return BeginTransaction(IsolationLevel.Unspecified);
+        }
+
+        [NotNull]
+        public virtual Task<RelationalTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return BeginTransactionAsync(IsolationLevel.Unspecified, cancellationToken);
+        }
+
+        [NotNull]
+        public virtual RelationalTransaction BeginTransaction(IsolationLevel isolationLevel)
+        {
+            if (Transaction != null)
+            {
+                throw new InvalidOperationException(Strings.FormatTransactionAlreadyStarted());
+            }
+
+            Open();
+
+            return BeginTransactionWithNoPreconditions(isolationLevel);
+        }
+
+        [NotNull]
+        public virtual async Task<RelationalTransaction> BeginTransactionAsync(
+            IsolationLevel isolationLevel,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (Transaction != null)
+            {
+                throw new InvalidOperationException(Strings.FormatTransactionAlreadyStarted());
+            }
+
+            await OpenAsync(cancellationToken);
+
+            return BeginTransactionWithNoPreconditions(isolationLevel);
+        }
+
+        private RelationalTransaction BeginTransactionWithNoPreconditions(IsolationLevel isolationLevel)
+        {
+            Transaction = new RelationalTransaction(this, DbConnection.BeginTransaction(isolationLevel));
+
+            return Transaction;
+        }
+
+        public virtual RelationalTransaction UseTransaction([CanBeNull] DbTransaction transaction)
+        {
+            if (transaction == null)
+            {
+                if (Transaction != null)
+                {
+                    Transaction = null;
+
+                    Close();
+                }
+            }
+            else
+            {
+                if (Transaction != null)
+                {
+                    throw new InvalidOperationException(Strings.FormatTransactionAlreadyStarted());
+                }
+
+                Open();
+
+                Transaction = new RelationalTransaction(this, transaction);
+            }
+
+            return Transaction;
+        }
+
         public virtual void Open()
         {
             if (_openedCount == 0)
@@ -110,6 +185,11 @@ namespace Microsoft.Data.Entity.Relational
 
         public virtual void Dispose()
         {
+            if (Transaction != null)
+            {
+                Transaction.Dispose();
+            }
+
             if (_connectionOwned && _connection.HasValue)
             {
                 _connection.Value.Dispose();

@@ -282,6 +282,38 @@ namespace Microsoft.Data.Entity.Relational
             return string.Format(CultureInfo.CurrentCulture, GetString("CollectionArgumentIsEmpty", "argumentName"), argumentName);
         }
 
+        /// <summary>
+        /// The connection is already in a transaction and cannot participate in another transaction.
+        /// </summary>
+        internal static string TransactionAlreadyStarted
+        {
+            get { return GetString("TransactionAlreadyStarted"); }
+        }
+
+        /// <summary>
+        /// The connection is already in a transaction and cannot participate in another transaction.
+        /// </summary>
+        internal static string FormatTransactionAlreadyStarted()
+        {
+            return GetString("TransactionAlreadyStarted");
+        }
+
+        /// <summary>
+        /// The specified transaction is not associated with the current connection. Only transactions associated with the current connection may be used.
+        /// </summary>
+        internal static string TransactionAssociatedWithDifferentConnection
+        {
+            get { return GetString("TransactionAssociatedWithDifferentConnection"); }
+        }
+
+        /// <summary>
+        /// The specified transaction is not associated with the current connection. Only transactions associated with the current connection may be used.
+        /// </summary>
+        internal static string FormatTransactionAssociatedWithDifferentConnection()
+        {
+            return GetString("TransactionAssociatedWithDifferentConnection");
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

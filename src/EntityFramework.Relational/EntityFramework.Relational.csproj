@@ -97,6 +97,7 @@
     <Compile Include="RelationalObjectArrayValueReader.cs" />
     <Compile Include="RelationalObjectArrayValueReaderFactory.cs" />
     <Compile Include="Query\RelationalQueryContext.cs" />
+    <Compile Include="RelationalTransaction.cs" />
     <Compile Include="RelationalTypedValueReader.cs" />
     <Compile Include="RelationalTypedValueReaderFactory.cs" />
     <Compile Include="RelationalValueReaderFactory.cs" />

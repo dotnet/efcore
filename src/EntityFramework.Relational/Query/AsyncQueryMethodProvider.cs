@@ -92,7 +92,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                 {
                     await _enumerable._connection.OpenAsync(cancellationToken);
 
-                    _command = _enumerable._commandBuilder.Build(_enumerable._connection.DbConnection);
+                    _command = _enumerable._commandBuilder.Build(_enumerable._connection);
 
                     _enumerable._logger.WriteSql(_command.CommandText);
 

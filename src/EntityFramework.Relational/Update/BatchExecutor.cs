@@ -42,20 +42,39 @@ namespace Microsoft.Data.Entity.Relational.Update
 
             var rowsAffected = 0;
             await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+            RelationalTransaction startedTransaction = null;
             try
             {
-                using (var transaction = connection.DbConnection.BeginTransaction())
+                if (connection.Transaction == null)
                 {
-                    foreach (var commandbatch in commandBatches)
-                    {
-                        rowsAffected += await commandbatch.ExecuteAsync(transaction, _typeMapper, cancellationToken: cancellationToken).ConfigureAwait(false);
-                    }
-
-                    transaction.Commit();
+                    startedTransaction = connection.BeginTransaction();
                 }
+
+                foreach (var commandbatch in commandBatches)
+                {
+                    rowsAffected += await commandbatch.ExecuteAsync(connection.Transaction, _typeMapper, cancellationToken: cancellationToken).ConfigureAwait(false);
+                }
+
+                if (startedTransaction != null)
+                {
+                    startedTransaction.Commit();
+                }
+            }
+            catch
+            {
+                if (connection.Transaction != null)
+                {
+                    connection.Transaction.Rollback();
+                }
+
+                throw;
             }
             finally
             {
+                if (startedTransaction != null)
+                {
+                    startedTransaction.Dispose();
+                }
                 connection.Close();
             }
 

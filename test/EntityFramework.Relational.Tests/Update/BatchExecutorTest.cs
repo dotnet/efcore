@@ -28,18 +28,38 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         }
 
         [Fact]
-        public async Task ExecuteAsync_delegates()
+        public async Task ExecuteAsync_calls_Commit_if_no_transaction()
         {
             var mockModificationCommandBatch = new Mock<ModificationCommandBatch>();
-            
-            var dbTransactionMock = new Mock<DbTransaction>();
-            var mockDbConnection = new Mock<DbConnection>();
-            mockDbConnection
-                .Protected()
-                .Setup<DbTransaction>("BeginDbTransaction", ItExpr.IsAny<IsolationLevel>())
-                .Returns(dbTransactionMock.Object);
+
+            var transactionMock = new Mock<RelationalTransaction>();
             var mockRelationalConnection = new Mock<RelationalConnection>();
-            mockRelationalConnection.Setup(m => m.DbConnection).Returns(mockDbConnection.Object);
+
+            RelationalTransaction currentTransaction = null;
+            mockRelationalConnection.Setup(m => m.BeginTransaction()).Returns(() => currentTransaction = transactionMock.Object);
+            mockRelationalConnection.Setup(m => m.Transaction).Returns(() => currentTransaction);
+            
+            var cancellationToken = new CancellationTokenSource().Token;
+
+            var relationalTypeMapper = new RelationalTypeMapper();
+            var batchExecutor = new BatchExecutor(relationalTypeMapper);
+
+            await batchExecutor.ExecuteAsync(new[] { mockModificationCommandBatch.Object }, mockRelationalConnection.Object, cancellationToken);
+
+            mockRelationalConnection.Verify(rc => rc.OpenAsync(cancellationToken));
+            mockRelationalConnection.Verify(rc => rc.Close());
+            transactionMock.Verify(t => t.Commit());
+            mockModificationCommandBatch.Verify(mcb => mcb.ExecuteAsync(It.IsAny<RelationalTransaction>(), relationalTypeMapper, cancellationToken));
+        }
+
+        [Fact]
+        public async Task ExecuteAsync_does_not_call_Commit_if_existing_transaction()
+        {
+            var mockModificationCommandBatch = new Mock<ModificationCommandBatch>();
+
+            var transactionMock = new Mock<RelationalTransaction>();
+            var mockRelationalConnection = new Mock<RelationalConnection>();
+            mockRelationalConnection.Setup(m => m.Transaction).Returns(transactionMock.Object);
 
             var cancellationToken = new CancellationTokenSource().Token;
 
@@ -50,8 +70,9 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
             mockRelationalConnection.Verify(rc => rc.OpenAsync(cancellationToken));
             mockRelationalConnection.Verify(rc => rc.Close());
-            dbTransactionMock.Verify(t => t.Commit());
-            mockModificationCommandBatch.Verify(mcb => mcb.ExecuteAsync(It.IsAny<DbTransaction>(), relationalTypeMapper, cancellationToken));
+            mockRelationalConnection.Verify(rc => rc.BeginTransaction(), Times.Never);
+            transactionMock.Verify(t => t.Commit(), Times.Never);
+            mockModificationCommandBatch.Verify(mcb => mcb.ExecuteAsync(It.IsAny<RelationalTransaction>(), relationalTypeMapper, cancellationToken));
         }
     }
 }

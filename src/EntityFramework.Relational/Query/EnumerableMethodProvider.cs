@@ -81,7 +81,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                     {
                         _enumerable._connection.Open();
 
-                        _command = _enumerable._commandBuilder.Build(_enumerable._connection.DbConnection);
+                        _command = _enumerable._commandBuilder.Build(_enumerable._connection);
 
                         _enumerable._logger.WriteSql(_command.CommandText);
 

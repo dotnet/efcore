@@ -6,11 +6,12 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.FunctionalTests;
+using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Microsoft.Data.SQLite;
 
 namespace Microsoft.Data.Entity.SQLite.FunctionalTests
 {
-    public class SQLiteTestDatabase : TestStore
+    public class SQLiteTestDatabase : RelationalTestStore
     {
         private readonly Data.SQLite.SQLiteConnection _connection;
         private SQLiteTransaction _transaction;
@@ -21,7 +22,7 @@ namespace Microsoft.Data.Entity.SQLite.FunctionalTests
             _connection = new Data.SQLite.SQLiteConnection(connectionString);
         }
 
-        public DbConnection Connection
+        public override DbConnection Connection
         {
             get { return _connection; }
         }
@@ -47,12 +48,12 @@ namespace Microsoft.Data.Entity.SQLite.FunctionalTests
         /// </summary>
         public static Task<SQLiteTestDatabase> Scratch()
         {
-            var scratchName = "Scratch_" + Interlocked.Increment(ref _scratchCount) + ".db";
-            if (File.Exists(scratchName))
-            {
-                File.Delete(scratchName);
-            }
-            return new SQLiteTestDatabase("Filename=" + scratchName).CreateScratch();
+            var scratchName = "Scratch_" + Interlocked.Increment(ref _scratchCount);
+
+            var connectionStringBuilder = new SQLiteConnectionStringBuilder();
+            connectionStringBuilder.Filename = "file:" + scratchName + "?mode=memory&cache=shared";
+            connectionStringBuilder.Uri = true;
+            return new SQLiteTestDatabase(connectionStringBuilder.ConnectionString).CreateScratch();
         }
 
         public static Task<SQLiteTestDatabase> Northwind()

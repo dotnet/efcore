@@ -168,4 +168,10 @@
   <data name="CollectionArgumentIsEmpty" xml:space="preserve">
     <value>The collection argument '{argumentName}' must contain at least one element.</value>
   </data>
+  <data name="TransactionAlreadyStarted" xml:space="preserve">
+    <value>The connection is already in a transaction and cannot participate in another transaction.</value>
+  </data>
+  <data name="TransactionAssociatedWithDifferentConnection" xml:space="preserve">
+    <value>The specified transaction is not associated with the current connection. Only transactions associated with the current connection may be used.</value>
+  </data>
 </root>

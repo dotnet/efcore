@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.IO;
@@ -11,14 +12,14 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Microsoft.Data.Entity.Utilities;
+using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
-    public class SqlServerTestDatabase : TestStore, IDbCommandExecutor
+    public class SqlServerTestDatabase : RelationalTestStore, IDbCommandExecutor
     {
         public const int CommandTimeout = 30;
         private const string DefaultDatabaseName = "Microsoft.Data.SqlServer.FunctionalTest";
@@ -197,7 +198,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             return this;
         }
 
-        public DbConnection Connection
+        public override DbConnection Connection
         {
             get { return _connection; }
         }
