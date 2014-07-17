@@ -238,9 +238,7 @@ namespace Microsoft.Data.SQLite.Utilities
             {
                 return value;
             }
-
-
-
+            
             return _fromInterop(value);
         }
     }
