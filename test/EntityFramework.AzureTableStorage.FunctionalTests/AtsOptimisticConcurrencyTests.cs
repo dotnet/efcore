@@ -9,18 +9,19 @@ using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
 {
     [RunIfConfigured]
-    public class OptimisticConcurrencyTests : OptimisticConcurrencyTestBase<OptimisticConcurrencyTests.AtsTestStore>, IDisposable
+    public class AtsOptimisticConcurrencyTests : OptimisticConcurrencyTestBase<AtsOptimisticConcurrencyTests.AtsTestStore>, IDisposable
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly IModel _model;
 
-        public OptimisticConcurrencyTests()
+        public AtsOptimisticConcurrencyTests()
         {
             var tableSuffix = Guid.NewGuid().ToString().Replace("-", "");
             _model = AddAtsMetadata(F1Context.CreateModel(), tableSuffix);
@@ -36,11 +37,17 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
         protected override async Task<AtsTestStore> CreateTestDatabaseAsync()
         {
             var db = new AtsTestStore();
-            using (var context = await CreateF1ContextAsync(db))
+            using (var context = CreateF1Context(db))
             {
                 await ConcurrencyModelInitializer.SeedAsync(context);
             }
+
             return db;
+        }
+
+        protected override DataStoreTransaction BeginTransaction(F1Context context, AtsTestStore testStore, Action<F1Context> prepareStore)
+        {
+            return new AtsTransaction();
         }
 
         protected override void ResolveConcurrencyTokens(StateEntry stateEntry)
@@ -50,12 +57,12 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
             //TODO use the actual ETag instead of force rewrite. This will require refactoring the test base to read shadow state properties
         }
 
-        protected override Task<F1Context> CreateF1ContextAsync(AtsTestStore testDatabase)
+        protected override F1Context CreateF1Context(AtsTestStore testStore)
         {
             var options = new DbContextOptions()
                 .UseModel(_model)
                 .UseAzureTableStorage(TestConfig.Instance.ConnectionString);
-            return Task.FromResult(new F1Context(_serviceProvider, options));
+            return new F1Context(_serviceProvider, options);
         }
 
         private static IModel AddAtsMetadata(ModelBuilder builder, string tableSuffix)
@@ -117,7 +124,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
 
         public void Dispose()
         {
-            using (var db = CreateF1ContextAsync(null).Result)
+            using (var db = CreateF1Context(new AtsTestStore()))
             {
                 db.Database.EnsureDeleted();
             }
@@ -139,6 +146,21 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
             public override IValueGenerator GetGenerator(IProperty property)
             {
                 return new IntGenerator();
+            }
+        }
+
+        internal class AtsTransaction : DataStoreTransaction
+        {
+            public override void Commit()
+            {
+            }
+
+            public override void Rollback()
+            {
+            }
+
+            public override void Dispose()
+            {
             }
         }
     }

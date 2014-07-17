@@ -11,6 +11,8 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
     public abstract class OptimisticConcurrencyRelationalTestBase<TTestStore> : OptimisticConcurrencyTestBase<TTestStore>
         where TTestStore : TestStore
     {
+        protected readonly string DatabaseName = "OptimisticConcurrencyTest";
+
         public virtual Metadata.Model AddStoreMetadata(ModelBuilder modelBuilder)
         {
             var model = modelBuilder.Model;

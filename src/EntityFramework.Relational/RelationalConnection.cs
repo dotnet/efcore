@@ -79,6 +79,16 @@ namespace Microsoft.Data.Entity.Relational
 
         public virtual RelationalTransaction Transaction { get; protected set; }
 
+        public virtual DbTransaction DbTransaction
+        {
+            get
+            {
+                return Transaction == null
+                    ? null
+                    : Transaction.DbTransaction;
+            }
+        }
+
         [NotNull]
         public virtual RelationalTransaction BeginTransaction()
         {
@@ -121,7 +131,7 @@ namespace Microsoft.Data.Entity.Relational
 
         private RelationalTransaction BeginTransactionWithNoPreconditions(IsolationLevel isolationLevel)
         {
-            Transaction = new RelationalTransaction(this, DbConnection.BeginTransaction(isolationLevel));
+            Transaction = new RelationalTransaction(this, DbConnection.BeginTransaction(isolationLevel), transactionOwned: true);
 
             return Transaction;
         }
@@ -146,7 +156,7 @@ namespace Microsoft.Data.Entity.Relational
 
                 Open();
 
-                Transaction = new RelationalTransaction(this, transaction);
+                Transaction = new RelationalTransaction(this, transaction, transactionOwned: false);
             }
 
             return Transaction;

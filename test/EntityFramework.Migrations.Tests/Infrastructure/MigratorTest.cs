@@ -678,9 +678,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             contextConfigurationMock.SetupGet(cc => cc.Connection).Returns(new Mock<RelationalConnection>().Object);
 
             var sqlStatementExecutorMock = new Mock<SqlStatementExecutor>();
-            sqlStatementExecutorMock.Setup(sse => sse.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<IEnumerable<SqlStatement>>()))
-                .Callback<DbConnection, IEnumerable<SqlStatement>>(
-                    (connection, statements) => Assert.Equal("GeneratedUpdateDatabaseSql", statements.First().Sql));
+            sqlStatementExecutorMock.Setup(sse => sse.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlStatement>>()))
+                .Callback<DbConnection, DbTransaction, IEnumerable<SqlStatement>>(
+                    (connection, transaction, statements) => Assert.Equal("GeneratedUpdateDatabaseSql", statements.First().Sql));
 
             var migratorMock
                 = new Mock<Migrator>(

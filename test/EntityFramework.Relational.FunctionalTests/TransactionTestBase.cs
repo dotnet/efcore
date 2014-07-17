@@ -292,6 +292,26 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
             }
         }
 
+
+        [Fact]
+        public async Task UseTransaction_will_not_dispose_external_transaction()
+        {
+            using (var testDatabase = await CreateTestDatabaseAsync())
+            {
+                using (var transaction = testDatabase.Connection.BeginTransaction())
+                {
+                    using (var context = await CreateContextAsync(testDatabase.Connection))
+                    {
+                        context.Database.AsRelational().Connection.UseTransaction(transaction);
+
+                        context.Database.AsRelational().Connection.Dispose();
+
+                        Assert.NotNull(transaction.Connection);
+                    }
+                }
+            }
+        }
+
         protected virtual async Task AssertStoreInitialStateAsync(TTestStore testDatabase)
         {
             using (var context = await CreateContextAsync(testDatabase))

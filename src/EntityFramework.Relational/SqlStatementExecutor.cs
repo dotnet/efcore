@@ -16,6 +16,7 @@ namespace Microsoft.Data.Entity.Relational
     {
         public virtual Task ExecuteNonQueryAsync(
             [NotNull] DbConnection connection,
+            [CanBeNull] DbTransaction transaction,
             [NotNull] IEnumerable<SqlStatement> statements,
             CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -28,7 +29,7 @@ namespace Microsoft.Data.Entity.Relational
                     {
                         foreach (var statement in statements)
                         {
-                            await CreateCommand(connection, statement).ExecuteNonQueryAsync(cancellationToken);
+                            await CreateCommand(connection, transaction, statement).ExecuteNonQueryAsync(cancellationToken);
                         }
                         return Task.FromResult<object>(null);
                     },
@@ -37,6 +38,7 @@ namespace Microsoft.Data.Entity.Relational
 
         public virtual Task<object> ExecuteScalarAsync(
             [NotNull] DbConnection connection,
+            [CanBeNull] DbTransaction transaction,
             [NotNull] SqlStatement statement,
             CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -45,7 +47,7 @@ namespace Microsoft.Data.Entity.Relational
 
             return ExecuteAsync(
                 connection,
-                () => CreateCommand(connection, statement).ExecuteScalarAsync(cancellationToken),
+                () => CreateCommand(connection, transaction, statement).ExecuteScalarAsync(cancellationToken),
                 cancellationToken);
         }
 
@@ -79,6 +81,7 @@ namespace Microsoft.Data.Entity.Relational
 
         public virtual void ExecuteNonQuery(
             [NotNull] DbConnection connection,
+            [CanBeNull] DbTransaction transaction,
             [NotNull] IEnumerable<SqlStatement> statements)
         {
             Check.NotNull(connection, "connection");
@@ -90,7 +93,7 @@ namespace Microsoft.Data.Entity.Relational
                     {
                         foreach (var statement in statements)
                         {
-                            CreateCommand(connection, statement).ExecuteNonQuery();
+                            CreateCommand(connection, transaction, statement).ExecuteNonQuery();
                         }
                         return null;
                     });
@@ -98,6 +101,7 @@ namespace Microsoft.Data.Entity.Relational
 
         public virtual object ExecuteScalar(
             [NotNull] DbConnection connection,
+            [CanBeNull] DbTransaction transaction,
             [NotNull] SqlStatement statement)
         {
             Check.NotNull(connection, "connection");
@@ -105,7 +109,7 @@ namespace Microsoft.Data.Entity.Relational
 
             return Execute(
                 connection,
-                () => CreateCommand(connection, statement).ExecuteScalar());
+                () => CreateCommand(connection, transaction, statement).ExecuteScalar());
         }
 
         public virtual object Execute(
@@ -135,10 +139,14 @@ namespace Microsoft.Data.Entity.Relational
             }
         }
 
-        private static DbCommand CreateCommand(DbConnection connection, SqlStatement statement)
+        private static DbCommand CreateCommand(
+            DbConnection connection,
+            DbTransaction transaction,
+            SqlStatement statement)
         {
             var command = connection.CreateCommand();
             command.CommandText = statement.Sql;
+            command.Transaction = transaction;
             return command;
         }
     }

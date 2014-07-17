@@ -68,7 +68,7 @@ namespace Microsoft.Data.Entity.SqlServer
                     {
                         var commandInfo = PrepareCommand(entry.Configuration);
 
-                        var newCurrent = (long)_executor.ExecuteScalar(commandInfo.Item1, commandInfo.Item2);
+                        var newCurrent = (long)_executor.ExecuteScalar(commandInfo.Item1.DbConnection, commandInfo.Item1.DbTransaction, commandInfo.Item2);
                         newValue = new SequenceValue(newCurrent, newCurrent + _blockSize);
                         _currentValue = newValue;
                     }
@@ -102,7 +102,7 @@ namespace Microsoft.Data.Entity.SqlServer
                     {
                         var commandInfo = PrepareCommand(stateEntry.Configuration);
 
-                        var newCurrent = (long)await _executor.ExecuteScalarAsync(commandInfo.Item1, commandInfo.Item2, cancellationToken).ConfigureAwait(false);
+                        var newCurrent = (long)await _executor.ExecuteScalarAsync(commandInfo.Item1.DbConnection, commandInfo.Item1.DbTransaction, commandInfo.Item2, cancellationToken).ConfigureAwait(false);
                         newValue = new SequenceValue(newCurrent, newCurrent + _blockSize);
                         _currentValue = newValue;
                     }
@@ -130,7 +130,7 @@ namespace Microsoft.Data.Entity.SqlServer
             return newValue;
         }
 
-        private Tuple<DbConnection, SqlStatement> PrepareCommand(DbContextConfiguration contextConfiguration)
+        private Tuple<RelationalConnection, SqlStatement> PrepareCommand(DbContextConfiguration contextConfiguration)
         {
             // TODO: Parameterize query and/or delimit identifier without using SqlServerMigrationOperationSqlGenerator
             var sql = new SqlStatement(string.Format(
@@ -138,7 +138,7 @@ namespace Microsoft.Data.Entity.SqlServer
                 "SELECT NEXT VALUE FOR {0}", _sequenceName));
 
             // TODO: Should be able to get relational connection without cast
-            var connection = ((RelationalConnection)contextConfiguration.Connection).DbConnection;
+            var connection = (RelationalConnection)contextConfiguration.Connection;
 
             return Tuple.Create(connection, sql);
         }

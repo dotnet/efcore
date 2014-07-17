@@ -188,7 +188,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             // TODO: Should be able to get relational connection without cast
             var connection = storeConnection.DbConnection;
 
-            executor.ExecuteNonQuery(connection, sql);
+            executor.ExecuteNonQuery(connection, storeConnection.DbTransaction, sql);
         }
 
         private class BronieContext : DbContext

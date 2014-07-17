@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using ConcurrencyModel;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
 using Xunit;
 
@@ -533,7 +534,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var testDatabase = await CreateTestDatabaseAsync())
             {
-                using (var context = await CreateF1ContextAsync(testDatabase))
+                using (var context = CreateF1Context(testDatabase))
                 {
                     var entry =
                         context.ChangeTracker.Entry(
@@ -555,7 +556,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var testDatabase = await CreateTestDatabaseAsync())
             {
-                using (var context = await CreateF1ContextAsync(testDatabase))
+                using (var context = CreateF1Context(testDatabase))
                 {
                     var entry =
                         context.ChangeTracker.Entry(
@@ -595,7 +596,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var testDatabase = await CreateTestDatabaseAsync())
             {
-                using (var context = await CreateF1ContextAsync(testDatabase))
+                using (var context = CreateF1Context(testDatabase))
                 {
                     var larry = context.Drivers.Single(d => d.Name == "Jenson Button");
                     var entry = context.ChangeTracker.Entry(larry);
@@ -619,7 +620,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var testDatabase = await CreateTestDatabaseAsync())
             {
-                using (var context = await CreateF1ContextAsync(testDatabase))
+                using (var context = CreateF1Context(testDatabase))
                 {
                     var entry =
                         context.ChangeTracker.Entry(
@@ -641,7 +642,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var testDatabase = await CreateTestDatabaseAsync())
             {
-                using (var context = await CreateF1ContextAsync(testDatabase))
+                using (var context = CreateF1Context(testDatabase))
                 {
                     var entry =
                         context.ChangeTracker.Entry(
@@ -681,7 +682,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var testDatabase = await CreateTestDatabaseAsync())
             {
-                using (var context = await CreateF1ContextAsync(testDatabase))
+                using (var context = CreateF1Context(testDatabase))
                 {
                     var larry = context.Drivers.Single(d => d.Name == "Jenson Button");
                     var entry = context.ChangeTracker.Entry(larry);
@@ -708,7 +709,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         protected abstract Task<TTestStore> CreateTestDatabaseAsync();
 
-        protected abstract Task<F1Context> CreateF1ContextAsync(TTestStore testDatabase);
+        protected abstract DataStoreTransaction BeginTransaction(F1Context context, TTestStore testStore, Action<F1Context> prepareStore);
+
+        protected abstract F1Context CreateF1Context(TTestStore testStore);
 
         private Task ConcurrencyTestAsync(int expectedPodiums, Action<F1Context, DbUpdateConcurrencyException> resolver)
         {
@@ -747,43 +750,40 @@ namespace Microsoft.Data.Entity.FunctionalTests
         ///     again.  Finally, a new context is created and the validator is called so that the state of
         ///     the database at the end of the process can be validated.
         /// </summary>
-        // TODO: Execute in an isolated transaction to avoid reinitilizing the database each time
         private async Task ConcurrencyTestAsync(
             Action<F1Context> storeChange, Action<F1Context> clientChange,
             Action<F1Context, DbUpdateException> resolver, Action<F1Context> validator)
         {
             using (var testDatabase = await CreateTestDatabaseAsync())
             {
-                using (var context = await CreateF1ContextAsync(testDatabase))
+                using (var context = CreateF1Context(testDatabase))
                 {
                     clientChange(context);
 
-                    using (var innerContext = await CreateF1ContextAsync(testDatabase))
+                    using (var innerContext = CreateF1Context(testDatabase))
                     {
                         storeChange(innerContext);
                         await innerContext.SaveChangesAsync();
                     }
 
-                    using (var resolverContext = await CreateF1ContextAsync(testDatabase))
+                    var updateException = await Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => context.SaveChangesAsync());
+
+                    using (var transaction = BeginTransaction(context, testDatabase, storeChange))
                     {
-                        using (var validationContext = await CreateF1ContextAsync(testDatabase))
+                        using (var resolverContext = CreateF1Context(testDatabase))
                         {
-                            try
-                            {
-                                await context.SaveChangesAsync();
-                                Assert.True(false);
-                            }
-                            catch (DbUpdateException ex)
+                            using (var validationContext = CreateF1Context(testDatabase))
                             {
                                 // TODO: pass in 'context' when no tracking queries are available
-                                resolver(resolverContext, ex);
+                                resolver(resolverContext, updateException);
 
                                 if (validator != null)
                                 {
-                                    context.SaveChanges();
+                                    await context.SaveChangesAsync();
 
                                     validator(validationContext);
                                 }
+                                transaction.Rollback();
                             }
                         }
                     }

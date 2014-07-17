@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.SQLite
             // TODO: Delete database on error
             using (var connection = _connection.CreateConnectionReadWrite())
             {
-                _executor.ExecuteNonQuery(connection, statements);
+                _executor.ExecuteNonQuery(connection, null, statements);
             }
         }
 
@@ -106,12 +106,12 @@ namespace Microsoft.Data.Entity.SQLite
 
         public override bool HasTables()
         {
-            return (long)_executor.ExecuteScalar(_connection.DbConnection, CreateHasTablesCommand()) != 0;
+            return (long)_executor.ExecuteScalar(_connection.DbConnection, _connection.DbTransaction, CreateHasTablesCommand()) != 0;
         }
 
         public override async Task<bool> HasTablesAsync(CancellationToken cancellationToken = new CancellationToken())
         {
-            return (long)(await _executor.ExecuteScalarAsync(_connection.DbConnection, CreateHasTablesCommand(), cancellationToken)) != 0;
+            return (long)(await _executor.ExecuteScalarAsync(_connection.DbConnection, _connection.DbTransaction, CreateHasTablesCommand(), cancellationToken)) != 0;
         }
 
         private SqlStatement CreateHasTablesCommand()

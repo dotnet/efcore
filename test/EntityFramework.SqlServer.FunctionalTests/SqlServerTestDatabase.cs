@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.IO;
@@ -15,7 +14,6 @@ using System.Threading.Tasks;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Microsoft.Data.Entity.Utilities;
-using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
@@ -38,7 +36,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         public static Task<SqlServerTestDatabase> Northwind()
         {
             return new SqlServerTestDatabase()
-                .CreateShared(name: NorthwindDatabaseName, scriptPath: @"..\..\..\Northwind.sql"); // relative from bin/<config>
+                .CreateShared(NorthwindDatabaseName, () => CreateDatabaseIfNotExistsAsync(NorthwindDatabaseName, scriptPath: @"..\..\..\Northwind.sql")); // relative from bin/<config>
         }
 
         public static string NorthwindConnectionString
@@ -52,12 +50,18 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         public static Task<SqlServerTestDatabase> Default()
         {
             return new SqlServerTestDatabase()
-                .CreateShared(name: DefaultDatabaseName);
+                .CreateShared(DefaultDatabaseName, () => CreateDatabaseIfNotExistsAsync(DefaultDatabaseName));
         }
 
         public static string DefaultConnectionString
         {
             get { return CreateConnectionString(DefaultDatabaseName); }
+        }
+
+        public static Task<SqlServerTestDatabase> Named(string name, Func<Task> initializeDatabase)
+        {
+            return new SqlServerTestDatabase()
+                .CreateShared(name, initializeDatabase);
         }
 
         /// <summary>
@@ -78,7 +82,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             // Use async static factory method
         }
 
-        private async Task<SqlServerTestDatabase> CreateShared(string name, string scriptPath = null)
+        private async Task<SqlServerTestDatabase> CreateShared(string name, Func<Task> initializeDatabase)
         {
             if (!_createdDatabases.Contains(name))
             {
@@ -89,7 +93,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 {
                     if (!_createdDatabases.Contains(name))
                     {
-                        await CreateDatabaseIfNotExists(name, scriptPath);
+                        await initializeDatabase();
 
                         _createdDatabases.Add(name);
 
@@ -108,7 +112,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             return this;
         }
 
-        private static async Task CreateDatabaseIfNotExists(string name, string scriptPath)
+        private static async Task CreateDatabaseIfNotExistsAsync(string name, string scriptPath = null)
         {
             using (var master = new SqlConnection(CreateConnectionString("master")))
             {
@@ -201,6 +205,12 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         public override DbConnection Connection
         {
             get { return _connection; }
+        }
+
+        public SqlTransaction Transaction
+        {
+            get { return _transaction; }
+            set { _transaction = value; }
         }
 
         public async Task<T> ExecuteScalarAsync<T>(string sql, CancellationToken cancellationToken, params object[] parameters)

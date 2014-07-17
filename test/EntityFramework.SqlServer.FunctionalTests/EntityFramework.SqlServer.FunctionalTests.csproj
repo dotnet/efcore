@@ -72,7 +72,7 @@
     <Compile Include="CompositeKeyEndToEndTest.cs" />
     <Compile Include="ExistingConnectionTest.cs" />
     <Compile Include="NorthwindQueryTest.cs" />
-    <Compile Include="OptimisticConcurrencyTest.cs" />
+    <Compile Include="SqlServerOptimisticConcurrencyTest.cs" />
     <Compile Include="SequenceEndToEndTest.cs" />
     <Compile Include="SequentialGuidEndToEndTest.cs" />
     <Compile Include="SqlFileLogger.cs" />

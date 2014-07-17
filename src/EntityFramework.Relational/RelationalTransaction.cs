@@ -14,6 +14,7 @@ namespace Microsoft.Data.Entity.Relational
     {
         private readonly DbTransaction _dbTransaction;
         private readonly RelationalConnection _connection;
+        private readonly bool _transactionOwned;
         private bool _disposed;
 
         /// <summary>
@@ -25,7 +26,7 @@ namespace Microsoft.Data.Entity.Relational
         {
         }
 
-        public RelationalTransaction([NotNull] RelationalConnection connection, [NotNull] DbTransaction dbTransaction)
+        public RelationalTransaction([NotNull] RelationalConnection connection, [NotNull] DbTransaction dbTransaction, bool transactionOwned)
         {
             Check.NotNull(connection, "connection");
             Check.NotNull(dbTransaction, "dbTransaction");
@@ -36,6 +37,7 @@ namespace Microsoft.Data.Entity.Relational
 
             _connection = connection;
             _dbTransaction = dbTransaction;
+            _transactionOwned = transactionOwned;
         }
 
         public virtual DbTransaction DbTransaction
@@ -65,7 +67,10 @@ namespace Microsoft.Data.Entity.Relational
             if (!_disposed)
             {
                 _disposed = true;
-                DbTransaction.Dispose();
+                if (_transactionOwned)
+                {
+                    DbTransaction.Dispose();
+                }
                 ClearTransaction();
             }
         }

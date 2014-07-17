@@ -149,9 +149,9 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
         protected virtual void UpdateDatabase(IReadOnlyList<SqlStatement> sqlStatements)
         {
-            var dbConnection = ((RelationalConnection)ContextConfiguration.Connection).DbConnection;
+            var connection = (RelationalConnection)ContextConfiguration.Connection;
             
-            SqlExecutor.ExecuteNonQuery(dbConnection, sqlStatements);
+            SqlExecutor.ExecuteNonQuery(connection.DbConnection, connection.DbTransaction, sqlStatements);
         }
 
         public virtual IReadOnlyList<SqlStatement> GenerateUpdateDatabaseSql()

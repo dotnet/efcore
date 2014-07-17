@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.SqlServer
         {
             using (var masterConnection = _connection.CreateMasterConnection())
             {
-                _statementExecutor.ExecuteNonQuery(masterConnection, CreateCreateOperations());
+                _statementExecutor.ExecuteNonQuery(masterConnection, null, CreateCreateOperations());
                 ClearPool();
             }
         }
@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.SqlServer
         {
             using (var masterConnection = _connection.CreateMasterConnection())
             {
-                await _statementExecutor.ExecuteNonQueryAsync(masterConnection, CreateCreateOperations(), cancellationToken);
+                await _statementExecutor.ExecuteNonQueryAsync(masterConnection, null, CreateCreateOperations(), cancellationToken);
                 ClearPool();
             }
         }
@@ -60,24 +60,24 @@ namespace Microsoft.Data.Entity.SqlServer
         {
             Check.NotNull(model, "model");
 
-            _statementExecutor.ExecuteNonQuery(_connection.DbConnection, CreateSchemaCommands(model));
+            _statementExecutor.ExecuteNonQuery(_connection.DbConnection, _connection.DbTransaction, CreateSchemaCommands(model));
         }
 
         public override async Task CreateTablesAsync(IModel model, CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(model, "model");
 
-            await _statementExecutor.ExecuteNonQueryAsync(_connection.DbConnection, CreateSchemaCommands(model), cancellationToken);
+            await _statementExecutor.ExecuteNonQueryAsync(_connection.DbConnection, _connection.DbTransaction, CreateSchemaCommands(model), cancellationToken);
         }
 
         public override bool HasTables()
         {
-            return (int)_statementExecutor.ExecuteScalar(_connection.DbConnection, CreateHasTablesCommand()) != 0;
+            return (int)_statementExecutor.ExecuteScalar(_connection.DbConnection, _connection.DbTransaction, CreateHasTablesCommand()) != 0;
         }
 
         public override async Task<bool> HasTablesAsync(CancellationToken cancellationToken = new CancellationToken())
         {
-            return (int)(await _statementExecutor.ExecuteScalarAsync(_connection.DbConnection, CreateHasTablesCommand(), cancellationToken)) != 0;
+            return (int)(await _statementExecutor.ExecuteScalarAsync(_connection.DbConnection, _connection.DbTransaction, CreateHasTablesCommand(), cancellationToken)) != 0;
         }
 
         private IEnumerable<SqlStatement> CreateSchemaCommands(IModel model)
@@ -189,7 +189,7 @@ namespace Microsoft.Data.Entity.SqlServer
 
             using (var masterConnection = _connection.CreateMasterConnection())
             {
-                _statementExecutor.ExecuteNonQuery(masterConnection, CreateDropCommands());
+                _statementExecutor.ExecuteNonQuery(masterConnection, null, CreateDropCommands());
             }
         }
 
@@ -199,7 +199,7 @@ namespace Microsoft.Data.Entity.SqlServer
 
             using (var masterConnection = _connection.CreateMasterConnection())
             {
-                await _statementExecutor.ExecuteNonQueryAsync(masterConnection, CreateDropCommands(), cancellationToken);
+                await _statementExecutor.ExecuteNonQueryAsync(masterConnection, null, CreateDropCommands(), cancellationToken);
             }
         }
 
