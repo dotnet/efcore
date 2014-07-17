@@ -39,10 +39,14 @@
     <Compile Include="SQLiteDataStoreCreator.cs" />
     <Compile Include="SQLiteDataStoreSource.cs" />
     <Compile Include="SQLiteMigrationOperationSqlGenerator.cs" />
+    <Compile Include="SQLiteMigrationOperationSqlGeneratorFactory.cs" />
+    <Compile Include="SQLiteMigrator.cs" />
+    <Compile Include="SQLiteModificationCommandBatchFactory.cs" />
     <Compile Include="SQLiteOptionsExtension.cs" />
     <Compile Include="SQLiteSqlGenerator.cs" />
     <Compile Include="SQLiteTypeMapper.cs" />
     <Compile Include="SQLiteValueGeneratorCache.cs" />
+    <Compile Include="SQLiteValueGeneratorSelector.cs" />
     <Compile Include="Utilities\Check.cs" />
   </ItemGroup>
   <ItemGroup>

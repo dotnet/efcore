@@ -6,7 +6,7 @@
   </PropertyGroup>
   <Import Project="$(VSToolsPath)\AspNet\Microsoft.Web.AspNet.Props" Condition="'$(VSToolsPath)' != ''" />
   <PropertyGroup Label="Globals">
-    <ProjectGuid>02c7760f-e138-4d54-aede-59cb17b503d9</ProjectGuid>
+    <ProjectGuid>c9370cb1-1295-4163-9bab-6b5e9a35595b</ProjectGuid>
     <OutputType>Library</OutputType>
   </PropertyGroup>
   <PropertyGroup Condition="$(OutputType) == 'Console'">
@@ -23,18 +23,12 @@
     <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="project.json" />
+    <Content Include="Project.json" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ApiConsistencyTest.cs" />
-    <Compile Include="InMemoryDataStoreCreatorTest.cs" />
-    <Compile Include="InMemoryDataStoreSourceTest.cs" />
-    <Compile Include="InMemoryDataStoreTest.cs" />
-    <Compile Include="InMemoryDbContextOptionsExtensionsTest.cs" />
-    <Compile Include="InMemoryEntityServicesBuilderExtensionsTest.cs" />
-    <Compile Include="InMemoryOptionsExtensionTest.cs" />
-    <Compile Include="InMemoryValueGeneratorSelectorTest.cs" />
-    <Compile Include="InMemoryValueGeneratorTest.cs" />
+    <Compile Include="NorthwindQueryFixtureRelationalBase.cs" />
+    <Compile Include="OptimisticConcurrencyRelationalTestBase.cs" />
+    <Compile Include="TestSqlLoggerFactory.cs" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\AspNet\Microsoft.Web.AspNet.targets" Condition="'$(VSToolsPath)' != ''" />
 </Project>

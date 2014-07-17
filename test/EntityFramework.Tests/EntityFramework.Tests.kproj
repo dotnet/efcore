@@ -27,6 +27,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
+    <Compile Include="ChangeTracking\ChangeDetectorTest.cs" />
     <Compile Include="ChangeTracking\ChangeTrackerTest.cs" />
     <Compile Include="ChangeTracking\ClrStateEntryTest.cs" />
     <Compile Include="ChangeTracking\CompositeEntityKeyFactoryTest.cs" />
@@ -86,7 +87,7 @@
     <Compile Include="Metadata\ModelConventions\KeyConventionTest.cs" />
     <Compile Include="Metadata\ModelConventions\PropertiesConventionTest.cs" />
     <Compile Include="Metadata\ModelTest.cs" />
-    <Compile Include="Metadata\NavigationAccessorSourceTest.cs" />
+    <Compile Include="Metadata\NavigationExtensionsTest.cs" />
     <Compile Include="Metadata\NavigationTest.cs" />
     <Compile Include="Metadata\ObjectArrayValueReaderTest.cs" />
     <Compile Include="Metadata\PropertyTest.cs" />
@@ -107,9 +108,6 @@
     <Compile Include="Utilities\ThreadSafeDictionaryCacheTest.cs" />
     <Compile Include="Utilities\ThreadSafeLazyRefTest.cs" />
     <Compile Include="Utilities\TypeExtensionsTest.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Properties\" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\AspNet\Microsoft.Web.AspNet.targets" Condition="'$(VSToolsPath)' != ''" />
 </Project>

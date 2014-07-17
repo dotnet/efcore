@@ -26,9 +26,6 @@
     <Content Include="project.json" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="CompositeKeyEndToEndTest.cs" />
     <Compile Include="GuidValueGeneratorEndToEndTest.cs" />
     <Compile Include="InMemoryConfigPatternsTest.cs" />

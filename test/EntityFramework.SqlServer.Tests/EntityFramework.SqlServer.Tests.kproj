@@ -26,9 +26,6 @@
     <Content Include="project.json" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
     <Compile Include="SequentialGuidValueGeneratorTest.cs" />
     <Compile Include="SqlServerConnectionTest.cs" />
