@@ -145,6 +145,7 @@
     <Compile Include="Metadata\MetadataBase.cs" />
     <Compile Include="Metadata\Model.cs" />
     <Compile Include="Metadata\ModelBuilder.cs" />
+    <Compile Include="Metadata\ModelBuilderSelector.cs" />
     <Compile Include="Metadata\ModelConventions\IModelConvention.cs" />
     <Compile Include="Metadata\ModelConventions\KeyConvention.cs" />
     <Compile Include="Metadata\ModelConventions\PropertiesConvention.cs" />
@@ -184,6 +185,7 @@
     <Compile Include="Storage\DataStoreSelector.cs" />
     <Compile Include="Storage\DataStoreSource.cs" />
     <Compile Include="Storage\DataStoreSource`.cs" />
+    <Compile Include="Storage\DataStoreTransaction.cs" />
     <Compile Include="Update\DbUpdateConcurrencyException.cs" />
     <Compile Include="Update\DbUpdateException.cs" />
     <Compile Include="Utilities\AsyncLock.cs" />

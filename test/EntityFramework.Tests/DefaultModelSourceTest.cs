@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Metadata;
 using Moq;
 using Xunit;
 
@@ -17,9 +18,9 @@ namespace Microsoft.Data.Entity
             Assert.Equal(
                 "setFinder",
                 // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => new DefaultModelSource(null)).ParamName);
+                Assert.Throws<ArgumentNullException>(() => new DefaultModelSource(null, new ModelBuilderSelector())).ParamName);
 
-            var modelSource = new DefaultModelSource(new Mock<DbSetFinder>().Object);
+            var modelSource = new DefaultModelSource(new Mock<DbSetFinder>().Object, new ModelBuilderSelector());
 
             Assert.Equal(
                 "context",
@@ -40,7 +41,7 @@ namespace Microsoft.Data.Entity
                         new DbSetFinder.DbSetProperty(typeof(JustAClass), "Four", typeof(string), hasSetter: true)
                     });
 
-            var model = new DefaultModelSource(setFinderMock.Object).GetModel(new Mock<DbContext>().Object);
+            var model = new DefaultModelSource(setFinderMock.Object, new ModelBuilderSelector()).GetModel(new Mock<DbContext>().Object);
 
             Assert.Equal(
                 new[] { "Object", "Random", "String" },
@@ -58,7 +59,7 @@ namespace Microsoft.Data.Entity
         [Fact]
         public void Caches_model_by_context_type()
         {
-            var modelSource = new DefaultModelSource(new DbSetFinder());
+            var modelSource = new DefaultModelSource(new DbSetFinder(), new ModelBuilderSelector());
 
             var model1 = modelSource.GetModel(new Context1());
             var model2 = modelSource.GetModel(new Context2());

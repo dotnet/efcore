@@ -5,8 +5,10 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.AzureTableStorage;
 using Microsoft.Data.Entity.AzureTableStorage.Adapters;
+using Microsoft.Data.Entity.AzureTableStorage.Metadata;
 using Microsoft.Data.Entity.AzureTableStorage.Query;
 using Microsoft.Data.Entity.AzureTableStorage.Utilities;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 
 // ReSharper disable once CheckNamespace
@@ -24,6 +26,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddSingleton<AtsQueryFactory>()
                 .AddSingleton<TableEntityAdapterFactory>()
                 .AddSingleton<AtsValueReaderFactory>()
+                .AddSingleton<ModelBuilderSelector, AtsModelBuilderSelector>()
                 .AddScoped<AtsDatabase>()
                 .AddScoped<AtsDataStore>()
                 .AddScoped<AtsConnection>()

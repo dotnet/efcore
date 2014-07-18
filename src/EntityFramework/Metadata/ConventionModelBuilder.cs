@@ -12,15 +12,24 @@ namespace Microsoft.Data.Entity.Metadata
     {
         // TODO: Get the default convention list from DI
         // TODO: Configure property facets, foreign keys & navigation properties
-        private readonly IList<IModelConvention> _conventions = new List<IModelConvention>
-            {
-                new PropertiesConvention(),
-                new KeyConvention()
-            };
+        private readonly IList<IModelConvention> _conventions;
 
         public ConventionModelBuilder([NotNull] Model model)
             : base(model)
         {
+            _conventions = new List<IModelConvention>
+                {
+                    new PropertiesConvention(),
+                    new KeyConvention()
+                };
+        }
+
+        protected ConventionModelBuilder([NotNull] Model model, [NotNull] IList<IModelConvention> conventions)
+            : base(model)
+        {
+            Check.NotNull(conventions, "conventions");
+
+            _conventions = conventions;
         }
 
         public virtual IList<IModelConvention> Conventions
@@ -32,7 +41,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(entityType, "entityType");
 
-            foreach (var convention in _conventions)
+            foreach (var convention in Conventions)
             {
                 convention.Apply(entityType);
             }

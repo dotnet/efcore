@@ -42,6 +42,7 @@
     <Compile Include="SqlServerEndToEndTest.cs" />
     <Compile Include="SqlServerSimpleCommandExecutorTest.cs" />
     <Compile Include="SqlServerTestDatabase.cs" />
+    <Compile Include="SqlServerTransactionTest.cs" />
     <Compile Include="TestUtilities\Extensions.cs" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\AspNet\Microsoft.Web.AspNet.targets" Condition="'$(VSToolsPath)' != ''" />

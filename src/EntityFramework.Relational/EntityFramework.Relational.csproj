@@ -89,6 +89,7 @@
     <Compile Include="RelationalDatabase.cs" />
     <Compile Include="RelationalDatabaseExtensions.cs" />
     <Compile Include="RelationalDataStoreCreator.cs" />
+    <Compile Include="RelationalModelBuilderSelector.cs" />
     <Compile Include="RelationalOptionsExtension.cs" />
     <Compile Include="RelationalConnection.cs" />
     <Compile Include="RelationalDataStore.cs" />

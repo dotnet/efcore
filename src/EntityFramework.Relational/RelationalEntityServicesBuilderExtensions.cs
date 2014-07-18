@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.Relational.Utilities;
 using Microsoft.Data.Entity.Utilities;
@@ -25,6 +26,7 @@ namespace Microsoft.Data.Entity.Relational
                 .AddSingleton<ParameterNameGeneratorFactory>()
                 .AddSingleton<CommandBatchPreparer>()
                 .AddSingleton<ModificationCommandComparer>()
+                .AddSingleton<ModelBuilderSelector, RelationalModelBuilderSelector>()
                 .AddSingleton<GraphFactory, BidirectionalAdjacencyListGraphFactory>()
                 .AddScoped<RelationalDatabase>()
                 // TODO: Is singleton correct here? What is IConfiguration scoped as?

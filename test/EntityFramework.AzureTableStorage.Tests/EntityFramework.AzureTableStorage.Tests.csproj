@@ -97,6 +97,10 @@
     <Compile Include="Helpers\PocoTestType.cs" />
     <Compile Include="Helpers\TestStateEntry.cs" />
     <Compile Include="Helpers\TestTableResult.cs" />
+    <Compile Include="Metadata\AtsConventionBuilderTests.cs" />
+    <Compile Include="Metadata\AtsModelBuilderSelectorTest.cs" />
+    <Compile Include="Metadata\ETagConventionTest.cs" />
+    <Compile Include="Metadata\PartitionAndRowKeyConventionTests.cs" />
     <Compile Include="Query\AtsNamedValueBufferTests.cs" />
     <Compile Include="Query\AtsObjectArrayValueReaderFactoryTests.cs" />
     <Compile Include="Query\AtsObjectArrayValueReaderTests.cs" />
