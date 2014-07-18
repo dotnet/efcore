@@ -14,15 +14,20 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query.Expressions
 {
     public class QueryableConstantExpression : ExtensionExpression
     {
-        private readonly dynamic _constant;
+        private readonly dynamic _value;
 
-        public QueryableConstantExpression([NotNull] Type type, [NotNull] object constant)
+        public QueryableConstantExpression([NotNull] Type type, [NotNull] object value)
             : base(Check.NotNull(type, "type"))
         {
-            Check.NotNull(constant, "constant");
+            Check.NotNull(value, "value");
 
             IsStringProperty = false;
-            _constant = constant;
+            _value = value;
+        }
+
+        public virtual object Value
+        {
+            get { return _value; }
         }
 
         public override Expression Accept([NotNull] ExpressionTreeVisitor visitor)
@@ -42,15 +47,15 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query.Expressions
             return this;
         }
 
-        public virtual string Value
+        public virtual string QueryString
         {
             get
             {
                 if (IsStringProperty)
                 {
-                    return Escape(_constant.ToString());
+                    return Escape(_value.ToString());
                 }
-                return Escape(_constant);
+                return Escape(_value);
             }
         }
 

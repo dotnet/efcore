@@ -64,9 +64,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
                 var filteringVisitor
                     = new FilteringExpressionTreeVisitor(this, sourceQuery.Key);
 
-                filteringVisitor.VisitExpression(whereClause.Predicate);
-
-                sourceQuery.Value.Predicate = filteringVisitor.Predicate;
+                sourceQuery.Value.Predicate = filteringVisitor.VisitExpression(whereClause.Predicate);
             }
         }
 

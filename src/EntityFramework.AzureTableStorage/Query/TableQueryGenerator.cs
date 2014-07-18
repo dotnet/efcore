@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
 
         internal Expression VisitQueryableConstant(QueryableConstantExpression expression)
         {
-            _whereStringBuilder.Append(expression.Value);
+            _whereStringBuilder.Append(expression.QueryString);
             return expression;
         }
 
