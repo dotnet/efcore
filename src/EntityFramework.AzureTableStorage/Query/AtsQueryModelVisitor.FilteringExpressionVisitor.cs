@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.Data.Entity.AzureTableStorage.Query.Expressions;
 using Remotion.Linq.Clauses;
@@ -23,74 +24,53 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
                 _querySource = querySource;
             }
 
-            public Expression Predicate { get; private set; }
-
             protected override Expression VisitBinaryExpression(BinaryExpression expression)
             {
-                Predicate = null;
-
                 switch (expression.NodeType)
                 {
                     case ExpressionType.Equal:
                     case ExpressionType.NotEqual:
+                    {
+                        return UnfoldStructuralComparison(expression.NodeType, ProcessComparisonExpression(expression));
+                    }
                     case ExpressionType.GreaterThan:
                     case ExpressionType.GreaterThanOrEqual:
                     case ExpressionType.LessThan:
                     case ExpressionType.LessThanOrEqual:
                     {
-                        Predicate = ProcessComparisonExpression(expression);
-
-                        break;
+                        return ProcessComparisonExpression(expression);
                     }
 
                     case ExpressionType.AndAlso:
                     {
-                        VisitExpression(expression.Left);
+                        var left = VisitExpression(expression.Left);
+                        var right = VisitExpression(expression.Right);
 
-                        var left = Predicate;
-
-                        VisitExpression(expression.Right);
-
-                        var right = Predicate;
-
-                        Predicate
-                            = left != null
-                              && right != null
-                                ? Expression.AndAlso(left, right)
-                                : (left ?? right);
-
-                        break;
+                        return left != null
+                               && right != null
+                            ? Expression.AndAlso(left, right)
+                            : (left ?? right);
                     }
 
                     case ExpressionType.OrElse:
                     {
-                        VisitExpression(expression.Left);
+                        var left = VisitExpression(expression.Left);
+                        var right = VisitExpression(expression.Right);
 
-                        var left = Predicate;
-
-                        VisitExpression(expression.Right);
-
-                        var right = Predicate;
-
-                        Predicate
-                            = left != null
-                              && right != null
-                                ? Expression.OrElse(left, right)
-                                : null;
-
-                        break;
+                        return left != null
+                               && right != null
+                            ? Expression.OrElse(left, right)
+                            : null;
                     }
 
                     default:
-                        throw new ArgumentOutOfRangeException();
+                        return null;
                 }
-
-                return expression;
             }
 
             protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
             {
-                return expression;
+                return null;
             }
 
             protected override Expression VisitMemberExpression(MemberExpression expression)
@@ -104,21 +84,17 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
                             Expression.Constant(true)));
                 }
 
-                Predicate = BindOperand(expression);
-
-                return expression;
+                return BindOperand(expression);
             }
 
             protected override Expression VisitConstantExpression(ConstantExpression expression)
             {
-                Predicate = null;
-                return expression;
+                return null;
             }
 
             protected override Expression VisitMethodCallExpression(MethodCallExpression expression)
             {
-                Predicate = null;
-                return expression;
+                return null;
             }
 
             protected override Expression VisitUnaryExpression(UnaryExpression expression)
@@ -131,7 +107,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
                             expression.Operand,
                             Expression.Constant(expression.NodeType != ExpressionType.Not)));
                 }
-                return expression;
+                return null;
             }
 
             private Expression ProcessComparisonExpression(BinaryExpression expression)
@@ -169,12 +145,48 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
                     return Expression
                         .MakeBinary(expression.NodeType, leftExpression, rightExpression);
                 }
-                else
+                var nodeType = FlipInequality(expression.NodeType);
+                return Expression
+                    .MakeBinary(nodeType, rightExpression, leftExpression);
+            }
+
+            private Expression UnfoldStructuralComparison(ExpressionType expressionType, Expression expression)
+            {
+                var binaryExpression = expression as BinaryExpression;
+
+                if (binaryExpression != null)
                 {
-                    var nodeType = FlipInequality(expression.NodeType);
-                    return Expression
-                        .MakeBinary(nodeType, rightExpression, leftExpression);
+                    var leftConstantExpression = binaryExpression.Left as QueryableConstantExpression;
+
+                    if (leftConstantExpression != null)
+                    {
+                        var leftExpressions = leftConstantExpression.Value as Expression[];
+
+                        if (leftExpressions != null)
+                        {
+                            var rightConstantExpression = binaryExpression.Right as QueryableConstantExpression;
+
+                            if (rightConstantExpression != null)
+                            {
+                                var rightExpressions = rightConstantExpression.Value as Expression[];
+
+                                if (rightExpressions != null
+                                    && leftExpressions.Length == rightExpressions.Length)
+                                {
+                                    return leftExpressions
+                                        .Zip(rightExpressions, (l, r) =>
+                                            Expression.MakeBinary(expressionType, l, r))
+                                        .Aggregate((e1, e2) =>
+                                            expressionType == ExpressionType.Equal
+                                                ? Expression.AndAlso(e1, e2)
+                                                : Expression.OrElse(e1, e2));
+                                }
+                            }
+                        }
+                    }
                 }
+
+                return expression;
             }
 
             private ExpressionType FlipInequality(ExpressionType nodeType)
