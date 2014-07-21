@@ -100,41 +100,37 @@ namespace Microsoft.Data.Entity.Redis
             }
 
             var entitiesProcessed = 0;
-            ITransaction txn = null;
-            try
+            var txn = UnderlyingDatabase.CreateTransaction();
+            foreach (var entry in stateEntries)
             {
-                txn = UnderlyingDatabase.CreateTransaction();
-                foreach (var entry in stateEntries)
+                if (cancellationToken.IsCancellationRequested)
                 {
-                    if (cancellationToken.IsCancellationRequested)
-                    {
-                        return 0;
-                    }
-
-                    switch (entry.EntityState)
-                    {
-                        case EntityState.Added:
-                            entitiesProcessed += await InsertEntryAsync(entry);
-                            break;
-
-                        case EntityState.Deleted:
-                            entitiesProcessed += await DeleteEntryAsync(entry);
-                            break;
-
-                        case EntityState.Modified:
-                            entitiesProcessed += await ModifyEntryAsync(entry);
-                            break;
-                    }
+                    return 0;
                 }
-            }
-            finally
-            {
-                if (txn != null)
+
+                // ignoring the results of running the various tasks - follows design decision
+                // not to slow down Redis by adding e.g. Exists() checks and error checking for
+                // e.g. trying to insert a primary key which already exists.
+#pragma warning disable 4014
+                switch (entry.EntityState)
                 {
-                    if (!txn.Execute())
-                    {
-                        entitiesProcessed = 0;
-                    }
+                    case EntityState.Added:
+                        InsertEntryAsync(entry);
+                        break;
+
+                    case EntityState.Deleted:
+                        DeleteEntryAsync(entry);
+                        break;
+
+                    case EntityState.Modified:
+                        ModifyEntryAsync(entry);
+                        break;
+                }
+#pragma warning restore 4014
+
+                if (await txn.ExecuteAsync())
+                {
+                    entitiesProcessed = stateEntries.Count;
                 }
             }
 
