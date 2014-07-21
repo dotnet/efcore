@@ -10,8 +10,7 @@ namespace Microsoft.Data.Entity.Redis
 {
     public class RedisConnection : DataStoreConnection
     {
-        private readonly string _hostName;
-        private readonly int _port;
+        private readonly string _connectionString;
         private readonly int _database = -1;
 
         /// <summary>
@@ -26,14 +25,13 @@ namespace Microsoft.Data.Entity.Redis
             Check.NotNull(configuration, "configuration");
             var optionsExtension = RedisOptionsExtension.Extract(configuration);
 
-            _hostName = optionsExtension.HostName;
-            _port = optionsExtension.Port;
+            _connectionString = optionsExtension.HostName + ":" + optionsExtension.Port;
             _database = optionsExtension.Database;
         }
 
         public virtual string ConnectionString
         {
-            get { return _hostName + ":" + _port; }
+            get { return _connectionString; }
         }
 
         public virtual int Database
