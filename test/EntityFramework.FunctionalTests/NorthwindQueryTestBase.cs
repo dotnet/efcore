@@ -815,6 +815,16 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Join_select_many()
+        {
+            AssertQuery<Customer, Order, Employee>((cs, os, es) =>
+                from c in cs
+                join o in os on c.CustomerID equals o.CustomerID
+                from e in es
+                select new { c, o, e });
+        }
+
+        [Fact]
         public virtual void Join_customers_orders_select()
         {
             AssertQuery<Customer, Order>((cs, os) =>

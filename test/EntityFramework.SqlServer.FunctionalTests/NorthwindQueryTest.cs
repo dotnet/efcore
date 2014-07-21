@@ -463,6 +463,18 @@ INNER JOIN [Orders] AS o ON (c.[CustomerID] = o.[CustomerID] AND c.[CustomerID] 
                 _fixture.Sql);
         }
 
+        public override void Join_select_many()
+        {
+            base.Join_select_many(); 
+            
+            Assert.Equal(
+                 @"SELECT c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region], o.[CustomerID], o.[OrderDate], o.[OrderID], e.[City], e.[Country], e.[EmployeeID], e.[FirstName], e.[ReportsTo]
+FROM [Customers] AS c
+INNER JOIN [Orders] AS o ON c.[CustomerID] = o.[CustomerID]
+CROSS JOIN [Employees] AS e",
+                 _fixture.Sql);
+        }
+
         public override void GroupBy_Distinct()
         {
             base.GroupBy_Distinct();
