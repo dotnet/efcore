@@ -25,7 +25,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <NoWarn>1684</NoWarn> <!-- suppressing the warning CS1684 - should remove once StackExchange.Redis is available for Profile44 -->
+    <NoWarn>1684</NoWarn>
+    <!-- suppressing the warning CS1684 - should remove once StackExchange.Redis is available for Profile44 -->
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -80,6 +81,7 @@
     <Compile Include="RedisDataStore.cs" />
     <Compile Include="RedisDataStoreCreator.cs" />
     <Compile Include="RedisDataStoreSource.cs" />
+    <Compile Include="RedisModelBuilderFactory.cs" />
     <Compile Include="RedisOptionsExtension.cs" />
     <Compile Include="Utilities\Check.cs" />
     <EmbeddedResource Include="Properties\Strings.resx">

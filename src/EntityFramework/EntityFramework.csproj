@@ -89,8 +89,9 @@
     <Compile Include="Metadata\Compiled\CompiledIndex.cs" />
     <Compile Include="Metadata\EntityTypeExtensions.cs" />
     <Compile Include="Metadata\IIndex.cs" />
+    <Compile Include="Metadata\IModelBuilderFactory.cs" />
     <Compile Include="Metadata\Index.cs" />
-    <Compile Include="Metadata\ModelBuilderSelector.cs" />
+    <Compile Include="Metadata\ModelBuilderFactory.cs" />
     <Compile Include="Metadata\NavigationExtensions.cs" />
     <Compile Include="Metadata\EntityTypeNameComparer.cs" />
     <Compile Include="Metadata\PropertyExtensions.cs" />

@@ -4,18 +4,20 @@
 using System.Linq;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.Storage
 {
-    public abstract class DataStoreSource<TDataStore, TConfiguration, TCreator, TConnection, TValueGeneratorCache, TDatabase> : DataStoreSource
+    public abstract class DataStoreSource<TDataStore, TConfiguration, TCreator, TConnection, TValueGeneratorCache, TDatabase, TModelBuilderSelector> : DataStoreSource
         where TDataStore : DataStore
         where TConfiguration : DbContextOptionsExtension
         where TCreator : DataStoreCreator
         where TConnection : DataStoreConnection
         where TValueGeneratorCache : ValueGeneratorCache
         where TDatabase : Database
+        where TModelBuilderSelector : IModelBuilderFactory
     {
         public override DataStore GetStore(DbContextConfiguration configuration)
         {
@@ -50,6 +52,13 @@ namespace Microsoft.Data.Entity.Storage
             Check.NotNull(configuration, "configuration");
 
             return configuration.Services.ServiceProvider.GetService<TValueGeneratorCache>();
+        }
+
+        public override IModelBuilderFactory GetModelBuilderFactory(DbContextConfiguration configuration)
+        {
+            Check.NotNull(configuration, "configuration");
+
+            return configuration.Services.ServiceProvider.GetService<TModelBuilderSelector>();
         }
 
         public override bool IsConfigured(DbContextConfiguration configuration)

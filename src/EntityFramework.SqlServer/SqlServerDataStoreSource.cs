@@ -15,7 +15,8 @@ namespace Microsoft.Data.Entity.SqlServer
             SqlServerDataStoreCreator,
             SqlServerConnection,
             SqlServerValueGeneratorCache,
-            RelationalDatabase>
+            RelationalDatabase,
+            RelationalModelBuilderFactory>
     {
         public override bool IsAvailable(DbContextConfiguration configuration)
         {

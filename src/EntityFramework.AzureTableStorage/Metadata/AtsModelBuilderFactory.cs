@@ -7,9 +7,9 @@ using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Metadata
 {
-    public class AtsModelBuilderSelector : ModelBuilderSelector
+    public class AtsModelBuilderFactory : IModelBuilderFactory
     {
-        public override ModelBuilder CreateConventionBuilder([NotNull] Model model)
+        public virtual ModelBuilder CreateConventionBuilder([NotNull] Model model)
         {
             Check.NotNull(model, "model");
 

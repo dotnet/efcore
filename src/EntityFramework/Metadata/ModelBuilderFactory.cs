@@ -6,7 +6,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public class ModelBuilderSelector
+    public class ModelBuilderFactory : IModelBuilderFactory
     {
         public virtual ModelBuilder CreateConventionBuilder([NotNull] Model model)
         {

@@ -13,28 +13,26 @@ namespace Microsoft.Data.Entity.Infrastructure
         private readonly ThreadSafeDictionaryCache<Type, IModel> _models = new ThreadSafeDictionaryCache<Type, IModel>();
 
         private readonly DbSetFinder _setFinder;
-        private readonly ModelBuilderSelector _modelBuilderSelector;
 
-        public DefaultModelSource([NotNull] DbSetFinder setFinder, [NotNull] ModelBuilderSelector modelBuilderSelector)
+        public DefaultModelSource([NotNull] DbSetFinder setFinder)
         {
             Check.NotNull(setFinder, "setFinder");
-            Check.NotNull(modelBuilderSelector, "modelBuilderSelector");
 
             _setFinder = setFinder;
-            _modelBuilderSelector = modelBuilderSelector;
         }
 
-        public virtual IModel GetModel(DbContext context)
+        public virtual IModel GetModel(DbContext context, IModelBuilderFactory modelBuilderFactory)
         {
             Check.NotNull(context, "context");
+            Check.NotNull(modelBuilderFactory, "modelBuilderFactory");
 
-            return _models.GetOrAdd(context.GetType(), k => CreateModel(context));
+            return _models.GetOrAdd(context.GetType(), k => CreateModel(context, modelBuilderFactory));
         }
 
-        private IModel CreateModel(DbContext context)
+        private IModel CreateModel(DbContext context, IModelBuilderFactory modelBuilderFactory)
         {
             var model = new Model();
-            var modelBuilder = _modelBuilderSelector.CreateConventionBuilder(model);
+            var modelBuilder = modelBuilderFactory.CreateConventionBuilder(model);
 
             foreach (var setInfo in _setFinder.FindSets(context))
             {

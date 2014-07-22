@@ -22,7 +22,7 @@ namespace Microsoft.Framework.DependencyInjection
 
             serviceCollection
                 .AddSingleton<IModelSource, DefaultModelSource>()
-                .AddSingleton<ModelBuilderSelector>()
+                .AddSingleton<ModelBuilderFactory>()
                 .AddSingleton<SimpleValueGeneratorFactory<TemporaryValueGenerator>>()
                 .AddSingleton<SimpleValueGeneratorFactory<GuidValueGenerator>>()
                 .AddSingleton<DbSetFinder>()

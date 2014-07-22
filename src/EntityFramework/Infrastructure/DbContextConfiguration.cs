@@ -53,8 +53,8 @@ namespace Microsoft.Data.Entity.Infrastructure
             _serviceProviderSource = serviceProviderSource;
             _contextOptions = contextOptions;
             _context = context;
-            _modelFromSource = new LazyRef<IModel>(() => _services.ModelSource.GetModel(_context));
             _dataStoreSource = new LazyRef<DataStoreSource>(() => _services.DataStoreSelector.SelectDataStore(this));
+            _modelFromSource = new LazyRef<IModel>(() => _services.ModelSource.GetModel(_context, _dataStoreSource.Value.GetModelBuilderFactory(this)));
             _dataStore = new LazyRef<DataStore>(() => _dataStoreSource.Value.GetStore(this));
             _connection = new LazyRef<DataStoreConnection>(() => _dataStoreSource.Value.GetConnection(this));
             _loggerFactory = new LazyRef<ILoggerFactory>(() => _externalProvider.TryGetService<ILoggerFactory>() ?? new NullLoggerFactory());

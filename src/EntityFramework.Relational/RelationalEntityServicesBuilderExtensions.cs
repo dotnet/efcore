@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Relational
                 .AddSingleton<ParameterNameGeneratorFactory>()
                 .AddSingleton<CommandBatchPreparer>()
                 .AddSingleton<ModificationCommandComparer>()
-                .AddSingleton<ModelBuilderSelector, RelationalModelBuilderSelector>()
+                .AddSingleton<RelationalModelBuilderFactory>()
                 .AddSingleton<GraphFactory, BidirectionalAdjacencyListGraphFactory>()
                 .AddScoped<RelationalDatabase>()
                 // TODO: Is singleton correct here? What is IConfiguration scoped as?

@@ -421,6 +421,7 @@ namespace Microsoft.Data.Entity
             sourceMock.Setup(m => m.IsAvailable(It.IsAny<DbContextConfiguration>())).Returns(true);
             sourceMock.Setup(m => m.IsConfigured(It.IsAny<DbContextConfiguration>())).Returns(true);
             sourceMock.Setup(m => m.GetStore(It.IsAny<DbContextConfiguration>())).Returns(store.Object);
+            sourceMock.Setup(m => m.GetModelBuilderFactory(It.IsAny<DbContextConfiguration>())).Returns(new ModelBuilderFactory());
 
             var services = new ServiceCollection();
             services.AddEntityFramework();
@@ -457,6 +458,7 @@ namespace Microsoft.Data.Entity
             sourceMock.Setup(m => m.IsConfigured(It.IsAny<DbContextConfiguration>())).Returns(true);
             sourceMock.Setup(m => m.GetStore(It.IsAny<DbContextConfiguration>())).Returns(store.Object);
             sourceMock.Setup(m => m.GetValueGeneratorCache(It.IsAny<DbContextConfiguration>())).Returns(Mock.Of<ValueGeneratorCache>);
+            sourceMock.Setup(m => m.GetModelBuilderFactory(It.IsAny<DbContextConfiguration>())).Returns(new ModelBuilderFactory());
 
             var services = new ServiceCollection();
             services.AddEntityFramework();
@@ -900,7 +902,7 @@ namespace Microsoft.Data.Entity
 
         private class FakeModelSource : IModelSource
         {
-            public IModel GetModel(DbContext context)
+            public IModel GetModel(DbContext context, IModelBuilderFactory modelBuilder = null)
             {
                 return null;
             }

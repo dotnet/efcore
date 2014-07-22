@@ -5,6 +5,7 @@ using System.Linq;
 using Microsoft.Data.Entity.AzureTableStorage.Metadata;
 using Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers;
 using Microsoft.Data.Entity.AzureTableStorage.Utilities;
+using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Metadata
@@ -14,6 +15,11 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Metadata
         public class NoAtsContext : DbContext
         {
             public DbSet<IntKeysPoco> IntKeysPocos { get; set; }
+
+            protected internal override void OnConfiguring(DbContextOptions options)
+            {
+                options.UseModel(new Model());
+            }
         }
 
         public class WithAtsContext : DbContext

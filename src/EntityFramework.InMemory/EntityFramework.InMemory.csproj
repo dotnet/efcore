@@ -58,6 +58,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.tt</DependentUpon>
     </Compile>
+    <Compile Include="InMemoryModelBuilderFactory.cs" />
     <Compile Include="InMemoryOptionsExtension.cs" />
     <Compile Include="InMemoryConnection.cs" />
     <Compile Include="InMemoryDatabase.cs" />

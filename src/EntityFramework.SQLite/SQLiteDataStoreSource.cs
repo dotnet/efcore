@@ -15,7 +15,8 @@ namespace Microsoft.Data.Entity.SQLite
             SQLiteDataStoreCreator,
             SQLiteConnection,
             SQLiteValueGeneratorCache,
-            RelationalDatabase>
+            RelationalDatabase,
+            RelationalModelBuilderFactory>
     {
         public override bool IsAvailable(DbContextConfiguration configuration)
         {

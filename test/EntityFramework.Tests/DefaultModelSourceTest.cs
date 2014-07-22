@@ -18,14 +18,14 @@ namespace Microsoft.Data.Entity
             Assert.Equal(
                 "setFinder",
                 // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => new DefaultModelSource(null, new ModelBuilderSelector())).ParamName);
+                Assert.Throws<ArgumentNullException>(() => new DefaultModelSource(null)).ParamName);
 
-            var modelSource = new DefaultModelSource(new Mock<DbSetFinder>().Object, new ModelBuilderSelector());
+            var modelSource = new DefaultModelSource(new Mock<DbSetFinder>().Object);
 
             Assert.Equal(
                 "context",
                 // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => modelSource.GetModel(null)).ParamName);
+                Assert.Throws<ArgumentNullException>(() => modelSource.GetModel(null, new ModelBuilderFactory())).ParamName);
         }
 
         [Fact]
@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity
                         new DbSetFinder.DbSetProperty(typeof(JustAClass), "Four", typeof(string), hasSetter: true)
                     });
 
-            var model = new DefaultModelSource(setFinderMock.Object, new ModelBuilderSelector()).GetModel(new Mock<DbContext>().Object);
+            var model = new DefaultModelSource(setFinderMock.Object).GetModel(new Mock<DbContext>().Object, new ModelBuilderFactory());
 
             Assert.Equal(
                 new[] { "Object", "Random", "String" },
@@ -59,14 +59,14 @@ namespace Microsoft.Data.Entity
         [Fact]
         public void Caches_model_by_context_type()
         {
-            var modelSource = new DefaultModelSource(new DbSetFinder(), new ModelBuilderSelector());
+            var modelSource = new DefaultModelSource(new DbSetFinder());
 
-            var model1 = modelSource.GetModel(new Context1());
-            var model2 = modelSource.GetModel(new Context2());
+            var model1 = modelSource.GetModel(new Context1(), new ModelBuilderFactory());
+            var model2 = modelSource.GetModel(new Context2(), new ModelBuilderFactory());
 
             Assert.NotSame(model1, model2);
-            Assert.Same(model1, modelSource.GetModel(new Context1()));
-            Assert.Same(model2, modelSource.GetModel(new Context2()));
+            Assert.Same(model1, modelSource.GetModel(new Context1(), new ModelBuilderFactory()));
+            Assert.Same(model2, modelSource.GetModel(new Context2(), new ModelBuilderFactory()));
         }
 
         private class Context1 : DbContext

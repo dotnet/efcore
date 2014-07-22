@@ -14,7 +14,8 @@ namespace Microsoft.Data.Entity.InMemory
             InMemoryDataStoreCreator,
             InMemoryConnection,
             InMemoryValueGeneratorCache,
-            Database>
+            Database,
+            InMemoryModelBuilderFactory>
     {
         public override bool IsAvailable(DbContextConfiguration configuration)
         {

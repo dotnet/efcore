@@ -83,7 +83,7 @@
     <Compile Include="Adapters\StateEntryTableEntityAdapter.cs" />
     <Compile Include="Adapters\TableEntityAdapterFactory.cs" />
     <Compile Include="Metadata\AtsConventionModelBuilder.cs" />
-    <Compile Include="Metadata\AtsModelBuilderSelector.cs" />
+    <Compile Include="Metadata\AtsModelBuilderFactory.cs" />
     <Compile Include="Metadata\ETagConvention.cs" />
     <Compile Include="Metadata\PartitionKeyAndRowKeyConvention.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

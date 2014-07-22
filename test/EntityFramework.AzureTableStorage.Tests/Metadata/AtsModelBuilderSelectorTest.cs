@@ -10,12 +10,12 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Metadata
 {
     public class AtsModelBuilderSelectorTest
     {
-        private readonly AtsModelBuilderSelector _selector = new AtsModelBuilderSelector();
+        private readonly AtsModelBuilderFactory _factory = new AtsModelBuilderFactory();
 
         [Fact]
         public void It_creates_ats_convention_builder()
         {
-            var builder = _selector.CreateConventionBuilder(Mock.Of<Model>());
+            var builder = _factory.CreateConventionBuilder(Mock.Of<Model>());
             Assert.NotNull(builder);
             Assert.IsType<AtsConventionModelBuilder>(builder);
         }

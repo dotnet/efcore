@@ -8,6 +8,6 @@ namespace Microsoft.Data.Entity.Infrastructure
 {
     public interface IModelSource
     {
-        IModel GetModel([NotNull] DbContext context);
+        IModel GetModel([NotNull] DbContext context, [NotNull] IModelBuilderFactory builder);
     }
 }

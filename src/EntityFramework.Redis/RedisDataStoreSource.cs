@@ -13,7 +13,8 @@ namespace Microsoft.Data.Entity.Redis
         RedisDataStoreCreator,
         RedisConnection,
         ValueGeneratorCache,
-        RedisDatabase>
+        RedisDatabase,
+        RedisModelBuilderFactory>
     {
         public override bool IsAvailable(DbContextConfiguration configuration)
         {

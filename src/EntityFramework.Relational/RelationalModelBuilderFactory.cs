@@ -7,9 +7,9 @@ using Microsoft.Data.Entity.Relational.Utilities;
 
 namespace Microsoft.Data.Entity.Relational
 {
-    public class RelationalModelBuilderSelector : ModelBuilderSelector
+    public class RelationalModelBuilderFactory : IModelBuilderFactory
     {
-        public override ModelBuilder CreateConventionBuilder([NotNull] Entity.Metadata.Model model)
+        public virtual ModelBuilder CreateConventionBuilder([NotNull] Metadata.Model model)
         {
             Check.NotNull(model, "model");
 

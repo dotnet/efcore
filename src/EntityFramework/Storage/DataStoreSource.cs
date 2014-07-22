@@ -4,6 +4,7 @@
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.Storage
 {
@@ -14,6 +15,7 @@ namespace Microsoft.Data.Entity.Storage
         public abstract DataStoreCreator GetCreator([NotNull] DbContextConfiguration configuration);
         public abstract DataStoreConnection GetConnection([NotNull] DbContextConfiguration configuration);
         public abstract ValueGeneratorCache GetValueGeneratorCache([NotNull] DbContextConfiguration configuration);
+        public abstract IModelBuilderFactory GetModelBuilderFactory([NotNull] DbContextConfiguration configuration);
         public abstract bool IsAvailable([NotNull] DbContextConfiguration configuration);
         public abstract bool IsConfigured([NotNull] DbContextConfiguration configuration);
         public abstract string Name { get; }
