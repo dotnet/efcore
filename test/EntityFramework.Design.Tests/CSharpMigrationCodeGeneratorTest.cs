@@ -376,9 +376,12 @@ namespace MyNamespace
             get
             {
                 var builder = new ModelBuilder();
-                builder.Entity(""Entity"")
-                    .Properties(ps => ps.Property<int>(""Id""))
-                    .Key(""Id"");
+                
+                builder.Entity(""Entity"", b =>
+                    {
+                        b.Property<int>(""Id"");
+                        b.Key(""Id"");
+                    });
                 
                 return builder.Model;
             }

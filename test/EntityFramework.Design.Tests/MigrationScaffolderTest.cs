@@ -136,6 +136,7 @@ namespace MyNamespace
             get
             {
                 var builder = new ModelBuilder();
+                
                 return builder.Model;
             }
         }
@@ -162,6 +163,7 @@ namespace MyNamespace
             get
             {
                 var builder = new ModelBuilder();
+                
                 return builder.Model;
             }
         }
@@ -221,11 +223,14 @@ namespace MyNamespace
             get
             {
                 var builder = new ModelBuilder();
-                builder.Entity(""Entity"")
-                    .Properties(ps => ps.Property<int>(""Id""))
-                    .Key(k => k.Properties(""Id"")
-                        .KeyName(""MyPK""))
-                    .TableName(""MyTable"", ""dbo"");
+                
+                builder.Entity(""Entity"", b =>
+                    {
+                        b.Property<int>(""Id"");
+                        b.Key(k => k.Properties(""Id"")
+                            .KeyName(""MyPK""));
+                        b.TableName(""MyTable"", ""dbo"");
+                    });
                 
                 return builder.Model;
             }
@@ -253,11 +258,14 @@ namespace MyNamespace
             get
             {
                 var builder = new ModelBuilder();
-                builder.Entity(""Entity"")
-                    .Properties(ps => ps.Property<int>(""Id""))
-                    .Key(k => k.Properties(""Id"")
-                        .KeyName(""MyPK""))
-                    .TableName(""MyTable"", ""dbo"");
+                
+                builder.Entity(""Entity"", b =>
+                    {
+                        b.Property<int>(""Id"");
+                        b.Key(k => k.Properties(""Id"")
+                            .KeyName(""MyPK""));
+                        b.TableName(""MyTable"", ""dbo"");
+                    });
                 
                 return builder.Model;
             }
@@ -348,40 +356,36 @@ namespace MyNamespace
             get
             {
                 var builder = new ModelBuilder();
-                builder.Entity(""Customer"")
-                    .Properties(
-                        ps =>
-                            {
-                                ps.Property<int>(""HouseId"").ColumnName(""House[\""Id]Column"");
-                                ps.Property<int>(""Id"");
-                            })
-                    .Key(k => k.Properties(""Id"")
-                        .Annotation(""My\""PK\""Annotat!on"", ""\""Foo\"""")
-                        .KeyName(""My[\""PK]""))
-                    .TableName(""Cus[\""om.er]s"", ""dbo"");
                 
-                builder.Entity(""Ho!use[]"")
-                    .Properties(ps => ps.Property<int>(""Id""))
-                    .Key(""Id"");
+                builder.Entity(""Customer"", b =>
+                    {
+                        b.Property<int>(""HouseId"")
+                            .ColumnName(""House[\""Id]Column"");
+                        b.Property<int>(""Id"");
+                        b.Key(k => k.Properties(""Id"")
+                            .KeyName(""My[\""PK]"")
+                            .Annotation(""My\""PK\""Annotat!on"", ""\""Foo\""""));
+                        b.ForeignKeys(fks => fks.ForeignKey(""Ho!use[]"", ""HouseId"")
+                            .KeyName(""My_[\""FK]"")
+                            .Annotation(""My\""FK\""Annotation"", ""\""Bar\""""));
+                        b.TableName(""Cus[\""om.er]s"", ""dbo"");
+                    });
                 
-                builder.Entity(""Order"")
-                    .Properties(
-                        ps =>
-                            {
-                                ps.Property<int>(""CustomerId"");
-                                ps.Property<int>(""OrderId"");
-                            })
-                    .Key(""OrderId"")
-                    .TableName(""Ord[\""e.r]s"", ""dbo"")
-                    .Annotation(""Random annotation"", ""42"");
+                builder.Entity(""Ho!use[]"", b =>
+                    {
+                        b.Property<int>(""Id"");
+                        b.Key(""Id"");
+                    });
                 
-                builder.Entity(""Customer"")
-                    .ForeignKeys(fks => fks.ForeignKey(""Ho!use[]"", ""HouseId"")
-                        .KeyName(""My_[\""FK]"")
-                        .Annotation(""My\""FK\""Annotation"", ""\""Bar\""""));
-                
-                builder.Entity(""Order"")
-                    .ForeignKeys(fks => fks.ForeignKey(""Customer"", ""CustomerId""));
+                builder.Entity(""Order"", b =>
+                    {
+                        b.Property<int>(""CustomerId"");
+                        b.Property<int>(""OrderId"");
+                        b.Key(""OrderId"");
+                        b.ForeignKeys(fks => fks.ForeignKey(""Customer"", ""CustomerId""));
+                        b.TableName(""Ord[\""e.r]s"", ""dbo"");
+                        b.Annotation(""Random annotation"", ""42"");
+                    });
                 
                 return builder.Model;
             }
@@ -409,40 +413,36 @@ namespace MyNamespace
             get
             {
                 var builder = new ModelBuilder();
-                builder.Entity(""Customer"")
-                    .Properties(
-                        ps =>
-                            {
-                                ps.Property<int>(""HouseId"").ColumnName(""House[\""Id]Column"");
-                                ps.Property<int>(""Id"");
-                            })
-                    .Key(k => k.Properties(""Id"")
-                        .Annotation(""My\""PK\""Annotat!on"", ""\""Foo\"""")
-                        .KeyName(""My[\""PK]""))
-                    .TableName(""Cus[\""om.er]s"", ""dbo"");
                 
-                builder.Entity(""Ho!use[]"")
-                    .Properties(ps => ps.Property<int>(""Id""))
-                    .Key(""Id"");
+                builder.Entity(""Customer"", b =>
+                    {
+                        b.Property<int>(""HouseId"")
+                            .ColumnName(""House[\""Id]Column"");
+                        b.Property<int>(""Id"");
+                        b.Key(k => k.Properties(""Id"")
+                            .KeyName(""My[\""PK]"")
+                            .Annotation(""My\""PK\""Annotat!on"", ""\""Foo\""""));
+                        b.ForeignKeys(fks => fks.ForeignKey(""Ho!use[]"", ""HouseId"")
+                            .KeyName(""My_[\""FK]"")
+                            .Annotation(""My\""FK\""Annotation"", ""\""Bar\""""));
+                        b.TableName(""Cus[\""om.er]s"", ""dbo"");
+                    });
                 
-                builder.Entity(""Order"")
-                    .Properties(
-                        ps =>
-                            {
-                                ps.Property<int>(""CustomerId"");
-                                ps.Property<int>(""OrderId"");
-                            })
-                    .Key(""OrderId"")
-                    .TableName(""Ord[\""e.r]s"", ""dbo"")
-                    .Annotation(""Random annotation"", ""42"");
+                builder.Entity(""Ho!use[]"", b =>
+                    {
+                        b.Property<int>(""Id"");
+                        b.Key(""Id"");
+                    });
                 
-                builder.Entity(""Customer"")
-                    .ForeignKeys(fks => fks.ForeignKey(""Ho!use[]"", ""HouseId"")
-                        .KeyName(""My_[\""FK]"")
-                        .Annotation(""My\""FK\""Annotation"", ""\""Bar\""""));
-                
-                builder.Entity(""Order"")
-                    .ForeignKeys(fks => fks.ForeignKey(""Customer"", ""CustomerId""));
+                builder.Entity(""Order"", b =>
+                    {
+                        b.Property<int>(""CustomerId"");
+                        b.Property<int>(""OrderId"");
+                        b.Key(""OrderId"");
+                        b.ForeignKeys(fks => fks.ForeignKey(""Customer"", ""CustomerId""));
+                        b.TableName(""Ord[\""e.r]s"", ""dbo"");
+                        b.Annotation(""Random annotation"", ""42"");
+                    });
                 
                 return builder.Model;
             }
@@ -536,53 +536,46 @@ namespace MyNamespace
             get
             {
                 var builder = new ModelBuilder();
-                builder.Entity(""EntityWithNamedKey"")
-                    .Properties(
-                        ps =>
-                            {
-                                ps.Property<int>(""Foo"");
-                                ps.Property<int>(""Id"");
-                            })
-                    .Key(k => k.Properties(""Id"", ""Foo"")
-                        .KeyName(""MyPK2""));
                 
-                builder.Entity(""EntityWithNamedKeyAndAnnotations"")
-                    .Properties(
-                        ps =>
-                            {
-                                ps.Property<int>(""Foo"")
-                                    .Annotation(""Foo_Annotation"", ""Foo"");
-                                ps.Property<int>(""Id"")
-                                    .Annotation(""Id_Annotation1"", ""Id1"")
-                                    .Annotation(""Id_Annotation2"", ""Id2"");
-                            })
-                    .Key(k => k.Properties(""Id"", ""Foo"")
-                        .Annotation(""KeyAnnotation1"", ""Key1"")
-                        .Annotation(""KeyAnnotation2"", ""Key2"")
-                        .KeyName(""MyPK1""));
+                builder.Entity(""EntityWithNamedKey"", b =>
+                    {
+                        b.Property<int>(""Foo"");
+                        b.Property<int>(""Id"");
+                        b.Key(k => k.Properties(""Id"", ""Foo"")
+                            .KeyName(""MyPK2""));
+                    });
                 
-                builder.Entity(""EntityWithUnnamedKey"")
-                    .Properties(
-                        ps =>
-                            {
-                                ps.Property<int>(""Foo"");
-                                ps.Property<int>(""Id"");
-                            })
-                    .Key(""Id"", ""Foo"");
+                builder.Entity(""EntityWithNamedKeyAndAnnotations"", b =>
+                    {
+                        b.Property<int>(""Foo"")
+                            .Annotation(""Foo_Annotation"", ""Foo"");
+                        b.Property<int>(""Id"")
+                            .Annotation(""Id_Annotation1"", ""Id1"")
+                            .Annotation(""Id_Annotation2"", ""Id2"");
+                        b.Key(k => k.Properties(""Id"", ""Foo"")
+                            .KeyName(""MyPK1"")
+                            .Annotation(""KeyAnnotation1"", ""Key1"")
+                            .Annotation(""KeyAnnotation2"", ""Key2""));
+                    });
                 
-                builder.Entity(""EntityWithUnnamedKeyAndAnnotations"")
-                    .Properties(
-                        ps =>
-                            {
-                                ps.Property<int>(""Foo"")
-                                    .Annotation(""Foo_Annotation"", ""Foo"");
-                                ps.Property<int>(""Id"")
-                                    .Annotation(""Id_Annotation1"", ""Id1"")
-                                    .Annotation(""Id_Annotation2"", ""Id2"");
-                            })
-                    .Key(k => k.Properties(""Id"", ""Foo"")
-                        .Annotation(""KeyAnnotation1"", ""Key1"")
-                        .Annotation(""KeyAnnotation2"", ""Key2""));
+                builder.Entity(""EntityWithUnnamedKey"", b =>
+                    {
+                        b.Property<int>(""Foo"");
+                        b.Property<int>(""Id"");
+                        b.Key(""Id"", ""Foo"");
+                    });
+                
+                builder.Entity(""EntityWithUnnamedKeyAndAnnotations"", b =>
+                    {
+                        b.Property<int>(""Foo"")
+                            .Annotation(""Foo_Annotation"", ""Foo"");
+                        b.Property<int>(""Id"")
+                            .Annotation(""Id_Annotation1"", ""Id1"")
+                            .Annotation(""Id_Annotation2"", ""Id2"");
+                        b.Key(k => k.Properties(""Id"", ""Foo"")
+                            .Annotation(""KeyAnnotation1"", ""Key1"")
+                            .Annotation(""KeyAnnotation2"", ""Key2""));
+                    });
                 
                 return builder.Model;
             }
@@ -610,53 +603,46 @@ namespace MyNamespace
             get
             {
                 var builder = new ModelBuilder();
-                builder.Entity(""EntityWithNamedKey"")
-                    .Properties(
-                        ps =>
-                            {
-                                ps.Property<int>(""Foo"");
-                                ps.Property<int>(""Id"");
-                            })
-                    .Key(k => k.Properties(""Id"", ""Foo"")
-                        .KeyName(""MyPK2""));
                 
-                builder.Entity(""EntityWithNamedKeyAndAnnotations"")
-                    .Properties(
-                        ps =>
-                            {
-                                ps.Property<int>(""Foo"")
-                                    .Annotation(""Foo_Annotation"", ""Foo"");
-                                ps.Property<int>(""Id"")
-                                    .Annotation(""Id_Annotation1"", ""Id1"")
-                                    .Annotation(""Id_Annotation2"", ""Id2"");
-                            })
-                    .Key(k => k.Properties(""Id"", ""Foo"")
-                        .Annotation(""KeyAnnotation1"", ""Key1"")
-                        .Annotation(""KeyAnnotation2"", ""Key2"")
-                        .KeyName(""MyPK1""));
+                builder.Entity(""EntityWithNamedKey"", b =>
+                    {
+                        b.Property<int>(""Foo"");
+                        b.Property<int>(""Id"");
+                        b.Key(k => k.Properties(""Id"", ""Foo"")
+                            .KeyName(""MyPK2""));
+                    });
                 
-                builder.Entity(""EntityWithUnnamedKey"")
-                    .Properties(
-                        ps =>
-                            {
-                                ps.Property<int>(""Foo"");
-                                ps.Property<int>(""Id"");
-                            })
-                    .Key(""Id"", ""Foo"");
+                builder.Entity(""EntityWithNamedKeyAndAnnotations"", b =>
+                    {
+                        b.Property<int>(""Foo"")
+                            .Annotation(""Foo_Annotation"", ""Foo"");
+                        b.Property<int>(""Id"")
+                            .Annotation(""Id_Annotation1"", ""Id1"")
+                            .Annotation(""Id_Annotation2"", ""Id2"");
+                        b.Key(k => k.Properties(""Id"", ""Foo"")
+                            .KeyName(""MyPK1"")
+                            .Annotation(""KeyAnnotation1"", ""Key1"")
+                            .Annotation(""KeyAnnotation2"", ""Key2""));
+                    });
                 
-                builder.Entity(""EntityWithUnnamedKeyAndAnnotations"")
-                    .Properties(
-                        ps =>
-                            {
-                                ps.Property<int>(""Foo"")
-                                    .Annotation(""Foo_Annotation"", ""Foo"");
-                                ps.Property<int>(""Id"")
-                                    .Annotation(""Id_Annotation1"", ""Id1"")
-                                    .Annotation(""Id_Annotation2"", ""Id2"");
-                            })
-                    .Key(k => k.Properties(""Id"", ""Foo"")
-                        .Annotation(""KeyAnnotation1"", ""Key1"")
-                        .Annotation(""KeyAnnotation2"", ""Key2""));
+                builder.Entity(""EntityWithUnnamedKey"", b =>
+                    {
+                        b.Property<int>(""Foo"");
+                        b.Property<int>(""Id"");
+                        b.Key(""Id"", ""Foo"");
+                    });
+                
+                builder.Entity(""EntityWithUnnamedKeyAndAnnotations"", b =>
+                    {
+                        b.Property<int>(""Foo"")
+                            .Annotation(""Foo_Annotation"", ""Foo"");
+                        b.Property<int>(""Id"")
+                            .Annotation(""Id_Annotation1"", ""Id1"")
+                            .Annotation(""Id_Annotation2"", ""Id2"");
+                        b.Key(k => k.Properties(""Id"", ""Foo"")
+                            .Annotation(""KeyAnnotation1"", ""Key1"")
+                            .Annotation(""KeyAnnotation2"", ""Key2""));
+                    });
                 
                 return builder.Model;
             }

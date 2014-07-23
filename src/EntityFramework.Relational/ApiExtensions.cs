@@ -53,8 +53,8 @@ namespace Microsoft.Data.Entity.Metadata
             return entityBuilder;
         }
 
-        public static ModelBuilder.EntityBuilderBase<TEntityBuilder>.PropertiesBuilder.PropertyBuilder ColumnName<TEntityBuilder>(
-            [NotNull] this ModelBuilder.EntityBuilderBase<TEntityBuilder>.PropertiesBuilder.PropertyBuilder propertyBuilder,
+        public static ModelBuilder.EntityBuilderBase<TEntityBuilder>.PropertyBuilder ColumnName<TEntityBuilder>(
+            [NotNull] this ModelBuilder.EntityBuilderBase<TEntityBuilder>.PropertyBuilder propertyBuilder,
             [NotNull] string columnName)
             where TEntityBuilder : ModelBuilder.EntityBuilderBase<TEntityBuilder>
         {
@@ -66,8 +66,8 @@ namespace Microsoft.Data.Entity.Metadata
             return propertyBuilder;
         }
 
-        public static ModelBuilder.EntityBuilderBase<TEntityBuilder>.PropertiesBuilder.PropertyBuilder ColumnType<TEntityBuilder>(
-            [NotNull] this ModelBuilder.EntityBuilderBase<TEntityBuilder>.PropertiesBuilder.PropertyBuilder propertyBuilder,
+        public static ModelBuilder.EntityBuilderBase<TEntityBuilder>.PropertyBuilder ColumnType<TEntityBuilder>(
+            [NotNull] this ModelBuilder.EntityBuilderBase<TEntityBuilder>.PropertyBuilder propertyBuilder,
             [NotNull] string typeName)
             where TEntityBuilder : ModelBuilder.EntityBuilderBase<TEntityBuilder>
         {
@@ -79,8 +79,8 @@ namespace Microsoft.Data.Entity.Metadata
             return propertyBuilder;
         }
 
-        public static ModelBuilder.EntityBuilderBase<TEntityBuilder>.PropertiesBuilder.PropertyBuilder ColumnDefaultSql<TEntityBuilder>(
-            [NotNull] this ModelBuilder.EntityBuilderBase<TEntityBuilder>.PropertiesBuilder.PropertyBuilder propertyBuilder,
+        public static ModelBuilder.EntityBuilderBase<TEntityBuilder>.PropertyBuilder ColumnDefaultSql<TEntityBuilder>(
+            [NotNull] this ModelBuilder.EntityBuilderBase<TEntityBuilder>.PropertyBuilder propertyBuilder,
             [NotNull] string columnDefaultSql)
             where TEntityBuilder : ModelBuilder.EntityBuilderBase<TEntityBuilder>
         {

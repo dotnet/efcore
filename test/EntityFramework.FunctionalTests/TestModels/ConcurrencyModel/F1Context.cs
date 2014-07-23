@@ -29,16 +29,12 @@ namespace ConcurrencyModel
             //builder.ComplexType<Location>();
             modelBuilder
                 .Entity<Chassis>()
-                .Key(c => c.TeamId)
-                .Properties(ps =>
-                    {
-                    });
+                .Key(c => c.TeamId);
             
             modelBuilder
-                .Entity<Driver>()
-                .Key(d => d.Id)
-                .Properties(ps =>
+                .Entity<Driver>(ps =>
                     {
+                        ps.Key(d => d.Id);
                         ps.Property(d => d.CarNumber);
                         ps.Property(d => d.Championships);
                         ps.Property(d => d.FastestLaps);
@@ -52,23 +48,20 @@ namespace ConcurrencyModel
 
             modelBuilder
                 .Entity<Engine>()
-                .Key(e => e.Id)
-                .Properties(ps =>
-                    {
-                        // TODO: Complex type
-                        //ps.Property(c => c.StorageLocation);
-                    });
+                .Key(e => e.Id);
 
+            // TODO: Complex type
+            // .Property(c => c.StorageLocation);
+                    
             modelBuilder
                 .Entity<EngineSupplier>()
                 .Key(e => e.Id)
-                .Properties(ps => ps.Property(e => e.Name));
+                .Property(e => e.Name);
 
             modelBuilder
-                .Entity<Gearbox>()
-                .Key(g => g.Id)
-                .Properties(ps =>
+                .Entity<Gearbox>(ps =>
                     {
+                        ps.Key(g => g.Id);
                         ps.Property(g => g.Name);
                         ps.Property<int>("EngineId", shadowProperty: true);
                     });
@@ -87,10 +80,7 @@ namespace ConcurrencyModel
             modelBuilder
                 .Entity<Sponsor>()
                 .Key(s => s.Id)
-                .Properties(ps =>
-                    {
-                        ps.Property(s => s.Name);
-                    });
+                .Property(s => s.Name);
 
             // TODO: Complex type
             //builder
@@ -102,10 +92,9 @@ namespace ConcurrencyModel
             //        });
 
             modelBuilder
-                .Entity<Team>()
-                .Key(t => t.Id)
-                .Properties(ps =>
+                .Entity<Team>(ps =>
                     {
+                        ps.Key(t => t.Id);
                         ps.Property(t => t.Constructor);
                         ps.Property(t => t.ConstructorsChampionships);
                         ps.Property(t => t.DriversChampionships);
@@ -125,12 +114,9 @@ namespace ConcurrencyModel
                 .Key(t => t.Id);
 
             modelBuilder
-                .Entity<TitleSponsor>()
-                .Properties(ps =>
-                {
-                    // TODO: Complex type
-                    //ps.Property(t => t.Details);
-                });
+                .Entity<TitleSponsor>();
+            // TODO: Complex type
+            // .Property(t => t.Details);
             
             var chassisType = model.GetEntityType(typeof(Chassis));
             var driverType = model.GetEntityType(typeof(Driver));

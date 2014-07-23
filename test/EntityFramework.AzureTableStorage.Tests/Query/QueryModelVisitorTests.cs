@@ -103,19 +103,16 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
             var model = new Model();
             var builder = new ModelBuilder(model);
 
-            builder.Entity<Branch>()
-                .Key(s => s.ID)
-                .Properties(pb =>
-                    {
-                        pb.Property(s => s.RootID);
-                        pb.Property(s => s.SHA1);
-                    })
-                ;
+            builder.Entity<Branch>(pb =>
+                {
+                    pb.Key(s => s.ID);
+                    pb.Property(s => s.RootID);
+                    pb.Property(s => s.SHA1);
+                });
 
             builder.Entity<Root>()
                 .Key(s => s.ID)
-                .Properties(pb => { pb.Property(s => s.SHA1); })
-                ;
+                .Property(s => s.SHA1);
 
             var rootType = model.GetEntityType(typeof(Root));
             var branchType = model.GetEntityType(typeof(Branch));

@@ -13,57 +13,50 @@ namespace Microsoft.Data.Entity.FunctionalTests
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
 
-            modelBuilder
-                .Entity<Customer>()
-                .Key(c => c.CustomerID)
-                .Properties(ps =>
-                    {
-                        ps.Property(c => c.CompanyName);
-                        ps.Property(c => c.ContactName);
-                        ps.Property(c => c.ContactTitle);
-                        ps.Property(c => c.Address);
-                        ps.Property(c => c.City);
-                        ps.Property(c => c.Region);
-                        ps.Property(c => c.PostalCode);
-                        ps.Property(c => c.Country);
-                        ps.Property(c => c.Phone);
-                        ps.Property(c => c.Fax);
-                    });
+            modelBuilder.Entity<Customer>(b =>
+                {
+                    b.Key(c => c.CustomerID);
+                    b.Property(c => c.CompanyName);
+                    b.Property(c => c.ContactName);
+                    b.Property(c => c.ContactTitle);
+                    b.Property(c => c.Address);
+                    b.Property(c => c.City);
+                    b.Property(c => c.Region);
+                    b.Property(c => c.PostalCode);
+                    b.Property(c => c.Country);
+                    b.Property(c => c.Phone);
+                    b.Property(c => c.Fax);
+                });
 
-            modelBuilder
-                .Entity<Employee>()
-                .Key(e => e.EmployeeID)
-                .Properties(ps =>
-                    {
-                        ps.Property(e => e.City);
-                        ps.Property(e => e.Country);
-                        ps.Property(e => e.FirstName);
-                        ps.Property(e => e.ReportsTo);
-                    });
+            modelBuilder.Entity<Employee>(b =>
+                {
+                    b.Key(e => e.EmployeeID);
+                    b.Property(e => e.City);
+                    b.Property(e => e.Country);
+                    b.Property(e => e.FirstName);
+                    b.Property(e => e.ReportsTo);
+                });
 
-            modelBuilder
-                .Entity<Product>()
-                .Key(e => e.ProductID)
-                .Properties(ps => ps.Property(c => c.ProductName));
+            modelBuilder.Entity<Product>(b =>
+                {
+                    b.Key(e => e.ProductID);
+                    b.Property(c => c.ProductName);
+                });
 
-            modelBuilder
-                .Entity<Order>()
-                .Key(o => o.OrderID)
-                .Properties(ps =>
-                    {
-                        ps.Property(o => o.CustomerID);
-                        ps.Property(o => o.OrderDate);
-                    });
+            modelBuilder.Entity<Order>(ps =>
+                {
+                    ps.Key(o => o.OrderID);
+                    ps.Property(o => o.CustomerID);
+                    ps.Property(o => o.OrderDate);
+                });
 
-            modelBuilder
-                .Entity<OrderDetail>()
-                .Key(od => new { od.OrderID, od.ProductID })
-                .Properties(ps =>
-                    {
-                        ps.Property(od => od.UnitPrice);
-                        ps.Property(od => od.Quantity);
-                        ps.Property(od => od.Discount);
-                    });
+            modelBuilder.Entity<OrderDetail>(b =>
+                {
+                    b.Key(od => new { od.OrderID, od.ProductID });
+                    b.Property(od => od.UnitPrice);
+                    b.Property(od => od.Quantity);
+                    b.Property(od => od.Discount);
+                });
 
             // TODO: Use FAPIS when avail.
             var productType = model.GetEntityType(typeof(Product));

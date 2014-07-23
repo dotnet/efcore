@@ -29,6 +29,7 @@ namespace Microsoft.Data.Entity.Design
             Check.NotNull(model, "model");
             Check.NotNull(stringBuilder, "stringBuilder");
 
+            // TODO: Consider namespace ordering, for example putting System namespaces first
             foreach (var ns in GetNamespaces(model).OrderBy(n => n).Distinct())
             {
                 stringBuilder
@@ -91,118 +92,70 @@ namespace Microsoft.Data.Entity.Design
                 GenerateAnnotations(model.Annotations.ToArray(), stringBuilder);
             }
 
-            stringBuilder.Append(";");
+            stringBuilder.AppendLine(";");
 
             GenerateEntityTypes(model.EntityTypes, stringBuilder);
 
-            stringBuilder.AppendLine().Append("return builder.Model;");
+            stringBuilder
+                .AppendLine()
+                .Append("return builder.Model;");
         }
 
         protected virtual void GenerateEntityTypes(
             IReadOnlyList<IEntityType> entityTypes, IndentedStringBuilder stringBuilder)
         {
-            if (!entityTypes.Any())
-            {
-                return;
-            }
-
             foreach (var entityType in entityTypes)
             {
-                stringBuilder.AppendLine().Append("builder");
+                stringBuilder.AppendLine();
 
                 GenerateEntityType(entityType, stringBuilder);
-
-                stringBuilder.Append(";");
-                stringBuilder.AppendLine();
-            }
-
-            foreach (var entityType in entityTypes.Where(entityType => entityType.ForeignKeys.Count > 0))
-            {
-                var foreignKeys = entityType.ForeignKeys;
-
-                if (foreignKeys.Any())
-                {
-                    stringBuilder.AppendLine().Append("builder");
-
-                    GenerateSimpleEntityType(entityType, stringBuilder);
-
-                    using (stringBuilder.Indent())
-                    {
-                        GenerateForeignKeys(foreignKeys, stringBuilder);
-                    }
-
-                    stringBuilder.Append(";");
-                    stringBuilder.AppendLine();
-                }
             }
         }
 
         protected virtual void GenerateEntityType(
             [NotNull] IEntityType entityType, [NotNull] IndentedStringBuilder stringBuilder)
         {
-            GenerateSimpleEntityType(entityType, stringBuilder);
+            stringBuilder
+                .Append("builder.Entity(")
+                .Append(DelimitString(entityType.Name))
+                .AppendLine(", b =>");
 
             using (stringBuilder.Indent())
             {
-                GenerateProperties(entityType.Properties, stringBuilder);
+                stringBuilder.Append("{");
 
-                GenerateKey(entityType.GetKey(), stringBuilder);
+                using (stringBuilder.Indent())
+                {
+                    GenerateProperties(entityType.Properties, stringBuilder);
 
-                GenerateEntityTypeAnnotations(entityType, stringBuilder);
+                    GenerateKey(entityType.GetKey(), stringBuilder);
+
+                    GenerateForeignKeys(entityType.ForeignKeys, stringBuilder);
+
+                    GenerateEntityTypeAnnotations(entityType, stringBuilder);
+                }
+
+                stringBuilder
+                    .AppendLine()
+                    .AppendLine("});");
             }
         }
 
         protected virtual void GenerateProperties(
             [NotNull] IReadOnlyList<IProperty> properties, [NotNull] IndentedStringBuilder stringBuilder)
         {
-            if (!properties.Any())
+            foreach (var property in properties)
             {
-                return;
+                GenerateProperty(property, stringBuilder);
             }
-
-            stringBuilder.AppendLine().Append(".Properties(");
-
-            if (properties.Count == 1)
-            {
-                stringBuilder.Append("ps => ");
-
-                GenerateProperty(properties[0], stringBuilder);
-
-                stringBuilder.Append(")");
-
-                return;
-            }
-
-            using (stringBuilder.AppendLine().Indent())
-            {
-                stringBuilder.AppendLine("ps =>");
-
-                using (stringBuilder.Indent())
-                {
-                    stringBuilder.AppendLine("{");
-
-                    using (stringBuilder.Indent())
-                    {
-                        foreach (var property in properties)
-                        {
-                            GenerateProperty(property, stringBuilder);
-
-                            stringBuilder.AppendLine(";");
-                        }
-                    }
-
-                    stringBuilder.Append("}");
-                }
-            }
-
-            stringBuilder.Append(")");
         }
 
         protected virtual void GenerateProperty(
             [NotNull] IProperty property, [NotNull] IndentedStringBuilder stringBuilder)
         {
             stringBuilder
-                .Append("ps.Property<")
+                .AppendLine()
+                .Append("b.Property<")
                 .Append(property.PropertyType.GetTypeName())
                 .Append(">(")
                 .Append(DelimitString(property.Name));
@@ -220,23 +173,25 @@ namespace Microsoft.Data.Entity.Design
             stringBuilder.Append(")");
 
             GeneratePropertyAnnotations(property, stringBuilder);
+
+            stringBuilder.Append(";");
         }
 
         protected virtual void GeneratePropertyAnnotations([NotNull] IProperty property, [NotNull] IndentedStringBuilder stringBuilder)
         {
-            var columnName = property[ColumnNameAnnotationName];
-            if (columnName != null)
-            {
-                stringBuilder
-                    .Append(".ColumnName(")
-                    .Append(DelimitString(columnName))
-                    .Append(")");
-            }
-
-            var scaffoldableAnnotations = property.Annotations.Where(a => a.Name != ColumnNameAnnotationName).ToArray();
             using (stringBuilder.Indent())
             {
-                GenerateAnnotations(scaffoldableAnnotations, stringBuilder);
+                var columnName = property[ColumnNameAnnotationName];
+                if (columnName != null)
+                {
+                    stringBuilder
+                        .AppendLine()
+                        .Append(".ColumnName(")
+                        .Append(DelimitString(columnName))
+                        .Append(")");
+                }
+
+                GenerateAnnotations(property.Annotations.Where(a => a.Name != ColumnNameAnnotationName).ToArray(), stringBuilder);
             }
         }
 
@@ -252,20 +207,11 @@ namespace Microsoft.Data.Entity.Design
             {
                 stringBuilder
                     .AppendLine()
-                    .Append(".Key(k => k.Properties(")
+                    .Append("b.Key(k => k.Properties(")
                     .Append(key.Properties.Select(p => DelimitString(p.Name)).Join())
                     .Append(")");
 
                 var keyName = key[KeyNameAnnotationName];
-                var scaffoldableAnnotations = key.Annotations.Where(a => a.Name != KeyNameAnnotationName);
-                if (scaffoldableAnnotations.Any())
-                {
-                    using (stringBuilder.Indent())
-                    {
-                        GenerateAnnotations(scaffoldableAnnotations.ToArray(), stringBuilder);
-                    }
-                }
-
                 if (keyName != null)
                 {
                     using (stringBuilder.Indent())
@@ -278,38 +224,58 @@ namespace Microsoft.Data.Entity.Design
                     }
                 }
 
-                stringBuilder.Append(")");
+                using (stringBuilder.Indent())
+                {
+                    GenerateAnnotations(key.Annotations.Where(a => a.Name != KeyNameAnnotationName).ToArray(), stringBuilder);
+                }
+
+                stringBuilder.Append(");");
             }
             else
             {
                 stringBuilder
                     .AppendLine()
-                    .Append(".Key(")
+                    .Append("b.Key(")
                     .Append(key.Properties.Select(p => DelimitString(p.Name)).Join())
-                    .Append(")");
+                    .Append(");");
             }
         }
 
         protected virtual void GenerateEntityTypeAnnotations([NotNull] IEntityType entityType, [NotNull] IndentedStringBuilder stringBuilder)
         {
             var tableName = entityType[TableNameAnnotationName];
-            var schema = entityType[SchemaAnnotationName];
             if (!string.IsNullOrEmpty(tableName))
             {
-                stringBuilder.AppendLine();
-                stringBuilder.Append(".TableName(");
-                stringBuilder.Append(DelimitString(tableName));
+                stringBuilder
+                    .AppendLine()
+                    .Append("b.TableName(")
+                    .Append(DelimitString(tableName));
+
+                var schema = entityType[SchemaAnnotationName];
                 if (!string.IsNullOrEmpty(schema))
                 {
-                    stringBuilder.Append(", ");
-                    stringBuilder.Append(DelimitString(schema));
+                    stringBuilder
+                        .Append(", ")
+                        .Append(DelimitString(schema));
                 }
 
-                stringBuilder.Append(")");
+                stringBuilder.Append(");");
             }
 
-            var scaffoldableAnnotations = entityType.Annotations.Where(a => a.Name != TableNameAnnotationName && a.Name != SchemaAnnotationName).ToArray();
-            GenerateAnnotations(scaffoldableAnnotations, stringBuilder);
+            var annotations = entityType.Annotations.Where(a => a.Name != TableNameAnnotationName && a.Name != SchemaAnnotationName).ToArray();
+            if (annotations.Any())
+            {
+                foreach (var annotation in annotations)
+                {
+                    stringBuilder
+                        .AppendLine()
+                        .Append("b");
+
+                    GenerateAnnotation(annotation, stringBuilder);
+
+                    stringBuilder.Append(";");
+                }
+            }
         }
 
         protected virtual void GenerateForeignKeys(
@@ -320,26 +286,21 @@ namespace Microsoft.Data.Entity.Design
                 return;
             }
 
-            stringBuilder.AppendLine().Append(".ForeignKeys(");
+            stringBuilder
+                .AppendLine()
+                .Append("b.ForeignKeys(fks => ");
 
             if (foreignKeys.Count == 1)
             {
-                stringBuilder.Append("fks => ");
-
                 GenerateForeignKey(foreignKeys[0], stringBuilder);
-
-                stringBuilder.Append(")");
-
-                return;
             }
-
-            using (stringBuilder.AppendLine().Indent())
+            else
             {
-                stringBuilder.AppendLine("fks =>");
-
                 using (stringBuilder.Indent())
                 {
-                    stringBuilder.AppendLine("{");
+                    stringBuilder
+                        .AppendLine()
+                        .AppendLine("{");
 
                     using (stringBuilder.Indent())
                     {
@@ -355,7 +316,7 @@ namespace Microsoft.Data.Entity.Design
                 }
             }
 
-            stringBuilder.Append(")");
+            stringBuilder.Append(");");
         }
 
         protected virtual void GenerateForeignKey(
@@ -386,21 +347,15 @@ namespace Microsoft.Data.Entity.Design
                 }
             }
 
-            var scaffoldableAnnotations = foreignKey.Annotations.Where(a => a.Name != KeyNameAnnotationName).ToArray();
             using (stringBuilder.Indent())
             {
-                GenerateAnnotations(scaffoldableAnnotations, stringBuilder);
+                GenerateAnnotations(foreignKey.Annotations.Where(a => a.Name != KeyNameAnnotationName).ToArray(), stringBuilder);
             }
         }
 
         protected virtual void GenerateAnnotations(
             [NotNull] IReadOnlyList<IAnnotation> annotations, [NotNull] IndentedStringBuilder stringBuilder)
         {
-            if (!annotations.Any())
-            {
-                return;
-            }
-
             foreach (var annotation in annotations)
             {
                 stringBuilder.AppendLine();
@@ -417,15 +372,6 @@ namespace Microsoft.Data.Entity.Design
                 .Append(DelimitString(annotation.Name))
                 .Append(", ")
                 .Append(DelimitString(annotation.Value))
-                .Append(")");
-        }
-
-        protected virtual void GenerateSimpleEntityType(
-            [NotNull] IEntityType entityType, [NotNull] IndentedStringBuilder stringBuilder)
-        {
-            stringBuilder
-                .Append(".Entity(")
-                .Append(DelimitString(entityType.Name))
                 .Append(")");
         }
 

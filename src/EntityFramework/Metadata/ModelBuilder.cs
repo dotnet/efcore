@@ -35,20 +35,34 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotEmpty(name, "name");
 
-            var entityType = GetEntity(name);
-
-            return new EntityBuilder(entityType, this);
+            return new EntityBuilder(GetOrAddEntity(name), this);
         }
 
         public virtual EntityBuilder<T> Entity<T>()
         {
-            var type = typeof(T);
-            var entityType = GetEntity(type);
-
-            return new EntityBuilder<T>(entityType, this);
+            return new EntityBuilder<T>(GetOrAddEntity(typeof(T)), this);
         }
 
-        internal EntityType GetEntity(string name)
+        public virtual ModelBuilder Entity([NotNull] string name, [NotNull] Action<EntityBuilder> entityBuilder)
+        {
+            Check.NotEmpty(name, "name");
+            Check.NotNull(entityBuilder, "entityBuilder");
+
+            entityBuilder(Entity(name));
+
+            return this;
+        }
+
+        public virtual ModelBuilder Entity<T>([NotNull] Action<EntityBuilder<T>> entityBuilder)
+        {
+            Check.NotNull(entityBuilder, "entityBuilder");
+
+            entityBuilder(Entity<T>());
+
+            return this;
+        }
+
+        internal EntityType GetOrAddEntity(string name)
         {
             var entityType = _model.TryGetEntityType(name);
 
@@ -61,7 +75,7 @@ namespace Microsoft.Data.Entity.Metadata
             return entityType;
         }
 
-        internal EntityType GetEntity(Type type)
+        internal EntityType GetOrAddEntity(Type type)
         {
             var entityType = _model.TryGetEntityType(type);
 
@@ -183,68 +197,44 @@ namespace Microsoft.Data.Entity.Metadata
                 }
             }
 
-            public EntityBuilderBase<TMetadataBuilder> Properties([NotNull] Action<PropertiesBuilder> propertiesBuilder)
+            public virtual PropertyBuilder Property<TProperty>(
+                [NotNull] string name, bool shadowProperty = false, bool concurrencyToken = false)
             {
-                Check.NotNull(propertiesBuilder, "propertiesBuilder");
+                Check.NotEmpty(name, "name");
 
-                propertiesBuilder(new PropertiesBuilder(Metadata));
+                var property
+                    = Metadata.TryGetProperty(name)
+                      ?? Metadata.AddProperty(name, typeof(TProperty), shadowProperty, concurrencyToken);
 
-                return this;
+                return new PropertyBuilder(property);
             }
 
-            public class PropertiesBuilder
+            public class PropertyBuilder : MetadataBuilder<Property, PropertyBuilder>
             {
-                private readonly EntityType _entityType;
-
-                internal PropertiesBuilder(EntityType entityType)
+                internal PropertyBuilder(Property property)
+                    : base(property)
                 {
-                    _entityType = entityType;
                 }
 
-                protected EntityType EntityType
+                // TODO Consider if this should be relational only
+                public PropertyBuilder UseStoreSequence()
                 {
-                    get { return _entityType; }
+                    Metadata.ValueGenerationOnAdd = ValueGenerationOnAdd.Server;
+                    Metadata.ValueGenerationOnSave = ValueGenerationOnSave.None;
+
+                    return this;
                 }
 
-                public virtual PropertyBuilder Property<TProperty>(
-                    [NotNull] string name, bool shadowProperty = false, bool concurrencyToken = false)
+                // TODO Consider if this should be relational only
+                public PropertyBuilder UseStoreSequence([NotNull] string sequenceName, int blockSize)
                 {
-                    Check.NotEmpty(name, "name");
+                    Check.NotEmpty(sequenceName, "sequenceName");
 
-                    var property
-                        = _entityType.TryGetProperty(name)
-                          ?? _entityType.AddProperty(name, typeof(TProperty), shadowProperty, concurrencyToken);
+                    // TODO: Make these constants in some class once decided if this should be relational-only
+                    Metadata["StoreSequenceName"] = sequenceName;
+                    Metadata["StoreSequenceBlockSize"] = blockSize.ToString();
 
-                    return new PropertyBuilder(property);
-                }
-
-                public class PropertyBuilder : MetadataBuilder<Property, PropertyBuilder>
-                {
-                    internal PropertyBuilder(Property property)
-                        : base(property)
-                    {
-                    }
-
-                    // TODO Consider if this should be relational only
-                    public PropertyBuilder UseStoreSequence()
-                    {
-                        Metadata.ValueGenerationOnAdd = ValueGenerationOnAdd.Server;
-                        Metadata.ValueGenerationOnSave = ValueGenerationOnSave.None;
-
-                        return this;
-                    }
-
-                    // TODO Consider if this should be relational only
-                    public PropertyBuilder UseStoreSequence([NotNull] string sequenceName, int blockSize)
-                    {
-                        Check.NotEmpty(sequenceName, "sequenceName");
-
-                        // TODO: Make these constants in some class once decided if this should be relational-only
-                        Metadata["StoreSequenceName"] = sequenceName;
-                        Metadata["StoreSequenceBlockSize"] = blockSize.ToString();
-
-                        return UseStoreSequence();
-                    }
+                    return UseStoreSequence();
                 }
             }
 
@@ -410,32 +400,15 @@ namespace Microsoft.Data.Entity.Metadata
                 }
             }
 
-            public EntityBuilder<TEntity> Properties([NotNull] Action<PropertiesBuilder> propertiesBuilder)
+            public virtual PropertyBuilder Property([NotNull] Expression<Func<TEntity, object>> propertyExpression)
             {
-                Check.NotNull(propertiesBuilder, "propertiesBuilder");
+                var propertyInfo = propertyExpression.GetPropertyAccess();
 
-                propertiesBuilder(new PropertiesBuilder(Metadata));
+                var property
+                    = Metadata.TryGetProperty(propertyInfo.Name)
+                      ?? Metadata.AddProperty(propertyInfo);
 
-                return this;
-            }
-
-            public new class PropertiesBuilder : EntityBuilderBase<EntityBuilder<TEntity>>.PropertiesBuilder
-            {
-                internal PropertiesBuilder(EntityType entityType)
-                    : base(entityType)
-                {
-                }
-
-                public virtual PropertyBuilder Property([NotNull] Expression<Func<TEntity, object>> propertyExpression)
-                {
-                    var propertyInfo = propertyExpression.GetPropertyAccess();
-
-                    var property
-                        = EntityType.TryGetProperty(propertyInfo.Name)
-                          ?? EntityType.AddProperty(propertyInfo);
-
-                    return new PropertyBuilder(property);
-                }
+                return new PropertyBuilder(property);
             }
 
             public EntityBuilder<TEntity> ForeignKeys([NotNull] Action<ForeignKeysBuilder> foreignKeysBuilder)

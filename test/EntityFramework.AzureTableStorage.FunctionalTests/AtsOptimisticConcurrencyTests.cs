@@ -67,51 +67,87 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
 
         private static IModel AddAtsMetadata(ModelBuilder builder, string tableSuffix)
         {
-            builder.Entity<Chassis>()
-                .PartitionAndRowKey(c => c.Name, c => c.TeamId)
-                .Key(c => c.TeamId)
-                .Properties(pb => pb.Property<Chassis>("ETag", true))
-                .TableName("Chassis" + tableSuffix);
-            builder.Entity<Team>()
-                .PartitionAndRowKey(c => c.Name, c => c.Id)
-                .Key(c => c.Id)
-                .Properties(pb => pb.Property<Team>("ETag", true))
-                .TableName("Teams" + tableSuffix);
-            builder.Entity<Driver>()
-                .PartitionAndRowKey(c => c.Name, c => c.Id)
-                .Key(c => c.Id)
-                .Properties(pb => pb.Property<Driver>("ETag", true))
-                .TableName("Drivers" + tableSuffix);
-            builder.Entity<Engine>()
-                .PartitionAndRowKey(c => c.Name, c => c.Id)
-                .Key(c => c.Id)
-                .Properties(pb => pb.Property<Engine>("ETag", true))
-                .TableName("Engines" + tableSuffix);
-            builder.Entity<EngineSupplier>()
-                .PartitionAndRowKey(c => c.Name, c => c.Id)
-                .Key(c => c.Id)
-                .Properties(pb => pb.Property<EngineSupplier>("ETag", true))
-                .TableName("EngineSuppliers" + tableSuffix);
-            builder.Entity<Gearbox>()
-                .PartitionAndRowKey(c => c.Name, c => c.Id)
-                .Key(c => c.Id)
-                .Properties(pb => pb.Property<Gearbox>("ETag", true))
-                .TableName("Gearboxes" + tableSuffix);
-            builder.Entity<Sponsor>()
-                .PartitionAndRowKey(c => c.Name, c => c.Id)
-                .Key(c => c.Id)
-                .Properties(pb => pb.Property<Sponsor>("ETag", true))
-                .TableName("Sponsors" + tableSuffix);
-            builder.Entity<TestDriver>()
-                .PartitionAndRowKey(c => c.Name, c => c.Id)
-                .Key(c => c.Id)
-                .Properties(pb => pb.Property<TestDriver>("ETag", true))
-                .TableName("TestDrivers" + tableSuffix);
-            builder.Entity<TitleSponsor>()
-                .PartitionAndRowKey(c => c.Name, c => c.Id)
-                .Key(c => c.Id)
-                .Properties(pb => pb.Property<TitleSponsor>("ETag", true))
-                .TableName("TitleSponsors" + tableSuffix);
+            builder.Entity<Chassis>(
+                b =>
+                    {
+                        b.PartitionAndRowKey(c => c.Name, c => c.TeamId);
+                        b.Key(c => c.TeamId);
+                        b.Property<string>("ETag", true);
+                        b.TableName("Chassis" + tableSuffix);
+                    });
+
+            builder.Entity<Team>(
+                b =>
+                    {
+                        b.PartitionAndRowKey(c => c.Name, c => c.Id);
+                        b.Key(c => c.Id);
+                        b.Property<string>("ETag", true);
+                        b.TableName("Teams" + tableSuffix);
+                    });
+
+            builder.Entity<Driver>(
+                b =>
+                    {
+                        b.PartitionAndRowKey(c => c.Name, c => c.Id);
+                        b.Key(c => c.Id);
+                        b.Property<string>("ETag", true);
+                        b.TableName("Drivers" + tableSuffix);
+                    });
+
+            builder.Entity<Engine>(
+                b =>
+                    {
+                        b.PartitionAndRowKey(c => c.Name, c => c.Id);
+                        b.Key(c => c.Id);
+                        b.Property<string>("ETag", true);
+                        b.TableName("Engines" + tableSuffix);
+                    });
+
+            builder.Entity<EngineSupplier>(
+                b =>
+                    {
+                        b.PartitionAndRowKey(c => c.Name, c => c.Id);
+                        b.Key(c => c.Id);
+                        b.Property<string>("ETag", true);
+                        b.TableName("EngineSuppliers" + tableSuffix);
+                    });
+
+            builder.Entity<Gearbox>(
+                b =>
+                    {
+                        b.PartitionAndRowKey(c => c.Name, c => c.Id);
+                        b.Key(c => c.Id);
+                        b.Property<string>("ETag", true);
+                        b.TableName("Gearboxes" + tableSuffix);
+                    });
+
+            builder.Entity<Sponsor>(
+                b =>
+                    {
+                        b.PartitionAndRowKey(c => c.Name, c => c.Id);
+                        b.Key(c => c.Id);
+                        b.Property<string>("ETag", true);
+                        b.TableName("Sponsors" + tableSuffix);
+                    });
+
+            builder.Entity<TestDriver>(
+                b =>
+                    {
+                        b.PartitionAndRowKey(c => c.Name, c => c.Id);
+                        b.Key(c => c.Id);
+                        b.Property<string>("ETag", true);
+                        b.TableName("TestDrivers" + tableSuffix);
+                    });
+
+            builder.Entity<TitleSponsor>(
+                b =>
+                    {
+                        b.PartitionAndRowKey(c => c.Name, c => c.Id);
+                        b.Key(c => c.Id);
+                        b.Property<string>("ETag", true);
+                        b.TableName("TitleSponsors" + tableSuffix);
+                    });
+
             return builder.Model;
         }
 

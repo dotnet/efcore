@@ -52,11 +52,11 @@ namespace Microsoft.Data.Entity.Relational.Tests
             var model = new Metadata.Model();
             var modelBuilder = new ModelBuilder(model);
 
-            modelBuilder.Entity<Customer>().Properties(ps => ps.Property(c => c.Id).ColumnName("id"));
+            modelBuilder.Entity<Customer>().Property(c => c.Id).ColumnName("id");
 
             Assert.Equal("id", model.EntityTypes.Single().Properties.Single().ColumnName());
 
-            modelBuilder.Entity<Customer>().Properties(ps => ps.Property<int>("Id").ColumnName("ID"));
+            modelBuilder.Entity<Customer>().Property<int>("Id").ColumnName("ID");
 
             Assert.Equal("ID", model.EntityTypes.Single().Properties.Single().ColumnName());
         }
@@ -67,11 +67,11 @@ namespace Microsoft.Data.Entity.Relational.Tests
             var model = new Metadata.Model();
             var modelBuilder = new ModelBuilder(model);
 
-            modelBuilder.Entity<Customer>().Properties(ps => ps.Property(c => c.Id).ColumnType("bigint"));
+            modelBuilder.Entity<Customer>().Property(c => c.Id).ColumnType("bigint");
 
             Assert.Equal("bigint", model.EntityTypes.Single().Properties.Single()[MetadataExtensions.Annotations.StorageTypeName]);
 
-            modelBuilder.Entity<Customer>().Properties(ps => ps.Property<int>("Id").ColumnType("BIGINT"));
+            modelBuilder.Entity<Customer>().Property<int>("Id").ColumnType("BIGINT");
 
             Assert.Equal("BIGINT", model.EntityTypes.Single().Properties.Single()[MetadataExtensions.Annotations.StorageTypeName]);
         }

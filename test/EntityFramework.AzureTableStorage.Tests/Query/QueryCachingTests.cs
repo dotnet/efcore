@@ -75,8 +75,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
         {
             var model = new Model();
             var builder = new ModelBuilder(model);
-            builder.Entity<Customer>()
-                .Properties(pb => { pb.Property(s => s.CustomerID); });
+            builder.Entity<Customer>().Property(s => s.CustomerID);
 
             return model;
         }

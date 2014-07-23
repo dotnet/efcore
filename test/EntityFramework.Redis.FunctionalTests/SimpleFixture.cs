@@ -28,12 +28,11 @@ namespace Microsoft.Data.Entity.Redis
         {
             var model = new Model();
             var builder = new ModelBuilder(model);
-            builder.Entity<Customer>()
-                .Key(cust => cust.CustomerID)
-                .Properties(pb =>
+            builder.Entity<Customer>(b =>
                 {
-                    pb.Property(cust => cust.CustomerID);
-                    pb.Property(cust => cust.Name);
+                    b.Key(cust => cust.CustomerID);
+                    b.Property(cust => cust.CustomerID);
+                    b.Property(cust => cust.Name);
                 });
 
             return model;

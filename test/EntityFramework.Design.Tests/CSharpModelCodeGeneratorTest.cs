@@ -9,25 +9,6 @@ namespace Microsoft.Data.Entity.Design.Tests
 {
     public class CSharpModelCodeGeneratorTest
     {
-        public class Customer
-        {
-            public int Id { get; set; }
-            public string Name { get; set; }
-        }
-
-        public class Order
-        {
-            public int Id { get; set; }
-            public int CustomerId { get; set; }
-            public string CustomerName { get; set; }
-            public int ProductId { get; set; }
-        }
-
-        public class Product
-        {
-            public int Id { get; set; }
-        }
-
         [Fact]
         public void Generate_empty_model()
         {
@@ -38,6 +19,7 @@ namespace Microsoft.Data.Entity.Design.Tests
 
             Assert.Equal(
                 @"var builder = new ModelBuilder();
+
 return builder.Model;",
                 stringBuilder.ToString());
         }
@@ -56,6 +38,7 @@ return builder.Model;",
                 @"var builder = new ModelBuilder()
     .Annotation(""A1"", ""V1"")
     .Annotation(""A2"", ""V2"");
+
 return builder.Model;",
                 stringBuilder.ToString());
         }
@@ -64,18 +47,23 @@ return builder.Model;",
         public void Generate_entity_type_with_single_property()
         {
             var builder = new ModelBuilder();
-            builder.Entity<Customer>()
-                .Properties(ps => ps.Property(e => e.Id))
-                .Key(e => e.Id);
+            builder.Entity<Customer>(b =>
+                {
+                    b.Property(e => e.Id);
+                    b.Key(e => e.Id);
+                });
 
             var stringBuilder = new IndentedStringBuilder();
             new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
 
             Assert.Equal(
                 @"var builder = new ModelBuilder();
-builder.Entity(""Customer"")
-    .Properties(ps => ps.Property<int>(""Id""))
-    .Key(""Id"");
+
+builder.Entity(""Customer"", b =>
+    {
+        b.Property<int>(""Id"");
+        b.Key(""Id"");
+    });
 
 return builder.Model;",
                 stringBuilder.ToString());
@@ -85,18 +73,23 @@ return builder.Model;",
         public void Generate_entity_type_with_shadow_property()
         {
             var builder = new ModelBuilder();
-            builder.Entity<Customer>()
-                .Properties(ps => ps.Property<int>("Id", shadowProperty: true))
-                .Key(e => e.Id);
+            builder.Entity<Customer>(b =>
+                {
+                    b.Property<int>("Id", shadowProperty: true);
+                    b.Key(e => e.Id);
+                });
 
             var stringBuilder = new IndentedStringBuilder();
             new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
 
             Assert.Equal(
                 @"var builder = new ModelBuilder();
-builder.Entity(""Customer"")
-    .Properties(ps => ps.Property<int>(""Id"", shadowProperty: true))
-    .Key(""Id"");
+
+builder.Entity(""Customer"", b =>
+    {
+        b.Property<int>(""Id"", shadowProperty: true);
+        b.Key(""Id"");
+    });
 
 return builder.Model;",
                 stringBuilder.ToString());
@@ -106,18 +99,23 @@ return builder.Model;",
         public void Generate_entity_type_with_concurrency_token()
         {
             var builder = new ModelBuilder();
-            builder.Entity<Customer>()
-                .Properties(ps => ps.Property<int>("Id", concurrencyToken: true))
-                .Key(e => e.Id);
+            builder.Entity<Customer>(b =>
+                {
+                    b.Property<int>("Id", concurrencyToken: true);
+                    b.Key(e => e.Id);
+                });
 
             var stringBuilder = new IndentedStringBuilder();
             new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
 
             Assert.Equal(
                 @"var builder = new ModelBuilder();
-builder.Entity(""Customer"")
-    .Properties(ps => ps.Property<int>(""Id"", concurrencyToken: true))
-    .Key(""Id"");
+
+builder.Entity(""Customer"", b =>
+    {
+        b.Property<int>(""Id"", concurrencyToken: true);
+        b.Key(""Id"");
+    });
 
 return builder.Model;",
                 stringBuilder.ToString());
@@ -127,18 +125,23 @@ return builder.Model;",
         public void Generate_entity_type_with_shadow_property_and_concurrency_token()
         {
             var builder = new ModelBuilder();
-            builder.Entity<Customer>()
-                .Properties(ps => ps.Property<int>("Id", shadowProperty: true, concurrencyToken: true))
-                .Key(e => e.Id);
+            builder.Entity<Customer>(b =>
+                {
+                    b.Property<int>("Id", shadowProperty: true, concurrencyToken: true);
+                    b.Key(e => e.Id);
+                });
 
             var stringBuilder = new IndentedStringBuilder();
             new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
 
             Assert.Equal(
                 @"var builder = new ModelBuilder();
-builder.Entity(""Customer"")
-    .Properties(ps => ps.Property<int>(""Id"", shadowProperty: true, concurrencyToken: true))
-    .Key(""Id"");
+
+builder.Entity(""Customer"", b =>
+    {
+        b.Property<int>(""Id"", shadowProperty: true, concurrencyToken: true);
+        b.Key(""Id"");
+    });
 
 return builder.Model;",
                 stringBuilder.ToString());
@@ -148,22 +151,27 @@ return builder.Model;",
         public void Generate_entity_type_with_single_property_with_annotations()
         {
             var builder = new ModelBuilder();
-            builder.Entity<Customer>()
-                .Properties(ps => ps.Property(e => e.Id)
-                    .Annotation("A1", "V1")
-                    .Annotation("A2", "V2"))
-                .Key(e => e.Id);
+            builder.Entity<Customer>(b =>
+                {
+                    b.Property(e => e.Id)
+                        .Annotation("A1", "V1")
+                        .Annotation("A2", "V2");
+                    b.Key(e => e.Id);
+                });
 
             var stringBuilder = new IndentedStringBuilder();
             new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
 
             Assert.Equal(
                 @"var builder = new ModelBuilder();
-builder.Entity(""Customer"")
-    .Properties(ps => ps.Property<int>(""Id"")
-        .Annotation(""A1"", ""V1"")
-        .Annotation(""A2"", ""V2""))
-    .Key(""Id"");
+
+builder.Entity(""Customer"", b =>
+    {
+        b.Property<int>(""Id"")
+            .Annotation(""A1"", ""V1"")
+            .Annotation(""A2"", ""V2"");
+        b.Key(""Id"");
+    });
 
 return builder.Model;",
                 stringBuilder.ToString());
@@ -173,28 +181,25 @@ return builder.Model;",
         public void Generate_entity_type_with_multiple_properties()
         {
             var builder = new ModelBuilder();
-            builder.Entity<Customer>()
-                .Properties(
-                    ps =>
-                        {
-                            ps.Property(e => e.Id);
-                            ps.Property(e => e.Name);
-                        })
-                .Key(e => e.Id);
+            builder.Entity<Customer>(b =>
+                {
+                    b.Property(e => e.Id);
+                    b.Property(e => e.Name);
+                    b.Key(e => e.Id);
+                });
 
             var stringBuilder = new IndentedStringBuilder();
             new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
 
             Assert.Equal(
                 @"var builder = new ModelBuilder();
-builder.Entity(""Customer"")
-    .Properties(
-        ps =>
-            {
-                ps.Property<int>(""Id"");
-                ps.Property<string>(""Name"");
-            })
-    .Key(""Id"");
+
+builder.Entity(""Customer"", b =>
+    {
+        b.Property<int>(""Id"");
+        b.Property<string>(""Name"");
+        b.Key(""Id"");
+    });
 
 return builder.Model;",
                 stringBuilder.ToString());
@@ -204,36 +209,33 @@ return builder.Model;",
         public void Generate_entity_type_with_multiple_properties_with_annotations()
         {
             var builder = new ModelBuilder();
-            builder.Entity<Customer>()
-                .Properties(
-                    ps =>
-                        {
-                            ps.Property(e => e.Id)
-                                .Annotation("A1", "V1")
-                                .Annotation("A2", "V2");
-                            ps.Property(e => e.Name)
-                                .Annotation("A1", "V1")
-                                .Annotation("A2", "V2");
-                        })
-                .Key(e => e.Id);
+            builder.Entity<Customer>(b =>
+                {
+                    b.Property(e => e.Id)
+                        .Annotation("A1", "V1")
+                        .Annotation("A2", "V2");
+                    b.Property(e => e.Name)
+                        .Annotation("A1", "V1")
+                        .Annotation("A2", "V2");
+                    b.Key(e => e.Id);
+                });
 
             var stringBuilder = new IndentedStringBuilder();
             new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
 
             Assert.Equal(
                 @"var builder = new ModelBuilder();
-builder.Entity(""Customer"")
-    .Properties(
-        ps =>
-            {
-                ps.Property<int>(""Id"")
-                    .Annotation(""A1"", ""V1"")
-                    .Annotation(""A2"", ""V2"");
-                ps.Property<string>(""Name"")
-                    .Annotation(""A1"", ""V1"")
-                    .Annotation(""A2"", ""V2"");
-            })
-    .Key(""Id"");
+
+builder.Entity(""Customer"", b =>
+    {
+        b.Property<int>(""Id"")
+            .Annotation(""A1"", ""V1"")
+            .Annotation(""A2"", ""V2"");
+        b.Property<string>(""Name"")
+            .Annotation(""A1"", ""V1"")
+            .Annotation(""A2"", ""V2"");
+        b.Key(""Id"");
+    });
 
 return builder.Model;",
                 stringBuilder.ToString());
@@ -243,32 +245,29 @@ return builder.Model;",
         public void Generate_entity_type_with_composite_key()
         {
             var builder = new ModelBuilder();
-            builder.Entity<Customer>()
-                .Properties(
-                    ps =>
-                        {
-                            ps.Property(e => e.Id);
-                            ps.Property(e => e.Name);
-                        })
-                .Key(k => k.Properties(e => new { e.Id, e.Name })
-                    .Annotation("A1", "V1")
-                    .Annotation("A2", "V2"));
+            builder.Entity<Customer>(b =>
+                {
+                    b.Property(e => e.Id);
+                    b.Property(e => e.Name);
+                    b.Key(k => k.Properties(e => new { e.Id, e.Name })
+                        .Annotation("A1", "V1")
+                        .Annotation("A2", "V2"));
+                });
 
             var stringBuilder = new IndentedStringBuilder();
             new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
 
             Assert.Equal(
                 @"var builder = new ModelBuilder();
-builder.Entity(""Customer"")
-    .Properties(
-        ps =>
-            {
-                ps.Property<int>(""Id"");
-                ps.Property<string>(""Name"");
-            })
-    .Key(k => k.Properties(""Id"", ""Name"")
-        .Annotation(""A1"", ""V1"")
-        .Annotation(""A2"", ""V2""));
+
+builder.Entity(""Customer"", b =>
+    {
+        b.Property<int>(""Id"");
+        b.Property<string>(""Name"");
+        b.Key(k => k.Properties(""Id"", ""Name"")
+            .Annotation(""A1"", ""V1"")
+            .Annotation(""A2"", ""V2""));
+    });
 
 return builder.Model;",
                 stringBuilder.ToString());
@@ -278,22 +277,21 @@ return builder.Model;",
         public void Generate_entity_type_with_single_foreign_key()
         {
             var builder = new ModelBuilder();
-            builder.Entity<Customer>()
-                .Properties(
-                    ps =>
-                        {
-                            ps.Property(e => e.Id);
-                            ps.Property(e => e.Name);
-                        })
-                .Key(e => e.Id);
-            builder.Entity<Order>()
-                .Properties(
-                    ps =>
-                        {
-                            ps.Property(e => e.Id);
-                            ps.Property(e => e.CustomerId);
-                        })
-                .Key(e => e.Id);
+
+            builder.Entity<Customer>(b =>
+                {
+                    b.Property(e => e.Id);
+                    b.Property(e => e.Name);
+                    b.Key(e => e.Id);
+                });
+
+            builder.Entity<Order>(b =>
+                {
+                    b.Property(e => e.Id);
+                    b.Property(e => e.CustomerId);
+                    b.Key(e => e.Id);
+                });
+
             builder.Entity<Order>()
                 .ForeignKeys(fks => fks.ForeignKey<Customer>(e => e.CustomerId));
 
@@ -302,26 +300,21 @@ return builder.Model;",
 
             Assert.Equal(
                 @"var builder = new ModelBuilder();
-builder.Entity(""Customer"")
-    .Properties(
-        ps =>
-            {
-                ps.Property<int>(""Id"");
-                ps.Property<string>(""Name"");
-            })
-    .Key(""Id"");
 
-builder.Entity(""Order"")
-    .Properties(
-        ps =>
-            {
-                ps.Property<int>(""CustomerId"");
-                ps.Property<int>(""Id"");
-            })
-    .Key(""Id"");
+builder.Entity(""Customer"", b =>
+    {
+        b.Property<int>(""Id"");
+        b.Property<string>(""Name"");
+        b.Key(""Id"");
+    });
 
-builder.Entity(""Order"")
-    .ForeignKeys(fks => fks.ForeignKey(""Customer"", ""CustomerId""));
+builder.Entity(""Order"", b =>
+    {
+        b.Property<int>(""CustomerId"");
+        b.Property<int>(""Id"");
+        b.Key(""Id"");
+        b.ForeignKeys(fks => fks.ForeignKey(""Customer"", ""CustomerId""));
+    });
 
 return builder.Model;",
                 stringBuilder.ToString());
@@ -331,23 +324,22 @@ return builder.Model;",
         public void Generate_entity_type_with_single_composite_foreign_key()
         {
             var builder = new ModelBuilder();
-            builder.Entity<Customer>()
-                .Properties(
-                    ps =>
-                        {
-                            ps.Property(e => e.Id);
-                            ps.Property(e => e.Name);
-                        })
-                .Key(e => new { e.Id, e.Name });
-            builder.Entity<Order>()
-                .Properties(
-                    ps =>
-                        {
-                            ps.Property(e => e.Id);
-                            ps.Property(e => e.CustomerId);
-                            ps.Property(e => e.CustomerName);
-                        })
-                .Key(e => e.Id);
+
+            builder.Entity<Customer>(b =>
+                {
+                    b.Property(e => e.Id);
+                    b.Property(e => e.Name);
+                    b.Key(e => new { e.Id, e.Name });
+                });
+
+            builder.Entity<Order>(b =>
+                {
+                    b.Property(e => e.Id);
+                    b.Property(e => e.CustomerId);
+                    b.Property(e => e.CustomerName);
+                    b.Key(e => e.Id);
+                });
+
             builder.Entity<Order>()
                 .ForeignKeys(fks => fks.ForeignKey<Customer>(e => new { e.CustomerId, e.CustomerName }));
 
@@ -356,27 +348,22 @@ return builder.Model;",
 
             Assert.Equal(
                 @"var builder = new ModelBuilder();
-builder.Entity(""Customer"")
-    .Properties(
-        ps =>
-            {
-                ps.Property<int>(""Id"");
-                ps.Property<string>(""Name"");
-            })
-    .Key(""Id"", ""Name"");
 
-builder.Entity(""Order"")
-    .Properties(
-        ps =>
-            {
-                ps.Property<int>(""CustomerId"");
-                ps.Property<string>(""CustomerName"");
-                ps.Property<int>(""Id"");
-            })
-    .Key(""Id"");
+builder.Entity(""Customer"", b =>
+    {
+        b.Property<int>(""Id"");
+        b.Property<string>(""Name"");
+        b.Key(""Id"", ""Name"");
+    });
 
-builder.Entity(""Order"")
-    .ForeignKeys(fks => fks.ForeignKey(""Customer"", ""CustomerId"", ""CustomerName""));
+builder.Entity(""Order"", b =>
+    {
+        b.Property<int>(""CustomerId"");
+        b.Property<string>(""CustomerName"");
+        b.Property<int>(""Id"");
+        b.Key(""Id"");
+        b.ForeignKeys(fks => fks.ForeignKey(""Customer"", ""CustomerId"", ""CustomerName""));
+    });
 
 return builder.Model;",
                 stringBuilder.ToString());
@@ -386,22 +373,20 @@ return builder.Model;",
         public void Generate_entity_type_with_single_foreign_key_with_annotations()
         {
             var builder = new ModelBuilder();
-            builder.Entity<Customer>()
-                .Properties(
-                    ps =>
-                        {
-                            ps.Property(e => e.Id);
-                            ps.Property(e => e.Name);
-                        })
-                .Key(e => e.Id);
-            builder.Entity<Order>()
-                .Properties(
-                    ps =>
-                        {
-                            ps.Property(e => e.Id);
-                            ps.Property(e => e.CustomerId);
-                        })
-                .Key(e => e.Id);
+            builder.Entity<Customer>(b =>
+                {
+                    b.Property(e => e.Id);
+                    b.Property(e => e.Name);
+                    b.Key(e => e.Id);
+                });
+
+            builder.Entity<Order>(b =>
+                {
+                    b.Property(e => e.Id);
+                    b.Property(e => e.CustomerId);
+                    b.Key(e => e.Id);
+                });
+
             builder.Entity<Order>()
                 .ForeignKeys(fks => fks.ForeignKey<Customer>(e => e.CustomerId)
                     .Annotation("A1", "V1")
@@ -412,28 +397,23 @@ return builder.Model;",
 
             Assert.Equal(
                 @"var builder = new ModelBuilder();
-builder.Entity(""Customer"")
-    .Properties(
-        ps =>
-            {
-                ps.Property<int>(""Id"");
-                ps.Property<string>(""Name"");
-            })
-    .Key(""Id"");
 
-builder.Entity(""Order"")
-    .Properties(
-        ps =>
-            {
-                ps.Property<int>(""CustomerId"");
-                ps.Property<int>(""Id"");
-            })
-    .Key(""Id"");
+builder.Entity(""Customer"", b =>
+    {
+        b.Property<int>(""Id"");
+        b.Property<string>(""Name"");
+        b.Key(""Id"");
+    });
 
-builder.Entity(""Order"")
-    .ForeignKeys(fks => fks.ForeignKey(""Customer"", ""CustomerId"")
-        .Annotation(""A1"", ""V1"")
-        .Annotation(""A2"", ""V2""));
+builder.Entity(""Order"", b =>
+    {
+        b.Property<int>(""CustomerId"");
+        b.Property<int>(""Id"");
+        b.Key(""Id"");
+        b.ForeignKeys(fks => fks.ForeignKey(""Customer"", ""CustomerId"")
+            .Annotation(""A1"", ""V1"")
+            .Annotation(""A2"", ""V2""));
+    });
 
 return builder.Model;",
                 stringBuilder.ToString());
@@ -443,27 +423,28 @@ return builder.Model;",
         public void Generate_entity_type_with_multiple_foreign_keys()
         {
             var builder = new ModelBuilder();
-            builder.Entity<Customer>()
-                .Properties(
-                    ps =>
-                        {
-                            ps.Property(e => e.Id);
-                            ps.Property(e => e.Name);
-                        })
-                .Key(e => new { e.Id, e.Name });
-            builder.Entity<Order>()
-                .Properties(
-                    ps =>
-                        {
-                            ps.Property(e => e.Id);
-                            ps.Property(e => e.CustomerId);
-                            ps.Property(e => e.CustomerName);
-                            ps.Property(e => e.ProductId);
-                        })
-                .Key(e => e.Id);
-            builder.Entity<Product>()
-                .Properties(ps => ps.Property(e => e.Id))
-                .Key(e => e.Id);
+            builder.Entity<Customer>(b =>
+                {
+                    b.Property(e => e.Id);
+                    b.Property(e => e.Name);
+                    b.Key(e => new { e.Id, e.Name });
+                });
+
+            builder.Entity<Order>(b =>
+                {
+                    b.Property(e => e.Id);
+                    b.Property(e => e.CustomerId);
+                    b.Property(e => e.CustomerName);
+                    b.Property(e => e.ProductId);
+                    b.Key(e => e.Id);
+                });
+
+            builder.Entity<Product>(b =>
+                {
+                    b.Property(e => e.Id);
+                    b.Key(e => e.Id);
+                });
+
             builder.Entity<Order>()
                 .ForeignKeys(
                     fks =>
@@ -477,37 +458,33 @@ return builder.Model;",
 
             Assert.Equal(
                 @"var builder = new ModelBuilder();
-builder.Entity(""Customer"")
-    .Properties(
-        ps =>
-            {
-                ps.Property<int>(""Id"");
-                ps.Property<string>(""Name"");
-            })
-    .Key(""Id"", ""Name"");
 
-builder.Entity(""Order"")
-    .Properties(
-        ps =>
-            {
-                ps.Property<int>(""CustomerId"");
-                ps.Property<string>(""CustomerName"");
-                ps.Property<int>(""Id"");
-                ps.Property<int>(""ProductId"");
-            })
-    .Key(""Id"");
+builder.Entity(""Customer"", b =>
+    {
+        b.Property<int>(""Id"");
+        b.Property<string>(""Name"");
+        b.Key(""Id"", ""Name"");
+    });
 
-builder.Entity(""Product"")
-    .Properties(ps => ps.Property<int>(""Id""))
-    .Key(""Id"");
-
-builder.Entity(""Order"")
-    .ForeignKeys(
-        fks =>
+builder.Entity(""Order"", b =>
+    {
+        b.Property<int>(""CustomerId"");
+        b.Property<string>(""CustomerName"");
+        b.Property<int>(""Id"");
+        b.Property<int>(""ProductId"");
+        b.Key(""Id"");
+        b.ForeignKeys(fks => 
             {
                 fks.ForeignKey(""Customer"", ""CustomerId"", ""CustomerName"");
                 fks.ForeignKey(""Product"", ""ProductId"");
             });
+    });
+
+builder.Entity(""Product"", b =>
+    {
+        b.Property<int>(""Id"");
+        b.Key(""Id"");
+    });
 
 return builder.Model;",
                 stringBuilder.ToString());
@@ -517,27 +494,28 @@ return builder.Model;",
         public void Generate_entity_type_with_multiple_foreign_keys_with_annotations()
         {
             var builder = new ModelBuilder();
-            builder.Entity<Customer>()
-                .Properties(
-                    ps =>
-                        {
-                            ps.Property(e => e.Id);
-                            ps.Property(e => e.Name);
-                        })
-                .Key(e => new { e.Id, e.Name });
-            builder.Entity<Order>()
-                .Properties(
-                    ps =>
-                        {
-                            ps.Property(e => e.Id);
-                            ps.Property(e => e.CustomerId);
-                            ps.Property(e => e.CustomerName);
-                            ps.Property(e => e.ProductId);
-                        })
-                .Key(e => e.Id);
-            builder.Entity<Product>()
-                .Properties(ps => ps.Property(e => e.Id))
-                .Key(e => e.Id);
+            builder.Entity<Customer>(b =>
+                {
+                    b.Property(e => e.Id);
+                    b.Property(e => e.Name);
+                    b.Key(e => new { e.Id, e.Name });
+                });
+
+            builder.Entity<Order>(b =>
+                {
+                    b.Property(e => e.Id);
+                    b.Property(e => e.CustomerId);
+                    b.Property(e => e.CustomerName);
+                    b.Property(e => e.ProductId);
+                    b.Key(e => e.Id);
+                });
+
+            builder.Entity<Product>(b =>
+                {
+                    b.Property(e => e.Id);
+                    b.Key(e => e.Id);
+                });
+
             builder.Entity<Order>()
                 .ForeignKeys(
                     fks =>
@@ -546,8 +524,8 @@ return builder.Model;",
                                 .Annotation("A1", "V1")
                                 .Annotation("A2", "V2");
                             fks.ForeignKey<Product>(e => e.ProductId)
-                                .Annotation("A1", "V1")
-                                .Annotation("A2", "V2");
+                                .Annotation("A3", "V3")
+                                .Annotation("A4", "V4");
                         });
 
             var stringBuilder = new IndentedStringBuilder();
@@ -555,41 +533,37 @@ return builder.Model;",
 
             Assert.Equal(
                 @"var builder = new ModelBuilder();
-builder.Entity(""Customer"")
-    .Properties(
-        ps =>
-            {
-                ps.Property<int>(""Id"");
-                ps.Property<string>(""Name"");
-            })
-    .Key(""Id"", ""Name"");
 
-builder.Entity(""Order"")
-    .Properties(
-        ps =>
-            {
-                ps.Property<int>(""CustomerId"");
-                ps.Property<string>(""CustomerName"");
-                ps.Property<int>(""Id"");
-                ps.Property<int>(""ProductId"");
-            })
-    .Key(""Id"");
+builder.Entity(""Customer"", b =>
+    {
+        b.Property<int>(""Id"");
+        b.Property<string>(""Name"");
+        b.Key(""Id"", ""Name"");
+    });
 
-builder.Entity(""Product"")
-    .Properties(ps => ps.Property<int>(""Id""))
-    .Key(""Id"");
-
-builder.Entity(""Order"")
-    .ForeignKeys(
-        fks =>
+builder.Entity(""Order"", b =>
+    {
+        b.Property<int>(""CustomerId"");
+        b.Property<string>(""CustomerName"");
+        b.Property<int>(""Id"");
+        b.Property<int>(""ProductId"");
+        b.Key(""Id"");
+        b.ForeignKeys(fks => 
             {
                 fks.ForeignKey(""Customer"", ""CustomerId"", ""CustomerName"")
                     .Annotation(""A1"", ""V1"")
                     .Annotation(""A2"", ""V2"");
                 fks.ForeignKey(""Product"", ""ProductId"")
-                    .Annotation(""A1"", ""V1"")
-                    .Annotation(""A2"", ""V2"");
+                    .Annotation(""A3"", ""V3"")
+                    .Annotation(""A4"", ""V4"");
             });
+    });
+
+builder.Entity(""Product"", b =>
+    {
+        b.Property<int>(""Id"");
+        b.Key(""Id"");
+    });
 
 return builder.Model;",
                 stringBuilder.ToString());
@@ -621,9 +595,12 @@ namespace MyNamespace
             get
             {
                 var builder = new ModelBuilder();
-                builder.Entity(""Entity"")
-                    .Properties(ps => ps.Property<int>(""Id""))
-                    .Key(""Id"");
+                
+                builder.Entity(""Entity"", b =>
+                    {
+                        b.Property<int>(""Id"");
+                        b.Key(""Id"");
+                    });
                 
                 return builder.Model;
             }
@@ -631,6 +608,25 @@ namespace MyNamespace
     }
 }",
                 stringBuilder.ToString());
+        }
+
+        private class Customer
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        private class Order
+        {
+            public int Id { get; set; }
+            public int CustomerId { get; set; }
+            public string CustomerName { get; set; }
+            public int ProductId { get; set; }
+        }
+
+        private class Product
+        {
+            public int Id { get; set; }
         }
     }
 }

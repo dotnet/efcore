@@ -109,7 +109,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             modelBuilder
                 .Entity<Customer>()
                 .Key(c => c.Id)
-                .Properties(ps => ps.Property(c => c.Name));
+                .Property(c => c.Name);
 
             return model;
         }

@@ -23,22 +23,21 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
         {
             var model = new Model();
             var builder = new ModelBuilder(model);
-            builder.Entity<Purchase>()
-                .Properties(pb =>
-                    {
-                        pb.Property(s => s.Awesomeness);
-                        pb.Property(s => s.Cost);
-                        pb.Property(s => s.Count);
-                        pb.Property(s => s.GlobalGuid);
-                        pb.Property(s => s.Name);
-                        pb.Property(s => s.PartitionKey);
-                        pb.Property(s => s.Purchased);
-                        pb.Property(s => s.RowKey);
-                        pb.Property(s => s.Timestamp);
-                        pb.Property(s => s.ETag);
-                    })
-                .PartitionAndRowKey(s => s.PartitionKey, s => s.RowKey)
-                .TableName(tableName);
+            builder.Entity<Purchase>(b =>
+                {
+                    b.Property(s => s.Awesomeness);
+                    b.Property(s => s.Cost);
+                    b.Property(s => s.Count);
+                    b.Property(s => s.GlobalGuid);
+                    b.Property(s => s.Name);
+                    b.Property(s => s.PartitionKey);
+                    b.Property(s => s.Purchased);
+                    b.Property(s => s.RowKey);
+                    b.Property(s => s.Timestamp);
+                    b.Property(s => s.ETag);
+                    b.PartitionAndRowKey(s => s.PartitionKey, s => s.RowKey);
+                    b.TableName(tableName);
+                });
             return model;
         }
 

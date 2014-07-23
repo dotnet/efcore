@@ -61,8 +61,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Metadata
             return builder;
         }
 
-        public static ModelBuilder.EntityBuilderBase<TMetadataBuilder>.PropertiesBuilder.PropertyBuilder ColumnName<TMetadataBuilder>(
-            [NotNull] this ModelBuilder.EntityBuilderBase<TMetadataBuilder>.PropertiesBuilder.PropertyBuilder builder,
+        public static ModelBuilder.EntityBuilderBase<TMetadataBuilder>.PropertyBuilder ColumnName<TMetadataBuilder>(
+            [NotNull] this ModelBuilder.EntityBuilderBase<TMetadataBuilder>.PropertyBuilder builder,
             [NotNull] string columnName)
             where TMetadataBuilder : ModelBuilder.MetadataBuilder<EntityType, TMetadataBuilder>
         {
@@ -88,11 +88,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Metadata
             Check.NotNull(partitionKeyExpression, "partitionKeyExpression");
             Check.NotNull(rowKeyExpression, "rowKeyExpression");
 
-            builder.Properties(pb =>
-                {
-                    pb.Property(partitionKeyExpression).ColumnName("PartitionKey");
-                    pb.Property(rowKeyExpression).ColumnName("RowKey");
-                });
+            builder.Property(partitionKeyExpression).ColumnName("PartitionKey");
+            builder.Property(rowKeyExpression).ColumnName("RowKey");
 
             var properties = partitionKeyExpression.GetPropertyAccessList().ToList();
             properties.Add(rowKeyExpression.GetPropertyAccess());
@@ -105,7 +102,9 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Metadata
             Check.NotNull(builder, "builder");
             Check.NotNull(expression, "expression");
 
-            return builder.Properties(pb => pb.Property(expression).ColumnName("Timestamp"));
+            builder.Property(expression).ColumnName("Timestamp");
+
+            return builder;
         }
 
         public static ModelBuilder.EntityBuilder<TEntity> Timestamp<TEntity>([NotNull] this ModelBuilder.EntityBuilder<TEntity> builder, [NotNull] string name, bool shadowProperty = false)
@@ -113,7 +112,9 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Metadata
             Check.NotNull(builder, "builder");
             Check.NotEmpty(name, "name");
 
-            return builder.Properties(pb => pb.Property<TEntity>(name, shadowProperty).ColumnName("Timestamp"));
+            builder.Property<TEntity>(name, shadowProperty).ColumnName("Timestamp");
+
+            return builder;
         }
     }
 }

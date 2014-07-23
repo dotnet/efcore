@@ -30,30 +30,35 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
         {
             var model = new Model();
             var builder = new ModelBuilder(model);
+
             builder.Entity<ClrPoco>()
                 .PartitionAndRowKey(s => s.PartitionKey, s => s.RowKey)
                 .Timestamp(s => s.Timestamp);
-            builder.Entity("ShadowEntity").Properties(pb =>
+
+            builder.Entity("ShadowEntity", pb =>
                 {
                     pb.Property<object>("PartitionKey", true);
                     pb.Property<object>("RowKey", true);
                     pb.Property<object>("Timestamp", true);
                     pb.Property<object>("SomeProperty", true);
-                })
-                .Key("PartitionKey", "RowKey");
+                    pb.Key("PartitionKey", "RowKey");
+                });
+
             builder.Entity<GuidKeysPoco>()
                 .PartitionAndRowKey(s => s.PartitionGuid, s => s.RowGuid)
                 .Timestamp("Timestamp", true);
+
             builder.Entity<IntKeysPoco>()
                 .PartitionAndRowKey(s => s.PartitionID, s => s.RowID);
-            builder.Entity<ClrPocoWithProp>()
-                .PartitionAndRowKey(s => s.PartitionKey, s => s.RowKey)
-                .Properties(pb =>
-                    {
-                        pb.Property(s => s.Timestamp);
-                        pb.Property(s => s.StringProp);
-                        pb.Property(s => s.IntProp);
-                    });
+
+            builder.Entity<ClrPocoWithProp>(pb =>
+                {
+                    pb.PartitionAndRowKey(s => s.PartitionKey, s => s.RowKey);
+                    pb.Property(s => s.Timestamp);
+                    pb.Property(s => s.StringProp);
+                    pb.Property(s => s.IntProp);
+                });
+
             return model;
         }
 

@@ -9,26 +9,6 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public class ModelBuilderTest
     {
-        #region Fixture
-
-        public class Customer
-        {
-            public static PropertyInfo NameProperty = typeof(Customer).GetProperty("Name");
-
-            public int Id { get; set; }
-            public string Name { get; set; }
-        }
-
-        public class Order
-        {
-            public int OrderId { get; set; }
-
-            public int CustomerId { get; set; }
-            public Customer Customer { get; set; }
-        }
-
-        #endregion
-
         [Fact]
         public void Can_get_entity_builder_for_clr_type()
         {
@@ -73,10 +53,11 @@ namespace Microsoft.Data.Entity.Metadata
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
 
-            modelBuilder
-                .Entity<Customer>()
-                .Properties(ps => ps.Property(e => e.Id))
-                .Key("Id");
+            modelBuilder.Entity<Customer>(b =>
+                {
+                    b.Property(e => e.Id);
+                    b.Key("Id");
+                });
 
             var entity = model.GetEntityType(typeof(Customer));
 
@@ -90,10 +71,11 @@ namespace Microsoft.Data.Entity.Metadata
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
 
-            modelBuilder
-                .Entity<Customer>()
-                .Properties(ps => ps.Property<int>("Id"))
-                .Key("Id");
+            modelBuilder.Entity<Customer>(b =>
+                {
+                    b.Property<int>("Id");
+                    b.Key("Id");
+                });
 
             var entity = model.GetEntityType(typeof(Customer));
 
@@ -107,10 +89,11 @@ namespace Microsoft.Data.Entity.Metadata
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
 
-            modelBuilder
-                .Entity("Customer")
-                .Properties(ps => ps.Property<int>("Id"))
-                .Key("Id");
+            modelBuilder.Entity("Customer", b =>
+                {
+                    b.Property<int>("Id");
+                    b.Key("Id");
+                });
 
             var entity = model.GetEntityType(typeof(Customer));
 
@@ -141,15 +124,12 @@ namespace Microsoft.Data.Entity.Metadata
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
 
-            modelBuilder
-                .Entity<Customer>()
-                .Properties(
-                    ps =>
-                        {
-                            ps.Property(e => e.Id);
-                            ps.Property(e => e.Name);
-                        })
-                .Key("Id", "Name");
+            modelBuilder.Entity<Customer>(b =>
+                {
+                    b.Property(e => e.Id);
+                    b.Property(e => e.Name);
+                    b.Key("Id", "Name");
+                });
 
             var entity = model.GetEntityType(typeof(Customer));
 
@@ -164,15 +144,12 @@ namespace Microsoft.Data.Entity.Metadata
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
 
-            modelBuilder
-                .Entity<Customer>()
-                .Properties(
-                    ps =>
-                        {
-                            ps.Property(e => e.Id);
-                            ps.Property<string>("Name");
-                        })
-                .Key("Id", "Name");
+            modelBuilder.Entity<Customer>(b =>
+                {
+                    b.Property(e => e.Id);
+                    b.Property<string>("Name");
+                    b.Key("Id", "Name");
+                });
 
             var entity = model.GetEntityType(typeof(Customer));
 
@@ -187,15 +164,12 @@ namespace Microsoft.Data.Entity.Metadata
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
 
-            modelBuilder
-                .Entity("Customer")
-                .Properties(
-                    ps =>
-                        {
-                            ps.Property<int>("Id");
-                            ps.Property<string>("Name");
-                        })
-                .Key("Id", "Name");
+            modelBuilder.Entity("Customer", ps =>
+                {
+                    ps.Property<int>("Id");
+                    ps.Property<string>("Name");
+                    ps.Key("Id", "Name");
+                });
 
             var entity = model.GetEntityType(typeof(Customer));
 
@@ -230,17 +204,14 @@ namespace Microsoft.Data.Entity.Metadata
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
 
-            modelBuilder
-                .Entity("Customer")
-                .Properties(
-                    ps =>
-                        {
-                            ps.Property<int>("Id");
-                            ps.Property<string>("Name");
-                        })
-                .Key(k => k.Properties("Id", "Name")
-                    .Annotation("A1", "V1")
-                    .Annotation("A2", "V2"));
+            modelBuilder.Entity("Customer", ps =>
+                {
+                    ps.Property<int>("Id");
+                    ps.Property<string>("Name");
+                    ps.Key(k => k.Properties("Id", "Name")
+                        .Annotation("A1", "V1")
+                        .Annotation("A2", "V2"));
+                });
 
             var entity = model.GetEntityType(typeof(Customer));
 
@@ -284,7 +255,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             modelBuilder
                 .Entity<Customer>()
-                .Properties(ps => ps.Property(c => c.Name).Annotation("foo", "bar"));
+                .Property(c => c.Name).Annotation("foo", "bar");
 
             Assert.Equal("bar", model.GetEntityType(typeof(Customer)).GetProperty("Name")["foo"]);
         }
@@ -297,7 +268,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             modelBuilder
                 .Entity<Customer>()
-                .Properties(ps => ps.Property<string>("Name").Annotation("foo", "bar"));
+                .Property<string>("Name").Annotation("foo", "bar");
 
             Assert.Equal("bar", model.GetEntityType(typeof(Customer)).GetProperty("Name")["foo"]);
         }
@@ -310,7 +281,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             modelBuilder
                 .Entity("Customer")
-                .Properties(ps => ps.Property<string>("Name").Annotation("foo", "bar"));
+                .Property<string>("Name").Annotation("foo", "bar");
 
             Assert.Equal("bar", model.GetEntityType(typeof(Customer)).GetProperty("Name")["foo"]);
         }
@@ -323,7 +294,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             modelBuilder
                 .Entity<Customer>()
-                .Properties(ps => ps.Property(c => c.Name).UseStoreSequence());
+                .Property(c => c.Name).UseStoreSequence();
 
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Name");
 
@@ -339,7 +310,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             modelBuilder
                 .Entity<Customer>()
-                .Properties(ps => ps.Property(c => c.Name).UseStoreSequence("UltrasonicTarsier", 17));
+                .Property(c => c.Name).UseStoreSequence("UltrasonicTarsier", 17);
 
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Name");
 
@@ -355,14 +326,11 @@ namespace Microsoft.Data.Entity.Metadata
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
 
-            modelBuilder
-                .Entity<Customer>()
-                .Properties(
-                    ps =>
-                        {
-                            ps.Property(c => c.Id);
-                            ps.Property(c => c.Name).Annotation("foo", "bar");
-                        });
+            modelBuilder.Entity<Customer>(b =>
+                {
+                    b.Property(c => c.Id);
+                    b.Property(c => c.Name).Annotation("foo", "bar");
+                });
 
             Assert.Equal(2, model.GetEntityType(typeof(Customer)).Properties.Count());
         }
@@ -373,14 +341,12 @@ namespace Microsoft.Data.Entity.Metadata
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
 
-            modelBuilder
-                .Entity<Customer>()
-                .Properties(
-                    ps =>
-                        {
-                            ps.Property(c => c.Id);
-                            ps.Property<string>("Name").Annotation("foo", "bar");
-                        });
+            modelBuilder.Entity<Customer>(
+                b =>
+                    {
+                        b.Property(c => c.Id);
+                        b.Property<string>("Name").Annotation("foo", "bar");
+                    });
 
             Assert.Equal(2, model.GetEntityType(typeof(Customer)).Properties.Count());
         }
@@ -391,14 +357,11 @@ namespace Microsoft.Data.Entity.Metadata
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
 
-            modelBuilder
-                .Entity("Customer")
-                .Properties(
-                    ps =>
-                        {
-                            ps.Property<int>("Id");
-                            ps.Property<string>("Name").Annotation("foo", "bar");
-                        });
+            modelBuilder.Entity("Customer", b =>
+                {
+                    b.Property<int>("Id");
+                    b.Property<string>("Name").Annotation("foo", "bar");
+                });
 
             Assert.Equal(2, model.GetEntityType(typeof(Customer)).Properties.Count());
         }
@@ -423,13 +386,16 @@ namespace Microsoft.Data.Entity.Metadata
         {
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
+
             modelBuilder
                 .Entity<Customer>()
                 .Key(c => c.Id);
-            modelBuilder
-                .Entity<Order>()
-                .Properties(ps => ps.Property<int>("CustomerId"))
-                .ForeignKeys(fks => fks.ForeignKey("Customer", new[] { "CustomerId" }));
+
+            modelBuilder.Entity<Order>(b =>
+                {
+                    b.Property<int>("CustomerId");
+                    b.ForeignKeys(fks => fks.ForeignKey("Customer", new[] { "CustomerId" }));
+                });
 
             var entityType = model.GetEntityType(typeof(Order));
 
@@ -441,13 +407,16 @@ namespace Microsoft.Data.Entity.Metadata
         {
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
+
             modelBuilder
                 .Entity<Customer>()
                 .Key(c => c.Id);
-            modelBuilder
-                .Entity("Order")
-                .Properties(ps => ps.Property<int>("CustomerId"))
-                .ForeignKeys(fks => fks.ForeignKey("Customer", "CustomerId"));
+
+            modelBuilder.Entity("Order", b =>
+                {
+                    b.Property<int>("CustomerId");
+                    b.ForeignKeys(fks => fks.ForeignKey("Customer", "CustomerId"));
+                });
 
             var entityType = model.GetEntityType(typeof(Order));
 
@@ -459,14 +428,18 @@ namespace Microsoft.Data.Entity.Metadata
         {
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
-            modelBuilder
-                .Entity("Customer")
-                .Properties(ps => ps.Property<int>("Id"))
-                .Key(new[] { "Id" });
-            modelBuilder
-                .Entity("Order")
-                .Properties(ps => ps.Property<int>("CustomerId"))
-                .ForeignKeys(fks => fks.ForeignKey("Customer", "CustomerId"));
+
+            modelBuilder.Entity("Customer", b =>
+                {
+                    b.Property<int>("Id");
+                    b.Key(new[] { "Id" });
+                });
+
+            modelBuilder.Entity("Order", b =>
+                {
+                    b.Property<int>("CustomerId");
+                    b.ForeignKeys(fks => fks.ForeignKey("Customer", "CustomerId"));
+                });
 
             var entityType = model.GetEntityType(typeof(Order));
 
@@ -504,15 +477,16 @@ namespace Microsoft.Data.Entity.Metadata
 
             modelBuilder.Entity<Customer>().Key(c => c.Id);
 
-            modelBuilder
-                .Entity<Order>()
-                .Properties(ps => ps.Property<int>("CustomerId"))
-                .ForeignKeys(
-                    fks =>
-                        {
-                            fks.ForeignKey<Customer>(c => c.CustomerId);
-                            fks.ForeignKey("Customer", "CustomerId").IsUnique();
-                        });
+            modelBuilder.Entity<Order>(b =>
+                {
+                    b.Property<int>("CustomerId");
+                    b.ForeignKeys(
+                        fks =>
+                            {
+                                fks.ForeignKey<Customer>(c => c.CustomerId);
+                                fks.ForeignKey("Customer", "CustomerId").IsUnique();
+                            });
+                });
 
             var entityType = model.GetEntityType(typeof(Order));
 
@@ -529,14 +503,16 @@ namespace Microsoft.Data.Entity.Metadata
             modelBuilder.Entity<Customer>().Key(c => c.Id);
 
             modelBuilder
-                .Entity("Order")
-                .Properties(ps => ps.Property<int>("CustomerId"))
-                .ForeignKeys(
-                    fks =>
-                        {
-                            fks.ForeignKey("Customer", "CustomerId");
-                            fks.ForeignKey("Customer", "CustomerId").IsUnique();
-                        });
+                .Entity("Order", b =>
+                    {
+                        b.Property<int>("CustomerId");
+                        b.ForeignKeys(
+                            fks =>
+                                {
+                                    fks.ForeignKey("Customer", "CustomerId");
+                                    fks.ForeignKey("Customer", "CustomerId").IsUnique();
+                                });
+                    });
 
             var entityType = model.GetEntityType(typeof(Order));
 
@@ -550,20 +526,22 @@ namespace Microsoft.Data.Entity.Metadata
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
 
-            modelBuilder
-                .Entity("Customer")
-                .Properties(ps => ps.Property<int>("Id"))
-                .Key("Id");
+            modelBuilder.Entity("Customer", b =>
+                {
+                    b.Property<int>("Id");
+                    b.Key("Id");
+                });
 
-            modelBuilder
-                .Entity("Order")
-                .Properties(ps => ps.Property<int>("CustomerId"))
-                .ForeignKeys(
-                    fks =>
-                        {
-                            fks.ForeignKey("Customer", "CustomerId");
-                            fks.ForeignKey("Customer", "CustomerId").IsUnique();
-                        });
+            modelBuilder.Entity("Order", b =>
+                {
+                    b.Property<int>("CustomerId");
+                    b.ForeignKeys(
+                        fks =>
+                            {
+                                fks.ForeignKey("Customer", "CustomerId");
+                                fks.ForeignKey("Customer", "CustomerId").IsUnique();
+                            });
+                });
 
             var entityType = model.GetEntityType(typeof(Order));
 
@@ -592,10 +570,11 @@ namespace Microsoft.Data.Entity.Metadata
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
 
-            modelBuilder
-                .Entity("Customer")
-                .Properties(ps => ps.Property<string>("Name"))
-                .Indexes(ixs => ixs.Index("Name"));
+            modelBuilder.Entity("Customer", b =>
+                {
+                    b.Property<string>("Name");
+                    b.Indexes(ixs => ixs.Index("Name"));
+                });
 
             var entityType = model.GetEntityType(typeof(Customer));
 
@@ -610,13 +589,11 @@ namespace Microsoft.Data.Entity.Metadata
 
             modelBuilder
                 .Entity<Customer>()
-                .Indexes(
-                    ixs =>
-                        {
-                            ixs.Index(ix => ix.Id).IsUnique();
-                            ixs.Index(ix => ix.Name).Annotation("A1", "V1");
-                            ;
-                        });
+                .Indexes(ixs =>
+                    {
+                        ixs.Index(ix => ix.Id).IsUnique();
+                        ixs.Index(ix => ix.Name).Annotation("A1", "V1");
+                    });
 
             var entityType = model.GetEntityType(typeof(Customer));
 
@@ -632,20 +609,16 @@ namespace Microsoft.Data.Entity.Metadata
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
 
-            modelBuilder
-                .Entity("Customer")
-                .Properties(
-                    ps =>
-                        {
-                            ps.Property<int>("Id");
-                            ps.Property<string>("Name");
-                        })
-                .Indexes(
-                    ixs =>
+            modelBuilder.Entity("Customer", ps =>
+                {
+                    ps.Property<int>("Id");
+                    ps.Property<string>("Name");
+                    ps.Indexes(ixs =>
                         {
                             ixs.Index("Id").IsUnique();
                             ixs.Index("Name").Annotation("A1", "V1");
                         });
+                });
 
             var entityType = model.GetEntityType(typeof(Customer));
 
@@ -653,6 +626,20 @@ namespace Microsoft.Data.Entity.Metadata
             Assert.True(entityType.Indexes.First().IsUnique);
             Assert.False(entityType.Indexes.Last().IsUnique);
             Assert.Equal("V1", entityType.Indexes.Last()["A1"]);
+        }
+
+        private class Customer
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        private class Order
+        {
+            public int OrderId { get; set; }
+
+            public int CustomerId { get; set; }
+            public Customer Customer { get; set; }
         }
     }
 }

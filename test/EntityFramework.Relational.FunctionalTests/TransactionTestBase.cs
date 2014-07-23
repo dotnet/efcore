@@ -329,11 +329,12 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
 
             // TODO: Uncomment when complex types are supported
             //builder.ComplexType<Location>();
-            modelBuilder
-                .Entity<Customer>()
-                .Key(c => c.Id)
-                .Properties(ps => { ps.Property(c => c.Name); })
-                .ToTable("Customers");
+            modelBuilder.Entity<Customer>(ps =>
+                {
+                    ps.Property(c => c.Name);
+                    ps.Key(c => c.Id);
+                    ps.ToTable("Customers");
+                });
 
             return model;
         }

@@ -102,7 +102,7 @@ namespace Microsoft.Data.Entity.Relational
 
             modelBuilder
                 .Entity<Customer>()
-                .Properties(ps => ps.Property(c => c.Name).ColumnName("foo"));
+                .Property(c => c.Name).ColumnName("foo");
 
             Assert.Equal("foo", model.GetEntityType(typeof(Customer)).GetProperty("Name").ColumnName());
         }
@@ -115,7 +115,7 @@ namespace Microsoft.Data.Entity.Relational
 
             modelBuilder
                 .Entity<Customer>()
-                .Properties(ps => ps.Property<string>("Name").ColumnName("foo"));
+                .Property<string>("Name").ColumnName("foo");
 
             Assert.Equal("foo", model.GetEntityType(typeof(Customer)).GetProperty("Name").ColumnName());
         }
@@ -128,7 +128,7 @@ namespace Microsoft.Data.Entity.Relational
 
             modelBuilder
                 .Entity("Customer")
-                .Properties(ps => ps.Property<string>("Name").ColumnName("foo"));
+                .Property<string>("Name").ColumnName("foo");
 
             Assert.Equal("foo", model.GetEntityType(typeof(Customer)).GetProperty("Name").ColumnName());
         }
@@ -139,15 +139,17 @@ namespace Microsoft.Data.Entity.Relational
             var model = new Metadata.Model();
             var modelBuilder = new ModelBuilder(model);
 
-            modelBuilder
-                .Entity("Customer")
-                .Properties(ps => ps.Property<int>("Id"))
-                .Key("Id");
+            modelBuilder.Entity("Customer", b =>
+                {
+                    b.Property<int>("Id");
+                    b.Key("Id");
+                });
 
-            modelBuilder
-                .Entity("Order")
-                .Properties(ps => ps.Property<int>("CustomerId"))
-                .ForeignKeys(fks => fks.ForeignKey("Customer", "CustomerId").KeyName("FK_Foo"));
+            modelBuilder.Entity("Order", b =>
+                {
+                    b.Property<int>("CustomerId");
+                    b.ForeignKeys(fks => fks.ForeignKey("Customer", "CustomerId").KeyName("FK_Foo"));
+                });
 
             Assert.Equal("FK_Foo", model.GetEntityType(typeof(Order)).ForeignKeys.Single().KeyName());
         }
@@ -177,7 +179,7 @@ namespace Microsoft.Data.Entity.Relational
 
             modelBuilder
                 .Entity("Customer")
-                .Properties(ps => ps.Property<string>("Name"));
+                .Property<string>("Name");
 
             Assert.Equal("Name", model.GetEntityType(typeof(Customer)).GetProperty("Name").ColumnName());
         }
@@ -190,7 +192,7 @@ namespace Microsoft.Data.Entity.Relational
 
             modelBuilder
                 .Entity("Customer")
-                .Properties(ps => ps.Property<string>("Name"));
+                .Property<string>("Name");
 
             model.GetEntityType(typeof(Customer)).GetProperty("Name").SetColumnName("CustomerName");
 

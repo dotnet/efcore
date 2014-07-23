@@ -127,17 +127,14 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         {
             var builder = new ModelBuilder();
 
-            builder
-                .Entity<HistoryRow>()
-                .ToTable(TableName)
-                .Properties(
-                    ps =>
-                        {
-                            // TODO: Add column constraints (FixedLength, MaxLength) where needed.
-                            ps.Property(e => e.MigrationId);
-                            ps.Property(e => e.ContextKey);
-                        })
-                .Key(e => new { e.MigrationId, e.ContextKey });
+            builder.Entity<HistoryRow>(b =>
+                {
+                    b.Key(e => new { e.MigrationId, e.ContextKey });
+                    // TODO: Add column constraints (FixedLength, MaxLength) where needed.
+                    b.Property(e => e.MigrationId);
+                    b.Property(e => e.ContextKey);
+                    b.ToTable(TableName);
+                });
 
             return builder.Model;
         }

@@ -210,10 +210,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             protected override void OnModelCreating(ModelBuilder builder)
             {
-                builder
-                    .Entity<Pegasus>()
-                    .Key(e => e.Identifier)
-                    .Properties(s => s.Property(e => e.Identifier).UseStoreSequence("PegasusSequence", 11));
+                builder.Entity<Pegasus>(b =>
+                    {
+                        b.Key(e => e.Identifier);
+                        b.Property(e => e.Identifier).UseStoreSequence("PegasusSequence", 11);
+                    });
             }
         }
 

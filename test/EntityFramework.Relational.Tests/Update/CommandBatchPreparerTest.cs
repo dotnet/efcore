@@ -339,7 +339,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             modelBuilder
                 .Entity<FakeEntity>()
                 .Key(c => c.Id)
-                .Properties(ps => ps.Property(c => c.Value));
+                .Property(c => c.Value);
 
             modelBuilder
                 .Entity<RelatedFakeEntity>()
@@ -357,7 +357,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             modelBuilder
                 .Entity<FakeEntity>()
                 .Key(c => c.Id)
-                .Properties(ps => ps.Property(c => c.Value));
+                .Property(c => c.Value);
 
             modelBuilder
                 .Entity<RelatedFakeEntity>()

@@ -66,17 +66,16 @@ namespace Microsoft.Data.Entity.Relational.Tests
 
             modelBuilder.Entity<Blog>()
                 .Key(k => k.BlogId)
-                .Properties(p => p.Property(e => e.BlogId));
+                .Property(e => e.BlogId);
 
-            modelBuilder.Entity<Post>()
-                .Key(k => k.PostId)
-                .Properties(p =>
-                    {
-                        p.Property(e => e.PostId);
-                        p.Property(e => e.BelongsToBlogId);
-                    })
-                .ForeignKeys(f => f.ForeignKey<Blog>(p => p.BelongsToBlogId))
-                .Indexes(ixs => ixs.Index(ix => ix.PostId));
+            modelBuilder.Entity<Post>(b =>
+                {
+                    b.Key(k => k.PostId);
+                    b.Property(e => e.PostId);
+                    b.Property(e => e.BelongsToBlogId);
+                    b.ForeignKeys(f => f.ForeignKey<Blog>(p => p.BelongsToBlogId));
+                    b.Indexes(ixs => ixs.Index(ix => ix.PostId));
+                });
 
             var database = new DatabaseBuilder().GetDatabase(modelBuilder.Model);
 
@@ -142,18 +141,15 @@ namespace Microsoft.Data.Entity.Relational.Tests
         {
             var modelBuilder = new ModelBuilder();
 
-            modelBuilder.Entity<Dependent>()
-                .ToTable("MyTable")
-                .Properties(
-                    ps =>
-                        {
-                            ps.Property(e => e.Id);
-                            ps.Property(e => e.FkAAA).ColumnName("ColumnAaa");
-                            ps.Property(e => e.FkZZZ).ColumnName("ColumnZzz");
-                        })
-                .Key(e => e.Id)
-                .Indexes(
-                    ixs => ixs.Index(e => new { e.FkAAA, e.FkZZZ }));
+            modelBuilder.Entity<Dependent>(b =>
+                {
+                    b.Key(e => e.Id);
+                    b.Property(e => e.Id);
+                    b.Property(e => e.FkAAA).ColumnName("ColumnAaa");
+                    b.Property(e => e.FkZZZ).ColumnName("ColumnZzz");
+                    b.ToTable("MyTable");
+                    b.Indexes(ixs => ixs.Index(e => new { e.FkAAA, e.FkZZZ }));
+                });
 
             var builder = new DatabaseBuilder();
             var name = builder.GetDatabase(modelBuilder.Model).GetTable("MyTable").Indexes.Single().Name;
