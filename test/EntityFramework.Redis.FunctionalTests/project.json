@@ -8,6 +8,7 @@
     "Microsoft.Framework.ConfigurationModel":"1.0.0-*",
     "Microsoft.Framework.ConfigurationModel.Xml": "1.0.0-*",
     "Microsoft.Framework.DependencyInjection": "1.0.0-*",
+    "Redis-64": "2.8.9",
     "Xunit.KRunner": "1.0.0-*"
   },
   "commands": {

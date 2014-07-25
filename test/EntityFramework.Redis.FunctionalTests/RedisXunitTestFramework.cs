@@ -30,7 +30,15 @@ namespace Microsoft.Data.Entity.Redis
         protected override void RunTestCases(
             IEnumerable<IXunitTestCase> testCases, IMessageSink messageSink, ITestFrameworkOptions executionOptions)
         {
-            var serverStarted = RedisTestConfig.StartServer();
+            var serverStarted = false;
+            try
+            {
+                serverStarted = RedisTestConfig.StartServer();
+            }
+            catch (Exception)
+            {
+                // test just hangs if we allow exceptions to propagate
+            }
 
             var cases = testCases.Where(t =>
                 t.Class.GetCustomAttributes(typeof(RequiresRedisServerAttribute)) == null
@@ -39,7 +47,15 @@ namespace Microsoft.Data.Entity.Redis
 
             // wait long enough for all tests to finish on other threads
             Thread.Sleep(RedisTestConfig.ServerTimeoutInSecs * 1000);
-            RedisTestConfig.StopServer();
+
+            try
+            {
+                RedisTestConfig.StopServer();
+            }
+            catch (Exception)
+            {
+                // test just hangs if we allow exceptions to propagate
+            }
         }
     }
 

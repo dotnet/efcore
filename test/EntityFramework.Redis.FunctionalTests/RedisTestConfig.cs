@@ -5,15 +5,13 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Xml;
-using Microsoft.Framework.ConfigurationModel;
 
 namespace Microsoft.Data.Entity.Redis
 {
     public static class RedisTestConfig
     {
         private const string RedisServerExeName = "redis-server";
-        private const string RedisTestConfigFilename = "RedisTest.config";
+        private const string RedisNugetPackageServerPath = @".kpm\packages\Redis\2.8.9";
 
         private static volatile Process _redisServerProcess;
         private static bool _startedRedisServer;
@@ -28,32 +26,8 @@ namespace Microsoft.Data.Entity.Redis
             }
 
             var configFilePath = Environment.GetEnvironmentVariable("USERPROFILE");
-            string serverPath = null;
-            if (File.Exists(Path.Combine(configFilePath, RedisTestConfigFilename)))
-            {
-                try
-                {
-                    var configuration = new Configuration();
-                    configuration.AddXmlFile(Path.Combine(configFilePath, RedisTestConfigFilename));
-                    if (configuration.TryGet("RedisServer:Path", out serverPath))
-                    {
-                        serverPath = serverPath.Trim();
-                    }
-
-                    string timeoutInSecs = null;
-                    if (configuration.TryGet("RedisServer:TimeoutInSecs", out timeoutInSecs))
-                    {
-                        int.TryParse(timeoutInSecs.Trim(), out _serverTimeoutInSecs);
-                    }
-                }
-                catch (XmlException)
-                {
-                    // do nothing - could not read XML file
-                }
-            }
-
-            if (serverPath == null
-                || !File.Exists(Path.Combine(serverPath, RedisServerExeName + ".exe")))
+            string serverPath = Path.Combine(configFilePath, RedisNugetPackageServerPath);
+            if (!File.Exists(Path.Combine(serverPath, RedisServerExeName + ".exe")))
             {
                 return false;
             }
