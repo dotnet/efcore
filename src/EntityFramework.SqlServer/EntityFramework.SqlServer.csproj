@@ -59,6 +59,7 @@
     <Compile Include="Query\SqlServerQueryGenerator.cs" />
     <Compile Include="SequentialGuidValueGenerator.cs" />
     <Compile Include="SqlServerBatchExecutor.cs" />
+    <Compile Include="SqlServerDataStoreServices.cs" />
     <Compile Include="SqlServerMigrationOperationSqlGeneratorFactory.cs" />
     <Compile Include="SqlServerMigrator.cs" />
     <Compile Include="SqlServerModificationCommandBatchFactory.cs" />

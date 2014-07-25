@@ -13,11 +13,12 @@ namespace Microsoft.Data.Entity.Storage
         [Fact]
         public void Selects_single_configured_store()
         {
-            var source = CreateSource("DataStore1", configured: true, available: false, store: Mock.Of<DataStore>());
+            var services = Mock.Of<DataStoreServices>();
+            var source = CreateSource("DataStore1", configured: true, available: false, services: services);
 
             var selector = new DataStoreSelector(new[] { source });
 
-            Assert.Same(source, selector.SelectDataStore(new DbContextConfiguration()));
+            Assert.Same(services, selector.SelectDataStore(new DbContextConfiguration()));
         }
 
         [Fact]
@@ -85,19 +86,20 @@ namespace Microsoft.Data.Entity.Storage
         [Fact]
         public void Selects_single_available_store()
         {
-            var source = CreateSource("DataStore1", configured: false, available: true, store: Mock.Of<DataStore>());
+            var services = Mock.Of<DataStoreServices>();
+            var source = CreateSource("DataStore1", configured: false, available: true, services: services);
 
             var selector = new DataStoreSelector(new[] { source });
 
-            Assert.Same(source, selector.SelectDataStore(new DbContextConfiguration()));
+            Assert.Same(services, selector.SelectDataStore(new DbContextConfiguration()));
         }
 
-        private static DataStoreSource CreateSource(string name, bool configured, bool available, DataStore store = null)
+        private static DataStoreSource CreateSource(string name, bool configured, bool available, DataStoreServices services = null)
         {
             var sourceMock = new Mock<DataStoreSource>();
-            sourceMock.Setup(m => m.IsConfigured(It.IsAny<DbContextConfiguration>())).Returns(configured);
-            sourceMock.Setup(m => m.IsAvailable(It.IsAny<DbContextConfiguration>())).Returns(available);
-            sourceMock.Setup(m => m.GetStore(It.IsAny<DbContextConfiguration>())).Returns(store);
+            sourceMock.Setup(m => m.IsConfigured).Returns(configured);
+            sourceMock.Setup(m => m.IsAvailable).Returns(available);
+            sourceMock.Setup(m => m.StoreServices).Returns(services);
             sourceMock.Setup(m => m.Name).Returns(name);
 
             return sourceMock.Object;

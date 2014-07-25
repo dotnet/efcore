@@ -10,8 +10,6 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
 {
     public class AtsDataStoreSourceTests
     {
-        private readonly AtsDataStoreSource _source = new AtsDataStoreSource();
-
         [Fact]
         public void Available_when_configured()
         {
@@ -21,20 +19,21 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
                 Mock.Of<IServiceProvider>(),
                 new DbContextOptions(),
                 Mock.Of<DbContext>(),
-                DbContextConfiguration.ServiceProviderSource.Implicit)
-                ;
+                DbContextConfiguration.ServiceProviderSource.Implicit);
 
-            Assert.False(_source.IsAvailable(config));
+            var source = new AtsDataStoreSource(config);
+
+            Assert.False(source.IsAvailable);
 
             config.ContextOptions.AddExtension(new AtsOptionsExtension());
 
-            Assert.True(_source.IsAvailable(config));
+            Assert.True(source.IsAvailable);
         }
 
         [Fact]
         public void Named_correctly()
         {
-            Assert.Equal("AzureTableStorage", _source.Name);
+            Assert.Equal("AzureTableStorage", new AtsDataStoreSource(Mock.Of<DbContextConfiguration>()).Name);
         }
     }
 }

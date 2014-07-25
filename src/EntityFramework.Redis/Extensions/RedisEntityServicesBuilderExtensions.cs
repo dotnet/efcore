@@ -16,10 +16,10 @@ namespace Microsoft.Framework.DependencyInjection
             Check.NotNull(builder, "builder");
 
             builder.ServiceCollection
-                .AddSingleton<RedisModelBuilderFactory>()
-                .AddSingleton<DataStoreSource, RedisDataStoreSource>()
+                .AddScoped<DataStoreSource, RedisDataStoreSource>()
                 .AddScoped<RedisOptionsExtension>()
                 .AddScoped<RedisDataStore>()
+                .AddScoped<RedisDataStoreServices>()
                 .AddScoped<RedisConnection>()
                 .AddScoped<RedisDataStoreCreator>()
                 .AddScoped<RedisDatabase>();

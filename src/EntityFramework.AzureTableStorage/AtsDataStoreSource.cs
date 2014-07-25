@@ -1,24 +1,17 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.Data.Entity.AzureTableStorage.Metadata;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.AzureTableStorage
 {
-    public class AtsDataStoreSource : DataStoreSource<
-        AtsDataStore,
-        AtsOptionsExtension,
-        AtsDataStoreCreator,
-        AtsConnection,
-        AtsValueGeneratorCache,
-        AtsDatabase,
-        AtsModelBuilderFactory>
+    public class AtsDataStoreSource : DataStoreSource<AtsDataStoreServices, AtsOptionsExtension>
     {
-        public override bool IsAvailable(DbContextConfiguration configuration)
+        public AtsDataStoreSource([NotNull] DbContextConfiguration configuration)
+            : base(configuration)
         {
-            return IsConfigured(configuration);
         }
 
         public override string Name

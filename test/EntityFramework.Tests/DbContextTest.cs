@@ -417,11 +417,14 @@ namespace Microsoft.Data.Entity
         {
             var store = new Mock<DataStore>();
 
+            var servicesMock = new Mock<DataStoreServices>();
+            servicesMock.Setup(m => m.Store).Returns(store.Object);
+            servicesMock.Setup(m => m.ModelBuilderFactory).Returns(new ModelBuilderFactory());
+
             var sourceMock = new Mock<DataStoreSource>();
-            sourceMock.Setup(m => m.IsAvailable(It.IsAny<DbContextConfiguration>())).Returns(true);
-            sourceMock.Setup(m => m.IsConfigured(It.IsAny<DbContextConfiguration>())).Returns(true);
-            sourceMock.Setup(m => m.GetStore(It.IsAny<DbContextConfiguration>())).Returns(store.Object);
-            sourceMock.Setup(m => m.GetModelBuilderFactory(It.IsAny<DbContextConfiguration>())).Returns(new ModelBuilderFactory());
+            sourceMock.Setup(m => m.IsAvailable).Returns(true);
+            sourceMock.Setup(m => m.IsConfigured).Returns(true);
+            sourceMock.Setup(m => m.StoreServices).Returns(servicesMock.Object);
 
             var services = new ServiceCollection();
             services.AddEntityFramework();
@@ -453,12 +456,15 @@ namespace Microsoft.Data.Entity
                 .Callback<IEnumerable<StateEntry>, CancellationToken>((e, c) => passedEntries.AddRange(e))
                 .Returns(Task.FromResult(3));
 
+            var servicesMock = new Mock<DataStoreServices>();
+            servicesMock.Setup(m => m.Store).Returns(store.Object);
+            servicesMock.Setup(m => m.ValueGeneratorCache).Returns(Mock.Of<ValueGeneratorCache>);
+            servicesMock.Setup(m => m.ModelBuilderFactory).Returns(new ModelBuilderFactory());
+
             var sourceMock = new Mock<DataStoreSource>();
-            sourceMock.Setup(m => m.IsAvailable(It.IsAny<DbContextConfiguration>())).Returns(true);
-            sourceMock.Setup(m => m.IsConfigured(It.IsAny<DbContextConfiguration>())).Returns(true);
-            sourceMock.Setup(m => m.GetStore(It.IsAny<DbContextConfiguration>())).Returns(store.Object);
-            sourceMock.Setup(m => m.GetValueGeneratorCache(It.IsAny<DbContextConfiguration>())).Returns(Mock.Of<ValueGeneratorCache>);
-            sourceMock.Setup(m => m.GetModelBuilderFactory(It.IsAny<DbContextConfiguration>())).Returns(new ModelBuilderFactory());
+            sourceMock.Setup(m => m.IsAvailable).Returns(true);
+            sourceMock.Setup(m => m.IsConfigured).Returns(true);
+            sourceMock.Setup(m => m.StoreServices).Returns(servicesMock.Object);
 
             var services = new ServiceCollection();
             services.AddEntityFramework();

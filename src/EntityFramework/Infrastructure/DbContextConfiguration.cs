@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         private DbContextOptions _contextOptions;
         private DbContext _context;
         private LazyRef<IModel> _modelFromSource;
-        private LazyRef<DataStoreSource> _dataStoreSource;
+        private LazyRef<DataStoreServices> _dataStoreServices;
         private LazyRef<DataStore> _dataStore;
         private LazyRef<DataStoreConnection> _connection;
         private LazyRef<StateManager> _stateManager;
@@ -53,12 +53,12 @@ namespace Microsoft.Data.Entity.Infrastructure
             _serviceProviderSource = serviceProviderSource;
             _contextOptions = contextOptions;
             _context = context;
-            _dataStoreSource = new LazyRef<DataStoreSource>(() => _services.DataStoreSelector.SelectDataStore(this));
-            _modelFromSource = new LazyRef<IModel>(() => _services.ModelSource.GetModel(_context, _dataStoreSource.Value.GetModelBuilderFactory(this)));
-            _dataStore = new LazyRef<DataStore>(() => _dataStoreSource.Value.GetStore(this));
-            _connection = new LazyRef<DataStoreConnection>(() => _dataStoreSource.Value.GetConnection(this));
+            _dataStoreServices = new LazyRef<DataStoreServices>(() => _services.DataStoreSelector.SelectDataStore(this));
+            _modelFromSource = new LazyRef<IModel>(() => _services.ModelSource.GetModel(_context, _dataStoreServices.Value.ModelBuilderFactory));
+            _dataStore = new LazyRef<DataStore>(() => _dataStoreServices.Value.Store);
+            _connection = new LazyRef<DataStoreConnection>(() => _dataStoreServices.Value.Connection);
             _loggerFactory = new LazyRef<ILoggerFactory>(() => _externalProvider.TryGetService<ILoggerFactory>() ?? new NullLoggerFactory());
-            _database = new LazyRef<Database>(() => _dataStoreSource.Value.GetDatabase(this));
+            _database = new LazyRef<Database>(() => _dataStoreServices.Value.Database);
             _stateManager = new LazyRef<StateManager>(() => _services.StateManager);
 
             return this;
@@ -86,12 +86,12 @@ namespace Microsoft.Data.Entity.Infrastructure
 
         public virtual DataStoreCreator DataStoreCreator
         {
-            get { return _dataStoreSource.Value.GetCreator(this); }
+            get { return _dataStoreServices.Value.Creator; }
         }
 
         public virtual ValueGeneratorCache ValueGeneratorCache
         {
-            get { return _dataStoreSource.Value.GetValueGeneratorCache(this); }
+            get { return _dataStoreServices.Value.ValueGeneratorCache; }
         }
 
         public virtual DataStoreConnection Connection

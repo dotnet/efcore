@@ -22,11 +22,13 @@ namespace Microsoft.Framework.DependencyInjection
             Check.NotNull(builder, "builder");
 
             builder.ServiceCollection
-                .AddSingleton<DataStoreSource, AtsDataStoreSource>()
                 .AddSingleton<AtsQueryFactory>()
                 .AddSingleton<TableEntityAdapterFactory>()
                 .AddSingleton<AtsValueReaderFactory>()
                 .AddSingleton<AtsModelBuilderFactory>()
+                .AddSingleton<AtsValueGeneratorCache>()
+                .AddScoped<DataStoreSource, AtsDataStoreSource>()
+                .AddScoped<AtsDataStoreServices>()
                 .AddScoped<AtsDatabase>()
                 .AddScoped<AtsDataStore>()
                 .AddScoped<AtsConnection>()

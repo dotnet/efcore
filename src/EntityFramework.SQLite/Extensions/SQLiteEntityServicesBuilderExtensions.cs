@@ -22,7 +22,6 @@ namespace Microsoft.Framework.DependencyInjection
             Check.NotNull(builder, "builder");
 
             builder.AddRelational().ServiceCollection
-                .AddSingleton<DataStoreSource, SQLiteDataStoreSource>()
                 .AddSingleton<SQLiteValueGeneratorCache>()
                 .AddSingleton<SQLiteValueGeneratorSelector>()
                 .AddSingleton<SQLiteSqlGenerator>()
@@ -30,6 +29,8 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddSingleton<SQLiteTypeMapper>()
                 .AddSingleton<SQLiteBatchExecutor>()
                 .AddSingleton<ModificationCommandBatchFactory, SQLiteModificationCommandBatchFactory>()
+                .AddScoped<DataStoreSource, SQLiteDataStoreSource>()
+                .AddScoped<SQLiteDataStoreServices>()
                 .AddScoped<SQLiteDataStore>()
                 .AddScoped<SQLiteConnection>()
                 .AddScoped<SQLiteMigrationOperationSqlGeneratorFactory>()

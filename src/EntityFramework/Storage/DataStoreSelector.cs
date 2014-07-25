@@ -27,13 +27,13 @@ namespace Microsoft.Data.Entity.Storage
             _sources = sources == null ? new DataStoreSource[0] : sources.ToArray();
         }
 
-        public virtual DataStoreSource SelectDataStore([NotNull] DbContextConfiguration configuration)
+        public virtual DataStoreServices SelectDataStore([NotNull] DbContextConfiguration configuration)
         {
-            var configured = _sources.Where(f => f.IsConfigured(configuration)).ToArray();
+            var configured = _sources.Where(f => f.IsConfigured).ToArray();
 
             if (configured.Length == 1)
             {
-                return configured[0];
+                return configured[0].StoreServices;
             }
 
             if (configured.Length > 1)
@@ -55,12 +55,12 @@ namespace Microsoft.Data.Entity.Storage
                 throw new InvalidOperationException(Strings.FormatMultipleDataStoresAvailable(BuildStoreNamesString(_sources)));
             }
 
-            if (!_sources[0].IsAvailable(configuration))
+            if (!_sources[0].IsAvailable)
             {
                 throw new InvalidOperationException(Strings.NoDataStoreConfigured);
             }
 
-            return _sources[0];
+            return _sources[0].StoreServices;
         }
 
         private static string BuildStoreNamesString(IEnumerable<DataStoreSource> available)

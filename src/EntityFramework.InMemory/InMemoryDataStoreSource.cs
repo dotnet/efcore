@@ -1,27 +1,22 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.InMemory.Utilities;
 using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.InMemory
 {
-    public class InMemoryDataStoreSource
-        : DataStoreSource<
-            InMemoryDataStore,
-            InMemoryOptionsExtension,
-            InMemoryDataStoreCreator,
-            InMemoryConnection,
-            InMemoryValueGeneratorCache,
-            Database,
-            InMemoryModelBuilderFactory>
+    public class InMemoryDataStoreSource : DataStoreSource<InMemoryDataStoreServices, InMemoryOptionsExtension>
     {
-        public override bool IsAvailable(DbContextConfiguration configuration)
+        public InMemoryDataStoreSource([NotNull] DbContextConfiguration configuration)
+            : base(configuration)
         {
-            Check.NotNull(configuration, "configuration");
+        }
 
-            return true;
+        public override bool IsAvailable
+        {
+            get { return true; }
         }
 
         public override string Name

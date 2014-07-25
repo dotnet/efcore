@@ -80,8 +80,8 @@
     <Compile Include="RedisDatabase.cs" />
     <Compile Include="RedisDataStore.cs" />
     <Compile Include="RedisDataStoreCreator.cs" />
+    <Compile Include="RedisDataStoreServices.cs" />
     <Compile Include="RedisDataStoreSource.cs" />
-    <Compile Include="RedisModelBuilderFactory.cs" />
     <Compile Include="RedisOptionsExtension.cs" />
     <Compile Include="Utilities\Check.cs" />
     <EmbeddedResource Include="Properties\Strings.resx">

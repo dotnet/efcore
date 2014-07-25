@@ -17,8 +17,8 @@ namespace Microsoft.Data.Entity.Storage
 {
     public abstract class DataStore
     {
+        private readonly DbContextConfiguration _configuration;
         private readonly ILogger _logger;
-        private readonly IModel _model;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -31,10 +31,10 @@ namespace Microsoft.Data.Entity.Storage
 
         protected DataStore([NotNull] DbContextConfiguration configuration)
         {
+            _configuration = configuration;
             Check.NotNull(configuration, "configuration");
 
             _logger = configuration.LoggerFactory.Create(GetType().Name);
-            _model = configuration.Model;
         }
 
         public virtual ILogger Logger
@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.Storage
 
         public virtual IModel Model
         {
-            get { return _model; }
+            get { return _configuration.Model; }
         }
 
         public abstract Task<int> SaveChangesAsync(

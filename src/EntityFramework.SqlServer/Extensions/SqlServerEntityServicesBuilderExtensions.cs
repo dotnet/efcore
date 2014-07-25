@@ -23,7 +23,6 @@ namespace Microsoft.Framework.DependencyInjection
             Check.NotNull(builder, "builder");
 
             builder.AddRelational().ServiceCollection
-                .AddSingleton<DataStoreSource, SqlServerDataStoreSource>()
                 .AddSingleton<SqlServerValueGeneratorCache>()
                 .AddSingleton<SqlServerValueGeneratorSelector>()
                 .AddSingleton<SimpleValueGeneratorFactory<SequentialGuidValueGenerator>>()
@@ -33,6 +32,8 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddSingleton<SqlServerTypeMapper>()
                 .AddSingleton<SqlServerBatchExecutor>()
                 .AddSingleton<ModificationCommandBatchFactory, SqlServerModificationCommandBatchFactory>()
+                .AddScoped<DataStoreSource, SqlServerDataStoreSource>()
+                .AddScoped<SqlServerDataStoreServices>()
                 .AddScoped<SqlServerDataStore>()
                 .AddScoped<SqlServerConnection>()
                 .AddScoped<ModelDiffer>()

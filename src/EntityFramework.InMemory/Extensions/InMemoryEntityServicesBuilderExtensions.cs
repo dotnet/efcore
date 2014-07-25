@@ -20,12 +20,12 @@ namespace Microsoft.Framework.DependencyInjection
             Check.NotNull(builder, "builder");
 
             builder.ServiceCollection
-                .AddSingleton<InMemoryModelBuilderFactory>()
-                .AddSingleton<DataStoreSource, InMemoryDataStoreSource>()
                 .AddSingleton<InMemoryValueGeneratorCache>()
                 .AddSingleton<InMemoryValueGeneratorSelector>()
                 .AddSingleton<SimpleValueGeneratorFactory<InMemoryValueGenerator>>()
                 .AddSingleton<InMemoryDatabase>()
+                .AddScoped<DataStoreSource, InMemoryDataStoreSource>()
+                .AddScoped<InMemoryDataStoreServices>()
                 .AddScoped<Database>()
                 .AddScoped<InMemoryDataStore>()
                 .AddScoped<InMemoryConnection>()

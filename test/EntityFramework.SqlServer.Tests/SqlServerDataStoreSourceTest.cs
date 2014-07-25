@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Returns_appropriate_name()
         {
-            Assert.Equal(typeof(SqlServerDataStore).Name, new SqlServerDataStoreSource().Name);
+            Assert.Equal(typeof(SqlServerDataStore).Name, new SqlServerDataStoreSource(Mock.Of<DbContextConfiguration>()).Name);
         }
 
         [Fact]
@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var configurationMock = new Mock<DbContextConfiguration>();
             configurationMock.Setup(m => m.ContextOptions).Returns(options);
 
-            Assert.True(new SqlServerDataStoreSource().IsConfigured(configurationMock.Object));
+            Assert.True(new SqlServerDataStoreSource(configurationMock.Object).IsConfigured);
         }
 
         [Fact]
@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var configurationMock = new Mock<DbContextConfiguration>();
             configurationMock.Setup(m => m.ContextOptions).Returns(options);
 
-            Assert.False(new SqlServerDataStoreSource().IsConfigured(configurationMock.Object));
+            Assert.False(new SqlServerDataStoreSource(configurationMock.Object).IsConfigured);
         }
 
         [Fact]
@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var configurationMock = new Mock<DbContextConfiguration>();
             configurationMock.Setup(m => m.ContextOptions).Returns(options);
 
-            Assert.True(new SqlServerDataStoreSource().IsAvailable(configurationMock.Object));
+            Assert.True(new SqlServerDataStoreSource(configurationMock.Object).IsAvailable);
         }
 
         [Fact]
@@ -58,7 +58,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var configurationMock = new Mock<DbContextConfiguration>();
             configurationMock.Setup(m => m.ContextOptions).Returns(options);
 
-            Assert.False(new SqlServerDataStoreSource().IsAvailable(configurationMock.Object));
+            Assert.False(new SqlServerDataStoreSource(configurationMock.Object).IsAvailable);
         }
     }
 }

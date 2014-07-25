@@ -220,6 +220,7 @@
     <Compile Include="Storage\DataStoreConnection.cs" />
     <Compile Include="Storage\DataStoreCreator.cs" />
     <Compile Include="Storage\DataStoreSelector.cs" />
+    <Compile Include="Storage\DataStoreServices.cs" />
     <Compile Include="Storage\DataStoreSource.cs" />
     <Compile Include="Storage\DataStoreSource`.cs" />
     <Compile Include="Storage\DataStoreTransaction.cs" />

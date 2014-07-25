@@ -72,6 +72,7 @@
     <Compile Include="AtsConnection.cs" />
     <Compile Include="AtsDataStore.cs" />
     <Compile Include="AtsDataStoreCreator.cs" />
+    <Compile Include="AtsDataStoreServices.cs" />
     <Compile Include="AtsDataStoreSource.cs" />
     <Compile Include="AtsOptionsExtension.cs" />
     <Compile Include="AtsValueGeneratorCache.cs" />

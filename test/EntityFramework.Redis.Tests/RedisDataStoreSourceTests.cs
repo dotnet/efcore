@@ -13,26 +13,27 @@ namespace Microsoft.Data.Entity.Redis
         [Fact]
         public void Available_when_configured()
         {
-            var configuration = new DbContextConfiguration();
-            configuration.Initialize(
+            var config = new DbContextConfiguration();
+            config.Initialize(
                 Mock.Of<IServiceProvider>(),
                 Mock.Of<IServiceProvider>(),
                 new DbContextOptions(),
                 Mock.Of<DbContext>(),
                 DbContextConfiguration.ServiceProviderSource.Implicit);
 
-            var dataStoreSource = new RedisDataStoreSource();
-            Assert.False(dataStoreSource.IsAvailable(configuration));
+            var source = new RedisDataStoreSource(config);
 
-            configuration.ContextOptions.AddExtension(new RedisOptionsExtension());
+            Assert.False(source.IsAvailable);
 
-            Assert.True(dataStoreSource.IsAvailable(configuration));
+            config.ContextOptions.AddExtension(new RedisOptionsExtension());
+
+            Assert.True(source.IsAvailable);
         }
 
         [Fact]
         public void Named_correctly()
         {
-            Assert.Equal(typeof(RedisDataStore).Name, new RedisDataStoreSource().Name);
+            Assert.Equal(typeof(RedisDataStore).Name, new RedisDataStoreSource(Mock.Of<DbContextConfiguration>()).Name);
         }
     }
 }

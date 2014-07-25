@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         [Fact]
         public void Returns_appropriate_name()
         {
-            Assert.Equal(typeof(InMemoryDataStore).Name, new InMemoryDataStoreSource().Name);
+            Assert.Equal(typeof(InMemoryDataStore).Name, new InMemoryDataStoreSource(Mock.Of<DbContextConfiguration>()).Name);
         }
 
         [Fact]
@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var configurationMock = new Mock<DbContextConfiguration>();
             configurationMock.Setup(m => m.ContextOptions).Returns(options);
 
-            Assert.True(new InMemoryDataStoreSource().IsConfigured(configurationMock.Object));
+            Assert.True(new InMemoryDataStoreSource(configurationMock.Object).IsConfigured);
         }
 
         [Fact]
@@ -35,13 +35,13 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var configurationMock = new Mock<DbContextConfiguration>();
             configurationMock.Setup(m => m.ContextOptions).Returns(options);
 
-            Assert.False(new InMemoryDataStoreSource().IsConfigured(configurationMock.Object));
+            Assert.False(new InMemoryDataStoreSource(configurationMock.Object).IsConfigured);
         }
 
         [Fact]
         public void Is_always_available()
         {
-            Assert.True(new InMemoryDataStoreSource().IsAvailable(Mock.Of<DbContextConfiguration>()));
+            Assert.True(new InMemoryDataStoreSource(Mock.Of<DbContextConfiguration>()).IsAvailable);
         }
     }
 }
