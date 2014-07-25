@@ -10,13 +10,14 @@ namespace Microsoft.Data.Entity.Redis
     public class SimpleFixture : IDisposable
     {
         private DbContext _context;
+
         public DbContext GetOrCreateContext()
         {
             if (_context == null)
             {
                 var options = new DbContextOptions()
                     .UseModel(CreateModel())
-                    .UseRedis("127.0.0.1");
+                    .UseRedis();
 
                 _context = new DbContext(options);
             }

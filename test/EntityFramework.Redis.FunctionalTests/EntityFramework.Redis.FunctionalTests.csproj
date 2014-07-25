@@ -51,10 +51,28 @@
     <PackageReference Include="xunit.execution">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
+    <PackageReference Include="Microsoft.Framework.ConfigurationModel">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Framework.ConfigurationModel.Xml">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Framework.DependencyInjection">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Framework.Logging">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="StackExchange.Redis">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="RedisTestConfig.cs" />
+    <Compile Include="RedisXunitTestFramework.cs" />
     <Compile Include="SimpleFixture.cs" />
     <Compile Include="SimpleTests.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\EntityFramework.Redis\EntityFramework.Redis.csproj">
@@ -70,7 +88,9 @@
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Properties\" />
+    <None Include="ExampleRedisTest.config" />
+    <None Include="project.json" />
+    <None Include="README.md" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

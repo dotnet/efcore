@@ -75,8 +75,10 @@ namespace Microsoft.Data.Entity.Redis
                 if (_redisServer == null)
                 {
                     var connection = (RedisConnection)Configuration.Connection;
+                    var configOptions = ConfigurationOptions.Parse(connection.ConnectionString);
+                    configOptions.AllowAdmin = true; // require Admin access for e.g. FlushDatabase
                     var connectionMultiplexer =
-                        ConnectionMultiplexer.Connect(connection.ConnectionString);
+                        ConnectionMultiplexer.Connect(configOptions);
                     _redisServer =
                         connectionMultiplexer.GetServer(connection.ConnectionString);
                 }
@@ -108,25 +110,20 @@ namespace Microsoft.Data.Entity.Redis
                     return 0;
                 }
 
-                // ignoring the results of running the various tasks - follows design decision
-                // not to slow down Redis by adding e.g. Exists() checks and error checking for
-                // e.g. trying to insert a primary key which already exists.
-#pragma warning disable 4014
                 switch (entry.EntityState)
                 {
                     case EntityState.Added:
-                        InsertEntryAsync(entry);
+                        AddInsertEntryCommands(txn, entry);
                         break;
 
                     case EntityState.Deleted:
-                        DeleteEntryAsync(entry);
+                        AddDeleteEntryCommands(txn, entry);
                         break;
 
                     case EntityState.Modified:
-                        ModifyEntryAsync(entry);
+                        AddModifyEntryCommands(txn, entry);
                         break;
                 }
-#pragma warning restore 4014
 
                 if (await txn.ExecuteAsync())
                 {
@@ -161,38 +158,40 @@ namespace Microsoft.Data.Entity.Redis
             await UnderlyingServer.FlushDatabaseAsync(connection.Database);
         }
 
-        private async Task<int> InsertEntryAsync(StateEntry stateEntry)
+        private void AddInsertEntryCommands(ITransaction txn, StateEntry stateEntry)
         {
             var compositePrimaryKeyValues = string.Join(
                 PropertyValueSeparator,
                 stateEntry.EntityType.GetKey().Properties.Select(p => EncodeKeyValue(stateEntry, p)));
 
             var redisDataKeyName = string.Format(CultureInfo.InvariantCulture, DataHashNameFormat, stateEntry.EntityType.Name, compositePrimaryKeyValues);
+
+
             // Note: null entries are stored as the absence of the property_name-property_value pair in the hash
             var entries =
                 stateEntry.EntityType.Properties
                     .Where(p => stateEntry[p] != null)
                     .Select(p => new HashEntry(p.Name, EncodeAsBytes(stateEntry[p]))).ToArray();
-            await UnderlyingDatabase.HashSetAsync(redisDataKeyName, entries);
+            txn.HashSetAsync(redisDataKeyName, entries);
 
             var redisPrimaryKeyIndexKeyName = string.Format(CultureInfo.InvariantCulture, PrimaryKeyIndexNameFormat, stateEntry.EntityType.Name);
-            return (await UnderlyingDatabase.SetAddAsync(redisPrimaryKeyIndexKeyName, compositePrimaryKeyValues) ? 1 : 0);
+            txn.SetAddAsync(redisPrimaryKeyIndexKeyName, compositePrimaryKeyValues);
         }
 
-        private async Task<int> DeleteEntryAsync(StateEntry stateEntry)
+        private void AddDeleteEntryCommands(ITransaction txn, StateEntry stateEntry)
         {
             var compositePrimaryKeyValues = string.Join(
                 PropertyValueSeparator,
                 stateEntry.EntityType.GetKey().Properties.Select(p => EncodeKeyValue(stateEntry, p)));
 
             var redisDataKeyName = string.Format(CultureInfo.InvariantCulture, DataHashNameFormat, stateEntry.EntityType.Name, compositePrimaryKeyValues);
-            await UnderlyingDatabase.KeyDeleteAsync(redisDataKeyName);
+            txn.KeyDeleteAsync(redisDataKeyName);
 
             var redisPrimaryKeyIndexKeyName = string.Format(CultureInfo.InvariantCulture, PrimaryKeyIndexNameFormat, stateEntry.EntityType.Name);
-            return (await UnderlyingDatabase.SetRemoveAsync(redisPrimaryKeyIndexKeyName, compositePrimaryKeyValues) ? 1 : 0);
+            txn.SetRemoveAsync(redisPrimaryKeyIndexKeyName, compositePrimaryKeyValues);
         }
 
-        private async Task<int> ModifyEntryAsync(StateEntry stateEntry)
+        private void AddModifyEntryCommands(ITransaction txn, StateEntry stateEntry)
         {
             var compositePrimaryKeyValues =
                 string.Join(
@@ -201,30 +200,19 @@ namespace Microsoft.Data.Entity.Redis
 
             var redisPrimaryKeyIndexKeyName = string.Format(CultureInfo.InvariantCulture, PrimaryKeyIndexNameFormat, stateEntry.EntityType.Name);
             var redisDataKeyName = string.Format(CultureInfo.InvariantCulture, DataHashNameFormat, stateEntry.EntityType.Name, compositePrimaryKeyValues);
-            if (!await UnderlyingDatabase.KeyExistsAsync(redisPrimaryKeyIndexKeyName))
-            {
-                // entity with this PK does not exist to update
-                throw new ArgumentException(
-                    string.Format(
-                        CultureInfo.InvariantCulture,
-                        Strings.UnableToUpdate,
-                        stateEntry.EntityType.Name,
-                        compositePrimaryKeyValues));
-            }
+            txn.AddCondition(Condition.KeyExists(redisPrimaryKeyIndexKeyName));
 
             // first delete all the hash entries which have changed to null
             var changingToNullEntries = stateEntry.EntityType.Properties
                 .Where(p => stateEntry.IsPropertyModified(p) && stateEntry[p] == null)
                 .Select(p => (RedisValue)p.Name).ToArray();
-            await UnderlyingDatabase.HashDeleteAsync(redisDataKeyName, changingToNullEntries);
+            txn.HashDeleteAsync(redisDataKeyName, changingToNullEntries);
 
             // now update all the other entries
             var updatedEntries = stateEntry.EntityType.Properties
                 .Where(p => stateEntry.IsPropertyModified(p) && stateEntry[p] != null)
                 .Select(p => new HashEntry(p.Name, EncodeAsBytes(stateEntry[p]))).ToArray();
-            await UnderlyingDatabase.HashSetAsync(redisDataKeyName, updatedEntries);
-
-            return 1;
+            txn.HashSetAsync(redisDataKeyName, updatedEntries);
         }
 
         private static string EncodeKeyValue(
