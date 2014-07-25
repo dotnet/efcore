@@ -10,13 +10,14 @@ namespace Microsoft.Data.Entity.Redis
 {
     public static class RedisTestConfig
     {
+        public const int ServerTimeoutInSecs = 10; // default timeout in secs
+
         private const string RedisServerExeName = "redis-server";
         private const string RedisNugetPackageServerPath = @".kpm\packages\Redis\2.8.9";
 
         private static volatile Process _redisServerProcess;
         private static bool _startedRedisServer;
         private static object _redisServerProcessLock = new object();
-        private static int _serverTimeoutInSecs = 10; // default timeout in secs
 
         public static bool StartServer()
         {
@@ -50,11 +51,6 @@ namespace Microsoft.Data.Entity.Redis
                     }
                 }
             }
-        }
-
-        public static int ServerTimeoutInSecs
-        {
-            get { return _serverTimeoutInSecs; }
         }
 
         private static bool TryAssignExistingRedisServer()
