@@ -23,7 +23,9 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         private int? _limit;
         private bool _projectStar;
+
         private SelectExpression _subquery;
+        private CaseExpression _caseProjection;
 
         public SelectExpression()
             : base(typeof(object))
@@ -50,6 +52,13 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             Check.NotNull(tableExpression, "tableExpression");
 
             _tables.Add(tableExpression);
+        }
+
+        public virtual void AddTables([NotNull] IEnumerable<TableExpression> tableExpressions)
+        {
+            Check.NotNull(tableExpressions, "tableExpressions");
+
+            _tables.AddRange(tableExpressions);
         }
 
         public virtual bool HandlesQuerySource([NotNull] IQuerySource querySource)
@@ -86,13 +95,15 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
                     subquery._projection.Add(columnExpression);
                 }
 
-                subquery._tables.AddRange(_tables);
-                subquery._orderBy.AddRange(_orderBy);
+                subquery.AddTables(_tables);
+                subquery.AddToOrderBy(_orderBy);
+
                 subquery._limit = _limit;
 
-                _projection.Clear();
                 _tables.Clear();
-                _orderBy.Clear();
+                _projection.Clear();
+
+                ClearOrderBy();
 
                 _projectStar = true;
                 _subquery = subquery;
@@ -109,6 +120,11 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
         public virtual IReadOnlyList<ColumnExpression> Projection
         {
             get { return _projection; }
+        }
+
+        public virtual CaseExpression CaseProjection
+        {
+            get { return _caseProjection; }
         }
 
         public virtual void AddToProjection([NotNull] IProperty property, [NotNull] IQuerySource querySource)
@@ -133,6 +149,18 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             {
                 _projection.Add(columnExpression);
             }
+        }
+
+        public virtual void SetProjection([NotNull] CaseExpression caseExpression)
+        {
+            Check.NotNull(caseExpression, "caseExpression");
+
+            _tables.Clear();
+            _projection.Clear();
+
+            ClearOrderBy();
+
+            _caseProjection = caseExpression;
         }
 
         public virtual void RemoveRangeFromProjection(int index)
@@ -236,7 +264,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
             return innerJoinExpression;
         }
-        
+
         public virtual void RemoveTable([NotNull] TableExpression tableExpression)
         {
             Check.NotNull(tableExpression, "tableExpression");

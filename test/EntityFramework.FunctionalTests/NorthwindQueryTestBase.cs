@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public async Task Any_simple_async()
+        public virtual async Task Any_simple_async()
         {
             await AssertQueryAsync<Customer>(cs => cs.AnyAsync());
         }

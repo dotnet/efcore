@@ -150,5 +150,20 @@ namespace Microsoft.Data.Entity.Query
         {
             get { return _whereShim; }
         }
+
+        private static readonly MethodInfo _firstShim
+            = typeof(LinqOperatorProvider)
+                .GetTypeInfo().GetDeclaredMethod("FirstShim");
+
+        [UsedImplicitly]
+        private static TSource FirstShim<TSource>(IEnumerable<TSource> source)
+        {
+            return source.First();
+        }
+
+        public virtual MethodInfo First
+        {
+            get { return _firstShim; }
+        }
     }
 }

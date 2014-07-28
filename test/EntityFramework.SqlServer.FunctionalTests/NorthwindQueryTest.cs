@@ -76,8 +76,26 @@ ORDER BY c.[CustomerID]",
             base.Any_simple();
 
             Assert.Equal(
-                @"SELECT t1.[Address], t1.[City], t1.[CompanyName], t1.[ContactName], t1.[ContactTitle], t1.[Country], t1.[CustomerID], t1.[Fax], t1.[Phone], t1.[PostalCode], t1.[Region]
-FROM [Customers] AS t1",
+                @"SELECT CASE WHEN (
+    EXISTS (
+        SELECT 1
+        FROM [Customers] AS t1
+    )
+) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END",
+                _fixture.Sql);
+        }
+
+        public override async Task Any_simple_async()
+        {
+            await base.Any_simple_async();
+
+            Assert.Equal(
+                @"SELECT CASE WHEN (
+    EXISTS (
+        SELECT 1
+        FROM [Customers] AS t1
+    )
+) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END",
                 _fixture.Sql);
         }
 
@@ -596,7 +614,7 @@ ORDER BY c.[Country], c.[CustomerID]",
         {
             base.Where_subquery_recursive_trivial();
 
-            Assert.Equal(2289, _fixture.Sql.Length);
+            Assert.Equal(2352, _fixture.Sql.Length);
             Assert.StartsWith(
                 @"SELECT e1.[City], e1.[Country], e1.[EmployeeID], e1.[FirstName], e1.[ReportsTo]
 FROM [Employees] AS e1
@@ -605,9 +623,12 @@ ORDER BY e1.[EmployeeID]
 SELECT e2.[City], e2.[Country], e2.[EmployeeID], e2.[FirstName], e2.[ReportsTo]
 FROM [Employees] AS e2
 
-SELECT e3.[City], e3.[Country], e3.[EmployeeID], e3.[FirstName], e3.[ReportsTo]
-FROM [Employees] AS e3
-ORDER BY e3.[EmployeeID]
+SELECT CASE WHEN (
+    EXISTS (
+        SELECT 1
+        FROM [Employees] AS e3
+    )
+) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END
 
 SELECT e2.[City], e2.[Country], e2.[EmployeeID], e2.[FirstName], e2.[ReportsTo]
 FROM [Employees] AS e2",
