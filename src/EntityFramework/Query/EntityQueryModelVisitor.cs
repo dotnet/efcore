@@ -638,11 +638,11 @@ namespace Microsoft.Data.Entity.Query
                 = _queryCompilationContext.ResultOperatorHandler
                     .HandleResultOperator(this, resultOperator, queryModel);
 
-            if (expression != null)
+            if (expression != _expression)
             {
                 _expression = expression;
 
-                _streamedSequenceInfo 
+                _streamedSequenceInfo
                     = resultOperator.GetOutputDataInfo(_streamedSequenceInfo) as StreamedSequenceInfo;
             }
         }

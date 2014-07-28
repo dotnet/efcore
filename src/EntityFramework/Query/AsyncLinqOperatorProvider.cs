@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Remotion.Linq.Clauses;
 
@@ -149,6 +150,21 @@ namespace Microsoft.Data.Entity.Query
         public virtual MethodInfo Where
         {
             get { return _whereShim; }
+        }
+
+        private static readonly MethodInfo _firstShim
+            = typeof(AsyncLinqOperatorProvider)
+                .GetTypeInfo().GetDeclaredMethod("FirstShim");
+
+        [UsedImplicitly]
+        private static Task<TSource> FirstShim<TSource>(IAsyncEnumerable<TSource> source)
+        {
+            return source.First();
+        }
+
+        public virtual MethodInfo First
+        {
+            get { return _firstShim; }
         }
     }
 }
