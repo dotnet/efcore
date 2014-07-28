@@ -76,6 +76,11 @@
     <Compile Include="Properties\Strings.Designer.cs">
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
+    <Compile Include="Query\RedisQuery.cs" />
+    <Compile Include="Query\RedisQueryCompilationContext.cs" />
+    <Compile Include="Query\RedisQueryContext.cs" />
+    <Compile Include="Query\RedisQueryModelVisitor.cs" />
+    <Compile Include="Query\RedisQueryModelVisitor.RedisQueryingExpressionTreeVisitor.cs" />
     <Compile Include="RedisConnection.cs" />
     <Compile Include="RedisDatabase.cs" />
     <Compile Include="RedisDataStore.cs" />
