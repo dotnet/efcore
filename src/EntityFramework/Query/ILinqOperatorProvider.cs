@@ -15,5 +15,6 @@ namespace Microsoft.Data.Entity.Query
         MethodInfo ThenBy { get; }
         MethodInfo Where { get; }
         MethodInfo ToSequence { get; }
+        MethodInfo First { get; }
     }
 }

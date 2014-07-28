@@ -22,14 +22,14 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
         private int _localAliasCount;
 
-        public virtual string GenerateSql(SelectExpression expression)
+        public virtual string GenerateSql(SelectExpression selectExpression)
         {
-            Check.NotNull(expression, "expression");
+            Check.NotNull(selectExpression, "selectExpression");
 
             _sql = new IndentedStringBuilder();
             _parameters = new List<CommandParameter>();
 
-            expression.Accept(this);
+            selectExpression.Accept(this);
 
             return _sql.ToString();
         }
@@ -56,17 +56,19 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             {
                 VisitJoin(selectExpression.Projection);
             }
+            else if (selectExpression.CaseProjection != null)
+            {
+                VisitCaseExpression(selectExpression.CaseProjection);
+            }
             else
             {
                 _sql.Append(selectExpression.IsProjectStar ? "*" : "1");
             }
 
-            _sql.AppendLine()
-                .Append("FROM ");
-
             if (selectExpression.Subquery != null)
             {
-                _sql.AppendLine("(");
+                _sql.AppendLine()
+                    .AppendLine("FROM (");
 
                 using (_sql.Indent())
                 {
@@ -77,8 +79,11 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                 _sql.Append(") AS t");
                 _sql.Append(_localAliasCount++.ToString());
             }
-            else
+            else if (selectExpression.Tables.Any())
             {
+                _sql.AppendLine()
+                    .Append("FROM ");
+
                 VisitJoin(selectExpression.Tables, sql => sql.AppendLine());
             }
 
@@ -165,38 +170,67 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             return innerJoinExpression;
         }
 
-        protected virtual void GenerateTop([NotNull] SelectExpression expression)
+        protected virtual void GenerateTop([NotNull] SelectExpression selectExpression)
         {
-            Check.NotNull(expression, "expression");
+            Check.NotNull(selectExpression, "selectExpression");
 
-            if (expression.Limit != null)
+            if (selectExpression.Limit != null)
             {
                 _sql.Append("TOP ")
-                    .Append(expression.Limit)
+                    .Append(selectExpression.Limit)
                     .Append(" ");
             }
         }
 
-        protected virtual void GenerateLimitOffset([NotNull] SelectExpression expression)
+        protected virtual void GenerateLimitOffset([NotNull] SelectExpression selectExpression)
         {
         }
 
-        protected override Expression VisitBinaryExpression([NotNull] BinaryExpression expression)
+        public virtual Expression VisitCaseExpression(CaseExpression caseExpression)
         {
-            Check.NotNull(expression, "expression");
+            _sql.AppendLine("CASE WHEN (");
 
-            _binaryExpression = expression;
+            using (_sql.Indent())
+            {
+                VisitExpression(caseExpression.When);
+            }
 
-            if (expression.IsLogicalOperation())
+            _sql.Append(") THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END");
+
+            return caseExpression;
+        }
+
+        public virtual Expression VisitExistsExpression(ExistsExpression existsExpression)
+        {
+            _sql.AppendLine("EXISTS (");
+
+            using (_sql.Indent())
+            {
+                VisitExpression(existsExpression.Expression);
+            }
+
+            _sql.AppendLine()
+                .AppendLine(")");
+
+            return existsExpression;
+        }
+
+        protected override Expression VisitBinaryExpression([NotNull] BinaryExpression binaryExpression)
+        {
+            Check.NotNull(binaryExpression, "binaryExpression");
+
+            _binaryExpression = binaryExpression;
+
+            if (binaryExpression.IsLogicalOperation())
             {
                 _sql.Append("(");
             }
 
-            VisitExpression(expression.Left);
+            VisitExpression(binaryExpression.Left);
 
             string op;
 
-            switch (expression.NodeType)
+            switch (binaryExpression.NodeType)
             {
                 case ExpressionType.Equal:
                     op = " = ";
@@ -231,16 +265,16 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
             _sql.Append(op);
 
-            VisitExpression(expression.Right);
+            VisitExpression(binaryExpression.Right);
 
-            if (expression.IsLogicalOperation())
+            if (binaryExpression.IsLogicalOperation())
             {
                 _sql.Append(")");
             }
 
             _binaryExpression = null;
 
-            return expression;
+            return binaryExpression;
         }
 
         protected virtual string ConcatOperator
@@ -319,11 +353,11 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             return literalExpression;
         }
 
-        protected override Expression VisitConstantExpression(ConstantExpression expression)
+        protected override Expression VisitConstantExpression(ConstantExpression constantExpression)
         {
-            Check.NotNull(expression, "expression");
+            Check.NotNull(constantExpression, "constantExpression");
 
-            var maybeBool = expression.Value as bool?;
+            var maybeBool = constantExpression.Value as bool?;
 
             if (maybeBool != null
                 && (_binaryExpression == null
@@ -333,10 +367,10 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             }
             else
             {
-                _sql.Append(CreateParameter(expression.Value));
+                _sql.Append(CreateParameter(constantExpression.Value));
             }
 
-            return expression;
+            return constantExpression;
         }
 
         private string CreateParameter(object value)
