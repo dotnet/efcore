@@ -74,7 +74,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             var compilationContext = _queryFactory.MakeCompilationContext(Model);
             var queryExecutor = compilationContext.CreateQueryModelVisitor().CreateQueryExecutor<TResult>(queryModel);
             var queryContext = _queryFactory.MakeQueryContext(Model, Logger, stateManager, Connection);
-            return queryExecutor(queryContext, null);
+            return queryExecutor(queryContext);
         }
 
         public override IAsyncEnumerable<TResult> AsyncQuery<TResult>(QueryModel queryModel, StateManager stateManager)

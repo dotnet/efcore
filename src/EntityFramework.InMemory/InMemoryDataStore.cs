@@ -74,7 +74,7 @@ namespace Microsoft.Data.Entity.InMemory
             var queryExecutor = queryCompilationContext.CreateQueryModelVisitor().CreateQueryExecutor<TResult>(queryModel);
             var queryContext = new InMemoryQueryContext(Model, Logger, stateManager, _database.Value);
 
-            return queryExecutor(queryContext, null);
+            return queryExecutor(queryContext);
         }
 
         public override IAsyncEnumerable<TResult> AsyncQuery<TResult>(QueryModel queryModel, StateManager stateManager)

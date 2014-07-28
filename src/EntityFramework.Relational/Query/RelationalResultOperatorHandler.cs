@@ -11,7 +11,6 @@ using Microsoft.Data.Entity.Relational.Utilities;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.ResultOperators;
-using Remotion.Linq.Clauses.StreamedData;
 
 namespace Microsoft.Data.Entity.Relational.Query
 {
@@ -37,12 +36,10 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         public virtual Expression HandleResultOperator(
             EntityQueryModelVisitor entityQueryModelVisitor,
-            IStreamedDataInfo streamedDataInfo,
             ResultOperatorBase resultOperator,
             QueryModel queryModel)
         {
             Check.NotNull(entityQueryModelVisitor, "entityQueryModelVisitor");
-            Check.NotNull(streamedDataInfo, "streamedDataInfo");
             Check.NotNull(resultOperator, "resultOperator");
             Check.NotNull(queryModel, "queryModel");
 
@@ -59,11 +56,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                 || resultHandler(selectExpression, resultOperator))
             {
                 return _resultOperatorHandler
-                    .HandleResultOperator(
-                        entityQueryModelVisitor,
-                        streamedDataInfo,
-                        resultOperator,
-                        queryModel);
+                    .HandleResultOperator(entityQueryModelVisitor, resultOperator, queryModel);
             }
 
             return null;
@@ -81,14 +74,14 @@ namespace Microsoft.Data.Entity.Relational.Query
         {
             selectExpression.AddLimit(2);
 
-            return false;
+            return true;
         }
 
         private static bool ProcessFirst(SelectExpression selectExpression)
         {
             selectExpression.AddLimit(1);
 
-            return false;
+            return true;
         }
 
         private static bool ProcessDistinct(SelectExpression selectExpression)
@@ -97,7 +90,6 @@ namespace Microsoft.Data.Entity.Relational.Query
             selectExpression.ClearOrderBy();
 
             return false;
-            //return true; // TODO: Remove client-eval and ensure projection is correct
         }
     }
 }

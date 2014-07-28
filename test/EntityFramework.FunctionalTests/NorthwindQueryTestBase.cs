@@ -600,6 +600,24 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Where_query_composition()
+        {
+            AssertQuery<Employee>(es =>
+                from e1 in es
+                where e1.FirstName == es.OrderBy(e => e.EmployeeID).First().FirstName
+                select e1);
+        }
+
+        [Fact]
+        public virtual async Task Where_query_composition_async()
+        {
+            await AssertQueryAsync<Employee>(es =>
+                from e1 in es
+                where e1.FirstName == es.OrderBy(e => e.EmployeeID).First().FirstName
+                select e1);
+        }
+
+        [Fact]
         public virtual void Where_subquery_recursive_trivial()
         {
             AssertQuery<Employee>(es =>
@@ -609,6 +627,21 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         orderby e3.EmployeeID
                         select e3).Any()
                     select e2).Any()
+                orderby e1.EmployeeID
+                select e1,
+                assertOrder: true);
+        }
+
+        [Fact]
+        public virtual async Task Where_subquery_recursive_trivial_async()
+        {
+            await AssertQueryAsync<Employee>(es =>
+                from e1 in es
+                where (from e2 in es
+                       where (from e3 in es
+                              orderby e3.EmployeeID
+                              select e3).Any()
+                       select e2).Any()
                 orderby e1.EmployeeID
                 select e1,
                 assertOrder: true);
