@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Query
         {
             Check.NotNull(queryModel, "queryModel");
 
-            return ExecuteCollection<T>(queryModel).Single();
+            return ExecuteCollection<T>(queryModel).First();
         }
 
         public virtual Task<T> ExecuteScalarAsync<T>(
@@ -42,32 +42,22 @@ namespace Microsoft.Data.Entity.Query
         {
             Check.NotNull(queryModel, "queryModel");
 
-            return AsyncExecuteCollection<T>(queryModel).Single(cancellationToken);
+            return AsyncExecuteCollection<T>(queryModel).First(cancellationToken);
         }
 
-        public virtual T ExecuteSingle<T>([NotNull] QueryModel queryModel, bool returnDefaultWhenEmpty)
+        public virtual T ExecuteSingle<T>([NotNull] QueryModel queryModel, bool _)
         {
             Check.NotNull(queryModel, "queryModel");
 
-            var enumerable = ExecuteCollection<T>(queryModel);
-
-            return returnDefaultWhenEmpty
-                ? enumerable.SingleOrDefault()
-                : enumerable.Single();
+            return ExecuteCollection<T>(queryModel).First();
         }
 
         public virtual Task<T> ExecuteSingleAsync<T>(
-            [NotNull] QueryModel queryModel,
-            bool returnDefaultWhenEmpty,
-            CancellationToken cancellationToken)
+            [NotNull] QueryModel queryModel, bool _, CancellationToken cancellationToken)
         {
             Check.NotNull(queryModel, "queryModel");
 
-            var asyncEnumerable = AsyncExecuteCollection<T>(queryModel);
-
-            return returnDefaultWhenEmpty
-                ? asyncEnumerable.SingleOrDefault(cancellationToken)
-                : asyncEnumerable.Single(cancellationToken);
+            return AsyncExecuteCollection<T>(queryModel).First(cancellationToken);
         }
 
         public virtual IEnumerable<T> ExecuteCollection<T>([NotNull] QueryModel queryModel)

@@ -5,7 +5,6 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
-using Remotion.Linq.Clauses.StreamedData;
 
 namespace Microsoft.Data.Entity.Query
 {
@@ -13,7 +12,6 @@ namespace Microsoft.Data.Entity.Query
     {
         Expression HandleResultOperator(
             [NotNull] EntityQueryModelVisitor entityQueryModelVisitor,
-            [NotNull] IStreamedDataInfo streamedDataInfo,
             [NotNull] ResultOperatorBase resultOperator,
             [NotNull] QueryModel queryModel);
     }

@@ -12,7 +12,6 @@ using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.ResultOperators;
-using Remotion.Linq.Clauses.StreamedData;
 
 namespace Microsoft.Data.Entity.Query
 {
@@ -29,12 +28,10 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual Expression HandleResultOperator(
             EntityQueryModelVisitor entityQueryModelVisitor,
-            IStreamedDataInfo streamedDataInfo,
             ResultOperatorBase resultOperator,
             QueryModel queryModel)
         {
             Check.NotNull(entityQueryModelVisitor, "entityQueryModelVisitor");
-            Check.NotNull(streamedDataInfo, "streamedDataInfo");
             Check.NotNull(resultOperator, "resultOperator");
             Check.NotNull(queryModel, "queryModel");
 

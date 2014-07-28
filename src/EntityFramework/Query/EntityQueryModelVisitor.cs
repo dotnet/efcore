@@ -35,6 +35,9 @@ namespace Microsoft.Data.Entity.Query
 
         private ISet<IQuerySource> _querySourcesRequiringMaterialization;
 
+        // TODO: Can these be non-blocking?
+        private bool _blockTaskExpressions = true;
+
         protected EntityQueryModelVisitor(
             [NotNull] QueryCompilationContext queryCompilationContext)
         {
@@ -77,9 +80,11 @@ namespace Microsoft.Data.Entity.Query
             return new DefaultExpressionTreeVisitor(this);
         }
 
-        public Func<QueryContext, QuerySourceScope, IEnumerable<TResult>> CreateQueryExecutor<TResult>([NotNull] QueryModel queryModel)
+        public Func<QueryContext, IEnumerable<TResult>> CreateQueryExecutor<TResult>([NotNull] QueryModel queryModel)
         {
             Check.NotNull(queryModel, "queryModel");
+
+            _blockTaskExpressions = false;
 
             VisitQueryModel(queryModel);
 
@@ -92,15 +97,20 @@ namespace Microsoft.Data.Entity.Query
                         _expression);
             }
 
-            return Expression
-                .Lambda<Func<QueryContext, QuerySourceScope, IEnumerable<TResult>>>(
-                    _expression, QueryContextParameter, QuerySourceScopeParameter)
-                .Compile();
+            var queryExecutor
+                = Expression
+                    .Lambda<Func<QueryContext, QuerySourceScope, IEnumerable<TResult>>>(
+                        _expression, QueryContextParameter, QuerySourceScopeParameter)
+                    .Compile();
+
+            return qc => queryExecutor(qc, null);
         }
 
-        public Func<QueryContext, QuerySourceScope, IAsyncEnumerable<TResult>> CreateAsyncQueryExecutor<TResult>([NotNull] QueryModel queryModel)
+        public Func<QueryContext, IAsyncEnumerable<TResult>> CreateAsyncQueryExecutor<TResult>([NotNull] QueryModel queryModel)
         {
             Check.NotNull(queryModel, "queryModel");
+
+            _blockTaskExpressions = false;
 
             VisitQueryModel(queryModel);
 
@@ -112,10 +122,13 @@ namespace Microsoft.Data.Entity.Query
                         _expression);
             }
 
-            return Expression
-                .Lambda<Func<QueryContext, QuerySourceScope, IAsyncEnumerable<TResult>>>(
-                    _expression, QueryContextParameter, QuerySourceScopeParameter)
-                .Compile();
+            var asyncQueryExecutor
+                = Expression
+                    .Lambda<Func<QueryContext, QuerySourceScope, IAsyncEnumerable<TResult>>>(
+                        _expression, QueryContextParameter, QuerySourceScopeParameter)
+                    .Compile();
+
+            return qc => asyncQueryExecutor(qc, null);
         }
 
         private static readonly MethodInfo _taskToSequenceShim
@@ -153,6 +166,44 @@ namespace Microsoft.Data.Entity.Query
             }
 
             base.VisitQueryModel(queryModel);
+
+            if (_blockTaskExpressions)
+            {
+                _expression
+                    = new TaskBlockingExpressionTreeVisitor()
+                        .VisitExpression(_expression);
+            }
+        }
+
+        private class TaskBlockingExpressionTreeVisitor : ExpressionTreeVisitor
+        {
+            public override Expression VisitExpression(Expression expression)
+            {
+                if (expression != null)
+                {
+                    var typeInfo = expression.Type.GetTypeInfo();
+
+                    if (typeInfo.IsGenericType
+                        && typeInfo.GetGenericTypeDefinition() == typeof(Task<>))
+                    {
+                        return Expression.Call(
+                            _resultMethodInfo.MakeGenericMethod(typeInfo.GenericTypeArguments[0]),
+                            expression);
+                    }
+                }
+
+                return base.VisitExpression(expression);
+            }
+
+            private static readonly MethodInfo _resultMethodInfo
+                = typeof(TaskBlockingExpressionTreeVisitor).GetTypeInfo()
+                    .GetDeclaredMethod("_Result");
+
+            [UsedImplicitly]
+            private static T _Result<T>(Task<T> task)
+            {
+                return task.Result;
+            }
         }
 
         private class RequiresEntityMaterializationExpressionTreeVisitor : ExpressionTreeVisitor
@@ -583,18 +634,16 @@ namespace Microsoft.Data.Entity.Query
 
             // TODO: sub-queries in result op. expressions
 
-            var streamedDataInfo
-                = resultOperator.GetOutputDataInfo(_streamedSequenceInfo);
-
             var expression
                 = _queryCompilationContext.ResultOperatorHandler
-                    .HandleResultOperator(this, streamedDataInfo, resultOperator, queryModel);
+                    .HandleResultOperator(this, resultOperator, queryModel);
 
             if (expression != null)
             {
                 _expression = expression;
 
-                _streamedSequenceInfo = streamedDataInfo as StreamedSequenceInfo;
+                _streamedSequenceInfo 
+                    = resultOperator.GetOutputDataInfo(_streamedSequenceInfo) as StreamedSequenceInfo;
             }
         }
 

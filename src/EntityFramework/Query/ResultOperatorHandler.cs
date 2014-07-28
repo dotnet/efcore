@@ -16,14 +16,15 @@ namespace Microsoft.Data.Entity.Query
     {
         public virtual Expression HandleResultOperator(
             EntityQueryModelVisitor entityQueryModelVisitor,
-            IStreamedDataInfo streamedDataInfo,
             ResultOperatorBase resultOperator,
             QueryModel queryModel)
         {
             Check.NotNull(entityQueryModelVisitor, "entityQueryModelVisitor");
-            Check.NotNull(streamedDataInfo, "streamedDataInfo");
             Check.NotNull(resultOperator, "resultOperator");
             Check.NotNull(queryModel, "queryModel");
+
+            var streamedDataInfo
+                = resultOperator.GetOutputDataInfo(entityQueryModelVisitor.StreamedSequenceInfo);
 
             return
                 Expression.Call(
