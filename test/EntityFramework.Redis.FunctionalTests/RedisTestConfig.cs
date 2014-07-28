@@ -23,7 +23,13 @@ namespace Microsoft.Data.Entity.Redis
 
         public static void GetOrStartServer()
         {
-            if (AlreadyOwnRunningRedisServer())
+            if (UserHasStartedOwnRedisServer())
+            {
+                // user claims they have started their own
+                return;
+            }
+
+            if (AlreadyOwnRunningRedisServer()) 
             {
                 return;
             }
@@ -55,6 +61,12 @@ namespace Microsoft.Data.Entity.Redis
 
         public static void StopRedisServer()
         {
+            if (UserHasStartedOwnRedisServer())
+            {
+                // user claims they have started their own - they are responsible for stopping it
+                return;
+            }
+
             if (CanFindExistingRedisServer())
             {
                 lock (_redisServerProcessLock)
@@ -130,6 +142,13 @@ namespace Microsoft.Data.Entity.Redis
             return RunServer(serverPath);
         }
 
+        public static bool UserHasStartedOwnRedisServer()
+        {
+            // if the user sets this environment variable they are claiming they've started
+            // their own Redis Server and are responsible for starting/stopping it
+            return (Environment.GetEnvironmentVariable("STARTED_OWN_REDIS_SERVER") != null);
+        }
+
         public static string GetUserProfileServerPath()
         {
             var configFilePath = Environment.GetEnvironmentVariable("USERPROFILE");
@@ -140,27 +159,6 @@ namespace Microsoft.Data.Entity.Redis
         {
             var configFilePath = Environment.GetEnvironmentVariable("KRE_PACKAGES");
             return Path.Combine(configFilePath, CIMachineRedisNugetPackageServerPath, RedisServerExeName);
-        }
-
-        public static string GetTMPPath()
-        {
-            var tempPath = Environment.GetEnvironmentVariable("TMP");
-            if (tempPath == null)
-            {
-                tempPath = Environment.GetEnvironmentVariable("TEMP");
-                if (tempPath == null)
-                {
-                    throw new Exception("User does not have a TMP or TEMP environment variable defined.");
-                }
-            }
-
-            tempPath = Path.Combine(tempPath, "RedisFunctionalTestsServer");
-            if (!Directory.Exists(tempPath))
-            {
-                Directory.CreateDirectory(tempPath);
-            }
-
-            return tempPath;
         }
 
         private static bool RunServer(string serverExePath)
@@ -197,6 +195,7 @@ namespace Microsoft.Data.Entity.Redis
                         try
                         {
                             _redisServerProcess = Process.Start(processInfo);
+                            Thread.Sleep(3000); // to give server time to initialize
                         }
                         catch (Exception e)
                         {

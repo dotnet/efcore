@@ -12,6 +12,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Redis.Query;
 using Microsoft.Data.Entity.Redis.Utilities;
 using StackExchange.Redis;
 
@@ -135,6 +136,48 @@ namespace Microsoft.Data.Entity.Redis
         }
 
         /// <summary>
+        /// Gets values from database and materializes new EntityTypes
+        /// </summary>
+        /// <typeparam name="TResult">type of expected result</typeparam>
+        /// <param name="entityType">EntityType of </param>
+        /// <returns>An Enumerable of materialized EntityType objects</returns>
+        public virtual IEnumerable<TResult> GetMaterializedResults<TResult>([NotNull] IEntityType entityType)
+        {
+            Check.NotNull(entityType, "entityType");
+
+            var redisPrimaryKeyIndexKeyName =
+                ConstructRedisPrimaryKeyIndexKeyName(entityType);
+
+            var allKeysForEntity = UnderlyingDatabase.SetMembers(redisPrimaryKeyIndexKeyName);
+            foreach (var compositePrimaryKeyValues in allKeysForEntity)
+            {
+                var objectArrayFromHash =
+                    GetEntityQueryObjectsFromDatabase(compositePrimaryKeyValues, entityType, DecodeBytes);
+                var stateEntry = Configuration.StateManager.GetOrMaterializeEntry(
+                    entityType, new ObjectArrayValueReader(objectArrayFromHash));
+                yield return (TResult)stateEntry.Entity;
+            }
+        }
+
+        /// <summary>
+        /// Gets non-materialized values from database
+        /// </summary>
+        /// <param name="redisQuery">Query data to decide what is selected from the database</param>
+        /// <returns>An Enumerable of non-materialized object[]'s each of which represents one primary key</returns>
+        public virtual IEnumerable<object[]> GetResults([NotNull] RedisQuery redisQuery)
+        {
+            Check.NotNull(redisQuery, "redisQuery");
+
+            var redisPrimaryKeyIndexKeyName =
+                ConstructRedisPrimaryKeyIndexKeyName(redisQuery.EntityType);
+
+            var allKeysForEntity = UnderlyingDatabase.SetMembers(redisPrimaryKeyIndexKeyName).AsEnumerable();
+            return allKeysForEntity
+                .Select(compositePrimaryKeyValue => 
+                    GetProjectionQueryObjectsFromDatabase(compositePrimaryKeyValue, redisQuery.EntityType, redisQuery.SelectedProperties, DecodeBytes));
+        }
+
+        /// <summary>
         ///     Deletes all keys in the database
         /// </summary>
         public virtual void FlushDatabase()
@@ -160,11 +203,11 @@ namespace Microsoft.Data.Entity.Redis
 
         private void AddInsertEntryCommands(ITransaction transaction, StateEntry stateEntry)
         {
-            var compositePrimaryKeyValues = string.Join(
-                PropertyValueSeparator,
-                stateEntry.EntityType.GetKey().Properties.Select(p => EncodeKeyValue(stateEntry, p)));
+            var compositePrimaryKeyValues =
+                ConstructKeyValue(stateEntry, (se, prop) => stateEntry[prop]);
 
-            var redisDataKeyName = string.Format(CultureInfo.InvariantCulture, DataHashNameFormat, stateEntry.EntityType.Name, compositePrimaryKeyValues);
+            var redisDataKeyName =
+                ConstructRedisDataKeyName(stateEntry.EntityType, compositePrimaryKeyValues);
 
             // Note: null entries are stored as the absence of the property_name-property_value pair in the hash
             var entries =
@@ -173,32 +216,29 @@ namespace Microsoft.Data.Entity.Redis
                     .Select(p => new HashEntry(p.Name, EncodeAsBytes(stateEntry[p]))).ToArray();
             transaction.HashSetAsync(redisDataKeyName, entries);
 
-            var redisPrimaryKeyIndexKeyName = string.Format(CultureInfo.InvariantCulture, PrimaryKeyIndexNameFormat, stateEntry.EntityType.Name);
+            var redisPrimaryKeyIndexKeyName = ConstructRedisPrimaryKeyIndexKeyName(stateEntry.EntityType);
             transaction.SetAddAsync(redisPrimaryKeyIndexKeyName, compositePrimaryKeyValues);
         }
 
         private void AddDeleteEntryCommands(ITransaction transaction, StateEntry stateEntry)
         {
-            var compositePrimaryKeyValues = string.Join(
-                PropertyValueSeparator,
-                stateEntry.EntityType.GetKey().Properties.Select(p => EncodeKeyValue(stateEntry, p)));
+            var compositePrimaryKeyValues =
+                ConstructKeyValue(stateEntry, (se, prop) => stateEntry.OriginalValues[prop]);
 
-            var redisDataKeyName = string.Format(CultureInfo.InvariantCulture, DataHashNameFormat, stateEntry.EntityType.Name, compositePrimaryKeyValues);
+            var redisDataKeyName = ConstructRedisDataKeyName(stateEntry.EntityType, compositePrimaryKeyValues);
             transaction.KeyDeleteAsync(redisDataKeyName);
 
-            var redisPrimaryKeyIndexKeyName = string.Format(CultureInfo.InvariantCulture, PrimaryKeyIndexNameFormat, stateEntry.EntityType.Name);
+            var redisPrimaryKeyIndexKeyName = ConstructRedisPrimaryKeyIndexKeyName(stateEntry.EntityType);
             transaction.SetRemoveAsync(redisPrimaryKeyIndexKeyName, compositePrimaryKeyValues);
         }
 
         private void AddModifyEntryCommands(ITransaction transaction, StateEntry stateEntry)
         {
             var compositePrimaryKeyValues =
-                string.Join(
-                    PropertyValueSeparator,
-                    stateEntry.EntityType.GetKey().Properties.Select(p => EncodeKeyValue(stateEntry, p)));
+                ConstructKeyValue(stateEntry, (se, prop) => stateEntry.OriginalValues[prop]);
 
-            var redisPrimaryKeyIndexKeyName = string.Format(CultureInfo.InvariantCulture, PrimaryKeyIndexNameFormat, stateEntry.EntityType.Name);
-            var redisDataKeyName = string.Format(CultureInfo.InvariantCulture, DataHashNameFormat, stateEntry.EntityType.Name, compositePrimaryKeyValues);
+            var redisPrimaryKeyIndexKeyName = ConstructRedisPrimaryKeyIndexKeyName(stateEntry.EntityType);
+            var redisDataKeyName = ConstructRedisDataKeyName(stateEntry.EntityType, compositePrimaryKeyValues);
             transaction.AddCondition(Condition.KeyExists(redisPrimaryKeyIndexKeyName));
 
             // first delete all the hash entries which have changed to null
@@ -214,21 +254,89 @@ namespace Microsoft.Data.Entity.Redis
             transaction.HashSetAsync(redisDataKeyName, updatedEntries);
         }
 
-        private static string EncodeKeyValue(
-            StateEntry stateEntry, IPropertyBase p)
+        private static string ConstructRedisPrimaryKeyIndexKeyName(IEntityType entityType)
         {
-            var value = stateEntry[p];
-            if (value == null)
+            return string.Format(CultureInfo.InvariantCulture,
+                PrimaryKeyIndexNameFormat, Escape(entityType.Name));
+        }
+
+        private static string ConstructRedisDataKeyName(
+            IEntityType entityType, string compositePrimaryKeyValues)
+        {
+            return string.Format(CultureInfo.InvariantCulture,
+                DataHashNameFormat, Escape(entityType.Name), compositePrimaryKeyValues);
+        }
+
+        private static string ConstructKeyValue(
+            StateEntry stateEntry, Func<StateEntry, IProperty, object> propertyValueSelector)
+        {
+            return string.Join(
+                PropertyValueSeparator,
+                stateEntry.EntityType.GetKey().Properties.Select(p => EncodeKeyValue(propertyValueSelector(stateEntry, p))));
+        }
+
+        // returns the object array representing all the properties
+        // from an EntityType with a particular primary key
+        private object[] GetEntityQueryObjectsFromDatabase(
+            string compositePrimaryKeyValues, IEntityType entityType, Func<byte[], IProperty, object> decoder)
+        {
+            var results = new object[entityType.Properties.Count];
+
+            // HGETALL
+            var redisHashEntries = UnderlyingDatabase.HashGetAll(
+                ConstructRedisDataKeyName(entityType, compositePrimaryKeyValues))
+                .ToDictionary(he => he.Name, he => he.Value);
+
+            foreach (var property in entityType.Properties)
             {
-                throw new ArgumentException(
-                    string.Format(
-                        CultureInfo.InvariantCulture,
-                        Strings.InvalidPrimaryKeyValue,
-                        stateEntry.EntityType.Name,
-                        p.Name));
+                // Note: since null's are stored in the database as the absence of the column name in the hash
+                // need to insert null's into the objectArryay at the appropriate places.
+                RedisValue propertyRedisValue;
+                if (redisHashEntries.TryGetValue(property.Name, out propertyRedisValue))
+                {
+                    results[property.Index] = decoder(propertyRedisValue, property);
+                }
+                else
+                {
+                    results[property.Index] = null;
+                }
             }
 
-            return Convert.ToString(value).Replace(KeyNameSeparator, EscapedKeyNameSeparator);
+            return results;
+        }
+
+        /// <returns>
+        /// returns the object[] representing the set of selected properties from
+        /// an EntityType with a particular primary key
+        /// </returns>
+        private object[] GetProjectionQueryObjectsFromDatabase(
+            string primaryKey, IEntityType entityType, 
+            IEnumerable<IProperty> selectedProperties, Func<byte[], IProperty, object> decoder)
+        {
+            var selectedPropertiesArray = selectedProperties.ToArray();
+            var results = new object[selectedPropertiesArray.Length];
+
+            // HMGET
+            var fields = selectedPropertiesArray.Select(p => (RedisValue)p.Name).ToArray();
+            var redisHashEntries = UnderlyingDatabase.HashGet(
+                ConstructRedisDataKeyName(entityType, primaryKey), fields);
+            for (int i = 0; i < selectedPropertiesArray.Length; i++)
+            {
+                results[i] = decoder(redisHashEntries[i], selectedPropertiesArray[i]);
+            }
+
+            return results;
+        }
+
+        private static string EncodeKeyValue([NotNull] object propertyValue)
+        {
+            Check.NotNull(propertyValue, "propertyValue");
+            return Escape(Convert.ToString(propertyValue));
+        }
+
+        private static string Escape(string s)
+        {
+            return s.Replace(KeyNameSeparator, EscapedKeyNameSeparator);
         }
 
         private static byte[] EncodeAsBytes(object value)
@@ -239,8 +347,11 @@ namespace Microsoft.Data.Entity.Redis
                    Encoding.UTF8.GetBytes(Convert.ToString(value));
         }
 
-        private static object DecodeBytes(byte[] bytes, IProperty property)
+        private static object DecodeBytes([NotNull] byte[] bytes, [NotNull] IProperty property)
         {
+            Check.NotNull(bytes, "bytes");
+            Check.NotNull(property, "property");
+
             if (property.PropertyType == typeof(byte[]))
             {
                 return bytes;
