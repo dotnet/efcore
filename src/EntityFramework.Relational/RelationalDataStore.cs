@@ -78,7 +78,7 @@ namespace Microsoft.Data.Entity.Relational
             var queryExecutor = queryCompilationContext.CreateQueryModelVisitor().CreateQueryExecutor<TResult>(queryModel);
             var queryContext = new RelationalQueryContext(Model, Logger, stateManager, _connection, ValueReaderFactory);
 
-            return queryExecutor(queryContext, null);
+            return queryExecutor(queryContext);
         }
 
         public override IAsyncEnumerable<TResult> AsyncQuery<TResult>(QueryModel queryModel, StateManager stateManager)
@@ -95,7 +95,7 @@ namespace Microsoft.Data.Entity.Relational
             var queryExecutor = queryCompilationContext.CreateQueryModelVisitor().CreateAsyncQueryExecutor<TResult>(queryModel);
             var queryContext = new RelationalQueryContext(Model, Logger, stateManager, _connection, ValueReaderFactory);
 
-            return queryExecutor(queryContext, null);
+            return queryExecutor(queryContext);
         }
 
         protected virtual RelationalQueryCompilationContext CreateQueryCompilationContext(
