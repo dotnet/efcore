@@ -102,7 +102,7 @@ namespace Microsoft.Data.Entity.Redis
             }
 
             var entitiesProcessed = 0;
-            var txn = UnderlyingDatabase.CreateTransaction();
+            var transaction = UnderlyingDatabase.CreateTransaction();
             foreach (var entry in stateEntries)
             {
                 if (cancellationToken.IsCancellationRequested)
@@ -113,19 +113,19 @@ namespace Microsoft.Data.Entity.Redis
                 switch (entry.EntityState)
                 {
                     case EntityState.Added:
-                        AddInsertEntryCommands(txn, entry);
+                        AddInsertEntryCommands(transaction, entry);
                         break;
 
                     case EntityState.Deleted:
-                        AddDeleteEntryCommands(txn, entry);
+                        AddDeleteEntryCommands(transaction, entry);
                         break;
 
                     case EntityState.Modified:
-                        AddModifyEntryCommands(txn, entry);
+                        AddModifyEntryCommands(transaction, entry);
                         break;
                 }
 
-                if (await txn.ExecuteAsync())
+                if (await transaction.ExecuteAsync())
                 {
                     entitiesProcessed = stateEntries.Count;
                 }
@@ -158,7 +158,7 @@ namespace Microsoft.Data.Entity.Redis
             await UnderlyingServer.FlushDatabaseAsync(connection.Database);
         }
 
-        private void AddInsertEntryCommands(ITransaction txn, StateEntry stateEntry)
+        private void AddInsertEntryCommands(ITransaction transaction, StateEntry stateEntry)
         {
             var compositePrimaryKeyValues = string.Join(
                 PropertyValueSeparator,
@@ -172,26 +172,26 @@ namespace Microsoft.Data.Entity.Redis
                 stateEntry.EntityType.Properties
                     .Where(p => stateEntry[p] != null)
                     .Select(p => new HashEntry(p.Name, EncodeAsBytes(stateEntry[p]))).ToArray();
-            txn.HashSetAsync(redisDataKeyName, entries);
+            transaction.HashSetAsync(redisDataKeyName, entries);
 
             var redisPrimaryKeyIndexKeyName = string.Format(CultureInfo.InvariantCulture, PrimaryKeyIndexNameFormat, stateEntry.EntityType.Name);
-            txn.SetAddAsync(redisPrimaryKeyIndexKeyName, compositePrimaryKeyValues);
+            transaction.SetAddAsync(redisPrimaryKeyIndexKeyName, compositePrimaryKeyValues);
         }
 
-        private void AddDeleteEntryCommands(ITransaction txn, StateEntry stateEntry)
+        private void AddDeleteEntryCommands(ITransaction transaction, StateEntry stateEntry)
         {
             var compositePrimaryKeyValues = string.Join(
                 PropertyValueSeparator,
                 stateEntry.EntityType.GetKey().Properties.Select(p => EncodeKeyValue(stateEntry, p)));
 
             var redisDataKeyName = string.Format(CultureInfo.InvariantCulture, DataHashNameFormat, stateEntry.EntityType.Name, compositePrimaryKeyValues);
-            txn.KeyDeleteAsync(redisDataKeyName);
+            transaction.KeyDeleteAsync(redisDataKeyName);
 
             var redisPrimaryKeyIndexKeyName = string.Format(CultureInfo.InvariantCulture, PrimaryKeyIndexNameFormat, stateEntry.EntityType.Name);
-            txn.SetRemoveAsync(redisPrimaryKeyIndexKeyName, compositePrimaryKeyValues);
+            transaction.SetRemoveAsync(redisPrimaryKeyIndexKeyName, compositePrimaryKeyValues);
         }
 
-        private void AddModifyEntryCommands(ITransaction txn, StateEntry stateEntry)
+        private void AddModifyEntryCommands(ITransaction transaction, StateEntry stateEntry)
         {
             var compositePrimaryKeyValues =
                 string.Join(
@@ -200,19 +200,19 @@ namespace Microsoft.Data.Entity.Redis
 
             var redisPrimaryKeyIndexKeyName = string.Format(CultureInfo.InvariantCulture, PrimaryKeyIndexNameFormat, stateEntry.EntityType.Name);
             var redisDataKeyName = string.Format(CultureInfo.InvariantCulture, DataHashNameFormat, stateEntry.EntityType.Name, compositePrimaryKeyValues);
-            txn.AddCondition(Condition.KeyExists(redisPrimaryKeyIndexKeyName));
+            transaction.AddCondition(Condition.KeyExists(redisPrimaryKeyIndexKeyName));
 
             // first delete all the hash entries which have changed to null
             var changingToNullEntries = stateEntry.EntityType.Properties
                 .Where(p => stateEntry.IsPropertyModified(p) && stateEntry[p] == null)
                 .Select(p => (RedisValue)p.Name).ToArray();
-            txn.HashDeleteAsync(redisDataKeyName, changingToNullEntries);
+            transaction.HashDeleteAsync(redisDataKeyName, changingToNullEntries);
 
             // now update all the other entries
             var updatedEntries = stateEntry.EntityType.Properties
                 .Where(p => stateEntry.IsPropertyModified(p) && stateEntry[p] != null)
                 .Select(p => new HashEntry(p.Name, EncodeAsBytes(stateEntry[p]))).ToArray();
-            txn.HashSetAsync(redisDataKeyName, updatedEntries);
+            transaction.HashSetAsync(redisDataKeyName, updatedEntries);
         }
 
         private static string EncodeKeyValue(
