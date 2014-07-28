@@ -1,31 +1,14 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Redis.Extensions;
 
 namespace Microsoft.Data.Entity.Redis
 {
-    public class SimpleFixture : IDisposable
+    public class SimpleFixture : BaseClassFixture
     {
-        private DbContext _context;
 
-        public DbContext GetOrCreateContext()
-        {
-            if (_context == null)
-            {
-                var options = new DbContextOptions()
-                    .UseModel(CreateModel())
-                    .UseRedis();
-
-                _context = new DbContext(options);
-            }
-
-            return _context;
-        }
-
-        public IModel CreateModel()
+        public override IModel CreateModel()
         {
             var model = new Model();
             var builder = new ModelBuilder(model);
@@ -37,11 +20,6 @@ namespace Microsoft.Data.Entity.Redis
                 });
 
             return model;
-        }
-
-        void IDisposable.Dispose()
-        {
-            _context.Database.EnsureDeleted();
         }
     }
 

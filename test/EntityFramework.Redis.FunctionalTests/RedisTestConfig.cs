@@ -5,56 +5,48 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 
 namespace Microsoft.Data.Entity.Redis
 {
     public static class RedisTestConfig
     {
-        public const int ServerTimeoutInSecs = 10; // default timeout in secs
+        public const int ServerStartupTimeMillisecs = 3000;
 
-        private const string RedisServerExeName = "redis-server";
-        private const string RedisNugetPackageServerPath = @".kpm\packages\Redis\2.8.9";
+        internal const string RedisServerExeName = "redis-server.exe";
+        internal const string RedisNugetPackageServerPath = @".kpm\packages\Redis-64\2.8.9";
 
         private static volatile Process _redisServerProcess;
-        private static bool _startedRedisServer;
         private static object _redisServerProcessLock = new object();
 
-        public static bool StartServer()
+        public static bool GetOrStartServer()
         {
-            if (TryAssignExistingRedisServer())
+            if (TryUseExistingRedisServer())
             {
                 return true;
             }
 
-            var configFilePath = Environment.GetEnvironmentVariable("USERPROFILE");
-            string serverPath = Path.Combine(configFilePath, RedisNugetPackageServerPath);
-            if (!File.Exists(Path.Combine(serverPath, RedisServerExeName + ".exe")))
+            string serverPath = GetServerPath();
+            if (!File.Exists(serverPath))
             {
                 return false;
             }
             else
             {
-                return RunServer(Path.Combine(serverPath, RedisServerExeName));
+                return RunServer(serverPath);
             }
         }
 
-        public static void StopServer()
+        private static bool TryUseExistingRedisServer()
         {
-            if (_redisServerProcess != null)
+            // Does RedisTestConfig already know about a running server?
+            if (_redisServerProcess != null
+                && !_redisServerProcess.HasExited)
             {
-                lock (_redisServerProcessLock)
-                {
-                    if (_redisServerProcess != null && _startedRedisServer)
-                    {
-                        _redisServerProcess.Kill();
-                        _redisServerProcess = null;
-                    }
-                }
+                return true;
             }
-        }
 
-        private static bool TryAssignExistingRedisServer()
-        {
+            // Otherwise is there a running Redis server which RedisTestConfig can use?
             var existingRedisServer =
                 Process.GetProcessesByName(RedisServerExeName).FirstOrDefault();
             if (existingRedisServer != null)
@@ -69,6 +61,12 @@ namespace Microsoft.Data.Entity.Redis
             return false;
         }
 
+        public static string GetServerPath()
+        {
+            var configFilePath = Environment.GetEnvironmentVariable("USERPROFILE");
+            return Path.Combine(configFilePath, RedisNugetPackageServerPath, RedisServerExeName);
+        }
+
         private static bool RunServer(string serverExePath)
         {
             if (_redisServerProcess == null)
@@ -78,7 +76,8 @@ namespace Microsoft.Data.Entity.Redis
                     if (_redisServerProcess == null)
                     {
                         _redisServerProcess = Process.Start(serverExePath);
-                        _startedRedisServer = true;
+                        // wait for server to complete start-up
+                        Thread.Sleep(ServerStartupTimeMillisecs);
                     }
                 }
             }

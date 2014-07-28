@@ -5,7 +5,6 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Redis
 {
-    [RequiresRedisServer]
     public class SimpleTests : IClassFixture<SimpleFixture>
     {
         private readonly DbContext _context;

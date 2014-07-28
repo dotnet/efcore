@@ -71,11 +71,10 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BaseClassFixture.cs" />
     <Compile Include="RedisTestConfig.cs" />
-    <Compile Include="RedisXunitTestFramework.cs" />
     <Compile Include="SimpleFixture.cs" />
     <Compile Include="SimpleTests.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\EntityFramework.Redis\EntityFramework.Redis.csproj">
@@ -91,9 +90,11 @@
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ExampleRedisTest.config" />
     <None Include="project.json" />
     <None Include="README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
