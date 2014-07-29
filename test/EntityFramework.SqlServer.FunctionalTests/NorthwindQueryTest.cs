@@ -99,6 +99,36 @@ ORDER BY c.[CustomerID]",
                 _fixture.Sql);
         }
 
+        public override void Any_predicate()
+        {
+            base.Any_predicate();
+
+            Assert.Equal(
+                @"SELECT CASE WHEN (
+    EXISTS (
+        SELECT 1
+        FROM [Customers] AS c
+        WHERE c.[ContactName] LIKE @p0 + '%'
+    )
+) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END",
+                _fixture.Sql);
+        }
+
+        public override void All_top_level()
+        {
+            base.All_top_level();
+
+            Assert.Equal(
+                @"SELECT CASE WHEN (
+    NOT EXISTS (
+        SELECT 1
+        FROM [Customers] AS c
+        WHERE NOT c.[ContactName] LIKE @p0 + '%'
+    )
+) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END",
+                _fixture.Sql);
+        }
+
         public override void Select_scalar()
         {
             base.Select_scalar();
@@ -726,20 +756,6 @@ WHERE c.[CustomerID] = @p0",
                 @"SELECT c.[Region]
 FROM [Customers] AS c",
                 _fixture.Sql);
-        }
-
-        public override void All_top_level()
-        {
-            base.All_top_level();
-
-            // TODO:
-            //            Assert.Equal(
-            //                @"SELECT CASE WHEN (NOT EXISTS(
-            //  SELECT NULL 
-            //  FROM [Customers] AS c AS t0
-            //  WHERE NOT (t0.[ContactName] LIKE @p0 + '%')
-            //  )) THEN 1 ELSE 0 END AS [value]",
-            //                _fixture.Sql);
         }
 
         public override void String_StartsWith_Literal()

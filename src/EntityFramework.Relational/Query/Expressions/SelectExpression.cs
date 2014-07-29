@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
         private bool _projectStar;
 
         private SelectExpression _subquery;
-        private CaseExpression _caseProjection;
+        private Expression _projectionExpression;
 
         public SelectExpression()
             : base(typeof(object))
@@ -122,9 +122,9 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             get { return _projection; }
         }
 
-        public virtual CaseExpression CaseProjection
+        public virtual Expression ProjectionExpression
         {
-            get { return _caseProjection; }
+            get { return _projectionExpression; }
         }
 
         public virtual void AddToProjection([NotNull] IProperty property, [NotNull] IQuerySource querySource)
@@ -151,16 +151,17 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             }
         }
 
-        public virtual void SetProjection([NotNull] CaseExpression caseExpression)
+        public virtual void SetProjection([NotNull] Expression expression)
         {
-            Check.NotNull(caseExpression, "caseExpression");
+            Check.NotNull(expression, "expression");
 
             _tables.Clear();
             _projection.Clear();
 
             ClearOrderBy();
+            Predicate = null;
 
-            _caseProjection = caseExpression;
+            _projectionExpression = expression;
         }
 
         public virtual void RemoveRangeFromProjection(int index)

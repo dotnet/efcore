@@ -61,6 +61,18 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Any_predicate()
+        {
+            AssertQuery<Customer>(cs => cs.Any(c => c.ContactName.StartsWith("A")));
+        }
+
+        [Fact]
+        public virtual void All_top_level()
+        {
+            AssertQuery<Customer>(cs => cs.All(c => c.ContactName.StartsWith("A")));
+        }
+
+        [Fact]
         public virtual void Select_into()
         {
             AssertQuery<Customer>(cs =>
@@ -1466,12 +1478,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
             await AssertQueryAsync<Customer>(
                 // ReSharper disable once ReplaceWithSingleCallToFirstOrDefault
                 cs => cs.OrderBy(c => c.ContactName).Where(c => c.City == "London").FirstOrDefaultAsync());
-        }
-
-        [Fact]
-        public virtual void All_top_level()
-        {
-            AssertQuery<Customer>(cs => cs.All(c => c.ContactName.StartsWith("a")));
         }
 
         [Fact]
