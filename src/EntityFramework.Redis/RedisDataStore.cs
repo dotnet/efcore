@@ -10,18 +10,19 @@ using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Redis.Utilities;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq;
 
 namespace Microsoft.Data.Entity.Redis
 {
     public class RedisDataStore : DataStore
     {
-        private readonly RedisDatabase _database;
+        private readonly LazyRef<RedisDatabase> _database;
 
         public RedisDataStore([NotNull] DbContextConfiguration configuration)
             : base(configuration)
         {
-            _database = (RedisDatabase)configuration.Database;
+            _database = new LazyRef<RedisDatabase>(() => (RedisDatabase)configuration.Database);
         }
 
         public override Task<int> SaveChangesAsync(
@@ -30,7 +31,7 @@ namespace Microsoft.Data.Entity.Redis
         {
             Check.NotNull(stateEntries, "stateEntries");
 
-            return _database.SaveChangesAsync(stateEntries, cancellationToken);
+            return _database.Value.SaveChangesAsync(stateEntries, cancellationToken);
         }
 
         public override IEnumerable<TResult> Query<TResult>(

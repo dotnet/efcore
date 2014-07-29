@@ -14,7 +14,8 @@ namespace Microsoft.Data.Entity.Redis
         public const int ServerStartupTimeMillisecs = 3000;
 
         internal const string RedisServerExeName = "redis-server.exe";
-        internal const string RedisNugetPackageServerPath = @".kpm\packages\Redis-64\2.8.9";
+        internal const string UserProfileRedisNugetPackageServerPath = @".kpm\packages\Redis-64\2.8.9";
+        internal const string CIMachineRedisNugetPackageServerPath = @"Redis-64\2.8.9";
 
         private static volatile Process _redisServerProcess;
         private static object _redisServerProcessLock = new object();
@@ -26,15 +27,17 @@ namespace Microsoft.Data.Entity.Redis
                 return true;
             }
 
-            string serverPath = GetServerPath();
+            string serverPath = GetUserProfileServerPath();
             if (!File.Exists(serverPath))
             {
-                return false;
+                serverPath = GetCIMachineServerPath();
+                if (!File.Exists(serverPath))
+                {
+                    return false;
+                }
             }
-            else
-            {
-                return RunServer(serverPath);
-            }
+
+            return RunServer(serverPath);
         }
 
         private static bool TryUseExistingRedisServer()
@@ -61,10 +64,16 @@ namespace Microsoft.Data.Entity.Redis
             return false;
         }
 
-        public static string GetServerPath()
+        public static string GetUserProfileServerPath()
         {
             var configFilePath = Environment.GetEnvironmentVariable("USERPROFILE");
-            return Path.Combine(configFilePath, RedisNugetPackageServerPath, RedisServerExeName);
+            return Path.Combine(configFilePath, UserProfileRedisNugetPackageServerPath, RedisServerExeName);
+        }
+
+        public static string GetCIMachineServerPath()
+        {
+            var configFilePath = Environment.GetEnvironmentVariable("KRE_PACKAGES");
+            return Path.Combine(configFilePath, CIMachineRedisNugetPackageServerPath, RedisServerExeName);
         }
 
         private static bool RunServer(string serverExePath)

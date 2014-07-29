@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Redis
             if (!RedisTestConfig.GetOrStartServer())
             {
                 throw new Exception(@"Could not find existing Redis Server nor start one at path "
-                    + RedisTestConfig.GetServerPath());
+                    + RedisTestConfig.GetUserProfileServerPath() + " nor at path " + RedisTestConfig.GetCIMachineServerPath());
             }
 
             if (_context == null)
