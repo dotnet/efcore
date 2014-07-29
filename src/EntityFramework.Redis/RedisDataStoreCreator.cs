@@ -8,29 +8,30 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Redis.Utilities;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Redis
 {
     public class RedisDataStoreCreator : DataStoreCreator
     {
-        private readonly RedisDatabase _database;
+        private readonly LazyRef<RedisDatabase> _database;
 
         public RedisDataStoreCreator([NotNull] DbContextConfiguration configuration)
         {
             Check.NotNull(configuration, "configuration");
 
-            _database = (RedisDatabase)configuration.Database;
+            _database = new LazyRef<RedisDatabase>(() => (RedisDatabase)configuration.Database);
         }
 
         public override bool EnsureDeleted(IModel model)
         {
-            _database.FlushDatabase();
+            _database.Value.FlushDatabase();
             return true;
         }
 
         public override async Task<bool> EnsureDeletedAsync(IModel model, CancellationToken cancellationToken = default(CancellationToken))
         {
-            await _database.FlushDatabaseAsync(cancellationToken);
+            await _database.Value.FlushDatabaseAsync(cancellationToken);
             return true;
         }
 

@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Redis;
 using Microsoft.Data.Entity.Redis.Utilities;
 using Microsoft.Data.Entity.Storage;
@@ -22,7 +23,8 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddScoped<RedisDataStoreServices>()
                 .AddScoped<RedisConnection>()
                 .AddScoped<RedisDataStoreCreator>()
-                .AddScoped<RedisDatabase>();
+                .AddScoped<RedisDatabase>()
+                .AddScoped<ValueGeneratorCache>();
 
             return builder;
         }
