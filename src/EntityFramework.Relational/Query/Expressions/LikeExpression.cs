@@ -59,5 +59,10 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
                 ? new LikeExpression(newMatchExpression, newPatternExpression)
                 : this;
         }
+
+        public override string ToString()
+        {
+            return _match + " LIKE " + _pattern;
+        }
     }
 }

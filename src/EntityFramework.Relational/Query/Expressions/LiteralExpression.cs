@@ -43,5 +43,10 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
         {
             return this;
         }
+
+        public override string ToString()
+        {
+            return Literal;
+        }
     }
 }

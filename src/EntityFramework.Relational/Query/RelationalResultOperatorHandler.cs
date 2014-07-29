@@ -3,18 +3,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Linq.Expressions;
-using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
 using Microsoft.Data.Entity.Relational.Utilities;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.ResultOperators;
-using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Relational.Query
 {
@@ -80,6 +76,7 @@ namespace Microsoft.Data.Entity.Relational.Query
         private static readonly Dictionary<Type, Func<HandlerContext, Expression>>
             _resultHandlers = new Dictionary<Type, Func<HandlerContext, Expression>>
                 {
+                    { typeof(AllResultOperator), HandleAll },
                     { typeof(AnyResultOperator), HandleAny },
                     { typeof(TakeResultOperator), HandleTake },
                     { typeof(SingleResultOperator), HandleSingle },
@@ -131,11 +128,41 @@ namespace Microsoft.Data.Entity.Relational.Query
             return resultHandler(handlerContext);
         }
 
+        private static Expression HandleAll(HandlerContext handlerContext)
+        {
+            var filteringVisitor
+                = new RelationalQueryModelVisitor.FilteringExpressionTreeVisitor(handlerContext.QueryModelVisitor);
+
+            var predicate
+                = filteringVisitor.VisitExpression(
+                    ((AllResultOperator)handlerContext.ResultOperator).Predicate);
+
+            if (!filteringVisitor.RequiresClientEval)
+            {
+                var innerSelectExpression = new SelectExpression();
+
+                innerSelectExpression.AddTables(handlerContext.SelectExpression.Tables);
+                innerSelectExpression.Predicate = Expression.Not(predicate);
+
+                handlerContext.SelectExpression
+                    .SetProjection(
+                        new CaseExpression(Expression.Not(new ExistsExpression(innerSelectExpression))));
+
+                return new ResultTransformingExpressionTreeVisitor(
+                    handlerContext.QueryModel.MainFromClause,
+                    (RelationalQueryCompilationContext)handlerContext.QueryModelVisitor.QueryCompilationContext)
+                    .VisitExpression(handlerContext.QueryModelVisitor.Expression);
+            }
+
+            return handlerContext.EvalOnClient;
+        }
+
         private static Expression HandleAny(HandlerContext handlerContext)
         {
             var innerSelectExpression = new SelectExpression();
 
             innerSelectExpression.AddTables(handlerContext.SelectExpression.Tables);
+            innerSelectExpression.Predicate = handlerContext.SelectExpression.Predicate;
 
             handlerContext.SelectExpression
                 .SetProjection(new CaseExpression(new ExistsExpression(innerSelectExpression)));
@@ -144,114 +171,6 @@ namespace Microsoft.Data.Entity.Relational.Query
                 handlerContext.QueryModel.MainFromClause,
                 (RelationalQueryCompilationContext)handlerContext.QueryModelVisitor.QueryCompilationContext)
                 .VisitExpression(handlerContext.QueryModelVisitor.Expression);
-        }
-
-        private class ResultTransformingExpressionTreeVisitor : ExpressionTreeVisitor
-        {
-            private readonly IQuerySource _outerQuerySource;
-            private readonly RelationalQueryCompilationContext _relationalQueryCompilationContext;
-
-            public ResultTransformingExpressionTreeVisitor(
-                IQuerySource outerQuerySource, RelationalQueryCompilationContext relationalQueryCompilationContext)
-            {
-                _outerQuerySource = outerQuerySource;
-                _relationalQueryCompilationContext = relationalQueryCompilationContext;
-            }
-
-            private static readonly MethodInfo _getValueMethodInfo
-                = typeof(ResultTransformingExpressionTreeVisitor).GetTypeInfo()
-                    .GetDeclaredMethod("GetValue");
-
-            [UsedImplicitly]
-            private static QuerySourceScope<bool> GetValue(
-                IQuerySource querySource,
-                QuerySourceScope parentQuerySourceScope,
-                DbDataReader dataReader)
-            {
-                return new QuerySourceScope<bool>(
-                    querySource,
-                    dataReader.GetBoolean(0),
-                    parentQuerySourceScope);
-            }
-
-            protected override Expression VisitMethodCallExpression(MethodCallExpression expression)
-            {
-                var newArguments = VisitAndConvert(expression.Arguments, "VisitMethodCallExpression");
-
-                if ((MethodIsClosedFormOf(expression.Method, RelationalQueryModelVisitor.CreateEntityMethodInfo)
-                     || MethodIsClosedFormOf(expression.Method, RelationalQueryModelVisitor.CreateValueReaderMethodInfo))
-                    && ((ConstantExpression)expression.Arguments[0]).Value == _outerQuerySource)
-                {
-                    return
-                        Expression.Call(
-                            _getValueMethodInfo,
-                            expression.Arguments[0],
-                            expression.Arguments[2],
-                            expression.Arguments[3]);
-                }
-
-                if (MethodIsClosedFormOf(
-                    expression.Method,
-                    QuerySourceScope.GetResultMethodInfo)
-                    && ((ConstantExpression)expression.Arguments[0]).Value == _outerQuerySource)
-                {
-                    return
-                        QuerySourceScope.GetResult(
-                            expression.Object,
-                            _outerQuerySource,
-                            typeof(bool));
-                }
-
-                if (newArguments != expression.Arguments)
-                {
-                    if (MethodIsClosedFormOf(
-                        expression.Method,
-                        _relationalQueryCompilationContext.QueryMethodProvider.QueryMethod))
-                    {
-                        return Expression.Call(
-                            _relationalQueryCompilationContext.QueryMethodProvider.QueryMethod
-                                .MakeGenericMethod(typeof(QuerySourceScope<bool>)),
-                            newArguments);
-                    }
-
-                    if (MethodIsClosedFormOf(
-                        expression.Method,
-                        _relationalQueryCompilationContext.LinqOperatorProvider.Select))
-                    {
-                        return
-                            Expression.Call(
-                                _relationalQueryCompilationContext.LinqOperatorProvider.First
-                                    .MakeGenericMethod(typeof(bool)),
-                                Expression.Call(
-                                    _relationalQueryCompilationContext.LinqOperatorProvider.Select
-                                        .MakeGenericMethod(
-                                            typeof(QuerySourceScope),
-                                            typeof(bool)),
-                                    newArguments));
-                    }
-
-                    return Expression.Call(expression.Method, newArguments);
-                }
-
-                return expression;
-            }
-
-            protected override Expression VisitLambdaExpression(LambdaExpression expression)
-            {
-                var newBodyExpression = VisitExpression(expression.Body);
-
-                return newBodyExpression != expression.Body
-                    ? Expression.Lambda(newBodyExpression, expression.Parameters)
-                    : expression;
-            }
-
-            private static bool MethodIsClosedFormOf(MethodInfo method, MethodInfo genericMethod)
-            {
-                return method.IsGenericMethod
-                       && ReferenceEquals(
-                           method.GetGenericMethodDefinition(),
-                           genericMethod);
-            }
         }
 
         private static Expression HandleTake(HandlerContext handlerContext)

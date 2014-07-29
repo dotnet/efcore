@@ -56,9 +56,9 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             {
                 VisitJoin(selectExpression.Projection);
             }
-            else if (selectExpression.CaseProjection != null)
+            else if (selectExpression.ProjectionExpression != null)
             {
-                VisitCaseExpression(selectExpression.CaseProjection);
+                VisitExpression(selectExpression.ProjectionExpression);
             }
             else
             {
@@ -101,14 +101,14 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                     .Append("ORDER BY ");
 
                 VisitJoin(selectExpression.OrderBy, t =>
-                {
-                    VisitExpression(t.Expression);
-
-                    if (t.OrderingDirection == OrderingDirection.Desc)
                     {
-                        _sql.Append(" DESC");
-                    }
-                });
+                        VisitExpression(t.Expression);
+
+                        if (t.OrderingDirection == OrderingDirection.Desc)
+                        {
+                            _sql.Append(" DESC");
+                        }
+                    });
             }
 
             GenerateLimitOffset(selectExpression);
@@ -351,6 +351,18 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             _sql.Append(GenerateLiteral(literalExpression.Literal));
 
             return literalExpression;
+        }
+
+        protected override Expression VisitUnaryExpression(UnaryExpression expression)
+        {
+            if (expression.NodeType == ExpressionType.Not)
+            {
+                _sql.Append("NOT ");
+
+                VisitExpression(expression.Operand);
+            }
+
+            return expression;
         }
 
         protected override Expression VisitConstantExpression(ConstantExpression constantExpression)

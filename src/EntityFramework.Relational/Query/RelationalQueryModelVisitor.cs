@@ -148,8 +148,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                     {
                         _outerCommandBuilder = expression.Arguments[1];
                     }
-                    else if (MethodIsClosedFormOf(
-                        newExpression.Method,
+                    else if (newExpression.Method.MethodIsClosedFormOf(
                         _relationalQueryCompilationContext.QueryMethodProvider.QueryMethod))
                     {
                         newExpression
@@ -162,7 +161,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                 }
 
                 if (ReferenceEquals(newExpression.Method, CreateValueReaderMethodInfo)
-                    || MethodIsClosedFormOf(newExpression.Method, CreateEntityMethodInfo))
+                    || newExpression.Method.MethodIsClosedFormOf(CreateEntityMethodInfo))
                 {
                     var constantExpression = (ConstantExpression)newExpression.Arguments[0];
 
@@ -189,14 +188,13 @@ namespace Microsoft.Data.Entity.Relational.Query
                 }
                 else if (_outerShaperExpression != null
                          && _outerSelectManyExpression == null
-                         && MethodIsClosedFormOf(
-                             newExpression.Method,
+                         && newExpression.Method.MethodIsClosedFormOf(
                              _relationalQueryCompilationContext.LinqOperatorProvider.SelectMany))
                 {
                     _outerSelectManyExpression = newExpression;
                 }
                 else if (_outerSelectManyExpression != null
-                         && MethodIsClosedFormOf(newExpression.Method, _operatorToFlatten))
+                         && newExpression.Method.MethodIsClosedFormOf(_operatorToFlatten))
                 {
                     newExpression
                         = Expression.Call(
@@ -213,14 +211,6 @@ namespace Microsoft.Data.Entity.Relational.Query
                 }
 
                 return newExpression;
-            }
-
-            private static bool MethodIsClosedFormOf(MethodInfo method, MethodInfo genericMethod)
-            {
-                return method.IsGenericMethod
-                       && ReferenceEquals(
-                           method.GetGenericMethodDefinition(),
-                           genericMethod);
             }
         }
 
@@ -330,7 +320,7 @@ namespace Microsoft.Data.Entity.Relational.Query
             }
         }
 
-        private class FilteringExpressionTreeVisitor : ThrowingExpressionTreeVisitor
+        internal class FilteringExpressionTreeVisitor : ThrowingExpressionTreeVisitor
         {
             private readonly RelationalQueryModelVisitor _queryModelVisitor;
 
