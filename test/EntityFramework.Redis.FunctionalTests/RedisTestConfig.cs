@@ -86,6 +86,8 @@ namespace Microsoft.Data.Entity.Redis
                     {
                         var processInfo = new ProcessStartInfo
                             {
+                                // start the process in users TMP dir (a .dat file will be created but will be removed when the server dies)
+                                WorkingDirectory = Path.GetTempPath(),
                                 CreateNoWindow = true,
                                 FileName = serverExePath,
                                 RedirectStandardError = true,
