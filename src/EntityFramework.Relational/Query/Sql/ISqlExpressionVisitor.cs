@@ -18,5 +18,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
         Expression VisitTableExpression([NotNull] TableExpression tableExpression);
         Expression VisitCrossJoinExpression([NotNull] CrossJoinExpression crossJoinExpression);
         Expression VisitInnerJoinExpression([NotNull] InnerJoinExpression innerJoinExpression);
+        Expression VisitCaseExpression([NotNull] CaseExpression caseExpression);
+        Expression VisitExistsExpression([NotNull] ExistsExpression existsExpression);
     }
 }

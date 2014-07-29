@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Query
             = typeof(QuerySourceScope).GetTypeInfo()
                 .GetDeclaredMethods("Create").FirstOrDefault(m => m.IsStatic && !m.IsPublic);
 
-        private static readonly MethodInfo _getResultMethodInfo
+        public static readonly MethodInfo GetResultMethodInfo
             = typeof(QuerySourceScope).GetTypeInfo()
                 .GetDeclaredMethods("GetResult").FirstOrDefault(m => !m.IsStatic && !m.IsPublic);
 
@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.Query
         {
             return Expression.Call(
                 querySourceScope,
-                _getResultMethodInfo.MakeGenericMethod(resultType),
+                GetResultMethodInfo.MakeGenericMethod(resultType),
                 Expression.Constant(querySource));
         }
 

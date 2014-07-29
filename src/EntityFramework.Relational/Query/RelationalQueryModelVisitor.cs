@@ -161,8 +161,8 @@ namespace Microsoft.Data.Entity.Relational.Query
                     }
                 }
 
-                if ((ReferenceEquals(newExpression.Method, RelationalQueryingExpressionTreeVisitor.CreateValueReaderMethodInfo)
-                     || MethodIsClosedFormOf(newExpression.Method, RelationalQueryingExpressionTreeVisitor.CreateEntityMethodInfo)))
+                if (ReferenceEquals(newExpression.Method, CreateValueReaderMethodInfo)
+                    || MethodIsClosedFormOf(newExpression.Method, CreateEntityMethodInfo))
                 {
                     var constantExpression = (ConstantExpression)newExpression.Arguments[0];
 
@@ -369,9 +369,9 @@ namespace Microsoft.Data.Entity.Relational.Query
                         var right = VisitExpression(expression.Right);
 
                         return left != null
-                              && right != null
-                                ? Expression.AndAlso(left, right)
-                                : (left ?? right);
+                               && right != null
+                            ? Expression.AndAlso(left, right)
+                            : (left ?? right);
                     }
 
                     case ExpressionType.OrElse:
@@ -380,9 +380,9 @@ namespace Microsoft.Data.Entity.Relational.Query
                         var right = VisitExpression(expression.Right);
 
                         return left != null
-                              && right != null
-                                ? Expression.OrElse(left, right)
-                                : null;
+                               && right != null
+                            ? Expression.OrElse(left, right)
+                            : null;
                     }
                 }
 
@@ -415,7 +415,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                                     && leftExpressions.Length == rightExpressions.Length)
                                 {
                                     return leftExpressions
-                                        .Zip(rightExpressions, (l, r) => 
+                                        .Zip(rightExpressions, (l, r) =>
                                             Expression.MakeBinary(expressionType, l, r))
                                         .Aggregate((e1, e2) =>
                                             expressionType == ExpressionType.Equal
@@ -614,7 +614,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
                 return default(TResult);
             }
-            
+
             protected override Exception CreateUnhandledItemException<T>(T unhandledItem, string visitMethod)
             {
                 return null; // never called
@@ -714,10 +714,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                                     return Expression.Call(
                                         newExpression,
                                         _readValueMethodInfo.MakeGenericMethod(expression.Type),
-                                        new Expression[]
-                                            {
-                                                Expression.Constant(projectionIndex)
-                                            });
+                                        Expression.Constant(projectionIndex));
                                 })
                         : Expression.MakeMemberAccess(newExpression, expression.Member);
                 }
@@ -798,6 +795,84 @@ namespace Microsoft.Data.Entity.Relational.Query
             return default(TResult);
         }
 
+        public static readonly MethodInfo CreateValueReaderMethodInfo
+            = typeof(RelationalQueryModelVisitor).GetTypeInfo()
+                .GetDeclaredMethod("CreateValueReader");
+
+        [UsedImplicitly]
+        private static QuerySourceScope<IValueReader> CreateValueReader(
+            IQuerySource querySource,
+            QueryContext queryContext,
+            QuerySourceScope parentQuerySourceScope,
+            DbDataReader dataReader)
+        {
+            var relationalQueryContext = (RelationalQueryContext)queryContext;
+
+            return new QuerySourceScope<IValueReader>(
+                querySource,
+                relationalQueryContext.ValueReaderFactory.Create(dataReader),
+                parentQuerySourceScope);
+        }
+
+        public static readonly MethodInfo CreateEntityMethodInfo
+            = typeof(RelationalQueryModelVisitor).GetTypeInfo()
+                .GetDeclaredMethod("CreateEntity");
+
+        [UsedImplicitly]
+        private static QuerySourceScope<TEntity> CreateEntity<TEntity>(
+            IQuerySource querySource,
+            QueryContext queryContext,
+            QuerySourceScope parentQuerySourceScope,
+            DbDataReader dataReader,
+            int readerOffset)
+        {
+            var relationalQueryContext = (RelationalQueryContext)queryContext;
+
+            var valueReader
+                = relationalQueryContext.ValueReaderFactory.Create(dataReader);
+
+            if (readerOffset > 0)
+            {
+                valueReader = new OffsetValueReaderDecorator(valueReader, readerOffset);
+            }
+
+            return new QuerySourceScope<TEntity>(
+                querySource,
+                // ReSharper disable once AssignNullToNotNullAttribute
+                (TEntity)queryContext.StateManager
+                    .GetOrMaterializeEntry(
+                        queryContext.Model.GetEntityType(typeof(TEntity)),
+                        valueReader).Entity,
+                parentQuerySourceScope);
+        }
+
+        private class OffsetValueReaderDecorator : IValueReader
+        {
+            private readonly IValueReader _valueReader;
+            private readonly int _offset;
+
+            public OffsetValueReaderDecorator(IValueReader valueReader, int offset)
+            {
+                _valueReader = valueReader;
+                _offset = offset;
+            }
+
+            public bool IsNull(int index)
+            {
+                return _valueReader.IsNull(_offset + index);
+            }
+
+            public T ReadValue<T>(int index)
+            {
+                return _valueReader.ReadValue<T>(_offset + index);
+            }
+
+            public int Count
+            {
+                get { return _valueReader.Count; }
+            }
+        }
+
         private class RelationalQueryingExpressionTreeVisitor : QueryingExpressionTreeVisitor
         {
             private static readonly ParameterExpression _readerParameter
@@ -871,85 +946,6 @@ namespace Microsoft.Data.Entity.Relational.Query
                     Expression.Lambda(
                         Expression.Call(queryMethodInfo, queryMethodArguments),
                         _readerParameter));
-            }
-
-            public static readonly MethodInfo CreateValueReaderMethodInfo
-                = typeof(RelationalQueryingExpressionTreeVisitor).GetTypeInfo()
-                    .GetDeclaredMethod("CreateValueReader");
-
-            [UsedImplicitly]
-            private static QuerySourceScope<IValueReader> CreateValueReader(
-                IQuerySource querySource,
-                QueryContext queryContext,
-                QuerySourceScope parentQuerySourceScope,
-                DbDataReader dataReader)
-            {
-                var relationalQueryContext = (RelationalQueryContext)queryContext;
-
-                return new QuerySourceScope<IValueReader>(
-                    querySource,
-                    relationalQueryContext.ValueReaderFactory.Create(dataReader),
-                    parentQuerySourceScope);
-            }
-
-            public static readonly MethodInfo CreateEntityMethodInfo
-                = typeof(RelationalQueryingExpressionTreeVisitor).GetTypeInfo()
-                    .GetDeclaredMethod("CreateEntity");
-
-            [UsedImplicitly]
-            private static QuerySourceScope<TEntity> CreateEntity<TEntity>(
-                IQuerySource querySource,
-                QueryContext queryContext,
-                QuerySourceScope parentQuerySourceScope,
-                DbDataReader dataReader,
-                int readerOffset)
-            {
-                var relationalQueryContext = (RelationalQueryContext)queryContext;
-
-                var valueReader
-                    = relationalQueryContext.ValueReaderFactory.Create(dataReader);
-
-                if (readerOffset > 0)
-                {
-                    valueReader
-                        = new OffsetValueReaderDecorator(valueReader, readerOffset);
-                }
-
-                return new QuerySourceScope<TEntity>(
-                    querySource,
-                    // ReSharper disable once AssignNullToNotNullAttribute
-                    (TEntity)queryContext.StateManager
-                        .GetOrMaterializeEntry(
-                            queryContext.Model.GetEntityType(typeof(TEntity)),
-                            valueReader).Entity,
-                    parentQuerySourceScope);
-            }
-
-            private class OffsetValueReaderDecorator : IValueReader
-            {
-                private readonly IValueReader _valueReader;
-                private readonly int _offset;
-
-                public OffsetValueReaderDecorator(IValueReader valueReader, int offset)
-                {
-                    _valueReader = valueReader;
-                    _offset = offset;
-                }
-
-                public bool IsNull(int index)
-                {
-                    return _valueReader.IsNull(_offset + index);
-                }
-
-                public T ReadValue<T>(int index)
-                {
-                    return _valueReader.ReadValue<T>(_offset + index);
-                }
-
-                public int Count
-                {
-                    get { return _valueReader.Count; }
-                }
             }
         }
 
