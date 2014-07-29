@@ -84,7 +84,23 @@ namespace Microsoft.Data.Entity.Redis
                 {
                     if (_redisServerProcess == null)
                     {
-                        _redisServerProcess = Process.Start(serverExePath);
+                        var processInfo = new ProcessStartInfo
+                            {
+                                CreateNoWindow = true,
+                                FileName = serverExePath,
+                                RedirectStandardError = true,
+                                RedirectStandardOutput = true,
+                                UseShellExecute = false,
+                            };
+                        try
+                        {
+                            _redisServerProcess = Process.Start(processInfo);
+                        }
+                        catch (Exception)
+                        {
+                            return false;
+                        }
+
                         // wait for server to complete start-up
                         Thread.Sleep(ServerStartupTimeMillisecs);
                     }
