@@ -87,10 +87,12 @@
     <Compile Include="Infrastructure\IDbContextOptionsExtensions.cs" />
     <Compile Include="INotifyPropertyChanging.cs" />
     <Compile Include="Metadata\Compiled\CompiledIndex.cs" />
+    <Compile Include="Metadata\EntityBuilder.cs" />
     <Compile Include="Metadata\EntityTypeExtensions.cs" />
     <Compile Include="Metadata\IIndex.cs" />
     <Compile Include="Metadata\IModelBuilderFactory.cs" />
     <Compile Include="Metadata\Index.cs" />
+    <Compile Include="Metadata\MetadataBuilder.cs" />
     <Compile Include="Metadata\ModelBuilderFactory.cs" />
     <Compile Include="Metadata\NavigationExtensions.cs" />
     <Compile Include="Metadata\EntityTypeNameComparer.cs" />

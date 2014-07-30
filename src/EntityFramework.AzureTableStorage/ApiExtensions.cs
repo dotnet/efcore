@@ -48,10 +48,10 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Metadata
             return property[Annotations.ColumnName] ?? property.Name;
         }
 
-        public static ModelBuilder.EntityBuilderBase<TMetadataBuilder> TableName<TMetadataBuilder>(
-            [NotNull] this ModelBuilder.EntityBuilderBase<TMetadataBuilder> builder,
+        public static EntityBuilderBase<TMetadataBuilder> TableName<TMetadataBuilder>(
+            [NotNull] this EntityBuilderBase<TMetadataBuilder> builder,
             [NotNull] string tableName)
-            where TMetadataBuilder : ModelBuilder.MetadataBuilder<EntityType, TMetadataBuilder>
+            where TMetadataBuilder : MetadataBuilder<EntityType, TMetadataBuilder>
         {
             Check.NotNull(builder, "builder");
             Check.NotEmpty(tableName, "tableName");
@@ -61,10 +61,10 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Metadata
             return builder;
         }
 
-        public static ModelBuilder.EntityBuilderBase<TMetadataBuilder>.PropertyBuilder ColumnName<TMetadataBuilder>(
-            [NotNull] this ModelBuilder.EntityBuilderBase<TMetadataBuilder>.PropertyBuilder builder,
+        public static EntityBuilderBase<TMetadataBuilder>.PropertyBuilder ColumnName<TMetadataBuilder>(
+            [NotNull] this EntityBuilderBase<TMetadataBuilder>.PropertyBuilder builder,
             [NotNull] string columnName)
-            where TMetadataBuilder : ModelBuilder.MetadataBuilder<EntityType, TMetadataBuilder>
+            where TMetadataBuilder : MetadataBuilder<EntityType, TMetadataBuilder>
         {
             Check.NotNull(builder, "builder");
             Check.NotEmpty(columnName, "columnName");
@@ -82,7 +82,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Metadata
         /// <param name="partitionKeyExpression"></param>
         /// <param name="rowKeyExpression"></param>
         /// <returns></returns>
-        public static ModelBuilder.EntityBuilder<TEntity> PartitionAndRowKey<TEntity>([NotNull] this ModelBuilder.EntityBuilder<TEntity> builder, [NotNull] Expression<Func<TEntity, object>> partitionKeyExpression, [NotNull] Expression<Func<TEntity, object>> rowKeyExpression)
+        public static EntityBuilder<TEntity> PartitionAndRowKey<TEntity>([NotNull] this EntityBuilder<TEntity> builder, [NotNull] Expression<Func<TEntity, object>> partitionKeyExpression, [NotNull] Expression<Func<TEntity, object>> rowKeyExpression)
         {
             Check.NotNull(builder, "builder");
             Check.NotNull(partitionKeyExpression, "partitionKeyExpression");
@@ -97,7 +97,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Metadata
             return builder;
         }
 
-        public static ModelBuilder.EntityBuilder<TEntity> Timestamp<TEntity>([NotNull] this ModelBuilder.EntityBuilder<TEntity> builder, [NotNull] Expression<Func<TEntity, object>> expression)
+        public static EntityBuilder<TEntity> Timestamp<TEntity>([NotNull] this EntityBuilder<TEntity> builder, [NotNull] Expression<Func<TEntity, object>> expression)
         {
             Check.NotNull(builder, "builder");
             Check.NotNull(expression, "expression");
@@ -107,7 +107,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Metadata
             return builder;
         }
 
-        public static ModelBuilder.EntityBuilder<TEntity> Timestamp<TEntity>([NotNull] this ModelBuilder.EntityBuilder<TEntity> builder, [NotNull] string name, bool shadowProperty = false)
+        public static EntityBuilder<TEntity> Timestamp<TEntity>([NotNull] this EntityBuilder<TEntity> builder, [NotNull] string name, bool shadowProperty = false)
         {
             Check.NotNull(builder, "builder");
             Check.NotEmpty(name, "name");
