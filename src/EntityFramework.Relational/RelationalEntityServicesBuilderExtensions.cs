@@ -23,9 +23,9 @@ namespace Microsoft.Data.Entity.Relational
                 .AddSingleton<RelationalObjectArrayValueReaderFactory>()
                 .AddSingleton<RelationalTypedValueReaderFactory>()
                 .AddSingleton<ParameterNameGeneratorFactory>()
-                .AddSingleton<CommandBatchPreparer>()
                 .AddSingleton<ModificationCommandComparer>()
                 .AddSingleton<GraphFactory, BidirectionalAdjacencyListGraphFactory>()
+                .AddScoped<CommandBatchPreparer>()
                 .AddScoped<RelationalDatabase>()
                 // TODO: Is singleton correct here? What is IConfiguration scoped as?
                 .AddSingleton<ConnectionStringResolver>();

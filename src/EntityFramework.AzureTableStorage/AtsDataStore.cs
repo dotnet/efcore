@@ -26,6 +26,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
     public class AtsDataStore : DataStore
     {
         private readonly AtsQueryFactory _queryFactory;
+        private readonly DbContextConfiguration _configuration;
         protected readonly AtsConnection Connection;
         internal TableEntityAdapterFactory EntityFactory;
         private const int MaxBatchOperations = 100;
@@ -33,8 +34,9 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         /// <summary>
         ///     Provided only for testing purposes. Do not use.
         /// </summary>
-        protected AtsDataStore(AtsConnection connection, TableEntityAdapterFactory entityFactory)
+        protected AtsDataStore(DbContextConfiguration configuration, AtsConnection connection, TableEntityAdapterFactory entityFactory)
         {
+            _configuration = configuration;
             Connection = connection;
             EntityFactory = entityFactory;
         }
@@ -47,9 +49,11 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         {
             Check.NotNull(connection, "connection");
             Check.NotNull(queryFactory, "queryFactory");
+            Check.NotNull(configuration, "configuration");
             Check.NotNull(tableEntityFactory, "tableEntityFactory");
 
             _queryFactory = queryFactory;
+            _configuration = configuration;
             EntityFactory = tableEntityFactory;
             Connection = connection;
         }
@@ -178,21 +182,21 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             var statusCode = exception.RequestInformation.HttpStatusCode;
             if (statusCode == (int)HttpStatusCode.PreconditionFailed)
             {
-                return new DbUpdateConcurrencyException(Strings.ETagPreconditionFailed, stateEntries);
+                return new DbUpdateConcurrencyException(Strings.ETagPreconditionFailed, _configuration.Context, stateEntries);
             }
             if (statusCode == (int)HttpStatusCode.NotFound)
             {
                 var extendedErrorCode = exception.RequestInformation.ExtendedErrorInformation.ErrorCode;
                 if (extendedErrorCode == StorageErrorCodes.ResourceNotFound)
                 {
-                    return new DbUpdateConcurrencyException(Strings.ResourceNotFound, stateEntries); 
+                    return new DbUpdateConcurrencyException(Strings.ResourceNotFound, _configuration.Context, stateEntries); 
                 }
                 if (extendedErrorCode == StorageErrorCodes.TableNotFoundError)
                 {
-                    return new DbUpdateException(Strings.TableNotFound, stateEntries);
+                    return new DbUpdateException(Strings.TableNotFound, _configuration.Context, stateEntries);
                 }
             }
-            return new DbUpdateException(Strings.SaveChangesFailed, exception, stateEntries);
+            return new DbUpdateException(Strings.SaveChangesFailed, _configuration.Context, exception, stateEntries);
         }
 
         protected TableOperationRequest CreateRequest(AtsTable table, StateEntry entry)

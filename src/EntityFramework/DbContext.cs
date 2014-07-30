@@ -8,8 +8,10 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity
 {
@@ -19,6 +21,7 @@ namespace Microsoft.Data.Entity
 
         private readonly LazyRef<DbContextConfiguration> _configuration;
         private readonly ContextSets _sets = new ContextSets();
+        private readonly LazyRef<ILogger> _logger;
 
         private IServiceProvider _scopedServiceProvider;
 
@@ -27,6 +30,7 @@ namespace Microsoft.Data.Entity
             var options = new DbContextOptions();
             InitializeSets(null, options);
             _configuration = new LazyRef<DbContextConfiguration>(() => Initialize(null, options));
+            _logger = new LazyRef<ILogger>(() => _configuration.Value.LoggerFactory.Create("DbContext"));
         }
 
         public DbContext([NotNull] IServiceProvider serviceProvider)
@@ -36,6 +40,8 @@ namespace Microsoft.Data.Entity
             InitializeSets(serviceProvider, null);
             _configuration = new LazyRef<DbContextConfiguration>(
                 () => Initialize(serviceProvider, GetOptions(serviceProvider)));
+
+            _logger = new LazyRef<ILogger>(() => _configuration.Value.LoggerFactory.Create("DbContext"));
         }
 
         private DbContextOptions GetOptions(IServiceProvider serviceProvider)
@@ -53,6 +59,7 @@ namespace Microsoft.Data.Entity
 
             InitializeSets(null, options);
             _configuration = new LazyRef<DbContextConfiguration>(() => Initialize(null, options));
+            _logger = new LazyRef<ILogger>(() => _configuration.Value.LoggerFactory.Create("DbContext"));
         }
 
         // TODO: Consider removing this constructor if DbContextOptions should be obtained from serviceProvider
@@ -63,6 +70,7 @@ namespace Microsoft.Data.Entity
 
             InitializeSets(serviceProvider, options);
             _configuration = new LazyRef<DbContextConfiguration>(() => Initialize(serviceProvider, options));
+            _logger = new LazyRef<ILogger>(() => _configuration.Value.LoggerFactory.Create("DbContext"));
         }
 
         private DbContextConfiguration Initialize(IServiceProvider serviceProvider, DbContextOptions options)
@@ -115,14 +123,36 @@ namespace Microsoft.Data.Entity
             return SaveChangesAsync().GetAwaiter().GetResult();
         }
 
-        public virtual Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var stateManager = Configuration.StateManager;
 
             // TODO: Allow auto-detect changes to be switched off
             Configuration.Services.ChangeDetector.DetectChanges(stateManager);
 
-            return stateManager.SaveChangesAsync(cancellationToken);
+            try
+            {
+                return await stateManager.SaveChangesAsync(cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                if (DataStoreException.ContainsDataStoreException(ex))
+                {
+                    if (_logger.Value.IsEnabled(TraceType.Error))
+                    {
+                        _logger.Value.WriteError(Strings.FormatLogDataStoreExceptionRethrow(Strings.LogExceptionDuringSaveChanges), ex);
+                    }
+
+                    throw;
+                }
+
+                if (_logger.Value.IsEnabled(TraceType.Error))
+                {
+                    _logger.Value.WriteError(Strings.FormatLogDataStoreExceptionWrap(Strings.LogExceptionDuringSaveChanges), ex);
+                }
+
+                throw new DataStoreException(Strings.DataStoreException, this, ex);
+            }
         }
 
         // TODO: Consider Framework Guidelines recommended dispose pattern

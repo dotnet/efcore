@@ -33,11 +33,17 @@
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
+    <PackageReference Include="Remotion.Linq">
+      <TargetFramework>portable-net45+wp80+win</TargetFramework>
+    </PackageReference>
     <PackageReference Include="Ix-Async">
       <TargetFramework>net45</TargetFramework>
       <Assemblies>System.Interactive.Async</Assemblies>
     </PackageReference>
     <PackageReference Include="Microsoft.Framework.ConfigurationModel">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Framework.DependencyInjection">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <PackageReference Include="Microsoft.Framework.Logging">
@@ -58,6 +64,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ExceptionInterceptionTest.cs" />
     <Compile Include="FixupTest.cs" />
     <Compile Include="Metadata\CompiledModelTest.cs" />
     <Compile Include="Metadata\KoolModel.cs" />

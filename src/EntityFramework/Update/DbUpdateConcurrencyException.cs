@@ -15,28 +15,32 @@ namespace Microsoft.Data.Entity.Update
         {
         }
 
-        public DbUpdateConcurrencyException([NotNull] string message)
-            : base(message)
+        public DbUpdateConcurrencyException([NotNull] string message, [NotNull] DbContext context)
+            : base(message, context)
         {
             Check.NotEmpty(message, "message");
+            Check.NotNull(context, "context");
         }
 
-        public DbUpdateConcurrencyException([NotNull] string message, [CanBeNull] Exception innerException)
-            : base(message, innerException)
+        public DbUpdateConcurrencyException([NotNull] string message, [NotNull] DbContext context, [CanBeNull] Exception innerException)
+            : base(message, context, innerException)
         {
             Check.NotEmpty(message, "message");
+            Check.NotNull(context, "context");
         }
 
-        public DbUpdateConcurrencyException([NotNull] string message, [NotNull] IReadOnlyList<StateEntry> stateEntries)
-            : base(message, stateEntries)
+        public DbUpdateConcurrencyException([NotNull] string message, [NotNull] DbContext context, [NotNull] IReadOnlyList<StateEntry> stateEntries)
+            : base(message, context, stateEntries)
         {
             Check.NotEmpty(message, "message");
+            Check.NotNull(context, "context");
         }
 
-        public DbUpdateConcurrencyException([NotNull] string message, [CanBeNull] Exception innerException, [NotNull] IReadOnlyList<StateEntry> stateEntries)
-            : base(message, innerException, stateEntries)
+        public DbUpdateConcurrencyException([NotNull] string message, [NotNull] DbContext context, [CanBeNull] Exception innerException, [NotNull] IReadOnlyList<StateEntry> stateEntries)
+            : base(message, context, innerException, stateEntries)
         {
             Check.NotEmpty(message, "message");
+            Check.NotNull(context, "context");
         }
     }
 }

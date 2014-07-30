@@ -11,6 +11,7 @@ using Microsoft.Data.Entity.AzureTableStorage.Adapters;
 using Microsoft.Data.Entity.AzureTableStorage.Requests;
 using Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Update;
 using Microsoft.Framework.Logging;
 using Microsoft.WindowsAzure.Storage;
@@ -28,11 +29,18 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
         private readonly Queue<IList<TableResult>> _queue;
 
         public AtsBatchedDataStoreTests(Mock<AtsConnection> connection)
-            : base(connection.Object, new TableEntityAdapterFactory())
+            : base(BuildConfig(), connection.Object, new TableEntityAdapterFactory())
         {
             _connection = connection;
             _connection.SetupGet(s => s.Batching).Returns(true);
             _queue = new Queue<IList<TableResult>>();
+        }
+
+        private static DbContextConfiguration BuildConfig()
+        {
+            var config = new Mock<DbContextConfiguration>();
+            config.Setup(c => c.Context).Returns(new Mock<DbContext>().Object);
+            return config.Object;
         }
 
         private void QueueResult(params IList<TableResult>[] results)
@@ -129,7 +137,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
             {
                 QueueResult(responses);
             }
-           
+
             var actualChanges = SaveChangesAsync(entries).Result;
             Assert.Equal(expectedChanges, actualChanges);
         }

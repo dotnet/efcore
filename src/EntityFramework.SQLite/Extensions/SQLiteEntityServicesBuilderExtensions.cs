@@ -28,7 +28,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddSingleton<SqlStatementExecutor>()
                 .AddSingleton<SQLiteTypeMapper>()
                 .AddSingleton<SQLiteBatchExecutor>()
-                .AddSingleton<ModificationCommandBatchFactory, SQLiteModificationCommandBatchFactory>()
+                .AddScoped<ModificationCommandBatchFactory, SQLiteModificationCommandBatchFactory>()
                 .AddScoped<DataStoreSource, SQLiteDataStoreSource>()
                 .AddScoped<SQLiteDataStoreServices>()
                 .AddScoped<SQLiteDataStore>()

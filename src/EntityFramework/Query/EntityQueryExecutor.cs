@@ -2,11 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 using Remotion.Linq;
@@ -68,8 +70,32 @@ namespace Microsoft.Data.Entity.Query
 
             LogQueryModel(queryModel);
 
-            return _context.Configuration.DataStore
-                .Query<T>(queryModel, _context.Configuration.StateManager);
+            try
+            {
+                return new EnumerableExceptionInterceptor<T>(
+                    _context.Configuration.DataStore.Query<T>(queryModel, _context.Configuration.StateManager),
+                    _context,
+                    _logger);
+            }
+            catch (Exception ex)
+            {
+                if (DataStoreException.ContainsDataStoreException(ex))
+                {
+                    if (_logger.Value.IsEnabled(TraceType.Error))
+                    {
+                        _logger.Value.WriteError(Strings.FormatLogDataStoreExceptionRethrow(Strings.LogExceptionDuringQueryExecution), ex);
+                    }
+
+                    throw;
+                }
+
+                if (_logger.Value.IsEnabled(TraceType.Error))
+                {
+                    _logger.Value.WriteError(Strings.FormatLogDataStoreExceptionWrap(Strings.LogExceptionDuringQueryExecution), ex);
+                }
+
+                throw new DataStoreException(Strings.DataStoreException, _context, ex);
+            }
         }
 
         public virtual IAsyncEnumerable<T> AsyncExecuteCollection<T>([NotNull] QueryModel queryModel)
@@ -80,8 +106,32 @@ namespace Microsoft.Data.Entity.Query
 
             LogQueryModel(queryModel);
 
-            return _context.Configuration.DataStore
-                .AsyncQuery<T>(queryModel, _context.Configuration.StateManager);
+            try
+            {
+                return new AsyncEnumerableExceptionInterceptor<T>(
+                    _context.Configuration.DataStore.AsyncQuery<T>(queryModel, _context.Configuration.StateManager),
+                    _context,
+                    _logger);
+            }
+            catch (Exception ex)
+            {
+                if (DataStoreException.ContainsDataStoreException(ex))
+                {
+                    if (_logger.Value.IsEnabled(TraceType.Error))
+                    {
+                        _logger.Value.WriteError(Strings.FormatLogDataStoreExceptionRethrow(Strings.LogExceptionDuringQueryExecution), ex);
+                    }
+
+                    throw;
+                }
+
+                if (_logger.Value.IsEnabled(TraceType.Error))
+                {
+                    _logger.Value.WriteError(Strings.FormatLogDataStoreExceptionWrap(Strings.LogExceptionDuringQueryExecution), ex);
+                }
+
+                throw new DataStoreException(Strings.DataStoreException, _context, ex);
+            }
         }
 
         private void LogQueryModel(QueryModel queryModel)
@@ -128,6 +178,162 @@ namespace Microsoft.Data.Entity.Query
                 queryModel.TransformExpressions(
                     ex => ReferenceReplacingExpressionTreeVisitor
                         .ReplaceClauseReferences(ex, innerBodyClauseMapping, false));
+            }
+        }
+
+        private class EnumerableExceptionInterceptor<T> : IEnumerable<T>
+        {
+            private IEnumerable<T> _inner;
+            private DbContext _context;
+            private readonly LazyRef<ILogger> _logger;
+
+            public EnumerableExceptionInterceptor(IEnumerable<T> inner, DbContext context, LazyRef<ILogger> logger)
+            {
+                _inner = inner;
+                _context = context;
+                _logger = logger;
+            }
+
+            public IEnumerator<T> GetEnumerator()
+            {
+                return new EnumeratorExceptionInterceptor(_inner.GetEnumerator(), _context, _logger);
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
+
+            private class EnumeratorExceptionInterceptor : IEnumerator<T>
+            {
+                private IEnumerator<T> _inner;
+                private DbContext _context;
+                private readonly LazyRef<ILogger> _logger;
+
+                public EnumeratorExceptionInterceptor(IEnumerator<T> inner, DbContext context, LazyRef<ILogger> logger)
+                {
+                    _inner = inner;
+                    _context = context;
+                    _logger = logger;
+                }
+
+                public T Current
+                {
+                    get { return _inner.Current; }
+                }
+
+                object System.Collections.IEnumerator.Current
+                {
+                    get { return _inner.Current; }
+                }
+
+                public bool MoveNext()
+                {
+                    try
+                    {
+                        return _inner.MoveNext();
+                    }
+                    catch (Exception ex)
+                    {
+                        if (DataStoreException.ContainsDataStoreException(ex))
+                        {
+                            if (_logger.Value.IsEnabled(TraceType.Error))
+                            {
+                                _logger.Value.WriteError(Strings.FormatLogDataStoreExceptionRethrow(Strings.LogExceptionDuringQueryIteration), ex);
+                            }
+
+                            throw;
+                        }
+
+                        if (_logger.Value.IsEnabled(TraceType.Error))
+                        {
+                            _logger.Value.WriteError(Strings.FormatLogDataStoreExceptionWrap(Strings.LogExceptionDuringQueryIteration), ex);
+                        }
+
+                        throw new DataStoreException(Strings.DataStoreException, _context, ex);
+                    }
+                }
+
+                public void Reset()
+                {
+                    _inner.Reset();
+                }
+
+                public void Dispose()
+                {
+                    _inner.Dispose();
+                }
+            }
+        }
+
+        private class AsyncEnumerableExceptionInterceptor<T> : IAsyncEnumerable<T>
+        {
+            private IAsyncEnumerable<T> _inner;
+            private DbContext _context;
+            private readonly LazyRef<ILogger> _logger;
+
+            public AsyncEnumerableExceptionInterceptor(IAsyncEnumerable<T> inner, DbContext context, LazyRef<ILogger> logger)
+            {
+                _inner = inner;
+                _context = context;
+                _logger = logger;
+            }
+
+            public IAsyncEnumerator<T> GetEnumerator()
+            {
+                return new AsyncEnumeratorExceptionInterceptor(_inner.GetEnumerator(), _context, _logger);
+            }
+
+            private class AsyncEnumeratorExceptionInterceptor : IAsyncEnumerator<T>
+            {
+                private IAsyncEnumerator<T> _inner;
+                private DbContext _context;
+                private readonly LazyRef<ILogger> _logger;
+
+                public AsyncEnumeratorExceptionInterceptor(IAsyncEnumerator<T> inner, DbContext context, LazyRef<ILogger> logger)
+                {
+                    _inner = inner;
+                    _context = context;
+                    _logger = logger;
+                }
+
+                public T Current
+                {
+                    get { return _inner.Current; }
+                }
+
+                public async Task<bool> MoveNext(CancellationToken cancellationToken)
+                {
+                    try
+                    {
+                        return await _inner.MoveNext();
+                    }
+                    catch (Exception ex)
+                    {
+                        if (DataStoreException.ContainsDataStoreException(ex))
+                        {
+                            if (_logger.Value.IsEnabled(TraceType.Error))
+                            {
+                                _logger.Value.WriteError(Strings.FormatLogDataStoreExceptionRethrow(Strings.LogExceptionDuringQueryIteration), ex);
+                            }
+
+                            throw;
+                        }
+
+                        if (_logger.Value.IsEnabled(TraceType.Error))
+                        {
+                            _logger.Value.WriteError(Strings.FormatLogDataStoreExceptionWrap(Strings.LogExceptionDuringQueryIteration), ex);
+                        }
+
+                        throw new DataStoreException(Strings.DataStoreException, _context, ex);
+                    }
+
+                }
+
+                public void Dispose()
+                {
+                    _inner.Dispose();
+                }
             }
         }
     }

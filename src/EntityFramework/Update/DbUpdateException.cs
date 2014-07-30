@@ -6,10 +6,12 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.Update
 {
-    public class DbUpdateException : InvalidOperationException
+    public class DbUpdateException : DataStoreException
     {
         private readonly IReadOnlyList<StateEntry> _stateEntries;
 
@@ -18,35 +20,39 @@ namespace Microsoft.Data.Entity.Update
             _stateEntries = new List<StateEntry>();
         }
 
-        public DbUpdateException([NotNull] string message)
-            : base(message)
+        public DbUpdateException([NotNull] string message, [NotNull] DbContext context)
+            : base(message, context)
         {
             Check.NotEmpty(message, "message");
+            Check.NotNull(context, "context");
 
             _stateEntries = new List<StateEntry>();
         }
 
-        public DbUpdateException([NotNull] string message, [CanBeNull] Exception innerException)
-            : base(message, innerException)
+        public DbUpdateException([NotNull] string message, [NotNull] DbContext context, [CanBeNull] Exception innerException)
+            : base(message, context, innerException)
         {
             Check.NotEmpty(message, "message");
+            Check.NotNull(context, "context");
 
             _stateEntries = new List<StateEntry>();
         }
 
-        public DbUpdateException([NotNull] string message, [NotNull] IReadOnlyList<StateEntry> stateEntries)
-            : base(message)
+        public DbUpdateException([NotNull] string message, [NotNull] DbContext context, [NotNull] IReadOnlyList<StateEntry> stateEntries)
+            : base(message, context)
         {
             Check.NotEmpty(message, "message");
+            Check.NotNull(context, "context");
             Check.NotEmpty(stateEntries, "stateEntries");
 
             _stateEntries = stateEntries;
         }
 
-        public DbUpdateException([NotNull] string message, [CanBeNull] Exception innerException, [NotNull] IReadOnlyList<StateEntry> stateEntries)
-            : base(message, innerException)
+        public DbUpdateException([NotNull] string message, [NotNull] DbContext context, [CanBeNull] Exception innerException, [NotNull] IReadOnlyList<StateEntry> stateEntries)
+            : base(message, context, innerException)
         {
             Check.NotEmpty(message, "message");
+            Check.NotNull(context, "context");
             Check.NotEmpty(stateEntries, "stateEntries");
 
             _stateEntries = stateEntries;

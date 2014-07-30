@@ -31,7 +31,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddSingleton<SqlStatementExecutor>()
                 .AddSingleton<SqlServerTypeMapper>()
                 .AddSingleton<SqlServerBatchExecutor>()
-                .AddSingleton<ModificationCommandBatchFactory, SqlServerModificationCommandBatchFactory>()
+                .AddScoped<ModificationCommandBatchFactory, SqlServerModificationCommandBatchFactory>()
                 .AddScoped<DataStoreSource, SqlServerDataStoreSource>()
                 .AddScoped<SqlServerDataStoreServices>()
                 .AddScoped<SqlServerDataStore>()

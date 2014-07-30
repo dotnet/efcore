@@ -618,6 +618,102 @@ namespace Microsoft.Data.Entity
             return GetString("CurrentValuesAlwaysInSync");
         }
 
+        /// <summary>
+        /// An error occured while running a data store operation. See InnerException for details.
+        /// </summary>
+        internal static string DataStoreException
+        {
+            get { return GetString("DataStoreException"); }
+        }
+
+        /// <summary>
+        /// An error occured while running a data store operation. See InnerException for details.
+        /// </summary>
+        internal static string FormatDataStoreException()
+        {
+            return GetString("DataStoreException");
+        }
+
+        /// <summary>
+        /// {0} The exception is already a DataStoreException (or derives from DataStoreException). Re-throwing the original exception.
+        /// </summary>
+        internal static string LogDataStoreExceptionRethrow
+        {
+            get { return GetString("LogDataStoreExceptionRethrow"); }
+        }
+
+        /// <summary>
+        /// {0} The exception is already a DataStoreException (or derives from DataStoreException). Re-throwing the original exception.
+        /// </summary>
+        internal static string FormatLogDataStoreExceptionRethrow(object p0)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("LogDataStoreExceptionRethrow"), p0);
+        }
+
+        /// <summary>
+        /// {0} Throwing a new DataStoreException with InnerException set to the original exception.
+        /// </summary>
+        internal static string LogDataStoreExceptionWrap
+        {
+            get { return GetString("LogDataStoreExceptionWrap"); }
+        }
+
+        /// <summary>
+        /// {0} Throwing a new DataStoreException with InnerException set to the original exception.
+        /// </summary>
+        internal static string FormatLogDataStoreExceptionWrap(object p0)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("LogDataStoreExceptionWrap"), p0);
+        }
+
+        /// <summary>
+        /// An exception occurred while executing a query.
+        /// </summary>
+        internal static string LogExceptionDuringQueryExecution
+        {
+            get { return GetString("LogExceptionDuringQueryExecution"); }
+        }
+
+        /// <summary>
+        /// An exception occurred while executing a query.
+        /// </summary>
+        internal static string FormatLogExceptionDuringQueryExecution()
+        {
+            return GetString("LogExceptionDuringQueryExecution");
+        }
+
+        /// <summary>
+        /// An exception occurred while iterating results of a query.
+        /// </summary>
+        internal static string LogExceptionDuringQueryIteration
+        {
+            get { return GetString("LogExceptionDuringQueryIteration"); }
+        }
+
+        /// <summary>
+        /// An exception occurred while iterating results of a query.
+        /// </summary>
+        internal static string FormatLogExceptionDuringQueryIteration()
+        {
+            return GetString("LogExceptionDuringQueryIteration");
+        }
+
+        /// <summary>
+        /// An exception occurred while saving changes.
+        /// </summary>
+        internal static string LogExceptionDuringSaveChanges
+        {
+            get { return GetString("LogExceptionDuringSaveChanges"); }
+        }
+
+        /// <summary>
+        /// An exception occurred while saving changes.
+        /// </summary>
+        internal static string FormatLogExceptionDuringSaveChanges()
+        {
+            return GetString("LogExceptionDuringSaveChanges");
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

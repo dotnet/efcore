@@ -120,7 +120,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.Same(databaseBuilder, scopedProvider.GetService<DatabaseBuilder>());
             Assert.Same(arrayReaderFactory, scopedProvider.GetService<RelationalObjectArrayValueReaderFactory>());
             Assert.Same(typedReaderFactory, scopedProvider.GetService<RelationalTypedValueReaderFactory>());
-            Assert.Same(batchPreparer, scopedProvider.GetService<CommandBatchPreparer>());
             Assert.Same(modificationCommandComparer, scopedProvider.GetService<ModificationCommandComparer>());
             Assert.Same(graphFactory, scopedProvider.GetService<GraphFactory>());
 
@@ -128,9 +127,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.Same(sqlStatementExecutor, scopedProvider.GetService<SqlStatementExecutor>());
             Assert.Same(sqlTypeMapper, scopedProvider.GetService<SqlServerTypeMapper>());
             Assert.Same(sqlServerBatchExecutor, scopedProvider.GetService<SqlServerBatchExecutor>());
-            Assert.Same(sqlServerModificationCommandBatchFactory, scopedProvider.GetService<ModificationCommandBatchFactory>());
 
             // Scoped
+            Assert.NotSame(batchPreparer, scopedProvider.GetService<CommandBatchPreparer>());
+            Assert.NotSame(sqlServerModificationCommandBatchFactory, scopedProvider.GetService<ModificationCommandBatchFactory>());
             Assert.NotSame(sqlServerDataStoreSource, scopedProvider.GetService<DataStoreSource>());
             Assert.NotSame(sqlServerDataStore, scopedProvider.GetService<SqlServerDataStore>());
             Assert.NotSame(sqlServerConnection, scopedProvider.GetService<SqlServerConnection>());

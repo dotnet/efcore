@@ -145,7 +145,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             Assert.Equal(1, stateEntry[stateEntry.EntityType.GetProperty("Id")]);
             Assert.Equal("FortyTwo", stateEntry[stateEntry.EntityType.GetProperty("Name")]);
         }
-        
+
         [Fact]
         public async Task Exception_not_thrown_for_more_than_one_row_returned_for_single_command()
         {
@@ -162,7 +162,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             batch.AddCommand(command, new Mock<SqlGenerator> { CallBase = true }.Object);
 
             await batch.ExecuteAsync(new Mock<RelationalTransaction>().Object, new RelationalTypeMapper());
-            
+
             Assert.Equal(42, stateEntry[stateEntry.EntityType.GetProperty("Id")]);
         }
 
@@ -390,12 +390,21 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             private readonly DbDataReader _reader;
 
             public ModificationCommandBatchFake()
+                : base(BuildConfig())
             {
             }
 
             public ModificationCommandBatchFake(DbDataReader reader)
+                : base(BuildConfig())
             {
                 _reader = reader;
+            }
+
+            private static DbContextConfiguration BuildConfig()
+            {
+                var config = new Mock<DbContextConfiguration>();
+                config.Setup(c => c.Context).Returns(new Mock<DbContext>().Object);
+                return config.Object;
             }
 
             protected override string GenerateCommandText(SqlGenerator sqlGenerator)

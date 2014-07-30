@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.Data.Entity.Infrastructure;
 using Moq;
 using Xunit;
 
@@ -16,13 +17,21 @@ namespace Microsoft.Data.Entity.Relational.Update
                 "sqlGenerator",
                 // ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(() =>
-                    new ModificationCommandBatchFactory(null)).ParamName);
+                    new ModificationCommandBatchFactory(null, null)).ParamName);
+
+            Assert.Equal(
+                "contextConfiguration",
+                // ReSharper disable once AssignNullToNotNullAttribute
+                Assert.Throws<ArgumentNullException>(() =>
+                    new ModificationCommandBatchFactory(new Mock<SqlGenerator>().Object, null)).ParamName);
         }
 
         [Fact]
         public void Create_returns_new_instances()
         {
-            var factory = new ModificationCommandBatchFactory(new Mock<SqlGenerator>().Object);
+            var factory = new ModificationCommandBatchFactory(
+                new Mock<SqlGenerator>().Object, 
+                new Mock<DbContextConfiguration>().Object);
 
             var firstBatch = factory.Create();
             var secondBatch = factory.Create();
@@ -35,7 +44,9 @@ namespace Microsoft.Data.Entity.Relational.Update
         [Fact]
         public void AddCommand_checks_arguments()
         {
-            var factory = new ModificationCommandBatchFactory(new Mock<SqlGenerator>().Object);
+            var factory = new ModificationCommandBatchFactory(
+                new Mock<SqlGenerator>().Object,
+                new Mock<DbContextConfiguration>().Object);
 
             Assert.Equal(
                 "modificationCommandBatch",
@@ -54,7 +65,9 @@ namespace Microsoft.Data.Entity.Relational.Update
         public void AddCommand_delegates()
         {
             var sqlGenerator = new Mock<SqlGenerator>().Object;
-            var factory = new ModificationCommandBatchFactory(sqlGenerator);
+            var factory = new ModificationCommandBatchFactory(
+                sqlGenerator,
+                new Mock<DbContextConfiguration>().Object);
 
             var modificationCommandBatchMock = new Mock<ModificationCommandBatch>();
             var mockModificationCommand = new Mock<ModificationCommand>().Object;

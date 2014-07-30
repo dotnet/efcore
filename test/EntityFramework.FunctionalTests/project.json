@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "EntityFramework.InMemory" : "",
+    "Remotion.Linq": "1.15.13.0",
     "Xunit.KRunner": "1.0.0-*"
   },
   "commands": {

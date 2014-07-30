@@ -8,9 +8,11 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.AzureTableStorage.Adapters;
+using Microsoft.Data.Entity.AzureTableStorage.Query;
 using Microsoft.Data.Entity.AzureTableStorage.Requests;
 using Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Update;
 using Microsoft.Framework.Logging;
 using Microsoft.WindowsAzure.Storage;
@@ -26,9 +28,16 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
         private Queue<TableResult> _queue;
 
         public AtsDataStoreTests(Mock<AtsConnection> connection)
-            : base(connection.Object, new TableEntityAdapterFactory())
+            : base(BuildConfig(), connection.Object, new TableEntityAdapterFactory())
         {
             _connection = connection;
+        }
+
+        private static DbContextConfiguration BuildConfig()
+        {
+            var config = new Mock<DbContextConfiguration>();
+            config.Setup(c => c.Context).Returns(new Mock<DbContext>().Object);
+            return config.Object;
         }
 
         private void QueueResult(params TableResult[] results)
