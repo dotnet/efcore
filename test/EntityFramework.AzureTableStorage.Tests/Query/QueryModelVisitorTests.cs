@@ -110,9 +110,11 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
                     pb.Property(s => s.SHA1);
                 });
 
-            builder.Entity<Root>()
-                .Key(s => s.ID)
-                .Property(s => s.SHA1);
+            builder.Entity<Root>(b =>
+                {
+                    b.Key(s => s.ID);
+                b.Property(s => s.SHA1);
+                });
 
             var rootType = model.GetEntityType(typeof(Root));
             var branchType = model.GetEntityType(typeof(Branch));

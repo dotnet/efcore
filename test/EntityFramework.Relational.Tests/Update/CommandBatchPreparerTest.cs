@@ -336,15 +336,17 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var model = new Metadata.Model();
             var modelBuilder = new ModelBuilder(model);
 
-            modelBuilder
-                .Entity<FakeEntity>()
-                .Key(c => c.Id)
-                .Property(c => c.Value);
+            modelBuilder.Entity<FakeEntity>(b =>
+                {
+                    b.Key(c => c.Id);
+                    b.Property(c => c.Value);
+                });
 
-            modelBuilder
-                .Entity<RelatedFakeEntity>()
-                .Key(c => c.Id)
-                .ForeignKeys(fk => fk.ForeignKey<FakeEntity>(c => c.Id));
+            modelBuilder.Entity<RelatedFakeEntity>(b =>
+                {
+                    b.Key(c => c.Id);
+                    b.ForeignKeys(fk => fk.ForeignKey<FakeEntity>(c => c.Id));
+                });
 
             return model;
         }
@@ -354,15 +356,17 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var model = new Metadata.Model();
             var modelBuilder = new ModelBuilder(model);
 
-            modelBuilder
-                .Entity<FakeEntity>()
-                .Key(c => c.Id)
-                .Property(c => c.Value);
+            modelBuilder.Entity<FakeEntity>(b =>
+                {
+                    b.Key(c => c.Id);
+                    b.Property(c => c.Value);
+                });
 
-            modelBuilder
-                .Entity<RelatedFakeEntity>()
-                .Key(c => c.Id)
-                .ForeignKeys(fk => fk.ForeignKey<FakeEntity>(c => c.RelatedId));
+            modelBuilder.Entity<RelatedFakeEntity>(b =>
+                {
+                    b.Key(c => c.Id);
+                    b.ForeignKeys(fk => fk.ForeignKey<FakeEntity>(c => c.RelatedId));
+                });
 
             modelBuilder
                 .Entity<FakeEntity>()

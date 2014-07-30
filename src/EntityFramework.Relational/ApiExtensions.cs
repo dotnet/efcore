@@ -323,8 +323,8 @@ namespace Microsoft.Data.Entity.Metadata
             return builder;
         }
 
-        public static ModelBuilder.EntityBuilderBase<TMetadataBuilder>.KeyMetadataBuilder KeyName<TMetadataBuilder>(
-            [NotNull] this ModelBuilder.EntityBuilderBase<TMetadataBuilder>.KeyMetadataBuilder builder,
+        public static ModelBuilder.EntityBuilderBase<TMetadataBuilder>.KeyBuilder KeyName<TMetadataBuilder>(
+            [NotNull] this ModelBuilder.EntityBuilderBase<TMetadataBuilder>.KeyBuilder builder,
             [NotNull] string keyName)
             where TMetadataBuilder : ModelBuilder.MetadataBuilder<EntityType, TMetadataBuilder>
         {

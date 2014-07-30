@@ -106,10 +106,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             protected override void OnModelCreating(ModelBuilder builder)
             {
-                builder
-                    .Entity<Customer>()
-                    .Key(c => c.CustomerID)
-                    .ToTable("Customers");
+                builder.Entity<Customer>(b =>
+                {
+                    b.Key(c => c.CustomerID);
+                    b.ToTable("Customers");
+                });
             }
         }
 

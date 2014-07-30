@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
-using System.Reflection;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Metadata
@@ -185,10 +184,10 @@ namespace Microsoft.Data.Entity.Metadata
             var modelBuilder = new ModelBuilder(model);
 
             modelBuilder
-                .Entity<Customer>()
-                .Key(k => k.Properties(e => new { e.Id, e.Name })
-                    .Annotation("A1", "V1")
-                    .Annotation("A2", "V2"));
+                .Entity<Customer>(
+                    b => b.Key(e => new { e.Id, e.Name })
+                        .Annotation("A1", "V1")
+                        .Annotation("A2", "V2"));
 
             var entity = model.GetEntityType(typeof(Customer));
 
@@ -204,13 +203,13 @@ namespace Microsoft.Data.Entity.Metadata
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
 
-            modelBuilder.Entity("Customer", ps =>
+            modelBuilder.Entity("Customer", b =>
                 {
-                    ps.Property<int>("Id");
-                    ps.Property<string>("Name");
-                    ps.Key(k => k.Properties("Id", "Name")
+                    b.Property<int>("Id");
+                    b.Property<string>("Name");
+                    b.Key("Id", "Name")
                         .Annotation("A1", "V1")
-                        .Annotation("A2", "V2"));
+                        .Annotation("A2", "V2");
                 });
 
             var entity = model.GetEntityType(typeof(Customer));

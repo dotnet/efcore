@@ -64,9 +64,11 @@ namespace Microsoft.Data.Entity.Relational.Tests
 
             var modelBuilder = new ModelBuilder();
 
-            modelBuilder.Entity<Blog>()
-                .Key(k => k.BlogId)
-                .Property(e => e.BlogId);
+            modelBuilder.Entity<Blog>(b =>
+                {
+                    b.Key(k => k.BlogId);
+                    b.Property(e => e.BlogId);
+                });
 
             modelBuilder.Entity<Post>(b =>
                 {
@@ -113,9 +115,11 @@ namespace Microsoft.Data.Entity.Relational.Tests
             modelBuilder.Entity<Principal>()
                 .Key(k => new { k.Id0, k.Id1 });
 
-            modelBuilder.Entity<Dependent>()
-                .Key(k => k.Id)
-                .ForeignKeys(f => f.ForeignKey<Principal>(p => new { p.FkAAA, p.FkZZZ }));
+            modelBuilder.Entity<Dependent>(b =>
+                {
+                    b.Key(k => k.Id);
+                    b.ForeignKeys(f => f.ForeignKey<Principal>(p => new { p.FkAAA, p.FkZZZ }));
+                });
 
             var builder = new DatabaseBuilder();
             var name = builder.GetDatabase(modelBuilder.Model).GetTable("Dependent").ForeignKeys.Single().Name;

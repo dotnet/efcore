@@ -1,4 +1,5 @@
-// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using Microsoft.Data.Entity;
@@ -30,7 +31,7 @@ namespace ConcurrencyModel
             modelBuilder
                 .Entity<Chassis>()
                 .Key(c => c.TeamId);
-            
+
             modelBuilder
                 .Entity<Driver>(ps =>
                     {
@@ -52,11 +53,12 @@ namespace ConcurrencyModel
 
             // TODO: Complex type
             // .Property(c => c.StorageLocation);
-                    
-            modelBuilder
-                .Entity<EngineSupplier>()
-                .Key(e => e.Id)
-                .Property(e => e.Name);
+
+            modelBuilder.Entity<EngineSupplier>(b =>
+                {
+                    b.Key(e => e.Id);
+                    b.Property(e => e.Name);
+                });
 
             modelBuilder
                 .Entity<Gearbox>(ps =>
@@ -77,10 +79,11 @@ namespace ConcurrencyModel
             //            ps.Property<double>("Longitude", concurrencyToken: true);
             //        });
 
-            modelBuilder
-                .Entity<Sponsor>()
-                .Key(s => s.Id)
-                .Property(s => s.Name);
+            modelBuilder.Entity<Sponsor>(b =>
+                {
+                    b.Key(s => s.Id);
+                    b.Property(s => s.Name);
+                });
 
             // TODO: Complex type
             //builder
@@ -108,7 +111,7 @@ namespace ConcurrencyModel
                         ps.Property(t => t.Tire);
                         ps.Property(t => t.Victories);
                     });
-            
+
             modelBuilder
                 .Entity<TestDriver>()
                 .Key(t => t.Id);
@@ -117,7 +120,7 @@ namespace ConcurrencyModel
                 .Entity<TitleSponsor>();
             // TODO: Complex type
             // .Property(t => t.Details);
-            
+
             var chassisType = model.GetEntityType(typeof(Chassis));
             var driverType = model.GetEntityType(typeof(Driver));
             var engineType = model.GetEntityType(typeof(Engine));
@@ -148,7 +151,7 @@ namespace ConcurrencyModel
                 driverType.AddNavigation(new Navigation(driverTeamIdFk, "Team", pointsToPrincipal: true));
                 teamType.AddNavigation(new Navigation(driverTeamIdFk, "Drivers", pointsToPrincipal: false));
             }
-            
+
             {
                 // Engine * <-> 1 EngineSupplier
                 var engineEngineSupplierIdFk = engineType.AddForeignKey(engineSupplierType.GetKey(), engineType.GetProperty("EngineSupplierId"));

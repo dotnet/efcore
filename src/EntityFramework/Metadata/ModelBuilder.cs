@@ -149,49 +149,18 @@ namespace Microsoft.Data.Entity.Metadata
             {
             }
 
-            public EntityBuilderBase<TMetadataBuilder> Key([NotNull] params string[] propertyNames)
+            public KeyBuilder Key([NotNull] params string[] propertyNames)
             {
                 Check.NotNull(propertyNames, "propertyNames");
 
-                return Key(k => k.Properties(propertyNames));
+                Metadata.SetKey(propertyNames.Select(n => Metadata.GetProperty(n)).ToArray());
+
+                return new KeyBuilder(Metadata.GetKey());
             }
 
-            public EntityBuilderBase<TMetadataBuilder> Key([NotNull] Action<KeyBuilder> keyBuilder)
+            public class KeyBuilder : MetadataBuilder<Key, KeyBuilder>
             {
-                Check.NotNull(keyBuilder, "keyBuilder");
-
-                keyBuilder(new KeyBuilder(Metadata));
-
-                return this;
-            }
-
-            public class KeyBuilder
-            {
-                private readonly EntityType _entityType;
-
-                internal KeyBuilder(EntityType entityType)
-                {
-                    _entityType = entityType;
-                }
-
-                protected EntityType EntityType
-                {
-                    get { return _entityType; }
-                }
-
-                public KeyMetadataBuilder Properties([NotNull] params string[] propertyNames)
-                {
-                    Check.NotNull(propertyNames, "propertyNames");
-
-                    _entityType.SetKey(propertyNames.Select(n => _entityType.GetProperty(n)).ToArray());
-
-                    return new KeyMetadataBuilder(_entityType.GetKey());
-                }
-            }
-
-            public class KeyMetadataBuilder : MetadataBuilder<Key, KeyMetadataBuilder>
-            {
-                internal KeyMetadataBuilder(Key key)
+                internal KeyBuilder(Key key)
                     : base(key)
                 {
                 }
@@ -363,41 +332,17 @@ namespace Microsoft.Data.Entity.Metadata
             {
             }
 
-            public EntityBuilder<TEntity> Key([NotNull] Expression<Func<TEntity, object>> keyExpression)
+            public KeyBuilder Key([NotNull] Expression<Func<TEntity, object>> keyExpression)
             {
                 Check.NotNull(keyExpression, "keyExpression");
 
-                return Key(k => k.Properties(keyExpression));
-            }
+                Metadata.SetKey(
+                    keyExpression.GetPropertyAccessList()
+                        .Select(pi => Metadata.TryGetProperty(pi.Name)
+                                      ?? Metadata.AddProperty(pi))
+                        .ToArray());
 
-            public EntityBuilder<TEntity> Key([NotNull] Action<KeyBuilder> keyBuilder)
-            {
-                Check.NotNull(keyBuilder, "keyBuilder");
-
-                keyBuilder(new KeyBuilder(Metadata));
-
-                return this;
-            }
-
-            public new class KeyBuilder : EntityBuilderBase<EntityBuilder<TEntity>>.KeyBuilder
-            {
-                internal KeyBuilder(EntityType entityType)
-                    : base(entityType)
-                {
-                }
-
-                public virtual KeyMetadataBuilder Properties([NotNull] Expression<Func<TEntity, object>> keyExpression)
-                {
-                    Check.NotNull(keyExpression, "keyExpression");
-
-                    EntityType.SetKey(
-                        keyExpression.GetPropertyAccessList()
-                            .Select(pi => EntityType.TryGetProperty(pi.Name)
-                                          ?? EntityType.AddProperty(pi))
-                            .ToArray());
-
-                    return new KeyMetadataBuilder(EntityType.GetKey());
-                }
+                return new KeyBuilder(Metadata.GetKey());
             }
 
             public virtual PropertyBuilder Property([NotNull] Expression<Func<TEntity, object>> propertyExpression)

@@ -249,9 +249,9 @@ return builder.Model;",
                 {
                     b.Property(e => e.Id);
                     b.Property(e => e.Name);
-                    b.Key(k => k.Properties(e => new { e.Id, e.Name })
+                    b.Key(e => new { e.Id, e.Name })
                         .Annotation("A1", "V1")
-                        .Annotation("A2", "V2"));
+                        .Annotation("A2", "V2");
                 });
 
             var stringBuilder = new IndentedStringBuilder();

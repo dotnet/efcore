@@ -106,10 +106,11 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
 
-            modelBuilder
-                .Entity<Customer>()
-                .Key(c => c.Id)
-                .Property(c => c.Name);
+            modelBuilder.Entity<Customer>(b =>
+                {
+                    b.Key(c => c.Id);
+                    b.Property(c => c.Name);
+                });
 
             return model;
         }
