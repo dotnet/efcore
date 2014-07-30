@@ -114,6 +114,24 @@ namespace Microsoft.Data.Entity.Redis
             return Path.Combine(configFilePath, CIMachineRedisNugetPackageServerPath, RedisServerExeName);
         }
 
+        public static string GetTMPPath()
+        {
+            var tempPath = Environment.GetEnvironmentVariable("TMP");
+            if (tempPath == null)
+            {
+                throw new Exception("User does not have a TMP environment variable defined");
+            }
+
+            tempPath = Path.Combine(
+                Environment.GetEnvironmentVariable("TMP"), "RedisFunctionalTestsServer");
+            if (!Directory.Exists(tempPath))
+            {
+                Directory.CreateDirectory(tempPath);
+            }
+
+            return tempPath;
+        }
+
         private static bool RunServer(string serverExePath)
         {
             if (_redisServerProcess == null)
@@ -123,11 +141,8 @@ namespace Microsoft.Data.Entity.Redis
                     // copy the redis-server.exe to a directory under the user's TMP path. The server
                     // will be left running - so needs not to be under git's working directory as CI
                     // machines run cleanup on those paths before starting tests.
-                    var tempPath = Path.Combine(Path.GetTempPath(), "RedisFunctionalTestsServer");
-                    if (!Directory.Exists(tempPath))
-                    {
-                        Directory.CreateDirectory(tempPath);
-                    }
+
+                    var tempPath = GetTMPPath();
                     var tempRedisServerFullPath = Path.Combine(tempPath, RedisServerExeName);
                     if (!File.Exists(tempRedisServerFullPath))
                     {
