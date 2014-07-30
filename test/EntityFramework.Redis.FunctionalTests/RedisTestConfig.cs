@@ -4,43 +4,32 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Threading;
+using StackExchange.Redis;
 
 namespace Microsoft.Data.Entity.Redis
 {
     public static class RedisTestConfig
     {
-        public const int ServerStartupTimeMillisecs = 3000;
-
         internal const string RedisServerExeName = "redis-server.exe";
         internal const string UserProfileRedisNugetPackageServerPath = @".kpm\packages\Redis-64\2.8.9";
         internal const string CIMachineRedisNugetPackageServerPath = @"Redis-64\2.8.9";
 
-        private static volatile Process _redisServerProcess;
+        private static volatile Process _redisServerProcess; // null implies if server exists it was not started by this code
         private static object _redisServerProcessLock = new object();
+        public static int RedisPort = 6375; // override default so that do not interfere with anyone else's server
 
-        public static bool GetOrStartServer()
+        public static void GetOrStartServer()
         {
-            if (TryUseExistingRedisServer())
+            if (AlreadyOwnRunningRedisServer()) 
             {
-                return true;
+                return;
             }
 
-            string serverPath = GetUserProfileServerPath();
-            if (!File.Exists(serverPath))
-            {
-                serverPath = GetCIMachineServerPath();
-                if (!File.Exists(serverPath))
-                {
-                    return false;
-                }
-            }
-
-            return RunServer(serverPath);
+            TryConnectToOrStartServer();
         }
 
-        private static bool TryUseExistingRedisServer()
+        private static bool AlreadyOwnRunningRedisServer()
         {
             // Does RedisTestConfig already know about a running server?
             if (_redisServerProcess != null
@@ -49,19 +38,68 @@ namespace Microsoft.Data.Entity.Redis
                 return true;
             }
 
-            // Otherwise is there a running Redis server which RedisTestConfig can use?
-            var existingRedisServer =
-                Process.GetProcessesByName(RedisServerExeName).FirstOrDefault();
-            if (existingRedisServer != null)
+            return false;
+        }
+
+        private static bool TryConnectToOrStartServer()
+        {
+            if (CanConnectToExistingRedisServer(3, 100))
             {
                 lock (_redisServerProcessLock)
                 {
-                    _redisServerProcess = existingRedisServer;
+                    _redisServerProcess = null;
                 }
                 return true;
             }
 
-            return false;
+            return TryStartRedisServer();
+        }
+
+        private static bool CanConnectToExistingRedisServer(int numRetries, int sleepMillisecsBetweenRetries = 0)
+        {
+            var canConnectToServer = false;
+            for (var retryCount = 0; retryCount < numRetries; retryCount++)
+            {
+                try
+                {
+                    using (var connectionMultiplexer =
+                        ConnectionMultiplexer.Connect("127.0.0.1:" + RedisPort))
+                    {
+                        if (connectionMultiplexer.IsConnected)
+                        {
+                            canConnectToServer = true;
+                            break;
+                        }
+                    }
+                }
+                catch (RedisConnectionException)
+                {
+                    // exception connecting to server - try again
+                }
+
+                if (sleepMillisecsBetweenRetries > 0)
+                {
+                    Thread.Sleep(sleepMillisecsBetweenRetries);
+                }
+            }
+
+            return canConnectToServer;
+        }
+
+        private static bool TryStartRedisServer()
+        {
+            string serverPath = GetUserProfileServerPath();
+            if (!File.Exists(serverPath))
+            {
+                serverPath = GetCIMachineServerPath();
+                if (!File.Exists(serverPath))
+                {
+                    throw new Exception("Could not find " + RedisServerExeName +
+                        " at path " + GetUserProfileServerPath() + " nor at " + GetCIMachineServerPath());
+                }
+            }
+
+            return RunServer(serverPath);
         }
 
         public static string GetUserProfileServerPath()
@@ -82,14 +120,30 @@ namespace Microsoft.Data.Entity.Redis
             {
                 lock (_redisServerProcessLock)
                 {
+                    // copy the redis-server.exe to a directory under the user's TMP path. The server
+                    // will be left running - so needs not to be under git's working directory as CI
+                    // machines run cleanup on those paths before starting tests.
+                    var tempPath = Path.Combine(Path.GetTempPath(), "RedisFunctionalTestsServer");
+                    if (!Directory.Exists(tempPath))
+                    {
+                        Directory.CreateDirectory(tempPath);
+                    }
+                    var tempRedisServerFullPath = Path.Combine(tempPath, RedisServerExeName);
+                    if (!File.Exists(tempRedisServerFullPath))
+                    {
+                        File.Copy(serverExePath, tempRedisServerFullPath);
+                    }
+
                     if (_redisServerProcess == null)
                     {
+                        var serverArgs = "--port " + RedisPort;
                         var processInfo = new ProcessStartInfo
                             {
                                 // start the process in users TMP dir (a .dat file will be created but will be removed when the server dies)
-                                WorkingDirectory = Path.GetTempPath(),
+                                Arguments = serverArgs,
+                                WorkingDirectory = tempPath,
                                 CreateNoWindow = true,
-                                FileName = serverExePath,
+                                FileName = tempRedisServerFullPath,
                                 RedirectStandardError = true,
                                 RedirectStandardOutput = true,
                                 UseShellExecute = false,
@@ -98,13 +152,22 @@ namespace Microsoft.Data.Entity.Redis
                         {
                             _redisServerProcess = Process.Start(processInfo);
                         }
-                        catch (Exception)
+                        catch (Exception e)
                         {
-                            return false;
+                            throw new Exception("Could not start Redis Server at path "
+                                + tempRedisServerFullPath + " with Arguments '" + serverArgs + "', working dir = " + tempPath, e);
                         }
 
+                        if (_redisServerProcess == null)
+                        {
+                            throw new Exception("Got null process trying to  start Redis Server at path "
+                                + tempRedisServerFullPath + " with Arguments '" + serverArgs + "', working dir = " + tempPath);
+                        }
+                        else if (!CanConnectToExistingRedisServer(5, 1000))
+                        {
                         // wait for server to complete start-up
-                        Thread.Sleep(ServerStartupTimeMillisecs);
+                            throw new Exception("Cannot connect to started Redis server process PID " + _redisServerProcess.Id);
+                        }
                     }
                 }
             }

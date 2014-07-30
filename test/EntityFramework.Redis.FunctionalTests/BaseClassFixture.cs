@@ -13,17 +13,13 @@ namespace Microsoft.Data.Entity.Redis
 
         public DbContext GetOrCreateContext()
         {
-            if (!RedisTestConfig.GetOrStartServer())
-            {
-                throw new Exception(@"Could not find existing Redis Server nor start one at path "
-                    + RedisTestConfig.GetUserProfileServerPath() + " nor at path " + RedisTestConfig.GetCIMachineServerPath());
-            }
+            RedisTestConfig.GetOrStartServer();
 
             if (_context == null)
             {
                 var options = new DbContextOptions()
                     .UseModel(CreateModel())
-                    .UseRedis();
+                    .UseRedis("127.0.0.1", RedisTestConfig.RedisPort);
 
                 _context = new DbContext(options);
             }
