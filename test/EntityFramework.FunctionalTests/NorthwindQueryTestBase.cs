@@ -49,6 +49,30 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Take_Distinct()
+        {
+            AssertQuery<Order>(os => os.OrderBy(o => o.OrderID).Take(5).Distinct());
+        }
+
+        [Fact]
+        public virtual void Distinct_Take()
+        {
+            AssertQuery<Order>(os => os.Distinct().OrderBy(o => o.OrderID).Take(5));
+        }
+
+        [Fact]
+        public virtual void Distinct_Take_Count()
+        {
+            AssertQuery<Order>(os => os.Distinct().Take(5).Count());
+        }
+
+        [Fact]
+        public virtual void Take_Distinct_Count()
+        {
+            AssertQuery<Order>(os => os.Take(5).Distinct().Count());
+        }
+        
+        [Fact]
         public virtual void Any_simple()
         {
             AssertQuery<Customer>(cs => cs.Any());
