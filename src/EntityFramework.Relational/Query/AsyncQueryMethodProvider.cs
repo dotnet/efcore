@@ -87,8 +87,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                     return hasNext;
                 }
 
-                private async Task<bool> InitializeAndReadAsync(
-                    CancellationToken cancellationToken = default(CancellationToken))
+                private async Task<bool> InitializeAndReadAsync(CancellationToken cancellationToken)
                 {
                     await _enumerable._connection.OpenAsync(cancellationToken);
 

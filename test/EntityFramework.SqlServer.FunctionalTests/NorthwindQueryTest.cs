@@ -19,13 +19,67 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
     // TODO: Test non-SqlServer SQL (i.e. generated from Relational base) elsewhere
     public class NorthwindQueryTest : NorthwindQueryTestBase, IClassFixture<NorthwindQueryFixture>
     {
+        public override void Count_with_predicate()
+        {
+            base.Count_with_predicate();
+
+            Assert.Equal(
+                @"SELECT COUNT(*)
+FROM [Orders] AS o
+WHERE o.[CustomerID] = @p0",
+                _fixture.Sql);
+        }
+
+        public override void Distinct_Count()
+        {
+            base.Distinct_Count();
+
+            Assert.Equal(
+                @"SELECT COUNT(*)
+FROM (
+    SELECT DISTINCT c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region]
+    FROM [Customers] AS c
+) AS t0",
+                _fixture.Sql);
+        }
+
+        [Fact]
+        public override void Select_Distinct_Count()
+        {
+            base.Select_Distinct_Count();
+
+            Assert.Equal(
+                @"SELECT COUNT(*)
+FROM (
+    SELECT DISTINCT c.[City]
+    FROM [Customers] AS c
+) AS t0",
+                _fixture.Sql);
+        }
+
+        public override void Take_Distinct_Count()
+        {
+            base.Take_Distinct_Count();
+
+            Assert.Equal(
+                @"SELECT COUNT(*)
+FROM (
+    SELECT DISTINCT *
+    FROM (
+        SELECT TOP 5 o.[CustomerID], o.[OrderDate], o.[OrderID]
+        FROM [Orders] AS o
+    ) AS t0
+) AS t1",
+                _fixture.Sql);
+        }
+
         public override void Queryable_simple()
         {
             base.Queryable_simple();
 
             Assert.Equal(
-                @"SELECT t0.[Address], t0.[City], t0.[CompanyName], t0.[ContactName], t0.[ContactTitle], t0.[Country], t0.[CustomerID], t0.[Fax], t0.[Phone], t0.[PostalCode], t0.[Region]
-FROM [Customers] AS t0",
+                @"SELECT c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region]
+FROM [Customers] AS c",
                 _fixture.Sql);
         }
 
@@ -79,7 +133,7 @@ ORDER BY c.[CustomerID]",
                 @"SELECT CASE WHEN (
     EXISTS (
         SELECT 1
-        FROM [Customers] AS t1
+        FROM [Customers] AS c
     )
 ) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END",
                 _fixture.Sql);
@@ -93,7 +147,7 @@ ORDER BY c.[CustomerID]",
                 @"SELECT CASE WHEN (
     EXISTS (
         SELECT 1
-        FROM [Customers] AS t1
+        FROM [Customers] AS c
     )
 ) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END",
                 _fixture.Sql);
@@ -144,8 +198,8 @@ FROM [Customers] AS c",
             base.Select_scalar_primitive_after_take();
 
             Assert.Equal(
-                @"SELECT TOP 9 t1.[City], t1.[Country], t1.[EmployeeID], t1.[FirstName], t1.[ReportsTo]
-FROM [Employees] AS t1",
+                @"SELECT TOP 9 e.[City], e.[Country], e.[EmployeeID], e.[FirstName], e.[ReportsTo]
+FROM [Employees] AS e",
                 _fixture.Sql);
         }
 
@@ -174,7 +228,7 @@ WHERE e.[ReportsTo] = @p0",
         public override void Where_comparison_nullable_type_null()
         {
             base.Where_comparison_nullable_type_null();
-            
+
             Assert.Equal(
                 @"SELECT e.[City], e.[Country], e.[EmployeeID], e.[FirstName], e.[ReportsTo]
 FROM [Employees] AS e
@@ -513,14 +567,14 @@ INNER JOIN [Orders] AS o ON (c.[CustomerID] = o.[CustomerID] AND c.[CustomerID] 
 
         public override void Join_select_many()
         {
-            base.Join_select_many(); 
-            
+            base.Join_select_many();
+
             Assert.Equal(
-                 @"SELECT c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region], o.[CustomerID], o.[OrderDate], o.[OrderID], e.[City], e.[Country], e.[EmployeeID], e.[FirstName], e.[ReportsTo]
+                @"SELECT c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region], o.[CustomerID], o.[OrderDate], o.[OrderID], e.[City], e.[Country], e.[EmployeeID], e.[FirstName], e.[ReportsTo]
 FROM [Customers] AS c
 INNER JOIN [Orders] AS o ON c.[CustomerID] = o.[CustomerID]
 CROSS JOIN [Employees] AS e",
-                 _fixture.Sql);
+                _fixture.Sql);
         }
 
         public override void GroupBy_Distinct()
@@ -593,8 +647,8 @@ FROM (
             base.Distinct();
 
             Assert.Equal(
-                @"SELECT DISTINCT t1.[Address], t1.[City], t1.[CompanyName], t1.[ContactName], t1.[ContactTitle], t1.[Country], t1.[CustomerID], t1.[Fax], t1.[Phone], t1.[PostalCode], t1.[Region]
-FROM [Customers] AS t1",
+                @"SELECT DISTINCT c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region]
+FROM [Customers] AS c",
                 _fixture.Sql);
         }
 

@@ -20,5 +20,6 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
         Expression VisitInnerJoinExpression([NotNull] InnerJoinExpression innerJoinExpression);
         Expression VisitCaseExpression([NotNull] CaseExpression caseExpression);
         Expression VisitExistsExpression([NotNull] ExistsExpression existsExpression);
+        Expression VisitCountExpression([NotNull] CountExpression countExpression);
     }
 }

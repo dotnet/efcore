@@ -78,6 +78,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                 {
                     { typeof(AllResultOperator), HandleAll },
                     { typeof(AnyResultOperator), HandleAny },
+                    { typeof(CountResultOperator), HandleCount },
                     { typeof(TakeResultOperator), HandleTake },
                     { typeof(SingleResultOperator), HandleSingle },
                     { typeof(FirstResultOperator), HandleFirst },
@@ -144,14 +145,11 @@ namespace Microsoft.Data.Entity.Relational.Query
                 innerSelectExpression.AddTables(handlerContext.SelectExpression.Tables);
                 innerSelectExpression.Predicate = Expression.Not(predicate);
 
-                handlerContext.SelectExpression
-                    .SetProjection(
-                        new CaseExpression(Expression.Not(new ExistsExpression(innerSelectExpression))));
+                SetProjectionCaseExpression(
+                    handlerContext,
+                    new CaseExpression(Expression.Not(new ExistsExpression(innerSelectExpression))));
 
-                return new ResultTransformingExpressionTreeVisitor(
-                    handlerContext.QueryModel.MainFromClause,
-                    (RelationalQueryCompilationContext)handlerContext.QueryModelVisitor.QueryCompilationContext)
-                    .VisitExpression(handlerContext.QueryModelVisitor.Expression);
+                return TransformClientExpression<bool>(handlerContext);
             }
 
             return handlerContext.EvalOnClient;
@@ -164,38 +162,19 @@ namespace Microsoft.Data.Entity.Relational.Query
             innerSelectExpression.AddTables(handlerContext.SelectExpression.Tables);
             innerSelectExpression.Predicate = handlerContext.SelectExpression.Predicate;
 
+            SetProjectionCaseExpression(
+                handlerContext,
+                new CaseExpression(new ExistsExpression(innerSelectExpression)));
+
+            return TransformClientExpression<bool>(handlerContext);
+        }
+
+        private static Expression HandleCount(HandlerContext handlerContext)
+        {
             handlerContext.SelectExpression
-                .SetProjection(new CaseExpression(new ExistsExpression(innerSelectExpression)));
+                .SetProjectionCountExpression(new CountExpression());
 
-            return new ResultTransformingExpressionTreeVisitor(
-                handlerContext.QueryModel.MainFromClause,
-                (RelationalQueryCompilationContext)handlerContext.QueryModelVisitor.QueryCompilationContext)
-                .VisitExpression(handlerContext.QueryModelVisitor.Expression);
-        }
-
-        private static Expression HandleTake(HandlerContext handlerContext)
-        {
-            var takeResultOperator
-                = (TakeResultOperator)handlerContext.ResultOperator;
-
-            handlerContext.SelectExpression
-                .AddLimit(takeResultOperator.GetConstantCount());
-
-            return handlerContext.EvalOnServer;
-        }
-
-        private static Expression HandleSingle(HandlerContext handlerContext)
-        {
-            handlerContext.SelectExpression.AddLimit(2);
-
-            return handlerContext.EvalOnClient;
-        }
-
-        private static Expression HandleFirst(HandlerContext handlerContext)
-        {
-            handlerContext.SelectExpression.AddLimit(1);
-
-            return handlerContext.EvalOnClient;
+            return TransformClientExpression<int>(handlerContext);
         }
 
         private static Expression HandleDistinct(HandlerContext handlerContext)
@@ -204,6 +183,45 @@ namespace Microsoft.Data.Entity.Relational.Query
             handlerContext.SelectExpression.ClearOrderBy();
 
             return handlerContext.EvalOnServer;
+        }
+
+        private static Expression HandleFirst(HandlerContext handlerContext)
+        {
+            handlerContext.SelectExpression.Limit = 1;
+
+            return handlerContext.EvalOnClient;
+        }
+
+        private static Expression HandleSingle(HandlerContext handlerContext)
+        {
+            handlerContext.SelectExpression.Limit = 2;
+
+            return handlerContext.EvalOnClient;
+        }
+
+        private static Expression HandleTake(HandlerContext handlerContext)
+        {
+            var takeResultOperator = (TakeResultOperator)handlerContext.ResultOperator;
+
+            handlerContext.SelectExpression.Limit = takeResultOperator.GetConstantCount();
+
+            return handlerContext.EvalOnServer;
+        }
+
+        private static void SetProjectionCaseExpression(HandlerContext handlerContext, CaseExpression caseExpression)
+        {
+            handlerContext.SelectExpression.SetProjectionCaseExpression(caseExpression);
+            handlerContext.SelectExpression.ClearTables();
+            handlerContext.SelectExpression.ClearOrderBy();
+            handlerContext.SelectExpression.Predicate = null;
+        }
+
+        private static Expression TransformClientExpression<TResult>(HandlerContext handlerContext)
+        {
+            return new ResultTransformingExpressionTreeVisitor<TResult>(
+                handlerContext.QueryModel.MainFromClause,
+                (RelationalQueryCompilationContext)handlerContext.QueryModelVisitor.QueryCompilationContext)
+                .VisitExpression(handlerContext.QueryModelVisitor.Expression);
         }
     }
 }

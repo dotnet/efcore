@@ -157,6 +157,13 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             return crossJoinExpression;
         }
 
+        public virtual Expression VisitCountExpression(CountExpression countExpression)
+        {
+            _sql.Append("COUNT(*)");
+
+            return countExpression;
+        }
+
         public virtual Expression VisitInnerJoinExpression(InnerJoinExpression innerJoinExpression)
         {
             _sql.Append("INNER JOIN ")
