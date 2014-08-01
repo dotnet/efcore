@@ -260,6 +260,19 @@ namespace Microsoft.Data.Entity.Design.Tests
                 CSharpMigrationCodeGenerator.Generate(new RenameIndexOperation("dbo.MyTable", "MyIdx", "MyNewIdx")));
         }
 
+        [Fact]
+        public void Generate_when_sql_operation()
+        {
+            Assert.Equal(
+@"Sql(@""UPDATE T 
+    SET C1='V""""1'
+    WHERE C2='V""""2'"")",
+                CSharpMigrationCodeGenerator.Generate(new SqlOperation(
+@"UPDATE T 
+    SET C1='V""1'
+    WHERE C2='V""2'")));
+        }
+
         // TODO: Add missing GenerateLiteral unit tests.
 
         [Fact]
@@ -271,11 +284,37 @@ namespace Microsoft.Data.Entity.Design.Tests
         }
 
         [Fact]
+        public void Generate_verbatim_string_literal()
+        {
+            var csharpGenerator = new CSharpMigrationCodeGenerator(new CSharpModelCodeGenerator());
+
+            Assert.Equal(
+@"@""foo""""bar
+    bar""""foo""", 
+                csharpGenerator.GenerateVerbatimStringLiteral(
+@"foo""bar
+    bar""foo"));
+        }
+
+        [Fact]
         public void Escape_string()
         {
             var csharpGenerator = new CSharpMigrationCodeGenerator(new CSharpModelCodeGenerator());
 
             Assert.Equal("foo\\\"bar", csharpGenerator.EscapeString("foo\"bar"));
+        }
+
+        [Fact]
+        public void Escape_verbatim_string()
+        {
+            var csharpGenerator = new CSharpMigrationCodeGenerator(new CSharpModelCodeGenerator());
+
+            Assert.Equal(
+@"foo""""bar
+    bar""""foo", 
+                csharpGenerator.EscapeVerbatimString(
+@"foo""bar
+    bar""foo"));
         }
 
         [Fact]

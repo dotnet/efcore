@@ -6,6 +6,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Migrations.Model
 {
+    // TODO: Add an equivalent of "object anonymousArguments" to operations, if needed.
     public abstract class MigrationOperation
     {
         public virtual bool IsDestructiveChange

@@ -383,6 +383,21 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Builders
             Assert.Equal("MyIdx2", operation.NewIndexName);
         }
 
+        [Fact]
+        public void Sql_adds_operation()
+        {
+            var builder = new MigrationBuilder();
+
+            builder.Sql("MySql");
+
+            Assert.Equal(1, builder.Operations.Count);
+            Assert.IsType<SqlOperation>(builder.Operations[0]);
+
+            var operation = (SqlOperation)builder.Operations[0];
+
+            Assert.Equal("MySql", operation.Sql);
+        }
+
         private class MyMigrationOperation : MigrationOperation
         {
             public override void GenerateSql(

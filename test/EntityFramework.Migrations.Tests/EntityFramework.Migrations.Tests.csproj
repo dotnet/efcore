@@ -87,6 +87,7 @@
     <Compile Include="Model\RenameIndexOperationTest.cs" />
     <Compile Include="Model\RenameTableOperationTest.cs" />
     <Compile Include="..\Shared\ApiConsistencyTestBase.cs" />
+    <Compile Include="Model\SqlOperationTest.cs" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>

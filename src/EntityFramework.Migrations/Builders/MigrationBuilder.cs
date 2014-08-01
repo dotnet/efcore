@@ -210,6 +210,13 @@ namespace Microsoft.Data.Entity.Migrations.Builders
             AddOperation(new RenameIndexOperation(tableName, indexName, newIndexName));
         }
 
+        public virtual void Sql([NotNull] string sql)
+        {
+            Check.NotEmpty(sql, "sql");
+
+            AddOperation(new SqlOperation(sql));
+        }
+
         private static IReadOnlyList<Column> GetColumns<TColumns>(
             TColumns columnSpec, 
             out IDictionary<PropertyInfo, Column> propertyInfoToColumnMap)

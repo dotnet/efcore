@@ -540,11 +540,29 @@ namespace Microsoft.Data.Entity.Design
                 .Append(")");
         }
 
+        public override void Generate(SqlOperation sqlOperation, IndentedStringBuilder stringBuilder)
+        {
+            Check.NotNull(sqlOperation, "sqlOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
+
+            stringBuilder
+                .Append("Sql(")
+                .Append(GenerateVerbatimStringLiteral(sqlOperation.Sql))
+                .Append(")");
+        }
+
         public virtual string EscapeString([NotNull] string str)
         {
             Check.NotEmpty(str, "str");
 
             return str.Replace("\"", "\\\"");
+        }
+
+        public virtual string EscapeVerbatimString([NotNull] string str)
+        {
+            Check.NotEmpty(str, "str");
+
+            return str.Replace("\"", "\"\"");
         }
 
         public virtual string GenerateLiteral([NotNull] byte[] value)
@@ -601,6 +619,13 @@ namespace Microsoft.Data.Entity.Design
             Check.NotNull(value, "value");
 
             return "\"" + EscapeString(value) + "\"";
+        }
+
+        public virtual string GenerateVerbatimStringLiteral([NotNull] string value)
+        {
+            Check.NotNull(value, "value");
+
+            return "@\"" + EscapeVerbatimString(value) + "\"";
         }
 
         public virtual string Generate([NotNull] object value)

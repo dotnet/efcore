@@ -331,6 +331,14 @@ namespace Microsoft.Data.Entity.Migrations
             throw new NotImplementedException();
         }
 
+        public virtual void Generate([NotNull] SqlOperation sqlOperation, [NotNull] IndentedStringBuilder stringBuilder)
+        {
+            Check.NotNull(sqlOperation, "sqlOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
+
+            stringBuilder.Append(sqlOperation.Sql);
+        }
+
         public virtual string GenerateDataType(SchemaQualifiedName tableName, [NotNull] Column column)
         {
             Check.NotNull(column, "column");
