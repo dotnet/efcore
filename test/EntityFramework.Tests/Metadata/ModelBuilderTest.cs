@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
@@ -627,10 +629,209 @@ namespace Microsoft.Data.Entity.Metadata
             Assert.Equal("V1", entityType.Indexes.Last()["A1"]);
         }
 
+        [Fact]
+        public void OneToMany_finds_existing_navs_and_uses_associated_FK()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+            modelBuilder.Entity<Customer>().Key(c => c.Id);
+            modelBuilder
+                .Entity<Order>()
+                .ForeignKeys(fks => fks.ForeignKey<Customer>(c => c.CustomerId));
+
+            var dependentType = model.GetEntityType(typeof(Order));
+            var principalType = model.GetEntityType(typeof(Customer));
+            var fk = dependentType.ForeignKeys.Single();
+
+            var navToPrincipal = new Navigation(fk, "Customer", pointsToPrincipal: true);
+            dependentType.AddNavigation(navToPrincipal);
+            var navToDependent = new Navigation(fk, "Orders", pointsToPrincipal: false);
+            principalType.AddNavigation(navToDependent);
+
+            modelBuilder.Entity<Customer>().OneToMany(e => e.Orders, e => e.Customer);
+
+            Assert.Same(fk, dependentType.ForeignKeys.Single());
+            Assert.Same(navToPrincipal, dependentType.Navigations.Single());
+            Assert.Same(navToDependent, principalType.Navigations.Single());
+            Assert.Same(fk, dependentType.Navigations.Single().ForeignKey);
+            Assert.Same(fk, principalType.Navigations.Single().ForeignKey);
+        }
+
+        [Fact]
+        public void OneToMany_finds_existing_nav_to_principal_and_uses_associated_FK()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+            modelBuilder.Entity<Customer>().Key(c => c.Id);
+            modelBuilder
+                .Entity<Order>()
+                .ForeignKeys(fks => fks.ForeignKey<Customer>(c => c.CustomerId));
+
+            var dependentType = model.GetEntityType(typeof(Order));
+            var principalType = model.GetEntityType(typeof(Customer));
+            var fk = dependentType.ForeignKeys.Single();
+
+            var navigation = new Navigation(fk, "Customer", pointsToPrincipal: true);
+            dependentType.AddNavigation(navigation);
+
+            modelBuilder.Entity<Customer>().OneToMany(e => e.Orders, e => e.Customer);
+
+            Assert.Same(fk, dependentType.ForeignKeys.Single());
+            Assert.Same(navigation, dependentType.Navigations.Single());
+            Assert.Equal("Orders", principalType.Navigations.Single().Name);
+            Assert.Same(fk, dependentType.Navigations.Single().ForeignKey);
+            Assert.Same(fk, principalType.Navigations.Single().ForeignKey);
+        }
+
+        [Fact]
+        public void OneToMany_finds_existing_nav_to_dependent_and_uses_associated_FK()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+            modelBuilder.Entity<Customer>().Key(c => c.Id);
+            modelBuilder
+                .Entity<Order>()
+                .ForeignKeys(fks => fks.ForeignKey<Customer>(c => c.CustomerId));
+
+            var dependentType = model.GetEntityType(typeof(Order));
+            var principalType = model.GetEntityType(typeof(Customer));
+            var fk = dependentType.ForeignKeys.Single();
+
+            var navigation = new Navigation(fk, "Orders", pointsToPrincipal: false);
+            principalType.AddNavigation(navigation);
+
+            modelBuilder.Entity<Customer>().OneToMany(e => e.Orders, e => e.Customer);
+
+            Assert.Same(fk, dependentType.ForeignKeys.Single());
+            Assert.Equal("Customer", dependentType.Navigations.Single().Name);
+            Assert.Same(navigation, principalType.Navigations.Single());
+            Assert.Same(fk, dependentType.Navigations.Single().ForeignKey);
+            Assert.Same(fk, principalType.Navigations.Single().ForeignKey);
+        }
+
+        [Fact]
+        public void OneToMany_creates_both_navs_and_uses_existing_FK()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+            modelBuilder.Entity<Customer>().Key(c => c.Id);
+            modelBuilder
+                .Entity<Order>()
+                .ForeignKeys(fks => fks.ForeignKey<Customer>(c => c.CustomerId));
+
+            var dependentType = model.GetEntityType(typeof(Order));
+            var principalType = model.GetEntityType(typeof(Customer));
+            var fk = dependentType.ForeignKeys.Single();
+
+            modelBuilder.Entity<Customer>().OneToMany(e => e.Orders, e => e.Customer);
+
+            Assert.Same(fk, dependentType.ForeignKeys.Single());
+            Assert.Equal("Customer", dependentType.Navigations.Single().Name);
+            Assert.Equal("Orders", principalType.Navigations.Single().Name);
+            Assert.Same(fk, dependentType.Navigations.Single().ForeignKey);
+            Assert.Same(fk, principalType.Navigations.Single().ForeignKey);
+        }
+
+        [Fact]
+        public void OneToMany_creates_both_navs_and_creates_new_FK()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+            modelBuilder.Entity<Customer>().Key(c => c.Id);
+            modelBuilder.Entity<Order>().Property(e => e.CustomerId);
+
+            var dependentType = model.GetEntityType(typeof(Order));
+            var principalType = model.GetEntityType(typeof(Customer));
+
+            var fkProperty = dependentType.GetProperty("CustomerId");
+
+            modelBuilder.Entity<Customer>().OneToMany(e => e.Orders, e => e.Customer);
+
+            var fk = dependentType.ForeignKeys.Single();
+            Assert.Same(fkProperty, fk.Properties.Single());
+
+            Assert.Equal("Customer", dependentType.Navigations.Single().Name);
+            Assert.Equal("Orders", principalType.Navigations.Single().Name);
+            Assert.Same(fk, dependentType.Navigations.Single().ForeignKey);
+            Assert.Same(fk, principalType.Navigations.Single().ForeignKey);
+        }
+
+        [Fact]
+        public void OneToMany_can_create_unidirectional_nav_and_new_FK()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+            modelBuilder.Entity<Customer>().Key(c => c.Id);
+            modelBuilder.Entity<Order>().Property(e => e.CustomerId);
+
+            var dependentType = model.GetEntityType(typeof(Order));
+            var principalType = model.GetEntityType(typeof(Customer));
+
+            var fkProperty = dependentType.GetProperty("CustomerId");
+
+            modelBuilder.Entity<Customer>().OneToMany(e => e.Orders);
+
+            var fk = dependentType.ForeignKeys.Single();
+            Assert.Same(fkProperty, fk.Properties.Single());
+
+            Assert.Empty(dependentType.Navigations);
+            Assert.Equal("Orders", principalType.Navigations.Single().Name);
+            Assert.Same(fk, principalType.Navigations.Single().ForeignKey);
+        }
+
+        [Fact]
+        public void OneToMany_can_create_unidirectional_from_other_end_nav_and_new_FK()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+            modelBuilder.Entity<Customer>().Key(c => c.Id);
+            modelBuilder.Entity<Order>().Property(e => e.CustomerId);
+
+            var dependentType = model.GetEntityType(typeof(Order));
+            var principalType = model.GetEntityType(typeof(Customer));
+
+            var fkProperty = dependentType.GetProperty("CustomerId");
+
+            // Passing null as the first arg is not super-compelling, but it is consistent
+            modelBuilder.Entity<Customer>().OneToMany<Order>(null, e => e.Customer);
+
+            var fk = dependentType.ForeignKeys.Single();
+            Assert.Same(fkProperty, fk.Properties.Single());
+
+            Assert.Equal("Customer", dependentType.Navigations.Single().Name);
+            Assert.Empty(principalType.Navigations);
+            Assert.Same(fk, dependentType.Navigations.Single().ForeignKey);
+        }
+
+        [Fact]
+        public void OneToMany_can_create_relationship_with_no_navigations()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+            modelBuilder.Entity<Customer>().Key(c => c.Id);
+            modelBuilder.Entity<Order>().Property(e => e.CustomerId);
+
+            var dependentType = model.GetEntityType(typeof(Order));
+            var principalType = model.GetEntityType(typeof(Customer));
+
+            var fkProperty = dependentType.GetProperty("CustomerId");
+
+            // Passing null as the first arg is not super-compelling, but it is consistent
+            modelBuilder.Entity<Customer>().OneToMany<Order>();
+
+            var fk = dependentType.ForeignKeys.Single();
+            Assert.Same(fkProperty, fk.Properties.Single());
+
+            Assert.Empty(dependentType.Navigations);
+            Assert.Empty(principalType.Navigations);
+        }
+
         private class Customer
         {
             public int Id { get; set; }
             public string Name { get; set; }
+
+            public IEnumerable<Order> Orders { get; set; }
         }
 
         private class Order

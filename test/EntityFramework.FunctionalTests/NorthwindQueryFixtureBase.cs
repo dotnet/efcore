@@ -41,6 +41,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 {
                     b.Key(e => e.ProductID);
                     b.Property(c => c.ProductName);
+                    b.OneToMany(e => e.OrderDetails, e => e.Product);
                 });
 
             modelBuilder.Entity<Order>(ps =>
@@ -57,16 +58,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     b.Property(od => od.Quantity);
                     b.Property(od => od.Discount);
                 });
-
-            // TODO: Use FAPIS when avail.
-            var productType = model.GetEntityType(typeof(Product));
-            var orderDetailType = model.GetEntityType(typeof(OrderDetail));
-
-            var productIdFk
-                = orderDetailType.AddForeignKey(productType.GetKey(), orderDetailType.GetProperty("ProductID"));
-
-            orderDetailType.AddNavigation(new Navigation(productIdFk, "Product", pointsToPrincipal: true));
-            productType.AddNavigation(new Navigation(productIdFk, "OrderDetails", pointsToPrincipal: false));
 
             return model;
         }

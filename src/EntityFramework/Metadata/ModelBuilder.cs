@@ -2,9 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata.ModelConventions;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
@@ -419,6 +421,59 @@ namespace Microsoft.Data.Entity.Metadata
                     var index = EntityType.AddIndex(properties);
 
                     return new IndexBuilder(index);
+                }
+            }
+
+            public OneToManyBuilder OneToMany<TRelatedEntity>(
+                [CanBeNull] Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> navigationExpression = null,
+                [CanBeNull] Expression<Func<TRelatedEntity, TEntity>> inverseNavigationExpression = null)
+            {
+                // TODO: Checking for bad/inconsistent FK/navigation/type configuration in this method and below
+
+                var dependentType = ModelBuilder.Entity<TRelatedEntity>().Metadata;
+
+                // Find either navigation that already exists
+                var navNameToDependent = navigationExpression != null ? navigationExpression.GetPropertyAccess().Name : null;
+                var navNameToPrincipal = inverseNavigationExpression != null ? inverseNavigationExpression.GetPropertyAccess().Name : null;
+
+                var navToDependent = Metadata.Navigations.FirstOrDefault(e => e.Name == navNameToDependent);
+                var navToPrincipal = dependentType.Navigations.FirstOrDefault(e => e.Name == navNameToPrincipal);
+
+                // Find the associated FK on an already existing navigation, or create one by convention
+                // TODO: If FK isn't already specified, then creating the navigation should cause it to be found/created
+                // by convention, but this part of conventions is not done yet, so we do it here instead--kind of h.acky
+
+                var foreignKey = navToDependent != null
+                    ? navToDependent.ForeignKey
+                    : navToPrincipal != null
+                        ? navToPrincipal.ForeignKey
+                        : new ForeignKeyConvention().FindOrCreateForeignKey(Metadata, dependentType, navNameToPrincipal);
+
+                if (navNameToDependent != null
+                    && navToDependent == null)
+                {
+                    Metadata.AddNavigation(new Navigation(foreignKey, navNameToDependent, pointsToPrincipal: false));
+                }
+
+                if (navNameToPrincipal != null
+                    && navToPrincipal == null)
+                {
+                    dependentType.AddNavigation(new Navigation(foreignKey, navNameToPrincipal, pointsToPrincipal: true));
+                }
+
+                return new OneToManyBuilder(foreignKey, navToPrincipal, navToDependent);
+            }
+
+            public class OneToManyBuilder : MetadataBuilder<ForeignKey, OneToManyBuilder>
+            {
+                private readonly Navigation _navigationToPrincipal;
+                private readonly Navigation _navigationToDependent;
+
+                internal OneToManyBuilder(ForeignKey metadata, Navigation navigationToPrincipal, Navigation navigationToDependent)
+                    : base(metadata)
+                {
+                    _navigationToPrincipal = navigationToPrincipal;
+                    _navigationToDependent = navigationToDependent;
                 }
             }
         }
