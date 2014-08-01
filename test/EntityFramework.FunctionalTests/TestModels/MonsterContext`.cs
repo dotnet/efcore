@@ -318,7 +318,25 @@ namespace Microsoft.Data.Entity.MonsterModel
             customerId.ValueGenerationOnAdd = ValueGenerationOnAdd.None;
             customerId.ValueGenerationOnSave = ValueGenerationOnSave.None;
 
+            builder.Entity<TAnOrder>(b =>
+                {
+                    b.OneToMany(e => (IEnumerable<TOrderLine>)e.OrderLines, e => (TAnOrder)e.Order);
+                    b.OneToMany(e => (IEnumerable<TOrderNote>)e.Notes, e => (TAnOrder)e.Order);
+                });
+
+            builder.Entity<TProduct>(b =>
+            {
+                b.OneToMany(e => (IEnumerable<TProductReview>)e.Reviews, e => (TProduct)e.Product);
+            });
+
+            builder.Entity<TCustomer>(b =>
+            {
+                b.OneToMany(e => (IEnumerable<TAnOrder>)e.Orders, e => (TCustomer)e.Customer);
+                b.OneToMany(e => (IEnumerable<TLogin>)e.Logins, e => (TCustomer)e.Customer);
+            });
+
             // TODO: Use fluent API when available
+
             AddNavigationToPrincipal(model, typeof(TBarcode), "ProductId", "Product");
             AddNavigationToDependent(model, typeof(TBarcode), typeof(TIncorrectScan), "ExpectedCode", "BadScans");
             AddNavigationToDependent(model, typeof(TBarcode), typeof(TBarcodeDetail), "Code", "Detail");
@@ -341,15 +359,9 @@ namespace Microsoft.Data.Entity.MonsterModel
             AddNavigationToPrincipal(model, typeof(TMessage), "FromUsername", "Sender");
             AddNavigationToPrincipal(model, typeof(TMessage), "ToUsername", "Recipient");
 
-            AddNavigationToPrincipal(model, typeof(TOrderLine), "OrderId", "Order");
             AddNavigationToPrincipal(model, typeof(TOrderLine), "ProductId", "Product");
 
-            AddNavigationToPrincipal(model, typeof(TAnOrder), "CustomerId", "Customer");
             AddNavigationToPrincipal(model, typeof(TAnOrder), "Username", "Login");
-            AddNavigationToDependent(model, typeof(TAnOrder), typeof(TOrderLine), "OrderId", "OrderLines");
-            AddNavigationToDependent(model, typeof(TAnOrder), typeof(TOrderNote), "OrderId", "Notes");
-
-            AddNavigationToPrincipal(model, typeof(TOrderNote), "OrderId", "Order");
 
             AddNavigationToPrincipal(model, typeof(TOrderQualityCheck), "OrderId", "Order");
 
@@ -360,7 +372,6 @@ namespace Microsoft.Data.Entity.MonsterModel
             AddNavigationToPrincipal(model, typeof(TProductDetail), "ProductId", "Product");
 
             AddNavigationToDependent(model, typeof(TProduct), typeof(TProductDetail), "ProductId", "Detail");
-            AddNavigationToDependent(model, typeof(TProduct), typeof(TProductReview), "ProductId", "Reviews");
             AddNavigationToDependent(model, typeof(TProduct), typeof(TProductPhoto), "ProductId", "Photos");
             AddNavigationToDependent(model, typeof(TProduct), typeof(TBarcode), "ProductId", "Barcodes");
 
@@ -370,7 +381,6 @@ namespace Microsoft.Data.Entity.MonsterModel
             AddNavigationToDependent(model, typeof(TProductPhoto), typeof(TProductWebFeature), "ProductId", "PhotoId", "Features");
 
             AddNavigationToDependent(model, typeof(TProductReview), typeof(TProductWebFeature), "ProductId", "ReviewId", "Features");
-            AddNavigationToPrincipal(model, typeof(TProductReview), "ProductId", "Product");
 
             AddNavigationToPrincipal(model, typeof(TResolution), "ResolutionId", "Complaint");
 
@@ -384,12 +394,9 @@ namespace Microsoft.Data.Entity.MonsterModel
             AddNavigationToDependent(model, typeof(TSupplier), typeof(TSupplierLogo), "SupplierId", "Logo");
 
             AddNavigationToDependent(model, typeof(TCustomer), typeof(TCustomerInfo), "CustomerInfoId", "Info");
-            AddNavigationToDependent(model, typeof(TCustomer), typeof(TAnOrder), "CustomerId", "Orders");
-            AddNavigationToDependent(model, typeof(TCustomer), typeof(TLogin), "CustomerId", "Logins");
             AddNavigationToPrincipal(model, typeof(TCustomer), "HusbandId", "Husband");
             AddNavigationToDependent(model, typeof(TCustomer), "HusbandId", "Wife");
 
-            AddNavigationToPrincipal(model, typeof(TLogin), "CustomerId", "Customer");
             AddNavigationToDependent(model, typeof(TLogin), typeof(TLastLogin), "Username", "LastLogin");
             AddNavigationToDependent(model, typeof(TLogin), typeof(TMessage), "FromUsername", "SentMessages");
             AddNavigationToDependent(model, typeof(TLogin), typeof(TMessage), "ToUsername", "ReceivedMessages");

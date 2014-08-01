@@ -93,6 +93,7 @@
     <Compile Include="Metadata\Index.cs" />
     <Compile Include="Metadata\ModelBuilder.cs" />
     <Compile Include="Metadata\ModelBuilderFactory.cs" />
+    <Compile Include="Metadata\ModelConventions\ForeignKeyConvention.cs" />
     <Compile Include="Metadata\NavigationExtensions.cs" />
     <Compile Include="Metadata\EntityTypeNameComparer.cs" />
     <Compile Include="Metadata\PropertyExtensions.cs" />

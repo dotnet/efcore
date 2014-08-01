@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
     {
         private const string KeySuffix = "Id";
 
-        public virtual void Apply([NotNull] EntityType entityType)
+        public virtual void Apply(EntityType entityType)
         {
             Check.NotNull(entityType, "entityType");
 

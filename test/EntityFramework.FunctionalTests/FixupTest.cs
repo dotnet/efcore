@@ -243,30 +243,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var model = builder.Model;
 
-                builder.Entity<Product>();
-                builder.Entity<Category>();
+                builder.Entity<Product>().OneToMany(e => e.SpecialOffers, e => e.Product);
+                builder.Entity<Category>().OneToMany(e => e.Products, e => e.Category);
                 builder.Entity<SpecialOffer>();
 
-                var categoryType = model.GetEntityType(typeof(Category));
-                var productType = model.GetEntityType(typeof(Product));
-                var offerType = model.GetEntityType(typeof(SpecialOffer));
-
-                categoryType.GetProperty("Id").ValueGenerationOnAdd = ValueGenerationOnAdd.None;
-                productType.GetProperty("Id").ValueGenerationOnAdd = ValueGenerationOnAdd.None;
-                offerType.GetProperty("Id").ValueGenerationOnAdd = ValueGenerationOnAdd.None;
-
-                var categoryIdFk
-                    = productType.AddForeignKey(
-                        categoryType.GetKey(), new[] { productType.GetProperty("CategoryId") });
-
-                var productIdFk
-                    = offerType.AddForeignKey(
-                        productType.GetKey(), new[] { offerType.GetProperty("ProductId") });
-
-                categoryType.AddNavigation(new Navigation(categoryIdFk, "Products", pointsToPrincipal: false));
-                productType.AddNavigation(new Navigation(categoryIdFk, "Category", pointsToPrincipal: true));
-                productType.AddNavigation(new Navigation(productIdFk, "SpecialOffers", pointsToPrincipal: false));
-                offerType.AddNavigation(new Navigation(productIdFk, "Product", pointsToPrincipal: true));
+                model.GetEntityType(typeof(Category)).GetProperty("Id").ValueGenerationOnAdd = ValueGenerationOnAdd.None;
+                model.GetEntityType(typeof(Product)).GetProperty("Id").ValueGenerationOnAdd = ValueGenerationOnAdd.None;
+                model.GetEntityType(typeof(SpecialOffer)).GetProperty("Id").ValueGenerationOnAdd = ValueGenerationOnAdd.None;
             }
 
             protected override void OnConfiguring(DbContextOptions options)

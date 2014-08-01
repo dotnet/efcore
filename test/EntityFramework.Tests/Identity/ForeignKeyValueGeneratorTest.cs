@@ -174,40 +174,26 @@ namespace Microsoft.Data.Entity.Identity
             var model = new Model();
             var builder = new ConventionModelBuilder(model);
 
-            builder.Entity<Product>();
-            builder.Entity<Category>();
+            builder.Entity<Product>().OneToMany(e => e.OrderLines, e => e.Product);
+            builder.Entity<Category>().OneToMany(e => e.Products, e => e.Category);
             builder.Entity<ProductDetail>();
-            builder.Entity<Order>();
+            builder.Entity<Order>().OneToMany(e => e.OrderLines, e => e.Order);
             builder.Entity<OrderLine>().Key(e => new { e.OrderId, e.ProductId });
             builder.Entity<OrderLineDetail>().Key(e => new { e.OrderId, e.ProductId });
 
-            var categoryType = model.GetEntityType(typeof(Category));
             var productType = model.GetEntityType(typeof(Product));
             var productDetailType = model.GetEntityType(typeof(ProductDetail));
-            var orderType = model.GetEntityType(typeof(Order));
             var orderLineType = model.GetEntityType(typeof(OrderLine));
             var orderLineDetailType = model.GetEntityType(typeof(OrderLineDetail));
 
-            var categoryFk = productType.AddForeignKey(categoryType.GetKey(), productType.GetProperty("CategoryId"));
             var productDetailFk = productDetailType.AddForeignKey(productType.GetKey(), productDetailType.GetProperty("Id"));
             productDetailFk.IsUnique = true;
 
-            var orderFk = orderLineType.AddForeignKey(orderType.GetKey(), orderLineType.GetProperty("OrderId"));
-            var productFk = orderLineType.AddForeignKey(productType.GetKey(), orderLineType.GetProperty("ProductId"));
             var orderLineFk = orderLineDetailType.AddForeignKey(orderLineType.GetKey(), orderLineDetailType.GetProperty("OrderId"), orderLineDetailType.GetProperty("ProductId"));
             orderLineFk.IsUnique = true;
 
-            categoryType.AddNavigation(new Navigation(categoryFk, "Products", pointsToPrincipal: false));
-            productType.AddNavigation(new Navigation(categoryFk, "Category", pointsToPrincipal: true));
-
             productDetailType.AddNavigation(new Navigation(productDetailFk, "Product", pointsToPrincipal: true));
             productType.AddNavigation(new Navigation(productDetailFk, "Detail", pointsToPrincipal: false));
-
-            orderType.AddNavigation(new Navigation(orderFk, "OrderLines", pointsToPrincipal: false));
-            orderLineType.AddNavigation(new Navigation(orderFk, "Order", pointsToPrincipal: true));
-
-            productType.AddNavigation(new Navigation(productFk, "OrderLines", pointsToPrincipal: false));
-            orderLineType.AddNavigation(new Navigation(productFk, "Product", pointsToPrincipal: true));
 
             orderLineType.AddNavigation(new Navigation(orderLineFk, "Detail", pointsToPrincipal: false));
             orderLineDetailType.AddNavigation(new Navigation(orderLineFk, "OrderLine", pointsToPrincipal: true));

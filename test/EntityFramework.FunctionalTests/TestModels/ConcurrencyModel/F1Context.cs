@@ -28,28 +28,28 @@ namespace ConcurrencyModel
 
             // TODO: Uncomment when complex types are supported
             //builder.ComplexType<Location>();
-            modelBuilder
-                .Entity<Chassis>()
-                .Key(c => c.TeamId);
+            modelBuilder.Entity<Chassis>(b => b.Key(c => c.TeamId));
 
-            modelBuilder
-                .Entity<Driver>(ps =>
-                    {
-                        ps.Key(d => d.Id);
-                        ps.Property(d => d.CarNumber);
-                        ps.Property(d => d.Championships);
-                        ps.Property(d => d.FastestLaps);
-                        ps.Property(d => d.Name);
-                        ps.Property(d => d.Podiums);
-                        ps.Property(d => d.Poles);
-                        ps.Property(d => d.Races);
-                        ps.Property(d => d.TeamId);
-                        ps.Property(d => d.Wins);
-                    });
+            modelBuilder.Entity<Driver>(b =>
+                {
+                    b.Key(d => d.Id);
+                    b.Property(d => d.CarNumber);
+                    b.Property(d => d.Championships);
+                    b.Property(d => d.FastestLaps);
+                    b.Property(d => d.Name);
+                    b.Property(d => d.Podiums);
+                    b.Property(d => d.Poles);
+                    b.Property(d => d.Races);
+                    b.Property(d => d.TeamId);
+                    b.Property(d => d.Wins);
+                });
 
-            modelBuilder
-                .Entity<Engine>()
-                .Key(e => e.Id);
+            modelBuilder.Entity<Engine>(b =>
+                {
+                    b.Key(e => e.Id);
+                    b.OneToMany(e => e.Teams, e => e.Engine);
+                    b.OneToMany(e => e.Gearboxes);
+                });
 
             // TODO: Complex type
             // .Property(c => c.StorageLocation);
@@ -58,15 +58,15 @@ namespace ConcurrencyModel
                 {
                     b.Key(e => e.Id);
                     b.Property(e => e.Name);
+                    b.OneToMany(e => e.Engines, e => e.EngineSupplier);
                 });
 
-            modelBuilder
-                .Entity<Gearbox>(ps =>
-                    {
-                        ps.Key(g => g.Id);
-                        ps.Property(g => g.Name);
-                        ps.Property<int>("EngineId", shadowProperty: true);
-                    });
+            modelBuilder.Entity<Gearbox>(b =>
+                {
+                    b.Key(g => g.Id);
+                    b.Property(g => g.Name);
+                    b.Property<int>("EngineId", shadowProperty: true);
+                });
 
             // TODO: Complex type
             //builder
@@ -94,37 +94,33 @@ namespace ConcurrencyModel
             //            ps.Property(s => s.Space);
             //        });
 
-            modelBuilder
-                .Entity<Team>(ps =>
-                    {
-                        ps.Key(t => t.Id);
-                        ps.Property(t => t.Constructor);
-                        ps.Property(t => t.ConstructorsChampionships);
-                        ps.Property(t => t.DriversChampionships);
-                        ps.Property<int>("EngineId", shadowProperty: true);
-                        ps.Property(t => t.FastestLaps);
-                        ps.Property(t => t.GearboxId);
-                        ps.Property(t => t.Name);
-                        ps.Property(t => t.Poles);
-                        ps.Property(t => t.Principal);
-                        ps.Property(t => t.Races);
-                        ps.Property(t => t.Tire);
-                        ps.Property(t => t.Victories);
-                    });
+            modelBuilder.Entity<Team>(b =>
+                {
+                    b.Key(t => t.Id);
+                    b.Property(t => t.Constructor);
+                    b.Property(t => t.ConstructorsChampionships);
+                    b.Property(t => t.DriversChampionships);
+                    b.Property<int>("EngineId", shadowProperty: true);
+                    b.Property(t => t.FastestLaps);
+                    b.Property(t => t.GearboxId);
+                    b.Property(t => t.Name);
+                    b.Property(t => t.Poles);
+                    b.Property(t => t.Principal);
+                    b.Property(t => t.Races);
+                    b.Property(t => t.Tire);
+                    b.Property(t => t.Victories);
+                    b.OneToMany(e => e.Drivers, e => e.Team);
+                });
 
-            modelBuilder
-                .Entity<TestDriver>()
-                .Key(t => t.Id);
+            modelBuilder.Entity<TestDriver>(b => b.Key(t => t.Id));
 
-            modelBuilder
-                .Entity<TitleSponsor>();
+            modelBuilder.Entity<TitleSponsor>();
             // TODO: Complex type
             // .Property(t => t.Details);
 
             var chassisType = model.GetEntityType(typeof(Chassis));
             var driverType = model.GetEntityType(typeof(Driver));
             var engineType = model.GetEntityType(typeof(Engine));
-            var engineSupplierType = model.GetEntityType(typeof(EngineSupplier));
             var gearboxType = model.GetEntityType(typeof(Gearbox));
             var teamType = model.GetEntityType(typeof(Team));
             var sponsorType = model.GetEntityType(typeof(Sponsor));
@@ -133,36 +129,9 @@ namespace ConcurrencyModel
             // TODO: Sponsor * <-> * Team
 
             {
-                // Team * <-> 1 Engine
-                var teamEngineIdFk = teamType.AddForeignKey(engineType.GetKey(), teamType.GetProperty("EngineId"));
-                teamType.AddNavigation(new Navigation(teamEngineIdFk, "Engine", pointsToPrincipal: true));
-                engineType.AddNavigation(new Navigation(teamEngineIdFk, "Teams", pointsToPrincipal: false));
-            }
-
-            {
                 // Team -> 1? Gearbox
                 var teamGearboxIdFk = teamType.AddForeignKey(gearboxType.GetKey(), teamType.GetProperty("GearboxId"));
                 teamType.AddNavigation(new Navigation(teamGearboxIdFk, "Gearbox", pointsToPrincipal: true));
-            }
-
-            {
-                // Driver * <-> 1 Team
-                var driverTeamIdFk = driverType.AddForeignKey(teamType.GetKey(), driverType.GetProperty("TeamId"));
-                driverType.AddNavigation(new Navigation(driverTeamIdFk, "Team", pointsToPrincipal: true));
-                teamType.AddNavigation(new Navigation(driverTeamIdFk, "Drivers", pointsToPrincipal: false));
-            }
-
-            {
-                // Engine * <-> 1 EngineSupplier
-                var engineEngineSupplierIdFk = engineType.AddForeignKey(engineSupplierType.GetKey(), engineType.GetProperty("EngineSupplierId"));
-                engineType.AddNavigation(new Navigation(engineEngineSupplierIdFk, "EngineSupplier", pointsToPrincipal: true));
-                engineSupplierType.AddNavigation(new Navigation(engineEngineSupplierIdFk, "Engines", pointsToPrincipal: false));
-            }
-
-            {
-                // Engine -> * Gearbox
-                var gearboxEngineIdFk = gearboxType.AddForeignKey(engineType.GetKey(), gearboxType.GetProperty("EngineId"));
-                engineType.AddNavigation(new Navigation(gearboxEngineIdFk, "Gearboxes", pointsToPrincipal: false));
             }
 
             // TODO: Remove once temporary keys can be overridden
