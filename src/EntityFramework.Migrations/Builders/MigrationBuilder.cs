@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Migrations.Utilities;
@@ -61,13 +62,14 @@ namespace Microsoft.Data.Entity.Migrations.Builders
         {
             Check.NotNull(columnsSpecFunc, "columnsSpecFunc");
 
-            var columns = GetColumns(columnsSpecFunc(new ColumnBuilder()));
+            IDictionary<PropertyInfo, Column> propertyInfoToColumnMap;
+            var columns = GetColumns(columnsSpecFunc(new ColumnBuilder()), out propertyInfoToColumnMap);
             var table = new Table(tableName, columns);
             var createTableOperation = new CreateTableOperation(table);
 
             AddOperation(createTableOperation);
 
-            return new TableBuilder<TColumns>(createTableOperation, this);
+            return new TableBuilder<TColumns>(createTableOperation, this, propertyInfoToColumnMap);
         }
 
         public virtual void DropTable(SchemaQualifiedName tableName)
@@ -208,9 +210,12 @@ namespace Microsoft.Data.Entity.Migrations.Builders
             AddOperation(new RenameIndexOperation(tableName, indexName, newIndexName));
         }
 
-        private static IReadOnlyList<Column> GetColumns<TColumns>(TColumns columnSpec)
+        private static IReadOnlyList<Column> GetColumns<TColumns>(
+            TColumns columnSpec, 
+            out IDictionary<PropertyInfo, Column> propertyInfoToColumnMap)
         {
             var columns = new List<Column>();
+            propertyInfoToColumnMap = new Dictionary<PropertyInfo, Column>();
 
             foreach (var propertyInfo in columnSpec.GetType().GetNonIndexerProperties())
             {
@@ -218,7 +223,7 @@ namespace Microsoft.Data.Entity.Migrations.Builders
 
                 if (column != null)
                 {
-                    column.ApiPropertyInfo = propertyInfo;
+                    propertyInfoToColumnMap.Add(propertyInfo, column);
 
                     if (string.IsNullOrWhiteSpace(column.Name))
                     {

@@ -3,7 +3,6 @@
 
 using System;
 using System.Diagnostics.Contracts;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Utilities;
@@ -82,9 +81,5 @@ namespace Microsoft.Data.Entity.Relational.Model
         public virtual bool? IsFixedLength { get; set; }
 
         public virtual bool? IsUnicode { get; set; }
-
-        // TODO: Implement an annotation mechanism and use it to store the ApiPropertyInfo.
-        // Find a way to avoid referencing PropertyInfo.
-        public virtual PropertyInfo ApiPropertyInfo { get; [param: CanBeNull] set; }
     }
 }

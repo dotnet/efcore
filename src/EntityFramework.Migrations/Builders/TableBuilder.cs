@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Migrations.Utilities;
@@ -16,16 +17,20 @@ namespace Microsoft.Data.Entity.Migrations.Builders
     {
         private readonly CreateTableOperation _createTableOperation;
         private readonly MigrationBuilder _migrationBuilder;
+        private readonly IDictionary<PropertyInfo, Column> _propertyInfoToColumnMap;
 
         public TableBuilder(
             [NotNull] CreateTableOperation createTableOperation,
-            [NotNull] MigrationBuilder migrationBuilder)
+            [NotNull] MigrationBuilder migrationBuilder,
+            [NotNull] IDictionary<PropertyInfo, Column> propertyInfoToColumnMap)
         {
             Check.NotNull(createTableOperation, "createTableOperation");
             Check.NotNull(migrationBuilder, "migrationBuilder");
+            Check.NotNull(propertyInfoToColumnMap, "propertyInfoToColumnMap");
 
             _createTableOperation = createTableOperation;
             _migrationBuilder = migrationBuilder;
+            _propertyInfoToColumnMap = propertyInfoToColumnMap;
         }
 
         public virtual TableBuilder<TColumns> PrimaryKey(
@@ -38,7 +43,7 @@ namespace Microsoft.Data.Entity.Migrations.Builders
 
             var table = _createTableOperation.Table;
             var columns = primaryKeyExpression.GetPropertyAccessList()
-                .Select(p => table.Columns.Single(c => c.ApiPropertyInfo == p))
+                .Select(p => _propertyInfoToColumnMap[p])
                 .ToArray();
 
             _createTableOperation.Table.PrimaryKey = new PrimaryKey(name, columns, clustered);
@@ -60,7 +65,7 @@ namespace Microsoft.Data.Entity.Migrations.Builders
 
             var table = _createTableOperation.Table;
             var columnNames = foreignKeyExpression.GetPropertyAccessList()
-                .Select(p => table.Columns.Single(c => c.ApiPropertyInfo == p).Name)
+                .Select(p => _propertyInfoToColumnMap[p].Name)
                 .ToArray();
             var addForeignKeyOperation = new AddForeignKeyOperation(table.Name, name,
                 columnNames, referencedTableName, referencedColumnNames, cascadeDelete);
@@ -81,7 +86,7 @@ namespace Microsoft.Data.Entity.Migrations.Builders
 
             var table = _createTableOperation.Table;
             var columnNames = indexExpression.GetPropertyAccessList()
-                .Select(p => table.Columns.Single(c => c.ApiPropertyInfo == p).Name)
+                .Select(p => _propertyInfoToColumnMap[p].Name)
                 .ToArray();
             var createIndexOperation = new CreateIndexOperation(table.Name, name,
                 columnNames, unique, clustered);
