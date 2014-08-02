@@ -8,6 +8,7 @@ using Microsoft.Data.Entity.Relational.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Model
 {
+    // TODO: Consider adding more validation.
     public class DatabaseModel
     {
         private readonly List<Sequence> _sequences = new List<Sequence>();
@@ -33,29 +34,39 @@ namespace Microsoft.Data.Entity.Relational.Model
             return _tables.First(t => t.Name.Equals(tableName));
         }
 
-        public virtual PrimaryKey GetPrimaryKey(SchemaQualifiedName primaryKeyName)
-        {
-            return _tables.First(t => t.PrimaryKey.Name.Equals(primaryKeyName)).PrimaryKey;
-        }
-
         public virtual void AddSequence([NotNull] Sequence sequence)
         {
             Check.NotNull(sequence, "sequence");
 
-            // TODO: Validate sequence.
-
             _sequences.Add(sequence);
-            sequence.Database = this;
+        }
+
+        public virtual void RemoveSequence(SchemaQualifiedName sequenceName)
+        {
+            _sequences.RemoveAt(_sequences.FindIndex(s => s.Name.Equals(sequenceName)));
         }
 
         public virtual void AddTable([NotNull] Table table)
         {
             Check.NotNull(table, "table");
 
-            // TODO: Validate table.
-
             _tables.Add(table);
-            table.Database = this;
+        }
+
+        public virtual void RemoveTable(SchemaQualifiedName tableName)
+        {
+            _tables.RemoveAt(_tables.FindIndex(t => t.Name.Equals(tableName)));
+        }
+
+        public virtual DatabaseModel Clone()
+        {            
+            var clone = new DatabaseModel();
+            var cloneContext = new CloneContext();
+
+            clone._sequences.AddRange(Sequences.Select(s => s.Clone(cloneContext)));
+            clone._tables.AddRange(Tables.Select(t => t.Clone(cloneContext)));
+
+            return clone;
         }
     }
 }

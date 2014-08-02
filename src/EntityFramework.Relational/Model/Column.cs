@@ -9,6 +9,7 @@ using Microsoft.Data.Entity.Relational.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Model
 {
+    // TODO: Consider adding more validation.
     public class Column
     {
         private Table _table;
@@ -26,12 +27,16 @@ namespace Microsoft.Data.Entity.Relational.Model
 
         public Column([CanBeNull] string name, [CanBeNull] Type clrType, [CanBeNull] string dataType)
         {
-            // TODO: Replace assert with exception.
             Contract.Assert((clrType != null) || !string.IsNullOrEmpty(dataType));
 
             Name = name;
             ClrType = clrType;
             DataType = dataType;
+        }
+
+        protected internal Column([NotNull] Column source)
+        {
+            Copy(source);
         }
 
         public virtual Table Table
@@ -61,6 +66,7 @@ namespace Microsoft.Data.Entity.Relational.Model
         public virtual object DefaultValue { get; [param: CanBeNull] set; }
 
         public virtual string DefaultSql { get; [param: CanBeNull] set; }
+
         public virtual ValueGenerationOnSave ValueGenerationStrategy { get; set; }
 
         public virtual bool HasDefault
@@ -81,5 +87,29 @@ namespace Microsoft.Data.Entity.Relational.Model
         public virtual bool? IsFixedLength { get; set; }
 
         public virtual bool? IsUnicode { get; set; }
+
+        public virtual void Copy([NotNull] Column source)
+        {
+            Check.NotNull(source, "source");
+
+            Name = source.Name;
+            ClrType = source.ClrType;
+            DataType = source.DataType;
+            IsNullable = source.IsNullable;
+            DefaultValue = source.DefaultValue;
+            DefaultSql = source.DefaultSql;
+            ValueGenerationStrategy = source.ValueGenerationStrategy;
+            IsTimestamp = source.IsTimestamp;
+            MaxLength = source.MaxLength;
+            Precision = source.Precision;
+            Scale = source.Scale;
+            IsFixedLength = source.IsFixedLength;
+            IsUnicode = source.IsUnicode;
+        }
+
+        protected internal virtual Column Clone(CloneContext cloneContext)
+        {
+            return (Column)cloneContext.GetOrAdd(this, () => new Column(this));
+        }
     }
 }

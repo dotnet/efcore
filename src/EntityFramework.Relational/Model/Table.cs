@@ -3,17 +3,16 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Model
 {
+    // TODO: Consider adding more validation.    
     public class Table
     {
-        private DatabaseModel _database;
-        private readonly SchemaQualifiedName _name;
+        private SchemaQualifiedName _name;
         private readonly List<Column> _columns = new List<Column>();
         private PrimaryKey _primaryKey;
         private readonly List<ForeignKey> _foreignKeys = new List<ForeignKey>();
@@ -24,7 +23,7 @@ namespace Microsoft.Data.Entity.Relational.Model
             _name = name;
         }
 
-        public Table(SchemaQualifiedName name, [NotNull] IReadOnlyList<Column> columns)
+        public Table(SchemaQualifiedName name, [NotNull] IEnumerable<Column> columns)
         {
             Check.NotNull(columns, "columns");
 
@@ -36,26 +35,34 @@ namespace Microsoft.Data.Entity.Relational.Model
             }
         }
 
-        public virtual DatabaseModel Database
-        {
-            get { return _database; }
-
-            [param: CanBeNull]
-            internal set
-            {
-                Contract.Assert((value == null) != (_database == null));
-                _database = value;
-            }
-        }
-
         public virtual SchemaQualifiedName Name
         {
             get { return _name; }
+            set { _name = value; }
         }
 
         public virtual IReadOnlyList<Column> Columns
         {
             get { return _columns; }
+        }
+
+        public virtual PrimaryKey PrimaryKey
+        {
+            get { return _primaryKey; }
+
+            [param: CanBeNull]
+            set { _primaryKey = value; }
+
+        }
+
+        public virtual IReadOnlyList<ForeignKey> ForeignKeys
+        {
+            get { return _foreignKeys; }
+        }
+
+        public virtual IReadOnlyList<Index> Indexes
+        {
+            get { return _indexes; }
         }
 
         public virtual Column GetColumn([NotNull] string columnName)
@@ -69,44 +76,42 @@ namespace Microsoft.Data.Entity.Relational.Model
         {
             Check.NotNull(column, "column");
 
-            // TODO: Validate input.
-
             _columns.Add(column);
             column.Table = this;
         }
 
-        public virtual PrimaryKey PrimaryKey
+        public virtual void RemoveColumn([NotNull] string columnName)
         {
-            get { return _primaryKey; }
+            Check.NotEmpty(columnName, "columnName");
 
-            [param: NotNull]
-            set
-            {
-                Check.NotNull(value, "value");
+            var i = _columns.FindIndex(c => c.Name == columnName);
+            var column = _columns[i];
 
-                // TODO: Validate input.
-
-                _primaryKey = value;
-            }
+            _columns.RemoveAt(_columns.FindIndex(c => c.Name == columnName));
+            column.Table = null;            
         }
 
-        public virtual IReadOnlyList<ForeignKey> ForeignKeys
+        public virtual ForeignKey GetForeignKey([NotNull] string foreignKeyName)
         {
-            get { return _foreignKeys; }
+            Check.NotEmpty(foreignKeyName, "foreignKeyName");
+
+            return _foreignKeys.First(c => c.Name.Equals(foreignKeyName, StringComparison.Ordinal));
         }
 
         public virtual void AddForeignKey([NotNull] ForeignKey foreignKey)
         {
             Check.NotNull(foreignKey, "foreignKey");
 
-            // TODO: Validate input.
-
             _foreignKeys.Add(foreignKey);
         }
 
-        public virtual IReadOnlyList<Index> Indexes
+        public virtual void RemoveForeignKey([NotNull] string foreignKeyName)
         {
-            get { return _indexes; }
+            Check.NotEmpty(foreignKeyName, "foreignKeyName");
+
+            var i = _foreignKeys.FindIndex(fk => fk.Name == foreignKeyName);
+
+            _foreignKeys.RemoveAt(i);
         }
 
         public virtual Index GetIndex([NotNull] string indexName)
@@ -120,9 +125,31 @@ namespace Microsoft.Data.Entity.Relational.Model
         {
             Check.NotNull(index, "index");
 
-            // TODO: Validate input.
-
             _indexes.Add(index);
+        }
+
+        public virtual void RemoveIndex([NotNull] string indexName)
+        {
+            Check.NotEmpty(indexName, "indexName");
+
+            var i = _indexes.FindIndex(ix => ix.Name == indexName);
+
+            _indexes.RemoveAt(i);
+        }
+
+        protected internal virtual Table Clone(CloneContext cloneContext)
+        {
+            var clone = new Table(Name, Columns.Select(c => c.Clone(cloneContext)));
+
+            if (PrimaryKey != null)
+            {
+                clone._primaryKey = PrimaryKey.Clone(cloneContext);
+            }
+
+            clone._foreignKeys.AddRange(ForeignKeys.Select(fk => fk.Clone(cloneContext)));
+            clone._indexes.AddRange(Indexes.Select(ix => ix.Clone(cloneContext)));
+
+            return clone;
         }
     }
 }

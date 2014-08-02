@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.Data.Entity.Relational.Model;
+using Microsoft.Data.Entity.Relational.Utilities;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Relational.Tests.Model
@@ -24,6 +25,19 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
             Assert.Equal("int", sequence2.DataType);
             Assert.Equal(5, sequence2.StartWith);
             Assert.Equal(2, sequence2.IncrementBy);
+        }
+
+        [Fact]
+        public void Clone_replicates_instance()
+        {
+            var sequence = new Sequence("dbo.MySequence", "int", 5, 2);
+            var clone = sequence.Clone(new CloneContext());
+
+            Assert.NotSame(sequence, clone);
+            Assert.Equal("dbo.MySequence", clone.Name);
+            Assert.Equal("int", clone.DataType);
+            Assert.Equal(5, clone.StartWith);
+            Assert.Equal(2, clone.IncrementBy);
         }
     }
 }

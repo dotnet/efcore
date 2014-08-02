@@ -2,11 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Model
 {
+    // TODO: Consider adding more validation.    
     public class ForeignKey
     {
         private readonly string _name;
@@ -23,8 +25,6 @@ namespace Microsoft.Data.Entity.Relational.Model
             Check.NotEmpty(name, "name");
             Check.NotNull(columns, "columns");
             Check.NotNull(referencedColumns, "referencedColumns");
-
-            // TODO: Validate input.
 
             _name = name;
             _columns = columns;
@@ -68,6 +68,16 @@ namespace Microsoft.Data.Entity.Relational.Model
         public virtual bool CascadeDelete
         {
             get { return _cascadeDelete; }
+        }
+
+        protected internal virtual ForeignKey Clone(CloneContext cloneContext)
+        {
+            return 
+                new ForeignKey(
+                    Name,
+                    Columns.Select(column => column.Clone(cloneContext)).ToArray(),
+                    ReferencedColumns.Select(column => column.Clone(cloneContext)).ToArray(),
+                    CascadeDelete);
         }
     }
 }

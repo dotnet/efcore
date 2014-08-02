@@ -140,6 +140,7 @@
     <Compile Include="..\Shared\CodeAnnotations.cs" />
     <Compile Include="..\Shared\StringBuilderExtensions.cs" />
     <Compile Include="..\Shared\SharedTypeExtensions.cs" />
+    <Compile Include="Utilities\CloneContext.cs" />
     <Compile Include="Utilities\ExpressionExtensions.cs" />
     <Compile Include="Utilities\MethodInfoExtensions.cs" />
     <EmbeddedResource Include="Properties\Strings.resx">

@@ -44,8 +44,25 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
             database.AddSequence(sequence);
 
             Assert.Equal(1, database.Sequences.Count);
-            Assert.Same(database, sequence.Database);
             Assert.Same(sequence, database.Sequences[0]);
+        }
+
+        [Fact]
+        public void RemoveSequence_removes_specified_sequence()
+        {
+            var database = new DatabaseModel();
+            var sequence0 = new Sequence("dbo.MySequence0");
+            var sequence1 = new Sequence("dbo.MySequence1");
+
+            database.AddSequence(sequence0);
+            database.AddSequence(sequence1);
+
+            Assert.Equal(2, database.Sequences.Count);
+
+            database.RemoveSequence("dbo.MySequence1");
+
+            Assert.Equal(1, database.Sequences.Count);
+            Assert.Same(sequence0, database.Sequences[0]);
         }
 
         [Fact]
@@ -89,8 +106,25 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
             database.AddTable(table);
 
             Assert.Equal(1, database.Tables.Count);
-            Assert.Same(database, table.Database);
             Assert.Same(table, database.Tables[0]);
+        }
+
+        [Fact]
+        public void RemoveTable_removes_specified_table()
+        {
+            var database = new DatabaseModel();
+            var table0 = new Table("dbo.MyTable0");
+            var table1 = new Table("dbo.MyTable1");
+
+            database.AddTable(table0);
+            database.AddTable(table1);
+
+            Assert.Equal(2, database.Tables.Count);
+
+            database.RemoveTable("dbo.MyTable1");
+
+            Assert.Equal(1, database.Tables.Count);
+            Assert.Same(table0, database.Tables[0]);
         }
 
         [Fact]
@@ -105,6 +139,35 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
 
             Assert.Same(table0, database.GetTable("dbo.MyTable0"));
             Assert.Same(table1, database.GetTable("dbo.MyTable1"));
+        }
+
+        [Fact]
+        public void Clone_replicates_tables()
+        {            
+            var databaseModel = new DatabaseModel();
+            var sequence0 = new Sequence("dbo.S0");
+            var sequence1 = new Sequence("dbo.S1");
+            var table0 = new Table("dbo.T0");
+            var table1 = new Table("dbo.T1");
+
+            databaseModel.AddSequence(sequence0);
+            databaseModel.AddSequence(sequence1);
+            databaseModel.AddTable(table0);
+            databaseModel.AddTable(table1);
+
+            var clone = databaseModel.Clone();
+
+            Assert.NotSame(databaseModel, clone);
+            Assert.Equal(2, clone.Sequences.Count);
+            Assert.NotSame(sequence0, clone.Sequences[0]);
+            Assert.NotSame(sequence1, clone.Sequences[1]);
+            Assert.Equal("dbo.S0", clone.Sequences[0].Name);
+            Assert.Equal("dbo.S1", clone.Sequences[1].Name);
+            Assert.Equal(2, clone.Tables.Count);
+            Assert.NotSame(table0, clone.Tables[0]);
+            Assert.NotSame(table1, clone.Tables[1]);
+            Assert.Equal("dbo.T0", clone.Tables[0].Name);
+            Assert.Equal("dbo.T1", clone.Tables[1].Name);
         }
     }
 }

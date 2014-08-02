@@ -2,14 +2,16 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Model
 {
+    // TODO: Consider adding more validation.
     public class Index
     {
-        private readonly string _name;
+        private string _name;
         private readonly IReadOnlyList<Column> _columns;
         private readonly bool _isUnique;
         private readonly bool _isClustered;
@@ -22,8 +24,6 @@ namespace Microsoft.Data.Entity.Relational.Model
         {
             Check.NotEmpty(name, "name");
             Check.NotNull(columns, "columns");
-
-            // TODO: Validate input.
 
             _name = name;
             _columns = columns;
@@ -46,6 +46,9 @@ namespace Microsoft.Data.Entity.Relational.Model
         public virtual string Name
         {
             get { return _name; }
+
+            [param: NotNull]
+            set { _name = value; }
         }
 
         public virtual IReadOnlyList<Column> Columns
@@ -61,6 +64,16 @@ namespace Microsoft.Data.Entity.Relational.Model
         public virtual bool IsClustered
         {
             get { return _isClustered; }
+        }
+
+        protected internal virtual Index Clone(CloneContext cloneContext)
+        {
+            return 
+                new Index(
+                    Name, 
+                    Columns.Select(column => column.Clone(cloneContext)).ToArray(), 
+                    IsUnique, 
+                    IsClustered);
         }
     }
 }

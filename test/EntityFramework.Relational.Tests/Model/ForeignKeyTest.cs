@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Microsoft.Data.Entity.Relational.Model;
+using Microsoft.Data.Entity.Relational.Utilities;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Relational.Tests.Model
@@ -44,6 +45,71 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
             Assert.Same(referencedColumn1, foreignKey.ReferencedColumns[1]);
             Assert.Same(referencedTable, foreignKey.ReferencedTable);
             Assert.True(foreignKey.CascadeDelete);
+        }
+
+        public void Clone_replicates_instance_and_adds_column_clones_to_cache()
+        {
+            var column0 = new Column("C0", typeof(int));
+            var column1 = new Column("C1", typeof(int));
+            var referencedColumn0 = new Column("RC0", typeof(int));
+            var referencedColumn1 = new Column("RC1", typeof(int));
+            var foreignKey 
+                = new ForeignKey(
+                    "FK", 
+                    new[] { column0, column1 },
+                    new[] { referencedColumn0, referencedColumn1 }, 
+                    cascadeDelete: true);
+
+            var cloneContext = new CloneContext();
+            var clone = foreignKey.Clone(cloneContext);
+
+            Assert.NotSame(foreignKey, clone);
+            Assert.Equal("FK", clone.Name);
+            Assert.Equal(2, clone.Columns.Count);
+            Assert.NotSame(column0, clone.Columns[0]);
+            Assert.NotSame(column1, clone.Columns[1]);
+            Assert.Equal("C0", clone.Columns[0].Name);
+            Assert.Equal("C1", clone.Columns[1].Name);
+            Assert.Equal(2, clone.ReferencedColumns.Count);
+            Assert.NotSame(referencedColumn0, clone.ReferencedColumns[0]);
+            Assert.NotSame(referencedColumn1, clone.ReferencedColumns[1]);
+            Assert.Equal("RC0", clone.ReferencedColumns[0].Name);
+            Assert.Equal("RC1", clone.ReferencedColumns[1].Name);
+            Assert.True(clone.CascadeDelete);
+
+            Assert.Same(clone.Columns[0], cloneContext.GetOrAdd(column0, () => null));
+            Assert.Same(clone.Columns[1], cloneContext.GetOrAdd(column1, () => null));
+            Assert.Same(clone.ReferencedColumns[0], cloneContext.GetOrAdd(referencedColumn0, () => null));
+            Assert.Same(clone.ReferencedColumns[1], cloneContext.GetOrAdd(referencedColumn1, () => null));
+        }
+
+        public void Clone_gets_column_clones_from_cache()
+        {
+            var column0 = new Column("C0", typeof(int));
+            var column1 = new Column("C1", typeof(int));
+            var referencedColumn0 = new Column("RC0", typeof(int));
+            var referencedColumn1 = new Column("RC1", typeof(int));
+            var foreignKey
+                = new ForeignKey(
+                    "FK",
+                    new[] { column0, column1 },
+                    new[] { referencedColumn0, referencedColumn1 },
+                    cascadeDelete: true);
+
+            var cloneContext = new CloneContext();
+            var columnClone0 = column0.Clone(cloneContext);
+            var columnClone1 = column1.Clone(cloneContext);
+            var referencedColumnClone0 = referencedColumn0.Clone(cloneContext);
+            var referencedColumnClone1 = referencedColumn1.Clone(cloneContext);
+            var clone = foreignKey.Clone(cloneContext);
+
+            Assert.NotSame(foreignKey, clone);
+            Assert.Equal(2, clone.Columns.Count);
+            Assert.Same(columnClone0, clone.Columns[0]);
+            Assert.Same(columnClone1, clone.Columns[1]);
+            Assert.Equal(2, clone.ReferencedColumns.Count);
+            Assert.Same(referencedColumnClone0, clone.ReferencedColumns[0]);
+            Assert.Same(referencedColumnClone1, clone.ReferencedColumns[1]);
         }
     }
 }

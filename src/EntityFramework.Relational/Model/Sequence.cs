@@ -1,15 +1,14 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Diagnostics.Contracts;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Model
 {
+    // TODO: Consider adding more validation.
     public class Sequence
     {
-        private DatabaseModel _database;
         private readonly SchemaQualifiedName _name;
         private int _incrementBy = 1;
         private string _dataType = "BIGINT";
@@ -27,18 +26,6 @@ namespace Microsoft.Data.Entity.Relational.Model
             _dataType = dataType;
             StartWith = startWith;
             _incrementBy = incrementBy;
-        }
-
-        public virtual DatabaseModel Database
-        {
-            get { return _database; }
-
-            [param: CanBeNull]
-            internal set
-            {
-                Contract.Assert((value == null) != (_database == null));
-                _database = value;
-            }
         }
 
         public virtual SchemaQualifiedName Name
@@ -65,6 +52,11 @@ namespace Microsoft.Data.Entity.Relational.Model
 
                 _dataType = value;
             }
+        }
+
+        protected internal virtual Sequence Clone(CloneContext cloneContext)
+        {
+            return new Sequence(Name, DataType, StartWith, IncrementBy);
         }
     }
 }
