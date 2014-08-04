@@ -17,8 +17,7 @@ namespace System.Linq
 {
     public static class QueryableExtensions
     {
-        private static readonly MethodInfo _any
-            = GetMethod("Any", t => new[] { typeof(IQueryable<>).MakeGenericType(t) });
+        private static readonly MethodInfo _any = GetMethod("Any");
 
         public static Task<bool> AnyAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -43,13 +42,7 @@ namespace System.Linq
             throw new InvalidOperationException(Strings.FormatIQueryableProviderNotAsync());
         }
 
-        private static readonly MethodInfo _anyPredicate
-            = GetMethod("Any",
-                t => new[]
-                    {
-                        typeof(IQueryable<>).MakeGenericType(t),
-                        typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(t, typeof(bool)))
-                    });
+        private static readonly MethodInfo _anyPredicate = GetMethod("Any", 1);
 
         public static Task<bool> AnyAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -77,8 +70,7 @@ namespace System.Linq
             throw new InvalidOperationException(Strings.FormatIQueryableProviderNotAsync());
         }
 
-        private static readonly MethodInfo _count
-            = GetMethod("Count", t => new[] { typeof(IQueryable<>).MakeGenericType(t) });
+        private static readonly MethodInfo _count = GetMethod("Count");
 
         public static Task<int> CountAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -103,8 +95,7 @@ namespace System.Linq
             throw new InvalidOperationException(Strings.FormatIQueryableProviderNotAsync());
         }
 
-        private static readonly MethodInfo _first
-            = GetMethod("First", t => new[] { typeof(IQueryable<>).MakeGenericType(t) });
+        private static readonly MethodInfo _first = GetMethod("First");
 
         public static Task<TSource> FirstAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -129,13 +120,7 @@ namespace System.Linq
             throw new InvalidOperationException(Strings.FormatIQueryableProviderNotAsync());
         }
 
-        private static readonly MethodInfo _firstPredicate
-            = GetMethod("First",
-                t => new[]
-                    {
-                        typeof(IQueryable<>).MakeGenericType(t),
-                        typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(t, typeof(bool)))
-                    });
+        private static readonly MethodInfo _firstPredicate = GetMethod("First", 1);
 
         public static Task<TSource> FirstAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -164,7 +149,7 @@ namespace System.Linq
         }
 
         private static readonly MethodInfo _firstOrDefault
-            = GetMethod("FirstOrDefault", t => new[] { typeof(IQueryable<>).MakeGenericType(t) });
+            = GetMethod("FirstOrDefault");
 
         public static Task<TSource> FirstOrDefaultAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -190,14 +175,7 @@ namespace System.Linq
             throw new InvalidOperationException(Strings.FormatIQueryableProviderNotAsync());
         }
 
-        private static readonly MethodInfo _firstOrDefaultPredicate
-            = GetMethod(
-                "FirstOrDefault",
-                t => new[]
-                    {
-                        typeof(IQueryable<>).MakeGenericType(t),
-                        typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(t, typeof(bool)))
-                    });
+        private static readonly MethodInfo _firstOrDefaultPredicate = GetMethod("FirstOrDefault", 1);
 
         public static Task<TSource> FirstOrDefaultAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -225,8 +203,7 @@ namespace System.Linq
             throw new InvalidOperationException(Strings.FormatIQueryableProviderNotAsync());
         }
 
-        private static readonly MethodInfo _single
-            = GetMethod("Single", t => new[] { typeof(IQueryable<>).MakeGenericType(t) });
+        private static readonly MethodInfo _single = GetMethod("Single");
 
         public static Task<TSource> SingleAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -251,13 +228,7 @@ namespace System.Linq
             throw new InvalidOperationException(Strings.FormatIQueryableProviderNotAsync());
         }
 
-        private static readonly MethodInfo _singlePredicate
-            = GetMethod("Single",
-                t => new[]
-                    {
-                        typeof(IQueryable<>).MakeGenericType(t),
-                        typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(t, typeof(bool)))
-                    });
+        private static readonly MethodInfo _singlePredicate = GetMethod("Single", 1);
 
         public static Task<TSource> SingleAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -286,7 +257,7 @@ namespace System.Linq
         }
 
         private static readonly MethodInfo _singleOrDefault
-            = GetMethod("SingleOrDefault", t => new[] { typeof(IQueryable<>).MakeGenericType(t) });
+            = GetMethod("SingleOrDefault");
 
         public static Task<TSource> SingleOrDefaultAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -312,14 +283,7 @@ namespace System.Linq
             throw new InvalidOperationException(Strings.FormatIQueryableProviderNotAsync());
         }
 
-        private static readonly MethodInfo _singleOrDefaultPredicate
-            = GetMethod(
-                "SingleOrDefault",
-                t => new[]
-                    {
-                        typeof(IQueryable<>).MakeGenericType(t),
-                        typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(t, typeof(bool)))
-                    });
+        private static readonly MethodInfo _singleOrDefaultPredicate = GetMethod("SingleOrDefault", 1);
 
         public static Task<TSource> SingleOrDefaultAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -347,8 +311,7 @@ namespace System.Linq
             throw new InvalidOperationException(Strings.FormatIQueryableProviderNotAsync());
         }
 
-        private static readonly MethodInfo _sumDecimal
-            = GetMethod("Sum", () => new[] { typeof(IQueryable<decimal>) });
+        private static readonly MethodInfo _sumDecimal = GetMethod<decimal>("Sum");
 
         public static Task<decimal> SumAsync(
             [NotNull] this IQueryable<decimal> source,
@@ -374,8 +337,7 @@ namespace System.Linq
             throw new InvalidOperationException(Strings.FormatIQueryableProviderNotAsync());
         }
 
-        private static readonly MethodInfo _sumInt
-            = GetMethod("Sum", () => new[] { typeof(IQueryable<int>) });
+        private static readonly MethodInfo _sumInt = GetMethod<int>("Sum");
 
         public static Task<int> SumAsync(
             [NotNull] this IQueryable<int> source,
@@ -430,33 +392,17 @@ namespace System.Linq
             throw new NotImplementedException();
         }
 
-        private static MethodInfo GetMethod(string methodName, Func<Type[]> getParameterTypes)
+        private static MethodInfo GetMethod(string name, int parameterCount = 0)
         {
-            return GetMethod(methodName, getParameterTypes.GetMethodInfo(), 0);
+            return typeof(Queryable).GetTypeInfo().GetDeclaredMethods(name)
+                .Single(mi => mi.GetParameters().Length == parameterCount + 1);
         }
 
-        private static MethodInfo GetMethod(string methodName, Func<Type, Type[]> getParameterTypes)
+        private static MethodInfo GetMethod<TReturn>(string name, int parameterCount = 0)
         {
-            return GetMethod(methodName, getParameterTypes.GetMethodInfo(), 1);
-        }
-
-        private static MethodInfo GetMethod(string methodName, MethodInfo getParameterTypesMethod, int genericArgumentsCount)
-        {
-            var candidates = typeof(Queryable).GetTypeInfo().GetDeclaredMethods(methodName);
-
-            foreach (var candidate in candidates)
-            {
-                var genericArguments = candidate.GetGenericArguments();
-
-                if (genericArguments.Length == genericArgumentsCount
-                    && candidate.GetParameters().Select(p => p.ParameterType)
-                        .SequenceEqual((Type[])getParameterTypesMethod.Invoke(null, genericArguments)))
-                {
-                    return candidate;
-                }
-            }
-
-            return null;
+            return typeof(Queryable).GetTypeInfo().GetDeclaredMethods(name)
+                .Single(mi => mi.GetParameters().Length == parameterCount + 1
+                              && mi.ReturnType == typeof(TReturn));
         }
     }
 }
