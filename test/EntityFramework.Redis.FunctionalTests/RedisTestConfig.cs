@@ -4,6 +4,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using StackExchange.Redis;
 
@@ -12,6 +13,7 @@ namespace Microsoft.Data.Entity.Redis
     public static class RedisTestConfig
     {
         internal const string RedisServerExeName = "redis-server.exe";
+        internal const string FunctionalTestsRedisServerExeName = "RedisFuncTests-redis-server";
         internal const string UserProfileRedisNugetPackageServerPath = @".kpm\packages\Redis-64\2.8.9";
         internal const string CIMachineRedisNugetPackageServerPath = @"Redis-64\2.8.9";
 
@@ -43,16 +45,42 @@ namespace Microsoft.Data.Entity.Redis
 
         private static bool TryConnectToOrStartServer()
         {
-            if (CanConnectToExistingRedisServer(3, 100))
+            if (CanFindExistingRedisServer())
             {
-                lock (_redisServerProcessLock)
-                {
-                    _redisServerProcess = null;
-                }
                 return true;
             }
 
             return TryStartRedisServer();
+        }
+
+        public static void StopRedisServer()
+        {
+            if (CanFindExistingRedisServer())
+            {
+                lock (_redisServerProcessLock)
+                {
+                    if (_redisServerProcess != null)
+                    {
+                        _redisServerProcess.Kill();
+                        _redisServerProcess = null;
+                    }
+                }
+            }
+        }
+
+        private static bool CanFindExistingRedisServer()
+        {
+            var process = Process.GetProcessesByName(FunctionalTestsRedisServerExeName).SingleOrDefault();
+            if (process == null)
+            {
+                return false;
+            }
+
+            lock (_redisServerProcessLock)
+            {
+                _redisServerProcess = process;
+            }
+            return true;
         }
 
         private static bool CanConnectToExistingRedisServer(int numRetries, int sleepMillisecsBetweenRetries = 0)
@@ -141,11 +169,12 @@ namespace Microsoft.Data.Entity.Redis
             {
                 lock (_redisServerProcessLock)
                 {
-                    // copy the redis-server.exe to a directory under the user's TMP path. The server
-                    // will be left running - so needs not to be under git's working directory as CI
-                    // machines run cleanup on those paths before starting tests.
-                    var tempPath = GetTMPPath();
-                    var tempRedisServerFullPath = Path.Combine(tempPath, RedisServerExeName);
+                    // copy the redis-server.exe to a directory under the user's TMP path under a different
+                    // name - so we know the difference between a redis-server started by us and a redis-server
+                    // which the customer already has running.
+                    var tempPath = Path.GetTempPath();
+                    var tempRedisServerFullPath =
+                        Path.Combine(tempPath, FunctionalTestsRedisServerExeName + ".exe");
                     if (!File.Exists(tempRedisServerFullPath))
                     {
                         File.Copy(serverExePath, tempRedisServerFullPath);
@@ -180,7 +209,7 @@ namespace Microsoft.Data.Entity.Redis
                             throw new Exception("Got null process trying to  start Redis Server at path "
                                 + tempRedisServerFullPath + " with Arguments '" + serverArgs + "', working dir = " + tempPath);
                         }
-                        else if (!CanConnectToExistingRedisServer(5, 1000))
+                        else if (!CanConnectToExistingRedisServer(5, 2000))
                         {
                             throw new Exception("Cannot connect to started Redis server process PID " + _redisServerProcess.Id);
                         }
