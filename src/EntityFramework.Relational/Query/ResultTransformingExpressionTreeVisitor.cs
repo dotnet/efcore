@@ -12,7 +12,7 @@ using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Relational.Query
 {
-    public class ResultTransformingExpressionTreeVisitor : ExpressionTreeVisitor
+    public class ResultTransformingExpressionTreeVisitor<TResult> : ExpressionTreeVisitor
     {
         private readonly IQuerySource _outerQuerySource;
         private readonly RelationalQueryCompilationContext _relationalQueryCompilationContext;
@@ -29,27 +29,34 @@ namespace Microsoft.Data.Entity.Relational.Query
         }
 
         private static readonly MethodInfo _getValueMethodInfo
-            = typeof(ResultTransformingExpressionTreeVisitor).GetTypeInfo()
+            = typeof(ResultTransformingExpressionTreeVisitor<TResult>).GetTypeInfo()
                 .GetDeclaredMethod("GetValue");
 
         [UsedImplicitly]
-        private static QuerySourceScope<bool> GetValue(
+        private static QuerySourceScope<TResult> GetValue(
             IQuerySource querySource,
             QuerySourceScope parentQuerySourceScope,
             DbDataReader dataReader)
         {
-            return new QuerySourceScope<bool>(
+            return new QuerySourceScope<TResult>(
                 querySource,
-                dataReader.GetBoolean(0),
+                dataReader.GetFieldValue<TResult>(0),
                 parentQuerySourceScope);
         }
 
         protected override Expression VisitMethodCallExpression(MethodCallExpression expression)
         {
+            var newObject = VisitExpression(expression.Object);
+
+            if (newObject != expression.Object)
+            {
+                return newObject;
+            }
+
             var newArguments = VisitAndConvert(expression.Arguments, "VisitMethodCallExpression");
 
             if ((expression.Method.MethodIsClosedFormOf(RelationalQueryModelVisitor.CreateEntityMethodInfo)
-                 || expression.Method.MethodIsClosedFormOf(RelationalQueryModelVisitor.CreateValueReaderMethodInfo))
+                 || ReferenceEquals(expression.Method, RelationalQueryModelVisitor.CreateValueReaderMethodInfo))
                 && ((ConstantExpression)expression.Arguments[0]).Value == _outerQuerySource)
             {
                 return
@@ -68,7 +75,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                     QuerySourceScope.GetResult(
                         expression.Object,
                         _outerQuerySource,
-                        typeof(bool));
+                        typeof(TResult));
             }
 
             if (newArguments != expression.Arguments)
@@ -78,7 +85,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                 {
                     return Expression.Call(
                         _relationalQueryCompilationContext.QueryMethodProvider.QueryMethod
-                            .MakeGenericMethod(typeof(QuerySourceScope<bool>)),
+                            .MakeGenericMethod(typeof(QuerySourceScope<TResult>)),
                         newArguments);
                 }
 
@@ -88,12 +95,12 @@ namespace Microsoft.Data.Entity.Relational.Query
                     return
                         Expression.Call(
                             _relationalQueryCompilationContext.LinqOperatorProvider.First
-                                .MakeGenericMethod(typeof(bool)),
+                                .MakeGenericMethod(typeof(TResult)),
                             Expression.Call(
                                 _relationalQueryCompilationContext.LinqOperatorProvider.Select
                                     .MakeGenericMethod(
                                         typeof(QuerySourceScope),
-                                        typeof(bool)),
+                                        typeof(TResult)),
                                 newArguments));
                 }
 

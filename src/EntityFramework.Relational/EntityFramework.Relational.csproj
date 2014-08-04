@@ -64,7 +64,8 @@
     <Compile Include="Query\AsyncQueryMethodProvider.cs" />
     <Compile Include="Query\CommandBuilder.cs" />
     <Compile Include="Query\CommandParameter.cs" />
-    <Compile Include="Query\EnumerableMethodProvider.cs" />
+    <Compile Include="Query\QueryMethodProvider.cs" />
+    <Compile Include="Query\Expressions\CountExpression.cs" />
     <Compile Include="Query\Expressions\CaseExpression.cs" />
     <Compile Include="Query\Expressions\ExistsExpression.cs" />
     <Compile Include="Query\Expressions\InnerJoinExpression.cs" />

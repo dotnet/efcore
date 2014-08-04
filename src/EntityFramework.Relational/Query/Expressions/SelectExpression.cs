@@ -26,6 +26,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         private SelectExpression _subquery;
         private Expression _projectionExpression;
+        private bool _isDistinct;
 
         public SelectExpression()
             : base(typeof(object))
@@ -61,6 +62,11 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             _tables.AddRange(tableExpressions);
         }
 
+        public virtual void ClearTables()
+        {
+            _tables.Clear();
+        }
+
         public virtual bool HandlesQuerySource([NotNull] IQuerySource querySource)
         {
             Check.NotNull(querySource, "querySource");
@@ -75,46 +81,79 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             return _tables.Single(t => t.QuerySource == querySource);
         }
 
-        public virtual bool IsDistinct { get; set; }
-
-        public virtual void AddLimit(int limit)
+        public virtual bool IsDistinct
         {
-            if (_limit != null)
+            get { return _isDistinct; }
+            set
             {
-                var subquery = new SelectExpression();
+                PushDownIfLimit();
 
-                var columnAliasCounter = 0;
-
-                foreach (var columnExpression in _projection)
-                {
-                    if (subquery._projection.FindIndex(ce => ce.Name == columnExpression.Name) != -1)
-                    {
-                        columnExpression.Alias = "c" + columnAliasCounter++;
-                    }
-
-                    subquery._projection.Add(columnExpression);
-                }
-
-                subquery.AddTables(_tables);
-                subquery.AddToOrderBy(_orderBy);
-
-                subquery._limit = _limit;
-
-                _tables.Clear();
-                _projection.Clear();
-
-                ClearOrderBy();
-
-                _projectStar = true;
-                _subquery = subquery;
+                _isDistinct = value;
             }
-
-            _limit = limit;
         }
 
         public virtual int? Limit
         {
             get { return _limit; }
+            set
+            {
+                Check.NotNull(value, "value");
+
+                PushDownIfLimit();
+
+                _limit = value;
+            }
+        }
+
+        private void PushDownIfLimit()
+        {
+            if (_limit != null)
+            {
+                PushDownSubquery();
+            }
+        }
+
+        private void PushDownIfDistinct()
+        {
+            if (_isDistinct)
+            {
+                PushDownSubquery();
+            }
+        }
+
+        private void PushDownSubquery()
+        {
+            var subquery = new SelectExpression();
+
+            var columnAliasCounter = 0;
+
+            foreach (var columnExpression in _projection)
+            {
+                if (subquery._projection.FindIndex(ce => ce.Name == columnExpression.Name) != -1)
+                {
+                    columnExpression.Alias = "c" + columnAliasCounter++;
+                }
+
+                subquery._projection.Add(columnExpression);
+            }
+            
+            subquery.AddTables(_tables);
+            subquery.AddToOrderBy(_orderBy);
+
+            subquery._limit = _limit;
+            subquery._isDistinct = _isDistinct;
+            subquery._subquery = _subquery;
+            subquery._projectStar = _projectStar;
+
+            _limit = null;
+            _isDistinct = false;
+
+            ClearTables();
+            ClearProjection();
+            ClearOrderBy();
+
+            _projectStar = true;
+            _subquery = subquery;
         }
 
         public virtual IReadOnlyList<ColumnExpression> Projection
@@ -151,17 +190,30 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             }
         }
 
-        public virtual void SetProjection([NotNull] Expression expression)
+        public virtual void SetProjectionCaseExpression([NotNull] CaseExpression caseExpression)
         {
-            Check.NotNull(expression, "expression");
+            Check.NotNull(caseExpression, "caseExpression");
 
-            _tables.Clear();
+            ClearProjection();
+
+            _projectionExpression = caseExpression;
+        }
+
+        public virtual void SetProjectionCountExpression([NotNull] CountExpression countExpression)
+        {
+            Check.NotNull(countExpression, "countExpression");
+
+            PushDownIfLimit();
+            PushDownIfDistinct();
+
+            ClearProjection();
+
+            _projectionExpression = countExpression;
+        }
+
+        public virtual void ClearProjection()
+        {
             _projection.Clear();
-
-            ClearOrderBy();
-            Predicate = null;
-
-            _projectionExpression = expression;
         }
 
         public virtual void RemoveRangeFromProjection(int index)

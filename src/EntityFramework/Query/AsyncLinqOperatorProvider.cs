@@ -159,7 +159,7 @@ namespace Microsoft.Data.Entity.Query
         [UsedImplicitly]
         private static Task<TSource> FirstShim<TSource>(IAsyncEnumerable<TSource> source)
         {
-            return source.First();
+            return source.Single(); // TODO: Replace with First when IX-Async dispose bug is fixed.
         }
 
         public virtual MethodInfo First

@@ -897,13 +897,16 @@ namespace Microsoft.Data.Entity.Relational.Query
                 var entityType = QueryCompilationContext.Model.GetEntityType(elementType);
 
                 var selectExpression = new SelectExpression();
+                var tableName = entityType.TableName();
 
                 selectExpression
                     .AddTable(
                         new TableExpression(
-                            entityType.TableName(),
+                            tableName,
                             entityType.Schema(),
-                            _querySource.ItemName.Replace("<generated>_", "t"),
+                            _querySource.ItemName.StartsWith("<generated>_")
+                                ? tableName.First().ToString().ToLower()
+                                : _querySource.ItemName,
                             _querySource));
 
                 _queryModelVisitor._queriesBySource.Add(_querySource, selectExpression);
