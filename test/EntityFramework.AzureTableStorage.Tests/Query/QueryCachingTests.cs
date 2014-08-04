@@ -60,8 +60,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
             _connection.Setup(s => s.ExecuteRequest(
                 It.IsAny<QueryTableRequest<T>>(),
                 It.IsAny<ILogger>()))
-                .Returns(() => new[] { new T() }
-                );
+                .Returns(NewTCallback<T>);
 
             _dataStore.Query<T>(queryModel, Mock.Of<StateManager>()).ToList();
 
@@ -69,6 +68,11 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
                 It.IsAny<QueryTableRequest<T>>(),
                 It.IsAny<ILogger>()),
                 times);
+        }
+
+        private static T[] NewTCallback<T>() where T : class, new()
+        {
+            return new[] { new T() };
         }
 
         private IModel CreateModel()

@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Identity
             var property = CreateProperty();
 
             var factoryMock = new Mock<IValueGeneratorFactory>();
-            factoryMock.Setup(m => m.Create(property)).Returns(() => new TemporaryValueGenerator());
+            factoryMock.Setup(m => m.Create(property)).Returns(CreateValueGeneratorCallback);
 
             var pool = new ValueGeneratorPool(factoryMock.Object, property, poolSize: 3);
 
@@ -47,6 +47,11 @@ namespace Microsoft.Data.Entity.Identity
 
             factoryMock.Verify(m => m.Create(It.IsAny<Property>()), Times.Exactly(3));
             factoryMock.Verify(m => m.Create(property), Times.Exactly(3));
+        }
+
+        private static TemporaryValueGenerator CreateValueGeneratorCallback()
+        {
+            return new TemporaryValueGenerator();
         }
 
         private static Property CreateProperty()

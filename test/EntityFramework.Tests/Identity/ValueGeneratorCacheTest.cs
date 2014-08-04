@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Identity
             var property = CreateProperty(ValueGenerationOnAdd.Client);
 
             var factoryMock = new Mock<SimpleValueGeneratorFactory<GuidValueGenerator>>();
-            factoryMock.Setup(m => m.Create(property)).Returns(() => new TemporaryValueGenerator());
+            factoryMock.Setup(m => m.Create(property)).Returns(CreateValueGeneratorCallback);
             factoryMock.Setup(m => m.GetPoolSize(property)).Returns(1);
             factoryMock.Setup(m => m.GetCacheKey(property)).Returns("TheKeyMaster");
 
@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.Identity
             var property = CreateProperty(ValueGenerationOnAdd.Client);
 
             var factoryMock = new Mock<SimpleValueGeneratorFactory<GuidValueGenerator>>();
-            factoryMock.Setup(m => m.Create(property)).Returns(() => new TemporaryValueGenerator());
+            factoryMock.Setup(m => m.Create(property)).Returns(CreateValueGeneratorCallback);
             factoryMock.Setup(m => m.GetPoolSize(property)).Returns(2);
             factoryMock.Setup(m => m.GetCacheKey(property)).Returns("TheKeyMaster");
 
@@ -79,6 +79,11 @@ namespace Microsoft.Data.Entity.Identity
             Assert.Same(generator2b, cache.GetGenerator(property));
             Assert.Same(generator2a, cache.GetGenerator(property));
             Assert.Same(generator2b, cache.GetGenerator(property));
+        }
+
+        private static TemporaryValueGenerator CreateValueGeneratorCallback()
+        {
+            return new TemporaryValueGenerator();
         }
 
         private static Property CreateProperty(ValueGenerationOnAdd valueGeneration)

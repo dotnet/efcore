@@ -54,12 +54,7 @@ namespace Microsoft.Data.Entity.Design.Tests
 
             toolMock.Protected()
                 .Setup<IniFileConfigurationSource>("CreateIniFileConfigurationSource", ItExpr.IsAny<string>())
-                .Callback<string>(
-                    configFile =>
-                    {
-                        Assert.True(configFile.EndsWith("MyConfig.ini"));
-                        Assert.True(Path.IsPathRooted(configFile));
-                    })
+                .Callback<string>(AssertConfigFileCallback1)
                 .Returns(configSourceMock.Object);
 
             configuration.AddCommandLine(args);
@@ -68,6 +63,12 @@ namespace Microsoft.Data.Entity.Design.Tests
 
             configSourceMock.Verify(m => m.Commit(), Times.Once);
             toolMock.Protected().Verify<IniFileConfigurationSource>("CreateIniFileConfigurationSource", Times.Once(), ItExpr.IsAny<string>());
+        }
+
+        private static void AssertConfigFileCallback1(string configFile)
+        {
+            Assert.True(configFile.EndsWith("MyConfig.ini"));
+            Assert.True(Path.IsPathRooted(configFile));
         }
 
         [Fact]
@@ -88,12 +89,7 @@ namespace Microsoft.Data.Entity.Design.Tests
 
             toolMock.Protected()
                 .Setup<IniFileConfigurationSource>("CreateIniFileConfigurationSource", ItExpr.IsAny<string>())
-                .Callback<string>(
-                    configFile =>
-                    {
-                        Assert.True(configFile.EndsWith("migration.ini"));
-                        Assert.True(Path.IsPathRooted(configFile));
-                    })
+                .Callback<string>(AssertConfigFileCallback2)
                 .Returns(configSourceMock.Object);
 
             configuration.AddCommandLine(args);
@@ -101,6 +97,12 @@ namespace Microsoft.Data.Entity.Design.Tests
             tool.CommitConfiguration(configuration);
 
             toolMock.Protected().Verify<IniFileConfigurationSource>("CreateIniFileConfigurationSource", Times.Once(), ItExpr.IsAny<string>());
+        }
+
+        private static void AssertConfigFileCallback2(string configFile)
+        {
+            Assert.True(configFile.EndsWith("migration.ini"));
+            Assert.True(Path.IsPathRooted(configFile));
         }
 
         [Fact]

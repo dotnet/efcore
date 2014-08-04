@@ -679,8 +679,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
 
             var sqlStatementExecutorMock = new Mock<SqlStatementExecutor>();
             sqlStatementExecutorMock.Setup(sse => sse.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlStatement>>()))
-                .Callback<DbConnection, DbTransaction, IEnumerable<SqlStatement>>(
-                    (connection, transaction, statements) => Assert.Equal("GeneratedUpdateDatabaseSql", statements.First().Sql));
+                .Callback<DbConnection, DbTransaction, IEnumerable<SqlStatement>>(AssertCallback);
 
             var migratorMock
                 = new Mock<Migrator>(
@@ -699,6 +698,11 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
 
             migratorMock.Object.UpdateDatabase();
             migratorMock.Object.UpdateDatabase("TargetMigrationName");
+        }
+
+        private static void AssertCallback(DbConnection _, DbTransaction __, IEnumerable<SqlStatement> statements)
+        {
+            Assert.Equal("GeneratedUpdateDatabaseSql", statements.First().Sql);
         }
 
         #region Fixture

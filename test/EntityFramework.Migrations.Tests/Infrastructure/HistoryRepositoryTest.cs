@@ -117,19 +117,23 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
 
                 historyRepositoryMock
                     .Setup(o => o.GetMigrationsQuery(It.IsAny<DbContext>()))
-                    .Returns(() =>
-                        new IMigrationMetadata[]
-                            {
-                                new MigrationMetadata("000000000000001_Migration1"),
-                                new MigrationMetadata("000000000000002_Migration2")
-                            }
-                            .AsQueryable());
+                    .Returns(MigrationQueryableCallback);
 
                 var migrations = historyRepositoryMock.Object.Migrations;
                 Assert.Equal(2, migrations.Count);
                 Assert.Equal("000000000000001_Migration1", migrations[0].MigrationId);
                 Assert.Equal("000000000000002_Migration2", migrations[1].MigrationId);
             }
+        }
+
+        private static IQueryable<IMigrationMetadata> MigrationQueryableCallback()
+        {
+            return new IMigrationMetadata[]
+                {
+                    new MigrationMetadata("000000000000001_Migration1"),
+                    new MigrationMetadata("000000000000002_Migration2")
+                }
+                .AsQueryable();
         }
 
         [Fact]
