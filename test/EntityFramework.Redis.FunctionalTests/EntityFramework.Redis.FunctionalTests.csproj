@@ -63,9 +63,6 @@
     <PackageReference Include="Microsoft.Framework.Logging">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
-    <PackageReference Include="Redis-64">
-      <TargetFramework>net45</TargetFramework>
-    </PackageReference>
     <PackageReference Include="StackExchange.Redis">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
