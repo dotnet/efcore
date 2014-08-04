@@ -81,6 +81,7 @@
     <Compile Include="Model\DropSequenceOperation.cs" />
     <Compile Include="Model\DropTableOperation.cs" />
     <Compile Include="Model\MigrationOperation.cs" />
+    <Compile Include="Model\IMigrationOperationVisitor.cs" />
     <Compile Include="Model\MoveTableOperation.cs" />
     <Compile Include="Model\RenameColumnOperation.cs" />
     <Compile Include="Model\RenameIndexOperation.cs" />
@@ -91,6 +92,7 @@
     <Compile Include="Properties\Strings.Designer.cs">
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
+    <Compile Include="DatabaseModelModifier.cs" />
     <Compile Include="Utilities\AssemblyExtensions.cs" />
     <Compile Include="Utilities\Check.cs" />
     <Compile Include="Utilities\DbContextConfigurationExtensions.cs" />

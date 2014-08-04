@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Relational;
+using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.SQLite.Utilities;
 using Microsoft.Data.SQLite;
 
@@ -18,23 +19,23 @@ namespace Microsoft.Data.Entity.SQLite
 
         private readonly SQLiteConnection _connection;
         private readonly SqlStatementExecutor _executor;
-        private readonly SQLiteMigrationOperationSqlGenerator _generator;
+        private readonly SQLiteMigrationOperationSqlGeneratorFactory _generatorFactory;
         private readonly ModelDiffer _modelDiffer;
 
         public SQLiteDataStoreCreator(
             [NotNull] SQLiteConnection connection,
             [NotNull] SqlStatementExecutor executor,
-            [NotNull] SQLiteMigrationOperationSqlGenerator generator,
+            [NotNull] SQLiteMigrationOperationSqlGeneratorFactory generatorFactory,
             [NotNull] ModelDiffer modelDiffer)
         {
             Check.NotNull(connection, "connection");
             Check.NotNull(executor, "executor");
-            Check.NotNull(generator, "generator");
+            Check.NotNull(generatorFactory, "generatorFactory");
             Check.NotNull(modelDiffer, "modelDiffer");
 
             _connection = connection;
             _executor = executor;
-            _generator = generator;
+            _generatorFactory = generatorFactory;
             _modelDiffer = modelDiffer;
         }
 
@@ -57,10 +58,9 @@ namespace Microsoft.Data.Entity.SQLite
         {
             Check.NotNull(model, "model");
 
-            // TODO: SQLiteMigrationOperationSqlGenerator should get this from DI
-            _generator.Database = _modelDiffer.DatabaseBuilder.GetDatabase(model);
-            var operations = _modelDiffer.CreateSchema(model);
-            var statements = _generator.Generate(operations);
+            var generator = _generatorFactory.Create();
+            var operations = _modelDiffer.CreateSchema(model);            
+            var statements = generator.Generate(operations);
 
             // TODO: Delete database on error
             using (var connection = _connection.CreateConnectionReadWrite())

@@ -32,6 +32,14 @@ namespace Microsoft.Data.Entity.Migrations.Model
             get { return _column; }
         }
 
+        public override void Accept<TVisitor, TContext>(TVisitor visitor, TContext context)
+        {
+            Check.NotNull(visitor, "visitor");
+            Check.NotNull(context, "context");
+
+            visitor.Visit(this, context);
+        }
+
         public override void GenerateSql(MigrationOperationSqlGenerator generator, IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(generator, "generator");

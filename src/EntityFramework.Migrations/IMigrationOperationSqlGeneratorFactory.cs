@@ -8,6 +8,7 @@ namespace Microsoft.Data.Entity.Migrations
 {
     public interface IMigrationOperationSqlGeneratorFactory
     {
+        MigrationOperationSqlGenerator Create();
         MigrationOperationSqlGenerator Create([NotNull] DatabaseModel database);
     }
 }

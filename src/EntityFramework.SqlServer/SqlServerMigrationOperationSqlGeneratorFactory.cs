@@ -10,11 +10,26 @@ namespace Microsoft.Data.Entity.SqlServer
 {
     public class SqlServerMigrationOperationSqlGeneratorFactory : IMigrationOperationSqlGeneratorFactory
     {
+        public virtual SqlServerMigrationOperationSqlGenerator Create()
+        {
+            return Create(new DatabaseModel());
+        }
+
         public virtual SqlServerMigrationOperationSqlGenerator Create([NotNull] DatabaseModel database)
         {
             Check.NotNull(database, "database");
 
-            return new SqlServerMigrationOperationSqlGenerator(new SqlServerTypeMapper()) { Database = database };
+            return 
+                new SqlServerMigrationOperationSqlGenerator(new SqlServerTypeMapper())
+                    {
+                        Database = database,
+                        DatabaseModelModifier = new DatabaseModelModifier()
+                    };
+        }
+
+        MigrationOperationSqlGenerator IMigrationOperationSqlGeneratorFactory.Create()
+        {
+            return Create();
         }
 
         MigrationOperationSqlGenerator IMigrationOperationSqlGeneratorFactory.Create(DatabaseModel database)

@@ -7,6 +7,7 @@ using System.Data.Common;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Utilities;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Model;
@@ -157,14 +158,16 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         public virtual IReadOnlyList<SqlStatement> GenerateUpdateDatabaseSql()
         {
             bool historyRepositoryExists;
-            var migrationPairs = PairMigrations(GetLocalMigrations(), GetDatabaseMigrations(out historyRepositoryExists));
+            var localMigrations = GetLocalMigrations();
+            var migrationPairs = PairMigrations(localMigrations, GetDatabaseMigrations(out historyRepositoryExists));
 
             return
                 GenerateUpdateDatabaseSql(
-                    new IMigrationMetadata[0],
-                    migrationPairs
-                        .Where(p => p.DatabaseMigration == null)
-                        .Select(p => p.LocalMigration)
+                    localMigrations,
+                    new int[0],
+                    localMigrations
+                        .Select((p, i) => i)
+                        .Where(i => migrationPairs[i].DatabaseMigration == null)
                         .ToArray(),
                     historyRepositoryExists,
                     removeHistoryRepository: false);
@@ -175,19 +178,17 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             Check.NotEmpty(targetMigrationName, "targetMigrationName");
 
             bool historyRepositoryExists;
-            var removeHistoryRepository = false;
-
-            var migrationPairs = PairMigrations(GetLocalMigrations(), GetDatabaseMigrations(out historyRepositoryExists));
+            var localMigrations = GetLocalMigrations();
+            var migrationPairs = PairMigrations(localMigrations, GetDatabaseMigrations(out historyRepositoryExists));
 
             int index;
             if (targetMigrationName == InitialDatabase)
             {
                 index = -1;
-                removeHistoryRepository = true;
             }
             else
             {
-                index = migrationPairs.IndexOf(p => p.LocalMigration.GetMigrationName() == targetMigrationName);
+                index = localMigrations.IndexOf(m => m.GetMigrationName() == targetMigrationName);
                 if (index < 0)
                 {
                     throw new InvalidOperationException(Strings.FormatTargetMigrationNotFound(targetMigrationName));
@@ -196,42 +197,45 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
             return
                 GenerateUpdateDatabaseSql(
-                    migrationPairs
+                    localMigrations,
+                    localMigrations
+                        .Select((m, i) => i)
                         .Skip(index + 1)
-                        .Where(p => p.DatabaseMigration != null)
-                        .Select(p => p.LocalMigration)
+                        .Where(i => migrationPairs[i].DatabaseMigration != null)
                         .Reverse()
                         .ToArray(),
-                    migrationPairs
+                    localMigrations
+                        .Select((m, i) => i)
                         .Take(index + 1)
-                        .Where(p => p.DatabaseMigration == null)
-                        .Select(p => p.LocalMigration)
+                        .Where(i => migrationPairs[i].DatabaseMigration == null)
                         .ToArray(),
                     historyRepositoryExists,
-                    removeHistoryRepository);
+                    removeHistoryRepository: index == -1);
         }
 
         protected virtual IReadOnlyList<SqlStatement> GenerateUpdateDatabaseSql(
-            IReadOnlyList<IMigrationMetadata> downgradeMigrations,
-            IReadOnlyList<IMigrationMetadata> upgradeMigrations,
+            IReadOnlyList<IMigrationMetadata> migrations,
+            IReadOnlyList<int> downgradeIndexes,
+            IReadOnlyList<int> upgradeIndexes,
             bool historyRepositoryExists,
             bool removeHistoryRepository)
         {
             var sqlStatements = new List<SqlStatement>();
 
             if (!historyRepositoryExists
-                && upgradeMigrations.Count > 0)
+                && upgradeIndexes.Count > 0)
             {
-                var database = ModelDiffer.DatabaseBuilder.GetDatabase(HistoryRepository.HistoryModel);
-                var ddlSqlGenerator = DdlSqlGeneratorFactory.Create(database);
+                var targetDatabase = ModelDiffer.DatabaseBuilder.GetDatabase(HistoryRepository.HistoryModel);
+                var ddlSqlGenerator = DdlSqlGeneratorFactory.Create();
 
-                sqlStatements.AddRange(ddlSqlGenerator.Generate(ModelDiffer.CreateSchema(database)));
+                sqlStatements.AddRange(ddlSqlGenerator.Generate(ModelDiffer.CreateSchema(targetDatabase)));
             }
 
-            foreach (var migration in downgradeMigrations)
+            foreach (var index in downgradeIndexes)
             {
-                var database = ModelDiffer.DatabaseBuilder.GetDatabase(migration.TargetModel);
-                var ddlSqlGenerator = DdlSqlGeneratorFactory.Create(database);
+                var migration = migrations[index];
+                var sourceDatabase = ModelDiffer.DatabaseBuilder.GetDatabase(migration.TargetModel);
+                var ddlSqlGenerator = DdlSqlGeneratorFactory.Create(sourceDatabase);
 
                 sqlStatements.AddRange(ddlSqlGenerator.Generate(migration.DowngradeOperations));
 
@@ -239,10 +243,11 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                     HistoryRepository.GenerateDeleteMigrationSql(migration, DmlSqlGenerator));
             }
 
-            foreach (var migration in upgradeMigrations)
+            foreach (var index in upgradeIndexes)
             {
-                var database = ModelDiffer.DatabaseBuilder.GetDatabase(migration.TargetModel);
-                var ddlSqlGenerator = DdlSqlGeneratorFactory.Create(database);
+                var migration = migrations[index];
+                var sourceDatabase = ModelDiffer.DatabaseBuilder.GetDatabase(GetSourceModel(migrations, index));
+                var ddlSqlGenerator = DdlSqlGeneratorFactory.Create(sourceDatabase);
 
                 sqlStatements.AddRange(ddlSqlGenerator.Generate(migration.UpgradeOperations));
 
@@ -252,10 +257,10 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
             if (historyRepositoryExists && removeHistoryRepository)
             {
-                var database = ModelDiffer.DatabaseBuilder.GetDatabase(HistoryRepository.HistoryModel);
-                var ddlSqlGenerator = DdlSqlGeneratorFactory.Create(new DatabaseModel());
+                var sourceDatabase = ModelDiffer.DatabaseBuilder.GetDatabase(HistoryRepository.HistoryModel);
+                var ddlSqlGenerator = DdlSqlGeneratorFactory.Create(sourceDatabase);
 
-                sqlStatements.AddRange(ddlSqlGenerator.Generate(ModelDiffer.DropSchema(database)));
+                sqlStatements.AddRange(ddlSqlGenerator.Generate(ModelDiffer.DropSchema(sourceDatabase)));
             }
 
             return sqlStatements;
@@ -301,6 +306,11 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             }
 
             return pairs;
+        }
+
+        private static IModel GetSourceModel(IReadOnlyList<IMigrationMetadata> migrations, int index)
+        {
+            return index == 0 ? new Metadata.Model() : migrations[index - 1].TargetModel;
         }
 
         protected struct MigrationPair

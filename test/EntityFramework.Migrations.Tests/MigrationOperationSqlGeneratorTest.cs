@@ -98,12 +98,14 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Generate_when_add_column_operation()
         {
+            var database = new DatabaseModel();
+            database.AddTable(new Table("dbo.MyTable"));
+
             var column = new Column("Bar", "int") { IsNullable = false, DefaultValue = 5 };
 
             Assert.Equal(
                 @"ALTER TABLE ""dbo"".""MyTable"" ADD ""Bar"" int NOT NULL DEFAULT 5",
-                Generate(
-                    new AddColumnOperation("dbo.MyTable", column)).Sql);
+                Generate(new AddColumnOperation("dbo.MyTable", column), database).Sql);
         }
 
         [Fact]
@@ -118,21 +120,43 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Generate_when_alter_column_operation_with_nullable()
         {
+            var database = new DatabaseModel();
+            var table 
+                = new Table(
+                    "dbo.MyTable", 
+                    new[]
+                        {
+                            new Column("Foo", typeof(int)) { IsNullable = false }
+                        });
+            database.AddTable(table);
+
             Assert.Equal(
                 @"ALTER TABLE ""dbo"".""MyTable"" ALTER COLUMN ""Foo"" int NULL",
                 Generate(
                     new AlterColumnOperation("dbo.MyTable",
-                        new Column("Foo", "int") { IsNullable = true }, isDestructiveChange: false)).Sql);
+                        new Column("Foo", "int") { IsNullable = true }, isDestructiveChange: false),
+                    database).Sql);
         }
 
         [Fact]
         public void Generate_when_alter_column_operation_with_not_nullable()
         {
+            var database = new DatabaseModel();
+            var table
+                = new Table(
+                    "dbo.MyTable",
+                    new[]
+                        {
+                            new Column("Foo", typeof(int)) { IsNullable = true }
+                        });
+            database.AddTable(table);
+
             Assert.Equal(
                 @"ALTER TABLE ""dbo"".""MyTable"" ALTER COLUMN ""Foo"" int NOT NULL",
                 Generate(
                     new AlterColumnOperation("dbo.MyTable",
-                        new Column("Foo", "int") { IsNullable = false }, isDestructiveChange: false)).Sql);
+                        new Column("Foo", "int") { IsNullable = false }, isDestructiveChange: false),
+                    database).Sql);
         }
 
         [Fact]
@@ -280,11 +304,58 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             Assert.Equal("foo''bar", sqlGenerator.Object.EscapeLiteral("foo'bar"));
         }
 
-        private static SqlStatement Generate(MigrationOperation migrationOperation)
+        [Fact]
+        public void Database_setter_clones_value()
         {
-            var sqlGenerator = new Mock<MigrationOperationSqlGenerator>(new RelationalTypeMapper()) { CallBase = true };
+            var sqlGenerator = (new Mock<MigrationOperationSqlGenerator>(new RelationalTypeMapper()) { CallBase = true }).Object;
+            var database = new DatabaseModel();
+            var table = new Table("dbo.MyTable");
 
-            return sqlGenerator.Object.Generate(new[] { migrationOperation }).Single();
+            database.AddTable(table);
+            sqlGenerator.Database = database;
+
+            Assert.NotSame(database, sqlGenerator.Database);
+            Assert.Equal(1, sqlGenerator.Database.Tables.Count);
+            Assert.NotSame(table, sqlGenerator.Database.Tables[0]);
+            Assert.Equal("dbo.MyTable", sqlGenerator.Database.Tables[0].Name);
+        }
+
+        [Fact]
+        public void Generate_updates_database_model()
+        {
+            var sqlGenerator = (new Mock<MigrationOperationSqlGenerator>(new RelationalTypeMapper()) { CallBase = true }).Object;
+            var database = new DatabaseModel();
+            var table = new Table("dbo.MyTable");
+            var column = new Column("Foo", typeof(int));
+
+            sqlGenerator.Database = database;
+            sqlGenerator.DatabaseModelModifier = new DatabaseModelModifier();
+
+            var statementCount = sqlGenerator.Generate(
+                new MigrationOperation[]
+                    {
+                        new CreateTableOperation(table),
+                        new AddColumnOperation(table.Name, column),
+                    })
+                .Count();
+
+            Assert.Equal(2, statementCount);
+            Assert.Equal(1, sqlGenerator.Database.Tables.Count);
+            Assert.Same(table, sqlGenerator.Database.Tables[0]);
+            Assert.Equal(1, sqlGenerator.Database.Tables[0].Columns.Count);
+            Assert.Same(column, sqlGenerator.Database.Tables[0].Columns[0]);
+        }
+
+        private static MigrationOperationSqlGenerator CreateSqlGenerator(DatabaseModel database = null)
+        {
+            var sqlGenerator = new Mock<MigrationOperationSqlGenerator>(new RelationalTypeMapper()) { CallBase = true }.Object;
+            sqlGenerator.Database = database ?? new DatabaseModel();
+            return sqlGenerator;
+        }
+
+        private static SqlStatement Generate(MigrationOperation migrationOperation, DatabaseModel database = null)
+        {
+            return CreateSqlGenerator(database).Generate(new[] { migrationOperation }).Single();
         }
     }
 }

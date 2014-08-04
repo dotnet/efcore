@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Model;
@@ -122,11 +123,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Generate_when_add_column_operation()
         {
+            var database = new DatabaseModel();
+            database.AddTable(new Table("dbo.MyTable"));
+
             var column = new Column("Bar", "int") { IsNullable = false, DefaultValue = 5 };
 
             Assert.Equal(
                 @"ALTER TABLE [dbo].[MyTable] ADD [Bar] int NOT NULL DEFAULT 5",
-                Generate(new AddColumnOperation("dbo.MyTable", column)).Sql);
+                Generate(new AddColumnOperation("dbo.MyTable", column), database).Sql);
         }
 
         [Fact]
@@ -140,11 +144,22 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Generate_when_alter_column_operation()
         {
+            var database = new DatabaseModel();
+            var table
+                = new Table(
+                    "dbo.MyTable",
+                    new[]
+                        {
+                            new Column("Foo", typeof(int)) { IsNullable = true }
+                        });
+            database.AddTable(table);
+
             Assert.Equal(
                 @"ALTER TABLE [dbo].[MyTable] ALTER COLUMN [Foo] int NOT NULL",
                 Generate(
                     new AlterColumnOperation("dbo.MyTable", new Column("Foo", "int") { IsNullable = false },
-                        isDestructiveChange: false)).Sql);
+                        isDestructiveChange: false),
+                    database).Sql);
         }
 
         [Fact]
@@ -415,15 +430,16 @@ EXECUTE('ALTER TABLE [dbo].[MyTable] DROP CONSTRAINT ""' + @var0 + '""')",
 
         private static string GenerateDataType(Column column)
         {
-            var sqlGenerator = new SqlServerMigrationOperationSqlGenerator(new SqlServerTypeMapper()) { Database = new DatabaseModel() };
+            var sqlGenerator = CreateSqlGenerator();
+            sqlGenerator.Database = new DatabaseModel();
             sqlGenerator.Database.AddTable(column.Table);
-            return sqlGenerator.GenerateDataType(column.Table.Name, column);
+            return sqlGenerator.GenerateDataType(column.Table, column);
         }
 
         [Fact]
         public void Delimit_identifier()
         {
-            var sqlGenerator = new SqlServerMigrationOperationSqlGenerator(new SqlServerTypeMapper());
+            var sqlGenerator = CreateSqlGenerator();
 
             Assert.Equal("[foo[]]bar]", sqlGenerator.DelimitIdentifier("foo[]bar"));
         }
@@ -431,7 +447,7 @@ EXECUTE('ALTER TABLE [dbo].[MyTable] DROP CONSTRAINT ""' + @var0 + '""')",
         [Fact]
         public void Escape_identifier()
         {
-            var sqlGenerator = new SqlServerMigrationOperationSqlGenerator(new SqlServerTypeMapper());
+            var sqlGenerator = CreateSqlGenerator();
 
             Assert.Equal("foo[]]]]bar", sqlGenerator.EscapeIdentifier("foo[]]bar"));
         }
@@ -439,7 +455,7 @@ EXECUTE('ALTER TABLE [dbo].[MyTable] DROP CONSTRAINT ""' + @var0 + '""')",
         [Fact]
         public void Delimit_literal()
         {
-            var sqlGenerator = new SqlServerMigrationOperationSqlGenerator(new SqlServerTypeMapper());
+            var sqlGenerator = CreateSqlGenerator();
 
             Assert.Equal("'foo''bar'", sqlGenerator.DelimitLiteral("foo'bar"));
         }
@@ -447,16 +463,23 @@ EXECUTE('ALTER TABLE [dbo].[MyTable] DROP CONSTRAINT ""' + @var0 + '""')",
         [Fact]
         public void Escape_literal()
         {
-            var sqlGenerator = new SqlServerMigrationOperationSqlGenerator(new SqlServerTypeMapper());
+            var sqlGenerator = CreateSqlGenerator();
 
             Assert.Equal("foo''bar", sqlGenerator.EscapeLiteral("foo'bar"));
         }
 
-        private static SqlStatement Generate(MigrationOperation migrationOperation)
+        private static SqlStatement Generate(MigrationOperation migrationOperation, DatabaseModel database = null)
         {
-            var sqlGenerator = new SqlServerMigrationOperationSqlGenerator(new SqlServerTypeMapper());
+            return CreateSqlGenerator(database).Generate(new[] { migrationOperation }).Single();
+        }
 
-            return sqlGenerator.Generate(new[] { migrationOperation }).Single();
+        private static SqlServerMigrationOperationSqlGenerator CreateSqlGenerator(DatabaseModel database = null)
+        {
+            return 
+                new SqlServerMigrationOperationSqlGenerator(new SqlServerTypeMapper())
+                    {
+                        Database = database ?? new DatabaseModel()
+                    };
         }
     }
 }

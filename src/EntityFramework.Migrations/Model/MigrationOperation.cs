@@ -14,6 +14,10 @@ namespace Microsoft.Data.Entity.Migrations.Model
             get { return false; }
         }
 
+        // TODO: Consider removing GenerateSql and GenerateCode and using Accept instead.
+        public abstract void Accept<TVisitor, TContext>([NotNull] TVisitor visitor, [NotNull] TContext context) 
+            where TVisitor : IMigrationOperationVisitor<TContext>;
+
         public abstract void GenerateSql([NotNull] MigrationOperationSqlGenerator generator, [NotNull] IndentedStringBuilder stringBuilder);
 
         public abstract void GenerateCode([NotNull] MigrationCodeGenerator generator, [NotNull] IndentedStringBuilder stringBuilder);

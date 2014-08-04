@@ -25,14 +25,16 @@ namespace Microsoft.Data.Entity.Migrations
         internal const string DateTimeFormat = "yyyy-MM-ddTHH:mm:ss.fffK";
         internal const string DateTimeOffsetFormat = "yyyy-MM-ddTHH:mm:ss.fffzzz";
 
+        private readonly RelationalTypeMapper _typeMapper;        
         private DatabaseModel _database;
-        private readonly RelationalTypeMapper _typeMapper;
+        private DatabaseModelModifier _databaseModelModifier;
 
         protected MigrationOperationSqlGenerator([NotNull] RelationalTypeMapper typeMapper)
         {
             Check.NotNull(typeMapper, "typeMapper");
 
             _typeMapper = typeMapper;
+
         }
 
         public virtual DatabaseModel Database
@@ -44,7 +46,21 @@ namespace Microsoft.Data.Entity.Migrations
             {
                 Check.NotNull(value, "value");
 
-                _database = value;
+                _database = value.Clone();
+            }
+        }
+
+        // TODO: Inject this via constructor?
+        public virtual DatabaseModelModifier DatabaseModelModifier
+        {
+            get { return _databaseModelModifier; }
+
+            [param: NotNull]
+            set
+            {
+                Check.NotNull(value, "value");
+
+                _databaseModelModifier = value;
             }
         }
 
@@ -52,12 +68,22 @@ namespace Microsoft.Data.Entity.Migrations
         {
             Check.NotNull(migrationOperations, "migrationOperations");
 
-            foreach (var operation in migrationOperations)
+            return migrationOperations.SelectMany(Generate);
+        }
+
+        protected virtual IEnumerable<SqlStatement> Generate([NotNull] MigrationOperation operation)
+        {
+            var builder = new IndentedStringBuilder();
+
+            operation.GenerateSql(this, builder);
+
+            if (DatabaseModelModifier != null)
             {
-                var builder = new IndentedStringBuilder();
-                operation.GenerateSql(this, builder);
-                yield return new SqlStatement(builder.ToString());
+                operation.Accept(DatabaseModelModifier, Database);
             }
+
+            // TODO: Should we support implementations of Generate that output more than one SQL statement?
+            yield return new SqlStatement(builder.ToString());
         }
 
         public virtual void Generate([NotNull] CreateDatabaseOperation createDatabaseOperation, [NotNull] IndentedStringBuilder stringBuilder)
@@ -118,7 +144,7 @@ namespace Microsoft.Data.Entity.Migrations
 
             using (stringBuilder.Indent())
             {
-                GenerateColumns(table.Name, table.Columns, stringBuilder);
+                GenerateColumns(table, table.Columns, stringBuilder);
 
                 var primaryKey = table.PrimaryKey;
 
@@ -182,7 +208,8 @@ namespace Microsoft.Data.Entity.Migrations
                 .Append(DelimitIdentifier(addColumnOperation.TableName))
                 .Append(" ADD ");
 
-            GenerateColumn(addColumnOperation.TableName, addColumnOperation.Column, stringBuilder);
+            var table = Database.GetTable(addColumnOperation.TableName);
+            GenerateColumn(table, addColumnOperation.Column, stringBuilder);
         }
 
         public virtual void Generate([NotNull] DropColumnOperation dropColumnOperation, [NotNull] IndentedStringBuilder stringBuilder)
@@ -200,15 +227,16 @@ namespace Microsoft.Data.Entity.Migrations
         {
             Check.NotNull(alterColumnOperation, "alterColumnOperation");
 
+            var table = Database.GetTable(alterColumnOperation.TableName);
             var newColumn = alterColumnOperation.NewColumn;
-
+            
             stringBuilder
                 .Append("ALTER TABLE ")
                 .Append(DelimitIdentifier(alterColumnOperation.TableName))
                 .Append(" ALTER COLUMN ")
                 .Append(DelimitIdentifier(newColumn.Name))
                 .Append(" ")
-                .Append(GenerateDataType(alterColumnOperation.TableName, newColumn))
+                .Append(GenerateDataType(table, newColumn))
                 .Append(newColumn.IsNullable ? " NULL" : " NOT NULL");
         }
 
@@ -339,8 +367,9 @@ namespace Microsoft.Data.Entity.Migrations
             stringBuilder.Append(sqlOperation.Sql);
         }
 
-        public virtual string GenerateDataType(SchemaQualifiedName tableName, [NotNull] Column column)
+        public virtual string GenerateDataType([NotNull] Table table, [NotNull] Column column)
         {
+            Check.NotNull(table, "table");
             Check.NotNull(column, "column");
 
             if (!string.IsNullOrEmpty(column.DataType))
@@ -348,14 +377,10 @@ namespace Microsoft.Data.Entity.Migrations
                 return column.DataType;
             }
 
-            var isKey = false;
-            if (Database != null)
-            {
-                var table = Database.GetTable(tableName);
-                isKey = table.PrimaryKey != null
-                        && table.PrimaryKey.Columns.Contains(column)
-                        || table.ForeignKeys.SelectMany(k => k.Columns).Contains(column);
-            }
+            var isKey
+                = table.PrimaryKey != null
+                  && table.PrimaryKey.Columns.Contains(column)
+                  || table.ForeignKeys.SelectMany(k => k.Columns).Contains(column);
 
             return _typeMapper.GetTypeMapping(column.DataType, column.Name, column.ClrType, isKey, column.IsTimestamp).StoreTypeName;
         }
@@ -449,8 +474,9 @@ namespace Microsoft.Data.Entity.Migrations
         }
 
         protected virtual void GenerateColumns(
-            SchemaQualifiedName tableName, [NotNull] IReadOnlyList<Column> columns, [NotNull] IndentedStringBuilder stringBuilder)
+            [NotNull] Table table, [NotNull] IReadOnlyList<Column> columns, [NotNull] IndentedStringBuilder stringBuilder)
         {
+            Check.NotNull(table, "table");
             Check.NotNull(columns, "columns");
             Check.NotNull(stringBuilder, "stringBuilder");
 
@@ -459,19 +485,20 @@ namespace Microsoft.Data.Entity.Migrations
                 return;
             }
 
-            GenerateColumn(tableName, columns[0], stringBuilder);
+            GenerateColumn(table, columns[0], stringBuilder);
 
             for (var i = 1; i < columns.Count; i++)
             {
                 stringBuilder.AppendLine(",");
 
-                GenerateColumn(tableName, columns[i], stringBuilder);
+                GenerateColumn(table, columns[i], stringBuilder);
             }
         }
 
         protected virtual void GenerateColumn(
-            SchemaQualifiedName tableName, [NotNull] Column column, [NotNull] IndentedStringBuilder stringBuilder)
+            [NotNull] Table table, [NotNull] Column column, [NotNull] IndentedStringBuilder stringBuilder)
         {
+            Check.NotNull(table, "table");
             Check.NotNull(column, "column");
             Check.NotNull(stringBuilder, "stringBuilder");
 
@@ -479,7 +506,7 @@ namespace Microsoft.Data.Entity.Migrations
                 .Append(DelimitIdentifier(column.Name))
                 .Append(" ");
 
-            stringBuilder.Append(column.DataType ?? GenerateDataType(tableName, column));
+            stringBuilder.Append(column.DataType ?? GenerateDataType(table, column));
 
             if (!column.IsNullable)
             {

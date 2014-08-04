@@ -400,6 +400,12 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Builders
 
         private class MyMigrationOperation : MigrationOperation
         {
+            public override void Accept<TVisitor, TContext>(
+                TVisitor visitor,
+                TContext context)
+            {
+            }
+
             public override void GenerateSql(
                 MigrationOperationSqlGenerator generator,
                 IndentedStringBuilder stringBuilder)

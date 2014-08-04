@@ -34,8 +34,6 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddScoped<SQLiteDataStore>()
                 .AddScoped<SQLiteConnection>()
                 .AddScoped<SQLiteMigrationOperationSqlGeneratorFactory>()
-                // TODO: Update code to use SQLiteMigrationOperationSqlGeneratorFactory, then remove the line below.
-                .AddScoped<SQLiteMigrationOperationSqlGenerator>()
                 .AddScoped<SQLiteDataStoreCreator>()
                 .AddScoped<Migrator, SQLiteMigrator>()
                 // TODO: Move to an AddMigrations extension method?

@@ -1,10 +1,13 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Model;
+using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.SqlServer.Utilities;
 using Microsoft.Data.Entity.Utilities;
@@ -18,6 +21,25 @@ namespace Microsoft.Data.Entity.SqlServer
         public SqlServerMigrationOperationSqlGenerator([NotNull] SqlServerTypeMapper typeMapper)
             : base(typeMapper)
         {
+        }
+
+        public override IEnumerable<SqlStatement> Generate(IEnumerable<MigrationOperation> migrationOperations)
+        {
+            return
+                from operation in migrationOperations
+                let alterColumnOperation = operation as AlterColumnOperation
+                from statement in
+                    (alterColumnOperation != null)
+                        ? base.Generate(Handle(alterColumnOperation))
+                        : base.Generate(operation)
+                select statement;
+        }
+
+        protected virtual IEnumerable<MigrationOperation> Handle([NotNull] AlterColumnOperation alterColumnOperation)
+        {
+            // TODO: Create operations to drop/add primary keys, foreign keys, indexes, default constraints as necessary.
+
+            yield return alterColumnOperation;
         }
 
         public override void Generate(RenameTableOperation renameTableOperation, IndentedStringBuilder stringBuilder)

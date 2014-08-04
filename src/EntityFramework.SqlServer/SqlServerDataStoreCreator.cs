@@ -18,23 +18,23 @@ namespace Microsoft.Data.Entity.SqlServer
     {
         private readonly SqlServerConnection _connection;
         private readonly ModelDiffer _modelDiffer;
-        private readonly SqlServerMigrationOperationSqlGenerator _sqlGenerator;
+        private readonly SqlServerMigrationOperationSqlGeneratorFactory _sqlGeneratorFactory;
         private readonly SqlStatementExecutor _statementExecutor;
 
         public SqlServerDataStoreCreator(
             [NotNull] SqlServerConnection connection,
             [NotNull] ModelDiffer modelDiffer,
-            [NotNull] SqlServerMigrationOperationSqlGenerator sqlGenerator,
+            [NotNull] SqlServerMigrationOperationSqlGeneratorFactory sqlGeneratorFactory,
             [NotNull] SqlStatementExecutor statementExecutor)
         {
             Check.NotNull(connection, "connection");
             Check.NotNull(modelDiffer, "modelDiffer");
-            Check.NotNull(sqlGenerator, "sqlGenerator");
+            Check.NotNull(sqlGeneratorFactory, "sqlGeneratorFactory");
             Check.NotNull(statementExecutor, "statementExecutor");
 
             _connection = connection;
             _modelDiffer = modelDiffer;
-            _sqlGenerator = sqlGenerator;
+            _sqlGeneratorFactory = sqlGeneratorFactory;
             _statementExecutor = statementExecutor;
         }
 
@@ -82,8 +82,8 @@ namespace Microsoft.Data.Entity.SqlServer
 
         private IEnumerable<SqlStatement> CreateSchemaCommands(IModel model)
         {
-            _sqlGenerator.Database = _modelDiffer.DatabaseBuilder.GetDatabase(model);
-            return _sqlGenerator.Generate(_modelDiffer.CreateSchema(model));
+            var sqlGenerator = _sqlGeneratorFactory.Create();
+            return sqlGenerator.Generate(_modelDiffer.CreateSchema(model));
         }
 
         private SqlStatement CreateHasTablesCommand()
@@ -101,7 +101,8 @@ namespace Microsoft.Data.Entity.SqlServer
                     new CreateDatabaseOperation(databaseName)
                 };
 
-            var masterCommands = _sqlGenerator.Generate(operations);
+            var sqlGenerator = _sqlGeneratorFactory.Create();
+            var masterCommands = sqlGenerator.Generate(operations);
             return masterCommands;
         }
 
@@ -211,7 +212,8 @@ namespace Microsoft.Data.Entity.SqlServer
                     new DropDatabaseOperation(_connection.DbConnection.Database)
                 };
 
-            var masterCommands = _sqlGenerator.Generate(operations);
+            var sqlGenerator = _sqlGeneratorFactory.Create();
+            var masterCommands = sqlGenerator.Generate(operations);
             return masterCommands;
         }
 

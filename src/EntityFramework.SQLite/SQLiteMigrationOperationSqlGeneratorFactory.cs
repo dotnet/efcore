@@ -9,11 +9,21 @@ namespace Microsoft.Data.Entity.SQLite
 {
     public class SQLiteMigrationOperationSqlGeneratorFactory : IMigrationOperationSqlGeneratorFactory
     {
+        public virtual MigrationOperationSqlGenerator Create()
+        {
+            return Create(new DatabaseModel());
+        }
+
         public virtual MigrationOperationSqlGenerator Create(DatabaseModel database)
         {
             Check.NotNull(database, "database");
 
-            return new SQLiteMigrationOperationSqlGenerator(new SQLiteTypeMapper()) { Database = database };
+            return 
+                new SQLiteMigrationOperationSqlGenerator(new SQLiteTypeMapper())
+                    {
+                        Database = database,
+                        DatabaseModelModifier = new DatabaseModelModifier()
+                    };
         }
     }
 }
