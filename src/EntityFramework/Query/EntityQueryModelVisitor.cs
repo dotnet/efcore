@@ -153,7 +153,7 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(queryModel, "queryModel");
 
             var requiresEntityMaterializationExpressionTreeVisitor
-                = new RequiresEntityMaterializationExpressionTreeVisitor(_queryCompilationContext.Model);
+                = new RequiresEntityMaterializationExpressionTreeVisitor(this);
 
             queryModel.TransformExpressions(requiresEntityMaterializationExpressionTreeVisitor.VisitExpression);
 
@@ -208,12 +208,12 @@ namespace Microsoft.Data.Entity.Query
 
         private class RequiresEntityMaterializationExpressionTreeVisitor : ExpressionTreeVisitor
         {
+            private readonly EntityQueryModelVisitor _queryModelVisitor;
             private readonly Dictionary<IQuerySource, int> _querySources = new Dictionary<IQuerySource, int>();
-            private readonly IModel _model;
 
-            public RequiresEntityMaterializationExpressionTreeVisitor(IModel model)
+            public RequiresEntityMaterializationExpressionTreeVisitor(EntityQueryModelVisitor queryModelVisitor)
             {
-                _model = model;
+                _queryModelVisitor = queryModelVisitor;
             }
 
             public ISet<IQuerySource> QuerySourcesRequiringMaterialization
@@ -233,24 +233,14 @@ namespace Microsoft.Data.Entity.Query
                 return base.VisitQuerySourceReferenceExpression(expression);
             }
 
-            protected override Expression VisitMemberExpression(MemberExpression expression)
+            protected override Expression VisitMemberExpression(MemberExpression memberExpression)
             {
-                var newExpression = base.VisitMemberExpression(expression);
+                var newExpression = base.VisitMemberExpression(memberExpression);
 
-                var querySourceReferenceExpression
-                    = expression.Expression as QuerySourceReferenceExpression;
-
-                if (querySourceReferenceExpression != null)
-                {
-                    var entityType
-                        = _model.TryGetEntityType(querySourceReferenceExpression.ReferencedQuerySource.ItemType);
-
-                    if (entityType != null
-                        && entityType.TryGetProperty(expression.Member.Name) != null)
-                    {
-                        _querySources[querySourceReferenceExpression.ReferencedQuerySource]--;
-                    }
-                }
+                _queryModelVisitor
+                    .BindMemberExpression(
+                        memberExpression,
+                        (property, querySource) => _querySources[querySource]--);
 
                 return newExpression;
             }
@@ -652,14 +642,107 @@ namespace Microsoft.Data.Entity.Query
             return ReplaceClauseReferences(expression, _querySourceMapping);
         }
 
-        protected virtual Expression ReplaceClauseReferences(
-            [NotNull] Expression expression, [NotNull] QuerySourceMapping querySourceMapping)
+        private Expression ReplaceClauseReferences(Expression expression,QuerySourceMapping querySourceMapping)
         {
-            Check.NotNull(expression, "expression");
-            Check.NotNull(querySourceMapping, "querySourceMapping");
+            return new MemberAccessToValueReaderReferenceReplacingExpressionTreeVisitor(querySourceMapping, this)
+                .VisitExpression(expression);
+        }
 
-            return ReferenceReplacingExpressionTreeVisitor
-                .ReplaceClauseReferences(expression, querySourceMapping, throwOnUnmappedReferences: false);
+        private class MemberAccessToValueReaderReferenceReplacingExpressionTreeVisitor : ReferenceReplacingExpressionTreeVisitor
+        {
+            private readonly EntityQueryModelVisitor _queryModelVisitor;
+
+            public MemberAccessToValueReaderReferenceReplacingExpressionTreeVisitor(
+                QuerySourceMapping querySourceMapping,
+                EntityQueryModelVisitor queryModelVisitor)
+                : base(querySourceMapping, throwOnUnmappedReferences: false)
+            {
+                _queryModelVisitor = queryModelVisitor;
+            }
+
+            protected override Expression VisitMemberExpression(MemberExpression memberExpression)
+            {
+                var newExpression = VisitExpression(memberExpression.Expression);
+
+                if (newExpression != memberExpression.Expression)
+                {
+                    return newExpression.Type == typeof(IValueReader)
+                        ? _queryModelVisitor.BindMemberToValueReader(memberExpression, newExpression)
+                        : Expression.MakeMemberAccess(newExpression, memberExpression.Member);
+                }
+
+                return memberExpression;
+            }
+        }
+
+        protected virtual Expression BindMemberToValueReader(
+            [NotNull] MemberExpression memberExpression,
+            [NotNull] Expression expression)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static readonly MethodInfo _readValueMethodInfo
+            = typeof(IValueReader).GetTypeInfo().GetDeclaredMethod("ReadValue");
+
+        protected static MethodCallExpression BindReadValueMethod(Type memberType, Expression expression, int index)
+        {
+            return Expression.Call(
+                expression,
+                _readValueMethodInfo.MakeGenericMethod(memberType),
+                Expression.Constant(index));
+        }
+
+        protected virtual void BindMemberExpression(
+            [NotNull] MemberExpression memberExpression,
+            [NotNull] Action<IProperty, IQuerySource> memberBinder)
+        {
+            Check.NotNull(memberExpression, "memberExpression");
+            Check.NotNull(memberBinder, "memberBinder");
+
+            BindMemberExpression(memberExpression, null,
+                (property, querySource) =>
+                    {
+                        memberBinder(property, querySource);
+
+                        return default(object);
+                    });
+        }
+
+        protected virtual TResult BindMemberExpression<TResult>(
+            [NotNull] MemberExpression memberExpression,
+            [CanBeNull] IQuerySource querySource,
+            Func<IProperty, IQuerySource, TResult> memberBinder)
+        {
+            Check.NotNull(memberExpression, "memberExpression");
+            Check.NotNull(memberBinder, "memberBinder");
+
+            var querySourceReferenceExpression
+                = memberExpression.Expression as QuerySourceReferenceExpression;
+
+            if (querySourceReferenceExpression != null
+                && (querySource == null
+                    || querySource == querySourceReferenceExpression.ReferencedQuerySource))
+            {
+                var entityType
+                    = QueryCompilationContext.Model
+                        .TryGetEntityType(
+                            querySourceReferenceExpression.ReferencedQuerySource.ItemType);
+
+                if (entityType != null)
+                {
+                    var property = entityType.TryGetProperty(memberExpression.Member.Name);
+
+                    if (property != null)
+                    {
+                        return memberBinder(
+                            property,
+                            querySourceReferenceExpression.ReferencedQuerySource);
+                    }
+                }
+            }
+
+            return default(TResult);
         }
 
         protected class DefaultExpressionTreeVisitor : ExpressionTreeVisitor

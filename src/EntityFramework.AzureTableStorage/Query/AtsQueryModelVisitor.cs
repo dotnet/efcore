@@ -14,7 +14,6 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
-using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Query
@@ -73,35 +72,17 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
             IQuerySource querySource,
             Func<IProperty, SelectExpression, TResult> memberBinder)
         {
-            var querySourceReferenceExpression
-                = memberExpression.Expression as QuerySourceReferenceExpression;
-
-            if (querySourceReferenceExpression != null
-                && (querySource == null
-                    || querySource == querySourceReferenceExpression.ReferencedQuerySource))
-            {
-                var entityType
-                    = QueryCompilationContext.Model
-                        .TryGetEntityType(
-                            querySourceReferenceExpression.ReferencedQuerySource.ItemType);
-
-                if (entityType != null)
-                {
-                    var property = entityType.TryGetProperty(memberExpression.Member.Name);
-
-                    if (property != null)
+            return base.BindMemberExpression(memberExpression, querySource,
+                (property, qs) =>
                     {
                         SelectExpression selectExpression;
-                        if (_queriesBySource
-                            .TryGetValue(querySourceReferenceExpression.ReferencedQuerySource, out selectExpression))
+                        if (_queriesBySource.TryGetValue(qs, out selectExpression))
                         {
                             return memberBinder(property, selectExpression);
                         }
-                    }
-                }
-            }
 
-            return default(TResult);
+                        return default(TResult);
+                    });
         }
 
         private static readonly MethodInfo _executeQueryMethodInfo

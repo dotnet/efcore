@@ -16,8 +16,6 @@ using Microsoft.Data.Entity.Relational.Query.Methods;
 using Microsoft.Data.Entity.Relational.Utilities;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
-using Remotion.Linq.Clauses.Expressions;
-using Remotion.Linq.Clauses.ExpressionTreeVisitors;
 using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Relational.Query
@@ -662,55 +660,21 @@ namespace Microsoft.Data.Entity.Relational.Query
             }
         }
 
-        protected override Expression ReplaceClauseReferences(
-            Expression expression, QuerySourceMapping querySourceMapping)
+        protected override Expression BindMemberToValueReader(MemberExpression memberExpression, Expression expression)
         {
+            Check.NotNull(memberExpression, "memberExpression");
             Check.NotNull(expression, "expression");
-            Check.NotNull(querySourceMapping, "querySourceMapping");
 
-            return new MemberAccessToValueReaderReferenceReplacingExpressionTreeVisitor(querySourceMapping, this)
-                .VisitExpression(expression);
-        }
+            return BindMemberExpression(
+                memberExpression,
+                (property, querySource, selectExpression) =>
+                    {
+                        var projectionIndex = selectExpression.GetProjectionIndex(property, querySource);
 
-        private class MemberAccessToValueReaderReferenceReplacingExpressionTreeVisitor : ReferenceReplacingExpressionTreeVisitor
-        {
-            private readonly RelationalQueryModelVisitor _queryModelVisitor;
+                        Contract.Assert(projectionIndex > -1);
 
-            public MemberAccessToValueReaderReferenceReplacingExpressionTreeVisitor(
-                QuerySourceMapping querySourceMapping,
-                RelationalQueryModelVisitor queryModelVisitor)
-                : base(querySourceMapping, throwOnUnmappedReferences: false)
-            {
-                _queryModelVisitor = queryModelVisitor;
-            }
-
-            private static readonly MethodInfo _readValueMethodInfo
-                = typeof(IValueReader).GetTypeInfo().GetDeclaredMethod("ReadValue");
-
-            protected override Expression VisitMemberExpression(MemberExpression expression)
-            {
-                var newExpression = VisitExpression(expression.Expression);
-
-                if (newExpression != expression.Expression)
-                {
-                    return newExpression.Type == typeof(IValueReader)
-                        ? (Expression)_queryModelVisitor.BindMemberExpression(expression,
-                            (property, querySource, selectExpression) =>
-                                {
-                                    var projectionIndex = selectExpression.GetProjectionIndex(property, querySource);
-
-                                    Contract.Assert(projectionIndex > -1);
-
-                                    return Expression.Call(
-                                        newExpression,
-                                        _readValueMethodInfo.MakeGenericMethod(expression.Type),
-                                        Expression.Constant(projectionIndex));
-                                })
-                        : Expression.MakeMemberAccess(newExpression, expression.Member);
-                }
-
-                return expression;
-            }
+                        return BindReadValueMethod(memberExpression.Type, expression, projectionIndex);
+                    });
         }
 
         private void BindMemberExpression(
@@ -738,51 +702,28 @@ namespace Microsoft.Data.Entity.Relational.Query
             IQuerySource querySource,
             Func<IProperty, IQuerySource, SelectExpression, TResult> memberBinder)
         {
-            var querySourceReferenceExpression
-                = memberExpression.Expression as QuerySourceReferenceExpression;
-
-            if (querySourceReferenceExpression != null
-                && (querySource == null
-                    || querySource == querySourceReferenceExpression.ReferencedQuerySource))
-            {
-                var entityType
-                    = QueryCompilationContext.Model
-                        .TryGetEntityType(
-                            querySourceReferenceExpression.ReferencedQuerySource.ItemType);
-
-                if (entityType != null)
-                {
-                    var property = entityType.TryGetProperty(memberExpression.Member.Name);
-
-                    if (property != null)
+            return base.BindMemberExpression(memberExpression, querySource,
+                (property, qs) =>
                     {
-                        var selectExpression
-                            = TryGetSelectExpression(querySourceReferenceExpression.ReferencedQuerySource);
+                        var selectExpression = TryGetSelectExpression(qs);
 
                         if (selectExpression != null)
                         {
-                            return memberBinder(
-                                property,
-                                querySourceReferenceExpression.ReferencedQuerySource,
-                                selectExpression);
+                            return memberBinder(property, qs, selectExpression);
                         }
 
                         selectExpression
                             = _parentQueryModelVisitor != null
-                                ? _parentQueryModelVisitor
-                                    .TryGetSelectExpression(querySourceReferenceExpression.ReferencedQuerySource)
+                                ? _parentQueryModelVisitor.TryGetSelectExpression(qs)
                                 : null;
 
                         if (selectExpression != null)
                         {
-                            selectExpression
-                                .AddToProjection(property, querySourceReferenceExpression.ReferencedQuerySource);
+                            selectExpression.AddToProjection(property, qs);
                         }
-                    }
-                }
-            }
 
-            return default(TResult);
+                        return default(TResult);
+                    });
         }
 
         public static readonly MethodInfo CreateValueReaderMethodInfo
