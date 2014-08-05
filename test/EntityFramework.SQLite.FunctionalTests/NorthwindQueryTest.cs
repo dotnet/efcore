@@ -120,7 +120,7 @@ WHERE ((c.""City"" = @p0 AND c.""Country"" = @p1) AND (e.""City"" = @p0 AND e.""
 
         public string Sql
         {
-            get { return string.Join("\r\n\r\n", TestSqlLoggerFactory.Logger._sqlStatements); }
+            get { return TestSqlLoggerFactory.Logger.Sql; }
         }
 
         public void Dispose()

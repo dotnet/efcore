@@ -325,7 +325,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         private static CommandBatchPreparer CreateCommandBatchPreparer(ModificationCommandBatchFactory modificationCommandBatchFactory = null)
         {
             return new CommandBatchPreparer(
-                modificationCommandBatchFactory ?? new ModificationCommandBatchFactory(new Mock<SqlGenerator> { CallBase = true }.Object, new Mock<DbContextConfiguration>().Object),
+                modificationCommandBatchFactory?? new ModificationCommandBatchFactory(new Mock<SqlGenerator> { CallBase = true }.Object),
                 new ParameterNameGeneratorFactory(),
                 new BidirectionalAdjacencyListGraphFactory(),
                 new ModificationCommandComparer());

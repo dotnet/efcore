@@ -1028,7 +1028,7 @@ FROM [Orders] AS o
 
         public string Sql
         {
-            get { return string.Join("\r\n\r\n", TestSqlLoggerFactory.Logger._sqlStatements); }
+            get { return TestSqlLoggerFactory.Logger.Sql; }
         }
 
         public void Dispose()

@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity
 
         public class SqlLogger : ILogger
         {
-            public readonly List<string> _sqlStatements = new List<string>();
+            public readonly List<string> SqlStatements = new List<string>();
 
             public bool WriteCore(
                 TraceType eventType,
@@ -65,12 +65,17 @@ namespace Microsoft.Data.Entity
                 {
                     var sql = formatter(state, exception);
 
-                    _sqlStatements.Add(sql);
+                    SqlStatements.Add(sql);
 
                     //Trace.WriteLine(sql);
                 }
 
                 return true;
+            }
+
+            public string Sql
+            {
+                get { return string.Join("\r\n\r\n", SqlStatements); }
             }
 
             public IDisposable BeginScope(object state)

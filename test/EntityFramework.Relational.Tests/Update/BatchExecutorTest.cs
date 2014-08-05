@@ -4,8 +4,10 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.Relational.Update;
+using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
 
@@ -20,7 +22,13 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 "typeMapper",
                 // ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(() =>
-                    new BatchExecutor(null)).ParamName);
+                    new BatchExecutor(null, new Mock<DbContextConfiguration>().Object)).ParamName);
+
+            Assert.Equal(
+                "contextConfiguration",
+                // ReSharper disable once AssignNullToNotNullAttribute
+                Assert.Throws<ArgumentNullException>(() =>
+                    new BatchExecutor(new Mock<RelationalTypeMapper>().Object, null)).ParamName);
         }
 
         [Fact]
@@ -38,14 +46,19 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var cancellationToken = new CancellationTokenSource().Token;
 
             var relationalTypeMapper = new RelationalTypeMapper();
-            var batchExecutor = new BatchExecutor(relationalTypeMapper);
+            var batchExecutor = new BatchExecutorForTest(relationalTypeMapper, new Mock<DbContextConfiguration>().Object);
 
             await batchExecutor.ExecuteAsync(new[] { mockModificationCommandBatch.Object }, mockRelationalConnection.Object, cancellationToken);
 
             mockRelationalConnection.Verify(rc => rc.OpenAsync(cancellationToken));
             mockRelationalConnection.Verify(rc => rc.Close());
             transactionMock.Verify(t => t.Commit());
-            mockModificationCommandBatch.Verify(mcb => mcb.ExecuteAsync(It.IsAny<RelationalTransaction>(), relationalTypeMapper, cancellationToken));
+            mockModificationCommandBatch.Verify(mcb => mcb.ExecuteAsync(
+                It.IsAny<RelationalTransaction>(),
+                relationalTypeMapper,
+                It.IsAny<DbContext>(),
+                null,
+                cancellationToken));
         }
 
         [Fact]
@@ -60,7 +73,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var cancellationToken = new CancellationTokenSource().Token;
 
             var relationalTypeMapper = new RelationalTypeMapper();
-            var batchExecutor = new BatchExecutor(relationalTypeMapper);
+            var batchExecutor = new BatchExecutorForTest(relationalTypeMapper, new Mock<DbContextConfiguration>().Object);
 
             await batchExecutor.ExecuteAsync(new[] { mockModificationCommandBatch.Object }, mockRelationalConnection.Object, cancellationToken);
 
@@ -68,7 +81,25 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             mockRelationalConnection.Verify(rc => rc.Close());
             mockRelationalConnection.Verify(rc => rc.BeginTransaction(), Times.Never);
             transactionMock.Verify(t => t.Commit(), Times.Never);
-            mockModificationCommandBatch.Verify(mcb => mcb.ExecuteAsync(It.IsAny<RelationalTransaction>(), relationalTypeMapper, cancellationToken));
+            mockModificationCommandBatch.Verify(mcb => mcb.ExecuteAsync(
+                It.IsAny<RelationalTransaction>(),
+                relationalTypeMapper,
+                It.IsAny<DbContext>(),
+                null,
+                cancellationToken));
+        }
+
+        private class BatchExecutorForTest : BatchExecutor
+        {
+            public BatchExecutorForTest(RelationalTypeMapper typeMapper, DbContextConfiguration context)
+                : base(typeMapper, context)
+            {
+            }
+
+            protected override ILogger Logger
+            {
+                get { return null; }
+            }
         }
     }
 }

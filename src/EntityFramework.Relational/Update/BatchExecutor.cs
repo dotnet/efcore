@@ -6,14 +6,19 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.Relational.Utilities;
+using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Relational.Update
 {
     public class BatchExecutor
     {
         private readonly RelationalTypeMapper _typeMapper;
+        private readonly DbContext _context;
+        private readonly LazyRef<ILogger> _logger;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -25,12 +30,18 @@ namespace Microsoft.Data.Entity.Relational.Update
         }
 
         public BatchExecutor(
-            [NotNull] RelationalTypeMapper typeMapper)
+            [NotNull] RelationalTypeMapper typeMapper,
+            [NotNull] DbContextConfiguration contextConfiguration)
         {
             Check.NotNull(typeMapper, "typeMapper");
+            Check.NotNull(contextConfiguration, "contextConfiguration");
 
             _typeMapper = typeMapper;
+            _context = contextConfiguration.Context;
+            _logger = new LazyRef<ILogger>(() => (_context.Configuration.LoggerFactory.Create(GetType().Name)));
         }
+
+        protected virtual ILogger Logger { get { return _logger.Value; } }
 
         public virtual async Task<int> ExecuteAsync(
             [NotNull] IEnumerable<ModificationCommandBatch> commandBatches,
@@ -52,7 +63,13 @@ namespace Microsoft.Data.Entity.Relational.Update
 
                 foreach (var commandbatch in commandBatches)
                 {
-                    rowsAffected += await commandbatch.ExecuteAsync(connection.Transaction, _typeMapper, cancellationToken: cancellationToken).ConfigureAwait(false);
+                    rowsAffected += await commandbatch.ExecuteAsync(
+                        connection.Transaction,
+                        _typeMapper,
+                        _context,
+                        Logger,
+                        cancellationToken: cancellationToken)
+                        .ConfigureAwait(false);
                 }
 
                 if (startedTransaction != null)

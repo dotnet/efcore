@@ -13,6 +13,7 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;
 
@@ -128,7 +129,17 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     await CreateBlogDatabaseAsync<Blog>(db);
                 }
 
-                using (var db = new BloggingContext(options))
+                var loggingFactory = new TestSqlLoggerFactory();
+
+                var serviceProvider
+                    = new ServiceCollection()
+                        .AddEntityFramework()
+                        .AddSqlServer()
+                        .UseLoggerFactory(loggingFactory)
+                        .ServiceCollection
+                        .BuildServiceProvider();
+
+                using (var db = new BloggingContext(serviceProvider, options))
                 {
                     var toUpdate = db.Blogs.Single(b => b.Name == "Blog1");
                     toUpdate.Name = "Blog is Updated";
@@ -161,6 +172,13 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     Assert.Equal(EntityState.Unchanged, db.ChangeTracker.Entry(toUpdate).State);
                     Assert.Equal(EntityState.Unchanged, db.ChangeTracker.Entry(toAdd).State);
                     Assert.DoesNotContain(toDelete, db.ChangeTracker.Entries().Select(e => e.Entity));
+
+                    Assert.Equal(5, TestSqlLoggerFactory.Logger.SqlStatements.Count);
+                    Assert.True(TestSqlLoggerFactory.Logger.SqlStatements[0].Contains("SELECT"));
+                    Assert.True(TestSqlLoggerFactory.Logger.SqlStatements[1].Contains("SELECT"));
+                    Assert.True(TestSqlLoggerFactory.Logger.SqlStatements[2].Contains("DELETE"));
+                    Assert.True(TestSqlLoggerFactory.Logger.SqlStatements[3].Contains("UPDATE"));
+                    Assert.True(TestSqlLoggerFactory.Logger.SqlStatements[4].Contains("INSERT"));
 
                     var rows = await testDatabase.ExecuteScalarAsync<int>(
                         string.Format(@"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = {0} AND Name = 'Blog is Updated'", updatedId),
@@ -422,6 +440,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 : base(options)
             {
             }
+
+            public BloggingContext(IServiceProvider serviceProvider, DbContextOptions options)
+                : base(serviceProvider, options)
+            {
+            }
         }
 
         private class Blog : IBlog
@@ -449,6 +472,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             public BloggingContext(DbContextOptions options)
                 : base(options)
+            {
+            }
+
+            public BloggingContext(IServiceProvider serviceProvider, DbContextOptions options)
+                : base(serviceProvider, options)
             {
             }
 

@@ -10,35 +10,18 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.Relational.Utilities;
 using Microsoft.Data.Entity.Update;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Relational.Update
 {
     public class ModificationCommandBatch
     {
         private readonly List<ModificationCommand> _modificationCommands = new List<ModificationCommand>();
-        private readonly DbContextConfiguration _contextConfiguration;
         private string _sql;
-
-        /// <summary>
-        ///     This constructor is intended only for use when creating test doubles that will override members
-        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
-        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
-        /// </summary>
-        public ModificationCommandBatch()
-        {
-        }
-
-        public ModificationCommandBatch([NotNull] DbContextConfiguration contextConfiguration)
-        {
-            Check.NotNull(contextConfiguration, "contextConfiguration");
-
-            _contextConfiguration = contextConfiguration;
-        }
 
         public virtual bool AddCommand(
             [NotNull] ModificationCommand modificationCommand,
@@ -92,10 +75,19 @@ namespace Microsoft.Data.Entity.Relational.Update
         public virtual async Task<int> ExecuteAsync(
             [NotNull] RelationalTransaction transaction,
             [NotNull] RelationalTypeMapper typeMapper,
+            [NotNull] DbContext context,
+            [NotNull] ILogger logger,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(transaction, "transaction");
             Check.NotNull(typeMapper, "typeMapper");
+            Check.NotNull(context, "context");
+            Check.NotNull(logger, "logger");
+
+            if (logger.IsEnabled(TraceType.Verbose))
+            {
+                logger.WriteSql(_sql);
+            }
 
             using (var storeCommand = CreateStoreCommand(transaction.DbTransaction, typeMapper))
             {
@@ -121,7 +113,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                                     {
                                         throw new DbUpdateConcurrencyException(
                                             Strings.FormatUpdateConcurrencyException(1, rowsAffected),
-                                            _contextConfiguration.Context,
+                                            context, 
                                             tableModification.StateEntries);
                                     }
                                 }
@@ -130,7 +122,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                             {
                                 throw new DbUpdateConcurrencyException(
                                     Strings.FormatUpdateConcurrencyException(1, 0),
-                                    _contextConfiguration.Context,
+                                    context, 
                                     tableModification.StateEntries);
                             }
 
@@ -147,7 +139,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                 {
                     throw new DbUpdateException(
                         Strings.FormatUpdateStoreException(),
-                        _contextConfiguration.Context,
+                        context,
                         ex,
                         commandIndex < ModificationCommands.Count ? ModificationCommands[commandIndex].StateEntries : null);
                 }

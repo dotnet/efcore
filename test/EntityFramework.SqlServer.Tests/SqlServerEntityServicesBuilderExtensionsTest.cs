@@ -126,11 +126,11 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.Same(sqlServerSqlGenerator, scopedProvider.GetService<SqlServerSqlGenerator>());
             Assert.Same(sqlStatementExecutor, scopedProvider.GetService<SqlStatementExecutor>());
             Assert.Same(sqlTypeMapper, scopedProvider.GetService<SqlServerTypeMapper>());
-            Assert.Same(sqlServerBatchExecutor, scopedProvider.GetService<SqlServerBatchExecutor>());
+            Assert.Same(batchPreparer, scopedProvider.GetService<CommandBatchPreparer>());
+            Assert.Same(sqlServerModificationCommandBatchFactory, scopedProvider.GetService<ModificationCommandBatchFactory>());
 
             // Scoped
-            Assert.NotSame(batchPreparer, scopedProvider.GetService<CommandBatchPreparer>());
-            Assert.NotSame(sqlServerModificationCommandBatchFactory, scopedProvider.GetService<ModificationCommandBatchFactory>());
+            Assert.NotSame(sqlServerBatchExecutor, scopedProvider.GetService<SqlServerBatchExecutor>());
             Assert.NotSame(sqlServerDataStoreSource, scopedProvider.GetService<DataStoreSource>());
             Assert.NotSame(sqlServerDataStore, scopedProvider.GetService<SqlServerDataStore>());
             Assert.NotSame(sqlServerConnection, scopedProvider.GetService<SqlServerConnection>());
