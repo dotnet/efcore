@@ -809,20 +809,23 @@ namespace Microsoft.Data.Entity.Relational.Query
             private static readonly ParameterExpression _readerParameter
                 = Expression.Parameter(typeof(DbDataReader));
 
-            private readonly RelationalQueryModelVisitor _queryModelVisitor;
             private readonly IQuerySource _querySource;
 
             public RelationalQueryingExpressionTreeVisitor(
                 RelationalQueryModelVisitor queryModelVisitor, IQuerySource querySource)
                 : base(queryModelVisitor)
             {
-                _queryModelVisitor = queryModelVisitor;
                 _querySource = querySource;
+            }
+
+            private new RelationalQueryModelVisitor QueryModelVisitor
+            {
+                get { return (RelationalQueryModelVisitor)base.QueryModelVisitor; }
             }
 
             protected override Expression VisitMemberExpression(MemberExpression expression)
             {
-                _queryModelVisitor
+                QueryModelVisitor
                     .BindMemberExpression(
                         expression,
                         (property, querySource, selectExpression)
@@ -833,9 +836,11 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             protected override Expression VisitEntityQueryable(Type elementType)
             {
-                var relationalQueryCompilationContext = ((RelationalQueryCompilationContext)QueryCompilationContext);
+                var relationalQueryCompilationContext
+                    = ((RelationalQueryCompilationContext)QueryModelVisitor.QueryCompilationContext);
+
                 var queryMethodInfo = CreateValueReaderMethodInfo;
-                var entityType = QueryCompilationContext.Model.GetEntityType(elementType);
+                var entityType = QueryModelVisitor.QueryCompilationContext.Model.GetEntityType(elementType);
 
                 var selectExpression = new SelectExpression();
                 var tableName = entityType.TableName();
@@ -850,7 +855,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                                 : _querySource.ItemName,
                             _querySource));
 
-                _queryModelVisitor._queriesBySource.Add(_querySource, selectExpression);
+                QueryModelVisitor._queriesBySource.Add(_querySource, selectExpression);
 
                 var queryMethodArguments
                     = new List<Expression>
@@ -861,7 +866,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                             _readerParameter
                         };
 
-                if (_queryModelVisitor.QuerySourceRequiresMaterialization(_querySource))
+                if (QueryModelVisitor.QuerySourceRequiresMaterialization(_querySource))
                 {
                     foreach (var property in entityType.Properties)
                     {

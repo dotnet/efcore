@@ -24,15 +24,15 @@ namespace Microsoft.Data.Entity.InMemory.Query
 
         protected override ExpressionTreeVisitor CreateQueryingExpressionTreeVisitor(IQuerySource querySource)
         {
-            return new InMemoryQueryingExpressionTreeVisitor(this);
+            return new InMemoryQueryingExpressionTreeVisitor(this, querySource);
         }
 
-        private static readonly MethodInfo _entityScanMethodInfo
+        private static readonly MethodInfo _entityQueryMethodInfo
             = typeof(InMemoryQueryModelVisitor).GetTypeInfo()
-                .GetDeclaredMethod("EntityScan");
+                .GetDeclaredMethod("EntityQuery");
 
         [UsedImplicitly]
-        private static IEnumerable<TEntity> EntityScan<TEntity>(QueryContext queryContext)
+        private static IEnumerable<TEntity> EntityQuery<TEntity>(QueryContext queryContext)
         {
             var entityType = queryContext.Model.GetEntityType(typeof(TEntity));
 
@@ -41,19 +41,48 @@ namespace Microsoft.Data.Entity.InMemory.Query
                     .GetOrMaterializeEntry(entityType, new ObjectArrayValueReader(t)).Entity);
         }
 
+        private static readonly MethodInfo _projectionQueryMethodInfo
+            = typeof(InMemoryQueryModelVisitor).GetTypeInfo()
+                .GetDeclaredMethod("ProjectionQuery");
+
+        [UsedImplicitly]
+        private static IEnumerable<IValueReader> ProjectionQuery<TEntity>(QueryContext queryContext)
+        {
+            var entityType = queryContext.Model.GetEntityType(typeof(TEntity));
+
+            return ((InMemoryQueryContext)queryContext).Database.GetTable(entityType)
+                .Select(t => new ObjectArrayValueReader(t));
+        }
+
         private class InMemoryQueryingExpressionTreeVisitor : QueryingExpressionTreeVisitor
         {
-            public InMemoryQueryingExpressionTreeVisitor(EntityQueryModelVisitor entityQueryModelVisitor)
+            private readonly IQuerySource _querySource;
+
+            public InMemoryQueryingExpressionTreeVisitor(
+                InMemoryQueryModelVisitor entityQueryModelVisitor, IQuerySource querySource)
                 : base(entityQueryModelVisitor)
             {
+                _querySource = querySource;
+            }
+
+            private new InMemoryQueryModelVisitor QueryModelVisitor
+            {
+                get { return (InMemoryQueryModelVisitor)base.QueryModelVisitor; }
             }
 
             protected override Expression VisitEntityQueryable(Type elementType)
             {
                 Check.NotNull(elementType, "elementType");
 
+                var queryMethodInfo = _projectionQueryMethodInfo;
+
+                if (QueryModelVisitor.QuerySourceRequiresMaterialization(_querySource))
+                {
+                    queryMethodInfo = _entityQueryMethodInfo;
+                }
+
                 return Expression.Call(
-                    _entityScanMethodInfo.MakeGenericMethod(elementType),
+                    queryMethodInfo.MakeGenericMethod(elementType),
                     QueryContextParameter);
             }
         }

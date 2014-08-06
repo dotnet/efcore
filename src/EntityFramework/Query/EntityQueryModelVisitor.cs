@@ -642,7 +642,7 @@ namespace Microsoft.Data.Entity.Query
             return ReplaceClauseReferences(expression, _querySourceMapping);
         }
 
-        private Expression ReplaceClauseReferences(Expression expression,QuerySourceMapping querySourceMapping)
+        private Expression ReplaceClauseReferences(Expression expression, QuerySourceMapping querySourceMapping)
         {
             return new MemberAccessToValueReaderReferenceReplacingExpressionTreeVisitor(querySourceMapping, this)
                 .VisitExpression(expression);
@@ -679,7 +679,13 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] MemberExpression memberExpression,
             [NotNull] Expression expression)
         {
-            throw new NotImplementedException();
+            Check.NotNull(memberExpression, "memberExpression");
+            Check.NotNull(expression, "expression");
+
+            return BindMemberExpression(
+                memberExpression,
+                (property, querySource)
+                    => BindReadValueMethod(memberExpression.Type, expression, property.Index));
         }
 
         private static readonly MethodInfo _readValueMethodInfo
@@ -707,6 +713,16 @@ namespace Microsoft.Data.Entity.Query
 
                         return default(object);
                     });
+        }
+
+        protected virtual TResult BindMemberExpression<TResult>(
+            [NotNull] MemberExpression memberExpression,
+            [NotNull] Func<IProperty, IQuerySource, TResult> memberBinder)
+        {
+            Check.NotNull(memberExpression, "memberExpression");
+            Check.NotNull(memberBinder, "memberBinder");
+
+            return BindMemberExpression(memberExpression, null, memberBinder);
         }
 
         protected virtual TResult BindMemberExpression<TResult>(
@@ -756,9 +772,9 @@ namespace Microsoft.Data.Entity.Query
                 _entityQueryModelVisitor = entityQueryModelVisitor;
             }
 
-            public QueryCompilationContext QueryCompilationContext
+            public EntityQueryModelVisitor QueryModelVisitor
             {
-                get { return _entityQueryModelVisitor.QueryCompilationContext; }
+                get { return _entityQueryModelVisitor; }
             }
 
             protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
@@ -772,7 +788,7 @@ namespace Microsoft.Data.Entity.Query
 
             protected EntityQueryModelVisitor CreateQueryModelVisitor()
             {
-                return QueryCompilationContext
+                return QueryModelVisitor.QueryCompilationContext
                     .CreateQueryModelVisitor(_entityQueryModelVisitor);
             }
         }
