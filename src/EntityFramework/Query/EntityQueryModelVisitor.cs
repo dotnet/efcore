@@ -244,6 +244,18 @@ namespace Microsoft.Data.Entity.Query
 
                 return newExpression;
             }
+
+            protected override Expression VisitMethodCallExpression(MethodCallExpression methodCallExpression)
+            {
+                var newExpression = base.VisitMethodCallExpression(methodCallExpression);
+
+                _queryModelVisitor
+                    .BindMethodCallExpression(
+                        methodCallExpression,
+                        (property, querySource) => _querySources[querySource]--);
+
+                return newExpression;
+            }
         }
 
         public override void VisitMainFromClause(
@@ -644,15 +656,15 @@ namespace Microsoft.Data.Entity.Query
 
         private Expression ReplaceClauseReferences(Expression expression, QuerySourceMapping querySourceMapping)
         {
-            return new MemberAccessToValueReaderReferenceReplacingExpressionTreeVisitor(querySourceMapping, this)
+            return new PropertyAccessBindingExpressionTreeVisitor(querySourceMapping, this)
                 .VisitExpression(expression);
         }
 
-        private class MemberAccessToValueReaderReferenceReplacingExpressionTreeVisitor : ReferenceReplacingExpressionTreeVisitor
+        private class PropertyAccessBindingExpressionTreeVisitor : ReferenceReplacingExpressionTreeVisitor
         {
             private readonly EntityQueryModelVisitor _queryModelVisitor;
 
-            public MemberAccessToValueReaderReferenceReplacingExpressionTreeVisitor(
+            public PropertyAccessBindingExpressionTreeVisitor(
                 QuerySourceMapping querySourceMapping,
                 EntityQueryModelVisitor queryModelVisitor)
                 : base(querySourceMapping, throwOnUnmappedReferences: false)
@@ -673,6 +685,55 @@ namespace Microsoft.Data.Entity.Query
 
                 return memberExpression;
             }
+
+            protected override Expression VisitMethodCallExpression(MethodCallExpression methodCallExpression)
+            {
+                var newExpression
+                    = (MethodCallExpression)base.VisitMethodCallExpression(methodCallExpression);
+
+                if (newExpression != methodCallExpression
+                    && newExpression.Arguments.Count > 0
+                    && newExpression.Arguments[0].Type == typeof(IValueReader))
+                {
+                    return
+                        _queryModelVisitor
+                            .BindMethodCallToValueReader(methodCallExpression, newExpression.Arguments[0])
+                        ?? newExpression;
+                }
+
+                return _queryModelVisitor
+                    .BindMethodCallExpression(
+                        methodCallExpression,
+                        (property, _) => Expression.Call(
+                            _getValueMethodInfo.MakeGenericMethod(newExpression.Method.GetGenericArguments()[0]),
+                            QueryContextParameter,
+                            newExpression.Arguments[0],
+                            Expression.Constant(property)))
+                       ?? newExpression;
+            }
+
+            private static readonly MethodInfo _getValueMethodInfo
+                = typeof(PropertyAccessBindingExpressionTreeVisitor)
+                    .GetTypeInfo().GetDeclaredMethod("GetValue");
+
+            [UsedImplicitly]
+            private static T GetValue<T>(QueryContext queryContext, object entity, IProperty property)
+            {
+                return (T)queryContext.StateManager.GetOrCreateEntry(entity)[property];
+            }
+        }
+
+        protected virtual Expression BindMethodCallToValueReader(
+            [NotNull] MethodCallExpression methodCallExpression,
+            [NotNull] Expression expression)
+        {
+            Check.NotNull(methodCallExpression, "methodCallExpression");
+            Check.NotNull(expression, "expression");
+
+            return BindMethodCallExpression(
+                methodCallExpression,
+                (property, querySource)
+                    => BindReadValueMethod(methodCallExpression.Type, expression, property.Index));
         }
 
         protected virtual Expression BindMemberToValueReader(
@@ -754,6 +815,62 @@ namespace Microsoft.Data.Entity.Query
                         return memberBinder(
                             property,
                             querySourceReferenceExpression.ReferencedQuerySource);
+                    }
+                }
+            }
+
+            return default(TResult);
+        }
+
+        protected virtual TResult BindMethodCallExpression<TResult>(
+            [NotNull] MethodCallExpression methodCallExpression,
+            [NotNull] Func<IProperty, IQuerySource, TResult> methodCallBinder)
+        {
+            Check.NotNull(methodCallExpression, "methodCallExpression");
+            Check.NotNull(methodCallBinder, "methodCallBinder");
+
+            return BindMethodCallExpression(methodCallExpression, null, methodCallBinder);
+        }
+
+        private static readonly MethodInfo _propertyMethodInfo
+            = typeof(QueryExtensions).GetTypeInfo().GetDeclaredMethod("Property");
+
+        protected virtual TResult BindMethodCallExpression<TResult>(
+            [NotNull] MethodCallExpression methodCallExpression,
+            [CanBeNull] IQuerySource querySource,
+            Func<IProperty, IQuerySource, TResult> methodCallBinder)
+        {
+            Check.NotNull(methodCallExpression, "methodCallExpression");
+            Check.NotNull(methodCallBinder, "methodCallBinder");
+
+            if (methodCallExpression.Method.IsGenericMethod
+                && ReferenceEquals(
+                    methodCallExpression.Method.GetGenericMethodDefinition(),
+                    _propertyMethodInfo))
+            {
+                var querySourceReferenceExpression
+                    = methodCallExpression.Arguments[0] as QuerySourceReferenceExpression;
+
+                if (querySourceReferenceExpression != null
+                    && (querySource == null
+                        || querySource == querySourceReferenceExpression.ReferencedQuerySource))
+                {
+                    var entityType
+                        = QueryCompilationContext.Model
+                            .TryGetEntityType(
+                                querySourceReferenceExpression.ReferencedQuerySource.ItemType);
+
+                    if (entityType != null)
+                    {
+                        var propertyName = (string)((ConstantExpression)methodCallExpression.Arguments[1]).Value;
+                        var property = entityType.TryGetProperty(propertyName);
+
+                        if (property != null)
+                        {
+                            return methodCallBinder(
+                                property,
+                                querySourceReferenceExpression.ReferencedQuerySource);
+                        }
                     }
                 }
             }

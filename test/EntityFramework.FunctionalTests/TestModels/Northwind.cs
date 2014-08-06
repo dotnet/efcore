@@ -6,9 +6,12 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Query;
+using Remotion.Linq.Parsing;
 
 namespace Northwind
 {
@@ -67,7 +70,7 @@ namespace Northwind
         public int EmployeeID { get; set; }
         public string LastName { get; set; }
         public string FirstName { get; set; }
-        public string Title { get; set; }
+        public string Title { get; set; } // shadow-prop in EF model
         public string TitleOfCourtesy { get; set; }
         public DateTime? BirthDate { get; set; }
         public DateTime? HireDate { get; set; }
@@ -300,17 +303,43 @@ namespace Northwind
 
             public Task<object> ExecuteAsync(Expression expression, CancellationToken cancellationToken)
             {
-                return Task.FromResult(((IQueryProvider)this).Execute(expression));
+                return Task.FromResult(((IQueryProvider)this).Execute(RewriteShadowPropertyAccess(expression)));
             }
 
             public Task<S> ExecuteAsync<S>(Expression expression, CancellationToken cancellationToken)
             {
-                return Task.FromResult(((IQueryProvider)this).Execute<S>(expression));
+                return Task.FromResult(((IQueryProvider)this).Execute<S>(RewriteShadowPropertyAccess(expression)));
             }
 
             public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
             {
-                return new AsyncEnumerable<TElement>(expression);
+                return new AsyncEnumerable<TElement>(RewriteShadowPropertyAccess(expression));
+            }
+
+            private Expression RewriteShadowPropertyAccess(Expression expression)
+            {
+                return new ShadowStateAccessRewriter().VisitExpression(expression);
+            }
+        }
+
+        private class ShadowStateAccessRewriter : ExpressionTreeVisitor
+        {
+            private static readonly MethodInfo _propertyMethodInfo
+                = typeof(QueryExtensions).GetTypeInfo().GetDeclaredMethod("Property");
+
+            protected override Expression VisitMethodCallExpression(MethodCallExpression methodCallExpression)
+            {
+                if (methodCallExpression.Method.IsGenericMethod
+                   && ReferenceEquals(
+                       methodCallExpression.Method.GetGenericMethodDefinition(),
+                       _propertyMethodInfo))
+                {
+                    return Expression.Property(
+                        methodCallExpression.Arguments[0],
+                        (string)((ConstantExpression)methodCallExpression.Arguments[1]).Value);
+                }
+
+                return base.VisitMethodCallExpression(methodCallExpression);
             }
         }
 

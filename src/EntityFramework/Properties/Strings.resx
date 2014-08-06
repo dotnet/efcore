@@ -249,4 +249,7 @@
   <data name="LogExceptionDuringSaveChanges" xml:space="preserve">
     <value>An exception occurred while saving changes.</value>
   </data>
+  <data name="PropertyExtensionInvoked" xml:space="preserve">
+    <value>The Property&amp;lt;T&amp;gt; extension method may only be used within LINQ queries.</value>
+  </data>
 </root>

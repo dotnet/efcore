@@ -84,6 +84,7 @@
     <Compile Include="Identity\ValueGeneratorCache.cs" />
     <Compile Include="Identity\ValueGeneratorPool.cs" />
     <Compile Include="Identity\ValueGeneratorSelector.cs" />
+    <Compile Include="QueryExtensions.cs" />
     <Compile Include="Storage\DataStoreException.cs" />
     <Compile Include="Infrastructure\IDbContextOptionsExtensions.cs" />
     <Compile Include="INotifyPropertyChanging.cs" />

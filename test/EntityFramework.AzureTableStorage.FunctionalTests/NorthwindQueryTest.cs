@@ -65,9 +65,14 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
 
         public NorthwindQueryFixture()
         {
+            var model = CreateAzureTableStorageModel();
+
+            var titleProperty
+                = model.GetEntityType(typeof(Employee)).GetProperty("Title");
+
             _options
                 = new DbContextOptions()
-                    .UseModel(CreateAzureTableStorageModel())
+                    .UseModel(model)
                     .UseAzureTableStorage(TestConfig.Instance.ConnectionString, batchRequests: false);
 
             var services = new ServiceCollection();
@@ -80,8 +85,15 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
                 {
                     return;
                 }
+
                 context.Set<Customer>().AddRange(NorthwindData.Customers);
-                context.Set<Employee>().AddRange(NorthwindData.Employees);
+
+                foreach (var employee in NorthwindData.Employees)
+                {
+                    context.Set<Employee>().Add(employee);
+                    context.ChangeTracker.Entry(employee).StateEntry[titleProperty] = employee.Title;
+                }
+
                 context.Set<Order>().AddRange(NorthwindData.Orders);
                 context.Set<Product>().AddRange(NorthwindData.Products);
                 context.Set<OrderDetail>().AddRange(NorthwindData.OrderDetails);

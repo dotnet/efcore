@@ -138,6 +138,20 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Where_simple_shadow()
+        {
+            AssertQuery<Employee>(es => es.Where(e => e.Property<string>("Title") == "Sales Representative"));
+        }
+
+        [Fact]
+        public virtual void Where_simple_shadow_projection()
+        {
+            AssertQuery<Employee>(
+                es => es.Where(e => e.Property<string>("Title") == "Sales Representative")
+                    .Select(e => e.Property<string>("Title")));
+        }
+
+        [Fact]
         public virtual void Where_client()
         {
             AssertQuery<Customer>(cs => cs.Where(c => c.IsLondon));
@@ -1021,6 +1035,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer>(cs =>
                 cs.OrderBy(c => c.CustomerID),
+                assertOrder: true);
+        }
+
+        [Fact]
+        public virtual void OrderBy_shadow()
+        {
+            AssertQuery<Employee>(es =>
+                es.OrderBy(e => e.Property<string>("Title")).ThenBy(e => e.EmployeeID),
                 assertOrder: true);
         }
 

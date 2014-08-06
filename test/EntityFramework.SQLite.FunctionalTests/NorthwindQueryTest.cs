@@ -67,16 +67,11 @@ WHERE c.""ContactName"" LIKE '%' || @p0",
             base.Where_select_many_and();
 
             Assert.Equal(
-                @"SELECT c.""Address"", c.""City"", c.""CompanyName"", c.""ContactName"", c.""ContactTitle"", c.""Country"", c.""CustomerID"", c.""Fax"", c.""Phone"", c.""PostalCode"", c.""Region"", e.""City"", e.""Country"", e.""EmployeeID"", e.""FirstName"", e.""ReportsTo""
+                @"SELECT c.""Address"", c.""City"", c.""CompanyName"", c.""ContactName"", c.""ContactTitle"", c.""Country"", c.""CustomerID"", c.""Fax"", c.""Phone"", c.""PostalCode"", c.""Region"", e.""City"", e.""Country"", e.""EmployeeID"", e.""FirstName"", e.""ReportsTo"", e.""Title""
 FROM ""Customers"" AS c
 CROSS JOIN ""Employees"" AS e
 WHERE ((c.""City"" = @p0 AND c.""Country"" = @p1) AND (e.""City"" = @p0 AND e.""Country"" = @p1))",
                 _fixture.Sql);
-        }
-
-        public override void Where_comparison_nullable_type_null()
-        {
-            base.Where_comparison_nullable_type_null();
         }
 
         private readonly NorthwindQueryFixture _fixture;

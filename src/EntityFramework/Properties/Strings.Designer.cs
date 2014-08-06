@@ -714,6 +714,22 @@ namespace Microsoft.Data.Entity
             return GetString("LogExceptionDuringSaveChanges");
         }
 
+        /// <summary>
+        /// The Property&lt;T&gt; extension method may only be used within LINQ queries.
+        /// </summary>
+        internal static string PropertyExtensionInvoked
+        {
+            get { return GetString("PropertyExtensionInvoked"); }
+        }
+
+        /// <summary>
+        /// The Property&lt;T&gt; extension method may only be used within LINQ queries.
+        /// </summary>
+        internal static string FormatPropertyExtensionInvoked()
+        {
+            return GetString("PropertyExtensionInvoked");
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

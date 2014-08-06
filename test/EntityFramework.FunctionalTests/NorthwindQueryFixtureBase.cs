@@ -35,6 +35,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     b.Property(e => e.Country);
                     b.Property(e => e.FirstName);
                     b.Property(e => e.ReportsTo);
+                    b.Property<string>("Title", shadowProperty: true);
                 });
 
             modelBuilder.Entity<Product>(b =>

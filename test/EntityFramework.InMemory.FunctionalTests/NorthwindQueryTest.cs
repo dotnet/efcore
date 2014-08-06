@@ -28,15 +28,26 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
         public NorthwindQueryFixture()
         {
+            var model = CreateModel();
+
+            var titleProperty
+                = model.GetEntityType(typeof(Employee)).GetProperty("Title");
+
             _options
                 = new DbContextOptions()
-                    .UseModel(CreateModel())
+                    .UseModel(model)
                     .UseInMemoryStore();
 
             using (var context = new DbContext(_options))
             {
                 context.Set<Customer>().AddRange(NorthwindData.Customers);
-                context.Set<Employee>().AddRange(NorthwindData.Employees);
+
+                foreach (var employee in NorthwindData.Employees)
+                {
+                    context.Set<Employee>().Add(employee);
+                    context.ChangeTracker.Entry(employee).StateEntry[titleProperty] = employee.Title;
+                }
+
                 context.Set<Order>().AddRange(NorthwindData.Orders);
                 context.Set<Product>().AddRange(NorthwindData.Products);
                 context.Set<OrderDetail>().AddRange(NorthwindData.OrderDetails);
