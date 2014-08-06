@@ -955,20 +955,18 @@ namespace Microsoft.Data.Entity.ChangeTracking
             var builder = new ConventionModelBuilder(model);
 
             builder.Entity<Product>();
-            builder.Entity<Category>();
+            builder.Entity<Category>().OneToMany(e => e.Products, e => e.Category);
             builder.Entity<ProductDetail>();
             builder.Entity<ProductPhoto>().Key(e => new { e.ProductId, e.PhotoId });
             builder.Entity<ProductReview>().Key(e => new { e.ProductId, e.ReviewId });
             builder.Entity<ProductTag>();
 
-            var categoryType = model.GetEntityType(typeof(Category));
             var productType = model.GetEntityType(typeof(Product));
             var productDetailType = model.GetEntityType(typeof(ProductDetail));
             var productPhotoType = model.GetEntityType(typeof(ProductPhoto));
             var productReviewType = model.GetEntityType(typeof(ProductReview));
             var productTagType = model.GetEntityType(typeof(ProductTag));
 
-            var categoryFk = productType.AddForeignKey(categoryType.GetKey(), productType.GetProperty("CategoryId"));
             var alternateProductFk = productType.AddForeignKey(productType.GetKey(), productType.GetProperty("AlternateProductId"));
             alternateProductFk.IsUnique = true;
             var productDetailFk = productDetailType.AddForeignKey(productType.GetKey(), productDetailType.GetProperty("Id"));
@@ -976,9 +974,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             var photoFk = productTagType.AddForeignKey(productPhotoType.GetKey(), productTagType.GetProperty("ProductId"), productTagType.GetProperty("PhotoId"));
             var reviewFk = productTagType.AddForeignKey(productReviewType.GetKey(), productTagType.GetProperty("ProductId"), productTagType.GetProperty("ReviewId"));
-
-            categoryType.AddNavigation(new Navigation(categoryFk, "Products", pointsToPrincipal: false));
-            productType.AddNavigation(new Navigation(categoryFk, "Category", pointsToPrincipal: true));
 
             productType.AddNavigation(new Navigation(alternateProductFk, "AlternateProduct", pointsToPrincipal: true));
             productType.AddNavigation(new Navigation(alternateProductFk, "OriginalProduct", pointsToPrincipal: false));

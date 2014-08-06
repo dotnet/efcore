@@ -103,27 +103,19 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
             var model = new Model();
             var builder = new ModelBuilder(model);
 
-            builder.Entity<Branch>(pb =>
+            builder.Entity<Branch>(b =>
                 {
-                    pb.Key(s => s.ID);
-                    pb.Property(s => s.RootID);
-                    pb.Property(s => s.SHA1);
+                    b.Key(s => s.ID);
+                    b.Property(s => s.RootID);
+                    b.Property(s => s.SHA1);
                 });
 
             builder.Entity<Root>(b =>
                 {
                     b.Key(s => s.ID);
-                b.Property(s => s.SHA1);
+                    b.Property(s => s.SHA1);
+                    b.OneToMany(e => e.Branches, e => e.Root);
                 });
-
-            var rootType = model.GetEntityType(typeof(Root));
-            var branchType = model.GetEntityType(typeof(Branch));
-
-            var rootIdFk
-                = branchType.AddForeignKey(rootType.GetKey(), branchType.GetProperty("RootID"));
-
-            branchType.AddNavigation(new Navigation(rootIdFk, "Root", pointsToPrincipal: true));
-            rootType.AddNavigation(new Navigation(rootIdFk, "Branch", pointsToPrincipal: false));
 
             return model;
         }
