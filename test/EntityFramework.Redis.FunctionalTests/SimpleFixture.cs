@@ -8,7 +8,6 @@ namespace Microsoft.Data.Entity.Redis
 {
     public class SimpleFixture : BaseClassFixture, IDisposable
     {
-
         public override IModel CreateModel()
         {
             var model = new Model();

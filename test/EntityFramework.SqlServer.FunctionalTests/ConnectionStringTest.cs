@@ -106,10 +106,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         private static void ConfigureModel(ModelBuilder builder)
         {
             builder.Entity<Customer>(b =>
-            {
-                b.Key(c => c.CustomerID);
-                b.ToTable("Customers");
-            });
+                {
+                    b.Key(c => c.CustomerID);
+                    b.ToTable("Customers");
+                });
         }
     }
 }

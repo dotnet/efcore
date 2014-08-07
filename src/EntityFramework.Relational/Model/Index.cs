@@ -47,8 +47,7 @@ namespace Microsoft.Data.Entity.Relational.Model
         {
             get { return _name; }
 
-            [param: NotNull]
-            set { _name = value; }
+            [param: NotNull] set { _name = value; }
         }
 
         public virtual IReadOnlyList<Column> Columns
@@ -68,11 +67,11 @@ namespace Microsoft.Data.Entity.Relational.Model
 
         protected internal virtual Index Clone(CloneContext cloneContext)
         {
-            return 
+            return
                 new Index(
-                    Name, 
-                    Columns.Select(column => column.Clone(cloneContext)).ToArray(), 
-                    IsUnique, 
+                    Name,
+                    Columns.Select(column => column.Clone(cloneContext)).ToArray(),
+                    IsUnique,
                     IsClustered);
         }
     }

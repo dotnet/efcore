@@ -330,9 +330,9 @@ namespace Northwind
             protected override Expression VisitMethodCallExpression(MethodCallExpression methodCallExpression)
             {
                 if (methodCallExpression.Method.IsGenericMethod
-                   && ReferenceEquals(
-                       methodCallExpression.Method.GetGenericMethodDefinition(),
-                       _propertyMethodInfo))
+                    && ReferenceEquals(
+                        methodCallExpression.Method.GetGenericMethodDefinition(),
+                        _propertyMethodInfo))
                 {
                     return Expression.Property(
                         methodCallExpression.Arguments[0],

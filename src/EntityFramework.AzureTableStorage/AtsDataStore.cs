@@ -189,7 +189,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
                 var extendedErrorCode = exception.RequestInformation.ExtendedErrorInformation.ErrorCode;
                 if (extendedErrorCode == StorageErrorCodes.ResourceNotFound)
                 {
-                    return new DbUpdateConcurrencyException(Strings.ResourceNotFound, _configuration.Context, stateEntries); 
+                    return new DbUpdateConcurrencyException(Strings.ResourceNotFound, _configuration.Context, stateEntries);
                 }
                 if (extendedErrorCode == StorageErrorCodes.TableNotFoundError)
                 {

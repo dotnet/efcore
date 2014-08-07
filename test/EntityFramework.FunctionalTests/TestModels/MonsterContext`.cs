@@ -324,16 +324,13 @@ namespace Microsoft.Data.Entity.MonsterModel
                     b.OneToMany(e => (IEnumerable<TOrderNote>)e.Notes, e => (TAnOrder)e.Order);
                 });
 
-            builder.Entity<TProduct>(b =>
-            {
-                b.OneToMany(e => (IEnumerable<TProductReview>)e.Reviews, e => (TProduct)e.Product);
-            });
+            builder.Entity<TProduct>(b => { b.OneToMany(e => (IEnumerable<TProductReview>)e.Reviews, e => (TProduct)e.Product); });
 
             builder.Entity<TCustomer>(b =>
-            {
-                b.OneToMany(e => (IEnumerable<TAnOrder>)e.Orders, e => (TCustomer)e.Customer);
-                b.OneToMany(e => (IEnumerable<TLogin>)e.Logins, e => (TCustomer)e.Customer);
-            });
+                {
+                    b.OneToMany(e => (IEnumerable<TAnOrder>)e.Orders, e => (TCustomer)e.Customer);
+                    b.OneToMany(e => (IEnumerable<TLogin>)e.Logins, e => (TCustomer)e.Customer);
+                });
 
             // TODO: Use fluent API when available
 

@@ -23,15 +23,15 @@ namespace Microsoft.Data.Entity.Design.Tests
             var toolMock = new Mock<MyMigrationTool>() { CallBase = true };
             var args
                 = new[]
-                      {
-                          "--ConfigFile=MyConfig.ini",
-                          "--ContextAssembly=EntityFramework.Design.Tests.dll",
-                          "--ContextType=Microsoft.Data.Entity.Design.Tests.MigrationToolTest+MyContext",
-                          "--MigrationAssembly=EntityFramework.Design.Tests.dll",
-                          "--MigrationNamespace=MyNamespace",
-                          "--MigrationDirectory=MyDirectory",
-                          "--References=Ref1;Ref2;Ref3"
-                      };
+                    {
+                        "--ConfigFile=MyConfig.ini",
+                        "--ContextAssembly=EntityFramework.Design.Tests.dll",
+                        "--ContextType=Microsoft.Data.Entity.Design.Tests.MigrationToolTest+MyContext",
+                        "--MigrationAssembly=EntityFramework.Design.Tests.dll",
+                        "--MigrationNamespace=MyNamespace",
+                        "--MigrationDirectory=MyDirectory",
+                        "--References=Ref1;Ref2;Ref3"
+                    };
             var configSourceMock = new Mock<IniFileConfigurationSource>("Foo") { CallBase = true };
             var tool = toolMock.Object;
             var configuration = new Configuration();
@@ -43,14 +43,14 @@ namespace Microsoft.Data.Entity.Design.Tests
                 .Setup(m => m.Commit())
                 .Callback(
                     () =>
-                    {
-                        Assert.Equal(configSourceMock.Object.Data["ContextAssembly"], "EntityFramework.Design.Tests.dll");
-                        Assert.Equal(configSourceMock.Object.Data["ContextType"], "Microsoft.Data.Entity.Design.Tests.MigrationToolTest+MyContext");
-                        Assert.Equal(configSourceMock.Object.Data["MigrationAssembly"], "EntityFramework.Design.Tests.dll");
-                        Assert.Equal(configSourceMock.Object.Data["MigrationNamespace"], "MyNamespace");
-                        Assert.Equal(configSourceMock.Object.Data["MigrationDirectory"], "MyDirectory");
-                        Assert.Equal(configSourceMock.Object.Data["References"], "Ref1;Ref2;Ref3");
-                    });
+                        {
+                            Assert.Equal(configSourceMock.Object.Data["ContextAssembly"], "EntityFramework.Design.Tests.dll");
+                            Assert.Equal(configSourceMock.Object.Data["ContextType"], "Microsoft.Data.Entity.Design.Tests.MigrationToolTest+MyContext");
+                            Assert.Equal(configSourceMock.Object.Data["MigrationAssembly"], "EntityFramework.Design.Tests.dll");
+                            Assert.Equal(configSourceMock.Object.Data["MigrationNamespace"], "MyNamespace");
+                            Assert.Equal(configSourceMock.Object.Data["MigrationDirectory"], "MyDirectory");
+                            Assert.Equal(configSourceMock.Object.Data["References"], "Ref1;Ref2;Ref3");
+                        });
 
             toolMock.Protected()
                 .Setup<IniFileConfigurationSource>("CreateIniFileConfigurationSource", ItExpr.IsAny<string>())
@@ -77,9 +77,9 @@ namespace Microsoft.Data.Entity.Design.Tests
             var toolMock = new Mock<MyMigrationTool>() { CallBase = true };
             var args
                 = new[]
-                      {
-                          "--ContextAssembly=EntityFramework.Design.Tests.dll",
-                      };
+                    {
+                        "--ContextAssembly=EntityFramework.Design.Tests.dll",
+                    };
             var configSourceMock = new Mock<IniFileConfigurationSource>("Foo") { CallBase = true };
             var tool = toolMock.Object;
             var configuration = new Configuration();
@@ -114,11 +114,11 @@ namespace Microsoft.Data.Entity.Design.Tests
             configuration.AddCommandLine(
                 new[]
                     {
-                        "--MigrationName=MyMigration", 
-                        "--ContextAssembly=EntityFramework.Design.Tests.dll", 
-                        "--ContextType=Microsoft.Data.Entity.Design.Tests.MigrationToolTest+MyContext", 
-                        "--MigrationAssembly=EntityFramework.Design.Tests.dll", 
-                        "--MigrationNamespace=MyNamespace", 
+                        "--MigrationName=MyMigration",
+                        "--ContextAssembly=EntityFramework.Design.Tests.dll",
+                        "--ContextType=Microsoft.Data.Entity.Design.Tests.MigrationToolTest+MyContext",
+                        "--MigrationAssembly=EntityFramework.Design.Tests.dll",
+                        "--MigrationNamespace=MyNamespace",
                         "--MigrationDirectory=C:\\MyDirectory"
                     });
 
@@ -141,9 +141,9 @@ namespace Microsoft.Data.Entity.Design.Tests
             configuration.AddCommandLine(
                 new[]
                     {
-                        "--MigrationName=MyMigration", 
-                        "--ContextAssembly=EntityFramework.Design.Tests.dll", 
-                        "--ContextType=Microsoft.Data.Entity.Design.Tests.MigrationToolTest+MyContext", 
+                        "--MigrationName=MyMigration",
+                        "--ContextAssembly=EntityFramework.Design.Tests.dll",
+                        "--ContextType=Microsoft.Data.Entity.Design.Tests.MigrationToolTest+MyContext",
                         "--MigrationDirectory=MyDirectory"
                     });
 
@@ -169,10 +169,10 @@ namespace Microsoft.Data.Entity.Design.Tests
             configuration.AddCommandLine(
                 new[]
                     {
-                        "--MigrationName=MyMigration", 
-                        "--ContextAssembly=EntityFramework.Design.Tests.dll", 
-                        "--ContextType=Microsoft.Data.Entity.Design.Tests.MigrationToolTest+MyContext", 
-                        "--MigrationAssembly=EntityFramework.Design.Tests.dll", 
+                        "--MigrationName=MyMigration",
+                        "--ContextAssembly=EntityFramework.Design.Tests.dll",
+                        "--ContextType=Microsoft.Data.Entity.Design.Tests.MigrationToolTest+MyContext",
+                        "--MigrationAssembly=EntityFramework.Design.Tests.dll",
                         "--MigrationNamespace=MyNamespace"
                     });
 
@@ -221,8 +221,8 @@ namespace Microsoft.Data.Entity.Design.Tests
             configuration.AddCommandLine(
                 new[]
                     {
-                        "--ContextAssembly=EntityFramework.Design.Tests.dll", 
-                        "--ContextType=Microsoft.Data.Entity.Design.Tests.MigrationToolTest+MyContext", 
+                        "--ContextAssembly=EntityFramework.Design.Tests.dll",
+                        "--ContextType=Microsoft.Data.Entity.Design.Tests.MigrationToolTest+MyContext",
                         "--MigrationSource=Database"
                     });
 
@@ -253,7 +253,7 @@ namespace Microsoft.Data.Entity.Design.Tests
             configuration.AddCommandLine(
                 new[]
                     {
-                        "--ContextAssembly=EntityFramework.Design.Tests.dll", 
+                        "--ContextAssembly=EntityFramework.Design.Tests.dll",
                         "--ContextType=Microsoft.Data.Entity.Design.Tests.MigrationToolTest+MyContext"
                     });
 
@@ -285,8 +285,8 @@ namespace Microsoft.Data.Entity.Design.Tests
             configuration.AddCommandLine(
                 new[]
                     {
-                        "--ContextAssembly=EntityFramework.Design.Tests.dll", 
-                        "--ContextType=Microsoft.Data.Entity.Design.Tests.MigrationToolTest+MyContext", 
+                        "--ContextAssembly=EntityFramework.Design.Tests.dll",
+                        "--ContextType=Microsoft.Data.Entity.Design.Tests.MigrationToolTest+MyContext",
                         "--MigrationSource=Local"
                     });
 
@@ -318,8 +318,8 @@ namespace Microsoft.Data.Entity.Design.Tests
             configuration.AddCommandLine(
                 new[]
                     {
-                        "--ContextAssembly=EntityFramework.Design.Tests.dll", 
-                        "--ContextType=Microsoft.Data.Entity.Design.Tests.MigrationToolTest+MyContext", 
+                        "--ContextAssembly=EntityFramework.Design.Tests.dll",
+                        "--ContextType=Microsoft.Data.Entity.Design.Tests.MigrationToolTest+MyContext",
                         "--MigrationSource=Pending"
                     });
 
@@ -338,8 +338,8 @@ namespace Microsoft.Data.Entity.Design.Tests
             configuration.AddCommandLine(
                 new[]
                     {
-                        "--ContextAssembly=EntityFramework.Design.Tests.dll", 
-                        "--ContextType=Microsoft.Data.Entity.Design.Tests.MigrationToolTest+MyContext", 
+                        "--ContextAssembly=EntityFramework.Design.Tests.dll",
+                        "--ContextType=Microsoft.Data.Entity.Design.Tests.MigrationToolTest+MyContext",
                         "--MigrationSource=Foo"
                     });
 
@@ -369,7 +369,7 @@ namespace Microsoft.Data.Entity.Design.Tests
             configuration.AddCommandLine(
                 new[]
                     {
-                        "--ContextAssembly=EntityFramework.Design.Tests.dll", 
+                        "--ContextAssembly=EntityFramework.Design.Tests.dll",
                         "--ContextType=Microsoft.Data.Entity.Design.Tests.MigrationToolTest+MyContext"
                     });
 
@@ -402,7 +402,7 @@ namespace Microsoft.Data.Entity.Design.Tests
                 new[]
                     {
                         "--TargetMigration=MyMigrationName",
-                        "--ContextAssembly=EntityFramework.Design.Tests.dll", 
+                        "--ContextAssembly=EntityFramework.Design.Tests.dll",
                         "--ContextType=Microsoft.Data.Entity.Design.Tests.MigrationToolTest+MyContext"
                     });
 
@@ -428,7 +428,7 @@ namespace Microsoft.Data.Entity.Design.Tests
             configuration.AddCommandLine(
                 new[]
                     {
-                        "--ContextAssembly=EntityFramework.Design.Tests.dll", 
+                        "--ContextAssembly=EntityFramework.Design.Tests.dll",
                         "--ContextType=Microsoft.Data.Entity.Design.Tests.MigrationToolTest+MyContext"
                     });
 
@@ -453,7 +453,7 @@ namespace Microsoft.Data.Entity.Design.Tests
                 new[]
                     {
                         "--TargetMigration=MyMigrationName",
-                        "--ContextAssembly=EntityFramework.Design.Tests.dll", 
+                        "--ContextAssembly=EntityFramework.Design.Tests.dll",
                         "--ContextType=Microsoft.Data.Entity.Design.Tests.MigrationToolTest+MyContext"
                     });
 
@@ -477,7 +477,7 @@ namespace Microsoft.Data.Entity.Design.Tests
             configuration.AddCommandLine(
                 new[]
                     {
-                        "--ContextAssembly=EntityFramework.Design.Tests.dll", 
+                        "--ContextAssembly=EntityFramework.Design.Tests.dll",
                         "--ContextType=Microsoft.Data.Entity.Design.Tests.MigrationToolTest+MyContext",
                         "--References=Ref1;Ref2;Ref3"
                     });
@@ -505,7 +505,7 @@ namespace Microsoft.Data.Entity.Design.Tests
             configuration.AddCommandLine(
                 new[]
                     {
-                        "--ContextAssembly=EntityFramework.Design.Tests.dll", 
+                        "--ContextAssembly=EntityFramework.Design.Tests.dll",
                         "--ContextType=Microsoft.Data.Entity.Design.Tests.Vuvuzelas"
                     });
 
@@ -525,7 +525,7 @@ namespace Microsoft.Data.Entity.Design.Tests
             configuration.AddCommandLine(
                 new[]
                     {
-                        "--ContextAssembly=EntityFramework.Design.Tests.dll", 
+                        "--ContextAssembly=EntityFramework.Design.Tests.dll",
                         "--ContextType=Microsoft.Data.Entity.Design.Tests.MigrationToolTest+NotAContext"
                     });
 

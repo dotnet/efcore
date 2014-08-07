@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
         public override string ToString()
         {
             return "INNER JOIN " + base.ToString()
-                    + " ON " + Predicate;
+                   + " ON " + Predicate;
         }
     }
 }

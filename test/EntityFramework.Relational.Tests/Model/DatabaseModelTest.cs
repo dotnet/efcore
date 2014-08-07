@@ -143,7 +143,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
 
         [Fact]
         public void Clone_replicates_tables()
-        {            
+        {
             var databaseModel = new DatabaseModel();
             var sequence0 = new Sequence("dbo.S0");
             var sequence1 = new Sequence("dbo.S1");

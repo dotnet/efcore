@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.Relational.Model
         }
 
         public virtual DatabaseModel Clone()
-        {            
+        {
             var clone = new DatabaseModel();
             var cloneContext = new CloneContext();
 

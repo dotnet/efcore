@@ -50,9 +50,7 @@ namespace Microsoft.Data.Entity.Relational.Model
         {
             get { return _primaryKey; }
 
-            [param: CanBeNull]
-            set { _primaryKey = value; }
-
+            [param: CanBeNull] set { _primaryKey = value; }
         }
 
         public virtual IReadOnlyList<ForeignKey> ForeignKeys
@@ -88,7 +86,7 @@ namespace Microsoft.Data.Entity.Relational.Model
             var column = _columns[i];
 
             _columns.RemoveAt(_columns.FindIndex(c => c.Name == columnName));
-            column.Table = null;            
+            column.Table = null;
         }
 
         public virtual ForeignKey GetForeignKey([NotNull] string foreignKeyName)

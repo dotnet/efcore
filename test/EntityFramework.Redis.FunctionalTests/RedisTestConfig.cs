@@ -18,12 +18,12 @@ namespace Microsoft.Data.Entity.Redis
         internal const string CIMachineRedisNugetPackageServerPath = @"Redis-64\2.8.9";
 
         private static volatile Process _redisServerProcess; // null implies if server exists it was not started by this code
-        private static object _redisServerProcessLock = new object();
+        private static readonly object _redisServerProcessLock = new object();
         public static int RedisPort = 6375; // override default so that do not interfere with anyone else's server
 
         public static void GetOrStartServer()
         {
-            if (AlreadyOwnRunningRedisServer()) 
+            if (AlreadyOwnRunningRedisServer())
             {
                 return;
             }
@@ -116,14 +116,14 @@ namespace Microsoft.Data.Entity.Redis
 
         private static bool TryStartRedisServer()
         {
-            string serverPath = GetUserProfileServerPath();
+            var serverPath = GetUserProfileServerPath();
             if (!File.Exists(serverPath))
             {
                 serverPath = GetCIMachineServerPath();
                 if (!File.Exists(serverPath))
                 {
                     throw new Exception("Could not find " + RedisServerExeName +
-                        " at path " + GetUserProfileServerPath() + " nor at " + GetCIMachineServerPath());
+                                        " at path " + GetUserProfileServerPath() + " nor at " + GetCIMachineServerPath());
                 }
             }
 
@@ -201,13 +201,13 @@ namespace Microsoft.Data.Entity.Redis
                         catch (Exception e)
                         {
                             throw new Exception("Could not start Redis Server at path "
-                                + tempRedisServerFullPath + " with Arguments '" + serverArgs + "', working dir = " + tempPath, e);
+                                                + tempRedisServerFullPath + " with Arguments '" + serverArgs + "', working dir = " + tempPath, e);
                         }
 
                         if (_redisServerProcess == null)
                         {
                             throw new Exception("Got null process trying to  start Redis Server at path "
-                                + tempRedisServerFullPath + " with Arguments '" + serverArgs + "', working dir = " + tempPath);
+                                                + tempRedisServerFullPath + " with Arguments '" + serverArgs + "', working dir = " + tempPath);
                         }
                         else if (!CanConnectToExistingRedisServer(5, 2000))
                         {

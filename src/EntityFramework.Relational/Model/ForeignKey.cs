@@ -72,7 +72,7 @@ namespace Microsoft.Data.Entity.Relational.Model
 
         protected internal virtual ForeignKey Clone(CloneContext cloneContext)
         {
-            return 
+            return
                 new ForeignKey(
                     Name,
                     Columns.Select(column => column.Clone(cloneContext)).ToArray(),

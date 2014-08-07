@@ -215,14 +215,14 @@ namespace Microsoft.Data.Entity.Design
 
             return contextTypes.Select(
                 t =>
-                {
-                    var result = new Hashtable();
-                    result["FullName"] = t.FullName;
-                    result["Name"] = t.Name;
-                    result["SafeName"] = groups.Count(g => g.Key == t.Name) == 1 ? t.Name : t.FullName;
+                    {
+                        var result = new Hashtable();
+                        result["FullName"] = t.FullName;
+                        result["Name"] = t.Name;
+                        result["SafeName"] = groups.Count(g => g.Key == t.Name) == 1 ? t.Name : t.FullName;
 
-                    return result;
-                });
+                        return result;
+                    });
         }
 
         public class GetMigrationNames : OperationBase
@@ -251,16 +251,16 @@ namespace Microsoft.Data.Entity.Design
 
             return migrations.Select(
                 m =>
-                {
-                    var migrationName = m.GetMigrationName();
+                    {
+                        var migrationName = m.GetMigrationName();
 
-                    var result = new Hashtable();
-                    result["MigrationId"] = m.MigrationId;
-                    result["MigrationName"] = migrationName;
-                    result["SafeName"] = groups.Count(g => g.Key == migrationName) == 1 ? migrationName : m.MigrationId;
+                        var result = new Hashtable();
+                        result["MigrationId"] = m.MigrationId;
+                        result["MigrationName"] = migrationName;
+                        result["SafeName"] = groups.Count(g => g.Key == migrationName) == 1 ? migrationName : m.MigrationId;
 
-                    return result;
-                });
+                        return result;
+                    });
         }
 
         public abstract class OperationBase : MarshalByRefObject

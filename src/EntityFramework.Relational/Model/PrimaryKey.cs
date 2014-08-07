@@ -57,10 +57,10 @@ namespace Microsoft.Data.Entity.Relational.Model
 
         protected internal virtual PrimaryKey Clone(CloneContext cloneContext)
         {
-            return 
+            return
                 new PrimaryKey(
-                    Name, 
-                    Columns.Select(column => column.Clone(cloneContext)).ToArray(), 
+                    Name,
+                    Columns.Select(column => column.Clone(cloneContext)).ToArray(),
                     IsClustered);
         }
     }

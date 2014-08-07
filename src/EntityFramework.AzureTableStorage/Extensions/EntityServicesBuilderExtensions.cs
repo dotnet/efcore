@@ -8,7 +8,6 @@ using Microsoft.Data.Entity.AzureTableStorage.Adapters;
 using Microsoft.Data.Entity.AzureTableStorage.Metadata;
 using Microsoft.Data.Entity.AzureTableStorage.Query;
 using Microsoft.Data.Entity.AzureTableStorage.Utilities;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 
 // ReSharper disable once CheckNamespace

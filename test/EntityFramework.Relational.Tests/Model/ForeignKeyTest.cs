@@ -53,11 +53,11 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
             var column1 = new Column("C1", typeof(int));
             var referencedColumn0 = new Column("RC0", typeof(int));
             var referencedColumn1 = new Column("RC1", typeof(int));
-            var foreignKey 
+            var foreignKey
                 = new ForeignKey(
-                    "FK", 
+                    "FK",
                     new[] { column0, column1 },
-                    new[] { referencedColumn0, referencedColumn1 }, 
+                    new[] { referencedColumn0, referencedColumn1 },
                     cascadeDelete: true);
 
             var cloneContext = new CloneContext();

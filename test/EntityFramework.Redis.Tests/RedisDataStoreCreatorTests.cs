@@ -5,7 +5,6 @@ using System.Threading;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Moq;
-using Moq.Protected;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Redis

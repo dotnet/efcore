@@ -219,10 +219,10 @@ WHERE c.[City] = @p0",
             base.Where_simple_shadow();
 
             Assert.Equal(
-                 @"SELECT e.[City], e.[Country], e.[EmployeeID], e.[FirstName], e.[ReportsTo], e.[Title]
+                @"SELECT e.[City], e.[Country], e.[EmployeeID], e.[FirstName], e.[ReportsTo], e.[Title]
 FROM [Employees] AS e
 WHERE e.[Title] = @p0",
-                 _fixture.Sql);
+                _fixture.Sql);
         }
 
         public override void Where_simple_shadow_projection()
@@ -230,10 +230,10 @@ WHERE e.[Title] = @p0",
             base.Where_simple_shadow_projection();
 
             Assert.Equal(
-                  @"SELECT e.[Title]
+                @"SELECT e.[Title]
 FROM [Employees] AS e
 WHERE e.[Title] = @p0",
-                  _fixture.Sql);
+                _fixture.Sql);
         }
 
         public override void Where_comparison_nullable_type_not_null()

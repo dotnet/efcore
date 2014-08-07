@@ -1,18 +1,18 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.InMemory;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
-using Xunit;
-using System.Threading.Tasks;
 using Remotion.Linq;
+using Xunit;
 
 namespace Microsoft.Data.Entity.FunctionalTests
 {
@@ -127,9 +127,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             Query_throws_DatabaseOperationException_for_store_exception(c =>
                 c.Blogs
-                 .OrderBy(b => b.Name)
-                 .Where(b => b.Url.StartsWith("http://"))
-                 .ToList(),
+                    .OrderBy(b => b.Name)
+                    .Where(b => b.Url.StartsWith("http://"))
+                    .ToList(),
                 asyncOperation: false);
         }
 
@@ -138,10 +138,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             Query_throws_DatabaseOperationException_for_store_exception(c =>
                 c.Blogs
-                 .OrderBy(b => b.Name)
-                 .Where(b => b.Url.StartsWith("http://"))
-                 .ToListAsync()
-                 .Wait(),
+                    .OrderBy(b => b.Name)
+                    .Where(b => b.Url.StartsWith("http://"))
+                    .ToListAsync()
+                    .Wait(),
                 asyncOperation: true);
         }
 
@@ -153,7 +153,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 context.SaveChanges();
                 var entry = context.ChangeTracker.StateManager.StateEntries.Single();
                 context.ChangeTracker.StateManager.StopTracking(entry);
-
 
                 var ex = Assert.ThrowsAny<Exception>(() => test(context));
                 if (asyncOperation)
@@ -172,11 +171,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public class BloggingContext : DbContext
         {
             public BloggingContext()
-            { }
+            {
+            }
 
             public BloggingContext(IServiceProvider provider)
                 : base(provider)
-            { }
+            {
+            }
 
             public DbSet<Blog> Blogs { get; set; }
 
@@ -184,7 +185,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 public Blog()
                     : this(true)
-                { }
+                {
+                }
 
                 public Blog(bool jimSaysThrow)
                 {

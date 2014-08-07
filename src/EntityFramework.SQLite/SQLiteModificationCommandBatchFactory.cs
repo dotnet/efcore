@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.SQLite
     public class SQLiteModificationCommandBatchFactory : ModificationCommandBatchFactory
     {
         public SQLiteModificationCommandBatchFactory(
-            [NotNull] SQLiteSqlGenerator sqlGenerator, 
+            [NotNull] SQLiteSqlGenerator sqlGenerator,
             [NotNull] DbContextConfiguration contextConfiguration)
             : base(sqlGenerator, contextConfiguration)
         {

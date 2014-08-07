@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Requests
         public void Creates_row_request()
         {
             var request = new CreateRowRequest(new AtsTable("A"), new TableEntity());
-            AssertOperationType(request.Operation,TableOperationType.Insert);
+            AssertOperationType(request.Operation, TableOperationType.Insert);
             AssertName(request);
         }
 
@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Requests
 
         private void AssertName(TableOperationRequest request)
         {
-            Assert.Equal(request.GetType().Name,request.Name);
+            Assert.Equal(request.GetType().Name, request.Name);
         }
 
         private void AssertOperationType(TableOperation operation, TableOperationType operationType)

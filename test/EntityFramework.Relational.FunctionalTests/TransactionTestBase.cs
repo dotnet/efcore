@@ -292,7 +292,6 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
             }
         }
 
-
         [Fact]
         public async Task UseTransaction_will_not_dispose_external_transaction()
         {

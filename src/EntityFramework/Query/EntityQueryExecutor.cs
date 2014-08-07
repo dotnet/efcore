@@ -183,8 +183,8 @@ namespace Microsoft.Data.Entity.Query
 
         private class EnumerableExceptionInterceptor<T> : IEnumerable<T>
         {
-            private IEnumerable<T> _inner;
-            private DbContext _context;
+            private readonly IEnumerable<T> _inner;
+            private readonly DbContext _context;
             private readonly LazyRef<ILogger> _logger;
 
             public EnumerableExceptionInterceptor(IEnumerable<T> inner, DbContext context, LazyRef<ILogger> logger)
@@ -206,8 +206,8 @@ namespace Microsoft.Data.Entity.Query
 
             private class EnumeratorExceptionInterceptor : IEnumerator<T>
             {
-                private IEnumerator<T> _inner;
-                private DbContext _context;
+                private readonly IEnumerator<T> _inner;
+                private readonly DbContext _context;
                 private readonly LazyRef<ILogger> _logger;
 
                 public EnumeratorExceptionInterceptor(IEnumerator<T> inner, DbContext context, LazyRef<ILogger> logger)
@@ -222,7 +222,7 @@ namespace Microsoft.Data.Entity.Query
                     get { return _inner.Current; }
                 }
 
-                object System.Collections.IEnumerator.Current
+                object IEnumerator.Current
                 {
                     get { return _inner.Current; }
                 }
@@ -268,8 +268,8 @@ namespace Microsoft.Data.Entity.Query
 
         private class AsyncEnumerableExceptionInterceptor<T> : IAsyncEnumerable<T>
         {
-            private IAsyncEnumerable<T> _inner;
-            private DbContext _context;
+            private readonly IAsyncEnumerable<T> _inner;
+            private readonly DbContext _context;
             private readonly LazyRef<ILogger> _logger;
 
             public AsyncEnumerableExceptionInterceptor(IAsyncEnumerable<T> inner, DbContext context, LazyRef<ILogger> logger)
@@ -286,8 +286,8 @@ namespace Microsoft.Data.Entity.Query
 
             private class AsyncEnumeratorExceptionInterceptor : IAsyncEnumerator<T>
             {
-                private IAsyncEnumerator<T> _inner;
-                private DbContext _context;
+                private readonly IAsyncEnumerator<T> _inner;
+                private readonly DbContext _context;
                 private readonly LazyRef<ILogger> _logger;
 
                 public AsyncEnumeratorExceptionInterceptor(IAsyncEnumerator<T> inner, DbContext context, LazyRef<ILogger> logger)
@@ -327,7 +327,6 @@ namespace Microsoft.Data.Entity.Query
 
                         throw new DataStoreException(Strings.DataStoreException, _context, ex);
                     }
-
                 }
 
                 public void Dispose()

@@ -218,7 +218,7 @@ namespace Microsoft.Data.Entity.Migrations.Builders
         }
 
         private static IReadOnlyList<Column> GetColumns<TColumns>(
-            TColumns columnSpec, 
+            TColumns columnSpec,
             out IDictionary<PropertyInfo, Column> propertyInfoToColumnMap)
         {
             var columns = new List<Column>();

@@ -32,19 +32,19 @@ namespace Microsoft.Data.Entity.Design.Tests
                                 .Setup(m => m.Add(It.IsAny<IConfigurationSource>()))
                                 .Callback<IConfigurationSource>(
                                     s =>
-                                    {
-                                        if (s is IniFileConfigurationSource)
                                         {
-                                            Assert.Equal(0, callCount);
-                                        }
-                                        else
-                                        {
-                                            Assert.True(s is CommandLineConfigurationSource);
-                                            Assert.Equal(1, callCount);
-                                        }
+                                            if (s is IniFileConfigurationSource)
+                                            {
+                                                Assert.Equal(0, callCount);
+                                            }
+                                            else
+                                            {
+                                                Assert.True(s is CommandLineConfigurationSource);
+                                                Assert.Equal(1, callCount);
+                                            }
 
-                                        callCount++;
-                                    });
+                                            callCount++;
+                                        });
 
                             return configurationMock.Object;
                         });
@@ -63,10 +63,10 @@ namespace Microsoft.Data.Entity.Design.Tests
 
             var args
                 = new[]
-                      {
-                          "--ConfigFile=MyConfigFile.ini",
-                          "--MigrationName=MyMigration"
-                      };
+                    {
+                        "--ConfigFile=MyConfigFile.ini",
+                        "--MigrationName=MyMigration"
+                    };
 
             mock.Object.CreateMigration(args);
 

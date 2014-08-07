@@ -136,7 +136,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
                 subquery._projection.Add(columnExpression);
             }
-            
+
             subquery.AddTables(_tables);
             subquery.AddToOrderBy(_orderBy);
 

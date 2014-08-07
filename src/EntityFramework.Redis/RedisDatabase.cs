@@ -166,7 +166,6 @@ namespace Microsoft.Data.Entity.Redis
 
             var redisDataKeyName = string.Format(CultureInfo.InvariantCulture, DataHashNameFormat, stateEntry.EntityType.Name, compositePrimaryKeyValues);
 
-
             // Note: null entries are stored as the absence of the property_name-property_value pair in the hash
             var entries =
                 stateEntry.EntityType.Properties

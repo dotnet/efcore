@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             var transaction = context.Database.AsRelational().Connection.BeginTransaction();
 
             testDatabase.Transaction = (SqlTransaction)transaction.DbTransaction;
-            
+
             using (var innerContext = CreateF1Context(testDatabase))
             {
                 prepareStore(innerContext);

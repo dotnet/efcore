@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Order>(os => os.Take(5).Distinct().Count());
         }
-        
+
         [Fact]
         public virtual void Any_simple()
         {
@@ -124,9 +124,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer, Order>((cs, os) =>
                 (from c in cs
-                 from o in os
-                 orderby c.CustomerID, o.OrderID
-                 select new { c, o })
+                    from o in os
+                    orderby c.CustomerID, o.OrderID
+                    select new { c, o })
                     .Take(1)
                     .Single());
         }
@@ -688,10 +688,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
             await AssertQueryAsync<Employee>(es =>
                 from e1 in es
                 where (from e2 in es
-                       where (from e3 in es
-                              orderby e3.EmployeeID
-                              select e3).Any()
-                       select e2).Any()
+                    where (from e3 in es
+                        orderby e3.EmployeeID
+                        select e3).Any()
+                    select e2).Any()
                 orderby e1.EmployeeID
                 select e1,
                 assertOrder: true);
@@ -938,7 +938,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     equals new { a = o.CustomerID, b = o.CustomerID }
                 select new { c, o });
         }
-        
+
         [Fact]
         public virtual void Join_client_new_expression()
         {

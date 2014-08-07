@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Framework.DependencyInjection;
@@ -675,10 +674,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         private static void ConfigureModel(ModelBuilder builder)
         {
             builder.Entity<Customer>(b =>
-            {
-                b.Key(c => c.CustomerID);
-                b.ToTable("Customers");
-            });
+                {
+                    b.Key(c => c.CustomerID);
+                    b.ToTable("Customers");
+                });
         }
 
         private static string GetString(string stringName)

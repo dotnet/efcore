@@ -6,11 +6,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.MonsterModel;
-using Xunit;
 using Microsoft.Data.Entity.Storage;
+using Xunit;
 
 namespace Microsoft.Data.Entity.FunctionalTests
 {
@@ -241,7 +240,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.Equal(
                     "Aborting.",
                     (await Assert.ThrowsAsync<DataStoreException>(async () => await context.SaveChangesAsync()))
-                    .InnerException.Message);
+                        .InnerException.Message);
 
                 var afterSnapshot = stateManager.StateEntries.SelectMany(e => e.EntityType.Properties.Select(p => e[p])).ToList();
 

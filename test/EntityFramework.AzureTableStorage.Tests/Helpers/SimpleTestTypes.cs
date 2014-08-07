@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers
             return entityType;
         }
     }
-    
+
     public class ClrPoco
     {
         public string PartitionKey { get; set; }

@@ -146,7 +146,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             Assert.False(columnMod.IsRead);
             Assert.True(columnMod.IsWrite);
         }
-        
+
         [Fact]
         public void ModificationCommand_initialized_correctly_for_modified_entities_with_concurrency_token()
         {

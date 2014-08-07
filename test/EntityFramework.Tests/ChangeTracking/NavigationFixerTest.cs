@@ -212,7 +212,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             var principal1 = new Category { Id = 11 };
             var principal2 = new Category { Id = 12 };
             var dependent = new Product { Id = 21 };
-            
+
             principal2.Products.Add(dependent);
 
             manager.StartTracking(manager.GetOrCreateEntry(principal1));

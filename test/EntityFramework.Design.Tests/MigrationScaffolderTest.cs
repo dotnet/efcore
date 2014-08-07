@@ -819,8 +819,8 @@ namespace MyNamespace
                 var scaffoldedMigration = base.ScaffoldMigration(migrationName);
 
                 _migrationValidation(
-                    scaffoldedMigration.MigrationClass, 
-                    scaffoldedMigration.MigrationCode, 
+                    scaffoldedMigration.MigrationClass,
+                    scaffoldedMigration.MigrationCode,
                     scaffoldedMigration.MigrationMetadataCode);
 
                 _modelValidation(

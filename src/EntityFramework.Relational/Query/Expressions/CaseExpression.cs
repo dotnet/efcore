@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             }
 
             return base.Accept(visitor);
-        } 
+        }
 
         protected override Expression VisitChildren(ExpressionTreeVisitor visitor)
         {

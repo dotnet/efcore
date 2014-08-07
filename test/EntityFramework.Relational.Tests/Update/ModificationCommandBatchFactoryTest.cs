@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.Relational.Update
         public void Create_returns_new_instances()
         {
             var factory = new ModificationCommandBatchFactory(
-                new Mock<SqlGenerator>().Object, 
+                new Mock<SqlGenerator>().Object,
                 new Mock<DbContextConfiguration>().Object);
 
             var firstBatch = factory.Create();

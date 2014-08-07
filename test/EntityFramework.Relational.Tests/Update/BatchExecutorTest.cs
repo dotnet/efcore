@@ -2,15 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Data;
-using System.Data.Common;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.Relational.Update;
 using Moq;
-using Moq.Protected;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Relational.Tests.Update
@@ -38,7 +34,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             RelationalTransaction currentTransaction = null;
             mockRelationalConnection.Setup(m => m.BeginTransaction()).Returns(() => currentTransaction = transactionMock.Object);
             mockRelationalConnection.Setup(m => m.Transaction).Returns(() => currentTransaction);
-            
+
             var cancellationToken = new CancellationTokenSource().Token;
 
             var relationalTypeMapper = new RelationalTypeMapper();

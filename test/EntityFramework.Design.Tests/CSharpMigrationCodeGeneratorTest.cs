@@ -264,11 +264,11 @@ namespace Microsoft.Data.Entity.Design.Tests
         public void Generate_when_sql_operation()
         {
             Assert.Equal(
-@"Sql(@""UPDATE T 
+                @"Sql(@""UPDATE T 
     SET C1='V""""1'
     WHERE C2='V""""2'"")",
                 CSharpMigrationCodeGenerator.Generate(new SqlOperation(
-@"UPDATE T 
+                    @"UPDATE T 
     SET C1='V""1'
     WHERE C2='V""2'")));
         }
@@ -289,10 +289,10 @@ namespace Microsoft.Data.Entity.Design.Tests
             var csharpGenerator = new CSharpMigrationCodeGenerator(new CSharpModelCodeGenerator());
 
             Assert.Equal(
-@"@""foo""""bar
-    bar""""foo""", 
+                @"@""foo""""bar
+    bar""""foo""",
                 csharpGenerator.GenerateVerbatimStringLiteral(
-@"foo""bar
+                    @"foo""bar
     bar""foo"));
         }
 
@@ -310,10 +310,10 @@ namespace Microsoft.Data.Entity.Design.Tests
             var csharpGenerator = new CSharpMigrationCodeGenerator(new CSharpModelCodeGenerator());
 
             Assert.Equal(
-@"foo""""bar
-    bar""""foo", 
+                @"foo""""bar
+    bar""""foo",
                 csharpGenerator.EscapeVerbatimString(
-@"foo""bar
+                    @"foo""bar
     bar""foo"));
         }
 

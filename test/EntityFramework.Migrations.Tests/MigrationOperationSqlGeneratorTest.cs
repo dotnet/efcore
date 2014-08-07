@@ -232,11 +232,11 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Generate_when_sql_operation()
         {
-            var sql = 
-@"UPDATE T
+            var sql =
+                @"UPDATE T
     SET C1='V1'
     WHERE C2='V2'";
-            
+
             Assert.Equal(sql, Generate(new SqlOperation(sql)).Sql);
         }
 

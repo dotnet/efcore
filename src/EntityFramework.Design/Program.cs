@@ -42,7 +42,8 @@ namespace Microsoft.Data.Entity.Design
             string command = null;
             string[] commandArgs = null;
 
-            if (args != null && args.Any())
+            if (args != null
+                && args.Any())
             {
                 command = args.First();
                 commandArgs = args.Skip(1).ToArray();
@@ -153,7 +154,8 @@ namespace Microsoft.Data.Entity.Design
             CommandLineConfigurationSource commandLineConfigSource;
             string configFile;
 
-            if (commandArgs != null && commandArgs.Any())
+            if (commandArgs != null
+                && commandArgs.Any())
             {
                 commandLineConfigSource = new CommandLineConfigurationSource(commandArgs);
                 commandLineConfigSource.Load();

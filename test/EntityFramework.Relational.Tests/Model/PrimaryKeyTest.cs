@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
             var column0 = new Column("Foo", typeof(int));
             var column1 = new Column("Bar", typeof(int));
             var primaryKey = new PrimaryKey("PK", new[] { column0, column1 }, isClustered: false);
-            
+
             var cloneContext = new CloneContext();
             var columnClone0 = column0.Clone(cloneContext);
             var columnClone1 = column1.Clone(cloneContext);

@@ -769,8 +769,8 @@ namespace Microsoft.Data.Entity.Relational.Query
         }
 
         private TResult BindMemberOrMethod<TResult>(
-            Func<IProperty, IQuerySource, SelectExpression, TResult> memberBinder, 
-            IQuerySource querySource, 
+            Func<IProperty, IQuerySource, SelectExpression, TResult> memberBinder,
+            IQuerySource querySource,
             IProperty property)
         {
             var selectExpression = TryGetSelectExpression(querySource);

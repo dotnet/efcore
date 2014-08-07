@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.SqlServer
     public class SqlServerModificationCommandBatchFactory : ModificationCommandBatchFactory
     {
         public SqlServerModificationCommandBatchFactory(
-            [NotNull] SqlServerSqlGenerator sqlGenerator, 
+            [NotNull] SqlServerSqlGenerator sqlGenerator,
             [NotNull] DbContextConfiguration contextConfiguration)
             : base(sqlGenerator, contextConfiguration)
         {

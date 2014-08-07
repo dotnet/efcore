@@ -30,7 +30,8 @@ namespace Microsoft.Data.Entity.Relational.Update
         ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
         /// </summary>
         public ModificationCommandBatch()
-        { }
+        {
+        }
 
         public ModificationCommandBatch([NotNull] DbContextConfiguration contextConfiguration)
         {
@@ -119,8 +120,8 @@ namespace Microsoft.Data.Entity.Relational.Update
                                     if (rowsAffected != 1)
                                     {
                                         throw new DbUpdateConcurrencyException(
-                                            Strings.FormatUpdateConcurrencyException(1, rowsAffected), 
-                                            _contextConfiguration.Context, 
+                                            Strings.FormatUpdateConcurrencyException(1, rowsAffected),
+                                            _contextConfiguration.Context,
                                             tableModification.StateEntries);
                                     }
                                 }
@@ -128,8 +129,8 @@ namespace Microsoft.Data.Entity.Relational.Update
                             else
                             {
                                 throw new DbUpdateConcurrencyException(
-                                    Strings.FormatUpdateConcurrencyException(1, 0), 
-                                    _contextConfiguration.Context, 
+                                    Strings.FormatUpdateConcurrencyException(1, 0),
+                                    _contextConfiguration.Context,
                                     tableModification.StateEntries);
                             }
 

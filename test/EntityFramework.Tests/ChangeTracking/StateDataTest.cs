@@ -89,7 +89,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             data.EntityState = EntityState.Deleted;
             Assert.Equal(EntityState.Deleted, data.EntityState);
 
-            data.SetAllPropertiesModified(70, isModified:true);
+            data.SetAllPropertiesModified(70, isModified: true);
 
             Assert.Equal(EntityState.Deleted, data.EntityState);
 

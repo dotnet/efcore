@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
         [Fact]
         public void Copy_replicates_source()
         {
-            var column1 
+            var column1
                 = new Column("Foo", typeof(string))
                     {
                         DataType = "T",
@@ -88,19 +88,19 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
             var cloneContext = new CloneContext();
             var column
                 = new Column("Foo", typeof(string))
-                {
-                    DataType = "T",
-                    IsNullable = false,
-                    DefaultValue = "V",
-                    DefaultSql = "Sql",
-                    ValueGenerationStrategy = ValueGenerationOnSave.WhenInsertingAndUpdating,
-                    IsTimestamp = true,
-                    MaxLength = 4,
-                    Precision = 3,
-                    Scale = 2,
-                    IsFixedLength = true,
-                    IsUnicode = true
-                };
+                    {
+                        DataType = "T",
+                        IsNullable = false,
+                        DefaultValue = "V",
+                        DefaultSql = "Sql",
+                        ValueGenerationStrategy = ValueGenerationOnSave.WhenInsertingAndUpdating,
+                        IsTimestamp = true,
+                        MaxLength = 4,
+                        Precision = 3,
+                        Scale = 2,
+                        IsFixedLength = true,
+                        IsUnicode = true
+                    };
             var clone = column.Clone(cloneContext);
 
             Assert.NotSame(column, clone);
