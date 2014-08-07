@@ -11,6 +11,41 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
         private readonly Model _model = BuildModel();
 
         [Fact]
+        public void Foreign_key_matching_given_properties_is_found()
+        {
+            DependentType.AddProperty("SomeNavID", typeof(int));
+            DependentType.AddProperty("SomeNavPeEKaY", typeof(int));
+            DependentType.AddProperty("PrincipalEntityID", typeof(int));
+            DependentType.AddProperty("PrincipalEntityPeEKaY", typeof(int));
+            var fkProperty = DependentType.AddProperty("HeToldMeYouKilledMyFk", typeof(int));
+
+            var fk = DependentType.AddForeignKey(PrincipalType.GetKey(), fkProperty);
+
+            Assert.Same(
+                fk,
+                new ForeignKeyConvention().FindOrCreateForeignKey(
+                    PrincipalType, DependentType, "SomeNav", new[] { new[] { fkProperty } }));
+        }
+
+        [Fact]
+        public void Foreign_key_matching_given_property_is_found()
+        {
+            DependentType.AddProperty("SomeNavID", typeof(int));
+            DependentType.AddProperty("SomeNavPeEKaY", typeof(int));
+            DependentType.AddProperty("PrincipalEntityID", typeof(int));
+            DependentType.AddProperty("PrincipalEntityPeEKaY", typeof(int));
+            var fkProperty1 = DependentType.AddProperty("No", typeof(int));
+            var fkProperty2 = DependentType.AddProperty("IAmYourFk", typeof(int));
+
+            var fk = DependentType.AddForeignKey(PrincipalType.GetKey(), fkProperty1, fkProperty2);
+
+            Assert.Same(
+                fk,
+                new ForeignKeyConvention().FindOrCreateForeignKey(
+                    PrincipalType, DependentType, "SomeNav", new[] { new[] { fkProperty1, fkProperty2 } }));
+        }
+
+        [Fact]
         public void Foreign_key_matching_navigation_plus_Id_is_found()
         {
             var fkProperty = DependentType.AddProperty("SomeNavID", typeof(int));
@@ -54,6 +89,44 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             var fk = DependentType.AddForeignKey(PrincipalType.GetKey(), fkProperty);
 
             Assert.Same(fk, new ForeignKeyConvention().FindOrCreateForeignKey(PrincipalType, DependentType, "SomeNav"));
+        }
+
+        [Fact]
+        public void Creates_foreign_key_using_given_property()
+        {
+            DependentType.AddProperty("SomeNavID", typeof(int));
+            DependentType.AddProperty("SomeNavPeEKaY", typeof(int));
+            DependentType.AddProperty("PrincipalEntityID", typeof(int));
+            DependentType.AddProperty("PrincipalEntityPeEKaY", typeof(int));
+            var fkProperty = DependentType.AddProperty("No!No!", typeof(int));
+
+            var fk = new ForeignKeyConvention().FindOrCreateForeignKey(
+                PrincipalType, DependentType, "SomeNav", new[] { new[] { fkProperty } });
+
+            Assert.Same(fkProperty, fk.Properties.Single());
+            Assert.Same(PrimaryKey, fk.ReferencedProperties.Single());
+            Assert.False(fk.IsUnique);
+            Assert.True(fk.IsRequired);
+        }
+
+        [Fact]
+        public void Creates_foreign_key_using_given_properties()
+        {
+            DependentType.AddProperty("SomeNavID", typeof(int));
+            DependentType.AddProperty("SomeNavPeEKaY", typeof(int));
+            DependentType.AddProperty("PrincipalEntityID", typeof(int));
+            DependentType.AddProperty("PrincipalEntityPeEKaY", typeof(int));
+            var fkProperty1 = DependentType.AddProperty("ThatsNotTrue!", typeof(int));
+            var fkProperty2 = DependentType.AddProperty("ThatsImpossible!", typeof(int));
+
+            var fk = new ForeignKeyConvention().FindOrCreateForeignKey(
+                PrincipalType, DependentType, "SomeNav", new[] { new[] { fkProperty1, fkProperty2 } });
+
+            Assert.Same(fkProperty1, fk.Properties[0]);
+            Assert.Same(fkProperty2, fk.Properties[1]);
+            Assert.Same(PrimaryKey, fk.ReferencedProperties.Single());
+            Assert.False(fk.IsUnique);
+            Assert.True(fk.IsRequired);
         }
 
         [Fact]

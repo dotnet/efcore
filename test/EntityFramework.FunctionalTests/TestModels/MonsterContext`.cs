@@ -242,38 +242,18 @@ namespace Microsoft.Data.Entity.MonsterModel
             builder.Entity<TDriver>().Key(e => e.Name);
             builder.Entity<TLicense>().Key(e => e.Name);
 
-            builder.Entity<TComplaint>().ForeignKeys(fk => fk.ForeignKey<TCustomer>(e => e.CustomerId));
-            builder.Entity<TMessage>().ForeignKeys(fk => fk.ForeignKey<TLogin>(e => e.FromUsername));
-            builder.Entity<TMessage>().ForeignKeys(fk => fk.ForeignKey<TLogin>(e => e.ToUsername));
             builder.Entity<TCustomerInfo>().ForeignKeys(fk => fk.ForeignKey<TCustomer>(e => e.CustomerInfoId, isUnique: true));
-            builder.Entity<TSupplierInfo>().ForeignKeys(fk => fk.ForeignKey<TSupplier>(e => e.SupplierId));
-            builder.Entity<TAnOrder>().ForeignKeys(fk => fk.ForeignKey<TLogin>(e => e.Username));
-            builder.Entity<TOrderNote>().ForeignKeys(fk => fk.ForeignKey<TAnOrder>(e => e.OrderId));
             builder.Entity<TOrderQualityCheck>().ForeignKeys(fk => fk.ForeignKey<TAnOrder>(e => e.OrderId, isUnique: true));
             builder.Entity<TSupplierLogo>().ForeignKeys(fk => fk.ForeignKey<TSupplier>(e => e.SupplierId, isUnique: true));
-            builder.Entity<TAnOrder>().ForeignKeys(fk => fk.ForeignKey<TCustomer>(e => e.CustomerId));
-            builder.Entity<TLogin>().ForeignKeys(fk => fk.ForeignKey<TCustomer>(e => e.CustomerId));
             builder.Entity<TLastLogin>().ForeignKeys(fk => fk.ForeignKey<TLogin>(e => e.Username, isUnique: true));
             builder.Entity<TLastLogin>().ForeignKeys(fk => fk.ForeignKey<TSmartCard>(e => e.SmartcardUsername, isUnique: true));
-            builder.Entity<TOrderLine>().ForeignKeys(fk => fk.ForeignKey<TAnOrder>(e => e.OrderId));
-            builder.Entity<TOrderLine>().ForeignKeys(fk => fk.ForeignKey<TProduct>(e => e.ProductId));
             builder.Entity<TProductDetail>().ForeignKeys(fk => fk.ForeignKey<TProduct>(e => e.ProductId, isUnique: true));
-            builder.Entity<TProductReview>().ForeignKeys(fk => fk.ForeignKey<TProduct>(e => e.ProductId));
-            builder.Entity<TProductPhoto>().ForeignKeys(fk => fk.ForeignKey<TProduct>(e => e.ProductId));
             builder.Entity<TProductWebFeature>().ForeignKeys(fk => fk.ForeignKey<TProduct>(e => e.ProductId));
-            builder.Entity<TProductWebFeature>().ForeignKeys(fk => fk.ForeignKey<TProductPhoto>(e => new { e.ProductId, e.PhotoId }));
-            builder.Entity<TProductWebFeature>().ForeignKeys(fk => fk.ForeignKey<TProductReview>(e => new { e.ProductId, e.ReviewId }));
             builder.Entity<TResolution>().ForeignKeys(fk => fk.ForeignKey<TComplaint>(e => e.ResolutionId, isUnique: true));
-            builder.Entity<TIncorrectScan>().ForeignKeys(fk => fk.ForeignKey<TBarcode>(e => e.ExpectedCode));
             builder.Entity<TCustomer>().ForeignKeys(fk => fk.ForeignKey<TCustomer>(e => e.HusbandId, isUnique: true));
-            builder.Entity<TIncorrectScan>().ForeignKeys(fk => fk.ForeignKey<TBarcode>(e => e.ActualCode));
-            builder.Entity<TBarcode>().ForeignKeys(fk => fk.ForeignKey<TProduct>(e => e.ProductId));
             builder.Entity<TBarcodeDetail>().ForeignKeys(fk => fk.ForeignKey<TBarcode>(e => e.Code, isUnique: true));
-            builder.Entity<TSuspiciousActivity>().ForeignKeys(fk => fk.ForeignKey<TLogin>(e => e.Username));
             builder.Entity<TRsaToken>().ForeignKeys(fk => fk.ForeignKey<TLogin>(e => e.Username, isUnique: true));
             builder.Entity<TSmartCard>().ForeignKeys(fk => fk.ForeignKey<TLogin>(e => e.Username, isUnique: true));
-            builder.Entity<TPasswordReset>().ForeignKeys(fk => fk.ForeignKey<TLogin>(e => e.Username));
-            builder.Entity<TPageView>().ForeignKeys(fk => fk.ForeignKey<TLogin>(e => e.Username));
             builder.Entity<TComputerDetail>().ForeignKeys(fk => fk.ForeignKey<TComputer>(e => e.ComputerDetailId, isUnique: true));
             builder.Entity<TLicense>().ForeignKeys(fk => fk.ForeignKey<TDriver>(e => e.Name, isUnique: true));
 
@@ -324,80 +304,84 @@ namespace Microsoft.Data.Entity.MonsterModel
                     b.OneToMany(e => (IEnumerable<TOrderNote>)e.Notes, e => (TAnOrder)e.Order);
                 });
 
-            builder.Entity<TProduct>(b => { b.OneToMany(e => (IEnumerable<TProductReview>)e.Reviews, e => (TProduct)e.Product); });
+            builder.Entity<TProduct>(b =>
+                {
+                    b.OneToMany(e => (IEnumerable<TProductReview>)e.Reviews, e => (TProduct)e.Product);
+                    b.OneToMany(e => (IEnumerable<TBarcode>)e.Barcodes, e => (TProduct)e.Product);
+                    b.OneToMany<TOrderLine>(null, e => (TProduct)e.Product);
+                    b.OneToMany(e => (IEnumerable<TProductPhoto>)e.Photos);
+                });
 
             builder.Entity<TCustomer>(b =>
                 {
                     b.OneToMany(e => (IEnumerable<TAnOrder>)e.Orders, e => (TCustomer)e.Customer);
                     b.OneToMany(e => (IEnumerable<TLogin>)e.Logins, e => (TCustomer)e.Customer);
+
+                    b.OneToMany<TComplaint>(null, e => (TCustomer)e.Customer)
+                        .ForeignKey(e => e.CustomerId);
                 });
+
+            builder.Entity<TProductPhoto>()
+                .OneToMany(e => (IEnumerable<TProductWebFeature>)e.Features, e => (TProductPhoto)e.Photo)
+                .ForeignKey(e => new { e.ProductId, e.PhotoId });
+
+            builder.Entity<TProductReview>()
+                .OneToMany(e => (IEnumerable<TProductWebFeature>)e.Features, e => (TProductReview)e.Review)
+                .ForeignKey(e => new { e.ProductId, e.ReviewId });
+
+            builder.Entity<TLogin>(b =>
+                {
+                    b.OneToMany(e => (IEnumerable<TMessage>)e.SentMessages, e => (TLogin)e.Sender)
+                        .ForeignKey(e => e.FromUsername);
+
+                    b.OneToMany(e => (IEnumerable<TMessage>)e.ReceivedMessages, e => (TLogin)e.Recipient)
+                        .ForeignKey(e => e.ToUsername);
+
+                    b.OneToMany(e => (IEnumerable<TAnOrder>)e.Orders, e => (TLogin)e.Login)
+                        .ForeignKey(e => e.Username);
+
+                    b.OneToMany<TSuspiciousActivity>()
+                        .ForeignKey(e => e.Username);
+
+                    b.OneToMany<TPasswordReset>(null, e => (TLogin)e.Login)
+                        .ForeignKey(e => e.Username);
+
+                    b.OneToMany<TPageView>(null, e => (TLogin)e.Login)
+                        .ForeignKey(e => e.Username);
+                });
+
+            builder.Entity<TBarcode>(b =>
+                {
+                    b.OneToMany(e => (IEnumerable<TIncorrectScan>)e.BadScans, e => (TBarcode)e.ExpectedBarcode)
+                        .ForeignKey(e => e.ExpectedCode);
+
+                    b.OneToMany<TIncorrectScan>(null, e => (TBarcode)e.ActualBarcode)
+                        .ForeignKey(e => e.ActualCode);
+                });
+
+            builder.Entity<TSupplier>().OneToMany<TSupplierInfo>(null, e => (TSupplier)e.Supplier);
 
             // TODO: Use fluent API when available
 
-            AddNavigationToPrincipal(model, typeof(TBarcode), "ProductId", "Product");
-            AddNavigationToDependent(model, typeof(TBarcode), typeof(TIncorrectScan), "ExpectedCode", "BadScans");
             AddNavigationToDependent(model, typeof(TBarcode), typeof(TBarcodeDetail), "Code", "Detail");
-
-            AddNavigationToPrincipal(model, typeof(TComplaint), "CustomerId", "Customer");
             AddNavigationToDependent(model, typeof(TComplaint), typeof(TResolution), "ResolutionId", "Resolution");
-
             AddNavigationToPrincipal(model, typeof(TComputerDetail), "ComputerDetailId", "Computer");
             AddNavigationToDependent(model, typeof(TComputer), typeof(TComputerDetail), "ComputerDetailId", "ComputerDetail");
-
             AddNavigationToDependent(model, typeof(TDriver), typeof(TLicense), "Name", "License");
-
-            AddNavigationToPrincipal(model, typeof(TIncorrectScan), "ExpectedCode", "ExpectedBarcode");
-            AddNavigationToPrincipal(model, typeof(TIncorrectScan), "ActualCode", "ActualBarcode");
-
             AddNavigationToPrincipal(model, typeof(TLastLogin), "Username", "Login");
-
             AddNavigationToPrincipal(model, typeof(TLicense), "Name", "Driver");
-
-            AddNavigationToPrincipal(model, typeof(TMessage), "FromUsername", "Sender");
-            AddNavigationToPrincipal(model, typeof(TMessage), "ToUsername", "Recipient");
-
-            AddNavigationToPrincipal(model, typeof(TOrderLine), "ProductId", "Product");
-
-            AddNavigationToPrincipal(model, typeof(TAnOrder), "Username", "Login");
-
             AddNavigationToPrincipal(model, typeof(TOrderQualityCheck), "OrderId", "Order");
-
-            AddNavigationToPrincipal(model, typeof(TPageView), "Username", "Login");
-
-            AddNavigationToPrincipal(model, typeof(TPasswordReset), "Username", "Login");
-
             AddNavigationToPrincipal(model, typeof(TProductDetail), "ProductId", "Product");
-
             AddNavigationToDependent(model, typeof(TProduct), typeof(TProductDetail), "ProductId", "Detail");
-            AddNavigationToDependent(model, typeof(TProduct), typeof(TProductPhoto), "ProductId", "Photos");
-            AddNavigationToDependent(model, typeof(TProduct), typeof(TBarcode), "ProductId", "Barcodes");
-
-            AddNavigationToPrincipal(model, typeof(TProductWebFeature), "ProductId", "PhotoId", "Photo");
-            AddNavigationToPrincipal(model, typeof(TProductWebFeature), "ProductId", "ReviewId", "Review");
-
-            AddNavigationToDependent(model, typeof(TProductPhoto), typeof(TProductWebFeature), "ProductId", "PhotoId", "Features");
-
-            AddNavigationToDependent(model, typeof(TProductReview), typeof(TProductWebFeature), "ProductId", "ReviewId", "Features");
-
             AddNavigationToPrincipal(model, typeof(TResolution), "ResolutionId", "Complaint");
-
             AddNavigationToPrincipal(model, typeof(TRsaToken), "Username", "Login");
-
             AddNavigationToPrincipal(model, typeof(TSmartCard), "Username", "Login");
             AddNavigationToDependent(model, typeof(TSmartCard), typeof(TLastLogin), "SmartcardUsername", "LastLogin");
-
-            AddNavigationToPrincipal(model, typeof(TSupplierInfo), "SupplierId", "Supplier");
-
             AddNavigationToDependent(model, typeof(TSupplier), typeof(TSupplierLogo), "SupplierId", "Logo");
-
             AddNavigationToDependent(model, typeof(TCustomer), typeof(TCustomerInfo), "CustomerInfoId", "Info");
             AddNavigationToPrincipal(model, typeof(TCustomer), "HusbandId", "Husband");
             AddNavigationToDependent(model, typeof(TCustomer), "HusbandId", "Wife");
-
             AddNavigationToDependent(model, typeof(TLogin), typeof(TLastLogin), "Username", "LastLogin");
-            AddNavigationToDependent(model, typeof(TLogin), typeof(TMessage), "FromUsername", "SentMessages");
-            AddNavigationToDependent(model, typeof(TLogin), typeof(TMessage), "ToUsername", "ReceivedMessages");
-            AddNavigationToDependent(model, typeof(TLogin), typeof(TAnOrder), "Username", "Orders");
 
             if (_onModelCreating != null)
             {
@@ -433,30 +417,6 @@ namespace Microsoft.Data.Entity.MonsterModel
                         model.GetEntityType(dependentType).ForeignKeys.Single(
                             f => f.Properties.Count == 1 && f.Properties.Single().Name == fk),
                         navigation, pointsToPrincipal: false));
-        }
-
-        private static void AddNavigationToDependent(Model model, Type type, Type dependentType, string fk1, string fk2, string navigation)
-        {
-            model.GetEntityType(type)
-                .AddNavigation(
-                    new Navigation(
-                        model.GetEntityType(dependentType).ForeignKeys.Single(
-                            f => f.Properties.Count == 2
-                                 && f.Properties.Any(p => p.Name == fk1)
-                                 && f.Properties.Any(p => p.Name == fk2)),
-                        navigation, pointsToPrincipal: false));
-        }
-
-        private static void AddNavigationToPrincipal(Model model, Type type, string fk1, string fk2, string navigation)
-        {
-            model.GetEntityType(type)
-                .AddNavigation(
-                    new Navigation(
-                        model.GetEntityType(type).ForeignKeys.Single(
-                            f => f.Properties.Count == 2
-                                 && f.Properties.Any(p => p.Name == fk1)
-                                 && f.Properties.Any(p => p.Name == fk2)),
-                        navigation, pointsToPrincipal: true));
         }
 
         public override void SeedUsingFKs(bool saveChanges = true)

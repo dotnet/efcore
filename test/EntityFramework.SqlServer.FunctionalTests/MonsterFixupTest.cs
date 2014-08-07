@@ -12,7 +12,6 @@ using Microsoft.Data.Entity.MonsterModel;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
-using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
@@ -38,12 +37,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         protected override DbContextOptions CreateOptions(string databaseName)
         {
             return new DbContextOptions().UseSqlServer(CreateConnectionString(databaseName));
-        }
-
-        [Fact]
-        public override void Can_build_monster_model_and_seed_data_using_navigations_with_deferred_add()
-        {
-            base.Can_build_monster_model_and_seed_data_using_navigations_with_deferred_add();
         }
 
         private static string CreateConnectionString(string name)

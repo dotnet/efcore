@@ -15,19 +15,32 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
     public class ForeignKeyConvention
     {
         public virtual ForeignKey FindOrCreateForeignKey(
-            [NotNull] EntityType principalType, [NotNull] EntityType dependentType, [CanBeNull] string navigationToPrincipal)
+            [NotNull] EntityType principalType,
+            [NotNull] EntityType dependentType,
+            [CanBeNull] string navigationToPrincipal)
         {
             Check.NotNull(principalType, "principalType");
             Check.NotNull(dependentType, "dependentType");
 
-            // TODO: Composite keys
+            return FindOrCreateForeignKey(
+                principalType,
+                dependentType,
+                navigationToPrincipal,
+                GetCandidateForeignKeyProperties(principalType, dependentType, navigationToPrincipal));
+        }
 
-            var candidateProperties = GetCandidateForeignKeyProperties(principalType, dependentType, navigationToPrincipal);
-            var candidateKeys = dependentType.ForeignKeys.Where(fk => fk.Properties.Count == 1).ToArray();
+        public virtual ForeignKey FindOrCreateForeignKey(
+            [NotNull] EntityType principalType,
+            [NotNull] EntityType dependentType,
+            [CanBeNull] string navigationToPrincipal,
+            [NotNull] IReadOnlyList<Property[]> candidateProperties)
+        {
+            Check.NotNull(principalType, "principalType");
+            Check.NotNull(dependentType, "dependentType");
 
-            foreach (var candidateProperty in candidateProperties)
+            foreach (var properties in candidateProperties)
             {
-                var foreignKey = candidateKeys.FirstOrDefault(fk => fk.Properties[0] == candidateProperty);
+                var foreignKey = dependentType.ForeignKeys.FirstOrDefault(fk => fk.Properties.SequenceEqual(properties));
                 if (foreignKey != null)
                 {
                     return foreignKey;
@@ -38,17 +51,20 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             // TODO: What if foreignKey exists but is associated with different navigations
 
             var fkProperty = candidateProperties.FirstOrDefault()
-                             ?? dependentType.AddProperty(
-                                 (navigationToPrincipal ?? principalType.Name) + "Id",
-                                 // TODO: Make nullable
-                                 principalType.GetKey().Properties.First().PropertyType,
-                                 shadowProperty: true,
-                                 concurrencyToken: false);
+                             ?? new[]
+                                 {
+                                     dependentType.AddProperty(
+                                         (navigationToPrincipal ?? principalType.Name) + "Id",
+                                         // TODO: Make nullable
+                                         principalType.GetKey().Properties.First().PropertyType,
+                                         shadowProperty: true,
+                                         concurrencyToken: false)
+                                 };
 
             return dependentType.AddForeignKey(principalType.GetKey(), fkProperty);
         }
 
-        private IReadOnlyList<Property> GetCandidateForeignKeyProperties(
+        private IReadOnlyList<Property[]> GetCandidateForeignKeyProperties(
             EntityType principalType, EntityType dependentType, string navigationToPrincipal)
         {
             var pk = principalType.TryGetKey();
@@ -86,7 +102,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                 }
             }
 
-            return matches;
+            return matches.Select(p => new[] { p }).ToArray();
         }
     }
 }

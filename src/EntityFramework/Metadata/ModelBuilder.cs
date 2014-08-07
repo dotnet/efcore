@@ -111,11 +111,6 @@ namespace Microsoft.Data.Entity.Metadata
             private readonly TMetadata _metadata;
             private readonly ModelBuilder _modelBuilder;
 
-            internal MetadataBuilder(TMetadata metadata)
-                : this(metadata, null)
-            {
-            }
-
             internal MetadataBuilder(TMetadata metadata, ModelBuilder modelBuilder)
             {
                 _metadata = metadata;
@@ -157,13 +152,13 @@ namespace Microsoft.Data.Entity.Metadata
 
                 Metadata.SetKey(propertyNames.Select(n => Metadata.GetProperty(n)).ToArray());
 
-                return new KeyBuilder(Metadata.GetKey());
+                return new KeyBuilder(Metadata.GetKey(), ModelBuilder);
             }
 
             public class KeyBuilder : MetadataBuilder<Key, KeyBuilder>
             {
-                internal KeyBuilder(Key key)
-                    : base(key)
+                internal KeyBuilder(Key key, ModelBuilder modelBuilder)
+                    : base(key, modelBuilder)
                 {
                 }
             }
@@ -177,13 +172,13 @@ namespace Microsoft.Data.Entity.Metadata
                     = Metadata.TryGetProperty(name)
                       ?? Metadata.AddProperty(name, typeof(TProperty), shadowProperty, concurrencyToken);
 
-                return new PropertyBuilder(property);
+                return new PropertyBuilder(property, ModelBuilder);
             }
 
             public class PropertyBuilder : MetadataBuilder<Property, PropertyBuilder>
             {
-                internal PropertyBuilder(Property property)
-                    : base(property)
+                internal PropertyBuilder(Property property, ModelBuilder modelBuilder)
+                    : base(property, modelBuilder)
                 {
                 }
 
@@ -250,13 +245,13 @@ namespace Microsoft.Data.Entity.Metadata
                     // TODO: This code currently assumes that the FK maps to a PK on the principal end
                     var foreignKey = _entityType.AddForeignKey(principalType.GetKey(), dependentProperties);
 
-                    return new ForeignKeyBuilder(foreignKey);
+                    return new ForeignKeyBuilder(foreignKey, ModelBuilder);
                 }
 
                 public class ForeignKeyBuilder : MetadataBuilder<ForeignKey, ForeignKeyBuilder>
                 {
-                    internal ForeignKeyBuilder(ForeignKey foreignKey)
-                        : base(foreignKey)
+                    internal ForeignKeyBuilder(ForeignKey foreignKey, ModelBuilder modelBuilder)
+                        : base(foreignKey, modelBuilder)
                     {
                     }
 
@@ -273,39 +268,32 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 Check.NotNull(indexesBuilder, "indexesBuilder");
 
-                indexesBuilder(new IndexesBuilder(Metadata));
+                indexesBuilder(new IndexesBuilder(Metadata, ModelBuilder));
 
                 return this;
             }
 
-            public class IndexesBuilder
+            public class IndexesBuilder : MetadataBuilder<EntityType, IndexesBuilder>
             {
-                private readonly EntityType _entityType;
-
-                internal IndexesBuilder(EntityType entityType)
+                internal IndexesBuilder(EntityType entityType, ModelBuilder modelBuilder)
+                    : base(entityType, modelBuilder)
                 {
-                    _entityType = entityType;
-                }
-
-                protected EntityType EntityType
-                {
-                    get { return _entityType; }
                 }
 
                 public IndexBuilder Index([NotNull] params string[] propertyNames)
                 {
                     Check.NotNull(propertyNames, "propertyNames");
 
-                    var properties = propertyNames.Select(n => _entityType.GetProperty(n)).ToArray();
-                    var index = _entityType.AddIndex(properties);
+                    var properties = propertyNames.Select(n => Metadata.GetProperty(n)).ToArray();
+                    var index = Metadata.AddIndex(properties);
 
-                    return new IndexBuilder(index);
+                    return new IndexBuilder(index, ModelBuilder);
                 }
 
                 public class IndexBuilder : MetadataBuilder<Index, IndexBuilder>
                 {
-                    internal IndexBuilder(Index index)
-                        : base(index)
+                    internal IndexBuilder(Index index, ModelBuilder modelBuilder)
+                        : base(index, modelBuilder)
                     {
                     }
 
@@ -344,7 +332,7 @@ namespace Microsoft.Data.Entity.Metadata
                                       ?? Metadata.AddProperty(pi))
                         .ToArray());
 
-                return new KeyBuilder(Metadata.GetKey());
+                return new KeyBuilder(Metadata.GetKey(), ModelBuilder);
             }
 
             public virtual PropertyBuilder Property([NotNull] Expression<Func<TEntity, object>> propertyExpression)
@@ -355,7 +343,7 @@ namespace Microsoft.Data.Entity.Metadata
                     = Metadata.TryGetProperty(propertyInfo.Name)
                       ?? Metadata.AddProperty(propertyInfo);
 
-                return new PropertyBuilder(property);
+                return new PropertyBuilder(property, ModelBuilder);
             }
 
             public EntityBuilder<TEntity> ForeignKeys([NotNull] Action<ForeignKeysBuilder> foreignKeysBuilder)
@@ -390,7 +378,7 @@ namespace Microsoft.Data.Entity.Metadata
                     var foreignKey = EntityType.AddForeignKey(principalType.GetKey(), dependentProperties);
                     foreignKey.IsUnique = isUnique;
 
-                    return new ForeignKeyBuilder(foreignKey);
+                    return new ForeignKeyBuilder(foreignKey, ModelBuilder);
                 }
             }
 
@@ -398,15 +386,15 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 Check.NotNull(indexesBuilder, "indexesBuilder");
 
-                indexesBuilder(new IndexesBuilder(Metadata));
+                indexesBuilder(new IndexesBuilder(Metadata, ModelBuilder));
 
                 return this;
             }
 
             public new class IndexesBuilder : EntityBuilderBase<EntityBuilder<TEntity>>.IndexesBuilder
             {
-                internal IndexesBuilder(EntityType entityType)
-                    : base(entityType)
+                internal IndexesBuilder(EntityType entityType, ModelBuilder modelBuilder)
+                    : base(entityType, modelBuilder)
                 {
                 }
 
@@ -416,15 +404,15 @@ namespace Microsoft.Data.Entity.Metadata
 
                     var properties
                         = indexExpression.GetPropertyAccessList()
-                            .Select(pi => EntityType.TryGetProperty(pi.Name) ?? EntityType.AddProperty(pi))
+                            .Select(pi => Metadata.TryGetProperty(pi.Name) ?? Metadata.AddProperty(pi))
                             .ToArray();
-                    var index = EntityType.AddIndex(properties);
+                    var index = Metadata.AddIndex(properties);
 
-                    return new IndexBuilder(index);
+                    return new IndexBuilder(index, ModelBuilder);
                 }
             }
 
-            public OneToManyBuilder OneToMany<TRelatedEntity>(
+            public OneToManyBuilder<TRelatedEntity> OneToMany<TRelatedEntity>(
                 [CanBeNull] Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> navigationExpression = null,
                 [CanBeNull] Expression<Func<TRelatedEntity, TEntity>> inverseNavigationExpression = null)
             {
@@ -452,28 +440,79 @@ namespace Microsoft.Data.Entity.Metadata
                 if (navNameToDependent != null
                     && navToDependent == null)
                 {
-                    Metadata.AddNavigation(new Navigation(foreignKey, navNameToDependent, pointsToPrincipal: false));
+                    navToDependent = Metadata.AddNavigation(new Navigation(foreignKey, navNameToDependent, pointsToPrincipal: false));
                 }
 
                 if (navNameToPrincipal != null
                     && navToPrincipal == null)
                 {
-                    dependentType.AddNavigation(new Navigation(foreignKey, navNameToPrincipal, pointsToPrincipal: true));
+                    navToPrincipal = dependentType.AddNavigation(new Navigation(foreignKey, navNameToPrincipal, pointsToPrincipal: true));
                 }
 
-                return new OneToManyBuilder(foreignKey, navToPrincipal, navToDependent);
+                return new OneToManyBuilder<TRelatedEntity>(foreignKey, ModelBuilder, navToPrincipal, navToDependent);
             }
 
-            public class OneToManyBuilder : MetadataBuilder<ForeignKey, OneToManyBuilder>
+            public class OneToManyBuilder<TDependentEntity> : MetadataBuilder<ForeignKey, OneToManyBuilder<TDependentEntity>>
             {
                 private readonly Navigation _navigationToPrincipal;
                 private readonly Navigation _navigationToDependent;
 
-                internal OneToManyBuilder(ForeignKey metadata, Navigation navigationToPrincipal, Navigation navigationToDependent)
-                    : base(metadata)
+                internal OneToManyBuilder(ForeignKey metadata, ModelBuilder modelBuilder, 
+                    Navigation navigationToPrincipal, Navigation navigationToDependent)
+                    : base(metadata, modelBuilder)
                 {
                     _navigationToPrincipal = navigationToPrincipal;
                     _navigationToDependent = navigationToDependent;
+                }
+
+                public OneToManyBuilder<TDependentEntity> ForeignKey(
+                    [NotNull] Expression<Func<TDependentEntity, object>> foreignKeyExpression)
+                {
+                    Check.NotNull(foreignKeyExpression, "foreignKeyExpression");
+
+                    var dependentType = ModelBuilder.Entity<TDependentEntity>().Metadata;
+
+                    var dependentProperties
+                        = foreignKeyExpression.GetPropertyAccessList()
+                            .Select(pi => dependentType.TryGetProperty(pi.Name) ?? dependentType.AddProperty(pi))
+                            .ToArray();
+
+                    var foreignKey = Metadata;
+                    if (!foreignKey.Properties.SequenceEqual(dependentProperties))
+                    {
+                        foreignKey = new ForeignKeyConvention().FindOrCreateForeignKey(
+                            ModelBuilder.Entity<TEntity>().Metadata,
+                            dependentType,
+                            _navigationToPrincipal != null ? _navigationToPrincipal.Name : null,
+                            new[] { dependentProperties });
+
+                        // TODO: Remove FK only if it was added by convention
+                        dependentType.RemoveForeignKey(Metadata);
+
+                        // TODO: Remove property only if it was added by convention
+                        foreach (var property in Metadata.Properties.Except(dependentProperties))
+                        {
+                            dependentType.RemoveProperty(property);
+                        }
+
+                        if (_navigationToPrincipal != null)
+                        {
+                            _navigationToPrincipal.ForeignKey = foreignKey;
+                        }
+
+                        if (_navigationToDependent != null)
+                        {
+                            _navigationToDependent.ForeignKey = foreignKey;
+                        }
+                    }
+                    
+                    if (foreignKey.IsUnique)
+                    {
+                        // TODO: Only override this if it wasn't set explicitly. If it was, throw, or trust.
+                        foreignKey.IsUnique = false;
+                    }
+
+                    return new OneToManyBuilder<TDependentEntity>(foreignKey, ModelBuilder, _navigationToPrincipal, _navigationToDependent);
                 }
             }
         }

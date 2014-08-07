@@ -957,34 +957,33 @@ namespace Microsoft.Data.Entity.ChangeTracking
             builder.Entity<Product>();
             builder.Entity<Category>().OneToMany(e => e.Products, e => e.Category);
             builder.Entity<ProductDetail>();
-            builder.Entity<ProductPhoto>().Key(e => new { e.ProductId, e.PhotoId });
-            builder.Entity<ProductReview>().Key(e => new { e.ProductId, e.ReviewId });
+            builder.Entity<ProductPhoto>(b =>
+                {
+                    b.Key(e => new { e.ProductId, e.PhotoId });
+                    b.OneToMany(e => e.ProductTags, e => e.Photo)
+                        .ForeignKey(e => new { e.ProductId, e.PhotoId });
+                });
+            builder.Entity<ProductReview>(b =>
+                {
+                    b.Key(e => new { e.ProductId, e.ReviewId });
+                    b.OneToMany(e => e.ProductTags, e => e.Review)
+                        .ForeignKey(e => new { e.ProductId, e.ReviewId });
+                });
             builder.Entity<ProductTag>();
 
             var productType = model.GetEntityType(typeof(Product));
             var productDetailType = model.GetEntityType(typeof(ProductDetail));
-            var productPhotoType = model.GetEntityType(typeof(ProductPhoto));
-            var productReviewType = model.GetEntityType(typeof(ProductReview));
-            var productTagType = model.GetEntityType(typeof(ProductTag));
 
             var alternateProductFk = productType.AddForeignKey(productType.GetKey(), productType.GetProperty("AlternateProductId"));
             alternateProductFk.IsUnique = true;
             var productDetailFk = productDetailType.AddForeignKey(productType.GetKey(), productDetailType.GetProperty("Id"));
             productDetailFk.IsUnique = true;
 
-            var photoFk = productTagType.AddForeignKey(productPhotoType.GetKey(), productTagType.GetProperty("ProductId"), productTagType.GetProperty("PhotoId"));
-            var reviewFk = productTagType.AddForeignKey(productReviewType.GetKey(), productTagType.GetProperty("ProductId"), productTagType.GetProperty("ReviewId"));
-
             productType.AddNavigation(new Navigation(alternateProductFk, "AlternateProduct", pointsToPrincipal: true));
             productType.AddNavigation(new Navigation(alternateProductFk, "OriginalProduct", pointsToPrincipal: false));
 
             productDetailType.AddNavigation(new Navigation(productDetailFk, "Product", pointsToPrincipal: true));
             productType.AddNavigation(new Navigation(productDetailFk, "Detail", pointsToPrincipal: false));
-
-            productTagType.AddNavigation(new Navigation(photoFk, "Photo", pointsToPrincipal: true));
-            productTagType.AddNavigation(new Navigation(reviewFk, "Review", pointsToPrincipal: true));
-            productPhotoType.AddNavigation(new Navigation(photoFk, "ProductTags", pointsToPrincipal: false));
-            productReviewType.AddNavigation(new Navigation(reviewFk, "ProductTags", pointsToPrincipal: false));
 
             return model;
         }
