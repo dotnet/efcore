@@ -3,7 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
@@ -83,9 +85,12 @@ namespace Microsoft.Data.Entity.Relational.Query
                     { typeof(SingleResultOperator), HandleSingle },
                     { typeof(FirstResultOperator), HandleFirst },
                     { typeof(DistinctResultOperator), HandleDistinct },
-                    { typeof(SkipResultOperator), HandleSkip }
+                    { typeof(SkipResultOperator), HandleSkip },
+                    { typeof(SumResultOperator), HandleSum },
+                    { typeof(MinResultOperator), HandleMin },
+                    { typeof(MaxResultOperator), HandleMax }
                 };
-        
+
         private readonly IResultOperatorHandler _resultOperatorHandler;
 
         public RelationalResultOperatorHandler([NotNull] IResultOperatorHandler resultOperatorHandler)
@@ -173,9 +178,45 @@ namespace Microsoft.Data.Entity.Relational.Query
         private static Expression HandleCount(HandlerContext handlerContext)
         {
             handlerContext.SelectExpression
-                .SetProjectionCountExpression(new CountExpression());
+                .SetProjectionExpression(new CountExpression());
 
             return TransformClientExpression<int>(handlerContext);
+        }
+
+        private static Expression HandleMin(HandlerContext handlerContext)
+        {
+            var minExpression
+                = new MinExpression(handlerContext.SelectExpression.Projection.Single());
+
+            handlerContext.SelectExpression.SetProjectionExpression(minExpression);
+
+            return (Expression)_transformClientExpressionMethodInfo
+                .MakeGenericMethod(minExpression.Type)
+                .Invoke(null, new object[] { handlerContext });
+        }
+
+        private static Expression HandleMax(HandlerContext handlerContext)
+        {
+            var maxExpression
+                = new MaxExpression(handlerContext.SelectExpression.Projection.Single());
+
+            handlerContext.SelectExpression.SetProjectionExpression(maxExpression);
+
+            return (Expression)_transformClientExpressionMethodInfo
+                .MakeGenericMethod(maxExpression.Type)
+                .Invoke(null, new object[] { handlerContext });
+        }
+
+        private static Expression HandleSum(HandlerContext handlerContext)
+        {
+            var sumExpression
+                = new SumExpression(handlerContext.SelectExpression.Projection.Single());
+
+            handlerContext.SelectExpression.SetProjectionExpression(sumExpression);
+
+            return (Expression)_transformClientExpressionMethodInfo
+                .MakeGenericMethod(sumExpression.Type)
+                .Invoke(null, new object[] { handlerContext });
         }
 
         private static Expression HandleDistinct(HandlerContext handlerContext)
@@ -225,6 +266,10 @@ namespace Microsoft.Data.Entity.Relational.Query
             handlerContext.SelectExpression.ClearOrderBy();
             handlerContext.SelectExpression.Predicate = null;
         }
+
+        private static readonly MethodInfo _transformClientExpressionMethodInfo
+            = typeof(RelationalResultOperatorHandler).GetTypeInfo()
+                .GetDeclaredMethod("TransformClientExpression");
 
         private static Expression TransformClientExpression<TResult>(HandlerContext handlerContext)
         {

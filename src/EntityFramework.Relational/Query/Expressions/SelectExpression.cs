@@ -244,18 +244,18 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             _projectionExpression = caseExpression;
         }
 
-        public virtual void SetProjectionCountExpression([NotNull] CountExpression countExpression)
+        public virtual void SetProjectionExpression([NotNull] Expression expression)
         {
-            Check.NotNull(countExpression, "countExpression");
+            Check.NotNull(expression, "expression");
 
             PushDownIfLimit();
             PushDownIfDistinct();
 
             ClearProjection();
 
-            _projectionExpression = countExpression;
+            _projectionExpression = expression;
         }
-
+        
         public virtual void ClearProjection()
         {
             _projection.Clear();

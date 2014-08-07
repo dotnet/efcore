@@ -5,15 +5,14 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Query.Sql;
 using Microsoft.Data.Entity.Relational.Utilities;
-using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Relational.Query.Expressions
 {
-    public class CountExpression : ExtensionExpression
+    public class MinExpression : ColumnAggregateExpression
     {
-        public CountExpression()
-            : base(typeof(int))
+        public MinExpression([NotNull] ColumnExpression columnExpression)
+            : base(Check.NotNull(columnExpression, "columnExpression"))
         {
         }
 
@@ -25,15 +24,10 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
             if (specificVisitor != null)
             {
-                return specificVisitor.VisitCountExpression(this);
+                return specificVisitor.VisitMinExpression(this);
             }
 
             return base.Accept(visitor);
-        }
-
-        protected override Expression VisitChildren(ExpressionTreeVisitor visitor)
-        {
-            return this;
         }
     }
 }

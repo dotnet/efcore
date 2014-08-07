@@ -3,32 +3,25 @@
 
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Relational.Query.Sql;
 using Microsoft.Data.Entity.Relational.Utilities;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Relational.Query.Expressions
 {
-    public class CountExpression : ExtensionExpression
+    public abstract class ColumnAggregateExpression : ExtensionExpression
     {
-        public CountExpression()
-            : base(typeof(int))
+        private readonly ColumnExpression _columnExpression;
+
+        protected ColumnAggregateExpression([NotNull] ColumnExpression columnExpression)
+            : base(Check.NotNull(columnExpression, "columnExpression").Type)
         {
+            _columnExpression = columnExpression;
         }
 
-        public override Expression Accept([NotNull] ExpressionTreeVisitor visitor)
+        public virtual ColumnExpression ColumnExpression
         {
-            Check.NotNull(visitor, "visitor");
-
-            var specificVisitor = visitor as ISqlExpressionVisitor;
-
-            if (specificVisitor != null)
-            {
-                return specificVisitor.VisitCountExpression(this);
-            }
-
-            return base.Accept(visitor);
+            get { return _columnExpression; }
         }
 
         protected override Expression VisitChildren(ExpressionTreeVisitor visitor)

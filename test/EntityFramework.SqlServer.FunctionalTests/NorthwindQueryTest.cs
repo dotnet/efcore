@@ -33,6 +33,66 @@ WHERE o.[CustomerID] = @p0",
                 _fixture.Sql);
         }
 
+        public override void Sum_with_no_arg()
+        {
+            base.Sum_with_no_arg(); 
+            
+            Assert.Equal(
+                 @"SELECT SUM(o.[OrderID])
+FROM [Orders] AS o",
+                 _fixture.Sql);
+        }
+
+        public override void Sum_with_arg()
+        {
+            base.Sum_with_arg(); 
+            
+            Assert.Equal(
+                  @"SELECT SUM(o.[OrderID])
+FROM [Orders] AS o",
+                  _fixture.Sql);
+        }
+
+        public override void Min_with_no_arg()
+        {
+            base.Min_with_no_arg();
+
+            Assert.Equal(
+                 @"SELECT MIN(o.[OrderID])
+FROM [Orders] AS o",
+                 _fixture.Sql);
+        }
+
+        public override void Min_with_arg()
+        {
+            base.Min_with_arg();
+
+            Assert.Equal(
+                  @"SELECT MIN(o.[OrderID])
+FROM [Orders] AS o",
+                  _fixture.Sql);
+        }
+
+        public override void Max_with_no_arg()
+        {
+            base.Max_with_no_arg();
+
+            Assert.Equal(
+                 @"SELECT MAX(o.[OrderID])
+FROM [Orders] AS o",
+                 _fixture.Sql);
+        }
+
+        public override void Max_with_arg()
+        {
+            base.Max_with_arg();
+
+            Assert.Equal(
+                  @"SELECT MAX(o.[OrderID])
+FROM [Orders] AS o",
+                  _fixture.Sql);
+        }
+
         public override void Distinct_Count()
         {
             base.Distinct_Count();

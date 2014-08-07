@@ -1350,6 +1350,30 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Min_with_no_arg()
+        {
+            AssertQuery<Order>(os => os.Select(o => o.OrderID).Min());
+        }
+
+        [Fact]
+        public virtual void Min_with_arg()
+        {
+            AssertQuery<Order>(os => os.Min(o => o.OrderID));
+        }
+
+        [Fact]
+        public virtual void Max_with_no_arg()
+        {
+            AssertQuery<Order>(os => os.Select(o => o.OrderID).Max());
+        }
+
+        [Fact]
+        public virtual void Max_with_arg()
+        {
+            AssertQuery<Order>(os => os.Max(o => o.OrderID));
+        }
+
+        [Fact]
         public virtual void Count_with_no_predicate()
         {
             AssertQuery<Order>(os => os.Count());
