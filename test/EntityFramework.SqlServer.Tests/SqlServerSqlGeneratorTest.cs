@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         protected override void AppendInsertOperation_appends_insert_and_select_and_where_if_store_generated_columns_exist_verification(StringBuilder stringBuilder)
         {
             Assert.Equal(
-                "INSERT INTO [Ducks] ([Name], [Quacks], [ConcurrencyToken])" + Environment.NewLine +
+                "INSERT INTO [dbo].[Ducks] ([Name], [Quacks], [ConcurrencyToken])" + Environment.NewLine +
                 "OUTPUT INSERTED.[Id], INSERTED.[Computed]" + Environment.NewLine +
                 "VALUES (@p2, @p3, @p5);" + Environment.NewLine,
                 stringBuilder.ToString());

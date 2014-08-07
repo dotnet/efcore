@@ -482,7 +482,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             protected override void OnModelCreating(ModelBuilder builder)
             {
-                builder.Entity<TBlog>().ToTable("Blog");
+                builder.Entity<TBlog>().ToTable("Blog", "dbo");
             }
 
             public DbSet<TBlog> Blogs { get; set; }

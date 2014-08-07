@@ -183,7 +183,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                 throw new NotImplementedException();
             }
 
-            public override void AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string tableName)
+            public override void AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, SchemaQualifiedName schemaQualifiedName)
             {
                 throw new NotImplementedException();
             }

@@ -18,10 +18,10 @@ namespace Microsoft.Data.Entity.Relational.Update
         {
             var stateEntry = CreateStateEntry(EntityState.Added, ValueGenerationOnSave.WhenInserting);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator());
+            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator());
             command.AddStateEntry(stateEntry);
 
-            Assert.Equal("T1", command.TableName);
+            Assert.Equal("T1", command.SchemaQualifiedName);
             Assert.Equal(EntityState.Added, command.EntityState);
             Assert.Equal(2, command.ColumnModifications.Count);
 
@@ -51,10 +51,10 @@ namespace Microsoft.Data.Entity.Relational.Update
         {
             var stateEntry = CreateStateEntry(EntityState.Added);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator());
+            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator());
             command.AddStateEntry(stateEntry);
 
-            Assert.Equal("T1", command.TableName);
+            Assert.Equal("T1", command.SchemaQualifiedName);
             Assert.Equal(EntityState.Added, command.EntityState);
             Assert.Equal(2, command.ColumnModifications.Count);
 
@@ -85,10 +85,10 @@ namespace Microsoft.Data.Entity.Relational.Update
             var stateEntry = CreateStateEntry(EntityState.Modified, ValueGenerationOnSave.WhenInserting);
             stateEntry.SetPropertyModified(stateEntry.EntityType.GetKey().Properties[0], isModified: false);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator());
+            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator());
             command.AddStateEntry(stateEntry);
 
-            Assert.Equal("T1", command.TableName);
+            Assert.Equal("T1", command.SchemaQualifiedName);
             Assert.Equal(EntityState.Modified, command.EntityState);
             Assert.Equal(2, command.ColumnModifications.Count);
 
@@ -119,10 +119,10 @@ namespace Microsoft.Data.Entity.Relational.Update
             var stateEntry = CreateStateEntry(EntityState.Modified);
             stateEntry.SetPropertyModified(stateEntry.EntityType.GetKey().Properties[0], isModified: false);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator());
+            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator());
             command.AddStateEntry(stateEntry);
 
-            Assert.Equal("T1", command.TableName);
+            Assert.Equal("T1", command.SchemaQualifiedName);
             Assert.Equal(EntityState.Modified, command.EntityState);
             Assert.Equal(2, command.ColumnModifications.Count);
 
@@ -153,10 +153,10 @@ namespace Microsoft.Data.Entity.Relational.Update
             var stateEntry = CreateStateEntry(EntityState.Modified, nonKeyStrategy: ValueGenerationOnSave.WhenInsertingAndUpdating);
             stateEntry.SetPropertyModified(stateEntry.EntityType.GetKey().Properties[0], isModified: false);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator());
+            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator());
             command.AddStateEntry(stateEntry);
 
-            Assert.Equal("T1", command.TableName);
+            Assert.Equal("T1", command.SchemaQualifiedName);
             Assert.Equal(EntityState.Modified, command.EntityState);
             Assert.Equal(2, command.ColumnModifications.Count);
 
@@ -186,10 +186,10 @@ namespace Microsoft.Data.Entity.Relational.Update
         {
             var stateEntry = CreateStateEntry(EntityState.Deleted);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator());
+            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator());
             command.AddStateEntry(stateEntry);
 
-            Assert.Equal("T1", command.TableName);
+            Assert.Equal("T1", command.SchemaQualifiedName);
             Assert.Equal(EntityState.Deleted, command.EntityState);
             Assert.Equal(1, command.ColumnModifications.Count);
 
@@ -209,10 +209,10 @@ namespace Microsoft.Data.Entity.Relational.Update
         {
             var stateEntry = CreateStateEntry(EntityState.Deleted, nonKeyStrategy: ValueGenerationOnSave.WhenInsertingAndUpdating);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator());
+            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator());
             command.AddStateEntry(stateEntry);
 
-            Assert.Equal("T1", command.TableName);
+            Assert.Equal("T1", command.SchemaQualifiedName);
             Assert.Equal(EntityState.Deleted, command.EntityState);
             Assert.Equal(2, command.ColumnModifications.Count);
 
@@ -242,7 +242,7 @@ namespace Microsoft.Data.Entity.Relational.Update
         {
             var stateEntry = CreateStateEntry(EntityState.Unchanged);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator());
+            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator());
 
             Assert.Equal(
                 Strings.FormatModificationFunctionInvalidEntityState(EntityState.Unchanged),
@@ -254,7 +254,7 @@ namespace Microsoft.Data.Entity.Relational.Update
         {
             var stateEntry = CreateStateEntry(EntityState.Unknown);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator());
+            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator());
 
             Assert.Equal(
                 Strings.FormatModificationFunctionInvalidEntityState(EntityState.Unknown),
@@ -267,7 +267,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             var stateEntry = CreateStateEntry(
                 EntityState.Deleted, ValueGenerationOnSave.WhenInserting, ValueGenerationOnSave.WhenInsertingAndUpdating);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator());
+            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator());
             command.AddStateEntry(stateEntry);
 
             Assert.False(command.RequiresResultPropagation);
@@ -279,7 +279,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             var stateEntry = CreateStateEntry(
                 EntityState.Added, ValueGenerationOnSave.WhenInserting, ValueGenerationOnSave.WhenInsertingAndUpdating);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator());
+            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator());
             command.AddStateEntry(stateEntry);
 
             Assert.True(command.RequiresResultPropagation);
@@ -290,7 +290,7 @@ namespace Microsoft.Data.Entity.Relational.Update
         {
             var stateEntry = CreateStateEntry(EntityState.Added);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator());
+            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator());
             command.AddStateEntry(stateEntry);
 
             Assert.False(command.RequiresResultPropagation);
@@ -302,7 +302,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             var stateEntry = CreateStateEntry(
                 EntityState.Modified, ValueGenerationOnSave.WhenInserting, ValueGenerationOnSave.WhenInsertingAndUpdating);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator());
+            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator());
             command.AddStateEntry(stateEntry);
 
             Assert.True(command.RequiresResultPropagation);
@@ -313,7 +313,7 @@ namespace Microsoft.Data.Entity.Relational.Update
         {
             var stateEntry = CreateStateEntry(EntityState.Modified, ValueGenerationOnSave.WhenInserting);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator());
+            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator());
             command.AddStateEntry(stateEntry);
 
             Assert.False(command.RequiresResultPropagation);

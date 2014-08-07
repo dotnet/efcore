@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.SQLite
                 .Append("last_insert_rowid()");
         }
 
-        public override void AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string tableName)
+        public override void AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, SchemaQualifiedName schemaQualifiedName)
         {
             commandStringBuilder
                 .Append("SELECT changes()")

@@ -51,21 +51,21 @@ namespace Microsoft.Data.Entity.Relational.Update
             {
                 var entityState = modificationCommand.EntityState;
                 var operations = modificationCommand.ColumnModifications;
-                var tableName = modificationCommand.TableName;
+                var schemaQualifiedName = modificationCommand.SchemaQualifiedName;
 
                 if (entityState == EntityState.Added)
                 {
-                    sqlGenerator.AppendInsertOperation(stringBuilder, tableName, operations);
+                    sqlGenerator.AppendInsertOperation(stringBuilder, schemaQualifiedName, operations);
                 }
 
                 if (entityState == EntityState.Modified)
                 {
-                    sqlGenerator.AppendUpdateOperation(stringBuilder, tableName, operations);
+                    sqlGenerator.AppendUpdateOperation(stringBuilder, schemaQualifiedName, operations);
                 }
 
                 if (entityState == EntityState.Deleted)
                 {
-                    sqlGenerator.AppendDeleteOperation(stringBuilder, tableName, operations);
+                    sqlGenerator.AppendDeleteOperation(stringBuilder, schemaQualifiedName, operations);
                 }
             }
 

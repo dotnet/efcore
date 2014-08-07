@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             var stateEntry1 = new MixedStateEntry(configuration, entityType1, new object());
             stateEntry1[key1] = 0;
             stateEntry1.EntityState = EntityState.Added;
-            var modificationCommandAdded = new ModificationCommand("A", null, new ParameterNameGenerator());
+            var modificationCommandAdded = new ModificationCommand(new SchemaQualifiedName("A"), new ParameterNameGenerator());
             modificationCommandAdded.AddStateEntry(stateEntry1);
 
             var entityType2 = new EntityType(typeof(object));
@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             var stateEntry2 = new MixedStateEntry(configuration, entityType2, new object());
             stateEntry2[key2] = 0;
             stateEntry2.EntityState = EntityState.Modified;
-            var modificationCommandModified = new ModificationCommand("A", null, new ParameterNameGenerator());
+            var modificationCommandModified = new ModificationCommand(new SchemaQualifiedName("A"), new ParameterNameGenerator());
             modificationCommandModified.AddStateEntry(stateEntry2);
 
             var entityType3 = new EntityType(typeof(object));
@@ -40,27 +40,38 @@ namespace Microsoft.Data.Entity.Relational.Update
             var stateEntry3 = new MixedStateEntry(configuration, entityType3, new object());
             stateEntry3[key3] = 0;
             stateEntry3.EntityState = EntityState.Deleted;
-            var modificationCommandDeleted = new ModificationCommand("A", null, new ParameterNameGenerator());
+            var modificationCommandDeleted = new ModificationCommand(new SchemaQualifiedName("A"), new ParameterNameGenerator());
             modificationCommandDeleted.AddStateEntry(stateEntry3);
 
-            Assert.True(0 == mCC.Compare(new ModificationCommand("A", null, new ParameterNameGenerator()), new ModificationCommand("A", null, new ParameterNameGenerator())));
-            Assert.True(0 == mCC.Compare(new ModificationCommand("A", "dbo", new ParameterNameGenerator()), new ModificationCommand("A", "dbo", new ParameterNameGenerator())));
+            Assert.True(0 == mCC.Compare(modificationCommandAdded, modificationCommandAdded));
             Assert.True(0 == mCC.Compare(null, null));
+            Assert.True(0 == mCC.Compare(
+                new ModificationCommand(new SchemaQualifiedName("A", "dbo"), new ParameterNameGenerator()),
+                new ModificationCommand(new SchemaQualifiedName("A", "dbo"), new ParameterNameGenerator())));
 
-            Assert.True(0 > mCC.Compare(new ModificationCommand("A", null, new ParameterNameGenerator()), new ModificationCommand("A", "dbo", new ParameterNameGenerator())));
-            Assert.True(0 < mCC.Compare(new ModificationCommand("A", "foo", new ParameterNameGenerator()), new ModificationCommand("A", "dbo", new ParameterNameGenerator())));
+            Assert.True(0 > mCC.Compare(null, new ModificationCommand(new SchemaQualifiedName("A"), new ParameterNameGenerator())));
+            Assert.True(0 < mCC.Compare(new ModificationCommand(new SchemaQualifiedName("A"), new ParameterNameGenerator()), null));
 
-            Assert.True(0 > mCC.Compare(null, new ModificationCommand("A", null, new ParameterNameGenerator())));
-            Assert.True(0 < mCC.Compare(new ModificationCommand("A", null, new ParameterNameGenerator()), null));
+            Assert.True(0 > mCC.Compare(
+                new ModificationCommand(new SchemaQualifiedName("A"), new ParameterNameGenerator()),
+                new ModificationCommand(new SchemaQualifiedName("A", "dbo"), new ParameterNameGenerator())));
+            Assert.True(0 < mCC.Compare(
+                new ModificationCommand(new SchemaQualifiedName("A", "dbo"), new ParameterNameGenerator()),
+                new ModificationCommand(new SchemaQualifiedName("A"), new ParameterNameGenerator())));
 
-            Assert.True(0 > mCC.Compare(new ModificationCommand("A", null, new ParameterNameGenerator()), new ModificationCommand("B", null, new ParameterNameGenerator())));
-            Assert.True(0 < mCC.Compare(new ModificationCommand("B", null, new ParameterNameGenerator()), new ModificationCommand("A", null, new ParameterNameGenerator())));
+            Assert.True(0 > mCC.Compare(
+                new ModificationCommand(new SchemaQualifiedName("A", "dbo"), new ParameterNameGenerator()),
+                new ModificationCommand(new SchemaQualifiedName("A", "foo"), new ParameterNameGenerator())));
+            Assert.True(0 < mCC.Compare(
+                new ModificationCommand(new SchemaQualifiedName("A", "foo"), new ParameterNameGenerator()),
+                new ModificationCommand(new SchemaQualifiedName("A", "dbo"), new ParameterNameGenerator())));
 
-            Assert.True(0 > mCC.Compare(new ModificationCommand("A", "dbo", new ParameterNameGenerator()), new ModificationCommand("B", "dbo", new ParameterNameGenerator())));
-            Assert.True(0 < mCC.Compare(new ModificationCommand("B", "dbo", new ParameterNameGenerator()), new ModificationCommand("A", "dbo", new ParameterNameGenerator())));
-
-            Assert.True(0 > mCC.Compare(new ModificationCommand("A", "dbo", new ParameterNameGenerator()), new ModificationCommand("B", null, new ParameterNameGenerator())));
-            Assert.True(0 < mCC.Compare(new ModificationCommand("B", "dbo", new ParameterNameGenerator()), new ModificationCommand("A", "foo", new ParameterNameGenerator())));
+            Assert.True(0 > mCC.Compare(
+                new ModificationCommand(new SchemaQualifiedName("A"), new ParameterNameGenerator()),
+                new ModificationCommand(new SchemaQualifiedName("B"), new ParameterNameGenerator())));
+            Assert.True(0 < mCC.Compare(
+                new ModificationCommand(new SchemaQualifiedName("B"), new ParameterNameGenerator()),
+                new ModificationCommand(new SchemaQualifiedName("A"), new ParameterNameGenerator())));
 
             Assert.True(0 > mCC.Compare(modificationCommandModified, modificationCommandAdded));
             Assert.True(0 < mCC.Compare(modificationCommandAdded, modificationCommandModified));

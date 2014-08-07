@@ -104,14 +104,9 @@ namespace Microsoft.Data.Entity.Relational
             return !string.IsNullOrEmpty(schema) ? schema + "." + tableName : tableName;
         }
 
-        private static SchemaQualifiedName GetSchemaQualifiedName(IEntityType entityType)
-        {
-            return new SchemaQualifiedName(entityType.TableName(), entityType.Schema());
-        }
-
         private static Table BuildTable(DatabaseModel database, IEntityType entityType)
         {
-            var table = new Table(GetSchemaQualifiedName(entityType));
+            var table = new Table(entityType.SchemaQualifiedName());
 
             database.AddTable(table);
 
@@ -139,7 +134,7 @@ namespace Microsoft.Data.Entity.Relational
         {
             Check.NotNull(primaryKey, "primaryKey");
 
-            var table = database.GetTable(GetSchemaQualifiedName(primaryKey.EntityType));
+            var table = database.GetTable(primaryKey.EntityType.SchemaQualifiedName());
             var columns = primaryKey.Properties.Select(
                 p => table.GetColumn(p.ColumnName())).ToArray();
             var isClustered = primaryKey.IsClustered();
@@ -153,8 +148,8 @@ namespace Microsoft.Data.Entity.Relational
         {
             Check.NotNull(foreignKey, "foreignKey");
 
-            var table = database.GetTable(GetSchemaQualifiedName(foreignKey.EntityType));
-            var referencedTable = database.GetTable(GetSchemaQualifiedName(foreignKey.ReferencedEntityType));
+            var table = database.GetTable(foreignKey.EntityType.SchemaQualifiedName());
+            var referencedTable = database.GetTable(foreignKey.ReferencedEntityType.SchemaQualifiedName());
             var columns = foreignKey.Properties.Select(
                 p => table.GetColumn(p.ColumnName())).ToArray();
             var referenceColumns = foreignKey.ReferencedProperties.Select(
@@ -173,7 +168,7 @@ namespace Microsoft.Data.Entity.Relational
         {
             Check.NotNull(index, "index");
 
-            var table = database.GetTable(GetSchemaQualifiedName(index.EntityType));
+            var table = database.GetTable(index.EntityType.SchemaQualifiedName());
             var columns = index.Properties.Select(
                 p => table.GetColumn(p.ColumnName())).ToArray();
 

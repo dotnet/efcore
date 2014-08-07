@@ -20,10 +20,10 @@ namespace Microsoft.Data.Entity.Relational.Tests
             var stringBuilder = new StringBuilder();
             var operations = CreateDeleteOperations(concurrencyToken: false);
 
-            CreateSqlGenerator().AppendDeleteOperation(stringBuilder, "Ducks", operations);
+            CreateSqlGenerator().AppendDeleteOperation(stringBuilder, new SchemaQualifiedName("Ducks", "dbo"), operations);
 
             Assert.Equal(
-                "DELETE FROM " + OpenDelimeter + "Ducks" + CloseDelimeter + "" + Environment.NewLine +
+                "DELETE FROM " + OpenDelimeter + "dbo" + CloseDelimeter + "." + OpenDelimeter + "Ducks" + CloseDelimeter + "" + Environment.NewLine +
                 "WHERE " + OpenDelimeter + "Id" + CloseDelimeter + " = @o1;" + Environment.NewLine +
                 "SELECT " + RowsAffected + ";" + Environment.NewLine,
                 stringBuilder.ToString());
@@ -50,7 +50,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
             var stringBuilder = new StringBuilder();
             var operations = CreateInsertOperations(identityKey: true, computedProperty: true);
 
-            CreateSqlGenerator().AppendInsertOperation(stringBuilder, "Ducks", operations);
+            CreateSqlGenerator().AppendInsertOperation(stringBuilder, new SchemaQualifiedName("Ducks", "dbo"), operations);
 
             AppendInsertOperation_appends_insert_and_select_and_where_if_store_generated_columns_exist_verification(stringBuilder);
         }
@@ -58,10 +58,10 @@ namespace Microsoft.Data.Entity.Relational.Tests
         protected virtual void AppendInsertOperation_appends_insert_and_select_and_where_if_store_generated_columns_exist_verification(StringBuilder stringBuilder)
         {
             Assert.Equal(
-                "INSERT INTO " + OpenDelimeter + "Ducks" + CloseDelimeter + " (" + OpenDelimeter + "Name" + CloseDelimeter + ", " + OpenDelimeter + "Quacks" + CloseDelimeter + ", " + OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + ")" + Environment.NewLine +
+                "INSERT INTO " + OpenDelimeter + "dbo" + CloseDelimeter + "." + OpenDelimeter + "Ducks" + CloseDelimeter + " (" + OpenDelimeter + "Name" + CloseDelimeter + ", " + OpenDelimeter + "Quacks" + CloseDelimeter + ", " + OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + ")" + Environment.NewLine +
                 "VALUES (@p2, @p3, @p5);" + Environment.NewLine +
                 "SELECT " + OpenDelimeter + "Id" + CloseDelimeter + ", " + OpenDelimeter + "Computed" + CloseDelimeter + "" + Environment.NewLine +
-                "FROM " + OpenDelimeter + "Ducks" + CloseDelimeter + "" + Environment.NewLine +
+                "FROM " + OpenDelimeter + "dbo" + CloseDelimeter + "." + OpenDelimeter + "Ducks" + CloseDelimeter + "" + Environment.NewLine +
                 "WHERE " + RowsAffected + " = 1 AND " + OpenDelimeter + "Id" + CloseDelimeter + " = " + Identity + ";" + Environment.NewLine,
                 stringBuilder.ToString());
         }
@@ -197,10 +197,10 @@ namespace Microsoft.Data.Entity.Relational.Tests
             var stringBuilder = new StringBuilder();
             var operations = CreateUpdateOperations(computedProperty: false, concurrencyToken: false);
 
-            CreateSqlGenerator().AppendUpdateOperation(stringBuilder, "Ducks", operations);
+            CreateSqlGenerator().AppendUpdateOperation(stringBuilder, new SchemaQualifiedName("Ducks", "dbo"), operations);
 
             Assert.Equal(
-                "UPDATE " + OpenDelimeter + "Ducks" + CloseDelimeter + " SET " + OpenDelimeter + "Name" + CloseDelimeter + " = @p2, " + OpenDelimeter + "Quacks" + CloseDelimeter + " = @p3, " + OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + " = @p5" + Environment.NewLine +
+                "UPDATE " + OpenDelimeter + "dbo" + CloseDelimeter + "." + OpenDelimeter + "Ducks" + CloseDelimeter + " SET " + OpenDelimeter + "Name" + CloseDelimeter + " = @p2, " + OpenDelimeter + "Quacks" + CloseDelimeter + " = @p3, " + OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + " = @p5" + Environment.NewLine +
                 "WHERE " + OpenDelimeter + "Id" + CloseDelimeter + " = @o1;" + Environment.NewLine +
                 "SELECT " + RowsAffected + ";" + Environment.NewLine,
                 stringBuilder.ToString());

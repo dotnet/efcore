@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Utilities;
 
 // ReSharper disable once CheckNamespace
@@ -198,6 +199,11 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotNull(entityType, "entityType");
 
             return entityType[Annotations.Schema];
+        }
+
+        public static SchemaQualifiedName SchemaQualifiedName([NotNull] this IEntityType entityType)
+        {
+            return new SchemaQualifiedName(entityType.TableName(), entityType.Schema());
         }
 
         public static string ColumnName([NotNull] this IPropertyBase property)
