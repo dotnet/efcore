@@ -82,9 +82,10 @@ namespace Microsoft.Data.Entity.Relational.Query
                     { typeof(TakeResultOperator), HandleTake },
                     { typeof(SingleResultOperator), HandleSingle },
                     { typeof(FirstResultOperator), HandleFirst },
-                    { typeof(DistinctResultOperator), HandleDistinct }
+                    { typeof(DistinctResultOperator), HandleDistinct },
+                    { typeof(SkipResultOperator), HandleSkip }
                 };
-
+        
         private readonly IResultOperatorHandler _resultOperatorHandler;
 
         public RelationalResultOperatorHandler([NotNull] IResultOperatorHandler resultOperatorHandler)
@@ -197,6 +198,15 @@ namespace Microsoft.Data.Entity.Relational.Query
             handlerContext.SelectExpression.Limit = 2;
 
             return handlerContext.EvalOnClient;
+        }
+
+        private static Expression HandleSkip(HandlerContext handlerContext)
+        {
+            var skipResultOperator = (SkipResultOperator)handlerContext.ResultOperator;
+
+            handlerContext.SelectExpression.Offset = skipResultOperator.GetConstantCount();
+
+            return handlerContext.EvalOnServer;
         }
 
         private static Expression HandleTake(HandlerContext handlerContext)

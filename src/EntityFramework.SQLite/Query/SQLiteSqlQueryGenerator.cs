@@ -13,13 +13,27 @@ namespace Microsoft.Data.Entity.SQLite.Query
             // not supported in SQLite
         }
 
-        protected override void GenerateLimitOffset(SelectExpression expression)
+        protected override void GenerateLimitOffset(SelectExpression selectExpression)
         {
-            if (expression.Limit != null)
+            if (selectExpression.Limit != null)
             {
                 Sql.AppendLine()
                     .Append("LIMIT ")
-                    .Append(expression.Limit);
+                    .Append(selectExpression.Limit);
+
+                if (selectExpression.Offset != null)
+                {
+                    Sql.Append(" OFFSET ")
+                        .Append(selectExpression.Offset);
+                }
+            }
+            else if (selectExpression.Offset != null)
+            {
+                Sql.AppendLine()
+                    .Append("LIMIT ")
+                    .Append(selectExpression.Offset)
+                    .Append(", ")
+                    .Append(-1);
             }
         }
 

@@ -38,14 +38,68 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public virtual void Take_simple()
         {
             Assert.Equal(10,
-                AssertQuery<Customer>(cs => cs.OrderBy(c => c.CustomerID).Take(10)));
+                AssertQuery<Customer>(cs => cs.OrderBy(c => c.CustomerID).Take(10), assertOrder: true));
         }
 
         [Fact]
         public virtual void Take_simple_projection()
         {
             Assert.Equal(10,
-                AssertQuery<Customer>(cs => cs.OrderBy(c => c.CustomerID).Select(c => c.City).Take(10)));
+                AssertQuery<Customer>(cs => cs.OrderBy(c => c.CustomerID).Select(c => c.City).Take(10), assertOrder: true));
+        }
+
+        [Fact]
+        public virtual void Skip()
+        {
+            AssertQuery<Customer>(cs => cs.OrderBy(c => c.CustomerID).Skip(5), assertOrder: true);
+        }
+
+        [Fact]
+        public virtual void Take_Skip()
+        {
+            AssertQuery<Customer>(cs => cs.OrderBy(c => c.ContactName).Take(10).Skip(5), assertOrder: true);
+        }
+
+        [Fact]
+        public virtual void Distinct_Skip()
+        {
+            AssertQuery<Customer>(cs =>
+                cs.Distinct().OrderBy(c => c.ContactName).Skip(5), assertOrder: true);
+        }
+
+        [Fact]
+        public virtual void Skip_Take()
+        {
+            AssertQuery<Customer>(cs =>
+                cs.OrderBy(c => c.ContactName).Skip(5).Take(10), assertOrder: true);
+        }
+
+        [Fact]
+        public virtual void Distinct_Skip_Take()
+        {
+            AssertQuery<Customer>(cs =>
+                cs.Distinct().OrderBy(c => c.ContactName).Skip(5).Take(10), assertOrder: true);
+        }
+
+        [Fact]
+        public virtual void Skip_Distinct()
+        {
+            AssertQuery<Customer>(cs =>
+                cs.OrderBy(c => c.ContactName).Skip(5).Distinct());
+        }
+
+        [Fact]
+        public virtual void Skip_Take_Distinct()
+        {
+            AssertQuery<Customer>(cs =>
+                cs.OrderBy(c => c.ContactName).Skip(5).Take(10).Distinct());
+        }
+
+        [Fact]
+        public virtual void Take_Skip_Distinct()
+        {
+            AssertQuery<Customer>(cs =>
+                cs.OrderBy(c => c.ContactName).Take(10).Skip(5).Distinct());
         }
 
         [Fact]
@@ -57,7 +111,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual void Distinct_Take()
         {
-            AssertQuery<Order>(os => os.Distinct().OrderBy(o => o.OrderID).Take(5));
+            AssertQuery<Order>(os => os.Distinct().OrderBy(o => o.OrderID).Take(5), assertOrder: true);
         }
 
         [Fact]
@@ -1701,7 +1755,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        private int AssertQuery<TItem>(
+        protected int AssertQuery<TItem>(
             Func<IQueryable<TItem>, IQueryable<object>> query, bool assertOrder = false)
             where TItem : class
         {

@@ -314,6 +314,22 @@ namespace Microsoft.Data.Entity.Relational
             return GetString("TransactionAssociatedWithDifferentConnection");
         }
 
+        /// <summary>
+        /// A query containing the Skip operator must include at least one OrderBy operation.
+        /// </summary>
+        internal static string SkipNeedsOrderBy
+        {
+            get { return GetString("SkipNeedsOrderBy"); }
+        }
+
+        /// <summary>
+        /// A query containing the Skip operator must include at least one OrderBy operation.
+        /// </summary>
+        internal static string FormatSkipNeedsOrderBy()
+        {
+            return GetString("SkipNeedsOrderBy");
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

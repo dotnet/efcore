@@ -2,12 +2,15 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
+using Northwind;
 using Xunit;
 
 #if K10
@@ -57,6 +60,66 @@ FROM (
                 _fixture.Sql);
         }
 
+        public override void Skip()
+        {
+            base.Skip();
+
+            Assert.Equal(
+                @"SELECT c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region]
+FROM [Customers] AS c
+ORDER BY c.[CustomerID] OFFSET 5 ROWS",
+                _fixture.Sql);
+        }
+
+        public override void Skip_Take()
+        {
+            base.Skip_Take(); 
+            
+            Assert.Equal(
+                 @"SELECT c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region]
+FROM [Customers] AS c
+ORDER BY c.[ContactName] OFFSET 5 ROWS FETCH NEXT 10 ROWS ONLY",
+                 _fixture.Sql);
+        }
+
+        public override void Take_Skip()
+        {
+            base.Take_Skip();
+
+            Assert.Equal(
+                 @"SELECT t0.*
+FROM (
+    SELECT TOP 10 c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region]
+    FROM [Customers] AS c
+    ORDER BY c.[ContactName]
+) AS t0
+ORDER BY t0.[ContactName] OFFSET 5 ROWS",
+                 _fixture.Sql);
+        }
+
+        public override void Take_Skip_Distinct()
+        {
+            base.Take_Skip_Distinct();
+
+            Assert.Equal(
+                 @"SELECT DISTINCT t1.*
+FROM (
+    SELECT t0.*
+    FROM (
+        SELECT TOP 10 c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region]
+        FROM [Customers] AS c
+        ORDER BY c.[ContactName]
+    ) AS t0
+    ORDER BY t0.[ContactName] OFFSET 5 ROWS
+) AS t1",
+                 _fixture.Sql);
+        }
+
+        public void Skip_when_no_order_by()
+        {
+            Assert.Throws<DataStoreException>(() => AssertQuery<Customer>(cs => cs.Skip(5).Take(10)));
+        }
+
         public override void Take_Distinct_Count()
         {
             base.Take_Distinct_Count();
@@ -64,7 +127,7 @@ FROM (
             Assert.Equal(
                 @"SELECT COUNT(*)
 FROM (
-    SELECT DISTINCT *
+    SELECT DISTINCT t0.*
     FROM (
         SELECT TOP 5 o.[CustomerID], o.[OrderDate], o.[OrderID]
         FROM [Orders] AS o
@@ -640,7 +703,7 @@ FROM [Customers] AS c",
             base.Take_with_single();
 
             Assert.Equal(
-                @"SELECT TOP 2 *
+                @"SELECT TOP 2 t0.*
 FROM (
     SELECT TOP 1 c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region]
     FROM [Customers] AS c
@@ -654,7 +717,7 @@ FROM (
             base.Take_with_single_select_many();
 
             Assert.Equal(
-                @"SELECT TOP 2 *
+                @"SELECT TOP 2 t0.*
 FROM (
     SELECT TOP 1 c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region], o.[CustomerID] AS c0, o.[OrderDate], o.[OrderID]
     FROM [Customers] AS c

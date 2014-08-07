@@ -20,8 +20,6 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
         private List<CommandParameter> _parameters;
         private Expression _binaryExpression;
 
-        private int _localAliasCount;
-
         public virtual string GenerateSql(SelectExpression selectExpression)
         {
             Check.NotNull(selectExpression, "selectExpression");
@@ -60,9 +58,14 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             {
                 VisitExpression(selectExpression.ProjectionExpression);
             }
+            else if (selectExpression.IsProjectStar)
+            {
+                _sql.Append(selectExpression.SubqueryAlias)
+                    .Append(".*");
+            }
             else
             {
-                _sql.Append(selectExpression.IsProjectStar ? "*" : "1");
+                _sql.Append("1");
             }
 
             if (selectExpression.Subquery != null)
@@ -75,9 +78,9 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                     selectExpression.Subquery.Accept(this);
                 }
 
-                _sql.AppendLine();
-                _sql.Append(") AS t");
-                _sql.Append(_localAliasCount++.ToString());
+                _sql.AppendLine()
+                    .Append(") AS ")
+                    .Append(selectExpression.SubqueryAlias);
             }
             else if (selectExpression.Tables.Any())
             {
@@ -181,7 +184,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
         {
             Check.NotNull(selectExpression, "selectExpression");
 
-            if (selectExpression.Limit != null)
+            if (selectExpression.Limit != null
+                && selectExpression.Offset == null)
             {
                 _sql.Append("TOP ")
                     .Append(selectExpression.Limit)
@@ -191,6 +195,24 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
         protected virtual void GenerateLimitOffset([NotNull] SelectExpression selectExpression)
         {
+            if (selectExpression.Offset != null)
+            {
+                if (!selectExpression.OrderBy.Any())
+                {
+                    throw new InvalidOperationException(Strings.SkipNeedsOrderBy);
+                }
+
+                _sql.Append(" OFFSET ")
+                    .Append(selectExpression.Offset)
+                    .Append(" ROWS");
+
+                if (selectExpression.Limit != null)
+                {
+                    _sql.Append(" FETCH NEXT ")
+                        .Append(selectExpression.Limit)
+                        .Append(" ROWS ONLY");
+                }
+            }
         }
 
         public virtual Expression VisitCaseExpression(CaseExpression caseExpression)

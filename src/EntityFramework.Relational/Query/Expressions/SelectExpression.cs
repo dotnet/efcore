@@ -22,9 +22,12 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
         private readonly List<Ordering> _orderBy = new List<Ordering>();
 
         private int? _limit;
+        private int? _offset;
         private bool _projectStar;
 
         private SelectExpression _subquery;
+        private int? _subqueryAlias;
+        
         private Expression _projectionExpression;
         private bool _isDistinct;
 
@@ -46,6 +49,11 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
         public virtual SelectExpression Subquery
         {
             get { return _subquery; }
+        }
+
+        public virtual string SubqueryAlias
+        {
+            get { return "t" + _subqueryAlias; }
         }
 
         public virtual void AddTable([NotNull] TableExpression tableExpression)
@@ -86,7 +94,11 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             get { return _isDistinct; }
             set
             {
-                PushDownIfLimit();
+                if (_limit != null
+                    || _offset != null)
+                {
+                    PushDownSubquery();
+                }
 
                 _isDistinct = value;
             }
@@ -102,6 +114,32 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
                 PushDownIfLimit();
 
                 _limit = value;
+            }
+        }
+
+        public virtual int? Offset
+        {
+            get { return _offset; }
+            set
+            {
+                Check.NotNull(value, "value");
+
+                if (_limit != null)
+                {
+                    PushDownSubquery();
+
+                    _subquery._offset = null;
+
+                    foreach (var ordering in _subquery.OrderBy)
+                    {
+                        _orderBy.Add(
+                            new Ordering(
+                                new ColumnExpression(((ColumnExpression)ordering.Expression).Property, SubqueryAlias),
+                                ordering.OrderingDirection));
+                    }
+                }
+                
+                _offset = value;
             }
         }
 
@@ -141,11 +179,14 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             subquery.AddToOrderBy(_orderBy);
 
             subquery._limit = _limit;
+            subquery._offset = _offset;
             subquery._isDistinct = _isDistinct;
             subquery._subquery = _subquery;
+            subquery._subqueryAlias = _subqueryAlias;
             subquery._projectStar = _projectStar;
 
             _limit = null;
+            _offset = null;
             _isDistinct = false;
 
             ClearTables();
@@ -153,7 +194,11 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             ClearOrderBy();
 
             _projectStar = true;
+
             _subquery = subquery;
+            _subqueryAlias = subquery._subqueryAlias != null
+                ? subquery._subqueryAlias + 1
+                : 0;
         }
 
         public virtual IReadOnlyList<ColumnExpression> Projection

@@ -2,11 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
+using Northwind;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SQLite.FunctionalTests
@@ -18,7 +20,7 @@ namespace Microsoft.Data.Entity.SQLite.FunctionalTests
             base.Take_with_single();
 
             Assert.Equal(
-                @"SELECT *
+                @"SELECT t0.*
 FROM (
     SELECT c.""Address"", c.""City"", c.""CompanyName"", c.""ContactName"", c.""ContactTitle"", c.""Country"", c.""CustomerID"", c.""Fax"", c.""Phone"", c.""PostalCode"", c.""Region""
     FROM ""Customers"" AS c
@@ -71,6 +73,17 @@ WHERE c.""ContactName"" LIKE '%' || @p0",
 FROM ""Customers"" AS c
 CROSS JOIN ""Employees"" AS e
 WHERE ((c.""City"" = @p0 AND c.""Country"" = @p1) AND (e.""City"" = @p0 AND e.""Country"" = @p1))",
+                _fixture.Sql);
+        }
+
+        public void Skip_when_no_order_by()
+        {
+            AssertQuery<Customer>(cs => cs.Skip(5).Take(10));
+ 
+            Assert.Equal(
+                @"SELECT c.""Address"", c.""City"", c.""CompanyName"", c.""ContactName"", c.""ContactTitle"", c.""Country"", c.""CustomerID"", c.""Fax"", c.""Phone"", c.""PostalCode"", c.""Region""
+FROM ""Customers"" AS c
+LIMIT 10 OFFSET 5",
                 _fixture.Sql);
         }
 

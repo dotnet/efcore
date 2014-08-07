@@ -174,4 +174,7 @@
   <data name="TransactionAssociatedWithDifferentConnection" xml:space="preserve">
     <value>The specified transaction is not associated with the current connection. Only transactions associated with the current connection may be used.</value>
   </data>
+  <data name="SkipNeedsOrderBy" xml:space="preserve">
+    <value>A query containing the Skip operator must include at least one OrderBy operation.</value>
+  </data>
 </root>
