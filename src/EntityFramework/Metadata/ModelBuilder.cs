@@ -127,12 +127,12 @@ namespace Microsoft.Data.Entity.Metadata
                 return (TMetadataBuilder)this;
             }
 
-            protected TMetadata Metadata
+            protected internal TMetadata Metadata
             {
                 get { return _metadata; }
             }
 
-            protected ModelBuilder ModelBuilder
+            protected internal ModelBuilder ModelBuilder
             {
                 get { return _modelBuilder; }
             }
@@ -413,18 +413,33 @@ namespace Microsoft.Data.Entity.Metadata
             }
 
             public OneToManyBuilder<TRelatedEntity> OneToMany<TRelatedEntity>(
-                [CanBeNull] Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> navigationExpression = null,
-                [CanBeNull] Expression<Func<TRelatedEntity, TEntity>> inverseNavigationExpression = null)
+                [CanBeNull] Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> collection = null,
+                [CanBeNull] Expression<Func<TRelatedEntity, TEntity>> reference = null)
+            {
+                return new OneToManyBuilder<TRelatedEntity>(OneToManyInternal(collection, reference));
+            }
+
+            public ManyToOneBuilder<TRelatedEntity> ManyToOne<TRelatedEntity>(
+                [CanBeNull] Expression<Func<TEntity, TRelatedEntity>> reference = null,
+                [CanBeNull] Expression<Func<TRelatedEntity, IEnumerable<TEntity>>> collection = null)
+            {
+                return new ManyToOneBuilder<TRelatedEntity>(OneToManyInternal(collection, reference));
+            }
+
+            private OneToManyBuilderInternal<TPrincipalEntity, TDependentEntity> OneToManyInternal<TPrincipalEntity, TDependentEntity>(
+                Expression<Func<TPrincipalEntity, IEnumerable<TDependentEntity>>> collection,
+                Expression<Func<TDependentEntity, TPrincipalEntity>> reference)
             {
                 // TODO: Checking for bad/inconsistent FK/navigation/type configuration in this method and below
 
-                var dependentType = ModelBuilder.Entity<TRelatedEntity>().Metadata;
+                var dependentType = ModelBuilder.Entity<TDependentEntity>().Metadata;
+                var principalType = ModelBuilder.Entity<TPrincipalEntity>().Metadata;
 
                 // Find either navigation that already exists
-                var navNameToDependent = navigationExpression != null ? navigationExpression.GetPropertyAccess().Name : null;
-                var navNameToPrincipal = inverseNavigationExpression != null ? inverseNavigationExpression.GetPropertyAccess().Name : null;
+                var navNameToDependent = collection != null ? collection.GetPropertyAccess().Name : null;
+                var navNameToPrincipal = reference != null ? reference.GetPropertyAccess().Name : null;
 
-                var navToDependent = Metadata.Navigations.FirstOrDefault(e => e.Name == navNameToDependent);
+                var navToDependent = principalType.Navigations.FirstOrDefault(e => e.Name == navNameToDependent);
                 var navToPrincipal = dependentType.Navigations.FirstOrDefault(e => e.Name == navNameToPrincipal);
 
                 // Find the associated FK on an already existing navigation, or create one by convention
@@ -435,12 +450,12 @@ namespace Microsoft.Data.Entity.Metadata
                     ? navToDependent.ForeignKey
                     : navToPrincipal != null
                         ? navToPrincipal.ForeignKey
-                        : new ForeignKeyConvention().FindOrCreateForeignKey(Metadata, dependentType, navNameToPrincipal);
+                        : new ForeignKeyConvention().FindOrCreateForeignKey(principalType, dependentType, navNameToPrincipal);
 
                 if (navNameToDependent != null
                     && navToDependent == null)
                 {
-                    navToDependent = Metadata.AddNavigation(new Navigation(foreignKey, navNameToDependent, pointsToPrincipal: false));
+                    navToDependent = principalType.AddNavigation(new Navigation(foreignKey, navNameToDependent, pointsToPrincipal: false));
                 }
 
                 if (navNameToPrincipal != null
@@ -449,50 +464,94 @@ namespace Microsoft.Data.Entity.Metadata
                     navToPrincipal = dependentType.AddNavigation(new Navigation(foreignKey, navNameToPrincipal, pointsToPrincipal: true));
                 }
 
-                return new OneToManyBuilder<TRelatedEntity>(foreignKey, ModelBuilder, navToPrincipal, navToDependent);
+                return new OneToManyBuilderInternal<TPrincipalEntity, TDependentEntity>(
+                    foreignKey, ModelBuilder, principalType, dependentType, navToPrincipal, navToDependent);
             }
 
-            public class OneToManyBuilder<TDependentEntity> : MetadataBuilder<ForeignKey, OneToManyBuilder<TDependentEntity>>
+            public class OneToManyBuilder<TRelatedEntity> : MetadataBuilder<ForeignKey, OneToManyBuilder<TRelatedEntity>>
             {
+                private readonly OneToManyBuilderInternal<TEntity, TRelatedEntity> _internalBuilder;
+
+                internal OneToManyBuilder(OneToManyBuilderInternal<TEntity, TRelatedEntity> internalBuilder)
+                    : base(internalBuilder.Metadata, internalBuilder.ModelBuilder)
+                {
+                    _internalBuilder = internalBuilder;
+                }
+
+                public OneToManyBuilder<TRelatedEntity> ForeignKey(
+                    [NotNull] Expression<Func<TRelatedEntity, object>> foreignKeyExpression)
+                {
+                    Check.NotNull(foreignKeyExpression, "foreignKeyExpression");
+
+                    return new OneToManyBuilder<TRelatedEntity>(_internalBuilder.ForeignKey(foreignKeyExpression));
+                }
+            }
+
+            public class ManyToOneBuilder<TRelatedEntity> : MetadataBuilder<ForeignKey, ManyToOneBuilder<TRelatedEntity>>
+            {
+                private readonly OneToManyBuilderInternal<TRelatedEntity, TEntity> _internalBuilder;
+
+                internal ManyToOneBuilder(OneToManyBuilderInternal<TRelatedEntity, TEntity> internalBuilder)
+                    : base(internalBuilder.Metadata, internalBuilder.ModelBuilder)
+                {
+                    _internalBuilder = internalBuilder;
+                }
+
+                public ManyToOneBuilder<TRelatedEntity> ForeignKey(
+                    [NotNull] Expression<Func<TEntity, object>> foreignKeyExpression)
+                {
+                    Check.NotNull(foreignKeyExpression, "foreignKeyExpression");
+
+                    return new ManyToOneBuilder<TRelatedEntity>(_internalBuilder.ForeignKey(foreignKeyExpression));
+                }
+            }
+
+            internal class OneToManyBuilderInternal<TPrincipalEntity, TDependentEntity>
+                : MetadataBuilder<ForeignKey, OneToManyBuilderInternal<TPrincipalEntity, TDependentEntity>>
+            {
+                private readonly EntityType _principalType;
+                private readonly EntityType _dependentType;
                 private readonly Navigation _navigationToPrincipal;
                 private readonly Navigation _navigationToDependent;
 
-                internal OneToManyBuilder(ForeignKey metadata, ModelBuilder modelBuilder, 
+                public OneToManyBuilderInternal(
+                    ForeignKey metadata, ModelBuilder modelBuilder,
+                    EntityType principalType, EntityType dependentType,
                     Navigation navigationToPrincipal, Navigation navigationToDependent)
                     : base(metadata, modelBuilder)
                 {
+                    _principalType = principalType;
+                    _dependentType = dependentType;
                     _navigationToPrincipal = navigationToPrincipal;
                     _navigationToDependent = navigationToDependent;
                 }
 
-                public OneToManyBuilder<TDependentEntity> ForeignKey(
+                public OneToManyBuilderInternal<TPrincipalEntity, TDependentEntity> ForeignKey(
                     [NotNull] Expression<Func<TDependentEntity, object>> foreignKeyExpression)
                 {
                     Check.NotNull(foreignKeyExpression, "foreignKeyExpression");
 
-                    var dependentType = ModelBuilder.Entity<TDependentEntity>().Metadata;
-
                     var dependentProperties
                         = foreignKeyExpression.GetPropertyAccessList()
-                            .Select(pi => dependentType.TryGetProperty(pi.Name) ?? dependentType.AddProperty(pi))
+                            .Select(pi => _dependentType.TryGetProperty(pi.Name) ?? _dependentType.AddProperty(pi))
                             .ToArray();
 
                     var foreignKey = Metadata;
                     if (!foreignKey.Properties.SequenceEqual(dependentProperties))
                     {
                         foreignKey = new ForeignKeyConvention().FindOrCreateForeignKey(
-                            ModelBuilder.Entity<TEntity>().Metadata,
-                            dependentType,
+                            _principalType,
+                            _dependentType,
                             _navigationToPrincipal != null ? _navigationToPrincipal.Name : null,
                             new[] { dependentProperties });
 
                         // TODO: Remove FK only if it was added by convention
-                        dependentType.RemoveForeignKey(Metadata);
+                        _dependentType.RemoveForeignKey(Metadata);
 
                         // TODO: Remove property only if it was added by convention
                         foreach (var property in Metadata.Properties.Except(dependentProperties))
                         {
-                            dependentType.RemoveProperty(property);
+                            _dependentType.RemoveProperty(property);
                         }
 
                         if (_navigationToPrincipal != null)
@@ -505,14 +564,15 @@ namespace Microsoft.Data.Entity.Metadata
                             _navigationToDependent.ForeignKey = foreignKey;
                         }
                     }
-                    
+
                     if (foreignKey.IsUnique)
                     {
                         // TODO: Only override this if it wasn't set explicitly. If it was, throw, or trust.
                         foreignKey.IsUnique = false;
                     }
 
-                    return new OneToManyBuilder<TDependentEntity>(foreignKey, ModelBuilder, _navigationToPrincipal, _navigationToDependent);
+                    return new OneToManyBuilderInternal<TPrincipalEntity, TDependentEntity>(
+                        foreignKey, ModelBuilder, _principalType, _dependentType, _navigationToPrincipal, _navigationToDependent);
                 }
             }
         }

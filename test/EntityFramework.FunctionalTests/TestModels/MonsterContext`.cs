@@ -308,18 +308,20 @@ namespace Microsoft.Data.Entity.MonsterModel
                 {
                     b.OneToMany(e => (IEnumerable<TProductReview>)e.Reviews, e => (TProduct)e.Product);
                     b.OneToMany(e => (IEnumerable<TBarcode>)e.Barcodes, e => (TProduct)e.Product);
-                    b.OneToMany<TOrderLine>(null, e => (TProduct)e.Product);
                     b.OneToMany(e => (IEnumerable<TProductPhoto>)e.Photos);
                 });
+
+            builder.Entity<TOrderLine>().ManyToOne(e => (TProduct)e.Product);
 
             builder.Entity<TCustomer>(b =>
                 {
                     b.OneToMany(e => (IEnumerable<TAnOrder>)e.Orders, e => (TCustomer)e.Customer);
                     b.OneToMany(e => (IEnumerable<TLogin>)e.Logins, e => (TCustomer)e.Customer);
-
-                    b.OneToMany<TComplaint>(null, e => (TCustomer)e.Customer)
-                        .ForeignKey(e => e.CustomerId);
                 });
+
+            builder.Entity<TComplaint>()
+                .ManyToOne(e => (TCustomer)e.Customer)
+                .ForeignKey(e => e.CustomerId);
 
             builder.Entity<TProductPhoto>()
                 .OneToMany(e => (IEnumerable<TProductWebFeature>)e.Features, e => (TProductPhoto)e.Photo)
@@ -342,24 +344,25 @@ namespace Microsoft.Data.Entity.MonsterModel
 
                     b.OneToMany<TSuspiciousActivity>()
                         .ForeignKey(e => e.Username);
-
-                    b.OneToMany<TPasswordReset>(null, e => (TLogin)e.Login)
-                        .ForeignKey(e => e.Username);
-
-                    b.OneToMany<TPageView>(null, e => (TLogin)e.Login)
-                        .ForeignKey(e => e.Username);
                 });
 
-            builder.Entity<TBarcode>(b =>
-                {
-                    b.OneToMany(e => (IEnumerable<TIncorrectScan>)e.BadScans, e => (TBarcode)e.ExpectedBarcode)
-                        .ForeignKey(e => e.ExpectedCode);
+            builder.Entity<TPasswordReset>()
+                .ManyToOne(e => (TLogin)e.Login)
+                .ForeignKey(e => e.Username);
 
-                    b.OneToMany<TIncorrectScan>(null, e => (TBarcode)e.ActualBarcode)
-                        .ForeignKey(e => e.ActualCode);
-                });
+            builder.Entity<TPageView>()
+                .ManyToOne(e => (TLogin)e.Login)
+                .ForeignKey(e => e.Username);
 
-            builder.Entity<TSupplier>().OneToMany<TSupplierInfo>(null, e => (TSupplier)e.Supplier);
+            builder.Entity<TBarcode>()
+                .OneToMany(e => (IEnumerable<TIncorrectScan>)e.BadScans, e => (TBarcode)e.ExpectedBarcode)
+                .ForeignKey(e => e.ExpectedCode);
+
+            builder.Entity<TIncorrectScan>()
+                .ManyToOne(e => (TBarcode)e.ActualBarcode)
+                .ForeignKey(e => e.ActualCode);
+
+            builder.Entity<TSupplierInfo>().ManyToOne<TSupplier>(e => (TSupplier)e.Supplier);
 
             // TODO: Use fluent API when available
 
