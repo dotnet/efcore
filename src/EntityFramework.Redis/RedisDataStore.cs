@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Query;
+using Microsoft.Data.Entity.Redis.Query;
 using Microsoft.Data.Entity.Redis.Utilities;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
@@ -37,8 +39,17 @@ namespace Microsoft.Data.Entity.Redis
         public override IEnumerable<TResult> Query<TResult>(
             QueryModel queryModel, StateManager stateManager)
         {
-            // TODO
-            throw new NotImplementedException();
+            Check.NotNull(queryModel, "queryModel");
+            Check.NotNull(stateManager, "stateManager");
+
+            var queryCompilationContext
+                = CreateQueryCompilationContext(
+                    new LinqOperatorProvider(),
+                    new ResultOperatorHandler());
+
+            var queryExecutor = queryCompilationContext.CreateQueryModelVisitor().CreateQueryExecutor<TResult>(queryModel);
+            var queryContext = new RedisQueryContext(Model, Logger, stateManager, _database.Value);
+            return queryExecutor(queryContext);
         }
 
         public override IAsyncEnumerable<TResult> AsyncQuery<TResult>(
@@ -46,6 +57,17 @@ namespace Microsoft.Data.Entity.Redis
         {
             // TODO
             throw new NotImplementedException();
+        }
+
+        protected virtual RedisQueryCompilationContext CreateQueryCompilationContext(
+            [NotNull] ILinqOperatorProvider linqOperatorProvider,
+            [NotNull] IResultOperatorHandler resultOperatorHandler)
+        {
+            Check.NotNull(linqOperatorProvider, "linqOperatorProvider");
+            Check.NotNull(resultOperatorHandler, "resultOperatorHandler");
+
+            return new RedisQueryCompilationContext(
+                Model, linqOperatorProvider, resultOperatorHandler);
         }
     }
 }
