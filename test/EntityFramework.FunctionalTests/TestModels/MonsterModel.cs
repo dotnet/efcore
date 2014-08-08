@@ -251,29 +251,12 @@ namespace Microsoft.Data.Entity.MonsterModel
         IComplaint Complaint { get; set; }
     }
 
-    public class Resolution : IResolution
-    {
-        public int ResolutionId { get; set; }
-        public string Details { get; set; }
-
-        public virtual IComplaint Complaint { get; set; }
-    }
-
     public interface IRsaToken
     {
         string Serial { get; set; }
         DateTime Issued { get; set; }
         string Username { get; set; }
         ILogin Login { get; set; }
-    }
-
-    public class RsaToken : IRsaToken
-    {
-        public string Serial { get; set; }
-        public DateTime Issued { get; set; }
-
-        public string Username { get; set; }
-        public virtual ILogin Login { get; set; }
     }
 
     public interface ISmartCard
@@ -285,16 +268,6 @@ namespace Microsoft.Data.Entity.MonsterModel
         ILastLogin LastLogin { get; set; }
     }
 
-    public class SmartCard : ISmartCard
-    {
-        public string Username { get; set; }
-        public string CardSerial { get; set; }
-        public DateTime Issued { get; set; }
-
-        public virtual ILogin Login { get; set; }
-        public virtual ILastLogin LastLogin { get; set; }
-    }
-
     public interface ISupplierInfo
     {
         int SupplierInfoId { get; set; }
@@ -303,25 +276,10 @@ namespace Microsoft.Data.Entity.MonsterModel
         ISupplier Supplier { get; set; }
     }
 
-    public class SupplierInfo : ISupplierInfo
-    {
-        public int SupplierInfoId { get; set; }
-        public string Information { get; set; }
-
-        public int SupplierId { get; set; }
-        public virtual ISupplier Supplier { get; set; }
-    }
-
     public interface ISupplierLogo
     {
         int SupplierId { get; set; }
         byte[] Logo { get; set; }
-    }
-
-    public class SupplierLogo : ISupplierLogo
-    {
-        public int SupplierId { get; set; }
-        public byte[] Logo { get; set; }
     }
 
     public interface ISupplier

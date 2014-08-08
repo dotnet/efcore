@@ -174,29 +174,25 @@ namespace Microsoft.Data.Entity.Identity
             var model = new Model();
             var builder = new ConventionModelBuilder(model);
 
-            builder.Entity<Product>().OneToMany(e => e.OrderLines, e => e.Product);
+            builder.Entity<Product>(b =>
+                {
+                    b.OneToMany(e => e.OrderLines, e => e.Product);
+                    b.OneToOne(e => e.Detail, e => e.Product);
+                });
+
             builder.Entity<Category>().OneToMany(e => e.Products, e => e.Category);
+
             builder.Entity<ProductDetail>();
+
             builder.Entity<Order>().OneToMany(e => e.OrderLines, e => e.Order);
-            builder.Entity<OrderLine>().Key(e => new { e.OrderId, e.ProductId });
+
             builder.Entity<OrderLineDetail>().Key(e => new { e.OrderId, e.ProductId });
 
-            var productType = model.GetEntityType(typeof(Product));
-            var productDetailType = model.GetEntityType(typeof(ProductDetail));
-            var orderLineType = model.GetEntityType(typeof(OrderLine));
-            var orderLineDetailType = model.GetEntityType(typeof(OrderLineDetail));
-
-            var productDetailFk = productDetailType.AddForeignKey(productType.GetKey(), productDetailType.GetProperty("Id"));
-            productDetailFk.IsUnique = true;
-
-            var orderLineFk = orderLineDetailType.AddForeignKey(orderLineType.GetKey(), orderLineDetailType.GetProperty("OrderId"), orderLineDetailType.GetProperty("ProductId"));
-            orderLineFk.IsUnique = true;
-
-            productDetailType.AddNavigation(new Navigation(productDetailFk, "Product", pointsToPrincipal: true));
-            productType.AddNavigation(new Navigation(productDetailFk, "Detail", pointsToPrincipal: false));
-
-            orderLineType.AddNavigation(new Navigation(orderLineFk, "Detail", pointsToPrincipal: false));
-            orderLineDetailType.AddNavigation(new Navigation(orderLineFk, "OrderLine", pointsToPrincipal: true));
+            builder.Entity<OrderLine>(b =>
+                {
+                    b.Key(e => new { e.OrderId, e.ProductId });
+                    b.OneToOne(e => e.Detail, e => e.OrderLine);
+                });
 
             return model;
         }

@@ -110,6 +110,7 @@ namespace ConcurrencyModel
                     b.Property(t => t.Tire);
                     b.Property(t => t.Victories);
                     b.OneToMany(e => e.Drivers, e => e.Team);
+                    b.OneToOne(e => e.Gearbox).ForeignKey<Team>(e => e.GearboxId);
                 });
 
             modelBuilder.Entity<TestDriver>(b => b.Key(t => t.Id));
@@ -125,14 +126,7 @@ namespace ConcurrencyModel
             var teamType = model.GetEntityType(typeof(Team));
             var sponsorType = model.GetEntityType(typeof(Sponsor));
 
-            // TODO: Use FAPIS when available
             // TODO: Sponsor * <-> * Team
-
-            {
-                // Team -> 1? Gearbox
-                var teamGearboxIdFk = teamType.AddForeignKey(gearboxType.GetKey(), teamType.GetProperty("GearboxId"));
-                teamType.AddNavigation(new Navigation(teamGearboxIdFk, "Gearbox", pointsToPrincipal: true));
-            }
 
             // TODO: Remove once temporary keys can be overridden
             teamType.GetProperty("Id").ValueGenerationOnAdd = ValueGenerationOnAdd.None;

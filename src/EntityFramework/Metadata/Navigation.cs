@@ -9,7 +9,7 @@ namespace Microsoft.Data.Entity.Metadata
     public class Navigation : NamedMetadataBase, INavigation
     {
         private ForeignKey _foreignKey;
-        private readonly bool _pointsToPrincipal;
+        private bool _pointsToPrincipal;
 
         public Navigation([NotNull] ForeignKey foreignKey, [NotNull] string name, bool pointsToPrincipal)
             : base(Check.NotEmpty(name, "name"))
@@ -37,6 +37,13 @@ namespace Microsoft.Data.Entity.Metadata
         public virtual bool PointsToPrincipal
         {
             get { return _pointsToPrincipal; }
+            [param: NotNull]
+            set
+            {
+                Check.NotNull(value, "value");
+
+                _pointsToPrincipal = value;
+            }
         }
 
         IEntityType IPropertyBase.EntityType

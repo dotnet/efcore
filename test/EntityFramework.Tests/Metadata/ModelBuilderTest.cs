@@ -1000,7 +1000,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void OneToMany_creates_both_navs_and_clears_uniqueness_of_existing_FK()
+        public void OneToMany_creates_both_navs_and_new_FK_when_uniqueness_does_not_match()
         {
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
@@ -1020,13 +1020,16 @@ namespace Microsoft.Data.Entity.Metadata
                 .OneToMany(e => e.Pickles, e => e.BigMak)
                 .ForeignKey(e => e.BurgerId);
 
-            Assert.False(fk.IsUnique);
+            Assert.Equal(2, dependentType.ForeignKeys.Count);
+            var newFk = dependentType.ForeignKeys.Single(k => k != fk);
 
-            Assert.Same(fk, dependentType.ForeignKeys.Single());
+            Assert.True(fk.IsUnique);
+            Assert.False(newFk.IsUnique);
+
             Assert.Equal("BigMak", dependentType.Navigations.Single().Name);
             Assert.Equal("Pickles", principalType.Navigations.Single().Name);
-            Assert.Same(fk, dependentType.Navigations.Single().ForeignKey);
-            Assert.Same(fk, principalType.Navigations.Single().ForeignKey);
+            Assert.Same(newFk, dependentType.Navigations.Single().ForeignKey);
+            Assert.Same(newFk, principalType.Navigations.Single().ForeignKey);
             Assert.Equal(propertyCount, dependentType.Properties.Count);
         }
 
@@ -1402,7 +1405,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void ManyToOne_creates_both_navs_and_clears_uniqueness_of_existing_FK()
+        public void ManyToOne_creates_both_navs_and_creates_new_FK_if_uniqueness_does_not_match()
         {
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
@@ -1422,13 +1425,514 @@ namespace Microsoft.Data.Entity.Metadata
                 .ManyToOne(e => e.BigMak, e => e.Pickles)
                 .ForeignKey(e => e.BurgerId);
 
-            Assert.False(fk.IsUnique);
+            Assert.Equal(2, dependentType.ForeignKeys.Count);
+            var newFk = dependentType.ForeignKeys.Single(k => k != fk);
+
+            Assert.True(fk.IsUnique);
+            Assert.False(newFk.IsUnique);
+
+            Assert.Equal("BigMak", dependentType.Navigations.Single().Name);
+            Assert.Equal("Pickles", principalType.Navigations.Single().Name);
+            Assert.Same(newFk, dependentType.Navigations.Single().ForeignKey);
+            Assert.Same(newFk, principalType.Navigations.Single().ForeignKey);
+            Assert.Equal(propertyCount, dependentType.Properties.Count);
+        }
+
+        [Fact]
+        public void OneToOne_finds_existing_navs_and_uses_associated_FK()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+            modelBuilder.Entity<Customer>().Key(c => c.Id);
+            modelBuilder
+                .Entity<CustomerDetails>()
+                .ForeignKeys(fks => fks.ForeignKey<Customer>(c => c.Id));
+
+            var dependentType = model.GetEntityType(typeof(CustomerDetails));
+            var principalType = model.GetEntityType(typeof(Customer));
+            var fk = dependentType.ForeignKeys.Single();
+            fk.IsUnique = true;
+
+            var navToPrincipal = new Navigation(fk, "Customer", pointsToPrincipal: true);
+            dependentType.AddNavigation(navToPrincipal);
+            var navToDependent = new Navigation(fk, "Details", pointsToPrincipal: false);
+            principalType.AddNavigation(navToDependent);
+
+            modelBuilder.Entity<Customer>().OneToOne(e => e.Details, e => e.Customer);
+
+            Assert.Same(fk, dependentType.ForeignKeys.Single());
+            Assert.Same(navToPrincipal, dependentType.Navigations.Single());
+            Assert.Same(navToDependent, principalType.Navigations.Single());
+            Assert.Same(fk, dependentType.Navigations.Single().ForeignKey);
+            Assert.Same(fk, principalType.Navigations.Single().ForeignKey);
+        }
+
+        [Fact]
+        public void OneToOne_finds_existing_nav_to_principal_and_uses_associated_FK()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+            modelBuilder.Entity<Customer>().Key(c => c.Id);
+            modelBuilder
+                .Entity<CustomerDetails>()
+                .ForeignKeys(fks => fks.ForeignKey<Customer>(c => c.Id));
+
+            var dependentType = model.GetEntityType(typeof(CustomerDetails));
+            var principalType = model.GetEntityType(typeof(Customer));
+            var fk = dependentType.ForeignKeys.Single();
+            fk.IsUnique = true;
+
+            var navigation = new Navigation(fk, "Customer", pointsToPrincipal: true);
+            dependentType.AddNavigation(navigation);
+
+            modelBuilder.Entity<Customer>().OneToOne(e => e.Details, e => e.Customer);
+
+            Assert.Same(fk, dependentType.ForeignKeys.Single());
+            Assert.Same(navigation, dependentType.Navigations.Single());
+            Assert.Equal("Details", principalType.Navigations.Single().Name);
+            Assert.Same(fk, dependentType.Navigations.Single().ForeignKey);
+            Assert.Same(fk, principalType.Navigations.Single().ForeignKey);
+        }
+
+        [Fact]
+        public void OneToOne_finds_existing_nav_to_dependent_and_uses_associated_FK()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+            modelBuilder.Entity<Customer>().Key(c => c.Id);
+            modelBuilder
+                .Entity<CustomerDetails>()
+                .ForeignKeys(fks => fks.ForeignKey<Customer>(c => c.Id));
+
+            var dependentType = model.GetEntityType(typeof(CustomerDetails));
+            var principalType = model.GetEntityType(typeof(Customer));
+            var fk = dependentType.ForeignKeys.Single();
+            fk.IsUnique = true;
+
+            var navigation = new Navigation(fk, "Details", pointsToPrincipal: false);
+            principalType.AddNavigation(navigation);
+
+            modelBuilder.Entity<Customer>().OneToOne(e => e.Details, e => e.Customer);
+
+            Assert.Same(fk, dependentType.ForeignKeys.Single());
+            Assert.Equal("Customer", dependentType.Navigations.Single().Name);
+            Assert.Same(navigation, principalType.Navigations.Single());
+            Assert.Same(fk, dependentType.Navigations.Single().ForeignKey);
+            Assert.Same(fk, principalType.Navigations.Single().ForeignKey);
+        }
+
+        [Fact]
+        public void OneToOne_creates_both_navs_and_uses_existing_FK()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+            modelBuilder.Entity<Customer>().Key(c => c.Id);
+            modelBuilder.Entity<CustomerDetails>().Key(e => e.Id);
+            modelBuilder
+                .Entity<CustomerDetails>()
+                .ForeignKeys(fks => fks.ForeignKey<Customer>(c => c.Id));
+
+            var dependentType = model.GetEntityType(typeof(CustomerDetails));
+            var principalType = model.GetEntityType(typeof(Customer));
+            var fk = dependentType.ForeignKeys.Single();
+            fk.IsUnique = true;
+
+            modelBuilder.Entity<Customer>().OneToOne(e => e.Details, e => e.Customer);
+
+            Assert.Same(fk, dependentType.ForeignKeys.Single());
+            Assert.Equal("Customer", dependentType.Navigations.Single().Name);
+            Assert.Equal("Details", principalType.Navigations.Single().Name);
+            Assert.Same(fk, dependentType.Navigations.Single().ForeignKey);
+            Assert.Same(fk, principalType.Navigations.Single().ForeignKey);
+        }
+
+        [Fact]
+        public void OneToOne_creates_both_navs_and_creates_new_FK()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+            modelBuilder.Entity<Customer>().Key(c => c.Id);
+            modelBuilder.Entity<CustomerDetails>().Key(e => e.Id);
+
+            var dependentType = model.GetEntityType(typeof(CustomerDetails));
+            var principalType = model.GetEntityType(typeof(Customer));
+
+            var fkProperty = dependentType.GetProperty("Id");
+
+            modelBuilder.Entity<Customer>().OneToOne(e => e.Details, e => e.Customer);
+
+            var fk = dependentType.ForeignKeys.Single();
+            Assert.Same(fkProperty, fk.Properties.Single());
+
+            Assert.Equal("Customer", dependentType.Navigations.Single().Name);
+            Assert.Equal("Details", principalType.Navigations.Single().Name);
+            Assert.Same(fk, dependentType.Navigations.Single().ForeignKey);
+            Assert.Same(fk, principalType.Navigations.Single().ForeignKey);
+        }
+
+        [Fact]
+        public void OneToOne_creates_both_navs_and_uses_existing_FK_when_not_PK()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+            modelBuilder.Entity<Order>().Key(c => c.OrderId);
+            modelBuilder.Entity<OrderDetails>().Key(e => e.Id);
+            modelBuilder
+                .Entity<OrderDetails>()
+                .ForeignKeys(fks => fks.ForeignKey<Order>(c => c.Id));
+
+            var dependentType = model.GetEntityType(typeof(OrderDetails));
+            var principalType = model.GetEntityType(typeof(Order));
+            var fk = dependentType.ForeignKeys.Single();
+            fk.IsUnique = true;
+
+            modelBuilder.Entity<Order>().OneToOne(e => e.Details, e => e.Order);
+
+            Assert.Same(fk, dependentType.ForeignKeys.Single());
+            Assert.Equal("Order", dependentType.Navigations.Single().Name);
+            Assert.Equal("Details", principalType.Navigations.Single().Name);
+            Assert.Same(fk, dependentType.Navigations.Single().ForeignKey);
+            Assert.Same(fk, principalType.Navigations.Single().ForeignKey);
+        }
+
+        [Fact]
+        public void OneToOne_creates_both_navs_and_creates_new_FK_when_not_PK()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+            modelBuilder.Entity<Order>().Key(c => c.OrderId);
+            modelBuilder.Entity<OrderDetails>(b =>
+                {
+                    b.Key(e => e.Id);
+                    b.Property(e => e.OrderId);
+                });
+
+            var dependentType = model.GetEntityType(typeof(OrderDetails));
+            var principalType = model.GetEntityType(typeof(Order));
+
+            var fkProperty = dependentType.GetProperty("OrderId");
+
+            modelBuilder.Entity<Order>().OneToOne(e => e.Details, e => e.Order);
+
+            var fk = dependentType.ForeignKeys.Single();
+            Assert.Same(fkProperty, fk.Properties.Single());
+
+            Assert.Equal("Order", dependentType.Navigations.Single().Name);
+            Assert.Equal("Details", principalType.Navigations.Single().Name);
+            Assert.Same(fk, dependentType.Navigations.Single().ForeignKey);
+            Assert.Same(fk, principalType.Navigations.Single().ForeignKey);
+        }
+
+        [Fact]
+        public void OneToOne_can_create_unidirectional_nav_and_new_FK()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+            modelBuilder.Entity<Customer>().Key(c => c.Id);
+            modelBuilder.Entity<CustomerDetails>().Key(e => e.Id);
+
+            var dependentType = model.GetEntityType(typeof(CustomerDetails));
+            var principalType = model.GetEntityType(typeof(Customer));
+
+            var fkProperty = dependentType.GetProperty("Id");
+
+            modelBuilder.Entity<Customer>().OneToOne(e => e.Details);
+
+            var fk = dependentType.ForeignKeys.Single();
+            Assert.Same(fkProperty, fk.Properties.Single());
+
+            Assert.Empty(dependentType.Navigations);
+            Assert.Equal("Details", principalType.Navigations.Single().Name);
+            Assert.Same(fk, principalType.Navigations.Single().ForeignKey);
+        }
+
+        [Fact]
+        public void OneToOne_can_create_unidirectional_from_other_end_nav_and_new_FK()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+            modelBuilder.Entity<Customer>().Key(c => c.Id);
+            modelBuilder.Entity<CustomerDetails>().Key(e => e.Id);
+
+            var dependentType = model.GetEntityType(typeof(CustomerDetails));
+            var principalType = model.GetEntityType(typeof(Customer));
+
+            var fkProperty = dependentType.GetProperty("Id");
+
+            // Passing null as the first arg is not super-compelling, but it is consistent
+            modelBuilder.Entity<Customer>().OneToOne<CustomerDetails>(null, e => e.Customer);
+
+            var fk = dependentType.ForeignKeys.Single();
+            Assert.Same(fkProperty, fk.Properties.Single());
+
+            Assert.Equal("Customer", dependentType.Navigations.Single().Name);
+            Assert.Empty(principalType.Navigations);
+            Assert.Same(fk, dependentType.Navigations.Single().ForeignKey);
+        }
+
+        [Fact]
+        public void OneToOne_can_create_relationship_with_no_navigations()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+            modelBuilder.Entity<Customer>().Key(c => c.Id);
+            modelBuilder.Entity<CustomerDetails>().Key(e => e.Id);
+
+            var dependentType = model.GetEntityType(typeof(CustomerDetails));
+            var principalType = model.GetEntityType(typeof(Customer));
+
+            var fkProperty = dependentType.GetProperty("Id");
+
+            modelBuilder.Entity<Customer>().OneToOne<CustomerDetails>();
+
+            var fk = dependentType.ForeignKeys.Single();
+            Assert.Same(fkProperty, fk.Properties.Single());
+
+            Assert.Empty(dependentType.Navigations);
+            Assert.Empty(principalType.Navigations);
+        }
+
+        [Fact]
+        public void OneToOne_creates_both_navs_and_uses_specified_FK_even_if_found_by_convention()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+            modelBuilder.Entity<Order>().Key(c => c.OrderId);
+            modelBuilder.Entity<OrderDetails>(b =>
+            {
+                b.Key(e => e.Id);
+                b.Property(e => e.OrderId);
+            });
+
+            var dependentType = model.GetEntityType(typeof(OrderDetails));
+            var principalType = model.GetEntityType(typeof(Order));
+
+            var fkProperty = dependentType.GetProperty("OrderId");
+
+            var propertyCount = dependentType.Properties.Count;
+
+            modelBuilder
+                .Entity<Order>()
+                .OneToOne(e => e.Details, e => e.Order)
+                .ForeignKey<OrderDetails>(e => e.OrderId);
+
+            var fk = dependentType.ForeignKeys.Single();
+            Assert.Same(fkProperty, fk.Properties.Single());
+
+            Assert.Equal("Order", dependentType.Navigations.Single().Name);
+            Assert.Equal("Details", principalType.Navigations.Single().Name);
+            Assert.Same(fk, dependentType.Navigations.Single().ForeignKey);
+            Assert.Same(fk, principalType.Navigations.Single().ForeignKey);
+            Assert.Equal(propertyCount, dependentType.Properties.Count);
+        }
+
+        [Fact]
+        public void OneToOne_creates_both_navs_and_uses_specified_FK_even_if_PK()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+            modelBuilder.Entity<Customer>().Key(c => c.Id);
+            modelBuilder.Entity<CustomerDetails>().Key(e => e.Id);
+
+            var dependentType = model.GetEntityType(typeof(CustomerDetails));
+            var principalType = model.GetEntityType(typeof(Customer));
+
+            var fkProperty = dependentType.GetProperty("Id");
+
+            var propertyCount = dependentType.Properties.Count;
+
+            modelBuilder
+                .Entity<Customer>()
+                .OneToOne(e => e.Details, e => e.Customer)
+                .ForeignKey<CustomerDetails>(e => e.Id);
+
+            var fk = dependentType.ForeignKeys.Single();
+            Assert.Same(fkProperty, fk.Properties.Single());
+
+            Assert.Equal("Customer", dependentType.Navigations.Single().Name);
+            Assert.Equal("Details", principalType.Navigations.Single().Name);
+            Assert.Same(fk, dependentType.Navigations.Single().ForeignKey);
+            Assert.Same(fk, principalType.Navigations.Single().ForeignKey);
+            Assert.Equal(propertyCount, dependentType.Properties.Count);
+        }
+
+        [Fact]
+        public void OneToOne_creates_both_navs_and_uses_existing_FK_not_found_by_convention()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+            modelBuilder.Entity<BigMak>().Key(c => c.Id);
+            modelBuilder
+                .Entity<Bun>()
+                .ForeignKeys(fks => fks.ForeignKey<BigMak>(c => c.BurgerId));
+
+            var dependentType = model.GetEntityType(typeof(Bun));
+            var principalType = model.GetEntityType(typeof(BigMak));
+            var fk = dependentType.ForeignKeys.Single();
+            fk.IsUnique = true;
+
+            var propertyCount = dependentType.Properties.Count;
+
+            modelBuilder
+                .Entity<BigMak>()
+                .OneToOne(e => e.Bun, e => e.BigMak)
+                .ForeignKey<Bun>(e => e.BurgerId);
 
             Assert.Same(fk, dependentType.ForeignKeys.Single());
             Assert.Equal("BigMak", dependentType.Navigations.Single().Name);
-            Assert.Equal("Pickles", principalType.Navigations.Single().Name);
+            Assert.Equal("Bun", principalType.Navigations.Single().Name);
             Assert.Same(fk, dependentType.Navigations.Single().ForeignKey);
             Assert.Same(fk, principalType.Navigations.Single().ForeignKey);
+            Assert.Equal(propertyCount, dependentType.Properties.Count);
+        }
+
+        [Fact]
+        public void OneToOne_creates_both_navs_and_creates_FK_specified()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+            modelBuilder.Entity<BigMak>().Key(c => c.Id);
+            modelBuilder.Entity<Bun>().Property(e => e.BurgerId);
+
+            var dependentType = model.GetEntityType(typeof(Bun));
+            var principalType = model.GetEntityType(typeof(BigMak));
+
+            var fkProperty = dependentType.GetProperty("BurgerId");
+
+            var propertyCount = dependentType.Properties.Count;
+
+            modelBuilder
+                .Entity<BigMak>()
+                .OneToOne(e => e.Bun, e => e.BigMak)
+                .ForeignKey<Bun>(e => e.BurgerId);
+
+            var fk = dependentType.ForeignKeys.Single();
+            Assert.Same(fkProperty, fk.Properties.Single());
+
+            Assert.Equal("BigMak", dependentType.Navigations.Single().Name);
+            Assert.Equal("Bun", principalType.Navigations.Single().Name);
+            Assert.Same(fk, dependentType.Navigations.Single().ForeignKey);
+            Assert.Same(fk, principalType.Navigations.Single().ForeignKey);
+            Assert.Equal(propertyCount, dependentType.Properties.Count);
+        }
+
+        [Fact]
+        public void OneToOne_can_create_unidirectional_nav_and_specified_FK()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+            modelBuilder.Entity<BigMak>().Key(c => c.Id);
+            modelBuilder.Entity<Bun>().Property(e => e.BurgerId);
+
+            var dependentType = model.GetEntityType(typeof(Bun));
+            var principalType = model.GetEntityType(typeof(BigMak));
+
+            var fkProperty = dependentType.GetProperty("BurgerId");
+
+            var propertyCount = dependentType.Properties.Count;
+
+            modelBuilder
+                .Entity<BigMak>()
+                .OneToOne(e => e.Bun)
+                .ForeignKey<Bun>(e => e.BurgerId);
+
+            var fk = dependentType.ForeignKeys.Single();
+            Assert.Same(fkProperty, fk.Properties.Single());
+
+            Assert.Empty(dependentType.Navigations);
+            Assert.Equal("Bun", principalType.Navigations.Single().Name);
+            Assert.Same(fk, principalType.Navigations.Single().ForeignKey);
+            Assert.Equal(propertyCount, dependentType.Properties.Count);
+        }
+
+        [Fact]
+        public void OneToOne_can_create_unidirectional_from_other_end_nav_and_specified_FK()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+            modelBuilder.Entity<BigMak>().Key(c => c.Id);
+            modelBuilder.Entity<Bun>().Property(e => e.BurgerId);
+
+            var dependentType = model.GetEntityType(typeof(Bun));
+            var principalType = model.GetEntityType(typeof(BigMak));
+
+            var fkProperty = dependentType.GetProperty("BurgerId");
+
+            var propertyCount = dependentType.Properties.Count;
+
+            modelBuilder
+                .Entity<BigMak>()
+                .OneToOne<Bun>(null, e => e.BigMak)
+                .ForeignKey<Bun>(e => e.BurgerId);
+
+            var fk = dependentType.ForeignKeys.Single();
+            Assert.Same(fkProperty, fk.Properties.Single());
+
+            Assert.Equal("BigMak", dependentType.Navigations.Single().Name);
+            Assert.Empty(principalType.Navigations);
+            Assert.Same(fk, dependentType.Navigations.Single().ForeignKey);
+            Assert.Equal(propertyCount, dependentType.Properties.Count);
+        }
+
+        [Fact]
+        public void OneToOne_can_create_relationship_with_no_navigations_and_specified_FK()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+            modelBuilder.Entity<BigMak>().Key(c => c.Id);
+            modelBuilder.Entity<Bun>().Property(e => e.BurgerId);
+
+            var dependentType = model.GetEntityType(typeof(Bun));
+            var principalType = model.GetEntityType(typeof(BigMak));
+
+            var fkProperty = dependentType.GetProperty("BurgerId");
+
+            var propertyCount = dependentType.Properties.Count;
+
+            modelBuilder
+                .Entity<BigMak>()
+                .OneToOne<Bun>()
+                .ForeignKey<Bun>(e => e.BurgerId);
+
+            var fk = dependentType.ForeignKeys.Single();
+            Assert.Same(fkProperty, fk.Properties.Single());
+
+            Assert.Empty(dependentType.Navigations);
+            Assert.Empty(principalType.Navigations);
+            Assert.Equal(propertyCount, dependentType.Properties.Count);
+        }
+
+        [Fact]
+        public void OneToOne_creates_both_navs_and_makes_new_FK_when_uniqueness_does_not_match()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+            modelBuilder.Entity<BigMak>().Key(c => c.Id);
+            modelBuilder
+                .Entity<Bun>()
+                .ForeignKeys(fks => fks.ForeignKey<BigMak>(c => c.BurgerId));
+
+            var dependentType = model.GetEntityType(typeof(Bun));
+            var principalType = model.GetEntityType(typeof(BigMak));
+            var fk = dependentType.ForeignKeys.Single();
+
+            var propertyCount = dependentType.Properties.Count;
+
+            modelBuilder
+                .Entity<BigMak>()
+                .OneToOne(e => e.Bun, e => e.BigMak)
+                .ForeignKey<Bun>(e => e.BurgerId);
+
+            Assert.Equal(2, dependentType.ForeignKeys.Count);
+            var newFk = dependentType.ForeignKeys.Single(k => k != fk);
+
+            Assert.False(fk.IsUnique);
+            Assert.True(newFk.IsUnique);
+
+            Assert.Equal("BigMak", dependentType.Navigations.Single().Name);
+            Assert.Equal("Bun", principalType.Navigations.Single().Name);
+            Assert.Same(newFk, dependentType.Navigations.Single().ForeignKey);
+            Assert.Same(newFk, principalType.Navigations.Single().ForeignKey);
             Assert.Equal(propertyCount, dependentType.Properties.Count);
         }
 
@@ -1437,9 +1941,19 @@ namespace Microsoft.Data.Entity.Metadata
             public int Id { get; set; }
 
             public IEnumerable<Pickle> Pickles { get; set; }
+            
+            public Bun Bun { get; set; }
         }
 
         private class Pickle
+        {
+            public int Id { get; set; }
+
+            public int BurgerId { get; set; }
+            public BigMak BigMak { get; set; }
+        }
+
+        private class Bun
         {
             public int Id { get; set; }
 
@@ -1785,12 +2299,217 @@ namespace Microsoft.Data.Entity.Metadata
             Assert.Equal(propertyCount, dependentType.Properties.Count);
         }
 
+        [Fact]
+        public void OneToOne_creates_both_navs_and_uses_existing_composite_FK()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+            modelBuilder.Entity<Whoopper>().Key(c => new { c.Id1, c.Id2 });
+            modelBuilder
+                .Entity<ToastedBun>()
+                .ForeignKeys(fks => fks.ForeignKey<Whoopper>(c => new { c.BurgerId1, c.BurgerId2 }));
+
+            var dependentType = model.GetEntityType(typeof(ToastedBun));
+            var principalType = model.GetEntityType(typeof(Whoopper));
+            var fk = dependentType.ForeignKeys.Single();
+            fk.IsUnique = true;
+
+            var propertyCount = dependentType.Properties.Count;
+
+            modelBuilder
+                .Entity<Whoopper>()
+                .OneToOne(e => e.ToastedBun, e => e.Whoopper)
+                .ForeignKey<ToastedBun>(e => new { e.BurgerId1, e.BurgerId2 });
+
+            Assert.Same(fk, dependentType.ForeignKeys.Single());
+            Assert.Equal("Whoopper", dependentType.Navigations.Single().Name);
+            Assert.Equal("ToastedBun", principalType.Navigations.Single().Name);
+            Assert.Same(fk, dependentType.Navigations.Single().ForeignKey);
+            Assert.Same(fk, principalType.Navigations.Single().ForeignKey);
+            Assert.Equal(propertyCount, dependentType.Properties.Count);
+        }
+
+        [Fact]
+        public void OneToOne_creates_both_navs_and_creates_composite_FK_specified()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+            modelBuilder.Entity<Whoopper>().Key(c => new { c.Id1, c.Id2 });
+            modelBuilder.Entity<ToastedBun>(b =>
+            {
+                b.Property(e => e.BurgerId1);
+                b.Property(e => e.BurgerId2);
+            });
+
+            var dependentType = model.GetEntityType(typeof(ToastedBun));
+            var principalType = model.GetEntityType(typeof(Whoopper));
+
+            var fkProperty1 = dependentType.GetProperty("BurgerId1");
+            var fkProperty2 = dependentType.GetProperty("BurgerId2");
+
+            var propertyCount = dependentType.Properties.Count;
+
+            modelBuilder
+                .Entity<Whoopper>()
+                .OneToOne(e => e.ToastedBun, e => e.Whoopper)
+                .ForeignKey<ToastedBun>(e => new { e.BurgerId1, e.BurgerId2 });
+
+            var fk = dependentType.ForeignKeys.Single();
+            Assert.Same(fkProperty1, fk.Properties[0]);
+            Assert.Same(fkProperty2, fk.Properties[1]);
+
+            Assert.Equal("Whoopper", dependentType.Navigations.Single().Name);
+            Assert.Equal("ToastedBun", principalType.Navigations.Single().Name);
+            Assert.Same(fk, dependentType.Navigations.Single().ForeignKey);
+            Assert.Same(fk, principalType.Navigations.Single().ForeignKey);
+            Assert.Equal(propertyCount, dependentType.Properties.Count);
+        }
+
+        [Fact]
+        public void OneToOne_uses_composite_PK_for_FK_by_conventions()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+            modelBuilder.Entity<Whoopper>().Key(c => new { c.Id1, c.Id2 });
+            modelBuilder.Entity<Moostard>().Key(c => new { c.Id1, c.Id2 });
+
+            var dependentType = model.GetEntityType(typeof(Moostard));
+            var principalType = model.GetEntityType(typeof(Whoopper));
+
+            var fkProperty1 = dependentType.GetProperty("Id1");
+            var fkProperty2 = dependentType.GetProperty("Id2");
+
+            var propertyCount = dependentType.Properties.Count;
+
+            modelBuilder
+                .Entity<Whoopper>()
+                .OneToOne(e => e.Moostard, e => e.Whoopper);
+
+            var fk = dependentType.ForeignKeys.Single();
+            Assert.Same(fkProperty1, fk.Properties[0]);
+            Assert.Same(fkProperty2, fk.Properties[1]);
+
+            Assert.Equal("Whoopper", dependentType.Navigations.Single().Name);
+            Assert.Equal("Moostard", principalType.Navigations.Single().Name);
+            Assert.Same(fk, dependentType.Navigations.Single().ForeignKey);
+            Assert.Same(fk, principalType.Navigations.Single().ForeignKey);
+            Assert.Equal(propertyCount, dependentType.Properties.Count);
+        }
+
+        [Fact]
+        public void OneToOne_can_create_unidirectional_nav_and_specified_composite_FK()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+            modelBuilder.Entity<Whoopper>().Key(c => new { c.Id1, c.Id2 });
+            modelBuilder.Entity<ToastedBun>(b =>
+            {
+                b.Property(e => e.BurgerId1);
+                b.Property(e => e.BurgerId2);
+            });
+
+            var dependentType = model.GetEntityType(typeof(ToastedBun));
+            var principalType = model.GetEntityType(typeof(Whoopper));
+
+            var fkProperty1 = dependentType.GetProperty("BurgerId1");
+            var fkProperty2 = dependentType.GetProperty("BurgerId2");
+
+            var propertyCount = dependentType.Properties.Count;
+
+            modelBuilder
+                .Entity<Whoopper>()
+                .OneToOne(e => e.ToastedBun)
+                .ForeignKey<ToastedBun>(e => new { e.BurgerId1, e.BurgerId2 });
+
+            var fk = dependentType.ForeignKeys.Single();
+            Assert.Same(fkProperty1, fk.Properties[0]);
+            Assert.Same(fkProperty2, fk.Properties[1]);
+
+            Assert.Empty(dependentType.Navigations);
+            Assert.Equal("ToastedBun", principalType.Navigations.Single().Name);
+            Assert.Same(fk, principalType.Navigations.Single().ForeignKey);
+            Assert.Equal(propertyCount, dependentType.Properties.Count);
+        }
+
+        [Fact]
+        public void OneToOne_can_create_unidirectional_from_other_end_nav_and_specified_composite_FK()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+            modelBuilder.Entity<Whoopper>().Key(c => new { c.Id1, c.Id2 });
+            modelBuilder.Entity<ToastedBun>(b =>
+            {
+                b.Property(e => e.BurgerId1);
+                b.Property(e => e.BurgerId2);
+            });
+
+            var dependentType = model.GetEntityType(typeof(ToastedBun));
+            var principalType = model.GetEntityType(typeof(Whoopper));
+
+            var fkProperty1 = dependentType.GetProperty("BurgerId1");
+            var fkProperty2 = dependentType.GetProperty("BurgerId2");
+
+            var propertyCount = dependentType.Properties.Count;
+
+            modelBuilder
+                .Entity<Whoopper>()
+                .OneToOne<ToastedBun>(null, e => e.Whoopper)
+                .ForeignKey<ToastedBun>(e => new { e.BurgerId1, e.BurgerId2 });
+
+            var fk = dependentType.ForeignKeys.Single();
+            Assert.Same(fkProperty1, fk.Properties[0]);
+            Assert.Same(fkProperty2, fk.Properties[1]);
+
+            Assert.Equal("Whoopper", dependentType.Navigations.Single().Name);
+            Assert.Empty(principalType.Navigations);
+            Assert.Same(fk, dependentType.Navigations.Single().ForeignKey);
+            Assert.Equal(propertyCount, dependentType.Properties.Count);
+        }
+
+        [Fact]
+        public void OneToOne_can_create_relationship_with_no_navigations_and_specified_composite_FK()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+            modelBuilder.Entity<Whoopper>().Key(c => new { c.Id1, c.Id2 });
+            modelBuilder.Entity<ToastedBun>(b =>
+            {
+                b.Property(e => e.BurgerId1);
+                b.Property(e => e.BurgerId2);
+            });
+
+            var dependentType = model.GetEntityType(typeof(ToastedBun));
+            var principalType = model.GetEntityType(typeof(Whoopper));
+
+            var fkProperty1 = dependentType.GetProperty("BurgerId1");
+            var fkProperty2 = dependentType.GetProperty("BurgerId2");
+
+            var propertyCount = dependentType.Properties.Count;
+
+            modelBuilder
+                .Entity<Whoopper>()
+                .OneToOne<ToastedBun>()
+                .ForeignKey<ToastedBun>(e => new { e.BurgerId1, e.BurgerId2 });
+
+            var fk = dependentType.ForeignKeys.Single();
+            Assert.Same(fkProperty1, fk.Properties[0]);
+            Assert.Same(fkProperty2, fk.Properties[1]);
+
+            Assert.Empty(dependentType.Navigations);
+            Assert.Empty(principalType.Navigations);
+            Assert.Equal(propertyCount, dependentType.Properties.Count);
+        }
+
         private class Whoopper
         {
             public int Id1 { get; set; }
             public int Id2 { get; set; }
 
             public IEnumerable<Tomato> Tomatoes { get; set; }
+
+            public ToastedBun ToastedBun { get; set; }
+
+            public Moostard Moostard { get; set; }
         }
 
         private class Tomato
@@ -1802,12 +2521,38 @@ namespace Microsoft.Data.Entity.Metadata
             public Whoopper Whoopper { get; set; }
         }
 
+        private class ToastedBun
+        {
+            public int Id { get; set; }
+
+            public int BurgerId1 { get; set; }
+            public int BurgerId2 { get; set; }
+            public Whoopper Whoopper { get; set; }
+        }
+
+        private class Moostard
+        {
+            public int Id1 { get; set; }
+            public int Id2 { get; set; }
+
+            public Whoopper Whoopper { get; set; }
+        }
+
         private class Customer
         {
             public int Id { get; set; }
             public string Name { get; set; }
 
             public IEnumerable<Order> Orders { get; set; }
+
+            public CustomerDetails Details { get; set; }
+        }
+
+        private class CustomerDetails
+        {
+            public int Id { get; set; }
+
+            public Customer Customer { get; set; }
         }
 
         private class Order
@@ -1816,6 +2561,16 @@ namespace Microsoft.Data.Entity.Metadata
 
             public int CustomerId { get; set; }
             public Customer Customer { get; set; }
+
+            public OrderDetails Details { get; set; }
+        }
+
+        private class OrderDetails
+        {
+            public int Id { get; set; }
+
+            public int OrderId { get; set; }
+            public Order Order { get; set; }
         }
     }
 }

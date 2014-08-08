@@ -17,7 +17,9 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
         public virtual ForeignKey FindOrCreateForeignKey(
             [NotNull] EntityType principalType,
             [NotNull] EntityType dependentType,
-            [CanBeNull] string navigationToPrincipal)
+            [CanBeNull] string navigationToPrincipal,
+            [CanBeNull] string navigationToDependent,
+            bool isUnqiue)
         {
             Check.NotNull(principalType, "principalType");
             Check.NotNull(dependentType, "dependentType");
@@ -26,21 +28,30 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                 principalType,
                 dependentType,
                 navigationToPrincipal,
-                GetCandidateForeignKeyProperties(principalType, dependentType, navigationToPrincipal));
+                navigationToDependent,
+                GetCandidateForeignKeyProperties(principalType, dependentType, navigationToPrincipal, isUnqiue),
+                isUnqiue);
         }
 
         public virtual ForeignKey FindOrCreateForeignKey(
             [NotNull] EntityType principalType,
             [NotNull] EntityType dependentType,
             [CanBeNull] string navigationToPrincipal,
-            [NotNull] IReadOnlyList<Property[]> candidateProperties)
+            [CanBeNull] string navigationToDependent,
+            [NotNull] IReadOnlyList<Property[]> candidateProperties,
+            bool isUnqiue)
         {
             Check.NotNull(principalType, "principalType");
             Check.NotNull(dependentType, "dependentType");
 
             foreach (var properties in candidateProperties)
             {
-                var foreignKey = dependentType.ForeignKeys.FirstOrDefault(fk => fk.Properties.SequenceEqual(properties));
+                var foreignKey = dependentType
+                    .ForeignKeys
+                    .FirstOrDefault(fk => fk.IsUnique == isUnqiue
+                                          && fk.Properties.SequenceEqual(properties)
+                                          && !fk.EntityType.Navigations.Any(n => n.ForeignKey == fk && n.Name != navigationToPrincipal)
+                                          && !fk.ReferencedEntityType.Navigations.Any(n => n.ForeignKey == fk && n.Name != navigationToDependent));
                 if (foreignKey != null)
                 {
                     return foreignKey;
@@ -61,11 +72,14 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                                          concurrencyToken: false)
                                  };
 
-            return dependentType.AddForeignKey(principalType.GetKey(), fkProperty);
+            var newForeignKey = dependentType.AddForeignKey(principalType.GetKey(), fkProperty);
+            newForeignKey.IsUnique = isUnqiue;
+            
+            return newForeignKey;
         }
 
         private IReadOnlyList<Property[]> GetCandidateForeignKeyProperties(
-            EntityType principalType, EntityType dependentType, string navigationToPrincipal)
+            EntityType principalType, EntityType dependentType, string navigationToPrincipal, bool isUnqiue)
         {
             var pk = principalType.TryGetKey();
             var pkPropertyName = pk != null && pk.Properties.Count == 1 ? pk.Properties[0].Name : null;
@@ -89,20 +103,28 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                 candidateNames.Add((principalType.Name + pkPropertyName));
             }
 
-            var matches = new List<Property>();
+            var matches = new List<Property[]>();
             foreach (var name in candidateNames)
             {
                 foreach (var property in dependentType.Properties)
                 {
-                    if (property.Name.Equals(name, StringComparison.OrdinalIgnoreCase)
-                        && !matches.Contains(property))
+                    if (property.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
                     {
-                        matches.Add(property);
+                        matches.Add(new [] { property });
                     }
                 }
             }
 
-            return matches.Select(p => new[] { p }).ToArray();
+            if (isUnqiue)
+            {
+                var dependentPk = dependentType.TryGetKey();
+                if (dependentPk != null)
+                {
+                    matches.Add(dependentPk.Properties.ToArray());
+                }
+            }
+
+            return matches;
         }
     }
 }
