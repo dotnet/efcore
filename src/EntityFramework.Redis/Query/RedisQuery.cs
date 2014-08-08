@@ -20,24 +20,24 @@ namespace Microsoft.Data.Entity.Redis.Query
             _entityType = entityType;
         }
 
-        public IEntityType EntityType
+        public virtual IEntityType EntityType
         {
             get { return _entityType; }
         }
 
-        public List<IProperty> SelectedProperties
+        public virtual List<IProperty> SelectedProperties
         {
             get { return _selectedProperties; }
         }
 
-        public void AddProperty([NotNull] IProperty property)
+        public virtual void AddProperty([NotNull] IProperty property)
         {
             Check.NotNull(property, "property");
 
             _selectedProperties.Add(property);
         }
 
-        public IEnumerable<IValueReader> GetValueReaders([NotNull] RedisQueryContext redisQueryContext)
+        public virtual IEnumerable<IValueReader> GetValueReaders([NotNull] RedisQueryContext redisQueryContext)
         {
             Check.NotNull(redisQueryContext, "redisQueryContext");
             return redisQueryContext.GetResultsFromRedis(this).Select(array => new ObjectArrayValueReader(array));
