@@ -85,7 +85,7 @@ namespace Microsoft.Data.Entity.Relational.Model
             var i = _columns.FindIndex(c => c.Name == columnName);
             var column = _columns[i];
 
-            _columns.RemoveAt(_columns.FindIndex(c => c.Name == columnName));
+            _columns.RemoveAt(i);
             column.Table = null;
         }
 

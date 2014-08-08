@@ -60,6 +60,7 @@
     <Compile Include="SequentialGuidValueGenerator.cs" />
     <Compile Include="SqlServerBatchExecutor.cs" />
     <Compile Include="SqlServerDataStoreServices.cs" />
+    <Compile Include="SqlServerMigrationOperationPreProcessor.cs" />
     <Compile Include="SqlServerMigrationOperationSqlGeneratorFactory.cs" />
     <Compile Include="SqlServerMigrator.cs" />
     <Compile Include="SqlServerModificationCommandBatchFactory.cs" />

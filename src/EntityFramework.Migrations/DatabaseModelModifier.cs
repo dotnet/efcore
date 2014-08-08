@@ -4,6 +4,7 @@
 using System.Diagnostics.Contracts;
 using System.Linq;
 using Microsoft.Data.Entity.Migrations.Model;
+using Microsoft.Data.Entity.Migrations.Utilities;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Model;
 
@@ -11,70 +12,92 @@ namespace Microsoft.Data.Entity.Migrations
 {
     // TODO: Consider throwing exceptions instead of Contract.Assert. 
     // This is related to additional validation in the database model.
-    public class DatabaseModelModifier : IMigrationOperationVisitor<DatabaseModel>
+    public class DatabaseModelModifier : MigrationOperationVisitor<DatabaseModel>
     {
-        public virtual void Visit(CreateDatabaseOperation createDatabaseOperation, DatabaseModel databaseModel)
+        public override void Visit(CreateSequenceOperation createSequenceOperation, DatabaseModel databaseModel)
         {
-        }
+            Check.NotNull(createSequenceOperation, "createSequenceOperation");
+            Check.NotNull(databaseModel, "databaseModel");
 
-        public virtual void Visit(DropDatabaseOperation dropDatabaseOperation, DatabaseModel databaseModel)
-        {
-        }
-
-        public virtual void Visit(CreateSequenceOperation createSequenceOperation, DatabaseModel databaseModel)
-        {
             databaseModel.AddSequence(createSequenceOperation.Sequence);
         }
 
-        public virtual void Visit(DropSequenceOperation dropSequenceOperation, DatabaseModel databaseModel)
+        public override void Visit(DropSequenceOperation dropSequenceOperation, DatabaseModel databaseModel)
         {
+            Check.NotNull(dropSequenceOperation, "dropSequenceOperation");
+            Check.NotNull(databaseModel, "databaseModel");
+
             databaseModel.RemoveSequence(dropSequenceOperation.SequenceName);
         }
 
-        public virtual void Visit(CreateTableOperation createTableOperation, DatabaseModel databaseModel)
+        public override void Visit(CreateTableOperation createTableOperation, DatabaseModel databaseModel)
         {
+            Check.NotNull(createTableOperation, "createTableOperation");
+            Check.NotNull(databaseModel, "databaseModel");
+
             databaseModel.AddTable(createTableOperation.Table);
         }
 
-        public virtual void Visit(DropTableOperation dropTableOperation, DatabaseModel databaseModel)
+        public override void Visit(DropTableOperation dropTableOperation, DatabaseModel databaseModel)
         {
+            Check.NotNull(dropTableOperation, "dropTableOperation");
+            Check.NotNull(databaseModel, "databaseModel");
+
             databaseModel.RemoveTable(dropTableOperation.TableName);
         }
 
-        public virtual void Visit(RenameTableOperation renameTableOperation, DatabaseModel databaseModel)
+        public override void Visit(RenameTableOperation renameTableOperation, DatabaseModel databaseModel)
         {
+            Check.NotNull(renameTableOperation, "renameTableOperation");
+            Check.NotNull(databaseModel, "databaseModel");
+
             var table = databaseModel.GetTable(renameTableOperation.TableName);
             table.Name = new SchemaQualifiedName(renameTableOperation.NewTableName, renameTableOperation.TableName.Schema);
         }
 
-        public virtual void Visit(MoveTableOperation moveTableOperation, DatabaseModel databaseModel)
+        public override void Visit(MoveTableOperation moveTableOperation, DatabaseModel databaseModel)
         {
+            Check.NotNull(moveTableOperation, "moveTableOperation");
+            Check.NotNull(databaseModel, "databaseModel");
+
             var table = databaseModel.GetTable(moveTableOperation.TableName);
             table.Name = new SchemaQualifiedName(moveTableOperation.TableName.Name, moveTableOperation.NewSchema);
         }
 
-        public virtual void Visit(AddColumnOperation addColumnOperation, DatabaseModel databaseModel)
+        public override void Visit(AddColumnOperation addColumnOperation, DatabaseModel databaseModel)
         {
+            Check.NotNull(addColumnOperation, "addColumnOperation");
+            Check.NotNull(databaseModel, "databaseModel");
+
             var table = databaseModel.GetTable(addColumnOperation.TableName);
             table.AddColumn(addColumnOperation.Column);
         }
 
-        public virtual void Visit(DropColumnOperation dropColumnOperation, DatabaseModel databaseModel)
+        public override void Visit(DropColumnOperation dropColumnOperation, DatabaseModel databaseModel)
         {
+            Check.NotNull(dropColumnOperation, "dropColumnOperation");
+            Check.NotNull(databaseModel, "databaseModel");
+
             var table = databaseModel.GetTable(dropColumnOperation.TableName);
             table.RemoveColumn(dropColumnOperation.ColumnName);
         }
 
-        public virtual void Visit(AlterColumnOperation alterColumnOperation, DatabaseModel databaseModel)
+        public override void Visit(AlterColumnOperation alterColumnOperation, DatabaseModel databaseModel)
         {
+            Check.NotNull(alterColumnOperation, "alterColumnOperation");
+            Check.NotNull(databaseModel, "databaseModel");
+
             var table = databaseModel.GetTable(alterColumnOperation.TableName);
             var newColumn = alterColumnOperation.NewColumn;
             var column = table.GetColumn(newColumn.Name);
             column.Copy(newColumn);
         }
 
-        public virtual void Visit(AddDefaultConstraintOperation addDefaultConstraintOperation, DatabaseModel databaseModel)
+        public override void Visit(AddDefaultConstraintOperation addDefaultConstraintOperation, DatabaseModel databaseModel)
         {
+            Check.NotNull(addDefaultConstraintOperation, "addDefaultConstraintOperation");
+            Check.NotNull(databaseModel, "databaseModel");
+
             var table = databaseModel.GetTable(addDefaultConstraintOperation.TableName);
             var column = table.GetColumn(addDefaultConstraintOperation.ColumnName);
 
@@ -84,8 +107,11 @@ namespace Microsoft.Data.Entity.Migrations
             column.DefaultSql = addDefaultConstraintOperation.DefaultSql;
         }
 
-        public virtual void Visit(DropDefaultConstraintOperation dropDefaultConstraintOperation, DatabaseModel databaseModel)
+        public override void Visit(DropDefaultConstraintOperation dropDefaultConstraintOperation, DatabaseModel databaseModel)
         {
+            Check.NotNull(dropDefaultConstraintOperation, "dropDefaultConstraintOperation");
+            Check.NotNull(databaseModel, "databaseModel");
+
             var table = databaseModel.GetTable(dropDefaultConstraintOperation.TableName);
             var column = table.GetColumn(dropDefaultConstraintOperation.ColumnName);
 
@@ -95,15 +121,21 @@ namespace Microsoft.Data.Entity.Migrations
             column.DefaultSql = null;
         }
 
-        public virtual void Visit(RenameColumnOperation renameColumnOperation, DatabaseModel databaseModel)
+        public override void Visit(RenameColumnOperation renameColumnOperation, DatabaseModel databaseModel)
         {
+            Check.NotNull(renameColumnOperation, "renameColumnOperation");
+            Check.NotNull(databaseModel, "databaseModel");
+
             var table = databaseModel.GetTable(renameColumnOperation.TableName);
             var column = table.GetColumn(renameColumnOperation.ColumnName);
             column.Name = renameColumnOperation.NewColumnName;
         }
 
-        public virtual void Visit(AddPrimaryKeyOperation addPrimaryKeyOperation, DatabaseModel databaseModel)
+        public override void Visit(AddPrimaryKeyOperation addPrimaryKeyOperation, DatabaseModel databaseModel)
         {
+            Check.NotNull(addPrimaryKeyOperation, "addPrimaryKeyOperation");
+            Check.NotNull(databaseModel, "databaseModel");
+
             var table = databaseModel.GetTable(addPrimaryKeyOperation.TableName);
 
             Contract.Assert(table.PrimaryKey == null);
@@ -114,8 +146,11 @@ namespace Microsoft.Data.Entity.Migrations
                 addPrimaryKeyOperation.IsClustered);
         }
 
-        public virtual void Visit(DropPrimaryKeyOperation dropPrimaryKeyOperation, DatabaseModel databaseModel)
+        public override void Visit(DropPrimaryKeyOperation dropPrimaryKeyOperation, DatabaseModel databaseModel)
         {
+            Check.NotNull(dropPrimaryKeyOperation, "dropPrimaryKeyOperation");
+            Check.NotNull(databaseModel, "databaseModel");
+
             var table = databaseModel.GetTable(dropPrimaryKeyOperation.TableName);
 
             Contract.Assert(
@@ -125,8 +160,11 @@ namespace Microsoft.Data.Entity.Migrations
             table.PrimaryKey = null;
         }
 
-        public virtual void Visit(AddForeignKeyOperation addForeignKeyOperation, DatabaseModel databaseModel)
+        public override void Visit(AddForeignKeyOperation addForeignKeyOperation, DatabaseModel databaseModel)
         {
+            Check.NotNull(addForeignKeyOperation, "addForeignKeyOperation");
+            Check.NotNull(databaseModel, "databaseModel");
+
             var table = databaseModel.GetTable(addForeignKeyOperation.TableName);
             var referencedTable = databaseModel.GetTable(addForeignKeyOperation.ReferencedTableName);
             table.AddForeignKey(
@@ -137,14 +175,20 @@ namespace Microsoft.Data.Entity.Migrations
                     addForeignKeyOperation.CascadeDelete));
         }
 
-        public virtual void Visit(DropForeignKeyOperation dropForeignKeyOperation, DatabaseModel databaseModel)
+        public override void Visit(DropForeignKeyOperation dropForeignKeyOperation, DatabaseModel databaseModel)
         {
+            Check.NotNull(dropForeignKeyOperation, "dropForeignKeyOperation");
+            Check.NotNull(databaseModel, "databaseModel");
+
             var table = databaseModel.GetTable(dropForeignKeyOperation.TableName);
             table.RemoveForeignKey(dropForeignKeyOperation.ForeignKeyName);
         }
 
-        public virtual void Visit(CreateIndexOperation createIndexOperation, DatabaseModel databaseModel)
+        public override void Visit(CreateIndexOperation createIndexOperation, DatabaseModel databaseModel)
         {
+            Check.NotNull(createIndexOperation, "createIndexOperation");
+            Check.NotNull(databaseModel, "databaseModel");
+
             var table = databaseModel.GetTable(createIndexOperation.TableName);
             table.AddIndex(
                 new Index(
@@ -154,20 +198,26 @@ namespace Microsoft.Data.Entity.Migrations
                     createIndexOperation.IsClustered));
         }
 
-        public virtual void Visit(DropIndexOperation dropIndexOperation, DatabaseModel databaseModel)
+        public override void Visit(DropIndexOperation dropIndexOperation, DatabaseModel databaseModel)
         {
+            Check.NotNull(dropIndexOperation, "dropIndexOperation");
+            Check.NotNull(databaseModel, "databaseModel");
+
             var table = databaseModel.GetTable(dropIndexOperation.TableName);
             table.RemoveIndex(dropIndexOperation.IndexName);
         }
 
-        public virtual void Visit(RenameIndexOperation renameIndexOperation, DatabaseModel databaseModel)
+        public override void Visit(RenameIndexOperation renameIndexOperation, DatabaseModel databaseModel)
         {
+            Check.NotNull(renameIndexOperation, "renameIndexOperation");
+            Check.NotNull(databaseModel, "databaseModel");
+
             var table = databaseModel.GetTable(renameIndexOperation.TableName);
             var index = table.GetIndex(renameIndexOperation.IndexName);
             index.Name = renameIndexOperation.NewIndexName;
         }
 
-        public virtual void Visit(SqlOperation sqlOperation, DatabaseModel databaseModel)
+        protected override void VisitDefault(MigrationOperation sqlOperation, DatabaseModel databaseModel)
         {
         }
     }

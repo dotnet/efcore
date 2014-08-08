@@ -2,9 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Migrations.Utilities;
 using Microsoft.Data.Entity.Relational;
+using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Migrations.Model
@@ -29,6 +31,16 @@ namespace Microsoft.Data.Entity.Migrations.Model
             _primaryKeyName = primaryKeyName;
             _columnNames = columnNames;
             _isClustered = isClustered;
+        }
+
+        public AddPrimaryKeyOperation([NotNull] PrimaryKey primaryKey)
+        {
+            Check.NotNull(primaryKey, "primaryKey");
+
+            _tableName = primaryKey.Table.Name;
+            _primaryKeyName = primaryKey.Name;
+            _columnNames = primaryKey.Columns.Select(c => c.Name).ToArray();
+            _isClustered = primaryKey.IsClustered;
         }
 
         public virtual SchemaQualifiedName TableName

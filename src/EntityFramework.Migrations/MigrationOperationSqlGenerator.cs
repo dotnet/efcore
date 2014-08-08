@@ -37,6 +37,11 @@ namespace Microsoft.Data.Entity.Migrations
 
         }
 
+        public virtual RelationalTypeMapper TypeMapper
+        {
+            get { return _typeMapper; }
+        }
+
         public virtual DatabaseModel Database
         {
             get { return _database; }
@@ -71,8 +76,10 @@ namespace Microsoft.Data.Entity.Migrations
             return migrationOperations.SelectMany(Generate);
         }
 
-        protected virtual IEnumerable<SqlStatement> Generate([NotNull] MigrationOperation operation)
+        public virtual IEnumerable<SqlStatement> Generate([NotNull] MigrationOperation operation)
         {
+            Check.NotNull(operation, "operation");
+
             var builder = new IndentedStringBuilder();
 
             operation.GenerateSql(this, builder);

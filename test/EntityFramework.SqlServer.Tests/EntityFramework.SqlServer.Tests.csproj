@@ -68,6 +68,7 @@
     <Compile Include="SequentialGuidValueGeneratorTest.cs" />
     <Compile Include="..\EntityFramework.Relational.Tests\SqlGeneratorTestBase.cs" />
     <Compile Include="SqlServerDbContextOptionsExtensionsTest.cs" />
+    <Compile Include="SqlServerMigrationOperationPreProcessorTest.cs" />
     <Compile Include="SqlServerOptionsExtensionTest.cs" />
     <Compile Include="SqlServerConnectionTest.cs" />
     <Compile Include="SqlServerDataStoreSourceTest.cs" />

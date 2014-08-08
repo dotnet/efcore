@@ -25,26 +25,23 @@ namespace Microsoft.Data.Entity.SqlServer
 
         public override IEnumerable<SqlStatement> Generate(IEnumerable<MigrationOperation> migrationOperations)
         {
-            return
-                from operation in migrationOperations
-                let alterColumnOperation = operation as AlterColumnOperation
-                from statement in
-                    (alterColumnOperation != null)
-                        ? base.Generate(Handle(alterColumnOperation))
-                        : base.Generate(operation)
-                select statement;
-        }
+            Check.NotNull(migrationOperations, "migrationOperations");
 
-        protected virtual IEnumerable<MigrationOperation> Handle([NotNull] AlterColumnOperation alterColumnOperation)
-        {
-            // TODO: Create operations to drop/add primary keys, foreign keys, indexes, default constraints as necessary.
+            var preProcessor = new SqlServerMigrationOperationPreProcessor();
+            var preProcessorContext = new SqlServerMigrationOperationPreProcessor.Context(this);
 
-            yield return alterColumnOperation;
+            foreach (var operation in migrationOperations)
+            {
+                operation.Accept(preProcessor, preProcessorContext);
+            }
+
+            return preProcessorContext.Statements;
         }
 
         public override void Generate(RenameTableOperation renameTableOperation, IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(renameTableOperation, "renameTableOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
 
             stringBuilder
                 .Append("EXECUTE sp_rename @objname = N")

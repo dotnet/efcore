@@ -2,9 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Migrations.Utilities;
 using Microsoft.Data.Entity.Relational;
+using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Migrations.Model
@@ -32,6 +34,17 @@ namespace Microsoft.Data.Entity.Migrations.Model
             _columnNames = columnNames;
             _isUnique = isUnique;
             _isClustered = isClustered;
+        }
+
+        public CreateIndexOperation([NotNull] Index index)
+        {
+            Check.NotNull(index, "index");
+
+            _tableName = index.Table.Name;
+            _indexName = index.Name;
+            _columnNames = index.Columns.Select(c => c.Name).ToArray();
+            _isUnique = index.IsUnique;
+            _isClustered = index.IsClustered;
         }
 
         public virtual SchemaQualifiedName TableName

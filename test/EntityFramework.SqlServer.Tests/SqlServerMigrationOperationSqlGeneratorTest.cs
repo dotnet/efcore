@@ -4,8 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.NetworkInformation;
+using System.Text;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Model;
@@ -136,9 +137,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Generate_when_drop_column_operation()
         {
+            var database = new DatabaseModel();
+            database.AddTable(new Table("dbo.MyTable", new[] { new Column("Foo", typeof(int)) }));
+
             Assert.Equal(
                 @"ALTER TABLE [dbo].[MyTable] DROP COLUMN [Foo]",
-                Generate(new DropColumnOperation("dbo.MyTable", "Foo")).Sql);
+                Generate(new DropColumnOperation("dbo.MyTable", "Foo"), database).Sql);
         }
 
         [Fact]
@@ -157,7 +161,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.Equal(
                 @"ALTER TABLE [dbo].[MyTable] ALTER COLUMN [Foo] int NOT NULL",
                 Generate(
-                    new AlterColumnOperation("dbo.MyTable", new Column("Foo", "int") { IsNullable = false },
+                    new AlterColumnOperation("dbo.MyTable", new Column("Foo", typeof(int)) { IsNullable = false },
                         isDestructiveChange: false),
                     database).Sql);
         }
@@ -466,6 +470,42 @@ EXECUTE('ALTER TABLE [dbo].[MyTable] DROP CONSTRAINT ""' + @var0 + '""')",
             var sqlGenerator = CreateSqlGenerator();
 
             Assert.Equal("foo''bar", sqlGenerator.EscapeLiteral("foo'bar"));
+        }
+
+        [Fact]
+        public void Generate_uses_preprocessor()
+        {
+            var database = new DatabaseModel();
+            var column = new Column("Id", typeof(string)) { IsNullable = false };
+            var newColumn = new Column("Id", typeof(int)) { IsNullable = false };
+            var table = new Table("A", new[] { column });
+
+            database.AddTable(table);
+            table.PrimaryKey = new PrimaryKey("PK", new[] { column });
+
+            var operations
+                = new MigrationOperation[]
+                      {
+                          new CreateTableOperation(table), 
+                          new AlterColumnOperation(table.Name, newColumn, isDestructiveChange: true)
+                      };
+
+            var stringBuilder = new StringBuilder();
+            foreach (var statement in CreateSqlGenerator(database).Generate(operations))
+            {
+                stringBuilder.AppendLine(statement.Sql);
+            }
+
+            Assert.Equal(
+@"CREATE TABLE [A] (
+    [Id] nvarchar(128) NOT NULL,
+    CONSTRAINT [PK] PRIMARY KEY ([Id])
+)
+ALTER TABLE [A] DROP CONSTRAINT [PK]
+ALTER TABLE [A] ALTER COLUMN [Id] int NOT NULL
+ALTER TABLE [A] ADD CONSTRAINT [PK] PRIMARY KEY ([Id])
+",
+                stringBuilder.ToString());
         }
 
         private static SqlStatement Generate(MigrationOperation migrationOperation, DatabaseModel database = null)

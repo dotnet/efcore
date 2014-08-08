@@ -81,7 +81,7 @@
     <Compile Include="Model\DropSequenceOperation.cs" />
     <Compile Include="Model\DropTableOperation.cs" />
     <Compile Include="Model\MigrationOperation.cs" />
-    <Compile Include="Model\IMigrationOperationVisitor.cs" />
+    <Compile Include="Model\MigrationOperationVisitor.cs" />
     <Compile Include="Model\MoveTableOperation.cs" />
     <Compile Include="Model\RenameColumnOperation.cs" />
     <Compile Include="Model\RenameIndexOperation.cs" />
