@@ -7,11 +7,11 @@ namespace Microsoft.Data.Entity.Relational.Query.Methods
 {
     public class CompositeMethodCallTranslator : IMethodCallTranslator
     {
-        public virtual Expression Translate(MethodCallExpression expression)
+        public virtual Expression Translate(MethodCallExpression methodCallExpression)
         {
-            return new EqualsTranslator().Translate(expression)
-                   ?? new StartsWithTranslator().Translate(expression)
-                   ?? new EndsWithTranslator().Translate(expression);
+            return new EqualsTranslator().Translate(methodCallExpression)
+                   ?? new StartsWithTranslator().Translate(methodCallExpression)
+                   ?? new EndsWithTranslator().Translate(methodCallExpression);
         }
     }
 }

@@ -439,18 +439,18 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             return literalExpression;
         }
 
-        protected override Expression VisitUnaryExpression(UnaryExpression expression)
+        protected override Expression VisitUnaryExpression(UnaryExpression unaryExpression)
         {
-            Check.NotNull(expression, "expression");
+            Check.NotNull(unaryExpression, "unaryExpression");
 
-            if (expression.NodeType == ExpressionType.Not)
+            if (unaryExpression.NodeType == ExpressionType.Not)
             {
                 _sql.Append("NOT ");
 
-                VisitExpression(expression.Operand);
+                VisitExpression(unaryExpression.Operand);
             }
 
-            return expression;
+            return unaryExpression;
         }
 
         protected override Expression VisitConstantExpression(ConstantExpression constantExpression)

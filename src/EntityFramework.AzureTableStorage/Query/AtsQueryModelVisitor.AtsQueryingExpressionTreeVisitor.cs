@@ -23,10 +23,10 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
                 _querySource = querySource;
             }
 
-            protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
+            protected override Expression VisitSubQueryExpression(SubQueryExpression subQueryExpression)
             {
                 var visitor = new AtsQueryModelVisitor(_parent);
-                visitor.VisitQueryModel(expression.QueryModel);
+                visitor.VisitQueryModel(subQueryExpression.QueryModel);
                 return visitor.Expression;
             }
 

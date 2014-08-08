@@ -44,43 +44,43 @@ namespace Microsoft.Data.Entity.Relational.Query
                 parentQuerySourceScope);
         }
 
-        protected override Expression VisitMethodCallExpression(MethodCallExpression expression)
+        protected override Expression VisitMethodCallExpression(MethodCallExpression methodCallExpression)
         {
-            var newObject = VisitExpression(expression.Object);
+            var newObject = VisitExpression(methodCallExpression.Object);
 
-            if (newObject != expression.Object)
+            if (newObject != methodCallExpression.Object)
             {
                 return newObject;
             }
 
-            var newArguments = VisitAndConvert(expression.Arguments, "VisitMethodCallExpression");
+            var newArguments = VisitAndConvert(methodCallExpression.Arguments, "VisitMethodCallExpression");
 
-            if ((expression.Method.MethodIsClosedFormOf(RelationalQueryModelVisitor.CreateEntityMethodInfo)
-                 || ReferenceEquals(expression.Method, RelationalQueryModelVisitor.CreateValueReaderMethodInfo))
-                && ((ConstantExpression)expression.Arguments[0]).Value == _outerQuerySource)
+            if ((methodCallExpression.Method.MethodIsClosedFormOf(RelationalQueryModelVisitor.CreateEntityMethodInfo)
+                 || ReferenceEquals(methodCallExpression.Method, RelationalQueryModelVisitor.CreateValueReaderMethodInfo))
+                && ((ConstantExpression)methodCallExpression.Arguments[0]).Value == _outerQuerySource)
             {
                 return
                     Expression.Call(
                         _getValueMethodInfo,
-                        expression.Arguments[0],
-                        expression.Arguments[2],
-                        expression.Arguments[3]);
+                        methodCallExpression.Arguments[0],
+                        methodCallExpression.Arguments[2],
+                        methodCallExpression.Arguments[3]);
             }
 
-            if (expression.Method.MethodIsClosedFormOf(
+            if (methodCallExpression.Method.MethodIsClosedFormOf(
                 QuerySourceScope.GetResultMethodInfo)
-                && ((ConstantExpression)expression.Arguments[0]).Value == _outerQuerySource)
+                && ((ConstantExpression)methodCallExpression.Arguments[0]).Value == _outerQuerySource)
             {
                 return
                     QuerySourceScope.GetResult(
-                        expression.Object,
+                        methodCallExpression.Object,
                         _outerQuerySource,
                         typeof(TResult));
             }
 
-            if (newArguments != expression.Arguments)
+            if (newArguments != methodCallExpression.Arguments)
             {
-                if (expression.Method.MethodIsClosedFormOf(
+                if (methodCallExpression.Method.MethodIsClosedFormOf(
                     _relationalQueryCompilationContext.QueryMethodProvider.QueryMethod))
                 {
                     return Expression.Call(
@@ -89,7 +89,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                         newArguments);
                 }
 
-                if (expression.Method.MethodIsClosedFormOf(
+                if (methodCallExpression.Method.MethodIsClosedFormOf(
                     _relationalQueryCompilationContext.LinqOperatorProvider.Select))
                 {
                     return
@@ -104,19 +104,19 @@ namespace Microsoft.Data.Entity.Relational.Query
                                 newArguments));
                 }
 
-                return Expression.Call(expression.Method, newArguments);
+                return Expression.Call(methodCallExpression.Method, newArguments);
             }
 
-            return expression;
+            return methodCallExpression;
         }
 
-        protected override Expression VisitLambdaExpression(LambdaExpression expression)
+        protected override Expression VisitLambdaExpression(LambdaExpression lambdaExpression)
         {
-            var newBodyExpression = VisitExpression(expression.Body);
+            var newBodyExpression = VisitExpression(lambdaExpression.Body);
 
-            return newBodyExpression != expression.Body
-                ? Expression.Lambda(newBodyExpression, expression.Parameters)
-                : expression;
+            return newBodyExpression != lambdaExpression.Body
+                ? Expression.Lambda(newBodyExpression, lambdaExpression.Parameters)
+                : lambdaExpression;
         }
     }
 }

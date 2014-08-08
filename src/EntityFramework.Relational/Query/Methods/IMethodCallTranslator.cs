@@ -8,6 +8,6 @@ namespace Microsoft.Data.Entity.Relational.Query.Methods
 {
     public interface IMethodCallTranslator
     {
-        Expression Translate([NotNull] MethodCallExpression expression);
+        Expression Translate([NotNull] MethodCallExpression methodCallExpression);
     }
 }

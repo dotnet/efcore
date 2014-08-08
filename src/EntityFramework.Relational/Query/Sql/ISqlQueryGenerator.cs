@@ -9,7 +9,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 {
     public interface ISqlQueryGenerator
     {
-        string GenerateSql([NotNull] SelectExpression expression);
+        string GenerateSql([NotNull] SelectExpression selectExpression);
         IEnumerable<CommandParameter> Parameters { get; }
     }
 }

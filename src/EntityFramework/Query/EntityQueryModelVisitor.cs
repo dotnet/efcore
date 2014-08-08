@@ -221,16 +221,17 @@ namespace Microsoft.Data.Entity.Query
                 get { return new HashSet<IQuerySource>(_querySources.Where(kv => kv.Value > 0).Select(kv => kv.Key)); }
             }
 
-            protected override Expression VisitQuerySourceReferenceExpression(QuerySourceReferenceExpression expression)
+            protected override Expression VisitQuerySourceReferenceExpression(
+                QuerySourceReferenceExpression querySourceReferenceExpression)
             {
-                if (!_querySources.ContainsKey(expression.ReferencedQuerySource))
+                if (!_querySources.ContainsKey(querySourceReferenceExpression.ReferencedQuerySource))
                 {
-                    _querySources.Add(expression.ReferencedQuerySource, 0);
+                    _querySources.Add(querySourceReferenceExpression.ReferencedQuerySource, 0);
                 }
 
-                _querySources[expression.ReferencedQuerySource]++;
+                _querySources[querySourceReferenceExpression.ReferencedQuerySource]++;
 
-                return base.VisitQuerySourceReferenceExpression(expression);
+                return base.VisitQuerySourceReferenceExpression(querySourceReferenceExpression);
             }
 
             protected override Expression VisitMemberExpression(MemberExpression memberExpression)
@@ -894,11 +895,11 @@ namespace Microsoft.Data.Entity.Query
                 get { return _entityQueryModelVisitor; }
             }
 
-            protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
+            protected override Expression VisitSubQueryExpression(SubQueryExpression subQueryExpression)
             {
                 var queryModelVisitor = CreateQueryModelVisitor();
 
-                queryModelVisitor.VisitQueryModel(expression.QueryModel);
+                queryModelVisitor.VisitQueryModel(subQueryExpression.QueryModel);
 
                 return queryModelVisitor.Expression;
             }
@@ -917,15 +918,15 @@ namespace Microsoft.Data.Entity.Query
             {
             }
 
-            protected override Expression VisitConstantExpression(ConstantExpression expression)
+            protected override Expression VisitConstantExpression(ConstantExpression constantExpression)
             {
-                if (expression.Type.GetTypeInfo().IsGenericType
-                    && expression.Type.GetGenericTypeDefinition() == typeof(EntityQueryable<>))
+                if (constantExpression.Type.GetTypeInfo().IsGenericType
+                    && constantExpression.Type.GetGenericTypeDefinition() == typeof(EntityQueryable<>))
                 {
-                    return VisitEntityQueryable(((IQueryable)expression.Value).ElementType);
+                    return VisitEntityQueryable(((IQueryable)constantExpression.Value).ElementType);
                 }
 
-                return expression;
+                return constantExpression;
             }
 
             protected abstract Expression VisitEntityQueryable([NotNull] Type elementType);
@@ -938,11 +939,11 @@ namespace Microsoft.Data.Entity.Query
             {
             }
 
-            protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
+            protected override Expression VisitSubQueryExpression(SubQueryExpression subQueryExpression)
             {
                 var queryModelVisitor = CreateQueryModelVisitor();
 
-                queryModelVisitor.VisitQueryModel(expression.QueryModel);
+                queryModelVisitor.VisitQueryModel(subQueryExpression.QueryModel);
 
                 var subExpression = queryModelVisitor.Expression;
 
@@ -951,7 +952,7 @@ namespace Microsoft.Data.Entity.Query
                     return subExpression;
                 }
 
-                if (typeof(IQueryable).GetTypeInfo().IsAssignableFrom(expression.Type.GetTypeInfo()))
+                if (typeof(IQueryable).GetTypeInfo().IsAssignableFrom(subQueryExpression.Type.GetTypeInfo()))
                 {
                     subExpression
                         = Expression.Call(
@@ -960,7 +961,7 @@ namespace Microsoft.Data.Entity.Query
                             subExpression);
                 }
 
-                return Expression.Convert(subExpression, expression.Type);
+                return Expression.Convert(subExpression, subQueryExpression.Type);
             }
 
             private static readonly MethodInfo _asQueryableShim

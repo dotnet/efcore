@@ -24,27 +24,27 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
                 _querySource = querySource;
             }
 
-            protected override Expression VisitBinaryExpression(BinaryExpression expression)
+            protected override Expression VisitBinaryExpression(BinaryExpression binaryExpression)
             {
-                switch (expression.NodeType)
+                switch (binaryExpression.NodeType)
                 {
                     case ExpressionType.Equal:
                     case ExpressionType.NotEqual:
                     {
-                        return UnfoldStructuralComparison(expression.NodeType, ProcessComparisonExpression(expression));
+                        return UnfoldStructuralComparison(binaryExpression.NodeType, ProcessComparisonExpression(binaryExpression));
                     }
                     case ExpressionType.GreaterThan:
                     case ExpressionType.GreaterThanOrEqual:
                     case ExpressionType.LessThan:
                     case ExpressionType.LessThanOrEqual:
                     {
-                        return ProcessComparisonExpression(expression);
+                        return ProcessComparisonExpression(binaryExpression);
                     }
 
                     case ExpressionType.AndAlso:
                     {
-                        var left = VisitExpression(expression.Left);
-                        var right = VisitExpression(expression.Right);
+                        var left = VisitExpression(binaryExpression.Left);
+                        var right = VisitExpression(binaryExpression.Right);
 
                         return left != null
                                && right != null
@@ -54,8 +54,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
 
                     case ExpressionType.OrElse:
                     {
-                        var left = VisitExpression(expression.Left);
-                        var right = VisitExpression(expression.Right);
+                        var left = VisitExpression(binaryExpression.Left);
+                        var right = VisitExpression(binaryExpression.Right);
 
                         return left != null
                                && right != null
@@ -68,52 +68,52 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
                 }
             }
 
-            protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
+            protected override Expression VisitSubQueryExpression(SubQueryExpression subQueryExpression)
             {
                 return null;
             }
 
-            protected override Expression VisitMemberExpression(MemberExpression expression)
+            protected override Expression VisitMemberExpression(MemberExpression memberExpression)
             {
-                if (expression.Type == typeof(bool))
+                if (memberExpression.Type == typeof(bool))
                 {
                     return VisitExpression(
                         Expression.MakeBinary(
                             ExpressionType.Equal,
-                            expression,
+                            memberExpression,
                             Expression.Constant(true)));
                 }
 
-                return BindOperand(expression);
+                return BindOperand(memberExpression);
             }
 
-            protected override Expression VisitConstantExpression(ConstantExpression expression)
+            protected override Expression VisitConstantExpression(ConstantExpression constantExpression)
             {
                 return null;
             }
 
-            protected override Expression VisitMethodCallExpression(MethodCallExpression expression)
+            protected override Expression VisitMethodCallExpression(MethodCallExpression methodCallExpression)
             {
                 return null;
             }
 
-            protected override Expression VisitUnaryExpression(UnaryExpression expression)
+            protected override Expression VisitUnaryExpression(UnaryExpression unaryExpression)
             {
-                if (expression.Type == typeof(bool))
+                if (unaryExpression.Type == typeof(bool))
                 {
                     return VisitExpression(
                         Expression.MakeBinary(
                             ExpressionType.Equal,
-                            expression.Operand,
-                            Expression.Constant(expression.NodeType != ExpressionType.Not)));
+                            unaryExpression.Operand,
+                            Expression.Constant(unaryExpression.NodeType != ExpressionType.Not)));
                 }
                 return null;
             }
 
-            private Expression ProcessComparisonExpression(BinaryExpression expression)
+            private Expression ProcessComparisonExpression(BinaryExpression binaryExpression)
             {
-                var leftExpression = BindOperand(expression.Left);
-                var rightExpression = BindOperand(expression.Right);
+                var leftExpression = BindOperand(binaryExpression.Left);
+                var rightExpression = BindOperand(binaryExpression.Right);
 
                 if (leftExpression == null
                     || rightExpression == null)
@@ -143,9 +143,9 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
                 if (ReferenceEquals(leftExpression, propertyExpression))
                 {
                     return Expression
-                        .MakeBinary(expression.NodeType, leftExpression, rightExpression);
+                        .MakeBinary(binaryExpression.NodeType, leftExpression, rightExpression);
                 }
-                var nodeType = FlipInequality(expression.NodeType);
+                var nodeType = FlipInequality(binaryExpression.NodeType);
                 return Expression
                     .MakeBinary(nodeType, rightExpression, leftExpression);
             }

@@ -150,20 +150,20 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
 
         public int EntityScanCount { get; private set; }
 
-        protected override Expression VisitMethodCallExpression(MethodCallExpression expression)
+        protected override Expression VisitMethodCallExpression(MethodCallExpression methodCallExpression)
         {
-            if (expression.Method.DeclaringType == typeof(AtsQueryModelVisitor)
-                && expression.Method.Name == "ExecuteSelectExpression")
+            if (methodCallExpression.Method.DeclaringType == typeof(AtsQueryModelVisitor)
+                && methodCallExpression.Method.Name == "ExecuteSelectExpression")
             {
                 EntityScanCount++;
             }
-            return base.VisitMethodCallExpression(expression);
+            return base.VisitMethodCallExpression(methodCallExpression);
         }
 
-        protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
+        protected override Expression VisitSubQueryExpression(SubQueryExpression subQueryExpression)
         {
-            EntityScanCount += _tester.CountQueryModel(expression.QueryModel);
-            return expression;
+            EntityScanCount += _tester.CountQueryModel(subQueryExpression.QueryModel);
+            return subQueryExpression;
         }
     }
 }

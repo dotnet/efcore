@@ -7,11 +7,11 @@ namespace Microsoft.Data.Entity.Relational.Query.Methods
 {
     public class EqualsTranslator : IMethodCallTranslator
     {
-        public virtual Expression Translate(MethodCallExpression expression)
+        public virtual Expression Translate(MethodCallExpression methodCallExpression)
         {
-            return expression.Method.Name == "Equals"
-                   && expression.Arguments.Count == 1
-                ? Expression.Equal(expression.Object, expression.Arguments[0])
+            return methodCallExpression.Method.Name == "Equals"
+                   && methodCallExpression.Arguments.Count == 1
+                ? Expression.Equal(methodCallExpression.Object, methodCallExpression.Arguments[0])
                 : null;
         }
     }

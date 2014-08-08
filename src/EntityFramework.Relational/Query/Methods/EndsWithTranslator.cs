@@ -15,13 +15,13 @@ namespace Microsoft.Data.Entity.Relational.Query.Methods
         private static readonly MethodInfo _concat
             = typeof(string).GetRuntimeMethod("Concat", new[] { typeof(string), typeof(string) });
 
-        public virtual Expression Translate(MethodCallExpression expression)
+        public virtual Expression Translate(MethodCallExpression methodCallExpression)
         {
-            if (ReferenceEquals(expression.Method, _methodInfo))
+            if (ReferenceEquals(methodCallExpression.Method, _methodInfo))
             {
                 return new LikeExpression(
-                    expression.Object,
-                    Expression.Add(new LiteralExpression("%"), expression.Arguments[0], _concat));
+                    methodCallExpression.Object,
+                    Expression.Add(new LiteralExpression("%"), methodCallExpression.Arguments[0], _concat));
             }
 
             return null;

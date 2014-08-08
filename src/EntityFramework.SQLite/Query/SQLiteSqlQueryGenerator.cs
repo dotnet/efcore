@@ -8,7 +8,7 @@ namespace Microsoft.Data.Entity.SQLite.Query
 {
     public class SQLiteSqlQueryGenerator : DefaultSqlQueryGenerator
     {
-        protected override void GenerateTop(SelectExpression expression)
+        protected override void GenerateTop(SelectExpression selectExpression)
         {
             // not supported in SQLite
         }

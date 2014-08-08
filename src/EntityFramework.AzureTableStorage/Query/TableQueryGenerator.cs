@@ -33,51 +33,51 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
             return tableQuery;
         }
 
-        internal Expression VisitSelectExpression(SelectExpression expression)
+        internal Expression VisitSelectExpression(SelectExpression selectExpression)
         {
-            if (expression.Take != null)
+            if (selectExpression.Take != null)
             {
-                _take = expression.Take.Limit;
+                _take = selectExpression.Take.Limit;
             }
-            VisitExpression(expression.Predicate);
-            return expression;
+            VisitExpression(selectExpression.Predicate);
+            return selectExpression;
         }
 
-        internal Expression VisitPropertyExpression(PropertyExpression expression)
+        internal Expression VisitPropertyExpression(PropertyExpression propertyExpression)
         {
-            _whereStringBuilder.Append(expression.PropertyName);
-            return expression;
+            _whereStringBuilder.Append(propertyExpression.PropertyName);
+            return propertyExpression;
         }
 
-        internal Expression VisitQueryableConstant(QueryableConstantExpression expression)
+        internal Expression VisitQueryableConstant(QueryableConstantExpression queryableConstantExpression)
         {
-            _whereStringBuilder.Append(expression.QueryString);
-            return expression;
+            _whereStringBuilder.Append(queryableConstantExpression.QueryString);
+            return queryableConstantExpression;
         }
 
-        protected override Expression VisitBinaryExpression(BinaryExpression expression)
+        protected override Expression VisitBinaryExpression(BinaryExpression binaryExpression)
         {
-            if (IsFilterCombination(expression))
+            if (IsFilterCombination(binaryExpression))
             {
-                Decorate("(", () => VisitExpression(expression.Left), ")");
+                Decorate("(", () => VisitExpression(binaryExpression.Left), ")");
             }
             else
             {
-                VisitExpression(expression.Left);
+                VisitExpression(binaryExpression.Left);
             }
 
-            Decorate(" ", () => GenerateOperator(expression.NodeType), " ");
+            Decorate(" ", () => GenerateOperator(binaryExpression.NodeType), " ");
 
-            if (IsFilterCombination(expression))
+            if (IsFilterCombination(binaryExpression))
             {
-                Decorate("(", () => VisitExpression(expression.Right), ")");
+                Decorate("(", () => VisitExpression(binaryExpression.Right), ")");
             }
             else
             {
-                VisitExpression(expression.Right);
+                VisitExpression(binaryExpression.Right);
             }
 
-            return expression;
+            return binaryExpression;
         }
 
         private void GenerateOperator(ExpressionType nodeType)
@@ -116,11 +116,11 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
             }
         }
 
-        private static bool IsFilterCombination(BinaryExpression expression)
+        private static bool IsFilterCombination(BinaryExpression binaryExpression)
         {
-            return expression.NodeType == ExpressionType.AndAlso
-                   || expression.NodeType == ExpressionType.OrElse
-                   || expression.NodeType == ExpressionType.Not;
+            return binaryExpression.NodeType == ExpressionType.AndAlso
+                   || binaryExpression.NodeType == ExpressionType.OrElse
+                   || binaryExpression.NodeType == ExpressionType.Not;
         }
 
         private void Decorate(string pre, Action func, string post)
