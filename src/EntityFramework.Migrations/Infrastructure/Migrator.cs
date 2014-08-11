@@ -11,6 +11,7 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Utilities;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Model;
+using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.Migrations.Infrastructure
 {
@@ -126,7 +127,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 migrations = HistoryRepository.Migrations;
                 historyRepositoryExists = true;
             }
-            catch (DbException)
+            catch (DataStoreException)
             {
                 // TODO: Log the exception message.
                 migrations = new IMigrationMetadata[0];

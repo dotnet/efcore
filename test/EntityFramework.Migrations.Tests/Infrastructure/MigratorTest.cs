@@ -10,6 +10,7 @@ using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Model;
+using Microsoft.Data.Entity.Storage;
 using Moq;
 using Xunit;
 
@@ -607,7 +608,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
 
             var contextConfiguration = new Mock<DbContextConfiguration>().Object;
             var historyRepository = new Mock<HistoryRepository>(contextConfiguration) { CallBase = true };
-            var dbException = new Mock<DbException>();
+            var dbException = new Mock<DataStoreException>();
 
             historyRepository.SetupGet(hr => hr.Migrations).Throws(dbException.Object);
             historyRepository.Setup(hr => hr.GenerateInsertMigrationSql(It.IsAny<IMigrationMetadata>(), It.IsAny<SqlGenerator>()))
