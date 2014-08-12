@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Design.Tests
         [Fact]
         public void Command_line_is_added_after_ini_file_to_configuration()
         {
-            var mock = new Mock<Program>() { CallBase = true };
+            var mock = new Mock<Program> { CallBase = true };
 
             mock.Protected()
                 .Setup<IConfigurationSourceContainer>("CreateConfiguration")

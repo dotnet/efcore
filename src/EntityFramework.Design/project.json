@@ -4,11 +4,13 @@
         "warningsAsErrors": true
     },
     "dependencies": {
+        "System.Console": "",
         "EntityFramework.Migrations": ""
     },
     "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
     "exclude": "tools\\Handler.cs",
     "frameworks": {
-        "net451": {}
+        "net451": {},
+        "k10": {}
     }
 }

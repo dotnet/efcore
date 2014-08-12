@@ -189,7 +189,6 @@ namespace Microsoft.Data.Entity.Design
         ///   config
         ///     [--ContextAssembly=&lt;assembly&gt;] [--ContextType=&lt;type&gt;]
         ///     [--MigrationAssembly=&lt;assembly&gt;] [--MigrationNamespace=&lt;namespace&gt;] [--MigrationDirectory=&lt;directory&gt;]
-        ///     [--References=&lt;assembly[;...n]&gt;]
         ///     [--ConfigFile=&lt;file&gt;]
         /// 
         ///   create
@@ -197,27 +196,23 @@ namespace Microsoft.Data.Entity.Design
         ///     [--ConfigFile=&lt;file&gt;]
         ///     [--ContextAssembly=&lt;assembly&gt;] [--ContextType=&lt;type&gt;]
         ///     [--MigrationAssembly=&lt;assembly&gt;] [--MigrationNamespace=&lt;namespace&gt;] [--MigrationDirectory=&lt;directory&gt;]
-        ///     [--References=&lt;assembly[;...n]&gt;]
         /// 
         ///   list
         ///     [--ConfigFile=&lt;file&gt;]  
         ///     [--MigrationSource=Database|Local|Pending]
         ///     [--ContextAssembly=&lt;assembly&gt;] [--ContextType=&lt;type&gt;]
-        ///     [--References=&lt;assembly[;...n]&gt;]
         /// 
         ///   script
         ///     [--ConfigFile=&lt;file&gt;]
         ///     [--TargetMigration=&lt;name&gt;]
         ///     [--ContextAssembly=&lt;assembly&gt;] [--ContextType=&lt;type&gt;]
         ///     [--MigrationAssembly=&lt;assembly&gt;] [--MigrationNamespace=&lt;namespace&gt;] [--MigrationDirectory=&lt;directory&gt;]
-        ///     [--References=&lt;assembly[;...n]&gt;]
         /// 
         ///   apply
         ///     [--ConfigFile=&lt;file&gt;]
         ///     [--TargetMigration=&lt;name&gt;]
         ///     [--ContextAssembly=&lt;assembly&gt;] [--ContextType=&lt;type&gt;]
         ///     [--MigrationAssembly=&lt;assembly&gt;] [--MigrationNamespace=&lt;namespace&gt;] [--MigrationDirectory=&lt;directory&gt;]
-        ///     [--References=&lt;assembly[;...n]&gt;]
         /// 
         ///     
         /// </summary>
@@ -245,7 +240,6 @@ namespace Microsoft.Data.Entity.Design
         ///   config
         ///     [--ContextAssembly=&lt;assembly&gt;] [--ContextType=&lt;type&gt;]
         ///     [--MigrationAssembly=&lt;assembly&gt;] [--MigrationNamespace=&lt;namespace&gt;] [--MigrationDirectory=&lt;directory&gt;]
-        ///     [--References=&lt;assembly[;...n]&gt;]
         ///     [--ConfigFile=&lt;file&gt;]
         /// 
         ///   create
@@ -253,27 +247,23 @@ namespace Microsoft.Data.Entity.Design
         ///     [--ConfigFile=&lt;file&gt;]
         ///     [--ContextAssembly=&lt;assembly&gt;] [--ContextType=&lt;type&gt;]
         ///     [--MigrationAssembly=&lt;assembly&gt;] [--MigrationNamespace=&lt;namespace&gt;] [--MigrationDirectory=&lt;directory&gt;]
-        ///     [--References=&lt;assembly[;...n]&gt;]
         /// 
         ///   list
         ///     [--ConfigFile=&lt;file&gt;]  
         ///     [--MigrationSource=Database|Local|Pending]
         ///     [--ContextAssembly=&lt;assembly&gt;] [--ContextType=&lt;type&gt;]
-        ///     [--References=&lt;assembly[;...n]&gt;]
         /// 
         ///   script
         ///     [--ConfigFile=&lt;file&gt;]
         ///     [--TargetMigration=&lt;name&gt;]
         ///     [--ContextAssembly=&lt;assembly&gt;] [--ContextType=&lt;type&gt;]
         ///     [--MigrationAssembly=&lt;assembly&gt;] [--MigrationNamespace=&lt;namespace&gt;] [--MigrationDirectory=&lt;directory&gt;]
-        ///     [--References=&lt;assembly[;...n]&gt;]
         /// 
         ///   apply
         ///     [--ConfigFile=&lt;file&gt;]
         ///     [--TargetMigration=&lt;name&gt;]
         ///     [--ContextAssembly=&lt;assembly&gt;] [--ContextType=&lt;type&gt;]
         ///     [--MigrationAssembly=&lt;assembly&gt;] [--MigrationNamespace=&lt;namespace&gt;] [--MigrationDirectory=&lt;directory&gt;]
-        ///     [--References=&lt;assembly[;...n]&gt;]
         /// 
         ///     
         /// </summary>

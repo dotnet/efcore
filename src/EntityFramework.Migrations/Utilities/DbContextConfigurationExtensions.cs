@@ -2,23 +2,35 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational;
 
 namespace Microsoft.Data.Entity.Migrations.Utilities
 {
-    internal static class DbContextConfigurationExtensions
+    public static class DbContextConfigurationExtensions
     {
-        public static Assembly GetMigrationAssembly(this DbContextConfiguration configuration)
+        public static Assembly GetMigrationAssembly([NotNull] this DbContextConfiguration configuration)
         {
+            Check.NotNull(configuration, "configuration");
+
             return RelationalOptionsExtension.Extract(configuration).MigrationAssembly
                    ?? configuration.Context.GetType().GetTypeInfo().Assembly;
         }
 
-        public static string GetMigrationNamespace(this DbContextConfiguration configuration)
+        public static string GetMigrationNamespace([NotNull] this DbContextConfiguration configuration)
         {
+            Check.NotNull(configuration, "configuration");
+
             return RelationalOptionsExtension.Extract(configuration).MigrationNamespace
-                   ?? configuration.Context.GetType().Namespace + ".Migrations";
+                   ?? Combine(configuration.Context.GetType().Namespace, "Migrations");
+        }
+
+        private static string Combine(string namespace1, string namespace2)
+        {
+            return string.IsNullOrEmpty(namespace1)
+                ? namespace2
+                : namespace1 + "." + namespace2;
         }
     }
 }
