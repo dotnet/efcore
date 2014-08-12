@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.Redis.Query
 {
     public partial class RedisQueryModelVisitor
     {
-        private class RedisQueryingExpressionTreeVisitor : QueryingExpressionTreeVisitor
+        protected class RedisQueryingExpressionTreeVisitor : QueryingExpressionTreeVisitor
         {
             private readonly RedisQueryModelVisitor _parentVisitor;
             private readonly IQuerySource _querySource;
