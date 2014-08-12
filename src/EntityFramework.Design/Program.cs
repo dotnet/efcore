@@ -25,6 +25,19 @@ namespace Microsoft.Data.Entity.Design
             UpdateDatabase
         }
 
+        private readonly IServiceProvider _serviceProvider;
+
+        protected Program()
+        {
+        }
+
+        public Program([NotNull] IServiceProvider serviceProvider)
+        {
+            Check.NotNull(serviceProvider, "serviceProvider");
+
+            _serviceProvider = serviceProvider;
+        }
+
         public virtual void Main([CanBeNull] string[] args)
         {
             try

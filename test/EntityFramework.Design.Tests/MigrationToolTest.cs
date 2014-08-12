@@ -29,8 +29,7 @@ namespace Microsoft.Data.Entity.Design.Tests
                         "--ContextType=Microsoft.Data.Entity.Design.Tests.MigrationToolTest+MyContext",
                         "--MigrationAssembly=EntityFramework.Design.Tests.dll",
                         "--MigrationNamespace=MyNamespace",
-                        "--MigrationDirectory=MyDirectory",
-                        "--References=Ref1;Ref2;Ref3"
+                        "--MigrationDirectory=MyDirectory"
                     };
             var configSourceMock = new Mock<IniFileConfigurationSource>("Foo") { CallBase = true };
             var tool = toolMock.Object;
@@ -49,7 +48,6 @@ namespace Microsoft.Data.Entity.Design.Tests
                             Assert.Equal(configSourceMock.Object.Data["MigrationAssembly"], "EntityFramework.Design.Tests.dll");
                             Assert.Equal(configSourceMock.Object.Data["MigrationNamespace"], "MyNamespace");
                             Assert.Equal(configSourceMock.Object.Data["MigrationDirectory"], "MyDirectory");
-                            Assert.Equal(configSourceMock.Object.Data["References"], "Ref1;Ref2;Ref3");
                         });
 
             toolMock.Protected()
@@ -460,29 +458,6 @@ namespace Microsoft.Data.Entity.Design.Tests
             tool.UpdateDatabase(configuration);
 
             migratorMock.Verify(m => m.UpdateDatabase("MyMigrationName"), Times.Once);
-        }
-
-        [Fact]
-        public void LoadContext_loads_references_before_instantiating_context_type()
-        {
-            var toolMock = new Mock<MyMigrationTool> { CallBase = true };
-            var tool = toolMock.Object;
-            var configuration = new Configuration();
-
-            toolMock.Protected()
-                .Setup<DbContext>("CreateContext", ItExpr.IsAny<Type>())
-                .Callback(() => toolMock.Protected()
-                    .Verify<Assembly>("LoadAssembly", Times.Exactly(4), ItExpr.IsAny<string>()));
-
-            configuration.AddCommandLine(
-                new[]
-                    {
-                        "--ContextAssembly=EntityFramework.Design.Tests.dll",
-                        "--ContextType=Microsoft.Data.Entity.Design.Tests.MigrationToolTest+MyContext",
-                        "--References=Ref1;Ref2;Ref3"
-                    });
-
-            tool.LoadContext(configuration);
         }
 
         [Fact]

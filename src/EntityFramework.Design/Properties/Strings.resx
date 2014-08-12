@@ -166,7 +166,6 @@ Options:
   config
     [--ContextAssembly=<assembly>] [--ContextType=<type>]
     [--MigrationAssembly=<assembly>] [--MigrationNamespace=<namespace>] [--MigrationDirectory=<directory>]
-    [--References=<assembly[;...n]>]
     [--ConfigFile=<file>]
 
   create
@@ -174,27 +173,23 @@ Options:
     [--ConfigFile=<file>]
     [--ContextAssembly=<assembly>] [--ContextType=<type>]
     [--MigrationAssembly=<assembly>] [--MigrationNamespace=<namespace>] [--MigrationDirectory=<directory>]
-    [--References=<assembly[;...n]>]
 
   list
     [--ConfigFile=<file>]  
     [--MigrationSource=Database|Local|Pending]
     [--ContextAssembly=<assembly>] [--ContextType=<type>]
-    [--References=<assembly[;...n]>]
 
   script
     [--ConfigFile=<file>]
     [--TargetMigration=<name>]
     [--ContextAssembly=<assembly>] [--ContextType=<type>]
     [--MigrationAssembly=<assembly>] [--MigrationNamespace=<namespace>] [--MigrationDirectory=<directory>]
-    [--References=<assembly[;...n]>]
 
   apply
     [--ConfigFile=<file>]
     [--TargetMigration=<name>]
     [--ContextAssembly=<assembly>] [--ContextType=<type>]
     [--MigrationAssembly=<assembly>] [--MigrationNamespace=<namespace>] [--MigrationDirectory=<directory>]
-    [--References=<assembly[;...n]>]
 ]]>
     </value>
   </data>
