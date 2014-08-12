@@ -151,6 +151,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void All_top_level_subquery()
+        {
+            // ReSharper disable once PossibleUnintendedReferenceComparison
+            AssertQuery<Customer>(cs => cs.All(c1 => cs.Any(c2 => cs.Any(c3 => c1 == c3))));
+        }
+
+        [Fact]
         public virtual void Select_into()
         {
             AssertQuery<Customer>(cs =>
@@ -1604,6 +1611,50 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 cs => cs.OrderBy(c => c.ContactName).Where(c => c.City == "London").FirstOrDefaultAsync());
         }
 
+        [Fact]
+        public void Last()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.ContactName).Last());
+        }
+
+        [Fact]
+        public void LastPredicate()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.ContactName).Last(c => c.City == "London"));
+        }
+
+        [Fact]
+        public void WhereLast()
+        {
+            AssertQuery<Customer>(
+                // ReSharper disable once ReplaceWithSingleCallToLast
+                cs => cs.OrderBy(c => c.ContactName).Where(c => c.City == "London").Last());
+        }
+
+        [Fact]
+        public void LastOrDefault()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.ContactName).LastOrDefault());
+        }
+
+        [Fact]
+        public void LastOrDefaultPredicate()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.ContactName).LastOrDefault(c => c.City == "London"));
+        }
+
+        [Fact]
+        public void WhereLastOrDefault()
+        {
+            AssertQuery<Customer>(
+                // ReSharper disable once ReplaceWithSingleCallToLastOrDefault
+                cs => cs.OrderBy(c => c.ContactName).Where(c => c.City == "London").LastOrDefault());
+        }
+        
         [Fact]
         public virtual void String_StartsWith_Literal()
         {
