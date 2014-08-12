@@ -1,0 +1,12 @@
+﻿{
+    "dependencies": {
+        "Microsoft.AspNet.Diagnostics": "1.0.0-*",
+        "EntityFramework.Migrations": "",
+        "Microsoft.Framework.DependencyInjection": "1.0.0-*"
+    },
+    "code": "**\\*.cs;..\\Shared\\*.cs",
+    "configurations": {
+        "net451": { },
+        "k10": { }
+    }
+}
