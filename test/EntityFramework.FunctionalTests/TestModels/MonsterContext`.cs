@@ -210,37 +210,156 @@ namespace Microsoft.Data.Entity.MonsterModel
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            builder.Entity<TCustomer>();
-            builder.Entity<TBarcode>().Key(e => e.Code);
-            builder.Entity<TIncorrectScan>();
             builder.Entity<TBarcodeDetail>().Key(e => e.Code);
-            builder.Entity<TComplaint>();
             builder.Entity<TResolution>();
-            builder.Entity<TLogin>().Key(e => e.Username);
             builder.Entity<TSuspiciousActivity>();
-            builder.Entity<TSmartCard>().Key(e => e.Username);
-            builder.Entity<TRsaToken>().Key(e => e.Serial);
-            builder.Entity<TPasswordReset>().Key(e => new { e.ResetNo, e.Username });
-            builder.Entity<TPageView>();
             builder.Entity<TLastLogin>().Key(e => e.Username);
             builder.Entity<TMessage>().Key(e => new { e.MessageId, e.FromUsername });
-            builder.Entity<TAnOrder>();
             builder.Entity<TOrderNote>().Key(e => e.NoteId);
-            builder.Entity<TProduct>();
-            builder.Entity<TOrderQualityCheck>().Key(e => e.OrderId);
-            builder.Entity<TOrderLine>().Key(e => new { e.OrderId, e.ProductId });
             builder.Entity<TProductDetail>().Key(e => e.ProductId);
-            builder.Entity<TProductReview>().Key(e => new { e.ProductId, e.ReviewId });
-            builder.Entity<TProductPhoto>().Key(e => new { e.ProductId, e.PhotoId });
             builder.Entity<TProductWebFeature>().Key(e => e.ProductId);
-            builder.Entity<TSupplier>();
             builder.Entity<TSupplierLogo>().Key(e => e.SupplierId);
-            builder.Entity<TSupplierInfo>();
             builder.Entity<TCustomerInfo>();
-            builder.Entity<TComputer>();
             builder.Entity<TComputerDetail>();
-            builder.Entity<TDriver>().Key(e => e.Name);
             builder.Entity<TLicense>().Key(e => e.Name);
+
+            builder.Entity<TAnOrder>(b =>
+                {
+                    b.OneToMany(e => (IEnumerable<TOrderLine>)e.OrderLines, e => (TAnOrder)e.Order);
+                    b.OneToMany(e => (IEnumerable<TOrderNote>)e.Notes, e => (TAnOrder)e.Order);
+                });
+
+            builder.Entity<TOrderQualityCheck>(b =>
+                {
+                    b.Key(e => e.OrderId);
+
+                    b.OneToOne(e => (TAnOrder)e.Order)
+                        .ForeignKey<TOrderQualityCheck>(e => e.OrderId);
+                });
+
+            builder.Entity<TProduct>(b =>
+                {
+                    b.OneToMany(e => (IEnumerable<TProductReview>)e.Reviews, e => (TProduct)e.Product);
+                    b.OneToMany(e => (IEnumerable<TBarcode>)e.Barcodes, e => (TProduct)e.Product);
+                    b.OneToMany(e => (IEnumerable<TProductPhoto>)e.Photos);
+                    b.OneToOne(e => (TProductDetail)e.Detail, e => (TProduct)e.Product);
+                    b.OneToOne<TProductWebFeature>();
+                });
+
+            builder.Entity<TOrderLine>(b =>
+                {
+                    b.Key(e => new { e.OrderId, e.ProductId });
+                    b.ManyToOne(e => (TProduct)e.Product);
+                });
+
+            builder.Entity<TSupplier>().OneToOne(e => (TSupplierLogo)e.Logo);
+
+            builder.Entity<TCustomer>(b =>
+                {
+                    b.OneToMany(e => (IEnumerable<TAnOrder>)e.Orders, e => (TCustomer)e.Customer);
+                    b.OneToMany(e => (IEnumerable<TLogin>)e.Logins, e => (TCustomer)e.Customer);
+                    b.OneToOne(e => (TCustomerInfo)e.Info);
+
+                    b.OneToOne(e => (TCustomer)e.Wife, e => (TCustomer)e.Husband)
+                        .ForeignKey<TCustomer>(e => e.HusbandId);
+                });
+
+            builder.Entity<TComplaint>(b =>
+                {
+                    b.ManyToOne(e => (TCustomer)e.Customer)
+                        .ForeignKey(e => e.CustomerId);
+
+                    b.OneToOne(e => (TResolution)e.Resolution, e => (TComplaint)e.Complaint);
+                });
+
+            builder.Entity<TProductPhoto>(b =>
+                {
+                    b.Key(e => new { e.ProductId, e.PhotoId });
+
+                    b.OneToMany(e => (IEnumerable<TProductWebFeature>)e.Features, e => (TProductPhoto)e.Photo)
+                        .ForeignKey(e => new { e.ProductId, e.PhotoId });
+                });
+
+            builder.Entity<TProductReview>(b =>
+                {
+                    b.Key(e => new { e.ProductId, e.ReviewId });
+
+                    b.OneToMany(e => (IEnumerable<TProductWebFeature>)e.Features, e => (TProductReview)e.Review)
+                        .ForeignKey(e => new { e.ProductId, e.ReviewId });
+                });
+
+            builder.Entity<TLogin>(b =>
+                {
+                    b.Key(e => e.Username);
+
+                    b.OneToMany(e => (IEnumerable<TMessage>)e.SentMessages, e => (TLogin)e.Sender)
+                        .ForeignKey(e => e.FromUsername);
+
+                    b.OneToMany(e => (IEnumerable<TMessage>)e.ReceivedMessages, e => (TLogin)e.Recipient)
+                        .ForeignKey(e => e.ToUsername);
+
+                    b.OneToMany(e => (IEnumerable<TAnOrder>)e.Orders, e => (TLogin)e.Login)
+                        .ForeignKey(e => e.Username);
+
+                    b.OneToMany<TSuspiciousActivity>()
+                        .ForeignKey(e => e.Username);
+
+                    b.OneToOne(e => (TLastLogin)e.LastLogin, e => (TLogin)e.Login);
+                });
+
+            builder.Entity<TPasswordReset>(b =>
+                {
+                    b.Key(e => new { e.ResetNo, e.Username });
+
+                    b.ManyToOne(e => (TLogin)e.Login)
+                        .ForeignKey(e => e.Username);
+                });
+
+            builder.Entity<TPageView>()
+                .ManyToOne(e => (TLogin)e.Login)
+                .ForeignKey(e => e.Username);
+
+            builder.Entity<TBarcode>(b =>
+                {
+                    b.Key(e => e.Code);
+
+                    b.OneToMany(e => (IEnumerable<TIncorrectScan>)e.BadScans, e => (TBarcode)e.ExpectedBarcode)
+                        .ForeignKey(e => e.ExpectedCode);
+
+                    b.OneToOne(e => (TBarcodeDetail)e.Detail);
+                });
+
+            builder.Entity<TIncorrectScan>()
+                .ManyToOne(e => (TBarcode)e.ActualBarcode)
+                .ForeignKey(e => e.ActualCode);
+
+            builder.Entity<TSupplierInfo>().ManyToOne(e => (TSupplier)e.Supplier);
+
+            builder.Entity<TComputer>().OneToOne(e => (TComputerDetail)e.ComputerDetail, e => (TComputer)e.Computer);
+
+            builder.Entity<TDriver>(b =>
+                {
+                    b.Key(e => e.Name);
+                    b.OneToOne(e => (TLicense)e.License, e => (TDriver)e.Driver);
+                });
+
+            builder.Entity<TSmartCard>(b =>
+                {
+                    b.Key(e => e.Username);
+
+                    b.OneToOne(e => (TLogin)e.Login)
+                        .ForeignKey<TSmartCard>(e => e.Username);
+
+                    b.OneToOne(e => (TLastLogin)e.LastLogin)
+                        .ForeignKey<TLastLogin>(e => e.SmartcardUsername);
+                });
+
+            builder.Entity<TRsaToken>(b =>
+                {
+                    b.Key(e => e.Serial);
+                    b.OneToOne(e => (TLogin)e.Login)
+                        .ForeignKey<TRsaToken>(e => e.Username);
+                });
 
             // TODO: Many-to-many
             //builder.Entity<TSupplier>().ForeignKeys(fk => fk.ForeignKey<TProduct>(e => e.SupplierId));
@@ -282,113 +401,6 @@ namespace Microsoft.Data.Entity.MonsterModel
             var customerId = model.GetEntityType(typeof(TCustomerInfo)).GetProperty("CustomerInfoId");
             customerId.ValueGenerationOnAdd = ValueGenerationOnAdd.None;
             customerId.ValueGenerationOnSave = ValueGenerationOnSave.None;
-
-            builder.Entity<TAnOrder>(b =>
-                {
-                    b.OneToMany(e => (IEnumerable<TOrderLine>)e.OrderLines, e => (TAnOrder)e.Order);
-                    b.OneToMany(e => (IEnumerable<TOrderNote>)e.Notes, e => (TAnOrder)e.Order);
-                });
-
-            builder.Entity<TOrderQualityCheck>()
-                .OneToOne(e => (TAnOrder)e.Order)
-                .ForeignKey<TOrderQualityCheck>(e => e.OrderId);
-
-            builder.Entity<TProduct>(b =>
-                {
-                    b.OneToMany(e => (IEnumerable<TProductReview>)e.Reviews, e => (TProduct)e.Product);
-                    b.OneToMany(e => (IEnumerable<TBarcode>)e.Barcodes, e => (TProduct)e.Product);
-                    b.OneToMany(e => (IEnumerable<TProductPhoto>)e.Photos);
-                    b.OneToOne(e => (TProductDetail)e.Detail, e => (TProduct)e.Product);
-                    b.OneToOne<TProductWebFeature>();
-                });
-
-            builder.Entity<TOrderLine>().ManyToOne(e => (TProduct)e.Product);
-
-            builder.Entity<TSupplier>().OneToOne(e => (TSupplierLogo)e.Logo);
-
-            builder.Entity<TCustomer>(b =>
-                {
-                    b.OneToMany(e => (IEnumerable<TAnOrder>)e.Orders, e => (TCustomer)e.Customer);
-                    b.OneToMany(e => (IEnumerable<TLogin>)e.Logins, e => (TCustomer)e.Customer);
-                    b.OneToOne(e => (TCustomerInfo)e.Info);
-
-                    b.OneToOne(e => (TCustomer)e.Wife, e => (TCustomer)e.Husband)
-                        .ForeignKey<TCustomer>(e => e.HusbandId);
-                });
-
-            builder.Entity<TComplaint>(b =>
-                {
-                    b.ManyToOne(e => (TCustomer)e.Customer)
-                        .ForeignKey(e => e.CustomerId);
-
-                    b.OneToOne(e => (TResolution)e.Resolution, e => (TComplaint)e.Complaint);
-                });
-
-            builder.Entity<TProductPhoto>()
-                .OneToMany(e => (IEnumerable<TProductWebFeature>)e.Features, e => (TProductPhoto)e.Photo)
-                .ForeignKey(e => new { e.ProductId, e.PhotoId });
-
-            builder.Entity<TProductReview>()
-                .OneToMany(e => (IEnumerable<TProductWebFeature>)e.Features, e => (TProductReview)e.Review)
-                .ForeignKey(e => new { e.ProductId, e.ReviewId });
-
-            builder.Entity<TLogin>(b =>
-                {
-                    b.OneToMany(e => (IEnumerable<TMessage>)e.SentMessages, e => (TLogin)e.Sender)
-                        .ForeignKey(e => e.FromUsername);
-
-                    b.OneToMany(e => (IEnumerable<TMessage>)e.ReceivedMessages, e => (TLogin)e.Recipient)
-                        .ForeignKey(e => e.ToUsername);
-
-                    b.OneToMany(e => (IEnumerable<TAnOrder>)e.Orders, e => (TLogin)e.Login)
-                        .ForeignKey(e => e.Username);
-
-                    b.OneToMany<TSuspiciousActivity>()
-                        .ForeignKey(e => e.Username);
-
-                    b.OneToOne(e => (TLastLogin)e.LastLogin, e => (TLogin)e.Login);
-                });
-
-            builder.Entity<TPasswordReset>()
-                .ManyToOne(e => (TLogin)e.Login)
-                .ForeignKey(e => e.Username);
-
-            builder.Entity<TPageView>()
-                .ManyToOne(e => (TLogin)e.Login)
-                .ForeignKey(e => e.Username);
-
-            builder.Entity<TBarcode>(b =>
-                {
-                    b.OneToMany(e => (IEnumerable<TIncorrectScan>)e.BadScans, e => (TBarcode)e.ExpectedBarcode)
-                                    .ForeignKey(e => e.ExpectedCode);
-
-                    b.OneToOne(e => (TBarcodeDetail)e.Detail);
-                });
-
-            builder.Entity<TIncorrectScan>()
-                .ManyToOne(e => (TBarcode)e.ActualBarcode)
-                .ForeignKey(e => e.ActualCode);
-
-            builder.Entity<TSupplierInfo>().ManyToOne(e => (TSupplier)e.Supplier);
-
-            builder.Entity<TComputer>().OneToOne(e => (TComputerDetail)e.ComputerDetail, e => (TComputer)e.Computer);
-
-            builder.Entity<TComputer>().OneToOne(e => (TComputerDetail)e.ComputerDetail, e => (TComputer)e.Computer);
-
-            builder.Entity<TDriver>().OneToOne(e => (TLicense)e.License, e => (TDriver)e.Driver);
-
-            builder.Entity<TSmartCard>(b =>
-                {
-                    b.OneToOne(e => (TLogin)e.Login)
-                        .ForeignKey<TSmartCard>(e => e.Username);
-
-                    b.OneToOne(e => (TLastLogin)e.LastLogin)
-                        .ForeignKey<TLastLogin>(e => e.SmartcardUsername);
-                });
-
-            builder.Entity<TRsaToken>()
-                .OneToOne(e => (TLogin)e.Login)
-                .ForeignKey<TRsaToken>(e => e.Username);
 
             if (_onModelCreating != null)
             {
