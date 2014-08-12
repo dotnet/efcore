@@ -20,6 +20,11 @@ namespace Microsoft.Data.Entity.Utilities
             _initializer = initializer;
         }
 
+        public LazyRef([CanBeNull] T value)
+        {
+            _value = value;
+        }
+
         public T Value
         {
             get

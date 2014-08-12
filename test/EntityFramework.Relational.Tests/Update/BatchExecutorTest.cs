@@ -16,22 +16,6 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
     public class BatchExecutorTest
     {
         [Fact]
-        public void Constructor_checks_arguments()
-        {
-            Assert.Equal(
-                "typeMapper",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() =>
-                    new BatchExecutor(null, new Mock<DbContextConfiguration>().Object)).ParamName);
-
-            Assert.Equal(
-                "contextConfiguration",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() =>
-                    new BatchExecutor(new Mock<RelationalTypeMapper>().Object, null)).ParamName);
-        }
-
-        [Fact]
         public async Task ExecuteAsync_calls_Commit_if_no_transaction()
         {
             var mockModificationCommandBatch = new Mock<ModificationCommandBatch>();

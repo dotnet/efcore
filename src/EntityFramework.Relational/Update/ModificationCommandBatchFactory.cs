@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.Relational.Update
 
         public virtual ModificationCommandBatch Create()
         {
-            return new ModificationCommandBatch();
+            return new SingularModificationCommandBatch();
         }
 
         public virtual bool AddCommand(

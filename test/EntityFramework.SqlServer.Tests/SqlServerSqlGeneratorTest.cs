@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.Equal(
                 "INSERT INTO [Ducks] ([Id], [Name], [Quacks], [ConcurrencyToken])" + Environment.NewLine +
                 "OUTPUT INSERTED.[Computed]" + Environment.NewLine +
-                "VALUES (@p1, @p2, @p3, @p5);" + Environment.NewLine,
+                "VALUES (@p0, @p1, @p2, @p3);" + Environment.NewLine,
                 stringBuilder.ToString());
         }
 
@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.Equal(
                 "INSERT INTO [dbo].[Ducks] ([Name], [Quacks], [ConcurrencyToken])" + Environment.NewLine +
                 "OUTPUT INSERTED.[Id], INSERTED.[Computed]" + Environment.NewLine +
-                "VALUES (@p2, @p3, @p5);" + Environment.NewLine,
+                "VALUES (@p0, @p1, @p2);" + Environment.NewLine,
                 stringBuilder.ToString());
         }
 
@@ -58,7 +58,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.Equal(
                 "INSERT INTO [Ducks] ([Name], [Quacks], [ConcurrencyToken])" + Environment.NewLine +
                 "OUTPUT INSERTED.[Id]" + Environment.NewLine +
-                "VALUES (@p2, @p3, @p5);" + Environment.NewLine,
+                "VALUES (@p0, @p1, @p2);" + Environment.NewLine,
                 stringBuilder.ToString());
         }
 
@@ -74,18 +74,18 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         protected override void AppendUpdateOperation_appends_update_and_select_if_store_generated_columns_exist_verification(StringBuilder stringBuilder)
         {
             Assert.Equal(
-                "UPDATE [Ducks] SET [Name] = @p2, [Quacks] = @p3, [ConcurrencyToken] = @p5" + Environment.NewLine +
+                "UPDATE [Ducks] SET [Name] = @p0, [Quacks] = @p1, [ConcurrencyToken] = @p2" + Environment.NewLine +
                 "OUTPUT INSERTED.[Computed]" + Environment.NewLine +
-                "WHERE [Id] = @o1 AND [ConcurrencyToken] = @o5;" + Environment.NewLine,
+                "WHERE [Id] = @p3 AND [ConcurrencyToken] = @p4;" + Environment.NewLine,
                 stringBuilder.ToString());
         }
 
         protected override void AppendUpdateOperation_appends_select_for_computed_property_verification(StringBuilder stringBuilder)
         {
             Assert.Equal(
-                "UPDATE [Ducks] SET [Name] = @p2, [Quacks] = @p3, [ConcurrencyToken] = @p5" + Environment.NewLine +
+                "UPDATE [Ducks] SET [Name] = @p0, [Quacks] = @p1, [ConcurrencyToken] = @p2" + Environment.NewLine +
                 "OUTPUT INSERTED.[Computed]" + Environment.NewLine +
-                "WHERE [Id] = @o1;" + Environment.NewLine,
+                "WHERE [Id] = @p3;" + Environment.NewLine,
                 stringBuilder.ToString());
         }
 

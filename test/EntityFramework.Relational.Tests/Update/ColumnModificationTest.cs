@@ -11,6 +11,28 @@ namespace Microsoft.Data.Entity.Relational.Update
     public class ColumnModificationTest
     {
         [Fact]
+        public void Parameters_return_set_values()
+        {
+            var columnModification = new ColumnModification(
+                new Mock<StateEntry>().Object,
+                new Mock<IProperty>().Object,
+                new ParameterNameGenerator(),
+                isRead: true,
+                isWrite: true,
+                isKey: true,
+                isCondition: true);
+
+            Assert.Null(columnModification.ColumnName);
+            Assert.True(columnModification.IsRead);
+            Assert.True(columnModification.IsWrite);
+            Assert.True(columnModification.IsKey);
+            Assert.True(columnModification.IsCondition);
+            Assert.Equal("@p0", columnModification.ParameterName);
+            Assert.Equal("@p1", columnModification.OriginalParameterName);
+            Assert.Equal("@p2", columnModification.OutputParameterName);
+        }
+
+        [Fact]
         public void Get_OriginalValue_delegates_to_OriginalValues_if_possible()
         {
             var originalValuesMock = new Mock<Sidecar>();
@@ -20,8 +42,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             var columnModification = new ColumnModification(
                 stateEntryMock.Object,
                 new Mock<IProperty>().Object,
-                parameterName: null,
-                originalParameterName: null,
+                new ParameterNameGenerator(),
                 isRead: false,
                 isWrite: false,
                 isKey: false,
@@ -43,8 +64,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             var columnModification = new ColumnModification(
                 stateEntryMock.Object,
                 new Mock<IProperty>().Object,
-                parameterName: null,
-                originalParameterName: null,
+                new ParameterNameGenerator(),
                 isRead: false,
                 isWrite: false,
                 isKey: false,
@@ -63,8 +83,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             var columnModification = new ColumnModification(
                 stateEntryMock.Object,
                 new Mock<IProperty>().Object,
-                parameterName: null,
-                originalParameterName: null,
+                new ParameterNameGenerator(),
                 isRead: false,
                 isWrite: false,
                 isKey: false,
@@ -83,8 +102,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             var columnModification = new ColumnModification(
                 stateEntryMock.Object,
                 property,
-                parameterName: null,
-                originalParameterName: null,
+                new ParameterNameGenerator(),
                 isRead: false,
                 isWrite: false,
                 isKey: false,

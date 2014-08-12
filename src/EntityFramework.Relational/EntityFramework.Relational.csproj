@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <Import Project="..\..\tools\EntityFramework.props" />
@@ -40,6 +40,10 @@
     <PackageReference Include="Ix-Async">
       <TargetFramework>portable-windows8+net45+wp8</TargetFramework>
       <Assemblies>System.Interactive.Async</Assemblies>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Bcl.Immutable">
+      <TargetFramework>portable-net45+win8</TargetFramework>
+      <Assemblies>System.Collections.Immutable</Assemblies>
     </PackageReference>
     <PackageReference Include="System.Data.Common" />
     <PackageReference Include="Microsoft.Framework.ConfigurationModel" />
@@ -136,10 +140,12 @@
     <Compile Include="Update\CommandBatchPreparer.cs" />
     <Compile Include="Update\ModificationCommand.cs" />
     <Compile Include="Update\ModificationCommandBatch.cs" />
+    <Compile Include="Update\ReaderModificationCommandBatch.cs" />
     <Compile Include="Update\ModificationCommandBatchFactory.cs" />
     <Compile Include="Update\ModificationCommandComparer.cs" />
     <Compile Include="Update\ParameterNameGenerator.cs" />
     <Compile Include="Update\ParameterNameGeneratorFactory.cs" />
+    <Compile Include="Update\SingularModificationCommandBatch.cs" />
     <Compile Include="Utilities\Check.cs" />
     <Compile Include="..\Shared\CodeAnnotations.cs" />
     <Compile Include="..\Shared\StringBuilderExtensions.cs" />

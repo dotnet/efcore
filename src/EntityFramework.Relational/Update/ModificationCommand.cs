@@ -137,8 +137,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                         columnModifications.Add(new ColumnModification(
                             stateEntry,
                             property,
-                            writeValue ? _parameterNameGenerator.GenerateNext() : null,
-                            isCondition ? _parameterNameGenerator.GenerateNext() : null,
+                            _parameterNameGenerator,
                             readValue,
                             writeValue,
                             isKey,

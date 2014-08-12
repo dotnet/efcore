@@ -18,6 +18,15 @@ namespace Microsoft.Data.Entity.Utilities
         }
 
         [Fact]
+        public void Has_value_is_true_if_constructed_with_value()
+        {
+            var lazy = new LazyRef<string>((string)null);
+
+            Assert.True(lazy.HasValue);
+            Assert.Null(lazy.Value);
+        }
+
+        [Fact]
         public void Value_can_be_set_explicitly()
         {
             var lazy = new LazyRef<string>(() => "Cherry Coke");

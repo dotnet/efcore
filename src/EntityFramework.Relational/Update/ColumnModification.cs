@@ -6,6 +6,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Utilities;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Update
 {
@@ -14,8 +15,9 @@ namespace Microsoft.Data.Entity.Relational.Update
         private readonly StateEntry _stateEntry;
         private readonly IProperty _property;
         private readonly string _columnName;
-        private readonly string _parameterName;
-        private readonly string _originalParameterName;
+        private readonly LazyRef<string> _parameterName;
+        private readonly LazyRef<string> _originalParameterName;
+        private readonly LazyRef<string> _outputParameterName;
         private readonly bool _isRead;
         private readonly bool _isWrite;
         private readonly bool _isKey;
@@ -33,8 +35,7 @@ namespace Microsoft.Data.Entity.Relational.Update
         public ColumnModification(
             [NotNull] StateEntry stateEntry,
             [NotNull] IProperty property,
-            [CanBeNull] string parameterName,
-            [CanBeNull] string originalParameterName,
+            [NotNull] ParameterNameGenerator parameterNameGenerator,
             bool isRead,
             bool isWrite,
             bool isKey,
@@ -42,12 +43,20 @@ namespace Microsoft.Data.Entity.Relational.Update
         {
             Check.NotNull(stateEntry, "stateEntry");
             Check.NotNull(property, "property");
+            Check.NotNull(parameterNameGenerator, "parameterNameGenerator");
 
             _stateEntry = stateEntry;
             _property = property;
             _columnName = property.ColumnName();
-            _parameterName = parameterName;
-            _originalParameterName = originalParameterName;
+            _parameterName = isWrite
+                ? new LazyRef<string>(parameterNameGenerator.GenerateNext)
+                : new LazyRef<string>((string)null);
+            _originalParameterName = isCondition
+                ? new LazyRef<string>(parameterNameGenerator.GenerateNext)
+                : new LazyRef<string>((string)null);
+            _outputParameterName = isRead
+                ? new LazyRef<string>(parameterNameGenerator.GenerateNext)
+                : new LazyRef<string>((string)null);
             _isRead = isRead;
             _isWrite = isWrite;
             _isKey = isKey;
@@ -86,12 +95,17 @@ namespace Microsoft.Data.Entity.Relational.Update
 
         public virtual string ParameterName
         {
-            get { return _parameterName; }
+            get { return _parameterName.Value; }
         }
 
         public virtual string OriginalParameterName
         {
-            get { return _originalParameterName; }
+            get { return _originalParameterName.Value; }
+        }
+
+        public virtual string OutputParameterName
+        {
+            get { return _outputParameterName.Value; }
         }
 
         public virtual string ColumnName
