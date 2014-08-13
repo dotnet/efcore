@@ -2,16 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.ChangeTracking;
-using Microsoft.Data.Entity.InMemory;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Fallback;
-using Remotion.Linq;
 using Xunit;
 
 namespace Microsoft.Data.Entity.FunctionalTests
@@ -52,61 +46,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.Equal(context, ((DataStoreException)ex).Context);
                 // Original exception from DataStore is nested within an AggregateException
                 Assert.IsType<ArgumentException>(ex.InnerException);
-            }
-        }
-
-        [Fact]
-        public async Task Query_throws_DatabaseOperationException_when_DataStore_query_throws_nonasync()
-        {
-            await Query_throws_DatabaseOperationException_when_DataStore_query_throws(async: false);
-        }
-
-        [Fact]
-        public async Task Query_throws_DatabaseOperationException_when_DataStore_query_throws_async()
-        {
-            await Query_throws_DatabaseOperationException_when_DataStore_query_throws(async: true);
-        }
-
-        public async Task Query_throws_DatabaseOperationException_when_DataStore_query_throws(bool async)
-        {
-            var services = new ServiceCollection();
-            services.AddEntityFramework()
-                .AddInMemoryStore()
-                .ServiceCollection
-                .AddScoped<InMemoryDataStore, FaultedDataStore>();
-
-            using (var context = new BloggingContext(services.BuildServiceProvider()))
-            {
-                Exception ex;
-                if (async)
-                {
-                    ex = await Assert.ThrowsAsync<DataStoreException>(() => context.Blogs.FirstOrDefaultAsync());
-                }
-                else
-                {
-                    ex = Assert.Throws<DataStoreException>(() => context.Blogs.FirstOrDefault());
-                }
-                Assert.IsType<DataStoreException>(ex);
-                Assert.Equal(context, ((DataStoreException)ex).Context);
-                Assert.IsType<ArgumentException>(ex.InnerException);
-                Assert.Equal(
-                    async
-                        ? "Jim said to throw from AsyncQuery!"
-                        : "Jim said to throw from Query!",
-                    ex.InnerException.Message);
-            }
-        }
-
-        public class FaultedDataStore : InMemoryDataStore
-        {
-            public override IEnumerable<TResult> Query<TResult>(QueryModel queryModel, StateManager stateManager)
-            {
-                throw new ArgumentException("Jim said to throw from Query!");
-            }
-
-            public override IAsyncEnumerable<TResult> AsyncQuery<TResult>(QueryModel queryModel, StateManager stateManager)
-            {
-                throw new ArgumentException("Jim said to throw from AsyncQuery!");
             }
         }
 

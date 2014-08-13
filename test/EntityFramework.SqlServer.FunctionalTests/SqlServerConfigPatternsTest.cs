@@ -6,10 +6,9 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Storage;
-using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;
+using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
@@ -165,13 +164,13 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                     Assert.Equal(
                         GetString("FormatNoDataStoreConfigured"),
-                        Assert.Throws<DataStoreException>(() =>
+                        Assert.Throws<InvalidOperationException>(() =>
                             {
                                 using (var context = new NorthwindContext(serviceProvider))
                                 {
                                     Assert.Equal(91, context.Customers.Count());
                                 }
-                            }).InnerException.Message);
+                            }).Message);
                 }
             }
 
@@ -200,13 +199,13 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 {
                     Assert.Equal(
                         GetString("FormatNoDataStoreConfigured"),
-                        Assert.Throws<DataStoreException>(() =>
+                        Assert.Throws<InvalidOperationException>(() =>
                             {
                                 using (var context = new NorthwindContext())
                                 {
                                     Assert.Equal(91, context.Customers.Count());
                                 }
-                            }).InnerException.Message);
+                            }).Message);
                 }
             }
 
@@ -234,13 +233,13 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                     Assert.Equal(
                         GetString("FormatNoDataStoreService"),
-                        Assert.Throws<DataStoreException>(() =>
+                        Assert.Throws<InvalidOperationException>(() =>
                             {
                                 using (var context = new NorthwindContext(serviceProvider))
                                 {
                                     Assert.Equal(91, context.Customers.Count());
                                 }
-                            }).InnerException.Message);
+                            }).Message);
                 }
             }
 

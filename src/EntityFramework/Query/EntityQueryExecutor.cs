@@ -70,32 +70,10 @@ namespace Microsoft.Data.Entity.Query
 
             LogQueryModel(queryModel);
 
-            try
-            {
-                return new EnumerableExceptionInterceptor<T>(
-                    _context.Configuration.DataStore.Query<T>(queryModel, _context.Configuration.StateManager),
-                    _context,
-                    _logger);
-            }
-            catch (Exception ex)
-            {
-                if (DataStoreException.ContainsDataStoreException(ex))
-                {
-                    if (_logger.Value.IsEnabled(TraceType.Error))
-                    {
-                        _logger.Value.WriteError(Strings.FormatLogDataStoreExceptionRethrow(Strings.LogExceptionDuringQueryExecution), ex);
-                    }
-
-                    throw;
-                }
-
-                if (_logger.Value.IsEnabled(TraceType.Error))
-                {
-                    _logger.Value.WriteError(Strings.FormatLogDataStoreExceptionWrap(Strings.LogExceptionDuringQueryExecution), ex);
-                }
-
-                throw new DataStoreException(Strings.DataStoreException, _context, ex);
-            }
+            return new EnumerableExceptionInterceptor<T>(
+                _context.Configuration.DataStore.Query<T>(queryModel, _context.Configuration.StateManager),
+                _context,
+                _logger);
         }
 
         public virtual IAsyncEnumerable<T> AsyncExecuteCollection<T>([NotNull] QueryModel queryModel)
@@ -106,32 +84,10 @@ namespace Microsoft.Data.Entity.Query
 
             LogQueryModel(queryModel);
 
-            try
-            {
-                return new AsyncEnumerableExceptionInterceptor<T>(
-                    _context.Configuration.DataStore.AsyncQuery<T>(queryModel, _context.Configuration.StateManager),
-                    _context,
-                    _logger);
-            }
-            catch (Exception ex)
-            {
-                if (DataStoreException.ContainsDataStoreException(ex))
-                {
-                    if (_logger.Value.IsEnabled(TraceType.Error))
-                    {
-                        _logger.Value.WriteError(Strings.FormatLogDataStoreExceptionRethrow(Strings.LogExceptionDuringQueryExecution), ex);
-                    }
-
-                    throw;
-                }
-
-                if (_logger.Value.IsEnabled(TraceType.Error))
-                {
-                    _logger.Value.WriteError(Strings.FormatLogDataStoreExceptionWrap(Strings.LogExceptionDuringQueryExecution), ex);
-                }
-
-                throw new DataStoreException(Strings.DataStoreException, _context, ex);
-            }
+            return new AsyncEnumerableExceptionInterceptor<T>(
+                _context.Configuration.DataStore.AsyncQuery<T>(queryModel, _context.Configuration.StateManager),
+                _context,
+                _logger);
         }
 
         private void LogQueryModel(QueryModel queryModel)
