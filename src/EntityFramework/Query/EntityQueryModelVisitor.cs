@@ -685,7 +685,7 @@ namespace Microsoft.Data.Entity.Query
                     = (MethodCallExpression)base.VisitMethodCallExpression(methodCallExpression);
 
                 if (newExpression != methodCallExpression
-                    && newExpression.Arguments.Count > 0
+                    && newExpression.Arguments.Any()
                     && newExpression.Arguments[0].Type == typeof(IValueReader))
                 {
                     return

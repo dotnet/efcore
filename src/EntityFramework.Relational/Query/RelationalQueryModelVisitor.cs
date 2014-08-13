@@ -546,7 +546,7 @@ namespace Microsoft.Data.Entity.Relational.Query
             protected override Expression VisitNewExpression(NewExpression newExpression)
             {
                 if (newExpression.Members != null
-                    && newExpression.Arguments.Count > 0
+                    && newExpression.Arguments.Any()
                     && newExpression.Arguments.Count == newExpression.Members.Count)
                 {
                     var memberBindings
@@ -634,7 +634,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             var orderingCounts
                 = _queriesBySource
-                    .Where(kv => kv.Value.OrderBy.Count > 0)
+                    .Where(kv => kv.Value.OrderBy.Any())
                     .Select(kv => new { kv.Key, kv.Value.OrderBy.Count })
                     .ToList();
 
@@ -663,8 +663,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                         .ToList();
 
                 if (queriesWithOrdering.Count == 1
-                    && queriesWithOrdering[0].OrderBy.Count
-                    == queryModel.BodyClauses
+                    && queriesWithOrdering[0].OrderBy.Count == queryModel.BodyClauses
                         .OfType<OrderByClause>()
                         .SelectMany(ob => ob.Orderings)
                         .Count())
@@ -672,6 +671,13 @@ namespace Microsoft.Data.Entity.Relational.Query
                     queriesWithOrdering[0].RemoveFromProjection(queriesWithOrdering[0].OrderBy);
 
                     Expression = _preOrderingExpression;
+                }
+                else
+                {
+                    foreach (var selectExpression in _queriesBySource.Values)
+                    {
+                        selectExpression.ClearOrderBy();
+                    }
                 }
             }
         }
