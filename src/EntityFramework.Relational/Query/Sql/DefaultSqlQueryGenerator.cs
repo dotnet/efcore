@@ -234,9 +234,9 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             if (selectExpression.Limit != null
                 && selectExpression.Offset == null)
             {
-                _sql.Append("TOP ")
-                    .Append(selectExpression.Limit)
-                    .Append(" ");
+                _sql.Append("TOP(")
+                    .Append(CreateParameter(selectExpression.Limit))
+                    .Append(") ");
             }
         }
 
@@ -252,13 +252,13 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                 }
 
                 _sql.Append(" OFFSET ")
-                    .Append(selectExpression.Offset)
+                    .Append(CreateParameter(selectExpression.Offset))
                     .Append(" ROWS");
 
                 if (selectExpression.Limit != null)
                 {
                     _sql.Append(" FETCH NEXT ")
-                        .Append(selectExpression.Limit)
+                        .Append(CreateParameter(selectExpression.Limit))
                         .Append(" ROWS ONLY");
                 }
             }
@@ -473,7 +473,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             return constantExpression;
         }
 
-        private string CreateParameter(object value)
+        protected virtual string CreateParameter([NotNull] object value)
         {
             Check.NotNull(value, "value");
 
