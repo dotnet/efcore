@@ -19,19 +19,19 @@ namespace Microsoft.Data.Entity.SQLite.Query
             {
                 Sql.AppendLine()
                     .Append("LIMIT ")
-                    .Append(selectExpression.Limit);
+                    .Append(CreateParameter(selectExpression.Limit));
 
                 if (selectExpression.Offset != null)
                 {
                     Sql.Append(" OFFSET ")
-                        .Append(selectExpression.Offset);
+                        .Append(CreateParameter(selectExpression.Offset));
                 }
             }
             else if (selectExpression.Offset != null)
             {
                 Sql.AppendLine()
                     .Append("LIMIT ")
-                    .Append(selectExpression.Offset)
+                    .Append(CreateParameter(selectExpression.Offset))
                     .Append(", ")
                     .Append(-1);
             }

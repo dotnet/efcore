@@ -25,9 +25,9 @@ FROM (
     SELECT c.""Address"", c.""City"", c.""CompanyName"", c.""ContactName"", c.""ContactTitle"", c.""Country"", c.""CustomerID"", c.""Fax"", c.""Phone"", c.""PostalCode"", c.""Region""
     FROM ""Customers"" AS c
     ORDER BY c.""CustomerID""
-    LIMIT 1
+    LIMIT @p0
 ) AS t0
-LIMIT 2",
+LIMIT @p1",
                 _fixture.Sql);
         }
 
