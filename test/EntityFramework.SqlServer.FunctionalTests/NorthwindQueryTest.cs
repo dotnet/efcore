@@ -790,6 +790,19 @@ INNER JOIN [Orders] AS o ON (c.[CustomerID] = o.[CustomerID] AND c.[CustomerID] 
                 _fixture.Sql);
         }
 
+        public override void Join_client_new_expression()
+        {
+            base.Join_client_new_expression();
+
+            Assert.Equal(
+                @"SELECT o.[CustomerID], o.[OrderDate], o.[OrderID]
+FROM [Orders] AS o
+
+SELECT c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region]
+FROM [Customers] AS c",
+                _fixture.Sql);
+        }
+
         public override void Join_select_many()
         {
             base.Join_select_many();
@@ -883,6 +896,29 @@ FROM [Customers] AS c",
 
             Assert.Equal(
                 @"SELECT DISTINCT c.[City]
+FROM [Customers] AS c",
+                _fixture.Sql);
+        }
+
+        public override void OrderBy_client_mixed()
+        {
+            base.OrderBy_client_mixed(); 
+            
+            Assert.Equal(
+                 @"SELECT c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region]
+FROM [Customers] AS c",
+                 _fixture.Sql);
+        }
+
+        public override void OrderBy_multiple_queries()
+        {
+            base.OrderBy_multiple_queries();
+            
+            Assert.Equal(
+                @"SELECT o.[CustomerID], o.[OrderDate], o.[OrderID]
+FROM [Orders] AS o
+
+SELECT c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region]
 FROM [Customers] AS c",
                 _fixture.Sql);
         }

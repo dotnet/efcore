@@ -1098,6 +1098,24 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 cs.OrderBy(c => c.CustomerID),
                 assertOrder: true);
         }
+        
+        [Fact]
+        public virtual void OrderBy_client_mixed()
+        {
+            AssertQuery<Customer>(cs =>
+                cs.OrderBy(c => c.IsLondon).ThenBy(c => c.CompanyName),
+                assertOrder: true);
+        }
+
+        [Fact]
+        public virtual void OrderBy_multiple_queries()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                join o in os on new Foo { Bar = c.CustomerID } equals new Foo { Bar = o.CustomerID }
+                orderby c.IsLondon, o.OrderDate
+                select new { c, o });
+        }
 
         [Fact]
         public virtual void OrderBy_shadow()
