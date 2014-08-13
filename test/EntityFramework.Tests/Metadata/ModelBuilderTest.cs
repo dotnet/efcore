@@ -885,8 +885,6 @@ namespace Microsoft.Data.Entity.Metadata
 
             var fkProperty = dependentType.GetProperty("CustomerId");
 
-            var propertyCount = dependentType.Properties.Count;
-
             var principalPropertyCount = principalType.Properties.Count;
             var dependentPropertyCount = dependentType.Properties.Count;
 
@@ -902,7 +900,6 @@ namespace Microsoft.Data.Entity.Metadata
             Assert.Equal("Orders", principalType.Navigations.Single().Name);
             Assert.Same(fk, dependentType.Navigations.Single().ForeignKey);
             Assert.Same(fk, principalType.Navigations.Single().ForeignKey);
-            Assert.Equal(propertyCount, dependentType.Properties.Count);
             Assert.Equal(principalPropertyCount, principalType.Properties.Count);
             Assert.Equal(dependentPropertyCount, dependentType.Properties.Count);
             Assert.Empty(principalType.ForeignKeys);
@@ -922,8 +919,6 @@ namespace Microsoft.Data.Entity.Metadata
             var principalType = model.GetEntityType(typeof(BigMak));
             var fk = dependentType.ForeignKeys.Single();
 
-            var propertyCount = dependentType.Properties.Count;
-
             var principalPropertyCount = principalType.Properties.Count;
             var dependentPropertyCount = dependentType.Properties.Count;
 
@@ -937,7 +932,6 @@ namespace Microsoft.Data.Entity.Metadata
             Assert.Equal("Pickles", principalType.Navigations.Single().Name);
             Assert.Same(fk, dependentType.Navigations.Single().ForeignKey);
             Assert.Same(fk, principalType.Navigations.Single().ForeignKey);
-            Assert.Equal(propertyCount, dependentType.Properties.Count);
             Assert.Equal(principalPropertyCount, principalType.Properties.Count);
             Assert.Equal(dependentPropertyCount, dependentType.Properties.Count);
             Assert.Empty(principalType.ForeignKeys);
@@ -956,8 +950,6 @@ namespace Microsoft.Data.Entity.Metadata
 
             var fkProperty = dependentType.GetProperty("BurgerId");
 
-            var propertyCount = dependentType.Properties.Count;
-
             var principalPropertyCount = principalType.Properties.Count;
             var dependentPropertyCount = dependentType.Properties.Count;
 
@@ -973,7 +965,6 @@ namespace Microsoft.Data.Entity.Metadata
             Assert.Equal("Pickles", principalType.Navigations.Single().Name);
             Assert.Same(fk, dependentType.Navigations.Single().ForeignKey);
             Assert.Same(fk, principalType.Navigations.Single().ForeignKey);
-            Assert.Equal(propertyCount, dependentType.Properties.Count);
             Assert.Equal(principalPropertyCount, principalType.Properties.Count);
             Assert.Equal(dependentPropertyCount, dependentType.Properties.Count);
             Assert.Empty(principalType.ForeignKeys);
@@ -1069,6 +1060,164 @@ namespace Microsoft.Data.Entity.Metadata
 
             Assert.Empty(dependentType.Navigations);
             Assert.Empty(principalType.Navigations);
+            Assert.Equal(principalPropertyCount, principalType.Properties.Count);
+            Assert.Equal(dependentPropertyCount, dependentType.Properties.Count);
+            Assert.Empty(principalType.ForeignKeys);
+        }
+
+        [Fact]
+        public void OneToMany_creates_both_navs_and_creates_shadow_FK()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+            modelBuilder.Entity<BigMak>().Key(c => c.Id);
+            modelBuilder.Entity<Pickle>().Property(e => e.BurgerId);
+
+            var dependentType = model.GetEntityType(typeof(Pickle));
+            var principalType = model.GetEntityType(typeof(BigMak));
+
+            var principalPropertyCount = principalType.Properties.Count;
+            var dependentPropertyCount = dependentType.Properties.Count;
+
+            modelBuilder.Entity<BigMak>().OneToMany(e => e.Pickles, e => e.BigMak);
+
+            var fk = dependentType.ForeignKeys.Single();
+            var fkProperty = fk.Properties.Single();
+
+            Assert.Equal("BigMakId", fkProperty.Name);
+            Assert.True(fkProperty.IsShadowProperty);
+            Assert.Same(typeof(int), fkProperty.PropertyType);
+            Assert.Same(dependentType, fkProperty.EntityType);
+
+            Assert.Equal("BigMak", dependentType.Navigations.Single().Name);
+            Assert.Equal("Pickles", principalType.Navigations.Single().Name);
+            Assert.Same(fk, dependentType.Navigations.Single().ForeignKey);
+            Assert.Same(fk, principalType.Navigations.Single().ForeignKey);
+            Assert.Equal(principalPropertyCount, principalType.Properties.Count);
+            Assert.Equal(dependentPropertyCount + 1, dependentType.Properties.Count);
+            Assert.Empty(principalType.ForeignKeys);
+        }
+
+        [Fact]
+        public void OneToMany_can_create_unidirectional_nav_with_shadow_FK()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+            modelBuilder.Entity<BigMak>().Key(c => c.Id);
+            modelBuilder.Entity<Pickle>().Property(e => e.BurgerId);
+
+            var dependentType = model.GetEntityType(typeof(Pickle));
+            var principalType = model.GetEntityType(typeof(BigMak));
+
+            var principalPropertyCount = principalType.Properties.Count;
+            var dependentPropertyCount = dependentType.Properties.Count;
+
+            modelBuilder.Entity<BigMak>().OneToMany(e => e.Pickles);
+
+            var fk = dependentType.ForeignKeys.Single();
+            var fkProperty = fk.Properties.Single();
+
+            Assert.Equal("BigMakId", fkProperty.Name);
+            Assert.True(fkProperty.IsShadowProperty);
+            Assert.Same(typeof(int), fkProperty.PropertyType);
+            Assert.Same(dependentType, fkProperty.EntityType);
+
+            Assert.Empty(dependentType.Navigations);
+            Assert.Equal("Pickles", principalType.Navigations.Single().Name);
+            Assert.Same(fk, principalType.Navigations.Single().ForeignKey);
+            Assert.Equal(principalPropertyCount, principalType.Properties.Count);
+            Assert.Equal(dependentPropertyCount + 1, dependentType.Properties.Count);
+            Assert.Empty(principalType.ForeignKeys);
+        }
+
+        [Fact]
+        public void OneToMany_can_create_unidirectional_from_other_end_nav_with_shadow_FK()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+            modelBuilder.Entity<BigMak>().Key(c => c.Id);
+            modelBuilder.Entity<Pickle>().Property(e => e.BurgerId);
+
+            var dependentType = model.GetEntityType(typeof(Pickle));
+            var principalType = model.GetEntityType(typeof(BigMak));
+
+            var principalPropertyCount = principalType.Properties.Count;
+            var dependentPropertyCount = dependentType.Properties.Count;
+
+            modelBuilder.Entity<BigMak>().OneToMany<Pickle>(null, e => e.BigMak);
+
+            var fk = dependentType.ForeignKeys.Single();
+            var fkProperty = fk.Properties.Single();
+
+            Assert.Equal("BigMakId", fkProperty.Name);
+            Assert.True(fkProperty.IsShadowProperty);
+            Assert.Same(typeof(int), fkProperty.PropertyType);
+            Assert.Same(dependentType, fkProperty.EntityType);
+
+            Assert.Equal("BigMak", dependentType.Navigations.Single().Name);
+            Assert.Empty(principalType.Navigations);
+            Assert.Same(fk, dependentType.Navigations.Single().ForeignKey);
+            Assert.Equal(principalPropertyCount, principalType.Properties.Count);
+            Assert.Equal(dependentPropertyCount + 1, dependentType.Properties.Count);
+            Assert.Empty(principalType.ForeignKeys);
+        }
+
+        [Fact]
+        public void OneToMany_can_create_relationship_with_no_navigations_with_shadow_FK()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+            modelBuilder.Entity<BigMak>().Key(c => c.Id);
+            modelBuilder.Entity<Pickle>().Property(e => e.BurgerId);
+
+            var dependentType = model.GetEntityType(typeof(Pickle));
+            var principalType = model.GetEntityType(typeof(BigMak));
+
+            var principalPropertyCount = principalType.Properties.Count;
+            var dependentPropertyCount = dependentType.Properties.Count;
+
+            modelBuilder.Entity<BigMak>().OneToMany<Pickle>();
+
+            var fk = dependentType.ForeignKeys.Single();
+            var fkProperty = fk.Properties.Single();
+
+            Assert.Equal("BigMakId", fkProperty.Name);
+            Assert.True(fkProperty.IsShadowProperty);
+            Assert.Same(typeof(int), fkProperty.PropertyType);
+            Assert.Same(dependentType, fkProperty.EntityType);
+
+            Assert.Empty(dependentType.Navigations);
+            Assert.Empty(principalType.Navigations);
+            Assert.Equal(principalPropertyCount, principalType.Properties.Count);
+            Assert.Equal(dependentPropertyCount + 1, dependentType.Properties.Count);
+            Assert.Empty(principalType.ForeignKeys);
+        }
+
+        [Fact]
+        public void OneToMany_creates_both_navs_and_matches_shadow_FK_property_by_convention()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+            modelBuilder.Entity<BigMak>().Key(c => c.Id);
+            modelBuilder.Entity<Pickle>().Property<int>("BigMakId", shadowProperty: true);
+
+            var dependentType = model.GetEntityType(typeof(Pickle));
+            var principalType = model.GetEntityType(typeof(BigMak));
+
+            var principalPropertyCount = principalType.Properties.Count;
+            var dependentPropertyCount = dependentType.Properties.Count;
+
+            var fkProperty = dependentType.GetProperty("BigMakId");
+
+            modelBuilder.Entity<BigMak>().OneToMany(e => e.Pickles, e => e.BigMak);
+
+            var fk = dependentType.ForeignKeys.Single();
+            Assert.Same(fkProperty, fk.Properties.Single());
+
+            Assert.Equal("BigMak", dependentType.Navigations.Single().Name);
+            Assert.Equal("Pickles", principalType.Navigations.Single().Name);
+            Assert.Same(fk, dependentType.Navigations.Single().ForeignKey);
+            Assert.Same(fk, principalType.Navigations.Single().ForeignKey);
             Assert.Equal(principalPropertyCount, principalType.Properties.Count);
             Assert.Equal(dependentPropertyCount, dependentType.Properties.Count);
             Assert.Empty(principalType.ForeignKeys);
@@ -1549,6 +1698,164 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
+        public void ManyToOne_creates_both_navs_and_creates_shadow_FK()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+            modelBuilder.Entity<BigMak>().Key(c => c.Id);
+            modelBuilder.Entity<Pickle>().Property(e => e.BurgerId);
+
+            var dependentType = model.GetEntityType(typeof(Pickle));
+            var principalType = model.GetEntityType(typeof(BigMak));
+
+            var principalPropertyCount = principalType.Properties.Count;
+            var dependentPropertyCount = dependentType.Properties.Count;
+
+            modelBuilder.Entity<Pickle>().ManyToOne(e => e.BigMak, e => e.Pickles);
+
+            var fk = dependentType.ForeignKeys.Single();
+            var fkProperty = fk.Properties.Single();
+
+            Assert.Equal("BigMakId", fkProperty.Name);
+            Assert.True(fkProperty.IsShadowProperty);
+            Assert.Same(typeof(int), fkProperty.PropertyType);
+            Assert.Same(dependentType, fkProperty.EntityType);
+
+            Assert.Equal("BigMak", dependentType.Navigations.Single().Name);
+            Assert.Equal("Pickles", principalType.Navigations.Single().Name);
+            Assert.Same(fk, dependentType.Navigations.Single().ForeignKey);
+            Assert.Same(fk, principalType.Navigations.Single().ForeignKey);
+            Assert.Equal(principalPropertyCount, principalType.Properties.Count);
+            Assert.Equal(dependentPropertyCount + 1, dependentType.Properties.Count);
+            Assert.Empty(principalType.ForeignKeys);
+        }
+
+        [Fact]
+        public void ManyToOne_can_create_unidirectional_nav_with_shadow_FK()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+            modelBuilder.Entity<BigMak>().Key(c => c.Id);
+            modelBuilder.Entity<Pickle>().Property(e => e.BurgerId);
+
+            var dependentType = model.GetEntityType(typeof(Pickle));
+            var principalType = model.GetEntityType(typeof(BigMak));
+
+            var principalPropertyCount = principalType.Properties.Count;
+            var dependentPropertyCount = dependentType.Properties.Count;
+
+            modelBuilder.Entity<Pickle>().ManyToOne<BigMak>(null, e => e.Pickles);
+
+            var fk = dependentType.ForeignKeys.Single();
+            var fkProperty = fk.Properties.Single();
+
+            Assert.Equal("BigMakId", fkProperty.Name);
+            Assert.True(fkProperty.IsShadowProperty);
+            Assert.Same(typeof(int), fkProperty.PropertyType);
+            Assert.Same(dependentType, fkProperty.EntityType);
+
+            Assert.Empty(dependentType.Navigations);
+            Assert.Equal("Pickles", principalType.Navigations.Single().Name);
+            Assert.Same(fk, principalType.Navigations.Single().ForeignKey);
+            Assert.Equal(principalPropertyCount, principalType.Properties.Count);
+            Assert.Equal(dependentPropertyCount + 1, dependentType.Properties.Count);
+            Assert.Empty(principalType.ForeignKeys);
+        }
+
+        [Fact]
+        public void ManyToOne_can_create_unidirectional_from_other_end_nav_with_shadow_FK()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+            modelBuilder.Entity<BigMak>().Key(c => c.Id);
+            modelBuilder.Entity<Pickle>().Property(e => e.BurgerId);
+
+            var dependentType = model.GetEntityType(typeof(Pickle));
+            var principalType = model.GetEntityType(typeof(BigMak));
+
+            var principalPropertyCount = principalType.Properties.Count;
+            var dependentPropertyCount = dependentType.Properties.Count;
+
+            modelBuilder.Entity<Pickle>().ManyToOne(e => e.BigMak);
+
+            var fk = dependentType.ForeignKeys.Single();
+            var fkProperty = fk.Properties.Single();
+
+            Assert.Equal("BigMakId", fkProperty.Name);
+            Assert.True(fkProperty.IsShadowProperty);
+            Assert.Same(typeof(int), fkProperty.PropertyType);
+            Assert.Same(dependentType, fkProperty.EntityType);
+
+            Assert.Equal("BigMak", dependentType.Navigations.Single().Name);
+            Assert.Empty(principalType.Navigations);
+            Assert.Same(fk, dependentType.Navigations.Single().ForeignKey);
+            Assert.Equal(principalPropertyCount, principalType.Properties.Count);
+            Assert.Equal(dependentPropertyCount + 1, dependentType.Properties.Count);
+            Assert.Empty(principalType.ForeignKeys);
+        }
+
+        [Fact]
+        public void ManyToOne_can_create_relationship_with_no_navigations_with_shadow_FK()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+            modelBuilder.Entity<BigMak>().Key(c => c.Id);
+            modelBuilder.Entity<Pickle>().Property(e => e.BurgerId);
+
+            var dependentType = model.GetEntityType(typeof(Pickle));
+            var principalType = model.GetEntityType(typeof(BigMak));
+
+            var principalPropertyCount = principalType.Properties.Count;
+            var dependentPropertyCount = dependentType.Properties.Count;
+
+            modelBuilder.Entity<Pickle>().ManyToOne<BigMak>();
+
+            var fk = dependentType.ForeignKeys.Single();
+            var fkProperty = fk.Properties.Single();
+
+            Assert.Equal("BigMakId", fkProperty.Name);
+            Assert.True(fkProperty.IsShadowProperty);
+            Assert.Same(typeof(int), fkProperty.PropertyType);
+            Assert.Same(dependentType, fkProperty.EntityType);
+
+            Assert.Empty(dependentType.Navigations);
+            Assert.Empty(principalType.Navigations);
+            Assert.Equal(principalPropertyCount, principalType.Properties.Count);
+            Assert.Equal(dependentPropertyCount + 1, dependentType.Properties.Count);
+            Assert.Empty(principalType.ForeignKeys);
+        }
+
+        [Fact]
+        public void ManyToOne_creates_both_navs_and_matches_shadow_FK_by_convention()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+            modelBuilder.Entity<BigMak>().Key(c => c.Id);
+            modelBuilder.Entity<Pickle>().Property<int>("BigMakId", shadowProperty: true);
+
+            var dependentType = model.GetEntityType(typeof(Pickle));
+            var principalType = model.GetEntityType(typeof(BigMak));
+
+            var principalPropertyCount = principalType.Properties.Count;
+            var dependentPropertyCount = dependentType.Properties.Count;
+
+            var fkProperty = dependentType.GetProperty("BigMakId");
+
+            modelBuilder.Entity<Pickle>().ManyToOne(e => e.BigMak, e => e.Pickles);
+
+            var fk = dependentType.ForeignKeys.Single();
+            Assert.Same(fkProperty, fk.Properties.Single());
+
+            Assert.Equal("BigMak", dependentType.Navigations.Single().Name);
+            Assert.Equal("Pickles", principalType.Navigations.Single().Name);
+            Assert.Same(fk, dependentType.Navigations.Single().ForeignKey);
+            Assert.Same(fk, principalType.Navigations.Single().ForeignKey);
+            Assert.Equal(principalPropertyCount, principalType.Properties.Count);
+            Assert.Equal(dependentPropertyCount, dependentType.Properties.Count);
+            Assert.Empty(principalType.ForeignKeys);
+        }
+
+        [Fact]
         public void ManyToOne_creates_both_navs_and_creates_new_FK_if_uniqueness_does_not_match()
         {
             var model = new Model();
@@ -1906,10 +2213,10 @@ namespace Microsoft.Data.Entity.Metadata
             var modelBuilder = new ModelBuilder(model);
             modelBuilder.Entity<Order>().Key(c => c.OrderId);
             modelBuilder.Entity<OrderDetails>(b =>
-            {
-                b.Key(e => e.Id);
-                b.Property(e => e.OrderId);
-            });
+                {
+                    b.Key(e => e.Id);
+                    b.Property(e => e.OrderId);
+                });
 
             var dependentType = model.GetEntityType(typeof(OrderDetails));
             var principalType = model.GetEntityType(typeof(Order));
@@ -2208,10 +2515,10 @@ namespace Microsoft.Data.Entity.Metadata
             var modelBuilder = new ModelBuilder(model);
             modelBuilder.Entity<Order>().Key(c => c.OrderId);
             modelBuilder.Entity<OrderDetails>(b =>
-            {
-                b.Key(e => e.Id);
-                b.Property(e => e.OrderId);
-            });
+                {
+                    b.Key(e => e.Id);
+                    b.Property(e => e.OrderId);
+                });
 
             var dependentType = model.GetEntityType(typeof(OrderDetails));
             var principalType = model.GetEntityType(typeof(Order));
@@ -2371,7 +2678,7 @@ namespace Microsoft.Data.Entity.Metadata
             public int Id { get; set; }
 
             public IEnumerable<Pickle> Pickles { get; set; }
-            
+
             public Bun Bun { get; set; }
         }
 
@@ -2799,10 +3106,10 @@ namespace Microsoft.Data.Entity.Metadata
             var modelBuilder = new ModelBuilder(model);
             modelBuilder.Entity<Whoopper>().Key(c => new { c.Id1, c.Id2 });
             modelBuilder.Entity<ToastedBun>(b =>
-            {
-                b.Property(e => e.BurgerId1);
-                b.Property(e => e.BurgerId2);
-            });
+                {
+                    b.Property(e => e.BurgerId1);
+                    b.Property(e => e.BurgerId2);
+                });
 
             var dependentType = model.GetEntityType(typeof(ToastedBun));
             var principalType = model.GetEntityType(typeof(Whoopper));
@@ -2872,10 +3179,10 @@ namespace Microsoft.Data.Entity.Metadata
             var modelBuilder = new ModelBuilder(model);
             modelBuilder.Entity<Whoopper>().Key(c => new { c.Id1, c.Id2 });
             modelBuilder.Entity<ToastedBun>(b =>
-            {
-                b.Property(e => e.BurgerId1);
-                b.Property(e => e.BurgerId2);
-            });
+                {
+                    b.Property(e => e.BurgerId1);
+                    b.Property(e => e.BurgerId2);
+                });
 
             var dependentType = model.GetEntityType(typeof(ToastedBun));
             var principalType = model.GetEntityType(typeof(Whoopper));
@@ -2910,10 +3217,10 @@ namespace Microsoft.Data.Entity.Metadata
             var modelBuilder = new ModelBuilder(model);
             modelBuilder.Entity<Whoopper>().Key(c => new { c.Id1, c.Id2 });
             modelBuilder.Entity<ToastedBun>(b =>
-            {
-                b.Property(e => e.BurgerId1);
-                b.Property(e => e.BurgerId2);
-            });
+                {
+                    b.Property(e => e.BurgerId1);
+                    b.Property(e => e.BurgerId2);
+                });
 
             var dependentType = model.GetEntityType(typeof(ToastedBun));
             var principalType = model.GetEntityType(typeof(Whoopper));
@@ -2948,10 +3255,10 @@ namespace Microsoft.Data.Entity.Metadata
             var modelBuilder = new ModelBuilder(model);
             modelBuilder.Entity<Whoopper>().Key(c => new { c.Id1, c.Id2 });
             modelBuilder.Entity<ToastedBun>(b =>
-            {
-                b.Property(e => e.BurgerId1);
-                b.Property(e => e.BurgerId2);
-            });
+                {
+                    b.Property(e => e.BurgerId1);
+                    b.Property(e => e.BurgerId2);
+                });
 
             var dependentType = model.GetEntityType(typeof(ToastedBun));
             var principalType = model.GetEntityType(typeof(Whoopper));
