@@ -19,7 +19,6 @@ using System.Threading;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
-    // TODO: Test non-SqlServer SQL (i.e. generated from Relational base) elsewhere
     public class NorthwindQueryTest : NorthwindQueryTestBase, IClassFixture<NorthwindQueryFixture>
     {
         public override void Count_with_predicate()
@@ -400,6 +399,87 @@ FROM [Customers] AS c",
 FROM [Customers] AS c
 ORDER BY c.[CustomerID]",
                 _fixture.Sql);
+        }
+
+        public override void Last()
+        {
+            base.Last(); 
+            
+            Assert.Equal(
+                 @"SELECT TOP 1 c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region]
+FROM [Customers] AS c
+ORDER BY c.[ContactName] DESC",
+                 _fixture.Sql);
+        }
+
+        public override void Last_when_no_order_by()
+        {
+            base.Last_when_no_order_by();
+
+            Assert.Equal(
+                 @"SELECT c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region]
+FROM [Customers] AS c
+WHERE c.[CustomerID] = @p0",
+                 _fixture.Sql);
+        }
+
+        public override void Last_Predicate()
+        {
+            base.Last_Predicate();
+
+            Assert.Equal(
+                 @"SELECT TOP 1 c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region]
+FROM [Customers] AS c
+WHERE c.[City] = @p0
+ORDER BY c.[ContactName] DESC",
+                 _fixture.Sql);
+        }
+
+        public override void Where_Last()
+        {
+            base.Where_Last();
+
+            Assert.Equal(
+                 @"SELECT TOP 1 c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region]
+FROM [Customers] AS c
+WHERE c.[City] = @p0
+ORDER BY c.[ContactName] DESC",
+                 _fixture.Sql);
+        }
+
+        public override void LastOrDefault()
+        {
+            base.LastOrDefault();
+
+            Assert.Equal(
+                 @"SELECT TOP 1 c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region]
+FROM [Customers] AS c
+ORDER BY c.[ContactName] DESC",
+                 _fixture.Sql);
+        }
+
+        public override void LastOrDefault_Predicate()
+        {
+            base.LastOrDefault_Predicate();
+
+            Assert.Equal(
+                 @"SELECT TOP 1 c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region]
+FROM [Customers] AS c
+WHERE c.[City] = @p0
+ORDER BY c.[ContactName] DESC",
+                 _fixture.Sql);
+        }
+
+        public override void Where_LastOrDefault()
+        {
+            base.Where_LastOrDefault();
+
+            Assert.Equal(
+                 @"SELECT TOP 1 c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region]
+FROM [Customers] AS c
+WHERE c.[City] = @p0
+ORDER BY c.[ContactName] DESC",
+                 _fixture.Sql);
         }
 
         public override void Where_equals_method_string()
@@ -1102,11 +1182,6 @@ FROM [Orders] AS o
 
 ",
                 _fixture.Sql);
-        }
-
-        public override void SelectMany_correlated_subquery_hard()
-        {
-            base.SelectMany_correlated_subquery_hard();
         }
 
         private readonly NorthwindQueryFixture _fixture;
