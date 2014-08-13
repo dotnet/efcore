@@ -539,9 +539,15 @@ namespace Microsoft.Data.Entity.Metadata
                 }
 
                 public OneToOneBuilder<TDependentEntity> ForeignKey<TDependentEntity>(
-                    [NotNull] Expression<Func<TDependentEntity, object>> foreignKeyExpression)
+                    [CanBeNull] Expression<Func<TDependentEntity, object>> foreignKeyExpression = null)
                 {
-                    Check.NotNull(foreignKeyExpression, "foreignKeyExpression");
+                    if (foreignKeyExpression == null)
+                    {
+                        return new OneToOneBuilder<TDependentEntity>(
+                            typeof(TDependentEntity) == typeof(TRelatedEntity)
+                                ? _builder
+                                : _builder.FlippedForeignKey(new PropertyInfo[0]));
+                    }
 
                     var propertyAccessList = foreignKeyExpression.GetPropertyAccessList();
 
@@ -609,7 +615,7 @@ namespace Microsoft.Data.Entity.Metadata
                             _dependentType,
                             _navigationToPrincipal != null ? _navigationToPrincipal.Name : null,
                             _navigationToDependent != null ? _navigationToDependent.Name : null,
-                            new[] { dependentProperties },
+                            dependentProperties.Any() ? new[] { dependentProperties } : new Property[0][],
                             Metadata.IsUnique);
 
                         // TODO: Remove FK only if it was added by convention

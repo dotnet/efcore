@@ -38,13 +38,18 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             [NotNull] EntityType dependentType,
             [CanBeNull] string navigationToPrincipal,
             [CanBeNull] string navigationToDependent,
-            [NotNull] IReadOnlyList<Property[]> candidateProperties,
+            [NotNull] IReadOnlyList<Property[]> foreignKeyProperties,
             bool isUnqiue)
         {
             Check.NotNull(principalType, "principalType");
             Check.NotNull(dependentType, "dependentType");
 
-            foreach (var properties in candidateProperties)
+            if (!foreignKeyProperties.Any())
+            {
+                foreignKeyProperties = GetCandidateForeignKeyProperties(principalType, dependentType, navigationToPrincipal, isUnqiue);
+            }
+
+            foreach (var properties in foreignKeyProperties)
             {
                 var foreignKey = dependentType
                     .ForeignKeys
@@ -61,7 +66,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             // TODO: Handle case where principal key is not defined
             // TODO: What if foreignKey exists but is associated with different navigations
 
-            var fkProperty = candidateProperties.FirstOrDefault()
+            var fkProperty = foreignKeyProperties.FirstOrDefault()
                              ?? new[]
                                  {
                                      dependentType.AddProperty(

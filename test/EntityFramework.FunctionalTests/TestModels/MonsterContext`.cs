@@ -261,7 +261,7 @@ namespace Microsoft.Data.Entity.MonsterModel
                     b.OneToOne(e => (TCustomerInfo)e.Info);
 
                     b.OneToOne(e => (TCustomer)e.Wife, e => (TCustomer)e.Husband)
-                        .ForeignKey<TCustomer>(e => e.HusbandId);
+                        .ForeignKey<TCustomer>();
                 });
 
             builder.Entity<TComplaint>(b =>
@@ -348,7 +348,7 @@ namespace Microsoft.Data.Entity.MonsterModel
                     b.Key(e => e.Username);
 
                     b.OneToOne(e => (TLogin)e.Login)
-                        .ForeignKey<TSmartCard>(e => e.Username);
+                        .ForeignKey<TSmartCard>();
 
                     b.OneToOne(e => (TLastLogin)e.LastLogin)
                         .ForeignKey<TLastLogin>(e => e.SmartcardUsername);

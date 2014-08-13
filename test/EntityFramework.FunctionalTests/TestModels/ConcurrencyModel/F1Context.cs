@@ -110,7 +110,7 @@ namespace ConcurrencyModel
                     b.Property(t => t.Tire);
                     b.Property(t => t.Victories);
                     b.OneToMany(e => e.Drivers, e => e.Team);
-                    b.OneToOne(e => e.Gearbox).ForeignKey<Team>(e => e.GearboxId);
+                    b.OneToOne(e => e.Gearbox).ForeignKey<Team>();
                 });
 
             modelBuilder.Entity<TestDriver>(b => b.Key(t => t.Id));
