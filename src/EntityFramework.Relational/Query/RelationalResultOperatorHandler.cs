@@ -81,14 +81,15 @@ namespace Microsoft.Data.Entity.Relational.Query
                     { typeof(AllResultOperator), HandleAll },
                     { typeof(AnyResultOperator), HandleAny },
                     { typeof(CountResultOperator), HandleCount },
-                    { typeof(TakeResultOperator), HandleTake },
-                    { typeof(SingleResultOperator), HandleSingle },
-                    { typeof(FirstResultOperator), HandleFirst },
                     { typeof(DistinctResultOperator), HandleDistinct },
+                    { typeof(FirstResultOperator), HandleFirst },
+                    { typeof(LastResultOperator), HandleLast },
+                    { typeof(MaxResultOperator), HandleMax },
+                    { typeof(MinResultOperator), HandleMin },
+                    { typeof(SingleResultOperator), HandleSingle },
                     { typeof(SkipResultOperator), HandleSkip },
                     { typeof(SumResultOperator), HandleSum },
-                    { typeof(MinResultOperator), HandleMin },
-                    { typeof(MaxResultOperator), HandleMax }
+                    { typeof(TakeResultOperator), HandleTake }
                 };
 
         private readonly IResultOperatorHandler _resultOperatorHandler;
@@ -230,6 +231,24 @@ namespace Microsoft.Data.Entity.Relational.Query
         private static Expression HandleFirst(HandlerContext handlerContext)
         {
             handlerContext.SelectExpression.Limit = 1;
+
+            return handlerContext.EvalOnClient;
+        }
+
+        private static Expression HandleLast(HandlerContext handlerContext)
+        {
+            if (handlerContext.SelectExpression.OrderBy.Any())
+            {
+                foreach (var ordering in handlerContext.SelectExpression.OrderBy)
+                {
+                    ordering.OrderingDirection
+                        = ordering.OrderingDirection == OrderingDirection.Asc
+                            ? OrderingDirection.Desc
+                            : OrderingDirection.Asc;
+                }
+
+                handlerContext.SelectExpression.Limit = 1;
+            }
 
             return handlerContext.EvalOnClient;
         }

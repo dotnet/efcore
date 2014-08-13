@@ -1612,21 +1612,29 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public void Last()
+        public virtual void Last()
         {
             AssertQuery<Customer>(
                 cs => cs.OrderBy(c => c.ContactName).Last());
         }
 
         [Fact]
-        public void LastPredicate()
+        public virtual void Last_when_no_order_by()
+        {
+            AssertQuery<Customer>(
+                // ReSharper disable once ReplaceWithSingleCallToLast
+                cs => cs.Where(c => c.CustomerID =="ALFKI").Last());
+        }
+
+        [Fact]
+        public virtual void Last_Predicate()
         {
             AssertQuery<Customer>(
                 cs => cs.OrderBy(c => c.ContactName).Last(c => c.City == "London"));
         }
 
         [Fact]
-        public void WhereLast()
+        public virtual void Where_Last()
         {
             AssertQuery<Customer>(
                 // ReSharper disable once ReplaceWithSingleCallToLast
@@ -1634,21 +1642,21 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public void LastOrDefault()
+        public virtual void LastOrDefault()
         {
             AssertQuery<Customer>(
                 cs => cs.OrderBy(c => c.ContactName).LastOrDefault());
         }
 
         [Fact]
-        public void LastOrDefaultPredicate()
+        public virtual void LastOrDefault_Predicate()
         {
             AssertQuery<Customer>(
                 cs => cs.OrderBy(c => c.ContactName).LastOrDefault(c => c.City == "London"));
         }
 
         [Fact]
-        public void WhereLastOrDefault()
+        public virtual void Where_LastOrDefault()
         {
             AssertQuery<Customer>(
                 // ReSharper disable once ReplaceWithSingleCallToLastOrDefault
