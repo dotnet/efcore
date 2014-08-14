@@ -1259,7 +1259,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 var resolution = context.Resolutions.Single(e => e.Details.StartsWith("Destroyed"));
 
-                Assert.Equal(complaint2.ComplaintId, resolution.ResolutionId);
+                Assert.Equal(SupportsCandidateKeys ? complaint2.AlternateId : complaint2.ComplaintId, resolution.ResolutionId);
 
                 var login1 = context.Logins.Single(e => e.Username == "MrsKoalie73");
                 var login2 = context.Logins.Single(e => e.Username == "MrsBossyPants");
@@ -1293,7 +1293,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 var reset1 = context.PasswordResets.Single(e => e.EmailedTo == "trent@example.com");
 
-                Assert.Equal(login3.Username, reset1.Username);
+                Assert.Equal(SupportsCandidateKeys ? login3.AlternateUsername : login3.Username, reset1.Username);
 
                 var pageView1 = context.PageViews.Single(e => e.PageUrl == "somePage1");
                 var pageView2 = context.PageViews.Single(e => e.PageUrl == "somePage1");
@@ -1711,19 +1711,31 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         protected abstract Task CreateAndSeedDatabase(string databaseName, Func<MonsterContext> createContext);
 
+        // TODO: Temporary means to disable use of candidate keys on SQL Server. See GitHub #537
+        protected abstract bool SupportsCandidateKeys { get; }
+
         private SnapshotMonsterContext CreateSnapshotMonsterContext(IServiceProvider serviceProvider, string databaseName = SnapshotDatabaseName)
         {
-            return new SnapshotMonsterContext(serviceProvider, CreateOptions(databaseName), OnModelCreating);
+            return new SnapshotMonsterContext(serviceProvider, CreateOptions(databaseName), OnModelCreating)
+                {
+                    SupportsCandidateKeys = SupportsCandidateKeys
+                };
         }
 
         private ChangedChangingMonsterContext CreateChangedChangingMonsterContext(IServiceProvider serviceProvider, string databaseName = FullNotifyDatabaseName)
         {
-            return new ChangedChangingMonsterContext(serviceProvider, CreateOptions(databaseName), OnModelCreating);
+            return new ChangedChangingMonsterContext(serviceProvider, CreateOptions(databaseName), OnModelCreating)
+            {
+                SupportsCandidateKeys = SupportsCandidateKeys
+            };
         }
 
         private ChangedOnlyMonsterContext CreateChangedOnlyMonsterContext(IServiceProvider serviceProvider, string databaseName = ChangedOnlyDatabaseName)
         {
-            return new ChangedOnlyMonsterContext(serviceProvider, CreateOptions(databaseName), OnModelCreating);
+            return new ChangedOnlyMonsterContext(serviceProvider, CreateOptions(databaseName), OnModelCreating)
+            {
+                SupportsCandidateKeys = SupportsCandidateKeys
+            };
         }
 
         protected virtual void OnModelCreating(ModelBuilder builder)

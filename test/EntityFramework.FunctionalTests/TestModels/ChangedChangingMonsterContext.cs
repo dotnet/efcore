@@ -147,6 +147,7 @@ namespace Microsoft.Data.Entity.MonsterModel
             private ICustomer _customer;
             private IResolution _resolution;
             private int _complaintId;
+            private int _alternateId;
             private int? _customerId;
             private DateTime _logged;
             private string _details;
@@ -155,6 +156,12 @@ namespace Microsoft.Data.Entity.MonsterModel
             {
                 get { return _complaintId; }
                 set { SetWithNotify(value, ref _complaintId); }
+            }
+
+            public int AlternateId
+            {
+                get { return _alternateId; }
+                set { SetWithNotify(value, ref _alternateId); }
             }
 
             public int? CustomerId
@@ -601,6 +608,7 @@ namespace Microsoft.Data.Entity.MonsterModel
         public class AnOrder : NotificationEntity, IAnOrder
         {
             private int _anOrderId;
+            private int _alternateId;
             private int? _customerId;
             private ConcurrencyInfo _concurrency;
             private ICustomer _customer;
@@ -620,6 +628,12 @@ namespace Microsoft.Data.Entity.MonsterModel
             {
                 get { return _anOrderId; }
                 set { SetWithNotify(value, ref _anOrderId); }
+            }
+
+            public int AlternateId
+            {
+                get { return _alternateId; }
+                set { SetWithNotify(value, ref _alternateId); }
             }
 
             public int? CustomerId
@@ -1365,6 +1379,7 @@ namespace Microsoft.Data.Entity.MonsterModel
         public class Login : NotificationEntity, ILogin
         {
             private string _username;
+            private string _alternateUsername;
             private int _customerId;
             private ICustomer _customer;
             private ILastLogin _lastLogin;
@@ -1383,6 +1398,12 @@ namespace Microsoft.Data.Entity.MonsterModel
             {
                 get { return _username; }
                 set { SetWithNotify(value, ref _username); }
+            }
+
+            public string AlternateUsername
+            {
+                get { return _alternateUsername; }
+                set { SetWithNotify(value, ref _alternateUsername); }
             }
 
             public int CustomerId

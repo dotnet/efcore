@@ -25,6 +25,7 @@ namespace Microsoft.Data.Entity.MonsterModel
     public interface IComplaint
     {
         int ComplaintId { get; set; }
+        int AlternateId { get; set; }
         int? CustomerId { get; set; }
         DateTime Logged { get; set; }
         string Details { get; set; }
@@ -150,6 +151,7 @@ namespace Microsoft.Data.Entity.MonsterModel
     public interface IAnOrder
     {
         int AnOrderId { get; set; }
+        int AlternateId { get; set; }
         int? CustomerId { get; set; }
         ConcurrencyInfo Concurrency { get; set; }
         ICustomer Customer { get; set; }
@@ -335,6 +337,7 @@ namespace Microsoft.Data.Entity.MonsterModel
     public interface ILogin
     {
         string Username { get; set; }
+        string AlternateUsername { get; set; }
         int CustomerId { get; set; }
         ICustomer Customer { get; set; }
         ILastLogin LastLogin { get; set; }

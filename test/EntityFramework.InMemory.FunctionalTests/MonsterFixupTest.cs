@@ -8,6 +8,7 @@ using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.MonsterModel;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
+using Xunit;
 
 namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 {
@@ -40,6 +41,12 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             }
 
             return Task.FromResult(0);
+        }
+
+        // TODO: Temporary means to disable use of candidate keys on SQL Server. See GitHub #537
+        protected override bool SupportsCandidateKeys
+        {
+            get { return true; }
         }
     }
 }

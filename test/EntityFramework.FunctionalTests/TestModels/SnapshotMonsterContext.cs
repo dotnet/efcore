@@ -63,6 +63,7 @@ namespace Microsoft.Data.Entity.MonsterModel
         public class Complaint : IComplaint
         {
             public int ComplaintId { get; set; }
+            public int AlternateId { get; set; }
             public int? CustomerId { get; set; }
             public DateTime Logged { get; set; }
             public string Details { get; set; }
@@ -200,6 +201,7 @@ namespace Microsoft.Data.Entity.MonsterModel
             }
 
             public int AnOrderId { get; set; }
+            public int AlternateId { get; set; }
             public int? CustomerId { get; set; }
 
             public ConcurrencyInfo Concurrency { get; set; }
@@ -436,6 +438,7 @@ namespace Microsoft.Data.Entity.MonsterModel
             }
 
             public string Username { get; set; }
+            public string AlternateUsername { get; set; }
             public int CustomerId { get; set; }
 
             public virtual ICustomer Customer { get; set; }

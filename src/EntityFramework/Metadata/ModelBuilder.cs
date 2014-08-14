@@ -427,7 +427,7 @@ namespace Microsoft.Data.Entity.Metadata
                 return new ManyToOneBuilder<TRelatedEntity>(BuildRelationship(collection, reference, oneToOne: false));
             }
 
-            public OneToOneBuilder<TRelatedEntity> OneToOne<TRelatedEntity>(
+            public OneToOneBuilder OneToOne<TRelatedEntity>(
                 [CanBeNull] Expression<Func<TEntity, TRelatedEntity>> reference = null,
                 [CanBeNull] Expression<Func<TRelatedEntity, TEntity>> inverse = null)
             {
@@ -437,7 +437,7 @@ namespace Microsoft.Data.Entity.Metadata
                 var navNameToDependent = reference != null ? reference.GetPropertyAccess().Name : null;
                 var navNameToPrincipal = inverse != null ? inverse.GetPropertyAccess().Name : null;
 
-                return new OneToOneBuilder<TRelatedEntity>(BuildRelationship<TEntity, TRelatedEntity>(
+                return new OneToOneBuilder(BuildRelationship<TEntity, TRelatedEntity>(
                     navNameToPrincipal, navNameToDependent, oneToOne: true));
             }
 
@@ -507,6 +507,14 @@ namespace Microsoft.Data.Entity.Metadata
 
                     return new OneToManyBuilder<TRelatedEntity>(_builder.ForeignKey(foreignKeyExpression.GetPropertyAccessList()));
                 }
+
+                public OneToManyBuilder<TRelatedEntity> ReferencedKey(
+                    [NotNull] Expression<Func<TEntity, object>> keyExpression)
+                {
+                    Check.NotNull(keyExpression, "keyExpression");
+
+                    return new OneToManyBuilder<TRelatedEntity>(_builder.ReferencedKey(keyExpression.GetPropertyAccessList()));
+                }
             }
 
             public class ManyToOneBuilder<TRelatedEntity> : MetadataBuilder<ForeignKey, ManyToOneBuilder<TRelatedEntity>>
@@ -526,9 +534,17 @@ namespace Microsoft.Data.Entity.Metadata
 
                     return new ManyToOneBuilder<TRelatedEntity>(_builder.ForeignKey(foreignKeyExpression.GetPropertyAccessList()));
                 }
+
+                public ManyToOneBuilder<TRelatedEntity> ReferencedKey(
+                    [NotNull] Expression<Func<TRelatedEntity, object>> keyExpression)
+                {
+                    Check.NotNull(keyExpression, "keyExpression");
+
+                    return new ManyToOneBuilder<TRelatedEntity>(_builder.ReferencedKey(keyExpression.GetPropertyAccessList()));
+                }
             }
 
-            public class OneToOneBuilder<TRelatedEntity> : MetadataBuilder<ForeignKey, OneToOneBuilder<TRelatedEntity>>
+            public class OneToOneBuilder : MetadataBuilder<ForeignKey, OneToOneBuilder>
             {
                 private readonly RelationshipBuilder _builder;
 
@@ -538,23 +554,37 @@ namespace Microsoft.Data.Entity.Metadata
                     _builder = builder;
                 }
 
-                public OneToOneBuilder<TDependentEntity> ForeignKey<TDependentEntity>(
+                public OneToOneBuilder ForeignKey<TDependentEntity>(
                     [CanBeNull] Expression<Func<TDependentEntity, object>> foreignKeyExpression = null)
                 {
-                    if (foreignKeyExpression == null)
+                    var inverting = ModelBuilder.Entity<TDependentEntity>().Metadata != _builder.DependentType;
+                    if (inverting)
                     {
-                        return new OneToOneBuilder<TDependentEntity>(
-                            typeof(TDependentEntity) == typeof(TRelatedEntity)
-                                ? _builder
-                                : _builder.FlippedForeignKey(new PropertyInfo[0]));
+                        _builder.Invert();
                     }
 
-                    var propertyAccessList = foreignKeyExpression.GetPropertyAccessList();
+                    if (foreignKeyExpression == null)
+                    {
+                        return new OneToOneBuilder(inverting
+                            ? _builder.ForeignKey(new PropertyInfo[0])
+                            : _builder);
+                    }
 
-                    return new OneToOneBuilder<TDependentEntity>(
-                        typeof(TDependentEntity) == typeof(TRelatedEntity)
-                            ? _builder.ForeignKey(propertyAccessList)
-                            : _builder.FlippedForeignKey(propertyAccessList));
+                    return new OneToOneBuilder(
+                        _builder.ForeignKey(foreignKeyExpression.GetPropertyAccessList()));
+                }
+
+                public OneToOneBuilder ReferencedKey<TPrincipalEntity>(
+                    [CanBeNull] Expression<Func<TPrincipalEntity, object>> keyExpression = null)
+                {
+                    var builder = ModelBuilder.Entity<TPrincipalEntity>().Metadata == _builder.PrincipalType
+                        ? _builder
+                        : _builder.Invert().ForeignKey(new PropertyInfo[0]);
+
+                    return new OneToOneBuilder(
+                        builder.ReferencedKey(keyExpression != null
+                            ? keyExpression.GetPropertyAccessList()
+                            : new PropertyInfo[0]));
                 }
             }
 
@@ -578,7 +608,17 @@ namespace Microsoft.Data.Entity.Metadata
                     _navigationToDependent = navigationToDependent;
                 }
 
-                public RelationshipBuilder FlippedForeignKey(IList<PropertyInfo> propertyAccessList)
+                public EntityType PrincipalType
+                {
+                    get { return _principalType; }
+                }
+
+                public EntityType DependentType
+                {
+                    get { return _dependentType; }
+                }
+
+                public RelationshipBuilder Invert()
                 {
                     var navigationToDependent = _navigationToDependent;
                     _navigationToDependent = _navigationToPrincipal;
@@ -598,7 +638,7 @@ namespace Microsoft.Data.Entity.Metadata
                         _navigationToPrincipal.PointsToPrincipal = true;
                     }
 
-                    return ForeignKey(propertyAccessList);
+                    return this;
                 }
 
                 public RelationshipBuilder ForeignKey(IList<PropertyInfo> propertyAccessList)
@@ -607,44 +647,74 @@ namespace Microsoft.Data.Entity.Metadata
                         .Select(pi => _dependentType.TryGetProperty(pi.Name) ?? _dependentType.AddProperty(pi))
                         .ToArray();
 
-                    var foreignKey = Metadata;
-                    if (!foreignKey.Properties.SequenceEqual(dependentProperties))
+                    if (Metadata.Properties.SequenceEqual(dependentProperties))
                     {
-                        foreignKey = new ForeignKeyConvention().FindOrCreateForeignKey(
-                            _principalType,
-                            _dependentType,
-                            _navigationToPrincipal != null ? _navigationToPrincipal.Name : null,
-                            _navigationToDependent != null ? _navigationToDependent.Name : null,
-                            dependentProperties.Any() ? new[] { dependentProperties } : new Property[0][],
-                            Metadata.IsUnique);
+                        return this;
+                    }
 
-                        // TODO: Remove FK only if it was added by convention
-                        Metadata.EntityType.RemoveForeignKey(Metadata);
+                    var newForeignKey = new ForeignKeyConvention().FindOrCreateForeignKey(
+                        _principalType,
+                        _dependentType,
+                        _navigationToPrincipal != null ? _navigationToPrincipal.Name : null,
+                        _navigationToDependent != null ? _navigationToDependent.Name : null,
+                        dependentProperties.Any() ? new[] { dependentProperties } : new Property[0][],
+                        Metadata.EntityType == _dependentType ? Metadata.ReferencedProperties : new Property[0],
+                        Metadata.IsUnique);
 
-                        // TODO: Remove property only if it was added by convention
-                        foreach (var property in Metadata.Properties.Except(dependentProperties))
+                    ReplaceForeignKey(newForeignKey, Metadata.Properties.Except(dependentProperties));
+
+                    return new RelationshipBuilder(
+                        newForeignKey, ModelBuilder, _principalType, _dependentType, _navigationToPrincipal, _navigationToDependent);
+                }
+
+                public RelationshipBuilder ReferencedKey(IList<PropertyInfo> propertyAccessList)
+                {
+                    var principalProperties = propertyAccessList.Any()
+                        ? propertyAccessList
+                            .Select(pi => _principalType.TryGetProperty(pi.Name) ?? _principalType.AddProperty(pi))
+                            .ToArray()
+                        : _principalType.GetKey().Properties;
+
+                    if (Metadata.ReferencedProperties.SequenceEqual(principalProperties))
+                    {
+                        return this;
+                    }
+
+                    var newForeignKey = _dependentType.AddForeignKey(new Key(principalProperties), Metadata.Properties.ToArray());
+                    newForeignKey.IsUnique = Metadata.IsUnique;
+
+                    ReplaceForeignKey(newForeignKey, Enumerable.Empty<Property>());
+
+                    return new RelationshipBuilder(
+                        newForeignKey, ModelBuilder, _principalType, _dependentType, _navigationToPrincipal, _navigationToDependent);
+                }
+
+                private void ReplaceForeignKey(ForeignKey newForeignKey, IEnumerable<Property> propertiesToRemove)
+                {
+                    // TODO: Remove FK only if it was added by convention
+                    Metadata.EntityType.RemoveForeignKey(Metadata);
+
+                    // TODO: Remove property only if it was added by convention
+                    foreach (var property in propertiesToRemove)
+                    {
+                        // TODO: This check not needed once only removing properties added by convention
+                        var dependentPk = Metadata.EntityType.TryGetKey();
+                        if (dependentPk == null
+                            || !dependentPk.Properties.Contains(property))
                         {
-                            // TODO: This check not needed once only removing properties added by convention
-                            var dependentPk = Metadata.EntityType.TryGetKey();
-                            if (dependentPk == null || !dependentPk.Properties.Contains(property))
-                            {
-                                Metadata.EntityType.RemoveProperty(property);
-                            }
-                        }
-
-                        if (_navigationToPrincipal != null)
-                        {
-                            _navigationToPrincipal.ForeignKey = foreignKey;
-                        }
-
-                        if (_navigationToDependent != null)
-                        {
-                            _navigationToDependent.ForeignKey = foreignKey;
+                            Metadata.EntityType.RemoveProperty(property);
                         }
                     }
 
-                    return new RelationshipBuilder(
-                        foreignKey, ModelBuilder, _principalType, _dependentType, _navigationToPrincipal, _navigationToDependent);
+                    if (_navigationToPrincipal != null)
+                    {
+                        _navigationToPrincipal.ForeignKey = newForeignKey;
+                    }
+
+                    if (_navigationToDependent != null)
+                    {
+                        _navigationToDependent.ForeignKey = newForeignKey;
+                    }
                 }
             }
         }

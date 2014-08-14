@@ -53,6 +53,9 @@ namespace Microsoft.Data.Entity.MonsterModel
             _onModelCreating = onModelCreating;
         }
 
+        // TODO: Temporary means to disable use of candidate keys on SQL Server. See GitHub #537
+        public bool SupportsCandidateKeys { get; set; }
+
         public override IQueryable<ICustomer> Customers
         {
             get { return Set<TCustomer>(); }
@@ -226,15 +229,35 @@ namespace Microsoft.Data.Entity.MonsterModel
             builder.Entity<TAnOrder>(b =>
                 {
                     b.OneToMany(e => (IEnumerable<TOrderLine>)e.OrderLines, e => (TAnOrder)e.Order);
-                    b.OneToMany(e => (IEnumerable<TOrderNote>)e.Notes, e => (TAnOrder)e.Order);
+
+                    if (SupportsCandidateKeys)
+                    {
+                        b.OneToMany(e => (IEnumerable<TOrderNote>)e.Notes, e => (TAnOrder)e.Order)
+                            .ReferencedKey(e => e.AlternateId);
+                    }
+                    else
+                    {
+                        b.OneToMany(e => (IEnumerable<TOrderNote>)e.Notes, e => (TAnOrder)e.Order)
+                            .ReferencedKey(e => e.AnOrderId);
+                    }
                 });
 
             builder.Entity<TOrderQualityCheck>(b =>
                 {
                     b.Key(e => e.OrderId);
 
-                    b.OneToOne(e => (TAnOrder)e.Order)
-                        .ForeignKey<TOrderQualityCheck>(e => e.OrderId);
+                    if (SupportsCandidateKeys)
+                    {
+                        b.OneToOne(e => (TAnOrder)e.Order)
+                            .ForeignKey<TOrderQualityCheck>(e => e.OrderId)
+                            .ReferencedKey<TAnOrder>(e => e.AlternateId);
+                    }
+                    else
+                    {
+                        b.OneToOne(e => (TAnOrder)e.Order)
+                            .ForeignKey<TOrderQualityCheck>(e => e.OrderId)
+                            .ReferencedKey<TAnOrder>(e => e.AnOrderId);
+                    }
                 });
 
             builder.Entity<TProduct>(b =>
@@ -269,7 +292,16 @@ namespace Microsoft.Data.Entity.MonsterModel
                     b.ManyToOne(e => (TCustomer)e.Customer)
                         .ForeignKey(e => e.CustomerId);
 
-                    b.OneToOne(e => (TResolution)e.Resolution, e => (TComplaint)e.Complaint);
+                    if (SupportsCandidateKeys)
+                    {
+                        b.OneToOne(e => (TResolution)e.Resolution, e => (TComplaint)e.Complaint)
+                            .ReferencedKey<TComplaint>(e => e.AlternateId);
+                    }
+                    else
+                    {
+                        b.OneToOne(e => (TResolution)e.Resolution, e => (TComplaint)e.Complaint)
+                            .ReferencedKey<TComplaint>(e => e.ComplaintId);
+                    }
                 });
 
             builder.Entity<TProductPhoto>(b =>
@@ -277,7 +309,8 @@ namespace Microsoft.Data.Entity.MonsterModel
                     b.Key(e => new { e.ProductId, e.PhotoId });
 
                     b.OneToMany(e => (IEnumerable<TProductWebFeature>)e.Features, e => (TProductPhoto)e.Photo)
-                        .ForeignKey(e => new { e.ProductId, e.PhotoId });
+                        .ForeignKey(e => new { e.ProductId, e.PhotoId })
+                        .ReferencedKey(e => new { e.ProductId, e.PhotoId });
                 });
 
             builder.Entity<TProductReview>(b =>
@@ -311,8 +344,18 @@ namespace Microsoft.Data.Entity.MonsterModel
                 {
                     b.Key(e => new { e.ResetNo, e.Username });
 
-                    b.ManyToOne(e => (TLogin)e.Login)
-                        .ForeignKey(e => e.Username);
+                    if (SupportsCandidateKeys)
+                    {
+                        b.ManyToOne(e => (TLogin)e.Login)
+                            .ForeignKey(e => e.Username)
+                            .ReferencedKey(e => e.AlternateUsername);
+                    }
+                    else
+                    {
+                        b.ManyToOne(e => (TLogin)e.Login)
+                            .ForeignKey(e => e.Username)
+                            .ReferencedKey(e => e.Username);
+                    }
                 });
 
             builder.Entity<TPageView>()
@@ -448,6 +491,7 @@ namespace Microsoft.Data.Entity.MonsterModel
             var complaint1 = Add(new TComplaint
                 {
                     CustomerId = customer2.CustomerId,
+                    AlternateId = 88,
                     Details = "Don't give coffee to Eeky!",
                     Logged = new DateTime(2014, 5, 27, 19, 22, 26)
                 });
@@ -455,15 +499,20 @@ namespace Microsoft.Data.Entity.MonsterModel
             var complaint2 = Add(new TComplaint
                 {
                     CustomerId = customer2.CustomerId,
+                    AlternateId = 89,
                     Details = "Really! Don't give coffee to Eeky!",
                     Logged = new DateTime(2014, 5, 28, 19, 22, 26)
                 });
 
-            var resolution = Add(new TResolution { ResolutionId = complaint2.ComplaintId, Details = "Destroyed all coffee in Redmond area." });
+            var resolution = Add(new TResolution
+                {
+                    ResolutionId = SupportsCandidateKeys ? complaint2.AlternateId : complaint2.ComplaintId, 
+                    Details = "Destroyed all coffee in Redmond area."
+                });
 
-            var login1 = Add(new TLogin { CustomerId = customer1.CustomerId, Username = "MrsKoalie73" });
-            var login2 = Add(new TLogin { CustomerId = customer2.CustomerId, Username = "MrsBossyPants" });
-            var login3 = Add(new TLogin { CustomerId = customer3.CustomerId, Username = "TheStripedMenace" });
+            var login1 = Add(new TLogin { CustomerId = customer1.CustomerId, Username = "MrsKoalie73", AlternateUsername = "Sheila" });
+            var login2 = Add(new TLogin { CustomerId = customer2.CustomerId, Username = "MrsBossyPants", AlternateUsername = "Sue" });
+            var login3 = Add(new TLogin { CustomerId = customer3.CustomerId, Username = "TheStripedMenace", AlternateUsername = "Tarquin" });
 
             var suspiciousActivity1 = Add(new TSuspiciousActivity { Activity = "Pig prints on keyboard", Username = login3.Username });
             var suspiciousActivity2 = Add(new TSuspiciousActivity { Activity = "Crumbs in the cupboard", Username = login3.Username });
@@ -480,7 +529,7 @@ namespace Microsoft.Data.Entity.MonsterModel
                     EmailedTo = "trent@example.com",
                     ResetNo = 1,
                     TempPassword = "Rent-A-Mole",
-                    Username = login3.Username
+                    Username = SupportsCandidateKeys ? login3.AlternateUsername : login3.Username
                 });
 
             var pageView1 = Add(new TPageView { PageUrl = "somePage1", Username = login1.Username, Viewed = DateTime.Now });
@@ -530,17 +579,17 @@ namespace Microsoft.Data.Entity.MonsterModel
                     Sent = DateTime.Now,
                 });
 
-            var order1 = Add(new TAnOrder { CustomerId = customer1.CustomerId, Username = login1.Username });
-            var order2 = Add(new TAnOrder { CustomerId = customer2.CustomerId, Username = login2.Username });
-            var order3 = Add(new TAnOrder { CustomerId = customer3.CustomerId, Username = login3.Username });
+            var order1 = Add(new TAnOrder { CustomerId = customer1.CustomerId, Username = login1.Username, AlternateId = 77 });
+            var order2 = Add(new TAnOrder { CustomerId = customer2.CustomerId, Username = login2.Username, AlternateId = 78 });
+            var order3 = Add(new TAnOrder { CustomerId = customer3.CustomerId, Username = login3.Username, AlternateId = 79 });
 
-            var orderNote1 = Add(new TOrderNote { Note = "Must have tea!", OrderId = order1.AnOrderId });
-            var orderNote2 = Add(new TOrderNote { Note = "And donuts!", OrderId = order1.AnOrderId });
-            var orderNote3 = Add(new TOrderNote { Note = "But no coffee. :-(", OrderId = order1.AnOrderId });
+            var orderNote1 = Add(new TOrderNote { Note = "Must have tea!", OrderId = SupportsCandidateKeys ? order1.AlternateId : order1.AnOrderId });
+            var orderNote2 = Add(new TOrderNote { Note = "And donuts!", OrderId = SupportsCandidateKeys ? order1.AlternateId : order1.AnOrderId });
+            var orderNote3 = Add(new TOrderNote { Note = "But no coffee. :-(", OrderId = SupportsCandidateKeys ? order1.AlternateId : order1.AnOrderId });
 
-            var orderQualityCheck1 = Add(new TOrderQualityCheck { OrderId = order1.AnOrderId, CheckedBy = "Eeky Bear" });
-            var orderQualityCheck2 = Add(new TOrderQualityCheck { OrderId = order2.AnOrderId, CheckedBy = "Eeky Bear" });
-            var orderQualityCheck3 = Add(new TOrderQualityCheck { OrderId = order3.AnOrderId, CheckedBy = "Eeky Bear" });
+            var orderQualityCheck1 = Add(new TOrderQualityCheck { OrderId = SupportsCandidateKeys ? order1.AlternateId : order1.AnOrderId, CheckedBy = "Eeky Bear" });
+            var orderQualityCheck2 = Add(new TOrderQualityCheck { OrderId = SupportsCandidateKeys ? order2.AlternateId : order2.AnOrderId, CheckedBy = "Eeky Bear" });
+            var orderQualityCheck3 = Add(new TOrderQualityCheck { OrderId = SupportsCandidateKeys ? order3.AlternateId : order3.AnOrderId, CheckedBy = "Eeky Bear" });
 
             var orderLine1 = Add(new TOrderLine { OrderId = order1.AnOrderId, ProductId = product1.ProductId, Quantity = 7 });
             var orderLine2 = Add(new TOrderLine { OrderId = order1.AnOrderId, ProductId = product2.ProductId, Quantity = 1 });
@@ -702,6 +751,7 @@ namespace Microsoft.Data.Entity.MonsterModel
             var complaint1 = Add(new TComplaint
                 {
                     Customer = customer2,
+                    AlternateId = 88,
                     Details = "Don't give coffee to Eeky!",
                     Logged = new DateTime(2014, 5, 27, 19, 22, 26)
                 });
@@ -709,6 +759,7 @@ namespace Microsoft.Data.Entity.MonsterModel
             var complaint2 = Add(new TComplaint
                 {
                     Customer = customer2,
+                    AlternateId = 89,
                     Details = "Really! Don't give coffee to Eeky!",
                     Logged = new DateTime(2014, 5, 28, 19, 22, 26)
                 });
@@ -719,9 +770,9 @@ namespace Microsoft.Data.Entity.MonsterModel
                 complaint2.Resolution = resolution;
             }
 
-            var login1 = Add(new TLogin { Customer = dependentNavs ? customer1 : null, Username = "MrsKoalie73" });
-            var login2 = Add(new TLogin { Customer = dependentNavs ? customer2 : null, Username = "MrsBossyPants" });
-            var login3 = Add(new TLogin { Customer = dependentNavs ? customer3 : null, Username = "TheStripedMenace" });
+            var login1 = Add(new TLogin { Customer = dependentNavs ? customer1 : null, Username = "MrsKoalie73", AlternateUsername = "Sheila" });
+            var login2 = Add(new TLogin { Customer = dependentNavs ? customer2 : null, Username = "MrsBossyPants", AlternateUsername = "Sue" });
+            var login3 = Add(new TLogin { Customer = dependentNavs ? customer3 : null, Username = "TheStripedMenace", AlternateUsername = "Tarquin" });
             if (principalNavs)
             {
                 customer1.Logins.Add(login1);
@@ -819,9 +870,9 @@ namespace Microsoft.Data.Entity.MonsterModel
                 login2.ReceivedMessages.Add(message3);
             }
 
-            var order1 = Add(new TAnOrder { Customer = dependentNavs ? customer1 : null, Login = dependentNavs ? login1 : null });
-            var order2 = Add(new TAnOrder { Customer = dependentNavs ? customer2 : null, Login = dependentNavs ? login2 : null });
-            var order3 = Add(new TAnOrder { Customer = dependentNavs ? customer3 : null, Login = dependentNavs ? login3 : null });
+            var order1 = Add(new TAnOrder { Customer = dependentNavs ? customer1 : null, Login = dependentNavs ? login1 : null, AlternateId = 77 });
+            var order2 = Add(new TAnOrder { Customer = dependentNavs ? customer2 : null, Login = dependentNavs ? login2 : null, AlternateId = 78 });
+            var order3 = Add(new TAnOrder { Customer = dependentNavs ? customer3 : null, Login = dependentNavs ? login3 : null, AlternateId = 79 });
             if (principalNavs)
             {
                 customer1.Orders.Add(order1);
@@ -1056,6 +1107,7 @@ namespace Microsoft.Data.Entity.MonsterModel
             var complaint1 = toAdd[1].AddEx(new TComplaint
                 {
                     Customer = customer2,
+                    AlternateId = 88,
                     Details = "Don't give coffee to Eeky!",
                     Logged = new DateTime(2014, 5, 27, 19, 22, 26)
                 });
@@ -1063,6 +1115,7 @@ namespace Microsoft.Data.Entity.MonsterModel
             var complaint2 = toAdd[1].AddEx(new TComplaint
                 {
                     Customer = customer2,
+                    AlternateId = 89,
                     Details = "Really! Don't give coffee to Eeky!",
                     Logged = new DateTime(2014, 5, 28, 19, 22, 26)
                 });
@@ -1070,9 +1123,9 @@ namespace Microsoft.Data.Entity.MonsterModel
             var resolution = toAdd[2].AddEx(new TResolution { Details = "Destroyed all coffee in Redmond area." });
             complaint2.Resolution = resolution;
 
-            var login1 = toAdd[1].AddEx(new TLogin { Username = "MrsKoalie73" });
-            var login2 = toAdd[1].AddEx(new TLogin { Username = "MrsBossyPants" });
-            var login3 = toAdd[1].AddEx(new TLogin { Username = "TheStripedMenace" });
+            var login1 = toAdd[1].AddEx(new TLogin { Username = "MrsKoalie73", AlternateUsername = "Sheila" });
+            var login2 = toAdd[1].AddEx(new TLogin { Username = "MrsBossyPants", AlternateUsername = "Sue" });
+            var login3 = toAdd[1].AddEx(new TLogin { Username = "TheStripedMenace", AlternateUsername = "Tarquin" }); 
 
             customer1.Logins.Add(login1);
             customer2.Logins.Add(login2);
@@ -1148,9 +1201,9 @@ namespace Microsoft.Data.Entity.MonsterModel
             login1.SentMessages.Add(message3);
             login2.ReceivedMessages.Add(message3);
 
-            var order1 = toAdd[2].AddEx(new TAnOrder { Customer = customer1, Login = login1 });
-            var order2 = toAdd[2].AddEx(new TAnOrder { Customer = customer2, Login = login2 });
-            var order3 = toAdd[2].AddEx(new TAnOrder { Customer = customer3, Login = login3 });
+            var order1 = toAdd[2].AddEx(new TAnOrder { Customer = customer1, Login = login1, AlternateId = 77 });
+            var order2 = toAdd[2].AddEx(new TAnOrder { Customer = customer2, Login = login2, AlternateId = 78 });
+            var order3 = toAdd[2].AddEx(new TAnOrder { Customer = customer3, Login = login3, AlternateId = 79 });
 
             customer1.Orders.Add(order1);
             customer2.Orders.Add(order2);

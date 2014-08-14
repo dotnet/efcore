@@ -69,5 +69,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 }
             }
         }
+
+        // TODO: Temporary means to disable use of candidate keys on SQL Server. See GitHub #537
+        protected override bool SupportsCandidateKeys
+        {
+            get { return false; }
+        }
     }
 }

@@ -30,6 +30,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                 navigationToPrincipal,
                 navigationToDependent,
                 GetCandidateForeignKeyProperties(principalType, dependentType, navigationToPrincipal, isUnqiue),
+                new Property[0],
                 isUnqiue);
         }
 
@@ -38,7 +39,8 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             [NotNull] EntityType dependentType,
             [CanBeNull] string navigationToPrincipal,
             [CanBeNull] string navigationToDependent,
-            [NotNull] IReadOnlyList<Property[]> foreignKeyProperties,
+            [NotNull] IReadOnlyList<IReadOnlyList<Property>> foreignKeyProperties,
+            [NotNull] IReadOnlyList<Property> referencedProperties,
             bool isUnqiue)
         {
             Check.NotNull(principalType, "principalType");
@@ -77,13 +79,14 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                                          concurrencyToken: false)
                                  };
 
-            var newForeignKey = dependentType.AddForeignKey(principalType.GetKey(), fkProperty);
+            var principalKey = referencedProperties.Any() ? new Key(referencedProperties) : principalType.GetKey();
+            var newForeignKey = dependentType.AddForeignKey(principalKey, fkProperty.ToArray());
             newForeignKey.IsUnique = isUnqiue;
             
             return newForeignKey;
         }
 
-        private IReadOnlyList<Property[]> GetCandidateForeignKeyProperties(
+        private IReadOnlyList<IReadOnlyList<Property>> GetCandidateForeignKeyProperties(
             EntityType principalType, EntityType dependentType, string navigationToPrincipal, bool isUnqiue)
         {
             var pk = principalType.TryGetKey();
