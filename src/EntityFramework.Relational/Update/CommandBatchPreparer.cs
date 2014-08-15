@@ -55,19 +55,24 @@ namespace Microsoft.Data.Entity.Relational.Update
             PopulateModificationCommandGraph(modificationCommandGraph, commands);
             var sortedCommandSets = modificationCommandGraph.TopologicalSort();
 
+            // TODO: Enable batching of dependent commands by passing through the dependency graph
             foreach (var independentCommandSet in sortedCommandSets)
             {
                 independentCommandSet.Sort(_modificationCommandComparer);
-            }
 
-            // TODO: Note that the code below appears to do batching, but it doesn't really do it because
-            // it always creates a new batch for each insert, update, or delete operation.
-            return sortedCommandSets.SelectMany(mc => mc).Select(mc =>
+                var batch = _modificationCommandBatchFactory.Create();
+                foreach (var modificationCommand in independentCommandSet)
                 {
-                    var batch = _modificationCommandBatchFactory.Create();
-                    _modificationCommandBatchFactory.AddCommand(batch, mc);
-                    return batch;
-                });
+                    if (!_modificationCommandBatchFactory.AddCommand(batch, modificationCommand))
+                    {
+                        yield return batch;
+                        batch = _modificationCommandBatchFactory.Create();
+                        _modificationCommandBatchFactory.AddCommand(batch, modificationCommand);
+                    }
+                }
+
+                yield return batch;
+            }
         }
 
         protected virtual IEnumerable<ModificationCommand> CreateModificationCommands([NotNull] IReadOnlyList<StateEntry> stateEntries)
@@ -117,7 +122,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                             var candidateKeyValueColumnModifications =
                                 command.ColumnModifications.Where(cm =>
                                     foreignKey.ReferencedProperties.Contains(cm.Property)
-                                    && (cm.IsWrite || cm.IsRead));
+                                    && (cm.IsWrite || cm.IsRead)).ToList();
 
                             if (command.EntityState == EntityState.Modified
                                 && candidateKeyValueColumnModifications.Any(cm => cm.IsWrite))
@@ -126,7 +131,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                             }
 
                             if (command.EntityState == EntityState.Added
-                                || candidateKeyValueColumnModifications.Any())
+                                || candidateKeyValueColumnModifications.Count != 0)
                             {
                                 var principalKeyValue = CreatePrincipalKeyValue(stateEntry, foreignKey, ValueType.Current);
 
@@ -152,9 +157,10 @@ namespace Microsoft.Data.Entity.Relational.Update
                     {
                         foreach (var foreignKey in stateEntry.EntityType.ForeignKeys)
                         {
+                            var currentForeignKey = foreignKey;
                             var foreignKeyValueColumnModifications =
                                 command.ColumnModifications.Where(cm =>
-                                    foreignKey.Properties.Contains(cm.Property)
+                                    currentForeignKey.Properties.Contains(cm.Property)
                                     && (cm.IsWrite || cm.IsRead));
 
                             if (command.EntityState == EntityState.Deleted
@@ -262,8 +268,7 @@ namespace Microsoft.Data.Entity.Relational.Update
 
         private struct KeyValue
         {
-            public KeyValue(
-                [NotNull] IForeignKey foreignKey, EntityKey keyValue, [NotNull] ValueType valueType)
+            public KeyValue([NotNull] IForeignKey foreignKey, EntityKey keyValue, ValueType valueType)
             {
                 ForeignKey = foreignKey;
                 Key = keyValue;

@@ -95,6 +95,7 @@ namespace Microsoft.Data.Entity.Relational.Update
         {
             get
             {
+                // ReSharper disable once UnusedVariable
                 var _ = _columnModifications.Value;
                 return _requiresResultPropagation;
             }

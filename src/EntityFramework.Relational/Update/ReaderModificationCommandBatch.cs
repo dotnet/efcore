@@ -1,4 +1,7 @@
-﻿using System;
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Data;
@@ -19,64 +22,66 @@ namespace Microsoft.Data.Entity.Relational.Update
     public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
     {
         private ImmutableList<ModificationCommand> _modificationCommands = ImmutableList<ModificationCommand>.Empty;
-        private string _sql;
+
+        protected string SqlScript { get; set; }
 
         public override IReadOnlyList<ModificationCommand> ModificationCommands
         {
             get { return _modificationCommands; }
         }
 
-        public override bool AddCommand(
-            ModificationCommand modificationCommand,
-            SqlGenerator sqlGenerator)
+        public override bool AddCommand(ModificationCommand modificationCommand, SqlGenerator sqlGenerator)
         {
             Check.NotNull(modificationCommand, "modificationCommand");
             Check.NotNull(sqlGenerator, "sqlGenerator");
 
-            var newModificationCommands = _modificationCommands.Add(modificationCommand);
-            var newSql = GenerateCommandText(newModificationCommands, sqlGenerator);
+            var newSqlScript = UpdateCommandText(modificationCommand, sqlGenerator);
 
-            if (!CanAddCommand(modificationCommand, newSql))
+            if (!CanAddCommand(modificationCommand, newSqlScript))
             {
                 return false;
             }
 
-            _modificationCommands = newModificationCommands;
+            _modificationCommands = _modificationCommands.Add(modificationCommand);
 
-            _sql = newSql;
-            
+            SqlScript = newSqlScript.ToString();
+
             return true;
         }
 
-        protected abstract bool CanAddCommand(ModificationCommand modificationCommand, string newSql);
+        protected abstract bool CanAddCommand(ModificationCommand modificationCommand, StringBuilder newSql);
 
-        protected virtual string GenerateCommandText([NotNull] IReadOnlyList<ModificationCommand> modificationCommands, [NotNull] SqlGenerator sqlGenerator)
+        protected virtual StringBuilder UpdateCommandText([NotNull] ModificationCommand newModificationCommand, [NotNull] SqlGenerator sqlGenerator)
         {
             var stringBuilder = new StringBuilder();
 
-            sqlGenerator.AppendBatchHeader(stringBuilder);
-
-            foreach (var modificationCommand in modificationCommands)
+            if (SqlScript == null)
             {
-                var entityState = modificationCommand.EntityState;
-                var operations = modificationCommand.ColumnModifications;
-                var schemaQualifiedName = modificationCommand.SchemaQualifiedName;
-
-                switch (entityState)
-                {
-                    case EntityState.Added:
-                        sqlGenerator.AppendInsertOperation(stringBuilder, schemaQualifiedName, operations);
-                        break;
-                    case EntityState.Modified:
-                        sqlGenerator.AppendUpdateOperation(stringBuilder, schemaQualifiedName, operations);
-                        break;
-                    case EntityState.Deleted:
-                        sqlGenerator.AppendDeleteOperation(stringBuilder, schemaQualifiedName, operations);
-                        break;
-                }
+                sqlGenerator.AppendBatchHeader(stringBuilder);
+            }
+            else
+            {
+                stringBuilder.Append(SqlScript);
             }
 
-            return stringBuilder.ToString();
+            var entityState = newModificationCommand.EntityState;
+            var operations = newModificationCommand.ColumnModifications;
+            var schemaQualifiedName = newModificationCommand.SchemaQualifiedName;
+
+            switch (entityState)
+            {
+                case EntityState.Added:
+                    sqlGenerator.AppendInsertOperation(stringBuilder, schemaQualifiedName, operations);
+                    break;
+                case EntityState.Modified:
+                    sqlGenerator.AppendUpdateOperation(stringBuilder, schemaQualifiedName, operations);
+                    break;
+                case EntityState.Deleted:
+                    sqlGenerator.AppendDeleteOperation(stringBuilder, schemaQualifiedName, operations);
+                    break;
+            }
+
+            return stringBuilder;
         }
 
         protected virtual DbCommand CreateStoreCommand(
@@ -85,7 +90,7 @@ namespace Microsoft.Data.Entity.Relational.Update
         {
             var command = transaction.Connection.CreateCommand();
             command.CommandType = CommandType.Text;
-            command.CommandText = _sql;
+            command.CommandText = SqlScript;
             command.Transaction = transaction;
 
             foreach (var columnModification in ModificationCommands.SelectMany(t => t.ColumnModifications))
@@ -111,7 +116,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             if (logger.IsEnabled(TraceType.Verbose))
             {
                 // TODO: Write parameter values
-                logger.WriteSql(_sql);
+                logger.WriteSql(SqlScript);
             }
 
             var totalRowsAffected = 0;

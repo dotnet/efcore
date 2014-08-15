@@ -8,6 +8,7 @@ using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Query;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.SqlServer.Query;
+using Microsoft.Data.Entity.SqlServer.Update;
 using Microsoft.Data.Entity.SqlServer.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer

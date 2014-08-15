@@ -13,6 +13,7 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Microsoft.Data.Entity.Relational.Update;
+using Microsoft.Data.Entity.SqlServer.Update;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
@@ -174,12 +175,12 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     Assert.Equal(EntityState.Unchanged, db.ChangeTracker.Entry(toAdd).State);
                     Assert.DoesNotContain(toDelete, db.ChangeTracker.Entries().Select(e => e.Entity));
 
-                    Assert.Equal(5, TestSqlLoggerFactory.Logger.SqlStatements.Count);
+                    Assert.Equal(3, TestSqlLoggerFactory.Logger.SqlStatements.Count);
                     Assert.True(TestSqlLoggerFactory.Logger.SqlStatements[0].Contains("SELECT"));
                     Assert.True(TestSqlLoggerFactory.Logger.SqlStatements[1].Contains("SELECT"));
                     Assert.True(TestSqlLoggerFactory.Logger.SqlStatements[2].Contains("DELETE"));
-                    Assert.True(TestSqlLoggerFactory.Logger.SqlStatements[3].Contains("UPDATE"));
-                    Assert.True(TestSqlLoggerFactory.Logger.SqlStatements[4].Contains("INSERT"));
+                    Assert.True(TestSqlLoggerFactory.Logger.SqlStatements[2].Contains("UPDATE"));
+                    Assert.True(TestSqlLoggerFactory.Logger.SqlStatements[2].Contains("INSERT"));
 
                     var rows = await testDatabase.ExecuteScalarAsync<int>(
                         string.Format(@"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = {0} AND Name = 'Blog is Updated'", updatedId),

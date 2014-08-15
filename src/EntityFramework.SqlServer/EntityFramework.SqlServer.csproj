@@ -58,12 +58,12 @@
     <Compile Include="Query\SqlServerQueryCompilationContext.cs" />
     <Compile Include="Query\SqlServerQueryGenerator.cs" />
     <Compile Include="SequentialGuidValueGenerator.cs" />
-    <Compile Include="SqlServerBatchExecutor.cs" />
+    <Compile Include="Update\SqlServerBatchExecutor.cs" />
     <Compile Include="SqlServerDataStoreServices.cs" />
     <Compile Include="SqlServerMigrationOperationPreProcessor.cs" />
     <Compile Include="SqlServerMigrationOperationSqlGeneratorFactory.cs" />
     <Compile Include="SqlServerMigrator.cs" />
-    <Compile Include="SqlServerModificationCommandBatchFactory.cs" />
+    <Compile Include="Update\SqlServerModificationCommandBatchFactory.cs" />
     <Compile Include="SqlServerOptionsExtension.cs" />
     <Compile Include="SqlServerConnection.cs" />
     <Compile Include="SqlServerDataStore.cs" />
@@ -84,6 +84,7 @@
     </Compile>
     <Compile Include="SqlServerValueGeneratorCache.cs" />
     <Compile Include="SqlServerValueGeneratorSelector.cs" />
+    <Compile Include="Update\SqlServerModificationCommandBatch.cs" />
     <Compile Include="Utilities\Check.cs" />
     <Compile Include="Utilities\EnumerableExtensions.cs" />
     <Compile Include="..\Shared\CodeAnnotations.cs" />
