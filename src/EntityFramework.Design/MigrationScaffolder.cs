@@ -84,7 +84,7 @@ namespace Microsoft.Data.Entity.Design
             ScaffoldSnapshotModel(migration.TargetModel, snapshotModelCode);
 
             return
-                new ScaffoldedMigration()
+                new ScaffoldedMigration(migration.MigrationId)
                     {
                         MigrationNamespace = MigrationNamespace,
                         MigrationClass = GetClassName(migration),

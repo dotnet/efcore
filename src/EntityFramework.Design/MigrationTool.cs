@@ -179,8 +179,8 @@ namespace Microsoft.Data.Entity.Design
             migrationDirectory = ResolvePath(migrationDirectory);
             Directory.CreateDirectory(migrationDirectory);
 
-            scaffoldedMigration.MigrationFile = Path.Combine(migrationDirectory, scaffoldedMigration.MigrationClass + ".cs");
-            scaffoldedMigration.MigrationMetadataFile = Path.Combine(migrationDirectory, scaffoldedMigration.MigrationClass + ".Designer.cs");
+            scaffoldedMigration.MigrationFile = Path.Combine(migrationDirectory, scaffoldedMigration.MigrationId + ".cs");
+            scaffoldedMigration.MigrationMetadataFile = Path.Combine(migrationDirectory, scaffoldedMigration.MigrationId + ".Designer.cs");
             scaffoldedMigration.SnapshotModelFile = Path.Combine(migrationDirectory, scaffoldedMigration.SnapshotModelClass + ".cs");
 
             WriteFile(scaffoldedMigration.MigrationFile, scaffoldedMigration.MigrationCode, overwrite: false);

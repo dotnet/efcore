@@ -2,11 +2,26 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Design.Utilities;
 
 namespace Microsoft.Data.Entity.Design
 {
     public class ScaffoldedMigration
     {
+        private readonly string _migrationId;
+
+        public ScaffoldedMigration([NotNull] string migrationId)
+        {
+            Check.NotNull(migrationId, "migrationId");
+
+            _migrationId = migrationId;
+        }
+
+        public virtual string MigrationId
+        {
+            get { return _migrationId; }
+        }
+
         public virtual string MigrationNamespace { get; [param: CanBeNull] set; }
         public virtual string MigrationClass { get; [param: CanBeNull] set; }
         public virtual string SnapshotModelClass { get; [param: CanBeNull] set; }

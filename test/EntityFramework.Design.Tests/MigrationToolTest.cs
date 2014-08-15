@@ -5,6 +5,7 @@ using System;
 using System.Data.SqlClient;
 using System.IO;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational;
@@ -125,8 +126,8 @@ namespace Microsoft.Data.Entity.Design.Tests
             Assert.Equal("MyNamespace", scaffoldedMigration.MigrationNamespace);
             Assert.Equal("MyMigration", scaffoldedMigration.MigrationClass);
             Assert.Equal("MyContextModelSnapshot", scaffoldedMigration.SnapshotModelClass);
-            Assert.Equal("C:\\MyDirectory\\MyMigration.cs", scaffoldedMigration.MigrationFile);
-            Assert.Equal("C:\\MyDirectory\\MyMigration.Designer.cs", scaffoldedMigration.MigrationMetadataFile);
+            Assert.Equal("C:\\MyDirectory\\" + scaffoldedMigration.MigrationId + ".cs", scaffoldedMigration.MigrationFile);
+            Assert.Equal("C:\\MyDirectory\\" + scaffoldedMigration.MigrationId + ".Designer.cs", scaffoldedMigration.MigrationMetadataFile);
             Assert.Equal("C:\\MyDirectory\\MyContextModelSnapshot.cs", scaffoldedMigration.SnapshotModelFile);
         }
 
@@ -150,8 +151,8 @@ namespace Microsoft.Data.Entity.Design.Tests
             Assert.Equal("Microsoft.Data.Entity.Design.Tests.Migrations", scaffoldedMigration.MigrationNamespace);
             Assert.Equal("MyMigration", scaffoldedMigration.MigrationClass);
             Assert.Equal("MyContextModelSnapshot", scaffoldedMigration.SnapshotModelClass);
-            Assert.True(scaffoldedMigration.MigrationFile.EndsWith("MyDirectory\\MyMigration.cs"));
-            Assert.True(scaffoldedMigration.MigrationMetadataFile.EndsWith("MyDirectory\\MyMigration.Designer.cs"));
+            Assert.True(scaffoldedMigration.MigrationFile.EndsWith("MyDirectory\\" + scaffoldedMigration.MigrationId + ".cs"));
+            Assert.True(scaffoldedMigration.MigrationMetadataFile.EndsWith("MyDirectory\\" + scaffoldedMigration.MigrationId + ".Designer.cs"));
             Assert.True(scaffoldedMigration.SnapshotModelFile.EndsWith("MyDirectory\\MyContextModelSnapshot.cs"));
             Assert.True(Path.IsPathRooted(scaffoldedMigration.MigrationFile));
             Assert.True(Path.IsPathRooted(scaffoldedMigration.MigrationMetadataFile));
