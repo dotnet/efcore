@@ -44,12 +44,6 @@ namespace Microsoft.AspNet.Diagnostics.Entity
                     // TODO Handle context not being registered in DI
                     using (var db = (DbContext)context.ApplicationServices.GetService(contextType))
                     {
-                        // TODO UpdateDatabase should create the database if it doesn't exist (Issue #522)
-                        if(!db.Database.AsRelational().Exists())
-                        {
-                            db.Database.AsRelational().Create();
-                        }
-
                         var migrator = db.Configuration.Services.ServiceProvider.GetService<DbMigrator>();
                         migrator.UpdateDatabase();
 

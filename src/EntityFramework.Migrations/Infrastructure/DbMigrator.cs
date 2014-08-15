@@ -7,6 +7,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Migrations.Utilities;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Storage;
@@ -220,6 +221,20 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             bool removeHistoryRepository)
         {
             var sqlStatements = new List<SqlStatement>();
+
+            var relationalDatabase = ContextConfiguration.Database.AsRelational();
+            if (!relationalDatabase.Exists())
+            {
+                var databaseName = relationalDatabase.Connection.DbConnection.Database;
+                var ddlSqlGenerator = DdlSqlGeneratorFactory.Create();
+
+                sqlStatements.AddRange(
+                    ddlSqlGenerator.Generate(
+                        new[]
+                            {
+                                new CreateDatabaseOperation(databaseName)
+                            }));
+            }
 
             if (!historyRepositoryExists
                 && upgradeIndexes.Count > 0)
