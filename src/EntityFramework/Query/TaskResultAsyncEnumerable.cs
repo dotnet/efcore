@@ -44,9 +44,7 @@ namespace Microsoft.Data.Entity.Query
                 {
                     await _task;
 
-                    _moved = true;
-
-                    return true;
+                    return (_moved = true);
                 }
 
                 return false;

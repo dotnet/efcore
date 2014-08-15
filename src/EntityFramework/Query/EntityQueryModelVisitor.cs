@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Query
 {
     public abstract class EntityQueryModelVisitor : QueryModelVisitorBase
     {
-        protected static readonly ParameterExpression QueryContextParameter
+        public static readonly ParameterExpression QueryContextParameter
             = Expression.Parameter(typeof(QueryContext));
 
         public static readonly ParameterExpression QuerySourceScopeParameter
