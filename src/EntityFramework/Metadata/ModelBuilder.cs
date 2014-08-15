@@ -555,36 +555,28 @@ namespace Microsoft.Data.Entity.Metadata
                 }
 
                 public OneToOneBuilder ForeignKey<TDependentEntity>(
-                    [CanBeNull] Expression<Func<TDependentEntity, object>> foreignKeyExpression = null)
+                    [NotNull] Expression<Func<TDependentEntity, object>> foreignKeyExpression)
                 {
-                    var inverting = ModelBuilder.Entity<TDependentEntity>().Metadata != _builder.DependentType;
-                    if (inverting)
+                    Check.NotNull(foreignKeyExpression, "foreignKeyExpression");
+
+                    if (ModelBuilder.Entity<TDependentEntity>().Metadata != _builder.DependentType)
                     {
                         _builder.Invert();
                     }
 
-                    if (foreignKeyExpression == null)
-                    {
-                        return new OneToOneBuilder(inverting
-                            ? _builder.ForeignKey(new PropertyInfo[0])
-                            : _builder);
-                    }
-
-                    return new OneToOneBuilder(
-                        _builder.ForeignKey(foreignKeyExpression.GetPropertyAccessList()));
+                    return new OneToOneBuilder(_builder.ForeignKey(foreignKeyExpression.GetPropertyAccessList()));
                 }
 
                 public OneToOneBuilder ReferencedKey<TPrincipalEntity>(
-                    [CanBeNull] Expression<Func<TPrincipalEntity, object>> keyExpression = null)
+                    [NotNull] Expression<Func<TPrincipalEntity, object>> keyExpression)
                 {
+                    Check.NotNull(keyExpression, "keyExpression");
+
                     var builder = ModelBuilder.Entity<TPrincipalEntity>().Metadata == _builder.PrincipalType
                         ? _builder
                         : _builder.Invert().ForeignKey(new PropertyInfo[0]);
 
-                    return new OneToOneBuilder(
-                        builder.ReferencedKey(keyExpression != null
-                            ? keyExpression.GetPropertyAccessList()
-                            : new PropertyInfo[0]));
+                    return new OneToOneBuilder(builder.ReferencedKey(keyExpression.GetPropertyAccessList()));
                 }
             }
 
@@ -669,11 +661,9 @@ namespace Microsoft.Data.Entity.Metadata
 
                 public RelationshipBuilder ReferencedKey(IList<PropertyInfo> propertyAccessList)
                 {
-                    var principalProperties = propertyAccessList.Any()
-                        ? propertyAccessList
-                            .Select(pi => _principalType.TryGetProperty(pi.Name) ?? _principalType.AddProperty(pi))
-                            .ToArray()
-                        : _principalType.GetKey().Properties;
+                    var principalProperties = propertyAccessList
+                        .Select(pi => _principalType.TryGetProperty(pi.Name) ?? _principalType.AddProperty(pi))
+                        .ToArray();
 
                     if (Metadata.ReferencedProperties.SequenceEqual(principalProperties))
                     {

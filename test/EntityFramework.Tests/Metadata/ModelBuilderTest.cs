@@ -3124,7 +3124,7 @@ namespace Microsoft.Data.Entity.Metadata
             modelBuilder
                 .Entity<OrderDetails>()
                 .OneToOne(e => e.Order, e => e.Details)
-                .ForeignKey<OrderDetails>();
+                .ForeignKey<OrderDetails>(e => e.Id);
 
             Assert.Same(fk, dependentType.ForeignKeys.Single());
             Assert.Equal("Order", dependentType.Navigations.Single().Name);
@@ -3159,7 +3159,7 @@ namespace Microsoft.Data.Entity.Metadata
             modelBuilder
                 .Entity<OrderDetails>()
                 .OneToOne(e => e.Order, e => e.Details)
-                .ForeignKey<OrderDetails>();
+                .ForeignKey<OrderDetails>(e => e.OrderId);
 
             var fk = dependentType.ForeignKeys.Single();
             Assert.Same(fkProperty, fk.Properties.Single());
@@ -3192,7 +3192,7 @@ namespace Microsoft.Data.Entity.Metadata
             modelBuilder
                 .Entity<CustomerDetails>()
                 .OneToOne<Customer>(e => e.Customer)
-                .ForeignKey<CustomerDetails>();
+                .ForeignKey<CustomerDetails>(e => e.Id);
 
             var fk = dependentType.ForeignKeys.Single();
             Assert.Same(fkProperty, fk.Properties.Single());
@@ -3224,7 +3224,7 @@ namespace Microsoft.Data.Entity.Metadata
             modelBuilder
                 .Entity<CustomerDetails>()
                 .OneToOne<Customer>(null, e => e.Details)
-                .ForeignKey<CustomerDetails>();
+                .ForeignKey<CustomerDetails>(e => e.Id);
 
             var fk = dependentType.ForeignKeys.Single();
             Assert.Same(fkProperty, fk.Properties.Single());
@@ -3256,7 +3256,7 @@ namespace Microsoft.Data.Entity.Metadata
             modelBuilder
                 .Entity<CustomerDetails>()
                 .OneToOne<Customer>()
-                .ForeignKey<CustomerDetails>();
+                .ForeignKey<CustomerDetails>(e => e.Id);
 
             var fk = dependentType.ForeignKeys.Single();
             Assert.Same(fkProperty, fk.Properties.Single());
@@ -3287,7 +3287,7 @@ namespace Microsoft.Data.Entity.Metadata
             modelBuilder
                 .Entity<CustomerDetails>()
                 .OneToOne(e => e.Customer, e => e.Details)
-                .ForeignKey<CustomerDetails>();
+                .ForeignKey<CustomerDetails>(e => e.Id);
 
             var fk = dependentType.ForeignKeys.Single();
             Assert.Same(fkProperty, fk.Properties.Single());
@@ -3557,7 +3557,7 @@ namespace Microsoft.Data.Entity.Metadata
             modelBuilder
                 .Entity<OrderDetails>()
                 .OneToOne(e => e.Order, e => e.Details)
-                .ReferencedKey<Order>();
+                .ReferencedKey<Order>(e => e.OrderId);
 
             Assert.Same(fk, dependentType.ForeignKeys.Single());
             Assert.Equal("Order", dependentType.Navigations.Single().Name);
@@ -3592,7 +3592,7 @@ namespace Microsoft.Data.Entity.Metadata
             modelBuilder
                 .Entity<OrderDetails>()
                 .OneToOne(e => e.Order, e => e.Details)
-                .ReferencedKey<Order>();
+                .ReferencedKey<Order>(e => e.OrderId);
 
             var fk = dependentType.ForeignKeys.Single();
             Assert.Same(fkProperty, fk.Properties.Single());
@@ -3629,8 +3629,8 @@ namespace Microsoft.Data.Entity.Metadata
             modelBuilder
                 .Entity<OrderDetails>()
                 .OneToOne(e => e.Order, e => e.Details)
-                .ForeignKey<OrderDetails>()
-                .ReferencedKey<Order>();
+                .ForeignKey<OrderDetails>(e => e.OrderId)
+                .ReferencedKey<Order>(e => e.OrderId);
 
             var fk = dependentType.ForeignKeys.Single();
             Assert.Same(fkProperty, fk.Properties.Single());
@@ -3667,8 +3667,8 @@ namespace Microsoft.Data.Entity.Metadata
             modelBuilder
                 .Entity<OrderDetails>()
                 .OneToOne(e => e.Order, e => e.Details)
-                .ReferencedKey<Order>()
-                .ForeignKey<OrderDetails>();
+                .ReferencedKey<Order>(e => e.OrderId)
+                .ForeignKey<OrderDetails>(e => e.OrderId);
 
             var fk = dependentType.ForeignKeys.Single();
             Assert.Same(fkProperty, fk.Properties.Single());
@@ -3701,7 +3701,7 @@ namespace Microsoft.Data.Entity.Metadata
             modelBuilder
                 .Entity<CustomerDetails>()
                 .OneToOne<Customer>(e => e.Customer)
-                .ReferencedKey<Customer>();
+                .ReferencedKey<Customer>(e => e.Id);
 
             var fk = dependentType.ForeignKeys.Single();
             Assert.Same(fkProperty, fk.Properties.Single());
@@ -3733,7 +3733,7 @@ namespace Microsoft.Data.Entity.Metadata
             modelBuilder
                 .Entity<CustomerDetails>()
                 .OneToOne<Customer>(null, e => e.Details)
-                .ReferencedKey<Customer>();
+                .ReferencedKey<Customer>(e => e.Id);
 
             var fk = dependentType.ForeignKeys.Single();
             Assert.Same(fkProperty, fk.Properties.Single());
@@ -3765,7 +3765,7 @@ namespace Microsoft.Data.Entity.Metadata
             modelBuilder
                 .Entity<CustomerDetails>()
                 .OneToOne<Customer>()
-                .ReferencedKey<Customer>();
+                .ReferencedKey<Customer>(e => e.Id);
 
             var fk = dependentType.ForeignKeys.Single();
             Assert.Same(fkProperty, fk.Properties.Single());
@@ -4591,7 +4591,7 @@ namespace Microsoft.Data.Entity.Metadata
             modelBuilder
                 .Entity<Moostard>()
                 .OneToOne(e => e.Whoopper, e => e.Moostard)
-                .ForeignKey<Moostard>();
+                .ForeignKey<Moostard>(e => new { e.Id1, e.Id2 });
 
             var fk = dependentType.ForeignKeys.Single();
             Assert.Same(fkProperty1, fk.Properties[0]);
@@ -4626,7 +4626,7 @@ namespace Microsoft.Data.Entity.Metadata
             modelBuilder
                 .Entity<Moostard>()
                 .OneToOne(e => e.Whoopper, e => e.Moostard)
-                .ReferencedKey<Whoopper>();
+                .ReferencedKey<Whoopper>(e => new { e.Id1, e.Id2 });
 
             var fk = dependentType.ForeignKeys.Single();
             Assert.Same(fkProperty1, fk.Properties[0]);
