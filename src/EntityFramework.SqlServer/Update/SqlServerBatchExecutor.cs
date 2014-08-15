@@ -3,24 +3,26 @@
 
 using System;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational.Update;
 
-namespace Microsoft.Data.Entity.SqlServer
+namespace Microsoft.Data.Entity.SqlServer.Update
 {
-    public class SqlServerModificationCommandBatchFactory : ModificationCommandBatchFactory
+    public class SqlServerBatchExecutor : BatchExecutor
     {
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
         ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
         ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
         /// </summary>
-        protected SqlServerModificationCommandBatchFactory()
+        protected SqlServerBatchExecutor()
         {
         }
 
-        public SqlServerModificationCommandBatchFactory(
-            [NotNull] SqlServerSqlGenerator sqlGenerator)
-            : base(sqlGenerator)
+        public SqlServerBatchExecutor(
+            [NotNull] SqlServerTypeMapper typeMapper,
+            [NotNull] DbContextConfiguration contextConfiguration)
+            : base(typeMapper, contextConfiguration)
         {
         }
     }

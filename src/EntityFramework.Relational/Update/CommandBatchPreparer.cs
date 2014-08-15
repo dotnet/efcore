@@ -60,14 +60,22 @@ namespace Microsoft.Data.Entity.Relational.Update
                 independentCommandSet.Sort(_modificationCommandComparer);
             }
 
-            // TODO: Note that the code below appears to do batching, but it doesn't really do it because
-            // it always creates a new batch for each insert, update, or delete operation.
-            return sortedCommandSets.SelectMany(mc => mc).Select(mc =>
+            // TODO: Enable batching of dependent commands by passing through the dependency graph
+            foreach (var sortedCommandSet in sortedCommandSets)
+            {
+                ModificationCommandBatch batch = _modificationCommandBatchFactory.Create();
+                foreach (var modificationCommand in sortedCommandSet)
                 {
-                    var batch = _modificationCommandBatchFactory.Create();
-                    _modificationCommandBatchFactory.AddCommand(batch, mc);
-                    return batch;
-                });
+                    if (!_modificationCommandBatchFactory.AddCommand(batch, modificationCommand))
+                    {
+                        yield return batch;
+                        batch = _modificationCommandBatchFactory.Create();
+                        _modificationCommandBatchFactory.AddCommand(batch, modificationCommand);
+                    }
+                }
+
+                yield return batch;
+            }
         }
 
         protected virtual IEnumerable<ModificationCommand> CreateModificationCommands([NotNull] IReadOnlyList<StateEntry> stateEntries)

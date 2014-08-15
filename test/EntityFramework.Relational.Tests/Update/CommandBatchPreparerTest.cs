@@ -230,7 +230,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
             Assert.Equal(
                 Strings.FormatPrincipalKeyModified(),
-                Assert.Throws<InvalidOperationException>(() => CreateCommandBatchPreparer().BatchCommands(new[] { relatedStateEntry, stateEntry })).Message);
+                Assert.Throws<InvalidOperationException>(() => CreateCommandBatchPreparer().BatchCommands(new[] { relatedStateEntry, stateEntry }).ToArray()).Message);
         }
 
         [Fact]

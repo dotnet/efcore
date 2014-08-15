@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -52,7 +53,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         }
 
         [Fact]
-        public void GenerateCommandText_compiles_inserts()
+        public void UpdateCommandText_compiles_inserts()
         {
             var stateEntry = CreateStateEntry(EntityState.Added);
 
@@ -62,14 +63,14 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var sqlGeneratorMock = new Mock<SqlGenerator>();
             var batch = new ModificationCommandBatchFake();
 
-            batch.GenerateCommandTextBase(new[] { command }, sqlGeneratorMock.Object);
+            batch.UpdateCommandTextBase(command, sqlGeneratorMock.Object);
 
             sqlGeneratorMock.Verify(g => g.AppendBatchHeader(It.IsAny<StringBuilder>()));
             sqlGeneratorMock.Verify(g => g.AppendInsertOperation(It.IsAny<StringBuilder>(), "T1", It.IsAny<IReadOnlyList<ColumnModification>>()));
         }
 
         [Fact]
-        public void GenerateCommandText_compiles_updates()
+        public void UpdateCommandText_compiles_updates()
         {
             var stateEntry = CreateStateEntry(EntityState.Modified, ValueGenerationOnSave.WhenInserting);
 
@@ -79,14 +80,14 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var sqlGeneratorMock = new Mock<SqlGenerator>();
             var batch = new ModificationCommandBatchFake();
 
-            batch.GenerateCommandTextBase(new[] { command }, sqlGeneratorMock.Object);
+            batch.UpdateCommandTextBase(command, sqlGeneratorMock.Object);
 
             sqlGeneratorMock.Verify(g => g.AppendBatchHeader(It.IsAny<StringBuilder>()));
             sqlGeneratorMock.Verify(g => g.AppendUpdateOperation(It.IsAny<StringBuilder>(), "T1", It.IsAny<IReadOnlyList<ColumnModification>>()));
         }
 
         [Fact]
-        public void GenerateCommandText_compiles_deletes()
+        public void UpdateCommandText_compiles_deletes()
         {
             var stateEntry = CreateStateEntry(EntityState.Deleted);
 
@@ -96,10 +97,62 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var sqlGeneratorMock = new Mock<SqlGenerator>();
             var batch = new ModificationCommandBatchFake();
 
-            batch.GenerateCommandTextBase(new[] { command }, sqlGeneratorMock.Object);
+            batch.UpdateCommandTextBase(command, sqlGeneratorMock.Object);
 
             sqlGeneratorMock.Verify(g => g.AppendBatchHeader(It.IsAny<StringBuilder>()));
             sqlGeneratorMock.Verify(g => g.AppendDeleteOperation(It.IsAny<StringBuilder>(), "T1", It.IsAny<IReadOnlyList<ColumnModification>>()));
+        }
+
+        [Fact]
+        public void UpdateCommandText_compiles_multiple_commands()
+        {
+            var stateEntry = CreateStateEntry(EntityState.Added);
+
+            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator());
+            command.AddStateEntry(stateEntry);
+
+            var fakeSqlGenerator = new FakeSqlGenerator();
+            fakeSqlGenerator.AppendInsertOperationCallback = (builder, schemaQualifiedName, columnModifications) =>
+                builder.Append(schemaQualifiedName.ToString());
+            var batch = new ModificationCommandBatchFake();
+            batch.SqlScriptBase = "foo";
+
+            var firstScript = batch.UpdateCommandTextBase(command, fakeSqlGenerator);
+            Assert.Equal("fooT1", firstScript.ToString());
+
+            Assert.Equal(0, fakeSqlGenerator.AppendBatchHeaderCalls);
+        }
+
+        private class FakeSqlGenerator : SqlGenerator
+        {
+            // Workaround for Roslyn breaking Moq
+            public Action<StringBuilder, SchemaQualifiedName, IReadOnlyList<ColumnModification>> AppendInsertOperationCallback { get; set; }
+            public override void AppendInsertOperation(StringBuilder commandStringBuilder, SchemaQualifiedName schemaQualifiedName, IReadOnlyList<ColumnModification> operations)
+            {
+                if (AppendInsertOperationCallback != null)
+                {
+                    AppendInsertOperationCallback(commandStringBuilder, schemaQualifiedName, operations);
+                }
+            }
+
+            public int AppendBatchHeaderCalls { get; set; }
+            public override void AppendBatchHeader(StringBuilder commandStringBuilder)
+            {
+                AppendBatchHeaderCalls++;
+                base.AppendBatchHeader(commandStringBuilder);
+            }
+
+            public override void AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, SchemaQualifiedName schemaQualifiedName)
+            {
+            }
+
+            protected override void AppendRowsAffectedWhereCondition(StringBuilder commandStringBuilder, int expectedRowsAffected)
+            {
+            }
+
+            protected override void AppendIdentityWhereCondition(StringBuilder commandStringBuilder, ColumnModification columnModification)
+            {
+            }
         }
 
         [Fact]
@@ -230,7 +283,55 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         }
 
         [Fact]
-        public void PopulateParameters_creates_parameter_for_write_ModificationCommand_with_non_null_parameter_name()
+        public void CreateStoreCommand_creates_parameters_for_each_ModificationCommand()
+        {
+            var stateEntry = CreateStateEntry(EntityState.Added, ValueGenerationOnSave.WhenInserting);
+            var property = stateEntry.EntityType.GetProperty("Id");
+            var batch = new ModificationCommandBatchFake { ShouldAddCommand = true };
+
+            var commandMock1 = new Mock<ModificationCommand>();
+            commandMock1.Setup(m => m.ColumnModifications).Returns(
+                new List<ColumnModification>
+                    {
+                        new ColumnModification(
+                            stateEntry,
+                            property,
+                            new ParameterNameGenerator(),
+                            isRead: false,
+                            isWrite: true,
+                            isKey: false,
+                            isCondition: false)
+                    });
+            batch.AddCommand(commandMock1.Object, new Mock<SqlGenerator> { CallBase = true }.Object);
+
+            var commandMock2 = new Mock<ModificationCommand>();
+            commandMock2.Setup(m => m.ColumnModifications).Returns(
+                new List<ColumnModification>
+                    {
+                        new ColumnModification(
+                            stateEntry,
+                            property,
+                            new ParameterNameGenerator(),
+                            isRead: false,
+                            isWrite: true,
+                            isKey: false,
+                            isCondition: false)
+                    });
+            batch.AddCommand(commandMock2.Object, new Mock<SqlGenerator> { CallBase = true }.Object);
+
+            batch.SqlScriptBase = "foo";
+            var transaction = CreateMockDbTransaction();
+
+            var command = batch.CreateStoreCommandBase(transaction, new RelationalTypeMapper());
+
+            Assert.Equal(CommandType.Text, command.CommandType);
+            Assert.Equal("foo", command.CommandText);
+            Assert.Same(transaction, command.Transaction);
+            Assert.Equal(2, batch.PopulateParameterCalls);
+        }
+
+        [Fact]
+        public void PopulateParameters_creates_parameter_for_write_ModificationCommand()
         {
             var stateEntry = CreateStateEntry(EntityState.Added, ValueGenerationOnSave.WhenInserting);
             var property = stateEntry.EntityType.GetProperty("Id");
@@ -346,6 +447,18 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 .Protected()
                 .Setup<Task<DbDataReader>>("ExecuteDbDataReaderAsync", ItExpr.IsAny<CommandBehavior>(), ItExpr.IsAny<CancellationToken>())
                 .Returns(tcs.Task);
+
+            string text = null;
+            dbCommandMock.SetupSet(m => m.CommandText = It.IsAny<string>()).Callback<string>(t => { text = t; });
+            dbCommandMock.Setup(m => m.CommandText).Returns(() => text);
+
+            CommandType type = default(CommandType);
+            dbCommandMock.SetupSet(m => m.CommandType = It.IsAny<CommandType>()).Callback<CommandType>(t => { type = t; });
+            dbCommandMock.Setup(m => m.CommandType).Returns(() => type);
+
+            DbTransaction transaction = null;
+            dbCommandMock.Protected().SetupSet<DbTransaction>("DbTransaction", ItExpr.IsAny<DbTransaction>()).Callback(t => { transaction = t; });
+            dbCommandMock.Protected().Setup<DbTransaction>("DbTransaction").Returns(() => transaction);
 
             return dbCommandMock;
         }
@@ -469,7 +582,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             return stateEntry;
         }
 
-        public class ModificationCommandBatchFake : ReaderModificationCommandBatch
+        private class ModificationCommandBatchFake : ReaderModificationCommandBatch
         {
             private readonly DbDataReader _reader;
 
@@ -484,29 +597,50 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             }
 
             public bool ShouldAddCommand { get; set; }
-            
-            protected override bool CanAddCommand(ModificationCommand modificationCommand, string newSql)
+
+            public string SqlScriptBase
+            {
+                get
+                {
+                    return base.SqlScript;
+                }
+                set
+                {
+                    base.SqlScript = value;
+                }
+            }
+
+            protected override bool CanAddCommand(ModificationCommand modificationCommand, StringBuilder newSql)
             {
                 return ShouldAddCommand;
             }
 
-            protected override string GenerateCommandText(IReadOnlyList<ModificationCommand> modificationCommands, SqlGenerator sqlGenerator)
+            protected override StringBuilder UpdateCommandText(ModificationCommand newModificationCommand, SqlGenerator sqlGenerator)
             {
-                return null;
+                return new StringBuilder();
             }
 
-            public virtual string GenerateCommandTextBase(IReadOnlyList<ModificationCommand> modificationCommands, SqlGenerator sqlGenerator)
+            public StringBuilder UpdateCommandTextBase(ModificationCommand newModificationCommand, SqlGenerator sqlGenerator)
             {
-                return base.GenerateCommandText(modificationCommands, sqlGenerator);
+                return base.UpdateCommandText(newModificationCommand, sqlGenerator);
             }
 
             protected override DbCommand CreateStoreCommand(DbTransaction transaction, RelationalTypeMapper typeMapper)
             {
                 return CreateDbCommandMock(_reader).Object;
             }
-            
+
+
+            public DbCommand CreateStoreCommandBase(DbTransaction transaction, RelationalTypeMapper typeMapper)
+            {
+                return base.CreateStoreCommand(transaction, typeMapper);
+            }
+
+            public int PopulateParameterCalls { get; set; }
+
             protected override void PopulateParameters(DbCommand command, ColumnModification columnModification, RelationalTypeMapper typeMapper)
             {
+                PopulateParameterCalls++;
             }
 
             public void PopulateParametersBase(DbCommand command, ColumnModification columnModification, RelationalTypeMapper typeMapper)
