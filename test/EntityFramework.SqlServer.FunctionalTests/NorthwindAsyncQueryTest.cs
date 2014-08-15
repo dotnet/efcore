@@ -13,11 +13,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         [Fact]
         public async Task Single_Predicate_Cancellation()
         {
-            var aggregateException
-                = await Assert.ThrowsAsync<AggregateException>(() =>
-                    Single_Predicate_Cancellation(_fixture.CancelQuery()));
-
-            Assert.IsType<TaskCanceledException>(aggregateException.InnerException.InnerException);
+            await Assert.ThrowsAsync<TaskCanceledException>(() =>
+                Single_Predicate_Cancellation(_fixture.CancelQuery()));
         }
 
         private readonly NorthwindQueryFixture _fixture;

@@ -5,12 +5,20 @@
     },
     "dependencies": {
         "Microsoft.AspNet.Diagnostics": "1.0.0-*",
+        "Microsoft.AspNet.RequestContainer": "1.0.0-*",
         "EntityFramework.Migrations": ""
     },
     "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
-    "configurations": {
-        "net451": { },
-        "aspnet50": { },
-        "aspnetcore50": { }
+    "frameworks": {
+        "aspnet50": {
+            "dependencies": {
+                "System.Configuration": ""
+            }
+        },
+        "aspnetcore50": {
+            "dependencies": {
+                "System.Threading.ExecutionContext": "4.0.0.0"
+            }
+        }
     }
 }

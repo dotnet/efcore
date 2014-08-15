@@ -234,20 +234,11 @@
   <data name="DataStoreException" xml:space="preserve">
     <value>An error occured while running a data store operation. See InnerException for details.</value>
   </data>
-  <data name="LogDataStoreExceptionRethrow" xml:space="preserve">
-    <value>{0} The exception is already a DataStoreException (or derives from DataStoreException). Re-throwing the original exception.</value>
-  </data>
-  <data name="LogDataStoreExceptionWrap" xml:space="preserve">
-    <value>{0} Throwing a new DataStoreException with InnerException set to the original exception.</value>
-  </data>
-  <data name="LogExceptionDuringQueryExecution" xml:space="preserve">
-    <value>An exception occurred while executing a query.</value>
-  </data>
   <data name="LogExceptionDuringQueryIteration" xml:space="preserve">
-    <value>An exception occurred while iterating results of a query.</value>
+    <value>An exception occurred in the data store while iterating the results of a query.</value>
   </data>
   <data name="LogExceptionDuringSaveChanges" xml:space="preserve">
-    <value>An exception occurred while saving changes.</value>
+    <value>An exception occurred in the data store while saving changes.</value>
   </data>
   <data name="PropertyExtensionInvoked" xml:space="preserve">
     <value>The Property&amp;lt;T&amp;gt; extension method may only be used within LINQ queries.</value>

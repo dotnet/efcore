@@ -124,7 +124,7 @@
     <value>The collection argument '{argumentName}' must contain at least one element.</value>
   </data>
   <data name="DatabaseErrorPage_AddMigrationCommand" xml:space="preserve">
-    <value>&gt; k migration create [migration name]</value>
+    <value>&gt; k ef migration add [migration name]</value>
   </data>
   <data name="DatabaseErrorPage_ApplyMigrationsButton" xml:space="preserve">
     <value>Apply Migrations</value>
@@ -163,7 +163,7 @@
     <value>Applying existing migrations for {0} may resolve this issue</value>
   </data>
   <data name="DatabaseErrorPage_UpdateDatabaseCommand" xml:space="preserve">
-    <value>&gt; k migration apply</value>
+    <value>&gt; k ef migration apply</value>
   </data>
   <data name="InvalidEnumValue" xml:space="preserve">
     <value>The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.</value>

@@ -194,22 +194,14 @@ namespace Microsoft.Data.Entity.Query
                     }
                     catch (Exception ex)
                     {
-                        if (DataStoreException.ContainsDataStoreException(ex))
-                        {
-                            if (_logger.Value.IsEnabled(TraceType.Error))
-                            {
-                                _logger.Value.WriteError(Strings.FormatLogDataStoreExceptionRethrow(Strings.LogExceptionDuringQueryIteration), ex);
-                            }
+                        _logger.Value.WriteCore(
+                            TraceType.Error,
+                            0,
+                            new DataStoreErrorLogState(_context.GetType()),
+                            ex,
+                            (state, exception) => string.Format("{0}\r\n{1}", Strings.LogExceptionDuringQueryIteration, exception.ToString()));
 
-                            throw;
-                        }
-
-                        if (_logger.Value.IsEnabled(TraceType.Error))
-                        {
-                            _logger.Value.WriteError(Strings.FormatLogDataStoreExceptionWrap(Strings.LogExceptionDuringQueryIteration), ex);
-                        }
-
-                        throw new DataStoreException(Strings.DataStoreException, _context, ex);
+                        throw;
                     }
                 }
 
@@ -270,22 +262,14 @@ namespace Microsoft.Data.Entity.Query
                     }
                     catch (Exception ex)
                     {
-                        if (DataStoreException.ContainsDataStoreException(ex))
-                        {
-                            if (_logger.Value.IsEnabled(TraceType.Error))
-                            {
-                                _logger.Value.WriteError(Strings.FormatLogDataStoreExceptionRethrow(Strings.LogExceptionDuringQueryIteration), ex);
-                            }
+                        _logger.Value.WriteCore(
+                           TraceType.Error,
+                           0,
+                           new DataStoreErrorLogState(_context.GetType()),
+                           ex,
+                           (state, exception) => string.Format("{0}\r\n{1}", Strings.LogExceptionDuringQueryIteration, exception.ToString()));
 
-                            throw;
-                        }
-
-                        if (_logger.Value.IsEnabled(TraceType.Error))
-                        {
-                            _logger.Value.WriteError(Strings.FormatLogDataStoreExceptionWrap(Strings.LogExceptionDuringQueryIteration), ex);
-                        }
-
-                        throw new DataStoreException(Strings.DataStoreException, _context, ex);
+                        throw;
                     }
                 }
 

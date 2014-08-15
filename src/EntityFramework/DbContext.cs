@@ -136,22 +136,14 @@ namespace Microsoft.Data.Entity
             }
             catch (Exception ex)
             {
-                if (DataStoreException.ContainsDataStoreException(ex))
-                {
-                    if (_logger.Value.IsEnabled(TraceType.Error))
-                    {
-                        _logger.Value.WriteError(Strings.FormatLogDataStoreExceptionRethrow(Strings.LogExceptionDuringSaveChanges), ex);
-                    }
+                _logger.Value.WriteCore(
+                    TraceType.Error, 
+                    0, 
+                    new DataStoreErrorLogState(this.GetType()), 
+                    ex, 
+                    (state, exception) => string.Format("{0}\r\n{1}", Strings.LogExceptionDuringSaveChanges, exception.ToString()));
 
-                    throw;
-                }
-
-                if (_logger.Value.IsEnabled(TraceType.Error))
-                {
-                    _logger.Value.WriteError(Strings.FormatLogDataStoreExceptionWrap(Strings.LogExceptionDuringSaveChanges), ex);
-                }
-
-                throw new DataStoreException(Strings.DataStoreException, this, ex);
+                throw;
             }
         }
 

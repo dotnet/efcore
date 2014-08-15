@@ -822,7 +822,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             }
             else
             {
-                var dbException = new Mock<DataStoreException>();
+                var dbException = new Mock<DbException>();
 
                 mock.SetupGet(hr => hr.Migrations).Throws(dbException.Object);
             }

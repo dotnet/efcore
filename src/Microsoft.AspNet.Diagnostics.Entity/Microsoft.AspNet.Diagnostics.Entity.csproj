@@ -54,6 +54,8 @@
     <Compile Include="DatabaseErrorPageExtensions.cs" />
     <Compile Include="DatabaseErrorPageMiddleware.cs" />
     <Compile Include="DatabaseErrorPageOptions.cs" />
+    <Compile Include="DataStoreErrorLogger.cs" />
+    <Compile Include="DataStoreErrorLoggerProvider.cs" />
     <Compile Include="MigrationsEndPointExtensions.cs" />
     <Compile Include="MigrationsEndPointMiddleware.cs" />
     <Compile Include="MigrationsEndPointOptions.cs" />

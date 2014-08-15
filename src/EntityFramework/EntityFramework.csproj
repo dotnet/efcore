@@ -115,6 +115,7 @@
     <Compile Include="Query\IQueryBuffer.cs" />
     <Compile Include="Query\ResultOperators\AsNoTrackingExpressionNode.cs" />
     <Compile Include="Query\ResultOperators\AsNoTrackingResultOperator.cs" />
+    <Compile Include="Storage\DataStoreErrorLogState.cs" />
     <Compile Include="Storage\DataStoreException.cs" />
     <Compile Include="Infrastructure\IDbContextOptionsExtensions.cs" />
     <Compile Include="INotifyPropertyChanging.cs" />

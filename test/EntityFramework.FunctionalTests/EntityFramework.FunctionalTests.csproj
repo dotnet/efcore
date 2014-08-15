@@ -68,7 +68,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AsNoTrackingTestBase.cs" />
-    <Compile Include="ExceptionInterceptionTest.cs" />
+    <Compile Include="DataStoreErrorLogStateTest.cs" />
     <Compile Include="FixupTest.cs" />
     <Compile Include="Metadata\CompiledModelTest.cs" />
     <Compile Include="Metadata\KoolModel.cs" />

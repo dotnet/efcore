@@ -57,8 +57,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Redis.Funct
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Redis.Tests", "test\EntityFramework.Redis.Tests\EntityFramework.Redis.Tests.csproj", "{7B30247D-BF61-46F3-ABC0-091F97842AA7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.AspNet.Diagnostics.Entity", "src\Microsoft.AspNet.Diagnostics.Entity\Microsoft.AspNet.Diagnostics.Entity.csproj", "{D91BB58A-1515-4E19-AA47-630E1B708CB0}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -165,10 +163,6 @@ Global
 		{7B30247D-BF61-46F3-ABC0-091F97842AA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7B30247D-BF61-46F3-ABC0-091F97842AA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7B30247D-BF61-46F3-ABC0-091F97842AA7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D91BB58A-1515-4E19-AA47-630E1B708CB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D91BB58A-1515-4E19-AA47-630E1B708CB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D91BB58A-1515-4E19-AA47-630E1B708CB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D91BB58A-1515-4E19-AA47-630E1B708CB0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -199,6 +193,5 @@ Global
 		{4F810E8D-864A-4A3D-A653-0CCD3D3A29DD} = {35BED7DE-CA6F-41EA-91E3-25CA7295C7B9}
 		{D1F26BE2-6569-4C18-B322-1B717267194D} = {547020C0-976F-4542-81CE-7FD465595614}
 		{7B30247D-BF61-46F3-ABC0-091F97842AA7} = {547020C0-976F-4542-81CE-7FD465595614}
-		{D91BB58A-1515-4E19-AA47-630E1B708CB0} = {35BED7DE-CA6F-41EA-91E3-25CA7295C7B9}
 	EndGlobalSection
 EndGlobal

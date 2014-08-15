@@ -635,55 +635,7 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        /// {0} The exception is already a DataStoreException (or derives from DataStoreException). Re-throwing the original exception.
-        /// </summary>
-        internal static string LogDataStoreExceptionRethrow
-        {
-            get { return GetString("LogDataStoreExceptionRethrow"); }
-        }
-
-        /// <summary>
-        /// {0} The exception is already a DataStoreException (or derives from DataStoreException). Re-throwing the original exception.
-        /// </summary>
-        internal static string FormatLogDataStoreExceptionRethrow(object p0)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("LogDataStoreExceptionRethrow"), p0);
-        }
-
-        /// <summary>
-        /// {0} Throwing a new DataStoreException with InnerException set to the original exception.
-        /// </summary>
-        internal static string LogDataStoreExceptionWrap
-        {
-            get { return GetString("LogDataStoreExceptionWrap"); }
-        }
-
-        /// <summary>
-        /// {0} Throwing a new DataStoreException with InnerException set to the original exception.
-        /// </summary>
-        internal static string FormatLogDataStoreExceptionWrap(object p0)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("LogDataStoreExceptionWrap"), p0);
-        }
-
-        /// <summary>
-        /// An exception occurred while executing a query.
-        /// </summary>
-        internal static string LogExceptionDuringQueryExecution
-        {
-            get { return GetString("LogExceptionDuringQueryExecution"); }
-        }
-
-        /// <summary>
-        /// An exception occurred while executing a query.
-        /// </summary>
-        internal static string FormatLogExceptionDuringQueryExecution()
-        {
-            return GetString("LogExceptionDuringQueryExecution");
-        }
-
-        /// <summary>
-        /// An exception occurred while iterating results of a query.
+        /// An exception occurred in the data store while iterating the results of a query.
         /// </summary>
         internal static string LogExceptionDuringQueryIteration
         {
@@ -691,7 +643,7 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        /// An exception occurred while iterating results of a query.
+        /// An exception occurred in the data store while iterating the results of a query.
         /// </summary>
         internal static string FormatLogExceptionDuringQueryIteration()
         {
@@ -699,7 +651,7 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        /// An exception occurred while saving changes.
+        /// An exception occurred in the data store while saving changes.
         /// </summary>
         internal static string LogExceptionDuringSaveChanges
         {
@@ -707,7 +659,7 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        /// An exception occurred while saving changes.
+        /// An exception occurred in the data store while saving changes.
         /// </summary>
         internal static string FormatLogExceptionDuringSaveChanges()
         {

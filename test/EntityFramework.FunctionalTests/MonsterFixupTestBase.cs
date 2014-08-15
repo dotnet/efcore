@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Microsoft.Data.Entity.FunctionalTests.TestModels;
 using Microsoft.Data.Entity.FunctionalTests.TestUtilities;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Storage;
 using Xunit;
 
 namespace Microsoft.Data.Entity.FunctionalTests
@@ -240,8 +239,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 Assert.Equal(
                     "Aborting.",
-                    (await Assert.ThrowsAsync<DataStoreException>(async () => await context.SaveChangesAsync()))
-                        .InnerException.Message);
+                    (await Assert.ThrowsAsync<Exception>(async () => await context.SaveChangesAsync())).Message);
 
                 var afterSnapshot = stateManager.StateEntries.SelectMany(e => e.EntityType.Properties.Select(p => e[p])).ToList();
 

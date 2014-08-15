@@ -19,16 +19,8 @@
         <meta charset="utf-8" />
         <title>Internal Server Error</title>
         <style>
-            < 
-
-            % 
-
-            $ 
-
-            include: ErrorPage.css % 
-
-             >
-@string.Empty 
+            <%$ include: ErrorPage.css %>
+            @string.Empty
         </style>
     </head>
     <body>
@@ -51,7 +43,7 @@
             @if (!Model.DatabaseExists
                  && !Model.PendingMigrations.Any())
              {
-                 <h2>@Strings.FormatDatabaseErrorPage_NoDbOrMigrationsTitle(Model.Exception.Context.GetType().Name)</h2>
+                 <h2>@Strings.FormatDatabaseErrorPage_NoDbOrMigrationsTitle(Model.ContextType.Name)</h2>
                  <p>@Strings.DatabaseErrorPage_NoDbOrMigrationsInfo</p>
                  <code> @Strings.DatabaseErrorPage_AddMigrationCommand </code>
                  <br />
@@ -63,8 +55,8 @@
                  if (Model.PendingMigrations.Any())
                  {
                      <div>
-                         <h2>@Strings.FormatDatabaseErrorPage_Title(Model.Exception.Context.GetType().Name)</h2>
-                         <p>@Strings.FormatDatabaseErrorPage_PendingMigrationsInfo(Model.Exception.Context.GetType().Name)</p>
+                         <h2>@Strings.FormatDatabaseErrorPage_Title(Model.ContextType.Name)</h2>
+                         <p>@Strings.FormatDatabaseErrorPage_PendingMigrationsInfo(Model.ContextType.Name)</p>
                          <ul>
                              @foreach (var migration in Model.PendingMigrations)
                              {
@@ -86,7 +78,7 @@
 
                                      var req = new XMLHttpRequest();
                                      req.open("POST", "@Model.Options.MigrationsEndPointPath.Value", true);
-                                     var params = "context=" + encodeURIComponent("@Model.Exception.Context.GetType().AssemblyQualifiedName");
+                                     var params = "context=" + encodeURIComponent("@Model.ContextType.AssemblyQualifiedName");
                                      req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
                                      req.setRequestHeader("Content-length", params.length);
                                      req.setRequestHeader("Connection", "close");
@@ -122,7 +114,7 @@
                  else if (Model.PendingModelChanges)
                  {
                      <div>
-                         <h2>@Strings.FormatDatabaseErrorPage_PendingChangesTitle(Model.Exception.Context.GetType().Name)</h2>
+                         <h2>@Strings.FormatDatabaseErrorPage_PendingChangesTitle(Model.ContextType.Name)</h2>
                          <p>@Strings.DatabaseErrorPage_PendingChangesInfo</p>
                          <code>@Strings.DatabaseErrorPage_AddMigrationCommand</code>
                          <br />
