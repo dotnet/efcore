@@ -22,41 +22,5 @@
   <PropertyGroup>
     <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
-  <ItemGroup>
-    <Content Include="project.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="FixupTest.cs" />
-    <Compile Include="Metadata\CompiledModelTest.cs" />
-    <Compile Include="Metadata\KoolModel.cs" />
-    <Compile Include="MonsterFixupTestBase.cs" />
-    <Compile Include="NorthwindQueryFixtureBase.cs" />
-    <Compile Include="NorthwindQueryTestBase.cs" />
-    <Compile Include="OptimisticConcurrencyTestBase.cs" />
-    <Compile Include="TestFileLogger.cs" />
-    <Compile Include="TestModels\ChangedChangingMonsterContext.cs" />
-    <Compile Include="TestModels\ChangedOnlyMonsterContext.cs" />
-    <Compile Include="TestModels\ConcurrencyModel\Chassis.cs" />
-    <Compile Include="TestModels\ConcurrencyModel\ConcurrencyModelInitializer.cs" />
-    <Compile Include="TestModels\ConcurrencyModel\Driver.cs" />
-    <Compile Include="TestModels\ConcurrencyModel\Engine.cs" />
-    <Compile Include="TestModels\ConcurrencyModel\EngineSupplier.cs" />
-    <Compile Include="TestModels\ConcurrencyModel\F1Context.cs" />
-    <Compile Include="TestModels\ConcurrencyModel\Gearbox.cs" />
-    <Compile Include="TestModels\ConcurrencyModel\Location.cs" />
-    <Compile Include="TestModels\ConcurrencyModel\Sponsor.cs" />
-    <Compile Include="TestModels\ConcurrencyModel\SponsorDetails.cs" />
-    <Compile Include="TestModels\ConcurrencyModel\Team.cs" />
-    <Compile Include="TestModels\ConcurrencyModel\TestDriver.cs" />
-    <Compile Include="TestModels\ConcurrencyModel\TitleSponsor.cs" />
-    <Compile Include="TestModels\MonsterContext.cs" />
-    <Compile Include="TestModels\MonsterContext`.cs" />
-    <Compile Include="TestModels\MonsterModel.cs" />
-    <Compile Include="TestModels\Northwind.cs" />
-    <Compile Include="TestModels\SnapshotMonsterContext.cs" />
-    <Compile Include="TestStore.cs" />
-    <Compile Include="TestUtilities\Extensions.cs" />
-    <Compile Include="ThrowingMonsterStateManager.cs" />
-  </ItemGroup>
   <Import Project="$(VSToolsPath)\AspNet\Microsoft.Web.AspNet.targets" Condition="'$(VSToolsPath)' != ''" />
 </Project>

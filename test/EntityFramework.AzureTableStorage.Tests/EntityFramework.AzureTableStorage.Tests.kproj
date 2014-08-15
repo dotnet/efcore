@@ -22,36 +22,5 @@
   <PropertyGroup>
     <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
-  <ItemGroup>
-    <Content Include="project.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Adapters\StateEntryTableEntityAdapterTest.cs" />
-    <Compile Include="Adapters\TableEntityAdapterFactoryTests.cs" />
-    <Compile Include="ApiConsistencyTest.cs" />
-    <Compile Include="AtsBatchedDataStoreTests.cs" />
-    <Compile Include="AtsDatabaseTests.cs" />
-    <Compile Include="AtsDataStoreCreatorTests.cs" />
-    <Compile Include="AtsDataStoreSourceTests.cs" />
-    <Compile Include="AtsDataStoreTests.cs" />
-    <Compile Include="AtsValueGeneratorCacheTest.cs" />
-    <Compile Include="Extensions\AtsDatabaseExtensionTests.cs" />
-    <Compile Include="Extensions\AtsDbContextExtensionsTests.cs" />
-    <Compile Include="Extensions\DataStoreConnectionExtensionsTests.cs" />
-    <Compile Include="Extensions\EntityBuilderExtensionsTests.cs" />
-    <Compile Include="Helpers\PocoTestType.cs" />
-    <Compile Include="Helpers\SimpleTestTypes.cs" />
-    <Compile Include="Helpers\TestStateEntry.cs" />
-    <Compile Include="Helpers\TestTableResult.cs" />
-    <Compile Include="Query\AtsNamedValueBufferTests.cs" />
-    <Compile Include="Query\AtsObjectArrayValueReaderFactoryTests.cs" />
-    <Compile Include="Query\AtsObjectArrayValueReaderTests.cs" />
-    <Compile Include="Query\QueryCachingTests.cs" />
-    <Compile Include="Query\QueryGenerationTests.cs" />
-    <Compile Include="Query\QueryModelVisitorTests.cs" />
-    <Compile Include="Query\TableQueryGeneratorTests.cs" />
-    <Compile Include="Requests\TableOperationRequestTests.cs" />
-    <Compile Include="Utilities\EntityTypeExtensionsTest.cs" />
-  </ItemGroup>
   <Import Project="$(VSToolsPath)\AspNet\Microsoft.Web.AspNet.targets" Condition="'$(VSToolsPath)' != ''" />
 </Project>
