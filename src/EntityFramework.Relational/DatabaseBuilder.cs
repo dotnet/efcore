@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
@@ -43,13 +44,16 @@ namespace Microsoft.Data.Entity.Relational
                         var table = BuildTable(database, entityType);
                         mapping.Map(entityType, table);
 
-                        foreach (var property in entityType.Properties)
+                        foreach (var property in OrderProperties(entityType))
                         {
                             mapping.Map(property, BuildColumn(table, property));
                         }
 
                         var primaryKey = entityType.GetKey();
-                        mapping.Map(primaryKey, BuildPrimaryKey(database, primaryKey));
+                        if (primaryKey != null)
+                        {
+                            mapping.Map(primaryKey, BuildPrimaryKey(database, primaryKey));
+                        }
 
                         foreach (var index in entityType.Indexes)
                         {
@@ -67,6 +71,33 @@ namespace Microsoft.Data.Entity.Relational
 
                     return mapping;
                 });
+        }
+
+        private static IEnumerable<IProperty> OrderProperties(IEntityType entityType)
+        {
+            var primaryKey = entityType.GetKey();
+
+            var primaryKeyProperties
+                = primaryKey != null
+                    ? primaryKey.Properties.ToArray()
+                    : new IProperty[0];
+
+            var foreignKeyProperties
+                = entityType.ForeignKeys
+                    .SelectMany(fk => fk.Properties)
+                    .Except(primaryKeyProperties)
+                    .Distinct()
+                    .ToArray();
+
+            var otherProperties
+                = entityType.Properties
+                    .Except(primaryKeyProperties.Concat(foreignKeyProperties))
+                    .OrderBy(p => p.ColumnName())
+                    .ToArray();
+
+            return primaryKeyProperties
+                .Concat(otherProperties)
+                .Concat(foreignKeyProperties);
         }
 
         private static string PrimaryKeyName([NotNull] IKey primaryKey)

@@ -215,6 +215,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 Assert.Equal(
                     new[]
                         {
+                            "Blog.Key1 (nvarchar)",
+                            "Blog.Key2 (varbinary)",
                             "Blog.AndChew (varbinary)",
                             "Blog.AndRow (timestamp)",
                             "Blog.Cheese (nvarchar)",
@@ -222,8 +224,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                             "Blog.ErMilan (int)",
                             "Blog.Fuse (smallint)",
                             "Blog.George (bit)",
-                            "Blog.Key1 (nvarchar)",
-                            "Blog.Key2 (varbinary)",
                             "Blog.NotFigTime (datetime2)",
                             "Blog.NotToEat (smallint)",
                             "Blog.On (real)",

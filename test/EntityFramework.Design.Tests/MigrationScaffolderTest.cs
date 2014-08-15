@@ -293,8 +293,8 @@ namespace MyNamespace
             migrationBuilder.CreateTable(""dbo.[Cus[\""om.er]]s]"",
                 c => new
                     {
-                        HouseIdColumn = c.Int(name: ""House[\""Id]Column"", nullable: false),
-                        Id = c.Int(nullable: false)
+                        Id = c.Int(nullable: false),
+                        HouseIdColumn = c.Int(name: ""House[\""Id]Column"", nullable: false)
                     })
                 .PrimaryKey(""My[\""PK]"", t => t.Id);
             
@@ -308,8 +308,8 @@ namespace MyNamespace
             migrationBuilder.CreateTable(""dbo.[Ord[\""e.r]]s]"",
                 c => new
                     {
-                        CustomerId = c.Int(nullable: false),
-                        OrderId = c.Int(nullable: false)
+                        OrderId = c.Int(nullable: false),
+                        CustomerId = c.Int(nullable: false)
                     })
                 .PrimaryKey(""PK_dbo.Ord[\""e.r]s"", t => t.OrderId);
             
@@ -470,32 +470,32 @@ namespace MyNamespace
             migrationBuilder.CreateTable(""EntityWithNamedKey"",
                 c => new
                     {
-                        Foo = c.Int(nullable: false),
-                        Id = c.Int(nullable: false)
+                        Id = c.Int(nullable: false),
+                        Foo = c.Int(nullable: false)
                     })
                 .PrimaryKey(""MyPK2"", t => new { t.Id, t.Foo });
             
             migrationBuilder.CreateTable(""EntityWithNamedKeyAndAnnotations"",
                 c => new
                     {
-                        Foo = c.Int(nullable: false),
-                        Id = c.Int(nullable: false)
+                        Id = c.Int(nullable: false),
+                        Foo = c.Int(nullable: false)
                     })
                 .PrimaryKey(""MyPK1"", t => new { t.Id, t.Foo });
             
             migrationBuilder.CreateTable(""EntityWithUnnamedKey"",
                 c => new
                     {
-                        Foo = c.Int(nullable: false),
-                        Id = c.Int(nullable: false)
+                        Id = c.Int(nullable: false),
+                        Foo = c.Int(nullable: false)
                     })
                 .PrimaryKey(""PK_EntityWithUnnamedKey"", t => new { t.Id, t.Foo });
             
             migrationBuilder.CreateTable(""EntityWithUnnamedKeyAndAnnotations"",
                 c => new
                     {
-                        Foo = c.Int(nullable: false),
-                        Id = c.Int(nullable: false)
+                        Id = c.Int(nullable: false),
+                        Foo = c.Int(nullable: false)
                     })
                 .PrimaryKey(""PK_EntityWithUnnamedKeyAndAnnotations"", t => new { t.Id, t.Foo });
         }

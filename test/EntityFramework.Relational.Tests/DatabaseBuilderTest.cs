@@ -85,8 +85,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
             Assert.True(database.Tables.Any(t => t.Name == "Post"));
 
             Assert.Equal("BlogId", database.GetTable("Blog").Columns.Single().Name);
-            Assert.Equal("PostId", database.GetTable("Post").Columns[1].Name);
-            Assert.Equal("BelongsToBlogId", database.GetTable("Post").Columns[0].Name);
+            Assert.Equal("PostId", database.GetTable("Post").Columns[0].Name);
+            Assert.Equal("BelongsToBlogId", database.GetTable("Post").Columns[1].Name);
 
             Assert.Equal("PK_Blog", database.GetTable("Blog").PrimaryKey.Name);
             Assert.Equal("PK_Post", database.GetTable("Post").PrimaryKey.Name);
@@ -159,6 +159,41 @@ namespace Microsoft.Data.Entity.Relational.Tests
             var name = builder.GetDatabase(modelBuilder.Model).GetTable("MyTable").Indexes.Single().Name;
 
             Assert.Equal("IX_MyTable_ColumnAaa_ColumnZzz", name);
+        }
+
+        [Fact]
+        public void Columns_are_ordered_by_name_with_pk_columns_first_and_fk_columns_last()
+        {
+            var modelBuider = new BasicModelBuilder();
+            modelBuider.Entity("A",
+                b =>
+                    {
+                        b.Property<int>("Px");
+                        b.Property<int>("Py");
+                        b.Key("Px", "Py");
+                    });
+            modelBuider.Entity("B",
+                b =>
+                    {
+                        b.Property<int>("P6");
+                        b.Property<int>("P5");
+                        b.Property<int>("P4");
+                        b.Property<int>("P3");
+                        b.Property<int>("P2");
+                        b.Property<int>("P1");
+                        b.Key("P5", "P2");
+                        b.ForeignKeys(fks =>
+                            {
+                                fks.ForeignKey("A", "P6", "P4");
+                                fks.ForeignKey("A", "P4", "P5");
+                            });
+                    });
+
+            var databaseModel = new DatabaseBuilder().GetDatabase(modelBuider.Model);
+
+            Assert.Equal(2, databaseModel.Tables.Count);
+            Assert.Equal(new[] {"Px", "Py"}, databaseModel.Tables[0].Columns.Select(c => c.Name));
+            Assert.Equal(new[] { "P5", "P2", "P1", "P3", "P6", "P4" }, databaseModel.Tables[1].Columns.Select(c => c.Name));
         }
 
         private static IModel CreateModel()
