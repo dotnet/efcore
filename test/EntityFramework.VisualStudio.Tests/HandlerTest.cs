@@ -3,7 +3,7 @@
 
 using Xunit;
 
-namespace Microsoft.Data.Entity.Design.Tests
+namespace Microsoft.Data.Entity.Design
 {
     public class HandlerTest
     {

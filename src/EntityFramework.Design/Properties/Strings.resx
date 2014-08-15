@@ -193,10 +193,4 @@ Options:
 ]]>
     </value>
   </data>
-  <data name="SpecifiedContextNotFound" xml:space="preserve">
-    <value>No class named '{contextName}' that derives from DbContext was found.</value>
-  </data>
-  <data name="MultipleContextsFound" xml:space="preserve">
-    <value>More than one class named '{contextName}' that derives from DbContext was found. Please specify the fully qualified name of the one to use.</value>
-  </data>
 </root>

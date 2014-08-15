@@ -272,38 +272,6 @@ namespace Microsoft.Data.Entity.Design
             return GetString("ToolUsage");
         }
 
-        /// <summary>
-        /// No class named '{contextName}' that derives from DbContext was found.
-        /// </summary>
-        internal static string SpecifiedContextNotFound
-        {
-            get { return GetString("SpecifiedContextNotFound"); }
-        }
-
-        /// <summary>
-        /// No class named '{contextName}' that derives from DbContext was found.
-        /// </summary>
-        internal static string FormatSpecifiedContextNotFound(object contextName)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("SpecifiedContextNotFound", "contextName"), contextName);
-        }
-
-        /// <summary>
-        /// More than one class named '{contextName}' that derives from DbContext was found. Please specify the fully qualified name of the one to use.
-        /// </summary>
-        internal static string MultipleContextsFound
-        {
-            get { return GetString("MultipleContextsFound"); }
-        }
-
-        /// <summary>
-        /// More than one class named '{contextName}' that derives from DbContext was found. Please specify the fully qualified name of the one to use.
-        /// </summary>
-        internal static string FormatMultipleContextsFound(object contextName)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("MultipleContextsFound", "contextName"), contextName);
-        }
-
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

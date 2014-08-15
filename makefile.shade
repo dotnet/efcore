@@ -29,7 +29,7 @@ var sqliteTestDir='test/EntityFramework.SQLite.FunctionalTests/bin/Debug'
 
 #nupkg-patch target='compile'
     @{
-        var packagePaths = Files.Include("artifacts/build/**/EntityFramework.Design.*.nupkg")
+        var packagePaths = Files.Include("artifacts/build/**/EntityFramework.VisualStudio.*.nupkg")
             .Exclude("**/*.symbols.nupkg");
         foreach (var packagePath in packagePaths)
         {
@@ -37,23 +37,23 @@ var sqliteTestDir='test/EntityFramework.SQLite.FunctionalTests/bin/Debug'
             {
                 CreatePartFromFile(
                     package,
-                    @"src\EntityFramework.Design\tools\EntityFramework.psd1",
+                    @"src\EntityFramework.VisualStudio\tools\EntityFramework.psd1",
                     @"tools\EntityFramework.psd1");
                 CreatePartFromFile(
                     package,
-                    @"src\EntityFramework.Design\tools\EntityFramework.psm1",
+                    @"src\EntityFramework.VisualStudio\tools\EntityFramework.psm1",
                     @"tools\EntityFramework.psm1");
                 CreatePartFromFile(
                     package,
-                    @"src\EntityFramework.Design\tools\Handler.cs",
+                    @"src\EntityFramework.VisualStudio\tools\Handler.cs",
                     @"tools\Handler.cs");
                 CreatePartFromFile(
                     package,
-                    @"src\EntityFramework.Design\IHandler.cs",
+                    @"src\EntityFramework.VisualStudio\IHandler.cs",
                     @"tools\IHandler.cs");
                 CreatePartFromFile(
                     package,
-                    @"src\EntityFramework.Design\tools\init.ps1",
+                    @"src\EntityFramework.VisualStudio\tools\init.ps1",
                     @"tools\init.ps1");
             }
         }

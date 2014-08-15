@@ -5,11 +5,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{38F9AD16-B3B4-48A5-B814-77660CF409AE}</ProjectGuid>
+    <ProjectGuid>{B5D3AC05-7C73-4986-9B9E-193853712D68}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.Data.Entity.Design.Tests</RootNamespace>
-    <AssemblyName>EntityFramework.Design.Tests</AssemblyName>
+    <RootNamespace>Microsoft.Data.Entity.Design</RootNamespace>
+    <AssemblyName>EntityFramework.VisualStudio.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -31,16 +31,23 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="project.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\src\EntityFramework.VisualStudio\tools\Handler.cs">
+      <Link>Handler.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\ApiConsistencyTestBase.cs">
+      <Link>ApiConsistencyTestBase.cs</Link>
+    </Compile>
+    <Compile Include="ApiConsistencyTest.cs" />
+    <Compile Include="ExecutorTest.cs" />
+    <Compile Include="HandlerTest.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Data" />
-    <PackageReference Include="System.Data.Common">
-      <TargetFramework>net451</TargetFramework>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Framework.ConfigurationModel">
-      <TargetFramework>net45</TargetFramework>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Framework.DependencyInjection">
-      <TargetFramework>net45</TargetFramework>
+    <PackageReference Include="Moq">
+      <TargetFramework>net40</TargetFramework>
     </PackageReference>
     <PackageReference Include="xunit.abstractions">
       <TargetFramework>net45</TargetFramework>
@@ -55,47 +62,15 @@
     <PackageReference Include="xunit.execution">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
-    <PackageReference Include="Moq">
-      <TargetFramework>net40</TargetFramework>
-    </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="ApiConsistencyTest.cs" />
-    <Compile Include="CSharpMigrationCodeGeneratorTest.cs" />
-    <Compile Include="CSharpModelCodeGeneratorTest.cs" />
-    <Compile Include="..\Shared\ApiConsistencyTestBase.cs" />
-    <Compile Include="MigrationScaffolderTest.cs" />
-    <Compile Include="ProgramTest.cs" />
-    <Compile Include="MigrationToolTest.cs" />
-    <None Include="project.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\EntityFramework.Design\EntityFramework.Design.csproj">
-      <Project>{10ca97eb-e724-4f08-86af-f301f2b0bfff}</Project>
-      <Name>EntityFramework.Design</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\src\EntityFramework.Relational\EntityFramework.Relational.csproj">
-      <Project>{75c5a774-a3f3-43eb-97d3-dbe0cf2825d8}</Project>
-      <Name>EntityFramework.Relational</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\src\EntityFramework.Migrations\EntityFramework.Migrations.csproj">
-      <Project>{6E38B72F-31DA-4AEF-8F34-B8269572EC6B}</Project>
-      <Name>EntityFramework.Migrations</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\src\EntityFramework.SqlServer\EntityFramework.SqlServer.csproj">
-      <Project>{04e6620b-5b41-45fe-981a-f40eb7686b0e}</Project>
-      <Name>EntityFramework.SqlServer</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\src\EntityFramework\EntityFramework.csproj">
-      <Project>{71415cec-8111-4c73-8751-512d22f10602}</Project>
-      <Name>EntityFramework</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\EntityFramework.VisualStudio\EntityFramework.VisualStudio.csproj">
+      <Project>{a4d254e2-54d4-49f2-b3f5-e4661803c4e5}</Project>
+      <Name>EntityFramework.VisualStudio</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

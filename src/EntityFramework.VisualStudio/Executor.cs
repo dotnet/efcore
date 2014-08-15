@@ -1,8 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-#if NET451
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -123,7 +121,7 @@ namespace Microsoft.Data.Entity.Design
 
             var migration = _migrationTool.CreateMigration(
                 migrationName,
-                Path.Combine(_targetDir, _targetFileName),
+                AssemblyName.GetAssemblyName(Path.Combine(_targetDir, _targetFileName)).FullName,
                 migrationDirectory: Path.Combine(_projectDir, "Migrations"),
                 contextTypeName: contextName);
 
@@ -152,7 +150,7 @@ namespace Microsoft.Data.Entity.Design
             contextName = GetContextNameImpl(contextName);
 
             _migrationTool.UpdateDatabase(
-                Path.Combine(_targetDir, _targetFileName),
+                AssemblyName.GetAssemblyName(Path.Combine(_targetDir, _targetFileName)).FullName,
                 targetMigrationName: migrationName,
                 contextTypeName: contextName);
         }
@@ -187,7 +185,7 @@ namespace Microsoft.Data.Entity.Design
 
             // TODO: Use fromMigration & idempotent
             var statements = _migrationTool.GenerateScript(
-                Path.Combine(_targetDir, _targetFileName),
+                AssemblyName.GetAssemblyName(Path.Combine(_targetDir, _targetFileName)).FullName,
                 targetMigrationName: toMigration,
                 contextTypeName: contextName);
 
@@ -217,14 +215,14 @@ namespace Microsoft.Data.Entity.Design
 
             return contextTypes.Select(
                 t =>
-                    {
-                        var result = new Hashtable();
-                        result["FullName"] = t.FullName;
-                        result["Name"] = t.Name;
-                        result["SafeName"] = groups.Count(g => g.Key == t.Name) == 1 ? t.Name : t.FullName;
+                {
+                    var result = new Hashtable();
+                    result["FullName"] = t.FullName;
+                    result["Name"] = t.Name;
+                    result["SafeName"] = groups.Count(g => g.Key == t.Name) == 1 ? t.Name : t.FullName;
 
-                        return result;
-                    });
+                    return result;
+                });
         }
 
         public class GetMigrationNames : OperationBase
@@ -253,16 +251,16 @@ namespace Microsoft.Data.Entity.Design
 
             return migrations.Select(
                 m =>
-                    {
-                        var migrationName = m.GetMigrationName();
+                {
+                    var migrationName = m.GetMigrationName();
 
-                        var result = new Hashtable();
-                        result["MigrationId"] = m.MigrationId;
-                        result["MigrationName"] = migrationName;
-                        result["SafeName"] = groups.Count(g => g.Key == migrationName) == 1 ? migrationName : m.MigrationId;
+                    var result = new Hashtable();
+                    result["MigrationId"] = m.MigrationId;
+                    result["MigrationName"] = migrationName;
+                    result["SafeName"] = groups.Count(g => g.Key == migrationName) == 1 ? migrationName : m.MigrationId;
 
-                        return result;
-                    });
+                    return result;
+                });
         }
 
         public abstract class OperationBase : MarshalByRefObject
@@ -311,5 +309,3 @@ namespace Microsoft.Data.Entity.Design
         }
     }
 }
-
-#endif

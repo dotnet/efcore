@@ -1,11 +1,14 @@
 ﻿{
     "dependencies": {
-        "EntityFramework.Design": "",
-        "EntityFramework.SqlServer": "",
+        "EntityFramework.VisualStudio": "",
         "Moq": "4.2.1312.1622",
         "Xunit.KRunner": "1.0.0-*"
     },
-    "code": [ "**\\*.cs", "..\\Shared\\ApiConsistencyTestBase.cs" ],
+    "code": [
+        "**\\*.cs",
+        "..\\Shared\\ApiConsistencyTestBase.cs",
+        "..\\..\\src\\EntityFramework.VisualStudio\\tools\\Handler.cs"
+    ],
     "commands": {
         "test": "Xunit.KRunner"
     },

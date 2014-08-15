@@ -205,7 +205,7 @@ function InvokeOperation($project, $operation, $arguments = @{}, [switch] $skipB
     if (![Type]::GetType('Microsoft.Data.Entity.Design.IHandler')) {
         $componentModel = Get-VSComponentModel
         $packageInstaller = $componentModel.GetService([NuGet.VisualStudio.IVsPackageInstallerServices])
-        $package = $packageInstaller.GetInstalledPackages() | ? Id -eq EntityFramework.Design |
+        $package = $packageInstaller.GetInstalledPackages() | ? Id -eq EntityFramework.VisualStudio |
             sort Version -Descending | select -First 1
         $installPath = $package.InstallPath
         $toolsPath = Join-Path $installPath tools
@@ -239,7 +239,7 @@ function InvokeOperation($project, $operation, $arguments = @{}, [switch] $skipB
     # TODO: Set DataDirectory
     $domain = [AppDomain]::CreateDomain('EntityFrameworkDesignDomain', $null, $info)
     try {
-        $assemblyName = 'EntityFramework.Design'
+        $assemblyName = 'EntityFramework.VisualStudio'
         $typeName = 'Microsoft.Data.Entity.Design.Executor'
         $targetFileName = GetProperty $properties OutputFileName
         $rootNamespace = GetProperty $properties RootNamespace
