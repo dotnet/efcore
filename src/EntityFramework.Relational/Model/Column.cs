@@ -107,8 +107,10 @@ namespace Microsoft.Data.Entity.Relational.Model
             IsUnicode = source.IsUnicode;
         }
 
-        protected internal virtual Column Clone(CloneContext cloneContext)
+        public virtual Column Clone([NotNull] CloneContext cloneContext)
         {
+            Check.NotNull(cloneContext, "cloneContext");
+
             return (Column)cloneContext.GetOrAdd(this, () => new Column(this));
         }
     }

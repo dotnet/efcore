@@ -55,8 +55,10 @@ namespace Microsoft.Data.Entity.Relational.Model
             get { return _isClustered; }
         }
 
-        protected internal virtual PrimaryKey Clone(CloneContext cloneContext)
+        public virtual PrimaryKey Clone([NotNull] CloneContext cloneContext)
         {
+            Check.NotNull(cloneContext, "cloneContext");
+
             return
                 new PrimaryKey(
                     Name,

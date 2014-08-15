@@ -32,23 +32,37 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     b.Property<string>("P1").ColumnName("C1");
                     b.Key("Id").KeyName("PK1");
                     b.ToTable("T1", "dbo");
-                    b.ForeignKeys(fks => fks.ForeignKey("A", "Id").KeyName("FK"));
-                    b.Indexes(ixs => ixs.Index("Id").IsUnique().IndexName("IX"));
+                    b.ForeignKeys(fks => fks.ForeignKey("A", "Id").KeyName("FK").CascadeDelete(true));
+                    b.Indexes(ixs => ixs.Index("Id").IsUnique().IndexName("IX").IsUnique());
                 });
 
-            var operations = new ModelDiffer(new DatabaseBuilder()).CreateSchema(modelBuider.Model);
+            var databaseBuilder = new DatabaseBuilder();
+            var operations = new ModelDiffer(databaseBuilder).CreateSchema(modelBuider.Model);
+            var dbModel = databaseBuilder.GetDatabase(modelBuider.Model);
 
             Assert.Equal(4, operations.Count);
 
             var createTableOperation0 = (CreateTableOperation)operations[0];
             var createTableOperation1 = (CreateTableOperation)operations[1];
+
+            Assert.Same(dbModel.Tables[0], createTableOperation0.Table);
+            Assert.Same(dbModel.Tables[1], createTableOperation1.Table);
+
             var addForeignKeyOperation = (AddForeignKeyOperation)operations[2];
+
+            Assert.Equal("FK", addForeignKeyOperation.ForeignKeyName);
+            Assert.Equal("dbo.T1", addForeignKeyOperation.TableName);
+            Assert.Equal("dbo.T0", addForeignKeyOperation.ReferencedTableName);
+            Assert.Equal(new[] { "Id" }, addForeignKeyOperation.ColumnNames);
+            Assert.Equal(new[] { "Id" }, addForeignKeyOperation.ReferencedColumnNames);
+            Assert.True(addForeignKeyOperation.CascadeDelete);
+
             var createIndexOperation = (CreateIndexOperation)operations[3];
 
-            Assert.Equal("dbo.T0", createTableOperation0.Table.Name);
-            Assert.Equal("dbo.T1", createTableOperation1.Table.Name);
-            Assert.Equal("FK", addForeignKeyOperation.ForeignKeyName);
             Assert.Equal("IX", createIndexOperation.IndexName);
+            Assert.Equal("dbo.T1", createIndexOperation.TableName);
+            Assert.Equal(new[] { "Id" }, createIndexOperation.ColumnNames);
+            Assert.True(createIndexOperation.IsUnique);
         }
 
         [Fact]
@@ -180,24 +194,19 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     b.Indexes(ixs => ixs.Index("Id").IndexName("IX").IsUnique());
                 });
 
-            var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
+            var databaseBuilder = new DatabaseBuilder();
+            var operations = new ModelDiffer(databaseBuilder).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
+            var targetDbModel = databaseBuilder.GetDatabase(targetModelBuilder.Model);
 
             Assert.Equal(3, operations.Count);
             Assert.IsType<CreateTableOperation>(operations[0]);
             Assert.IsType<AddForeignKeyOperation>(operations[1]);
+            Assert.IsType<CreateIndexOperation>(operations[2]);
 
             var createTableOperation = (CreateTableOperation)operations[0];
 
-            Assert.Equal("B", createTableOperation.Table.Name);
-            Assert.Equal(1, createTableOperation.Table.Columns.Count);
-            Assert.Equal("Id", createTableOperation.Table.Columns[0].Name);
-            Assert.Equal(typeof(int), createTableOperation.Table.Columns[0].ClrType);
-            Assert.NotNull(createTableOperation.Table.PrimaryKey);
-            Assert.Equal("PK", createTableOperation.Table.PrimaryKey.Name);
-            Assert.Equal(1, createTableOperation.Table.ForeignKeys.Count);
-            Assert.Equal("FK", createTableOperation.Table.ForeignKeys[0].Name);
-            Assert.True(createTableOperation.Table.ForeignKeys[0].CascadeDelete);
+            Assert.Same(targetDbModel.Tables[1], createTableOperation.Table);
 
             var addForeignKeyOperation = (AddForeignKeyOperation)operations[1];
 

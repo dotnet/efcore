@@ -65,8 +65,10 @@ namespace Microsoft.Data.Entity.Relational.Model
             get { return _isClustered; }
         }
 
-        protected internal virtual Index Clone(CloneContext cloneContext)
+        public virtual Index Clone([NotNull] CloneContext cloneContext)
         {
+            Check.NotNull(cloneContext, "cloneContext");
+
             return
                 new Index(
                     Name,

@@ -54,8 +54,10 @@ namespace Microsoft.Data.Entity.Relational.Model
             }
         }
 
-        protected internal virtual Sequence Clone(CloneContext cloneContext)
+        public virtual Sequence Clone([NotNull] CloneContext cloneContext)
         {
+            Check.NotNull(cloneContext, "cloneContext");
+
             return new Sequence(Name, DataType, StartWith, IncrementBy);
         }
     }

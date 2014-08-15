@@ -341,9 +341,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests
 
             Assert.Equal(2, statementCount);
             Assert.Equal(1, sqlGenerator.Database.Tables.Count);
-            Assert.Same(table, sqlGenerator.Database.Tables[0]);
+            Assert.NotSame(table, sqlGenerator.Database.Tables[0]);
             Assert.Equal(1, sqlGenerator.Database.Tables[0].Columns.Count);
-            Assert.Same(column, sqlGenerator.Database.Tables[0].Columns[0]);
+            Assert.NotSame(column, sqlGenerator.Database.Tables[0].Columns[0]);
         }
 
         private static MigrationOperationSqlGenerator CreateSqlGenerator(DatabaseModel database = null)

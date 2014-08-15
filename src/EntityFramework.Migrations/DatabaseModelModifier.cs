@@ -7,6 +7,7 @@ using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Migrations.Utilities;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Model;
+using Microsoft.Data.Entity.Relational.Utilities;
 
 namespace Microsoft.Data.Entity.Migrations
 {
@@ -19,7 +20,7 @@ namespace Microsoft.Data.Entity.Migrations
             Check.NotNull(createSequenceOperation, "createSequenceOperation");
             Check.NotNull(databaseModel, "databaseModel");
 
-            databaseModel.AddSequence(createSequenceOperation.Sequence);
+            databaseModel.AddSequence(createSequenceOperation.Sequence.Clone(new CloneContext()));
         }
 
         public override void Visit(DropSequenceOperation dropSequenceOperation, DatabaseModel databaseModel)
@@ -35,7 +36,18 @@ namespace Microsoft.Data.Entity.Migrations
             Check.NotNull(createTableOperation, "createTableOperation");
             Check.NotNull(databaseModel, "databaseModel");
 
-            databaseModel.AddTable(createTableOperation.Table);
+            var cloneContext = new CloneContext();
+            var table 
+                = new Table(
+                    createTableOperation.Table.Name, 
+                    createTableOperation.Table.Columns.Select(c => c.Clone(cloneContext)));
+
+            if (createTableOperation.Table.PrimaryKey != null)
+            {
+                table.PrimaryKey = createTableOperation.Table.PrimaryKey.Clone(cloneContext);
+            }
+
+            databaseModel.AddTable(table);
         }
 
         public override void Visit(DropTableOperation dropTableOperation, DatabaseModel databaseModel)
@@ -70,7 +82,7 @@ namespace Microsoft.Data.Entity.Migrations
             Check.NotNull(databaseModel, "databaseModel");
 
             var table = databaseModel.GetTable(addColumnOperation.TableName);
-            table.AddColumn(addColumnOperation.Column);
+            table.AddColumn(addColumnOperation.Column.Clone(new CloneContext()));
         }
 
         public override void Visit(DropColumnOperation dropColumnOperation, DatabaseModel databaseModel)

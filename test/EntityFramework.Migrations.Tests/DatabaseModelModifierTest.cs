@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Linq;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Relational.Model;
@@ -16,7 +17,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         public void Visit_with_create_sequence_operation()
         {
             var model = new DatabaseModel();
-            var sequence = new Sequence("dbo.MySequence");
+            var sequence = new Sequence("dbo.MySequence", "bigint", 2, 3);
             var operation = new CreateSequenceOperation(sequence);
 
             Assert.Equal(0, model.Sequences.Count);
@@ -24,7 +25,12 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             operation.Accept(new DatabaseModelModifier(), model);
 
             Assert.Equal(1, model.Sequences.Count);
-            Assert.Same(sequence, model.Sequences[0]);
+
+            Assert.NotSame(sequence, model.Sequences[0]);
+            Assert.Equal("dbo.MySequence", model.Sequences[0].Name);
+            Assert.Equal("bigint", model.Sequences[0].DataType);
+            Assert.Equal(2, model.Sequences[0].StartWith);
+            Assert.Equal(3, model.Sequences[0].IncrementBy);
         }
 
         [Fact]
@@ -46,15 +52,35 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         public void Visit_with_create_table_operation()
         {
             var model = new DatabaseModel();
-            var table = new Table("dbo.MyTable");
-            var operation = new CreateTableOperation(table);
+            var column0 = new Column("Id", typeof(string));
+            var column1 = new Column("Id", typeof(string));
+            var column2 = new Column("C", typeof(int));
+            var dependent = new Table("T1", new[] { column1, column2 });
+
+            dependent.PrimaryKey = new PrimaryKey("PK", new[] { column1 }, isClustered: false);
+            dependent.AddForeignKey(new ForeignKey("FK", new[] { column1 }, new[] { column0 }));
+            dependent.AddIndex(new Index("IX", new[] { column2 }));
+
+            var operation = new CreateTableOperation(dependent);
 
             Assert.Equal(0, model.Tables.Count);
 
             operation.Accept(new DatabaseModelModifier(), model);
 
             Assert.Equal(1, model.Tables.Count);
-            Assert.Same(table, model.Tables[0]);
+            Assert.NotSame(dependent, model.Tables[0]);
+            Assert.Equal("T1", model.Tables[0].Name);
+            Assert.Equal(new[] { "Id", "C" }, model.Tables[0].Columns.Select(c => c.Name));
+            Assert.Equal(typeof(string), model.Tables[0].Columns[0].ClrType);
+            Assert.Equal(typeof(int), model.Tables[0].Columns[1].ClrType);
+
+            Assert.NotSame(dependent.PrimaryKey, model.Tables[0].PrimaryKey);
+            Assert.Equal("PK", model.Tables[0].PrimaryKey.Name);
+            Assert.Equal(new[] { "Id" }, model.Tables[0].PrimaryKey.Columns.Select(c => c.Name));
+            Assert.False(model.Tables[0].PrimaryKey.IsClustered);
+
+            Assert.Equal(0, model.Tables[0].ForeignKeys.Count);
+            Assert.Equal(0, model.Tables[0].Indexes.Count);
         }
 
         [Fact]
@@ -115,7 +141,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             operation.Accept(new DatabaseModelModifier(), model);
 
             Assert.Equal(1, table.Columns.Count);
-            Assert.Same(column, table.Columns[0]);
+            Assert.NotSame(column, table.Columns[0]);
+            Assert.Equal("Foo", table.Columns[0].Name);
+            Assert.Equal(typeof(int), table.Columns[0].ClrType);
         }
 
         [Fact]

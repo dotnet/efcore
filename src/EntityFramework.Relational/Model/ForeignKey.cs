@@ -70,8 +70,10 @@ namespace Microsoft.Data.Entity.Relational.Model
             get { return _cascadeDelete; }
         }
 
-        protected internal virtual ForeignKey Clone(CloneContext cloneContext)
+        public virtual ForeignKey Clone([NotNull] CloneContext cloneContext)
         {
+            Check.NotNull(cloneContext, "cloneContext");
+
             return
                 new ForeignKey(
                     Name,

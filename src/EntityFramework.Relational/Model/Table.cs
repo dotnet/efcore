@@ -135,8 +135,10 @@ namespace Microsoft.Data.Entity.Relational.Model
             _indexes.RemoveAt(i);
         }
 
-        protected internal virtual Table Clone(CloneContext cloneContext)
+        public virtual Table Clone([NotNull] CloneContext cloneContext)
         {
+            Check.NotNull(cloneContext, "cloneContext");
+
             var clone = new Table(Name, Columns.Select(c => c.Clone(cloneContext)));
 
             if (PrimaryKey != null)
