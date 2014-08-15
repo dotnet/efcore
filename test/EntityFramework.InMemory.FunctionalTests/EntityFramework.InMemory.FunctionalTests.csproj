@@ -67,6 +67,8 @@
     <Compile Include="InMemoryDataStoreTest.cs" />
     <Compile Include="InMemoryIntegerGeneratorEndToEndTest.cs" />
     <Compile Include="MonsterFixupTest.cs" />
+    <Compile Include="NorthwindQueryFixture.cs" />
+    <Compile Include="NorthwindAsyncQueryTest.cs" />
     <Compile Include="NorthwindQueryTest.cs" />
     <Compile Include="ShadowStateUpdateTest.cs" />
     <None Include="project.json" />

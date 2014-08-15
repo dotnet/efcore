@@ -94,7 +94,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                 {
                     return
                         Expression.Call(
-                            _relationalQueryCompilationContext.LinqOperatorProvider.First
+                            _relationalQueryCompilationContext.LinqOperatorProvider._First
                                 .MakeGenericMethod(typeof(TResult)),
                             Expression.Call(
                                 _relationalQueryCompilationContext.LinqOperatorProvider.Select

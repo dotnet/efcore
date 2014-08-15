@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Northwind;
 using Xunit;
 
@@ -130,12 +129,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public virtual void Any_simple()
         {
             AssertQuery<Customer>(cs => cs.Any());
-        }
-
-        [Fact]
-        public virtual async Task Any_simple_async()
-        {
-            await AssertQueryAsync<Customer>(cs => cs.AnyAsync());
         }
 
         [Fact]
@@ -346,12 +339,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public virtual async Task Where_simple_async()
-        {
-            await AssertQueryAsync<Customer>(cs => cs.Where(c => c.City == "London"));
-        }
-
-        [Fact]
         public virtual void Where_true()
         {
             Assert.Equal(91,
@@ -545,15 +532,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public virtual async Task Select_project_filter_async()
-        {
-            await AssertQueryAsync<Customer>(cs =>
-                from c in cs
-                where c.City == "London"
-                select c.CompanyName);
-        }
-
-        [Fact]
         public virtual void Select_project_filter2()
         {
             AssertQuery<Customer>(cs =>
@@ -720,33 +698,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public virtual async Task Where_query_composition_async()
-        {
-            await AssertQueryAsync<Employee>(es =>
-                from e1 in es
-                where e1.FirstName == es.OrderBy(e => e.EmployeeID).First().FirstName
-                select e1);
-        }
-
-        [Fact]
         public virtual void Where_subquery_recursive_trivial()
         {
             AssertQuery<Employee>(es =>
-                from e1 in es
-                where (from e2 in es
-                    where (from e3 in es
-                        orderby e3.EmployeeID
-                        select e3).Any()
-                    select e2).Any()
-                orderby e1.EmployeeID
-                select e1,
-                assertOrder: true);
-        }
-
-        [Fact]
-        public virtual async Task Where_subquery_recursive_trivial_async()
-        {
-            await AssertQueryAsync<Employee>(es =>
                 from e1 in es
                 where (from e2 in es
                     where (from e3 in es
@@ -1098,7 +1052,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 cs.OrderBy(c => c.CustomerID),
                 assertOrder: true);
         }
-        
+
         [Fact]
         public virtual void OrderBy_client_mixed()
         {
@@ -1405,12 +1359,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public async Task Count_with_no_predicate_async()
-        {
-            await AssertQueryAsync<Order>(os => os.CountAsync());
-        }
-
-        [Fact]
         public virtual void Count_with_predicate()
         {
             AssertQuery<Order>(os =>
@@ -1498,13 +1446,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public virtual async Task Single_Predicate_async()
-        {
-            await AssertQueryAsync<Customer>(
-                cs => cs.SingleAsync(c => c.CustomerID == "ALFKI"));
-        }
-
-        [Fact]
         public virtual void Where_Single()
         {
             AssertQuery<Customer>(
@@ -1524,13 +1465,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer>(
                 cs => cs.SingleOrDefault(c => c.CustomerID == "ALFKI"));
-        }
-
-        [Fact]
-        public virtual async Task SingleOrDefault_Predicate_async()
-        {
-            await AssertQueryAsync<Customer>(
-                cs => cs.SingleOrDefaultAsync(c => c.CustomerID == "ALFKI"));
         }
 
         [Fact]
@@ -1586,50 +1520,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public virtual async Task First_async()
-        {
-            await AssertQueryAsync<Customer>(
-                cs => cs.OrderBy(c => c.ContactName).FirstAsync());
-        }
-
-        [Fact]
-        public virtual async Task First_Predicate_async()
-        {
-            await AssertQueryAsync<Customer>(
-                cs => cs.OrderBy(c => c.ContactName).FirstAsync(c => c.City == "London"));
-        }
-
-        [Fact]
-        public virtual async Task Where_First_async()
-        {
-            await AssertQueryAsync<Customer>(
-                // ReSharper disable once ReplaceWithSingleCallToFirst
-                cs => cs.OrderBy(c => c.ContactName).Where(c => c.City == "London").FirstAsync());
-        }
-
-        [Fact]
-        public virtual async Task FirstOrDefault_async()
-        {
-            await AssertQueryAsync<Customer>(
-                cs => cs.OrderBy(c => c.ContactName).FirstOrDefaultAsync());
-        }
-
-        [Fact]
-        public virtual async Task FirstOrDefault_Predicate_async()
-        {
-            await AssertQueryAsync<Customer>(
-                cs => cs.OrderBy(c => c.ContactName).FirstOrDefaultAsync(c => c.City == "London"));
-        }
-
-        [Fact]
-        public virtual async Task Where_FirstOrDefault_async()
-        {
-            await AssertQueryAsync<Customer>(
-                // ReSharper disable once ReplaceWithSingleCallToFirstOrDefault
-                cs => cs.OrderBy(c => c.ContactName).Where(c => c.City == "London").FirstOrDefaultAsync());
-        }
-
-        [Fact]
         public virtual void Last()
         {
             AssertQuery<Customer>(
@@ -1641,7 +1531,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer>(
                 // ReSharper disable once ReplaceWithSingleCallToLast
-                cs => cs.Where(c => c.CustomerID =="ALFKI").Last());
+                cs => cs.Where(c => c.CustomerID == "ALFKI").Last());
         }
 
         [Fact]
@@ -1680,7 +1570,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 // ReSharper disable once ReplaceWithSingleCallToLastOrDefault
                 cs => cs.OrderBy(c => c.ContactName).Where(c => c.City == "London").LastOrDefault());
         }
-        
+
         [Fact]
         public virtual void String_StartsWith_Literal()
         {
@@ -1755,20 +1645,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        private async Task<int> AssertQueryAsync<TItem>(
-            Func<IQueryable<TItem>, Task<int>> query,
-            bool assertOrder = false)
-            where TItem : class
-        {
-            using (var context = CreateContext())
-            {
-                return AssertResults(
-                    new[] { await query(NorthwindData.Set<TItem>()) },
-                    new[] { await query(context.Set<TItem>()) },
-                    assertOrder);
-            }
-        }
-
         private int AssertQuery<TItem>(
             Func<IQueryable<TItem>, bool> query,
             bool assertOrder = false)
@@ -1779,20 +1655,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 return AssertResults(
                     new[] { query(NorthwindData.Set<TItem>()) },
                     new[] { query(context.Set<TItem>()) },
-                    assertOrder);
-            }
-        }
-
-        private async Task<int> AssertQueryAsync<TItem>(
-            Func<IQueryable<TItem>, Task<bool>> query,
-            bool assertOrder = false)
-            where TItem : class
-        {
-            using (var context = CreateContext())
-            {
-                return AssertResults(
-                    new[] { await query(NorthwindData.Set<TItem>()) },
-                    new[] { await query(context.Set<TItem>()) },
                     assertOrder);
             }
         }
@@ -1822,20 +1684,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 return AssertResults(
                     new[] { query(NorthwindData.Set<TItem1>(), NorthwindData.Set<TItem2>()) },
                     new[] { query(context.Set<TItem1>(), context.Set<TItem2>()) },
-                    assertOrder);
-            }
-        }
-
-        private async Task<int> AssertQueryAsync<TItem>(
-            Func<IQueryable<TItem>, Task<TItem>> query,
-            bool assertOrder = false)
-            where TItem : class
-        {
-            using (var context = CreateContext())
-            {
-                return AssertResults(
-                    new[] { await query(NorthwindData.Set<TItem>()) },
-                    new[] { await query(context.Set<TItem>()) },
                     assertOrder);
             }
         }
@@ -1898,19 +1746,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 return AssertResults(
                     query(NorthwindData.Set<TItem1>(), NorthwindData.Set<TItem2>(), NorthwindData.Set<TItem3>()).ToArray(),
                     query(context.Set<TItem1>(), context.Set<TItem2>(), context.Set<TItem3>()).ToArray(),
-                    assertOrder);
-            }
-        }
-
-        private async Task<int> AssertQueryAsync<TItem>(
-            Func<IQueryable<TItem>, IQueryable<object>> query, bool assertOrder = false)
-            where TItem : class
-        {
-            using (var context = CreateContext())
-            {
-                return AssertResults(
-                    query(NorthwindData.Set<TItem>()).ToArray(),
-                    await ((IAsyncEnumerable<object>)query(context.Set<TItem>())).ToArray(),
                     assertOrder);
             }
         }

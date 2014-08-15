@@ -72,7 +72,7 @@ namespace Microsoft.Data.Entity.Relational
             var queryCompilationContext
                 = CreateQueryCompilationContext(
                     new LinqOperatorProvider(),
-                    new RelationalResultOperatorHandler(new ResultOperatorHandler()),
+                    new RelationalResultOperatorHandler(),
                     new QueryMethodProvider());
 
             var queryExecutor = queryCompilationContext.CreateQueryModelVisitor().CreateQueryExecutor<TResult>(queryModel);
@@ -89,7 +89,7 @@ namespace Microsoft.Data.Entity.Relational
             var queryCompilationContext
                 = CreateQueryCompilationContext(
                     new AsyncLinqOperatorProvider(),
-                    new RelationalResultOperatorHandler(new AsyncResultOperatorHandler()),
+                    new RelationalResultOperatorHandler(),
                     new AsyncQueryMethodProvider());
 
             var queryExecutor = queryCompilationContext.CreateQueryModelVisitor().CreateAsyncQueryExecutor<TResult>(queryModel);

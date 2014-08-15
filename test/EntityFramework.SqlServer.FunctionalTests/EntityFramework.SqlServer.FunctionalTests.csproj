@@ -71,6 +71,8 @@
     <Compile Include="ConnectionStringTest.cs" />
     <Compile Include="CompositeKeyEndToEndTest.cs" />
     <Compile Include="ExistingConnectionTest.cs" />
+    <Compile Include="NorthwindQueryFixture.cs" />
+    <Compile Include="NorthwindAsyncQueryTest.cs" />
     <Compile Include="NorthwindQueryTest.cs" />
     <Compile Include="SqlServerOptimisticConcurrencyTest.cs" />
     <Compile Include="SequenceEndToEndTest.cs" />

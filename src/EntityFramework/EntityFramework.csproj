@@ -99,7 +99,6 @@
     <Compile Include="Metadata\NavigationExtensions.cs" />
     <Compile Include="Metadata\EntityTypeNameComparer.cs" />
     <Compile Include="Metadata\PropertyExtensions.cs" />
-    <Compile Include="Query\AsyncResultOperatorHandler.cs" />
     <Compile Include="Query\IResultOperatorHandler.cs" />
     <Compile Include="Query\QueryCompilationContext.cs" />
     <Compile Include="Query\QuerySourceScope`.cs" />

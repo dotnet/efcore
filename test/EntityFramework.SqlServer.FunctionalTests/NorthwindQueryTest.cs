@@ -1,15 +1,9 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Data.Entity.FunctionalTests;
-using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Advanced;
-using Microsoft.Framework.DependencyInjection.Fallback;
 using Northwind;
 using Xunit;
 
@@ -250,20 +244,6 @@ ORDER BY c.[CustomerID]",
         public override void Any_simple()
         {
             base.Any_simple();
-
-            Assert.Equal(
-                @"SELECT CASE WHEN (
-    EXISTS (
-        SELECT 1
-        FROM [Customers] AS c
-    )
-) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END",
-                _fixture.Sql);
-        }
-
-        public override async Task Any_simple_async()
-        {
-            await base.Any_simple_async();
 
             Assert.Equal(
                 @"SELECT CASE WHEN (
@@ -602,17 +582,6 @@ WHERE c.[City] = c.[City]",
                 _fixture.Sql);
         }
 
-        public override async Task Where_simple_async()
-        {
-            await base.Where_simple_async();
-
-            Assert.Equal(
-                @"SELECT c.[Address], c.[City], c.[CompanyName], c.[ContactName], c.[ContactTitle], c.[Country], c.[CustomerID], c.[Fax], c.[Phone], c.[PostalCode], c.[Region]
-FROM [Customers] AS c
-WHERE c.[City] = @p0",
-                _fixture.Sql);
-        }
-
         public override void Where_select_many_or()
         {
             base.Where_select_many_or();
@@ -652,17 +621,6 @@ WHERE ((c.[City] = @p0 AND c.[Country] = @p1) AND (e.[City] = @p0 AND e.[Country
         public override void Select_project_filter()
         {
             base.Select_project_filter();
-
-            Assert.Equal(
-                @"SELECT c.[CompanyName]
-FROM [Customers] AS c
-WHERE c.[City] = @p0",
-                _fixture.Sql);
-        }
-
-        public override async Task Select_project_filter_async()
-        {
-            await base.Select_project_filter_async();
 
             Assert.Equal(
                 @"SELECT c.[CompanyName]
@@ -1231,53 +1189,6 @@ FROM [Orders] AS o
         protected override DbContext CreateContext()
         {
             return _fixture.CreateContext();
-        }
-    }
-
-    public class NorthwindQueryFixture : NorthwindQueryFixtureRelationalBase, IDisposable
-    {
-        private readonly TestSqlLoggerFactory _loggingFactory = new TestSqlLoggerFactory();
-
-        private readonly IServiceProvider _serviceProvider;
-        private readonly DbContextOptions _options;
-        private readonly SqlServerTestDatabase _testDatabase;
-
-        public NorthwindQueryFixture()
-        {
-            _serviceProvider
-                = new ServiceCollection()
-                    .AddEntityFramework()
-                    .AddSqlServer()
-                    .UseLoggerFactory(_loggingFactory)
-                    .ServiceCollection
-                    .BuildServiceProvider();
-
-            _testDatabase = SqlServerTestDatabase.Northwind().Result;
-
-            _options
-                = new DbContextOptions()
-                    .UseModel(SetTableNames(CreateModel()))
-                    .UseSqlServer(_testDatabase.Connection.ConnectionString);
-        }
-
-        public string Sql
-        {
-            get { return TestSqlLoggerFactory.Logger.Sql; }
-        }
-
-        public void Dispose()
-        {
-            _testDatabase.Dispose();
-        }
-
-        public DbContext CreateContext()
-        {
-            return new DbContext(_serviceProvider, _options);
-        }
-
-        public void InitLogger()
-        {
-            _loggingFactory.Init();
         }
     }
 }

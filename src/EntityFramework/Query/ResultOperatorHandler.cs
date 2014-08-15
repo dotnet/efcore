@@ -3,10 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
@@ -24,6 +21,7 @@ namespace Microsoft.Data.Entity.Query
                     { typeof(AllResultOperator), (v, r, q) => HandleAll(v, (AllResultOperator)r, q) },
                     { typeof(AnyResultOperator), (v, _, __) => HandleAny(v) },
                     { typeof(AverageResultOperator), (v, _, __) => HandleAverage(v) },
+                    { typeof(CastResultOperator), (v, r, __) => HandleCast(v, (CastResultOperator)r) },
                     { typeof(CountResultOperator), (v, _, __) => HandleCount(v) },
                     { typeof(DefaultIfEmptyResultOperator), (v, r, q) => HandleDefaultIfEmpty(v, (DefaultIfEmptyResultOperator)r, q) },
                     { typeof(DistinctResultOperator), (v, _, __) => HandleDistinct(v) },
@@ -51,13 +49,11 @@ namespace Microsoft.Data.Entity.Query
             ResultHandler handler;
             if (!_handlers.TryGetValue(resultOperator.GetType(), out handler))
             {
-                throw new NotImplementedException();
+                throw new NotImplementedException(resultOperator.GetType().ToString());
             }
 
             return handler(entityQueryModelVisitor, resultOperator, queryModel);
         }
-
-        private static readonly MethodInfo _all = GetMethod("All", 1);
 
         private static Expression HandleAll(
             EntityQueryModelVisitor entityQueryModelVisitor,
@@ -71,7 +67,8 @@ namespace Microsoft.Data.Entity.Query
                         queryModel.MainFromClause);
 
             return Expression.Call(
-                _all.MakeGenericMethod(typeof(QuerySourceScope)),
+                entityQueryModelVisitor.LinqOperatorProvider.All
+                    .MakeGenericMethod(typeof(QuerySourceScope)),
                 entityQueryModelVisitor.CreateScope(
                     entityQueryModelVisitor.Expression,
                     entityQueryModelVisitor.StreamedSequenceInfo.ResultItemType,
@@ -79,12 +76,11 @@ namespace Microsoft.Data.Entity.Query
                 Expression.Lambda(predicate, EntityQueryModelVisitor.QuerySourceScopeParameter));
         }
 
-        private static readonly MethodInfo _any = GetMethod("Any");
-
         private static Expression HandleAny(EntityQueryModelVisitor entityQueryModelVisitor)
         {
             return Expression.Call(
-                _any.MakeGenericMethod(entityQueryModelVisitor.StreamedSequenceInfo.ResultItemType),
+                entityQueryModelVisitor.LinqOperatorProvider.Any
+                    .MakeGenericMethod(entityQueryModelVisitor.StreamedSequenceInfo.ResultItemType),
                 entityQueryModelVisitor.Expression);
         }
 
@@ -93,17 +89,22 @@ namespace Microsoft.Data.Entity.Query
             return HandleAggregate(entityQueryModelVisitor, "Average");
         }
 
-        private static readonly MethodInfo _count = GetMethod("Count");
+        private static Expression HandleCast(
+            EntityQueryModelVisitor entityQueryModelVisitor, CastResultOperator castResultOperator)
+        {
+            return Expression.Call(
+                entityQueryModelVisitor.LinqOperatorProvider
+                    .Cast.MakeGenericMethod(castResultOperator.CastItemType),
+                entityQueryModelVisitor.Expression);
+        }
 
         private static Expression HandleCount(EntityQueryModelVisitor entityQueryModelVisitor)
         {
             return Expression.Call(
-                _count.MakeGenericMethod(entityQueryModelVisitor.StreamedSequenceInfo.ResultItemType),
+                entityQueryModelVisitor.LinqOperatorProvider
+                    .Count.MakeGenericMethod(entityQueryModelVisitor.StreamedSequenceInfo.ResultItemType),
                 entityQueryModelVisitor.Expression);
         }
-
-        private static readonly MethodInfo _defaultIfEmpty = GetMethod("DefaultIfEmpty");
-        private static readonly MethodInfo _defaultIfEmptyArg = GetMethod("DefaultIfEmpty", 1);
 
         private static Expression HandleDefaultIfEmpty(
             EntityQueryModelVisitor entityQueryModelVisitor,
@@ -113,7 +114,7 @@ namespace Microsoft.Data.Entity.Query
             if (defaultIfEmptyResultOperator.OptionalDefaultValue == null)
             {
                 return Expression.Call(
-                    _defaultIfEmpty
+                    entityQueryModelVisitor.LinqOperatorProvider.DefaultIfEmpty
                         .MakeGenericMethod(entityQueryModelVisitor.StreamedSequenceInfo.ResultItemType),
                     entityQueryModelVisitor.Expression);
             }
@@ -125,7 +126,8 @@ namespace Microsoft.Data.Entity.Query
                         queryModel.MainFromClause);
 
             return Expression.Call(
-                _defaultIfEmptyArg.MakeGenericMethod(typeof(QuerySourceScope)),
+                entityQueryModelVisitor.LinqOperatorProvider.DefaultIfEmptyArg
+                    .MakeGenericMethod(typeof(QuerySourceScope)),
                 entityQueryModelVisitor.CreateScope(
                     entityQueryModelVisitor.Expression,
                     entityQueryModelVisitor.StreamedSequenceInfo.ResultItemType,
@@ -133,25 +135,21 @@ namespace Microsoft.Data.Entity.Query
                 optionalDefaultValue);
         }
 
-        private static readonly MethodInfo _distinct = GetMethod("Distinct");
-
         private static Expression HandleDistinct(EntityQueryModelVisitor entityQueryModelVisitor)
         {
             return Expression.Call(
-                _distinct.MakeGenericMethod(entityQueryModelVisitor.StreamedSequenceInfo.ResultItemType),
+                entityQueryModelVisitor.LinqOperatorProvider.Distinct
+                    .MakeGenericMethod(entityQueryModelVisitor.StreamedSequenceInfo.ResultItemType),
                 entityQueryModelVisitor.Expression);
         }
-
-        private static readonly MethodInfo _first = GetMethod("First");
-        private static readonly MethodInfo _firstOrDefault = GetMethod("FirstOrDefault");
 
         private static Expression HandleFirst(
             EntityQueryModelVisitor entityQueryModelVisitor, ChoiceResultOperatorBase choiceResultOperator)
         {
             return Expression.Call(
                 (choiceResultOperator.ReturnDefaultWhenEmpty
-                    ? _firstOrDefault
-                    : _first)
+                    ? entityQueryModelVisitor.LinqOperatorProvider.FirstOrDefault
+                    : entityQueryModelVisitor.LinqOperatorProvider.First)
                     .MakeGenericMethod(entityQueryModelVisitor.StreamedSequenceInfo.ResultItemType),
                 entityQueryModelVisitor.Expression);
         }
@@ -174,10 +172,11 @@ namespace Microsoft.Data.Entity.Query
                         queryModel.MainFromClause);
 
             return Expression.Call(
-                _groupBy.MakeGenericMethod(
-                    typeof(QuerySourceScope),
-                    groupResultOperator.KeySelector.Type,
-                    groupResultOperator.ElementSelector.Type),
+                entityQueryModelVisitor.LinqOperatorProvider.GroupBy
+                    .MakeGenericMethod(
+                        typeof(QuerySourceScope),
+                        groupResultOperator.KeySelector.Type,
+                        groupResultOperator.ElementSelector.Type),
                 entityQueryModelVisitor.CreateScope(
                     entityQueryModelVisitor.Expression,
                     entityQueryModelVisitor.StreamedSequenceInfo.ResultItemType,
@@ -186,35 +185,22 @@ namespace Microsoft.Data.Entity.Query
                 Expression.Lambda(elementSelector, EntityQueryModelVisitor.QuerySourceScopeParameter));
         }
 
-        private static readonly MethodInfo _groupBy
-            = typeof(ResultOperatorHandler).GetTypeInfo().GetDeclaredMethod("_GroupBy");
-
-        [UsedImplicitly]
-        private static IEnumerable<IGrouping<TKey, TElement>> _GroupBy<TSource, TKey, TElement>(
-            IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector)
-        {
-            return source.GroupBy(keySelector, elementSelector);
-        }
-
-        private static readonly MethodInfo _last = GetMethod("Last");
-        private static readonly MethodInfo _lastOrDefault = GetMethod("LastOrDefault");
-
         private static Expression HandleLast(
             EntityQueryModelVisitor entityQueryModelVisitor, ChoiceResultOperatorBase choiceResultOperator)
         {
             return Expression.Call(
                 (choiceResultOperator.ReturnDefaultWhenEmpty
-                    ? _lastOrDefault
-                    : _last).MakeGenericMethod(entityQueryModelVisitor.StreamedSequenceInfo.ResultItemType),
+                    ? entityQueryModelVisitor.LinqOperatorProvider.LastOrDefault
+                    : entityQueryModelVisitor.LinqOperatorProvider.Last)
+                    .MakeGenericMethod(entityQueryModelVisitor.StreamedSequenceInfo.ResultItemType),
                 entityQueryModelVisitor.Expression);
         }
-
-        private static readonly MethodInfo _longCount = GetMethod("LongCount");
 
         private static Expression HandleLongCount(EntityQueryModelVisitor entityQueryModelVisitor)
         {
             return Expression.Call(
-                _longCount.MakeGenericMethod(entityQueryModelVisitor.StreamedSequenceInfo.ResultItemType),
+                entityQueryModelVisitor.LinqOperatorProvider.LongCount
+                    .MakeGenericMethod(entityQueryModelVisitor.StreamedSequenceInfo.ResultItemType),
                 entityQueryModelVisitor.Expression);
         }
 
@@ -228,27 +214,23 @@ namespace Microsoft.Data.Entity.Query
             return HandleAggregate(entityQueryModelVisitor, "Max");
         }
 
-        private static readonly MethodInfo _single = GetMethod("Single");
-        private static readonly MethodInfo _singleOrDefault = GetMethod("SingleOrDefault");
-
         private static Expression HandleSingle(
             EntityQueryModelVisitor entityQueryModelVisitor, ChoiceResultOperatorBase choiceResultOperator)
         {
             return Expression.Call(
                 (choiceResultOperator.ReturnDefaultWhenEmpty
-                    ? _singleOrDefault
-                    : _single)
+                    ? entityQueryModelVisitor.LinqOperatorProvider.SingleOrDefault
+                    : entityQueryModelVisitor.LinqOperatorProvider.Single)
                     .MakeGenericMethod(entityQueryModelVisitor.StreamedSequenceInfo.ResultItemType),
                 entityQueryModelVisitor.Expression);
         }
-
-        private static readonly MethodInfo _skip = GetMethod("Skip", 1);
 
         private static Expression HandleSkip(
             EntityQueryModelVisitor entityQueryModelVisitor, SkipResultOperator skipResultOperator)
         {
             return Expression.Call(
-                _skip.MakeGenericMethod(entityQueryModelVisitor.StreamedSequenceInfo.ResultItemType),
+                entityQueryModelVisitor.LinqOperatorProvider.Skip
+                    .MakeGenericMethod(entityQueryModelVisitor.StreamedSequenceInfo.ResultItemType),
                 entityQueryModelVisitor.Expression, skipResultOperator.Count);
         }
 
@@ -257,40 +239,22 @@ namespace Microsoft.Data.Entity.Query
             return HandleAggregate(entityQueryModelVisitor, "Sum");
         }
 
-        private static readonly MethodInfo _take = GetMethod("Take", 1);
-
         private static Expression HandleTake(
             EntityQueryModelVisitor entityQueryModelVisitor, TakeResultOperator takeResultOperator)
         {
             return Expression.Call(
-                _take.MakeGenericMethod(entityQueryModelVisitor.StreamedSequenceInfo.ResultItemType),
+                entityQueryModelVisitor.LinqOperatorProvider.Take
+                    .MakeGenericMethod(entityQueryModelVisitor.StreamedSequenceInfo.ResultItemType),
                 entityQueryModelVisitor.Expression, takeResultOperator.Count);
         }
 
         private static Expression HandleAggregate(EntityQueryModelVisitor entityQueryModelVisitor, string methodName)
         {
-            var itemType = entityQueryModelVisitor.StreamedSequenceInfo.ResultItemType;
-            var aggregateMethods = GetMethods(methodName).ToList();
-
-            var aggregateMethod
-                = aggregateMethods
-                    .FirstOrDefault(mi => mi.GetParameters()[0].ParameterType
-                                          == typeof(IEnumerable<>).MakeGenericType(itemType))
-                  ?? aggregateMethods.Single(mi => mi.IsGenericMethod)
-                      .MakeGenericMethod(itemType);
-
-            return Expression.Call(aggregateMethod, entityQueryModelVisitor.Expression);
-        }
-
-        private static MethodInfo GetMethod(string name, int parameterCount = 0)
-        {
-            return GetMethods(name, parameterCount).Single();
-        }
-
-        private static IEnumerable<MethodInfo> GetMethods(string name, int parameterCount = 0)
-        {
-            return typeof(Enumerable).GetTypeInfo().GetDeclaredMethods(name)
-                .Where(mi => mi.GetParameters().Length == parameterCount + 1);
+            return Expression.Call(
+                entityQueryModelVisitor.LinqOperatorProvider.GetAggregateMethod(
+                    methodName,
+                    entityQueryModelVisitor.StreamedSequenceInfo.ResultItemType),
+                entityQueryModelVisitor.Expression);
         }
     }
 }

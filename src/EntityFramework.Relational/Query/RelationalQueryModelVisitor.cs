@@ -102,7 +102,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                                 fromClause,
                                 (RelationalQueryCompilationContext)QueryCompilationContext,
                                 readerOffset,
-                                QueryCompilationContext.LinqOperatorProvider.SelectMany)
+                                LinqOperatorProvider.SelectMany)
                                 .VisitExpression(Expression);
                     }
                 }
@@ -268,7 +268,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                                 joinClause,
                                 (RelationalQueryCompilationContext)QueryCompilationContext,
                                 previousSelectProjectionCount,
-                                QueryCompilationContext.LinqOperatorProvider.Join)
+                                LinqOperatorProvider.Join)
                                 .VisitExpression(Expression);
                     }
                     else

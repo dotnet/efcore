@@ -70,6 +70,7 @@
     <Compile Include="Metadata\KoolModel.cs" />
     <Compile Include="MonsterFixupTestBase.cs" />
     <Compile Include="NorthwindQueryFixtureBase.cs" />
+    <Compile Include="NorthwindAsyncQueryTestBase.cs" />
     <Compile Include="NorthwindQueryTestBase.cs" />
     <Compile Include="OptimisticConcurrencyTestBase.cs" />
     <Compile Include="TestStore.cs" />

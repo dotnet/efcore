@@ -63,6 +63,11 @@ namespace Microsoft.Data.Entity.Query
             get { return _queryCompilationContext; }
         }
 
+        public ILinqOperatorProvider LinqOperatorProvider
+        {
+            get { return QueryCompilationContext.LinqOperatorProvider; }
+        }
+
         public StreamedSequenceInfo StreamedSequenceInfo
         {
             get { return _streamedSequenceInfo; }
@@ -92,7 +97,7 @@ namespace Microsoft.Data.Entity.Query
             {
                 _expression
                     = Expression.Call(
-                        _queryCompilationContext.LinqOperatorProvider.ToSequence
+                        LinqOperatorProvider.ToSequence
                             .MakeGenericMethod(typeof(TResult)),
                         _expression);
             }
@@ -288,10 +293,10 @@ namespace Microsoft.Data.Entity.Query
 
             _expression
                 = Expression.Call(
-                    _queryCompilationContext.LinqOperatorProvider.SelectMany
+                    LinqOperatorProvider.SelectMany
                         .MakeGenericMethod(typeof(QuerySourceScope), typeof(QuerySourceScope)),
                     Expression.Call(
-                        _queryCompilationContext.LinqOperatorProvider.ToSequence
+                        LinqOperatorProvider.ToSequence
                             .MakeGenericMethod(typeof(QuerySourceScope)),
                         QuerySourceScopeParameter),
                     Expression.Lambda(_expression,
@@ -332,7 +337,7 @@ namespace Microsoft.Data.Entity.Query
 
             _expression
                 = Expression.Call(
-                    _queryCompilationContext.LinqOperatorProvider.SelectMany
+                    LinqOperatorProvider.SelectMany
                         .MakeGenericMethod(typeof(QuerySourceScope), typeof(QuerySourceScope)),
                     _expression,
                     Expression.Lambda(
@@ -388,7 +393,7 @@ namespace Microsoft.Data.Entity.Query
 
             _expression
                 = Expression.Call(
-                    _queryCompilationContext.LinqOperatorProvider.Join.MakeGenericMethod(
+                    LinqOperatorProvider.Join.MakeGenericMethod(
                         typeof(QuerySourceScope),
                         innerSequenceType,
                         outerKeySelector.Type,
@@ -459,7 +464,7 @@ namespace Microsoft.Data.Entity.Query
 
             _expression
                 = Expression.Call(
-                    _queryCompilationContext.LinqOperatorProvider.GroupJoin.MakeGenericMethod(
+                    LinqOperatorProvider.GroupJoin.MakeGenericMethod(
                         typeof(QuerySourceScope),
                         innerSequenceType,
                         outerKeySelector.Type,
@@ -474,7 +479,7 @@ namespace Microsoft.Data.Entity.Query
                                 groupJoinClause,
                                 innerElementScoped
                                     ? Expression.Call(
-                                        _queryCompilationContext.LinqOperatorProvider.Select
+                                        LinqOperatorProvider.Select
                                             .MakeGenericMethod(
                                                 innerSequenceType,
                                                 innerElementType),
@@ -509,7 +514,7 @@ namespace Microsoft.Data.Entity.Query
 
             _expression
                 = Expression.Call(
-                    _queryCompilationContext.LinqOperatorProvider.Where
+                    LinqOperatorProvider.Where
                         .MakeGenericMethod(typeof(QuerySourceScope)),
                     _expression,
                     Expression.Lambda(predicate, QuerySourceScopeParameter));
@@ -552,8 +557,8 @@ namespace Microsoft.Data.Entity.Query
                 _expression
                     = Expression.Call(
                         (index == 0
-                            ? _queryCompilationContext.LinqOperatorProvider.OrderBy
-                            : _queryCompilationContext.LinqOperatorProvider.ThenBy)
+                            ? LinqOperatorProvider.OrderBy
+                            : LinqOperatorProvider.ThenBy)
                             .MakeGenericMethod(elementType, expression.Type),
                         _expression,
                         Expression.Lambda(expression, parameterExpression),
@@ -579,7 +584,7 @@ namespace Microsoft.Data.Entity.Query
 
             _expression
                 = Expression.Call(
-                    _queryCompilationContext.LinqOperatorProvider.Select
+                    LinqOperatorProvider.Select
                         .MakeGenericMethod(typeof(QuerySourceScope), selector.Type),
                     _expression,
                     Expression.Lambda(selector, QuerySourceScopeParameter));
@@ -622,7 +627,7 @@ namespace Microsoft.Data.Entity.Query
 
             return
                 Expression.Call(
-                    _queryCompilationContext.LinqOperatorProvider.Select
+                    LinqOperatorProvider.Select
                         .MakeGenericMethod(elementType, typeof(QuerySourceScope)),
                     expression,
                     Expression.Lambda(

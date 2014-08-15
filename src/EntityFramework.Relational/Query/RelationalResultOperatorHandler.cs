@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
 using Microsoft.Data.Entity.Relational.Utilities;
@@ -92,14 +91,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                     { typeof(TakeResultOperator), HandleTake }
                 };
 
-        private readonly IResultOperatorHandler _resultOperatorHandler;
-
-        public RelationalResultOperatorHandler([NotNull] IResultOperatorHandler resultOperatorHandler)
-        {
-            Check.NotNull(resultOperatorHandler, "resultOperatorHandler");
-
-            _resultOperatorHandler = resultOperatorHandler;
-        }
+        private readonly IResultOperatorHandler _resultOperatorHandler = new ResultOperatorHandler();
 
         public virtual Expression HandleResultOperator(
             EntityQueryModelVisitor entityQueryModelVisitor,

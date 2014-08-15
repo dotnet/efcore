@@ -4,15 +4,16 @@
 using Microsoft.Data.Entity.FunctionalTests;
 using Xunit;
 
-namespace Microsoft.Data.Entity.InMemory.FunctionalTests
+namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
-    public class NorthwindQueryTest : NorthwindQueryTestBase, IClassFixture<NorthwindQueryFixture>
+    public class NorthwindAsyncQueryTest : NorthwindAsyncQueryTestBase, IClassFixture<NorthwindQueryFixture>
     {
         private readonly NorthwindQueryFixture _fixture;
 
-        public NorthwindQueryTest(NorthwindQueryFixture fixture)
+        public NorthwindAsyncQueryTest(NorthwindQueryFixture fixture)
         {
             _fixture = fixture;
+            _fixture.InitLogger();
         }
 
         protected override DbContext CreateContext()

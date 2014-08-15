@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Reflection;
+using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.Query
 {
@@ -15,6 +17,26 @@ namespace Microsoft.Data.Entity.Query
         MethodInfo ThenBy { get; }
         MethodInfo Where { get; }
         MethodInfo ToSequence { get; }
+        MethodInfo Any { get; }
+        MethodInfo All { get; }
+        MethodInfo Cast { get; }
+        MethodInfo Count { get; }
+        MethodInfo DefaultIfEmpty { get; }
+        MethodInfo DefaultIfEmptyArg { get; }
+        MethodInfo Distinct { get; }
         MethodInfo First { get; }
+        MethodInfo FirstOrDefault { get; }
+        MethodInfo GroupBy { get; }
+        MethodInfo Last { get; }
+        MethodInfo LastOrDefault { get; }
+        MethodInfo LongCount { get; }
+        MethodInfo Single { get; }
+        MethodInfo SingleOrDefault { get; }
+        MethodInfo Skip { get; }
+        MethodInfo Take { get; }
+        MethodInfo _First { get; }
+
+        MethodInfo GetAggregateMethod(
+            [NotNull] string methodName, [NotNull] Type elementType);
     }
 }

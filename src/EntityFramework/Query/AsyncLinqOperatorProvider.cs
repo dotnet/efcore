@@ -5,8 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
 
 namespace Microsoft.Data.Entity.Query
@@ -151,20 +151,152 @@ namespace Microsoft.Data.Entity.Query
         {
             get { return _whereShim; }
         }
-
-        private static readonly MethodInfo _firstShim
-            = typeof(AsyncLinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod("FirstShim");
-
-        [UsedImplicitly]
-        private static Task<TSource> FirstShim<TSource>(IAsyncEnumerable<TSource> source)
+        
+        // TODO: Replace with First when IX-Async dispose bug is fixed.
+        public virtual MethodInfo _First
         {
-            return source.Single(); // TODO: Replace with First when IX-Async dispose bug is fixed.
+            get { return _single; }
+        }
+
+        // Result operators
+
+        private static readonly MethodInfo _any = GetMethod("Any");
+        private static readonly MethodInfo _all = GetMethod("All", 1);
+        private static readonly MethodInfo _cast = GetMethod("Cast");
+        private static readonly MethodInfo _count = GetMethod("Count");
+        private static readonly MethodInfo _defaultIfEmpty = GetMethod("DefaultIfEmpty");
+        private static readonly MethodInfo _defaultIfEmptyArg = GetMethod("DefaultIfEmpty", 1);
+        private static readonly MethodInfo _distinct = GetMethod("Distinct");
+        private static readonly MethodInfo _first = GetMethod("First");
+        private static readonly MethodInfo _firstOrDefault = GetMethod("FirstOrDefault");
+
+        public virtual MethodInfo Any
+        {
+            get { return _any; }
+        }
+
+        public virtual MethodInfo All
+        {
+            get { return _all; }
+        }
+
+        public virtual MethodInfo Cast
+        {
+            get { return _cast; }
+        }
+
+        public virtual MethodInfo Count
+        {
+            get { return _count; }
+        }
+
+        public virtual MethodInfo DefaultIfEmpty
+        {
+            get { return _defaultIfEmpty; }
+        }
+
+        public virtual MethodInfo DefaultIfEmptyArg
+        {
+            get { return _defaultIfEmptyArg; }
+        }
+
+        public virtual MethodInfo Distinct
+        {
+            get { return _distinct; }
         }
 
         public virtual MethodInfo First
         {
-            get { return _firstShim; }
+            get { return _first; }
+        }
+
+        public virtual MethodInfo FirstOrDefault
+        {
+            get { return _firstOrDefault; }
+        }
+
+        private static readonly MethodInfo _groupBy
+            = typeof(LinqOperatorProvider).GetTypeInfo().GetDeclaredMethod("_GroupBy");
+
+        [UsedImplicitly]
+        private static IAsyncEnumerable<IAsyncGrouping<TKey, TElement>> _GroupBy<TSource, TKey, TElement>(
+            IAsyncEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector)
+        {
+            return source.GroupBy(keySelector, elementSelector);
+        }
+
+        public virtual MethodInfo GroupBy
+        {
+            get { return _groupBy; }
+        }
+
+        private static readonly MethodInfo _last = GetMethod("Last");
+        private static readonly MethodInfo _lastOrDefault = GetMethod("LastOrDefault");
+        private static readonly MethodInfo _longCount = GetMethod("LongCount");
+        private static readonly MethodInfo _single = GetMethod("Single");
+        private static readonly MethodInfo _singleOrDefault = GetMethod("SingleOrDefault");
+        private static readonly MethodInfo _skip = GetMethod("Skip", 1);
+        private static readonly MethodInfo _take = GetMethod("Take", 1);
+
+        public virtual MethodInfo Last
+        {
+            get { return _last; }
+        }
+
+        public virtual MethodInfo LastOrDefault
+        {
+            get { return _lastOrDefault; }
+        }
+
+        public virtual MethodInfo LongCount
+        {
+            get { return _longCount; }
+        }
+
+        public virtual MethodInfo Single
+        {
+            get { return _single; }
+        }
+
+        public virtual MethodInfo SingleOrDefault
+        {
+            get { return _singleOrDefault; }
+        }
+
+        public virtual MethodInfo Skip
+        {
+            get { return _skip; }
+        }
+
+        public virtual MethodInfo Take
+        {
+            get { return _take; }
+        }
+
+        public virtual MethodInfo GetAggregateMethod(string methodName, Type elementType)
+        {
+            Check.NotEmpty(methodName, "methodName");
+            Check.NotNull(elementType, "elementType");
+
+            var aggregateMethods = GetMethods(methodName).ToList();
+
+            return
+                aggregateMethods
+                    .FirstOrDefault(mi => mi.GetParameters()[0].ParameterType
+                                          == typeof(IEnumerable<>).MakeGenericType(elementType))
+                ?? aggregateMethods.Single(mi => mi.IsGenericMethod)
+                    .MakeGenericMethod(elementType);
+        }
+
+        private static MethodInfo GetMethod(string name, int parameterCount = 0)
+        {
+            return GetMethods(name, parameterCount).Single();
+        }
+
+        private static IEnumerable<MethodInfo> GetMethods(string name, int parameterCount = 0)
+        {
+            return typeof(AsyncEnumerable).GetTypeInfo().GetDeclaredMethods(name)
+                .Where(mi => mi.GetParameters().Length == parameterCount + 1);
         }
     }
 }
