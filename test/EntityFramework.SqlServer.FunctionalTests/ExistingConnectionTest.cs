@@ -104,9 +104,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 options.UseSqlServer(_connection);
             }
 
-            protected override void OnModelCreating(ModelBuilder builder)
+            protected override void OnModelCreating(ConventionModelBuilder modelBuilder)
             {
-                builder.Entity<Customer>(b =>
+                modelBuilder.Entity<Customer>(b =>
                     {
                         b.Key(c => c.CustomerID);
                         b.ToTable("Customers");

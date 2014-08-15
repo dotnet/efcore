@@ -239,13 +239,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         private class FixupContext : DbContext
         {
-            protected override void OnModelCreating(ModelBuilder builder)
+            protected override void OnModelCreating(ConventionModelBuilder modelBuilder)
             {
-                var model = builder.Model;
+                var model = modelBuilder.Model;
 
-                builder.Entity<Product>().OneToMany(e => e.SpecialOffers, e => e.Product);
-                builder.Entity<Category>().OneToMany(e => e.Products, e => e.Category);
-                builder.Entity<SpecialOffer>();
+                modelBuilder.Entity<Product>().OneToMany(e => e.SpecialOffers, e => e.Product);
+                modelBuilder.Entity<Category>().OneToMany(e => e.Products, e => e.Category);
+                modelBuilder.Entity<SpecialOffer>();
 
                 model.GetEntityType(typeof(Category)).GetProperty("Id").ValueGenerationOnAdd = ValueGenerationOnAdd.None;
                 model.GetEntityType(typeof(Product)).GetProperty("Id").ValueGenerationOnAdd = ValueGenerationOnAdd.None;

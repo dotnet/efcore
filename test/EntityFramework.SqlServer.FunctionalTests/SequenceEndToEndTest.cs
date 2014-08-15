@@ -208,9 +208,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 options.UseSqlServer(SqlServerTestDatabase.CreateConnectionString(_databaseName));
             }
 
-            protected override void OnModelCreating(ModelBuilder builder)
+            protected override void OnModelCreating(ConventionModelBuilder modelBuilder)
             {
-                builder.Entity<Pegasus>(b =>
+                modelBuilder.Entity<Pegasus>(b =>
                     {
                         b.Key(e => e.Identifier);
                         b.Property(e => e.Identifier).UseStoreSequence("PegasusSequence", 11);

@@ -211,22 +211,22 @@ namespace Microsoft.Data.Entity.MonsterModel
             get { return Set<TLicense>(); }
         }
 
-        protected override void OnModelCreating(ModelBuilder builder)
+        protected override void OnModelCreating(ConventionModelBuilder modelBuilder)
         {
-            builder.Entity<TBarcodeDetail>().Key(e => e.Code);
-            builder.Entity<TResolution>();
-            builder.Entity<TSuspiciousActivity>();
-            builder.Entity<TLastLogin>().Key(e => e.Username);
-            builder.Entity<TMessage>().Key(e => new { e.MessageId, e.FromUsername });
-            builder.Entity<TOrderNote>().Key(e => e.NoteId);
-            builder.Entity<TProductDetail>().Key(e => e.ProductId);
-            builder.Entity<TProductWebFeature>().Key(e => e.ProductId);
-            builder.Entity<TSupplierLogo>().Key(e => e.SupplierId);
-            builder.Entity<TCustomerInfo>();
-            builder.Entity<TComputerDetail>();
-            builder.Entity<TLicense>().Key(e => e.Name);
+            modelBuilder.Entity<TBarcodeDetail>().Key(e => e.Code);
+            modelBuilder.Entity<TResolution>();
+            modelBuilder.Entity<TSuspiciousActivity>();
+            modelBuilder.Entity<TLastLogin>().Key(e => e.Username);
+            modelBuilder.Entity<TMessage>().Key(e => new { e.MessageId, e.FromUsername });
+            modelBuilder.Entity<TOrderNote>().Key(e => e.NoteId);
+            modelBuilder.Entity<TProductDetail>().Key(e => e.ProductId);
+            modelBuilder.Entity<TProductWebFeature>().Key(e => e.ProductId);
+            modelBuilder.Entity<TSupplierLogo>().Key(e => e.SupplierId);
+            modelBuilder.Entity<TCustomerInfo>();
+            modelBuilder.Entity<TComputerDetail>();
+            modelBuilder.Entity<TLicense>().Key(e => e.Name);
 
-            builder.Entity<TAnOrder>(b =>
+            modelBuilder.Entity<TAnOrder>(b =>
                 {
                     b.OneToMany(e => (IEnumerable<TOrderLine>)e.OrderLines, e => (TAnOrder)e.Order);
 
@@ -242,7 +242,7 @@ namespace Microsoft.Data.Entity.MonsterModel
                     }
                 });
 
-            builder.Entity<TOrderQualityCheck>(b =>
+            modelBuilder.Entity<TOrderQualityCheck>(b =>
                 {
                     b.Key(e => e.OrderId);
 
@@ -260,7 +260,7 @@ namespace Microsoft.Data.Entity.MonsterModel
                     }
                 });
 
-            builder.Entity<TProduct>(b =>
+            modelBuilder.Entity<TProduct>(b =>
                 {
                     b.OneToMany(e => (IEnumerable<TProductReview>)e.Reviews, e => (TProduct)e.Product);
                     b.OneToMany(e => (IEnumerable<TBarcode>)e.Barcodes, e => (TProduct)e.Product);
@@ -269,15 +269,15 @@ namespace Microsoft.Data.Entity.MonsterModel
                     b.OneToOne<TProductWebFeature>();
                 });
 
-            builder.Entity<TOrderLine>(b =>
+            modelBuilder.Entity<TOrderLine>(b =>
                 {
                     b.Key(e => new { e.OrderId, e.ProductId });
                     b.ManyToOne(e => (TProduct)e.Product);
                 });
 
-            builder.Entity<TSupplier>().OneToOne(e => (TSupplierLogo)e.Logo);
+            modelBuilder.Entity<TSupplier>().OneToOne(e => (TSupplierLogo)e.Logo);
 
-            builder.Entity<TCustomer>(b =>
+            modelBuilder.Entity<TCustomer>(b =>
                 {
                     b.OneToMany(e => (IEnumerable<TAnOrder>)e.Orders, e => (TCustomer)e.Customer);
                     b.OneToMany(e => (IEnumerable<TLogin>)e.Logins, e => (TCustomer)e.Customer);
@@ -287,7 +287,7 @@ namespace Microsoft.Data.Entity.MonsterModel
                         .ForeignKey<TCustomer>(e => e.HusbandId);
                 });
 
-            builder.Entity<TComplaint>(b =>
+            modelBuilder.Entity<TComplaint>(b =>
                 {
                     b.ManyToOne(e => (TCustomer)e.Customer)
                         .ForeignKey(e => e.CustomerId);
@@ -304,7 +304,7 @@ namespace Microsoft.Data.Entity.MonsterModel
                     }
                 });
 
-            builder.Entity<TProductPhoto>(b =>
+            modelBuilder.Entity<TProductPhoto>(b =>
                 {
                     b.Key(e => new { e.ProductId, e.PhotoId });
 
@@ -313,7 +313,7 @@ namespace Microsoft.Data.Entity.MonsterModel
                         .ReferencedKey(e => new { e.ProductId, e.PhotoId });
                 });
 
-            builder.Entity<TProductReview>(b =>
+            modelBuilder.Entity<TProductReview>(b =>
                 {
                     b.Key(e => new { e.ProductId, e.ReviewId });
 
@@ -321,7 +321,7 @@ namespace Microsoft.Data.Entity.MonsterModel
                         .ForeignKey(e => new { e.ProductId, e.ReviewId });
                 });
 
-            builder.Entity<TLogin>(b =>
+            modelBuilder.Entity<TLogin>(b =>
                 {
                     b.Key(e => e.Username);
 
@@ -340,7 +340,7 @@ namespace Microsoft.Data.Entity.MonsterModel
                     b.OneToOne(e => (TLastLogin)e.LastLogin, e => (TLogin)e.Login);
                 });
 
-            builder.Entity<TPasswordReset>(b =>
+            modelBuilder.Entity<TPasswordReset>(b =>
                 {
                     b.Key(e => new { e.ResetNo, e.Username });
 
@@ -358,11 +358,11 @@ namespace Microsoft.Data.Entity.MonsterModel
                     }
                 });
 
-            builder.Entity<TPageView>()
+            modelBuilder.Entity<TPageView>()
                 .ManyToOne(e => (TLogin)e.Login)
                 .ForeignKey(e => e.Username);
 
-            builder.Entity<TBarcode>(b =>
+            modelBuilder.Entity<TBarcode>(b =>
                 {
                     b.Key(e => e.Code);
 
@@ -372,21 +372,21 @@ namespace Microsoft.Data.Entity.MonsterModel
                     b.OneToOne(e => (TBarcodeDetail)e.Detail);
                 });
 
-            builder.Entity<TIncorrectScan>()
+            modelBuilder.Entity<TIncorrectScan>()
                 .ManyToOne(e => (TBarcode)e.ActualBarcode)
                 .ForeignKey(e => e.ActualCode);
 
-            builder.Entity<TSupplierInfo>().ManyToOne(e => (TSupplier)e.Supplier);
+            modelBuilder.Entity<TSupplierInfo>().ManyToOne(e => (TSupplier)e.Supplier);
 
-            builder.Entity<TComputer>().OneToOne(e => (TComputerDetail)e.ComputerDetail, e => (TComputer)e.Computer);
+            modelBuilder.Entity<TComputer>().OneToOne(e => (TComputerDetail)e.ComputerDetail, e => (TComputer)e.Computer);
 
-            builder.Entity<TDriver>(b =>
+            modelBuilder.Entity<TDriver>(b =>
                 {
                     b.Key(e => e.Name);
                     b.OneToOne(e => (TLicense)e.License, e => (TDriver)e.Driver);
                 });
 
-            builder.Entity<TSmartCard>(b =>
+            modelBuilder.Entity<TSmartCard>(b =>
                 {
                     b.Key(e => e.Username);
 
@@ -397,7 +397,7 @@ namespace Microsoft.Data.Entity.MonsterModel
                         .ForeignKey<TLastLogin>(e => e.SmartcardUsername);
                 });
 
-            builder.Entity<TRsaToken>(b =>
+            modelBuilder.Entity<TRsaToken>(b =>
                 {
                     b.Key(e => e.Serial);
                     b.OneToOne(e => (TLogin)e.Login)
@@ -405,14 +405,14 @@ namespace Microsoft.Data.Entity.MonsterModel
                 });
 
             // TODO: Many-to-many
-            //builder.Entity<TSupplier>().ForeignKeys(fk => fk.ForeignKey<TProduct>(e => e.SupplierId));
+            //modelBuilder.Entity<TSupplier>().ForeignKeys(fk => fk.ForeignKey<TProduct>(e => e.SupplierId));
 
             // TODO: Inheritance
-            //builder.Entity<TBackOrderLine>().ForeignKeys(fk => fk.ForeignKey<TSupplier>(e => e.SupplierId));
-            //builder.Entity<TDiscontinuedProduct>().ForeignKeys(fk => fk.ForeignKey<TProduct>(e => e.ReplacementProductId));
-            //builder.Entity<TProductPageView>().ForeignKeys(fk => fk.ForeignKey<TProduct>(e => e.ProductId));
+            //modelBuilder.Entity<TBackOrderLine>().ForeignKeys(fk => fk.ForeignKey<TSupplier>(e => e.SupplierId));
+            //modelBuilder.Entity<TDiscontinuedProduct>().ForeignKeys(fk => fk.ForeignKey<TProduct>(e => e.ReplacementProductId));
+            //modelBuilder.Entity<TProductPageView>().ForeignKeys(fk => fk.ForeignKey<TProduct>(e => e.ProductId));
 
-            var model = builder.Model;
+            var model = modelBuilder.Model;
 
             // TODO: Key should get by-convention value generation even if key is not discovered by convention
             var noteId = model.GetEntityType(typeof(TOrderNote)).GetProperty("NoteId");
@@ -447,7 +447,7 @@ namespace Microsoft.Data.Entity.MonsterModel
 
             if (_onModelCreating != null)
             {
-                _onModelCreating(builder);
+                _onModelCreating(modelBuilder);
             }
         }
 

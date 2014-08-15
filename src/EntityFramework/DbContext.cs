@@ -113,7 +113,7 @@ namespace Microsoft.Data.Entity
         {
         }
 
-        protected internal virtual void OnModelCreating([NotNull] ModelBuilder builder)
+        protected internal virtual void OnModelCreating([NotNull] ConventionModelBuilder modelBuilder)
         {
         }
 

@@ -9,7 +9,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Metadata
 {
     public class AtsModelBuilderFactory : IModelBuilderFactory
     {
-        public virtual ModelBuilder CreateConventionBuilder([NotNull] Model model)
+        public virtual ConventionModelBuilder CreateConventionBuilder([NotNull] Model model)
         {
             Check.NotNull(model, "model");
 

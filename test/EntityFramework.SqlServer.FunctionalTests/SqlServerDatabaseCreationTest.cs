@@ -295,9 +295,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 options.UseSqlServer(_testDatabase.Connection.ConnectionString);
             }
 
-            protected override void OnModelCreating(ModelBuilder builder)
+            protected override void OnModelCreating(ConventionModelBuilder modelBuilder)
             {
-                var blogType = builder.Model.GetEntityType(typeof(Blog));
+                var blogType = modelBuilder.Model.GetEntityType(typeof(Blog));
 
                 blogType.SetKey(blogType.GetProperty("Key1"), blogType.GetProperty("Key2"));
                 blogType.RemoveProperty(blogType.GetProperty("AndRow"));

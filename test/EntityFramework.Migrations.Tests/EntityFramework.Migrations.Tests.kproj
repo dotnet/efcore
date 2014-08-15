@@ -22,42 +22,5 @@
   <PropertyGroup>
     <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
-  <ItemGroup>
-    <Content Include="project.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="ApiConsistencyTest.cs" />
-    <Compile Include="Builders\ColumnBuilderTest.cs" />
-    <Compile Include="Builders\MigrationBuilderTest.cs" />
-    <Compile Include="Builders\TableBuilderTest.cs" />
-    <Compile Include="Infrastructure\HistoryRepositoryTest.cs" />
-    <Compile Include="Infrastructure\MigrationAssemblyTest.cs" />
-    <Compile Include="Infrastructure\MigrationMetadataTest.cs" />
-    <Compile Include="Infrastructure\MigratorTest.cs" />
-    <Compile Include="MigrationOperationSqlGeneratorTest.cs" />
-    <Compile Include="MigrationTest.cs" />
-    <Compile Include="ModelDifferTest.cs" />
-    <Compile Include="Model\AddColumnOperationTest.cs" />
-    <Compile Include="Model\AddDefaultConstraintOperationTest.cs" />
-    <Compile Include="Model\AddForeignKeyOperationTest.cs" />
-    <Compile Include="Model\AddPrimaryKeyOperationTest.cs" />
-    <Compile Include="Model\AlterColumnOperationTest.cs" />
-    <Compile Include="Model\CreateDatabaseOperationTest.cs" />
-    <Compile Include="Model\CreateIndexOperationTest.cs" />
-    <Compile Include="Model\CreateSequenceOperationTest.cs" />
-    <Compile Include="Model\CreateTableOperationTest.cs" />
-    <Compile Include="Model\DropColumnOperationTest.cs" />
-    <Compile Include="Model\DropDatabaseOperationTest.cs" />
-    <Compile Include="Model\DropDefaultConstraintOperationTest.cs" />
-    <Compile Include="Model\DropForeignKeyOperation.cs" />
-    <Compile Include="Model\DropIndexOperationTest.cs" />
-    <Compile Include="Model\DropPrimaryKeyOperationTest.cs" />
-    <Compile Include="Model\DropSequenceOperationTest.cs" />
-    <Compile Include="Model\DropTableOperationTest.cs" />
-    <Compile Include="Model\MoveTableOperationTest.cs" />
-    <Compile Include="Model\RenameColumnOperationTest.cs" />
-    <Compile Include="Model\RenameIndexOperationTest.cs" />
-    <Compile Include="Model\RenameTableOperationTest.cs" />
-  </ItemGroup>
   <Import Project="$(VSToolsPath)\AspNet\Microsoft.Web.AspNet.targets" Condition="'$(VSToolsPath)' != ''" />
 </Project>
