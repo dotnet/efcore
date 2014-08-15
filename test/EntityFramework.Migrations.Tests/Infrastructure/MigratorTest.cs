@@ -565,7 +565,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                 .Returns(sqlGenerator.Object);
 
             var migrator
-                = new Mock<Migrator>(
+                = new Mock<DbMigrator>(
                     contextConfiguration,
                     historyRepository.Object,
                     MockMigrationAssembly(contextConfiguration, localMigrations).Object,
@@ -578,7 +578,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     }
                     .Object;
 
-            var sqlStatements = migrator.GenerateUpdateDatabaseSql(Migrator.InitialDatabase);
+            var sqlStatements = migrator.GenerateUpdateDatabaseSql(DbMigrator.InitialDatabase);
 
             Assert.Equal(6, sqlStatements.Count);
             Assert.Equal("DropColumnOperationSql", sqlStatements[0].Sql);
@@ -629,7 +629,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                 .Returns(sqlGenerator.Object);
 
             var migrator
-                = new Mock<Migrator>(
+                = new Mock<DbMigrator>(
                     contextConfiguration,
                     historyRepository.Object,
                     MockMigrationAssembly(contextConfiguration, localMigrations).Object,
@@ -725,7 +725,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                 .Callback<DbConnection, DbTransaction, IEnumerable<SqlStatement>>(AssertCallback);
 
             var migratorMock
-                = new Mock<Migrator>(
+                = new Mock<DbMigrator>(
                     contextConfigurationMock.Object,
                     MockHistoryRepository(contextConfigurationMock.Object, new IMigrationMetadata[0]).Object,
                     MockMigrationAssembly(contextConfigurationMock.Object, new IMigrationMetadata[0]).Object,
@@ -750,13 +750,13 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
 
         #region Fixture
 
-        private static Migrator MockMigrator(
+        private static DbMigrator MockMigrator(
             IReadOnlyList<IMigrationMetadata> databaseMigrations,
             IReadOnlyList<IMigrationMetadata> localMigrations)
         {
             var contextConfiguration = new Mock<DbContextConfiguration>().Object;
             return
-                new Mock<Migrator>(
+                new Mock<DbMigrator>(
                     contextConfiguration,
                     MockHistoryRepository(contextConfiguration, databaseMigrations).Object,
                     MockMigrationAssembly(contextConfiguration, localMigrations).Object,

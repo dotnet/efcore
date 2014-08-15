@@ -53,7 +53,7 @@
     <Compile Include="Infrastructure\MigrationAssembly.cs" />
     <Compile Include="Infrastructure\MigrationMetadataExtensions.cs" />
     <Compile Include="Infrastructure\MigrationMetadata.cs" />
-    <Compile Include="Infrastructure\Migrator.cs" />
+    <Compile Include="Infrastructure\DbMigrator.cs" />
     <Compile Include="Infrastructure\ModelSnapshot.cs" />
     <Compile Include="Migration.cs" />
     <Compile Include="MigrationCodeGenerator.cs" />

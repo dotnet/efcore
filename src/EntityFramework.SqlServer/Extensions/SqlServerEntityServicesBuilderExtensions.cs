@@ -41,7 +41,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddScoped<SqlServerDataStoreCreator>()
                 .AddScoped<MigrationAssembly>()
                 .AddScoped<HistoryRepository>()
-                .AddScoped<Migrator, SqlServerMigrator>();
+                .AddScoped<DbMigrator, SqlServerMigrator>();
 
             return builder;
         }

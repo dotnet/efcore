@@ -3,19 +3,17 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Utilities;
 using Microsoft.Data.Entity.Relational;
-using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.Migrations.Infrastructure
 {
-    public class Migrator
+    public class DbMigrator
     {
         public const string InitialDatabase = "0";
 
@@ -32,11 +30,11 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
         ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
         /// </summary>
-        protected Migrator()
+        protected DbMigrator()
         {
         }
 
-        public Migrator(
+        public DbMigrator(
             [NotNull] DbContextConfiguration contextConfiguration,
             [NotNull] HistoryRepository historyRepository,
             [NotNull] MigrationAssembly migrationAssembly,

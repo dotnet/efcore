@@ -50,7 +50,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity
                             db.Database.AsRelational().Create();
                         }
 
-                        var migrator = db.Configuration.Services.ServiceProvider.GetService<Migrator>();
+                        var migrator = db.Configuration.Services.ServiceProvider.GetService<DbMigrator>();
                         migrator.UpdateDatabase();
 
                         context.Response.StatusCode = 204;

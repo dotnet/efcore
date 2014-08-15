@@ -234,7 +234,7 @@ namespace Microsoft.Data.Entity.Design
         {
             Check.NotEmpty(contextAssemblyRef, "contextAssemblyRef");
 
-            Func<Migrator, IReadOnlyList<IMigrationMetadata>> getMigrationsFunc;
+            Func<DbMigrator, IReadOnlyList<IMigrationMetadata>> getMigrationsFunc;
 
             if (string.IsNullOrEmpty(source)
                 || source.Equals(Constants.MigrationSourceDatabase, StringComparison.OrdinalIgnoreCase))
@@ -262,9 +262,9 @@ namespace Microsoft.Data.Entity.Design
             }
         }
 
-        protected virtual Migrator GetMigrator(DbContextConfiguration contextConfiguration)
+        protected virtual DbMigrator GetMigrator(DbContextConfiguration contextConfiguration)
         {
-            return contextConfiguration.Services.ServiceProvider.GetService<Migrator>();
+            return contextConfiguration.Services.ServiceProvider.GetService<DbMigrator>();
         }
 
         // TODO: Add support for --SourceMigration
