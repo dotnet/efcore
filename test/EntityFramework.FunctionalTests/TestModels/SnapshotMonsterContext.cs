@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.MonsterModel
         SnapshotMonsterContext.Computer, SnapshotMonsterContext.ComputerDetail, SnapshotMonsterContext.Driver,
         SnapshotMonsterContext.License>
     {
-        public SnapshotMonsterContext(IServiceProvider serviceProvider, DbContextOptions options, Action<ModelBuilder> onModelCreating)
+        public SnapshotMonsterContext(IServiceProvider serviceProvider, DbContextOptions options, Action<BasicModelBuilder> onModelCreating)
             : base(serviceProvider, options, onModelCreating)
         {
         }

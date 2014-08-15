@@ -336,7 +336,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         private static IModel CreateSimpleFKModel()
         {
             var model = new Metadata.Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder.Entity<FakeEntity>(b =>
                 {
@@ -356,7 +356,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         private static IModel CreateCyclicFKModel()
         {
             var model = new Metadata.Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder.Entity<FakeEntity>(b =>
                 {

@@ -77,7 +77,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
         private IModel CreateModel()
         {
             var model = new Model();
-            var builder = new ModelBuilder(model);
+            var builder = new BasicModelBuilder(model);
             builder.Entity<Customer>().Property(s => s.CustomerID);
 
             return model;

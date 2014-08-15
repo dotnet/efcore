@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         protected static Model CreateModel()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder.Entity<Customer>(b =>
                 {

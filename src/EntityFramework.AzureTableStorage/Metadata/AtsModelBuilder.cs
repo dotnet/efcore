@@ -8,9 +8,9 @@ using Microsoft.Data.Entity.Metadata.ModelConventions;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Metadata
 {
-    public class AtsConventionModelBuilder : ConventionModelBuilder
+    public class AtsModelBuilder : ModelBuilder
     {
-        public AtsConventionModelBuilder([NotNull] Model model)
+        public AtsModelBuilder([NotNull] Model model)
             : base(model, AtsConventions())
         {
         }

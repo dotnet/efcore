@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Metadata
         public static TEntityBuilder ToTable<TEntityBuilder>(
             [NotNull] this TEntityBuilder entityBuilder,
             [NotNull] string tableName)
-            where TEntityBuilder : ModelBuilder.EntityBuilderBase<TEntityBuilder>
+            where TEntityBuilder : BasicModelBuilder.EntityBuilderBase<TEntityBuilder>
         {
             Check.NotNull(entityBuilder, "entityBuilder");
             Check.NotEmpty(tableName, "tableName");
@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.Metadata
             [NotNull] this TEntityBuilder entityBuilder,
             [NotNull] string tableName,
             [NotNull] string schema)
-            where TEntityBuilder : ModelBuilder.EntityBuilderBase<TEntityBuilder>
+            where TEntityBuilder : BasicModelBuilder.EntityBuilderBase<TEntityBuilder>
         {
             Check.NotNull(entityBuilder, "entityBuilder");
             Check.NotEmpty(tableName, "tableName");
@@ -54,10 +54,10 @@ namespace Microsoft.Data.Entity.Metadata
             return entityBuilder;
         }
 
-        public static ModelBuilder.EntityBuilderBase<TEntityBuilder>.PropertyBuilder ColumnName<TEntityBuilder>(
-            [NotNull] this ModelBuilder.EntityBuilderBase<TEntityBuilder>.PropertyBuilder propertyBuilder,
+        public static BasicModelBuilder.EntityBuilderBase<TEntityBuilder>.PropertyBuilder ColumnName<TEntityBuilder>(
+            [NotNull] this BasicModelBuilder.EntityBuilderBase<TEntityBuilder>.PropertyBuilder propertyBuilder,
             [NotNull] string columnName)
-            where TEntityBuilder : ModelBuilder.EntityBuilderBase<TEntityBuilder>
+            where TEntityBuilder : BasicModelBuilder.EntityBuilderBase<TEntityBuilder>
         {
             Check.NotNull(propertyBuilder, "propertyBuilder");
             Check.NotEmpty(columnName, "columnName");
@@ -67,10 +67,10 @@ namespace Microsoft.Data.Entity.Metadata
             return propertyBuilder;
         }
 
-        public static ModelBuilder.EntityBuilderBase<TEntityBuilder>.PropertyBuilder ColumnType<TEntityBuilder>(
-            [NotNull] this ModelBuilder.EntityBuilderBase<TEntityBuilder>.PropertyBuilder propertyBuilder,
+        public static BasicModelBuilder.EntityBuilderBase<TEntityBuilder>.PropertyBuilder ColumnType<TEntityBuilder>(
+            [NotNull] this BasicModelBuilder.EntityBuilderBase<TEntityBuilder>.PropertyBuilder propertyBuilder,
             [NotNull] string typeName)
-            where TEntityBuilder : ModelBuilder.EntityBuilderBase<TEntityBuilder>
+            where TEntityBuilder : BasicModelBuilder.EntityBuilderBase<TEntityBuilder>
         {
             Check.NotNull(propertyBuilder, "propertyBuilder");
             Check.NotNull(typeName, "typeName");
@@ -80,10 +80,10 @@ namespace Microsoft.Data.Entity.Metadata
             return propertyBuilder;
         }
 
-        public static ModelBuilder.EntityBuilderBase<TEntityBuilder>.PropertyBuilder ColumnDefaultSql<TEntityBuilder>(
-            [NotNull] this ModelBuilder.EntityBuilderBase<TEntityBuilder>.PropertyBuilder propertyBuilder,
+        public static BasicModelBuilder.EntityBuilderBase<TEntityBuilder>.PropertyBuilder ColumnDefaultSql<TEntityBuilder>(
+            [NotNull] this BasicModelBuilder.EntityBuilderBase<TEntityBuilder>.PropertyBuilder propertyBuilder,
             [NotNull] string columnDefaultSql)
-            where TEntityBuilder : ModelBuilder.EntityBuilderBase<TEntityBuilder>
+            where TEntityBuilder : BasicModelBuilder.EntityBuilderBase<TEntityBuilder>
         {
             Check.NotNull(propertyBuilder, "propertyBuilder");
             Check.NotNull(columnDefaultSql, "columnDefaultSql");
@@ -93,10 +93,10 @@ namespace Microsoft.Data.Entity.Metadata
             return propertyBuilder;
         }
 
-        public static ModelBuilder.EntityBuilderBase<TEntityBuilder>.ForeignKeysBuilder.ForeignKeyBuilder CascadeDelete<TEntityBuilder>(
-            [NotNull] this ModelBuilder.EntityBuilderBase<TEntityBuilder>.ForeignKeysBuilder.ForeignKeyBuilder foreignKeyBuilder,
+        public static BasicModelBuilder.EntityBuilderBase<TEntityBuilder>.ForeignKeysBuilder.ForeignKeyBuilder CascadeDelete<TEntityBuilder>(
+            [NotNull] this BasicModelBuilder.EntityBuilderBase<TEntityBuilder>.ForeignKeysBuilder.ForeignKeyBuilder foreignKeyBuilder,
             bool cascadeDelete)
-            where TEntityBuilder : ModelBuilder.EntityBuilderBase<TEntityBuilder>
+            where TEntityBuilder : BasicModelBuilder.EntityBuilderBase<TEntityBuilder>
         {
             Check.NotNull(foreignKeyBuilder, "foreignKeyBuilder");
 
@@ -105,10 +105,10 @@ namespace Microsoft.Data.Entity.Metadata
             return foreignKeyBuilder;
         }
 
-        public static ModelBuilder.EntityBuilderBase<TEntityBuilder>.IndexesBuilder.IndexBuilder IsClustered<TEntityBuilder>(
-            [NotNull] this ModelBuilder.EntityBuilderBase<TEntityBuilder>.IndexesBuilder.IndexBuilder indexesBuilder,
+        public static BasicModelBuilder.EntityBuilderBase<TEntityBuilder>.IndexesBuilder.IndexBuilder IsClustered<TEntityBuilder>(
+            [NotNull] this BasicModelBuilder.EntityBuilderBase<TEntityBuilder>.IndexesBuilder.IndexBuilder indexesBuilder,
             bool clustered)
-            where TEntityBuilder : ModelBuilder.EntityBuilderBase<TEntityBuilder>
+            where TEntityBuilder : BasicModelBuilder.EntityBuilderBase<TEntityBuilder>
         {
             Check.NotNull(indexesBuilder, "indexesBuilder");
 
@@ -274,10 +274,10 @@ namespace Microsoft.Data.Entity.Metadata
             index[Annotations.IndexName] = indexName;
         }
 
-        public static ModelBuilder.EntityBuilderBase<TMetadataBuilder> ToTable<TMetadataBuilder>(
-            [NotNull] this ModelBuilder.EntityBuilderBase<TMetadataBuilder> builder,
+        public static BasicModelBuilder.EntityBuilderBase<TMetadataBuilder> ToTable<TMetadataBuilder>(
+            [NotNull] this BasicModelBuilder.EntityBuilderBase<TMetadataBuilder> builder,
             [NotNull] string tableName)
-            where TMetadataBuilder : ModelBuilder.MetadataBuilder<EntityType, TMetadataBuilder>
+            where TMetadataBuilder : BasicModelBuilder.MetadataBuilder<EntityType, TMetadataBuilder>
         {
             Check.NotNull(builder, "builder");
             Check.NotEmpty(tableName, "tableName");
@@ -287,11 +287,11 @@ namespace Microsoft.Data.Entity.Metadata
             return builder;
         }
 
-        public static ModelBuilder.EntityBuilderBase<TMetadataBuilder> ToTable<TMetadataBuilder>(
-            [NotNull] this ModelBuilder.EntityBuilderBase<TMetadataBuilder> builder,
+        public static BasicModelBuilder.EntityBuilderBase<TMetadataBuilder> ToTable<TMetadataBuilder>(
+            [NotNull] this BasicModelBuilder.EntityBuilderBase<TMetadataBuilder> builder,
             [NotNull] string tableName,
             [NotNull] string schema)
-            where TMetadataBuilder : ModelBuilder.MetadataBuilder<EntityType, TMetadataBuilder>
+            where TMetadataBuilder : BasicModelBuilder.MetadataBuilder<EntityType, TMetadataBuilder>
         {
             Check.NotNull(builder, "builder");
             Check.NotEmpty(tableName, "tableName");
@@ -303,10 +303,10 @@ namespace Microsoft.Data.Entity.Metadata
             return builder;
         }
 
-        public static ModelBuilder.EntityBuilderBase<TMetadataBuilder>.ForeignKeysBuilder.ForeignKeyBuilder KeyName<TMetadataBuilder>(
-            [NotNull] this ModelBuilder.EntityBuilderBase<TMetadataBuilder>.ForeignKeysBuilder.ForeignKeyBuilder builder,
+        public static BasicModelBuilder.EntityBuilderBase<TMetadataBuilder>.ForeignKeysBuilder.ForeignKeyBuilder KeyName<TMetadataBuilder>(
+            [NotNull] this BasicModelBuilder.EntityBuilderBase<TMetadataBuilder>.ForeignKeysBuilder.ForeignKeyBuilder builder,
             [NotNull] string keyName)
-            where TMetadataBuilder : ModelBuilder.MetadataBuilder<EntityType, TMetadataBuilder>
+            where TMetadataBuilder : BasicModelBuilder.MetadataBuilder<EntityType, TMetadataBuilder>
         {
             Check.NotNull(builder, "builder");
             Check.NotEmpty(keyName, "keyName");
@@ -316,10 +316,10 @@ namespace Microsoft.Data.Entity.Metadata
             return builder;
         }
 
-        public static ModelBuilder.EntityBuilderBase<TMetadataBuilder>.IndexesBuilder.IndexBuilder IndexName<TMetadataBuilder>(
-            [NotNull] this ModelBuilder.EntityBuilderBase<TMetadataBuilder>.IndexesBuilder.IndexBuilder builder,
+        public static BasicModelBuilder.EntityBuilderBase<TMetadataBuilder>.IndexesBuilder.IndexBuilder IndexName<TMetadataBuilder>(
+            [NotNull] this BasicModelBuilder.EntityBuilderBase<TMetadataBuilder>.IndexesBuilder.IndexBuilder builder,
             [NotNull] string indexName)
-            where TMetadataBuilder : ModelBuilder.MetadataBuilder<EntityType, TMetadataBuilder>
+            where TMetadataBuilder : BasicModelBuilder.MetadataBuilder<EntityType, TMetadataBuilder>
         {
             Check.NotNull(builder, "builder");
             Check.NotEmpty(indexName, "indexName");
@@ -329,10 +329,10 @@ namespace Microsoft.Data.Entity.Metadata
             return builder;
         }
 
-        public static ModelBuilder.EntityBuilderBase<TMetadataBuilder>.KeyBuilder KeyName<TMetadataBuilder>(
-            [NotNull] this ModelBuilder.EntityBuilderBase<TMetadataBuilder>.KeyBuilder builder,
+        public static BasicModelBuilder.EntityBuilderBase<TMetadataBuilder>.KeyBuilder KeyName<TMetadataBuilder>(
+            [NotNull] this BasicModelBuilder.EntityBuilderBase<TMetadataBuilder>.KeyBuilder builder,
             [NotNull] string keyName)
-            where TMetadataBuilder : ModelBuilder.MetadataBuilder<EntityType, TMetadataBuilder>
+            where TMetadataBuilder : BasicModelBuilder.MetadataBuilder<EntityType, TMetadataBuilder>
         {
             Check.NotNull(builder, "builder");
             Check.NotEmpty(keyName, "keyName");

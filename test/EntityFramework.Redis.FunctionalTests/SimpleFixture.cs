@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.Redis
         public override IModel CreateModel()
         {
             var model = new Model();
-            var builder = new ModelBuilder(model);
+            var builder = new BasicModelBuilder(model);
             builder.Entity<Customer>(b =>
                 {
                     b.Key(cust => cust.CustomerID);

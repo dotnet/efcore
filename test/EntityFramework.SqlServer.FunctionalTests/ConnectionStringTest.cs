@@ -90,7 +90,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 options.UseSqlServer(_nameOrConnectionString);
             }
 
-            protected override void OnModelCreating(ConventionModelBuilder modelBuilder)
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 ConfigureModel(modelBuilder);
             }
@@ -103,7 +103,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             public string Fax { get; set; }
         }
 
-        private static void ConfigureModel(ModelBuilder builder)
+        private static void ConfigureModel(BasicModelBuilder builder)
         {
             builder.Entity<Customer>(b =>
                 {

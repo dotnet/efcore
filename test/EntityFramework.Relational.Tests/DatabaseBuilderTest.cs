@@ -62,7 +62,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         {
             // TODO: Add and Index when supported by DatabaseBuilder.
 
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = new BasicModelBuilder();
 
             modelBuilder.Entity<Blog>(b =>
                 {
@@ -110,7 +110,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public void Name_for_multi_column_FKs()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = new BasicModelBuilder();
 
             modelBuilder.Entity<Principal>()
                 .Key(k => new { k.Id0, k.Id1 });
@@ -143,7 +143,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public void Name_for_multi_column_Indexes()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = new BasicModelBuilder();
 
             modelBuilder.Entity<Dependent>(b =>
                 {

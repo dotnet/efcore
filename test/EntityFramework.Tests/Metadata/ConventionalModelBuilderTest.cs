@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OnEntityTypeAdded_calls_apply_on_conventions()
         {
             var model = new Model();
-            var builder = new ConventionModelBuilder(model);
+            var builder = new ModelBuilder(model);
             builder.Conventions.Clear();
             var convention = new Mock<IModelConvention>();
             builder.Conventions.Add(convention.Object);

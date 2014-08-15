@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.MonsterModel
         ChangedChangingMonsterContext.Computer, ChangedChangingMonsterContext.ComputerDetail, ChangedChangingMonsterContext.Driver,
         ChangedChangingMonsterContext.License>
     {
-        public ChangedChangingMonsterContext(IServiceProvider serviceProvider, DbContextOptions options, Action<ModelBuilder> onModelCreating)
+        public ChangedChangingMonsterContext(IServiceProvider serviceProvider, DbContextOptions options, Action<BasicModelBuilder> onModelCreating)
             : base(serviceProvider, options, onModelCreating)
         {
         }

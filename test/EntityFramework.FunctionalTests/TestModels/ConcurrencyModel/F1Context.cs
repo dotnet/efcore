@@ -21,10 +21,10 @@ namespace ConcurrencyModel
         public DbSet<EngineSupplier> EngineSuppliers { get; set; }
 
         // TODO: convert to OnModelCreated
-        public static ModelBuilder CreateModel()
+        public static BasicModelBuilder CreateModel()
         {
             var model = new Model();
-            var modelBuilder = new ConventionModelBuilder(model);
+            var modelBuilder = new ModelBuilder(model);
 
             // TODO: Uncomment when complex types are supported
             //builder.ComplexType<Location>();

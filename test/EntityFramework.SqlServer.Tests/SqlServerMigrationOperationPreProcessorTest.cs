@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Visit_with_alter_column_operation_resets_primary_key()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = new BasicModelBuilder();
             modelBuilder.Entity("A",
                 b =>
                     {
@@ -84,7 +84,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Visit_with_alter_column_operation_resets_foreign_keys_on_the_column()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = new BasicModelBuilder();
             modelBuilder.Entity("A",
                 b =>
                 {
@@ -126,7 +126,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Visit_with_alter_column_operation_resets_foreign_keys_referencing_the_column()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = new BasicModelBuilder();
             modelBuilder.Entity("A",
                 b =>
                 {
@@ -170,7 +170,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Visit_with_alter_column_operation_resets_indexes()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = new BasicModelBuilder();
             modelBuilder.Entity("A",
                 b =>
                 {
@@ -235,7 +235,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Visit_with_alter_column_operation_drops_default_constraint()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = new BasicModelBuilder();
             modelBuilder.Entity("A",
                 b =>
                 {
@@ -266,7 +266,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Visit_with_consecutive_alter_column_operations()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = new BasicModelBuilder();
             modelBuilder.Entity("A",
                 b =>
                 {
@@ -353,7 +353,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Visit_with_drop_column_operation_drops_default_constraint()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = new BasicModelBuilder();
             modelBuilder.Entity("A",
                 b =>
                 {
@@ -372,7 +372,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.IsType<DropColumnOperation>(operations[1]);
         }
 
-        private static IReadOnlyList<MigrationOperation> PreProcess(ModelBuilder modelBuilder, params MigrationOperation[] operations)
+        private static IReadOnlyList<MigrationOperation> PreProcess(BasicModelBuilder modelBuilder, params MigrationOperation[] operations)
         {
             return PreProcess(new DatabaseBuilder().GetDatabase(modelBuilder.Model), operations);
         }

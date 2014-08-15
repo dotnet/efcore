@@ -93,7 +93,7 @@
     <Compile Include="Metadata\IIndex.cs" />
     <Compile Include="Metadata\IModelBuilderFactory.cs" />
     <Compile Include="Metadata\Index.cs" />
-    <Compile Include="Metadata\ModelBuilder.cs" />
+    <Compile Include="Metadata\BasicModelBuilder.cs" />
     <Compile Include="Metadata\ModelBuilderFactory.cs" />
     <Compile Include="Metadata\ModelConventions\ForeignKeyConvention.cs" />
     <Compile Include="Metadata\NavigationExtensions.cs" />
@@ -157,7 +157,7 @@
     <Compile Include="Metadata\ClrPropertyGetterSource.cs" />
     <Compile Include="Metadata\ClrPropertySetter.cs" />
     <Compile Include="Metadata\ClrPropertySetterSource.cs" />
-    <Compile Include="Metadata\ConventionModelBuilder.cs" />
+    <Compile Include="Metadata\ModelBuilder.cs" />
     <Compile Include="Metadata\EntityMaterializerSource.cs" />
     <Compile Include="Metadata\EntityType.cs" />
     <Compile Include="Metadata\FieldMatcher.cs" />

@@ -45,9 +45,9 @@ namespace Microsoft.Data.Entity.MonsterModel
         where TDriver : class, IDriver, new()
         where TLicense : class, ILicense, new()
     {
-        private readonly Action<ModelBuilder> _onModelCreating;
+        private readonly Action<BasicModelBuilder> _onModelCreating;
 
-        public MonsterContext(IServiceProvider serviceProvider, DbContextOptions options, Action<ModelBuilder> onModelCreating)
+        public MonsterContext(IServiceProvider serviceProvider, DbContextOptions options, Action<BasicModelBuilder> onModelCreating)
             : base(serviceProvider, options)
         {
             _onModelCreating = onModelCreating;
@@ -211,7 +211,7 @@ namespace Microsoft.Data.Entity.MonsterModel
             get { return Set<TLicense>(); }
         }
 
-        protected override void OnModelCreating(ConventionModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<TBarcodeDetail>().Key(e => e.Code);
             modelBuilder.Entity<TResolution>();

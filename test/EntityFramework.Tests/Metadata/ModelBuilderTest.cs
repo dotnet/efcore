@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void Can_get_entity_builder_for_clr_type()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
 
             var entityBuilder = modelBuilder.Entity<Customer>();
 
@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void Can_get_entity_builder_for_entity_type_name()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
 
             var entityBuilder = modelBuilder.Entity("Customer");
 
@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void Can_set_entity_key_from_clr_property()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder.Entity<Customer>().Key(e => e.Id);
 
@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void Can_set_entity_key_from_property_name()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder.Entity<Customer>(b =>
                 {
@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void Can_set_entity_key_from_property_name_when_no_clr_property()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder.Entity<Customer>(b =>
                 {
@@ -87,7 +87,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void Can_set_entity_key_from_property_name_when_no_clr_type()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder.Entity("Customer", b =>
                 {
@@ -105,7 +105,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void Can_set_composite_entity_key_from_clr_properties()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder
                 .Entity<Customer>()
@@ -122,7 +122,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void Can_set_composite_entity_key_from_property_names()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder.Entity<Customer>(b =>
                 {
@@ -142,7 +142,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void Can_set_composite_entity_key_from_property_names_when_mixed_properties()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder.Entity<Customer>(b =>
                 {
@@ -162,7 +162,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void Can_set_composite_entity_key_from_property_names_when_no_clr_type()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder.Entity("Customer", ps =>
                 {
@@ -182,7 +182,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void Can_set_entity_key_with_annotations()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder
                 .Entity<Customer>(
@@ -202,7 +202,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void Can_set_entity_key_with_annotations_when_no_clr_type()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder.Entity("Customer", b =>
                 {
@@ -225,7 +225,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void Can_set_entity_annotation()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder
                 .Entity<Customer>()
@@ -238,7 +238,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void Can_set_entity_annotation_when_no_clr_type()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder
                 .Entity("Customer")
@@ -251,7 +251,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void Can_set_property_annotation()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder
                 .Entity<Customer>()
@@ -264,7 +264,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void Can_set_property_annotation_when_no_clr_property()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder
                 .Entity<Customer>()
@@ -277,7 +277,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void Can_set_property_annotation_when_no_clr_type()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder
                 .Entity("Customer")
@@ -290,7 +290,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void Can_set_use_of_store_sequence()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder
                 .Entity<Customer>()
@@ -306,7 +306,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void Can_set_use_of_store_sequence_with_name_and_block_size()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder
                 .Entity<Customer>()
@@ -324,7 +324,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void Can_add_multiple_properties()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder.Entity<Customer>(b =>
                 {
@@ -339,7 +339,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void Can_add_multiple_mixed_properties()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder.Entity<Customer>(
                 b =>
@@ -355,7 +355,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void Can_add_multiple_properties_when_no_clr_type()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder.Entity("Customer", b =>
                 {
@@ -370,7 +370,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void Can_add_foreign_key()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
             modelBuilder
                 .Entity<Order>()
@@ -385,7 +385,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void Can_add_foreign_key_when_no_clr_property()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder
                 .Entity<Customer>()
@@ -406,7 +406,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void Can_add_foreign_key_when_no_clr_type()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder
                 .Entity<Customer>()
@@ -427,7 +427,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void Can_add_foreign_key_when_no_clr_type_on_both_ends()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder.Entity("Customer", b =>
                 {
@@ -450,7 +450,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void Can_add_multiple_foreign_keys()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder.Entity<Customer>().Key(c => c.Id);
 
@@ -473,7 +473,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void Can_add_multiple_foreign_keys_when_mixed_properties()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder.Entity<Customer>().Key(c => c.Id);
 
@@ -498,7 +498,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void Can_add_multiple_foreign_keys_when_no_clr_type()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder.Entity<Customer>().Key(c => c.Id);
 
@@ -524,7 +524,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void Can_add_multiple_foreign_keys_when_no_clr_type_on_both_ends()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder.Entity("Customer", b =>
                 {
@@ -553,7 +553,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void Can_add_index()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder
                 .Entity<Customer>()
@@ -568,7 +568,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void Can_add_index_when_no_clr_type()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder.Entity("Customer", b =>
                 {
@@ -585,7 +585,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void Can_add_multiple_indexes()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder
                 .Entity<Customer>()
@@ -607,7 +607,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void Can_add_multiple_indexes_when_no_clr_type()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder.Entity("Customer", ps =>
                 {
@@ -632,7 +632,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToMany_finds_existing_navs_and_uses_associated_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
             modelBuilder
                 .Entity<Order>()
@@ -666,7 +666,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToMany_finds_existing_nav_to_principal_and_uses_associated_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
             modelBuilder
                 .Entity<Order>()
@@ -698,7 +698,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToMany_finds_existing_nav_to_dependent_and_uses_associated_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
             modelBuilder
                 .Entity<Order>()
@@ -730,7 +730,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToMany_creates_both_navs_and_uses_existing_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
             modelBuilder
                 .Entity<Order>()
@@ -759,7 +759,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToMany_creates_both_navs_and_creates_new_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
             modelBuilder.Entity<Order>().Property(e => e.CustomerId);
 
@@ -789,7 +789,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToMany_can_create_unidirectional_nav_and_new_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
             modelBuilder.Entity<Order>().Property(e => e.CustomerId);
 
@@ -818,7 +818,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToMany_can_create_unidirectional_from_other_end_nav_and_new_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
             modelBuilder.Entity<Order>().Property(e => e.CustomerId);
 
@@ -848,7 +848,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToMany_can_create_relationship_with_no_navigations()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
             modelBuilder.Entity<Order>().Property(e => e.CustomerId);
 
@@ -876,7 +876,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToMany_creates_both_navs_and_uses_specified_FK_even_if_found_by_convention()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
             modelBuilder.Entity<Order>().Property(e => e.CustomerId);
 
@@ -909,7 +909,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToMany_creates_both_navs_and_uses_existing_FK_not_found_by_convention()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<BigMak>().Key(c => c.Id);
             modelBuilder
                 .Entity<Pickle>()
@@ -941,7 +941,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToMany_creates_both_navs_and_creates_FK_specified()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<BigMak>().Key(c => c.Id);
             modelBuilder.Entity<Pickle>().Property(e => e.BurgerId);
 
@@ -974,7 +974,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToMany_can_create_unidirectional_nav_and_specified_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<BigMak>().Key(c => c.Id);
             modelBuilder.Entity<Pickle>().Property(e => e.BurgerId);
 
@@ -1006,7 +1006,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToMany_can_create_unidirectional_from_other_end_nav_and_specified_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<BigMak>().Key(c => c.Id);
             modelBuilder.Entity<Pickle>().Property(e => e.BurgerId);
 
@@ -1038,7 +1038,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToMany_can_create_relationship_with_no_navigations_and_specified_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<BigMak>().Key(c => c.Id);
             modelBuilder.Entity<Pickle>().Property(e => e.BurgerId);
 
@@ -1069,7 +1069,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToMany_creates_both_navs_and_creates_shadow_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<BigMak>().Key(c => c.Id);
             modelBuilder.Entity<Pickle>().Property(e => e.BurgerId);
 
@@ -1102,7 +1102,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToMany_can_create_unidirectional_nav_with_shadow_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<BigMak>().Key(c => c.Id);
             modelBuilder.Entity<Pickle>().Property(e => e.BurgerId);
 
@@ -1134,7 +1134,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToMany_can_create_unidirectional_from_other_end_nav_with_shadow_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<BigMak>().Key(c => c.Id);
             modelBuilder.Entity<Pickle>().Property(e => e.BurgerId);
 
@@ -1166,7 +1166,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToMany_can_create_relationship_with_no_navigations_with_shadow_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<BigMak>().Key(c => c.Id);
             modelBuilder.Entity<Pickle>().Property(e => e.BurgerId);
 
@@ -1197,7 +1197,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToMany_creates_both_navs_and_matches_shadow_FK_property_by_convention()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<BigMak>().Key(c => c.Id);
             modelBuilder.Entity<Pickle>().Property<int>("BigMakId", shadowProperty: true);
 
@@ -1227,7 +1227,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToMany_creates_both_navs_and_new_FK_when_uniqueness_does_not_match()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<BigMak>().Key(c => c.Id);
             modelBuilder
                 .Entity<Pickle>()
@@ -1264,7 +1264,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToMany_can_use_explicitly_specified_PK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
             modelBuilder.Entity<Order>().Property(e => e.CustomerId);
 
@@ -1299,7 +1299,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToMany_can_use_non_PK_principal()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>(b =>
                 {
                     b.Key(c => c.Id);
@@ -1338,7 +1338,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToMany_can_have_both_convention_properties_specified()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>(b =>
             {
                 b.Key(c => c.Id);
@@ -1378,7 +1378,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToMany_can_have_both_convention_properties_specified_in_any_order()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>(b =>
             {
                 b.Key(c => c.Id);
@@ -1418,7 +1418,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToMany_can_have_FK_by_convention_specified_with_explicit_principal_key()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>(b =>
             {
                 b.Key(c => c.Id);
@@ -1458,7 +1458,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToMany_can_have_FK_by_convention_specified_with_explicit_principal_key_in_any_order()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>(b =>
             {
                 b.Key(c => c.Id);
@@ -1498,7 +1498,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToMany_can_have_principal_key_by_convention_specified_with_explicit_PK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<BigMak>(b =>
                 {
                     b.Key(c => c.Id);
@@ -1538,7 +1538,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToMany_can_have_principal_key_by_convention_specified_with_explicit_PK_in_any_order()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<BigMak>(b =>
             {
                 b.Key(c => c.Id);
@@ -1578,7 +1578,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void ManyToOne_finds_existing_navs_and_uses_associated_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
             modelBuilder
                 .Entity<Order>()
@@ -1612,7 +1612,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void ManyToOne_finds_existing_nav_to_principal_and_uses_associated_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
             modelBuilder
                 .Entity<Order>()
@@ -1644,7 +1644,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void ManyToOne_finds_existing_nav_to_dependent_and_uses_associated_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
             modelBuilder
                 .Entity<Order>()
@@ -1676,7 +1676,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void ManyToOne_creates_both_navs_and_uses_existing_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
             modelBuilder
                 .Entity<Order>()
@@ -1705,7 +1705,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void ManyToOne_creates_both_navs_and_creates_new_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
             modelBuilder.Entity<Order>().Property(e => e.CustomerId);
 
@@ -1735,7 +1735,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void ManyToOne_can_create_unidirectional_nav_and_new_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
             modelBuilder.Entity<Order>().Property(e => e.CustomerId);
 
@@ -1765,7 +1765,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void ManyToOne_can_create_unidirectional_from_other_end_nav_and_new_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
             modelBuilder.Entity<Order>().Property(e => e.CustomerId);
 
@@ -1794,7 +1794,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void ManyToOne_can_create_relationship_with_no_navigations()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
             modelBuilder.Entity<Order>().Property(e => e.CustomerId);
 
@@ -1822,7 +1822,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void ManyToOne_creates_both_navs_and_uses_specified_FK_even_if_found_by_convention()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
             modelBuilder.Entity<Order>().Property(e => e.CustomerId);
 
@@ -1855,7 +1855,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void ManyToOne_creates_both_navs_and_uses_existing_FK_not_found_by_convention()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<BigMak>().Key(c => c.Id);
             modelBuilder
                 .Entity<Pickle>()
@@ -1887,7 +1887,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void ManyToOne_creates_both_navs_and_creates_FK_specified()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<BigMak>().Key(c => c.Id);
             modelBuilder.Entity<Pickle>().Property(e => e.BurgerId);
 
@@ -1920,7 +1920,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void ManyToOne_can_create_unidirectional_nav_and_specified_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<BigMak>().Key(c => c.Id);
             modelBuilder.Entity<Pickle>().Property(e => e.BurgerId);
 
@@ -1952,7 +1952,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void ManyToOne_can_create_unidirectional_from_other_end_nav_and_specified_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<BigMak>().Key(c => c.Id);
             modelBuilder.Entity<Pickle>().Property(e => e.BurgerId);
 
@@ -1984,7 +1984,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void ManyToOne_can_create_relationship_with_no_navigations_and_specified_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<BigMak>().Key(c => c.Id);
             modelBuilder.Entity<Pickle>().Property(e => e.BurgerId);
 
@@ -2015,7 +2015,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void ManyToOne_creates_both_navs_and_creates_shadow_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<BigMak>().Key(c => c.Id);
             modelBuilder.Entity<Pickle>().Property(e => e.BurgerId);
 
@@ -2048,7 +2048,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void ManyToOne_can_create_unidirectional_nav_with_shadow_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<BigMak>().Key(c => c.Id);
             modelBuilder.Entity<Pickle>().Property(e => e.BurgerId);
 
@@ -2080,7 +2080,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void ManyToOne_can_create_unidirectional_from_other_end_nav_with_shadow_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<BigMak>().Key(c => c.Id);
             modelBuilder.Entity<Pickle>().Property(e => e.BurgerId);
 
@@ -2112,7 +2112,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void ManyToOne_can_create_relationship_with_no_navigations_with_shadow_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<BigMak>().Key(c => c.Id);
             modelBuilder.Entity<Pickle>().Property(e => e.BurgerId);
 
@@ -2143,7 +2143,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void ManyToOne_creates_both_navs_and_matches_shadow_FK_by_convention()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<BigMak>().Key(c => c.Id);
             modelBuilder.Entity<Pickle>().Property<int>("BigMakId", shadowProperty: true);
 
@@ -2173,7 +2173,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void ManyToOne_creates_both_navs_and_creates_new_FK_if_uniqueness_does_not_match()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<BigMak>().Key(c => c.Id);
             modelBuilder
                 .Entity<Pickle>()
@@ -2210,7 +2210,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void ManyToOne_can_use_explicitly_specified_PK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
             modelBuilder.Entity<Order>().Property(e => e.CustomerId);
 
@@ -2245,7 +2245,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void ManyToOne_can_use_non_PK_principal()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>(b =>
             {
                 b.Key(c => c.Id);
@@ -2284,7 +2284,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void ManyToOne_can_have_both_convention_properties_specified()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>(b =>
             {
                 b.Key(c => c.Id);
@@ -2324,7 +2324,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void ManyToOne_can_have_both_convention_properties_specified_in_any_order()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>(b =>
             {
                 b.Key(c => c.Id);
@@ -2364,7 +2364,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void ManyToOne_can_have_FK_by_convention_specified_with_explicit_principal_key()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>(b =>
             {
                 b.Key(c => c.Id);
@@ -2404,7 +2404,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void ManyToOne_can_have_FK_by_convention_specified_with_explicit_principal_key_in_any_order()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>(b =>
             {
                 b.Key(c => c.Id);
@@ -2444,7 +2444,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void ManyToOne_can_have_principal_key_by_convention_specified_with_explicit_PK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<BigMak>(b =>
             {
                 b.Key(c => c.Id);
@@ -2484,7 +2484,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void ManyToOne_can_have_principal_key_by_convention_specified_with_explicit_PK_in_any_order()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<BigMak>(b =>
             {
                 b.Key(c => c.Id);
@@ -2524,7 +2524,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToOne_finds_existing_navs_and_uses_associated_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
             modelBuilder
                 .Entity<CustomerDetails>()
@@ -2559,7 +2559,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToOne_finds_existing_nav_to_principal_and_uses_associated_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
             modelBuilder
                 .Entity<CustomerDetails>()
@@ -2592,7 +2592,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToOne_finds_existing_nav_to_dependent_and_uses_associated_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
             modelBuilder
                 .Entity<CustomerDetails>()
@@ -2625,7 +2625,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToOne_creates_both_navs_and_uses_existing_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
             modelBuilder.Entity<CustomerDetails>().Key(e => e.Id);
             modelBuilder
@@ -2656,7 +2656,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToOne_creates_both_navs_and_creates_new_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
             modelBuilder.Entity<CustomerDetails>().Key(e => e.Id);
 
@@ -2686,7 +2686,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToOne_creates_both_navs_and_uses_existing_FK_when_not_PK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Order>().Key(c => c.OrderId);
             modelBuilder.Entity<OrderDetails>().Key(e => e.Id);
             modelBuilder
@@ -2717,7 +2717,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToOne_creates_both_navs_and_creates_new_FK_when_not_PK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Order>().Key(c => c.OrderId);
             modelBuilder.Entity<OrderDetails>(b =>
                 {
@@ -2751,7 +2751,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToOne_can_create_unidirectional_nav_and_new_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
             modelBuilder.Entity<CustomerDetails>().Key(e => e.Id);
 
@@ -2780,7 +2780,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToOne_can_create_unidirectional_from_other_end_nav_and_new_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
             modelBuilder.Entity<CustomerDetails>().Key(e => e.Id);
 
@@ -2810,7 +2810,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToOne_can_create_relationship_with_no_navigations()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
             modelBuilder.Entity<CustomerDetails>().Key(e => e.Id);
 
@@ -2838,7 +2838,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToOne_creates_both_navs_and_uses_specified_FK_even_if_found_by_convention()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Order>().Key(c => c.OrderId);
             modelBuilder.Entity<OrderDetails>(b =>
                 {
@@ -2875,7 +2875,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToOne_creates_both_navs_and_uses_specified_FK_even_if_PK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
             modelBuilder.Entity<CustomerDetails>().Key(e => e.Id);
 
@@ -2908,7 +2908,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToOne_creates_both_navs_and_uses_existing_FK_not_found_by_convention()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<BigMak>().Key(c => c.Id);
             modelBuilder
                 .Entity<Bun>()
@@ -2941,7 +2941,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToOne_creates_both_navs_and_creates_FK_specified()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<BigMak>().Key(c => c.Id);
             modelBuilder.Entity<Bun>().Property(e => e.BurgerId);
 
@@ -2974,7 +2974,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToOne_can_create_unidirectional_nav_and_specified_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<BigMak>().Key(c => c.Id);
             modelBuilder.Entity<Bun>().Property(e => e.BurgerId);
 
@@ -3006,7 +3006,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToOne_can_create_unidirectional_from_other_end_nav_and_specified_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<BigMak>().Key(c => c.Id);
             modelBuilder.Entity<Bun>().Property(e => e.BurgerId);
 
@@ -3038,7 +3038,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToOne_can_create_relationship_with_no_navigations_and_specified_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<BigMak>().Key(c => c.Id);
             modelBuilder.Entity<Bun>().Property(e => e.BurgerId);
 
@@ -3069,7 +3069,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToOne_creates_both_navs_and_makes_new_FK_when_uniqueness_does_not_match()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<BigMak>().Key(c => c.Id);
             modelBuilder
                 .Entity<Bun>()
@@ -3106,7 +3106,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToOne_principal_and_dependent_can_be_flipped_with_existing_FK_still_used()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Order>().Key(c => c.OrderId);
             modelBuilder.Entity<OrderDetails>().Key(e => e.Id);
             modelBuilder
@@ -3140,7 +3140,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToOne_principal_and_dependent_can_be_flipped_with_FK_still_found_by_convention()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Order>().Key(c => c.OrderId);
             modelBuilder.Entity<OrderDetails>(b =>
                 {
@@ -3177,7 +3177,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void Unidirectional_from_other_end_OneToOne_principal_and_dependent_can_be_flipped()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
             modelBuilder.Entity<CustomerDetails>().Key(e => e.Id);
 
@@ -3209,7 +3209,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void Unidirectional_OneToOne_principal_and_dependent_can_be_flipped()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
             modelBuilder.Entity<CustomerDetails>().Key(e => e.Id);
 
@@ -3241,7 +3241,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void No_navigation_OneToOne_principal_and_dependent_can_be_flipped()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
             modelBuilder.Entity<CustomerDetails>().Key(e => e.Id);
 
@@ -3272,7 +3272,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToOne_principal_and_dependent_can_be_flipped_with_PK_FK_still_used()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
             modelBuilder.Entity<CustomerDetails>().Key(e => e.Id);
 
@@ -3305,7 +3305,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToOne_can_have_PK_explicitly_specified()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
             modelBuilder.Entity<CustomerDetails>().Key(e => e.Id);
 
@@ -3340,7 +3340,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToOne_can_use_alternate_principal_key()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>(b =>
                 {
                     b.Key(c => c.Id);
@@ -3379,7 +3379,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToOne_can_have_both_convention_keys_specified_explicitly()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Order>().Key(c => c.OrderId);
             modelBuilder.Entity<OrderDetails>(b =>
             {
@@ -3419,7 +3419,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToOne_can_have_both_convention_keys_specified_explicitly_in_any_order()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Order>().Key(c => c.OrderId);
             modelBuilder.Entity<OrderDetails>(b =>
             {
@@ -3459,7 +3459,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToOne_can_have_both_keys_specified_explicitly()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<BigMak>(b =>
                 {
                     b.Key(c => c.Id);
@@ -3499,7 +3499,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToOne_can_have_both_keys_specified_explicitly_in_any_order()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<BigMak>(b =>
             {
                 b.Key(c => c.Id);
@@ -3539,7 +3539,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToOne_principal_and_dependent_can_be_flipped_using_principal_with_existing_FK_still_used()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Order>().Key(c => c.OrderId);
             modelBuilder.Entity<OrderDetails>().Key(e => e.Id);
             modelBuilder
@@ -3573,7 +3573,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToOne_principal_and_dependent_can_be_flipped_using_principal_with_FK_still_found_by_convention()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Order>().Key(c => c.OrderId);
             modelBuilder.Entity<OrderDetails>(b =>
             {
@@ -3610,7 +3610,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToOne_principal_and_dependent_can_be_flipped_in_both_ways()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Order>().Key(c => c.OrderId);
             modelBuilder.Entity<OrderDetails>(b =>
             {
@@ -3648,7 +3648,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToOne_principal_and_dependent_can_be_flipped_in_both_ways_in_any_order()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Order>().Key(c => c.OrderId);
             modelBuilder.Entity<OrderDetails>(b =>
             {
@@ -3686,7 +3686,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void Unidirectional_from_other_end_OneToOne_principal_and_dependent_can_be_flipped_using_principal()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
             modelBuilder.Entity<CustomerDetails>().Key(e => e.Id);
 
@@ -3718,7 +3718,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void Unidirectional_OneToOne_principal_and_dependent_can_be_flipped_using_principal()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
             modelBuilder.Entity<CustomerDetails>().Key(e => e.Id);
 
@@ -3750,7 +3750,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void No_navigation_OneToOne_principal_and_dependent_can_be_flipped_using_principal()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
             modelBuilder.Entity<CustomerDetails>().Key(e => e.Id);
 
@@ -3807,7 +3807,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToMany_creates_both_navs_and_uses_existing_composite_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Whoopper>().Key(c => new { c.Id1, c.Id2 });
             modelBuilder
                 .Entity<Tomato>()
@@ -3839,7 +3839,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToMany_creates_both_navs_and_creates_composite_FK_specified()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Whoopper>().Key(c => new { c.Id1, c.Id2 });
             modelBuilder.Entity<Tomato>(b =>
                 {
@@ -3878,7 +3878,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToMany_can_use_alternate_composite_key()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Whoopper>(b =>
                 {
                     b.Key(c => new { c.Id1, c.Id2 });
@@ -3927,7 +3927,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToMany_can_use_alternate_composite_key_in_any_order()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Whoopper>(b =>
             {
                 b.Key(c => new { c.Id1, c.Id2 });
@@ -3976,7 +3976,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToMany_can_create_unidirectional_nav_and_specified_composite_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Whoopper>().Key(c => new { c.Id1, c.Id2 });
             modelBuilder.Entity<Tomato>(b =>
                 {
@@ -4014,7 +4014,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToMany_can_create_unidirectional_from_other_end_nav_and_specified_composite_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Whoopper>().Key(c => new { c.Id1, c.Id2 });
             modelBuilder.Entity<Tomato>(b =>
                 {
@@ -4052,7 +4052,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToMany_can_create_relationship_with_no_navigations_and_specified_composite_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Whoopper>().Key(c => new { c.Id1, c.Id2 });
             modelBuilder.Entity<Tomato>(b =>
                 {
@@ -4089,7 +4089,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void ManyToOne_creates_both_navs_and_uses_existing_composite_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Whoopper>().Key(c => new { c.Id1, c.Id2 });
             modelBuilder
                 .Entity<Tomato>()
@@ -4121,7 +4121,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void ManyToOne_creates_both_navs_and_creates_composite_FK_specified()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Whoopper>().Key(c => new { c.Id1, c.Id2 });
             modelBuilder.Entity<Tomato>(b =>
                 {
@@ -4160,7 +4160,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void ManyToOne_can_use_alternate_composite_key()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Whoopper>(b =>
             {
                 b.Key(c => new { c.Id1, c.Id2 });
@@ -4209,7 +4209,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void ManyToOne_can_use_alternate_composite_key_in_any_order()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Whoopper>(b =>
             {
                 b.Key(c => new { c.Id1, c.Id2 });
@@ -4258,7 +4258,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void ManyToOne_can_create_unidirectional_nav_and_specified_composite_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Whoopper>().Key(c => new { c.Id1, c.Id2 });
             modelBuilder.Entity<Tomato>(b =>
                 {
@@ -4296,7 +4296,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void ManyToOne_can_create_unidirectional_from_other_end_nav_and_specified_composite_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Whoopper>().Key(c => new { c.Id1, c.Id2 });
             modelBuilder.Entity<Tomato>(b =>
                 {
@@ -4334,7 +4334,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void ManyToOne_can_create_relationship_with_no_navigations_and_specified_composite_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Whoopper>().Key(c => new { c.Id1, c.Id2 });
             modelBuilder.Entity<Tomato>(b =>
                 {
@@ -4371,7 +4371,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToOne_creates_both_navs_and_uses_existing_composite_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Whoopper>().Key(c => new { c.Id1, c.Id2 });
             modelBuilder
                 .Entity<ToastedBun>()
@@ -4404,7 +4404,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToOne_creates_both_navs_and_creates_composite_FK_specified()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Whoopper>().Key(c => new { c.Id1, c.Id2 });
             modelBuilder.Entity<ToastedBun>(b =>
                 {
@@ -4443,7 +4443,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToOne_can_use_alternate_composite_key()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Whoopper>(b =>
             {
                 b.Key(c => new { c.Id1, c.Id2 });
@@ -4492,7 +4492,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToOne_can_use_alternate_composite_key_in_any_order()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Whoopper>(b =>
             {
                 b.Key(c => new { c.Id1, c.Id2 });
@@ -4541,7 +4541,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToOne_uses_composite_PK_for_FK_by_convention()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Whoopper>().Key(c => new { c.Id1, c.Id2 });
             modelBuilder.Entity<Moostard>().Key(c => new { c.Id1, c.Id2 });
 
@@ -4575,7 +4575,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToOne_can_be_flipped_and_composite_PK_is_still_used_by_convention()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Whoopper>().Key(c => new { c.Id1, c.Id2 });
             modelBuilder.Entity<Moostard>().Key(c => new { c.Id1, c.Id2 });
 
@@ -4610,7 +4610,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToOne_can_be_flipped_using_principal_and_composite_PK_is_still_used_by_convention()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Whoopper>().Key(c => new { c.Id1, c.Id2 });
             modelBuilder.Entity<Moostard>().Key(c => new { c.Id1, c.Id2 });
 
@@ -4645,7 +4645,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToOne_can_create_unidirectional_nav_and_specified_composite_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Whoopper>().Key(c => new { c.Id1, c.Id2 });
             modelBuilder.Entity<ToastedBun>(b =>
                 {
@@ -4683,7 +4683,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToOne_can_create_unidirectional_from_other_end_nav_and_specified_composite_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Whoopper>().Key(c => new { c.Id1, c.Id2 });
             modelBuilder.Entity<ToastedBun>(b =>
                 {
@@ -4721,7 +4721,7 @@ namespace Microsoft.Data.Entity.Metadata
         public void OneToOne_can_create_relationship_with_no_navigations_and_specified_composite_FK()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
             modelBuilder.Entity<Whoopper>().Key(c => new { c.Id1, c.Id2 });
             modelBuilder.Entity<ToastedBun>(b =>
                 {

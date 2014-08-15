@@ -324,7 +324,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
         protected Metadata.Model CreateModel()
         {
             var model = new Metadata.Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
 
             // TODO: Uncomment when complex types are supported
             //builder.ComplexType<Location>();

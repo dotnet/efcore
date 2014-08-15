@@ -239,7 +239,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         private class FixupContext : DbContext
         {
-            protected override void OnModelCreating(ConventionModelBuilder modelBuilder)
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 var model = modelBuilder.Model;
 

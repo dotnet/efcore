@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Extensions
         public void It_creates_composite_key()
         {
             var model = new Model();
-            var builder = new ModelBuilder(model);
+            var builder = new BasicModelBuilder(model);
 
             builder.Entity<PocoTestType>()
                 .PartitionAndRowKey(s => s.BigCount, s => s.IsEnchanted);

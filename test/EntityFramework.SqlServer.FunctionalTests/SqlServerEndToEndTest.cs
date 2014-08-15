@@ -417,7 +417,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 options.UseSqlServer(SqlServerTestDatabase.NorthwindConnectionString);
             }
 
-            protected override void OnModelCreating(ConventionModelBuilder modelBuilder)
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 modelBuilder.Entity<Customer>(b =>
                     {
@@ -480,7 +480,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
             }
 
-            protected override void OnModelCreating(ConventionModelBuilder modelBuilder)
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 modelBuilder.Entity<TBlog>().ToTable("Blog", "dbo");
             }

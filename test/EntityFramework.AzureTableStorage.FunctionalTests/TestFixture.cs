@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
         public IModel CreateModel(string tableName)
         {
             var model = new Model();
-            var builder = new ModelBuilder(model);
+            var builder = new BasicModelBuilder(model);
             builder.Entity<Purchase>(b =>
                 {
                     b.Property(s => s.Awesomeness);

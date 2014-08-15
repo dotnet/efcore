@@ -125,7 +125,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
         protected virtual IModel CreateHistoryModel()
         {
-            var builder = new ModelBuilder();
+            var builder = new BasicModelBuilder();
 
             builder.Entity<HistoryRow>(b =>
                 {

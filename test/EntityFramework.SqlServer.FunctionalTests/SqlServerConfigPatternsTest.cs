@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     options.UseSqlServer(SqlServerTestDatabase.NorthwindConnectionString);
                 }
 
-                protected override void OnModelCreating(ConventionModelBuilder modelBuilder)
+                protected override void OnModelCreating(ModelBuilder modelBuilder)
                 {
                     ConfigureModel(modelBuilder);
                 }
@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 public DbSet<Customer> Customers { get; set; }
 
-                protected override void OnModelCreating(ConventionModelBuilder modelBuilder)
+                protected override void OnModelCreating(ModelBuilder modelBuilder)
                 {
                     ConfigureModel(modelBuilder);
                 }
@@ -108,7 +108,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     options.UseSqlServer(SqlServerTestDatabase.NorthwindConnectionString);
                 }
 
-                protected override void OnModelCreating(ConventionModelBuilder modelBuilder)
+                protected override void OnModelCreating(ModelBuilder modelBuilder)
                 {
                     ConfigureModel(modelBuilder);
                 }
@@ -144,7 +144,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 public DbSet<Customer> Customers { get; set; }
 
-                protected override void OnModelCreating(ConventionModelBuilder modelBuilder)
+                protected override void OnModelCreating(ModelBuilder modelBuilder)
                 {
                     ConfigureModel(modelBuilder);
                 }
@@ -183,7 +183,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 public DbSet<Customer> Customers { get; set; }
 
-                protected override void OnModelCreating(ConventionModelBuilder modelBuilder)
+                protected override void OnModelCreating(ModelBuilder modelBuilder)
                 {
                     ConfigureModel(modelBuilder);
                 }
@@ -213,7 +213,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 public DbSet<Customer> Customers { get; set; }
 
-                protected override void OnModelCreating(ConventionModelBuilder modelBuilder)
+                protected override void OnModelCreating(ModelBuilder modelBuilder)
                 {
                     ConfigureModel(modelBuilder);
                 }
@@ -257,7 +257,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     options.UseSqlServer(SqlServerTestDatabase.NorthwindConnectionString);
                 }
 
-                protected override void OnModelCreating(ConventionModelBuilder modelBuilder)
+                protected override void OnModelCreating(ModelBuilder modelBuilder)
                 {
                     ConfigureModel(modelBuilder);
                 }
@@ -314,7 +314,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     options.UseSqlServer(SqlServerTestDatabase.NorthwindConnectionString);
                 }
 
-                protected override void OnModelCreating(ConventionModelBuilder modelBuilder)
+                protected override void OnModelCreating(ModelBuilder modelBuilder)
                 {
                     ConfigureModel(modelBuilder);
                 }
@@ -370,7 +370,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 public DbSet<Customer> Customers { get; set; }
 
-                protected override void OnModelCreating(ConventionModelBuilder modelBuilder)
+                protected override void OnModelCreating(ModelBuilder modelBuilder)
                 {
                     ConfigureModel(modelBuilder);
                 }
@@ -428,7 +428,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 public DbSet<Customer> Customers { get; set; }
 
-                protected override void OnModelCreating(ConventionModelBuilder modelBuilder)
+                protected override void OnModelCreating(ModelBuilder modelBuilder)
                 {
                     ConfigureModel(modelBuilder);
                 }
@@ -458,7 +458,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 public DbSet<Customer> Customers { get; set; }
 
-                protected override void OnModelCreating(ConventionModelBuilder modelBuilder)
+                protected override void OnModelCreating(ModelBuilder modelBuilder)
                 {
                     ConfigureModel(modelBuilder);
                 }
@@ -495,7 +495,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     options.UseSqlServer(_connectionString);
                 }
 
-                protected override void OnModelCreating(ConventionModelBuilder modelBuilder)
+                protected override void OnModelCreating(ModelBuilder modelBuilder)
                 {
                     ConfigureModel(modelBuilder);
                 }
@@ -543,7 +543,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 public DbSet<Customer> Customers { get; set; }
 
-                protected override void OnModelCreating(ConventionModelBuilder modelBuilder)
+                protected override void OnModelCreating(ModelBuilder modelBuilder)
                 {
                     ConfigureModel(modelBuilder);
                 }
@@ -645,7 +645,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 public DbSet<Customer> Customers { get; set; }
 
-                protected override void OnModelCreating(ConventionModelBuilder modelBuilder)
+                protected override void OnModelCreating(ModelBuilder modelBuilder)
                 {
                     ConfigureModel(modelBuilder);
                 }
@@ -670,7 +670,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             public string Fax { get; set; }
         }
 
-        private static void ConfigureModel(ModelBuilder builder)
+        private static void ConfigureModel(BasicModelBuilder builder)
         {
             builder.Entity<Customer>(b =>
                 {

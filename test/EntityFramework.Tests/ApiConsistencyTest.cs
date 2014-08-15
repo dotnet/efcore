@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity
         [Fact]
         public void Fluent_api_methods_should_not_return_void()
         {
-            var fluentApiTypes = new[] { typeof(ModelBuilder) };
+            var fluentApiTypes = new[] { typeof(BasicModelBuilder) };
 
             var voidMethods
                 = from t in GetAllTypes(fluentApiTypes)

@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
 
             _creator = new AtsDataStoreCreator(_connection.Object);
             _model = new Model();
-            var builder = new ModelBuilder(_model);
+            var builder = new BasicModelBuilder(_model);
             builder.Entity("Test1");
             builder.Entity("Test2");
             builder.Entity("Test3");

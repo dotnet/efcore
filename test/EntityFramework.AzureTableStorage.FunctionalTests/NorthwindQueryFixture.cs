@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
         {
             var model = CreateModel();
             const string tableSuffix = "FunctionalTests";
-            var builder = new ModelBuilder(model);
+            var builder = new BasicModelBuilder(model);
             builder.Entity<Customer>()
                 .PartitionAndRowKey(s => s.City, s => s.CustomerID)
                 .Timestamp("Timestamp", true)

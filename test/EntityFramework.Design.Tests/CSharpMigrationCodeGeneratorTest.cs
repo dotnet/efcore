@@ -414,7 +414,7 @@ namespace MyNamespace
         {
             get
             {
-                var builder = new ModelBuilder();
+                var builder = new BasicModelBuilder();
                 
                 builder.Entity(""Entity"", b =>
                     {

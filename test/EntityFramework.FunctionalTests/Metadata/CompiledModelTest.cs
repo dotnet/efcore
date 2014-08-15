@@ -354,7 +354,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         private static IModel BuildModel()
         {
             var model = new Model();
-            var builder = new ModelBuilder(model);
+            var builder = new BasicModelBuilder(model);
 
             builder.Annotation("ModelAnnotation1", "ModelValue1");
             builder.Annotation("ModelAnnotation2", "ModelValue2");

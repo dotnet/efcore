@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void CreateSchema_creates_operations()
         {
-            var modelBuider = new ModelBuilder();
+            var modelBuider = new BasicModelBuilder();
             modelBuider.Entity("A",
                 b =>
                 {
@@ -54,7 +54,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void DropSchema_creates_operations()
         {
-            var modelBuider = new ModelBuilder();
+            var modelBuider = new BasicModelBuilder();
             modelBuider.Entity("A",
                 b =>
                 {
@@ -90,7 +90,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Diff_finds_moved_table()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                 {
@@ -99,7 +99,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     b.ToTable("T", "dbo");
                 });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                 {
@@ -123,7 +123,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Diff_finds_renamed_table()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                 {
@@ -132,7 +132,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     b.ToTable("T", "dbo");
                 });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                 {
@@ -156,7 +156,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Diff_finds_created_table()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                 {
@@ -164,7 +164,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     b.Key("Id");
                 });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                 {
@@ -219,7 +219,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Diff_finds_dropped_table()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                 {
@@ -233,7 +233,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     b.Key("Id");
                 });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                 {
@@ -255,7 +255,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Diff_finds_renamed_column()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                 {
@@ -264,7 +264,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     b.Key("Id");
                 });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                 {
@@ -289,7 +289,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Diff_finds_added_column()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                 {
@@ -297,7 +297,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     b.Key("Id");
                 });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                 {
@@ -322,7 +322,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Diff_finds_dropped_column()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                 {
@@ -331,7 +331,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     b.Key("Id");
                 });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                 {
@@ -354,7 +354,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Diff_finds_altered_column()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                 {
@@ -363,7 +363,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     b.Key("Id");
                 });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                 {
@@ -388,7 +388,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Diff_finds_updated_primary_key()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                 {
@@ -397,7 +397,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     b.Key("Id").KeyName("PK");
                 });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                 {
@@ -426,7 +426,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Diff_finds_added_foreign_key()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                 {
@@ -442,7 +442,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     b.ForeignKeys(fks => fks.ForeignKey("A", "Id"));
                 });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                 {
@@ -482,7 +482,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Diff_finds_dropped_foreign_key()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                 {
@@ -503,7 +503,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                         });
                 });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                 {
@@ -534,7 +534,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Diff_finds_added_index()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                 {
@@ -544,7 +544,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     b.Indexes(ixs => ixs.Index("Id"));
                 });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                 {
@@ -576,7 +576,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Diff_finds_removed_index()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                 {
@@ -591,7 +591,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                         });
                 });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                 {
@@ -616,7 +616,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Diff_finds_renamed_index()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                 {
@@ -625,7 +625,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     b.Indexes(ixs => ixs.Index("Id").IndexName("IX"));
                 });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                 {
@@ -654,7 +654,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Diff_handles_transitive_table_renames()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                 {
@@ -670,7 +670,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     b.ToTable("T1", "dbo");
                 });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                 {
@@ -710,7 +710,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Diff_handles_transitive_column_renames()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                 {
@@ -720,7 +720,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     b.Key("Id");
                 });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                 {
@@ -754,7 +754,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Diff_handles_transitive_index_renames()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                 {
@@ -769,7 +769,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                             });
                 });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                 {
@@ -812,7 +812,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Entity_types_are_fuzzy_matched_if_80_percent_or_more_of_properties_match_accross_both_entity_types()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                     {
@@ -821,7 +821,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                         b.Key("Id").KeyName("PK");
                     });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("B",
                 b =>
                     {
@@ -850,7 +850,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Entity_types_are_not_fuzzy_matched_if_less_than_80_percent_of_properties_match_accross_both_entity_types()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                     {
@@ -860,7 +860,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                         b.Key("Id").KeyName("PK");
                     });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("B",
                 b =>
                     {
@@ -893,7 +893,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Properties_are_matched_if_different_but_have_same_column_names()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                 {
@@ -902,7 +902,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     b.Key("Id");
                 });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                 {
@@ -927,7 +927,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Properties_are_not_matched_if_different_names_and_column_names()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                     {
@@ -936,7 +936,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                         b.Key("Id");
                     });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                     {
@@ -963,7 +963,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Properties_are_matched_before_columns()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                 {
@@ -973,7 +973,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     b.Key("Id");
                 });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                 {
@@ -1010,7 +1010,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Columns_are_matched_if_different_but_same_property_names()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                 {
@@ -1019,7 +1019,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     b.Key("Id");
                 });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                 {
@@ -1047,7 +1047,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Columns_are_not_matched_if_different_clr_type()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                     {
@@ -1055,7 +1055,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                         b.Key("Id");
                     });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                     {
@@ -1077,7 +1077,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Columns_are_not_matched_if_different_data_type()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                     {
@@ -1085,7 +1085,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                         b.Key("Id");
                     });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                     {
@@ -1107,7 +1107,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Columns_are_not_matched_if_different_default_value()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                     {
@@ -1115,7 +1115,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                         b.Key("Id");
                     });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                     {
@@ -1137,7 +1137,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Columns_are_not_matched_if_different_default_sql()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                     {
@@ -1145,7 +1145,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                         b.Key("Id");
                     });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                     {
@@ -1173,7 +1173,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Primary_keys_are_matched_if_different_columns_but_same_property_names()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                 {
@@ -1182,7 +1182,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     b.Key("Id", "P");
                 });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                 {
@@ -1203,7 +1203,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Primary_keys_are_matched_if_different_properties_but_same_column_names()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                 {
@@ -1212,7 +1212,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     b.Key("Id", "P1").KeyName("PK");
                 });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                 {
@@ -1232,7 +1232,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Primary_keys_are_not_matched_if_different_names()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                 {
@@ -1240,7 +1240,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     b.Key("Id").KeyName("PK1");
                 });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                 {
@@ -1266,7 +1266,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Primary_keys_are_not_matched_if_different_clustered_flag()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                 {
@@ -1274,7 +1274,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     b.Key("Id").Annotation(MetadataExtensions.Annotations.IsClustered, "true");
                 });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                 {
@@ -1301,7 +1301,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Primary_keys_are_not_matched_if_different_property_count()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                 {
@@ -1310,7 +1310,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     b.Key("Id", "P1").KeyName("PK");
                 });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                 {
@@ -1338,7 +1338,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Primary_keys_are_not_matched_if_different_property_and_column_names()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                 {
@@ -1348,7 +1348,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     b.Key("Id", "P1").KeyName("PK");
                 });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                 {
@@ -1381,7 +1381,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Foreign_keys_are_matched_if_different_columns_but_same_property_names()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                 {
@@ -1397,7 +1397,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     b.ForeignKeys(fks => fks.ForeignKey("A", "P").KeyName("FK"));
                 });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                 {
@@ -1428,7 +1428,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Foreign_keys_are_matched_if_different_properties_but_same_column_names()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                 {
@@ -1444,7 +1444,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     b.ForeignKeys(fks => fks.ForeignKey("A", "P1").KeyName("FK"));
                 });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                 {
@@ -1472,7 +1472,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Foreign_keys_are_not_matched_if_different_names()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                 {
@@ -1487,7 +1487,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     b.ForeignKeys(fks => fks.ForeignKey("A", "Id").KeyName("FK1"));
                 });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                 {
@@ -1520,7 +1520,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Foreign_keys_are_not_matched_if_different_cascade_delete_flag()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                 {
@@ -1535,7 +1535,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     b.ForeignKeys(fks => fks.ForeignKey("A", "Id").CascadeDelete(true));
                 });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                 {
@@ -1569,7 +1569,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Foreign_keys_are_not_matched_if_different_property_count()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                 {
@@ -1586,7 +1586,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     b.ForeignKeys(fks => fks.ForeignKey("A", "Id").KeyName("FK"));
                 });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                 {
@@ -1623,7 +1623,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Foreign_keys_are_not_matched_if_different_property_and_column_names()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                 {
@@ -1642,7 +1642,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     b.ForeignKeys(fks => fks.ForeignKey("A", "Id", "P1").KeyName("FK"));
                 });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                 {
@@ -1681,7 +1681,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Foreign_keys_are_not_matched_if_different_referenced_property_and_column_names()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                 {
@@ -1700,7 +1700,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     b.ForeignKeys(fks => fks.ForeignKey("A", "Id", "P1").KeyName("FK"));
                 });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                 {
@@ -1745,7 +1745,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Indexes_are_matched_if_different_columns_but_same_property_names()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                 {
@@ -1755,7 +1755,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     b.Indexes(ixs => ixs.Index("Id", "P").IndexName("IX"));
                 });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                 {
@@ -1777,7 +1777,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Indexes_are_matched_if_different_properties_but_same_column_names()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                 {
@@ -1787,7 +1787,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     b.Indexes(ixs => ixs.Index("Id", "P1").IndexName("IX"));
                 });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                 {
@@ -1808,7 +1808,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Indexes_are_matched_if_different_names()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                 {
@@ -1818,7 +1818,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     b.Indexes(ixs => ixs.Index("P1").IndexName("IX1"));
                 });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                 {
@@ -1844,7 +1844,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Indexes_are_not_matched_if_different_unique_flag()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                 {
@@ -1854,7 +1854,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     b.Indexes(ixs => ixs.Index("P1"));
                 });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                 {
@@ -1883,7 +1883,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Indexes_are_not_matched_if_different_clustered_flag()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                 {
@@ -1893,7 +1893,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     b.Indexes(ixs => ixs.Index("P1").IsClustered(false));
                 });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                 {
@@ -1922,7 +1922,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Indexes_are_not_matched_if_different_property_count()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                 {
@@ -1932,7 +1932,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     b.Indexes(ixs => ixs.Index("Id").IndexName("IX"));
                 });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                 {
@@ -1960,7 +1960,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Indexes_are_not_matched_if_different_property_and_column_names()
         {
-            var sourceModelBuilder = new ModelBuilder();
+            var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                 {
@@ -1971,7 +1971,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     b.Indexes(ixs => ixs.Index("P1").IndexName("IX"));
                 });
 
-            var targetModelBuilder = new ModelBuilder();
+            var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                 {

@@ -135,7 +135,7 @@ namespace MyNamespace
         {
             get
             {
-                var builder = new ModelBuilder();
+                var builder = new BasicModelBuilder();
                 
                 return builder.Model;
             }
@@ -162,7 +162,7 @@ namespace MyNamespace
         {
             get
             {
-                var builder = new ModelBuilder();
+                var builder = new BasicModelBuilder();
                 
                 return builder.Model;
             }
@@ -222,7 +222,7 @@ namespace MyNamespace
         {
             get
             {
-                var builder = new ModelBuilder();
+                var builder = new BasicModelBuilder();
                 
                 builder.Entity(""Entity"", b =>
                     {
@@ -257,7 +257,7 @@ namespace MyNamespace
         {
             get
             {
-                var builder = new ModelBuilder();
+                var builder = new BasicModelBuilder();
                 
                 builder.Entity(""Entity"", b =>
                     {
@@ -355,7 +355,7 @@ namespace MyNamespace
         {
             get
             {
-                var builder = new ModelBuilder();
+                var builder = new BasicModelBuilder();
                 
                 builder.Entity(""Customer"", b =>
                     {
@@ -412,7 +412,7 @@ namespace MyNamespace
         {
             get
             {
-                var builder = new ModelBuilder();
+                var builder = new BasicModelBuilder();
                 
                 builder.Entity(""Customer"", b =>
                     {
@@ -535,7 +535,7 @@ namespace MyNamespace
         {
             get
             {
-                var builder = new ModelBuilder();
+                var builder = new BasicModelBuilder();
                 
                 builder.Entity(""EntityWithNamedKey"", b =>
                     {
@@ -602,7 +602,7 @@ namespace MyNamespace
         {
             get
             {
-                var builder = new ModelBuilder();
+                var builder = new BasicModelBuilder();
                 
                 builder.Entity(""EntityWithNamedKey"", b =>
                     {

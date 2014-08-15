@@ -144,7 +144,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 options.UseInMemoryStore(persist: false);
             }
 
-            protected override void OnModelCreating(ConventionModelBuilder modelBuilder)
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 modelBuilder.Entity<Blog>().Key(b => b.Url);
             }

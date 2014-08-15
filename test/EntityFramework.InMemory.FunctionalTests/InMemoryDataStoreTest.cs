@@ -104,7 +104,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         private static Model CreateModel()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder.Entity<Customer>(b =>
                 {
@@ -142,7 +142,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 options.UseInMemoryStore();
             }
 
-            protected override void OnModelCreating(ConventionModelBuilder modelBuilder)
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 modelBuilder.Entity<Artist>().Key(a => a.ArtistId);
             }

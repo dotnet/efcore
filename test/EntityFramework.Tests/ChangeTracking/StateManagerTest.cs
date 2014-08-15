@@ -427,7 +427,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         private static IModel BuildModel()
         {
             var model = new Model();
-            var builder = new ConventionModelBuilder(model);
+            var builder = new ModelBuilder(model);
 
             builder.Entity<Product>();
             builder.Entity<Category>();

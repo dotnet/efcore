@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.SQLite.FunctionalTests
             }
         }
 
-        protected /*override*/ void OnModelCreating(ModelBuilder builder)
+        protected /*override*/ void OnModelCreating(BasicModelBuilder builder)
         {
             var keyProperties =
                 from t in builder.Model.EntityTypes

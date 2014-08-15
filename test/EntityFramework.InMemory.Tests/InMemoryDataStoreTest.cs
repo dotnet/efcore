@@ -154,7 +154,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         private static IModel CreateModel()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder.Entity<Customer>(b =>
                 {

@@ -85,7 +85,7 @@ namespace Microsoft.Data.Entity.Design
 
         public override void Generate(IModel model, IndentedStringBuilder stringBuilder)
         {
-            stringBuilder.Append("var builder = new ModelBuilder()");
+            stringBuilder.Append("var builder = new BasicModelBuilder()");
 
             using (stringBuilder.Indent())
             {

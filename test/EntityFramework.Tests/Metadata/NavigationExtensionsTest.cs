@@ -93,7 +93,7 @@ namespace Microsoft.Data.Entity.Metadata
             bool createFeaturedProductCategory = true, bool createFeaturedProduct = true)
         {
             var model = new Model();
-            var builder = new ConventionModelBuilder(model);
+            var builder = new ModelBuilder(model);
 
             builder.Entity<Product>();
             builder.Entity<Category>();

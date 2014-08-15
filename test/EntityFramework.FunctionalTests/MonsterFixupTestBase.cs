@@ -1738,7 +1738,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             };
         }
 
-        protected virtual void OnModelCreating(ModelBuilder builder)
+        protected virtual void OnModelCreating(BasicModelBuilder builder)
         {
         }
 

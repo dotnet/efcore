@@ -183,7 +183,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             public DbSet<Unicorn> Unicorns { get; set; }
             public DbSet<EarthPony> EarthPonies { get; set; }
 
-            protected override void OnModelCreating(ConventionModelBuilder modelBuilder)
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 modelBuilder.Entity<Pegasus>().Key(e => new { e.Id1, e.Id2 });
                 modelBuilder.Entity<Unicorn>().Key(e => new { e.Id1, e.Id2, e.Id3 });

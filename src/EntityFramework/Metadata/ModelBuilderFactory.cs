@@ -8,11 +8,11 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public class ModelBuilderFactory : IModelBuilderFactory
     {
-        public virtual ConventionModelBuilder CreateConventionBuilder([NotNull] Model model)
+        public virtual ModelBuilder CreateConventionBuilder([NotNull] Model model)
         {
             Check.NotNull(model, "model");
 
-            return new ConventionModelBuilder(model);
+            return new ModelBuilder(model);
         }
     }
 }

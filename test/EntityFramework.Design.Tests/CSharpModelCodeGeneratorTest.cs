@@ -12,13 +12,13 @@ namespace Microsoft.Data.Entity.Design.Tests
         [Fact]
         public void Generate_empty_model()
         {
-            var builder = new ModelBuilder();
+            var builder = new BasicModelBuilder();
 
             var stringBuilder = new IndentedStringBuilder();
             new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
 
             Assert.Equal(
-                @"var builder = new ModelBuilder();
+                @"var builder = new BasicModelBuilder();
 
 return builder.Model;",
                 stringBuilder.ToString());
@@ -27,7 +27,7 @@ return builder.Model;",
         [Fact]
         public void Generate_empty_model_with_annotations()
         {
-            var builder = new ModelBuilder()
+            var builder = new BasicModelBuilder()
                 .Annotation("A1", "V1")
                 .Annotation("A2", "V2");
 
@@ -35,7 +35,7 @@ return builder.Model;",
             new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
 
             Assert.Equal(
-                @"var builder = new ModelBuilder()
+                @"var builder = new BasicModelBuilder()
     .Annotation(""A1"", ""V1"")
     .Annotation(""A2"", ""V2"");
 
@@ -46,7 +46,7 @@ return builder.Model;",
         [Fact]
         public void Generate_entity_type_with_single_property()
         {
-            var builder = new ModelBuilder();
+            var builder = new BasicModelBuilder();
             builder.Entity<Customer>(b =>
                 {
                     b.Property(e => e.Id);
@@ -57,7 +57,7 @@ return builder.Model;",
             new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
 
             Assert.Equal(
-                @"var builder = new ModelBuilder();
+                @"var builder = new BasicModelBuilder();
 
 builder.Entity(""Customer"", b =>
     {
@@ -72,7 +72,7 @@ return builder.Model;",
         [Fact]
         public void Generate_entity_type_with_shadow_property()
         {
-            var builder = new ModelBuilder();
+            var builder = new BasicModelBuilder();
             builder.Entity<Customer>(b =>
                 {
                     b.Property<int>("Id", shadowProperty: true);
@@ -83,7 +83,7 @@ return builder.Model;",
             new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
 
             Assert.Equal(
-                @"var builder = new ModelBuilder();
+                @"var builder = new BasicModelBuilder();
 
 builder.Entity(""Customer"", b =>
     {
@@ -98,7 +98,7 @@ return builder.Model;",
         [Fact]
         public void Generate_entity_type_with_concurrency_token()
         {
-            var builder = new ModelBuilder();
+            var builder = new BasicModelBuilder();
             builder.Entity<Customer>(b =>
                 {
                     b.Property<int>("Id", concurrencyToken: true);
@@ -109,7 +109,7 @@ return builder.Model;",
             new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
 
             Assert.Equal(
-                @"var builder = new ModelBuilder();
+                @"var builder = new BasicModelBuilder();
 
 builder.Entity(""Customer"", b =>
     {
@@ -124,7 +124,7 @@ return builder.Model;",
         [Fact]
         public void Generate_entity_type_with_shadow_property_and_concurrency_token()
         {
-            var builder = new ModelBuilder();
+            var builder = new BasicModelBuilder();
             builder.Entity<Customer>(b =>
                 {
                     b.Property<int>("Id", shadowProperty: true, concurrencyToken: true);
@@ -135,7 +135,7 @@ return builder.Model;",
             new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
 
             Assert.Equal(
-                @"var builder = new ModelBuilder();
+                @"var builder = new BasicModelBuilder();
 
 builder.Entity(""Customer"", b =>
     {
@@ -150,7 +150,7 @@ return builder.Model;",
         [Fact]
         public void Generate_entity_type_with_single_property_with_annotations()
         {
-            var builder = new ModelBuilder();
+            var builder = new BasicModelBuilder();
             builder.Entity<Customer>(b =>
                 {
                     b.Property(e => e.Id)
@@ -163,7 +163,7 @@ return builder.Model;",
             new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
 
             Assert.Equal(
-                @"var builder = new ModelBuilder();
+                @"var builder = new BasicModelBuilder();
 
 builder.Entity(""Customer"", b =>
     {
@@ -180,7 +180,7 @@ return builder.Model;",
         [Fact]
         public void Generate_entity_type_with_multiple_properties()
         {
-            var builder = new ModelBuilder();
+            var builder = new BasicModelBuilder();
             builder.Entity<Customer>(b =>
                 {
                     b.Property(e => e.Id);
@@ -192,7 +192,7 @@ return builder.Model;",
             new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
 
             Assert.Equal(
-                @"var builder = new ModelBuilder();
+                @"var builder = new BasicModelBuilder();
 
 builder.Entity(""Customer"", b =>
     {
@@ -208,7 +208,7 @@ return builder.Model;",
         [Fact]
         public void Generate_entity_type_with_multiple_properties_with_annotations()
         {
-            var builder = new ModelBuilder();
+            var builder = new BasicModelBuilder();
             builder.Entity<Customer>(b =>
                 {
                     b.Property(e => e.Id)
@@ -224,7 +224,7 @@ return builder.Model;",
             new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
 
             Assert.Equal(
-                @"var builder = new ModelBuilder();
+                @"var builder = new BasicModelBuilder();
 
 builder.Entity(""Customer"", b =>
     {
@@ -244,7 +244,7 @@ return builder.Model;",
         [Fact]
         public void Generate_entity_type_with_composite_key()
         {
-            var builder = new ModelBuilder();
+            var builder = new BasicModelBuilder();
             builder.Entity<Customer>(b =>
                 {
                     b.Property(e => e.Id);
@@ -258,7 +258,7 @@ return builder.Model;",
             new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
 
             Assert.Equal(
-                @"var builder = new ModelBuilder();
+                @"var builder = new BasicModelBuilder();
 
 builder.Entity(""Customer"", b =>
     {
@@ -276,7 +276,7 @@ return builder.Model;",
         [Fact]
         public void Generate_entity_type_with_single_foreign_key()
         {
-            var builder = new ModelBuilder();
+            var builder = new BasicModelBuilder();
 
             builder.Entity<Customer>(b =>
                 {
@@ -299,7 +299,7 @@ return builder.Model;",
             new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
 
             Assert.Equal(
-                @"var builder = new ModelBuilder();
+                @"var builder = new BasicModelBuilder();
 
 builder.Entity(""Customer"", b =>
     {
@@ -323,7 +323,7 @@ return builder.Model;",
         [Fact]
         public void Generate_entity_type_with_single_composite_foreign_key()
         {
-            var builder = new ModelBuilder();
+            var builder = new BasicModelBuilder();
 
             builder.Entity<Customer>(b =>
                 {
@@ -347,7 +347,7 @@ return builder.Model;",
             new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
 
             Assert.Equal(
-                @"var builder = new ModelBuilder();
+                @"var builder = new BasicModelBuilder();
 
 builder.Entity(""Customer"", b =>
     {
@@ -372,7 +372,7 @@ return builder.Model;",
         [Fact]
         public void Generate_entity_type_with_single_foreign_key_with_annotations()
         {
-            var builder = new ModelBuilder();
+            var builder = new BasicModelBuilder();
             builder.Entity<Customer>(b =>
                 {
                     b.Property(e => e.Id);
@@ -396,7 +396,7 @@ return builder.Model;",
             new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
 
             Assert.Equal(
-                @"var builder = new ModelBuilder();
+                @"var builder = new BasicModelBuilder();
 
 builder.Entity(""Customer"", b =>
     {
@@ -422,7 +422,7 @@ return builder.Model;",
         [Fact]
         public void Generate_entity_type_with_multiple_foreign_keys()
         {
-            var builder = new ModelBuilder();
+            var builder = new BasicModelBuilder();
             builder.Entity<Customer>(b =>
                 {
                     b.Property(e => e.Id);
@@ -457,7 +457,7 @@ return builder.Model;",
             new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
 
             Assert.Equal(
-                @"var builder = new ModelBuilder();
+                @"var builder = new BasicModelBuilder();
 
 builder.Entity(""Customer"", b =>
     {
@@ -493,7 +493,7 @@ return builder.Model;",
         [Fact]
         public void Generate_entity_type_with_multiple_foreign_keys_with_annotations()
         {
-            var builder = new ModelBuilder();
+            var builder = new BasicModelBuilder();
             builder.Entity<Customer>(b =>
                 {
                     b.Property(e => e.Id);
@@ -532,7 +532,7 @@ return builder.Model;",
             new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
 
             Assert.Equal(
-                @"var builder = new ModelBuilder();
+                @"var builder = new BasicModelBuilder();
 
 builder.Entity(""Customer"", b =>
     {
@@ -594,7 +594,7 @@ namespace MyNamespace
         {
             get
             {
-                var builder = new ModelBuilder();
+                var builder = new BasicModelBuilder();
                 
                 builder.Entity(""Entity"", b =>
                     {

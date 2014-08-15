@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Metadata
         {
             var builder = _factory.CreateConventionBuilder(Mock.Of<Model>());
             Assert.NotNull(builder);
-            Assert.IsType<AtsConventionModelBuilder>(builder);
+            Assert.IsType<AtsModelBuilder>(builder);
         }
     }
 }
