@@ -957,7 +957,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             builder.Entity<Product>(b =>
                 {
                     b.OneToOne(e => e.OriginalProduct, e => e.AlternateProduct)
-                        .ForeignKey<Product>();
+                        .ForeignKey<Product>(e => e.AlternateProductId);
 
                     b.OneToOne(e => e.Detail, e => e.Product);
                 });
