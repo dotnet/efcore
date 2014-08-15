@@ -199,13 +199,13 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 builder.UseSqlServer(SqlServerTestDatabase.CreateConnectionString(_databaseName));
             }
 
-            protected override void OnModelCreating(ModelBuilder builder)
+            protected override void OnModelCreating(ConventionModelBuilder modelBuilder)
             {
-                builder.Entity<Pegasus>().Key(e => new { e.Id1, e.Id2 });
-                builder.Entity<Unicorn>().Key(e => new { e.Id1, e.Id2, e.Id3 });
-                builder.Entity<EarthPony>().Key(e => new { e.Id1, e.Id2 });
+                modelBuilder.Entity<Pegasus>().Key(e => new { e.Id1, e.Id2 });
+                modelBuilder.Entity<Unicorn>().Key(e => new { e.Id1, e.Id2, e.Id3 });
+                modelBuilder.Entity<EarthPony>().Key(e => new { e.Id1, e.Id2 });
 
-                var unicornType = builder.Model.GetEntityType(typeof(Unicorn));
+                var unicornType = modelBuilder.Model.GetEntityType(typeof(Unicorn));
 
                 var id1 = unicornType.GetProperty("Id1");
                 id1.ValueGenerationOnAdd = ValueGenerationOnAdd.Client;
@@ -214,7 +214,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 var id3 = unicornType.GetProperty("Id3");
                 id3.ValueGenerationOnAdd = ValueGenerationOnAdd.Client;
 
-                var earthType = builder.Model.GetEntityType(typeof(EarthPony));
+                var earthType = modelBuilder.Model.GetEntityType(typeof(EarthPony));
 
                 var id = earthType.GetProperty("Id1");
                 id.ValueGenerationOnAdd = ValueGenerationOnAdd.Client;

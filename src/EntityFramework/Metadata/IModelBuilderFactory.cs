@@ -7,6 +7,6 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public interface IModelBuilderFactory
     {
-        ModelBuilder CreateConventionBuilder([NotNull] Model model);
+        ConventionModelBuilder CreateConventionBuilder([NotNull] Model model);
     }
 }

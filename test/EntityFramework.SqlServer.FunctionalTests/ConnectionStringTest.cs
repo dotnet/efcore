@@ -90,9 +90,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 options.UseSqlServer(_nameOrConnectionString);
             }
 
-            protected override void OnModelCreating(ModelBuilder builder)
+            protected override void OnModelCreating(ConventionModelBuilder modelBuilder)
             {
-                ConfigureModel(builder);
+                ConfigureModel(modelBuilder);
             }
         }
 

@@ -8,7 +8,7 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public class ModelBuilderFactory : IModelBuilderFactory
     {
-        public virtual ModelBuilder CreateConventionBuilder([NotNull] Model model)
+        public virtual ConventionModelBuilder CreateConventionBuilder([NotNull] Model model)
         {
             Check.NotNull(model, "model");
 

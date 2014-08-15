@@ -142,9 +142,9 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 options.UseInMemoryStore();
             }
 
-            protected override void OnModelCreating(ModelBuilder builder)
+            protected override void OnModelCreating(ConventionModelBuilder modelBuilder)
             {
-                builder.Entity<Artist>().Key(a => a.ArtistId);
+                modelBuilder.Entity<Artist>().Key(a => a.ArtistId);
             }
 
             public class Artist : ArtistBase<string>
