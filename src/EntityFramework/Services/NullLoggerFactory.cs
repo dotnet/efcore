@@ -12,6 +12,10 @@ namespace Microsoft.Data.Entity.Services
         {
             return NullLogger.Instance;
         }
+
+        public void AddProvider(ILoggerProvider _)
+        {
+        }
     }
 
     public sealed class NullLogger : ILogger

@@ -18,6 +18,10 @@ namespace Microsoft.Data.Entity
             {
                 return Instance;
             }
+
+            public void AddProvider(ILoggerProvider provider)
+            {
+            }
         }
 
         public static readonly ILogger Instance = new TestFileLogger();

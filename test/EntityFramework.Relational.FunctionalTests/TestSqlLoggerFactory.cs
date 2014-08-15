@@ -27,6 +27,10 @@ namespace Microsoft.Data.Entity
             return Logger ?? Init();
         }
 
+        public void AddProvider(ILoggerProvider provider)
+        {
+        }
+
         public SqlLogger Init()
         {
             var logger = new SqlLogger();

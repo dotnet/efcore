@@ -904,6 +904,10 @@ namespace Microsoft.Data.Entity
             {
                 return null;
             }
+
+            public void AddProvider(ILoggerProvider provider)
+            {
+            }
         }
 
         private class FakeModelSource : IModelSource
