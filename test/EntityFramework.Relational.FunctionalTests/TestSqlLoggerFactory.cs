@@ -3,7 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Data.Entity.Relational;
+using System.Threading;
 using Microsoft.Framework.Logging;
 #if K10
 using System.Threading;
@@ -12,7 +12,7 @@ using System.Runtime.Remoting.Messaging;
 
 #endif
 
-namespace Microsoft.Data.Entity
+namespace Microsoft.Data.Entity.Relational.FunctionalTests
 {
     public class TestSqlLoggerFactory : ILoggerFactory
     {
@@ -58,6 +58,8 @@ namespace Microsoft.Data.Entity
         {
             public readonly List<string> SqlStatements = new List<string>();
 
+            private CancellationTokenSource _cancellationTokenSource;
+
             public bool WriteCore(
                 TraceType eventType,
                 int eventId,
@@ -67,14 +69,23 @@ namespace Microsoft.Data.Entity
             {
                 if (eventId == RelationalLoggingEventIds.Sql)
                 {
+                    if (_cancellationTokenSource != null)
+                    {
+                        _cancellationTokenSource.Cancel();
+                        _cancellationTokenSource = null;
+                    }
+
                     var sql = formatter(state, exception);
 
                     SqlStatements.Add(sql);
-
-                    //Trace.WriteLine(sql);
                 }
 
                 return true;
+            }
+
+            public CancellationToken CancelQuery()
+            {
+                return (_cancellationTokenSource = new CancellationTokenSource()).Token;
             }
 
             public string Sql

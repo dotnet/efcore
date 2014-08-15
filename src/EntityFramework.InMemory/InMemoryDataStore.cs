@@ -77,7 +77,8 @@ namespace Microsoft.Data.Entity.InMemory
             return queryExecutor(queryContext);
         }
 
-        public override IAsyncEnumerable<TResult> AsyncQuery<TResult>(QueryModel queryModel, StateManager stateManager)
+        public override IAsyncEnumerable<TResult> AsyncQuery<TResult>(
+            QueryModel queryModel, StateManager stateManager, CancellationToken cancellationToken)
         {
             return Query<TResult>(queryModel, stateManager).ToAsyncEnumerable();
         }

@@ -78,10 +78,12 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             var compilationContext = _queryFactory.MakeCompilationContext(Model);
             var queryExecutor = compilationContext.CreateQueryModelVisitor().CreateQueryExecutor<TResult>(queryModel);
             var queryContext = _queryFactory.MakeQueryContext(Model, Logger, stateManager, Connection);
+
             return queryExecutor(queryContext);
         }
 
-        public override IAsyncEnumerable<TResult> AsyncQuery<TResult>(QueryModel queryModel, StateManager stateManager)
+        public override IAsyncEnumerable<TResult> AsyncQuery<TResult>(
+            QueryModel queryModel, StateManager stateManager, CancellationToken cancellationToken)
         {
             Check.NotNull(queryModel, "queryModel");
             Check.NotNull(stateManager, "stateManager");

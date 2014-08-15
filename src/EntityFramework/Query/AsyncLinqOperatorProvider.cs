@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
@@ -151,7 +152,7 @@ namespace Microsoft.Data.Entity.Query
         {
             get { return _whereShim; }
         }
-        
+
         // TODO: Replace with First when IX-Async dispose bug is fixed.
         public virtual MethodInfo _First
         {
@@ -278,25 +279,31 @@ namespace Microsoft.Data.Entity.Query
             Check.NotEmpty(methodName, "methodName");
             Check.NotNull(elementType, "elementType");
 
-            var aggregateMethods = GetMethods(methodName).ToList();
+            var aggregateMethods
+                = typeof(AsyncEnumerable).GetTypeInfo().GetDeclaredMethods(methodName)
+                    .Where(mi => mi.GetParameters().Length == 2)
+                    .Where(mi => mi.GetParameters()[1].ParameterType == typeof(CancellationToken))
+                    .ToList();
 
             return
                 aggregateMethods
-                    .FirstOrDefault(mi => mi.GetParameters()[0].ParameterType
-                                          == typeof(IEnumerable<>).MakeGenericType(elementType))
+                    .SingleOrDefault(mi => mi.GetParameters()[0].ParameterType
+                                           == typeof(IEnumerable<>).MakeGenericType(elementType))
                 ?? aggregateMethods.Single(mi => mi.IsGenericMethod)
                     .MakeGenericMethod(elementType);
         }
 
         private static MethodInfo GetMethod(string name, int parameterCount = 0)
         {
-            return GetMethods(name, parameterCount).Single();
-        }
+            var candidateMethods
+                = typeof(AsyncEnumerable).GetTypeInfo().GetDeclaredMethods(name)
+                    .ToList();
 
-        private static IEnumerable<MethodInfo> GetMethods(string name, int parameterCount = 0)
-        {
-            return typeof(AsyncEnumerable).GetTypeInfo().GetDeclaredMethods(name)
-                .Where(mi => mi.GetParameters().Length == parameterCount + 1);
+            return candidateMethods
+                .SingleOrDefault(mi =>
+                    (mi.GetParameters().Length == parameterCount + 2
+                     && mi.GetParameters().Last().ParameterType == typeof(CancellationToken)))
+                   ?? candidateMethods.Single(mi => mi.GetParameters().Length == parameterCount + 1);
         }
     }
 }

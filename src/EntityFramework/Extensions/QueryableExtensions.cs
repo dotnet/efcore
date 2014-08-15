@@ -1274,8 +1274,6 @@ namespace System.Linq
         {
             Check.NotNull(source, "source");
 
-            cancellationToken.ThrowIfCancellationRequested();
-
             return source.ToAsyncEnumerable().ToList(cancellationToken);
         }
 
@@ -1290,8 +1288,6 @@ namespace System.Linq
             CancellationToken cancellationToken)
         {
             Check.NotNull(source, "source");
-
-            cancellationToken.ThrowIfCancellationRequested();
 
             return source.ToAsyncEnumerable().ToArray(cancellationToken);
         }
@@ -1316,8 +1312,6 @@ namespace System.Linq
             IQueryable<TSource> source,
             CancellationToken cancellationToken)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
             var provider = source.Provider as IAsyncQueryProvider;
 
             if (provider != null)
@@ -1341,8 +1335,6 @@ namespace System.Linq
             LambdaExpression expression,
             CancellationToken cancellationToken)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
             return ExecuteAsync<TSource, TResult>(
                 operatorMethodInfo, source, Expression.Quote(expression), cancellationToken);
         }
@@ -1353,8 +1345,6 @@ namespace System.Linq
             Expression expression,
             CancellationToken cancellationToken)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
             var provider = source.Provider as IAsyncQueryProvider;
 
             if (provider != null)

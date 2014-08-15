@@ -81,19 +81,28 @@ namespace Microsoft.Data.Entity.Relational
             return queryExecutor(queryContext);
         }
 
-        public override IAsyncEnumerable<TResult> AsyncQuery<TResult>(QueryModel queryModel, StateManager stateManager)
+        public override IAsyncEnumerable<TResult> AsyncQuery<TResult>(
+            QueryModel queryModel, StateManager stateManager, CancellationToken cancellationToken)
         {
             Check.NotNull(queryModel, "queryModel");
             Check.NotNull(stateManager, "stateManager");
-
+            
             var queryCompilationContext
                 = CreateQueryCompilationContext(
                     new AsyncLinqOperatorProvider(),
                     new RelationalResultOperatorHandler(),
                     new AsyncQueryMethodProvider());
 
-            var queryExecutor = queryCompilationContext.CreateQueryModelVisitor().CreateAsyncQueryExecutor<TResult>(queryModel);
-            var queryContext = new RelationalQueryContext(Model, Logger, stateManager, _connection, ValueReaderFactory);
+            var queryExecutor
+                = queryCompilationContext
+                    .CreateQueryModelVisitor()
+                    .CreateAsyncQueryExecutor<TResult>(queryModel);
+
+            var queryContext
+                = new RelationalQueryContext(Model, Logger, stateManager, _connection, ValueReaderFactory)
+                    {
+                        CancellationToken = cancellationToken
+                    };
 
             return queryExecutor(queryContext);
         }

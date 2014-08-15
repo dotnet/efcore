@@ -41,8 +41,6 @@ namespace Microsoft.Data.Entity.Query
         {
             Check.NotNull(expression, "expression");
 
-            cancellationToken.ThrowIfCancellationRequested();
-
             var queryModel = GenerateQueryModel(expression);
             var streamedDataInfo = queryModel.GetOutputDataInfo();
             var entityQueryExecutor = (EntityQueryExecutor)Executor;
@@ -64,8 +62,6 @@ namespace Microsoft.Data.Entity.Query
         {
             Check.NotNull(expression, "expression");
 
-            cancellationToken.ThrowIfCancellationRequested();
-
             return ExecuteAsync<object>(expression, cancellationToken);
         }
 
@@ -75,7 +71,8 @@ namespace Microsoft.Data.Entity.Query
 
             var queryModel = GenerateQueryModel(expression);
 
-            return ((EntityQueryExecutor)Executor).AsyncExecuteCollection<T>(queryModel);
+            return ((EntityQueryExecutor)Executor)
+                .AsyncExecuteCollection<T>(queryModel, default(CancellationToken));
         }
 
         public override IQueryable<T> CreateQuery<T>(Expression expression)

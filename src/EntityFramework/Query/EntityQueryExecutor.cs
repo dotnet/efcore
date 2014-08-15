@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.Query
         {
             Check.NotNull(queryModel, "queryModel");
 
-            return AsyncExecuteCollection<T>(queryModel).First(cancellationToken);
+            return AsyncExecuteCollection<T>(queryModel, cancellationToken).First(cancellationToken);
         }
 
         public virtual T ExecuteSingle<T>([NotNull] QueryModel queryModel, bool _)
@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.Query
         {
             Check.NotNull(queryModel, "queryModel");
 
-            return AsyncExecuteCollection<T>(queryModel).First(cancellationToken);
+            return AsyncExecuteCollection<T>(queryModel, cancellationToken).First(cancellationToken);
         }
 
         public virtual IEnumerable<T> ExecuteCollection<T>([NotNull] QueryModel queryModel)
@@ -76,7 +76,8 @@ namespace Microsoft.Data.Entity.Query
                 _logger);
         }
 
-        public virtual IAsyncEnumerable<T> AsyncExecuteCollection<T>([NotNull] QueryModel queryModel)
+        public virtual IAsyncEnumerable<T> AsyncExecuteCollection<T>(
+            [NotNull] QueryModel queryModel, CancellationToken cancellationToken)
         {
             Check.NotNull(queryModel, "queryModel");
 
@@ -85,7 +86,8 @@ namespace Microsoft.Data.Entity.Query
             LogQueryModel(queryModel);
 
             return new AsyncEnumerableExceptionInterceptor<T>(
-                _context.Configuration.DataStore.AsyncQuery<T>(queryModel, _context.Configuration.StateManager),
+                _context.Configuration.DataStore.AsyncQuery<T>(
+                    queryModel, _context.Configuration.StateManager, cancellationToken),
                 _context,
                 _logger);
         }

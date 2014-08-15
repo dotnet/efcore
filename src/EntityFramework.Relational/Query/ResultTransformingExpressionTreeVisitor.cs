@@ -93,7 +93,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                     _relationalQueryCompilationContext.LinqOperatorProvider.Select))
                 {
                     return
-                        Expression.Call(
+                        ResultOperatorHandler.CallWithPossibleCancellationToken(
                             _relationalQueryCompilationContext.LinqOperatorProvider._First
                                 .MakeGenericMethod(typeof(TResult)),
                             Expression.Call(

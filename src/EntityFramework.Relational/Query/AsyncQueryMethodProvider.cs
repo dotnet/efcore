@@ -73,6 +73,8 @@ namespace Microsoft.Data.Entity.Relational.Query
 
                 public async Task<bool> MoveNext(CancellationToken cancellationToken)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
+
                     var hasNext
                         = await (_reader == null
                             ? InitializeAndReadAsync(cancellationToken)

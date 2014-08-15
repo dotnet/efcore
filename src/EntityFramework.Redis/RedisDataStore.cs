@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity.Redis
         }
 
         public override IAsyncEnumerable<TResult> AsyncQuery<TResult>(
-            QueryModel queryModel, StateManager stateManager)
+            QueryModel queryModel, StateManager stateManager, CancellationToken cancellationToken)
         {
             // TODO
             throw new NotImplementedException();
