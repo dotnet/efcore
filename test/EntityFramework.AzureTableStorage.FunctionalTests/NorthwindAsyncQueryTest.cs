@@ -7,11 +7,11 @@ using Xunit;
 namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
 {
     [RunIfConfigured]
-    public class NorthwindQueryTest : NorthwindQueryTestBase, IClassFixture<NorthwindQueryFixture>
+    public class NorthwindAsyncQueryTest : NorthwindAsyncQueryTestBase, IClassFixture<NorthwindQueryFixture>
     {
         private readonly NorthwindQueryFixture _fixture;
 
-        public NorthwindQueryTest(NorthwindQueryFixture fixture)
+        public NorthwindAsyncQueryTest(NorthwindQueryFixture fixture)
         {
             _fixture = fixture;
         }

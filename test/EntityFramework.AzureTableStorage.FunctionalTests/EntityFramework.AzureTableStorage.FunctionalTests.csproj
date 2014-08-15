@@ -76,6 +76,8 @@
     <Compile Include="AtsTestFramework.cs" />
     <Compile Include="BatchTests.cs" />
     <Compile Include="AtsOptimisticConcurrencyTests.cs" />
+    <Compile Include="NorthwindAsyncQueryTest.cs" />
+    <Compile Include="NorthwindQueryFixture.cs" />
     <Compile Include="TestFixture.cs" />
     <Compile Include="EndToEndTests.cs" />
     <Compile Include="TestBase.cs" />
