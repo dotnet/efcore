@@ -32,10 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\..\packages\KoreBuild\build\Resources.cs">
-      <Link>Resources.cs</Link>
-    </Compile>
-    <Compile Include="..\..\packages\KoreBuild\build\Resources1.cs">
-      <Link>Properties\Resources1.cs</Link>
+      <Link>Properties\Resources.cs</Link>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.tt</DependentUpon>
@@ -54,7 +51,7 @@
     <None Include="..\..\packages\KoreBuild\build\Resources.tt">
       <Link>Properties\Resources.tt</Link>
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>Resources1.cs</LastGenOutput>
+      <LastGenOutput>Resources.cs</LastGenOutput>
     </None>
     <None Include="tools\Handler.cs" />
     <None Include="tools\init.ps1" />

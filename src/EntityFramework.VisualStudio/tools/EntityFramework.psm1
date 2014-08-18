@@ -110,11 +110,24 @@ function Script-Migration {
         contextName = $ContextName
     }
 
-    # TODO: New SQL File
-    $window = $DTE.ItemOperations.NewFile('General\Text File')
-    $textDocument = $window.Document.Object('TextDocument')
-    $editPoint = $textDocument.StartPoint.CreateEditPoint();
-    $editPoint.Insert($script);
+    try {
+        # NOTE: Certain SKUs cannot create new SQL files
+        $window = $DTE.ItemOperations.NewFile('General\Sql File')
+        $textDocument = $window.Document.Object('TextDocument')
+        $editPoint = $textDocument.StartPoint.CreateEditPoint()
+        $editPoint.Insert($script)
+    }
+    catch {
+        $fullPath = GetProperty $project.Properties FullPath
+        $intermediatePath = GetProperty $project.ConfigurationManager.ActiveConfiguration.Properties IntermediatePath
+        $fullIntermediatePath = Join-Path $fullPath $intermediatePath
+        $fileName = [IO.Path]::GetRandomFileName()
+        $fileName = [IO.Path]::ChangeExtension($fileName, '.sql')
+        $scriptFile = Join-Path $fullIntermediatePath $fileName
+        $script | Out-File $scriptFile
+        $DTE.ItemOperations.OpenFile($scriptFile) | Out-Null
+    }
+
     ShowConsole
 }
 
