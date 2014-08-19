@@ -347,7 +347,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             modelBuilder.Entity<RelatedFakeEntity>(b =>
                 {
                     b.Key(c => c.Id);
-                    b.ForeignKeys(fk => fk.ForeignKey<FakeEntity>(c => c.Id));
+                    b.ForeignKey<FakeEntity>(c => c.Id);
                 });
 
             return model;
@@ -367,12 +367,12 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             modelBuilder.Entity<RelatedFakeEntity>(b =>
                 {
                     b.Key(c => c.Id);
-                    b.ForeignKeys(fk => fk.ForeignKey<FakeEntity>(c => c.RelatedId));
+                    b.ForeignKey<FakeEntity>(c => c.RelatedId);
                 });
 
             modelBuilder
                 .Entity<FakeEntity>()
-                .ForeignKeys(fk => fk.ForeignKey<RelatedFakeEntity>(c => c.RelatedId));
+                .ForeignKey<RelatedFakeEntity>(c => c.RelatedId);
 
             return model;
         }

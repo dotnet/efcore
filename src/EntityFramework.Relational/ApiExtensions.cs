@@ -93,8 +93,8 @@ namespace Microsoft.Data.Entity.Metadata
             return propertyBuilder;
         }
 
-        public static BasicModelBuilder.EntityBuilderBase<TEntityBuilder>.ForeignKeysBuilder.ForeignKeyBuilder CascadeDelete<TEntityBuilder>(
-            [NotNull] this BasicModelBuilder.EntityBuilderBase<TEntityBuilder>.ForeignKeysBuilder.ForeignKeyBuilder foreignKeyBuilder,
+        public static BasicModelBuilder.EntityBuilderBase<TEntityBuilder>.ForeignKeyBuilder CascadeDelete<TEntityBuilder>(
+            [NotNull] this BasicModelBuilder.EntityBuilderBase<TEntityBuilder>.ForeignKeyBuilder foreignKeyBuilder,
             bool cascadeDelete)
             where TEntityBuilder : BasicModelBuilder.EntityBuilderBase<TEntityBuilder>
         {
@@ -105,8 +105,8 @@ namespace Microsoft.Data.Entity.Metadata
             return foreignKeyBuilder;
         }
 
-        public static BasicModelBuilder.EntityBuilderBase<TEntityBuilder>.IndexesBuilder.IndexBuilder IsClustered<TEntityBuilder>(
-            [NotNull] this BasicModelBuilder.EntityBuilderBase<TEntityBuilder>.IndexesBuilder.IndexBuilder indexesBuilder,
+        public static BasicModelBuilder.EntityBuilderBase<TEntityBuilder>.IndexBuilder IsClustered<TEntityBuilder>(
+            [NotNull] this BasicModelBuilder.EntityBuilderBase<TEntityBuilder>.IndexBuilder indexesBuilder,
             bool clustered)
             where TEntityBuilder : BasicModelBuilder.EntityBuilderBase<TEntityBuilder>
         {
@@ -303,8 +303,8 @@ namespace Microsoft.Data.Entity.Metadata
             return builder;
         }
 
-        public static BasicModelBuilder.EntityBuilderBase<TMetadataBuilder>.ForeignKeysBuilder.ForeignKeyBuilder KeyName<TMetadataBuilder>(
-            [NotNull] this BasicModelBuilder.EntityBuilderBase<TMetadataBuilder>.ForeignKeysBuilder.ForeignKeyBuilder builder,
+        public static BasicModelBuilder.EntityBuilderBase<TMetadataBuilder>.ForeignKeyBuilder KeyName<TMetadataBuilder>(
+            [NotNull] this BasicModelBuilder.EntityBuilderBase<TMetadataBuilder>.ForeignKeyBuilder builder,
             [NotNull] string keyName)
             where TMetadataBuilder : BasicModelBuilder.MetadataBuilder<EntityType, TMetadataBuilder>
         {
@@ -316,8 +316,8 @@ namespace Microsoft.Data.Entity.Metadata
             return builder;
         }
 
-        public static BasicModelBuilder.EntityBuilderBase<TMetadataBuilder>.IndexesBuilder.IndexBuilder IndexName<TMetadataBuilder>(
-            [NotNull] this BasicModelBuilder.EntityBuilderBase<TMetadataBuilder>.IndexesBuilder.IndexBuilder builder,
+        public static BasicModelBuilder.EntityBuilderBase<TMetadataBuilder>.IndexBuilder IndexName<TMetadataBuilder>(
+            [NotNull] this BasicModelBuilder.EntityBuilderBase<TMetadataBuilder>.IndexBuilder builder,
             [NotNull] string indexName)
             where TMetadataBuilder : BasicModelBuilder.MetadataBuilder<EntityType, TMetadataBuilder>
         {

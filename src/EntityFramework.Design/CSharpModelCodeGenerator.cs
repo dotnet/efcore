@@ -281,55 +281,26 @@ namespace Microsoft.Data.Entity.Design
         protected virtual void GenerateForeignKeys(
             [NotNull] IReadOnlyList<IForeignKey> foreignKeys, [NotNull] IndentedStringBuilder stringBuilder)
         {
-            if (!foreignKeys.Any())
+            foreach (var foreignKey in foreignKeys)
             {
-                return;
+                GenerateForeignKey(foreignKey, stringBuilder);
             }
-
-            stringBuilder
-                .AppendLine()
-                .Append("b.ForeignKeys(fks => ");
-
-            if (foreignKeys.Count == 1)
-            {
-                GenerateForeignKey(foreignKeys[0], stringBuilder);
-            }
-            else
-            {
-                using (stringBuilder.Indent())
-                {
-                    stringBuilder
-                        .AppendLine()
-                        .AppendLine("{");
-
-                    using (stringBuilder.Indent())
-                    {
-                        foreach (var foreignKey in foreignKeys)
-                        {
-                            GenerateForeignKey(foreignKey, stringBuilder);
-
-                            stringBuilder.AppendLine(";");
-                        }
-                    }
-
-                    stringBuilder.Append("}");
-                }
-            }
-
-            stringBuilder.Append(");");
         }
 
         protected virtual void GenerateForeignKey(
             [NotNull] IForeignKey foreignKey, [NotNull] IndentedStringBuilder stringBuilder)
         {
             stringBuilder
-                .Append("fks.ForeignKey(")
+                .AppendLine()
+                .Append("b.ForeignKey(")
                 .Append(DelimitString(foreignKey.ReferencedEntityType.Name))
                 .Append(", ")
                 .Append(foreignKey.Properties.Select(p => DelimitString(p.Name)).Join())
                 .Append(")");
 
             GenerateForeignKeyAnnotations(foreignKey, stringBuilder);
+
+            stringBuilder.Append(";");
         }
 
         protected virtual void GenerateForeignKeyAnnotations([NotNull] IForeignKey foreignKey, [NotNull] IndentedStringBuilder stringBuilder)

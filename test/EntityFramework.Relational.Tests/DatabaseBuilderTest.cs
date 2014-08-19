@@ -75,8 +75,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
                     b.Key(k => k.PostId);
                     b.Property(e => e.PostId);
                     b.Property(e => e.BelongsToBlogId);
-                    b.ForeignKeys(f => f.ForeignKey<Blog>(p => p.BelongsToBlogId));
-                    b.Indexes(ixs => ixs.Index(ix => ix.PostId));
+                    b.ForeignKey<Blog>(p => p.BelongsToBlogId);
+                    b.Index(ix => ix.PostId);
                 });
 
             var database = new DatabaseBuilder().GetDatabase(modelBuilder.Model);
@@ -118,7 +118,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
             modelBuilder.Entity<Dependent>(b =>
                 {
                     b.Key(k => k.Id);
-                    b.ForeignKeys(f => f.ForeignKey<Principal>(p => new { p.FkAAA, p.FkZZZ }));
+                    b.ForeignKey<Principal>(p => new { p.FkAAA, p.FkZZZ });
                 });
 
             var builder = new DatabaseBuilder();
@@ -152,7 +152,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
                     b.Property(e => e.FkAAA).ColumnName("ColumnAaa");
                     b.Property(e => e.FkZZZ).ColumnName("ColumnZzz");
                     b.ToTable("MyTable");
-                    b.Indexes(ixs => ixs.Index(e => new { e.FkAAA, e.FkZZZ }));
+                    b.Index(e => new { e.FkAAA, e.FkZZZ });
                 });
 
             var builder = new DatabaseBuilder();
@@ -182,17 +182,14 @@ namespace Microsoft.Data.Entity.Relational.Tests
                         b.Property<int>("P2");
                         b.Property<int>("P1");
                         b.Key("P5", "P2");
-                        b.ForeignKeys(fks =>
-                            {
-                                fks.ForeignKey("A", "P6", "P4");
-                                fks.ForeignKey("A", "P4", "P5");
-                            });
+                        b.ForeignKey("A", "P6", "P4");
+                        b.ForeignKey("A", "P4", "P5");
                     });
 
             var databaseModel = new DatabaseBuilder().GetDatabase(modelBuider.Model);
 
             Assert.Equal(2, databaseModel.Tables.Count);
-            Assert.Equal(new[] {"Px", "Py"}, databaseModel.Tables[0].Columns.Select(c => c.Name));
+            Assert.Equal(new[] { "Px", "Py" }, databaseModel.Tables[0].Columns.Select(c => c.Name));
             Assert.Equal(new[] { "P5", "P2", "P1", "P3", "P6", "P4" }, databaseModel.Tables[1].Columns.Select(c => c.Name));
         }
 

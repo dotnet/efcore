@@ -148,7 +148,7 @@ namespace Microsoft.Data.Entity.Relational
             modelBuilder.Entity("Order", b =>
                 {
                     b.Property<int>("CustomerId");
-                    b.ForeignKeys(fks => fks.ForeignKey("Customer", "CustomerId").KeyName("FK_Foo"));
+                    b.ForeignKey("Customer", "CustomerId").KeyName("FK_Foo");
                 });
 
             Assert.Equal("FK_Foo", model.GetEntityType(typeof(Order)).ForeignKeys.Single().KeyName());

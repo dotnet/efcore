@@ -75,7 +75,7 @@ return builder.Model;",
             var builder = new BasicModelBuilder();
             builder.Entity<Customer>(b =>
                 {
-                    b.Property<int>("Id", shadowProperty: true);
+                    b.Property<int>("Id", true);
                     b.Key(e => e.Id);
                 });
 
@@ -127,7 +127,7 @@ return builder.Model;",
             var builder = new BasicModelBuilder();
             builder.Entity<Customer>(b =>
                 {
-                    b.Property<int>("Id", shadowProperty: true, concurrencyToken: true);
+                    b.Property<int>("Id", true, true);
                     b.Key(e => e.Id);
                 });
 
@@ -293,7 +293,7 @@ return builder.Model;",
                 });
 
             builder.Entity<Order>()
-                .ForeignKeys(fks => fks.ForeignKey<Customer>(e => e.CustomerId));
+                .ForeignKey<Customer>(e => e.CustomerId);
 
             var stringBuilder = new IndentedStringBuilder();
             new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
@@ -313,7 +313,7 @@ builder.Entity(""Order"", b =>
         b.Property<int>(""CustomerId"");
         b.Property<int>(""Id"");
         b.Key(""Id"");
-        b.ForeignKeys(fks => fks.ForeignKey(""Customer"", ""CustomerId""));
+        b.ForeignKey(""Customer"", ""CustomerId"");
     });
 
 return builder.Model;",
@@ -341,7 +341,7 @@ return builder.Model;",
                 });
 
             builder.Entity<Order>()
-                .ForeignKeys(fks => fks.ForeignKey<Customer>(e => new { e.CustomerId, e.CustomerName }));
+                .ForeignKey<Customer>(e => new { e.CustomerId, e.CustomerName });
 
             var stringBuilder = new IndentedStringBuilder();
             new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
@@ -362,7 +362,7 @@ builder.Entity(""Order"", b =>
         b.Property<string>(""CustomerName"");
         b.Property<int>(""Id"");
         b.Key(""Id"");
-        b.ForeignKeys(fks => fks.ForeignKey(""Customer"", ""CustomerId"", ""CustomerName""));
+        b.ForeignKey(""Customer"", ""CustomerId"", ""CustomerName"");
     });
 
 return builder.Model;",
@@ -388,9 +388,9 @@ return builder.Model;",
                 });
 
             builder.Entity<Order>()
-                .ForeignKeys(fks => fks.ForeignKey<Customer>(e => e.CustomerId)
-                    .Annotation("A1", "V1")
-                    .Annotation("A2", "V2"));
+                .ForeignKey<Customer>(e => e.CustomerId)
+                .Annotation("A1", "V1")
+                .Annotation("A2", "V2");
 
             var stringBuilder = new IndentedStringBuilder();
             new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
@@ -410,9 +410,9 @@ builder.Entity(""Order"", b =>
         b.Property<int>(""CustomerId"");
         b.Property<int>(""Id"");
         b.Key(""Id"");
-        b.ForeignKeys(fks => fks.ForeignKey(""Customer"", ""CustomerId"")
+        b.ForeignKey(""Customer"", ""CustomerId"")
             .Annotation(""A1"", ""V1"")
-            .Annotation(""A2"", ""V2""));
+            .Annotation(""A2"", ""V2"");
     });
 
 return builder.Model;",
@@ -445,13 +445,11 @@ return builder.Model;",
                     b.Key(e => e.Id);
                 });
 
-            builder.Entity<Order>()
-                .ForeignKeys(
-                    fks =>
-                        {
-                            fks.ForeignKey<Customer>(e => new { e.CustomerId, e.CustomerName });
-                            fks.ForeignKey<Product>(e => e.ProductId);
-                        });
+            builder.Entity<Order>(b =>
+                {
+                    b.ForeignKey<Customer>(e => new { e.CustomerId, e.CustomerName });
+                    b.ForeignKey<Product>(e => e.ProductId);
+                });
 
             var stringBuilder = new IndentedStringBuilder();
             new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
@@ -473,11 +471,8 @@ builder.Entity(""Order"", b =>
         b.Property<int>(""Id"");
         b.Property<int>(""ProductId"");
         b.Key(""Id"");
-        b.ForeignKeys(fks => 
-            {
-                fks.ForeignKey(""Customer"", ""CustomerId"", ""CustomerName"");
-                fks.ForeignKey(""Product"", ""ProductId"");
-            });
+        b.ForeignKey(""Customer"", ""CustomerId"", ""CustomerName"");
+        b.ForeignKey(""Product"", ""ProductId"");
     });
 
 builder.Entity(""Product"", b =>
@@ -516,17 +511,15 @@ return builder.Model;",
                     b.Key(e => e.Id);
                 });
 
-            builder.Entity<Order>()
-                .ForeignKeys(
-                    fks =>
-                        {
-                            fks.ForeignKey<Customer>(e => new { e.CustomerId, e.CustomerName })
-                                .Annotation("A1", "V1")
-                                .Annotation("A2", "V2");
-                            fks.ForeignKey<Product>(e => e.ProductId)
-                                .Annotation("A3", "V3")
-                                .Annotation("A4", "V4");
-                        });
+            builder.Entity<Order>(b =>
+                {
+                    b.ForeignKey<Customer>(e => new { e.CustomerId, e.CustomerName })
+                        .Annotation("A1", "V1")
+                        .Annotation("A2", "V2");
+                    b.ForeignKey<Product>(e => e.ProductId)
+                        .Annotation("A3", "V3")
+                        .Annotation("A4", "V4");
+                });
 
             var stringBuilder = new IndentedStringBuilder();
             new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
@@ -548,15 +541,12 @@ builder.Entity(""Order"", b =>
         b.Property<int>(""Id"");
         b.Property<int>(""ProductId"");
         b.Key(""Id"");
-        b.ForeignKeys(fks => 
-            {
-                fks.ForeignKey(""Customer"", ""CustomerId"", ""CustomerName"")
-                    .Annotation(""A1"", ""V1"")
-                    .Annotation(""A2"", ""V2"");
-                fks.ForeignKey(""Product"", ""ProductId"")
-                    .Annotation(""A3"", ""V3"")
-                    .Annotation(""A4"", ""V4"");
-            });
+        b.ForeignKey(""Customer"", ""CustomerId"", ""CustomerName"")
+            .Annotation(""A1"", ""V1"")
+            .Annotation(""A2"", ""V2"");
+        b.ForeignKey(""Product"", ""ProductId"")
+            .Annotation(""A3"", ""V3"")
+            .Annotation(""A4"", ""V4"");
     });
 
 builder.Entity(""Product"", b =>

@@ -20,9 +20,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var database = new DatabaseModel();
             var column0
                 = new Column("Id", typeof(byte[]))
-                      {
-                          IsTimestamp = true
-                      };
+                    {
+                        IsTimestamp = true
+                    };
             var column1 = new Column("P", typeof(string));
             var table = new Table("A", new[] { column0, column1 });
             database.AddTable(table);
@@ -30,8 +30,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var alterColumnOperation
                 = new AlterColumnOperation(
                     "A",
-                    new Column("Id", typeof(byte[])),
-                    isDestructiveChange: true);
+                    new Column("Id", typeof(byte[])), true);
 
             var operations = PreProcess(database, alterColumnOperation);
 
@@ -59,11 +58,11 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                         b.Key("Id");
                     });
 
-            var alterColumnOperation 
+            var alterColumnOperation
                 = new AlterColumnOperation(
-                    "A", 
-                    new Column("Id", typeof(int)) { IsNullable = false }, 
-                    isDestructiveChange:true);
+                    "A",
+                    new Column("Id", typeof(int)) { IsNullable = false },
+                    true);
 
             var operations = PreProcess(modelBuilder, alterColumnOperation);
 
@@ -87,24 +86,23 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var modelBuilder = new BasicModelBuilder();
             modelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<string>("Id");
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<string>("Id");
+                        b.Key("Id");
+                    });
             modelBuilder.Entity("B",
                 b =>
-                {
-                    b.Property<string>("Id");
-                    b.Property<string>("P");
-                    b.Key("Id");
-                    b.ForeignKeys(fks => fks.ForeignKey("A", "P"));
-                });
+                    {
+                        b.Property<string>("Id");
+                        b.Property<string>("P");
+                        b.Key("Id");
+                        b.ForeignKey("A", "P");
+                    });
 
             var alterColumnOperation
                 = new AlterColumnOperation(
                     "B",
-                    new Column("P", typeof(int)),
-                    isDestructiveChange: true);
+                    new Column("P", typeof(int)), true);
 
             var operations = PreProcess(modelBuilder, alterColumnOperation);
 
@@ -129,24 +127,23 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var modelBuilder = new BasicModelBuilder();
             modelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<string>("Id");
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<string>("Id");
+                        b.Key("Id");
+                    });
             modelBuilder.Entity("B",
                 b =>
-                {
-                    b.Property<string>("Id");
-                    b.Property<string>("P");
-                    b.Key("Id");
-                    b.ForeignKeys(fks => fks.ForeignKey("A", "P"));
-                });
+                    {
+                        b.Property<string>("Id");
+                        b.Property<string>("P");
+                        b.Key("Id");
+                        b.ForeignKey("A", "P");
+                    });
 
             var alterColumnOperation
                 = new AlterColumnOperation(
                     "A",
-                    new Column("Id", typeof(int)) { IsNullable = false },
-                    isDestructiveChange: true);
+                    new Column("Id", typeof(int)) { IsNullable = false }, true);
 
             var operations = PreProcess(modelBuilder, alterColumnOperation);
 
@@ -173,18 +170,17 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var modelBuilder = new BasicModelBuilder();
             modelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P");
-                    b.Key("Id");
-                    b.Indexes(ixs => ixs.Index("P"));
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P");
+                        b.Key("Id");
+                        b.Index("P");
+                    });
 
             var alterColumnOperation
                 = new AlterColumnOperation(
                     "A",
-                    new Column("P", typeof(int)),
-                    isDestructiveChange: true);
+                    new Column("P", typeof(int)), true);
 
             var operations = PreProcess(modelBuilder, alterColumnOperation);
 
@@ -208,9 +204,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var database = new DatabaseModel();
             var column
                 = new Column("Id", typeof(string))
-                      {
-                          MaxLength = 10
-                      };
+                    {
+                        MaxLength = 10
+                    };
             var table = new Table("A", new[] { column });
             var index = new Index("IX", new[] { column });
             database.AddTable(table);
@@ -220,10 +216,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 = new AlterColumnOperation(
                     "A",
                     new Column("Id", typeof(string))
-                      {
-                          MaxLength = 9
-                      },
-                    isDestructiveChange: true);
+                        {
+                            MaxLength = 9
+                        }, true);
 
             var operations = PreProcess(database, alterColumnOperation);
 
@@ -238,17 +233,16 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var modelBuilder = new BasicModelBuilder();
             modelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P").ColumnDefaultSql("abc");
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P").ColumnDefaultSql("abc");
+                        b.Key("Id");
+                    });
 
             var alterColumnOperation
                 = new AlterColumnOperation(
                     "A",
-                    new Column("P", typeof(int)),
-                    isDestructiveChange: true);
+                    new Column("P", typeof(int)), true);
 
             var operations = PreProcess(modelBuilder, alterColumnOperation);
 
@@ -262,39 +256,33 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.Same("P", dropDefaultConstraintOperation.ColumnName);
         }
 
-        
         [Fact]
         public void Visit_with_consecutive_alter_column_operations()
         {
             var modelBuilder = new BasicModelBuilder();
-            modelBuilder.Entity("A",
-                b =>
+            modelBuilder.Entity("A", b =>
                 {
                     b.Property<string>("Id");
                     b.Key("Id");
-                    b.Indexes(ixs => ixs.Index("Id").IsClustered(false));
+                    b.Index("Id").IsClustered(false);
                 });
-            modelBuilder.Entity("B",
-                b =>
+            modelBuilder.Entity("B", b =>
                 {
                     b.Property<string>("Id");
                     b.Key("Id");
-                    b.ForeignKeys(fks => fks.ForeignKey("A", "Id"));
-                    b.Indexes(ixs => ixs.Index("Id").IsClustered(false));
+                    b.ForeignKey("A", "Id");
+                    b.Index("Id").IsClustered(false);
                 });
-            modelBuilder.Entity("A",
-                b => b.ForeignKeys(fks => fks.ForeignKey("B", "Id")));
+            modelBuilder.Entity("A", b => b.ForeignKey("B", "Id"));
 
             var alterColumnOperation0
                 = new AlterColumnOperation(
                     "B",
-                    new Column("Id", typeof(int)) { IsNullable = false },
-                    isDestructiveChange: true);
+                    new Column("Id", typeof(int)) { IsNullable = false }, true);
             var alterColumnOperation1
                 = new AlterColumnOperation(
                     "A",
-                    new Column("Id", typeof(int)) { IsNullable = false },
-                    isDestructiveChange: true);
+                    new Column("Id", typeof(int)) { IsNullable = false }, true);
 
             var operations = PreProcess(modelBuilder, alterColumnOperation0, alterColumnOperation1);
 
@@ -356,11 +344,11 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var modelBuilder = new BasicModelBuilder();
             modelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P").ColumnDefaultSql("abc");
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P").ColumnDefaultSql("abc");
+                        b.Key("Id");
+                    });
 
             var dropColumnOperation = new DropColumnOperation("A", "P");
 

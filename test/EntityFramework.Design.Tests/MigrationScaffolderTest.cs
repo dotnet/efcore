@@ -365,9 +365,9 @@ namespace MyNamespace
                         b.Key(k => k.Properties(""Id"")
                             .KeyName(""My[\""PK]"")
                             .Annotation(""My\""PK\""Annotat!on"", ""\""Foo\""""));
-                        b.ForeignKeys(fks => fks.ForeignKey(""Ho!use[]"", ""HouseId"")
+                        b.ForeignKey(""Ho!use[]"", ""HouseId"")
                             .KeyName(""My_[\""FK]"")
-                            .Annotation(""My\""FK\""Annotation"", ""\""Bar\""""));
+                            .Annotation(""My\""FK\""Annotation"", ""\""Bar\"""");
                         b.TableName(""Cus[\""om.er]s"", ""dbo"");
                     });
                 
@@ -382,7 +382,7 @@ namespace MyNamespace
                         b.Property<int>(""CustomerId"");
                         b.Property<int>(""OrderId"");
                         b.Key(""OrderId"");
-                        b.ForeignKeys(fks => fks.ForeignKey(""Customer"", ""CustomerId""));
+                        b.ForeignKey(""Customer"", ""CustomerId"");
                         b.TableName(""Ord[\""e.r]s"", ""dbo"");
                         b.Annotation(""Random annotation"", ""42"");
                     });
@@ -422,9 +422,9 @@ namespace MyNamespace
                         b.Key(k => k.Properties(""Id"")
                             .KeyName(""My[\""PK]"")
                             .Annotation(""My\""PK\""Annotat!on"", ""\""Foo\""""));
-                        b.ForeignKeys(fks => fks.ForeignKey(""Ho!use[]"", ""HouseId"")
+                        b.ForeignKey(""Ho!use[]"", ""HouseId"")
                             .KeyName(""My_[\""FK]"")
-                            .Annotation(""My\""FK\""Annotation"", ""\""Bar\""""));
+                            .Annotation(""My\""FK\""Annotation"", ""\""Bar\"""");
                         b.TableName(""Cus[\""om.er]s"", ""dbo"");
                     });
                 
@@ -439,7 +439,7 @@ namespace MyNamespace
                         b.Property<int>(""CustomerId"");
                         b.Property<int>(""OrderId"");
                         b.Key(""OrderId"");
-                        b.ForeignKeys(fks => fks.ForeignKey(""Customer"", ""CustomerId""));
+                        b.ForeignKey(""Customer"", ""CustomerId"");
                         b.TableName(""Ord[\""e.r]s"", ""dbo"");
                         b.Annotation(""Random annotation"", ""42"");
                     });

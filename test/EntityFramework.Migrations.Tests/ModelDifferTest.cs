@@ -19,22 +19,22 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var modelBuider = new BasicModelBuilder();
             modelBuider.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P0").ColumnName("C0");
-                    b.Key("Id").KeyName("PK0");
-                    b.ToTable("T0", "dbo");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P0").ColumnName("C0");
+                        b.Key("Id").KeyName("PK0");
+                        b.ToTable("T0", "dbo");
+                    });
             modelBuider.Entity("B",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P1").ColumnName("C1");
-                    b.Key("Id").KeyName("PK1");
-                    b.ToTable("T1", "dbo");
-                    b.ForeignKeys(fks => fks.ForeignKey("A", "Id").KeyName("FK").CascadeDelete(true));
-                    b.Indexes(ixs => ixs.Index("Id").IsUnique().IndexName("IX").IsUnique());
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P1").ColumnName("C1");
+                        b.Key("Id").KeyName("PK1");
+                        b.ToTable("T1", "dbo");
+                        b.ForeignKey("A", "Id").KeyName("FK").CascadeDelete(true);
+                        b.Index("Id").IsUnique().IndexName("IX").IsUnique();
+                    });
 
             var databaseBuilder = new DatabaseBuilder();
             var operations = new ModelDiffer(databaseBuilder).CreateSchema(modelBuider.Model);
@@ -71,22 +71,22 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var modelBuider = new BasicModelBuilder();
             modelBuider.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P0").ColumnName("C0");
-                    b.Key("Id").KeyName("PK0");
-                    b.ToTable("T0", "dbo");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P0").ColumnName("C0");
+                        b.Key("Id").KeyName("PK0");
+                        b.ToTable("T0", "dbo");
+                    });
             modelBuider.Entity("B",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P1").ColumnName("C1");
-                    b.Key("Id").KeyName("PK1");
-                    b.ToTable("T1", "dbo");
-                    b.ForeignKeys(fks => fks.ForeignKey("A", "Id").KeyName("FK"));
-                    b.Indexes(ixs => ixs.Index("Id").IsUnique().IndexName("IX"));
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P1").ColumnName("C1");
+                        b.Key("Id").KeyName("PK1");
+                        b.ToTable("T1", "dbo");
+                        b.ForeignKey("A", "Id").KeyName("FK");
+                        b.Index("Id").IsUnique().IndexName("IX");
+                    });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).DropSchema(modelBuider.Model);
 
@@ -107,20 +107,20 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id").KeyName("PK");
-                    b.ToTable("T", "dbo");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id").KeyName("PK");
+                        b.ToTable("T", "dbo");
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id").KeyName("PK");
-                    b.ToTable("T", "OtherSchema");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id").KeyName("PK");
+                        b.ToTable("T", "OtherSchema");
+                    });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -140,20 +140,20 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id").KeyName("PK");
-                    b.ToTable("T", "dbo");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id").KeyName("PK");
+                        b.ToTable("T", "dbo");
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id").KeyName("PK");
-                    b.ToTable("RenamedTable", "dbo");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id").KeyName("PK");
+                        b.ToTable("RenamedTable", "dbo");
+                    });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -173,26 +173,26 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id");
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id");
+                    });
             targetModelBuilder.Entity("B",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id").KeyName("PK");
-                    b.ForeignKeys(fks => fks.ForeignKey("A", "Id").KeyName("FK").CascadeDelete(true));
-                    b.Indexes(ixs => ixs.Index("Id").IndexName("IX").IsUnique());
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id").KeyName("PK");
+                        b.ForeignKey("A", "Id").KeyName("FK").CascadeDelete(true);
+                        b.Index("Id").IndexName("IX").IsUnique();
+                    });
 
             var databaseBuilder = new DatabaseBuilder();
             var operations = new ModelDiffer(databaseBuilder).Diff(
@@ -231,24 +231,24 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id");
+                    });
             sourceModelBuilder.Entity("B",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id");
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id");
+                    });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -267,20 +267,20 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P").ColumnName("C");
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P").ColumnName("C");
+                        b.Key("Id");
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P").ColumnName("RenamedColumn");
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P").ColumnName("RenamedColumn");
+                        b.Key("Id");
+                    });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -301,19 +301,19 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id");
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P");
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P");
+                        b.Key("Id");
+                    });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -334,19 +334,19 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P");
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P");
+                        b.Key("Id");
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");                    
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id");
+                    });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -366,20 +366,20 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<int>("P");
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<int>("P");
+                        b.Key("Id");
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P");
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P");
+                        b.Key("Id");
+                    });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -400,20 +400,20 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<int>("P");
-                    b.Key("Id").KeyName("PK");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<int>("P");
+                        b.Key("Id").KeyName("PK");
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<int>("P");
-                    b.Key("Id", "P").KeyName("PK");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<int>("P");
+                        b.Key("Id", "P").KeyName("PK");
+                    });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -438,39 +438,35 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id");
+                    });
             sourceModelBuilder.Entity("B",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<int>("P");
-                    b.Key("Id");
-                    b.ForeignKeys(fks => fks.ForeignKey("A", "Id"));
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<int>("P");
+                        b.Key("Id");
+                        b.ForeignKey("A", "Id");
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id");
+                    });
             targetModelBuilder.Entity("B",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<int>("P");
-                    b.Key("Id");
-                    b.ForeignKeys(
-                        fks =>
-                            {
-                                fks.ForeignKey("A", "Id");
-                                fks.ForeignKey("A", "P").KeyName("FK").CascadeDelete(true);
-                            });
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<int>("P");
+                        b.Key("Id");
+                        b.ForeignKey("A", "Id");
+                        b.ForeignKey("A", "P").KeyName("FK").CascadeDelete(true);
+                    });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -494,39 +490,35 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id");
+                    });
             sourceModelBuilder.Entity("B",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<int>("P");
-                    b.Key("Id");
-                    b.ForeignKeys(
-                        fks =>
-                        {
-                            fks.ForeignKey("A", "Id");
-                            fks.ForeignKey("A", "P").KeyName("FK");
-                        });
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<int>("P");
+                        b.Key("Id");
+                        b.ForeignKey("A", "Id");
+                        b.ForeignKey("A", "P").KeyName("FK");
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id");
+                    });
             targetModelBuilder.Entity("B",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<int>("P");
-                    b.Key("Id");
-                    b.ForeignKeys(fks => fks.ForeignKey("A", "Id"));
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<int>("P");
+                        b.Key("Id");
+                        b.ForeignKey("A", "Id");
+                    });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -546,27 +538,23 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P");
-                    b.Key("Id");
-                    b.Indexes(ixs => ixs.Index("Id"));
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P");
+                        b.Key("Id");
+                        b.Index("Id");
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P");
-                    b.Key("Id");
-                    b.Indexes(
-                        ixs =>
-                            {
-                                ixs.Index("Id");
-                                ixs.Index("P").IndexName("IX").IsUnique();
-                            });
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P");
+                        b.Key("Id");
+                        b.Index("Id");
+                        b.Index("P").IndexName("IX").IsUnique();
+                    });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -588,27 +576,23 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P");
-                    b.Key("Id");
-                    b.Indexes(
-                        ixs =>
-                        {
-                            ixs.Index("Id");
-                            ixs.Index("P").IndexName("IX");
-                        });
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P");
+                        b.Key("Id");
+                        b.Index("Id");
+                        b.Index("P").IndexName("IX");
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P");
-                    b.Key("Id");
-                    b.Indexes(ixs => ixs.Index("Id"));
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P");
+                        b.Key("Id");
+                        b.Index("Id");
+                    });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -628,20 +612,20 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id");
-                    b.Indexes(ixs => ixs.Index("Id").IndexName("IX"));
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id");
+                        b.Index("Id").IndexName("IX");
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id");
-                    b.Indexes(ixs => ixs.Index("Id").IndexName("RenamedIndex"));
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id");
+                        b.Index("Id").IndexName("RenamedIndex");
+                    });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -666,34 +650,34 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id").KeyName("PK0");
-                    b.ToTable("T0", "dbo");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id").KeyName("PK0");
+                        b.ToTable("T0", "dbo");
+                    });
             sourceModelBuilder.Entity("B",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id").KeyName("PK1");
-                    b.ToTable("T1", "dbo");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id").KeyName("PK1");
+                        b.ToTable("T1", "dbo");
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id").KeyName("PK0");
-                    b.ToTable("T1", "dbo");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id").KeyName("PK0");
+                        b.ToTable("T1", "dbo");
+                    });
             targetModelBuilder.Entity("B",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id").KeyName("PK1");
-                    b.ToTable("T0", "dbo");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id").KeyName("PK1");
+                        b.ToTable("T0", "dbo");
+                    });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -722,22 +706,22 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P0").ColumnName("C0");
-                    b.Property<string>("P1").ColumnName("C1");
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P0").ColumnName("C0");
+                        b.Property<string>("P1").ColumnName("C1");
+                        b.Key("Id");
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P0").ColumnName("C1");
-                    b.Property<string>("P1").ColumnName("C0");
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P0").ColumnName("C1");
+                        b.Property<string>("P1").ColumnName("C0");
+                        b.Key("Id");
+                    });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -766,32 +750,24 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P");
-                    b.Key("Id");
-                    b.Indexes(
-                        ixs =>
-                            {
-                                ixs.Index("Id").IndexName("IX0");
-                                ixs.Index("P").IndexName("IX1");
-                            });
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P");
+                        b.Key("Id");
+                        b.Index("Id").IndexName("IX0");
+                        b.Index("P").IndexName("IX1");
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P");
-                    b.Key("Id");
-                    b.Indexes(
-                        ixs =>
-                        {
-                            ixs.Index("Id").IndexName("IX1");
-                            ixs.Index("P").IndexName("IX0");
-                        });
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P");
+                        b.Key("Id");
+                        b.Index("Id").IndexName("IX1");
+                        b.Index("P").IndexName("IX0");
+                    });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -905,20 +881,20 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P1").ColumnName("C");
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P1").ColumnName("C");
+                        b.Key("Id");
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<int>("P2").ColumnName("C");
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<int>("P2").ColumnName("C");
+                        b.Key("Id");
+                    });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -975,22 +951,22 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P1").ColumnName("C2");
-                    b.Property<int>("P2").ColumnName("C1");
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P1").ColumnName("C2");
+                        b.Property<int>("P2").ColumnName("C1");
+                        b.Key("Id");
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P1").ColumnName("C1");
-                    b.Property<string>("P4").ColumnName("C2");
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P1").ColumnName("C1");
+                        b.Property<string>("P4").ColumnName("C2");
+                        b.Key("Id");
+                    });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -1022,20 +998,20 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<int>("P").ColumnName("C1");
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<int>("P").ColumnName("C1");
+                        b.Key("Id");
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P").ColumnName("C2");
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P").ColumnName("C2");
+                        b.Key("Id");
+                    });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -1185,20 +1161,20 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<int>("P").ColumnName("C1");
-                    b.Key("Id", "P");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<int>("P").ColumnName("C1");
+                        b.Key("Id", "P");
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P").ColumnName("C2");
-                    b.Key("Id", "P");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P").ColumnName("C2");
+                        b.Key("Id", "P");
+                    });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -1215,20 +1191,20 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<int>("P1").ColumnName("C");
-                    b.Key("Id", "P1").KeyName("PK");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<int>("P1").ColumnName("C");
+                        b.Key("Id", "P1").KeyName("PK");
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P2").ColumnName("C");
-                    b.Key("Id", "P2").KeyName("PK");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P2").ColumnName("C");
+                        b.Key("Id", "P2").KeyName("PK");
+                    });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -1244,18 +1220,18 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id").KeyName("PK1");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id").KeyName("PK1");
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id").KeyName("PK2");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id").KeyName("PK2");
+                    });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -1278,18 +1254,18 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id").Annotation(MetadataExtensions.Annotations.IsClustered, "true");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id").Annotation(MetadataExtensions.Annotations.IsClustered, "true");
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id").Annotation(MetadataExtensions.Annotations.IsClustered, "false");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id").Annotation(MetadataExtensions.Annotations.IsClustered, "false");
+                    });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -1313,20 +1289,20 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P1");
-                    b.Key("Id", "P1").KeyName("PK");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P1");
+                        b.Key("Id", "P1").KeyName("PK");
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P1");
-                    b.Key("Id").KeyName("PK");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P1");
+                        b.Key("Id").KeyName("PK");
+                    });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -1350,22 +1326,22 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P1");
-                    b.Property<string>("P2");
-                    b.Key("Id", "P1").KeyName("PK");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P1");
+                        b.Property<string>("P2");
+                        b.Key("Id", "P1").KeyName("PK");
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P1");
-                    b.Property<string>("P2");
-                    b.Key("Id", "P2").KeyName("PK");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P1");
+                        b.Property<string>("P2");
+                        b.Key("Id", "P2").KeyName("PK");
+                    });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -1393,34 +1369,34 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id").ColumnName("C1");
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<int>("Id").ColumnName("C1");
+                        b.Key("Id");
+                    });
             sourceModelBuilder.Entity("B",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<int>("P").ColumnName("C2");
-                    b.Key("Id");
-                    b.ForeignKeys(fks => fks.ForeignKey("A", "P").KeyName("FK"));
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<int>("P").ColumnName("C2");
+                        b.Key("Id");
+                        b.ForeignKey("A", "P").KeyName("FK");
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<string>("Id").ColumnName("C2");
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<string>("Id").ColumnName("C2");
+                        b.Key("Id");
+                    });
             targetModelBuilder.Entity("B",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P").ColumnName("C3");
-                    b.Key("Id");
-                    b.ForeignKeys(fks => fks.ForeignKey("A", "P").KeyName("FK"));
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P").ColumnName("C3");
+                        b.Key("Id");
+                        b.ForeignKey("A", "P").KeyName("FK");
+                    });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -1440,34 +1416,34 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id1").ColumnName("C1");
-                    b.Key("Id1");
-                });
+                    {
+                        b.Property<int>("Id1").ColumnName("C1");
+                        b.Key("Id1");
+                    });
             sourceModelBuilder.Entity("B",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<int>("P1").ColumnName("C2");
-                    b.Key("Id");
-                    b.ForeignKeys(fks => fks.ForeignKey("A", "P1").KeyName("FK"));
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<int>("P1").ColumnName("C2");
+                        b.Key("Id");
+                        b.ForeignKey("A", "P1").KeyName("FK");
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<string>("Id2").ColumnName("C1");
-                    b.Key("Id2");
-                });
+                    {
+                        b.Property<string>("Id2").ColumnName("C1");
+                        b.Key("Id2");
+                    });
             targetModelBuilder.Entity("B",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P2").ColumnName("C2");
-                    b.Key("Id");
-                    b.ForeignKeys(fks => fks.ForeignKey("A", "P2").KeyName("FK"));
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P2").ColumnName("C2");
+                        b.Key("Id");
+                        b.ForeignKey("A", "P2").KeyName("FK");
+                    });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -1484,32 +1460,32 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id");
+                    });
             sourceModelBuilder.Entity("B",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id");
-                    b.ForeignKeys(fks => fks.ForeignKey("A", "Id").KeyName("FK1"));
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id");
+                        b.ForeignKey("A", "Id").KeyName("FK1");
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id");
+                    });
             targetModelBuilder.Entity("B",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id");
-                    b.ForeignKeys(fks => fks.ForeignKey("A", "Id").KeyName("FK2"));
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id");
+                        b.ForeignKey("A", "Id").KeyName("FK2");
+                    });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -1532,32 +1508,32 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id");
+                    });
             sourceModelBuilder.Entity("B",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id");
-                    b.ForeignKeys(fks => fks.ForeignKey("A", "Id").CascadeDelete(true));
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id");
+                        b.ForeignKey("A", "Id").CascadeDelete(true);
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id");
+                    });
             targetModelBuilder.Entity("B",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id");
-                    b.ForeignKeys(fks => fks.ForeignKey("A", "Id").CascadeDelete(false));
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id");
+                        b.ForeignKey("A", "Id").CascadeDelete(false);
+                    });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -1581,37 +1557,36 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<int>("P");
-                    b.Key("Id", "P");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<int>("P");
+                        b.Key("Id", "P");
+                    });
             sourceModelBuilder.Entity("B",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<int>("P");
-                    b.Key("Id");
-                    b.ForeignKeys(fks => fks.ForeignKey("A", "Id").KeyName("FK"));
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<int>("P");
+                        b.Key("Id");
+                        b.ForeignKey("A", "Id").KeyName("FK");
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<int>("P");
-                    b.Key("Id", "P");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<int>("P");
+                        b.Key("Id", "P");
+                    });
             targetModelBuilder.Entity("B",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<int>("P");
-                    b.Key("Id");
-                    b.ForeignKeys(fks => fks.ForeignKey("A", "Id", "P").KeyName("FK"));
-                });
-
+                    {
+                        b.Property<int>("Id");
+                        b.Property<int>("P");
+                        b.Key("Id");
+                        b.ForeignKey("A", "Id", "P").KeyName("FK");
+                    });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -1635,41 +1610,40 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<int>("P1");
-                    b.Property<int>("P2");
-                    b.Key("Id", "P1");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<int>("P1");
+                        b.Property<int>("P2");
+                        b.Key("Id", "P1");
+                    });
             sourceModelBuilder.Entity("B",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<int>("P1");
-                    b.Property<int>("P2");
-                    b.Key("Id");
-                    b.ForeignKeys(fks => fks.ForeignKey("A", "Id", "P1").KeyName("FK"));
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<int>("P1");
+                        b.Property<int>("P2");
+                        b.Key("Id");
+                        b.ForeignKey("A", "Id", "P1").KeyName("FK");
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<int>("P1");
-                    b.Property<int>("P2");
-                    b.Key("Id", "P1");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<int>("P1");
+                        b.Property<int>("P2");
+                        b.Key("Id", "P1");
+                    });
             targetModelBuilder.Entity("B",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<int>("P1");
-                    b.Property<int>("P2");
-                    b.Key("Id");
-                    b.ForeignKeys(fks => fks.ForeignKey("A", "Id", "P2").KeyName("FK"));
-                });
-
+                    {
+                        b.Property<int>("Id");
+                        b.Property<int>("P1");
+                        b.Property<int>("P2");
+                        b.Key("Id");
+                        b.ForeignKey("A", "Id", "P2").KeyName("FK");
+                    });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -1693,41 +1667,40 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<int>("P1");
-                    b.Property<int>("P2");
-                    b.Key("Id", "P1").KeyName("PK");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<int>("P1");
+                        b.Property<int>("P2");
+                        b.Key("Id", "P1").KeyName("PK");
+                    });
             sourceModelBuilder.Entity("B",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<int>("P1");
-                    b.Property<int>("P2");
-                    b.Key("Id");
-                    b.ForeignKeys(fks => fks.ForeignKey("A", "Id", "P1").KeyName("FK"));
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<int>("P1");
+                        b.Property<int>("P2");
+                        b.Key("Id");
+                        b.ForeignKey("A", "Id", "P1").KeyName("FK");
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<int>("P1");
-                    b.Property<int>("P2");
-                    b.Key("Id", "P2").KeyName("PK");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<int>("P1");
+                        b.Property<int>("P2");
+                        b.Key("Id", "P2").KeyName("PK");
+                    });
             targetModelBuilder.Entity("B",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<int>("P1");
-                    b.Property<int>("P2");
-                    b.Key("Id");
-                    b.ForeignKeys(fks => fks.ForeignKey("A", "Id", "P1").KeyName("FK"));
-                });
-
+                    {
+                        b.Property<int>("Id");
+                        b.Property<int>("P1");
+                        b.Property<int>("P2");
+                        b.Key("Id");
+                        b.ForeignKey("A", "Id", "P1").KeyName("FK");
+                    });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -1757,22 +1730,22 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<int>("P").ColumnName("C1");
-                    b.Key("Id");
-                    b.Indexes(ixs => ixs.Index("Id", "P").IndexName("IX"));
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<int>("P").ColumnName("C1");
+                        b.Key("Id");
+                        b.Index("Id", "P").IndexName("IX");
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P").ColumnName("C2");
-                    b.Key("Id");
-                    b.Indexes(ixs => ixs.Index("Id", "P").IndexName("IX"));
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P").ColumnName("C2");
+                        b.Key("Id");
+                        b.Index("Id", "P").IndexName("IX");
+                    });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -1789,22 +1762,22 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<int>("P1").ColumnName("C");
-                    b.Key("Id");
-                    b.Indexes(ixs => ixs.Index("Id", "P1").IndexName("IX"));
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<int>("P1").ColumnName("C");
+                        b.Key("Id");
+                        b.Index("Id", "P1").IndexName("IX");
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P2").ColumnName("C");
-                    b.Key("Id");
-                    b.Indexes(ixs => ixs.Index("Id", "P2").IndexName("IX"));
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P2").ColumnName("C");
+                        b.Key("Id");
+                        b.Index("Id", "P2").IndexName("IX");
+                    });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -1820,22 +1793,22 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P1");
-                    b.Key("Id");
-                    b.Indexes(ixs => ixs.Index("P1").IndexName("IX1"));
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P1");
+                        b.Key("Id");
+                        b.Index("P1").IndexName("IX1");
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P1");
-                    b.Key("Id");
-                    b.Indexes(ixs => ixs.Index("P1").IndexName("IX2"));
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P1");
+                        b.Key("Id");
+                        b.Index("P1").IndexName("IX2");
+                    });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -1856,22 +1829,22 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P1");
-                    b.Key("Id");
-                    b.Indexes(ixs => ixs.Index("P1"));
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P1");
+                        b.Key("Id");
+                        b.Index("P1");
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P1");
-                    b.Key("Id");
-                    b.Indexes(ixs => ixs.Index("P1").IsUnique());
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P1");
+                        b.Key("Id");
+                        b.Index("P1").IsUnique();
+                    });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -1895,22 +1868,22 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P1");
-                    b.Key("Id");
-                    b.Indexes(ixs => ixs.Index("P1").IsClustered(false));
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P1");
+                        b.Key("Id");
+                        b.Index("P1").IsClustered(false);
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P1");
-                    b.Key("Id");
-                    b.Indexes(ixs => ixs.Index("P1").IsClustered(true));
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P1");
+                        b.Key("Id");
+                        b.Index("P1").IsClustered(true);
+                    });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -1934,22 +1907,22 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P1");
-                    b.Key("Id");
-                    b.Indexes(ixs => ixs.Index("Id").IndexName("IX"));
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P1");
+                        b.Key("Id");
+                        b.Index("Id").IndexName("IX");
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P1");
-                    b.Key("Id");
-                    b.Indexes(ixs => ixs.Index("Id", "P1").IndexName("IX"));
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P1");
+                        b.Key("Id");
+                        b.Index("Id", "P1").IndexName("IX");
+                    });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -1972,24 +1945,24 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P1");
-                    b.Property<string>("P2");
-                    b.Key("Id");
-                    b.Indexes(ixs => ixs.Index("P1").IndexName("IX"));
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P1");
+                        b.Property<string>("P2");
+                        b.Key("Id");
+                        b.Index("P1").IndexName("IX");
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P1");
-                    b.Property<string>("P2");
-                    b.Key("Id");
-                    b.Indexes(ixs => ixs.Index("P2").IndexName("IX"));
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P1");
+                        b.Property<string>("P2");
+                        b.Key("Id");
+                        b.Index("P2").IndexName("IX");
+                    });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);

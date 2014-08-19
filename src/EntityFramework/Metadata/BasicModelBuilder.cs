@@ -205,105 +205,57 @@ namespace Microsoft.Data.Entity.Metadata
                 }
             }
 
-            public EntityBuilderBase<TMetadataBuilder> ForeignKeys([NotNull] Action<ForeignKeysBuilder> foreignKeysBuilder)
+            public ForeignKeyBuilder ForeignKey([NotNull] string referencedEntityTypeName, [NotNull] params string[] propertyNames)
             {
-                Check.NotNull(foreignKeysBuilder, "foreignKeysBuilder");
+                Check.NotNull(referencedEntityTypeName, "referencedEntityTypeName");
+                Check.NotNull(propertyNames, "propertyNames");
 
-                foreignKeysBuilder(new ForeignKeysBuilder(Metadata, ModelBuilder));
+                var principalType = ModelBuilder._model.GetEntityType(referencedEntityTypeName);
+                var dependentProperties = propertyNames.Select(n => Metadata.GetProperty(n)).ToArray();
 
-                return this;
+                // TODO: This code currently assumes that the FK maps to a PK on the principal end
+                var foreignKey = Metadata.AddForeignKey(principalType.GetKey(), dependentProperties);
+
+                return new ForeignKeyBuilder(foreignKey, ModelBuilder);
             }
 
-            public class ForeignKeysBuilder
+            public class ForeignKeyBuilder : MetadataBuilder<ForeignKey, ForeignKeyBuilder>
             {
-                private readonly EntityType _entityType;
-                private readonly BasicModelBuilder _modelBuilder;
-
-                internal ForeignKeysBuilder(EntityType entityType, BasicModelBuilder modelBuilder)
+                internal ForeignKeyBuilder(ForeignKey foreignKey, BasicModelBuilder modelBuilder)
+                    : base(foreignKey, modelBuilder)
                 {
-                    _entityType = entityType;
-                    _modelBuilder = modelBuilder;
                 }
 
-                protected EntityType EntityType
+                public ForeignKeyBuilder IsUnique()
                 {
-                    get { return _entityType; }
-                }
+                    Metadata.IsUnique = true;
 
-                protected BasicModelBuilder ModelBuilder
-                {
-                    get { return _modelBuilder; }
-                }
-
-                public ForeignKeyBuilder ForeignKey([NotNull] string referencedEntityTypeName, [NotNull] params string[] propertyNames)
-                {
-                    Check.NotNull(referencedEntityTypeName, "referencedEntityTypeName");
-                    Check.NotNull(propertyNames, "propertyNames");
-
-                    var principalType = _modelBuilder._model.GetEntityType(referencedEntityTypeName);
-                    var dependentProperties = propertyNames.Select(n => _entityType.GetProperty(n)).ToArray();
-
-                    // TODO: This code currently assumes that the FK maps to a PK on the principal end
-                    var foreignKey = _entityType.AddForeignKey(principalType.GetKey(), dependentProperties);
-
-                    return new ForeignKeyBuilder(foreignKey, ModelBuilder);
-                }
-
-                public class ForeignKeyBuilder : MetadataBuilder<ForeignKey, ForeignKeyBuilder>
-                {
-                    internal ForeignKeyBuilder(ForeignKey foreignKey, BasicModelBuilder modelBuilder)
-                        : base(foreignKey, modelBuilder)
-                    {
-                    }
-
-                    public ForeignKeyBuilder IsUnique()
-                    {
-                        Metadata.IsUnique = true;
-
-                        return this;
-                    }
+                    return this;
                 }
             }
 
-            public EntityBuilderBase<TMetadataBuilder> Indexes([NotNull] Action<IndexesBuilder> indexesBuilder)
+            public IndexBuilder Index([NotNull] params string[] propertyNames)
             {
-                Check.NotNull(indexesBuilder, "indexesBuilder");
+                Check.NotNull(propertyNames, "propertyNames");
 
-                indexesBuilder(new IndexesBuilder(Metadata, ModelBuilder));
+                var properties = propertyNames.Select(n => Metadata.GetProperty(n)).ToArray();
+                var index = Metadata.AddIndex(properties);
 
-                return this;
+                return new IndexBuilder(index, ModelBuilder);
             }
 
-            public class IndexesBuilder : MetadataBuilder<EntityType, IndexesBuilder>
+            public class IndexBuilder : MetadataBuilder<Index, IndexBuilder>
             {
-                internal IndexesBuilder(EntityType entityType, BasicModelBuilder modelBuilder)
-                    : base(entityType, modelBuilder)
+                internal IndexBuilder(Index index, BasicModelBuilder modelBuilder)
+                    : base(index, modelBuilder)
                 {
                 }
 
-                public IndexBuilder Index([NotNull] params string[] propertyNames)
+                public IndexBuilder IsUnique()
                 {
-                    Check.NotNull(propertyNames, "propertyNames");
+                    Metadata.IsUnique = true;
 
-                    var properties = propertyNames.Select(n => Metadata.GetProperty(n)).ToArray();
-                    var index = Metadata.AddIndex(properties);
-
-                    return new IndexBuilder(index, ModelBuilder);
-                }
-
-                public class IndexBuilder : MetadataBuilder<Index, IndexBuilder>
-                {
-                    internal IndexBuilder(Index index, BasicModelBuilder modelBuilder)
-                        : base(index, modelBuilder)
-                    {
-                    }
-
-                    public IndexBuilder IsUnique()
-                    {
-                        Metadata.IsUnique = true;
-
-                        return this;
-                    }
+                    return this;
                 }
             }
         }
@@ -347,70 +299,36 @@ namespace Microsoft.Data.Entity.Metadata
                 return new PropertyBuilder(property, ModelBuilder);
             }
 
-            public EntityBuilder<TEntity> ForeignKeys([NotNull] Action<ForeignKeysBuilder> foreignKeysBuilder)
+            public ForeignKeyBuilder ForeignKey<TReferencedEntityType>(
+                [NotNull] Expression<Func<TEntity, object>> foreignKeyExpression, bool isUnique = false)
             {
-                Check.NotNull(foreignKeysBuilder, "foreignKeysBuilder");
+                Check.NotNull(foreignKeyExpression, "foreignKeyExpression");
 
-                foreignKeysBuilder(new ForeignKeysBuilder(Metadata, ModelBuilder));
+                var principalType = ModelBuilder.Entity<TReferencedEntityType>().Metadata;
 
-                return this;
+                var dependentProperties
+                    = foreignKeyExpression.GetPropertyAccessList()
+                        .Select(pi => Metadata.TryGetProperty(pi.Name) ?? Metadata.AddProperty(pi))
+                        .ToArray();
+
+                // TODO: This code currently assumes that the FK maps to a PK on the principal end
+                var foreignKey = Metadata.AddForeignKey(principalType.GetKey(), dependentProperties);
+                foreignKey.IsUnique = isUnique;
+
+                return new ForeignKeyBuilder(foreignKey, ModelBuilder);
             }
 
-            public new class ForeignKeysBuilder : EntityBuilderBase<EntityBuilder<TEntity>>.ForeignKeysBuilder
+            public IndexBuilder Index([NotNull] Expression<Func<TEntity, object>> indexExpression)
             {
-                internal ForeignKeysBuilder(EntityType entityType, BasicModelBuilder modelBuilder)
-                    : base(entityType, modelBuilder)
-                {
-                }
+                Check.NotNull(indexExpression, "indexExpression");
 
-                public ForeignKeyBuilder ForeignKey<TReferencedEntityType>(
-                    [NotNull] Expression<Func<TEntity, object>> foreignKeyExpression, bool isUnique = false)
-                {
-                    Check.NotNull(foreignKeyExpression, "foreignKeyExpression");
+                var properties
+                    = indexExpression.GetPropertyAccessList()
+                        .Select(pi => Metadata.TryGetProperty(pi.Name) ?? Metadata.AddProperty(pi))
+                        .ToArray();
+                var index = Metadata.AddIndex(properties);
 
-                    var principalType = ModelBuilder.Entity<TReferencedEntityType>().Metadata;
-
-                    var dependentProperties
-                        = foreignKeyExpression.GetPropertyAccessList()
-                            .Select(pi => EntityType.TryGetProperty(pi.Name) ?? EntityType.AddProperty(pi))
-                            .ToArray();
-
-                    // TODO: This code currently assumes that the FK maps to a PK on the principal end
-                    var foreignKey = EntityType.AddForeignKey(principalType.GetKey(), dependentProperties);
-                    foreignKey.IsUnique = isUnique;
-
-                    return new ForeignKeyBuilder(foreignKey, ModelBuilder);
-                }
-            }
-
-            public EntityBuilder<TEntity> Indexes([NotNull] Action<IndexesBuilder> indexesBuilder)
-            {
-                Check.NotNull(indexesBuilder, "indexesBuilder");
-
-                indexesBuilder(new IndexesBuilder(Metadata, ModelBuilder));
-
-                return this;
-            }
-
-            public new class IndexesBuilder : EntityBuilderBase<EntityBuilder<TEntity>>.IndexesBuilder
-            {
-                internal IndexesBuilder(EntityType entityType, BasicModelBuilder modelBuilder)
-                    : base(entityType, modelBuilder)
-                {
-                }
-
-                public IndexBuilder Index([NotNull] Expression<Func<TEntity, object>> indexExpression)
-                {
-                    Check.NotNull(indexExpression, "indexExpression");
-
-                    var properties
-                        = indexExpression.GetPropertyAccessList()
-                            .Select(pi => Metadata.TryGetProperty(pi.Name) ?? Metadata.AddProperty(pi))
-                            .ToArray();
-                    var index = Metadata.AddIndex(properties);
-
-                    return new IndexBuilder(index, ModelBuilder);
-                }
+                return new IndexBuilder(index, ModelBuilder);
             }
 
             public OneToManyBuilder<TRelatedEntity> OneToMany<TRelatedEntity>(
