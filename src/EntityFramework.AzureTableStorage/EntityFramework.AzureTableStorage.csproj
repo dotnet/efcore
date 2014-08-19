@@ -56,9 +56,8 @@
     <PackageReference Include="Microsoft.Framework.DependencyInjection">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
-    <PackageReference Include="Microsoft.Framework.Logging">
-      <TargetFramework>net45</TargetFramework>
-    </PackageReference>
+    <PackageReference Include="Microsoft.Framework.Logging" />
+    <PackageReference Include="Microsoft.Framework.Logging.Interfaces" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\packages\KoreBuild\build\Resources.cs">

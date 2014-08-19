@@ -45,9 +45,8 @@
     <PackageReference Include="Microsoft.Framework.DependencyInjection">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
-    <PackageReference Include="Microsoft.Framework.Logging">
-      <TargetFramework>net45</TargetFramework>
-    </PackageReference>
+    <PackageReference Include="Microsoft.Framework.Logging" />
+    <PackageReference Include="Microsoft.Framework.Logging.Interfaces" />
     <PackageReference Include="xunit.abstractions">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>

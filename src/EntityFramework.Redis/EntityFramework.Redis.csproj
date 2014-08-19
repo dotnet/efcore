@@ -48,6 +48,7 @@
     <PackageReference Include="Microsoft.Framework.ConfigurationModel" />
     <PackageReference Include="Microsoft.Framework.DependencyInjection" />
     <PackageReference Include="Microsoft.Framework.Logging" />
+    <PackageReference Include="Microsoft.Framework.Logging.Interfaces" />
     <PackageReference Include="Remotion.Linq">
       <TargetFramework>portable-net45+wp80+win</TargetFramework>
     </PackageReference>
