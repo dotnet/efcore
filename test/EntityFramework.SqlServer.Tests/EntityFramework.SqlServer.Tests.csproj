@@ -79,6 +79,8 @@
     <Compile Include="SqlServerSqlGeneratorTest.cs" />
     <Compile Include="SqlServerTypeMapperTest.cs" />
     <Compile Include="SqlServerValueGeneratorSelectorTest.cs" />
+    <Compile Include="Update\SqlServerModificationCommandBatchFactoryTest.cs" />
+    <Compile Include="Update\SqlServerModificationCommandBatchTest.cs" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>

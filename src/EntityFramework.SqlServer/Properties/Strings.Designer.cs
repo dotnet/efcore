@@ -27,6 +27,22 @@ namespace Microsoft.Data.Entity.SqlServer
         }
 
         /// <summary>
+        /// The value for the configuration entry '{configurationKey}' is '{invalidValue}', but an integer is expected.
+        /// </summary>
+        internal static string IntegerConfigurationValueFormatError
+        {
+            get { return GetString("IntegerConfigurationValueFormatError"); }
+        }
+
+        /// <summary>
+        /// The value for the configuration entry '{configurationKey}' is '{invalidValue}', but an integer is expected.
+        /// </summary>
+        internal static string FormatIntegerConfigurationValueFormatError(object configurationKey, object invalidValue)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("IntegerConfigurationValueFormatError", "configurationKey", "invalidValue"), configurationKey, invalidValue);
+        }
+
+        /// <summary>
         /// The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.
         /// </summary>
         internal static string InvalidEnumValue
@@ -40,6 +56,22 @@ namespace Microsoft.Data.Entity.SqlServer
         internal static string FormatInvalidEnumValue(object argumentName, object enumType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("InvalidEnumValue", "argumentName", "enumType"), argumentName, enumType);
+        }
+
+        /// <summary>
+        /// The value provided for max batch size must be positive.
+        /// </summary>
+        internal static string MaxBatchSizeMustBePositive
+        {
+            get { return GetString("MaxBatchSizeMustBePositive"); }
+        }
+
+        /// <summary>
+        /// The value provided for max batch size must be positive.
+        /// </summary>
+        internal static string FormatMaxBatchSizeMustBePositive()
+        {
+            return GetString("MaxBatchSizeMustBePositive");
         }
 
         private static string GetString(string name, params string[] formatterNames)

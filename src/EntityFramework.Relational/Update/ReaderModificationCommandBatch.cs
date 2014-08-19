@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.Relational.Utilities;
@@ -174,7 +175,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                         Strings.FormatUpdateStoreException(),
                         context,
                         ex,
-                        commandIndex < ModificationCommands.Count ? ModificationCommands[commandIndex].StateEntries : null);
+                        commandIndex < ModificationCommands.Count ? ModificationCommands[commandIndex].StateEntries : new StateEntry[0]);
                 }
             }
 
