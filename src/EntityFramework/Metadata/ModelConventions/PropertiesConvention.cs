@@ -39,10 +39,13 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             Check.NotNull(entityType, "entityType");
 
             // TODO: Honor [NotMapped]
-            var primitiveProperties = entityType.Type.GetRuntimeProperties().Where(IsPrimitiveProperty);
-            foreach (var propertyInfo in primitiveProperties)
+            if (entityType.HasClrType)
             {
-                entityType.AddProperty(propertyInfo);
+                var primitiveProperties = entityType.Type.GetRuntimeProperties().Where(IsPrimitiveProperty);
+                foreach (var propertyInfo in primitiveProperties)
+                {
+                    entityType.AddProperty(propertyInfo);
+                }
             }
         }
 

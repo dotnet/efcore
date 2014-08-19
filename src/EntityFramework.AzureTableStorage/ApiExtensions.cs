@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.AzureTableStorage.Utilities;
 using Microsoft.Data.Entity.Metadata;
@@ -48,10 +49,10 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Metadata
             return property[Annotations.ColumnName] ?? property.Name;
         }
 
-        public static BasicModelBuilder.EntityBuilderBase<TMetadataBuilder> TableName<TMetadataBuilder>(
-            [NotNull] this BasicModelBuilder.EntityBuilderBase<TMetadataBuilder> builder,
+        public static TEntityBuilder TableName<TEntityBuilder>(
+            [NotNull] this TEntityBuilder builder,
             [NotNull] string tableName)
-            where TMetadataBuilder : BasicModelBuilder.MetadataBuilder<EntityType, TMetadataBuilder>
+            where TEntityBuilder : IEntityBuilder<TEntityBuilder>
         {
             Check.NotNull(builder, "builder");
             Check.NotEmpty(tableName, "tableName");
@@ -61,10 +62,10 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Metadata
             return builder;
         }
 
-        public static BasicModelBuilder.EntityBuilderBase<TMetadataBuilder>.PropertyBuilder ColumnName<TMetadataBuilder>(
-            [NotNull] this BasicModelBuilder.EntityBuilderBase<TMetadataBuilder>.PropertyBuilder builder,
+        public static TPropertyBuilder ColumnName<TPropertyBuilder>(
+            [NotNull] this TPropertyBuilder builder,
             [NotNull] string columnName)
-            where TMetadataBuilder : BasicModelBuilder.MetadataBuilder<EntityType, TMetadataBuilder>
+            where TPropertyBuilder : IPropertyBuilder<TPropertyBuilder>
         {
             Check.NotNull(builder, "builder");
             Check.NotEmpty(columnName, "columnName");
@@ -78,43 +79,73 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Metadata
         ///     Sets the partition key, row key, and creates a composite entity key
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
+        /// <typeparam name="TEntityBuilder"></typeparam>
         /// <param name="builder"></param>
         /// <param name="partitionKeyExpression"></param>
         /// <param name="rowKeyExpression"></param>
         /// <returns></returns>
-        public static BasicModelBuilder.EntityBuilder<TEntity> PartitionAndRowKey<TEntity>([NotNull] this BasicModelBuilder.EntityBuilder<TEntity> builder, [NotNull] Expression<Func<TEntity, object>> partitionKeyExpression, [NotNull] Expression<Func<TEntity, object>> rowKeyExpression)
+        public static TEntityBuilder PartitionAndRowKey<TEntity, TEntityBuilder>(
+            [NotNull] this IEntityBuilder<TEntity, TEntityBuilder> builder,
+            [NotNull] Expression<Func<TEntity, object>> partitionKeyExpression,
+            [NotNull] Expression<Func<TEntity, object>> rowKeyExpression)
+            where TEntityBuilder : IEntityBuilder<TEntity, TEntityBuilder>
         {
             Check.NotNull(builder, "builder");
             Check.NotNull(partitionKeyExpression, "partitionKeyExpression");
             Check.NotNull(rowKeyExpression, "rowKeyExpression");
 
-            builder.Property(partitionKeyExpression).ColumnName("PartitionKey");
-            builder.Property(rowKeyExpression).ColumnName("RowKey");
+            var entityType = builder.Metadata;
 
-            var properties = partitionKeyExpression.GetPropertyAccessList().ToList();
-            properties.Add(rowKeyExpression.GetPropertyAccess());
-            builder.Key(properties.Select(s => s.Name).ToArray());
-            return builder;
+            var partitionKeyInfo = partitionKeyExpression.GetPropertyAccess();
+            var rowKeyInfo = rowKeyExpression.GetPropertyAccess();
+
+            var partitionKey = entityType.TryGetProperty(partitionKeyInfo.Name) 
+                ?? entityType.AddProperty(partitionKeyInfo);
+            
+            var rowKey = entityType.TryGetProperty(rowKeyInfo.Name) 
+                ?? entityType.AddProperty(rowKeyInfo);
+
+            partitionKey.SetColumnName("PartitionKey");
+            rowKey.SetColumnName("RowKey");
+
+            entityType.SetKey(new[] { partitionKey, rowKey });
+
+            return (TEntityBuilder)builder;
         }
 
-        public static BasicModelBuilder.EntityBuilder<TEntity> Timestamp<TEntity>([NotNull] this BasicModelBuilder.EntityBuilder<TEntity> builder, [NotNull] Expression<Func<TEntity, object>> expression)
+        public static TEntityBuilder Timestamp<TEntity, TEntityBuilder>(
+            [NotNull] this IEntityBuilder<TEntity, TEntityBuilder> builder, 
+            [NotNull] Expression<Func<TEntity, object>> expression)
+            where TEntityBuilder : IEntityBuilder<TEntity, TEntityBuilder>
         {
             Check.NotNull(builder, "builder");
             Check.NotNull(expression, "expression");
 
-            builder.Property(expression).ColumnName("Timestamp");
+            var entityType = builder.Metadata;
 
-            return builder;
+            var propertyInfo = expression.GetPropertyAccess();
+            (entityType.TryGetProperty(propertyInfo.Name) 
+                ?? entityType.AddProperty(propertyInfo)).SetColumnName("Timestamp");
+
+            return (TEntityBuilder)builder;
         }
 
-        public static BasicModelBuilder.EntityBuilder<TEntity> Timestamp<TEntity>([NotNull] this BasicModelBuilder.EntityBuilder<TEntity> builder, [NotNull] string name, bool shadowProperty = false)
+        public static TEntityBuilder Timestamp<TEntity, TEntityBuilder>(
+            [NotNull] this IEntityBuilder<TEntity, TEntityBuilder> builder, 
+            [NotNull] string name,
+            bool shadowProperty = false)
+            where TEntityBuilder : IEntityBuilder<TEntity, TEntityBuilder>
         {
             Check.NotNull(builder, "builder");
             Check.NotEmpty(name, "name");
 
-            builder.Property<TEntity>(name, shadowProperty).ColumnName("Timestamp");
+            var entityType = builder.Metadata;
 
-            return builder;
+            // TODO: Consider forcing property to shadow state if not cuurently in shadow state
+            (entityType.TryGetProperty(name) 
+                ?? entityType.AddProperty(name, typeof(DateTimeOffset), shadowProperty, concurrencyToken: false)).SetColumnName("Timestamp");
+
+            return (TEntityBuilder)builder;
         }
     }
 }

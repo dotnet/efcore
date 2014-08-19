@@ -103,7 +103,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             public string Fax { get; set; }
         }
 
-        private static void ConfigureModel(BasicModelBuilder builder)
+        private static void ConfigureModel(ModelBuilder builder)
         {
             builder.Entity<Customer>(b =>
                 {

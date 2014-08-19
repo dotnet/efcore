@@ -80,7 +80,7 @@ namespace Microsoft.Data.Entity.Metadata
             return _key;
         }
 
-        public virtual void SetKey([CanBeNull] params Property[] properties)
+        public virtual Key SetKey([CanBeNull] params Property[] properties)
         {
             _key = null;
 
@@ -98,6 +98,8 @@ namespace Microsoft.Data.Entity.Metadata
 
                 _key = key;
             }
+
+            return _key;
         }
 
         public virtual ForeignKey AddForeignKey(

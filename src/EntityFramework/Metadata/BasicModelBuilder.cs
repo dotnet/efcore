@@ -2,48 +2,106 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata.ModelConventions;
+using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public class BasicModelBuilder
+    public class BasicModelBuilder : IModelBuilder<BasicModelBuilder>
     {
-        private readonly Model _model;
+        private readonly InternalModelBuilder _builder;
 
         public BasicModelBuilder()
+            : this(new Model())
         {
-            _model = new Model();
         }
 
         public BasicModelBuilder([NotNull] Model model)
         {
             Check.NotNull(model, "model");
 
-            _model = model;
+            _builder = new InternalModelBuilder(model, null);
         }
 
-        // TODO: Consider whether this is needed/desirable; currently builder is not full-fidelity
+        protected internal BasicModelBuilder([NotNull] InternalModelBuilder internalBuilder)
+        {
+            Check.NotNull(internalBuilder, "internalBuilder");
+
+            _builder = internalBuilder;
+        }
+
+        // TODO: Consider whether these conversions are useful
+        public static explicit operator ModelBuilder([NotNull] BasicModelBuilder builder)
+        {
+            Check.NotNull(builder, "builder");
+
+            return new ModelBuilder(builder.Builder);
+        }
+
+        // TODO: Consider removing this and just using Metadata
         public virtual Model Model
         {
-            get { return _model; }
+            get { return Metadata; }
+        }
+
+        public virtual Model Metadata
+        {
+            get { return Builder.Metadata; }
+        }
+
+        public virtual BasicModelBuilder Annotation(string annotation, string value)
+        {
+            Check.NotEmpty(annotation, "annotation");
+            Check.NotEmpty(value, "value");
+
+            _builder.Annotation(annotation, value);
+
+            return this;
+        }
+
+        protected virtual InternalModelBuilder Builder
+        {
+            get { return _builder; }
+        }
+
+        public virtual EntityBuilder<T> Entity<T>()
+        {
+            return new EntityBuilder<T>(Builder.GetOrAddEntity(typeof(T)));
+        }
+
+        public virtual EntityBuilder Entity([NotNull] Type entityType)
+        {
+            Check.NotNull(entityType, "entityType");
+
+            return new EntityBuilder(Builder.GetOrAddEntity(entityType));
         }
 
         public virtual EntityBuilder Entity([NotNull] string name)
         {
             Check.NotEmpty(name, "name");
 
-            return new EntityBuilder(GetOrAddEntity(name), this);
+            return new EntityBuilder(Builder.GetOrAddEntity(name));
         }
 
-        public virtual EntityBuilder<T> Entity<T>()
+        public virtual BasicModelBuilder Entity<T>([NotNull] Action<EntityBuilder<T>> entityBuilder)
         {
-            return new EntityBuilder<T>(GetOrAddEntity(typeof(T)), this);
+            Check.NotNull(entityBuilder, "entityBuilder");
+
+            entityBuilder(Entity<T>());
+
+            return this;
+        }
+
+        public virtual BasicModelBuilder Entity([NotNull] Type entityType, [NotNull] Action<EntityBuilder> entityBuilder)
+        {
+            Check.NotNull(entityType, "entityType");
+            Check.NotNull(entityBuilder, "entityBuilder");
+
+            entityBuilder(Entity(entityType));
+
+            return this;
         }
 
         public virtual BasicModelBuilder Entity([NotNull] string name, [NotNull] Action<EntityBuilder> entityBuilder)
@@ -56,574 +114,297 @@ namespace Microsoft.Data.Entity.Metadata
             return this;
         }
 
-        public virtual BasicModelBuilder Entity<T>([NotNull] Action<EntityBuilder<T>> entityBuilder)
+        public class EntityBuilder : IEntityBuilder<EntityBuilder>
         {
-            Check.NotNull(entityBuilder, "entityBuilder");
+            private readonly InternalEntityBuilder _builder;
 
-            entityBuilder(Entity<T>());
-
-            return this;
-        }
-
-        internal EntityType GetOrAddEntity(string name)
-        {
-            var entityType = _model.TryGetEntityType(name);
-
-            if (entityType == null)
+            public EntityBuilder([NotNull] InternalEntityBuilder builder)
             {
-                _model.AddEntityType(entityType = new EntityType(name));
-                OnEntityTypeAdded(entityType);
+                Check.NotNull(builder, "builder");
+
+                _builder = builder;
             }
 
-            return entityType;
-        }
-
-        internal EntityType GetOrAddEntity(Type type)
-        {
-            var entityType = _model.TryGetEntityType(type);
-
-            if (entityType == null)
+            protected virtual InternalEntityBuilder Builder
             {
-                _model.AddEntityType(entityType = new EntityType(type));
-                OnEntityTypeAdded(entityType);
+                get { return _builder; }
             }
 
-            return entityType;
-        }
-
-        protected virtual void OnEntityTypeAdded([NotNull] EntityType entityType)
-        {
-        }
-
-        public virtual BasicModelBuilder Annotation([NotNull] string annotation, [NotNull] string value)
-        {
-            Check.NotEmpty(annotation, "annotation");
-            Check.NotEmpty(value, "value");
-
-            _model[annotation] = value;
-
-            return this;
-        }
-
-        public class MetadataBuilder<TMetadata, TMetadataBuilder>
-            where TMetadata : MetadataBase
-            where TMetadataBuilder : MetadataBuilder<TMetadata, TMetadataBuilder>
-        {
-            private readonly TMetadata _metadata;
-            private readonly BasicModelBuilder _modelBuilder;
-
-            internal MetadataBuilder(TMetadata metadata, BasicModelBuilder modelBuilder)
-            {
-                _metadata = metadata;
-                _modelBuilder = modelBuilder;
-            }
-
-            public TMetadataBuilder Annotation([NotNull] string annotation, [NotNull] string value)
+            public virtual EntityBuilder Annotation([NotNull] string annotation, [NotNull] string value)
             {
                 Check.NotEmpty(annotation, "annotation");
                 Check.NotEmpty(value, "value");
 
-                _metadata[annotation] = value;
+                Builder.Annotation(annotation, value);
 
-                return (TMetadataBuilder)this;
+                return this;
             }
 
-            protected internal TMetadata Metadata
+            public virtual EntityType Metadata
             {
-                get { return _metadata; }
+                get { return Builder.Metadata; }
             }
 
-            protected internal BasicModelBuilder ModelBuilder
+            Model IMetadataBuilder<EntityType, EntityBuilder>.Model
             {
-                get { return _modelBuilder; }
-            }
-        }
-
-        public class EntityBuilderBase<TMetadataBuilder> : MetadataBuilder<EntityType, TMetadataBuilder>
-            where TMetadataBuilder : MetadataBuilder<EntityType, TMetadataBuilder>
-        {
-            internal EntityBuilderBase(EntityType entityType, BasicModelBuilder modelBuilder)
-                : base(entityType, modelBuilder)
-            {
+                get { return Builder.ModelBuilder.Metadata; }
             }
 
-            public KeyBuilder Key([NotNull] params string[] propertyNames)
+            public virtual KeyBuilder Key([NotNull] params string[] propertyNames)
             {
                 Check.NotNull(propertyNames, "propertyNames");
 
-                Metadata.SetKey(propertyNames.Select(n => Metadata.GetProperty(n)).ToArray());
-
-                return new KeyBuilder(Metadata.GetKey(), ModelBuilder);
+                return new KeyBuilder(Builder.Key(propertyNames));
             }
 
-            public class KeyBuilder : MetadataBuilder<Key, KeyBuilder>
-            {
-                internal KeyBuilder(Key key, BasicModelBuilder modelBuilder)
-                    : base(key, modelBuilder)
-                {
-                }
-            }
-
-            public virtual PropertyBuilder Property<TProperty>(
-                [NotNull] string name, bool shadowProperty = false, bool concurrencyToken = false)
+            public virtual PropertyBuilder Property<TProperty>([NotNull] string name, bool shadowProperty = false, bool concurrencyToken = false)
             {
                 Check.NotEmpty(name, "name");
 
-                var property
-                    = Metadata.TryGetProperty(name)
-                      ?? Metadata.AddProperty(name, typeof(TProperty), shadowProperty, concurrencyToken);
-
-                return new PropertyBuilder(property, ModelBuilder);
+                return new PropertyBuilder(Builder.Property(typeof(TProperty), name, shadowProperty, concurrencyToken));
             }
 
-            public class PropertyBuilder : MetadataBuilder<Property, PropertyBuilder>
-            {
-                internal PropertyBuilder(Property property, BasicModelBuilder modelBuilder)
-                    : base(property, modelBuilder)
-                {
-                }
-
-                // TODO Consider if this should be relational only
-                public PropertyBuilder UseStoreSequence()
-                {
-                    Metadata.ValueGenerationOnAdd = ValueGenerationOnAdd.Server;
-                    Metadata.ValueGenerationOnSave = ValueGenerationOnSave.None;
-
-                    return this;
-                }
-
-                // TODO Consider if this should be relational only
-                public PropertyBuilder UseStoreSequence([NotNull] string sequenceName, int blockSize)
-                {
-                    Check.NotEmpty(sequenceName, "sequenceName");
-
-                    // TODO: Make these constants in some class once decided if this should be relational-only
-                    Metadata["StoreSequenceName"] = sequenceName;
-                    Metadata["StoreSequenceBlockSize"] = blockSize.ToString();
-
-                    return UseStoreSequence();
-                }
-            }
-
-            public ForeignKeyBuilder ForeignKey([NotNull] string referencedEntityTypeName, [NotNull] params string[] propertyNames)
+            public virtual ForeignKeyBuilder ForeignKey([NotNull] string referencedEntityTypeName, [NotNull] params string[] propertyNames)
             {
                 Check.NotNull(referencedEntityTypeName, "referencedEntityTypeName");
                 Check.NotNull(propertyNames, "propertyNames");
 
-                var principalType = ModelBuilder._model.GetEntityType(referencedEntityTypeName);
-                var dependentProperties = propertyNames.Select(n => Metadata.GetProperty(n)).ToArray();
-
-                // TODO: This code currently assumes that the FK maps to a PK on the principal end
-                var foreignKey = Metadata.AddForeignKey(principalType.GetKey(), dependentProperties);
-
-                return new ForeignKeyBuilder(foreignKey, ModelBuilder);
+                return new ForeignKeyBuilder(Builder.ForeignKey(referencedEntityTypeName, propertyNames));
             }
 
-            public class ForeignKeyBuilder : MetadataBuilder<ForeignKey, ForeignKeyBuilder>
-            {
-                internal ForeignKeyBuilder(ForeignKey foreignKey, BasicModelBuilder modelBuilder)
-                    : base(foreignKey, modelBuilder)
-                {
-                }
-
-                public ForeignKeyBuilder IsUnique()
-                {
-                    Metadata.IsUnique = true;
-
-                    return this;
-                }
-            }
-
-            public IndexBuilder Index([NotNull] params string[] propertyNames)
+            public virtual IndexBuilder Index([NotNull] params string[] propertyNames)
             {
                 Check.NotNull(propertyNames, "propertyNames");
 
-                var properties = propertyNames.Select(n => Metadata.GetProperty(n)).ToArray();
-                var index = Metadata.AddIndex(properties);
-
-                return new IndexBuilder(index, ModelBuilder);
+                return new IndexBuilder(Builder.Index(propertyNames));
             }
 
-            public class IndexBuilder : MetadataBuilder<Index, IndexBuilder>
+            public class KeyBuilder : IKeyBuilder<KeyBuilder>
             {
-                internal IndexBuilder(Index index, BasicModelBuilder modelBuilder)
-                    : base(index, modelBuilder)
+                private readonly InternalKeyBuilder _builder;
+
+                public KeyBuilder([NotNull] InternalKeyBuilder builder)
                 {
+                    Check.NotNull(builder, "builder");
+
+                    _builder = builder;
                 }
 
-                public IndexBuilder IsUnique()
+                protected virtual InternalKeyBuilder Builder
                 {
-                    Metadata.IsUnique = true;
+                    get { return _builder; }
+                }
+
+                public virtual Key Metadata
+                {
+                    get { return Builder.Metadata; }
+                }
+
+                Model IMetadataBuilder<Key, KeyBuilder>.Model
+                {
+                    get { return Builder.ModelBuilder.Metadata; }
+                }
+
+                public virtual KeyBuilder Annotation(string annotation, string value)
+                {
+                    Check.NotEmpty(annotation, "annotation");
+                    Check.NotEmpty(value, "value");
+
+                    Builder.Annotation(annotation, value);
+
+                    return this;
+                }
+            }
+
+            public class PropertyBuilder : IPropertyBuilder<PropertyBuilder>
+            {
+                private readonly InternalPropertyBuilder _builder;
+
+                public PropertyBuilder([NotNull] InternalPropertyBuilder builder)
+                {
+                    Check.NotNull(builder, "builder");
+
+                    _builder = builder;
+                }
+
+                protected virtual InternalPropertyBuilder Builder
+                {
+                    get { return _builder; }
+                }
+
+                public virtual Property Metadata
+                {
+                    get { return Builder.Metadata; }
+                }
+
+                Model IMetadataBuilder<Property, PropertyBuilder>.Model
+                {
+                    get { return Builder.ModelBuilder.Metadata; }
+                }
+
+                public virtual PropertyBuilder Annotation(string annotation, string value)
+                {
+                    Check.NotNull(annotation, "annotation");
+                    Check.NotNull(value, "value");
+
+                    Builder.Annotation(annotation, value);
+
+                    return this;
+                }
+
+                // TODO Consider if this should be relational only
+                public virtual PropertyBuilder UseStoreSequence()
+                {
+                    _builder.UseStoreSequence();
+
+                    return this;
+                }
+
+                // TODO Consider if this should be relational only
+                public virtual PropertyBuilder UseStoreSequence([NotNull] string sequenceName, int blockSize)
+                {
+                    Check.NotEmpty(sequenceName, "sequenceName");
+
+                    _builder.UseStoreSequence(sequenceName, blockSize);
+
+                    return this;
+                }
+            }
+
+            public class ForeignKeyBuilder : IForeignKeyBuilder<ForeignKeyBuilder>
+            {
+                private readonly InternalForeignKeyBuilder _builder;
+
+                public ForeignKeyBuilder([NotNull] InternalForeignKeyBuilder builder)
+                {
+                    Check.NotNull(builder, "builder");
+
+                    _builder = builder;
+                }
+
+                protected virtual InternalForeignKeyBuilder Builder
+                {
+                    get { return _builder; }
+                }
+
+                public virtual ForeignKey Metadata
+                {
+                    get { return Builder.Metadata; }
+                }
+
+                Model IMetadataBuilder<ForeignKey, ForeignKeyBuilder>.Model
+                {
+                    get { return Builder.ModelBuilder.Metadata; }
+                }
+
+                public virtual ForeignKeyBuilder Annotation(string annotation, string value)
+                {
+                    Check.NotEmpty(annotation, "annotation");
+                    Check.NotEmpty(value, "value");
+
+                    Builder.Annotation(annotation, value);
+
+                    return this;
+                }
+
+                public virtual ForeignKeyBuilder IsUnique(bool isUnique = true)
+                {
+                    Builder.IsUnique(isUnique);
+
+                    return this;
+                }
+            }
+
+            public class IndexBuilder : IIndexBuilder<IndexBuilder>
+            {
+                private readonly InternalIndexBuilder _builder;
+
+                public IndexBuilder([NotNull] InternalIndexBuilder builder)
+                {
+                    Check.NotNull(builder, "builder");
+
+                    _builder = builder;
+                }
+
+                protected virtual InternalIndexBuilder Builder
+                {
+                    get { return _builder; }
+                }
+
+                public virtual Index Metadata
+                {
+                    get { return Builder.Metadata; }
+                }
+
+                Model IMetadataBuilder<Index, IndexBuilder>.Model
+                {
+                    get { return Builder.ModelBuilder.Metadata; }
+                }
+
+                public virtual IndexBuilder Annotation(string annotation, string value)
+                {
+                    Check.NotEmpty(annotation, "annotation");
+                    Check.NotEmpty(value, "value");
+
+                    Builder.Annotation(annotation, value);
+
+                    return this;
+                }
+
+                public virtual IndexBuilder IsUnique(bool isUnique = true)
+                {
+                    Builder.IsUnique(isUnique);
 
                     return this;
                 }
             }
         }
 
-        public class EntityBuilder : EntityBuilderBase<EntityBuilder>
+        public class EntityBuilder<TEntity> : EntityBuilder, IEntityBuilder<TEntity, EntityBuilder<TEntity>>
         {
-            internal EntityBuilder(EntityType entityType, BasicModelBuilder modelBuilder)
-                : base(entityType, modelBuilder)
-            {
-            }
-        }
-
-        public class EntityBuilder<TEntity> : EntityBuilderBase<EntityBuilder<TEntity>>
-        {
-            internal EntityBuilder(EntityType entityType, BasicModelBuilder modelBuilder)
-                : base(entityType, modelBuilder)
+            public EntityBuilder([NotNull] InternalEntityBuilder builder)
+                : base(builder)
             {
             }
 
-            public KeyBuilder Key([NotNull] Expression<Func<TEntity, object>> keyExpression)
+            public new virtual EntityBuilder<TEntity> Annotation(string annotation, string value)
+            {
+                base.Annotation(annotation, value);
+
+                return this;
+            }
+
+            Model IMetadataBuilder<EntityType, EntityBuilder<TEntity>>.Model
+            {
+                get { return Builder.ModelBuilder.Metadata; }
+            }
+
+            public virtual KeyBuilder Key([NotNull] Expression<Func<TEntity, object>> keyExpression)
             {
                 Check.NotNull(keyExpression, "keyExpression");
 
-                Metadata.SetKey(
-                    keyExpression.GetPropertyAccessList()
-                        .Select(pi => Metadata.TryGetProperty(pi.Name)
-                                      ?? Metadata.AddProperty(pi))
-                        .ToArray());
-
-                return new KeyBuilder(Metadata.GetKey(), ModelBuilder);
+                return new KeyBuilder(Builder.Key(keyExpression.GetPropertyAccessList()));
             }
 
             public virtual PropertyBuilder Property([NotNull] Expression<Func<TEntity, object>> propertyExpression)
             {
-                var propertyInfo = propertyExpression.GetPropertyAccess();
+                Check.NotNull(propertyExpression, "propertyExpression");
 
-                var property
-                    = Metadata.TryGetProperty(propertyInfo.Name)
-                      ?? Metadata.AddProperty(propertyInfo);
-
-                return new PropertyBuilder(property, ModelBuilder);
+                return new PropertyBuilder(Builder.Property(propertyExpression.GetPropertyAccess()));
             }
 
-            public ForeignKeyBuilder ForeignKey<TReferencedEntityType>(
-                [NotNull] Expression<Func<TEntity, object>> foreignKeyExpression, bool isUnique = false)
+            public virtual ForeignKeyBuilder ForeignKey<TReferencedEntityType>([NotNull] Expression<Func<TEntity, object>> foreignKeyExpression)
             {
                 Check.NotNull(foreignKeyExpression, "foreignKeyExpression");
 
-                var principalType = ModelBuilder.Entity<TReferencedEntityType>().Metadata;
-
-                var dependentProperties
-                    = foreignKeyExpression.GetPropertyAccessList()
-                        .Select(pi => Metadata.TryGetProperty(pi.Name) ?? Metadata.AddProperty(pi))
-                        .ToArray();
-
-                // TODO: This code currently assumes that the FK maps to a PK on the principal end
-                var foreignKey = Metadata.AddForeignKey(principalType.GetKey(), dependentProperties);
-                foreignKey.IsUnique = isUnique;
-
-                return new ForeignKeyBuilder(foreignKey, ModelBuilder);
+                return new ForeignKeyBuilder(Builder.ForeignKey(typeof(TReferencedEntityType), foreignKeyExpression.GetPropertyAccessList()));
             }
 
-            public IndexBuilder Index([NotNull] Expression<Func<TEntity, object>> indexExpression)
+            public virtual IndexBuilder Index([NotNull] Expression<Func<TEntity, object>> indexExpression)
             {
                 Check.NotNull(indexExpression, "indexExpression");
 
-                var properties
-                    = indexExpression.GetPropertyAccessList()
-                        .Select(pi => Metadata.TryGetProperty(pi.Name) ?? Metadata.AddProperty(pi))
-                        .ToArray();
-                var index = Metadata.AddIndex(properties);
-
-                return new IndexBuilder(index, ModelBuilder);
-            }
-
-            public OneToManyBuilder<TRelatedEntity> OneToMany<TRelatedEntity>(
-                [CanBeNull] Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> collection = null,
-                [CanBeNull] Expression<Func<TRelatedEntity, TEntity>> reference = null)
-            {
-                return new OneToManyBuilder<TRelatedEntity>(BuildRelationship(collection, reference, oneToOne: false));
-            }
-
-            public ManyToOneBuilder<TRelatedEntity> ManyToOne<TRelatedEntity>(
-                [CanBeNull] Expression<Func<TEntity, TRelatedEntity>> reference = null,
-                [CanBeNull] Expression<Func<TRelatedEntity, IEnumerable<TEntity>>> collection = null)
-            {
-                return new ManyToOneBuilder<TRelatedEntity>(BuildRelationship(collection, reference, oneToOne: false));
-            }
-
-            public OneToOneBuilder OneToOne<TRelatedEntity>(
-                [CanBeNull] Expression<Func<TEntity, TRelatedEntity>> reference = null,
-                [CanBeNull] Expression<Func<TRelatedEntity, TEntity>> inverse = null)
-            {
-                // TODO: Checking for bad/inconsistent FK/navigation/type configuration in this method and below
-
-                // Find either navigation that already exists
-                var navNameToDependent = reference != null ? reference.GetPropertyAccess().Name : null;
-                var navNameToPrincipal = inverse != null ? inverse.GetPropertyAccess().Name : null;
-
-                return new OneToOneBuilder(BuildRelationship<TEntity, TRelatedEntity>(
-                    navNameToPrincipal, navNameToDependent, oneToOne: true));
-            }
-
-            private RelationshipBuilder BuildRelationship<TPrincipalEntity, TDependentEntity>(
-                Expression<Func<TPrincipalEntity, IEnumerable<TDependentEntity>>> collection,
-                Expression<Func<TDependentEntity, TPrincipalEntity>> reference,
-                bool oneToOne)
-            {
-                // TODO: Checking for bad/inconsistent FK/navigation/type configuration in this method and below
-
-                // Find either navigation that already exists
-                var navNameToDependent = collection != null ? collection.GetPropertyAccess().Name : null;
-                var navNameToPrincipal = reference != null ? reference.GetPropertyAccess().Name : null;
-
-                return BuildRelationship<TPrincipalEntity, TDependentEntity>(navNameToPrincipal, navNameToDependent, oneToOne);
-            }
-
-            private RelationshipBuilder BuildRelationship<TPrincipalEntity, TDependentEntity>(
-                string navNameToPrincipal, string navNameToDependent, bool oneToOne)
-            {
-                var dependentType = ModelBuilder.Entity<TDependentEntity>().Metadata;
-                var principalType = ModelBuilder.Entity<TPrincipalEntity>().Metadata;
-
-                var navToDependent = principalType.Navigations.FirstOrDefault(e => e.Name == navNameToDependent);
-                var navToPrincipal = dependentType.Navigations.FirstOrDefault(e => e.Name == navNameToPrincipal);
-
-                // Find the associated FK on an already existing navigation, or create one by convention
-                // TODO: If FK isn't already specified, then creating the navigation should cause it to be found/created
-                // by convention, but this part of conventions is not done yet, so we do it here instead--kind of h.acky
-
-                var foreignKey = navToDependent != null
-                    ? navToDependent.ForeignKey
-                    : navToPrincipal != null
-                        ? navToPrincipal.ForeignKey
-                        : new ForeignKeyConvention().FindOrCreateForeignKey(principalType, dependentType, navNameToPrincipal, navNameToDependent, oneToOne);
-
-                if (navNameToDependent != null
-                    && navToDependent == null)
-                {
-                    navToDependent = principalType.AddNavigation(new Navigation(foreignKey, navNameToDependent, pointsToPrincipal: false));
-                }
-
-                if (navNameToPrincipal != null
-                    && navToPrincipal == null)
-                {
-                    navToPrincipal = dependentType.AddNavigation(new Navigation(foreignKey, navNameToPrincipal, pointsToPrincipal: true));
-                }
-
-                return new RelationshipBuilder(
-                    foreignKey, ModelBuilder, principalType, dependentType, navToPrincipal, navToDependent);
-            }
-
-            public class OneToManyBuilder<TRelatedEntity> : MetadataBuilder<ForeignKey, OneToManyBuilder<TRelatedEntity>>
-            {
-                private readonly RelationshipBuilder _builder;
-
-                internal OneToManyBuilder(RelationshipBuilder builder)
-                    : base(builder.Metadata, builder.ModelBuilder)
-                {
-                    _builder = builder;
-                }
-
-                public OneToManyBuilder<TRelatedEntity> ForeignKey(
-                    [NotNull] Expression<Func<TRelatedEntity, object>> foreignKeyExpression)
-                {
-                    Check.NotNull(foreignKeyExpression, "foreignKeyExpression");
-
-                    return new OneToManyBuilder<TRelatedEntity>(_builder.ForeignKey(foreignKeyExpression.GetPropertyAccessList()));
-                }
-
-                public OneToManyBuilder<TRelatedEntity> ReferencedKey(
-                    [NotNull] Expression<Func<TEntity, object>> keyExpression)
-                {
-                    Check.NotNull(keyExpression, "keyExpression");
-
-                    return new OneToManyBuilder<TRelatedEntity>(_builder.ReferencedKey(keyExpression.GetPropertyAccessList()));
-                }
-            }
-
-            public class ManyToOneBuilder<TRelatedEntity> : MetadataBuilder<ForeignKey, ManyToOneBuilder<TRelatedEntity>>
-            {
-                private readonly RelationshipBuilder _builder;
-
-                internal ManyToOneBuilder(RelationshipBuilder builder)
-                    : base(builder.Metadata, builder.ModelBuilder)
-                {
-                    _builder = builder;
-                }
-
-                public ManyToOneBuilder<TRelatedEntity> ForeignKey(
-                    [NotNull] Expression<Func<TEntity, object>> foreignKeyExpression)
-                {
-                    Check.NotNull(foreignKeyExpression, "foreignKeyExpression");
-
-                    return new ManyToOneBuilder<TRelatedEntity>(_builder.ForeignKey(foreignKeyExpression.GetPropertyAccessList()));
-                }
-
-                public ManyToOneBuilder<TRelatedEntity> ReferencedKey(
-                    [NotNull] Expression<Func<TRelatedEntity, object>> keyExpression)
-                {
-                    Check.NotNull(keyExpression, "keyExpression");
-
-                    return new ManyToOneBuilder<TRelatedEntity>(_builder.ReferencedKey(keyExpression.GetPropertyAccessList()));
-                }
-            }
-
-            public class OneToOneBuilder : MetadataBuilder<ForeignKey, OneToOneBuilder>
-            {
-                private readonly RelationshipBuilder _builder;
-
-                internal OneToOneBuilder(RelationshipBuilder builder)
-                    : base(builder.Metadata, builder.ModelBuilder)
-                {
-                    _builder = builder;
-                }
-
-                public OneToOneBuilder ForeignKey<TDependentEntity>(
-                    [NotNull] Expression<Func<TDependentEntity, object>> foreignKeyExpression)
-                {
-                    Check.NotNull(foreignKeyExpression, "foreignKeyExpression");
-
-                    if (ModelBuilder.Entity<TDependentEntity>().Metadata != _builder.DependentType)
-                    {
-                        _builder.Invert();
-                    }
-
-                    return new OneToOneBuilder(_builder.ForeignKey(foreignKeyExpression.GetPropertyAccessList()));
-                }
-
-                public OneToOneBuilder ReferencedKey<TPrincipalEntity>(
-                    [NotNull] Expression<Func<TPrincipalEntity, object>> keyExpression)
-                {
-                    Check.NotNull(keyExpression, "keyExpression");
-
-                    var builder = ModelBuilder.Entity<TPrincipalEntity>().Metadata == _builder.PrincipalType
-                        ? _builder
-                        : _builder.Invert().ForeignKey(new PropertyInfo[0]);
-
-                    return new OneToOneBuilder(builder.ReferencedKey(keyExpression.GetPropertyAccessList()));
-                }
-            }
-
-            internal class RelationshipBuilder
-                : MetadataBuilder<ForeignKey, RelationshipBuilder>
-            {
-                private EntityType _principalType;
-                private EntityType _dependentType;
-                private Navigation _navigationToPrincipal;
-                private Navigation _navigationToDependent;
-
-                public RelationshipBuilder(
-                    ForeignKey metadata, BasicModelBuilder modelBuilder,
-                    EntityType principalType, EntityType dependentType,
-                    Navigation navigationToPrincipal, Navigation navigationToDependent)
-                    : base(metadata, modelBuilder)
-                {
-                    _principalType = principalType;
-                    _dependentType = dependentType;
-                    _navigationToPrincipal = navigationToPrincipal;
-                    _navigationToDependent = navigationToDependent;
-                }
-
-                public EntityType PrincipalType
-                {
-                    get { return _principalType; }
-                }
-
-                public EntityType DependentType
-                {
-                    get { return _dependentType; }
-                }
-
-                public RelationshipBuilder Invert()
-                {
-                    var navigationToDependent = _navigationToDependent;
-                    _navigationToDependent = _navigationToPrincipal;
-                    _navigationToPrincipal = navigationToDependent;
-
-                    var dependentType = _dependentType;
-                    _dependentType = _principalType;
-                    _principalType = dependentType;
-
-                    if (_navigationToDependent != null)
-                    {
-                        _navigationToDependent.PointsToPrincipal = false;
-                    }
-
-                    if (_navigationToPrincipal != null)
-                    {
-                        _navigationToPrincipal.PointsToPrincipal = true;
-                    }
-
-                    return this;
-                }
-
-                public RelationshipBuilder ForeignKey(IList<PropertyInfo> propertyAccessList)
-                {
-                    var dependentProperties = propertyAccessList
-                        .Select(pi => _dependentType.TryGetProperty(pi.Name) ?? _dependentType.AddProperty(pi))
-                        .ToArray();
-
-                    if (Metadata.Properties.SequenceEqual(dependentProperties))
-                    {
-                        return this;
-                    }
-
-                    var newForeignKey = new ForeignKeyConvention().FindOrCreateForeignKey(
-                        _principalType,
-                        _dependentType,
-                        _navigationToPrincipal != null ? _navigationToPrincipal.Name : null,
-                        _navigationToDependent != null ? _navigationToDependent.Name : null,
-                        dependentProperties.Any() ? new[] { dependentProperties } : new Property[0][],
-                        Metadata.EntityType == _dependentType ? Metadata.ReferencedProperties : new Property[0],
-                        Metadata.IsUnique);
-
-                    ReplaceForeignKey(newForeignKey, Metadata.Properties.Except(dependentProperties));
-
-                    return new RelationshipBuilder(
-                        newForeignKey, ModelBuilder, _principalType, _dependentType, _navigationToPrincipal, _navigationToDependent);
-                }
-
-                public RelationshipBuilder ReferencedKey(IList<PropertyInfo> propertyAccessList)
-                {
-                    var principalProperties = propertyAccessList
-                        .Select(pi => _principalType.TryGetProperty(pi.Name) ?? _principalType.AddProperty(pi))
-                        .ToArray();
-
-                    if (Metadata.ReferencedProperties.SequenceEqual(principalProperties))
-                    {
-                        return this;
-                    }
-
-                    var newForeignKey = _dependentType.AddForeignKey(new Key(principalProperties), Metadata.Properties.ToArray());
-                    newForeignKey.IsUnique = Metadata.IsUnique;
-
-                    ReplaceForeignKey(newForeignKey, Enumerable.Empty<Property>());
-
-                    return new RelationshipBuilder(
-                        newForeignKey, ModelBuilder, _principalType, _dependentType, _navigationToPrincipal, _navigationToDependent);
-                }
-
-                private void ReplaceForeignKey(ForeignKey newForeignKey, IEnumerable<Property> propertiesToRemove)
-                {
-                    // TODO: Remove FK only if it was added by convention
-                    Metadata.EntityType.RemoveForeignKey(Metadata);
-
-                    // TODO: Remove property only if it was added by convention
-                    foreach (var property in propertiesToRemove)
-                    {
-                        // TODO: This check not needed once only removing properties added by convention
-                        var dependentPk = Metadata.EntityType.TryGetKey();
-                        if (dependentPk == null
-                            || !dependentPk.Properties.Contains(property))
-                        {
-                            Metadata.EntityType.RemoveProperty(property);
-                        }
-                    }
-
-                    if (_navigationToPrincipal != null)
-                    {
-                        _navigationToPrincipal.ForeignKey = newForeignKey;
-                    }
-
-                    if (_navigationToDependent != null)
-                    {
-                        _navigationToDependent.ForeignKey = newForeignKey;
-                    }
-                }
+                return new IndexBuilder(Builder.Index(indexExpression.GetPropertyAccessList()));
             }
         }
     }

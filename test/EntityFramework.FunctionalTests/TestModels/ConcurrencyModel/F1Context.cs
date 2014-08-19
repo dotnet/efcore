@@ -21,7 +21,7 @@ namespace ConcurrencyModel
         public DbSet<EngineSupplier> EngineSuppliers { get; set; }
 
         // TODO: convert to OnModelCreated
-        public static BasicModelBuilder CreateModel()
+        public static ModelBuilder CreateModel()
         {
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Linq;
 using Microsoft.Data.Entity.Metadata;
 using Northwind;
 
@@ -42,7 +43,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 {
                     b.Key(e => e.ProductID);
                     b.Property(c => c.ProductName);
-                    b.OneToMany(e => e.OrderDetails, e => e.Product);
                 });
 
             modelBuilder.Entity<Order>(ps =>
@@ -58,7 +58,16 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     b.Property(od => od.UnitPrice);
                     b.Property(od => od.Quantity);
                     b.Property(od => od.Discount);
+                    b.ForeignKey<Product>(od => od.ProductID);
                 });
+
+            // TODO: Use FAPIS when avail.
+            var productType = model.GetEntityType(typeof(Product));
+            var orderDetailType = model.GetEntityType(typeof(OrderDetail));
+
+            var productIdFk = orderDetailType.ForeignKeys.Single();
+            orderDetailType.AddNavigation(new Navigation(productIdFk, "Product", pointsToPrincipal: true));
+            productType.AddNavigation(new Navigation(productIdFk, "OrderDetails", pointsToPrincipal: false));
 
             return model;
         }

@@ -10,26 +10,6 @@ namespace Microsoft.Data.Entity.Relational
 {
     public class ApiExtensionsTest
     {
-        #region Fixture
-
-        public class Customer
-        {
-            public static PropertyInfo NameProperty = typeof(Customer).GetProperty("Name");
-
-            public int Id { get; set; }
-            public string Name { get; set; }
-        }
-
-        public class Order
-        {
-            public int OrderId { get; set; }
-
-            public int CustomerId { get; set; }
-            public Customer Customer { get; set; }
-        }
-
-        #endregion
-
         [Fact]
         public void Can_set_entity_table_name()
         {
@@ -197,6 +177,22 @@ namespace Microsoft.Data.Entity.Relational
             model.GetEntityType(typeof(Customer)).GetProperty("Name").SetColumnName("CustomerName");
 
             Assert.Equal("CustomerName", model.GetEntityType(typeof(Customer)).GetProperty("Name").ColumnName());
+        }
+
+        private class Customer
+        {
+            public static PropertyInfo NameProperty = typeof(Customer).GetProperty("Name");
+
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        private class Order
+        {
+            public int OrderId { get; set; }
+
+            public int CustomerId { get; set; }
+            public Customer Customer { get; set; }
         }
     }
 }

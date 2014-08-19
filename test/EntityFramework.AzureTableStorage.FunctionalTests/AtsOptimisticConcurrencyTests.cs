@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
             return new F1Context(_serviceProvider, options);
         }
 
-        private static IModel AddAtsMetadata(BasicModelBuilder builder, string tableSuffix)
+        private static IModel AddAtsMetadata(ModelBuilder builder, string tableSuffix)
         {
             builder.Entity<Chassis>(
                 b =>

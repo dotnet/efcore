@@ -101,7 +101,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
         public IModel CreateModel()
         {
             var model = new Model();
-            var builder = new BasicModelBuilder(model);
+            var builder = new ModelBuilder(model);
 
             builder.Entity<Branch>(b =>
                 {

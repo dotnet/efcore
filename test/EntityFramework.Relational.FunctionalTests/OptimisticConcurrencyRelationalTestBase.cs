@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
     {
         protected readonly string DatabaseName = "OptimisticConcurrencyTest";
 
-        public virtual Metadata.Model AddStoreMetadata(BasicModelBuilder modelBuilder)
+        public virtual Metadata.Model AddStoreMetadata(ModelBuilder modelBuilder)
         {
             var model = modelBuilder.Model;
 

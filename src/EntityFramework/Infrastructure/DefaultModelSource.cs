@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.Infrastructure
 
             foreach (var setInfo in _setFinder.FindSets(context))
             {
-                modelBuilder.GetOrAddEntity(setInfo.EntityType);
+                modelBuilder.Entity(setInfo.EntityType);
             }
 
             context.OnModelCreating(modelBuilder);

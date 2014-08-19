@@ -85,8 +85,10 @@
     <Compile Include="Identity\ValueGeneratorCacheTest.cs" />
     <Compile Include="Identity\ValueGeneratorPoolTest.cs" />
     <Compile Include="Identity\ValueGeneratorSelectorTest.cs" />
+    <Compile Include="Metadata\BasicModelBuilderTest.cs" />
     <Compile Include="Metadata\EntityTypeExtensionsTest.cs" />
     <Compile Include="Metadata\IndexTest.cs" />
+    <Compile Include="Metadata\MetadataBuilderTest.cs" />
     <Compile Include="Metadata\ModelConventions\ForeignKeyConventionTest.cs" />
     <Compile Include="Metadata\NavigationExtensionsTest.cs" />
     <Compile Include="QueryableExtensionsTest.cs" />

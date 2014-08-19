@@ -45,9 +45,9 @@ namespace Microsoft.Data.Entity.MonsterModel
         where TDriver : class, IDriver, new()
         where TLicense : class, ILicense, new()
     {
-        private readonly Action<BasicModelBuilder> _onModelCreating;
+        private readonly Action<ModelBuilder> _onModelCreating;
 
-        public MonsterContext(IServiceProvider serviceProvider, DbContextOptions options, Action<BasicModelBuilder> onModelCreating)
+        public MonsterContext(IServiceProvider serviceProvider, DbContextOptions options, Action<ModelBuilder> onModelCreating)
             : base(serviceProvider, options)
         {
             _onModelCreating = onModelCreating;
