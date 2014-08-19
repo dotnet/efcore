@@ -350,12 +350,13 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         {
             var sqlGenerator = new Mock<MigrationOperationSqlGenerator>(new RelationalTypeMapper()) { CallBase = true }.Object;
             sqlGenerator.Database = database ?? new DatabaseModel();
+            sqlGenerator.DatabaseModelModifier = new DatabaseModelModifier();
             return sqlGenerator;
         }
 
         private static SqlStatement Generate(MigrationOperation migrationOperation, DatabaseModel database = null)
         {
-            return CreateSqlGenerator(database).Generate(new[] { migrationOperation }).Single();
+            return CreateSqlGenerator(database).Generate(migrationOperation);
         }
     }
 }

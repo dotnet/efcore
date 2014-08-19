@@ -182,7 +182,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .GetUpMigrationOperations(context.Model.GetEntityType(typeof(Pegasus))
                     .GetProperty("Identifier"));
 
-            var sql = new SqlServerMigrationOperationSqlGenerator(new SqlServerTypeMapper())
+            var sql = new SqlServerMigrationOperationSqlGeneratorFactory().Create()
                 .Generate(operations);
 
             // TODO: Should be able to get relational connection without cast
