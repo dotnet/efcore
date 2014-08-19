@@ -2,7 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Linq;
+using System.Text;
+using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Model;
@@ -12,69 +13,6 @@ namespace Microsoft.Data.Entity.SQLite.Tests
 {
     public class SQLiteMigrationOperationSqlGeneratorTest
     {
-        [Fact]
-        public void FilterOperations_removes_add_foreign_key_when_corresponding_create_table()
-        {
-            var friendId = new Column("FriendId", typeof(long));
-            var id = new Column("Id", typeof(long));
-            var pony = new Table("Pony", new[] { id, friendId });
-            pony.AddForeignKey(new ForeignKey("BFFK", new[] { friendId }, new[] { id }));
-            var createTable = new CreateTableOperation(pony);
-            var addForeignKey = new AddForeignKeyOperation(
-                "Pony",
-                "BFFK",
-                new[] { "FriendId" },
-                "Pony",
-                new[] { "Id" },
-                false);
-            var operations = new MigrationOperation[] { createTable, addForeignKey };
-            var generator = CreateGenerator();
-
-            var result = generator.FilterOperations(operations);
-
-            Assert.Equal(new[] { createTable }, result);
-        }
-
-        [Fact]
-        public void FilterOperations_preserves_add_foreign_key_when_create_table_but_no_fk()
-        {
-            var createTable = new CreateTableOperation(
-                new Table(
-                    "Pony",
-                    new[] { new Column("Id", typeof(long)), new Column("FriendId", typeof(long)) }));
-            var addForeignKey = new AddForeignKeyOperation(
-                "Pony",
-                "BFFK",
-                new[] { "FriendId" },
-                "Pony",
-                new[] { "Id" },
-                false);
-            var operations = new MigrationOperation[] { createTable, addForeignKey };
-            var generator = CreateGenerator();
-
-            var result = generator.FilterOperations(operations);
-
-            Assert.Equal(new MigrationOperation[] { createTable, addForeignKey }, result);
-        }
-
-        [Fact]
-        public void FilterOperations_preserves_add_foreign_key_when_no_create_table()
-        {
-            var addForeignKey = new AddForeignKeyOperation(
-                "Pony",
-                "BFFK",
-                new[] { "FriendId" },
-                "Pony",
-                new[] { "Id" },
-                false);
-            var operations = new MigrationOperation[] { addForeignKey };
-            var generator = CreateGenerator();
-
-            var result = generator.FilterOperations(operations);
-
-            Assert.Equal(new[] { addForeignKey }, result);
-        }
-
         [Fact]
         public void Generate_with_create_database_not_supported()
         {
@@ -167,11 +105,6 @@ namespace Microsoft.Data.Entity.SQLite.Tests
             Assert.Equal("DROP INDEX \"Ponydex\"", sql);
         }
 
-        private string Generate(MigrationOperation operation)
-        {
-            return CreateGenerator().Generate(new[] { operation }).First().Sql;
-        }
-
         [Fact]
         public void GenerateLiteral_with_byte_array_works()
         {
@@ -202,9 +135,54 @@ namespace Microsoft.Data.Entity.SQLite.Tests
             Assert.Equal("\"my.Pony\"", sql);
         }
 
-        private SQLiteMigrationOperationSqlGenerator CreateGenerator()
+        [Fact]
+        public void Generate_uses_preprocessor()
         {
-            return new SQLiteMigrationOperationSqlGenerator(new SQLiteTypeMapper());
+            var database = new DatabaseModel();
+            var column = new Column("Id", typeof(string)) { IsNullable = false };
+            var newColumn = new Column("Id", typeof(int)) { IsNullable = false };
+            var table
+                = new Table("A", new[] { column })
+                {
+                    PrimaryKey = new PrimaryKey("PK", new[] { column })
+                };
+
+            database.AddTable(table);
+
+            var operations
+                = new MigrationOperation[]
+                      {
+                          new AlterColumnOperation(table.Name, newColumn, isDestructiveChange: true)
+                      };
+
+            var stringBuilder = new StringBuilder();
+            foreach (var statement in CreateGenerator(database).Generate(operations))
+            {
+                stringBuilder.AppendLine(statement.Sql);
+            }
+
+            Assert.Equal(
+@"DROP TABLE ""A""
+CREATE TABLE ""A"" (
+    ""Id"" INT NOT NULL,
+    CONSTRAINT ""PK"" PRIMARY KEY (""Id"")
+)
+",
+                stringBuilder.ToString());
+        }
+
+        private static string Generate(MigrationOperation operation, DatabaseModel database = null)
+        {
+            return CreateGenerator().Generate(operation).Sql;
+        }
+
+        private static SQLiteMigrationOperationSqlGenerator CreateGenerator(DatabaseModel database = null)
+        {
+            return new SQLiteMigrationOperationSqlGenerator(new SQLiteTypeMapper())
+                {
+                    Database = database ?? new DatabaseModel(),
+                    DatabaseModelModifier = new DatabaseModelModifier()
+                };
         }
     }
 }

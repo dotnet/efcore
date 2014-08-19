@@ -58,6 +58,7 @@
     <Compile Include="Query\SQLiteSqlQueryGenerator.cs" />
     <Compile Include="SQLiteBatchExecutor.cs" />
     <Compile Include="SQLiteDataStoreServices.cs" />
+    <Compile Include="SQLiteMigrationOperationPreProcessor.cs" />
     <Compile Include="SQLiteMigrationOperationSqlGeneratorFactory.cs" />
     <Compile Include="SQLiteMigrator.cs" />
     <Compile Include="SQLiteModificationCommandBatchFactory.cs" />

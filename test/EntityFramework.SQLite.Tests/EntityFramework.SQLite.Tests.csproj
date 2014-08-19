@@ -58,6 +58,7 @@
     <Compile Include="..\Shared\ApiConsistencyTestBase.cs" />
     <Compile Include="..\EntityFramework.Relational.Tests\SqlGeneratorTestBase.cs" />
     <Compile Include="SQLiteDbContextOptionsExtensionsTest.cs" />
+    <Compile Include="SQLiteMigrationOperationPreProcessorTest.cs" />
     <Compile Include="SQLiteMigrationOperationSqlGeneratorTest.cs" />
     <Compile Include="SQLiteSqlGeneratorTest.cs" />
     <Compile Include="SQLiteValueGeneratorSelectorTest.cs" />

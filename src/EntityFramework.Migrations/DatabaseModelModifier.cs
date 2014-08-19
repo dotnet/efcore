@@ -1,8 +1,10 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Migrations.Utilities;
 using Microsoft.Data.Entity.Relational;
@@ -15,6 +17,25 @@ namespace Microsoft.Data.Entity.Migrations
     // This is related to additional validation in the database model.
     public class DatabaseModelModifier : MigrationOperationVisitor<DatabaseModel>
     {
+        public virtual void Modify([NotNull] DatabaseModel databaseModel, [NotNull] IEnumerable<MigrationOperation> migrationOperations)
+        {
+            Check.NotNull(databaseModel, "databaseModel");
+            Check.NotNull(migrationOperations, "migrationOperations");
+
+            foreach (var operation in migrationOperations)
+            {
+                Modify(databaseModel, operation);
+            }   
+        }
+
+        public virtual void Modify([NotNull] DatabaseModel databaseModel, [NotNull] MigrationOperation operation)
+        {
+            Check.NotNull(databaseModel, "databaseModel");
+            Check.NotNull(operation, "operation");
+
+            operation.Accept(this, databaseModel);
+        }
+
         public override void Visit(CreateSequenceOperation createSequenceOperation, DatabaseModel databaseModel)
         {
             Check.NotNull(createSequenceOperation, "createSequenceOperation");

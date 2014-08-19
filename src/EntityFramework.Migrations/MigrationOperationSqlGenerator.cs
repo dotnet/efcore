@@ -73,10 +73,17 @@ namespace Microsoft.Data.Entity.Migrations
         {
             Check.NotNull(migrationOperations, "migrationOperations");
 
-            return migrationOperations.SelectMany(Generate);
+            foreach (var operation in migrationOperations)
+            {
+                var statement = Generate(operation);
+
+                _databaseModelModifier.Modify(_database, operation);
+
+                yield return statement;
+            }
         }
 
-        public virtual IEnumerable<SqlStatement> Generate([NotNull] MigrationOperation operation)
+        public virtual SqlStatement Generate([NotNull] MigrationOperation operation)
         {
             Check.NotNull(operation, "operation");
 
@@ -84,13 +91,8 @@ namespace Microsoft.Data.Entity.Migrations
 
             operation.GenerateSql(this, builder);
 
-            if (DatabaseModelModifier != null)
-            {
-                operation.Accept(DatabaseModelModifier, Database);
-            }
-
             // TODO: Should we support implementations of Generate that output more than one SQL statement?
-            yield return new SqlStatement(builder.ToString());
+            return new SqlStatement(builder.ToString());
         }
 
         public virtual void Generate([NotNull] CreateDatabaseOperation createDatabaseOperation, [NotNull] IndentedStringBuilder stringBuilder)

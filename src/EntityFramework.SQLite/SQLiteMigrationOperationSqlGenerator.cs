@@ -26,30 +26,15 @@ namespace Microsoft.Data.Entity.SQLite
         {
             Check.NotNull(migrationOperations, "migrationOperations");
 
-            return base.Generate(FilterOperations(migrationOperations.ToArray()));
-        }
+            var preProcessor = new SQLiteMigrationOperationPreProcessor();
+            var preProcessorContext = new SQLiteMigrationOperationPreProcessor.Context(this);
 
-        // Internal for testing
-        protected internal virtual IEnumerable<MigrationOperation> FilterOperations(
-            IEnumerable<MigrationOperation> operations)
-        {
-            var createTableOperations = operations.OfType<CreateTableOperation>().ToArray();
-
-            foreach (var operation in operations)
+            foreach (var operation in migrationOperations)
             {
-                // Remove add foreign key operations with corresponding create table operations
-                // TODO: Consider making this more robust. (E.g. Handle interim drops and renames)
-                var addForeignKeyOperation = operation as AddForeignKeyOperation;
-                if (addForeignKeyOperation != null
-                    && createTableOperations.Any(
-                        o => o.Table.Name == addForeignKeyOperation.TableName
-                             && o.Table.ForeignKeys.Any(k => k.Name == addForeignKeyOperation.ForeignKeyName)))
-                {
-                    continue;
-                }
-
-                yield return operation;
+                operation.Accept(preProcessor, preProcessorContext);
             }
+
+            return preProcessorContext.Statements;
         }
 
         public override void Generate(
