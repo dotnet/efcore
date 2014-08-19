@@ -41,6 +41,9 @@
     <PackageReference Include="System.Data.Common">
       <TargetFramework>net451</TargetFramework>
     </PackageReference>
+    <PackageReference Include="Microsoft.Framework.ConfigurationModel">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
     <PackageReference Include="System.Data.SqlClient">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
