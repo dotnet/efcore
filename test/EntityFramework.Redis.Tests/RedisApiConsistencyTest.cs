@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace Microsoft.Data.Entity.Redis
 {
-    public class ApiConsistencyTest : ApiConsistencyTestBase
+    public class RedisApiConsistencyTest : ApiConsistencyTestBase
     {
         protected override Assembly TargetAssembly
         {

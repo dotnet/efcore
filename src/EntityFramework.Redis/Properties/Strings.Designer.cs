@@ -75,7 +75,7 @@ namespace Microsoft.Data.Entity.Redis
         }
 
         /// <summary>
-        /// Cannot decode property of name '{0}' with type '{1}'.
+        /// Cannot decode property of name '{0}' of type '{1}' on EntityType '{2}'.
         /// </summary>
         internal static string UnableToDecodeProperty
         {
@@ -83,11 +83,11 @@ namespace Microsoft.Data.Entity.Redis
         }
 
         /// <summary>
-        /// Cannot decode property of name '{0}' with type '{1}'.
+        /// Cannot decode property of name '{0}' of type '{1}' on EntityType '{2}'.
         /// </summary>
-        internal static string FormatUnableToDecodeProperty(object p0, object p1)
+        internal static string FormatUnableToDecodeProperty(object p0, object p1, object p2)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("UnableToDecodeProperty"), p0, p1);
+            return string.Format(CultureInfo.CurrentCulture, GetString("UnableToDecodeProperty"), p0, p1, p2);
         }
 
         /// <summary>

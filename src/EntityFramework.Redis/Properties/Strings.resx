@@ -130,7 +130,7 @@
     <value>Primary Key value for Entity '{0}', Property '{1}' cannot be null.</value>
   </data>
   <data name="UnableToDecodeProperty" xml:space="preserve">
-    <value>Cannot decode property of name '{0}' with type '{1}'.</value>
+    <value>Cannot decode property of name '{0}' of type '{1}' on EntityType '{2}'.</value>
   </data>
   <data name="UnableToUpdate" xml:space="preserve">
     <value>Cannot update entity of type '{0}' with key '{1}' because the key does not exist in the Primary Key Index for that entity.</value>

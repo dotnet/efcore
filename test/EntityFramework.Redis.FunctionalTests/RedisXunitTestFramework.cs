@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.Redis
             }
             catch (Exception)
             {
-                // do not let exceptions starting server prevent XunitTestExecutor from being created
+                // do not let exceptions starting server prevent XunitTestFrameworkExecutor from being created
             }
         }
 
@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.Redis
                 }
                 catch (Exception)
                 {
-                    // do not let exceptions stopping server prevent XunitTestExecutor from being disposed
+                    // do not let exceptions stopping server prevent XunitTestFrameworkExecutor from being disposed
                 }
 
                 _isDisposed = true;
