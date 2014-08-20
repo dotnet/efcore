@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         public static Task<SqlServerTestDatabase> Northwind()
         {
             return new SqlServerTestDatabase()
-                .CreateShared(NorthwindDatabaseName, () => CreateDatabaseIfNotExistsAsync(NorthwindDatabaseName, scriptPath: @"..\..\..\Northwind.sql")); // relative from bin/<config>
+                .CreateShared(NorthwindDatabaseName, () => CreateDatabaseIfNotExistsAsync(NorthwindDatabaseName, scriptPath: @"..\..\Northwind.sql")); // relative from bin/<config>
         }
 
         public static string NorthwindConnectionString
