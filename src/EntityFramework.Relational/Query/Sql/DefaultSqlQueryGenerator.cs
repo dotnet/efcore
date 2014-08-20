@@ -60,7 +60,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             }
             else if (selectExpression.IsProjectStar)
             {
-                _sql.Append(selectExpression.SubqueryAlias)
+                _sql.Append(DelimitIdentifier(selectExpression.SubqueryAlias))
                     .Append(".*");
             }
             else
@@ -80,7 +80,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
                 _sql.AppendLine()
                     .Append(") AS ")
-                    .Append(selectExpression.SubqueryAlias);
+                    .Append(DelimitIdentifier(selectExpression.SubqueryAlias));
             }
             else if (selectExpression.Tables.Any())
             {
@@ -147,7 +147,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
             _sql.Append(DelimitIdentifier(tableExpression.Table))
                 .Append(" AS ")
-                .Append(tableExpression.Alias);
+                .Append(DelimitIdentifier(tableExpression.Alias));
 
             return tableExpression;
         }
@@ -159,7 +159,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             _sql.Append("CROSS JOIN ")
                 .Append(DelimitIdentifier(crossJoinExpression.Table))
                 .Append(" AS ")
-                .Append(crossJoinExpression.Alias);
+                .Append(DelimitIdentifier(crossJoinExpression.Alias));
 
             return crossJoinExpression;
         }
@@ -219,7 +219,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             _sql.Append("INNER JOIN ")
                 .Append(DelimitIdentifier(innerJoinExpression.Table))
                 .Append(" AS ")
-                .Append(innerJoinExpression.Alias)
+                .Append(DelimitIdentifier(innerJoinExpression.Alias))
                 .Append(" ON ");
 
             VisitExpression(innerJoinExpression.Predicate);
@@ -382,14 +382,14 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
         {
             Check.NotNull(columnExpression, "columnExpression");
 
-            _sql.Append(columnExpression.TableAlias)
+            _sql.Append(DelimitIdentifier(columnExpression.TableAlias))
                 .Append(".")
                 .Append(DelimitIdentifier(columnExpression.Name));
 
             if (columnExpression.Alias != null)
             {
                 _sql.Append(" AS ")
-                    .Append(columnExpression.Alias);
+                    .Append(DelimitIdentifier(columnExpression.Alias));
             }
 
             return columnExpression;
