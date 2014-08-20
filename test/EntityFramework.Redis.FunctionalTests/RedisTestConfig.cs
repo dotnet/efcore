@@ -82,8 +82,12 @@ namespace Microsoft.Data.Entity.Redis
         private static bool CanFindExistingRedisServer()
         {
             var process = Process.GetProcessesByName(FunctionalTestsRedisServerExeName).SingleOrDefault();
-            if (process == null)
+            if (process == null || process.HasExited)
             {
+                lock (_redisServerProcessLock)
+                {
+                    _redisServerProcess = null;
+                }
                 return false;
             }
 

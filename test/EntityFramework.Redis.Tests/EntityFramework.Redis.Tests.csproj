@@ -65,12 +65,12 @@
     <Compile Include="..\Shared\ApiConsistencyTestBase.cs">
       <Link>ApiConsistencyTestBase.cs</Link>
     </Compile>
-    <Compile Include="ApiConsistencyTest.cs" />
     <Compile Include="Query\QueryTestType.cs" />
     <Compile Include="Query\RedisQueryCompilationContextTests.cs" />
     <Compile Include="Query\RedisQueryContextTests.cs" />
     <Compile Include="Query\RedisQueryModelVisitorTests.cs" />
     <Compile Include="Query\RedisQueryTests.cs" />
+    <Compile Include="RedisApiConsistencyTest.cs" />
     <Compile Include="RedisDatabaseTests.cs" />
     <Compile Include="RedisDataStoreCreatorTests.cs" />
     <Compile Include="RedisDataStoreSourceTests.cs" />

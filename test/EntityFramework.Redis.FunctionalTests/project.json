@@ -5,6 +5,7 @@
   },
   "dependencies": {
     "EntityFramework.Redis": "",
+    "EntityFramework.FunctionalTests": "",
     "Microsoft.Framework.ConfigurationModel":"1.0.0-*",
     "Microsoft.Framework.ConfigurationModel.Xml": "1.0.0-*",
     "Microsoft.Framework.DependencyInjection": "1.0.0-*",

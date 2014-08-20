@@ -325,7 +325,7 @@ namespace Microsoft.Data.Entity.Redis
             foreach (var property in entityType.Properties)
             {
                 // Note: since null's are stored in the database as the absence of the column name in the hash
-                // need to insert null's into the objectArryay at the appropriate places.
+                // need to insert null's into the objectArray at the appropriate places.
                 RedisValue propertyRedisValue;
                 if (redisHashEntries.TryGetValue(property.Name, out propertyRedisValue))
                 {
@@ -357,7 +357,10 @@ namespace Microsoft.Data.Entity.Redis
                 ConstructRedisDataKeyName(entityType, primaryKey), fields);
             for (int i = 0; i < selectedPropertiesArray.Length; i++)
             {
-                results[i] = decoder(redisHashEntries[i], selectedPropertiesArray[i]);
+                results[i] =
+                    redisHashEntries[i].IsNull
+                        ? null
+                        : decoder(redisHashEntries[i], selectedPropertiesArray[i]);
             }
 
             return results;
@@ -403,7 +406,8 @@ namespace Microsoft.Data.Entity.Redis
                         "[" + string.Join(",", bytes.AsEnumerable()) + "]"));
             }
 
-            var propertyType = property.PropertyType;
+            var propertyType =
+                Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
 
             if (typeof(string) == propertyType)
             {
@@ -424,6 +428,10 @@ namespace Microsoft.Data.Entity.Redis
             else if (typeof(DateTime) == propertyType)
             {
                 return MaybeNullable<DateTime>(DateTime.Parse(value), property);
+            }
+            else if (typeof(Decimal) == propertyType)
+            {
+                return MaybeNullable<Decimal>(Convert.ToDecimal(value), property);
             }
             else if (typeof(Single) == propertyType)
             {
@@ -468,7 +476,8 @@ namespace Microsoft.Data.Entity.Redis
                         CultureInfo.InvariantCulture,
                         Strings.UnableToDecodeProperty,
                         property.Name,
-                        propertyType.FullName));
+                        propertyType.FullName,
+                        property.EntityType.Name));
             }
         }
 

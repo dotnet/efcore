@@ -12,27 +12,26 @@ namespace Microsoft.Data.Entity.Redis
 
         public SimpleTests(SimpleFixture fixture)
         {
-            _context = fixture.GetOrCreateContext();
-            _context.Database.EnsureCreated();
+            _context = fixture.CreateContext();
         }
 
         [Fact]
         public void Add_modify_and_delete_Customer()
         {
-            var cust = _context.Set<Customer>().Add(
-                new Customer
+            var simplePoco = _context.Set<SimplePoco>().Add(
+                new SimplePoco
                     {
-                        CustomerID = 100,
-                        Name = "A. Customer",
+                        PocoKey = 100,
+                        Name = "A. Name",
                     });
             var changes = _context.SaveChanges();
             Assert.Equal(1, changes);
 
-            cust.Name = "Updated Customer";
+            simplePoco.Name = "Updated Name";
             changes = _context.SaveChanges();
             Assert.Equal(1, changes);
 
-            _context.Set<Customer>().Remove(cust);
+            _context.Set<SimplePoco>().Remove(simplePoco);
             changes = _context.SaveChanges();
             Assert.Equal(1, changes);
         }
@@ -40,48 +39,48 @@ namespace Microsoft.Data.Entity.Redis
         [Fact]
         public void Get_customer_count()
         {
-            _context.Set<Customer>().Add(
-                new Customer
+            _context.Set<SimplePoco>().Add(
+                new SimplePoco
                 {
-                    CustomerID = 200,
-                    Name = "B. Customer",
+                    PocoKey = 200,
+                    Name = "B. Name",
                 });
             var changes = _context.SaveChanges();
             Assert.Equal(1, changes);
 
-            var custs =
-                from c in _context.Set<Customer>()
+            var simplePocos =
+                from c in _context.Set<SimplePoco>()
                 select c;
-            Assert.Equal(1, custs.Count(cust => cust.CustomerID == 200));
+            Assert.Equal(1, simplePocos.Count(cust => cust.PocoKey == 200));
         }
 
         [Fact]
         public void Get_customer_projection()
         {
-            _context.Set<Customer>().Add(
-                new Customer
+            _context.Set<SimplePoco>().Add(
+                new SimplePoco
                 {
-                    CustomerID = 300,
-                    Name = "C. Customer",
+                    PocoKey = 300,
+                    Name = "C. Name",
                 });
-            _context.Set<Customer>().Add(
-                new Customer
+            _context.Set<SimplePoco>().Add(
+                new SimplePoco
                 {
-                    CustomerID = 301,
-                    Name = "C. Customer the 2nd",
+                    PocoKey = 301,
+                    Name = "C. Name the 2nd",
                 });
             var changes = _context.SaveChanges();
             Assert.Equal(2, changes);
 
-            var custNames =
-                from cust in _context.Set<Customer>()
-                where (cust.CustomerID == 300 || cust.CustomerID == 301)
-                select cust.Name;
+            var simplePocoNames =
+                from simplePoco in _context.Set<SimplePoco>()
+                where (simplePoco.PocoKey == 300 || simplePoco.PocoKey == 301)
+                select simplePoco.Name;
 
-            var custNamesArray = custNames.ToArray();
-            Assert.Equal(2, custNamesArray.Length);
-            Assert.Equal("C. Customer", custNamesArray[0]);
-            Assert.Equal("C. Customer the 2nd", custNamesArray[1]);
+            var simplePocoNamesArray = simplePocoNames.ToArray();
+            Assert.Equal(2, simplePocoNamesArray.Length);
+            Assert.Equal("C. Name", simplePocoNamesArray[0]);
+            Assert.Equal("C. Name the 2nd", simplePocoNamesArray[1]);
         }
     }
 }
