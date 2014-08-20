@@ -347,7 +347,7 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        /// The source IQueryable doesn't implement IAsyncEnumerable{genericParameter}. Only sources that implement IAsyncEnumerable can be used for Entity Framework asynchronous operations.
+        /// The source IQueryable doesn't implement IAsyncEnumerable&lt;{genericParameter}&gt;. Only sources that implement IAsyncEnumerable can be used for Entity Framework asynchronous operations.
         /// </summary>
         internal static string IQueryableNotAsync
         {
@@ -355,7 +355,7 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        /// The source IQueryable doesn't implement IAsyncEnumerable{genericParameter}. Only sources that implement IAsyncEnumerable can be used for Entity Framework asynchronous operations.
+        /// The source IQueryable doesn't implement IAsyncEnumerable&lt;{genericParameter}&gt;. Only sources that implement IAsyncEnumerable can be used for Entity Framework asynchronous operations.
         /// </summary>
         internal static string FormatIQueryableNotAsync(object genericParameter)
         {
