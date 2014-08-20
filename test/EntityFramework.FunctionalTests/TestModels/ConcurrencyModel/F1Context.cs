@@ -26,6 +26,30 @@ namespace ConcurrencyModel
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
 
+            modelBuilder.Entity<Chassis>();
+            modelBuilder.Entity<Driver>();
+            modelBuilder.Entity<Engine>();
+            modelBuilder.Entity<Team>();
+            modelBuilder.Entity<Sponsor>();
+
+            var chassisType = model.GetEntityType(typeof(Chassis));
+            var driverType = model.GetEntityType(typeof(Driver));
+            var engineType = model.GetEntityType(typeof(Engine));
+            var teamType = model.GetEntityType(typeof(Team));
+            var sponsorType = model.GetEntityType(typeof(Sponsor));
+
+            // TODO: Remove when FAPI supports this
+            engineType.AddProperty("EngineSupplierId", typeof(int), shadowProperty: false, concurrencyToken: true);
+            engineType.AddProperty("Name", typeof(string), shadowProperty: false, concurrencyToken: true);
+            chassisType.AddProperty("Version", typeof(byte[]), shadowProperty: false, concurrencyToken: true)
+                .ValueGenerationOnSave = ValueGenerationOnSave.WhenInsertingAndUpdating;
+            driverType.AddProperty("Version", typeof(byte[]), shadowProperty: false, concurrencyToken: true)
+                .ValueGenerationOnSave = ValueGenerationOnSave.WhenInsertingAndUpdating;
+            teamType.AddProperty("Version", typeof(byte[]), shadowProperty: false, concurrencyToken: true)
+                .ValueGenerationOnSave = ValueGenerationOnSave.WhenInsertingAndUpdating;
+            sponsorType.AddProperty("Version", typeof(byte[]), shadowProperty: false, concurrencyToken: true)
+                .ValueGenerationOnSave = ValueGenerationOnSave.WhenInsertingAndUpdating;
+
             // TODO: Uncomment when complex types are supported
             //builder.ComplexType<Location>();
             modelBuilder.Entity<Chassis>(b => b.Key(c => c.TeamId));
@@ -119,13 +143,6 @@ namespace ConcurrencyModel
             // TODO: Complex type
             // .Property(t => t.Details);
 
-            var chassisType = model.GetEntityType(typeof(Chassis));
-            var driverType = model.GetEntityType(typeof(Driver));
-            var engineType = model.GetEntityType(typeof(Engine));
-            var gearboxType = model.GetEntityType(typeof(Gearbox));
-            var teamType = model.GetEntityType(typeof(Team));
-            var sponsorType = model.GetEntityType(typeof(Sponsor));
-
             // TODO: Sponsor * <-> * Team
 
             // TODO: Remove once temporary keys can be overridden
@@ -134,16 +151,6 @@ namespace ConcurrencyModel
 
             // TODO: Remove when FAPI supports this
             teamType.GetProperty("EngineId").IsNullable = true;
-            engineType.AddProperty("EngineSupplierId", typeof(int), shadowProperty: false, concurrencyToken: true);
-            engineType.AddProperty("Name", typeof(string), shadowProperty: false, concurrencyToken: true);
-            chassisType.AddProperty("Version", typeof(byte[]), shadowProperty: false, concurrencyToken: true)
-                .ValueGenerationOnSave = ValueGenerationOnSave.WhenInsertingAndUpdating;
-            driverType.AddProperty("Version", typeof(byte[]), shadowProperty: false, concurrencyToken: true)
-                .ValueGenerationOnSave = ValueGenerationOnSave.WhenInsertingAndUpdating;
-            teamType.AddProperty("Version", typeof(byte[]), shadowProperty: false, concurrencyToken: true)
-                .ValueGenerationOnSave = ValueGenerationOnSave.WhenInsertingAndUpdating;
-            sponsorType.AddProperty("Version", typeof(byte[]), shadowProperty: false, concurrencyToken: true)
-                .ValueGenerationOnSave = ValueGenerationOnSave.WhenInsertingAndUpdating;
 
             return modelBuilder;
         }
