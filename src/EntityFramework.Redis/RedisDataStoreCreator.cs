@@ -31,7 +31,8 @@ namespace Microsoft.Data.Entity.Redis
 
         public override async Task<bool> EnsureDeletedAsync(IModel model, CancellationToken cancellationToken = default(CancellationToken))
         {
-            await _database.Value.FlushDatabaseAsync(cancellationToken);
+            await _database.Value.FlushDatabaseAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+
             return true;
         }
 

@@ -45,9 +45,10 @@ namespace Microsoft.Data.Entity.Relational
 
         public override async Task<bool> EnsureDeletedAsync(IModel model, CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (await ExistsAsync(cancellationToken))
+            if (await ExistsAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false))
             {
-                await DeleteAsync(cancellationToken);
+                await DeleteAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+
                 return true;
             }
             return false;
@@ -77,16 +78,18 @@ namespace Microsoft.Data.Entity.Relational
         {
             Check.NotNull(model, "model");
 
-            if (!await ExistsAsync(cancellationToken))
+            if (!await ExistsAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false))
             {
-                await CreateAsync(cancellationToken);
-                await CreateTablesAsync(model, cancellationToken);
+                await CreateAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+                await CreateTablesAsync(model, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+
                 return true;
             }
 
-            if (!await HasTablesAsync(cancellationToken))
+            if (!await HasTablesAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false))
             {
-                await CreateTablesAsync(model, cancellationToken);
+                await CreateTablesAsync(model, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+
                 return true;
             }
 

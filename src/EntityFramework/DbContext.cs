@@ -132,7 +132,7 @@ namespace Microsoft.Data.Entity
 
             try
             {
-                return await stateManager.SaveChangesAsync(cancellationToken);
+                return await stateManager.SaveChangesAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
             }
             catch (Exception ex)
             {
@@ -176,7 +176,10 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(entity, "entity");
 
-            await Configuration.StateManager.GetOrCreateEntry(entity).SetEntityStateAsync(EntityState.Added, cancellationToken).ConfigureAwait(false);
+            await Configuration.StateManager
+                .GetOrCreateEntry(entity)
+                .SetEntityStateAsync(EntityState.Added, cancellationToken)
+                .ConfigureAwait(continueOnCapturedContext: false);
 
             return entity;
         }

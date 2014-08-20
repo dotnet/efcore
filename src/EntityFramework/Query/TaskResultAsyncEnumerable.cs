@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.Query
 
                 if (!_moved)
                 {
-                    await _task;
+                    await _task.ConfigureAwait(continueOnCapturedContext: false);
 
                     return (_moved = true);
                 }

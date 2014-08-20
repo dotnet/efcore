@@ -126,13 +126,13 @@ namespace Microsoft.Data.Entity.Relational.Update
                 var commandIndex = 0;
                 try
                 {
-                    using (var reader = await storeCommand.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false))
+                    using (var reader = await storeCommand.ExecuteReaderAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false))
                     {
                         do
                         {
                             var tableModification = ModificationCommands[commandIndex];
 
-                            if (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+                            if (await reader.ReadAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false))
                             {
                                 if (tableModification.RequiresResultPropagation)
                                 {
@@ -162,7 +162,7 @@ namespace Microsoft.Data.Entity.Relational.Update
 
                             commandIndex++;
                         }
-                        while (await reader.NextResultAsync(cancellationToken).ConfigureAwait(false));
+                        while (await reader.NextResultAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false));
                     }
                 }
                 catch (DbUpdateException)

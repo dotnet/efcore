@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             Check.NotNull(connection, "connection");
 
             var rowsAffected = 0;
-            await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+            await connection.OpenAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
             RelationalTransaction startedTransaction = null;
             try
             {
@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                         _context,
                         Logger,
                         cancellationToken: cancellationToken)
-                        .ConfigureAwait(false);
+                        .ConfigureAwait(continueOnCapturedContext: false);
                 }
 
                 if (startedTransaction != null)

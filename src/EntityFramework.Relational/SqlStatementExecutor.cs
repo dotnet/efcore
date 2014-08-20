@@ -29,7 +29,8 @@ namespace Microsoft.Data.Entity.Relational
                     {
                         foreach (var statement in statements)
                         {
-                            await CreateCommand(connection, transaction, statement).ExecuteNonQueryAsync(cancellationToken);
+                            await CreateCommand(connection, transaction, statement).ExecuteNonQueryAsync(cancellationToken)
+                                    .ConfigureAwait(continueOnCapturedContext: false);
                         }
                         return Task.FromResult<object>(null);
                     },
@@ -63,12 +64,12 @@ namespace Microsoft.Data.Entity.Relational
             var connectionWasOpen = connection.State == ConnectionState.Open;
             if (!connectionWasOpen)
             {
-                await connection.OpenAsync(cancellationToken);
+                await connection.OpenAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
             }
 
             try
             {
-                return await action();
+                return await action().ConfigureAwait(continueOnCapturedContext: false);
             }
             finally
             {

@@ -45,9 +45,10 @@ namespace Microsoft.Data.Entity.AzureTableStorage
                 .Select(type => new DeleteTableRequest(new AtsTable(type.TableName())))
                 .Select(request => _connection.ExecuteRequestAsync(request, cancellationToken: cancellationToken))
                 .ToList();
-            await Task.WhenAll(tasks);
+
+            await Task.WhenAll(tasks).ConfigureAwait(continueOnCapturedContext: false);
+
             return tasks.Any(t => t.Result);
-            ;
         }
 
         public override bool EnsureCreated([NotNull] IModel model)
@@ -71,7 +72,9 @@ namespace Microsoft.Data.Entity.AzureTableStorage
                 .Select(type => new CreateTableRequest(new AtsTable(type.TableName())))
                 .Select(request => _connection.ExecuteRequestAsync(request, cancellationToken: cancellationToken))
                 .ToList();
-            await Task.WhenAll(tasks);
+
+            await Task.WhenAll(tasks).ConfigureAwait(continueOnCapturedContext: false);
+
             return tasks.Any(t => t.Result);
         }
     }

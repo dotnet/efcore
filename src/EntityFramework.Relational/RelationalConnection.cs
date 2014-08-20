@@ -124,7 +124,7 @@ namespace Microsoft.Data.Entity.Relational
                 throw new InvalidOperationException(Strings.FormatTransactionAlreadyStarted());
             }
 
-            await OpenAsync(cancellationToken);
+            await OpenAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
             return BeginTransactionWithNoPreconditions(isolationLevel);
         }
@@ -175,7 +175,7 @@ namespace Microsoft.Data.Entity.Relational
         {
             if (_openedCount == 0)
             {
-                await _connection.Value.OpenAsync(cancellationToken);
+                await _connection.Value.OpenAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
             }
             _openedCount++;
         }

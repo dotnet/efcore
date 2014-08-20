@@ -264,7 +264,7 @@ namespace Microsoft.Data.Entity.Query
                 {
                     try
                     {
-                        return await _inner.MoveNext();
+                        return await _inner.MoveNext().ConfigureAwait(continueOnCapturedContext: false);
                     }
                     catch (Exception ex)
                     {

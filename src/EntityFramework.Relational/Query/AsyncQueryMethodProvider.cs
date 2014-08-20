@@ -78,7 +78,8 @@ namespace Microsoft.Data.Entity.Relational.Query
                     var hasNext
                         = await (_reader == null
                             ? InitializeAndReadAsync(cancellationToken)
-                            : _reader.ReadAsync(cancellationToken));
+                            : _reader.ReadAsync(cancellationToken))
+                                .ConfigureAwait(continueOnCapturedContext: false);
 
                     if (!hasNext)
                     {
@@ -91,15 +92,17 @@ namespace Microsoft.Data.Entity.Relational.Query
 
                 private async Task<bool> InitializeAndReadAsync(CancellationToken cancellationToken)
                 {
-                    await _enumerable._connection.OpenAsync(cancellationToken);
+                    await _enumerable._connection
+                        .OpenAsync(cancellationToken)
+                        .ConfigureAwait(continueOnCapturedContext: false);
 
                     _command = _enumerable._commandBuilder.Build(_enumerable._connection);
 
                     _enumerable._logger.WriteSql(_command.CommandText);
 
-                    _reader = await _command.ExecuteReaderAsync(cancellationToken);
+                    _reader = await _command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
-                    return await _reader.ReadAsync(cancellationToken);
+                    return await _reader.ReadAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
                 }
 
                 public T Current

@@ -126,7 +126,7 @@ namespace Microsoft.Data.Entity.Redis
                         break;
                 }
 
-                if (await transaction.ExecuteAsync())
+                if (await transaction.ExecuteAsync().ConfigureAwait(continueOnCapturedContext: false))
                 {
                     entitiesProcessed = stateEntries.Count;
                 }
@@ -198,7 +198,8 @@ namespace Microsoft.Data.Entity.Redis
             }
 
             var connection = (RedisConnection)Configuration.Connection;
-            await UnderlyingServer.FlushDatabaseAsync(connection.Database);
+
+            await UnderlyingServer.FlushDatabaseAsync(connection.Database).ConfigureAwait(continueOnCapturedContext: false);
         }
 
         private void AddInsertEntryCommands(ITransaction transaction, StateEntry stateEntry)

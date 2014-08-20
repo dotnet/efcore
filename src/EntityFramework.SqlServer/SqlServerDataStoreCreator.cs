@@ -51,7 +51,9 @@ namespace Microsoft.Data.Entity.SqlServer
         {
             using (var masterConnection = _connection.CreateMasterConnection())
             {
-                await _statementExecutor.ExecuteNonQueryAsync(masterConnection, null, CreateCreateOperations(), cancellationToken);
+                await _statementExecutor
+                    .ExecuteNonQueryAsync(masterConnection, null, CreateCreateOperations(), cancellationToken)
+                    .ConfigureAwait(continueOnCapturedContext: false);
                 ClearPool();
             }
         }
@@ -67,7 +69,9 @@ namespace Microsoft.Data.Entity.SqlServer
         {
             Check.NotNull(model, "model");
 
-            await _statementExecutor.ExecuteNonQueryAsync(_connection.DbConnection, _connection.DbTransaction, CreateSchemaCommands(model), cancellationToken);
+            await _statementExecutor
+                .ExecuteNonQueryAsync(_connection.DbConnection, _connection.DbTransaction, CreateSchemaCommands(model), cancellationToken)
+                .ConfigureAwait(continueOnCapturedContext: false);
         }
 
         public override bool HasTables()
@@ -77,7 +81,9 @@ namespace Microsoft.Data.Entity.SqlServer
 
         public override async Task<bool> HasTablesAsync(CancellationToken cancellationToken = new CancellationToken())
         {
-            return (int)(await _statementExecutor.ExecuteScalarAsync(_connection.DbConnection, _connection.DbTransaction, CreateHasTablesCommand(), cancellationToken)) != 0;
+            return (int)(await _statementExecutor
+                .ExecuteScalarAsync(_connection.DbConnection, _connection.DbTransaction, CreateHasTablesCommand(), cancellationToken)
+                .ConfigureAwait(continueOnCapturedContext: false)) != 0;
         }
 
         private IEnumerable<SqlStatement> CreateSchemaCommands(IModel model)
@@ -139,7 +145,7 @@ namespace Microsoft.Data.Entity.SqlServer
             {
                 try
                 {
-                    await _connection.OpenAsync(cancellationToken);
+                    await _connection.OpenAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
                     _connection.Close();
                     return true;
                 }
@@ -200,7 +206,9 @@ namespace Microsoft.Data.Entity.SqlServer
 
             using (var masterConnection = _connection.CreateMasterConnection())
             {
-                await _statementExecutor.ExecuteNonQueryAsync(masterConnection, null, CreateDropCommands(), cancellationToken);
+                await _statementExecutor
+                    .ExecuteNonQueryAsync(masterConnection, null, CreateDropCommands(), cancellationToken)
+                    .ConfigureAwait(continueOnCapturedContext: false);
             }
         }
 
