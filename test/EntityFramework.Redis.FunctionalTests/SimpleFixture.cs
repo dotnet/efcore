@@ -6,7 +6,7 @@ using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.Redis
 {
-    public class SimpleFixture : BaseClassFixture, IDisposable
+    public class SimpleFixture : BaseClassFixture
     {
         public override IModel CreateModel()
         {
@@ -20,11 +20,6 @@ namespace Microsoft.Data.Entity.Redis
                 });
 
             return model;
-        }
-
-        void IDisposable.Dispose()
-        {
-            RedisTestConfig.StopRedisServer();
         }
     }
 

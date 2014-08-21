@@ -12,7 +12,7 @@
     "Xunit.KRunner": "1.0.0-*"
   },
   "commands": {
-    "do_not_test_using_k": "Xunit.KRunner"
+    "test": "Xunit.KRunner"
   },
   "frameworks": {
     "net45": {
