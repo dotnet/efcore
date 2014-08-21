@@ -292,7 +292,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         [Fact]
         public void Can_create_foreign_key_value_based_on_dependent_values()
         {
-            var entityType = _model.GetEntityType("Banana");
+            var entityType = _model.GetEntityType(typeof(Banana).FullName);
             var foreignKey = entityType.ForeignKeys.Single();
 
             var entry = CreateStateEntry();
@@ -307,7 +307,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         [Fact]
         public void Can_create_foreign_key_value_based_on_principal_end_values()
         {
-            var entityType = _model.GetEntityType("Banana");
+            var entityType = _model.GetEntityType(typeof(Banana).FullName);
             var foreignKey = entityType.ForeignKeys.Single();
 
             var entry = CreateStateEntry();
@@ -334,7 +334,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         [Fact]
         public void Can_create_composite_foreign_key_value_based_on_dependent_values()
         {
-            var entityType = _model.GetEntityType("SomeMoreDependentEntity");
+            var entityType = _model.GetEntityType(typeof(SomeMoreDependentEntity).FullName);
             var foreignKey = entityType.ForeignKeys.Single();
 
             var entry = CreateStateEntry(new SomeMoreDependentEntity());
@@ -350,7 +350,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         [Fact]
         public void Can_create_composite_foreign_key_value_based_on_principal_end_values()
         {
-            var dependentType = _model.GetEntityType("SomeMoreDependentEntity");
+            var dependentType = _model.GetEntityType(typeof(SomeMoreDependentEntity).FullName);
             var foreignKey = dependentType.ForeignKeys.Single();
 
             var entry = CreateStateEntry(new SomeDependentEntity());

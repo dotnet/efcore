@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             var configuration = TestHelpers.CreateContextConfiguration(model);
 
             var entity = new SomeEntity();
-            var entry = CreateStateEntry(configuration, model.GetEntityType("SomeEntity"), entity);
+            var entry = CreateStateEntry(configuration, model.GetEntityType(typeof(SomeEntity).FullName), entity);
 
             Assert.Same(entity, entry.Entity);
         }
@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         public void Can_set_and_get_property_value_from_CLR_object()
         {
             var model = BuildModel();
-            var entityType = model.GetEntityType("SomeEntity");
+            var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
             var keyProperty = entityType.GetProperty("Id");
             var nonKeyProperty = entityType.GetProperty("Name");
             var configuration = TestHelpers.CreateContextConfiguration(model);
@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         public void Asking_for_entity_instance_causes_it_to_be_materialized()
         {
             var model = BuildModel();
-            var entityType = model.GetEntityType("SomeEntity");
+            var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
             var configuration = TestHelpers.CreateContextConfiguration(model);
 
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
@@ -61,7 +61,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         public void All_original_values_can_be_accessed_for_entity_that_does_no_notifiction()
         {
             var model = BuildModel();
-            var entityType = model.GetEntityType("SomeEntity");
+            var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
 
             AllOriginalValuesTest(model, entityType);
         }
@@ -70,7 +70,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         public void All_original_values_can_be_accessed_for_entity_that_does_changed_only_notifictions_if_eager_values_on()
         {
             var model = BuildModel();
-            var entityType = model.GetEntityType("ChangedOnlyEntity");
+            var entityType = model.GetEntityType(typeof(ChangedOnlyEntity).FullName);
             entityType.UseLazyOriginalValues = false;
 
             AllOriginalValuesTest(model, entityType);
@@ -98,18 +98,18 @@ namespace Microsoft.Data.Entity.ChangeTracking
         public void Original_values_are_not_tracked_unless_needed_by_default_for_properties_of_full_notifications_entity()
         {
             var model = BuildModel();
-            var entityType = model.GetEntityType("FullNotificationEntity");
+            var entityType = model.GetEntityType(typeof(FullNotificationEntity).FullName);
             var idProperty = entityType.GetProperty("Id");
             var configuration = TestHelpers.CreateContextConfiguration(model);
 
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
 
             Assert.Equal(
-                Strings.FormatOriginalValueNotTracked("Id", "FullNotificationEntity"),
+                Strings.FormatOriginalValueNotTracked("Id", typeof(FullNotificationEntity).FullName),
                 Assert.Throws<InvalidOperationException>(() => entry.OriginalValues[idProperty] = 1).Message);
 
             Assert.Equal(
-                Strings.FormatOriginalValueNotTracked("Id", "FullNotificationEntity"),
+                Strings.FormatOriginalValueNotTracked("Id", typeof(FullNotificationEntity).FullName),
                 Assert.Throws<InvalidOperationException>(() => entry.OriginalValues[idProperty]).Message);
         }
 

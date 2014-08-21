@@ -210,7 +210,7 @@ namespace Microsoft.Data.Entity.Utilities
             model.Populate(entityTypeA);
 
             Assert.Equal(
-                Strings.FormatCircularDependency("A -> A"),
+                Strings.FormatCircularDependency(typeof(A).FullName + " -> " + typeof(A).FullName),
                 Assert.Throws<InvalidOperationException>(() => model.TopologicalSort()).Message);
         }
 
@@ -234,7 +234,7 @@ namespace Microsoft.Data.Entity.Utilities
             model.Populate(entityTypeC, entityTypeA, entityTypeB);
 
             Assert.Equal(
-                Strings.FormatCircularDependency("A -> B -> A"),
+                Strings.FormatCircularDependency(typeof(A).FullName + " -> " + typeof(B).FullName + " -> " + typeof(A).FullName),
                 Assert.Throws<InvalidOperationException>(() => model.TopologicalSort()).Message);
         }
 
@@ -259,7 +259,7 @@ namespace Microsoft.Data.Entity.Utilities
             model.Populate(entityTypeA, entityTypeB, entityTypeC);
 
             Assert.Equal(
-                Strings.FormatCircularDependency("A -> C -> B -> A"),
+                Strings.FormatCircularDependency(typeof(A).FullName + " -> " + typeof(C).FullName + " -> " + typeof(B).FullName + " -> " + typeof(A).FullName),
                 Assert.Throws<InvalidOperationException>(() => model.TopologicalSort()).Message);
         }
 
@@ -295,7 +295,7 @@ namespace Microsoft.Data.Entity.Utilities
             model.Populate(entityTypeA, entityTypeB, entityTypeC, entityTypeD, entityTypeE);
 
             Assert.Equal(
-                Strings.FormatCircularDependency("A -> C -> B -> A"),
+                Strings.FormatCircularDependency(typeof(A).FullName + " -> " + typeof(C).FullName + " -> " + typeof(B).FullName + " -> " + typeof(A).FullName),
                 Assert.Throws<InvalidOperationException>(() => model.TopologicalSort()).Message);
         }
 
@@ -320,7 +320,7 @@ namespace Microsoft.Data.Entity.Utilities
             model.Populate(entityTypeA, entityTypeB, entityTypeC);
 
             Assert.Equal(
-                Strings.FormatCircularDependency("C -> B -> C -> A"),
+                Strings.FormatCircularDependency(typeof(C).FullName + " -> " + typeof(B).FullName + " -> " + typeof(C).FullName + " -> " + typeof(A).FullName),
                 Assert.Throws<InvalidOperationException>(() => model.TopologicalSort()).Message);
         }
     }

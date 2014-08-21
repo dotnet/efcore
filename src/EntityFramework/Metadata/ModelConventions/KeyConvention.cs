@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             if (!keyProperties.Any())
             {
                 keyProperties = entityType.Properties.Where(
-                    p => string.Equals(p.Name, entityType.Name + KeySuffix, StringComparison.OrdinalIgnoreCase));
+                    p => string.Equals(p.Name, entityType.SimpleName + KeySuffix, StringComparison.OrdinalIgnoreCase));
             }
 
             if (keyProperties.Count() > 1)

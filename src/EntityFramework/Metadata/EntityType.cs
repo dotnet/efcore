@@ -14,9 +14,9 @@ using Microsoft.Data.Entity.Utilities;
 namespace Microsoft.Data.Entity.Metadata
 {
     [DebuggerDisplay("{Name,nq}")]
-    public class EntityType : NamedMetadataBase, IEntityType
+    public class EntityType : MetadataBase, IEntityType
     {
-        private readonly Type _type;
+        private readonly object _typeOrName;
         private readonly LazyRef<List<ForeignKey>> _foreignKeys = new LazyRef<List<ForeignKey>>(() => new List<ForeignKey>());
         private readonly LazyRef<List<Navigation>> _navigations = new LazyRef<List<Navigation>>(() => new List<Navigation>());
         private readonly LazyRef<List<Index>> _indexes = new LazyRef<List<Index>>(() => new List<Index>());
@@ -27,6 +27,7 @@ namespace Microsoft.Data.Entity.Metadata
         private int _shadowPropertyCount;
         private int _originalValueCount;
         private bool _useLazyOriginalValues = true;
+        private static readonly char[] _simpleNameChars = new []{'.', '+'};
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -42,9 +43,10 @@ namespace Microsoft.Data.Entity.Metadata
         /// </summary>
         /// <param name="type">The .NET entity type that this metadata object represents.</param>
         public EntityType([NotNull] Type type)
-            : this(Check.NotNull(type, "type").Name)
         {
-            _type = type;
+            Check.NotNull(type, "type");
+
+            _typeOrName = type;
             _useLazyOriginalValues = CanUseLazyOriginalValues();
         }
 
@@ -54,15 +56,43 @@ namespace Microsoft.Data.Entity.Metadata
         /// </summary>
         /// <param name="name">The name of the shadow-state entity type.</param>
         public EntityType([NotNull] string name)
-            : base(Check.NotEmpty(name, "name"))
         {
+            Check.NotEmpty(name, "name");
+
+            _typeOrName = name;
         }
 
         public virtual Model Model { get; internal set; }
 
         public virtual Type Type
         {
-            get { return _type; }
+            get { return _typeOrName as Type; }
+        }
+
+        public virtual string Name
+        {
+            get
+            {
+                var type = _typeOrName as Type;
+                return type != null ? type.FullName : (string)_typeOrName;
+            }
+        }
+
+        public virtual string SimpleName
+        {
+            get
+            {
+                var type = _typeOrName as Type;
+                if (type != null)
+                {
+                    return type.Name;
+                }
+
+                var fullName = (string)_typeOrName;
+                var lastDot = fullName.LastIndexOfAny(_simpleNameChars);
+                
+                return lastDot > 0 ? fullName.Substring(lastDot + 1) : fullName;
+            }
         }
 
         public virtual Key GetKey()
@@ -404,7 +434,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual bool HasClrType
         {
-            get { return _type != null; }
+            get { return Type != null; }
         }
 
         public virtual bool UseLazyOriginalValues
@@ -424,9 +454,9 @@ namespace Microsoft.Data.Entity.Metadata
 
         private bool CanUseLazyOriginalValues()
         {
-            return _type == null
-                   || (typeof(INotifyPropertyChanging).GetTypeInfo().IsAssignableFrom(_type.GetTypeInfo())
-                       && typeof(INotifyPropertyChanged).GetTypeInfo().IsAssignableFrom(_type.GetTypeInfo()));
+            return Type == null
+                   || (typeof(INotifyPropertyChanging).GetTypeInfo().IsAssignableFrom(Type.GetTypeInfo())
+                       && typeof(INotifyPropertyChanged).GetTypeInfo().IsAssignableFrom(Type.GetTypeInfo()));
         }
 
         public virtual IReadOnlyList<Property> Properties

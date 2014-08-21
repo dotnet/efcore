@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                 Assert.Equal(1, historyModel1.EntityTypes.Count);
 
                 var entityType = historyModel1.EntityTypes[0];
-                Assert.Equal("HistoryRow", entityType.Name);
+                Assert.Equal("Microsoft.Data.Entity.Migrations.Infrastructure.HistoryRepository+HistoryRow", entityType.Name);
                 Assert.Equal(2, entityType.Properties.Count);
                 Assert.Equal(new[] { "ContextKey", "MigrationId" }, entityType.Properties.Select(p => p.Name));
             }

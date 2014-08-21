@@ -7,7 +7,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public abstract class NamedMetadataBase : MetadataBase
+    public abstract class PropertyBase : MetadataBase, IPropertyBase
     {
         private readonly string _name;
 
@@ -16,11 +16,11 @@ namespace Microsoft.Data.Entity.Metadata
         ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
         ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
         /// </summary>
-        protected NamedMetadataBase()
+        protected PropertyBase()
         {
         }
 
-        protected NamedMetadataBase([NotNull] string name)
+        protected PropertyBase([NotNull] string name)
         {
             Check.NotEmpty(name, "name");
 
@@ -30,6 +30,14 @@ namespace Microsoft.Data.Entity.Metadata
         public virtual string Name
         {
             get { return _name; }
+        }
+
+        // TODO: Consider properties that are part of some complex/value type
+        public virtual EntityType EntityType { get; [param: CanBeNull] set; }
+
+        IEntityType IPropertyBase.EntityType
+        {
+            get { return EntityType; }
         }
     }
 }

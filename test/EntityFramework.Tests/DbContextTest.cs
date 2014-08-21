@@ -329,7 +329,7 @@ namespace Microsoft.Data.Entity
             using (var context = new EarlyLearningCenter())
             {
                 Assert.Equal(
-                    new[] { "Category", "Product", "TheGu" },
+                    new[] { typeof(Category).FullName, typeof(Product).FullName, typeof(TheGu).FullName },
                     context.Model.EntityTypes.Select(e => e.Name).ToArray());
 
                 var categoryType = context.Model.GetEntityType(typeof(Category));
@@ -363,7 +363,7 @@ namespace Microsoft.Data.Entity
             using (var context = new EarlyLearningCenter(options))
             {
                 Assert.Equal(
-                    new[] { "TheGu" },
+                    new[] { typeof(TheGu).FullName },
                     context.Model.EntityTypes.Select(e => e.Name).ToArray());
             }
         }

@@ -72,7 +72,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                              ?? new[]
                                  {
                                      dependentType.AddProperty(
-                                         (navigationToPrincipal ?? principalType.Name) + "Id",
+                                         (navigationToPrincipal ?? principalType.SimpleName) + "Id",
                                          // TODO: Make nullable
                                          principalType.GetKey().Properties.First().PropertyType,
                                          shadowProperty: true,
@@ -104,11 +104,11 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                 }
             }
 
-            candidateNames.Add((principalType.Name + "Id"));
+            candidateNames.Add((principalType.SimpleName + "Id"));
 
             if (pkPropertyName != null)
             {
-                candidateNames.Add((principalType.Name + pkPropertyName));
+                candidateNames.Add((principalType.SimpleName + pkPropertyName));
             }
 
             var matches = new List<Property[]>();
