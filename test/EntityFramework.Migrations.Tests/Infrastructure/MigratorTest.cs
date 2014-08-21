@@ -576,7 +576,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                             }
                     };
 
-            var migrator = MockMigrator(databaseMigrations, localMigrations, databaseExists: true, historyRepositoryExists: false);
+            var migrator = MockMigrator(databaseMigrations, localMigrations, historyRepositoryExists: false);
 
             var sqlStatements = migrator.GenerateUpdateDatabaseSql();
 
@@ -584,35 +584,6 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             Assert.Equal("Create__MigrationHistorySql", sqlStatements[0].Sql);
             Assert.Equal("CreateMyTable1Sql", sqlStatements[1].Sql);
             Assert.Equal("Migration1InsertSql", sqlStatements[2].Sql);
-        }
-
-        [Fact]
-        public void GenerateUpdateDatabaseSql_when_database_does_not_exist()
-        {
-            var databaseMigrations = new MigrationMetadata[0];
-            var localMigrations
-                = new[]
-                    {
-                        new MigrationMetadata("000000000000001_Migration1")
-                            {
-                                TargetModel = new Metadata.Model(),
-                                UpgradeOperations
-                                    = new MigrationOperation[]
-                                        {
-                                            new CreateTableOperation(new Table("MyTable1"))
-                                        }
-                            }
-                    };
-
-            var migrator = MockMigrator(databaseMigrations, localMigrations, databaseExists: false, historyRepositoryExists: false);
-
-            var sqlStatements = migrator.GenerateUpdateDatabaseSql();
-
-            Assert.Equal(4, sqlStatements.Count);
-            Assert.Equal("CreateMyDatabaseSql", sqlStatements[0].Sql);
-            Assert.Equal("Create__MigrationHistorySql", sqlStatements[1].Sql);
-            Assert.Equal("CreateMyTable1Sql", sqlStatements[2].Sql);
-            Assert.Equal("Migration1InsertSql", sqlStatements[3].Sql);
         }
 
         [Fact]
@@ -680,10 +651,16 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         }
 
         [Fact]
-        public void UpdateDatabase_executes_generated_sql_statements()
+        public void UpdateDatabase_creates_database_and_executes_generated_sql_statements()
         {
             var contextConfigurationMock = new Mock<DbContextConfiguration>();
+            var databaseMock = new Mock<RelationalDatabase>(contextConfigurationMock.Object);
+            var connectionMock = new Mock<RelationalConnection>();
+
             contextConfigurationMock.SetupGet(cc => cc.Connection).Returns(new Mock<RelationalConnection>().Object);
+            contextConfigurationMock.SetupGet(cc => cc.Database).Returns(databaseMock.Object);
+            databaseMock.SetupGet(db => db.Connection).Returns(connectionMock.Object);
+            databaseMock.Setup(db => db.Exists()).Returns(false);
 
             var sqlStatementExecutorMock = new Mock<SqlStatementExecutor>();
             sqlStatementExecutorMock.Setup(sse => sse.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlStatement>>()))
@@ -705,7 +682,16 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             migratorMock.Setup(m => m.GenerateUpdateDatabaseSql(It.IsAny<string>())).Returns(new[] { new SqlStatement("GeneratedUpdateDatabaseSql") });
 
             migratorMock.Object.UpdateDatabase();
+
+            databaseMock.Verify(db => db.Exists(), Times.Once);
+            databaseMock.Verify(db => db.Create(), Times.Once);
+            sqlStatementExecutorMock.Verify(sse => sse.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlStatement>>()), Times.Once());
+
             migratorMock.Object.UpdateDatabase("TargetMigrationName");
+
+            databaseMock.Verify(db => db.Exists(), Times.Exactly(2));
+            databaseMock.Verify(db => db.Create(), Times.Exactly(2));
+            sqlStatementExecutorMock.Verify(sse => sse.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlStatement>>()), Times.Exactly(2));
         }
 
         private static void AssertCallback(DbConnection _, DbTransaction __, IEnumerable<SqlStatement> statements)
@@ -718,19 +704,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         private static DbMigrator MockMigrator(
             IReadOnlyList<IMigrationMetadata> databaseMigrations,
             IReadOnlyList<IMigrationMetadata> localMigrations,
-            bool databaseExists = true,
             bool historyRepositoryExists = true)
         {
             var contextConfigurationMock = new Mock<DbContextConfiguration>();
-            var databaseMock = new Mock<RelationalDatabase>(contextConfigurationMock.Object);
-            var connectionMock = new Mock<RelationalConnection>();
-            var dbConnectionMock = new Mock<DbConnection> { CallBase = true };
-
-            databaseMock.Setup(db => db.Exists()).Returns(databaseExists);
-            contextConfigurationMock.SetupGet(c => c.Database).Returns(databaseMock.Object);
-            databaseMock.SetupGet(c => c.Connection).Returns(connectionMock.Object);
-            connectionMock.SetupGet(c => c.DbConnection).Returns(dbConnectionMock.Object);
-            dbConnectionMock.SetupGet(c => c.Database).Returns("MyDatabase");
 
             return
                 new Mock<DbMigrator>(
@@ -816,11 +792,6 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         private class FakeSqlGenerator: MigrationOperationVisitor<IndentedStringBuilder>
         {
             public static readonly FakeSqlGenerator Instance = new FakeSqlGenerator();
-
-            public override void Visit(CreateDatabaseOperation operation, IndentedStringBuilder builder)
-            {
-                builder.Append("Create").Append(operation.DatabaseName).Append("Sql");
-            }
 
             public override void Visit(CreateTableOperation operation, IndentedStringBuilder builder)
             {

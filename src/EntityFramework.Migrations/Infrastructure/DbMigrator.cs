@@ -150,9 +150,14 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
         protected virtual void UpdateDatabase(IReadOnlyList<SqlStatement> sqlStatements)
         {
-            var connection = (RelationalConnection)ContextConfiguration.Connection;
+            var database = (RelationalDatabase)ContextConfiguration.Database;
 
-            SqlExecutor.ExecuteNonQuery(connection.DbConnection, connection.DbTransaction, sqlStatements);
+            if (!database.Exists())
+            {
+                database.Create();
+            }
+
+            SqlExecutor.ExecuteNonQuery(database.Connection.DbConnection, database.Connection.DbTransaction, sqlStatements);
         }
 
         public virtual IReadOnlyList<SqlStatement> GenerateUpdateDatabaseSql()
@@ -221,20 +226,6 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             bool removeHistoryRepository)
         {
             var sqlStatements = new List<SqlStatement>();
-
-            var relationalDatabase = ContextConfiguration.Database.AsRelational();
-            if (!relationalDatabase.Exists())
-            {
-                var databaseName = relationalDatabase.Connection.DbConnection.Database;
-                var ddlSqlGenerator = DdlSqlGeneratorFactory.Create();
-
-                sqlStatements.AddRange(
-                    ddlSqlGenerator.Generate(
-                        new[]
-                            {
-                                new CreateDatabaseOperation(databaseName)
-                            }));
-            }
 
             if (!historyRepositoryExists
                 && upgradeIndexes.Count > 0)
