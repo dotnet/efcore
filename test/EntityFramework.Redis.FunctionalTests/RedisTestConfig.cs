@@ -6,7 +6,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using StackExchange.Redis;
 
 namespace Microsoft.Data.Entity.Redis
 {
@@ -95,37 +94,6 @@ namespace Microsoft.Data.Entity.Redis
             return true;
         }
 
-        private static bool CanConnectToExistingRedisServer(int numRetries, int sleepMillisecsBetweenRetries = 0)
-        {
-            var canConnectToServer = false;
-            for (var retryCount = 0; retryCount < numRetries; retryCount++)
-            {
-                try
-                {
-                    using (var connectionMultiplexer =
-                        ConnectionMultiplexer.Connect("127.0.0.1:" + RedisPort))
-                    {
-                        if (connectionMultiplexer.IsConnected)
-                        {
-                            canConnectToServer = true;
-                            break;
-                        }
-                    }
-                }
-                catch (RedisConnectionException)
-                {
-                    // exception connecting to server - try again
-                }
-
-                if (sleepMillisecsBetweenRetries > 0)
-                {
-                    Thread.Sleep(sleepMillisecsBetweenRetries);
-                }
-            }
-
-            return canConnectToServer;
-        }
-
         private static bool TryStartRedisServer()
         {
             var serverPath = GetUserProfileServerPath();
@@ -207,10 +175,6 @@ namespace Microsoft.Data.Entity.Redis
                         {
                             throw new Exception("Got null process trying to  start Redis Server at path "
                                                 + tempRedisServerFullPath + " with Arguments '" + serverArgs + "', working dir = " + tempPath);
-                        }
-                        else if (!CanConnectToExistingRedisServer(5, 2000))
-                        {
-                            throw new Exception("Cannot connect to started Redis server process PID " + _redisServerProcess.Id);
                         }
                     }
                 }

@@ -41,12 +41,38 @@ namespace Microsoft.Data.Entity.Redis
         private const string DataHashNameFormat = // 1st arg is EntityType, 2nd is value of the PK
             DataPrefix + "{0}" + KeyNameSeparator + "{1}";
 
-        private IDatabase _redisDatabase;
-        private IServer _redisServer;
+        private readonly object _connectionLock = new object();
+        private readonly static Dictionary<string, ConnectionMultiplexer> _multiplexers =  // key = ConfigurationOptions.ToString()
+            new Dictionary<string, ConnectionMultiplexer>();
+        private volatile IDatabase _redisDatabase;
+        private volatile IServer _redisServer;
 
         public RedisDatabase([NotNull] DbContextConfiguration configuration)
             : base(configuration)
         {
+        }
+
+        private ConnectionMultiplexer ConnectionMultiplexer
+        {
+            get
+            {
+                ConnectionMultiplexer multiplexer;
+                lock (_connectionLock)
+                {
+                    var connection = (RedisConnection)Configuration.Connection;
+                    var configOptions = ConfigurationOptions.Parse(connection.ConnectionString);
+                    configOptions.AllowAdmin = true; // require Admin access for Server commands
+                    var configOptionsString = configOptions.ToString();
+                    if (!_multiplexers.TryGetValue(configOptionsString, out multiplexer))
+                    {
+                        multiplexer =
+                            _multiplexers[configOptionsString] =
+                                ConnectionMultiplexer.Connect(configOptions);
+                    }
+                }
+
+                return multiplexer;
+            }
         }
 
         public virtual IDatabase UnderlyingDatabase
@@ -55,11 +81,16 @@ namespace Microsoft.Data.Entity.Redis
             {
                 if (_redisDatabase == null)
                 {
-                    var connection = (RedisConnection)Configuration.Connection;
-                    var connectionMultiplexer =
-                        ConnectionMultiplexer.Connect(connection.ConnectionString);
-                    _redisDatabase =
-                        connectionMultiplexer.GetDatabase(connection.Database);
+                    var connectionMultiplexer = ConnectionMultiplexer;
+                    lock (_connectionLock)
+                    {
+                        if (_redisDatabase == null)
+                        {
+                            var connection = (RedisConnection)Configuration.Connection;
+                            _redisDatabase =
+                                connectionMultiplexer.GetDatabase(connection.Database);
+                        }
+                    }
                 }
 
                 return _redisDatabase;
@@ -75,13 +106,16 @@ namespace Microsoft.Data.Entity.Redis
             {
                 if (_redisServer == null)
                 {
-                    var connection = (RedisConnection)Configuration.Connection;
-                    var configOptions = ConfigurationOptions.Parse(connection.ConnectionString);
-                    configOptions.AllowAdmin = true; // require Admin access for e.g. FlushDatabase
-                    var connectionMultiplexer =
-                        ConnectionMultiplexer.Connect(configOptions);
-                    _redisServer =
-                        connectionMultiplexer.GetServer(connection.ConnectionString);
+                    var connectionMultiplexer = ConnectionMultiplexer;
+                    lock (_connectionLock)
+                    {
+                        if (_redisServer == null)
+                        {
+                            var connection = (RedisConnection)Configuration.Connection;
+                            _redisServer =
+                                connectionMultiplexer.GetServer(connection.ConnectionString);
+                        }
+                    }
                 }
 
                 return _redisServer;
