@@ -12,8 +12,6 @@ namespace Microsoft.Data.Entity.Redis
 
         public DbContext GetOrCreateContext()
         {
-            RedisTestConfig.GetOrStartServer();
-
             if (_context == null)
             {
                 var options = new DbContextOptions()
