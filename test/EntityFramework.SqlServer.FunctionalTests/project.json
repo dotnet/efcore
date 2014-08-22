@@ -1,18 +1,18 @@
 ﻿{
-  "dependencies": {
-    "EntityFramework.Relational.FunctionalTests" : "",
-    "EntityFramework.SqlServer": "",
-    "Xunit.KRunner": "1.0.0-*"
-  },
-  "commands": {
-    "test": "Xunit.KRunner"
-  },
-  "frameworks": {
-    "net451": {},
-    "k10": {
-      "dependencies": {
-        "System.Threading.ExecutionContext": "4.0.0.0"
-      }
+    "dependencies": {
+        "EntityFramework.Relational.FunctionalTests": "",
+        "EntityFramework.SqlServer": "",
+        "Xunit.KRunner": "1.0.0-*"
+    },
+    "commands": {
+        "test": "Xunit.KRunner"
+    },
+    "frameworks": {
+        "net451": { },
+        "k10": {
+            "dependencies": {
+                "System.Threading.ExecutionContext": "4.0.0.0"
+            }
+        }
     }
-  }
 }
