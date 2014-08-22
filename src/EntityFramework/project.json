@@ -1,48 +1,48 @@
 {
-  "version": "7.0.0-*",
-  "compilationOptions": {
-    "warningsAsErrors": true
-  },
-  "dependencies": {
-    "Ix-Async": "1.2.2",
-    "Microsoft.Bcl.Immutable": "1.1.18-beta-*",
-    "Microsoft.Framework.DependencyInjection": "1.0.0-*",
-    "Microsoft.Framework.Logging": "1.0.0-*",
-    "Remotion.Linq": "1.15.13.0"
-  },
-  "code": "**\\*.cs;..\\Shared\\*.cs",
-  "frameworks": {
-    "net45": {
-      "dependencies": {
-        "System.Collections": "",
-        "System.Linq.Expressions": "",
-        "System.ObjectModel": "",
-        "System.Runtime": ""
-      }
+    "version": "7.0.0-*",
+    "compilationOptions": {
+        "warningsAsErrors": true
     },
-    "k10": {
-      "dependencies": {
-        "System.ComponentModel": "4.0.0.0",
-        "System.Diagnostics.Contracts": "4.0.0.0",
-        "System.Diagnostics.Debug": "4.0.10.0",
-        "System.Linq": "4.0.0.0",
-        "System.Linq.Queryable": "4.0.0.0",
-        "System.ObjectModel": "4.0.10.0",
-        "System.Reflection.Extensions": "4.0.0.0",        
-        "System.Resources.ResourceManager": "4.0.0.0",
-        "System.Runtime.Extensions": "4.0.10.0",
-        "System.Threading": "4.0.0.0"
-      }
+    "dependencies": {
+        "Ix-Async": "1.2.2",
+        "Microsoft.Bcl.Immutable": "1.1.22-beta",
+        "Microsoft.Framework.DependencyInjection": "1.0.0-*",
+        "Microsoft.Framework.Logging": "1.0.0-*",
+        "Remotion.Linq": "1.15.13.0"
     },
-    ".NETPortable,Version=v4.6,Profile=Profile44": {
-      "dependencies": {
-        "System.ComponentModel": "",
-        "System.Diagnostics.Contracts": "",
-        "System.Linq.Expressions": "",
-        "System.Linq.Queryable": "",
-        "System.ObjectModel": "",
-        "System.Reflection.Extensions": ""
-      }
+    "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
+    "frameworks": {
+        "net45": {
+            "dependencies": {
+                "System.Collections": "",
+                "System.Linq.Expressions": "",
+                "System.ObjectModel": "",
+                "System.Runtime": ""
+            }
+        },
+        "k10": {
+            "dependencies": {
+                "System.ComponentModel": "4.0.0.0",
+                "System.Diagnostics.Contracts": "4.0.0.0",
+                "System.Diagnostics.Debug": "4.0.10.0",
+                "System.Linq": "4.0.0.0",
+                "System.Linq.Queryable": "4.0.0.0",
+                "System.ObjectModel": "4.0.10.0",
+                "System.Reflection.Extensions": "4.0.0.0",
+                "System.Resources.ResourceManager": "4.0.0.0",
+                "System.Runtime.Extensions": "4.0.10.0",
+                "System.Threading": "4.0.0.0"
+            }
+        },
+        ".NETPortable,Version=v4.6,Profile=Profile44": {
+            "dependencies": {
+                "System.ComponentModel": "",
+                "System.Diagnostics.Contracts": "",
+                "System.Linq.Expressions": "",
+                "System.Linq.Queryable": "",
+                "System.ObjectModel": "",
+                "System.Reflection.Extensions": ""
+            }
+        }
     }
-  }
 }
