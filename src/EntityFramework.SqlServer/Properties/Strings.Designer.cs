@@ -27,6 +27,22 @@ namespace Microsoft.Data.Entity.SqlServer
         }
 
         /// <summary>
+        /// The collection argument '{argumentName}' must contain at least one element.
+        /// </summary>
+        internal static string CollectionArgumentIsEmpty
+        {
+            get { return GetString("CollectionArgumentIsEmpty"); }
+        }
+
+        /// <summary>
+        /// The collection argument '{argumentName}' must contain at least one element.
+        /// </summary>
+        internal static string FormatCollectionArgumentIsEmpty(object argumentName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("CollectionArgumentIsEmpty", "argumentName"), argumentName);
+        }
+
+        /// <summary>
         /// The value for the configuration entry '{configurationKey}' is '{invalidValue}', but an integer is expected.
         /// </summary>
         internal static string IntegerConfigurationValueFormatError

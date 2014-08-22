@@ -1,9 +1,11 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.SqlServer.Utilities;
@@ -14,36 +16,71 @@ namespace Microsoft.Data.Entity.SqlServer
     {
         public override void AppendInsertOperation(
             StringBuilder commandStringBuilder,
-            SchemaQualifiedName schemaQualifiedName,
-            IReadOnlyList<ColumnModification> operations)
+            ModificationCommand command)
+        {
+            Check.NotNull(command, "command");
+
+            AppendBulkInsertOperation(commandStringBuilder, new[] { command });
+        }
+
+        public virtual ResultsGrouping AppendBulkInsertOperation(
+            [NotNull] StringBuilder commandStringBuilder,
+            [NotNull] IReadOnlyList<ModificationCommand> modificationCommands)
         {
             Check.NotNull(commandStringBuilder, "commandStringBuilder");
-            Check.NotNull(operations, "operations");
+            Check.NotEmpty(modificationCommands, "modificationCommands");
 
-            var writeOperations = operations.Where(o => o.IsWrite).ToArray();
-            var readOperations = operations.Where(o => o.IsRead).ToArray();
+            var schemaQualifiedName = modificationCommands[0].SchemaQualifiedName;
 
-            AppendInsertCommandHeader(commandStringBuilder, schemaQualifiedName, writeOperations);
-            if (readOperations.Length > 0)
+            // TODO: Support TPH
+            var defaultValuesOnly = !modificationCommands.First().ColumnModifications.Any(o => o.IsWrite);
+            var statementCount = defaultValuesOnly
+                ? modificationCommands.Count
+                : 1;
+            var valueSetCount = defaultValuesOnly
+                ? 1
+                : modificationCommands.Count;
+
+            for (int i = 0; i < statementCount; i++)
             {
-                AppendOutputClause(commandStringBuilder, readOperations);
-            }
-            AppendValues(commandStringBuilder, writeOperations);
-            commandStringBuilder.Append(BatchCommandSeparator).AppendLine();
+                var operations = modificationCommands[i].ColumnModifications;
+                var writeOperations = operations.Where(o => o.IsWrite).ToArray();
+                var readOperations = operations.Where(o => o.IsRead).ToArray();
 
-            if (readOperations.Length == 0)
-            {
-                AppendSelectAffectedCountCommand(commandStringBuilder, schemaQualifiedName);
+                AppendInsertCommandHeader(commandStringBuilder, schemaQualifiedName, writeOperations);
+                if (readOperations.Length > 0)
+                {
+                    AppendOutputClause(commandStringBuilder, readOperations);
+                }
+                AppendValuesHeader(commandStringBuilder, writeOperations);
+                AppendValues(commandStringBuilder, writeOperations);
+                for (int j = 1; j < valueSetCount; j++)
+                {
+                    commandStringBuilder.Append(",").AppendLine();
+                    AppendValues(commandStringBuilder, modificationCommands[j].ColumnModifications.Where(o => o.IsWrite).ToArray());
+                }
+                commandStringBuilder.Append(BatchCommandSeparator).AppendLine();
+
+                if (readOperations.Length == 0)
+                {
+                    AppendSelectAffectedCountCommand(commandStringBuilder, schemaQualifiedName);
+                }
             }
+
+            return defaultValuesOnly
+                ? ResultsGrouping.OneCommandPerResultSet
+                : ResultsGrouping.OneResultSet;
         }
 
         public override void AppendUpdateOperation(
             StringBuilder commandStringBuilder,
-            SchemaQualifiedName schemaQualifiedName,
-            IReadOnlyList<ColumnModification> operations)
+            ModificationCommand command)
         {
             Check.NotNull(commandStringBuilder, "commandStringBuilder");
-            Check.NotNull(operations, "operations");
+            Check.NotNull(command, "command");
+
+            var schemaQualifiedName = command.SchemaQualifiedName;
+            var operations = command.ColumnModifications;
 
             var writeOperations = operations.Where(o => o.IsWrite).ToArray();
             var conditionOperations = operations.Where(o => o.IsCondition).ToArray();
@@ -120,6 +157,12 @@ namespace Microsoft.Data.Entity.SqlServer
             Check.NotEmpty(identifier, "identifier");
 
             return identifier.Replace("]", "]]");
+        }
+
+        public enum ResultsGrouping
+        {
+            OneResultSet,
+            OneCommandPerResultSet
         }
     }
 }

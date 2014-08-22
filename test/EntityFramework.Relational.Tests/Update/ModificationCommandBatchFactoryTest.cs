@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
             factory.AddCommand(modificationCommandBatchMock.Object, mockModificationCommand);
 
-            modificationCommandBatchMock.Verify(mcb => mcb.AddCommand(mockModificationCommand, sqlGenerator));
+            modificationCommandBatchMock.Verify(mcb => mcb.AddCommand(mockModificationCommand));
         }
     }
 }

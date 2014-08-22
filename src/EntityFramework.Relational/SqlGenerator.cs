@@ -14,11 +14,12 @@ namespace Microsoft.Data.Entity.Relational
     {
         public virtual void AppendInsertOperation(
             [NotNull] StringBuilder commandStringBuilder,
-            SchemaQualifiedName schemaQualifiedName,
-            [NotNull] IReadOnlyList<ColumnModification> operations)
+            [NotNull] ModificationCommand command)
         {
-            Check.NotNull(commandStringBuilder, "commandStringBuilder");
-            Check.NotNull(operations, "operations");
+            Check.NotNull(command, "command");
+
+            var schemaQualifiedName = command.SchemaQualifiedName;
+            var operations = command.ColumnModifications;
 
             var writeOperations = operations.Where(o => o.IsWrite).ToArray();
             var readOperations = operations.Where(o => o.IsRead).ToArray();
@@ -39,11 +40,12 @@ namespace Microsoft.Data.Entity.Relational
 
         public virtual void AppendUpdateOperation(
             [NotNull] StringBuilder commandStringBuilder,
-            SchemaQualifiedName schemaQualifiedName,
-            [NotNull] IReadOnlyList<ColumnModification> operations)
+            [NotNull] ModificationCommand command)
         {
-            Check.NotNull(commandStringBuilder, "commandStringBuilder");
-            Check.NotNull(operations, "operations");
+            Check.NotNull(command, "command");
+
+            var schemaQualifiedName = command.SchemaQualifiedName;
+            var operations = command.ColumnModifications;
 
             var writeOperations = operations.Where(o => o.IsWrite).ToArray();
             var conditionOperations = operations.Where(o => o.IsCondition).ToArray();
@@ -65,13 +67,12 @@ namespace Microsoft.Data.Entity.Relational
 
         public virtual void AppendDeleteOperation(
             [NotNull] StringBuilder commandStringBuilder,
-            SchemaQualifiedName schemaQualifiedName,
-            [NotNull] IReadOnlyList<ColumnModification> operations)
+            [NotNull] ModificationCommand command)
         {
-            Check.NotNull(commandStringBuilder, "commandStringBuilder");
-            Check.NotNull(operations, "operations");
-
-            var conditionOperations = operations.Where(o => o.IsCondition).ToArray();
+            Check.NotNull(command, "command");
+            
+            var schemaQualifiedName = command.SchemaQualifiedName;
+            var conditionOperations = command.ColumnModifications.Where(o => o.IsCondition).ToArray();
 
             AppendDeleteCommand(commandStringBuilder, schemaQualifiedName, conditionOperations);
 
@@ -87,6 +88,7 @@ namespace Microsoft.Data.Entity.Relational
             Check.NotNull(writeOperations, "writeOperations");
 
             AppendInsertCommandHeader(commandStringBuilder, schemaQualifiedName, writeOperations);
+            AppendValuesHeader(commandStringBuilder, writeOperations);
             AppendValues(commandStringBuilder, writeOperations);
             commandStringBuilder.Append(BatchCommandSeparator).AppendLine();
         }
@@ -213,7 +215,7 @@ namespace Microsoft.Data.Entity.Relational
                 .Append(DelimitIdentifier(schemaQualifiedName));
         }
 
-        protected virtual void AppendValues(
+        protected virtual void AppendValuesHeader(
             [NotNull] StringBuilder commandStringBuilder,
             [NotNull] IReadOnlyList<ColumnModification> operations)
         {
@@ -221,17 +223,22 @@ namespace Microsoft.Data.Entity.Relational
             Check.NotNull(operations, "operations");
 
             commandStringBuilder.AppendLine();
+            commandStringBuilder.Append(operations.Count > 0 ? "VALUES " : "DEFAULT VALUES");
+        }
+
+        protected virtual void AppendValues(
+            [NotNull] StringBuilder commandStringBuilder,
+            [NotNull] IReadOnlyList<ColumnModification> operations)
+        {
+            Check.NotNull(commandStringBuilder, "commandStringBuilder");
+            Check.NotNull(operations, "operations");
+
             if (operations.Count > 0)
             {
                 commandStringBuilder
-                    .Append("VALUES (")
+                    .Append("(")
                     .AppendJoin(operations.Select(o => o.ParameterName))
                     .Append(")");
-            }
-            else
-            {
-                commandStringBuilder
-                    .Append("DEFAULT VALUES");
             }
         }
 

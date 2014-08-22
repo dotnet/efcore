@@ -18,9 +18,9 @@ namespace Microsoft.Data.Entity.Relational.Tests
         public void AppendDeleteOperation_creates_full_delete_command_text()
         {
             var stringBuilder = new StringBuilder();
-            var operations = CreateDeleteOperations(concurrencyToken: false);
+            var command = CreateDeleteCommand(false);
 
-            CreateSqlGenerator().AppendDeleteOperation(stringBuilder, new SchemaQualifiedName("Ducks", "dbo"), operations);
+            CreateSqlGenerator().AppendDeleteOperation(stringBuilder, command);
 
             Assert.Equal(
                 "DELETE FROM " + OpenDelimeter + "dbo" + CloseDelimeter + "." + OpenDelimeter + "Ducks" + CloseDelimeter + "" + Environment.NewLine +
@@ -33,12 +33,12 @@ namespace Microsoft.Data.Entity.Relational.Tests
         public void AppendDeleteOperation_creates_full_delete_command_text_with_concurrency_check()
         {
             var stringBuilder = new StringBuilder();
-            var operations = CreateDeleteOperations(concurrencyToken: true);
+            var command = CreateDeleteCommand(concurrencyToken: true);
 
-            CreateSqlGenerator().AppendDeleteOperation(stringBuilder, "Ducks", operations);
+            CreateSqlGenerator().AppendDeleteOperation(stringBuilder, command);
 
             Assert.Equal(
-                "DELETE FROM " + OpenDelimeter + "Ducks" + CloseDelimeter + "" + Environment.NewLine +
+                "DELETE FROM " + OpenDelimeter + "dbo" + CloseDelimeter + "." + OpenDelimeter + "Ducks" + CloseDelimeter + "" + Environment.NewLine +
                 "WHERE " + OpenDelimeter + "Id" + CloseDelimeter + " = @p0 AND " + OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + " = @p1;" + Environment.NewLine +
                 "SELECT " + RowsAffected + ";" + Environment.NewLine,
                 stringBuilder.ToString());
@@ -48,9 +48,9 @@ namespace Microsoft.Data.Entity.Relational.Tests
         public void AppendInsertOperation_appends_insert_and_select_and_where_if_store_generated_columns_exist()
         {
             var stringBuilder = new StringBuilder();
-            var operations = CreateInsertOperations(identityKey: true, computedProperty: true);
+            var command = CreateInsertCommand(identityKey: true, computedProperty: true);
 
-            CreateSqlGenerator().AppendInsertOperation(stringBuilder, new SchemaQualifiedName("Ducks", "dbo"), operations);
+            CreateSqlGenerator().AppendInsertOperation(stringBuilder, command);
 
             AppendInsertOperation_appends_insert_and_select_and_where_if_store_generated_columns_exist_verification(stringBuilder);
         }
@@ -70,12 +70,14 @@ namespace Microsoft.Data.Entity.Relational.Tests
         public void AppendInsertOperation_appends_insert_and_select_rowcount_if_no_store_generated_columns_exist_or_conditions_exist()
         {
             var stringBuilder = new StringBuilder();
-            var operations = CreateInsertOperations(identityKey: false, computedProperty: false);
+            var command = CreateInsertCommand(false, false);
 
-            CreateSqlGenerator().AppendInsertOperation(stringBuilder, "Ducks", operations);
+            CreateSqlGenerator().AppendInsertOperation(stringBuilder, command);
 
             Assert.Equal(
-                "INSERT INTO " + OpenDelimeter + "Ducks" + CloseDelimeter + " (" + OpenDelimeter + "Id" + CloseDelimeter + ", " + OpenDelimeter + "Name" + CloseDelimeter + ", " + OpenDelimeter + "Quacks" + CloseDelimeter + ", " + OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + ")" + Environment.NewLine +
+                "INSERT INTO " + OpenDelimeter + "dbo" + CloseDelimeter + "." + OpenDelimeter + "Ducks" + CloseDelimeter + " (" +
+                OpenDelimeter + "Id" + CloseDelimeter + ", " + OpenDelimeter + "Name" + CloseDelimeter + ", " + OpenDelimeter + "Quacks"
+                + CloseDelimeter + ", " + OpenDelimeter + "Concurrency" + "Token" + CloseDelimeter + ")" + Environment.NewLine +
                 "VALUES (@p0, @p1, @p2, @p3);" + Environment.NewLine +
                 "SELECT " + RowsAffected + ";" + Environment.NewLine,
                 stringBuilder.ToString());
@@ -85,9 +87,9 @@ namespace Microsoft.Data.Entity.Relational.Tests
         public void AppendInsertOperation_appends_insert_and_select_store_generated_columns_but_no_identity()
         {
             var stringBuilder = new StringBuilder();
-            var operations = CreateInsertOperations(identityKey: false, computedProperty: true);
+            var command = CreateInsertCommand(false, computedProperty: true);
 
-            CreateSqlGenerator().AppendInsertOperation(stringBuilder, "Ducks", operations);
+            CreateSqlGenerator().AppendInsertOperation(stringBuilder, command);
 
             AppendInsertOperation_appends_insert_and_select_store_generated_columns_but_no_identity_verification(stringBuilder);
         }
@@ -95,10 +97,12 @@ namespace Microsoft.Data.Entity.Relational.Tests
         protected virtual void AppendInsertOperation_appends_insert_and_select_store_generated_columns_but_no_identity_verification(StringBuilder stringBuilder)
         {
             Assert.Equal(
-                "INSERT INTO " + OpenDelimeter + "Ducks" + CloseDelimeter + " (" + OpenDelimeter + "Id" + CloseDelimeter + ", " + OpenDelimeter + "Name" + CloseDelimeter + ", " + OpenDelimeter + "Quacks" + CloseDelimeter + ", " + OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + ")" + Environment.NewLine +
+                "INSERT INTO " + OpenDelimeter + "dbo" + CloseDelimeter + "." + OpenDelimeter + "Ducks" + CloseDelimeter + " (" + OpenDelimeter + "Id" +
+                CloseDelimeter + ", " + OpenDelimeter + "Name" + CloseDelimeter + ", " + OpenDelimeter + "Quacks" + CloseDelimeter + ", " + OpenDelimeter +
+                "ConcurrencyToken" + CloseDelimeter + ")" + Environment.NewLine +
                 "VALUES (@p0, @p1, @p2, @p3);" + Environment.NewLine +
                 "SELECT " + OpenDelimeter + "Computed" + CloseDelimeter + "" + Environment.NewLine +
-                "FROM " + OpenDelimeter + "Ducks" + CloseDelimeter + "" + Environment.NewLine +
+                "FROM " + OpenDelimeter + "dbo" + CloseDelimeter + "." + OpenDelimeter + "Ducks" + CloseDelimeter + "" + Environment.NewLine +
                 "WHERE " + RowsAffected + " = 1 AND " + OpenDelimeter + "Id" + CloseDelimeter + " = @p0;" + Environment.NewLine,
                 stringBuilder.ToString());
         }
@@ -107,9 +111,9 @@ namespace Microsoft.Data.Entity.Relational.Tests
         public void AppendInsertOperation_appends_insert_and_select_for_only_identity()
         {
             var stringBuilder = new StringBuilder();
-            var operations = CreateInsertOperations(identityKey: true, computedProperty: false);
+            var command = CreateInsertCommand(true, false);
 
-            CreateSqlGenerator().AppendInsertOperation(stringBuilder, "Ducks", operations);
+            CreateSqlGenerator().AppendInsertOperation(stringBuilder, command);
 
             AppendInsertOperation_appends_insert_and_select_for_only_identity_verification(stringBuilder);
         }
@@ -117,10 +121,11 @@ namespace Microsoft.Data.Entity.Relational.Tests
         protected virtual void AppendInsertOperation_appends_insert_and_select_for_only_identity_verification(StringBuilder stringBuilder)
         {
             Assert.Equal(
-                "INSERT INTO " + OpenDelimeter + "Ducks" + CloseDelimeter + " (" + OpenDelimeter + "Name" + CloseDelimeter + ", " + OpenDelimeter + "Quacks" + CloseDelimeter + ", " + OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + ")" + Environment.NewLine +
+                "INSERT INTO " + OpenDelimeter + "dbo" + CloseDelimeter + "." + OpenDelimeter + "Ducks" + CloseDelimeter + " (" + OpenDelimeter + "Name" +
+                CloseDelimeter + ", " + OpenDelimeter + "Quacks" + CloseDelimeter + ", " + OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + ")" + Environment.NewLine +
                 "VALUES (@p0, @p1, @p2);" + Environment.NewLine +
                 "SELECT " + OpenDelimeter + "Id" + CloseDelimeter + "" + Environment.NewLine +
-                "FROM " + OpenDelimeter + "Ducks" + CloseDelimeter + "" + Environment.NewLine +
+                "FROM " + OpenDelimeter + "dbo" + CloseDelimeter + "." + OpenDelimeter + "Ducks" + CloseDelimeter + "" + Environment.NewLine +
                 "WHERE " + RowsAffected + " = 1 AND " + OpenDelimeter + "Id" + CloseDelimeter + " = " + Identity + ";" + Environment.NewLine,
                 stringBuilder.ToString());
         }
@@ -129,9 +134,9 @@ namespace Microsoft.Data.Entity.Relational.Tests
         public void AppendInsertOperation_appends_insert_and_select_for_all_store_generated_columns()
         {
             var stringBuilder = new StringBuilder();
-            var operations = CreateInsertOperations(identityKey: true, computedProperty: true).Where(p => !p.IsWrite).ToArray();
+            var command = CreateInsertCommand(true, true, true);
 
-            CreateSqlGenerator().AppendInsertOperation(stringBuilder, "Ducks", operations);
+            CreateSqlGenerator().AppendInsertOperation(stringBuilder, command);
 
             AppendInsertOperation_appends_insert_and_select_for_all_store_generated_columns_verification(stringBuilder);
         }
@@ -139,10 +144,10 @@ namespace Microsoft.Data.Entity.Relational.Tests
         protected virtual void AppendInsertOperation_appends_insert_and_select_for_all_store_generated_columns_verification(StringBuilder stringBuilder)
         {
             Assert.Equal(
-                "INSERT INTO " + OpenDelimeter + "Ducks" + CloseDelimeter + "" + Environment.NewLine +
+                "INSERT INTO " + OpenDelimeter + "dbo" + CloseDelimeter + "." + OpenDelimeter + "Ducks" + CloseDelimeter + "" + Environment.NewLine +
                 "DEFAULT VALUES;" + Environment.NewLine +
                 "SELECT " + OpenDelimeter + "Id" + CloseDelimeter + ", " + OpenDelimeter + "Computed" + CloseDelimeter + "" + Environment.NewLine +
-                "FROM " + OpenDelimeter + "Ducks" + CloseDelimeter + "" + Environment.NewLine +
+                "FROM " + OpenDelimeter + "dbo" + CloseDelimeter + "." + OpenDelimeter + "Ducks" + CloseDelimeter + "" + Environment.NewLine +
                 "WHERE " + RowsAffected + " = 1 AND " + OpenDelimeter + "Id" + CloseDelimeter + " = " + Identity + ";" + Environment.NewLine,
                 stringBuilder.ToString());
         }
@@ -151,9 +156,9 @@ namespace Microsoft.Data.Entity.Relational.Tests
         public void AppendInsertOperation_appends_insert_and_select_for_only_single_identity_columns()
         {
             var stringBuilder = new StringBuilder();
-            var operations = CreateInsertOperations(identityKey: true, computedProperty: false).Where(p => !p.IsWrite).ToArray();
+            var command = CreateInsertCommand(true, false, true);
 
-            CreateSqlGenerator().AppendInsertOperation(stringBuilder, "Ducks", operations);
+            CreateSqlGenerator().AppendInsertOperation(stringBuilder, command);
 
             AppendInsertOperation_appends_insert_and_select_for_only_single_identity_columns_verification(stringBuilder);
         }
@@ -161,10 +166,10 @@ namespace Microsoft.Data.Entity.Relational.Tests
         protected virtual void AppendInsertOperation_appends_insert_and_select_for_only_single_identity_columns_verification(StringBuilder stringBuilder)
         {
             Assert.Equal(
-                "INSERT INTO " + OpenDelimeter + "Ducks" + CloseDelimeter + "" + Environment.NewLine +
+                "INSERT INTO " + OpenDelimeter + "dbo" + CloseDelimeter + "." + OpenDelimeter + "Ducks" + CloseDelimeter + "" + Environment.NewLine +
                 "DEFAULT VALUES;" + Environment.NewLine +
                 "SELECT " + OpenDelimeter + "Id" + CloseDelimeter + "" + Environment.NewLine +
-                "FROM " + OpenDelimeter + "Ducks" + CloseDelimeter + "" + Environment.NewLine +
+                "FROM " + OpenDelimeter + "dbo" + CloseDelimeter + "." + OpenDelimeter + "Ducks" + CloseDelimeter + "" + Environment.NewLine +
                 "WHERE " + RowsAffected + " = 1 AND " + OpenDelimeter + "Id" + CloseDelimeter + " = " + Identity + ";" + Environment.NewLine,
                 stringBuilder.ToString());
         }
@@ -173,9 +178,9 @@ namespace Microsoft.Data.Entity.Relational.Tests
         public void AppendUpdateOperation_appends_update_and_select_if_store_generated_columns_exist()
         {
             var stringBuilder = new StringBuilder();
-            var operations = CreateUpdateOperations(computedProperty: true, concurrencyToken: true);
+            var command = CreateUpdateCommand(computedProperty: true, concurrencyToken: true);
 
-            CreateSqlGenerator().AppendUpdateOperation(stringBuilder, "Ducks", operations);
+            CreateSqlGenerator().AppendUpdateOperation(stringBuilder, command);
 
             AppendUpdateOperation_appends_update_and_select_if_store_generated_columns_exist_verification(stringBuilder);
         }
@@ -183,10 +188,11 @@ namespace Microsoft.Data.Entity.Relational.Tests
         protected virtual void AppendUpdateOperation_appends_update_and_select_if_store_generated_columns_exist_verification(StringBuilder stringBuilder)
         {
             Assert.Equal(
-                "UPDATE " + OpenDelimeter + "Ducks" + CloseDelimeter + " SET " + OpenDelimeter + "Name" + CloseDelimeter + " = @p0, " + OpenDelimeter + "Quacks" + CloseDelimeter + " = @p1, " + OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + " = @p2" + Environment.NewLine +
+                "UPDATE " + OpenDelimeter + "dbo" + CloseDelimeter + "." + OpenDelimeter + "Ducks" + CloseDelimeter + " SET " + OpenDelimeter + "Name" + CloseDelimeter +
+                " = @p0, " + OpenDelimeter + "Quacks" + CloseDelimeter + " = @p1, " + OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + " = @p2" + Environment.NewLine + 
                 "WHERE " + OpenDelimeter + "Id" + CloseDelimeter + " = @p3 AND " + OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + " = @p4;" + Environment.NewLine +
                 "SELECT " + OpenDelimeter + "Computed" + CloseDelimeter + "" + Environment.NewLine +
-                "FROM " + OpenDelimeter + "Ducks" + CloseDelimeter + "" + Environment.NewLine +
+                "FROM " + OpenDelimeter + "dbo" + CloseDelimeter + "." + OpenDelimeter + "Ducks" + CloseDelimeter + "" + Environment.NewLine +
                 "WHERE " + RowsAffected + " = 1 AND " + OpenDelimeter + "Id" + CloseDelimeter + " = @p3;" + Environment.NewLine,
                 stringBuilder.ToString());
         }
@@ -195,12 +201,14 @@ namespace Microsoft.Data.Entity.Relational.Tests
         public void AppendUpdateOperation_appends_update_and_select_rowcount_if_store_generated_columns_dont_exist()
         {
             var stringBuilder = new StringBuilder();
-            var operations = CreateUpdateOperations(computedProperty: false, concurrencyToken: false);
+            var command = CreateUpdateCommand(false, false);
 
-            CreateSqlGenerator().AppendUpdateOperation(stringBuilder, new SchemaQualifiedName("Ducks", "dbo"), operations);
+            CreateSqlGenerator().AppendUpdateOperation(stringBuilder, command);
 
             Assert.Equal(
-                "UPDATE " + OpenDelimeter + "dbo" + CloseDelimeter + "." + OpenDelimeter + "Ducks" + CloseDelimeter + " SET " + OpenDelimeter + "Name" + CloseDelimeter + " = @p0, " + OpenDelimeter + "Quacks" + CloseDelimeter + " = @p1, " + OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + " = @p2" + Environment.NewLine +
+                "UPDATE " + OpenDelimeter + "dbo" + CloseDelimeter + "." + OpenDelimeter + "Ducks" + CloseDelimeter + " SET " +
+                OpenDelimeter + "Name" + CloseDelimeter + " = @p0, " + OpenDelimeter + "Quacks" + CloseDelimeter + " = @p1, " +
+                OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + " = @p2" + Environment.NewLine +
                 "WHERE " + OpenDelimeter + "Id" + CloseDelimeter + " = @p3;" + Environment.NewLine +
                 "SELECT " + RowsAffected + ";" + Environment.NewLine,
                 stringBuilder.ToString());
@@ -210,12 +218,14 @@ namespace Microsoft.Data.Entity.Relational.Tests
         public void AppendUpdateOperation_appends_where_for_concurrency_token()
         {
             var stringBuilder = new StringBuilder();
-            var operations = CreateUpdateOperations(computedProperty: false, concurrencyToken: true);
+            var command = CreateUpdateCommand(false, concurrencyToken: true);
 
-            CreateSqlGenerator().AppendUpdateOperation(stringBuilder, "Ducks", operations);
+            CreateSqlGenerator().AppendUpdateOperation(stringBuilder, command);
 
             Assert.Equal(
-                "UPDATE " + OpenDelimeter + "Ducks" + CloseDelimeter + " SET " + OpenDelimeter + "Name" + CloseDelimeter + " = @p0, " + OpenDelimeter + "Quacks" + CloseDelimeter + " = @p1, " + OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + " = @p2" + Environment.NewLine +
+                "UPDATE " + OpenDelimeter + "dbo" + CloseDelimeter + "." + OpenDelimeter + "Ducks" + CloseDelimeter + " SET " +
+                OpenDelimeter + "Name" + CloseDelimeter + " = @p0, " + OpenDelimeter + "Quacks" + CloseDelimeter + " = @p1, " +
+                OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + " = @p2" + Environment.NewLine +
                 "WHERE " + OpenDelimeter + "Id" + CloseDelimeter + " = @p3 AND " + OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + " = @p4;" + Environment.NewLine +
                 "SELECT " + RowsAffected + ";" + Environment.NewLine,
                 stringBuilder.ToString());
@@ -225,9 +235,9 @@ namespace Microsoft.Data.Entity.Relational.Tests
         public void AppendUpdateOperation_appends_select_for_computed_property()
         {
             var stringBuilder = new StringBuilder();
-            var operations = CreateUpdateOperations(computedProperty: true, concurrencyToken: false);
+            var command = CreateUpdateCommand(true, false);
 
-            CreateSqlGenerator().AppendUpdateOperation(stringBuilder, "Ducks", operations);
+            CreateSqlGenerator().AppendUpdateOperation(stringBuilder, command);
 
             AppendUpdateOperation_appends_select_for_computed_property_verification(stringBuilder);
         }
@@ -235,10 +245,12 @@ namespace Microsoft.Data.Entity.Relational.Tests
         protected virtual void AppendUpdateOperation_appends_select_for_computed_property_verification(StringBuilder stringBuilder)
         {
             Assert.Equal(
-                "UPDATE " + OpenDelimeter + "Ducks" + CloseDelimeter + " SET " + OpenDelimeter + "Name" + CloseDelimeter + " = @p0, " + OpenDelimeter + "Quacks" + CloseDelimeter + " = @p1, " + OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + " = @p2" + Environment.NewLine +
+                "UPDATE " + OpenDelimeter + "dbo" + CloseDelimeter + "." + OpenDelimeter + "Ducks" + CloseDelimeter + " SET " +
+                OpenDelimeter + "Name" + CloseDelimeter + " = @p0, " + OpenDelimeter + "Quacks" + CloseDelimeter + " = @p1, " +
+                OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + " = @p2" + Environment.NewLine +
                 "WHERE " + OpenDelimeter + "Id" + CloseDelimeter + " = @p3;" + Environment.NewLine +
                 "SELECT " + OpenDelimeter + "Computed" + CloseDelimeter + "" + Environment.NewLine +
-                "FROM " + OpenDelimeter + "Ducks" + CloseDelimeter + "" + Environment.NewLine +
+                "FROM " + OpenDelimeter + "dbo" + CloseDelimeter + "." + OpenDelimeter + "Ducks" + CloseDelimeter + "" + Environment.NewLine +
                 "WHERE " + RowsAffected + " = 1 AND " + OpenDelimeter + "Id" + CloseDelimeter + " = @p3;" + Environment.NewLine,
                 stringBuilder.ToString());
         }
@@ -272,65 +284,78 @@ namespace Microsoft.Data.Entity.Relational.Tests
             get { return "\""; }
         }
 
-        protected ColumnModification[] CreateInsertOperations(bool identityKey = true, bool computedProperty = true)
+        protected ModificationCommand CreateInsertCommand(bool identityKey = true, bool computedProperty = true, bool defaultsOnly = false)
         {
             var entry = new Mock<StateEntry>().Object;
             var generator = new ParameterNameGenerator();
 
-            return new[]
+            var columnModifications = new[]
                 {
                     new ColumnModification(
-                        entry, CreateMockProperty("Id"), generator, identityKey, !identityKey, isKey: true, isCondition: false),
+                        entry, CreateMockProperty("Id"), generator, identityKey, !identityKey, true, false),
                     new ColumnModification(
-                        entry, CreateMockProperty("Name"), generator,
-                        isRead: false, isWrite: true, isKey: false, isCondition: false),
+                        entry, CreateMockProperty("Name"), generator, false, true, false, false),
                     new ColumnModification(
-                        entry, CreateMockProperty("Quacks"), generator,
-                        isRead: false, isWrite: true, isKey: false, isCondition: false),
+                        entry, CreateMockProperty("Quacks"), generator, false, true, false, false),
                     new ColumnModification(
-                        entry, CreateMockProperty("Computed"), generator, computedProperty, isWrite: false, isKey: false, isCondition: false),
+                        entry, CreateMockProperty("Computed"), generator, computedProperty, false, false, false),
                     new ColumnModification(
-                        entry, CreateMockProperty("ConcurrencyToken"), generator,
-                        isRead: false, isWrite: true, isKey: false, isCondition: false)
+                        entry, CreateMockProperty("ConcurrencyToken"), generator, false, true, false, false)
                 };
+
+            if (defaultsOnly)
+            {
+                columnModifications = columnModifications.Where(c => !c.IsWrite).ToArray();
+            }
+
+            var commandMock = new Mock<ModificationCommand>(new SchemaQualifiedName("Ducks", "dbo"), new ParameterNameGenerator()) { CallBase = true };
+            commandMock.Setup(m => m.ColumnModifications).Returns(columnModifications);
+
+            return commandMock.Object;
         }
 
-        protected ColumnModification[] CreateUpdateOperations(bool computedProperty = true, bool concurrencyToken = true)
+        protected ModificationCommand CreateUpdateCommand(bool computedProperty = true, bool concurrencyToken = true)
         {
             var entry = new Mock<StateEntry>().Object;
             var generator = new ParameterNameGenerator();
 
-            return new[]
+            var columnModifications = new[]
                 {
                     new ColumnModification(
-                        entry, CreateMockProperty("Id"), generator,
-                        isRead: false, isWrite: false, isKey: true, isCondition: true),
+                        entry, CreateMockProperty("Id"), generator, false, false, true, true),
                     new ColumnModification(
-                        entry, CreateMockProperty("Name"), generator,
-                        isRead: false, isWrite: true, isKey: false, isCondition: false),
+                        entry, CreateMockProperty("Name"), generator, false, true, false, false),
                     new ColumnModification(
-                        entry, CreateMockProperty("Quacks"), generator,
-                        isRead: false, isWrite: true, isKey: false, isCondition: false),
+                        entry, CreateMockProperty("Quacks"), generator, false, true, false, false),
                     new ColumnModification(
-                        entry, CreateMockProperty("Computed"), generator, computedProperty, isWrite: false, isKey: false, isCondition: false),
+                        entry, CreateMockProperty("Computed"), generator, computedProperty, false, false, false),
                     new ColumnModification(
                         entry, CreateMockProperty("ConcurrencyToken"), generator, false, true, false, concurrencyToken)
                 };
+
+            var commandMock = new Mock<ModificationCommand>(new SchemaQualifiedName("Ducks", "dbo"), new ParameterNameGenerator()) { CallBase = true };
+            commandMock.Setup(m => m.ColumnModifications).Returns(columnModifications);
+
+            return commandMock.Object;
         }
 
-        protected ColumnModification[] CreateDeleteOperations(bool concurrencyToken = true)
+        protected ModificationCommand CreateDeleteCommand(bool concurrencyToken = true)
         {
             var entry = new Mock<StateEntry>().Object;
             var generator = new ParameterNameGenerator();
 
-            return new[]
+            var columnModifications = new[]
                 {
                     new ColumnModification(
-                        entry, CreateMockProperty("Id"), generator,
-                        isRead: false, isWrite: false, isKey: true, isCondition: true),
+                        entry, CreateMockProperty("Id"), generator, false, false, true, true),
                     new ColumnModification(
                         entry, CreateMockProperty("ConcurrencyToken"), generator, false, false, false, concurrencyToken)
                 };
+
+            var commandMock = new Mock<ModificationCommand>(new SchemaQualifiedName("Ducks", "dbo"), new ParameterNameGenerator()) { CallBase = true };
+            commandMock.Setup(m => m.ColumnModifications).Returns(columnModifications);
+
+            return commandMock.Object;
         }
     }
 }

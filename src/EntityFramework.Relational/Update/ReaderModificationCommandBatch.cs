@@ -3,9 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Data;
 using System.Data.Common;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -22,76 +22,114 @@ namespace Microsoft.Data.Entity.Relational.Update
 {
     public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
     {
-        private ImmutableList<ModificationCommand> _modificationCommands = ImmutableList<ModificationCommand>.Empty;
+        private readonly List<ModificationCommand> _modificationCommands = new List<ModificationCommand>();
+        private readonly List<bool> _resultSetEnd = new List<bool>();
+        protected StringBuilder CachedCommandText { get; set; }
+        protected int LastCachedCommandIndex = 0;
+        
+        /// <summary>
+        ///     This constructor is intended only for use when creating test doubles that will override members
+        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
+        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
+        /// </summary>
+        protected ReaderModificationCommandBatch()
+        {
+        }
 
-        protected string SqlScript { get; set; }
+        protected ReaderModificationCommandBatch([NotNull] SqlGenerator sqlGenerator)
+            : base(sqlGenerator)
+        {
+        }
 
         public override IReadOnlyList<ModificationCommand> ModificationCommands
         {
             get { return _modificationCommands; }
         }
 
-        public override bool AddCommand(ModificationCommand modificationCommand, SqlGenerator sqlGenerator)
+        // contains true if the command at the corresponding index is the last command in its result set
+        // the last value will not be read
+        protected IList<bool> ResultSetEnds
+        {
+            get { return _resultSetEnd; }
+        }
+
+        public override bool AddCommand(ModificationCommand modificationCommand)
         {
             Check.NotNull(modificationCommand, "modificationCommand");
-            Check.NotNull(sqlGenerator, "sqlGenerator");
 
-            var newSqlScript = UpdateCommandText(modificationCommand, sqlGenerator);
+            if (ModificationCommands.Count == 0)
+            {
+                ResetCommandText();
+            }
 
-            if (!CanAddCommand(modificationCommand, newSqlScript))
+            if (!CanAddCommand(modificationCommand))
             {
                 return false;
             }
 
-            _modificationCommands = _modificationCommands.Add(modificationCommand);
+            _modificationCommands.Add(modificationCommand);
+            _resultSetEnd.Add(true);
 
-            SqlScript = newSqlScript.ToString();
+            if (!IsCommandTextValid())
+            {
+                ResetCommandText();
+                _modificationCommands.RemoveAt(_modificationCommands.Count - 1);
+                _resultSetEnd.RemoveAt(_resultSetEnd.Count - 1);
+                return false;
+            }
 
             return true;
         }
 
-        protected abstract bool CanAddCommand(ModificationCommand modificationCommand, StringBuilder newSql);
-
-        protected virtual StringBuilder UpdateCommandText([NotNull] ModificationCommand newModificationCommand, [NotNull] SqlGenerator sqlGenerator)
+        protected virtual void ResetCommandText()
         {
-            var stringBuilder = new StringBuilder();
+            CachedCommandText = new StringBuilder();
+            SqlGenerator.AppendBatchHeader(CachedCommandText);
+            LastCachedCommandIndex = -1;
+        }
 
-            if (SqlScript == null)
+        protected abstract bool CanAddCommand([NotNull] ModificationCommand modificationCommand);
+
+        protected abstract bool IsCommandTextValid();
+
+        protected virtual string GetCommandText()
+        {
+            for (var i = LastCachedCommandIndex + 1; i < ModificationCommands.Count; i++)
             {
-                sqlGenerator.AppendBatchHeader(stringBuilder);
-            }
-            else
-            {
-                stringBuilder.Append(SqlScript);
+                UpdateCachedCommandText(i);
             }
 
-            var entityState = newModificationCommand.EntityState;
-            var operations = newModificationCommand.ColumnModifications;
-            var schemaQualifiedName = newModificationCommand.SchemaQualifiedName;
+            return CachedCommandText.ToString();
+        }
 
-            switch (entityState)
+        protected virtual void UpdateCachedCommandText(int commandPosition)
+        {
+            var newModificationCommand = ModificationCommands[commandPosition];
+
+            switch (newModificationCommand.EntityState)
             {
                 case EntityState.Added:
-                    sqlGenerator.AppendInsertOperation(stringBuilder, schemaQualifiedName, operations);
+                    SqlGenerator.AppendInsertOperation(CachedCommandText, newModificationCommand);
                     break;
                 case EntityState.Modified:
-                    sqlGenerator.AppendUpdateOperation(stringBuilder, schemaQualifiedName, operations);
+                    SqlGenerator.AppendUpdateOperation(CachedCommandText, newModificationCommand);
                     break;
                 case EntityState.Deleted:
-                    sqlGenerator.AppendDeleteOperation(stringBuilder, schemaQualifiedName, operations);
+                    SqlGenerator.AppendDeleteOperation(CachedCommandText, newModificationCommand);
                     break;
             }
 
-            return stringBuilder;
+            LastCachedCommandIndex = commandPosition;
         }
 
         protected virtual DbCommand CreateStoreCommand(
+            [NotNull] string commandText,
             [NotNull] DbTransaction transaction,
             [NotNull] RelationalTypeMapper typeMapper)
         {
             var command = transaction.Connection.CreateCommand();
             command.CommandType = CommandType.Text;
-            command.CommandText = SqlScript;
+            command.CommandText = commandText;
             command.Transaction = transaction;
 
             foreach (var columnModification in ModificationCommands.SelectMany(t => t.ColumnModifications))
@@ -114,55 +152,42 @@ namespace Microsoft.Data.Entity.Relational.Update
             Check.NotNull(context, "context");
             Check.NotNull(logger, "logger");
 
+            var commandText = GetCommandText();
             if (logger.IsEnabled(TraceType.Verbose))
             {
                 // TODO: Write parameter values
-                logger.WriteSql(SqlScript);
+                logger.WriteSql(commandText);
             }
 
-            var totalRowsAffected = 0;
-            using (var storeCommand = CreateStoreCommand(transaction.DbTransaction, typeMapper))
+            Contract.Assert(ResultSetEnds.Count == ModificationCommands.Count);
+
+            var commandIndex = 0;
+            using (var storeCommand = CreateStoreCommand(commandText, transaction.DbTransaction, typeMapper))
             {
-                var commandIndex = 0;
                 try
                 {
-                    using (var reader = await storeCommand.ExecuteReaderAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false))
+                    using (var reader = await storeCommand.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false))
                     {
+                        var actualResultSetCount = 0;
                         do
                         {
-                            var tableModification = ModificationCommands[commandIndex];
-
-                            if (await reader.ReadAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false))
-                            {
-                                if (tableModification.RequiresResultPropagation)
-                                {
-                                    tableModification.PropagateResults(new RelationalTypedValueReader(reader));
-                                    totalRowsAffected++;
-                                }
-                                else
-                                {
-                                    var rowsAffected = reader.GetFieldValue<int>(0);
-                                    if (rowsAffected != 1)
-                                    {
-                                        throw new DbUpdateConcurrencyException(
-                                            Strings.FormatUpdateConcurrencyException(1, rowsAffected),
-                                            context,
-                                            tableModification.StateEntries);
-                                    }
-                                    totalRowsAffected += rowsAffected;
-                                }
-                            }
-                            else
-                            {
-                                throw new DbUpdateConcurrencyException(
-                                    Strings.FormatUpdateConcurrencyException(1, 0),
-                                    context,
-                                    tableModification.StateEntries);
-                            }
-
-                            commandIndex++;
+                            commandIndex = ModificationCommands[commandIndex].RequiresResultPropagation
+                                ? await ConsumeResultSetWithPropagationAsync(commandIndex, reader, context, cancellationToken)
+                                    .ConfigureAwait(false)
+                                : await ConsumeResultSetWithoutPropagationAsync(commandIndex, reader, context, cancellationToken)
+                                    .ConfigureAwait(false);
+                            actualResultSetCount++;
                         }
-                        while (await reader.NextResultAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false));
+                        while (commandIndex < ResultSetEnds.Count
+                               && await reader.NextResultAsync(cancellationToken).ConfigureAwait(false));
+
+                        Contract.Assert(commandIndex == ModificationCommands.Count, "Expected " + ModificationCommands.Count + " results, got " + commandIndex);
+#if DEBUG
+                        var expectedResultSetCount = 1 + ResultSetEnds.Count(e => e);
+                        expectedResultSetCount += ResultSetEnds[ResultSetEnds.Count - 1] ? -1 : 0;
+
+                        Contract.Assert(actualResultSetCount == expectedResultSetCount, "Expected " + expectedResultSetCount + " result sets, got " + actualResultSetCount);
+#endif
                     }
                 }
                 catch (DbUpdateException)
@@ -179,7 +204,83 @@ namespace Microsoft.Data.Entity.Relational.Update
                 }
             }
 
-            return totalRowsAffected;
+            return commandIndex;
+        }
+
+        private async Task<int> ConsumeResultSetWithPropagationAsync(int commandIndex, DbDataReader reader, DbContext context, CancellationToken cancellationToken)
+        {
+            var rowsAffected = 0;
+            var valueReader = new RelationalTypedValueReader(reader);
+            do
+            {
+                var tableModification = ModificationCommands[commandIndex];
+                Contract.Assert(tableModification.RequiresResultPropagation);
+
+                if (!await reader.ReadAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false))
+                {
+                    var expectedRowsAffected = rowsAffected + 1;
+                    while (++commandIndex < ResultSetEnds.Count
+                           && !ResultSetEnds[commandIndex - 1])
+                    {
+                        expectedRowsAffected++;
+                    }
+
+                    throw new DbUpdateConcurrencyException(
+                        Strings.FormatUpdateConcurrencyException(expectedRowsAffected, rowsAffected),
+                        context,
+                        AggregateStateEntries(commandIndex, expectedRowsAffected));
+                }
+
+                tableModification.PropagateResults(valueReader);
+                rowsAffected++;
+            }
+            while (++commandIndex < ResultSetEnds.Count
+                   && !ResultSetEnds[commandIndex - 1]);
+
+            return commandIndex;
+        }
+
+        private async Task<int> ConsumeResultSetWithoutPropagationAsync(int commandIndex, DbDataReader reader, DbContext context, CancellationToken cancellationToken)
+        {
+            var expectedRowsAffected = 1;
+            while (++commandIndex < ResultSetEnds.Count
+                   && !ResultSetEnds[commandIndex - 1])
+            {
+                Contract.Assert(!ModificationCommands[commandIndex].RequiresResultPropagation);
+
+                expectedRowsAffected++;
+            }
+
+            if (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+            {
+                var rowsAffected = reader.GetFieldValue<int>(0);
+                if (rowsAffected != expectedRowsAffected)
+                {
+                    throw new DbUpdateConcurrencyException(
+                        Strings.FormatUpdateConcurrencyException(expectedRowsAffected, rowsAffected),
+                        context,
+                        AggregateStateEntries(commandIndex, expectedRowsAffected));
+                }
+            }
+            else
+            {
+                throw new DbUpdateConcurrencyException(
+                    Strings.FormatUpdateConcurrencyException(1, 0),
+                    context,
+                    AggregateStateEntries(commandIndex, expectedRowsAffected));
+            }
+
+            return commandIndex;
+        }
+
+        private IReadOnlyList<StateEntry> AggregateStateEntries(int endIndex, int commandCount)
+        {
+            var stateEntries = new List<StateEntry>();
+            for (var i = endIndex - commandCount; i < endIndex; i++)
+            {
+                stateEntries.AddRange(ModificationCommands[i].StateEntries);
+            }
+            return stateEntries;
         }
 
         protected virtual void PopulateParameters(DbCommand command, ColumnModification columnModification, RelationalTypeMapper typeMapper)
@@ -200,12 +301,12 @@ namespace Microsoft.Data.Entity.Relational.Update
 
                 if (columnModification.ParameterName != null)
                 {
-                    command.Parameters.Add(typeMapping.CreateParameter(command, columnModification, useOriginalValue: false));
+                    command.Parameters.Add(typeMapping.CreateParameter(command, columnModification, false));
                 }
 
                 if (columnModification.OriginalParameterName != null)
                 {
-                    command.Parameters.Add(typeMapping.CreateParameter(command, columnModification, useOriginalValue: true));
+                    command.Parameters.Add(typeMapping.CreateParameter(command, columnModification, true));
                 }
             }
         }

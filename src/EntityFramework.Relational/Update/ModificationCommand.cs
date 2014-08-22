@@ -51,31 +51,6 @@ namespace Microsoft.Data.Entity.Relational.Update
             get { return _stateEntries; }
         }
 
-        public virtual ModificationCommand AddStateEntry([NotNull] StateEntry stateEntry)
-        {
-            Check.NotNull(stateEntry, "stateEntry");
-
-            if (!stateEntry.EntityState.IsDirty())
-            {
-                throw new NotSupportedException(Strings.FormatModificationFunctionInvalidEntityState(stateEntry.EntityState));
-            }
-
-            var firstEntry = _stateEntries.FirstOrDefault();
-            if (firstEntry != null
-                && firstEntry.EntityState != stateEntry.EntityState)
-            {
-                // TODO: Proper message
-                throw new InvalidOperationException("Two entities cannot make conflicting updates to the same row.");
-
-                // TODO: Check for any other conflicts between the two entries
-            }
-
-            _stateEntries.Add(stateEntry);
-            _columnModifications.Reset(GenerateColumnModifications);
-
-            return this;
-        }
-
         public virtual EntityState EntityState
         {
             get
@@ -99,6 +74,36 @@ namespace Microsoft.Data.Entity.Relational.Update
                 var _ = _columnModifications.Value;
                 return _requiresResultPropagation;
             }
+        }
+
+        public virtual ParameterNameGenerator ParameterNameGenerator
+        {
+            get { return _parameterNameGenerator; }
+        }
+
+        public virtual ModificationCommand AddStateEntry([NotNull] StateEntry stateEntry)
+        {
+            Check.NotNull(stateEntry, "stateEntry");
+
+            if (!stateEntry.EntityState.IsDirty())
+            {
+                throw new NotSupportedException(Strings.FormatModificationFunctionInvalidEntityState(stateEntry.EntityState));
+            }
+
+            var firstEntry = _stateEntries.FirstOrDefault();
+            if (firstEntry != null
+                && firstEntry.EntityState != stateEntry.EntityState)
+            {
+                // TODO: Proper message
+                throw new InvalidOperationException("Two entities cannot make conflicting updates to the same row.");
+
+                // TODO: Check for any other conflicts between the two entries
+            }
+
+            _stateEntries.Add(stateEntry);
+            _columnModifications.Reset(GenerateColumnModifications);
+
+            return this;
         }
 
         private IReadOnlyList<ColumnModification> GenerateColumnModifications()
@@ -138,7 +143,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                         columnModifications.Add(new ColumnModification(
                             stateEntry,
                             property,
-                            _parameterNameGenerator,
+                            ParameterNameGenerator,
                             readValue,
                             writeValue,
                             isKey,

@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.SqlServer.Update
 
         public override ModificationCommandBatch Create()
         {
-            return new SqlServerModificationCommandBatch(_maxBatchSize);
+            return new SqlServerModificationCommandBatch((SqlServerSqlGenerator)SqlGenerator, _maxBatchSize);
         }
     }
 }

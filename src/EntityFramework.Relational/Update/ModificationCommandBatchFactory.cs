@@ -28,9 +28,14 @@ namespace Microsoft.Data.Entity.Relational.Update
             _sqlGenerator = sqlGenerator;
         }
 
+        protected SqlGenerator SqlGenerator
+        {
+            get { return _sqlGenerator; }
+        }
+
         public virtual ModificationCommandBatch Create()
         {
-            return new SingularModificationCommandBatch();
+            return new SingularModificationCommandBatch(SqlGenerator);
         }
 
         public virtual bool AddCommand(
@@ -40,7 +45,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             Check.NotNull(modificationCommandBatch, "modificationCommandBatch");
             Check.NotNull(modificationCommand, "modificationCommand");
 
-            return modificationCommandBatch.AddCommand(modificationCommand, _sqlGenerator);
+            return modificationCommandBatch.AddCommand(modificationCommand);
         }
     }
 }

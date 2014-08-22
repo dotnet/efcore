@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Update;
@@ -15,8 +16,20 @@ namespace Microsoft.Data.Entity.SqlServer.Update
         private const int MaxParameterCount = 2100;
         private int _parameterCount;
         private readonly int? _maxBatchSize;
+        private readonly List<ModificationCommand> _bulkInsertCommands = new List<ModificationCommand>();
+        private int _commandsLeftToLengthCheck = 50;
+        
+        /// <summary>
+        ///     This constructor is intended only for use when creating test doubles that will override members
+        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
+        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
+        /// </summary>
+        protected SqlServerModificationCommandBatch()
+        {
+        }
 
-        public SqlServerModificationCommandBatch([CanBeNull] int? maxBatchSize)
+        public SqlServerModificationCommandBatch([NotNull] SqlServerSqlGenerator sqlGenerator, [CanBeNull] int? maxBatchSize)
+            : base(sqlGenerator)
         {
             if (maxBatchSize.HasValue
                 && maxBatchSize.Value <= 0)
@@ -27,7 +40,7 @@ namespace Microsoft.Data.Entity.SqlServer.Update
             _maxBatchSize = maxBatchSize;
         }
 
-        protected override bool CanAddCommand(ModificationCommand modificationCommand, StringBuilder newSql)
+        protected override bool CanAddCommand(ModificationCommand modificationCommand)
         {
             if (_maxBatchSize.HasValue
                 && _maxBatchSize.Value <= ModificationCommands.Count)
@@ -36,19 +49,8 @@ namespace Microsoft.Data.Entity.SqlServer.Update
             }
 
             var additionalParameterCount = CountParameters(modificationCommand);
-
-            if (ModificationCommands.Count == 0)
-            {
-                _parameterCount = additionalParameterCount;
-                return true;
-            }
-
+            
             if (_parameterCount + additionalParameterCount >= MaxParameterCount)
-            {
-                return false;
-            }
-
-            if (newSql.Length >= MaxScriptLength)
             {
                 return false;
             }
@@ -57,7 +59,23 @@ namespace Microsoft.Data.Entity.SqlServer.Update
             return true;
         }
 
-        // TODO: Merge insert statements
+        protected override bool IsCommandTextValid()
+        {
+            if (--_commandsLeftToLengthCheck < 0)
+            {
+                var commandTextLength = GetCommandText().Length;
+                if (commandTextLength >= MaxScriptLength)
+                {
+                    return false;
+                }
+
+                var avarageCommandLength = commandTextLength / ModificationCommands.Count;
+                var expectedAdditionalCommandCapacity = (MaxScriptLength - commandTextLength) / avarageCommandLength;
+                _commandsLeftToLengthCheck = Math.Max(1, expectedAdditionalCommandCapacity / 4);
+            }
+
+            return true;
+        }
 
         private int CountParameters(ModificationCommand modificationCommand)
         {
@@ -76,6 +94,61 @@ namespace Microsoft.Data.Entity.SqlServer.Update
             }
 
             return parameterCount;
+        }
+
+        protected override void ResetCommandText()
+        {
+            base.ResetCommandText();
+            _bulkInsertCommands.Clear();
+        }
+
+        protected override string GetCommandText()
+        {
+            return base.GetCommandText() + GetBulkInsertCommandText(ModificationCommands.Count);
+        }
+
+        private string GetBulkInsertCommandText(int lastIndex)
+        {
+            if (_bulkInsertCommands.Count == 0)
+            {
+                return string.Empty;
+            }
+
+            var stringBuilder = new StringBuilder();
+            var grouping = ((SqlServerSqlGenerator)SqlGenerator).AppendBulkInsertOperation(stringBuilder, _bulkInsertCommands);
+            for (int i = lastIndex - _bulkInsertCommands.Count; i < lastIndex; i++)
+            {
+                ResultSetEnds[i] = grouping == SqlServerSqlGenerator.ResultsGrouping.OneCommandPerResultSet;
+            }
+
+            ResultSetEnds[lastIndex - 1] = true;
+
+            return stringBuilder.ToString();
+        }
+
+        protected override void UpdateCachedCommandText(int commandPosition)
+        {
+            var newModificationCommand = ModificationCommands[commandPosition];
+
+            if (newModificationCommand.EntityState == EntityState.Added)
+            {
+                if (_bulkInsertCommands.Count > 0
+                    && _bulkInsertCommands[0].SchemaQualifiedName != newModificationCommand.SchemaQualifiedName)
+                {
+                    CachedCommandText.Append(GetBulkInsertCommandText(commandPosition));
+                    _bulkInsertCommands.Clear();
+                }
+                _bulkInsertCommands.Add(newModificationCommand);
+
+                LastCachedCommandIndex = commandPosition;
+            }
+            else
+            {
+                CachedCommandText.Append(GetBulkInsertCommandText(commandPosition));
+                _bulkInsertCommands.Clear();
+
+                base.UpdateCachedCommandText(commandPosition);
+            }
         }
     }
 }

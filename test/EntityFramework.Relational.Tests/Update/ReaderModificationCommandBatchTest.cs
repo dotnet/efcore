@@ -31,12 +31,15 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator());
 
             var batch = new ModificationCommandBatchFake();
+            batch.AddCommand(command);
             batch.ShouldAddCommand = true;
+            batch.ShouldValidateSql = true;
 
-            batch.AddCommand(command, new Mock<SqlGenerator>().Object);
+            batch.AddCommand(command);
 
-            Assert.Equal(1, batch.ModificationCommands.Count);
+            Assert.Equal(2, batch.ModificationCommands.Count);
             Assert.Same(command, batch.ModificationCommands[0]);
+            Assert.Equal("..", batch.CommandText);
         }
 
         [Fact]
@@ -45,11 +48,30 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator());
 
             var batch = new ModificationCommandBatchFake();
+            batch.AddCommand(command);
             batch.ShouldAddCommand = false;
+            batch.ShouldValidateSql = true;
 
-            batch.AddCommand(command, new Mock<SqlGenerator>().Object);
+            batch.AddCommand(command);
 
-            Assert.Equal(0, batch.ModificationCommands.Count);
+            Assert.Equal(1, batch.ModificationCommands.Count);
+            Assert.Equal(".", batch.CommandText);
+        }
+
+        [Fact]
+        public void AddCommand_does_not_add_command_if_resulting_sql_is_invalid()
+        {
+            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator());
+
+            var batch = new ModificationCommandBatchFake();
+            batch.AddCommand(command);
+            batch.ShouldAddCommand = true;
+            batch.ShouldValidateSql = false;
+
+            batch.AddCommand(command);
+
+            Assert.Equal(1, batch.ModificationCommands.Count);
+            Assert.Equal(".", batch.CommandText);
         }
 
         [Fact]
@@ -61,12 +83,13 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             command.AddStateEntry(stateEntry);
 
             var sqlGeneratorMock = new Mock<SqlGenerator>();
-            var batch = new ModificationCommandBatchFake();
+            var batch = new ModificationCommandBatchFake(sqlGeneratorMock.Object);
+            batch.AddCommand(command);
 
-            batch.UpdateCommandTextBase(command, sqlGeneratorMock.Object);
+            batch.UpdateCachedCommandTextBase(0);
 
             sqlGeneratorMock.Verify(g => g.AppendBatchHeader(It.IsAny<StringBuilder>()));
-            sqlGeneratorMock.Verify(g => g.AppendInsertOperation(It.IsAny<StringBuilder>(), "T1", It.IsAny<IReadOnlyList<ColumnModification>>()));
+            sqlGeneratorMock.Verify(g => g.AppendInsertOperation(It.IsAny<StringBuilder>(), command));
         }
 
         [Fact]
@@ -78,12 +101,13 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             command.AddStateEntry(stateEntry);
 
             var sqlGeneratorMock = new Mock<SqlGenerator>();
-            var batch = new ModificationCommandBatchFake();
+            var batch = new ModificationCommandBatchFake(sqlGeneratorMock.Object);
+            batch.AddCommand(command);
 
-            batch.UpdateCommandTextBase(command, sqlGeneratorMock.Object);
+            batch.UpdateCachedCommandTextBase(0);
 
             sqlGeneratorMock.Verify(g => g.AppendBatchHeader(It.IsAny<StringBuilder>()));
-            sqlGeneratorMock.Verify(g => g.AppendUpdateOperation(It.IsAny<StringBuilder>(), "T1", It.IsAny<IReadOnlyList<ColumnModification>>()));
+            sqlGeneratorMock.Verify(g => g.AppendUpdateOperation(It.IsAny<StringBuilder>(), command));
         }
 
         [Fact]
@@ -95,12 +119,13 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             command.AddStateEntry(stateEntry);
 
             var sqlGeneratorMock = new Mock<SqlGenerator>();
-            var batch = new ModificationCommandBatchFake();
+            var batch = new ModificationCommandBatchFake(sqlGeneratorMock.Object);
+            batch.AddCommand(command);
 
-            batch.UpdateCommandTextBase(command, sqlGeneratorMock.Object);
+            batch.UpdateCachedCommandTextBase(0);
 
             sqlGeneratorMock.Verify(g => g.AppendBatchHeader(It.IsAny<StringBuilder>()));
-            sqlGeneratorMock.Verify(g => g.AppendDeleteOperation(It.IsAny<StringBuilder>(), "T1", It.IsAny<IReadOnlyList<ColumnModification>>()));
+            sqlGeneratorMock.Verify(g => g.AppendDeleteOperation(It.IsAny<StringBuilder>(), command));
         }
 
         [Fact]
@@ -112,27 +137,27 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             command.AddStateEntry(stateEntry);
 
             var fakeSqlGenerator = new FakeSqlGenerator();
-            fakeSqlGenerator.AppendInsertOperationCallback = (builder, schemaQualifiedName, columnModifications) =>
-                builder.Append(schemaQualifiedName.ToString());
-            var batch = new ModificationCommandBatchFake();
-            batch.SqlScriptBase = "foo";
+            fakeSqlGenerator.AppendInsertOperationCallback = (sb, c) =>
+                sb.Append(c.SchemaQualifiedName.ToString());
+            var batch = new ModificationCommandBatchFake(fakeSqlGenerator);
+            batch.AddCommand(command);
+            batch.AddCommand(command);
 
-            var firstScript = batch.UpdateCommandTextBase(command, fakeSqlGenerator);
-            Assert.Equal("fooT1", firstScript.ToString());
+            Assert.Equal("..", batch.CommandText);
 
-            Assert.Equal(0, fakeSqlGenerator.AppendBatchHeaderCalls);
+            Assert.Equal(1, fakeSqlGenerator.AppendBatchHeaderCalls);
         }
 
         private class FakeSqlGenerator : SqlGenerator
         {
             // Workaround for Roslyn breaking Moq
-            public Action<StringBuilder, SchemaQualifiedName, IReadOnlyList<ColumnModification>> AppendInsertOperationCallback { get; set; }
+            public Action<StringBuilder, ModificationCommand> AppendInsertOperationCallback { get; set; }
 
-            public override void AppendInsertOperation(StringBuilder commandStringBuilder, SchemaQualifiedName schemaQualifiedName, IReadOnlyList<ColumnModification> operations)
+            public override void AppendInsertOperation(StringBuilder commandStringBuilder, ModificationCommand command)
             {
                 if (AppendInsertOperationCallback != null)
                 {
-                    AppendInsertOperationCallback(commandStringBuilder, schemaQualifiedName, operations);
+                    AppendInsertOperationCallback(commandStringBuilder, command);
                 }
             }
 
@@ -166,12 +191,12 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
             var mockReader = CreateDataReaderMock();
             var batch = new ModificationCommandBatchFake(mockReader.Object);
-            batch.AddCommand(command, new Mock<SqlGenerator> { CallBase = true }.Object);
+            batch.AddCommand(command);
 
             await batch.ExecuteAsync(new Mock<RelationalTransaction>().Object, new RelationalTypeMapper(), new Mock<DbContext>().Object, new Mock<ILogger>().Object);
 
-            mockReader.Verify(r => r.ReadAsync(It.IsAny<CancellationToken>()), Times.Exactly(1));
-            mockReader.Verify(r => r.NextResultAsync(It.IsAny<CancellationToken>()), Times.Once);
+            mockReader.Verify(r => r.ReadAsync(It.IsAny<CancellationToken>()), Times.Once);
+            mockReader.Verify(r => r.GetFieldValue<int>(0), Times.Once);
         }
 
         [Fact]
@@ -182,7 +207,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             command.AddStateEntry(stateEntry);
 
             var batch = new ModificationCommandBatchFake(CreateDataReaderMock(new[] { "Col1" }, new List<object[]> { new object[] { 42 } }).Object);
-            batch.AddCommand(command, new Mock<SqlGenerator> { CallBase = true }.Object);
+            batch.AddCommand(command);
 
             await batch.ExecuteAsync(new Mock<RelationalTransaction>().Object, new RelationalTypeMapper(), new Mock<DbContext>().Object, new Mock<ILogger>().Object);
 
@@ -200,7 +225,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             command.AddStateEntry(stateEntry);
 
             var batch = new ModificationCommandBatchFake(CreateDataReaderMock(new[] { "Col1", "Col2" }, new List<object[]> { new object[] { 42, "FortyTwo" } }).Object);
-            batch.AddCommand(command, new Mock<SqlGenerator> { CallBase = true }.Object);
+            batch.AddCommand(command);
 
             await batch.ExecuteAsync(new Mock<RelationalTransaction>().Object, new RelationalTypeMapper(), new Mock<DbContext>().Object, new Mock<ILogger>().Object);
 
@@ -218,7 +243,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             command.AddStateEntry(stateEntry);
 
             var batch = new ModificationCommandBatchFake(CreateDataReaderMock(new[] { "Col2" }, new List<object[]> { new object[] { "FortyTwo" } }).Object);
-            batch.AddCommand(command, new Mock<SqlGenerator> { CallBase = true }.Object);
+            batch.AddCommand(command);
 
             await batch.ExecuteAsync(new Mock<RelationalTransaction>().Object, new RelationalTypeMapper(), new Mock<DbContext>().Object, new Mock<ILogger>().Object);
 
@@ -239,7 +264,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                     new object[] { 43 }
                 });
             var batch = new ModificationCommandBatchFake(mockReader.Object);
-            batch.AddCommand(command, new Mock<SqlGenerator> { CallBase = true }.Object);
+            batch.AddCommand(command);
 
             await batch.ExecuteAsync(new Mock<RelationalTransaction>().Object, new RelationalTypeMapper(), new Mock<DbContext>().Object, new Mock<ILogger>().Object);
 
@@ -254,7 +279,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             command.AddStateEntry(stateEntry);
 
             var batch = new ModificationCommandBatchFake(CreateDataReaderMock(new[] { "Col1" }, new List<object[]> { new object[] { 42 } }).Object);
-            batch.AddCommand(command, new Mock<SqlGenerator> { CallBase = true }.Object);
+            batch.AddCommand(command);
 
             Assert.Equal(Strings.FormatUpdateConcurrencyException(1, 42),
                 (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
@@ -273,7 +298,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             command.AddStateEntry(stateEntry);
 
             var batch = new ModificationCommandBatchFake(CreateDataReaderMock(new[] { "Col1" }, new List<object[]>()).Object);
-            batch.AddCommand(command, new Mock<SqlGenerator> { CallBase = true }.Object);
+            batch.AddCommand(command);
 
             Assert.Equal(Strings.FormatUpdateConcurrencyException(1, 0),
                 (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
@@ -289,7 +314,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var stateEntry = CreateStateEntry(EntityState.Added, ValueGenerationOnSave.WhenInserting);
             var property = stateEntry.EntityType.GetProperty("Id");
-            var batch = new ModificationCommandBatchFake { ShouldAddCommand = true };
+            var batch = new ModificationCommandBatchFake();
 
             var commandMock1 = new Mock<ModificationCommand>();
             commandMock1.Setup(m => m.ColumnModifications).Returns(
@@ -298,13 +323,9 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                         new ColumnModification(
                             stateEntry,
                             property,
-                            new ParameterNameGenerator(),
-                            isRead: false,
-                            isWrite: true,
-                            isKey: false,
-                            isCondition: false)
+                            new ParameterNameGenerator(), false, true, false, false)
                     });
-            batch.AddCommand(commandMock1.Object, new Mock<SqlGenerator> { CallBase = true }.Object);
+            batch.AddCommand(commandMock1.Object);
 
             var commandMock2 = new Mock<ModificationCommand>();
             commandMock2.Setup(m => m.ColumnModifications).Returns(
@@ -313,18 +334,13 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                         new ColumnModification(
                             stateEntry,
                             property,
-                            new ParameterNameGenerator(),
-                            isRead: false,
-                            isWrite: true,
-                            isKey: false,
-                            isCondition: false)
+                            new ParameterNameGenerator(), false, true, false, false)
                     });
-            batch.AddCommand(commandMock2.Object, new Mock<SqlGenerator> { CallBase = true }.Object);
+            batch.AddCommand(commandMock2.Object);
 
-            batch.SqlScriptBase = "foo";
             var transaction = CreateMockDbTransaction();
 
-            var command = batch.CreateStoreCommandBase(transaction, new RelationalTypeMapper());
+            var command = batch.CreateStoreCommandBase("foo", transaction, new RelationalTypeMapper());
 
             Assert.Equal(CommandType.Text, command.CommandType);
             Assert.Equal("foo", command.CommandText);
@@ -344,11 +360,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 new ColumnModification(
                     stateEntry,
                     property,
-                    new ParameterNameGenerator(),
-                    isRead: false,
-                    isWrite: true,
-                    isKey: false,
-                    isCondition: false),
+                    new ParameterNameGenerator(), false, true, false, false),
                 new RelationalTypeMapper());
 
             Assert.Equal(1, dbCommandMock.Object.Parameters.Count);
@@ -366,11 +378,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 new ColumnModification(
                     stateEntry,
                     property,
-                    new ParameterNameGenerator(),
-                    isRead: false,
-                    isWrite: false,
-                    isKey: false,
-                    isCondition: true),
+                    new ParameterNameGenerator(), false, false, false, true),
                 new RelationalTypeMapper());
 
             Assert.Equal(1, dbCommandMock.Object.Parameters.Count);
@@ -388,11 +396,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 new ColumnModification(
                     stateEntry,
                     property,
-                    new ParameterNameGenerator(),
-                    isRead: false,
-                    isWrite: true,
-                    isKey: false,
-                    isCondition: true),
+                    new ParameterNameGenerator(), false, true, false, true),
                 new RelationalTypeMapper());
 
             Assert.Equal(2, dbCommandMock.Object.Parameters.Count);
@@ -410,11 +414,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 new ColumnModification(
                     stateEntry,
                     property,
-                    new ParameterNameGenerator(),
-                    isRead: true,
-                    isWrite: false,
-                    isKey: false,
-                    isCondition: false),
+                    new ParameterNameGenerator(), true, false, false, false),
                 new RelationalTypeMapper());
 
             Assert.Equal(0, dbCommandMock.Object.Parameters.Count);
@@ -567,7 +567,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             serviceCollection.AddEntityFramework().AddInMemoryStore();
             return new DbContext(serviceCollection.BuildServiceProvider(),
                 new DbContextOptions()
-                    .UseInMemoryStore(persist: false)
+                    .UseInMemoryStore(false)
                     .UseModel(model))
                 .Configuration;
         }
@@ -588,47 +588,59 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             private readonly DbDataReader _reader;
 
-            public ModificationCommandBatchFake()
+            public ModificationCommandBatchFake(SqlGenerator sqlGenerator = null)
+                : base(sqlGenerator ?? new FakeSqlGenerator())
             {
+                ShouldAddCommand = true;
+                ShouldValidateSql = true;
             }
 
-            public ModificationCommandBatchFake(DbDataReader reader)
+            public ModificationCommandBatchFake(DbDataReader reader, SqlGenerator sqlGenerator = null)
+                : base(sqlGenerator ?? new FakeSqlGenerator())
             {
                 _reader = reader;
                 ShouldAddCommand = true;
+                ShouldValidateSql = true;
+            }
+
+            public string CommandText
+            {
+                get { return base.GetCommandText(); }
             }
 
             public bool ShouldAddCommand { get; set; }
 
-            public string SqlScriptBase
-            {
-                get { return base.SqlScript; }
-                set { base.SqlScript = value; }
-            }
-
-            protected override bool CanAddCommand(ModificationCommand modificationCommand, StringBuilder newSql)
+            protected override bool CanAddCommand(ModificationCommand modificationCommand)
             {
                 return ShouldAddCommand;
             }
 
-            protected override StringBuilder UpdateCommandText(ModificationCommand newModificationCommand, SqlGenerator sqlGenerator)
+            public bool ShouldValidateSql { get; set; }
+
+            protected override bool IsCommandTextValid()
             {
-                return new StringBuilder();
+                return ShouldValidateSql;
             }
 
-            public StringBuilder UpdateCommandTextBase(ModificationCommand newModificationCommand, SqlGenerator sqlGenerator)
+            protected override void UpdateCachedCommandText(int commandIndex)
             {
-                return base.UpdateCommandText(newModificationCommand, sqlGenerator);
+                CachedCommandText = CachedCommandText ?? new StringBuilder();
+                CachedCommandText.Append(".");
             }
 
-            protected override DbCommand CreateStoreCommand(DbTransaction transaction, RelationalTypeMapper typeMapper)
+            public void UpdateCachedCommandTextBase(int commandIndex)
+            {
+                base.UpdateCachedCommandText(commandIndex);
+            }
+
+            protected override DbCommand CreateStoreCommand(string commandText, DbTransaction transaction, RelationalTypeMapper typeMapper)
             {
                 return CreateDbCommandMock(_reader).Object;
             }
 
-            public DbCommand CreateStoreCommandBase(DbTransaction transaction, RelationalTypeMapper typeMapper)
+            public DbCommand CreateStoreCommandBase(string commandText, DbTransaction transaction, RelationalTypeMapper typeMapper)
             {
-                return base.CreateStoreCommand(transaction, typeMapper);
+                return base.CreateStoreCommand(commandText, transaction, typeMapper);
             }
 
             public int PopulateParameterCalls { get; set; }
