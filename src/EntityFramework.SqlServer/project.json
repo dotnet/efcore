@@ -1,19 +1,19 @@
 ﻿{
-  "version": "7.0.0-*",
-  "compilationOptions": {
-    "warningsAsErrors": true
-  },
-  "dependencies": {
-    "EntityFramework.Migrations": "",
-    "System.Data.SqlClient": "1.0.0-*"
-  },
-  "code": "**\\*.cs;..\\Shared\\*.cs",
-  "frameworks": {
-    "net451": {},
-    "k10": {
-      "dependencies": {
-        "System.Threading.Thread": "4.0.0.0"
-      }
+    "version": "7.0.0-*",
+    "compilationOptions": {
+        "warningsAsErrors": true
+    },
+    "dependencies": {
+        "EntityFramework.Migrations": "",
+        "System.Data.SqlClient": "1.0.0-*"
+    },
+    "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
+    "frameworks": {
+        "net451": { },
+        "k10": {
+            "dependencies": {
+                "System.Threading.Thread": "4.0.0.0"
+            }
+        }
     }
-  }
 }

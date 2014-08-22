@@ -1,25 +1,25 @@
 ﻿{
-  "version": "7.0.0-*",
-  "compilationOptions": {
-    "warningsAsErrors": true
-  },
-  "dependencies": {
-    "EntityFramework.Relational": ""
-  },
-  "code": "**\\*.cs;..\\Shared\\*.cs",
-  "frameworks": {
-    "net451": {},
-    "k10": {
-      "dependencies": {
-        "Microsoft.CSharp": "4.0.0.0"
-      }
+    "version": "7.0.0-*",
+    "compilationOptions": {
+        "warningsAsErrors": true
     },
-    ".NETPortable,Version=v4.6,Profile=Profile44": {
-      "dependencies": {
-        "Microsoft.CSharp": "",
-        "System.Dynamic.Runtime": "",
-        "System.Reflection.Primitives": ""
-      }
+    "dependencies": {
+        "EntityFramework.Relational": ""
+    },
+    "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
+    "frameworks": {
+        "net451": { },
+        "k10": {
+            "dependencies": {
+                "Microsoft.CSharp": "4.0.0.0"
+            }
+        },
+        ".NETPortable,Version=v4.6,Profile=Profile151": {
+            "dependencies": {
+                "Microsoft.CSharp": "",
+                "System.Dynamic.Runtime": "",
+                "System.Reflection.Primitives": ""
+            }
+        }
     }
-  }
 }

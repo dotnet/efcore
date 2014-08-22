@@ -10,9 +10,8 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Microsoft.Data.Entity.AzureTableStorage</RootNamespace>
     <AssemblyName>EntityFramework.AzureTableStorage</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -22,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,6 +30,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -48,7 +49,7 @@
       <Assemblies>Microsoft.WindowsAzure.Storage</Assemblies>
     </PackageReference>
     <PackageReference Include="Remotion.Linq">
-      <TargetFramework>portable-net45+wp80+win</TargetFramework>
+      <TargetFramework>portable-net45+wp80+wpa81+win</TargetFramework>
     </PackageReference>
     <PackageReference Include="Microsoft.Framework.ConfigurationModel">
       <TargetFramework>net45</TargetFramework>
@@ -56,8 +57,12 @@
     <PackageReference Include="Microsoft.Framework.DependencyInjection">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
-    <PackageReference Include="Microsoft.Framework.Logging" />
-    <PackageReference Include="Microsoft.Framework.Logging.Interfaces" />
+    <PackageReference Include="Microsoft.Framework.Logging">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Framework.Logging.Interfaces">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\packages\KoreBuild\build\Resources.cs">
@@ -144,7 +149,7 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>

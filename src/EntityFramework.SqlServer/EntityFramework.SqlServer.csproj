@@ -33,8 +33,12 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Ix-Async">
+      <TargetFramework>net45</TargetFramework>
+      <Assemblies>System.Interactive.Async</Assemblies>
+    </PackageReference>
     <PackageReference Include="Remotion.Linq">
-      <TargetFramework>portable-net45+wp80+win</TargetFramework>
+      <TargetFramework>portable-net45+wp80+wpa81+win</TargetFramework>
     </PackageReference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -48,6 +52,12 @@
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <PackageReference Include="Microsoft.Framework.DependencyInjection">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Framework.Logging">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Framework.Logging.Interfaces">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
   </ItemGroup>
@@ -122,7 +132,7 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>

@@ -31,14 +31,22 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Ix-Async">
+      <TargetFramework>net45</TargetFramework>
+      <Assemblies>System.Interactive.Async</Assemblies>
+    </PackageReference>
     <PackageReference Include="Microsoft.Framework.ConfigurationModel">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <PackageReference Include="Microsoft.Framework.DependencyInjection">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
-    <PackageReference Include="Microsoft.Framework.Logging" />
-    <PackageReference Include="Microsoft.Framework.Logging.Interfaces" />
+    <PackageReference Include="Microsoft.Framework.Logging">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Framework.Logging.Interfaces">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
     <PackageReference Include="xunit.abstractions">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
@@ -86,7 +94,7 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
