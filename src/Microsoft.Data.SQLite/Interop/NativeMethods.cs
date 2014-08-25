@@ -4,7 +4,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-#if NET451 || K10
+#if NET451 || ASPNET50 || ASPNETCORE50
 using Microsoft.Data.SQLite.Utilities;
 #endif
 
@@ -14,7 +14,7 @@ namespace Microsoft.Data.SQLite.Interop
     // TODO: Consider using function pointers instead of SQLITE_TRANSIENT #Perf
     internal static class NativeMethods
     {
-#if NET451 || K10
+#if NET451 || ASPNET50 || ASPNETCORE50
         static NativeMethods()
         {
             NativeLibraryLoader.Load("sqlite3");

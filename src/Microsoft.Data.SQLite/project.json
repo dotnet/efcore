@@ -4,9 +4,9 @@
     "System.Data.Common": "1.0.0-*"
   },
   "frameworks": {
-    "net451": {
+    "net451": { },
+    "aspnet50": {
       "dependencies": {
-        "System.Data": "",
         "Microsoft.Framework.Runtime.Interfaces": "1.0.0-*"
       }
     },
