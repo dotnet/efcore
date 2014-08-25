@@ -69,7 +69,7 @@
     <Compile Include="DbContextOptions`.cs" />
     <Compile Include="DbSet.cs" />
     <Compile Include="EntityServicesBuilder.cs" />
-    <Compile Include="EntitySet`.cs" />
+    <Compile Include="DbSet`.cs" />
     <Compile Include="EntityState.cs" />
     <Compile Include="EntityStateExtensions.cs" />
     <Compile Include="ChangeTracking\PropertyBagExtensions.cs" />
@@ -109,6 +109,7 @@
     <Compile Include="Metadata\IPropertyBuilder.cs" />
     <Compile Include="Metadata\ModelBuilder.cs" />
     <Compile Include="QueryExtensions.cs" />
+    <Compile Include="Query\IAsyncEnumerableAccessor.cs" />
     <Compile Include="Storage\DataStoreException.cs" />
     <Compile Include="Infrastructure\IDbContextOptionsExtensions.cs" />
     <Compile Include="INotifyPropertyChanging.cs" />

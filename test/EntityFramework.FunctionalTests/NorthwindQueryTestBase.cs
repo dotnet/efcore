@@ -1157,7 +1157,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 from c in cs.OrderBy(c => c.CustomerID)
                 join o in os.OrderBy(o => o.OrderID) on c.CustomerID equals o.CustomerID
                 select new { c.CustomerID, o.OrderID },
-                assertOrder: true);
+                assertOrder: false);
         }
 
         [Fact]

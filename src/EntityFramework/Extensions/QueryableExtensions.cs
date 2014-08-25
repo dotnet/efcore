@@ -1274,7 +1274,7 @@ namespace System.Linq
         {
             Check.NotNull(source, "source");
 
-            return source.ToAsyncEnumerable().ToList(cancellationToken);
+            return source.AsAsyncEnumerable().ToList(cancellationToken);
         }
 
         public static Task<TSource[]> ToArrayAsync<TSource>(
@@ -1289,7 +1289,7 @@ namespace System.Linq
         {
             Check.NotNull(source, "source");
 
-            return source.ToAsyncEnumerable().ToArray(cancellationToken);
+            return source.AsAsyncEnumerable().ToArray(cancellationToken);
         }
 
         #endregion
@@ -1305,6 +1305,31 @@ namespace System.Linq
             throw new NotImplementedException();
         }
 
+        #endregion
+
+        #region AsAsyncEnumerable
+
+        public static IAsyncEnumerable<TSource> AsAsyncEnumerable<TSource>([NotNull] this IQueryable<TSource> source) 
+        {
+            Check.NotNull(source, "source");
+
+            var enumerable = source as IAsyncEnumerable<TSource>;
+
+            if (enumerable != null)
+            {
+                return enumerable;
+            }
+
+            var entityQueryableAccessor = source as IAsyncEnumerableAccessor<TSource>;
+
+            if (entityQueryableAccessor != null)
+            {
+                return entityQueryableAccessor.AsyncEnumerable;
+            }
+
+            throw new InvalidOperationException(Strings.FormatIQueryableNotAsync(typeof(TSource)));
+        }
+        
         #endregion
 
         private static Task<TResult> ExecuteAsync<TSource, TResult>(

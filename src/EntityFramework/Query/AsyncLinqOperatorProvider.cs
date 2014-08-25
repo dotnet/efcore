@@ -2,8 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 using JetBrains.Annotations;
@@ -27,6 +29,70 @@ namespace Microsoft.Data.Entity.Query
         public virtual MethodInfo ToSequence
         {
             get { return _toSequenceShim; }
+        }
+
+        private static readonly MethodInfo _asQueryableShim
+            = typeof(AsyncLinqOperatorProvider)
+                .GetTypeInfo().GetDeclaredMethod("AsQueryableShim");
+
+        [UsedImplicitly]
+        private static IOrderedQueryable<TSource> AsQueryableShim<TSource>(IAsyncEnumerable<TSource> source)
+        {
+            return new AsyncQueryableAdapter<TSource>(source);
+        }
+
+        private sealed class AsyncQueryableAdapter<T> : IOrderedQueryable<T>, IAsyncEnumerable<T>, IOrderedEnumerable<T>
+        {
+            private readonly IAsyncEnumerable<T> _source;
+
+            public AsyncQueryableAdapter(IAsyncEnumerable<T> source)
+            {
+                _source = source;
+            }
+
+            public IOrderedEnumerable<T> CreateOrderedEnumerable<TKey>(
+                Func<T, TKey> keySelector, IComparer<TKey> comparer, bool descending)
+            {
+                return
+                    !descending
+                        ? _source.ToEnumerable().OrderBy(keySelector, comparer)
+                        : _source.ToEnumerable().OrderByDescending(keySelector, comparer);
+            }
+
+            IEnumerator<T> IEnumerable<T>.GetEnumerator()
+            {
+                return _source.ToEnumerable().GetEnumerator();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return ((IEnumerable<T>)this).GetEnumerator();
+            }
+
+            public Type ElementType
+            {
+                get { return typeof(T); }
+            }
+
+            public Expression Expression
+            {
+                get { throw new NotImplementedException(); }
+            }
+
+            public IQueryProvider Provider
+            {
+                get { throw new NotImplementedException(); }
+            }
+
+            public IAsyncEnumerator<T> GetEnumerator()
+            {
+                return _source.GetEnumerator();
+            }
+        }
+
+        public virtual MethodInfo AsQueryable
+        {
+            get { return _asQueryableShim; }
         }
 
         private static readonly MethodInfo _selectManyShim
@@ -217,7 +283,7 @@ namespace Microsoft.Data.Entity.Query
         }
 
         private static readonly MethodInfo _groupBy
-            = typeof(LinqOperatorProvider).GetTypeInfo().GetDeclaredMethod("_GroupBy");
+            = typeof(AsyncLinqOperatorProvider).GetTypeInfo().GetDeclaredMethod("_GroupBy");
 
         [UsedImplicitly]
         private static IAsyncEnumerable<IAsyncGrouping<TKey, TElement>> _GroupBy<TSource, TKey, TElement>(
@@ -281,16 +347,50 @@ namespace Microsoft.Data.Entity.Query
 
             var aggregateMethods
                 = typeof(AsyncEnumerable).GetTypeInfo().GetDeclaredMethods(methodName)
-                    .Where(mi => mi.GetParameters().Length == 2)
-                    .Where(mi => mi.GetParameters()[1].ParameterType == typeof(CancellationToken))
+                     .Where(mi => mi.GetParameters().Length == 2
+                                 && mi.GetParameters()[1].ParameterType == typeof(CancellationToken))
                     .ToList();
 
             return
                 aggregateMethods
                     .SingleOrDefault(mi => mi.GetParameters()[0].ParameterType
-                                           == typeof(IEnumerable<>).MakeGenericType(elementType))
+                                           == typeof(IAsyncEnumerable<>).MakeGenericType(elementType))
                 ?? aggregateMethods.Single(mi => mi.IsGenericMethod)
                     .MakeGenericMethod(elementType);
+        }
+
+        public virtual Expression AdjustSequenceType(Expression expression)
+        {
+            Check.NotNull(expression, "expression");
+
+            if (expression.Type == typeof(string)
+                || expression.Type == typeof(byte[]))
+            {
+                return expression;
+            }
+
+            var elementType
+                = expression.Type.TryGetElementType(typeof(IEnumerable<>));
+
+            if (elementType != null)
+            {
+                return
+                    Expression.Call(
+                        _toAsyncEnumerableShim.MakeGenericMethod(elementType),
+                        expression);
+            }
+
+            return expression;
+        }
+
+        private static readonly MethodInfo _toAsyncEnumerableShim
+            = typeof(AsyncLinqOperatorProvider)
+                .GetTypeInfo().GetDeclaredMethod("ToAsyncEnumerableShim");
+
+        [UsedImplicitly]
+        private static IAsyncEnumerable<T> ToAsyncEnumerableShim<T>(IEnumerable<T> source)
+        {
+            return source.ToAsyncEnumerable();
         }
 
         private static MethodInfo GetMethod(string name, int parameterCount = 0)

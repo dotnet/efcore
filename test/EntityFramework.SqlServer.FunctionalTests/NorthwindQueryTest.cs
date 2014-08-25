@@ -783,6 +783,16 @@ FROM [Orders] AS [o]",
                 _fixture.Sql);
         }
 
+        public override void GroupBy_Count()
+        {
+            base.GroupBy_Count();
+
+            Assert.Equal(
+                @"SELECT [o].[CustomerID], [o].[OrderDate], [o].[OrderID]
+FROM [Orders] AS [o]",
+                _fixture.Sql);
+        }
+
         public override void SelectMany_cartesian_product_with_ordering()
         {
             base.SelectMany_cartesian_product_with_ordering();
