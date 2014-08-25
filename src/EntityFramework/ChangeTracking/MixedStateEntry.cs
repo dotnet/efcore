@@ -61,7 +61,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             var property = propertyBase as IProperty;
 
-            return property == null || property.IsClrProperty
+            return property == null || !property.IsShadowProperty
                 ? base.ReadPropertyValue(propertyBase)
                 : _shadowValues[property.ShadowIndex];
         }
@@ -73,7 +73,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             var property = propertyBase as IProperty;
 
             if (property == null
-                || property.IsClrProperty)
+                || !property.IsShadowProperty)
             {
                 base.WritePropertyValue(propertyBase, value);
             }
@@ -91,7 +91,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             for (var i = 0; i < properties.Count; i++)
             {
                 var property = properties[i];
-                if (!property.IsClrProperty)
+                if (property.IsShadowProperty)
                 {
                     // TODO: Consider using strongly typed ReadValue instead of always object
                     shadowValues[property.ShadowIndex] = valueReader.IsNull(i) ? null : valueReader.ReadValue<object>(i);

@@ -72,7 +72,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
                     {
                         b.PartitionAndRowKey(c => c.Name, c => c.TeamId);
                         b.Key(c => c.TeamId);
-                        b.Property<string>("ETag", true);
+                        b.Property<string>("ETag");
                         b.TableName("Chassis" + tableSuffix);
                     });
 
@@ -81,7 +81,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
                     {
                         b.PartitionAndRowKey(c => c.Name, c => c.Id);
                         b.Key(c => c.Id);
-                        b.Property<string>("ETag", true);
+                        b.Property<string>("ETag");
                         b.TableName("Teams" + tableSuffix);
                     });
 
@@ -90,7 +90,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
                     {
                         b.PartitionAndRowKey(c => c.Name, c => c.Id);
                         b.Key(c => c.Id);
-                        b.Property<string>("ETag", true);
+                        b.Property<string>("ETag");
                         b.TableName("Drivers" + tableSuffix);
                     });
 
@@ -99,7 +99,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
                     {
                         b.PartitionAndRowKey(c => c.Name, c => c.Id);
                         b.Key(c => c.Id);
-                        b.Property<string>("ETag", true);
+                        b.Property<string>("ETag");
                         b.TableName("Engines" + tableSuffix);
                     });
 
@@ -108,7 +108,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
                     {
                         b.PartitionAndRowKey(c => c.Name, c => c.Id);
                         b.Key(c => c.Id);
-                        b.Property<string>("ETag", true);
+                        b.Property<string>("ETag");
                         b.TableName("EngineSuppliers" + tableSuffix);
                     });
 
@@ -117,7 +117,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
                     {
                         b.PartitionAndRowKey(c => c.Name, c => c.Id);
                         b.Key(c => c.Id);
-                        b.Property<string>("ETag", true);
+                        b.Property<string>("ETag");
                         b.TableName("Gearboxes" + tableSuffix);
                     });
 
@@ -126,7 +126,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
                     {
                         b.PartitionAndRowKey(c => c.Name, c => c.Id);
                         b.Key(c => c.Id);
-                        b.Property<string>("ETag", true);
+                        b.Property<string>("ETag");
                         b.TableName("Sponsors" + tableSuffix);
                     });
 
@@ -135,7 +135,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
                     {
                         b.PartitionAndRowKey(c => c.Name, c => c.Id);
                         b.Key(c => c.Id);
-                        b.Property<string>("ETag", true);
+                        b.Property<string>("ETag");
                         b.TableName("TestDrivers" + tableSuffix);
                     });
 
@@ -144,7 +144,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
                     {
                         b.PartitionAndRowKey(c => c.Name, c => c.Id);
                         b.Key(c => c.Id);
-                        b.Property<string>("ETag", true);
+                        b.Property<string>("ETag");
                         b.TableName("TitleSponsors" + tableSuffix);
                     });
 

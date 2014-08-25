@@ -418,7 +418,8 @@ namespace MyNamespace
                 
                 builder.Entity(""Entity"", b =>
                     {
-                        b.Property<int>(""Id"");
+                        b.Property<int>(""Id"")
+                            .Shadow(false);
                         b.Key(""Id"");
                     });
                 

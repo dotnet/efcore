@@ -13,6 +13,21 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
         }
 
+        public virtual void Required(bool isRequired = true)
+        {
+            Metadata.IsNullable = !isRequired;
+        }
+
+        public virtual void ConcurrencyToken(bool isConcurrencyToken = true)
+        {
+            Metadata.IsConcurrencyToken = isConcurrencyToken;
+        }
+
+        public virtual void Shadow(bool isShadowProperty = true)
+        {
+            Metadata.IsShadowProperty = isShadowProperty;
+        }
+
         // TODO Consider if this should be relational only
         public virtual void UseStoreSequence()
         {

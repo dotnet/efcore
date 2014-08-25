@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.Metadata
         int Index { get; }
         int ShadowIndex { get; }
         int OriginalValueIndex { get; }
-        bool IsClrProperty { get; }
+        bool IsShadowProperty { get; }
         bool IsConcurrencyToken { get; }
     }
 }

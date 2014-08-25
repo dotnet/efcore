@@ -302,7 +302,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             Check.NotNull(propertyBase, "propertyBase");
 
-            Contract.Assert(!(propertyBase is IProperty) || ((IProperty)propertyBase).IsClrProperty);
+            Contract.Assert(!(propertyBase is IProperty) || !((IProperty)propertyBase).IsShadowProperty);
 
             return _configuration.Services.ClrPropertyGetterSource.GetAccessor(propertyBase).GetClrValue(Entity);
         }
@@ -311,7 +311,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             Check.NotNull(propertyBase, "propertyBase");
 
-            Contract.Assert(!(propertyBase is IProperty) || ((IProperty)propertyBase).IsClrProperty);
+            Contract.Assert(!(propertyBase is IProperty) || !((IProperty)propertyBase).IsShadowProperty);
 
             _configuration.Services.ClrPropertySetterSource.GetAccessor(propertyBase).SetClrValue(Entity, value);
         }

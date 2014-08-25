@@ -158,41 +158,44 @@ namespace Microsoft.Data.Entity.Design
                 .Append("b.Property<")
                 .Append(property.PropertyType.GetTypeName())
                 .Append(">(")
-                .Append(DelimitString(property.Name));
+                .Append(DelimitString(property.Name))
+                .Append(")");
 
-            if (!property.IsClrProperty)
+            using (stringBuilder.Indent())
             {
-                stringBuilder.Append(", shadowProperty: true");
+                if (!property.IsShadowProperty)
+                {
+                    stringBuilder
+                        .AppendLine()
+                        .Append(".Shadow(false)");
+                }
+
+                if (property.IsConcurrencyToken)
+                {
+                    stringBuilder
+                        .AppendLine()
+                        .Append(".ConcurrencyToken()");
+                }
+
+                GeneratePropertyAnnotations(property, stringBuilder);
             }
-
-            if (property.IsConcurrencyToken)
-            {
-                stringBuilder.Append(", concurrencyToken: true");
-            }
-
-            stringBuilder.Append(")");
-
-            GeneratePropertyAnnotations(property, stringBuilder);
 
             stringBuilder.Append(";");
         }
 
         protected virtual void GeneratePropertyAnnotations([NotNull] IProperty property, [NotNull] IndentedStringBuilder stringBuilder)
         {
-            using (stringBuilder.Indent())
+            var columnName = property[ColumnNameAnnotationName];
+            if (columnName != null)
             {
-                var columnName = property[ColumnNameAnnotationName];
-                if (columnName != null)
-                {
-                    stringBuilder
-                        .AppendLine()
-                        .Append(".ColumnName(")
-                        .Append(DelimitString(columnName))
-                        .Append(")");
-                }
-
-                GenerateAnnotations(property.Annotations.Where(a => a.Name != ColumnNameAnnotationName).ToArray(), stringBuilder);
+                stringBuilder
+                    .AppendLine()
+                    .Append(".ColumnName(")
+                    .Append(DelimitString(columnName))
+                    .Append(")");
             }
+
+            GenerateAnnotations(property.Annotations.Where(a => a.Name != ColumnNameAnnotationName).ToArray(), stringBuilder);
         }
 
         protected virtual void GenerateKey(

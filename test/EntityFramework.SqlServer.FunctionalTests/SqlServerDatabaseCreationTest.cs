@@ -297,11 +297,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                var blogType = modelBuilder.Model.GetEntityType(typeof(Blog));
-
-                blogType.SetKey(blogType.GetProperty("Key1"), blogType.GetProperty("Key2"));
-                blogType.RemoveProperty(blogType.GetProperty("AndRow"));
-                blogType.AddProperty("AndRow", typeof(byte[]), shadowProperty: false, concurrencyToken: true);
+                modelBuilder.Entity<Blog>(b =>
+                    {
+                        b.Key(e => new { e.Key1, e.Key2 });
+                        b.Property(e => e.AndRow).ConcurrencyToken();
+                    });
             }
 
             public DbSet<Blog> Blogs { get; set; }

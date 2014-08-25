@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using Xunit;
 
@@ -397,6 +398,194 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
+        public void Properties_are_required_by_default_only_if_CLR_type_is_nullable()
+        {
+            var model = new Model();
+            var modelBuilder = new BasicModelBuilder(model);
+
+            modelBuilder.Entity<Quarks>(b =>
+                {
+                    b.Property(e => e.Up);
+                    b.Property(e => e.Down);
+                    b.Property<int>("Charm");
+                    b.Property<string>("Strange");
+                    b.Property(typeof(int), "Top");
+                    b.Property(typeof(string), "Bottom");
+                });
+
+            var entityType = model.GetEntityType(typeof(Quarks));
+
+            Assert.False(entityType.GetProperty("Up").IsNullable);
+            Assert.True(entityType.GetProperty("Down").IsNullable);
+            Assert.False(entityType.GetProperty("Charm").IsNullable);
+            Assert.True(entityType.GetProperty("Strange").IsNullable);
+            Assert.False(entityType.GetProperty("Top").IsNullable);
+            Assert.True(entityType.GetProperty("Bottom").IsNullable);
+        }
+
+        [Fact]
+        public void Properties_can_be_made_required()
+        {
+            var model = new Model();
+            var modelBuilder = new BasicModelBuilder(model);
+
+            modelBuilder.Entity<Quarks>(b =>
+                {
+                    b.Property(e => e.Up).Required();
+                    b.Property(e => e.Down).Required();
+                    b.Property<int>("Charm").Required();
+                    b.Property<string>("Strange").Required();
+                    b.Property(typeof(int), "Top").Required();
+                    b.Property(typeof(string), "Bottom").Required();
+                });
+
+            var entityType = model.GetEntityType(typeof(Quarks));
+
+            Assert.False(entityType.GetProperty("Up").IsNullable);
+            Assert.False(entityType.GetProperty("Down").IsNullable);
+            Assert.False(entityType.GetProperty("Charm").IsNullable);
+            Assert.False(entityType.GetProperty("Strange").IsNullable);
+            Assert.False(entityType.GetProperty("Top").IsNullable);
+            Assert.False(entityType.GetProperty("Bottom").IsNullable);
+        }
+
+        [Fact]
+        public void Properties_can_be_made_optional()
+        {
+            var model = new Model();
+            var modelBuilder = new BasicModelBuilder(model);
+
+            modelBuilder.Entity<Quarks>(b =>
+                {
+                    b.Property(e => e.Up).Required(false);
+                    b.Property(e => e.Down).Required(false);
+                    b.Property<int>("Charm").Required(false);
+                    b.Property<string>("Strange").Required(false);
+                    b.Property(typeof(int), "Top").Required(false);
+                    b.Property(typeof(string), "Bottom").Required(false);
+                });
+
+            var entityType = model.GetEntityType(typeof(Quarks));
+
+            Assert.True(entityType.GetProperty("Up").IsNullable);
+            Assert.True(entityType.GetProperty("Down").IsNullable);
+            Assert.True(entityType.GetProperty("Charm").IsNullable);
+            Assert.True(entityType.GetProperty("Strange").IsNullable);
+            Assert.True(entityType.GetProperty("Top").IsNullable);
+            Assert.True(entityType.GetProperty("Bottom").IsNullable);
+        }
+
+        [Fact]
+        public void Properties_specified_by_string_are_shadow_properties_unless_already_defined_as_CLR_properties()
+        {
+            var model = new Model();
+            var modelBuilder = new BasicModelBuilder(model);
+
+            modelBuilder.Entity<Quarks>(b =>
+                {
+                    b.Property(e => e.Up);
+                    b.Property<int>("Charm");
+                    b.Property(typeof(int), "Top");
+                    b.Property<int>("Up");
+                    b.Property<string>("Gluon");
+                    b.Property(typeof(string), "Photon");
+                });
+
+            var entityType = model.GetEntityType(typeof(Quarks));
+
+            Assert.False(entityType.GetProperty("Up").IsShadowProperty);
+            Assert.True(entityType.GetProperty("Charm").IsShadowProperty);
+            Assert.True(entityType.GetProperty("Top").IsShadowProperty);
+            Assert.True(entityType.GetProperty("Gluon").IsShadowProperty);
+            Assert.True(entityType.GetProperty("Photon").IsShadowProperty);
+
+            Assert.Equal(-1, entityType.GetProperty("Up").ShadowIndex);
+            Assert.Equal(0, entityType.GetProperty("Charm").ShadowIndex);
+            Assert.Equal(3, entityType.GetProperty("Top").ShadowIndex);
+            Assert.Equal(1, entityType.GetProperty("Gluon").ShadowIndex);
+            Assert.Equal(2, entityType.GetProperty("Photon").ShadowIndex);
+        }
+
+        [Fact]
+        public void Properties_can_be_made_shadow_properties_or_vice_versa()
+        {
+            var model = new Model();
+            var modelBuilder = new BasicModelBuilder(model);
+
+            modelBuilder.Entity<Quarks>(b =>
+                {
+                    b.Property(e => e.Up).Shadow();
+                    b.Property<int>("Charm").Shadow(false);
+                    b.Property(typeof(int), "Top").Shadow(false);
+                    b.Property<string>("Gluon").Shadow(false);
+                    b.Property(typeof(string), "Photon").Shadow(false);
+                });
+
+            var entityType = model.GetEntityType(typeof(Quarks));
+
+            Assert.True(entityType.GetProperty("Up").IsShadowProperty);
+            Assert.False(entityType.GetProperty("Charm").IsShadowProperty);
+            Assert.False(entityType.GetProperty("Top").IsShadowProperty);
+            Assert.False(entityType.GetProperty("Gluon").IsShadowProperty);
+            Assert.False(entityType.GetProperty("Photon").IsShadowProperty);
+
+            Assert.Equal(0, entityType.GetProperty("Up").ShadowIndex);
+            Assert.Equal(-1, entityType.GetProperty("Charm").ShadowIndex);
+            Assert.Equal(-1, entityType.GetProperty("Top").ShadowIndex);
+            Assert.Equal(-1, entityType.GetProperty("Gluon").ShadowIndex);
+            Assert.Equal(-1, entityType.GetProperty("Photon").ShadowIndex);
+        }
+
+        [Fact]
+        public void Properties_can_be_made_concurency_tokens()
+        {
+            var model = new Model();
+            var modelBuilder = new BasicModelBuilder(model);
+
+            modelBuilder.Entity<Quarks>(b =>
+                {
+                    b.Property(e => e.Id);
+                    b.Property(e => e.Up).ConcurrencyToken();
+                    b.Property(e => e.Down).ConcurrencyToken(false);
+                    b.Property<int>("Charm").ConcurrencyToken(true);
+                    b.Property<string>("Strange").ConcurrencyToken(false);
+                    b.Property(typeof(int), "Top").ConcurrencyToken();
+                    b.Property(typeof(string), "Bottom").ConcurrencyToken(false);
+                });
+
+            var entityType = model.GetEntityType(typeof(Quarks));
+
+            Assert.False(entityType.GetProperty("Id").IsConcurrencyToken);
+            Assert.True(entityType.GetProperty("Up").IsConcurrencyToken);
+            Assert.False(entityType.GetProperty("Down").IsConcurrencyToken);
+            Assert.True(entityType.GetProperty("Charm").IsConcurrencyToken);
+            Assert.False(entityType.GetProperty("Strange").IsConcurrencyToken);
+            Assert.True(entityType.GetProperty("Top").IsConcurrencyToken);
+            Assert.False(entityType.GetProperty("Bottom").IsConcurrencyToken);
+
+            Assert.Equal(-1, entityType.GetProperty("Id").OriginalValueIndex);
+            Assert.Equal(2, entityType.GetProperty("Up").OriginalValueIndex);
+            Assert.Equal(-1, entityType.GetProperty("Down").OriginalValueIndex);
+            Assert.Equal(0, entityType.GetProperty("Charm").OriginalValueIndex);
+            Assert.Equal(-1, entityType.GetProperty("Strange").OriginalValueIndex);
+            Assert.Equal(1, entityType.GetProperty("Top").OriginalValueIndex);
+            Assert.Equal(-1, entityType.GetProperty("Bottom").OriginalValueIndex);
+        }
+
+        [Fact]
+        public void PropertyBuilder_methods_can_be_chained()
+        {
+            new BasicModelBuilder()
+                .Entity<Quarks>()
+                .Property(e => e.Up)
+                .Required()
+                .Annotation("A", "V")
+                .ConcurrencyToken()
+                .Shadow()
+                .Required();
+        }
+
+        [Fact]
         public void Can_add_foreign_key()
         {
             var model = new Model();
@@ -681,6 +870,24 @@ namespace Microsoft.Data.Entity.Metadata
 
             public int OrderId { get; set; }
             public Order Order { get; set; }
+        }
+
+        // INotify interfaces not really implemented; just marking the classes to test metadata construction
+        private class Quarks : INotifyPropertyChanging, INotifyPropertyChanged
+        {
+            public int Id { get; set; }
+
+            public int Up { get; set; }
+            public string Down { get; set; }
+            public int Charm { get; set; }
+            public string Strange { get; set; }
+            public int Top { get; set; }
+            public string Bottom { get; set; }
+
+#pragma warning disable 67
+            public event PropertyChangingEventHandler PropertyChanging;
+            public event PropertyChangedEventHandler PropertyChanged;
+#pragma warning restore 67
         }
     }
 }

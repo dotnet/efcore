@@ -58,7 +58,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotNull(propertyBase, "propertyBase");
 
             var property = propertyBase as IProperty;
-            Contract.Assert(property != null && !property.IsClrProperty);
+            Contract.Assert(property != null && property.IsShadowProperty);
 
             return _propertyValues[property.ShadowIndex];
         }
@@ -68,7 +68,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotNull(propertyBase, "propertyBase");
 
             var property = propertyBase as IProperty;
-            Contract.Assert(property != null && !property.IsClrProperty);
+            Contract.Assert(property != null && property.IsShadowProperty);
 
             _propertyValues[property.ShadowIndex] = value;
         }
