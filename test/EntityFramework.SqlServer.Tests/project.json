@@ -4,7 +4,11 @@
     "Moq" : "4.2.1312.1622",
     "Xunit.KRunner": "1.0.0-*"
   },
-  "code": "**\\*.cs;..\\Shared\\ApiConsistencyTestBase.cs;..\\EntityFramework.Relational.Tests\\SqlGeneratorTestBase.cs",
+  "code": [
+    "**\\*.cs",
+    "..\\Shared\\ApiConsistencyTestBase.cs",
+    "..\\EntityFramework.Relational.Tests\\SqlGeneratorTestBase.cs"
+  ],
   "commands": {
     "test": "Xunit.KRunner"
   },

@@ -6,7 +6,7 @@
   "dependencies": {
     "EntityFramework.Relational": ""
   },
-  "code": "**\\*.cs;..\\Shared\\*.cs",
+  "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
   "frameworks": {
     "net451": {},
     "k10": {

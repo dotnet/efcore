@@ -7,7 +7,6 @@
         "EntityFramework.Migrations": ""
     },
     "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
-    "exclude": "tools\\Handler.cs",
     "frameworks": {
         "net451": { },
         "k10": {
