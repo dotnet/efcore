@@ -368,9 +368,9 @@ namespace Microsoft.Data.Entity.Metadata
             entityType.AddProperty("Id", typeof(int));
             entityType.AddProperty("Mane", typeof(int), shadowProperty: true, concurrencyToken: false);
 
-            Assert.True(entityType.GetProperty("Name").IsClrProperty);
-            Assert.True(entityType.GetProperty("Id").IsClrProperty);
-            Assert.False(entityType.GetProperty("Mane").IsClrProperty);
+            Assert.False(entityType.GetProperty("Name").IsShadowProperty);
+            Assert.False(entityType.GetProperty("Id").IsShadowProperty);
+            Assert.True(entityType.GetProperty("Mane").IsShadowProperty);
         }
 
         [Fact]

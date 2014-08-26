@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Metadata
             _convention.Apply(entityType);
             var etagProp = entityType.GetProperty("ETag");
             Assert.NotNull(etagProp);
-            Assert.False(etagProp.IsClrProperty);
+            Assert.True(etagProp.IsShadowProperty);
             Assert.True(etagProp.IsConcurrencyToken);
         }
 
@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Metadata
             _convention.Apply(entityType);
             var etagProp = entityType.GetProperty("ETag");
             Assert.NotNull(etagProp);
-            Assert.True(etagProp.IsClrProperty);
+            Assert.False(etagProp.IsShadowProperty);
             Assert.False(etagProp.IsConcurrencyToken);
         }
     }

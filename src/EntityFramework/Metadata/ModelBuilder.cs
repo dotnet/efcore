@@ -199,11 +199,19 @@ namespace Microsoft.Data.Entity.Metadata
                 return new KeyBuilder(Builder.Key(propertyNames));
             }
 
-            public virtual PropertyBuilder Property<TProperty>([NotNull] string name, bool shadowProperty = false, bool concurrencyToken = false)
+            public virtual PropertyBuilder Property<TProperty>([NotNull] string name)
             {
                 Check.NotEmpty(name, "name");
 
-                return new PropertyBuilder(Builder.Property(typeof(TProperty), name, shadowProperty, concurrencyToken));
+                return Property(typeof(TProperty), name);
+            }
+
+            public virtual PropertyBuilder Property([NotNull] Type propertyType, [NotNull] string name)
+            {
+                Check.NotNull(propertyType, "propertyType");
+                Check.NotEmpty(name, "name");
+
+                return new PropertyBuilder(Builder.Property(propertyType, name));
             }
 
             public virtual ForeignKeyBuilder ForeignKey([NotNull] string referencedEntityTypeName, [NotNull] params string[] propertyNames)
@@ -290,6 +298,27 @@ namespace Microsoft.Data.Entity.Metadata
                     Check.NotEmpty(value, "value");
 
                     Builder.Annotation(annotation, value);
+
+                    return this;
+                }
+
+                public virtual PropertyBuilder Required(bool isRequired = true)
+                {
+                    Builder.Required(isRequired);
+
+                    return this;
+                }
+
+                public virtual PropertyBuilder ConcurrencyToken(bool isConcurrencyToken = true)
+                {
+                    Builder.ConcurrencyToken(isConcurrencyToken);
+
+                    return this;
+                }
+
+                public virtual PropertyBuilder Shadow(bool isShadowProperty = true)
+                {
+                    Builder.Shadow(isShadowProperty);
 
                     return this;
                 }

@@ -42,15 +42,29 @@ namespace Microsoft.Data.Entity.Metadata
 
             Assert.Equal("Name", property.Name);
             Assert.Same(typeof(string), property.PropertyType);
-            Assert.True(property.IsNullable);
+        }
+
+        [Fact]
+        public void Default_nullability_of_property_is_based_on_nullability_of_CLR_type()
+        {
+            Assert.True(new Property("Name", typeof(string)).IsNullable);
+            Assert.True(new Property("Name", typeof(int?)).IsNullable);
+            Assert.False(new Property("Name", typeof(int)).IsNullable);
+        }
+
+        [Fact]
+        public void Property_nullability_can_be_mutated()
+        {
+            Assert.False(new Property("Name", typeof(string)) { IsNullable = false }.IsNullable);
+            Assert.True(new Property("Name", typeof(int)) { IsNullable = true }.IsNullable);
         }
 
         [Fact]
         public void HasClrProperty_is_set_appropriately()
         {
-            Assert.True(new Property("Kake", typeof(int)).IsClrProperty);
-            Assert.True(new Property("Kake", typeof(int), shadowProperty: false, concurrencyToken: false).IsClrProperty);
-            Assert.False(new Property("Kake", typeof(int), shadowProperty: true, concurrencyToken: false).IsClrProperty);
+            Assert.False(new Property("Kake", typeof(int)).IsShadowProperty);
+            Assert.False(new Property("Kake", typeof(int), shadowProperty: false, concurrencyToken: false).IsShadowProperty);
+            Assert.True(new Property("Kake", typeof(int), shadowProperty: true, concurrencyToken: false).IsShadowProperty);
         }
 
         [Fact]

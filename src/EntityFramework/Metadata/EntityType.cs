@@ -299,7 +299,7 @@ namespace Microsoft.Data.Entity.Metadata
 
                     property.Index = currentIndex;
 
-                    UpdateShadowIndexes(property);
+                    UpdateShadowIndexes();
                     UpdateOriginalValueIndexes(property);
                 }
             }
@@ -329,21 +329,24 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 _properties[i].Index = i;
             }
-            UpdateShadowIndexes(addedOrRemovedProperty);
+
+            UpdateIndexes(addedOrRemovedProperty);
+        }
+
+        internal void UpdateIndexes(Property addedOrRemovedProperty)
+        {
+            UpdateShadowIndexes();
             UpdateOriginalValueIndexes(addedOrRemovedProperty);
         }
 
-        private void UpdateShadowIndexes(Property addedOrRemovedProperty)
+        private void UpdateShadowIndexes()
         {
-            if (!addedOrRemovedProperty.IsClrProperty)
+            var shadowIndex = 0;
+            foreach (var property in _properties.Where(p => p.IsShadowProperty))
             {
-                var shadowIndex = 0;
-                foreach (var property in _properties.Where(p => !p.IsClrProperty))
-                {
-                    property.ShadowIndex = shadowIndex++;
-                }
-                _shadowPropertyCount = shadowIndex;
+                property.ShadowIndex = shadowIndex++;
             }
+            _shadowPropertyCount = shadowIndex;
         }
 
         private void UpdateOriginalValueIndexes(Property addedOrRemovedProperty)

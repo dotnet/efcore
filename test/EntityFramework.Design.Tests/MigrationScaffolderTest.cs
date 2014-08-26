@@ -226,7 +226,8 @@ namespace MyNamespace
                 
                 builder.Entity(""Entity"", b =>
                     {
-                        b.Property<int>(""Id"");
+                        b.Property<int>(""Id"")
+                            .Shadow(false);
                         b.Key(k => k.Properties(""Id"")
                             .KeyName(""MyPK""));
                         b.TableName(""MyTable"", ""dbo"");
@@ -261,7 +262,8 @@ namespace MyNamespace
                 
                 builder.Entity(""Entity"", b =>
                     {
-                        b.Property<int>(""Id"");
+                        b.Property<int>(""Id"")
+                            .Shadow(false);
                         b.Key(k => k.Properties(""Id"")
                             .KeyName(""MyPK""));
                         b.TableName(""MyTable"", ""dbo"");
@@ -360,8 +362,10 @@ namespace MyNamespace
                 builder.Entity(""Customer"", b =>
                     {
                         b.Property<int>(""HouseId"")
+                            .Shadow(false)
                             .ColumnName(""House[\""Id]Column"");
-                        b.Property<int>(""Id"");
+                        b.Property<int>(""Id"")
+                            .Shadow(false);
                         b.Key(k => k.Properties(""Id"")
                             .KeyName(""My[\""PK]"")
                             .Annotation(""My\""PK\""Annotat!on"", ""\""Foo\""""));
@@ -373,14 +377,17 @@ namespace MyNamespace
                 
                 builder.Entity(""Ho!use[]"", b =>
                     {
-                        b.Property<int>(""Id"");
+                        b.Property<int>(""Id"")
+                            .Shadow(false);
                         b.Key(""Id"");
                     });
                 
                 builder.Entity(""Order"", b =>
                     {
-                        b.Property<int>(""CustomerId"");
-                        b.Property<int>(""OrderId"");
+                        b.Property<int>(""CustomerId"")
+                            .Shadow(false);
+                        b.Property<int>(""OrderId"")
+                            .Shadow(false);
                         b.Key(""OrderId"");
                         b.ForeignKey(""Customer"", ""CustomerId"");
                         b.TableName(""Ord[\""e.r]s"", ""dbo"");
@@ -417,8 +424,10 @@ namespace MyNamespace
                 builder.Entity(""Customer"", b =>
                     {
                         b.Property<int>(""HouseId"")
+                            .Shadow(false)
                             .ColumnName(""House[\""Id]Column"");
-                        b.Property<int>(""Id"");
+                        b.Property<int>(""Id"")
+                            .Shadow(false);
                         b.Key(k => k.Properties(""Id"")
                             .KeyName(""My[\""PK]"")
                             .Annotation(""My\""PK\""Annotat!on"", ""\""Foo\""""));
@@ -430,14 +439,17 @@ namespace MyNamespace
                 
                 builder.Entity(""Ho!use[]"", b =>
                     {
-                        b.Property<int>(""Id"");
+                        b.Property<int>(""Id"")
+                            .Shadow(false);
                         b.Key(""Id"");
                     });
                 
                 builder.Entity(""Order"", b =>
                     {
-                        b.Property<int>(""CustomerId"");
-                        b.Property<int>(""OrderId"");
+                        b.Property<int>(""CustomerId"")
+                            .Shadow(false);
+                        b.Property<int>(""OrderId"")
+                            .Shadow(false);
                         b.Key(""OrderId"");
                         b.ForeignKey(""Customer"", ""CustomerId"");
                         b.TableName(""Ord[\""e.r]s"", ""dbo"");
@@ -539,8 +551,10 @@ namespace MyNamespace
                 
                 builder.Entity(""EntityWithNamedKey"", b =>
                     {
-                        b.Property<int>(""Foo"");
-                        b.Property<int>(""Id"");
+                        b.Property<int>(""Foo"")
+                            .Shadow(false);
+                        b.Property<int>(""Id"")
+                            .Shadow(false);
                         b.Key(k => k.Properties(""Id"", ""Foo"")
                             .KeyName(""MyPK2""));
                     });
@@ -548,8 +562,10 @@ namespace MyNamespace
                 builder.Entity(""EntityWithNamedKeyAndAnnotations"", b =>
                     {
                         b.Property<int>(""Foo"")
+                            .Shadow(false)
                             .Annotation(""Foo_Annotation"", ""Foo"");
                         b.Property<int>(""Id"")
+                            .Shadow(false)
                             .Annotation(""Id_Annotation1"", ""Id1"")
                             .Annotation(""Id_Annotation2"", ""Id2"");
                         b.Key(k => k.Properties(""Id"", ""Foo"")
@@ -560,16 +576,20 @@ namespace MyNamespace
                 
                 builder.Entity(""EntityWithUnnamedKey"", b =>
                     {
-                        b.Property<int>(""Foo"");
-                        b.Property<int>(""Id"");
+                        b.Property<int>(""Foo"")
+                            .Shadow(false);
+                        b.Property<int>(""Id"")
+                            .Shadow(false);
                         b.Key(""Id"", ""Foo"");
                     });
                 
                 builder.Entity(""EntityWithUnnamedKeyAndAnnotations"", b =>
                     {
                         b.Property<int>(""Foo"")
+                            .Shadow(false)
                             .Annotation(""Foo_Annotation"", ""Foo"");
                         b.Property<int>(""Id"")
+                            .Shadow(false)
                             .Annotation(""Id_Annotation1"", ""Id1"")
                             .Annotation(""Id_Annotation2"", ""Id2"");
                         b.Key(k => k.Properties(""Id"", ""Foo"")
@@ -606,8 +626,10 @@ namespace MyNamespace
                 
                 builder.Entity(""EntityWithNamedKey"", b =>
                     {
-                        b.Property<int>(""Foo"");
-                        b.Property<int>(""Id"");
+                        b.Property<int>(""Foo"")
+                            .Shadow(false);
+                        b.Property<int>(""Id"")
+                            .Shadow(false);
                         b.Key(k => k.Properties(""Id"", ""Foo"")
                             .KeyName(""MyPK2""));
                     });
@@ -615,8 +637,10 @@ namespace MyNamespace
                 builder.Entity(""EntityWithNamedKeyAndAnnotations"", b =>
                     {
                         b.Property<int>(""Foo"")
+                            .Shadow(false)
                             .Annotation(""Foo_Annotation"", ""Foo"");
                         b.Property<int>(""Id"")
+                            .Shadow(false)
                             .Annotation(""Id_Annotation1"", ""Id1"")
                             .Annotation(""Id_Annotation2"", ""Id2"");
                         b.Key(k => k.Properties(""Id"", ""Foo"")
@@ -627,16 +651,20 @@ namespace MyNamespace
                 
                 builder.Entity(""EntityWithUnnamedKey"", b =>
                     {
-                        b.Property<int>(""Foo"");
-                        b.Property<int>(""Id"");
+                        b.Property<int>(""Foo"")
+                            .Shadow(false);
+                        b.Property<int>(""Id"")
+                            .Shadow(false);
                         b.Key(""Id"", ""Foo"");
                     });
                 
                 builder.Entity(""EntityWithUnnamedKeyAndAnnotations"", b =>
                     {
                         b.Property<int>(""Foo"")
+                            .Shadow(false)
                             .Annotation(""Foo_Annotation"", ""Foo"");
                         b.Property<int>(""Id"")
+                            .Shadow(false)
                             .Annotation(""Id_Annotation1"", ""Id1"")
                             .Annotation(""Id_Annotation2"", ""Id2"");
                         b.Key(k => k.Properties(""Id"", ""Foo"")
