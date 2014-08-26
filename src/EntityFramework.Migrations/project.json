@@ -14,7 +14,7 @@
         "Microsoft.CSharp": "4.0.0.0"
       }
     },
-    ".NETPortable,Version=v4.6,Profile=Profile44": {
+    ".NETPortable,Version=v4.6,Profile=Profile151": {
       "dependencies": {
         "Microsoft.CSharp": "",
         "System.Dynamic.Runtime": "",

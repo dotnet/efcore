@@ -4,11 +4,10 @@
     "warningsAsErrors": true
   },
   "dependencies": {
-    "Ix-Async": "1.2.2",
-    "Microsoft.Bcl.Immutable": "1.1.18-beta-*",
+    "Ix-Async": "1.2.2-withwpa81",
     "Microsoft.Framework.DependencyInjection": "1.0.0-*",
     "Microsoft.Framework.Logging": "1.0.0-*",
-    "Remotion.Linq": "1.15.13.0"
+    "Remotion.Linq": "1.15.15"
   },
   "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
   "frameworks": {
@@ -17,7 +16,8 @@
         "System.Collections": "",
         "System.Linq.Expressions": "",
         "System.ObjectModel": "",
-        "System.Runtime": ""
+        "System.Runtime": "",
+        "Microsoft.Bcl.Immutable": "1.1.18-beta-*"
       }
     },
     "k10": {
@@ -31,17 +31,19 @@
         "System.Reflection.Extensions": "4.0.0.0",        
         "System.Resources.ResourceManager": "4.0.0.0",
         "System.Runtime.Extensions": "4.0.10.0",
-        "System.Threading": "4.0.0.0"
+        "System.Threading": "4.0.0.0",
+        "Microsoft.Bcl.Immutable": "1.1.18-beta-*"
       }
     },
-    ".NETPortable,Version=v4.6,Profile=Profile44": {
+    ".NETPortable,Version=v4.6,Profile=Profile151": {
       "dependencies": {
         "System.ComponentModel": "",
         "System.Diagnostics.Contracts": "",
         "System.Linq.Expressions": "",
         "System.Linq.Queryable": "",
         "System.ObjectModel": "",
-        "System.Reflection.Extensions": ""
+        "System.Reflection.Extensions": "",
+        "Microsoft.Bcl.Immutable": "1.1.22-beta"
       }
     }
   }

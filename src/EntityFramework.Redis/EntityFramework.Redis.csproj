@@ -42,7 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Ix-Async">
-      <TargetFramework>portable-windows8+net45+wp8</TargetFramework>
+      <TargetFramework>portable-windows8+net45+wp8+wpa81</TargetFramework>
       <Assemblies>System.Interactive.Async</Assemblies>
     </PackageReference>
     <PackageReference Include="Microsoft.Framework.ConfigurationModel" />
@@ -50,7 +50,7 @@
     <PackageReference Include="Microsoft.Framework.Logging" />
     <PackageReference Include="Microsoft.Framework.Logging.Interfaces" />
     <PackageReference Include="Remotion.Linq">
-      <TargetFramework>portable-net45+wp80+win</TargetFramework>
+      <TargetFramework>portable-net45+wp80+wpa81+win</TargetFramework>
     </PackageReference>
     <PackageReference Include="StackExchange.Redis">
       <TargetFramework>net45</TargetFramework>

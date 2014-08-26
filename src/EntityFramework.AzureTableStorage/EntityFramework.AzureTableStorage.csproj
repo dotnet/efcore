@@ -48,7 +48,7 @@
       <Assemblies>Microsoft.WindowsAzure.Storage</Assemblies>
     </PackageReference>
     <PackageReference Include="Remotion.Linq">
-      <TargetFramework>portable-net45+wp80+win</TargetFramework>
+      <TargetFramework>portable-net45+wp80+wpa81+win</TargetFramework>
     </PackageReference>
     <PackageReference Include="Microsoft.Framework.ConfigurationModel">
       <TargetFramework>net45</TargetFramework>

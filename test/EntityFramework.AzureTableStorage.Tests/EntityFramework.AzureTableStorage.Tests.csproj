@@ -72,7 +72,7 @@
       <TargetFramework>net40</TargetFramework>
     </PackageReference>
     <PackageReference Include="Remotion.Linq">
-      <TargetFramework>portable-net45+wp80+win</TargetFramework>
+      <TargetFramework>portable-net45+wp80+wpa81+win</TargetFramework>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
