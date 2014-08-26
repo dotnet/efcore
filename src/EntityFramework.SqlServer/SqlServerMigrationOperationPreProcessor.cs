@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.SqlServer
 
             compositeOperation.AddOperation(dropColumnOperation);
 
-            context.ProcessCompositeOperation(compositeOperation);
+            context.HandleCompositeOperation(compositeOperation);
         }
 
         public override void Visit(AlterColumnOperation alterColumnOperation, Context context)
@@ -92,7 +92,7 @@ namespace Microsoft.Data.Entity.SqlServer
                 compositeOperation.AddOperation(alterColumnOperation);   
             }
 
-            context.ProcessCompositeOperation(compositeOperation);
+            context.HandleCompositeOperation(compositeOperation);
         }
 
         protected override void VisitDefault(MigrationOperation operation, Context context)
@@ -100,7 +100,7 @@ namespace Microsoft.Data.Entity.SqlServer
             Check.NotNull(operation, "operation");
             Check.NotNull(context, "context");
 
-            context.ProcessSimpleOperation(operation);
+            context.HandleOperation(operation);
         }
 
         protected virtual void GetDataTypes(
@@ -148,36 +148,41 @@ namespace Microsoft.Data.Entity.SqlServer
             {
                 get
                 {
-                    ProcessCompositeOperation(null);
+                    HandleCompositeOperation(null);
 
                     return _statements;
                 }
             }
 
-            protected internal virtual CompositeOperation CompositeOperation { get; [param: CanBeNull] private set; }
+            protected internal virtual CompositeOperation CompositeOperation { get; [param: CanBeNull] set; }
 
-            public virtual void ProcessSimpleOperation([NotNull] MigrationOperation operation)
+            public virtual void HandleOperation([NotNull] MigrationOperation operation)
             {
                 Check.NotNull(operation, "operation");
 
-                ProcessCompositeOperation(null);
+                HandleCompositeOperation(null);
 
-                _statements.AddRange(_generator.Generate(operation));
+                _statements.Add(_generator.Generate(operation));
+                _generator.DatabaseModelModifier.Modify(_generator.Database, operation);
             }
 
-            public virtual void ProcessCompositeOperation([CanBeNull] CompositeOperation operation)
+            public virtual void HandleCompositeOperation([CanBeNull] CompositeOperation compositeOperation)
             {
-                if (ReferenceEquals(operation, CompositeOperation))
+                if (ReferenceEquals(compositeOperation, CompositeOperation))
                 {
                     return;
                 }
 
                 if (CompositeOperation != null)
                 {
-                    _statements.AddRange(CompositeOperation.Operations.SelectMany(op => _generator.Generate(op)));
+                    foreach (var operation in CompositeOperation.Operations)
+                    {
+                        _statements.Add(_generator.Generate(operation));
+                        _generator.DatabaseModelModifier.Modify(_generator.Database, operation);
+                    }
                 }
 
-                CompositeOperation = operation;
+                CompositeOperation = compositeOperation;
             }
         }
 
