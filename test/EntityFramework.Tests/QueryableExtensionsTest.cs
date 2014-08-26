@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
@@ -143,17 +144,6 @@ namespace Microsoft.Data.Entity
             VerifyProducedExpression<decimal?, decimal?>(value => value.SumAsync(e => e, cancellationTokenSource.Token));
         }
 
-        private static IQueryable<T> CreateThrowingMockQueryable<T>()
-        {
-            var mockSource = new Mock<IQueryable<T>>();
-
-            mockSource
-                .Setup(s => s.Provider)
-                .Throws(new InvalidOperationException("Not expected to be invoked - task has been cancelled."));
-
-            return mockSource.Object;
-        }
-
         private static void VerifyProducedExpression<TElement, TResult>(
             Expression<Func<IQueryable<TElement>, Task<TResult>>> testExpression)
         {
@@ -268,14 +258,10 @@ namespace Microsoft.Data.Entity
             await SourceNonAsyncQueryableTest(() => Source().FirstOrDefaultAsync(new CancellationToken()));
             await SourceNonAsyncQueryableTest(() => Source().FirstOrDefaultAsync(e => true));
             await SourceNonAsyncQueryableTest(() => Source().FirstOrDefaultAsync(e => true, new CancellationToken()));
-
-            //SourceNonAsyncEnumerableTest<int>(() => Source().ForEachAsync(e => e.GetType()));
-            //SourceNonAsyncEnumerableTest<int>(() => Source().ForEachAsync(e => e.GetType(), new CancellationToken()));
-
-            // TODO: Do we need this?
-            //SourceNonAsyncEnumerableTest(() => Source().LoadAsync());
-            //SourceNonAsyncEnumerableTest(() => Source().LoadAsync(new CancellationToken()));
-
+            await SourceNonAsyncEnumerableTest<int>(() => Source().ForEachAsync(e => { }));
+            await SourceNonAsyncEnumerableTest<int>(() => Source().ForEachAsync(e => { }, new CancellationToken()));
+            await SourceNonAsyncEnumerableTest<int>(() => Source().LoadAsync());
+            await SourceNonAsyncEnumerableTest<int>(() => Source().LoadAsync(new CancellationToken()));
             await SourceNonAsyncQueryableTest(() => Source().LongCountAsync());
             await SourceNonAsyncQueryableTest(() => Source().LongCountAsync(new CancellationToken()));
             await SourceNonAsyncQueryableTest(() => Source().LongCountAsync(e => true));
@@ -312,17 +298,17 @@ namespace Microsoft.Data.Entity
             await SourceNonAsyncQueryableTest(() => Source<decimal>().SumAsync(e => e));
             await SourceNonAsyncQueryableTest(() => Source<decimal?>().SumAsync());
             await SourceNonAsyncQueryableTest(() => Source<decimal?>().SumAsync(e => e));
+            await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e));
+            await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, e => e));
+            await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e,new Mock<IEqualityComparer<int>>().Object));
+            await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e,new Mock<IEqualityComparer<int>>().Object, new CancellationToken()));
+            await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, e => e,new Mock<IEqualityComparer<int>>().Object));
+            await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, e => e,new Mock<IEqualityComparer<int>>().Object, new CancellationToken()));
+            await SourceNonAsyncEnumerableTest<int>(() => Source().ToListAsync());
 
-//            SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e));
-//            SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, e => e));
-//            SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e,new Mock<IEqualityComparer<int>>().Object));
-//            SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e,new Mock<IEqualityComparer<int>>().Object, new CancellationToken()));
-//            SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, e => e,new Mock<IEqualityComparer<int>>().Object));
-//            SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, e => e,new Mock<IEqualityComparer<int>>().Object, new CancellationToken()));
-//            SourceNonAsyncEnumerableTest<int>(() => Source().ToListAsync());
-//            SourceNonAsyncEnumerableTest(() => ((IQueryable)Source()).ForEachAsync(e => e.GetType()));
-//            SourceNonAsyncEnumerableTest(() => ((IQueryable)Source()).ForEachAsync(e => e.GetType(), new CancellationToken()));
-//            SourceNonAsyncEnumerableTest(() => ((IQueryable)Source()).ToListAsync());
+            Assert.Equal(
+                Strings.FormatIQueryableNotAsync(typeof(int)),
+                Assert.Throws<InvalidOperationException>(() => Source().AsAsyncEnumerable()).Message);
         }
 
         private static IQueryable<T> Source<T>()
@@ -342,18 +328,12 @@ namespace Microsoft.Data.Entity
                 (await Assert.ThrowsAsync<InvalidOperationException>(test)).Message);
         }
 
-//        private static async Task SourceNonAsyncEnumerableTest(Func<Task> test)
-//        {
-//            Assert.Equal(Strings.FormatIQueryableNotAsync(string.Empty), 
-//                (await Assert.ThrowsAsync<InvalidOperationException>(test)).Message);
-//        }
-
-//        private static async Task SourceNonAsyncEnumerableTest<T>(Func<Task> test)
-//        {
-//            Assert.Equal(
-//                Strings.FormatIQueryableNotAsync("<" + typeof(T) + ">"), 
-//                (await Assert.ThrowsAsync<InvalidOperationException>(test)).Message);
-//        }
+        private static async Task SourceNonAsyncEnumerableTest<T>(Func<Task> test)
+        {
+            Assert.Equal(
+                Strings.FormatIQueryableNotAsync(typeof(T)), 
+                (await Assert.ThrowsAsync<InvalidOperationException>(test)).Message);
+        }
 
         [Fact]
         public async Task Extension_methods_validate_arguments()
