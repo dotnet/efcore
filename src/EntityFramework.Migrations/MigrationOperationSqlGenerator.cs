@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Migrations
         internal const string DateTimeFormat = "yyyy-MM-ddTHH:mm:ss.fffK";
         internal const string DateTimeOffsetFormat = "yyyy-MM-ddTHH:mm:ss.fffzzz";
 
-        private readonly RelationalTypeMapper _typeMapper;        
+        private readonly RelationalTypeMapper _typeMapper;
         private DatabaseModel _database;
         private DatabaseModelModifier _databaseModelModifier;
 
@@ -34,7 +34,6 @@ namespace Microsoft.Data.Entity.Migrations
             Check.NotNull(typeMapper, "typeMapper");
 
             _typeMapper = typeMapper;
-
         }
 
         public virtual RelationalTypeMapper TypeMapper
@@ -238,7 +237,7 @@ namespace Microsoft.Data.Entity.Migrations
 
             var table = Database.GetTable(alterColumnOperation.TableName);
             var newColumn = alterColumnOperation.NewColumn;
-            
+
             stringBuilder
                 .Append("ALTER TABLE ")
                 .Append(DelimitIdentifier(alterColumnOperation.TableName))

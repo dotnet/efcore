@@ -347,7 +347,7 @@ namespace Microsoft.Data.Entity.Query
 
             var aggregateMethods
                 = typeof(AsyncEnumerable).GetTypeInfo().GetDeclaredMethods(methodName)
-                     .Where(mi => mi.GetParameters().Length == 2
+                    .Where(mi => mi.GetParameters().Length == 2
                                  && mi.GetParameters()[1].ParameterType == typeof(CancellationToken))
                     .ToList();
 

@@ -984,9 +984,9 @@ namespace Microsoft.Data.Entity.Query
                             subExpression);
                 }
                 else if (typeInfo.IsGenericType
-                    && typeInfo.GetGenericTypeDefinition() == typeof(IOrderedEnumerable<>))
+                         && typeInfo.GetGenericTypeDefinition() == typeof(IOrderedEnumerable<>))
                 {
-                    var elementType 
+                    var elementType
                         = subExpression.Type.TryGetElementType(typeof(IOrderedAsyncEnumerable<>));
 
                     if (elementType != null)

@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.SqlServer
                 Tuple.Create(typeof(sbyte), new RelationalTypeMapping("smallint", DbType.SByte)),
                 Tuple.Create(typeof(ushort), new RelationalTypeMapping("int", DbType.UInt16)),
                 Tuple.Create(typeof(uint), new RelationalTypeMapping("bigint", DbType.UInt32)),
-                Tuple.Create(typeof(ulong), new RelationalTypeMapping("numeric(20, 0)", DbType.UInt64)),
+                Tuple.Create(typeof(ulong), new RelationalTypeMapping("numeric(20, 0)", DbType.UInt64))
             };
 
         private readonly RelationalTypeMapping _nonKeyStringMapping

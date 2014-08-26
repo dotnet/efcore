@@ -915,7 +915,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         public static TBuilder SharedNameExtension<TBuilder>(this IModelBuilder<TBuilder> builder, string value)
-        where TBuilder : IModelBuilder<TBuilder>
+            where TBuilder : IModelBuilder<TBuilder>
         {
             builder.Annotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";

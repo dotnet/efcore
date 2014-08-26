@@ -121,9 +121,7 @@ namespace Microsoft.Data.Entity.Design
 
             var migration = _migrationTool.CreateMigration(
                 migrationName,
-                AssemblyName.GetAssemblyName(Path.Combine(_targetDir, _targetFileName)).FullName,
-                migrationDirectory: Path.Combine(_projectDir, "Migrations"),
-                contextTypeName: contextName);
+                AssemblyName.GetAssemblyName(Path.Combine(_targetDir, _targetFileName)).FullName, Path.Combine(_projectDir, "Migrations"), contextName);
 
             yield return migration.MigrationFile;
             yield return migration.MigrationMetadataFile;
@@ -150,9 +148,7 @@ namespace Microsoft.Data.Entity.Design
             contextName = GetContextNameImpl(contextName);
 
             _migrationTool.UpdateDatabase(
-                AssemblyName.GetAssemblyName(Path.Combine(_targetDir, _targetFileName)).FullName,
-                targetMigrationName: migrationName,
-                contextTypeName: contextName);
+                AssemblyName.GetAssemblyName(Path.Combine(_targetDir, _targetFileName)).FullName, migrationName, contextName);
         }
 
         public class CreateMigrationScript : OperationBase
@@ -185,9 +181,7 @@ namespace Microsoft.Data.Entity.Design
 
             // TODO: Use fromMigration & idempotent
             var statements = _migrationTool.GenerateScript(
-                AssemblyName.GetAssemblyName(Path.Combine(_targetDir, _targetFileName)).FullName,
-                targetMigrationName: toMigration,
-                contextTypeName: contextName);
+                AssemblyName.GetAssemblyName(Path.Combine(_targetDir, _targetFileName)).FullName, toMigration, contextName);
 
             return string.Join(Environment.NewLine, statements.Select(s => s.Sql));
         }
@@ -215,14 +209,14 @@ namespace Microsoft.Data.Entity.Design
 
             return contextTypes.Select(
                 t =>
-                {
-                    var result = new Hashtable();
-                    result["FullName"] = t.FullName;
-                    result["Name"] = t.Name;
-                    result["SafeName"] = groups.Count(g => g.Key == t.Name) == 1 ? t.Name : t.FullName;
+                    {
+                        var result = new Hashtable();
+                        result["FullName"] = t.FullName;
+                        result["Name"] = t.Name;
+                        result["SafeName"] = groups.Count(g => g.Key == t.Name) == 1 ? t.Name : t.FullName;
 
-                    return result;
-                });
+                        return result;
+                    });
         }
 
         public class GetMigrationNames : OperationBase
@@ -244,23 +238,21 @@ namespace Microsoft.Data.Entity.Design
             contextName = GetContextNameImpl(contextName);
 
             var migrations = _migrationTool.GetMigrations(
-                Path.Combine(_targetDir, _targetFileName),
-                source: MigrationTool.Constants.MigrationSourceLocal,
-                contextTypeName: contextName);
+                Path.Combine(_targetDir, _targetFileName), MigrationTool.Constants.MigrationSourceLocal, contextName);
             var groups = migrations.GroupBy(m => m.GetMigrationName()).ToArray();
 
             return migrations.Select(
                 m =>
-                {
-                    var migrationName = m.GetMigrationName();
+                    {
+                        var migrationName = m.GetMigrationName();
 
-                    var result = new Hashtable();
-                    result["MigrationId"] = m.MigrationId;
-                    result["MigrationName"] = migrationName;
-                    result["SafeName"] = groups.Count(g => g.Key == migrationName) == 1 ? migrationName : m.MigrationId;
+                        var result = new Hashtable();
+                        result["MigrationId"] = m.MigrationId;
+                        result["MigrationName"] = migrationName;
+                        result["SafeName"] = groups.Count(g => g.Key == migrationName) == 1 ? migrationName : m.MigrationId;
 
-                    return result;
-                });
+                        return result;
+                    });
         }
 
         public abstract class OperationBase : MarshalByRefObject

@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.SqlServer.Update
                     throw new InvalidOperationException(Strings.FormatIntegerConfigurationValueFormatError(MaxBatchSizeConfigurationKey, maxBatchSizeString));
                 }
                 _maxBatchSize = maxBatchSize;
-            }   
+            }
         }
 
         public override ModificationCommandBatch Create()

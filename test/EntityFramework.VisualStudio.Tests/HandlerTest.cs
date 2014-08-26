@@ -61,7 +61,7 @@ namespace Microsoft.Data.Entity.Design
         public void WriteError_works()
         {
             string result = null;
-            var handler = new Handler(writeError: m => result = m);
+            var handler = new Handler(m => result = m);
             var message = "Princess Celestia doesn't exist.";
 
             handler.WriteError(message);

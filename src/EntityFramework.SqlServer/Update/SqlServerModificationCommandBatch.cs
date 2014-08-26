@@ -29,7 +29,8 @@ namespace Microsoft.Data.Entity.SqlServer.Update
 
         protected override bool CanAddCommand(ModificationCommand modificationCommand, StringBuilder newSql)
         {
-            if (_maxBatchSize.HasValue && _maxBatchSize.Value <= ModificationCommands.Count)
+            if (_maxBatchSize.HasValue
+                && _maxBatchSize.Value <= ModificationCommands.Count)
             {
                 return false;
             }

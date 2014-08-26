@@ -211,7 +211,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         {
                             Assert.IsType<DbUpdateConcurrencyException>(ex);
 
-                            var entry = ((DbUpdateConcurrencyException)ex).StateEntries.Single();
+                            var entry = ex.StateEntries.Single();
                             Assert.IsAssignableFrom<Chassis>(entry.Entity);
                             entry.Reload(c);
 
@@ -254,7 +254,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         {
                             Assert.IsType<DbUpdateConcurrencyException>(ex);
 
-                            var entry = ((DbUpdateConcurrencyException)ex).StateEntries.Single();
+                            var entry = ex.StateEntries.Single();
                             Assert.IsAssignableFrom<Driver>(entry.Entity);
                             entry.Reload(c);
 
@@ -293,7 +293,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     {
                         Assert.IsType<DbUpdateConcurrencyException>(ex);
 
-                        var entry = ((DbUpdateConcurrencyException)ex).StateEntries.Single();
+                        var entry = ex.StateEntries.Single();
                         Assert.IsAssignableFrom<Engine>(entry.Entity);
                         entry.Reload(c);
                     },
@@ -315,7 +315,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 (c, ex) =>
                     {
                         Assert.IsType<DbUpdateConcurrencyException>(ex);
-                        var entry = ((DbUpdateConcurrencyException)ex).StateEntries.Single();
+                        var entry = ex.StateEntries.Single();
                         Assert.IsAssignableFrom<Team>(entry.Entity);
                     },
                 null);
@@ -333,7 +333,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 (c, ex) =>
                     {
                         Assert.IsType<DbUpdateConcurrencyException>(ex);
-                        var entry = ((DbUpdateConcurrencyException)ex).StateEntries.Single();
+                        var entry = ex.StateEntries.Single();
                         Assert.IsAssignableFrom<Team>(entry.Entity);
                     },
                 null);
@@ -350,7 +350,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 (c, ex) =>
                     {
                         Assert.IsType<DbUpdateConcurrencyException>(ex);
-                        var entry = ((DbUpdateConcurrencyException)ex).StateEntries.Single();
+                        var entry = ex.StateEntries.Single();
                         Assert.IsAssignableFrom<Team>(entry.Entity);
                     },
                 null);
@@ -367,7 +367,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 (c, ex) =>
                     {
                         Assert.IsType<DbUpdateConcurrencyException>(ex);
-                        var entry = ((DbUpdateConcurrencyException)ex).StateEntries.Single();
+                        var entry = ex.StateEntries.Single();
                         Assert.IsAssignableFrom<Team>(entry.Entity);
                     },
                 null);
@@ -387,7 +387,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     {
                         Assert.IsType<DbUpdateConcurrencyException>(ex);
 
-                        var entry = ((DbUpdateConcurrencyException)ex).StateEntries.Single();
+                        var entry = ex.StateEntries.Single();
                         Assert.IsAssignableFrom<Engine>(entry.Entity);
                         entry.Reload(c);
                     },
@@ -428,7 +428,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     {
                         Assert.IsType<DbUpdateConcurrencyException>(ex);
 
-                        var entry = ((DbUpdateConcurrencyException)ex).StateEntries.Single();
+                        var entry = ex.StateEntries.Single();
                         Assert.IsAssignableFrom<Driver>(entry.Entity);
                         entry.Reload(c);
                     },
@@ -444,7 +444,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 (c, ex) =>
                     {
                         Assert.IsType<DbUpdateConcurrencyException>(ex);
-                        var entry = ((DbUpdateConcurrencyException)ex).StateEntries.Single();
+                        var entry = ex.StateEntries.Single();
                         Assert.IsAssignableFrom<Team>(entry.Entity);
                     },
                 null);
@@ -460,7 +460,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     {
                         Assert.IsType<DbUpdateConcurrencyException>(ex);
 
-                        var entry = ((DbUpdateConcurrencyException)ex).StateEntries.Single();
+                        var entry = ex.StateEntries.Single();
                         Assert.IsAssignableFrom<Driver>(entry.Entity);
                         entry.Reload(c);
                     },
@@ -477,7 +477,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     {
                         Assert.IsType<DbUpdateConcurrencyException>(ex);
 
-                        var entry = ((DbUpdateConcurrencyException)ex).StateEntries.Single();
+                        var entry = ex.StateEntries.Single();
                         Assert.IsAssignableFrom<Driver>(entry.Entity);
 
                         entry.EntityState = EntityState.Unchanged;
@@ -499,7 +499,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     {
                         Assert.IsType<DbUpdateConcurrencyException>(ex);
 
-                        var entry = ((DbUpdateConcurrencyException)ex).StateEntries.Single();
+                        var entry = ex.StateEntries.Single();
                         Assert.IsAssignableFrom<Driver>(entry.Entity);
                         entry.Reload(c);
                     },
@@ -516,7 +516,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     {
                         Assert.IsType<DbUpdateConcurrencyException>(ex);
 
-                        var entry = ((DbUpdateConcurrencyException)ex).StateEntries.Single();
+                        var entry = ex.StateEntries.Single();
                         Assert.IsAssignableFrom<Driver>(entry.Entity);
                         var storeValues = entry.GetDatabaseValues(c);
                         Assert.Null(storeValues);

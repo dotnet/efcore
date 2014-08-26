@@ -297,8 +297,7 @@ namespace Microsoft.Data.Entity.SQLite
             {
                 get { return _database; }
 
-                [param: NotNull]
-                protected internal set { _database = value; }
+                [param: NotNull] protected internal set { _database = value; }
             }
 
             public virtual TableOperationHandler GetHandler(SchemaQualifiedName tableName)

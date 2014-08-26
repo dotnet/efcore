@@ -185,7 +185,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                             IsFixedLength = true,
                             IsUnicode = true
                         },
-                        isDestructiveChange: true);
+                    isDestructiveChange: true);
 
             model.AddTable(table);
 
@@ -217,7 +217,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
 
             operation.Accept(new DatabaseModelModifier(), model);
 
-            Assert.Equal("Bar", column.Name);            
+            Assert.Equal("Bar", column.Name);
         }
 
         [Fact]
@@ -279,12 +279,11 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         {
             var model = new DatabaseModel();
             var column = new Column("Foo", typeof(int));
-            var table 
+            var table
                 = new Table("dbo.MyTable", new[] { column })
-                      {
-                          PrimaryKey = new PrimaryKey("PK", new[] { column }, isClustered: false) 
-                      
-                      };
+                    {
+                        PrimaryKey = new PrimaryKey("PK", new[] { column }, isClustered: false)
+                    };
             var operation = new DropPrimaryKeyOperation("dbo.MyTable", "PK");
 
             model.AddTable(table);

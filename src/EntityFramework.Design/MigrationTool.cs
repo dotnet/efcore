@@ -86,7 +86,7 @@ namespace Microsoft.Data.Entity.Design
                         Constants.ContextTypeOption,
                         Constants.MigrationAssemblyOption,
                         Constants.MigrationNamespaceOption,
-                        Constants.MigrationDirectoryOption,
+                        Constants.MigrationDirectoryOption
                     };
         }
 

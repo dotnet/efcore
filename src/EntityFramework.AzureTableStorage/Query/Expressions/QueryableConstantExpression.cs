@@ -117,7 +117,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query.Expressions
             {
                 sb.AppendFormat("{0:x2}", b);
             }
-            return string.Format(CultureInfo.InvariantCulture, "X'{0}'", sb.ToString());
+            return string.Format(CultureInfo.InvariantCulture, "X'{0}'", sb);
         }
 
         #endregion

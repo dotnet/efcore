@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.Storage
 
         public abstract IAsyncEnumerable<TResult> AsyncQuery<TResult>(
             [NotNull] QueryModel queryModel,
-            [NotNull] StateManager stateManager, 
+            [NotNull] StateManager stateManager,
             CancellationToken cancellationToken);
     }
 }

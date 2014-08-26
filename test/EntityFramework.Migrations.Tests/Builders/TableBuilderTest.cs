@@ -23,8 +23,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Builders
                 .PrimaryKey("MyPK",
                     t => new
                         {
-                            Foo = t.Foo,
-                            Bar = t.Bar
+                            t.Foo, t.Bar
                         });
 
             Assert.Equal(1, migrationBuilder.Operations.Count);

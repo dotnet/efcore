@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Extensions
         {
             var options = new DbContextOptions();
 
-            AtsDbContextExtensions.UseAzureTableStorage(options, "Moria", "mellon");
+            options.UseAzureTableStorage("Moria", "mellon");
 
             var result = GetAtsExtension(options);
             Assert.NotNull(result);
@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Extensions
             var options = new DbContextOptions();
             var connectionString = "Speak friend and enter";
 
-            AtsDbContextExtensions.UseAzureTableStorage(options, connectionString, false);
+            options.UseAzureTableStorage(connectionString, false);
 
             var result = GetAtsExtension(options);
             Assert.NotNull(result);
@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Extensions
         {
             var options = new DbContextOptions();
 
-            AtsDbContextExtensions.UseAzureTableStorage(options, "not empty", true);
+            options.UseAzureTableStorage("not empty", true);
 
             var result = GetAtsExtension(options);
             Assert.NotNull(result);
@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Extensions
 
             Assert.Equal(
                 Strings.FormatArgumentIsEmpty(paramName),
-                Assert.Throws<ArgumentException>(() => AtsDbContextExtensions.UseAzureTableStorage(options, name, key)).Message
+                Assert.Throws<ArgumentException>(() => options.UseAzureTableStorage(name, key)).Message
                 );
         }
 
@@ -68,7 +68,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Extensions
 
             Assert.Equal(
                 Strings.FormatArgumentIsEmpty("connectionString"),
-                Assert.Throws<ArgumentException>(() => AtsDbContextExtensions.UseAzureTableStorage(options, "")).Message
+                Assert.Throws<ArgumentException>(() => options.UseAzureTableStorage("")).Message
                 );
         }
 

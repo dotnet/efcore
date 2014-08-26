@@ -7,7 +7,6 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Migrations.Utilities;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Storage;
@@ -214,8 +213,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                         .Take(index + 1)
                         .Where(i => migrationPairs[i].DatabaseMigration == null)
                         .ToArray(),
-                    historyRepositoryExists,
-                    removeHistoryRepository: index == -1);
+                    historyRepositoryExists, index == -1);
         }
 
         protected virtual IReadOnlyList<SqlStatement> GenerateUpdateDatabaseSql(

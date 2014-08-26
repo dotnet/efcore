@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.Relational
                         foreach (var statement in statements)
                         {
                             await CreateCommand(connection, transaction, statement).ExecuteNonQueryAsync(cancellationToken)
-                                    .ConfigureAwait(continueOnCapturedContext: false);
+                                .ConfigureAwait(continueOnCapturedContext: false);
                         }
                         return Task.FromResult<object>(null);
                     },

@@ -4,7 +4,6 @@
 using JetBrains.Annotations;
 using Microsoft.AspNet.Diagnostics.Entity;
 using Microsoft.AspNet.Diagnostics.Entity.Utilities;
-using System;
 
 namespace Microsoft.AspNet.Builder
 {
@@ -25,7 +24,7 @@ namespace Microsoft.AspNet.Builder
             /* TODO: Development, Staging, or Production
             string appMode = new AppProperties(builder.Properties).Get<string>(Constants.HostAppMode);
             bool isDevMode = string.Equals(Constants.DevMode, appMode, StringComparison.Ordinal);*/
-            bool isDevMode = true;
+            var isDevMode = true;
             return builder.Use(next => new MigrationsEndPointMiddleware(next, options, isDevMode).Invoke);
         }
     }

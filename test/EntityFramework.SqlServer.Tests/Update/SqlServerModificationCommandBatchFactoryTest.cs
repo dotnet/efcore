@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Update
                 };
 
             var factory = new SqlServerModificationCommandBatchFactory(new SqlServerSqlGenerator(), new[] { configuration });
-            
+
             var batch = factory.Create();
             Assert.True(factory.AddCommand(batch, new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator())));
             Assert.False(factory.AddCommand(batch, new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator())));

@@ -160,7 +160,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
         {
         }
 
-        private enum IntEnum : int
+        private enum IntEnum
         {
         }
 

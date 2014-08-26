@@ -1725,17 +1725,17 @@ namespace Microsoft.Data.Entity.FunctionalTests
         private ChangedChangingMonsterContext CreateChangedChangingMonsterContext(IServiceProvider serviceProvider, string databaseName = FullNotifyDatabaseName)
         {
             return new ChangedChangingMonsterContext(serviceProvider, CreateOptions(databaseName), OnModelCreating)
-            {
-                SupportsCandidateKeys = SupportsCandidateKeys
-            };
+                {
+                    SupportsCandidateKeys = SupportsCandidateKeys
+                };
         }
 
         private ChangedOnlyMonsterContext CreateChangedOnlyMonsterContext(IServiceProvider serviceProvider, string databaseName = ChangedOnlyDatabaseName)
         {
             return new ChangedOnlyMonsterContext(serviceProvider, CreateOptions(databaseName), OnModelCreating)
-            {
-                SupportsCandidateKeys = SupportsCandidateKeys
-            };
+                {
+                    SupportsCandidateKeys = SupportsCandidateKeys
+                };
         }
 
         protected virtual void OnModelCreating(ModelBuilder builder)

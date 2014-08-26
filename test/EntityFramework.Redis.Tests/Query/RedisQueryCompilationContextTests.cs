@@ -1,12 +1,7 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.Data.Entity.ChangeTracking;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Services;
 using Microsoft.Data.Entity.Query;
-using Moq;
-using Remotion.Linq;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Redis.Query
@@ -18,7 +13,7 @@ namespace Microsoft.Data.Entity.Redis.Query
         {
             var model = QueryTestType.Model();
 
-            Assert.DoesNotThrow(() => 
+            Assert.DoesNotThrow(() =>
                 new RedisQueryCompilationContext(
                     model,
                     new LinqOperatorProvider(),

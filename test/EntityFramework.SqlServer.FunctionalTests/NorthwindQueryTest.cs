@@ -28,22 +28,22 @@ WHERE [o].[CustomerID] = @p0",
 
         public override void Sum_with_no_arg()
         {
-            base.Sum_with_no_arg(); 
-            
+            base.Sum_with_no_arg();
+
             Assert.Equal(
-                 @"SELECT SUM([o].[OrderID])
+                @"SELECT SUM([o].[OrderID])
 FROM [Orders] AS [o]",
-                 _fixture.Sql);
+                _fixture.Sql);
         }
 
         public override void Sum_with_arg()
         {
-            base.Sum_with_arg(); 
-            
+            base.Sum_with_arg();
+
             Assert.Equal(
-                  @"SELECT SUM([o].[OrderID])
+                @"SELECT SUM([o].[OrderID])
 FROM [Orders] AS [o]",
-                  _fixture.Sql);
+                _fixture.Sql);
         }
 
         public override void Min_with_no_arg()
@@ -51,9 +51,9 @@ FROM [Orders] AS [o]",
             base.Min_with_no_arg();
 
             Assert.Equal(
-                 @"SELECT MIN([o].[OrderID])
+                @"SELECT MIN([o].[OrderID])
 FROM [Orders] AS [o]",
-                 _fixture.Sql);
+                _fixture.Sql);
         }
 
         public override void Min_with_arg()
@@ -61,9 +61,9 @@ FROM [Orders] AS [o]",
             base.Min_with_arg();
 
             Assert.Equal(
-                  @"SELECT MIN([o].[OrderID])
+                @"SELECT MIN([o].[OrderID])
 FROM [Orders] AS [o]",
-                  _fixture.Sql);
+                _fixture.Sql);
         }
 
         public override void Max_with_no_arg()
@@ -71,9 +71,9 @@ FROM [Orders] AS [o]",
             base.Max_with_no_arg();
 
             Assert.Equal(
-                 @"SELECT MAX([o].[OrderID])
+                @"SELECT MAX([o].[OrderID])
 FROM [Orders] AS [o]",
-                 _fixture.Sql);
+                _fixture.Sql);
         }
 
         public override void Max_with_arg()
@@ -81,9 +81,9 @@ FROM [Orders] AS [o]",
             base.Max_with_arg();
 
             Assert.Equal(
-                  @"SELECT MAX([o].[OrderID])
+                @"SELECT MAX([o].[OrderID])
 FROM [Orders] AS [o]",
-                  _fixture.Sql);
+                _fixture.Sql);
         }
 
         public override void Distinct_Count()
@@ -126,13 +126,13 @@ ORDER BY [c].[CustomerID] OFFSET @p0 ROWS",
 
         public override void Skip_Take()
         {
-            base.Skip_Take(); 
-            
+            base.Skip_Take();
+
             Assert.Equal(
-                 @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 ORDER BY [c].[ContactName] OFFSET @p0 ROWS FETCH NEXT @p1 ROWS ONLY",
-                 _fixture.Sql);
+                _fixture.Sql);
         }
 
         public override void Take_Skip()
@@ -140,14 +140,14 @@ ORDER BY [c].[ContactName] OFFSET @p0 ROWS FETCH NEXT @p1 ROWS ONLY",
             base.Take_Skip();
 
             Assert.Equal(
-                 @"SELECT [t0].*
+                @"SELECT [t0].*
 FROM (
     SELECT TOP(@p0) [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
     ORDER BY [c].[ContactName]
 ) AS [t0]
 ORDER BY [t0].[ContactName] OFFSET @p1 ROWS",
-                 _fixture.Sql);
+                _fixture.Sql);
         }
 
         public override void Take_Skip_Distinct()
@@ -155,7 +155,7 @@ ORDER BY [t0].[ContactName] OFFSET @p1 ROWS",
             base.Take_Skip_Distinct();
 
             Assert.Equal(
-                 @"SELECT DISTINCT [t1].*
+                @"SELECT DISTINCT [t1].*
 FROM (
     SELECT [t0].*
     FROM (
@@ -165,7 +165,7 @@ FROM (
     ) AS [t0]
     ORDER BY [t0].[ContactName] OFFSET @p1 ROWS
 ) AS [t1]",
-                 _fixture.Sql);
+                _fixture.Sql);
         }
 
         public void Skip_when_no_order_by()
@@ -383,13 +383,13 @@ ORDER BY [c].[CustomerID]",
 
         public override void Last()
         {
-            base.Last(); 
-            
+            base.Last();
+
             Assert.Equal(
-                 @"SELECT TOP(@p0) [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT TOP(@p0) [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 ORDER BY [c].[ContactName] DESC",
-                 _fixture.Sql);
+                _fixture.Sql);
         }
 
         public override void Last_when_no_order_by()
@@ -397,10 +397,10 @@ ORDER BY [c].[ContactName] DESC",
             base.Last_when_no_order_by();
 
             Assert.Equal(
-                 @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = @p0",
-                 _fixture.Sql);
+                _fixture.Sql);
         }
 
         public override void Last_Predicate()
@@ -408,11 +408,11 @@ WHERE [c].[CustomerID] = @p0",
             base.Last_Predicate();
 
             Assert.Equal(
-                 @"SELECT TOP(@p0) [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT TOP(@p0) [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @p1
 ORDER BY [c].[ContactName] DESC",
-                 _fixture.Sql);
+                _fixture.Sql);
         }
 
         public override void Where_Last()
@@ -420,11 +420,11 @@ ORDER BY [c].[ContactName] DESC",
             base.Where_Last();
 
             Assert.Equal(
-                 @"SELECT TOP(@p0) [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT TOP(@p0) [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @p1
 ORDER BY [c].[ContactName] DESC",
-                 _fixture.Sql);
+                _fixture.Sql);
         }
 
         public override void LastOrDefault()
@@ -432,10 +432,10 @@ ORDER BY [c].[ContactName] DESC",
             base.LastOrDefault();
 
             Assert.Equal(
-                 @"SELECT TOP(@p0) [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT TOP(@p0) [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 ORDER BY [c].[ContactName] DESC",
-                 _fixture.Sql);
+                _fixture.Sql);
         }
 
         public override void LastOrDefault_Predicate()
@@ -443,11 +443,11 @@ ORDER BY [c].[ContactName] DESC",
             base.LastOrDefault_Predicate();
 
             Assert.Equal(
-                 @"SELECT TOP(@p0) [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT TOP(@p0) [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @p1
 ORDER BY [c].[ContactName] DESC",
-                 _fixture.Sql);
+                _fixture.Sql);
         }
 
         public override void Where_LastOrDefault()
@@ -455,11 +455,11 @@ ORDER BY [c].[ContactName] DESC",
             base.Where_LastOrDefault();
 
             Assert.Equal(
-                 @"SELECT TOP(@p0) [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT TOP(@p0) [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @p1
 ORDER BY [c].[ContactName] DESC",
-                 _fixture.Sql);
+                _fixture.Sql);
         }
 
         public override void Where_equals_method_string()
@@ -870,18 +870,18 @@ FROM [Customers] AS [c]",
 
         public override void OrderBy_client_mixed()
         {
-            base.OrderBy_client_mixed(); 
-            
+            base.OrderBy_client_mixed();
+
             Assert.Equal(
-                 @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]",
-                 _fixture.Sql);
+                _fixture.Sql);
         }
 
         public override void OrderBy_multiple_queries()
         {
             base.OrderBy_multiple_queries();
-            
+
             Assert.Equal(
                 @"SELECT [o].[CustomerID], [o].[OrderDate], [o].[OrderID]
 FROM [Orders] AS [o]

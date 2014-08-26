@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Linq;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNet.Builder;
 using Microsoft.AspNet.Diagnostics.Entity.Utilities;
@@ -12,10 +14,6 @@ using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Framework.DependencyInjection;
-using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Microsoft.AspNet.Diagnostics.Entity
 {
@@ -48,7 +46,8 @@ namespace Microsoft.AspNet.Diagnostics.Entity
             }
             catch (DataStoreException ex)
             {
-                if (ex.Context != null && ex.Context.Database is RelationalDatabase)
+                if (ex.Context != null
+                    && ex.Context.Database is RelationalDatabase)
                 {
                     var databaseExists = ex.Context.Database.AsRelational().Exists();
 
@@ -69,17 +68,19 @@ namespace Microsoft.AspNet.Diagnostics.Entity
                         pendingModelChanges = differ.Diff(snapshot, ex.Context.Model).Any();
                     }
 
-                    if ((!databaseExists && pendingMigrations.Any()) || pendingMigrations.Any() || pendingModelChanges)
+                    if ((!databaseExists && pendingMigrations.Any())
+                        || pendingMigrations.Any()
+                        || pendingModelChanges)
                     {
                         var page = new DatabaseErrorPage();
                         page.Model = new DatabaseErrorPageModel
-                        {
-                            Options = _options,
-                            Exception = ex,
-                            DatabaseExists = databaseExists,
-                            PendingMigrations = pendingMigrations,
-                            PendingModelChanges = pendingModelChanges
-                        };
+                            {
+                                Options = _options,
+                                Exception = ex,
+                                DatabaseExists = databaseExists,
+                                PendingMigrations = pendingMigrations,
+                                PendingModelChanges = pendingModelChanges
+                            };
 
                         // TODO Building in VS2013 prevents await in catch block
                         //      swap to await once we move to just VS14

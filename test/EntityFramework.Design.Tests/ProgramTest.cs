@@ -54,7 +54,7 @@ namespace Microsoft.Data.Entity.Design.Tests
                 .Returns(
                     () =>
                         {
-                            var toolMock = new Mock<MigrationTool>() { CallBase = true };
+                            var toolMock = new Mock<MigrationTool> { CallBase = true };
 
                             toolMock.Setup(m => m.CreateMigration(It.IsAny<IConfigurationSourceContainer>()));
 

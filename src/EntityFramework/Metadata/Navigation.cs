@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Metadata
         public virtual ForeignKey ForeignKey
         {
             get { return _foreignKey; }
-            [param: NotNull] 
+            [param: NotNull]
             set
             {
                 Check.NotNull(value, "value");

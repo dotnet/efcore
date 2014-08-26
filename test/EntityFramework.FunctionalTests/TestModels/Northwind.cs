@@ -1625,7 +1625,7 @@ namespace Northwind
                         Country = "Poland",
                         Phone = "(26) 642-7012",
                         Fax = "(26) 642-7012"
-                    },
+                    }
             };
 
         #endregion

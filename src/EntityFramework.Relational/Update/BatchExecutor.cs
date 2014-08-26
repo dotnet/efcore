@@ -41,7 +41,10 @@ namespace Microsoft.Data.Entity.Relational.Update
             _logger = new LazyRef<ILogger>(() => (_context.Configuration.LoggerFactory.Create(GetType().Name)));
         }
 
-        protected virtual ILogger Logger { get { return _logger.Value; } }
+        protected virtual ILogger Logger
+        {
+            get { return _logger.Value; }
+        }
 
         public virtual async Task<int> ExecuteAsync(
             [NotNull] IEnumerable<ModificationCommandBatch> commandBatches,
@@ -67,8 +70,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                         connection.Transaction,
                         _typeMapper,
                         _context,
-                        Logger,
-                        cancellationToken: cancellationToken)
+                        Logger, cancellationToken)
                         .ConfigureAwait(continueOnCapturedContext: false);
                 }
 

@@ -153,7 +153,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     db.ChangeTracker.Entry(toUpdate).State = EntityState.Modified;
                     db.ChangeTracker.Entry(toDelete).State = EntityState.Deleted;
 
-                    var toAdd = db.Add(new Blog()
+                    var toAdd = db.Add(new Blog
                         {
                             Name = "Blog to Insert",
                             George = true,
@@ -215,7 +215,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 int addedId;
                 using (var db = new BloggingContext(options))
                 {
-                    var toAdd = db.Blogs.Add(new Blog()
+                    var toAdd = db.Blogs.Add(new Blog
                         {
                             Name = "Blog to Insert",
                             George = true,
@@ -360,7 +360,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         private static async Task<TBlog[]> CreateBlogDatabaseAsync<TBlog>(DbContext context) where TBlog : class, IBlog, new()
         {
             await context.Database.EnsureCreatedAsync();
-            var blog1 = await context.AddAsync(new TBlog()
+            var blog1 = await context.AddAsync(new TBlog
                 {
                     Name = "Blog1",
                     George = true,
@@ -378,7 +378,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     //OrUShort = 888888888888888, // TODO: The parameter data type of UInt64 is invalid.
                     AndChew = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }
                 });
-            var blog2 = await context.AddAsync(new TBlog()
+            var blog2 = await context.AddAsync(new TBlog
                 {
                     Name = "Blog2",
                     George = false,

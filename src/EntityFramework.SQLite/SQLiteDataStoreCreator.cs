@@ -7,7 +7,6 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Relational;
-using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.SQLite.Utilities;
 using Microsoft.Data.SQLite;
 
@@ -59,7 +58,7 @@ namespace Microsoft.Data.Entity.SQLite
             Check.NotNull(model, "model");
 
             var generator = _generatorFactory.Create();
-            var operations = _modelDiffer.CreateSchema(model);            
+            var operations = _modelDiffer.CreateSchema(model);
             var statements = generator.Generate(operations);
 
             // TODO: Delete database on error

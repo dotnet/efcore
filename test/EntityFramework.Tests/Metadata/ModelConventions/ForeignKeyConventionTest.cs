@@ -138,12 +138,12 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             var principalKeyProperty = PrincipalType.AddProperty("No!No!", typeof(int));
 
             var fk = new ForeignKeyConvention().FindOrCreateForeignKey(
-                PrincipalType, 
-                DependentType, 
-                "SomeNav", 
-                "SomeInverse", 
-                new[] { new[] { fkProperty } }, 
-                new[] { principalKeyProperty }, 
+                PrincipalType,
+                DependentType,
+                "SomeNav",
+                "SomeInverse",
+                new[] { new[] { fkProperty } },
+                new[] { principalKeyProperty },
                 isUnqiue: false);
 
             Assert.Same(fkProperty, fk.Properties.Single());
@@ -163,12 +163,12 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             var fkProperty2 = DependentType.AddProperty("ThatsImpossible!", typeof(int));
 
             var fk = new ForeignKeyConvention().FindOrCreateForeignKey(
-                PrincipalType, 
-                DependentType, 
-                "SomeNav", 
-                "SomeInverse", 
-                new[] { new[] { fkProperty1, fkProperty2 } }, 
-                new Property[0], 
+                PrincipalType,
+                DependentType,
+                "SomeNav",
+                "SomeInverse",
+                new[] { new[] { fkProperty1, fkProperty2 } },
+                new Property[0],
                 isUnqiue: false);
 
             Assert.Same(fkProperty1, fk.Properties[0]);
@@ -191,12 +191,12 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             var principalKeyProperty2 = PrincipalType.AddProperty("YouKnowItToBeTrue!", typeof(int));
 
             var fk = new ForeignKeyConvention().FindOrCreateForeignKey(
-                PrincipalType, 
-                DependentType, 
-                "SomeNav", 
-                "SomeInverse", 
+                PrincipalType,
+                DependentType,
+                "SomeNav",
+                "SomeInverse",
                 new[] { new[] { fkProperty1, fkProperty2 } },
-                new[] { principalKeyProperty1, principalKeyProperty2 }, 
+                new[] { principalKeyProperty1, principalKeyProperty2 },
                 isUnqiue: false);
 
             Assert.Same(fkProperty1, fk.Properties[0]);

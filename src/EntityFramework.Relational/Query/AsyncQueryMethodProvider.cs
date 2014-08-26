@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
                 private DbCommand _command;
                 private DbDataReader _reader;
-                
+
                 private bool _disposed;
 
                 public AsyncEnumerator(AsyncEnumerable<T> enumerable)
@@ -81,7 +81,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                         = await (_reader == null
                             ? InitializeAndReadAsync(cancellationToken)
                             : _reader.ReadAsync(cancellationToken))
-                                .ConfigureAwait(continueOnCapturedContext: false);
+                            .ConfigureAwait(continueOnCapturedContext: false);
 
                     if (!hasNext)
                     {

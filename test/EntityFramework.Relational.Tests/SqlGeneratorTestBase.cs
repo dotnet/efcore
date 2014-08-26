@@ -280,8 +280,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
             return new[]
                 {
                     new ColumnModification(
-                        entry, CreateMockProperty("Id"), generator,
-                        isRead: identityKey, isWrite: !identityKey, isKey: true, isCondition: false),
+                        entry, CreateMockProperty("Id"), generator, identityKey, !identityKey, isKey: true, isCondition: false),
                     new ColumnModification(
                         entry, CreateMockProperty("Name"), generator,
                         isRead: false, isWrite: true, isKey: false, isCondition: false),
@@ -289,8 +288,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
                         entry, CreateMockProperty("Quacks"), generator,
                         isRead: false, isWrite: true, isKey: false, isCondition: false),
                     new ColumnModification(
-                        entry, CreateMockProperty("Computed"), generator,
-                        isRead: computedProperty, isWrite: false, isKey: false, isCondition: false),
+                        entry, CreateMockProperty("Computed"), generator, computedProperty, isWrite: false, isKey: false, isCondition: false),
                     new ColumnModification(
                         entry, CreateMockProperty("ConcurrencyToken"), generator,
                         isRead: false, isWrite: true, isKey: false, isCondition: false)
@@ -314,11 +312,9 @@ namespace Microsoft.Data.Entity.Relational.Tests
                         entry, CreateMockProperty("Quacks"), generator,
                         isRead: false, isWrite: true, isKey: false, isCondition: false),
                     new ColumnModification(
-                        entry, CreateMockProperty("Computed"), generator,
-                        isRead: computedProperty, isWrite: false, isKey: false, isCondition: false),
+                        entry, CreateMockProperty("Computed"), generator, computedProperty, isWrite: false, isKey: false, isCondition: false),
                     new ColumnModification(
-                        entry, CreateMockProperty("ConcurrencyToken"), generator,
-                        isRead: false, isWrite: true, isKey: false, isCondition: concurrencyToken)
+                        entry, CreateMockProperty("ConcurrencyToken"), generator, false, true, false, concurrencyToken)
                 };
         }
 
@@ -333,8 +329,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
                         entry, CreateMockProperty("Id"), generator,
                         isRead: false, isWrite: false, isKey: true, isCondition: true),
                     new ColumnModification(
-                        entry, CreateMockProperty("ConcurrencyToken"), generator,
-                        isRead: false, isWrite: false, isKey: false, isCondition: concurrencyToken)
+                        entry, CreateMockProperty("ConcurrencyToken"), generator, false, false, false, concurrencyToken)
                 };
         }
     }

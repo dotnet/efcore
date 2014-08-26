@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.Metadata
     public class Property : PropertyBase, IProperty
     {
         private readonly Type _propertyType;
-        
+
         private bool _isConcurrencyToken;
         private bool _isNullable;
         private int _shadowIndex;
@@ -101,7 +101,8 @@ namespace Microsoft.Data.Entity.Metadata
             get { return _shadowIndex; }
             set
             {
-                if (value < 0 || !IsShadowProperty)
+                if (value < 0
+                    || !IsShadowProperty)
                 {
                     throw new ArgumentOutOfRangeException("value");
                 }

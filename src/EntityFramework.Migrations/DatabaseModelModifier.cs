@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Migrations
             foreach (var operation in migrationOperations)
             {
                 Modify(databaseModel, operation);
-            }   
+            }
         }
 
         public virtual void Modify([NotNull] DatabaseModel databaseModel, [NotNull] MigrationOperation operation)
@@ -58,9 +58,9 @@ namespace Microsoft.Data.Entity.Migrations
             Check.NotNull(databaseModel, "databaseModel");
 
             var cloneContext = new CloneContext();
-            var table 
+            var table
                 = new Table(
-                    createTableOperation.Table.Name, 
+                    createTableOperation.Table.Name,
                     createTableOperation.Table.Columns.Select(c => c.Clone(cloneContext)));
 
             if (createTableOperation.Table.PrimaryKey != null)
@@ -187,7 +187,7 @@ namespace Microsoft.Data.Entity.Migrations
             var table = databaseModel.GetTable(dropPrimaryKeyOperation.TableName);
 
             Contract.Assert(
-                table.PrimaryKey != null 
+                table.PrimaryKey != null
                 && table.PrimaryKey.Name == dropPrimaryKeyOperation.PrimaryKeyName);
 
             table.PrimaryKey = null;

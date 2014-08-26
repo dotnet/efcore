@@ -42,10 +42,10 @@ namespace Microsoft.Data.Entity.Redis
         {
             _context.Set<Customer>().Add(
                 new Customer
-                {
-                    CustomerID = 200,
-                    Name = "B. Customer",
-                });
+                    {
+                        CustomerID = 200,
+                        Name = "B. Customer",
+                    });
             var changes = _context.SaveChanges();
             Assert.Equal(1, changes);
 
@@ -60,16 +60,16 @@ namespace Microsoft.Data.Entity.Redis
         {
             _context.Set<Customer>().Add(
                 new Customer
-                {
-                    CustomerID = 300,
-                    Name = "C. Customer",
-                });
+                    {
+                        CustomerID = 300,
+                        Name = "C. Customer",
+                    });
             _context.Set<Customer>().Add(
                 new Customer
-                {
-                    CustomerID = 301,
-                    Name = "C. Customer the 2nd",
-                });
+                    {
+                        CustomerID = 301,
+                        Name = "C. Customer the 2nd",
+                    });
             var changes = _context.SaveChanges();
             Assert.Equal(2, changes);
 

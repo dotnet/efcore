@@ -46,14 +46,11 @@ namespace Microsoft.Data.Entity.SqlServer
             {
                 return sequenceName;
             }
-            else
-            {
-                var entityName = !string.IsNullOrEmpty(property.EntityType.Schema())
-                    ? property.EntityType.Schema() + "_" + property.EntityType.TableName()
-                    : property.EntityType.TableName();
+            var entityName = !string.IsNullOrEmpty(property.EntityType.Schema())
+                ? property.EntityType.Schema() + "_" + property.EntityType.TableName()
+                : property.EntityType.TableName();
 
-                return entityName + "_Sequence";
-            }
+            return entityName + "_Sequence";
         }
 
         private static string DelimitSequenceName(string sequenceName)

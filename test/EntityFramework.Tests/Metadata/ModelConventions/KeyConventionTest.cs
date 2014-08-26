@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
         public void ConfigureKey_handles_multiple_key_properties()
         {
             var entityType = CreateEntityType<EntityWithNoId>();
-            var convention = new Mock<KeyConvention>() { CallBase = true };
+            var convention = new Mock<KeyConvention> { CallBase = true };
             convention.Protected().Setup<IEnumerable<Property>>("DiscoverKeyProperties", ItExpr.IsAny<EntityType>())
                 .Returns<EntityType>(t => t.Properties);
 

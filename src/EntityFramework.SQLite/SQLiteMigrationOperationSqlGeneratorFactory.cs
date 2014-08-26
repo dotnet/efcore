@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.SQLite
         {
             Check.NotNull(database, "database");
 
-            return 
+            return
                 new SQLiteMigrationOperationSqlGenerator(new SQLiteTypeMapper())
                     {
                         Database = database,

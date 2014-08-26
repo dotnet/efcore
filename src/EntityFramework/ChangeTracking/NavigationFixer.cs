@@ -422,10 +422,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
                     dependentEntry[property] = null;
                 }
             }
-            else
-            {
-                // TODO: Handle conceptual null
-            }
         }
 
         private static void SetForeignKeyValue(

@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Diagnostics.Contracts;
 using System.Linq.Expressions;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
@@ -41,15 +40,12 @@ namespace Microsoft.Data.Entity.Redis.Query
                         Expression.Constant(entityType)
                         );
                 }
-                else
-                {
-                    return Expression.Call(
-                        Expression.Constant(_parentVisitor),
-                        _executeNonMaterializedQueryExpressionMethodInfo.MakeGenericMethod(elementType),
-                        Expression.Constant(_querySource),
-                        QueryContextParameter
-                        );
-                }
+                return Expression.Call(
+                    Expression.Constant(_parentVisitor),
+                    _executeNonMaterializedQueryExpressionMethodInfo.MakeGenericMethod(elementType),
+                    Expression.Constant(_querySource),
+                    QueryContextParameter
+                    );
             }
         }
     }

@@ -282,9 +282,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             try
             {
-                var result 
+                var result
                     = await SaveChangesAsync(entriesToSave, cancellationToken)
-                    .ConfigureAwait(continueOnCapturedContext: false);
+                        .ConfigureAwait(continueOnCapturedContext: false);
 
                 // TODO: When transactions supported, make it possible to commit/accept at end of all transactions
                 foreach (var entry in entriesToSave)

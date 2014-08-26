@@ -66,7 +66,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
                         new[] { "IsEnchanted eq true", CreateFilterExpr("IsEnchanted", true) },
                         new[] { "IsEnchanted eq false", CreateFilterExpr("IsEnchanted", false) },
                         new[] { "Buffer eq X'05080f10172a'", CreateFilterExpr("Buffer", TestByteArray) },
-                        new[] { "Guid eq guid'ca761232-ed42-11ce-bacd-00aa0057b223'", CreateFilterExpr("Guid", new Guid("ca761232ed4211cebacd00aa0057b223")) },
+                        new[] { "Guid eq guid'ca761232-ed42-11ce-bacd-00aa0057b223'", CreateFilterExpr("Guid", new Guid("ca761232ed4211cebacd00aa0057b223")) }
                     };
             }
         }
@@ -82,7 +82,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
                         new[] { "Count lt 15", CreateFilterExpr("Count", 15, ExpressionType.LessThan) },
                         new[] { "Count le 20", CreateFilterExpr("Count", 20, ExpressionType.LessThanOrEqual) },
                         new[] { "Count gt 25", CreateFilterExpr("Count", 25, ExpressionType.GreaterThan) },
-                        new[] { "Count ge 30", CreateFilterExpr("Count", 30, ExpressionType.GreaterThanOrEqual) },
+                        new[] { "Count ge 30", CreateFilterExpr("Count", 30, ExpressionType.GreaterThanOrEqual) }
                     };
             }
         }

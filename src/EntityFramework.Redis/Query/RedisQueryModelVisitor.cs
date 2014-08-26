@@ -8,8 +8,8 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Redis.Utilities;
 using Microsoft.Data.Entity.Query;
+using Microsoft.Data.Entity.Redis.Utilities;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Parsing;
 
@@ -59,11 +59,11 @@ namespace Microsoft.Data.Entity.Redis.Query
                 memberExpression,
                 null,
                 (property, querySource, redisQuery) =>
-                {
-                    var projectionIndex = redisQuery.GetProjectionIndex(property);
-                    Contract.Assert(projectionIndex > -1);
-                    return BindReadValueMethod(memberExpression.Type, expression, projectionIndex);
-                });
+                    {
+                        var projectionIndex = redisQuery.GetProjectionIndex(property);
+                        Contract.Assert(projectionIndex > -1);
+                        return BindReadValueMethod(memberExpression.Type, expression, projectionIndex);
+                    });
         }
 
         private TResult BindMemberExpression<TResult>(
@@ -92,7 +92,7 @@ namespace Microsoft.Data.Entity.Redis.Query
             return redisQueryContext.GetResultsFromRedis<TResult>(entityType);
         }
 
-        private static readonly MethodInfo _executeNonMaterializedQueryExpressionMethodInfo = 
+        private static readonly MethodInfo _executeNonMaterializedQueryExpressionMethodInfo =
             typeof(RedisQueryModelVisitor).GetTypeInfo().GetDeclaredMethod("ExecuteValueReader");
 
         [UsedImplicitly]

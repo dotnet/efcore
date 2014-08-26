@@ -121,9 +121,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         public void Generate_when_alter_column_operation_with_nullable()
         {
             var database = new DatabaseModel();
-            var table 
+            var table
                 = new Table(
-                    "dbo.MyTable", 
+                    "dbo.MyTable",
                     new[]
                         {
                             new Column("Foo", typeof(int)) { IsNullable = false }
@@ -335,7 +335,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 new MigrationOperation[]
                     {
                         new CreateTableOperation(table),
-                        new AddColumnOperation(table.Name, column),
+                        new AddColumnOperation(table.Name, column)
                     })
                 .Count();
 

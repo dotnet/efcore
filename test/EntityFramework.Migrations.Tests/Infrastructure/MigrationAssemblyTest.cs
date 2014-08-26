@@ -161,7 +161,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         {
             public override IModel Model
             {
-                get { return new Metadata.Model() { StorageName = "ContextModelSnapshot" }; }
+                get { return new Metadata.Model { StorageName = "ContextModelSnapshot" }; }
             }
         }
     }

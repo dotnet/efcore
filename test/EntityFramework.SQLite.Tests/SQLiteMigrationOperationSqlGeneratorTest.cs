@@ -143,17 +143,17 @@ namespace Microsoft.Data.Entity.SQLite.Tests
             var newColumn = new Column("Id", typeof(int)) { IsNullable = false };
             var table
                 = new Table("A", new[] { column })
-                {
-                    PrimaryKey = new PrimaryKey("PK", new[] { column })
-                };
+                    {
+                        PrimaryKey = new PrimaryKey("PK", new[] { column })
+                    };
 
             database.AddTable(table);
 
             var operations
                 = new MigrationOperation[]
-                      {
-                          new AlterColumnOperation(table.Name, newColumn, isDestructiveChange: true)
-                      };
+                    {
+                        new AlterColumnOperation(table.Name, newColumn, isDestructiveChange: true)
+                    };
 
             var stringBuilder = new StringBuilder();
             foreach (var statement in CreateGenerator(database).Generate(operations))
@@ -162,7 +162,7 @@ namespace Microsoft.Data.Entity.SQLite.Tests
             }
 
             Assert.Equal(
-@"DROP TABLE ""A""
+                @"DROP TABLE ""A""
 CREATE TABLE ""A"" (
     ""Id"" INT NOT NULL,
     CONSTRAINT ""PK"" PRIMARY KEY (""Id"")

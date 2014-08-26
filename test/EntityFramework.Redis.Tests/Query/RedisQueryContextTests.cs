@@ -45,7 +45,6 @@ namespace Microsoft.Data.Entity.Redis.Query
             redisDatabaseMock.Verify(m => m.GetResults(redisQuery), Times.Never);
         }
 
-
         [Fact]
         public void GetResultsFromRedis_RedisQuery_calls_RedisDatabase_GetResults()
         {
@@ -59,7 +58,7 @@ namespace Microsoft.Data.Entity.Redis.Query
             var redisQuery = new RedisQuery(entityType);
 
             redisQueryContext.GetResultsFromRedis(redisQuery);
-            
+
             redisDatabaseMock.Verify(m => m.GetResults(redisQuery), Times.Once);
             redisDatabaseMock.Verify(m => m.GetMaterializedResults<QueryTestType>(entityType), Times.Never);
         }

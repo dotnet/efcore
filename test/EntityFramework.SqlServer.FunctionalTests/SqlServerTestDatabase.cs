@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         public static Task<SqlServerTestDatabase> Scratch(bool createDatabase = true)
         {
             return new SqlServerTestDatabase()
-                .CreateScratch(name: "Microsoft.Data.SqlServer.Scratch_" + Interlocked.Increment(ref _scratchCount), createDatabase: createDatabase);
+                .CreateScratch("Microsoft.Data.SqlServer.Scratch_" + Interlocked.Increment(ref _scratchCount), createDatabase);
         }
 
         private SqlConnection _connection;

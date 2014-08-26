@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNet.Builder;
 using Microsoft.AspNet.Diagnostics.Entity.Utilities;
@@ -8,8 +10,6 @@ using Microsoft.AspNet.Http;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Framework.DependencyInjection;
-using System;
-using System.Threading.Tasks;
 
 namespace Microsoft.AspNet.Diagnostics.Entity
 {
@@ -48,8 +48,8 @@ namespace Microsoft.AspNet.Diagnostics.Entity
                         migrator.UpdateDatabase();
 
                         context.Response.StatusCode = 204;
-                        context.Response.Headers.Add("Pragma", new string[] { "no-cache" });
-                        context.Response.Headers.Add("Cache-Control", new string[] { "no-cache" });
+                        context.Response.Headers.Add("Pragma", new[] { "no-cache" });
+                        context.Response.Headers.Add("Cache-Control", new[] { "no-cache" });
                         return;
                     }
                 }

@@ -85,10 +85,10 @@ namespace Microsoft.Data.Entity.Metadata
             var modelBuilder = new ModelBuilder(model);
 
             modelBuilder.Entity<Customer>(b =>
-            {
-                b.Property(e => e.Id);
-                b.Key("Id");
-            });
+                {
+                    b.Property(e => e.Id);
+                    b.Key("Id");
+                });
 
             var entity = model.GetEntityType(typeof(Customer));
 
@@ -395,14 +395,14 @@ namespace Microsoft.Data.Entity.Metadata
             var modelBuilder = new ModelBuilder(model);
 
             modelBuilder.Entity<Quarks>(b =>
-            {
-                b.Property(e => e.Up);
-                b.Property(e => e.Down);
-                b.Property<int>("Charm");
-                b.Property<string>("Strange");
-                b.Property(typeof(int), "Top");
-                b.Property(typeof(string), "Bottom");
-            });
+                {
+                    b.Property(e => e.Up);
+                    b.Property(e => e.Down);
+                    b.Property<int>("Charm");
+                    b.Property<string>("Strange");
+                    b.Property(typeof(int), "Top");
+                    b.Property(typeof(string), "Bottom");
+                });
 
             var entityType = model.GetEntityType(typeof(Quarks));
 
@@ -421,14 +421,14 @@ namespace Microsoft.Data.Entity.Metadata
             var modelBuilder = new ModelBuilder(model);
 
             modelBuilder.Entity<Quarks>(b =>
-            {
-                b.Property(e => e.Up).Required();
-                b.Property(e => e.Down).Required();
-                b.Property<int>("Charm").Required();
-                b.Property<string>("Strange").Required();
-                b.Property(typeof(int), "Top").Required();
-                b.Property(typeof(string), "Bottom").Required();
-            });
+                {
+                    b.Property(e => e.Up).Required();
+                    b.Property(e => e.Down).Required();
+                    b.Property<int>("Charm").Required();
+                    b.Property<string>("Strange").Required();
+                    b.Property(typeof(int), "Top").Required();
+                    b.Property(typeof(string), "Bottom").Required();
+                });
 
             var entityType = model.GetEntityType(typeof(Quarks));
 
@@ -447,14 +447,14 @@ namespace Microsoft.Data.Entity.Metadata
             var modelBuilder = new ModelBuilder(model);
 
             modelBuilder.Entity<Quarks>(b =>
-            {
-                b.Property(e => e.Up).Required(false);
-                b.Property(e => e.Down).Required(false);
-                b.Property<int>("Charm").Required(false);
-                b.Property<string>("Strange").Required(false);
-                b.Property(typeof(int), "Top").Required(false);
-                b.Property(typeof(string), "Bottom").Required(false);
-            });
+                {
+                    b.Property(e => e.Up).Required(false);
+                    b.Property(e => e.Down).Required(false);
+                    b.Property<int>("Charm").Required(false);
+                    b.Property<string>("Strange").Required(false);
+                    b.Property(typeof(int), "Top").Required(false);
+                    b.Property(typeof(string), "Bottom").Required(false);
+                });
 
             var entityType = model.GetEntityType(typeof(Quarks));
 
@@ -473,13 +473,13 @@ namespace Microsoft.Data.Entity.Metadata
             var modelBuilder = new ModelBuilder(model);
 
             modelBuilder.Entity<Quarks>(b =>
-            {
-                b.Property(e => e.Up);
-                b.Property<int>("Charm");
-                b.Property(typeof(int), "Top");
-                b.Property<string>("Gluon");
-                b.Property(typeof(string), "Photon");
-            });
+                {
+                    b.Property(e => e.Up);
+                    b.Property<int>("Charm");
+                    b.Property(typeof(int), "Top");
+                    b.Property<string>("Gluon");
+                    b.Property(typeof(string), "Photon");
+                });
 
             var entityType = model.GetEntityType(typeof(Quarks));
 
@@ -503,13 +503,13 @@ namespace Microsoft.Data.Entity.Metadata
             var modelBuilder = new ModelBuilder(model);
 
             modelBuilder.Entity<Quarks>(b =>
-            {
-                b.Property(e => e.Up).Shadow();
-                b.Property<int>("Charm").Shadow();
-                b.Property(typeof(int), "Top").Shadow();
-                b.Property<string>("Gluon").Shadow(false);
-                b.Property(typeof(string), "Photon").Shadow(false);
-            });
+                {
+                    b.Property(e => e.Up).Shadow();
+                    b.Property<int>("Charm").Shadow();
+                    b.Property(typeof(int), "Top").Shadow();
+                    b.Property<string>("Gluon").Shadow(false);
+                    b.Property(typeof(string), "Photon").Shadow(false);
+                });
 
             var entityType = model.GetEntityType(typeof(Quarks));
 
@@ -533,14 +533,14 @@ namespace Microsoft.Data.Entity.Metadata
             var modelBuilder = new ModelBuilder(model);
 
             modelBuilder.Entity<Quarks>(b =>
-            {
-                b.Property(e => e.Up).ConcurrencyToken();
-                b.Property(e => e.Down).ConcurrencyToken(false);
-                b.Property<int>("Charm").ConcurrencyToken(true);
-                b.Property<string>("Strange").ConcurrencyToken(false);
-                b.Property(typeof(int), "Top").ConcurrencyToken();
-                b.Property(typeof(string), "Bottom").ConcurrencyToken(false);
-            });
+                {
+                    b.Property(e => e.Up).ConcurrencyToken();
+                    b.Property(e => e.Down).ConcurrencyToken(false);
+                    b.Property<int>("Charm").ConcurrencyToken(true);
+                    b.Property<string>("Strange").ConcurrencyToken(false);
+                    b.Property(typeof(int), "Top").ConcurrencyToken();
+                    b.Property(typeof(string), "Bottom").ConcurrencyToken(false);
+                });
 
             var entityType = model.GetEntityType(typeof(Quarks));
 

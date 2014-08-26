@@ -300,10 +300,10 @@ namespace Microsoft.Data.Entity
             await SourceNonAsyncQueryableTest(() => Source<decimal?>().SumAsync(e => e));
             await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e));
             await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, e => e));
-            await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e,new Mock<IEqualityComparer<int>>().Object));
-            await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e,new Mock<IEqualityComparer<int>>().Object, new CancellationToken()));
-            await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, e => e,new Mock<IEqualityComparer<int>>().Object));
-            await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, e => e,new Mock<IEqualityComparer<int>>().Object, new CancellationToken()));
+            await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, new Mock<IEqualityComparer<int>>().Object));
+            await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, new Mock<IEqualityComparer<int>>().Object, new CancellationToken()));
+            await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, e => e, new Mock<IEqualityComparer<int>>().Object));
+            await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, e => e, new Mock<IEqualityComparer<int>>().Object, new CancellationToken()));
             await SourceNonAsyncEnumerableTest<int>(() => Source().ToListAsync());
 
             Assert.Equal(
@@ -324,14 +324,14 @@ namespace Microsoft.Data.Entity
         private static async Task SourceNonAsyncQueryableTest(Func<Task> test)
         {
             Assert.Equal(
-                Strings.FormatIQueryableProviderNotAsync(), 
+                Strings.FormatIQueryableProviderNotAsync(),
                 (await Assert.ThrowsAsync<InvalidOperationException>(test)).Message);
         }
 
         private static async Task SourceNonAsyncEnumerableTest<T>(Func<Task> test)
         {
             Assert.Equal(
-                Strings.FormatIQueryableNotAsync(typeof(T)), 
+                Strings.FormatIQueryableNotAsync(typeof(T)),
                 (await Assert.ThrowsAsync<InvalidOperationException>(test)).Message);
         }
 
@@ -488,7 +488,7 @@ namespace Microsoft.Data.Entity
 
         private static async Task ArgumentNullTest(string paramName, Func<Task> test)
         {
-            Assert.Equal(paramName, 
+            Assert.Equal(paramName,
                 (await Assert.ThrowsAsync<ArgumentNullException>(test)).ParamName);
         }
 

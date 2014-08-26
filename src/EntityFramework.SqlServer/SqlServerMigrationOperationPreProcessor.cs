@@ -89,7 +89,7 @@ namespace Microsoft.Data.Entity.SqlServer
             }
             else
             {
-                compositeOperation.AddOperation(alterColumnOperation);   
+                compositeOperation.AddOperation(alterColumnOperation);
             }
 
             context.HandleCompositeOperation(compositeOperation);
@@ -104,7 +104,7 @@ namespace Microsoft.Data.Entity.SqlServer
         }
 
         protected virtual void GetDataTypes(
-            [NotNull] Table table, [NotNull] Column column, [NotNull] Column newColumn, [NotNull] Context context, 
+            [NotNull] Table table, [NotNull] Column column, [NotNull] Column newColumn, [NotNull] Context context,
             out string dataType, out string newDataType)
         {
             Check.NotNull(table, "table");
@@ -129,7 +129,7 @@ namespace Microsoft.Data.Entity.SqlServer
 
         public class Context
         {
-            private readonly SqlServerMigrationOperationSqlGenerator _generator;            
+            private readonly SqlServerMigrationOperationSqlGenerator _generator;
             private readonly List<SqlStatement> _statements = new List<SqlStatement>();
 
             public Context([NotNull] SqlServerMigrationOperationSqlGenerator generator)
@@ -190,8 +190,8 @@ namespace Microsoft.Data.Entity.SqlServer
         {
             private readonly List<MigrationOperation> _operations = new List<MigrationOperation>();
 
-            public virtual IEnumerable<MigrationOperation> Operations 
-            { 
+            public virtual IEnumerable<MigrationOperation> Operations
+            {
                 get { return _operations; }
             }
 

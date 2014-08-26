@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.SqlServer
         {
             Check.NotNull(database, "database");
 
-            return 
+            return
                 new SqlServerMigrationOperationSqlGenerator(new SqlServerTypeMapper())
                     {
                         Database = database,

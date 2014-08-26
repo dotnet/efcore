@@ -195,7 +195,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
         }
 
-        private enum IntEnum : int
+        private enum IntEnum
         {
         }
 

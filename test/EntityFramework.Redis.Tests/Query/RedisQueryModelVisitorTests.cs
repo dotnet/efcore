@@ -14,14 +14,14 @@ namespace Microsoft.Data.Entity.Redis.Query
             : base(new RedisQueryCompilationContext(
                 QueryTestType.Model(),
                 new LinqOperatorProvider(),
-                new ResultOperatorHandler())) { }
-
+                new ResultOperatorHandler()))
+        {
+        }
 
         [Fact]
         public void Can_construct_RedisQueryModelVisitor()
         {
             // the fact that this class can be instantiated means that the base constructor works
-            return;
         }
 
         [Fact]
@@ -29,9 +29,9 @@ namespace Microsoft.Data.Entity.Redis.Query
         {
             var querySourceMock = new Mock<IQuerySource>();
 
-            var queryModelVisitor = this.CreateQueryingExpressionTreeVisitor(querySourceMock.Object);
+            var queryModelVisitor = CreateQueryingExpressionTreeVisitor(querySourceMock.Object);
 
-            Assert.IsType<RedisQueryModelVisitor.RedisQueryingExpressionTreeVisitor>(queryModelVisitor);
+            Assert.IsType<RedisQueryingExpressionTreeVisitor>(queryModelVisitor);
         }
     }
 }

@@ -5,7 +5,6 @@ using System;
 using System.Data.SqlClient;
 using System.IO;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational;
@@ -21,7 +20,7 @@ namespace Microsoft.Data.Entity.Design.Tests
         [Fact]
         public void CommitConfiguration()
         {
-            var toolMock = new Mock<MyMigrationTool>() { CallBase = true };
+            var toolMock = new Mock<MyMigrationTool> { CallBase = true };
             var args
                 = new[]
                     {
@@ -73,11 +72,11 @@ namespace Microsoft.Data.Entity.Design.Tests
         [Fact]
         public void CommitConfiguration_with_default_config_file()
         {
-            var toolMock = new Mock<MyMigrationTool>() { CallBase = true };
+            var toolMock = new Mock<MyMigrationTool> { CallBase = true };
             var args
                 = new[]
                     {
-                        "--ContextAssembly=EntityFramework.Design.Tests.dll",
+                        "--ContextAssembly=EntityFramework.Design.Tests.dll"
                     };
             var configSourceMock = new Mock<IniFileConfigurationSource>("Foo") { CallBase = true };
             var tool = toolMock.Object;

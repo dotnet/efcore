@@ -148,10 +148,7 @@ namespace Microsoft.Data.Entity.Utilities
             {
                 return successorSet;
             }
-            else
-            {
-                return Enumerable.Empty<TVertex>();
-            }
+            return Enumerable.Empty<TVertex>();
         }
 
         public override IEnumerable<TVertex> GetIncomingNeighbours(TVertex to)

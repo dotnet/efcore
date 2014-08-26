@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.Metadata
         private int _shadowPropertyCount;
         private int _originalValueCount;
         private bool _useLazyOriginalValues = true;
-        private static readonly char[] _simpleNameChars = new []{'.', '+'};
+        private static readonly char[] _simpleNameChars = { '.', '+' };
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -90,7 +90,7 @@ namespace Microsoft.Data.Entity.Metadata
 
                 var fullName = (string)_typeOrName;
                 var lastDot = fullName.LastIndexOfAny(_simpleNameChars);
-                
+
                 return lastDot > 0 ? fullName.Substring(lastDot + 1) : fullName;
             }
         }

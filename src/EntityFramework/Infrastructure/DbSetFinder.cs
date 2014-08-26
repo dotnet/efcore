@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         {
             return contextType.GetRuntimeProperties()
                 .Where(
-                    p => !PropertyInfoExtensions.IsStatic(p)
+                    p => !p.IsStatic()
                          && !p.GetIndexParameters().Any()
                          && p.DeclaringType != typeof(DbContext)
                          && p.PropertyType.GetTypeInfo().IsGenericType

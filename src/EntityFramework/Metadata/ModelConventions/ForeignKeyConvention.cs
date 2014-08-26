@@ -82,7 +82,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             var principalKey = referencedProperties.Any() ? new Key(referencedProperties) : principalType.GetKey();
             var newForeignKey = dependentType.AddForeignKey(principalKey, fkProperty.ToArray());
             newForeignKey.IsUnique = isUnqiue;
-            
+
             return newForeignKey;
         }
 
@@ -118,7 +118,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                 {
                     if (property.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
                     {
-                        matches.Add(new [] { property });
+                        matches.Add(new[] { property });
                     }
                 }
             }

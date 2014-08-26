@@ -506,7 +506,7 @@ namespace Microsoft.Data.Entity.MonsterModel
 
             var resolution = Add(new TResolution
                 {
-                    ResolutionId = SupportsCandidateKeys ? complaint2.AlternateId : complaint2.ComplaintId, 
+                    ResolutionId = SupportsCandidateKeys ? complaint2.AlternateId : complaint2.ComplaintId,
                     Details = "Destroyed all coffee in Redmond area."
                 });
 
@@ -1125,7 +1125,7 @@ namespace Microsoft.Data.Entity.MonsterModel
 
             var login1 = toAdd[1].AddEx(new TLogin { Username = "MrsKoalie73", AlternateUsername = "Sheila" });
             var login2 = toAdd[1].AddEx(new TLogin { Username = "MrsBossyPants", AlternateUsername = "Sue" });
-            var login3 = toAdd[1].AddEx(new TLogin { Username = "TheStripedMenace", AlternateUsername = "Tarquin" }); 
+            var login3 = toAdd[1].AddEx(new TLogin { Username = "TheStripedMenace", AlternateUsername = "Tarquin" });
 
             customer1.Logins.Add(login1);
             customer2.Logins.Add(login2);

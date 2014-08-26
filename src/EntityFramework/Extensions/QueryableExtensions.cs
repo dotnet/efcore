@@ -854,11 +854,11 @@ namespace System.Linq
                 "Average",
                 parameterCount,
                 mi => (parameterCount == 0
-                        && mi.GetParameters()[0].ParameterType == typeof(IQueryable<TOperand>))
+                       && mi.GetParameters()[0].ParameterType == typeof(IQueryable<TOperand>))
                       || (mi.GetParameters().Length == 2
-                        && mi.GetParameters()[1]
-                          .ParameterType.GenericTypeArguments[0]
-                          .GenericTypeArguments[1] == typeof(TOperand)));
+                          && mi.GetParameters()[1]
+                              .ParameterType.GenericTypeArguments[0]
+                              .GenericTypeArguments[1] == typeof(TOperand)));
         }
 
         private static readonly MethodInfo _averageDecimal = GetAverageMethod<decimal, decimal>();
@@ -1309,7 +1309,7 @@ namespace System.Linq
 
         #region AsAsyncEnumerable
 
-        public static IAsyncEnumerable<TSource> AsAsyncEnumerable<TSource>([NotNull] this IQueryable<TSource> source) 
+        public static IAsyncEnumerable<TSource> AsAsyncEnumerable<TSource>([NotNull] this IQueryable<TSource> source)
         {
             Check.NotNull(source, "source");
 
@@ -1329,7 +1329,7 @@ namespace System.Linq
 
             throw new InvalidOperationException(Strings.FormatIQueryableNotAsync(typeof(TSource)));
         }
-        
+
         #endregion
 
         #region Load

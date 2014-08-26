@@ -6,9 +6,9 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;
-using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
@@ -414,7 +414,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 public async Task TestAsync()
                 {
-                    Assert.Equal(91, await QueryableExtensions.CountAsync(_context.Customers));
+                    Assert.Equal(91, await _context.Customers.CountAsync());
                 }
             }
 
@@ -444,7 +444,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 {
                     using (var context = new NorthwindContext(SqlServerTestDatabase.NorthwindConnectionString))
                     {
-                        Assert.Equal(91, await QueryableExtensions.CountAsync(context.Customers));
+                        Assert.Equal(91, await context.Customers.CountAsync());
                     }
                 }
             }
@@ -474,7 +474,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 {
                     using (var context = new NorthwindContext(SqlServerTestDatabase.NorthwindConnectionString))
                     {
-                        Assert.Equal(91, await QueryableExtensions.CountAsync(context.Customers));
+                        Assert.Equal(91, await context.Customers.CountAsync());
                     }
                 }
             }

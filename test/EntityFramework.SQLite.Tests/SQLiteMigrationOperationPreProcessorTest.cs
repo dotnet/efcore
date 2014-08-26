@@ -7,7 +7,6 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Model;
-using Moq;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SQLite.Tests
@@ -69,10 +68,10 @@ namespace Microsoft.Data.Entity.SQLite.Tests
             var modelBuilder = new BasicModelBuilder();
             modelBuilder.Entity("T1",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id");
+                    });
 
             var operation
                 = new CreateTableOperation(
@@ -80,7 +79,7 @@ namespace Microsoft.Data.Entity.SQLite.Tests
                         {
                             new Column("C", typeof(int))
                         }));
-            var addForeignKeyOperation 
+            var addForeignKeyOperation
                 = new AddForeignKeyOperation("T2", "FK", new[] { "C" }, "T1", new[] { "Id" }, cascadeDelete: true);
 
             var operations = PreProcess(modelBuilder, operation, addForeignKeyOperation);
@@ -135,10 +134,10 @@ namespace Microsoft.Data.Entity.SQLite.Tests
             var modelBuilder = new BasicModelBuilder();
             modelBuilder.Entity("T",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id");
+                    });
 
             var operation = new AddColumnOperation("T", new Column("C", typeof(string)));
 
@@ -154,11 +153,11 @@ namespace Microsoft.Data.Entity.SQLite.Tests
             var modelBuilder = new BasicModelBuilder();
             modelBuilder.Entity("T",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id");
-                    b.ToTable("T", "dbo");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id");
+                        b.ToTable("T", "dbo");
+                    });
             var moveTableOperation = new MoveTableOperation("dbo.T", "dbo2");
             var renameTableOperation = new RenameTableOperation("dbo2.T", "T2");
             var addColumnOperation = new AddColumnOperation("dbo2.T2", new Column("C", typeof(string)));
@@ -177,17 +176,17 @@ namespace Microsoft.Data.Entity.SQLite.Tests
             var modelBuilder = new BasicModelBuilder();
             modelBuilder.Entity("T1",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id");
+                    });
             modelBuilder.Entity("T2",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<int>("C");
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<int>("C");
+                        b.Key("Id");
+                    });
 
             var addForeignKeyOperation
                 = new AddForeignKeyOperation("T2", "FK", new[] { "C" }, "T1", new[] { "Id" }, cascadeDelete: true);
@@ -220,18 +219,18 @@ namespace Microsoft.Data.Entity.SQLite.Tests
             var modelBuilder = new BasicModelBuilder();
             modelBuilder.Entity("T1",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id");
+                    });
             modelBuilder.Entity("T2",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<int>("C");
-                    b.Key("Id");
-                    b.ToTable("T", "dbo");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<int>("C");
+                        b.Key("Id");
+                        b.ToTable("T", "dbo");
+                    });
 
             var moveTableOperation = new MoveTableOperation("dbo.T", "dbo2");
             var renameTableOperation = new RenameTableOperation("dbo2.T", "T2");
@@ -266,10 +265,10 @@ namespace Microsoft.Data.Entity.SQLite.Tests
             var modelBuilder = new BasicModelBuilder();
             modelBuilder.Entity("T1",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id");
+                    });
 
             var createTableOperation
                 = new CreateTableOperation(
@@ -302,7 +301,7 @@ namespace Microsoft.Data.Entity.SQLite.Tests
 
             Assert.Equal(2, context.Statements.Count);
             Assert.Equal(
-@"CREATE TABLE ""T2"" (
+                @"CREATE TABLE ""T2"" (
     ""C"" INT,
     CONSTRAINT ""FK"" FOREIGN KEY (""C"") REFERENCES ""T1"" (""Id"") ON DELETE CASCADE
 )",
@@ -316,17 +315,17 @@ namespace Microsoft.Data.Entity.SQLite.Tests
             var modelBuilder = new BasicModelBuilder();
             modelBuilder.Entity("T",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id");
-                    b.Index("Id").IndexName("IX").IsUnique();
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id");
+                        b.Index("Id").IndexName("IX").IsUnique();
+                    });
 
             var renameIndexOperation = new RenameIndexOperation("T", "IX", "IX2");
 
             var preProcessor = new SQLiteMigrationOperationPreProcessor();
             var context
-                = new SQLiteMigrationOperationPreProcessor.Context (
+                = new SQLiteMigrationOperationPreProcessor.Context(
                     new SQLiteMigrationOperationSqlGeneratorFactory().Create(
                         new DatabaseBuilder().GetDatabase(modelBuilder.Model)));
 
@@ -344,17 +343,17 @@ namespace Microsoft.Data.Entity.SQLite.Tests
             var modelBuilder = new BasicModelBuilder();
             modelBuilder.Entity("T1",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P");
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P");
+                        b.Key("Id");
+                    });
             modelBuilder.Entity("T2",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id");
+                    });
 
             var createTableOperation
                 = new CreateTableOperation(

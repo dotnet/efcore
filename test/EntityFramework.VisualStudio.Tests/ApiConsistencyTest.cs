@@ -8,7 +8,7 @@ using System.Reflection;
 
 namespace Microsoft.Data.Entity.Design
 {
-    class ApiConsistencyTest : ApiConsistencyTestBase
+    internal class ApiConsistencyTest : ApiConsistencyTestBase
     {
         protected override Assembly TargetAssembly
         {

@@ -205,32 +205,17 @@ namespace Microsoft.Data.Entity.Migrations
 
             _operations.Set(
                 HandleTransitiveRenames(
-                    _operations.Get<RenameTableOperation>(),
-                    getParentName: op => null,
-                    getName: op => op.TableName,
-                    getNewName: op => new SchemaQualifiedName(op.NewTableName, op.TableName.Schema),
-                    generateTempName: (op) => new SchemaQualifiedName(temporaryNamePrefix + temporaryNameIndex++, op.TableName.Schema),
-                    createRenameOperation: (parentName, name, newName)
+                    _operations.Get<RenameTableOperation>(), op => null, op => op.TableName, op => new SchemaQualifiedName(op.NewTableName, op.TableName.Schema), op => new SchemaQualifiedName(temporaryNamePrefix + temporaryNameIndex++, op.TableName.Schema), (parentName, name, newName)
                         => new RenameTableOperation(name, SchemaQualifiedName.Parse(newName).Name)));
 
             _operations.Set(
                 HandleTransitiveRenames(
-                    _operations.Get<RenameColumnOperation>(),
-                    getParentName: op => op.TableName,
-                    getName: op => op.ColumnName,
-                    getNewName: op => op.NewColumnName,
-                    generateTempName: (op) => temporaryNamePrefix + temporaryNameIndex++,
-                    createRenameOperation: (parentName, name, newName)
+                    _operations.Get<RenameColumnOperation>(), op => op.TableName, op => op.ColumnName, op => op.NewColumnName, op => temporaryNamePrefix + temporaryNameIndex++, (parentName, name, newName)
                         => new RenameColumnOperation(parentName, name, newName)));
 
             _operations.Set(
                 HandleTransitiveRenames(
-                    _operations.Get<RenameIndexOperation>(),
-                    getParentName: op => op.TableName,
-                    getName: op => op.IndexName,
-                    getNewName: op => op.NewIndexName,
-                    generateTempName: (op) => temporaryNamePrefix + temporaryNameIndex++,
-                    createRenameOperation: (parentName, name, newName)
+                    _operations.Get<RenameIndexOperation>(), op => op.TableName, op => op.IndexName, op => op.NewIndexName, op => temporaryNamePrefix + temporaryNameIndex++, (parentName, name, newName)
                         => new RenameIndexOperation(parentName, name, newName)));
         }
 
@@ -284,9 +269,9 @@ namespace Microsoft.Data.Entity.Migrations
         {
             var simpleMatchPairs =
                 (from et1 in _sourceMapping.Model.EntityTypes
-                 from et2 in _targetMapping.Model.EntityTypes
-                 where SimpleMatchEntityTypes(et1, et2)
-                 select Tuple.Create(et1, et2))
+                    from et2 in _targetMapping.Model.EntityTypes
+                    where SimpleMatchEntityTypes(et1, et2)
+                    select Tuple.Create(et1, et2))
                     .ToArray();
 
             var fuzzyMatchPairs =
@@ -387,12 +372,12 @@ namespace Microsoft.Data.Entity.Migrations
         {
             var simplePropertyMatchPairs =
                 (from c1 in tablePair.Item1.Columns
-                 from c2 in tablePair.Item2.Columns
-                 where
-                    SimpleMatchProperties(
-                        _sourceMapping.GetModelObject<IProperty>(c1),
-                        _targetMapping.GetModelObject<IProperty>(c2))
-                 select Tuple.Create(c1, c2))
+                    from c2 in tablePair.Item2.Columns
+                    where
+                        SimpleMatchProperties(
+                            _sourceMapping.GetModelObject<IProperty>(c1),
+                            _targetMapping.GetModelObject<IProperty>(c2))
+                    select Tuple.Create(c1, c2))
                     .ToArray();
 
             var simpleColumnMatchPairs =
@@ -504,9 +489,9 @@ namespace Microsoft.Data.Entity.Migrations
         {
             return
                 (from fk1 in table.Item1.ForeignKeys
-                 from fk2 in table.Item2.ForeignKeys
-                 where MatchForeignKeys(fk1, fk2, columnMap)
-                 select Tuple.Create(fk1, fk2))
+                    from fk2 in table.Item2.ForeignKeys
+                    where MatchForeignKeys(fk1, fk2, columnMap)
+                    select Tuple.Create(fk1, fk2))
                     .ToArray();
         }
 
@@ -546,9 +531,9 @@ namespace Microsoft.Data.Entity.Migrations
         {
             return
                 (from ix1 in tablePair.Item1.Indexes
-                 from ix2 in tablePair.Item2.Indexes
-                 where MatchIndexes(ix1, ix2, columnMap)
-                 select Tuple.Create(ix1, ix2))
+                    from ix2 in tablePair.Item2.Indexes
+                    where MatchIndexes(ix1, ix2, columnMap)
+                    select Tuple.Create(ix1, ix2))
                     .ToArray();
         }
 
@@ -610,9 +595,9 @@ namespace Microsoft.Data.Entity.Migrations
 
             var matchingPropertyCount =
                 (from p1 in sourceEntityType.Properties
-                 from p2 in targetEntityType.Properties
-                 where EquivalentProperties(p1, p2)
-                 select 1)
+                    from p2 in targetEntityType.Properties
+                    where EquivalentProperties(p1, p2)
+                    select 1)
                     .Count();
 
             // At least 80% of properties, across both entities, must be equivalent.

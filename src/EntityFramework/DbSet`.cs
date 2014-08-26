@@ -126,7 +126,7 @@ namespace Microsoft.Data.Entity
         {
             get { return _entityQueryable.Provider; }
         }
-        
+
         IAsyncEnumerable<TEntity> IAsyncEnumerableAccessor<TEntity>.AsyncEnumerable
         {
             get { return _entityQueryable; }

@@ -137,7 +137,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             Check.IsDefined(entityState, "entityState");
 
-            SetEntityState(entityState, 
+            SetEntityState(entityState,
                 await GenerateValuesAsync(GetValueGenerators(entityState), cancellationToken)
                     .ConfigureAwait(continueOnCapturedContext: false));
         }
@@ -167,8 +167,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 if (generator != null)
                 {
                     var property = generators[i].Item1;
-                    values[i] = Tuple.Create(property, 
-                        await generator.NextAsync(this, property, cancellationToken: cancellationToken)
+                    values[i] = Tuple.Create(property,
+                        await generator.NextAsync(this, property, cancellationToken)
                             .ConfigureAwait(continueOnCapturedContext: false));
                 }
             }

@@ -86,7 +86,7 @@ namespace Microsoft.Data.Entity.Relational
         {
             Check.NotNull(queryModel, "queryModel");
             Check.NotNull(stateManager, "stateManager");
-            
+
             var queryCompilationContext
                 = CreateQueryCompilationContext(
                     new AsyncLinqOperatorProvider(),

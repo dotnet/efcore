@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
             table.AddColumn(column0);
             table.AddColumn(column1);
             var primaryKey = new PrimaryKey(
-                "MyPrimaryKey", new[] { column0, column1, }, isClustered: true);
+                "MyPrimaryKey", new[] { column0, column1 }, isClustered: true);
 
             Assert.Equal("MyPrimaryKey", primaryKey.Name);
             Assert.IsAssignableFrom<IReadOnlyList<Column>>(table.Columns);

@@ -127,6 +127,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             // Workaround for Roslyn breaking Moq
             public Action<StringBuilder, SchemaQualifiedName, IReadOnlyList<ColumnModification>> AppendInsertOperationCallback { get; set; }
+
             public override void AppendInsertOperation(StringBuilder commandStringBuilder, SchemaQualifiedName schemaQualifiedName, IReadOnlyList<ColumnModification> operations)
             {
                 if (AppendInsertOperationCallback != null)
@@ -136,6 +137,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             }
 
             public int AppendBatchHeaderCalls { get; set; }
+
             public override void AppendBatchHeader(StringBuilder commandStringBuilder)
             {
                 AppendBatchHeaderCalls++;
@@ -452,7 +454,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             dbCommandMock.SetupSet(m => m.CommandText = It.IsAny<string>()).Callback<string>(t => { text = t; });
             dbCommandMock.Setup(m => m.CommandText).Returns(() => text);
 
-            CommandType type = default(CommandType);
+            var type = default(CommandType);
             dbCommandMock.SetupSet(m => m.CommandType = It.IsAny<CommandType>()).Callback<CommandType>(t => { type = t; });
             dbCommandMock.Setup(m => m.CommandType).Returns(() => type);
 
@@ -600,14 +602,8 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
             public string SqlScriptBase
             {
-                get
-                {
-                    return base.SqlScript;
-                }
-                set
-                {
-                    base.SqlScript = value;
-                }
+                get { return base.SqlScript; }
+                set { base.SqlScript = value; }
             }
 
             protected override bool CanAddCommand(ModificationCommand modificationCommand, StringBuilder newSql)
@@ -629,7 +625,6 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             {
                 return CreateDbCommandMock(_reader).Object;
             }
-
 
             public DbCommand CreateStoreCommandBase(DbTransaction transaction, RelationalTypeMapper typeMapper)
             {

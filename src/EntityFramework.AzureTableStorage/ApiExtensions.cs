@@ -2,9 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.AzureTableStorage.Utilities;
 using Microsoft.Data.Entity.Metadata;
@@ -99,11 +97,11 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Metadata
             var partitionKeyInfo = partitionKeyExpression.GetPropertyAccess();
             var rowKeyInfo = rowKeyExpression.GetPropertyAccess();
 
-            var partitionKey = entityType.TryGetProperty(partitionKeyInfo.Name) 
-                ?? entityType.AddProperty(partitionKeyInfo);
-            
-            var rowKey = entityType.TryGetProperty(rowKeyInfo.Name) 
-                ?? entityType.AddProperty(rowKeyInfo);
+            var partitionKey = entityType.TryGetProperty(partitionKeyInfo.Name)
+                               ?? entityType.AddProperty(partitionKeyInfo);
+
+            var rowKey = entityType.TryGetProperty(rowKeyInfo.Name)
+                         ?? entityType.AddProperty(rowKeyInfo);
 
             partitionKey.SetColumnName("PartitionKey");
             rowKey.SetColumnName("RowKey");
@@ -114,7 +112,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Metadata
         }
 
         public static TEntityBuilder Timestamp<TEntity, TEntityBuilder>(
-            [NotNull] this IEntityBuilder<TEntity, TEntityBuilder> builder, 
+            [NotNull] this IEntityBuilder<TEntity, TEntityBuilder> builder,
             [NotNull] Expression<Func<TEntity, object>> expression)
             where TEntityBuilder : IEntityBuilder<TEntity, TEntityBuilder>
         {
@@ -124,14 +122,14 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Metadata
             var entityType = builder.Metadata;
 
             var propertyInfo = expression.GetPropertyAccess();
-            (entityType.TryGetProperty(propertyInfo.Name) 
-                ?? entityType.AddProperty(propertyInfo)).SetColumnName("Timestamp");
+            (entityType.TryGetProperty(propertyInfo.Name)
+             ?? entityType.AddProperty(propertyInfo)).SetColumnName("Timestamp");
 
             return (TEntityBuilder)builder;
         }
 
         public static TEntityBuilder Timestamp<TEntity, TEntityBuilder>(
-            [NotNull] this IEntityBuilder<TEntity, TEntityBuilder> builder, 
+            [NotNull] this IEntityBuilder<TEntity, TEntityBuilder> builder,
             [NotNull] string name,
             bool shadowProperty = false)
             where TEntityBuilder : IEntityBuilder<TEntity, TEntityBuilder>
@@ -142,8 +140,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Metadata
             var entityType = builder.Metadata;
 
             // TODO: Consider forcing property to shadow state if not cuurently in shadow state
-            (entityType.TryGetProperty(name) 
-                ?? entityType.AddProperty(name, typeof(DateTimeOffset), shadowProperty, concurrencyToken: false)).SetColumnName("Timestamp");
+            (entityType.TryGetProperty(name)
+             ?? entityType.AddProperty(name, typeof(DateTimeOffset), shadowProperty, concurrencyToken: false)).SetColumnName("Timestamp");
 
             return (TEntityBuilder)builder;
         }

@@ -74,7 +74,7 @@ WHERE ((""c"".""City"" = @p0 AND ""c"".""Country"" = @p1) AND (""e"".""City"" = 
         public void Skip_when_no_order_by()
         {
             AssertQuery<Customer>(cs => cs.Skip(5).Take(10));
- 
+
             Assert.Equal(
                 @"SELECT ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""CustomerID"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""

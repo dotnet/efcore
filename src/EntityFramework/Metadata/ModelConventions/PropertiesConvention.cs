@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
 {
     public class PropertiesConvention : IModelConvention
     {
-        private static readonly Type[] _propertyTypes = new[]
+        private static readonly Type[] _propertyTypes =
             {
                 typeof(bool),
                 typeof(byte),

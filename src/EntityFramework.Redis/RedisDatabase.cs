@@ -42,8 +42,10 @@ namespace Microsoft.Data.Entity.Redis
             DataPrefix + "{0}" + KeyNameSeparator + "{1}";
 
         private readonly object _connectionLock = new object();
-        private readonly static Dictionary<string, ConnectionMultiplexer> _multiplexers =  // key = ConfigurationOptions.ToString()
+
+        private static readonly Dictionary<string, ConnectionMultiplexer> _multiplexers = // key = ConfigurationOptions.ToString()
             new Dictionary<string, ConnectionMultiplexer>();
+
         private volatile IDatabase _redisDatabase;
         private volatile IServer _redisServer;
 
@@ -170,7 +172,7 @@ namespace Microsoft.Data.Entity.Redis
         }
 
         /// <summary>
-        /// Gets values from database and materializes new EntityTypes
+        ///     Gets values from database and materializes new EntityTypes
         /// </summary>
         /// <typeparam name="TResult">type of expected result</typeparam>
         /// <param name="entityType">EntityType of </param>
@@ -194,7 +196,7 @@ namespace Microsoft.Data.Entity.Redis
         }
 
         /// <summary>
-        /// Gets non-materialized values from database
+        ///     Gets non-materialized values from database
         /// </summary>
         /// <param name="redisQuery">Query data to decide what is selected from the database</param>
         /// <returns>An Enumerable of non-materialized object[]'s each of which represents one primary key</returns>
@@ -207,7 +209,7 @@ namespace Microsoft.Data.Entity.Redis
 
             var allKeysForEntity = UnderlyingDatabase.SetMembers(redisPrimaryKeyIndexKeyName).AsEnumerable();
             return allKeysForEntity
-                .Select(compositePrimaryKeyValue => 
+                .Select(compositePrimaryKeyValue =>
                     GetProjectionQueryObjectsFromDatabase(compositePrimaryKeyValue, redisQuery.EntityType, redisQuery.SelectedProperties, DecodeBytes));
         }
 
@@ -341,11 +343,11 @@ namespace Microsoft.Data.Entity.Redis
         }
 
         /// <returns>
-        /// returns the object[] representing the set of selected properties from
-        /// an EntityType with a particular primary key
+        ///     returns the object[] representing the set of selected properties from
+        ///     an EntityType with a particular primary key
         /// </returns>
         private object[] GetProjectionQueryObjectsFromDatabase(
-            string primaryKey, IEntityType entityType, 
+            string primaryKey, IEntityType entityType,
             IEnumerable<IProperty> selectedProperties, Func<byte[], IProperty, object> decoder)
         {
             var selectedPropertiesArray = selectedProperties.ToArray();
@@ -355,7 +357,7 @@ namespace Microsoft.Data.Entity.Redis
             var fields = selectedPropertiesArray.Select(p => (RedisValue)p.Name).ToArray();
             var redisHashEntries = UnderlyingDatabase.HashGet(
                 ConstructRedisDataKeyName(entityType, primaryKey), fields);
-            for (int i = 0; i < selectedPropertiesArray.Length; i++)
+            for (var i = 0; i < selectedPropertiesArray.Length; i++)
             {
                 results[i] = decoder(redisHashEntries[i], selectedPropertiesArray[i]);
             }
@@ -409,67 +411,64 @@ namespace Microsoft.Data.Entity.Redis
             {
                 return value;
             }
-            else if (typeof(Int32) == propertyType)
+            if (typeof(Int32) == propertyType)
             {
-                return MaybeNullable<Int32>(Convert.ToInt32(value), property);
+                return MaybeNullable(Convert.ToInt32(value), property);
             }
-            else if (typeof(Int64) == propertyType)
+            if (typeof(Int64) == propertyType)
             {
-                return MaybeNullable<Int64>(Convert.ToInt64(value), property);
+                return MaybeNullable(Convert.ToInt64(value), property);
             }
-            else if (typeof(Double) == propertyType)
+            if (typeof(Double) == propertyType)
             {
-                return MaybeNullable<Double>(Convert.ToDouble(value), property);
+                return MaybeNullable(Convert.ToDouble(value), property);
             }
-            else if (typeof(DateTime) == propertyType)
+            if (typeof(DateTime) == propertyType)
             {
-                return MaybeNullable<DateTime>(DateTime.Parse(value), property);
+                return MaybeNullable(DateTime.Parse(value), property);
             }
-            else if (typeof(Single) == propertyType)
+            if (typeof(Single) == propertyType)
             {
-                return MaybeNullable<Single>(Convert.ToSingle(value), property);
+                return MaybeNullable(Convert.ToSingle(value), property);
             }
-            else if (typeof(Boolean) == propertyType)
+            if (typeof(Boolean) == propertyType)
             {
-                return MaybeNullable<Boolean>(Convert.ToBoolean(value), property);
+                return MaybeNullable(Convert.ToBoolean(value), property);
             }
-            else if (typeof(Byte) == propertyType)
+            if (typeof(Byte) == propertyType)
             {
-                return MaybeNullable<Byte>(Convert.ToByte(value), property);
+                return MaybeNullable(Convert.ToByte(value), property);
             }
-            else if (typeof(UInt32) == propertyType)
+            if (typeof(UInt32) == propertyType)
             {
-                return MaybeNullable<UInt32>(Convert.ToUInt32(value), property);
+                return MaybeNullable(Convert.ToUInt32(value), property);
             }
-            else if (typeof(UInt64) == propertyType)
+            if (typeof(UInt64) == propertyType)
             {
-                return MaybeNullable<UInt64>(Convert.ToUInt64(value), property);
+                return MaybeNullable(Convert.ToUInt64(value), property);
             }
-            else if (typeof(Int16) == propertyType)
+            if (typeof(Int16) == propertyType)
             {
-                return MaybeNullable<Int16>(Convert.ToInt16(value), property);
+                return MaybeNullable(Convert.ToInt16(value), property);
             }
-            else if (typeof(UInt16) == propertyType)
+            if (typeof(UInt16) == propertyType)
             {
-                return MaybeNullable<UInt16>(Convert.ToUInt16(value), property);
+                return MaybeNullable(Convert.ToUInt16(value), property);
             }
-            else if (typeof(Char) == propertyType)
+            if (typeof(Char) == propertyType)
             {
-                return MaybeNullable<Char>(Convert.ToChar(value), property);
+                return MaybeNullable(Convert.ToChar(value), property);
             }
-            else if (typeof(SByte) == propertyType)
+            if (typeof(SByte) == propertyType)
             {
-                return MaybeNullable<SByte>(Convert.ToSByte(value), property);
+                return MaybeNullable(Convert.ToSByte(value), property);
             }
-            else
-            {
-                throw new ArgumentOutOfRangeException("property",
-                    string.Format(
-                        CultureInfo.InvariantCulture,
-                        Strings.UnableToDecodeProperty,
-                        property.Name,
-                        propertyType.FullName));
-            }
+            throw new ArgumentOutOfRangeException("property",
+                string.Format(
+                    CultureInfo.InvariantCulture,
+                    Strings.UnableToDecodeProperty,
+                    property.Name,
+                    propertyType.FullName));
         }
 
         private static object MaybeNullable<T>(T value, IProperty property)

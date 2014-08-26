@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         // TODO: Make sure API docs say that return value indicates whether or not the database was deleted
         public virtual Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            return _configuration.DataStoreCreator.EnsureDeletedAsync(_configuration.Model, cancellationToken: cancellationToken);
+            return _configuration.DataStoreCreator.EnsureDeletedAsync(_configuration.Model, cancellationToken);
         }
     }
 }

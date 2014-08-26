@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.Redis.Query
 
             redisQuery.AddProperty(someValueProperty);
 
-            Assert.True((new List<IProperty>() { someValueProperty }).SequenceEqual(redisQuery.SelectedProperties));
+            Assert.True((new List<IProperty> { someValueProperty }).SequenceEqual(redisQuery.SelectedProperties));
             Assert.Equal(0, redisQuery.GetProjectionIndex(someValueProperty));
 
             // add a different property
@@ -43,14 +43,14 @@ namespace Microsoft.Data.Entity.Redis.Query
 
             redisQuery.AddProperty(idProperty);
 
-            Assert.True((new List<IProperty>() { someValueProperty, idProperty }).SequenceEqual(redisQuery.SelectedProperties));
+            Assert.True((new List<IProperty> { someValueProperty, idProperty }).SequenceEqual(redisQuery.SelectedProperties));
             Assert.Equal(0, redisQuery.GetProjectionIndex(someValueProperty));
             Assert.Equal(1, redisQuery.GetProjectionIndex(idProperty));
 
             // add the 1st property again - adds to end of list
             redisQuery.AddProperty(someValueProperty);
 
-            Assert.True((new List<IProperty>() { someValueProperty, idProperty, someValueProperty }).SequenceEqual(redisQuery.SelectedProperties));
+            Assert.True((new List<IProperty> { someValueProperty, idProperty, someValueProperty }).SequenceEqual(redisQuery.SelectedProperties));
 
             // Note: GetProjectionIndex(someValueProperty) returns the _first_ index at which that property is returned
             Assert.Equal(0, redisQuery.GetProjectionIndex(someValueProperty));
@@ -68,8 +68,8 @@ namespace Microsoft.Data.Entity.Redis.Query
 
             var resultsFromDatabase = new List<object[]>
                 {
-                    new object[] { 1, "SomeValue1"},
-                    new object[] { 2, "SomeValue2"}
+                    new object[] { 1, "SomeValue1" },
+                    new object[] { 2, "SomeValue2" }
                 };
             redisQueryContextMock.Setup(m => m.GetResultsFromRedis(It.IsAny<RedisQuery>())).Returns(resultsFromDatabase);
             var entityType = QueryTestType.EntityType();
@@ -78,8 +78,8 @@ namespace Microsoft.Data.Entity.Redis.Query
             var readers = redisQuery.GetValueReaders(redisQueryContextMock.Object);
 
             Assert.Equal(2, readers.Count());
-            int i = 1;
-            foreach(var reader in readers)
+            var i = 1;
+            foreach (var reader in readers)
             {
                 Assert.Equal(i, reader.ReadValue<int>(0));
                 Assert.Equal("SomeValue" + i, reader.ReadValue<string>(1));

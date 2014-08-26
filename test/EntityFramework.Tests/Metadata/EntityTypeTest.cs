@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.Metadata
             Assert.Equal(
                 "propertyInfo",
                 // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => entityType.AddProperty((PropertyInfo)null)).ParamName);
+                Assert.Throws<ArgumentNullException>(() => entityType.AddProperty(null)).ParamName);
 
             Assert.Equal(
                 "property",

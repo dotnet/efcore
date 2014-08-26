@@ -269,7 +269,7 @@ EXECUTE('ALTER TABLE [dbo].[MyTable] DROP CONSTRAINT ""' + @var0 + '""')",
         {
             var column = new Column("Username", typeof(string));
             var table = new Table("dbo.Users");
-            table.PrimaryKey = new PrimaryKey("PK_Users", new List<Column>() { column }.AsReadOnly());
+            table.PrimaryKey = new PrimaryKey("PK_Users", new List<Column> { column }.AsReadOnly());
             table.AddColumn(column);
 
             Assert.Equal("nvarchar(128)", GenerateDataType(column));
@@ -479,16 +479,16 @@ EXECUTE('ALTER TABLE [dbo].[MyTable] DROP CONSTRAINT ""' + @var0 + '""')",
             var newColumn = new Column("Id", typeof(int)) { IsNullable = false };
             var table
                 = new Table("A", new[] { column })
-                      {
-                          PrimaryKey = new PrimaryKey("PK", new[] { column })
-                      };
+                    {
+                        PrimaryKey = new PrimaryKey("PK", new[] { column })
+                    };
 
             var operations
                 = new MigrationOperation[]
-                      {
-                          new CreateTableOperation(table), 
-                          new AlterColumnOperation(table.Name, newColumn, isDestructiveChange: true)
-                      };
+                    {
+                        new CreateTableOperation(table),
+                        new AlterColumnOperation(table.Name, newColumn, isDestructiveChange: true)
+                    };
 
             var stringBuilder = new StringBuilder();
             foreach (var statement in CreateSqlGenerator(database).Generate(operations))
@@ -497,7 +497,7 @@ EXECUTE('ALTER TABLE [dbo].[MyTable] DROP CONSTRAINT ""' + @var0 + '""')",
             }
 
             Assert.Equal(
-@"CREATE TABLE [A] (
+                @"CREATE TABLE [A] (
     [Id] nvarchar(128) NOT NULL,
     CONSTRAINT [PK] PRIMARY KEY ([Id])
 )
@@ -515,7 +515,7 @@ ALTER TABLE [A] ADD CONSTRAINT [PK] PRIMARY KEY ([Id])
 
         private static SqlServerMigrationOperationSqlGenerator CreateSqlGenerator(DatabaseModel database = null)
         {
-            return 
+            return
                 new SqlServerMigrationOperationSqlGenerator(new SqlServerTypeMapper())
                     {
                         Database = database ?? new DatabaseModel(),

@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Redis
                 return;
             }
 
-            if (AlreadyOwnRunningRedisServer()) 
+            if (AlreadyOwnRunningRedisServer())
             {
                 return;
             }

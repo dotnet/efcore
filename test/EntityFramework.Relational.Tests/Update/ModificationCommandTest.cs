@@ -337,9 +337,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             entityType.SetKey(key);
 
             var nonKey = entityType.AddProperty("Name",
-                typeof(string),
-                shadowProperty: false,
-                concurrencyToken: nonKeyStrategy == ValueGenerationOnSave.WhenInsertingAndUpdating);
+                typeof(string), false, nonKeyStrategy == ValueGenerationOnSave.WhenInsertingAndUpdating);
             nonKey.SetColumnName("Col2");
             nonKey.ValueGenerationOnSave = nonKeyStrategy;
 

@@ -193,7 +193,7 @@ namespace Microsoft.Data.Entity.Utilities
             model.Populate(entityTypeC, entityTypeA, entityTypeB);
 
             Assert.Equal(
-                new[] { entityTypeC.Name, entityTypeA.Name, entityTypeB.Name, },
+                new[] { entityTypeC.Name, entityTypeA.Name, entityTypeB.Name },
                 model.TopologicalSort().SelectMany(e => e).Select(e => e.Name).ToArray());
         }
 

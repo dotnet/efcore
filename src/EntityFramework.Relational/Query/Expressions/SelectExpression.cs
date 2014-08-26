@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         private SelectExpression _subquery;
         private int? _subqueryAlias;
-        
+
         private Expression _projectionExpression;
         private bool _isDistinct;
 
@@ -138,7 +138,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
                                 ordering.OrderingDirection));
                     }
                 }
-                
+
                 _offset = value;
             }
         }
@@ -255,7 +255,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
             _projectionExpression = expression;
         }
-        
+
         public virtual void ClearProjection()
         {
             _projection.Clear();

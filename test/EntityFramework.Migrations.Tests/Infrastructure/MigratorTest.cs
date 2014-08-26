@@ -224,7 +224,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                                 UpgradeOperations
                                     = new MigrationOperation[]
                                         {
-                                            new DropColumnOperation("MyTable1", "Foo"),
+                                            new DropColumnOperation("MyTable1", "Foo")
                                         }
                             }
                     }
@@ -275,7 +275,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                                 UpgradeOperations
                                     = new MigrationOperation[]
                                         {
-                                            new DropColumnOperation("MyTable1", "Foo"),
+                                            new DropColumnOperation("MyTable1", "Foo")
                                         }
                             }
                     }
@@ -326,7 +326,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                                 UpgradeOperations
                                     = new MigrationOperation[]
                                         {
-                                            new DropColumnOperation("MyTable1", "Foo"),
+                                            new DropColumnOperation("MyTable1", "Foo")
                                         }
                             }
                     }
@@ -636,7 +636,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             var migrator = MockMigrator(
                 new[]
                     {
-                        new MigrationMetadata("000000000000001_Migration1"),
+                        new MigrationMetadata("000000000000001_Migration1")
                     },
                 new[]
                     {
@@ -789,7 +789,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             return mock;
         }
 
-        private class FakeSqlGenerator: MigrationOperationVisitor<IndentedStringBuilder>
+        private class FakeSqlGenerator : MigrationOperationVisitor<IndentedStringBuilder>
         {
             public static readonly FakeSqlGenerator Instance = new FakeSqlGenerator();
 
@@ -808,6 +808,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                 builder.Append(operation.GetType().Name).Append("Sql");
             }
         }
+
         #endregion
     }
 }
