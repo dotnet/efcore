@@ -230,7 +230,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(entityType, "entityType");
 
-            return entityType[Annotations.TableName] ?? entityType.Name;
+            return entityType[Annotations.TableName] ?? entityType.SimpleName;
         }
 
         public static string Schema([NotNull] this IEntityType entityType)

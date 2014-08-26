@@ -3,10 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net.NetworkInformation;
 using System.Text;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Model;
@@ -478,10 +477,11 @@ EXECUTE('ALTER TABLE [dbo].[MyTable] DROP CONSTRAINT ""' + @var0 + '""')",
             var database = new DatabaseModel();
             var column = new Column("Id", typeof(string)) { IsNullable = false };
             var newColumn = new Column("Id", typeof(int)) { IsNullable = false };
-            var table = new Table("A", new[] { column });
-
-            database.AddTable(table);
-            table.PrimaryKey = new PrimaryKey("PK", new[] { column });
+            var table
+                = new Table("A", new[] { column })
+                      {
+                          PrimaryKey = new PrimaryKey("PK", new[] { column })
+                      };
 
             var operations
                 = new MigrationOperation[]
@@ -510,7 +510,7 @@ ALTER TABLE [A] ADD CONSTRAINT [PK] PRIMARY KEY ([Id])
 
         private static SqlStatement Generate(MigrationOperation migrationOperation, DatabaseModel database = null)
         {
-            return CreateSqlGenerator(database).Generate(new[] { migrationOperation }).Single();
+            return CreateSqlGenerator(database).Generate(migrationOperation);
         }
 
         private static SqlServerMigrationOperationSqlGenerator CreateSqlGenerator(DatabaseModel database = null)
@@ -518,7 +518,8 @@ ALTER TABLE [A] ADD CONSTRAINT [PK] PRIMARY KEY ([Id])
             return 
                 new SqlServerMigrationOperationSqlGenerator(new SqlServerTypeMapper())
                     {
-                        Database = database ?? new DatabaseModel()
+                        Database = database ?? new DatabaseModel(),
+                        DatabaseModelModifier = new DatabaseModelModifier()
                     };
         }
     }

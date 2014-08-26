@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Metadata
         {
             Check.NotNull(entityType, "entityType");
 
-            return entityType[Annotations.TableName] ?? entityType.Name;
+            return entityType[Annotations.TableName] ?? entityType.SimpleName;
         }
 
         public static string ColumnName([NotNull] this IPropertyBase property)

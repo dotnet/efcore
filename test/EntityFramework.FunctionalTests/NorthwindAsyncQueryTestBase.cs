@@ -687,8 +687,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             await AssertQuery<Product, OrderDetail>((pr, od) =>
                 from p in pr
                 where p.OrderDetails.Contains(od.FirstOrDefault(orderDetail => orderDetail.Discount == 0.1))
-                select p,
-                assertOrder: false);
+                select p);
         }
 
         [Fact]
@@ -971,7 +970,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
             public string Bar { get; set; }
         }
 
-        [Fact]
+        //[Fact]
+        // TODO: Convert orders to IEnumerable<T>
         public virtual async Task GroupJoin_customers_orders()
         {
             await AssertQuery<Customer, Order>((cs, os) =>
@@ -1159,8 +1159,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             await AssertQuery<Customer, Order>((cs, os) =>
                 from c in cs.OrderBy(c => c.CustomerID)
                 join o in os.OrderBy(o => o.OrderID) on c.CustomerID equals o.CustomerID
-                select new { c.CustomerID, o.OrderID },
-                assertOrder: true);
+                select new { c.CustomerID, o.OrderID });
         }
 
         [Fact]
@@ -1274,7 +1273,19 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 os.GroupBy(o => o.CustomerID, o => o.OrderID)
                     .OrderBy(g => g.Key)
                     .Select(g => g.OrderBy(o => o)),
-                assertOrder: true);
+                asserter:
+                    (l2oResults, efResults) =>
+                        {
+                            var l2oObjects
+                                = l2oResults
+                                    .SelectMany(q1 => ((IEnumerable<int>)q1));
+
+                            var efObjects
+                                = efResults
+                                    .SelectMany(q1 => ((IEnumerable<int>)q1));
+
+                            Assert.Equal(l2oObjects, efObjects);
+                        });
         }
 
         [Fact]
@@ -1714,7 +1725,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         private async Task<int> AssertQuery<TItem>(
-            Func<IQueryable<TItem>, IQueryable<object>> query, bool assertOrder = false)
+            Func<IQueryable<TItem>, IQueryable<object>> query,
+            bool assertOrder = false,
+            Action<IList<object>, IList<object>> asserter = null)
             where TItem : class
         {
             using (var context = CreateContext())
@@ -1722,7 +1735,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 return AssertResults(
                     query(NorthwindData.Set<TItem>()).ToArray(),
                     await query(context.Set<TItem>()).ToArrayAsync(),
-                    assertOrder);
+                    assertOrder,
+                    asserter);
             }
         }
 
@@ -1820,12 +1834,15 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 {
                     foreach (var l2oItem in l2oItems)
                     {
-                        Assert.True(
-                            efItems.Contains(l2oItem),
-                            string.Format(
-                                "\r\nL2o item: [{0}] not found in EF results: [{1}]...",
-                                l2oItem,
-                                string.Join(", ", efItems.Take(10))));
+                        if (!efItems.Contains(l2oItem))
+                        {
+                            Assert.True(
+                                false,
+                                string.Format(
+                                    "\r\nL2o item: [{0}] not found in EF results:\r\n{1}",
+                                    l2oItem,
+                                    string.Join("\r\n", efItems)));
+                        }
                     }
                 }
             }

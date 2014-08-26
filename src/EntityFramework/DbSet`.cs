@@ -14,7 +14,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity
 {
-    public class DbSet<TEntity> : DbSet, IOrderedQueryable<TEntity>
+    public class DbSet<TEntity> : DbSet, IOrderedQueryable<TEntity>, IAsyncEnumerableAccessor<TEntity>
         where TEntity : class
     {
         private readonly EntityQueryable<TEntity> _entityQueryable;
@@ -125,6 +125,11 @@ namespace Microsoft.Data.Entity
         public override IQueryProvider Provider
         {
             get { return _entityQueryable.Provider; }
+        }
+        
+        IAsyncEnumerable<TEntity> IAsyncEnumerableAccessor<TEntity>.AsyncEnumerable
+        {
+            get { return _entityQueryable; }
         }
     }
 }

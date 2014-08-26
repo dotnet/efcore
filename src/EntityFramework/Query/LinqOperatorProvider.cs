@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
@@ -26,6 +27,21 @@ namespace Microsoft.Data.Entity.Query
         public virtual MethodInfo ToSequence
         {
             get { return _toSequenceShim; }
+        }
+
+        private static readonly MethodInfo _asQueryableShim
+            = typeof(LinqOperatorProvider)
+                .GetTypeInfo().GetDeclaredMethod("AsQueryableShim");
+
+        [UsedImplicitly]
+        private static IOrderedQueryable<TSource> AsQueryableShim<TSource>(IEnumerable<TSource> source)
+        {
+            return new EnumerableQuery<TSource>(source);
+        }
+
+        public virtual MethodInfo AsQueryable
+        {
+            get { return _asQueryableShim; }
         }
 
         private static readonly MethodInfo _selectManyShim
@@ -286,6 +302,11 @@ namespace Microsoft.Data.Entity.Query
                                           == typeof(IEnumerable<>).MakeGenericType(elementType))
                 ?? aggregateMethods.Single(mi => mi.IsGenericMethod)
                     .MakeGenericMethod(elementType);
+        }
+
+        public virtual Expression AdjustSequenceType(Expression expression)
+        {
+            return expression;
         }
 
         private static MethodInfo GetMethod(string name, int parameterCount = 0)

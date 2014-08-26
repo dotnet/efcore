@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             var model = BuildModel();
             var configuration = TestHelpers.CreateContextConfiguration(model);
 
-            var entry = CreateStateEntry(configuration, model.GetEntityType("SomeEntity"), (object)null);
+            var entry = CreateStateEntry(configuration, model.GetEntityType(typeof(SomeEntity).FullName), (object)null);
 
             Assert.Null(entry.Entity);
         }
@@ -24,18 +24,18 @@ namespace Microsoft.Data.Entity.ChangeTracking
         public void Original_values_are_not_tracked_unless_needed_by_default_for_shadow_properties()
         {
             var model = BuildModel();
-            var entityType = model.GetEntityType("SomeEntity");
+            var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
             var idProperty = entityType.GetProperty("Id");
             var configuration = TestHelpers.CreateContextConfiguration(model);
 
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
 
             Assert.Equal(
-                Strings.FormatOriginalValueNotTracked("Id", "SomeEntity"),
+                Strings.FormatOriginalValueNotTracked("Id", typeof(SomeEntity).FullName),
                 Assert.Throws<InvalidOperationException>(() => entry.OriginalValues[idProperty] = 1).Message);
 
             Assert.Equal(
-                Strings.FormatOriginalValueNotTracked("Id", "SomeEntity"),
+                Strings.FormatOriginalValueNotTracked("Id", typeof(SomeEntity).FullName),
                 Assert.Throws<InvalidOperationException>(() => entry.OriginalValues[idProperty]).Message);
         }
 
@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             var model = new Model();
 
-            var entityType1 = new EntityType("SomeEntity");
+            var entityType1 = new EntityType(typeof(SomeEntity).FullName);
             model.AddEntityType(entityType1);
             var key1 = entityType1.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false);
             key1.ValueGenerationOnSave = ValueGenerationOnSave.WhenInserting;
@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             entityType1.SetKey(key1);
             entityType1.AddProperty("Name", typeof(string), shadowProperty: true, concurrencyToken: true);
 
-            var entityType2 = new EntityType("SomeDependentEntity");
+            var entityType2 = new EntityType(typeof(SomeDependentEntity).FullName);
             model.AddEntityType(entityType2);
             var key2a = entityType2.AddProperty("Id1", typeof(int), shadowProperty: true, concurrencyToken: false);
             var key2b = entityType2.AddProperty("Id2", typeof(string), shadowProperty: true, concurrencyToken: false);
@@ -72,7 +72,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             entityType4.SetKey(entityType4.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
             entityType4.AddProperty("Name", typeof(string), shadowProperty: true, concurrencyToken: true);
 
-            var entityType5 = new EntityType("SomeMoreDependentEntity");
+            var entityType5 = new EntityType(typeof(SomeMoreDependentEntity).FullName);
             model.AddEntityType(entityType5);
             var key5 = entityType5.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false);
             entityType5.SetKey(key5);

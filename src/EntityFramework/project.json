@@ -10,7 +10,7 @@
     "Microsoft.Framework.Logging": "1.0.0-*",
     "Remotion.Linq": "1.15.13.0"
   },
-  "code": "**\\*.cs;..\\Shared\\*.cs",
+  "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
   "frameworks": {
     "net45": {
       "dependencies": {

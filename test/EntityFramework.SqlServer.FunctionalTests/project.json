@@ -1,8 +1,7 @@
 ﻿{
   "dependencies": {
     "EntityFramework.Relational.FunctionalTests" : "",
-    "EntityFramework.SqlServer": "",
-    "Xunit.KRunner": "1.0.0-*"
+    "EntityFramework.SqlServer": ""
   },
   "commands": {
     "test": "Xunit.KRunner"

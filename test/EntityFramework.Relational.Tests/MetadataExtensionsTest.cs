@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
             Assert.Equal("customers", model.EntityTypes.Single().TableName());
             Assert.True(string.IsNullOrEmpty(model.EntityTypes.Single().Schema()));
 
-            modelBuilder.Entity("Customer").ToTable("CUSTOMERS");
+            modelBuilder.Entity(typeof(Customer).FullName).ToTable("CUSTOMERS");
 
             Assert.Equal("CUSTOMERS", model.EntityTypes.Single().TableName());
             Assert.True(string.IsNullOrEmpty(model.EntityTypes.Single().Schema()));

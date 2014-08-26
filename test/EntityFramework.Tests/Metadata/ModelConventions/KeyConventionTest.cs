@@ -117,7 +117,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             var ex = Assert.Throws<InvalidOperationException>(() => convention.Apply(entityType));
 
             Assert.Equal(
-                Strings.FormatMultiplePropertiesMatchedAsKeys("ID", typeof(EntityWithMultipleIds).Name),
+                Strings.FormatMultiplePropertiesMatchedAsKeys("ID", typeof(EntityWithMultipleIds).FullName),
                 ex.Message);
         }
 

@@ -1274,7 +1274,7 @@ namespace System.Linq
         {
             Check.NotNull(source, "source");
 
-            return source.ToAsyncEnumerable().ToList(cancellationToken);
+            return source.AsAsyncEnumerable().ToList(cancellationToken);
         }
 
         public static Task<TSource[]> ToArrayAsync<TSource>(
@@ -1289,7 +1289,7 @@ namespace System.Linq
         {
             Check.NotNull(source, "source");
 
-            return source.ToAsyncEnumerable().ToArray(cancellationToken);
+            return source.AsAsyncEnumerable().ToArray(cancellationToken);
         }
 
         #endregion
@@ -1306,6 +1306,202 @@ namespace System.Linq
         }
 
         #endregion
+
+        #region AsAsyncEnumerable
+
+        public static IAsyncEnumerable<TSource> AsAsyncEnumerable<TSource>([NotNull] this IQueryable<TSource> source) 
+        {
+            Check.NotNull(source, "source");
+
+            var enumerable = source as IAsyncEnumerable<TSource>;
+
+            if (enumerable != null)
+            {
+                return enumerable;
+            }
+
+            var entityQueryableAccessor = source as IAsyncEnumerableAccessor<TSource>;
+
+            if (entityQueryableAccessor != null)
+            {
+                return entityQueryableAccessor.AsyncEnumerable;
+            }
+
+            throw new InvalidOperationException(Strings.FormatIQueryableNotAsync(typeof(TSource)));
+        }
+        
+        #endregion
+
+        #region Load
+
+        public static void Load<TSource>([NotNull] this IQueryable<TSource> source)
+        {
+            Check.NotNull(source, "source");
+
+            using (var enumerator = source.GetEnumerator())
+            {
+                while (enumerator.MoveNext())
+                {
+                }
+            }
+        }
+
+        public static Task LoadAsync<TSource>([NotNull] this IQueryable<TSource> source)
+        {
+            Check.NotNull(source, "source");
+
+            return source.LoadAsync(default(CancellationToken));
+        }
+
+        public static async Task LoadAsync<TSource>(
+            [NotNull] this IQueryable<TSource> source, CancellationToken cancellationToken)
+        {
+            Check.NotNull(source, "source");
+
+            // ReSharper disable once NotAccessedVariable
+            var _ = default(TSource);
+
+            var asyncEnumerable = source.AsAsyncEnumerable();
+
+            using (var enumerator = asyncEnumerable.GetEnumerator())
+            {
+                while (await enumerator.MoveNext())
+                {
+                    _ = enumerator.Current;
+                }
+            }
+        }
+
+        #endregion
+
+        #region ToDictionary
+
+        public static Task<Dictionary<TKey, TSource>> ToDictionaryAsync<TSource, TKey>(
+            [NotNull] this IQueryable<TSource> source,
+            [NotNull] Func<TSource, TKey> keySelector)
+        {
+            Check.NotNull(source, "source");
+            Check.NotNull(keySelector, "keySelector");
+
+            return source.AsAsyncEnumerable().ToDictionary(keySelector);
+        }
+
+        public static Task<Dictionary<TKey, TSource>> ToDictionaryAsync<TSource, TKey>(
+            [NotNull] this IQueryable<TSource> source,
+            [NotNull] Func<TSource, TKey> keySelector,
+            CancellationToken cancellationToken)
+        {
+            Check.NotNull(source, "source");
+            Check.NotNull(keySelector, "keySelector");
+
+            return source.AsAsyncEnumerable().ToDictionary(keySelector, cancellationToken);
+        }
+
+        public static Task<Dictionary<TKey, TSource>> ToDictionaryAsync<TSource, TKey>(
+            [NotNull] this IQueryable<TSource> source,
+            [NotNull] Func<TSource, TKey> keySelector,
+            [NotNull] IEqualityComparer<TKey> comparer)
+        {
+            Check.NotNull(source, "source");
+            Check.NotNull(keySelector, "keySelector");
+            Check.NotNull(comparer, "comparer");
+
+            return source.AsAsyncEnumerable().ToDictionary(keySelector, comparer);
+        }
+
+        public static Task<Dictionary<TKey, TSource>> ToDictionaryAsync<TSource, TKey>(
+            [NotNull] this IQueryable<TSource> source,
+            [NotNull] Func<TSource, TKey> keySelector,
+            [NotNull] IEqualityComparer<TKey> comparer,
+            CancellationToken cancellationToken)
+        {
+            Check.NotNull(source, "source");
+            Check.NotNull(keySelector, "keySelector");
+            Check.NotNull(comparer, "comparer");
+
+            return source.AsAsyncEnumerable().ToDictionary(keySelector, comparer, cancellationToken);
+        }
+
+        public static Task<Dictionary<TKey, TElement>> ToDictionaryAsync<TSource, TKey, TElement>(
+            [NotNull] this IQueryable<TSource> source,
+            [NotNull] Func<TSource, TKey> keySelector,
+            [NotNull] Func<TSource, TElement> elementSelector)
+        {
+            Check.NotNull(source, "source");
+            Check.NotNull(keySelector, "keySelector");
+            Check.NotNull(elementSelector, "elementSelector");
+
+            return source.AsAsyncEnumerable().ToDictionary(keySelector, elementSelector);
+        }
+
+        public static Task<Dictionary<TKey, TElement>> ToDictionaryAsync<TSource, TKey, TElement>(
+            [NotNull] this IQueryable<TSource> source,
+            [NotNull] Func<TSource, TKey> keySelector,
+            [NotNull] Func<TSource, TElement> elementSelector,
+            CancellationToken cancellationToken)
+        {
+            Check.NotNull(source, "source");
+            Check.NotNull(keySelector, "keySelector");
+            Check.NotNull(elementSelector, "elementSelector");
+
+            return source.AsAsyncEnumerable().ToDictionary(keySelector, elementSelector, cancellationToken);
+        }
+
+        public static Task<Dictionary<TKey, TElement>> ToDictionaryAsync<TSource, TKey, TElement>(
+            [NotNull] this IQueryable<TSource> source,
+            [NotNull] Func<TSource, TKey> keySelector,
+            [NotNull] Func<TSource, TElement> elementSelector,
+            [NotNull] IEqualityComparer<TKey> comparer)
+        {
+            Check.NotNull(source, "source");
+            Check.NotNull(keySelector, "keySelector");
+            Check.NotNull(elementSelector, "elementSelector");
+            Check.NotNull(elementSelector, "comparer");
+
+            return source.AsAsyncEnumerable().ToDictionary(keySelector, elementSelector, comparer);
+        }
+
+        public static Task<Dictionary<TKey, TElement>> ToDictionaryAsync<TSource, TKey, TElement>(
+            [NotNull] this IQueryable<TSource> source,
+            [NotNull] Func<TSource, TKey> keySelector,
+            [NotNull] Func<TSource, TElement> elementSelector,
+            [NotNull] IEqualityComparer<TKey> comparer,
+            CancellationToken cancellationToken)
+        {
+            Check.NotNull(source, "source");
+            Check.NotNull(keySelector, "keySelector");
+            Check.NotNull(elementSelector, "elementSelector");
+            Check.NotNull(comparer, "comparer");
+
+            return source.AsAsyncEnumerable().ToDictionary(keySelector, elementSelector, comparer, cancellationToken);
+        }
+
+        #endregion
+
+        #region ForEach
+
+        public static Task ForEachAsync<T>([NotNull] this IQueryable<T> source, [NotNull] Action<T> action)
+        {
+            Check.NotNull(source, "source");
+            Check.NotNull(action, "action");
+
+            return source.AsAsyncEnumerable().ForEachAsync(action, CancellationToken.None);
+        }
+
+        public static Task ForEachAsync<T>(
+            [NotNull] this IQueryable<T> source,
+            [NotNull] Action<T> action,
+            CancellationToken cancellationToken)
+        {
+            Check.NotNull(source, "source");
+            Check.NotNull(action, "action");
+
+            return source.AsAsyncEnumerable().ForEachAsync(action, cancellationToken);
+        }
+
+        #endregion
+
+        #region Impl.
 
         private static Task<TResult> ExecuteAsync<TSource, TResult>(
             MethodInfo operatorMethodInfo,
@@ -1382,5 +1578,7 @@ namespace System.Linq
                 .Single(mi => mi.GetParameters().Length == parameterCount + 1
                               && (predicate == null || predicate(mi)));
         }
+
+        #endregion
     }
 }

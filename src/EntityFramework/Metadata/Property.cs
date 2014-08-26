@@ -9,7 +9,7 @@ using Microsoft.Data.Entity.Utilities;
 namespace Microsoft.Data.Entity.Metadata
 {
     [DebuggerDisplay("{PropertyType.Name,nq} {Name,nq}")]
-    public class Property : NamedMetadataBase, IProperty
+    public class Property : PropertyBase, IProperty
     {
         private readonly Type _propertyType;
         private readonly bool _isConcurrencyToken;
@@ -39,9 +39,6 @@ namespace Microsoft.Data.Entity.Metadata
         {
             get { return _propertyType; }
         }
-
-        // TODO: Consider properties that are part of some complex/value type
-        public virtual EntityType EntityType { get; internal set; }
 
         public virtual bool IsNullable
         {
@@ -106,11 +103,6 @@ namespace Microsoft.Data.Entity.Metadata
 
                 _originalValueIndex = value;
             }
-        }
-
-        IEntityType IPropertyBase.EntityType
-        {
-            get { return EntityType; }
         }
     }
 }

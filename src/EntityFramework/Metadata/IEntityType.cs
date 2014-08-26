@@ -13,6 +13,8 @@ namespace Microsoft.Data.Entity.Metadata
 
         string Name { get; }
 
+        string SimpleName { get; }
+
         [CanBeNull]
         Type Type { get; }
 
