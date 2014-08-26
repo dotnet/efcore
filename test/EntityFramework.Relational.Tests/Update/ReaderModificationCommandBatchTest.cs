@@ -577,7 +577,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var model = BuildModel(keyStrategy, nonKeyStrategy);
             var stateEntry = CreateConfiguration(model).Services.StateEntryFactory.Create(
-                model.GetEntityType("T1"), new T1 { Id = 1, Name = "Test" });
+                model.GetEntityType(typeof(T1).FullName), new T1 { Id = 1, Name = "Test" });
             stateEntry.EntityState = entityState;
             return stateEntry;
         }

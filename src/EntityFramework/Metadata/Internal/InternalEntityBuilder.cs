@@ -38,19 +38,19 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         public virtual InternalPropertyBuilder Property(
-            [NotNull] Type propertyType, [NotNull] string name, bool shadowProperty, bool concurrencyToken)
+            [NotNull] Type propertyType, [NotNull] string name)
         {
             Check.NotNull(propertyType, "propertyType");
             Check.NotEmpty(name, "name");
 
-            return new InternalPropertyBuilder(GetOrCreateProperty(propertyType, name, shadowProperty, concurrencyToken), ModelBuilder);
+            return new InternalPropertyBuilder(GetOrCreateProperty(propertyType, name, createShadowProperty: true), ModelBuilder);
         }
 
         public virtual InternalPropertyBuilder Property([NotNull] PropertyInfo clrProperty)
         {
             Check.NotNull(clrProperty, "clrProperty");
 
-            return Property(clrProperty.PropertyType, clrProperty.Name, false, false);
+            return new InternalPropertyBuilder(GetOrCreateProperty(clrProperty.PropertyType, clrProperty.Name, createShadowProperty: false), ModelBuilder);
         }
 
         public virtual InternalForeignKeyBuilder ForeignKey(
@@ -148,13 +148,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         private IEnumerable<Property> GetOrCreateProperties(IEnumerable<PropertyInfo> clrProperties)
         {
-            return clrProperties.Select(p => GetOrCreateProperty(p.PropertyType, p.Name, false, false));
+            return clrProperties.Select(p => GetOrCreateProperty(p.PropertyType, p.Name, false));
         }
 
-        private Property GetOrCreateProperty(Type propertyType, string name, bool shadowProperty, bool concurrencyToken)
+        private Property GetOrCreateProperty(Type propertyType, string name, bool createShadowProperty)
         {
             return Metadata.TryGetProperty(name)
-                   ?? Metadata.AddProperty(name, propertyType, shadowProperty, concurrencyToken);
+                   ?? Metadata.AddProperty(name, propertyType, createShadowProperty, concurrencyToken: false);
         }
     }
 }

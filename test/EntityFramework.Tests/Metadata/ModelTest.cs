@@ -86,8 +86,8 @@ namespace Microsoft.Data.Entity.Metadata
             var entityType = new EntityType(typeof(Customer));
             model.AddEntityType(entityType);
 
-            Assert.Same(entityType, model.GetEntityType("Customer"));
-            Assert.Same(entityType, model.TryGetEntityType("Customer"));
+            Assert.Same(entityType, model.GetEntityType(typeof(Customer).FullName));
+            Assert.Same(entityType, model.TryGetEntityType(typeof(Customer).FullName));
             Assert.Null(model.TryGetEntityType(typeof(string)));
 
             Assert.Equal(

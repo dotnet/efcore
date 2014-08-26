@@ -53,8 +53,25 @@ namespace Microsoft.Data.Entity.Metadata
         {
             var entityType = new EntityType(typeof(Customer));
 
-            Assert.Equal("Customer", entityType.Name);
+            Assert.Equal(typeof(Customer).FullName, entityType.Name);
             Assert.Same(typeof(Customer), entityType.Type);
+        }
+
+        [Fact]
+        public void Simple_name_is_simple_CLR_name()
+        {
+            Assert.Equal("EntityTypeTest", new EntityType(typeof(EntityTypeTest)).SimpleName);
+            Assert.Equal("Customer", new EntityType(typeof(Customer)).SimpleName);
+            Assert.Equal("List`1", new EntityType(typeof(List<Customer>)).SimpleName);
+        }
+
+        [Fact]
+        public void Simple_name_is_part_of_name_following_final_separator_when_no_CLR_type()
+        {
+            Assert.Equal("Everything", new EntityType("Everything").SimpleName);
+            Assert.Equal("Is", new EntityType("Everything.Is").SimpleName);
+            Assert.Equal("Awesome", new EntityType("Everything.Is.Awesome").SimpleName);
+            Assert.Equal("WhenWe`reLivingOurDream", new EntityType("Everything.Is.Awesome+WhenWe`reLivingOurDream").SimpleName);
         }
 
         [Fact]
@@ -338,7 +355,7 @@ namespace Microsoft.Data.Entity.Metadata
             Assert.Null(entityType.TryGetProperty("Nose"));
 
             Assert.Equal(
-                Strings.FormatPropertyNotFound("Nose", "Customer"),
+                Strings.FormatPropertyNotFound("Nose", typeof(Customer).FullName),
                 Assert.Throws<ModelItemNotFoundException>(() => entityType.GetProperty("Nose")).Message);
         }
 
@@ -351,9 +368,9 @@ namespace Microsoft.Data.Entity.Metadata
             entityType.AddProperty("Id", typeof(int));
             entityType.AddProperty("Mane", typeof(int), shadowProperty: true, concurrencyToken: false);
 
-            Assert.True(entityType.GetProperty("Name").IsClrProperty);
-            Assert.True(entityType.GetProperty("Id").IsClrProperty);
-            Assert.False(entityType.GetProperty("Mane").IsClrProperty);
+            Assert.False(entityType.GetProperty("Name").IsShadowProperty);
+            Assert.False(entityType.GetProperty("Id").IsShadowProperty);
+            Assert.True(entityType.GetProperty("Mane").IsShadowProperty);
         }
 
         [Fact]
@@ -456,7 +473,7 @@ namespace Microsoft.Data.Entity.Metadata
             Assert.True(entityType.UseLazyOriginalValues);
 
             Assert.Equal(
-                Strings.FormatEagerOriginalValuesRequired("ChangedOnlyEntity"),
+                Strings.FormatEagerOriginalValuesRequired(typeof(ChangedOnlyEntity).FullName),
                 Assert.Throws<InvalidOperationException>(() => new EntityType(typeof(ChangedOnlyEntity)) { UseLazyOriginalValues = true }).Message);
         }
 

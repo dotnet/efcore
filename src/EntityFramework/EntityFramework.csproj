@@ -205,7 +205,7 @@
     <Compile Include="Metadata\Model.cs" />
     <Compile Include="Metadata\ModelExtensions.cs" />
     <Compile Include="Metadata\ModelItemNotFoundException.cs" />
-    <Compile Include="Metadata\NamedMetadataBase.cs" />
+    <Compile Include="Metadata\PropertyBase.cs" />
     <Compile Include="Metadata\Navigation.cs" />
     <Compile Include="Metadata\ObjectArrayValueReader.cs" />
     <Compile Include="Metadata\Property.cs" />

@@ -6,7 +6,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public class Navigation : NamedMetadataBase, INavigation
+    public class Navigation : PropertyBase, INavigation
     {
         private ForeignKey _foreignKey;
         private bool _pointsToPrincipal;
@@ -19,8 +19,6 @@ namespace Microsoft.Data.Entity.Metadata
             _foreignKey = foreignKey;
             _pointsToPrincipal = pointsToPrincipal;
         }
-
-        public virtual EntityType EntityType { get; [param: CanBeNull] set; }
 
         public virtual ForeignKey ForeignKey
         {
@@ -44,11 +42,6 @@ namespace Microsoft.Data.Entity.Metadata
 
                 _pointsToPrincipal = value;
             }
-        }
-
-        IEntityType IPropertyBase.EntityType
-        {
-            get { return EntityType; }
         }
 
         IForeignKey INavigation.ForeignKey

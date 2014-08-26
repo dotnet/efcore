@@ -9,12 +9,12 @@ using Microsoft.Data.Entity.Utilities;
 namespace Microsoft.Data.Entity.Metadata
 {
     [DebuggerDisplay("{PropertyType.Name,nq} {Name,nq}")]
-    public class Property : NamedMetadataBase, IProperty
+    public class Property : PropertyBase, IProperty
     {
         private readonly Type _propertyType;
-        private readonly bool _isConcurrencyToken;
-
-        private bool _isNullable = true;
+        
+        private bool _isConcurrencyToken;
+        private bool _isNullable;
         private int _shadowIndex;
         private int _originalValueIndex = -1;
         private int _index;
@@ -40,9 +40,6 @@ namespace Microsoft.Data.Entity.Metadata
             get { return _propertyType; }
         }
 
-        // TODO: Consider properties that are part of some complex/value type
-        public virtual EntityType EntityType { get; internal set; }
-
         public virtual bool IsNullable
         {
             get { return _isNullable; }
@@ -52,19 +49,38 @@ namespace Microsoft.Data.Entity.Metadata
         public virtual ValueGenerationOnSave ValueGenerationOnSave { get; set; }
         public virtual ValueGenerationOnAdd ValueGenerationOnAdd { get; set; }
 
-        public virtual bool IsClrProperty
-        {
-            get { return _shadowIndex < 0; }
-        }
-
         public virtual bool IsShadowProperty
         {
-            get { return !IsClrProperty; }
+            get { return _shadowIndex >= 0; }
+            set
+            {
+                if (IsShadowProperty != value)
+                {
+                    _shadowIndex = value ? 0 : -1;
+
+                    if (EntityType != null)
+                    {
+                        EntityType.UpdateIndexes(this);
+                    }
+                }
+            }
         }
 
         public virtual bool IsConcurrencyToken
         {
             get { return _isConcurrencyToken; }
+            set
+            {
+                if (_isConcurrencyToken != value)
+                {
+                    _isConcurrencyToken = value;
+
+                    if (EntityType != null)
+                    {
+                        EntityType.UpdateIndexes(this);
+                    }
+                }
+            }
         }
 
         public virtual int Index
@@ -85,7 +101,7 @@ namespace Microsoft.Data.Entity.Metadata
             get { return _shadowIndex; }
             set
             {
-                if (value < 0 || IsClrProperty)
+                if (value < 0 || !IsShadowProperty)
                 {
                     throw new ArgumentOutOfRangeException("value");
                 }
@@ -106,11 +122,6 @@ namespace Microsoft.Data.Entity.Metadata
 
                 _originalValueIndex = value;
             }
-        }
-
-        IEntityType IPropertyBase.EntityType
-        {
-            get { return EntityType; }
         }
     }
 }

@@ -6,16 +6,23 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public class Annotation : NamedMetadataBase, IAnnotation
+    public class Annotation : MetadataBase, IAnnotation
     {
+        private readonly string _name;
         private readonly string _value;
 
         public Annotation([NotNull] string name, [NotNull] string value)
-            : base(Check.NotEmpty(name, "name"))
         {
+            Check.NotEmpty(name, "name");
             Check.NotEmpty(value, "value");
 
+            _name = name;
             _value = value;
+        }
+
+        public virtual string Name
+        {
+            get { return _name; }
         }
 
         public virtual string Value

@@ -54,7 +54,7 @@ namespace Microsoft.Data.Entity.Relational
             var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder
-                .Entity("Customer")
+                .Entity(typeof(Customer).FullName)
                 .ToTable("foo");
 
             Assert.Equal("foo", model.GetEntityType(typeof(Customer)).TableName());
@@ -67,7 +67,7 @@ namespace Microsoft.Data.Entity.Relational
             var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder
-                .Entity("Customer")
+                .Entity(typeof(Customer).FullName)
                 .ToTable("foo", "schema");
 
             Assert.Equal("foo", model.GetEntityType(typeof(Customer)).TableName());
@@ -107,7 +107,7 @@ namespace Microsoft.Data.Entity.Relational
             var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder
-                .Entity("Customer")
+                .Entity(typeof(Customer).FullName)
                 .Property<string>("Name").ColumnName("foo");
 
             Assert.Equal("foo", model.GetEntityType(typeof(Customer)).GetProperty("Name").ColumnName());
@@ -119,16 +119,16 @@ namespace Microsoft.Data.Entity.Relational
             var model = new Metadata.Model();
             var modelBuilder = new BasicModelBuilder(model);
 
-            modelBuilder.Entity("Customer", b =>
+            modelBuilder.Entity(typeof(Customer).FullName, b =>
                 {
                     b.Property<int>("Id");
                     b.Key("Id");
                 });
 
-            modelBuilder.Entity("Order", b =>
+            modelBuilder.Entity(typeof(Order).FullName, b =>
                 {
                     b.Property<int>("CustomerId");
-                    b.ForeignKey("Customer", "CustomerId").KeyName("FK_Foo");
+                    b.ForeignKey(typeof(Customer).FullName, "CustomerId").KeyName("FK_Foo");
                 });
 
             Assert.Equal("FK_Foo", model.GetEntityType(typeof(Order)).ForeignKeys.Single().KeyName());
@@ -158,7 +158,7 @@ namespace Microsoft.Data.Entity.Relational
             var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder
-                .Entity("Customer")
+                .Entity(typeof(Customer).FullName)
                 .Property<string>("Name");
 
             Assert.Equal("Name", model.GetEntityType(typeof(Customer)).GetProperty("Name").ColumnName());
@@ -171,7 +171,7 @@ namespace Microsoft.Data.Entity.Relational
             var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder
-                .Entity("Customer")
+                .Entity(typeof(Customer).FullName)
                 .Property<string>("Name");
 
             model.GetEntityType(typeof(Customer)).GetProperty("Name").SetColumnName("CustomerName");

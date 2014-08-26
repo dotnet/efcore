@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Adapters
             {
                 var entityProp = entityType.TryGetPropertyByColumnName(property.Key);
                 if (entityProp != null
-                    && (!entityProp.IsClrProperty
+                    && (entityProp.IsShadowProperty
                         || EdmTypeMatchesClrType(property.Value.PropertyType, entityProp.PropertyType)))
                 {
                     SetProperty(entityProp, property.Value.PropertyAsObject);

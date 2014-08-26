@@ -39,9 +39,9 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
             get { return _entityType; }
         }
 
-        public bool IsClrProperty
+        public bool IsShadowProperty
         {
-            get { return true; }
+            get { return false; }
         }
 
         public bool IsConcurrencyToken

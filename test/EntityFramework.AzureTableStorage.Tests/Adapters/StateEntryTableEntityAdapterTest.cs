@@ -37,10 +37,10 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
 
             builder.Entity("ShadowEntity", pb =>
                 {
-                    pb.Property<object>("PartitionKey", true);
-                    pb.Property<object>("RowKey", true);
-                    pb.Property<object>("Timestamp", true);
-                    pb.Property<object>("SomeProperty", true);
+                    pb.Property<object>("PartitionKey");
+                    pb.Property<object>("RowKey");
+                    pb.Property<object>("Timestamp");
+                    pb.Property<object>("SomeProperty");
                     pb.Key("PartitionKey", "RowKey");
                 });
 

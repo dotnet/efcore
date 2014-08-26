@@ -292,14 +292,14 @@ namespace Microsoft.Data.Entity.Redis
         private static string ConstructRedisPrimaryKeyIndexKeyName(IEntityType entityType)
         {
             return string.Format(CultureInfo.InvariantCulture,
-                PrimaryKeyIndexNameFormat, Escape(entityType.Name));
+                PrimaryKeyIndexNameFormat, Escape(entityType.SimpleName));
         }
 
         private static string ConstructRedisDataKeyName(
             IEntityType entityType, string compositePrimaryKeyValues)
         {
             return string.Format(CultureInfo.InvariantCulture,
-                DataHashNameFormat, Escape(entityType.Name), compositePrimaryKeyValues);
+                DataHashNameFormat, Escape(entityType.SimpleName), compositePrimaryKeyValues);
         }
 
         private static string ConstructKeyValue(

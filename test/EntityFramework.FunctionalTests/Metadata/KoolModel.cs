@@ -290,7 +290,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public string Name
         {
-            get { return "KoolEntity1"; }
+            get { return "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity1"; }
         }
 
         public override string StorageName
@@ -386,7 +386,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public string Name
         {
-            get { return "KoolEntity2"; }
+            get { return "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity2"; }
         }
 
         public override string StorageName
@@ -452,7 +452,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public string Name
         {
-            get { return "KoolEntity3"; }
+            get { return "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity3"; }
         }
 
         public override string StorageName
@@ -516,7 +516,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public string Name
         {
-            get { return "KoolEntity4"; }
+            get { return "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity4"; }
         }
 
         public override string StorageName
@@ -569,7 +569,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public string Name
         {
-            get { return "KoolEntity5"; }
+            get { return "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity5"; }
         }
 
         public override string StorageName
@@ -622,7 +622,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public string Name
         {
-            get { return "KoolEntity6"; }
+            get { return "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity6"; }
         }
 
         public override string StorageName
@@ -686,7 +686,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public string Name
         {
-            get { return "KoolEntity7"; }
+            get { return "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity7"; }
         }
 
         public override string StorageName
@@ -734,7 +734,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public string Name
         {
-            get { return "KoolEntity8"; }
+            get { return "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity8"; }
         }
 
         public override string StorageName
@@ -782,7 +782,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public string Name
         {
-            get { return "KoolEntity9"; }
+            get { return "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity9"; }
         }
 
         public override string StorageName
@@ -830,7 +830,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public string Name
         {
-            get { return "KoolEntity10"; }
+            get { return "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity10"; }
         }
 
         public override string StorageName
@@ -878,7 +878,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public string Name
         {
-            get { return "KoolEntity11"; }
+            get { return "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity11"; }
         }
 
         public override string StorageName
@@ -926,7 +926,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public string Name
         {
-            get { return "KoolEntity12"; }
+            get { return "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity12"; }
         }
 
         public override string StorageName
@@ -974,7 +974,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public string Name
         {
-            get { return "KoolEntity13"; }
+            get { return "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity13"; }
         }
 
         public override string StorageName
@@ -1022,7 +1022,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public string Name
         {
-            get { return "KoolEntity14"; }
+            get { return "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity14"; }
         }
 
         public override string StorageName
@@ -1070,7 +1070,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public string Name
         {
-            get { return "KoolEntity15"; }
+            get { return "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity15"; }
         }
 
         public override string StorageName
@@ -1126,7 +1126,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public string Name
         {
-            get { return "KoolEntity16"; }
+            get { return "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity16"; }
         }
 
         public override string StorageName
@@ -1174,7 +1174,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public string Name
         {
-            get { return "KoolEntity17"; }
+            get { return "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity17"; }
         }
 
         public override string StorageName
@@ -1222,7 +1222,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public string Name
         {
-            get { return "KoolEntity18"; }
+            get { return "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity18"; }
         }
 
         public override string StorageName
@@ -1270,7 +1270,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public string Name
         {
-            get { return "KoolEntity19"; }
+            get { return "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity19"; }
         }
 
         public override string StorageName
@@ -1318,7 +1318,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public string Name
         {
-            get { return "KoolEntity20"; }
+            get { return "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity20"; }
         }
 
         public override string StorageName

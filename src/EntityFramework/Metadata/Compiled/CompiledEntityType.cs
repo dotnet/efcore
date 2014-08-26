@@ -43,6 +43,11 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
             get { return typeof(TEntity); }
         }
 
+        public string SimpleName
+        {
+            get { return typeof(TEntity).Name; }
+        }
+
         protected abstract IKey LoadKey();
 
         protected abstract IProperty[] LoadProperties();

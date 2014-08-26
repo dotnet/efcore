@@ -37,7 +37,6 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(type, "type");
 
-            // TODO: with the same CLR type name in the same model
             EntityType entityType;
             return _entities.Value.TryGetValue(new EntityType(type), out entityType)
                 ? entityType

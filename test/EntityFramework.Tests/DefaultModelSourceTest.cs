@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity
             var model = new DefaultModelSource(setFinderMock.Object).GetModel(new Mock<DbContext>().Object, new ModelBuilderFactory());
 
             Assert.Equal(
-                new[] { "Object", "Random", "String" },
+                new[] { typeof(object).FullName, typeof(Random).FullName, typeof(string).FullName },
                 model.EntityTypes.Select(e => e.Name).ToArray());
         }
 
