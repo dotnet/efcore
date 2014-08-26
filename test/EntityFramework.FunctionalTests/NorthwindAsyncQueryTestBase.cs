@@ -1834,12 +1834,15 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 {
                     foreach (var l2oItem in l2oItems)
                     {
-                        Assert.True(
-                            efItems.Contains(l2oItem),
-                            string.Format(
-                                "\r\nL2o item: [{0}] not found in EF results: [{1}]...",
-                                l2oItem,
-                                string.Join(", ", efItems.Take(10))));
+                        if (!efItems.Contains(l2oItem))
+                        {
+                            Assert.True(
+                                false,
+                                string.Format(
+                                    "\r\nL2o item: [{0}] not found in EF results:\r\n{1}",
+                                    l2oItem,
+                                    string.Join("\r\n", efItems)));
+                        }
                     }
                 }
             }
