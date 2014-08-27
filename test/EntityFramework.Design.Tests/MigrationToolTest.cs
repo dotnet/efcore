@@ -17,10 +17,7 @@ namespace Microsoft.Data.Entity.Design.Tests
 {
     public class MigrationToolTest
     {
-#if ASPNET50
-        // TODO: Remove #if when aspnet/Configuration#111 is resolved
         [Fact]
-#endif
         public void CommitConfiguration()
         {
             var toolMock = new Mock<MyMigrationTool> { CallBase = true };
@@ -72,10 +69,7 @@ namespace Microsoft.Data.Entity.Design.Tests
             Assert.True(Path.IsPathRooted(configFile));
         }
 
-#if ASPNET50
-        // TODO: Remove #if when aspnet/Configuration#111 is resolved
         [Fact]
-#endif
         public void CommitConfiguration_with_default_config_file()
         {
             var toolMock = new Mock<MyMigrationTool> { CallBase = true };

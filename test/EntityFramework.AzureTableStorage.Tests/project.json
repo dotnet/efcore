@@ -9,7 +9,7 @@
     },
     "code": [ "**\\*.cs", "..\\Shared\\ApiConsistencyTestBase.cs" ],
     "frameworks": {
-        "net45": {
+        "aspnet50": {
             "dependencies": {
                 "System.Threading.Tasks": ""
             }

@@ -4,7 +4,7 @@
 using System;
 using JetBrains.Annotations;
 
-#if !NET45
+#if !NET45 && !ASPNET50
 // TODO: This should be shipped in some other assembly/NuGet package with type-forwarding/unification for full .NET
 
 namespace Microsoft.Data.Entity

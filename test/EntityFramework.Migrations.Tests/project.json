@@ -9,6 +9,6 @@
         "test": "Xunit.KRunner"
     },
     "frameworks": {
-        "net451": { }
+        "aspnet50": { }
     }
 }

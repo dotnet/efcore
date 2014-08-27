@@ -9,6 +9,7 @@
     "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
     "frameworks": {
         "net45": { },
+        "aspnet50": { },
         "aspnetcore50": { },
         ".NETPortable,Version=v4.6,Profile=Profile151": { }
     }

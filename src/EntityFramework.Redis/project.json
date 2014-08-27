@@ -9,6 +9,7 @@
     },
     "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
     "frameworks": {
-        "net45": { }
+        "net45": { },
+        "aspnet50": { }
     }
 }

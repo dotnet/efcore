@@ -9,6 +9,6 @@
     },
     "code": [ "**\\*.cs", "..\\Shared\\ApiConsistencyTestBase.cs" ],
     "frameworks": {
-        "net45": { }
+        "aspnet50": { }
     }
 }

@@ -10,6 +10,7 @@
     "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
     "configurations": {
         "net451": { },
+        "aspnet50": { },
         "aspnetcore50": { }
     }
 }

@@ -9,6 +9,7 @@
     "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
     "exclude": "tools\\Handler.cs",
     "frameworks": {
-        "net451": { }
+        "net451": { },
+        "aspnet50": { }
     }
 }
