@@ -70,6 +70,8 @@ namespace Microsoft.Data.Entity.Relational.Query
                 private DbCommand _command;
                 private DbDataReader _reader;
 
+                private T _current;
+
                 public Enumerator(Enumerable<T> enumerable)
                 {
                     _enumerable = enumerable;
@@ -88,20 +90,16 @@ namespace Microsoft.Data.Entity.Relational.Query
                         _reader = _command.ExecuteReader();
                     }
 
-                    return _reader.Read();
+                    var hasNext = _reader.Read();
+
+                    _current = hasNext ? _enumerable._shaper(_reader) : default(T);
+                
+                    return hasNext;
                 }
 
                 public T Current
                 {
-                    get
-                    {
-                        if (_reader == null)
-                        {
-                            return default(T);
-                        }
-
-                        return _enumerable._shaper(_reader);
-                    }
+                    get { return _current; }
                 }
 
                 object IEnumerator.Current

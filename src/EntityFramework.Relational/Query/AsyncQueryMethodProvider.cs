@@ -66,6 +66,8 @@ namespace Microsoft.Data.Entity.Relational.Query
                 private DbCommand _command;
                 private DbDataReader _reader;
 
+                private T _current;
+
                 private bool _disposed;
 
                 public AsyncEnumerator(AsyncEnumerable<T> enumerable)
@@ -87,6 +89,12 @@ namespace Microsoft.Data.Entity.Relational.Query
                     {
                         // H.A.C.K.: Workaround https://github.com/Reactive-Extensions/Rx.NET/issues/5
                         Dispose();
+
+                        _current = default(T);
+                    }
+                    else
+                    { 
+                        _current = _enumerable._shaper(_reader);
                     }
 
                     return hasNext;
@@ -102,22 +110,16 @@ namespace Microsoft.Data.Entity.Relational.Query
 
                     _enumerable._logger.WriteSql(_command.CommandText);
 
-                    _reader = await _command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+                    _reader 
+                        = await _command.ExecuteReaderAsync(cancellationToken)
+                            .ConfigureAwait(continueOnCapturedContext: false);
 
                     return await _reader.ReadAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
                 }
 
                 public T Current
                 {
-                    get
-                    {
-                        if (_reader == null)
-                        {
-                            return default(T);
-                        }
-
-                        return _enumerable._shaper(_reader);
-                    }
+                    get { return _current; }
                 }
 
                 public void Dispose()
