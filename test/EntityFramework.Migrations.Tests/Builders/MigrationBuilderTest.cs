@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using Microsoft.Data.Entity.Migrations.Builders;
 using Microsoft.Data.Entity.Migrations.Model;
@@ -381,6 +382,24 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Builders
             Assert.Equal("dbo.MyTable", operation.TableName);
             Assert.Equal("MyIdx", operation.IndexName);
             Assert.Equal("MyIdx2", operation.NewIndexName);
+        }
+
+        [Fact]
+        public void CopyData_adds_operation()
+        {
+            var builder = new MigrationBuilder();
+
+            builder.CopyData("dbo.T1", new[] { "C1, C2" }, "dbo.T2", new[] { "C1, C3" });
+
+            Assert.Equal(1, builder.Operations.Count);
+            Assert.IsType<CopyDataOperation>(builder.Operations[0]);
+
+            var operation = (CopyDataOperation)builder.Operations[0];
+
+            Assert.Equal("dbo.T1", operation.SourceTableName);
+            Assert.Equal(new[] { "C1, C2" }, operation.SourceColumnNames);
+            Assert.Equal("dbo.T2", operation.TargetTableName);
+            Assert.Equal(new[] { "C1, C3" }, operation.TargetColumnNames);
         }
 
         [Fact]

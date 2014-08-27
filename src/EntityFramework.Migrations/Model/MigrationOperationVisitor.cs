@@ -113,6 +113,11 @@ namespace Microsoft.Data.Entity.Migrations.Model
             VisitDefault(renameIndexOperation, context);
         }
 
+        public virtual void Visit([NotNull] CopyDataOperation copyDataOperation, [NotNull] TContext context)
+        {
+            VisitDefault(copyDataOperation, context);
+        }
+
         public virtual void Visit([NotNull] SqlOperation sqlOperation, [NotNull] TContext context)
         {
             VisitDefault(sqlOperation, context);

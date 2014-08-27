@@ -540,6 +540,23 @@ namespace Microsoft.Data.Entity.Design
                 .Append(")");
         }
 
+        public override void Generate(CopyDataOperation copyDataOperation, IndentedStringBuilder stringBuilder)
+        {
+            Check.NotNull(copyDataOperation, "copyDataOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
+
+            stringBuilder
+                .Append("CopyData(")
+                .Append(GenerateLiteral(copyDataOperation.SourceTableName))
+                .Append(", new[] { ")
+                .Append(copyDataOperation.SourceColumnNames.Select(GenerateLiteral).Join())
+                .Append(" }, ")
+                .Append(GenerateLiteral(copyDataOperation.TargetTableName))
+                .Append(", new[] { ")
+                .Append(copyDataOperation.TargetColumnNames.Select(GenerateLiteral).Join())
+                .Append(" })");
+        }
+
         public override void Generate(SqlOperation sqlOperation, IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(sqlOperation, "sqlOperation");

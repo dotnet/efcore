@@ -193,13 +193,16 @@ namespace Microsoft.Data.Entity.SQLite.Tests
 
             var operations = PreProcess(modelBuilder, addForeignKeyOperation);
 
-            Assert.Equal(2, operations.Count);
-            Assert.IsType<DropTableOperation>(operations[0]);
+            Assert.Equal(4, operations.Count);
+            Assert.IsType<RenameTableOperation>(operations[0]);
             Assert.IsType<CreateTableOperation>(operations[1]);
+            Assert.IsType<CopyDataOperation>(operations[2]);
+            Assert.IsType<DropTableOperation>(operations[3]);
 
-            var dropTableOperation = (DropTableOperation)operations[0];
+            var renameTableOperation = (RenameTableOperation)operations[0];
 
-            Assert.Equal("T2", dropTableOperation.TableName);
+            Assert.Equal("T2", renameTableOperation.TableName);
+            Assert.Equal("__mig_tmp__T2", renameTableOperation.NewTableName);
 
             var createTableOperation = (CreateTableOperation)operations[1];
 
@@ -211,6 +214,17 @@ namespace Microsoft.Data.Entity.SQLite.Tests
             Assert.Equal("T1", createTableOperation.Table.ForeignKeys[0].ReferencedTable.Name);
             Assert.Equal(new[] { "C" }, createTableOperation.Table.ForeignKeys[0].Columns.Select(c => c.Name));
             Assert.Equal(new[] { "Id" }, createTableOperation.Table.ForeignKeys[0].ReferencedColumns.Select(c => c.Name));
+
+            var copyDataOperation = (CopyDataOperation)operations[2];
+
+            Assert.Equal("__mig_tmp__T2", copyDataOperation.SourceTableName);
+            Assert.Equal(new[] { "Id", "C" }, copyDataOperation.SourceColumnNames);
+            Assert.Equal("T2", copyDataOperation.TargetTableName);
+            Assert.Equal(new[] { "Id", "C" }, copyDataOperation.TargetColumnNames);
+
+            var dropTableOperation = (DropTableOperation)operations[3];
+
+            Assert.Equal("__mig_tmp__T2", dropTableOperation.TableName);
         }
 
         [Fact]
@@ -239,15 +253,12 @@ namespace Microsoft.Data.Entity.SQLite.Tests
 
             var operations = PreProcess(modelBuilder, moveTableOperation, renameTableOperation, addForeignKeyOperation);
 
-            Assert.Equal(2, operations.Count);
-            Assert.IsType<DropTableOperation>(operations[0]);
-            Assert.IsType<CreateTableOperation>(operations[1]);
+            Assert.Equal(3, operations.Count);
+            Assert.IsType<CreateTableOperation>(operations[0]);
+            Assert.IsType<CopyDataOperation>(operations[1]);
+            Assert.IsType<DropTableOperation>(operations[2]);
 
-            var dropTableOperation = (DropTableOperation)operations[0];
-
-            Assert.Equal("dbo.T", dropTableOperation.TableName);
-
-            var createTableOperation = (CreateTableOperation)operations[1];
+            var createTableOperation = (CreateTableOperation)operations[0];
 
             Assert.Equal("dbo2.T2", createTableOperation.Table.Name);
             Assert.Equal(new[] { "Id", "C" }, createTableOperation.Table.Columns.Select(c => c.Name));
@@ -257,6 +268,17 @@ namespace Microsoft.Data.Entity.SQLite.Tests
             Assert.Equal("T1", createTableOperation.Table.ForeignKeys[0].ReferencedTable.Name);
             Assert.Equal(new[] { "C" }, createTableOperation.Table.ForeignKeys[0].Columns.Select(c => c.Name));
             Assert.Equal(new[] { "Id" }, createTableOperation.Table.ForeignKeys[0].ReferencedColumns.Select(c => c.Name));
+
+            var copyDataOperation = (CopyDataOperation)operations[1];
+
+            Assert.Equal("dbo.T", copyDataOperation.SourceTableName);
+            Assert.Equal(new[] { "Id", "C" }, copyDataOperation.SourceColumnNames);
+            Assert.Equal("dbo2.T2", copyDataOperation.TargetTableName);
+            Assert.Equal(new[] { "Id", "C" }, copyDataOperation.TargetColumnNames);
+
+            var dropTableOperation = (DropTableOperation)operations[2];
+
+            Assert.Equal("dbo.T", dropTableOperation.TableName);
         }
 
         [Fact]
@@ -368,11 +390,13 @@ namespace Microsoft.Data.Entity.SQLite.Tests
 
             var operations = PreProcess(modelBuilder, createTableOperation, addForeignKeyOperation, addColumnOperation, dropColumOperation);
 
-            Assert.Equal(4, operations.Count);
+            Assert.Equal(6, operations.Count);
             Assert.IsType<CreateTableOperation>(operations[0]);
             Assert.IsType<AddColumnOperation>(operations[1]);
-            Assert.IsType<DropTableOperation>(operations[2]);
+            Assert.IsType<RenameTableOperation>(operations[2]);
             Assert.IsType<CreateTableOperation>(operations[3]);
+            Assert.IsType<CopyDataOperation>(operations[4]);
+            Assert.IsType<DropTableOperation>(operations[5]);
 
             var createTableOperation1 = (CreateTableOperation)operations[0];
 
@@ -382,15 +406,26 @@ namespace Microsoft.Data.Entity.SQLite.Tests
 
             Assert.Same(addColumnOperation, operations[1]);
 
-            var dropTableOperation = (DropTableOperation)operations[2];
+            var renameTableOperation = (RenameTableOperation)operations[2];
 
-            Assert.Equal("T1", dropTableOperation.TableName);
+            Assert.Equal("T1", renameTableOperation.TableName);
+            Assert.Equal("__mig_tmp__T1", renameTableOperation.NewTableName);
 
             var createTableOperation2 = (CreateTableOperation)operations[3];
 
-            Assert.Equal("T1", dropTableOperation.TableName);
             Assert.Equal("T1", createTableOperation2.Table.Name);
             Assert.Equal(new[] { "Id" }, createTableOperation2.Table.Columns.Select(c => c.Name));
+
+            var copyDataOperation = (CopyDataOperation)operations[4];
+
+            Assert.Equal("__mig_tmp__T1", copyDataOperation.SourceTableName);
+            Assert.Equal(new[] { "Id" }, copyDataOperation.SourceColumnNames);
+            Assert.Equal("T1", copyDataOperation.TargetTableName);
+            Assert.Equal(new[] { "Id" }, copyDataOperation.TargetColumnNames);
+
+            var dropTableOperation = (DropTableOperation)operations[5];
+
+            Assert.Equal("__mig_tmp__T1", dropTableOperation.TableName);
         }
 
         private static IReadOnlyList<MigrationOperation> PreProcess(
@@ -412,7 +447,8 @@ namespace Microsoft.Data.Entity.SQLite.Tests
 
             context.Database = context.Generator.Database.Clone();
 
-            return context.Handlers.SelectMany(h => h.HandleOperations(context)).ToArray();
+            return context.Handlers.SelectMany(
+                h => h.HandleOperations(context).Concat(context.DeferredOperations)).ToArray();
         }
 
         private class MySQLiteMigrationOperationPreProcessorContext : SQLiteMigrationOperationPreProcessor.Context

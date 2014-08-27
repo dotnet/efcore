@@ -68,6 +68,7 @@
     <Compile Include="Model\AddForeignKeyOperation.cs" />
     <Compile Include="Model\AddPrimaryKeyOperation.cs" />
     <Compile Include="Model\AlterColumnOperation.cs" />
+    <Compile Include="Model\CopyDataOperation.cs" />
     <Compile Include="Model\CreateDatabaseOperation.cs" />
     <Compile Include="Model\CreateIndexOperation.cs" />
     <Compile Include="Model\CreateSequenceOperation.cs" />

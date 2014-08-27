@@ -261,6 +261,14 @@ namespace Microsoft.Data.Entity.Design.Tests
         }
 
         [Fact]
+        public void Generate_when_copy_data_operation()
+        {
+            Assert.Equal(
+                @"CopyData(""dbo.T1"", new[] { ""A"", ""B"" }, ""dbo.T2"", new[] { ""C"", ""D"" })",
+                CSharpMigrationCodeGenerator.Generate(new CopyDataOperation("dbo.T1", new[] { "A", "B" }, "dbo.T2", new[] { "C", "D" })));
+        }
+
+        [Fact]
         public void Generate_when_sql_operation()
         {
             Assert.Equal(

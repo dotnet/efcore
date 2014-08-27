@@ -210,6 +210,16 @@ namespace Microsoft.Data.Entity.Migrations.Builders
             AddOperation(new RenameIndexOperation(tableName, indexName, newIndexName));
         }
 
+        public virtual void CopyData(
+            SchemaQualifiedName sourceTableName, [NotNull] IReadOnlyList<string> sourceColumnNames,
+            SchemaQualifiedName targetTableName, [NotNull] IReadOnlyList<string> targetColumnNames)
+        {
+            Check.NotNull(sourceColumnNames, "sourceColumnNames");
+            Check.NotNull(targetColumnNames, "targetColumnNames");
+            
+            AddOperation(new CopyDataOperation(sourceTableName, sourceColumnNames, targetTableName, targetColumnNames));
+        }
+
         public virtual void Sql([NotNull] string sql)
         {
             Check.NotEmpty(sql, "sql");

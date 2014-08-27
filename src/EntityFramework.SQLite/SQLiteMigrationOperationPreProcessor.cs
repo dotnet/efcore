@@ -35,9 +35,10 @@ namespace Microsoft.Data.Entity.SQLite
             Check.NotNull(operation, "operation");
             Check.NotNull(context, "context");
 
-            var newTableName = new SchemaQualifiedName(operation.NewTableName, operation.TableName.Schema);
+            var handler = context.EnsureHandler(operation.TableName, supported: true);
 
-            context.HandleRenameOperation(operation.TableName, operation, newTableName);
+            handler.AddOperation(operation);
+            handler.TableName = new SchemaQualifiedName(operation.NewTableName, operation.TableName.Schema);
         }
 
         public override void Visit(MoveTableOperation operation, Context context)
@@ -45,9 +46,10 @@ namespace Microsoft.Data.Entity.SQLite
             Check.NotNull(operation, "operation");
             Check.NotNull(context, "context");
 
-            var newTableName = new SchemaQualifiedName(operation.TableName.Name, operation.NewSchema);
+            var handler = context.EnsureHandler(operation.TableName, supported: true);
 
-            context.HandleRenameOperation(operation.TableName, operation, newTableName);
+            handler.AddOperation(operation);
+            handler.TableName = new SchemaQualifiedName(operation.TableName.Name, operation.NewSchema);
         }
 
         public override void Visit(AddColumnOperation operation, Context context)
@@ -55,7 +57,9 @@ namespace Microsoft.Data.Entity.SQLite
             Check.NotNull(operation, "operation");
             Check.NotNull(context, "context");
 
-            context.HandleSubordinateOperation(operation.TableName, operation, supported: true);
+            var handler = context.EnsureHandler(operation.TableName, supported: true);
+                
+            handler.AddOperation(operation);
         }
 
         public override void Visit(DropColumnOperation operation, Context context)
@@ -63,7 +67,10 @@ namespace Microsoft.Data.Entity.SQLite
             Check.NotNull(operation, "operation");
             Check.NotNull(context, "context");
 
-            context.HandleSubordinateOperation(operation.TableName, operation, supported: false);
+            var handler = context.EnsureHandler(operation.TableName, supported: false);
+
+            handler.AddOperation(operation);
+            handler.RemoveColumnNamePair(operation.ColumnName);
         }
 
         public override void Visit(AlterColumnOperation operation, Context context)
@@ -71,7 +78,9 @@ namespace Microsoft.Data.Entity.SQLite
             Check.NotNull(operation, "operation");
             Check.NotNull(context, "context");
 
-            context.HandleSubordinateOperation(operation.TableName, operation, supported: false);
+            var handler = context.EnsureHandler(operation.TableName, supported: false);
+
+            handler.AddOperation(operation);
         }
 
         public override void Visit(AddDefaultConstraintOperation operation, Context context)
@@ -79,7 +88,9 @@ namespace Microsoft.Data.Entity.SQLite
             Check.NotNull(operation, "operation");
             Check.NotNull(context, "context");
 
-            context.HandleSubordinateOperation(operation.TableName, operation, supported: false);
+            var handler = context.EnsureHandler(operation.TableName, supported: false);
+
+            handler.AddOperation(operation);
         }
 
         public override void Visit(DropDefaultConstraintOperation operation, Context context)
@@ -87,7 +98,9 @@ namespace Microsoft.Data.Entity.SQLite
             Check.NotNull(operation, "operation");
             Check.NotNull(context, "context");
 
-            context.HandleSubordinateOperation(operation.TableName, operation, supported: false);
+            var handler = context.EnsureHandler(operation.TableName, supported: false);
+
+            handler.AddOperation(operation);
         }
 
         public override void Visit(RenameColumnOperation operation, Context context)
@@ -95,7 +108,10 @@ namespace Microsoft.Data.Entity.SQLite
             Check.NotNull(operation, "operation");
             Check.NotNull(context, "context");
 
-            context.HandleSubordinateOperation(operation.TableName, operation, supported: false);
+            var handler = context.EnsureHandler(operation.TableName, supported: false);
+
+            handler.AddOperation(operation);
+            handler.ResetColumnNamePair(operation.ColumnName, operation.NewColumnName);
         }
 
         public override void Visit(AddPrimaryKeyOperation operation, Context context)
@@ -103,7 +119,9 @@ namespace Microsoft.Data.Entity.SQLite
             Check.NotNull(operation, "operation");
             Check.NotNull(context, "context");
 
-            context.HandleSubordinateOperation(operation.TableName, operation, supported: false);
+            var handler = context.EnsureHandler(operation.TableName, supported: false);
+
+            handler.AddOperation(operation);
         }
 
         public override void Visit(DropPrimaryKeyOperation operation, Context context)
@@ -111,7 +129,9 @@ namespace Microsoft.Data.Entity.SQLite
             Check.NotNull(operation, "operation");
             Check.NotNull(context, "context");
 
-            context.HandleSubordinateOperation(operation.TableName, operation, supported: false);
+            var handler = context.EnsureHandler(operation.TableName, supported: false);
+
+            handler.AddOperation(operation);
         }
 
         public override void Visit(AddForeignKeyOperation operation, Context context)
@@ -119,7 +139,9 @@ namespace Microsoft.Data.Entity.SQLite
             Check.NotNull(operation, "operation");
             Check.NotNull(context, "context");
 
-            context.HandleSubordinateOperation(operation.TableName, operation, supported: false);
+            var handler = context.EnsureHandler(operation.TableName, supported: false);
+
+            handler.AddOperation(operation);
         }
 
         public override void Visit(DropForeignKeyOperation operation, Context context)
@@ -127,7 +149,9 @@ namespace Microsoft.Data.Entity.SQLite
             Check.NotNull(operation, "operation");
             Check.NotNull(context, "context");
 
-            context.HandleSubordinateOperation(operation.TableName, operation, supported: false);
+            var handler = context.EnsureHandler(operation.TableName, supported: false);
+
+            handler.AddOperation(operation);
         }
 
         public override void Visit(RenameIndexOperation operation, Context context)
@@ -157,12 +181,15 @@ namespace Microsoft.Data.Entity.SQLite
         {
             private readonly SchemaQualifiedName _initialTableName;
             private readonly List<MigrationOperation> _operations;
+            private readonly Dictionary<string, string> _columnNamePairs;
 
-            protected TableOperationHandler(SchemaQualifiedName tableName)
+            protected TableOperationHandler(SchemaQualifiedName tableName, [NotNull] IEnumerable<string> columnNames)
             {
-                _initialTableName = tableName;
-                TableName = tableName;
+                Check.NotNull(columnNames, "columnNames");
+
+                TableName = _initialTableName = tableName;
                 _operations = new List<MigrationOperation>();
+                _columnNamePairs = columnNames.ToDictionary(n => n);
             }
 
             protected TableOperationHandler([NotNull] TableOperationHandler other)
@@ -171,7 +198,8 @@ namespace Microsoft.Data.Entity.SQLite
 
                 _initialTableName = other._initialTableName;
                 TableName = other.TableName;
-                _operations = new List<MigrationOperation>(other._operations);
+                _operations = other._operations;
+                _columnNamePairs = other._columnNamePairs;
             }
 
             public virtual SchemaQualifiedName InitialTableName
@@ -193,13 +221,46 @@ namespace Microsoft.Data.Entity.SQLite
                 _operations.Add(operation);
             }
 
+            public virtual IReadOnlyDictionary<string, string> ColumnNamePairs
+            {
+                get { return _columnNamePairs; }
+            }
+
+            public virtual void ResetColumnNamePair([NotNull] string columnName, [NotNull] string newColumnName)
+            {
+                Check.NotEmpty(columnName, "columnName");
+                Check.NotEmpty(newColumnName, "newColumnName");
+
+                string initialName;
+
+                if (_columnNamePairs.TryGetValue(columnName, out initialName))
+                {
+                    _columnNamePairs.Remove(columnName);
+                }
+                else
+                {
+                    initialName = columnName;
+                }
+
+                _columnNamePairs[newColumnName] = initialName;
+            }
+
+            public virtual void RemoveColumnNamePair([NotNull] string columnName)
+            {
+                Check.NotEmpty(columnName, "columnName");
+
+                _columnNamePairs.Remove(columnName);
+            }
+
             public abstract IEnumerable<MigrationOperation> HandleOperations([NotNull] Context context);
         }
 
         public class CreateTableHandler : TableOperationHandler
         {
             public CreateTableHandler([NotNull] CreateTableOperation operation)
-                : base(operation.Table.Name)
+                : base(
+                    Check.NotNull(operation, "operation").Table.Name,
+                    operation.Table.Columns.Select(c => c.Name))
             {
                 AddOperation(operation);
             }
@@ -218,8 +279,8 @@ namespace Microsoft.Data.Entity.SQLite
 
         public class AlterTableHandler : TableOperationHandler
         {
-            public AlterTableHandler(SchemaQualifiedName tableName)
-                : base(tableName)
+            public AlterTableHandler(SchemaQualifiedName tableName, [NotNull] IEnumerable<string> columnNames)
+                : base(tableName, columnNames)
             {
             }
 
@@ -233,8 +294,8 @@ namespace Microsoft.Data.Entity.SQLite
 
         public class RebuildTableHandler : TableOperationHandler
         {
-            public RebuildTableHandler(SchemaQualifiedName tableName)
-                : base(tableName)
+            public RebuildTableHandler(SchemaQualifiedName tableName, [NotNull] IEnumerable<string> columnNames)
+                : base(tableName, columnNames)
             {
             }
 
@@ -249,13 +310,31 @@ namespace Microsoft.Data.Entity.SQLite
 
                 context.Generator.DatabaseModelModifier.Modify(context.Database, Operations);
 
-                var table = context.Database.GetTable(TableName);
+                var targetTable = context.Database.GetTable(TableName);
+                var sourceTableName = InitialTableName;
+                var targetColumnNames
+                    = targetTable.Columns
+                        .Where(c => ColumnNamePairs.ContainsKey(c.Name))
+                        .Select(c => c.Name)
+                        .ToArray();
+                var sourceColumnNames
+                    = targetColumnNames
+                        .Select(n => ColumnNamePairs[n])
+                        .ToArray();
 
-                yield return new DropTableOperation(InitialTableName);
+                if (sourceTableName == targetTable.Name)
+                {
+                    sourceTableName = new SchemaQualifiedName("__mig_tmp__" + sourceTableName.Name, sourceTableName.Schema);
+                    
+                    yield return new RenameTableOperation(targetTable.Name, sourceTableName.Name);
+                }
 
-                yield return new CreateTableOperation(table);
+                yield return new CreateTableOperation(targetTable);
 
-                // TODO: Implement operation to move data between tables.
+                yield return new CopyDataOperation(
+                    sourceTableName, sourceColumnNames, targetTable.Name, targetColumnNames);
+
+                context.AddDeferredOperation(new DropTableOperation(sourceTableName));
             }
         }
 
@@ -264,6 +343,7 @@ namespace Microsoft.Data.Entity.SQLite
             private readonly SQLiteMigrationOperationSqlGenerator _generator;
             private readonly List<SqlStatement> _statements = new List<SqlStatement>();
             private readonly List<TableOperationHandler> _handlers = new List<TableOperationHandler>();
+            private readonly List<MigrationOperation> _deferredOperations = new List<MigrationOperation>();
             private DatabaseModel _database;
 
             public Context([NotNull] SQLiteMigrationOperationSqlGenerator generator)
@@ -291,6 +371,11 @@ namespace Microsoft.Data.Entity.SQLite
             protected internal virtual IList<TableOperationHandler> Handlers
             {
                 get { return _handlers; }
+            }
+
+            public virtual IReadOnlyList<MigrationOperation> DeferredOperations
+            {
+                get { return _deferredOperations; }
             }
 
             public virtual DatabaseModel Database
@@ -321,27 +406,19 @@ namespace Microsoft.Data.Entity.SQLite
                 }
             }
 
-            public virtual void HandleOperation([NotNull] MigrationOperation operation)
+            public virtual TableOperationHandler EnsureHandler(SchemaQualifiedName tableName, bool supported)
             {
-                Check.NotNull(operation, "operation");
-
-                _statements.Add(_generator.Generate(operation));
-                _generator.DatabaseModelModifier.Modify(_generator.Database, operation);
-            }
-
-            public virtual void HandleSubordinateOperation(SchemaQualifiedName tableName,
-                [NotNull] MigrationOperation operation, bool supported)
-            {
-                Check.NotNull(operation, "operation");
-
                 var handler = GetHandler(tableName);
 
                 if (handler == null)
                 {
+                    var table = _generator.Database.TryGetTable(tableName);
+                    var columnNames = table != null ? table.Columns.Select(c => c.Name) : Enumerable.Empty<string>();
+
                     SetHandler(handler
                         = supported
-                            ? (TableOperationHandler)new AlterTableHandler(tableName)
-                            : new RebuildTableHandler(tableName));
+                            ? (TableOperationHandler)new AlterTableHandler(tableName, columnNames)
+                            : new RebuildTableHandler(tableName, columnNames));
                 }
                 else if (!supported)
                 {
@@ -353,36 +430,39 @@ namespace Microsoft.Data.Entity.SQLite
                     }
                 }
 
-                handler.AddOperation(operation);
+                return handler;
             }
 
-            public virtual void HandleRenameOperation(SchemaQualifiedName tableName,
-                [NotNull] MigrationOperation operation, SchemaQualifiedName newTableName)
+            public virtual void AddDeferredOperation([NotNull] MigrationOperation operation)
             {
                 Check.NotNull(operation, "operation");
 
-                var handler = GetHandler(tableName);
+                _deferredOperations.Add(operation);
+            }
 
-                if (handler == null)
-                {
-                    SetHandler(handler = new AlterTableHandler(tableName));
-                }
+            public virtual void HandleOperation([NotNull] MigrationOperation operation)
+            {
+                Check.NotNull(operation, "operation");
 
-                handler.TableName = newTableName;
-                handler.AddOperation(operation);
+                _statements.Add(_generator.Generate(operation));
+                _generator.DatabaseModelModifier.Modify(_generator.Database, operation);
             }
 
             public virtual void HandlePendingOperations()
             {
                 _database = _generator.Database.Clone();
 
-                foreach (var operation in _handlers.SelectMany(h => h.HandleOperations(this)))
+                foreach (var operation in 
+                    _handlers
+                        .SelectMany(h => h.HandleOperations(this))
+                        .Concat(_deferredOperations))
                 {
                     _statements.Add(_generator.Generate(operation));
                     _generator.DatabaseModelModifier.Modify(_generator.Database, operation);
                 }
 
                 _handlers.Clear();
+                _deferredOperations.Clear();
             }
         }
     }
