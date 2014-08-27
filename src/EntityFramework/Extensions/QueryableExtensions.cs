@@ -1358,16 +1358,12 @@ namespace System.Linq
         {
             Check.NotNull(source, "source");
 
-            // ReSharper disable once NotAccessedVariable
-            var _ = default(TSource);
-
             var asyncEnumerable = source.AsAsyncEnumerable();
 
             using (var enumerator = asyncEnumerable.GetEnumerator())
             {
                 while (await enumerator.MoveNext())
                 {
-                    _ = enumerator.Current;
                 }
             }
         }
