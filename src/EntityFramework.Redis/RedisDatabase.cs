@@ -408,66 +408,65 @@ namespace Microsoft.Data.Entity.Redis
                         "[" + string.Join(",", bytes.AsEnumerable()) + "]"));
             }
 
-            var propertyType =
-                Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
+            var underlyingType = property.UnderlyingType;
 
-            if (typeof(string) == propertyType)
+            if (typeof(string) == underlyingType)
             {
                 return value;
             }
-            if (typeof(Int32) == propertyType)
+            if (typeof(Int32) == underlyingType)
             {
                 return MaybeNullable(Convert.ToInt32(value), property);
             }
-            if (typeof(Int64) == propertyType)
+            if (typeof(Int64) == underlyingType)
             {
                 return MaybeNullable(Convert.ToInt64(value), property);
             }
-            if (typeof(Double) == propertyType)
+            if (typeof(Double) == underlyingType)
             {
                 return MaybeNullable(Convert.ToDouble(value), property);
             }
-            if (typeof(Decimal) == propertyType)
+            if (typeof(Decimal) == underlyingType)
             {
                 return MaybeNullable<Decimal>(Convert.ToDecimal(value), property);
             }
-            if (typeof(DateTime) == propertyType)
+            if (typeof(DateTime) == underlyingType)
             {
                 return MaybeNullable(DateTime.Parse(value), property);
             }
-            if (typeof(Single) == propertyType)
+            if (typeof(Single) == underlyingType)
             {
                 return MaybeNullable(Convert.ToSingle(value), property);
             }
-            if (typeof(Boolean) == propertyType)
+            if (typeof(Boolean) == underlyingType)
             {
                 return MaybeNullable(Convert.ToBoolean(value), property);
             }
-            if (typeof(Byte) == propertyType)
+            if (typeof(Byte) == underlyingType)
             {
                 return MaybeNullable(Convert.ToByte(value), property);
             }
-            if (typeof(UInt32) == propertyType)
+            if (typeof(UInt32) == underlyingType)
             {
                 return MaybeNullable(Convert.ToUInt32(value), property);
             }
-            if (typeof(UInt64) == propertyType)
+            if (typeof(UInt64) == underlyingType)
             {
                 return MaybeNullable(Convert.ToUInt64(value), property);
             }
-            if (typeof(Int16) == propertyType)
+            if (typeof(Int16) == underlyingType)
             {
                 return MaybeNullable(Convert.ToInt16(value), property);
             }
-            if (typeof(UInt16) == propertyType)
+            if (typeof(UInt16) == underlyingType)
             {
                 return MaybeNullable(Convert.ToUInt16(value), property);
             }
-            if (typeof(Char) == propertyType)
+            if (typeof(Char) == underlyingType)
             {
                 return MaybeNullable(Convert.ToChar(value), property);
             }
-            if (typeof(SByte) == propertyType)
+            if (typeof(SByte) == underlyingType)
             {
                 return MaybeNullable(Convert.ToSByte(value), property);
             }
@@ -477,7 +476,7 @@ namespace Microsoft.Data.Entity.Redis
                     CultureInfo.InvariantCulture,
                     Strings.UnableToDecodeProperty,
                     property.Name,
-                    propertyType.FullName,
+                    property.PropertyType.FullName,
                     property.EntityType.Name));
         }
 
