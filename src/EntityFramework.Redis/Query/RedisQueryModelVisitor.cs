@@ -49,6 +49,37 @@ namespace Microsoft.Data.Entity.Redis.Query
             return new RedisQueryingExpressionTreeVisitor(this, querySource);
         }
 
+        protected override Expression BindMethodCallToValueReader(
+            [NotNull] MethodCallExpression methodCallExpression,
+            [NotNull] Expression expression)
+        {
+            Check.NotNull(methodCallExpression, "methodCallExpression");
+            Check.NotNull(expression, "expression");
+
+            return BindMethodCallExpression(
+                methodCallExpression,
+                (property, querySource, redisQuery) =>
+                    {
+                        var projectionIndex = redisQuery.GetProjectionIndex(property);
+                        Contract.Assert(projectionIndex > -1);
+                        return BindReadValueMethod(methodCallExpression.Type, expression, projectionIndex);
+                    });
+        }
+
+        private TResult BindMethodCallExpression<TResult>(
+            MethodCallExpression methodCallExpression,
+            Func<IProperty, IQuerySource, RedisQuery, TResult> methodCallBinder)
+        {
+            return base.BindMethodCallExpression(methodCallExpression, null,
+                (property, qs) =>
+                    {
+                        var redisQuery = FindOrCreateQuery(qs);
+                        redisQuery.AddProperty(property);
+                        return methodCallBinder(property, qs, redisQuery);
+                    });
+        }
+
+
         protected override Expression BindMemberToValueReader(
             MemberExpression memberExpression, Expression expression)
         {

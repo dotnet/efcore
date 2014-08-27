@@ -8,6 +8,7 @@ namespace Microsoft.Data.Entity.Metadata
     public interface IProperty : IPropertyBase
     {
         Type PropertyType { get; }
+        Type UnderlyingType { get; }
         bool IsNullable { get; }
         ValueGenerationOnSave ValueGenerationOnSave { get; }
         ValueGenerationOnAdd ValueGenerationOnAdd { get; }

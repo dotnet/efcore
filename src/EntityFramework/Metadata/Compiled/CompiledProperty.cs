@@ -19,6 +19,11 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
             get { return typeof(TProperty); }
         }
 
+        public Type UnderlyingType
+        {
+            get { return Nullable.GetUnderlyingType(typeof(TProperty)) ?? typeof(TProperty); }
+        }
+
         public virtual ValueGenerationOnSave ValueGenerationOnSave
         {
             get { return ValueGenerationOnSave.None; }

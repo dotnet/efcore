@@ -40,6 +40,11 @@ namespace Microsoft.Data.Entity.Metadata
             get { return _propertyType; }
         }
 
+        public virtual Type UnderlyingType
+        {
+            get { return Nullable.GetUnderlyingType(_propertyType) ?? _propertyType; }
+        }
+
         public virtual bool IsNullable
         {
             get { return _isNullable; }
