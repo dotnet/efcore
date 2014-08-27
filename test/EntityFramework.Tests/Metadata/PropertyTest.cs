@@ -60,6 +60,13 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
+        public void UnderlyingType_returns_correct_underlying_type()
+        {
+            Assert.Equal(typeof(int), new Property("Name", typeof(int?)).UnderlyingType);
+            Assert.Equal(typeof(int), new Property("Name", typeof(int)).UnderlyingType);
+        }
+
+        [Fact]
         public void HasClrProperty_is_set_appropriately()
         {
             Assert.False(new Property("Kake", typeof(int)).IsShadowProperty);
