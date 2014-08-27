@@ -430,6 +430,10 @@ namespace Microsoft.Data.Entity.Redis
             {
                 return MaybeNullable<Decimal>(Convert.ToDecimal(value), property);
             }
+            if (typeof(Decimal) == propertyType)
+            {
+                return MaybeNullable<Decimal>(Convert.ToDecimal(value), property);
+            }
             if (typeof(DateTime) == underlyingType)
             {
                 return MaybeNullable(DateTime.Parse(value), property);
