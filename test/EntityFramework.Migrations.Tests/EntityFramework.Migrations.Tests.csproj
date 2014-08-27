@@ -71,6 +71,7 @@
     <Compile Include="Model\AddForeignKeyOperationTest.cs" />
     <Compile Include="Model\AddPrimaryKeyOperationTest.cs" />
     <Compile Include="Model\AlterColumnOperationTest.cs" />
+    <Compile Include="Model\CopyDataOperationTest.cs" />
     <Compile Include="Model\CreateDatabaseOperationTest.cs" />
     <Compile Include="Model\CreateIndexOperationTest.cs" />
     <Compile Include="Model\CreateSequenceOperationTest.cs" />

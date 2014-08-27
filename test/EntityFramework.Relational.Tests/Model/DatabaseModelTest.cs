@@ -142,6 +142,33 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
         }
 
         [Fact]
+        public void TryGetTable_finds_table_by_name()
+        {
+            var database = new DatabaseModel();
+            var table0 = new Table("dbo.MyTable0");
+            var table1 = new Table("dbo.MyTable1");
+
+            database.AddTable(table0);
+            database.AddTable(table1);
+
+            Assert.Same(table0, database.GetTable("dbo.MyTable0"));
+            Assert.Same(table1, database.GetTable("dbo.MyTable1"));
+        }
+
+        [Fact]
+        public void TryGetTable_returns_null_if_table_not_found()
+        {
+            var database = new DatabaseModel();
+            var table0 = new Table("dbo.MyTable0");
+            var table1 = new Table("dbo.MyTable1");
+
+            database.AddTable(table0);
+            database.AddTable(table1);
+
+            Assert.Null(database.TryGetTable("dbo.MyTable2"));
+        }
+
+        [Fact]
         public void Clone_replicates_tables()
         {
             var databaseModel = new DatabaseModel();

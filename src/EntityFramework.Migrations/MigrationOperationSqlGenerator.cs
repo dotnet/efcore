@@ -367,6 +367,28 @@ namespace Microsoft.Data.Entity.Migrations
             throw new NotImplementedException();
         }
 
+        public virtual void Generate([NotNull] CopyDataOperation copyDataOperation, [NotNull] IndentedStringBuilder stringBuilder)
+        {
+            Check.NotNull(copyDataOperation, "copyDataOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
+
+            stringBuilder
+                .Append("INSERT INTO ")
+                .Append(DelimitIdentifier(copyDataOperation.TargetTableName))
+                .Append(" ( ")
+                .Append(copyDataOperation.TargetColumnNames.Select(DelimitIdentifier).Join())
+                .AppendLine(" )");
+
+            using (stringBuilder.Indent())
+            {
+                stringBuilder
+                    .Append("SELECT ")
+                    .Append(copyDataOperation.SourceColumnNames.Select(DelimitIdentifier).Join())
+                    .Append(" FROM ")
+                    .Append(DelimitIdentifier(copyDataOperation.SourceTableName));
+            }
+        }
+
         public virtual void Generate([NotNull] SqlOperation sqlOperation, [NotNull] IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(sqlOperation, "sqlOperation");

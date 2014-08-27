@@ -162,11 +162,14 @@ namespace Microsoft.Data.Entity.SQLite.Tests
             }
 
             Assert.Equal(
-                @"DROP TABLE ""A""
+@"ALTER TABLE ""A"" RENAME TO ""__mig_tmp__A""
 CREATE TABLE ""A"" (
     ""Id"" INT NOT NULL,
     CONSTRAINT ""PK"" PRIMARY KEY (""Id"")
 )
+INSERT INTO ""A"" ( ""Id"" )
+    SELECT ""Id"" FROM ""__mig_tmp__A""
+DROP TABLE ""__mig_tmp__A""
 ",
                 stringBuilder.ToString());
         }

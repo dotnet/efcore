@@ -29,6 +29,11 @@ namespace Microsoft.Data.Entity.Relational.Model
             return _sequences.First(s => s.Name.Equals(sequenceName));
         }
 
+        public virtual Table TryGetTable(SchemaQualifiedName tableName)
+        {
+            return _tables.FirstOrDefault(t => t.Name.Equals(tableName));
+        }
+
         public virtual Table GetTable(SchemaQualifiedName tableName)
         {
             return _tables.First(t => t.Name.Equals(tableName));

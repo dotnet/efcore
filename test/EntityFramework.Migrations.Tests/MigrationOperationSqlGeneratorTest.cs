@@ -247,6 +247,15 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         }
 
         [Fact]
+        public void Generate_when_copy_data_operation()
+        {
+            Assert.Equal(
+@"INSERT INTO ""dbo"".""T2"" ( ""C"", ""D"" )
+    SELECT ""A"", ""B"" FROM ""dbo"".""T1""",
+                Generate(new CopyDataOperation("dbo.T1", new[] { "A", "B" }, "dbo.T2", new[] { "C", "D" })).Sql);
+        }
+
+        [Fact]
         public void Generate_when_rename_index_operation()
         {
             Assert.Throws<NotImplementedException>(() => Generate(
