@@ -195,15 +195,14 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             {
                 Assert.Equal(
                     GetString("FormatNoDataStoreConfigured"),
-                    // TODO: Should not be AggregateException
-                    Assert.Throws<AggregateException>(() =>
+                    Assert.Throws<InvalidOperationException>(() =>
                         {
                             using (var context = new BlogContext())
                             {
                                 context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
                                 context.SaveChanges();
                             }
-                        }).InnerException.Message);
+                        }).Message);
             }
 
             private class BlogContext : DbContext
@@ -223,15 +222,14 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
                 Assert.Equal(
                     GetString("FormatNoDataStoreService"),
-                    // TODO: Should not be AggregateException
-                    Assert.Throws<AggregateException>(() =>
+                    Assert.Throws<InvalidOperationException>(() =>
                         {
                             using (var context = new BlogContext(serviceProvider))
                             {
                                 context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
                                 context.SaveChanges();
                             }
-                        }).InnerException.Message);
+                        }).Message);
             }
 
             private class BlogContext : DbContext

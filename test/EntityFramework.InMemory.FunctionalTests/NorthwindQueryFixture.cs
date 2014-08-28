@@ -4,7 +4,6 @@
 using System;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Northwind;
 
@@ -13,7 +12,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
     public class NorthwindQueryFixture : NorthwindQueryFixtureBase
     {
         private readonly DbContextOptions _options;
-        private IServiceProvider _serviceProvider;
+        private readonly IServiceProvider _serviceProvider;
 
         public NorthwindQueryFixture()
         {
@@ -47,6 +46,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 context.Set<Order>().AddRange(NorthwindData.Orders);
                 context.Set<Product>().AddRange(NorthwindData.Products);
                 context.Set<OrderDetail>().AddRange(NorthwindData.OrderDetails);
+
                 context.SaveChanges();
             }
         }

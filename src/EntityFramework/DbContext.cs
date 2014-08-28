@@ -168,7 +168,11 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(entity, "entity");
 
-            return AddAsync(entity).Result;
+            Configuration.StateManager
+                .GetOrCreateEntry(entity)
+                .EntityState = EntityState.Added;
+
+            return entity;
         }
 
         public virtual async Task<TEntity> AddAsync<TEntity>(
