@@ -15,13 +15,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         [Fact]
         public void Foreign_key_matching_given_properties_is_found()
         {
-            DependentType.AddProperty("SomeNavID", typeof(int));
-            DependentType.AddProperty("SomeNavPeEKaY", typeof(int));
-            DependentType.AddProperty("PrincipalEntityID", typeof(int));
-            DependentType.AddProperty("PrincipalEntityPeEKaY", typeof(int));
-            var fkProperty = DependentType.AddProperty("HeToldMeYouKilledMyFk", typeof(int));
+            DependentType.GetOrAddProperty("SomeNavID", typeof(int), shadowProperty: true);
+            DependentType.GetOrAddProperty("SomeNavPeEKaY", typeof(int), shadowProperty: true);
+            DependentType.GetOrAddProperty("PrincipalEntityID", typeof(int), shadowProperty: true);
+            DependentType.GetOrAddProperty("PrincipalEntityPeEKaY", typeof(int), shadowProperty: true);
+            var fkProperty = DependentType.GetOrAddProperty("HeToldMeYouKilledMyFk", typeof(int), shadowProperty: true);
 
-            var fk = DependentType.AddForeignKey(PrincipalType.GetKey(), fkProperty);
+            var fk = DependentType.GetOrAddForeignKey(PrincipalType.GetPrimaryKey(), fkProperty);
 
             Assert.Same(
                 fk,
@@ -32,14 +32,14 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         [Fact]
         public void Foreign_key_matching_given_property_is_found()
         {
-            DependentType.AddProperty("SomeNavID", typeof(int));
-            DependentType.AddProperty("SomeNavPeEKaY", typeof(int));
-            DependentType.AddProperty("PrincipalEntityID", typeof(int));
-            DependentType.AddProperty("PrincipalEntityPeEKaY", typeof(int));
-            var fkProperty1 = DependentType.AddProperty("No", typeof(int));
-            var fkProperty2 = DependentType.AddProperty("IAmYourFk", typeof(int));
+            DependentType.GetOrAddProperty("SomeNavID", typeof(int), shadowProperty: true);
+            DependentType.GetOrAddProperty("SomeNavPeEKaY", typeof(int), shadowProperty: true);
+            DependentType.GetOrAddProperty("PrincipalEntityID", typeof(int), shadowProperty: true);
+            DependentType.GetOrAddProperty("PrincipalEntityPeEKaY", typeof(int), shadowProperty: true);
+            var fkProperty1 = DependentType.GetOrAddProperty("No", typeof(int), shadowProperty: true);
+            var fkProperty2 = DependentType.GetOrAddProperty("IAmYourFk", typeof(int), shadowProperty: true);
 
-            var fk = DependentType.AddForeignKey(PrincipalType.GetKey(), fkProperty1, fkProperty2);
+            var fk = DependentType.GetOrAddForeignKey(PrincipalType.GetPrimaryKey(), fkProperty1, fkProperty2);
 
             Assert.Same(
                 fk,
@@ -50,12 +50,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         [Fact]
         public void Foreign_key_matching_navigation_plus_Id_is_found()
         {
-            var fkProperty = DependentType.AddProperty("SomeNavID", typeof(int));
-            DependentType.AddProperty("SomeNavPeEKaY", typeof(int));
-            DependentType.AddProperty("PrincipalEntityID", typeof(int));
-            DependentType.AddProperty("PrincipalEntityPeEKaY", typeof(int));
+            var fkProperty = DependentType.GetOrAddProperty("SomeNavID", typeof(int), shadowProperty: true);
+            DependentType.GetOrAddProperty("SomeNavPeEKaY", typeof(int), shadowProperty: true);
+            DependentType.GetOrAddProperty("PrincipalEntityID", typeof(int), shadowProperty: true);
+            DependentType.GetOrAddProperty("PrincipalEntityPeEKaY", typeof(int), shadowProperty: true);
 
-            var fk = DependentType.AddForeignKey(PrincipalType.GetKey(), fkProperty);
+            var fk = DependentType.GetOrAddForeignKey(PrincipalType.GetPrimaryKey(), fkProperty);
 
             Assert.Same(fk, new ForeignKeyConvention().FindOrCreateForeignKey(PrincipalType, DependentType, "SomeNav", "SomeInverse", isUnqiue: false));
         }
@@ -63,11 +63,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         [Fact]
         public void Foreign_key_matching_navigation_plus_PK_name_is_found()
         {
-            var fkProperty = DependentType.AddProperty("SomeNavPeEKaY", typeof(int));
-            DependentType.AddProperty("PrincipalEntityID", typeof(int));
-            DependentType.AddProperty("PrincipalEntityPeEKaY", typeof(int));
+            var fkProperty = DependentType.GetOrAddProperty("SomeNavPeEKaY", typeof(int), shadowProperty: true);
+            DependentType.GetOrAddProperty("PrincipalEntityID", typeof(int), shadowProperty: true);
+            DependentType.GetOrAddProperty("PrincipalEntityPeEKaY", typeof(int), shadowProperty: true);
 
-            var fk = DependentType.AddForeignKey(PrincipalType.GetKey(), fkProperty);
+            var fk = DependentType.GetOrAddForeignKey(PrincipalType.GetPrimaryKey(), fkProperty);
 
             Assert.Same(fk, new ForeignKeyConvention().FindOrCreateForeignKey(PrincipalType, DependentType, "SomeNav", "SomeInverse", isUnqiue: false));
         }
@@ -75,10 +75,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         [Fact]
         public void Foreign_key_matching_principal_type_name_plus_Id_is_found()
         {
-            var fkProperty = DependentType.AddProperty("PrincipalEntityID", typeof(int));
-            DependentType.AddProperty("PrincipalEntityPeEKaY", typeof(int));
+            var fkProperty = DependentType.GetOrAddProperty("PrincipalEntityID", typeof(int), shadowProperty: true);
+            DependentType.GetOrAddProperty("PrincipalEntityPeEKaY", typeof(int), shadowProperty: true);
 
-            var fk = DependentType.AddForeignKey(PrincipalType.GetKey(), fkProperty);
+            var fk = DependentType.GetOrAddForeignKey(PrincipalType.GetPrimaryKey(), fkProperty);
 
             Assert.Same(fk, new ForeignKeyConvention().FindOrCreateForeignKey(PrincipalType, DependentType, "SomeNav", "SomeInverse", isUnqiue: false));
         }
@@ -86,9 +86,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         [Fact]
         public void Foreign_key_matching_principal_type_name_plus_PK_name_is_found()
         {
-            var fkProperty = DependentType.AddProperty("PrincipalEntityPeEKaY", typeof(int));
+            var fkProperty = DependentType.GetOrAddProperty("PrincipalEntityPeEKaY", typeof(int), shadowProperty: true);
 
-            var fk = DependentType.AddForeignKey(PrincipalType.GetKey(), fkProperty);
+            var fk = DependentType.GetOrAddForeignKey(PrincipalType.GetPrimaryKey(), fkProperty);
 
             Assert.Same(fk, new ForeignKeyConvention().FindOrCreateForeignKey(PrincipalType, DependentType, "SomeNav", "SomeInverse", isUnqiue: false));
         }
@@ -96,11 +96,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         [Fact]
         public void Creates_foreign_key_using_given_property()
         {
-            DependentType.AddProperty("SomeNavID", typeof(int));
-            DependentType.AddProperty("SomeNavPeEKaY", typeof(int));
-            DependentType.AddProperty("PrincipalEntityID", typeof(int));
-            DependentType.AddProperty("PrincipalEntityPeEKaY", typeof(int));
-            var fkProperty = DependentType.AddProperty("No!No!", typeof(int));
+            DependentType.GetOrAddProperty("SomeNavID", typeof(int), shadowProperty: true);
+            DependentType.GetOrAddProperty("SomeNavPeEKaY", typeof(int), shadowProperty: true);
+            DependentType.GetOrAddProperty("PrincipalEntityID", typeof(int), shadowProperty: true);
+            DependentType.GetOrAddProperty("PrincipalEntityPeEKaY", typeof(int), shadowProperty: true);
+            var fkProperty = DependentType.GetOrAddProperty("No!No!", typeof(int), shadowProperty: true);
 
             var fk = new ForeignKeyConvention().FindOrCreateForeignKey(
                 PrincipalType, DependentType, "SomeNav", "SomeInverse", new[] { new[] { fkProperty } }, new Property[0], isUnqiue: false);
@@ -114,11 +114,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         [Fact]
         public void Creates_foreign_key_using_given_principal_property()
         {
-            var fkProperty = DependentType.AddProperty("SomeNavID", typeof(int));
-            DependentType.AddProperty("SomeNavPeEKaY", typeof(int));
-            DependentType.AddProperty("PrincipalEntityID", typeof(int));
-            DependentType.AddProperty("PrincipalEntityPeEKaY", typeof(int));
-            var principalKeyProperty = PrincipalType.AddProperty("No!No!", typeof(int));
+            var fkProperty = DependentType.GetOrAddProperty("SomeNavID", typeof(int), shadowProperty: true);
+            DependentType.GetOrAddProperty("SomeNavPeEKaY", typeof(int), shadowProperty: true);
+            DependentType.GetOrAddProperty("PrincipalEntityID", typeof(int), shadowProperty: true);
+            DependentType.GetOrAddProperty("PrincipalEntityPeEKaY", typeof(int), shadowProperty: true);
+            var principalKeyProperty = PrincipalType.GetOrAddProperty("No!No!", typeof(int), shadowProperty: true);
 
             var fk = new ForeignKeyConvention().FindOrCreateForeignKey(
                 PrincipalType, DependentType, "SomeNav", "SomeInverse", new Property[0][], new[] { principalKeyProperty }, isUnqiue: false);
@@ -132,12 +132,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         [Fact]
         public void Creates_foreign_key_using_given_dependent_and_principal_property()
         {
-            DependentType.AddProperty("SomeNavID", typeof(int));
-            DependentType.AddProperty("SomeNavPeEKaY", typeof(int));
-            DependentType.AddProperty("PrincipalEntityID", typeof(int));
-            DependentType.AddProperty("PrincipalEntityPeEKaY", typeof(int));
-            var fkProperty = DependentType.AddProperty("No!", typeof(int));
-            var principalKeyProperty = PrincipalType.AddProperty("No!No!", typeof(int));
+            DependentType.GetOrAddProperty("SomeNavID", typeof(int), shadowProperty: true);
+            DependentType.GetOrAddProperty("SomeNavPeEKaY", typeof(int), shadowProperty: true);
+            DependentType.GetOrAddProperty("PrincipalEntityID", typeof(int), shadowProperty: true);
+            DependentType.GetOrAddProperty("PrincipalEntityPeEKaY", typeof(int), shadowProperty: true);
+            var fkProperty = DependentType.GetOrAddProperty("No!", typeof(int), shadowProperty: true);
+            var principalKeyProperty = PrincipalType.GetOrAddProperty("No!No!", typeof(int), shadowProperty: true);
 
             var fk = new ForeignKeyConvention().FindOrCreateForeignKey(
                 PrincipalType,
@@ -157,12 +157,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         [Fact]
         public void Creates_foreign_key_using_given_properties()
         {
-            DependentType.AddProperty("SomeNavID", typeof(int));
-            DependentType.AddProperty("SomeNavPeEKaY", typeof(int));
-            DependentType.AddProperty("PrincipalEntityID", typeof(int));
-            DependentType.AddProperty("PrincipalEntityPeEKaY", typeof(int));
-            var fkProperty1 = DependentType.AddProperty("ThatsNotTrue!", typeof(int));
-            var fkProperty2 = DependentType.AddProperty("ThatsImpossible!", typeof(int));
+            DependentType.GetOrAddProperty("SomeNavID", typeof(int), shadowProperty: true);
+            DependentType.GetOrAddProperty("SomeNavPeEKaY", typeof(int), shadowProperty: true);
+            DependentType.GetOrAddProperty("PrincipalEntityID", typeof(int), shadowProperty: true);
+            DependentType.GetOrAddProperty("PrincipalEntityPeEKaY", typeof(int), shadowProperty: true);
+            var fkProperty1 = DependentType.GetOrAddProperty("ThatsNotTrue!", typeof(int), shadowProperty: true);
+            var fkProperty2 = DependentType.GetOrAddProperty("ThatsImpossible!", typeof(int), shadowProperty: true);
 
             var fk = new ForeignKeyConvention().FindOrCreateForeignKey(
                 PrincipalType,
@@ -183,14 +183,14 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         [Fact]
         public void Creates_foreign_key_using_given_dependent_and_principal_properties()
         {
-            DependentType.AddProperty("SomeNavID", typeof(int));
-            DependentType.AddProperty("SomeNavPeEKaY", typeof(int));
-            DependentType.AddProperty("PrincipalEntityID", typeof(int));
-            DependentType.AddProperty("PrincipalEntityPeEKaY", typeof(int));
-            var fkProperty1 = DependentType.AddProperty("ThatsNotTrue!", typeof(int));
-            var fkProperty2 = DependentType.AddProperty("ThatsImpossible!", typeof(int));
-            var principalKeyProperty1 = PrincipalType.AddProperty("SearchYourFeelings", typeof(int));
-            var principalKeyProperty2 = PrincipalType.AddProperty("YouKnowItToBeTrue!", typeof(int));
+            DependentType.GetOrAddProperty("SomeNavID", typeof(int), shadowProperty: true);
+            DependentType.GetOrAddProperty("SomeNavPeEKaY", typeof(int), shadowProperty: true);
+            DependentType.GetOrAddProperty("PrincipalEntityID", typeof(int), shadowProperty: true);
+            DependentType.GetOrAddProperty("PrincipalEntityPeEKaY", typeof(int), shadowProperty: true);
+            var fkProperty1 = DependentType.GetOrAddProperty("ThatsNotTrue!", typeof(int), shadowProperty: true);
+            var fkProperty2 = DependentType.GetOrAddProperty("ThatsImpossible!", typeof(int), shadowProperty: true);
+            var principalKeyProperty1 = PrincipalType.GetOrAddProperty("SearchYourFeelings", typeof(int), shadowProperty: true);
+            var principalKeyProperty2 = PrincipalType.GetOrAddProperty("YouKnowItToBeTrue!", typeof(int), shadowProperty: true);
 
             var fk = new ForeignKeyConvention().FindOrCreateForeignKey(
                 PrincipalType,
@@ -212,10 +212,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         [Fact]
         public void Creates_foreign_key_matching_navigation_plus_Id()
         {
-            var fkProperty = DependentType.AddProperty("SomeNavID", typeof(int));
-            DependentType.AddProperty("SomeNavPeEKaY", typeof(int));
-            DependentType.AddProperty("PrincipalEntityID", typeof(int));
-            DependentType.AddProperty("PrincipalEntityPeEKaY", typeof(int));
+            var fkProperty = DependentType.GetOrAddProperty("SomeNavID", typeof(int), shadowProperty: true);
+            DependentType.GetOrAddProperty("SomeNavPeEKaY", typeof(int), shadowProperty: true);
+            DependentType.GetOrAddProperty("PrincipalEntityID", typeof(int), shadowProperty: true);
+            DependentType.GetOrAddProperty("PrincipalEntityPeEKaY", typeof(int), shadowProperty: true);
 
             var fk = new ForeignKeyConvention().FindOrCreateForeignKey(PrincipalType, DependentType, "SomeNav", "SomeInverse", isUnqiue: true);
 
@@ -228,9 +228,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         [Fact]
         public void Creates_foreign_key_matching_navigation_plus_PK_name()
         {
-            var fkProperty = DependentType.AddProperty("SomeNavPeEKaY", typeof(int));
-            DependentType.AddProperty("PrincipalEntityID", typeof(int));
-            DependentType.AddProperty("PrincipalEntityPeEKaY", typeof(int));
+            var fkProperty = DependentType.GetOrAddProperty("SomeNavPeEKaY", typeof(int), shadowProperty: true);
+            DependentType.GetOrAddProperty("PrincipalEntityID", typeof(int), shadowProperty: true);
+            DependentType.GetOrAddProperty("PrincipalEntityPeEKaY", typeof(int), shadowProperty: true);
 
             var fk = new ForeignKeyConvention().FindOrCreateForeignKey(PrincipalType, DependentType, "SomeNav", "SomeInverse", isUnqiue: false);
 
@@ -243,8 +243,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         [Fact]
         public void Creates_foreign_key_matching_principal_type_name_plus_Id()
         {
-            var fkProperty = DependentType.AddProperty("PrincipalEntityID", typeof(int));
-            DependentType.AddProperty("PrincipalEntityPeEKaY", typeof(int));
+            var fkProperty = DependentType.GetOrAddProperty("PrincipalEntityID", typeof(int), shadowProperty: true);
+            DependentType.GetOrAddProperty("PrincipalEntityPeEKaY", typeof(int), shadowProperty: true);
 
             var fk = new ForeignKeyConvention().FindOrCreateForeignKey(PrincipalType, DependentType, "SomeNav", "SomeInverse", isUnqiue: true);
 
@@ -257,7 +257,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         [Fact]
         public void Creates_foreign_key_matching_principal_type_name_plus_PK_name()
         {
-            var fkProperty = DependentType.AddProperty("PrincipalEntityPeEKaY", typeof(int));
+            var fkProperty = DependentType.GetOrAddProperty("PrincipalEntityPeEKaY", typeof(int), shadowProperty: true);
 
             var fk = new ForeignKeyConvention().FindOrCreateForeignKey(PrincipalType, DependentType, "SomeNav", "SomeInverse", isUnqiue: false);
 
@@ -298,8 +298,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         [Fact]
         public void Does_not_match_existing_FK_if_FK_already_has_different_navigation_to_principal()
         {
-            var fkProperty = DependentType.AddProperty("SharedFk", typeof(int));
-            var fk = DependentType.AddForeignKey(PrincipalType.GetKey(), fkProperty);
+            var fkProperty = DependentType.GetOrAddProperty("SharedFk", typeof(int), shadowProperty: true);
+            var fk = DependentType.GetOrAddForeignKey(PrincipalType.GetPrimaryKey(), fkProperty);
             DependentType.AddNavigation(new Navigation(fk, "AnotherNav", pointsToPrincipal: true));
 
             var newFk = new ForeignKeyConvention().FindOrCreateForeignKey(
@@ -315,8 +315,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         [Fact]
         public void Does_not_match_existing_FK_if_FK_already_has_different_navigation_to_dependent()
         {
-            var fkProperty = DependentType.AddProperty("SharedFk", typeof(int));
-            var fk = DependentType.AddForeignKey(PrincipalType.GetKey(), fkProperty);
+            var fkProperty = DependentType.GetOrAddProperty("SharedFk", typeof(int), shadowProperty: true);
+            var fk = DependentType.GetOrAddForeignKey(PrincipalType.GetPrimaryKey(), fkProperty);
             PrincipalType.AddNavigation(new Navigation(fk, "AnotherNav", pointsToPrincipal: false));
 
             var newFk = new ForeignKeyConvention().FindOrCreateForeignKey(
@@ -332,8 +332,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         [Fact]
         public void Does_not_match_existing_FK_if_FK_already_has_different_uniqueness()
         {
-            var fkProperty = DependentType.AddProperty("SharedFk", typeof(int));
-            var fk = DependentType.AddForeignKey(PrincipalType.GetKey(), fkProperty);
+            var fkProperty = DependentType.GetOrAddProperty("SharedFk", typeof(int), shadowProperty: true);
+            var fk = DependentType.GetOrAddForeignKey(PrincipalType.GetPrimaryKey(), fkProperty);
             fk.IsUnique = true;
 
             var newFk = new ForeignKeyConvention().FindOrCreateForeignKey(
@@ -351,7 +351,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         {
             var fk = new ForeignKeyConvention().FindOrCreateForeignKey(PrincipalType, DependentType, "SomeNav", "SomeInverse", isUnqiue: true);
 
-            Assert.Same(DependentType.GetKey().Properties.Single(), fk.Properties.Single());
+            Assert.Same(DependentType.GetPrimaryKey().Properties.Single(), fk.Properties.Single());
             Assert.Same(PrimaryKey, fk.ReferencedProperties.Single());
             Assert.True(fk.IsUnique);
             Assert.True(fk.IsRequired);
@@ -362,11 +362,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             var model = new Model();
 
             var principalType = new EntityType(typeof(PrincipalEntity));
-            principalType.SetKey(principalType.AddProperty("PeeKay", typeof(int)));
+            principalType.GetOrSetPrimaryKey(principalType.GetOrAddProperty("PeeKay", typeof(int)));
             model.AddEntityType(principalType);
 
             var dependentType = new EntityType(typeof(DependentEntity));
-            dependentType.SetKey(dependentType.AddProperty("KayPee", typeof(int)));
+            dependentType.GetOrSetPrimaryKey(dependentType.GetOrAddProperty("KayPee", typeof(int), shadowProperty: true));
             model.AddEntityType(dependentType);
 
             return model;
@@ -374,7 +374,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
         private Property PrimaryKey
         {
-            get { return PrincipalType.GetKey().Properties.Single(); }
+            get { return PrincipalType.GetPrimaryKey().Properties.Single(); }
         }
 
         private EntityType DependentType

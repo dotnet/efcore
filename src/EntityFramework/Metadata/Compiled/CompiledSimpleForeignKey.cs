@@ -24,7 +24,12 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 
         public IReadOnlyList<IProperty> ReferencedProperties
         {
-            get { return ReferencedEntityType.GetKey().Properties; }
+            get { return ReferencedEntityType.GetPrimaryKey().Properties; }
+        }
+
+        public IKey ReferencedKey
+        {
+            get { return ReferencedEntityType.GetPrimaryKey(); }
         }
 
         public IEntityType ReferencedEntityType

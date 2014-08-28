@@ -184,7 +184,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         private static Property CreateProperty(Type propertyType)
         {
             var entityType = new EntityType("MyType");
-            return entityType.AddProperty("MyProperty", propertyType);
+            return entityType.GetOrAddProperty("MyProperty", propertyType, shadowProperty: true);
         }
 
         private class FakeSqlStatementExecutor : SqlStatementExecutor

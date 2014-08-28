@@ -379,7 +379,7 @@ namespace MyNamespace
             var model = new Model();
             var entityType = new EntityType("Entity");
 
-            entityType.SetKey(entityType.AddProperty("Id", typeof(int)));
+            entityType.GetOrSetPrimaryKey(entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
             model.AddEntityType(entityType);
 
             var migration
@@ -418,8 +418,7 @@ namespace MyNamespace
                 
                 builder.Entity(""Entity"", b =>
                     {
-                        b.Property<int>(""Id"")
-                            .Shadow(false);
+                        b.Property<int>(""Id"");
                         b.Key(""Id"");
                     });
                 

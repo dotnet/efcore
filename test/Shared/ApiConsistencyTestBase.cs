@@ -16,6 +16,9 @@ namespace Microsoft.Data.Entity
         protected const BindingFlags PublicInstance
             = BindingFlags.Instance | BindingFlags.Public;
 
+        protected const BindingFlags AnyInstance
+            = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+
         [Fact]
         public void Public_inheritable_apis_should_be_virtual()
         {
@@ -23,7 +26,7 @@ namespace Microsoft.Data.Entity
                 = (from t in GetAllTypes(TargetAssembly.GetTypes())
                     where t.IsVisible
                           && !t.IsSealed
-                          && t.GetConstructors(PublicInstance).Any()
+                          && t.GetConstructors(AnyInstance).Any(c => c.IsPublic || c.IsFamily || c.IsFamilyOrAssembly)
                           && t.Namespace != null
                           && !t.Namespace.EndsWith(".Compiled")
                     from m in t.GetMethods(PublicInstance)

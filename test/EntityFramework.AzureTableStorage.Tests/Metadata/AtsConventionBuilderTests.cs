@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Metadata
         public void Adds_composite_key()
         {
             var model = new AtsClrContext().Model;
-            var key = model.GetEntityType(typeof(ClrPoco)).GetKey();
+            var key = model.GetEntityType(typeof(ClrPoco)).GetPrimaryKey();
             Assert.Equal(2, key.Properties.Count);
             Assert.Contains("PartitionKey", key.Properties.Select(p => p.ColumnName()));
             Assert.Contains("RowKey", key.Properties.Select(p => p.ColumnName()));

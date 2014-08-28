@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Extensions
             builder.Entity<PocoTestType>()
                 .PartitionAndRowKey(s => s.BigCount, s => s.IsEnchanted);
 
-            var key = model.EntityTypes.First().GetKey();
+            var key = model.EntityTypes.First().GetPrimaryKey();
             Assert.Equal(2, key.Properties.Count);
             Assert.Equal("BigCount", key.Properties.First(s => s.ColumnName() == "PartitionKey").Name);
             Assert.Equal("IsEnchanted", key.Properties.First(s => s.ColumnName() == "RowKey").Name);

@@ -21,8 +21,9 @@ namespace Microsoft.Data.Entity.Metadata
         private readonly LazyRef<List<Navigation>> _navigations = new LazyRef<List<Navigation>>(() => new List<Navigation>());
         private readonly LazyRef<List<Index>> _indexes = new LazyRef<List<Index>>(() => new List<Index>());
         private readonly List<Property> _properties = new List<Property>();
+        private readonly LazyRef<List<Key>> _keys = new LazyRef<List<Key>>(() => new List<Key>());
 
-        private Key _key;
+        private Key _primaryKey;
 
         private int _shadowPropertyCount;
         private int _originalValueCount;
@@ -95,51 +96,134 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        public virtual Key GetKey()
+        public virtual Key GetPrimaryKey()
         {
-            if (_key == null)
+            if (_primaryKey == null)
             {
                 throw new ModelItemNotFoundException(Strings.FormatEntityRequiresKey(Name));
             }
 
-            return _key;
+            return _primaryKey;
         }
 
-        public virtual Key TryGetKey()
+        public virtual Key TryGetPrimaryKey()
         {
-            return _key;
+            return _primaryKey;
         }
 
-        public virtual Key SetKey([CanBeNull] params Property[] properties)
+        public virtual Key SetPrimaryKey([CanBeNull] Key key)
         {
-            _key = null;
+            if (key != _primaryKey)
+            {
+                if (key != null
+                    && key.EntityType != this)
+                {
+                    throw new ArgumentException(
+                        Strings.FormatKeyPropertiesWrongEntity(Name));
+                }
 
+                if (_primaryKey != null)
+                {
+                    CheckKeyNotInUse(_primaryKey);
+                }
+
+                _primaryKey = key;
+            }
+
+            return _primaryKey;
+        }
+
+        public virtual Key GetOrSetPrimaryKey([CanBeNull] params Property[] properties)
+        {
             if (properties != null)
             {
-                Check.NotEmpty(properties, "properties");
+                if (_primaryKey == null
+                    || !_primaryKey.Properties.SequenceEqual(properties))
+                {
+                    SetPrimaryKey(new Key(properties));
+                }
+            }
+            else
+            {
+                SetPrimaryKey(null);
+            }
 
-                var key = new Key(properties);
+            return _primaryKey;
+        }
 
+        public virtual Key AddKey([NotNull] Key key)
+        {
+            Check.NotNull(key, "key");
+
+            if (!Keys.Contains(key))
+            {
                 if (key.EntityType != this)
                 {
                     throw new ArgumentException(
                         Strings.FormatKeyPropertiesWrongEntity(Name));
                 }
 
-                _key = key;
+                _keys.Value.Add(key);
             }
 
-            return _key;
+            return key;
         }
 
-        public virtual ForeignKey AddForeignKey(
-            [NotNull] Key referencedKey, [NotNull] params Property[] properties)
+        public virtual Key GetOrAddKey([NotNull] params Property[] properties)
         {
-            Check.NotNull(referencedKey, "referencedKey");
-            Check.NotNull(properties, "properties");
             Check.NotEmpty(properties, "properties");
 
-            var foreignKey = new ForeignKey(referencedKey, properties);
+            return Keys.FirstOrDefault(k => k.Properties.SequenceEqual(properties))
+                   ?? AddKey(new Key(properties));
+        }
+
+        public virtual void RemoveKey([NotNull] Key key)
+        {
+            Check.NotNull(key, "key");
+
+            if (key == _primaryKey)
+            {
+                SetPrimaryKey(null);
+            }
+            else if (_keys.HasValue)
+            {
+                CheckKeyNotInUse(key);
+
+                _keys.Value.Remove(key);
+            }
+        }
+
+        private void CheckKeyNotInUse(Key key)
+        {
+            if (Model != null)
+            {
+                var foreignKey = Model.EntityTypes.SelectMany(e => e.ForeignKeys).FirstOrDefault(k => k.ReferencedKey == key);
+
+                if (foreignKey != null)
+                {
+                    throw new InvalidOperationException(Strings.FormatKeyInUse(Name, foreignKey.EntityType.Name));
+                }
+            }
+        }
+
+        public virtual IReadOnlyList<Key> Keys
+        {
+            get
+            {
+                var keys = _primaryKey != null ? new List<Key> { _primaryKey } : new List<Key>();
+
+                if (_keys.HasValue)
+                {
+                    keys.AddRange(_keys.Value);
+                }
+
+                return keys;
+            }
+        }
+
+        public virtual ForeignKey AddForeignKey([NotNull] ForeignKey foreignKey)
+        {
+            Check.NotNull(foreignKey, "foreignKey");
 
             if (foreignKey.EntityType != this)
             {
@@ -147,9 +231,25 @@ namespace Microsoft.Data.Entity.Metadata
                     Strings.FormatForeignKeyPropertiesWrongEntity(Name));
             }
 
-            _foreignKeys.Value.Add(foreignKey);
+            if (!_foreignKeys.Value.Contains(foreignKey))
+            {
+                _foreignKeys.Value.Add(foreignKey);
 
-            UpdateOriginalValueIndexes();
+                UpdateOriginalValueIndexes();
+            }
+
+            return foreignKey;
+        }
+
+        public virtual ForeignKey GetOrAddForeignKey(
+            [NotNull] Key referencedKey, [NotNull] params Property[] properties)
+        {
+            Check.NotNull(referencedKey, "referencedKey");
+            Check.NotEmpty(properties, "properties");
+
+            var foreignKey = _foreignKeys.Value.FirstOrDefault(k => k.ReferencedKey == referencedKey
+                                                                    && k.Properties.SequenceEqual(properties))
+                             ?? AddForeignKey(new ForeignKey(referencedKey, properties));
 
             return foreignKey;
         }
@@ -160,7 +260,21 @@ namespace Microsoft.Data.Entity.Metadata
 
             if (_foreignKeys.HasValue)
             {
+                CheckForeignKeyNotInUse(foreignKey);
+
                 _foreignKeys.Value.Remove(foreignKey);
+            }
+        }
+
+        private void CheckForeignKeyNotInUse(ForeignKey foreignKey)
+        {
+            var navigation = (Model == null
+                ? new[] { this }
+                : Model.EntityTypes).SelectMany(e => e.Navigations).FirstOrDefault(k => k.ForeignKey == foreignKey);
+
+            if (navigation != null)
+            {
+                throw new InvalidOperationException(Strings.FormatForeignKeyInUse(Name, navigation.Name, navigation.EntityType.Name));
             }
         }
 
@@ -178,14 +292,10 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(navigation, "navigation");
 
+            // TODO: Consolidate navigation/property code, update API patterns, and do error checking
+
             _navigations.Value.Add(navigation);
 
-            var currentOwner = navigation.EntityType;
-            if (currentOwner != null
-                && !ReferenceEquals(currentOwner, this))
-            {
-                currentOwner.RemoveNavigation(navigation);
-            }
             navigation.EntityType = this;
 
             return navigation;
@@ -194,6 +304,8 @@ namespace Microsoft.Data.Entity.Metadata
         public virtual void RemoveNavigation([NotNull] Navigation navigation)
         {
             Check.NotNull(navigation, "navigation");
+
+            // TODO: Consolidate navigation/property code, update API patterns, and do error checking
 
             if (_navigations.HasValue
                 && _navigations.Value.Remove(navigation))
@@ -212,12 +324,18 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        public virtual Index AddIndex([NotNull] params Property[] properties)
+        public virtual Index GetOrAddIndex([NotNull] params Property[] properties)
         {
             Check.NotNull(properties, "properties");
             Check.NotEmpty(properties, "properties");
 
-            var index = new Index(properties);
+            return _indexes.Value.FirstOrDefault(i => i.Properties.SequenceEqual(properties))
+                   ?? AddIndex(new Index(properties));
+        }
+
+        public virtual Index AddIndex([NotNull] Index index)
+        {
+            Check.NotNull(index, "index");
 
             if (index.EntityType != this)
             {
@@ -250,77 +368,77 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        public virtual Property AddProperty([NotNull] PropertyInfo propertyInfo)
+        public virtual Property GetOrAddProperty([NotNull] PropertyInfo propertyInfo)
         {
             Check.NotNull(propertyInfo, "propertyInfo");
 
-            return AddProperty(propertyInfo.Name, propertyInfo.PropertyType, shadowProperty: false, concurrencyToken: false);
+            return GetOrAddProperty(propertyInfo.Name, propertyInfo.PropertyType);
         }
 
-        public virtual Property AddProperty([NotNull] string name, [NotNull] Type propertyType)
+        public virtual Property GetOrAddProperty([NotNull] string name, [NotNull] Type propertyType, bool shadowProperty = false)
         {
             Check.NotEmpty(name, "name");
             Check.NotNull(propertyType, "propertyType");
 
-            var property = new Property(name, propertyType, shadowProperty: false, concurrencyToken: false);
+            // Note: If the property already exists, then whether or not it is a shadow property is not changed.
+            // It is useful in many places to get an existing property if it exists, but then create it either in
+            // or out of shadow state if it doesn't.
 
-            AddProperty(property);
-
-            return property;
+            return _properties.FirstOrDefault(p => p.Name == name)
+                   ?? AddProperty(new Property(name, propertyType, shadowProperty));
         }
 
-        public virtual Property AddProperty([NotNull] string name, [NotNull] Type propertyType, bool shadowProperty, bool concurrencyToken)
-        {
-            Check.NotEmpty(name, "name");
-            Check.NotNull(propertyType, "propertyType");
-
-            var property = new Property(name, propertyType, shadowProperty, concurrencyToken);
-
-            AddProperty(property);
-
-            return property;
-        }
-
-        private void AddProperty([NotNull] Property property)
+        public virtual Property AddProperty([NotNull] Property property)
         {
             Check.NotNull(property, "property");
 
-            // TODO: Consider if replace as opposed to throw/no-op is correct when prop with this name exists
+            if (property.EntityType != null
+                && property.EntityType != this)
+            {
+                throw new InvalidOperationException(Strings.FormatPropertyAlreadyOwned(property.Name, Name, property.EntityType.Name));
+            }
 
             var currentIndex = _properties.BinarySearch(property, PropertyComparer.Instance);
-
             if (currentIndex >= 0)
             {
-                var currentProperty = _properties[currentIndex];
-
-                if (!ReferenceEquals(currentProperty, property))
-                {
-                    _properties[currentIndex] = property;
-
-                    property.Index = currentIndex;
-
-                    UpdateShadowIndexes();
-                    UpdateOriginalValueIndexes(property);
-                }
-            }
-            else
-            {
-                var newIndex = ~currentIndex;
-
-                _properties.Insert(newIndex, property);
-
-                UpdateIndexes(property, newIndex);
+                throw new InvalidOperationException(Strings.FormatDuplicateProperty(property.Name, Name));
             }
 
-            // TODO: Remove this
-            var currentOwner = property.EntityType;
-            if (currentOwner != null
-                && !ReferenceEquals(currentOwner, this))
-            {
-                currentOwner.RemoveProperty(property);
-            }
+            ValidateAgainstClrProperty(property);
 
             property.EntityType = this;
+
+            var newIndex = ~currentIndex;
+            _properties.Insert(newIndex, property);
+
+            UpdateIndexes(property, newIndex);
+
+            return property;
+        }
+
+        private void ValidateAgainstClrProperty(Property property)
+        {
+            if (!property.IsShadowProperty)
+            {
+                if (HasClrType)
+                {
+                    var clrProperty = Type.GetPropertiesInHierarchy(property.Name).FirstOrDefault();
+
+                    if (clrProperty == null)
+                    {
+                        throw new InvalidOperationException(Strings.FormatNoClrProperty(property.Name, Name));
+                    }
+
+                    if (property.PropertyType != clrProperty.PropertyType)
+                    {
+                        throw new InvalidOperationException(Strings.FormatWrongClrPropertyType(property.Name, Name));
+                    }
+                }
+                else
+                {
+                    throw new InvalidOperationException(Strings.FormatClrPropertyOnShadowEntity(property.Name, Name));
+                }
+            }
         }
 
         private void UpdateIndexes(Property addedOrRemovedProperty, int startingIndex)
@@ -330,13 +448,15 @@ namespace Microsoft.Data.Entity.Metadata
                 _properties[i].Index = i;
             }
 
-            UpdateIndexes(addedOrRemovedProperty);
+            PropertyMetadataChanged(addedOrRemovedProperty);
         }
 
-        internal void UpdateIndexes(Property addedOrRemovedProperty)
+        internal void PropertyMetadataChanged(Property property)
         {
+            ValidateAgainstClrProperty(property);
+
             UpdateShadowIndexes();
-            UpdateOriginalValueIndexes(addedOrRemovedProperty);
+            UpdateOriginalValueIndexes(property);
         }
 
         private void UpdateShadowIndexes()
@@ -381,22 +501,17 @@ namespace Microsoft.Data.Entity.Metadata
             var currentIndex = _properties.BinarySearch(property, PropertyComparer.Instance);
             if (currentIndex >= 0)
             {
+                if (Keys.Any(k => k.Properties.Contains(property))
+                    || ForeignKeys.Any(k => k.Properties.Contains(property))
+                    || Indexes.Any(i => i.Properties.Contains(property)))
+                {
+                    throw new InvalidOperationException(Strings.FormatPropertyInUse(property.Name, Name));
+                }
+
                 _properties.RemoveAt(currentIndex);
                 UpdateIndexes(property, currentIndex);
-                property.EntityType = null;
-            }
 
-            // TODO: Consider if it is okay to take properties out of the key, which may not be empty
-            // TODO: Consider what to do with FKs that contain this property
-            if (_key != null
-                && _key.Properties.Contains(property))
-            {
-                var oldKey = _key;
-                _key = new Key(_key.Properties.Except(new[] { property }).ToArray());
-                foreach (var oldKeyAnnotation in oldKey.Annotations)
-                {
-                    _key.Annotations.Add(oldKeyAnnotation);
-                }
+                property.EntityType = null;
             }
         }
 
@@ -472,9 +587,9 @@ namespace Microsoft.Data.Entity.Metadata
             get { return Model; }
         }
 
-        IKey IEntityType.GetKey()
+        IKey IEntityType.GetPrimaryKey()
         {
-            return GetKey();
+            return GetPrimaryKey();
         }
 
         IProperty IEntityType.TryGetProperty(string name)

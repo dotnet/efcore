@@ -224,7 +224,7 @@ namespace MyNamespace
             {
                 var builder = new BasicModelBuilder();
                 
-                builder.Entity(""Entity"", b =>
+                builder.Entity(""Microsoft.Data.Entity.Design.Tests.MigrationScaffolderTest+Entity"", b =>
                     {
                         b.Property<int>(""Id"")
                             .Shadow(false);
@@ -260,7 +260,7 @@ namespace MyNamespace
             {
                 var builder = new BasicModelBuilder();
                 
-                builder.Entity(""Entity"", b =>
+                builder.Entity(""Microsoft.Data.Entity.Design.Tests.MigrationScaffolderTest+Entity"", b =>
                     {
                         b.Property<int>(""Id"")
                             .Shadow(false);
@@ -292,6 +292,13 @@ namespace MyNamespace
     {
         public override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(""[Ho!use[]]]"",
+                c => new
+                    {
+                        Id = c.Int(nullable: false)
+                    })
+                .PrimaryKey(""PK_Ho!use[]"", t => t.Id);
+            
             migrationBuilder.CreateTable(""dbo.[Cus[\""om.er]]s]"",
                 c => new
                     {
@@ -299,13 +306,6 @@ namespace MyNamespace
                         HouseIdColumn = c.Int(name: ""House[\""Id]Column"", nullable: false)
                     })
                 .PrimaryKey(""My[\""PK]"", t => t.Id);
-            
-            migrationBuilder.CreateTable(""[Ho!use[]]]"",
-                c => new
-                    {
-                        Id = c.Int(nullable: false)
-                    })
-                .PrimaryKey(""PK_Ho!use[]"", t => t.Id);
             
             migrationBuilder.CreateTable(""dbo.[Ord[\""e.r]]s]"",
                 c => new
@@ -326,9 +326,9 @@ namespace MyNamespace
             
             migrationBuilder.DropForeignKey(""dbo.[Ord[\""e.r]]s]"", ""FK_dbo.Ord[\""e.r]s_dbo.Cus[\""om.er]s_CustomerId"");
             
-            migrationBuilder.DropTable(""dbo.[Cus[\""om.er]]s]"");
-            
             migrationBuilder.DropTable(""[Ho!use[]]]"");
+            
+            migrationBuilder.DropTable(""dbo.[Cus[\""om.er]]s]"");
             
             migrationBuilder.DropTable(""dbo.[Ord[\""e.r]]s]"");
         }
@@ -359,7 +359,13 @@ namespace MyNamespace
             {
                 var builder = new BasicModelBuilder();
                 
-                builder.Entity(""Customer"", b =>
+                builder.Entity(""Ho!use[]"", b =>
+                    {
+                        b.Property<int>(""Id"");
+                        b.Key(""Id"");
+                    });
+                
+                builder.Entity(""Microsoft.Data.Entity.Design.Tests.MigrationScaffolderTest+Customer"", b =>
                     {
                         b.Property<int>(""HouseId"")
                             .Shadow(false)
@@ -375,21 +381,14 @@ namespace MyNamespace
                         b.TableName(""Cus[\""om.er]s"", ""dbo"");
                     });
                 
-                builder.Entity(""Ho!use[]"", b =>
-                    {
-                        b.Property<int>(""Id"")
-                            .Shadow(false);
-                        b.Key(""Id"");
-                    });
-                
-                builder.Entity(""Order"", b =>
+                builder.Entity(""Microsoft.Data.Entity.Design.Tests.MigrationScaffolderTest+Order"", b =>
                     {
                         b.Property<int>(""CustomerId"")
                             .Shadow(false);
                         b.Property<int>(""OrderId"")
                             .Shadow(false);
                         b.Key(""OrderId"");
-                        b.ForeignKey(""Customer"", ""CustomerId"");
+                        b.ForeignKey(""Microsoft.Data.Entity.Design.Tests.MigrationScaffolderTest+Customer"", ""CustomerId"");
                         b.TableName(""Ord[\""e.r]s"", ""dbo"");
                         b.Annotation(""Random annotation"", ""42"");
                     });
@@ -421,7 +420,13 @@ namespace MyNamespace
             {
                 var builder = new BasicModelBuilder();
                 
-                builder.Entity(""Customer"", b =>
+                builder.Entity(""Ho!use[]"", b =>
+                    {
+                        b.Property<int>(""Id"");
+                        b.Key(""Id"");
+                    });
+                
+                builder.Entity(""Microsoft.Data.Entity.Design.Tests.MigrationScaffolderTest+Customer"", b =>
                     {
                         b.Property<int>(""HouseId"")
                             .Shadow(false)
@@ -437,21 +442,14 @@ namespace MyNamespace
                         b.TableName(""Cus[\""om.er]s"", ""dbo"");
                     });
                 
-                builder.Entity(""Ho!use[]"", b =>
-                    {
-                        b.Property<int>(""Id"")
-                            .Shadow(false);
-                        b.Key(""Id"");
-                    });
-                
-                builder.Entity(""Order"", b =>
+                builder.Entity(""Microsoft.Data.Entity.Design.Tests.MigrationScaffolderTest+Order"", b =>
                     {
                         b.Property<int>(""CustomerId"")
                             .Shadow(false);
                         b.Property<int>(""OrderId"")
                             .Shadow(false);
                         b.Key(""OrderId"");
-                        b.ForeignKey(""Customer"", ""CustomerId"");
+                        b.ForeignKey(""Microsoft.Data.Entity.Design.Tests.MigrationScaffolderTest+Customer"", ""CustomerId"");
                         b.TableName(""Ord[\""e.r]s"", ""dbo"");
                         b.Annotation(""Random annotation"", ""42"");
                     });
@@ -551,10 +549,8 @@ namespace MyNamespace
                 
                 builder.Entity(""EntityWithNamedKey"", b =>
                     {
-                        b.Property<int>(""Foo"")
-                            .Shadow(false);
-                        b.Property<int>(""Id"")
-                            .Shadow(false);
+                        b.Property<int>(""Foo"");
+                        b.Property<int>(""Id"");
                         b.Key(k => k.Properties(""Id"", ""Foo"")
                             .KeyName(""MyPK2""));
                     });
@@ -562,10 +558,8 @@ namespace MyNamespace
                 builder.Entity(""EntityWithNamedKeyAndAnnotations"", b =>
                     {
                         b.Property<int>(""Foo"")
-                            .Shadow(false)
                             .Annotation(""Foo_Annotation"", ""Foo"");
                         b.Property<int>(""Id"")
-                            .Shadow(false)
                             .Annotation(""Id_Annotation1"", ""Id1"")
                             .Annotation(""Id_Annotation2"", ""Id2"");
                         b.Key(k => k.Properties(""Id"", ""Foo"")
@@ -576,20 +570,16 @@ namespace MyNamespace
                 
                 builder.Entity(""EntityWithUnnamedKey"", b =>
                     {
-                        b.Property<int>(""Foo"")
-                            .Shadow(false);
-                        b.Property<int>(""Id"")
-                            .Shadow(false);
+                        b.Property<int>(""Foo"");
+                        b.Property<int>(""Id"");
                         b.Key(""Id"", ""Foo"");
                     });
                 
                 builder.Entity(""EntityWithUnnamedKeyAndAnnotations"", b =>
                     {
                         b.Property<int>(""Foo"")
-                            .Shadow(false)
                             .Annotation(""Foo_Annotation"", ""Foo"");
                         b.Property<int>(""Id"")
-                            .Shadow(false)
                             .Annotation(""Id_Annotation1"", ""Id1"")
                             .Annotation(""Id_Annotation2"", ""Id2"");
                         b.Key(k => k.Properties(""Id"", ""Foo"")
@@ -626,10 +616,8 @@ namespace MyNamespace
                 
                 builder.Entity(""EntityWithNamedKey"", b =>
                     {
-                        b.Property<int>(""Foo"")
-                            .Shadow(false);
-                        b.Property<int>(""Id"")
-                            .Shadow(false);
+                        b.Property<int>(""Foo"");
+                        b.Property<int>(""Id"");
                         b.Key(k => k.Properties(""Id"", ""Foo"")
                             .KeyName(""MyPK2""));
                     });
@@ -637,10 +625,8 @@ namespace MyNamespace
                 builder.Entity(""EntityWithNamedKeyAndAnnotations"", b =>
                     {
                         b.Property<int>(""Foo"")
-                            .Shadow(false)
                             .Annotation(""Foo_Annotation"", ""Foo"");
                         b.Property<int>(""Id"")
-                            .Shadow(false)
                             .Annotation(""Id_Annotation1"", ""Id1"")
                             .Annotation(""Id_Annotation2"", ""Id2"");
                         b.Key(k => k.Properties(""Id"", ""Foo"")
@@ -651,20 +637,16 @@ namespace MyNamespace
                 
                 builder.Entity(""EntityWithUnnamedKey"", b =>
                     {
-                        b.Property<int>(""Foo"")
-                            .Shadow(false);
-                        b.Property<int>(""Id"")
-                            .Shadow(false);
+                        b.Property<int>(""Foo"");
+                        b.Property<int>(""Id"");
                         b.Key(""Id"", ""Foo"");
                     });
                 
                 builder.Entity(""EntityWithUnnamedKeyAndAnnotations"", b =>
                     {
                         b.Property<int>(""Foo"")
-                            .Shadow(false)
                             .Annotation(""Foo_Annotation"", ""Foo"");
                         b.Property<int>(""Id"")
-                            .Shadow(false)
                             .Annotation(""Id_Annotation1"", ""Id1"")
                             .Annotation(""Id_Annotation2"", ""Id2"");
                         b.Key(k => k.Properties(""Id"", ""Foo"")
@@ -680,8 +662,6 @@ namespace MyNamespace
                 modelSnapshotClass);
         }
 
-        #region Fixture
-
         private static MigrationAssembly MockMigrationAssembly(DbContextConfiguration contextConfiguration)
         {
             var mock = new Mock<MigrationAssembly>(contextConfiguration);
@@ -695,13 +675,13 @@ namespace MyNamespace
         private static IModel CreateModel()
         {
             var model = new Model();
-            var entityType = new EntityType("Entity");
-            var property = entityType.AddProperty("Id", typeof(int));
+            var entityType = new EntityType(typeof(Entity));
+            var property = entityType.GetOrAddProperty("Id", typeof(int));
 
             entityType.SetTableName("MyTable");
             entityType.SetSchema("dbo");
-            entityType.SetKey(property);
-            entityType.GetKey().SetKeyName("MyPK");
+            entityType.GetOrSetPrimaryKey(property);
+            entityType.GetPrimaryKey().SetKeyName("MyPK");
             model.AddEntityType(entityType);
 
             return model;
@@ -712,31 +692,31 @@ namespace MyNamespace
             var model = new Model();
 
             var houseType = new EntityType("Ho!use[]");
-            var houseId = houseType.AddProperty("Id", typeof(int));
-            houseType.SetKey(houseId);
+            var houseId = houseType.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
+            houseType.GetOrSetPrimaryKey(houseId);
             model.AddEntityType(houseType);
 
-            var customerType = new EntityType(@"Customer");
-            var customerId = customerType.AddProperty("Id", typeof(int));
-            var customerFkProperty = customerType.AddProperty("HouseId", typeof(int));
+            var customerType = new EntityType(typeof(Customer));
+            var customerId = customerType.GetOrAddProperty("Id", typeof(int));
+            var customerFkProperty = customerType.GetOrAddProperty("HouseId", typeof(int));
             customerFkProperty.SetColumnName(@"House[""Id]Column");
             customerType.SetSchema("dbo");
             customerType.SetTableName(@"Cus[""om.er]s");
-            customerType.SetKey(customerId);
-            customerType.GetKey().SetKeyName(@"My[""PK]");
-            customerType.GetKey().Annotations.Add(new Annotation(@"My""PK""Annotat!on", @"""Foo"""));
-            var customerFk = customerType.AddForeignKey(houseType.GetKey(), customerFkProperty);
+            customerType.GetOrSetPrimaryKey(customerId);
+            customerType.GetPrimaryKey().SetKeyName(@"My[""PK]");
+            customerType.GetPrimaryKey().Annotations.Add(new Annotation(@"My""PK""Annotat!on", @"""Foo"""));
+            var customerFk = customerType.GetOrAddForeignKey(houseType.GetPrimaryKey(), customerFkProperty);
             customerFk.SetKeyName(@"My_[""FK]");
             customerFk.Annotations.Add(new Annotation(@"My""FK""Annotation", @"""Bar"""));
             model.AddEntityType(customerType);
 
-            var orderType = new EntityType(@"Order");
-            var orderId = orderType.AddProperty(@"OrderId", typeof(int));
-            var orderFK = orderType.AddProperty(@"CustomerId", typeof(int));
+            var orderType = new EntityType(typeof(Order));
+            var orderId = orderType.GetOrAddProperty(@"OrderId", typeof(int));
+            var orderFK = orderType.GetOrAddProperty(@"CustomerId", typeof(int));
             orderType.SetSchema("dbo");
-            orderType.SetKey(orderId);
+            orderType.GetOrSetPrimaryKey(orderId);
             orderType.SetTableName(@"Ord[""e.r]s");
-            orderType.AddForeignKey(customerType.GetKey(), orderFK);
+            orderType.GetOrAddForeignKey(customerType.GetPrimaryKey(), orderFK);
             orderType.Annotations.Add(new Annotation("Random annotation", "42"));
             model.AddEntityType(orderType);
 
@@ -748,45 +728,62 @@ namespace MyNamespace
             var model = new Model();
             var entity1 = new EntityType("EntityWithNamedKeyAndAnnotations");
 
-            var id1 = entity1.AddProperty("Id", typeof(int));
+            var id1 = entity1.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
             id1.Annotations.Add(new Annotation("Id_Annotation1", "Id1"));
             id1.Annotations.Add(new Annotation("Id_Annotation2", "Id2"));
-            var foo1 = entity1.AddProperty("Foo", typeof(int));
+            var foo1 = entity1.GetOrAddProperty("Foo", typeof(int), shadowProperty: true);
             foo1.Annotations.Add(new Annotation("Foo_Annotation", "Foo"));
 
-            entity1.SetKey(id1, foo1);
-            entity1.GetKey().SetKeyName("MyPK1");
-            entity1.GetKey().Annotations.Add(new Annotation("KeyAnnotation1", "Key1"));
-            entity1.GetKey().Annotations.Add(new Annotation("KeyAnnotation2", "Key2"));
+            entity1.GetOrSetPrimaryKey(id1, foo1);
+            entity1.GetPrimaryKey().SetKeyName("MyPK1");
+            entity1.GetPrimaryKey().Annotations.Add(new Annotation("KeyAnnotation1", "Key1"));
+            entity1.GetPrimaryKey().Annotations.Add(new Annotation("KeyAnnotation2", "Key2"));
             model.AddEntityType(entity1);
 
             var entity2 = new EntityType("EntityWithUnnamedKeyAndAnnotations");
 
-            var id2 = entity2.AddProperty("Id", typeof(int));
+            var id2 = entity2.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
             id2.Annotations.Add(new Annotation("Id_Annotation1", "Id1"));
             id2.Annotations.Add(new Annotation("Id_Annotation2", "Id2"));
-            var foo2 = entity2.AddProperty("Foo", typeof(int));
+            var foo2 = entity2.GetOrAddProperty("Foo", typeof(int), shadowProperty: true);
             foo2.Annotations.Add(new Annotation("Foo_Annotation", "Foo"));
 
-            entity2.SetKey(id2, foo2);
-            entity2.GetKey().Annotations.Add(new Annotation("KeyAnnotation1", "Key1"));
-            entity2.GetKey().Annotations.Add(new Annotation("KeyAnnotation2", "Key2"));
+            entity2.GetOrSetPrimaryKey(id2, foo2);
+            entity2.GetPrimaryKey().Annotations.Add(new Annotation("KeyAnnotation1", "Key1"));
+            entity2.GetPrimaryKey().Annotations.Add(new Annotation("KeyAnnotation2", "Key2"));
             model.AddEntityType(entity2);
 
             var entity3 = new EntityType("EntityWithNamedKey");
-            var id3 = entity3.AddProperty("Id", typeof(int));
-            var foo3 = entity3.AddProperty("Foo", typeof(int));
-            entity3.SetKey(id3, foo3);
-            entity3.GetKey().SetKeyName("MyPK2");
+            var id3 = entity3.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
+            var foo3 = entity3.GetOrAddProperty("Foo", typeof(int), shadowProperty: true);
+            entity3.GetOrSetPrimaryKey(id3, foo3);
+            entity3.GetPrimaryKey().SetKeyName("MyPK2");
             model.AddEntityType(entity3);
 
             var entity4 = new EntityType("EntityWithUnnamedKey");
-            var id4 = entity4.AddProperty("Id", typeof(int));
-            var foo4 = entity4.AddProperty("Foo", typeof(int));
-            entity4.SetKey(id4, foo4);
+            var id4 = entity4.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
+            var foo4 = entity4.GetOrAddProperty("Foo", typeof(int), shadowProperty: true);
+            entity4.GetOrSetPrimaryKey(id4, foo4);
             model.AddEntityType(entity4);
 
             return model;
+        }
+
+        private class Entity
+        {
+            public int Id { get; set; }
+        }
+
+        private class Customer
+        {
+            public int Id { get; set; }
+            public int HouseId { get; set; }
+        }
+
+        private class Order
+        {
+            public int OrderId { get; set; }
+            public int CustomerId { get; set; }
         }
 
         public class Context : DbContext
@@ -858,7 +855,5 @@ namespace MyNamespace
                 return scaffoldedMigration;
             }
         }
-
-        #endregion
     }
 }

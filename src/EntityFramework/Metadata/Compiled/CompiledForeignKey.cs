@@ -27,6 +27,11 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
             get { return Definition.PrincipalPropertyIndexes.Select(i => ReferencedEntityType.Properties[i]).ToArray(); }
         }
 
+        public IKey ReferencedKey
+        {
+            get { return ReferencedEntityType.GetPrimaryKey(); }
+        }
+
         public IEntityType ReferencedEntityType
         {
             get { return _model.EntityTypes[Definition.PrincipalIndex]; }

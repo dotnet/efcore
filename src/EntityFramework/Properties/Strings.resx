@@ -252,4 +252,28 @@
   <data name="PropertyExtensionInvoked" xml:space="preserve">
     <value>The Property&amp;lt;T&amp;gt; extension method may only be used within LINQ queries.</value>
   </data>
+  <data name="PropertyAlreadyOwned" xml:space="preserve">
+    <value>The property '{property}' cannot be added to the entity type '{entityType}' because it already belongs to entity type '{existingEntityType}'.</value>
+  </data>
+  <data name="DuplicateProperty" xml:space="preserve">
+    <value>The property '{property}' cannot be added to the entity type '{entityType}' because an existing property with the same name already exists.</value>
+  </data>
+  <data name="NoClrProperty" xml:space="preserve">
+    <value>The property '{property}' cannot exist on entity type '{entityType}' because the property is not marked as shadow state and no corresponding CLR property exists on the underlying type.</value>
+  </data>
+  <data name="WrongClrPropertyType" xml:space="preserve">
+    <value>The property '{property}' cannot exist on entity type '{entityType}' because the property is not marked as shadow state and the type of the corresponding CLR property does not match the type specified in the property.</value>
+  </data>
+  <data name="ClrPropertyOnShadowEntity" xml:space="preserve">
+    <value>The property '{property}' cannot exist on entity type '{entityType}' because the entity type is marked as shadow state while the property is not. Shadow state entity types can only contain shadow state properties.</value>
+  </data>
+  <data name="PropertyInUse" xml:space="preserve">
+    <value>The property '{property}' cannot be removed from entity type '{entityType}' because it is being used in an index or key. All indexes and keys must be removed or redefined before the property can be removed.</value>
+  </data>
+  <data name="KeyInUse" xml:space="preserve">
+    <value>Cannot remove key from entity type '{entityType}' because it is referenced by a foreign key in entity type '{dependentType}'. All foreign keys must be removed or redefined before the referenced key can be removed.</value>
+  </data>
+  <data name="ForeignKeyInUse" xml:space="preserve">
+    <value>Cannot remove foreign key from entity type '{entityType}' because it is referenced by navigation property '{navigation}' in entity type '{dependentType}'. All navigations must be removed or redefined before the referenced foreign key can be removed.</value>
+  </data>
 </root>

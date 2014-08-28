@@ -10,14 +10,14 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Metadata
     {
         public virtual void Apply(EntityType entityType)
         {
-            if (entityType.TryGetKey() == null)
+            if (entityType.TryGetPrimaryKey() == null)
             {
                 var pk = entityType.TryGetProperty("PartitionKey");
                 var rk = entityType.TryGetProperty("RowKey");
                 if (pk != null
                     && rk != null)
                 {
-                    entityType.SetKey(pk, rk);
+                    entityType.GetOrSetPrimaryKey(pk, rk);
                 }
             }
         }

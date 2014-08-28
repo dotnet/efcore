@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Metadata
         [CanBeNull]
         Type Type { get; }
 
-        IKey GetKey();
+        IKey GetPrimaryKey();
 
         [CanBeNull]
         IProperty TryGetProperty([NotNull] string name);

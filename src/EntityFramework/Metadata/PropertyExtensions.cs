@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotNull(property, "property");
 
             // TODO: Perf: make it fast to check if a property is part of the primary key
-            return property.EntityType.GetKey().Properties.Contains(property);
+            return property.EntityType.GetPrimaryKey().Properties.Contains(property);
         }
     }
 }

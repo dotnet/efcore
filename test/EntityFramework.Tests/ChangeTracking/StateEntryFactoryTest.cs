@@ -16,8 +16,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         public void Creates_shadow_state_only_entry_when_entity_is_fully_shadow_state()
         {
             var entityType = new EntityType("RedHook");
-            entityType.AddProperty("Long", typeof(int), shadowProperty: true, concurrencyToken: false);
-            entityType.AddProperty("Hammer", typeof(string), shadowProperty: true, concurrencyToken: false);
+            entityType.GetOrAddProperty("Long", typeof(int), shadowProperty: true);
+            entityType.GetOrAddProperty("Hammer", typeof(string), shadowProperty: true);
 
             var servicesMock = new Mock<ContextServices>();
             servicesMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());
@@ -39,8 +39,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         public void Creates_CLR_only_entry_when_entity_has_no_shadow_properties()
         {
             var entityType = new EntityType(typeof(RedHook));
-            entityType.AddProperty("Long", typeof(int));
-            entityType.AddProperty("Hammer", typeof(string));
+            entityType.GetOrAddProperty("Long", typeof(int));
+            entityType.GetOrAddProperty("Hammer", typeof(string));
 
             var servicesMock = new Mock<ContextServices>();
             servicesMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());
@@ -63,8 +63,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         public void Creates_mixed_entry_when_entity_CLR_entity_type_and_shadow_properties()
         {
             var entityType = new EntityType(typeof(RedHook));
-            entityType.AddProperty("Long", typeof(int));
-            entityType.AddProperty("Hammer", typeof(string), shadowProperty: true, concurrencyToken: false);
+            entityType.GetOrAddProperty("Long", typeof(int));
+            entityType.GetOrAddProperty("Hammer", typeof(string), shadowProperty: true);
 
             var servicesMock = new Mock<ContextServices>();
             servicesMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());
@@ -87,8 +87,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         public void Creates_shadow_state_only_entry_from_value_buffer_when_entity_is_fully_shadow_state()
         {
             var entityType = new EntityType("RedHook");
-            var property1 = entityType.AddProperty("Long", typeof(int), shadowProperty: true, concurrencyToken: false);
-            var property2 = entityType.AddProperty("Hammer", typeof(string), shadowProperty: true, concurrencyToken: false);
+            var property1 = entityType.GetOrAddProperty("Long", typeof(int), shadowProperty: true);
+            var property2 = entityType.GetOrAddProperty("Hammer", typeof(string), shadowProperty: true);
 
             var servicesMock = new Mock<ContextServices>();
             servicesMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());
@@ -111,8 +111,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         public void Creates_CLR_only_entry_from_value_buffer_when_entity_has_no_shadow_properties()
         {
             var entityType = new EntityType(typeof(RedHook));
-            var property1 = entityType.AddProperty("Long", typeof(int));
-            var property2 = entityType.AddProperty("Hammer", typeof(string));
+            var property1 = entityType.GetOrAddProperty("Long", typeof(int));
+            var property2 = entityType.GetOrAddProperty("Hammer", typeof(string));
 
             var servicesMock = new Mock<ContextServices>();
             servicesMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());
@@ -138,8 +138,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         public void Creates_mixed_entry_from_value_buffer_when_entity_CLR_entity_type_and_shadow_properties()
         {
             var entityType = new EntityType(typeof(RedHook));
-            var property1 = entityType.AddProperty("Long", typeof(int));
-            var property2 = entityType.AddProperty("Hammer", typeof(string), shadowProperty: true, concurrencyToken: false);
+            var property1 = entityType.GetOrAddProperty("Long", typeof(int));
+            var property2 = entityType.GetOrAddProperty("Hammer", typeof(string), shadowProperty: true);
 
             var servicesMock = new Mock<ContextServices>();
             servicesMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());

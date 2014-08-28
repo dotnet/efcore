@@ -25,12 +25,13 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers
 
         public static EntityType EntityType()
         {
-            var entityType =
-                new EntityType(typeof(PocoTestType));
+            var entityType = new EntityType(typeof(PocoTestType));
+
             foreach (var property in typeof(PocoTestType).GetProperties())
             {
-                entityType.AddProperty(property);
+                entityType.GetOrAddProperty(property);
             }
+
             return entityType;
         }
 

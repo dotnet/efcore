@@ -14,9 +14,9 @@ namespace Microsoft.Data.Entity.SQLite.Tests
         public void Select_returns_tempFactory_when_single_long_key()
         {
             var entityType = new EntityType("Entity");
-            var property = entityType.AddProperty("Id", typeof(long));
+            var property = entityType.GetOrAddProperty("Id", typeof(long), shadowProperty: true);
             property.ValueGenerationOnAdd = ValueGenerationOnAdd.Client;
-            entityType.SetKey(property);
+            entityType.GetOrSetPrimaryKey(property);
 
             var result = CreateSelector().Select(property);
 
@@ -27,10 +27,10 @@ namespace Microsoft.Data.Entity.SQLite.Tests
         public void Select_returns_tempFactory_when_single_integer_column_key()
         {
             var entityType = new EntityType("Entity");
-            var property = entityType.AddProperty("Id", typeof(int));
+            var property = entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
             property.ValueGenerationOnAdd = ValueGenerationOnAdd.Client;
             property[MetadataExtensions.Annotations.StorageTypeName] = "INTEGER";
-            entityType.SetKey(property);
+            entityType.GetOrSetPrimaryKey(property);
 
             var result = CreateSelector().Select(property);
 
@@ -41,8 +41,8 @@ namespace Microsoft.Data.Entity.SQLite.Tests
         public void Select_returns_null_when_ValueGenerationOnAdd_is_not_Client()
         {
             var entityType = new EntityType("Entity");
-            var property = entityType.AddProperty("Id", typeof(long));
-            entityType.SetKey(property);
+            var property = entityType.GetOrAddProperty("Id", typeof(long), shadowProperty: true);
+            entityType.GetOrSetPrimaryKey(property);
 
             var result = CreateSelector().Select(property);
 
@@ -54,9 +54,9 @@ namespace Microsoft.Data.Entity.SQLite.Tests
         {
             var selector = CreateSelector();
             var entityType = new EntityType("Entity");
-            var property = entityType.AddProperty("Id1", typeof(long));
+            var property = entityType.GetOrAddProperty("Id1", typeof(long), shadowProperty: true);
             property.ValueGenerationOnAdd = ValueGenerationOnAdd.Client;
-            entityType.SetKey(property, entityType.AddProperty("Id2", typeof(long)));
+            entityType.GetOrSetPrimaryKey(property, entityType.GetOrAddProperty("Id2", typeof(long), shadowProperty: true));
 
             Assert.Throws<NotSupportedException>(() => selector.Select(property));
         }
@@ -66,9 +66,9 @@ namespace Microsoft.Data.Entity.SQLite.Tests
         {
             var selector = CreateSelector();
             var entityType = new EntityType("Entity");
-            var property = entityType.AddProperty("Id", typeof(int));
+            var property = entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
             property.ValueGenerationOnAdd = ValueGenerationOnAdd.Client;
-            entityType.SetKey(property);
+            entityType.GetOrSetPrimaryKey(property);
 
             Assert.Throws<NotSupportedException>(() => selector.Select(property));
         }

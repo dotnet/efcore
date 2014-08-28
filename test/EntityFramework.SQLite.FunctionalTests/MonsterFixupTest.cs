@@ -64,7 +64,7 @@ namespace Microsoft.Data.Entity.SQLite.FunctionalTests
         {
             var keyProperties =
                 from t in builder.Model.EntityTypes
-                let ps = t.GetKey().Properties
+                let ps = t.GetPrimaryKey().Properties
                 where ps.Count == 1
                 let p = ps[0]
                 where p.PropertyType == typeof(int)

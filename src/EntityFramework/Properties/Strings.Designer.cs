@@ -730,6 +730,134 @@ namespace Microsoft.Data.Entity
             return GetString("PropertyExtensionInvoked");
         }
 
+        /// <summary>
+        /// The property '{property}' cannot be added to the entity type '{entityType}' because it already belongs to entity type '{existingEntityType}'.
+        /// </summary>
+        internal static string PropertyAlreadyOwned
+        {
+            get { return GetString("PropertyAlreadyOwned"); }
+        }
+
+        /// <summary>
+        /// The property '{property}' cannot be added to the entity type '{entityType}' because it already belongs to entity type '{existingEntityType}'.
+        /// </summary>
+        internal static string FormatPropertyAlreadyOwned(object property, object entityType, object existingEntityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("PropertyAlreadyOwned", "property", "entityType", "existingEntityType"), property, entityType, existingEntityType);
+        }
+
+        /// <summary>
+        /// The property '{property}' cannot be added to the entity type '{entityType}' because an existing property with the same name already exists.
+        /// </summary>
+        internal static string DuplicateProperty
+        {
+            get { return GetString("DuplicateProperty"); }
+        }
+
+        /// <summary>
+        /// The property '{property}' cannot be added to the entity type '{entityType}' because an existing property with the same name already exists.
+        /// </summary>
+        internal static string FormatDuplicateProperty(object property, object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateProperty", "property", "entityType"), property, entityType);
+        }
+
+        /// <summary>
+        /// The property '{property}' cannot exist on entity type '{entityType}' because the property is not marked as shadow state and no corresponding CLR property exists on the underlying type.
+        /// </summary>
+        internal static string NoClrProperty
+        {
+            get { return GetString("NoClrProperty"); }
+        }
+
+        /// <summary>
+        /// The property '{property}' cannot exist on entity type '{entityType}' because the property is not marked as shadow state and no corresponding CLR property exists on the underlying type.
+        /// </summary>
+        internal static string FormatNoClrProperty(object property, object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NoClrProperty", "property", "entityType"), property, entityType);
+        }
+
+        /// <summary>
+        /// The property '{property}' cannot exist on entity type '{entityType}' because the property is not marked as shadow state and the type of the corresponding CLR property does not match the type specified in the property.
+        /// </summary>
+        internal static string WrongClrPropertyType
+        {
+            get { return GetString("WrongClrPropertyType"); }
+        }
+
+        /// <summary>
+        /// The property '{property}' cannot exist on entity type '{entityType}' because the property is not marked as shadow state and the type of the corresponding CLR property does not match the type specified in the property.
+        /// </summary>
+        internal static string FormatWrongClrPropertyType(object property, object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("WrongClrPropertyType", "property", "entityType"), property, entityType);
+        }
+
+        /// <summary>
+        /// The property '{property}' cannot exist on entity type '{entityType}' because the entity type is marked as shadow state while the property is not. Shadow state entity types can only contain shadow state properties.
+        /// </summary>
+        internal static string ClrPropertyOnShadowEntity
+        {
+            get { return GetString("ClrPropertyOnShadowEntity"); }
+        }
+
+        /// <summary>
+        /// The property '{property}' cannot exist on entity type '{entityType}' because the entity type is marked as shadow state while the property is not. Shadow state entity types can only contain shadow state properties.
+        /// </summary>
+        internal static string FormatClrPropertyOnShadowEntity(object property, object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ClrPropertyOnShadowEntity", "property", "entityType"), property, entityType);
+        }
+
+        /// <summary>
+        /// The property '{property}' cannot be removed from entity type '{entityType}' because it is being used in an index or key. All indexes and keys must be removed or redefined before the property can be removed.
+        /// </summary>
+        internal static string PropertyInUse
+        {
+            get { return GetString("PropertyInUse"); }
+        }
+
+        /// <summary>
+        /// The property '{property}' cannot be removed from entity type '{entityType}' because it is being used in an index or key. All indexes and keys must be removed or redefined before the property can be removed.
+        /// </summary>
+        internal static string FormatPropertyInUse(object property, object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("PropertyInUse", "property", "entityType"), property, entityType);
+        }
+
+        /// <summary>
+        /// Cannot remove key from entity type '{entityType}' because it is referenced by a foreign key in entity type '{dependentType}'. All foreign keys must be removed or redefined before the referenced key can be removed.
+        /// </summary>
+        internal static string KeyInUse
+        {
+            get { return GetString("KeyInUse"); }
+        }
+
+        /// <summary>
+        /// Cannot remove key from entity type '{entityType}' because it is referenced by a foreign key in entity type '{dependentType}'. All foreign keys must be removed or redefined before the referenced key can be removed.
+        /// </summary>
+        internal static string FormatKeyInUse(object entityType, object dependentType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("KeyInUse", "entityType", "dependentType"), entityType, dependentType);
+        }
+
+        /// <summary>
+        /// Cannot remove foreign key from entity type '{entityType}' because it is referenced by navigation property '{navigation}' in entity type '{dependentType}'. All navigations must be removed or redefined before the referenced foreign key can be removed.
+        /// </summary>
+        internal static string ForeignKeyInUse
+        {
+            get { return GetString("ForeignKeyInUse"); }
+        }
+
+        /// <summary>
+        /// Cannot remove foreign key from entity type '{entityType}' because it is referenced by navigation property '{navigation}' in entity type '{dependentType}'. All navigations must be removed or redefined before the referenced foreign key can be removed.
+        /// </summary>
+        internal static string FormatForeignKeyInUse(object entityType, object navigation, object dependentType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyInUse", "entityType", "navigation", "dependentType"), entityType, navigation, dependentType);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

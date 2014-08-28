@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.SQLite
             if (property.ValueGenerationOnAdd == ValueGenerationOnAdd.Client)
             {
                 // If INTEGER PRIMARY KEY column...
-                var keyProperties = property.EntityType.GetKey().Properties;
+                var keyProperties = property.EntityType.GetPrimaryKey().Properties;
                 if (keyProperties.Count == 1
                     && keyProperties[0] == property)
                 {

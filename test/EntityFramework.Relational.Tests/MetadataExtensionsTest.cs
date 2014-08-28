@@ -10,15 +10,6 @@ namespace Microsoft.Data.Entity.Relational.Tests
 {
     public class MetadataExtensionsTest
     {
-        #region Fixture
-
-        public class Customer
-        {
-            public int Id { get; set; }
-        }
-
-        #endregion
-
         [Fact]
         public void ToTable_sets_table_name_on_entity()
         {
@@ -80,6 +71,11 @@ namespace Microsoft.Data.Entity.Relational.Tests
         public void IsClustered_returns_true_by_default()
         {
             Assert.True(new Mock<Key>().Object.IsClustered());
+        }
+
+        private class Customer
+        {
+            public int Id { get; set; }
         }
     }
 }

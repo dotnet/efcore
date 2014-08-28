@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Redis.Tests.Query
                 new EntityType(typeof(QueryTestType));
             foreach (var property in typeof(QueryTestType).GetProperties())
             {
-                entityType.AddProperty(property);
+                entityType.GetOrAddProperty(property);
             }
             return entityType;
         }

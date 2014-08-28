@@ -19,20 +19,14 @@ namespace Microsoft.Data.Entity.Metadata
         private int _originalValueIndex = -1;
         private int _index;
 
-        internal Property([NotNull] string name, [NotNull] Type propertyType)
-            : this(name, propertyType, shadowProperty: false, concurrencyToken: false)
-        {
-        }
-
-        internal Property([NotNull] string name, [NotNull] Type propertyType, bool shadowProperty, bool concurrencyToken)
-            : base(Check.NotEmpty(name, "name"))
+        public Property([NotNull] string name, [NotNull] Type propertyType, bool shadowProperty = false)
+            : base(name)
         {
             Check.NotNull(propertyType, "propertyType");
 
             _propertyType = propertyType;
             _shadowIndex = shadowProperty ? 0 : -1;
             _isNullable = propertyType.IsNullableType();
-            _isConcurrencyToken = concurrencyToken;
         }
 
         public virtual Type PropertyType
@@ -65,7 +59,7 @@ namespace Microsoft.Data.Entity.Metadata
 
                     if (EntityType != null)
                     {
-                        EntityType.UpdateIndexes(this);
+                        EntityType.PropertyMetadataChanged(this);
                     }
                 }
             }
@@ -82,7 +76,7 @@ namespace Microsoft.Data.Entity.Metadata
 
                     if (EntityType != null)
                     {
-                        EntityType.UpdateIndexes(this);
+                        EntityType.PropertyMetadataChanged(this);
                     }
                 }
             }

@@ -547,12 +547,12 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
             var entityType = new EntityType(typeof(T1));
 
-            var key = entityType.AddProperty("Id", typeof(int));
+            var key = entityType.GetOrAddProperty("Id", typeof(int));
             key.ValueGenerationOnSave = keyStrategy;
             key.SetColumnName("Col1");
-            entityType.SetKey(key);
+            entityType.GetOrSetPrimaryKey(key);
 
-            var nonKey = entityType.AddProperty("Name", typeof(string));
+            var nonKey = entityType.GetOrAddProperty("Name", typeof(string));
             nonKey.SetColumnName("Col2");
             nonKey.ValueGenerationOnSave = nonKeyStrategy;
 

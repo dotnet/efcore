@@ -295,13 +295,13 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = new Model();
 
             var entityType = new EntityType(typeof(Banana));
-            var pkProperty = entityType.AddProperty("Id", typeof(int));
-            var fkProperty = entityType.AddProperty("Fk", typeof(int));
+            var pkProperty = entityType.GetOrAddProperty("Id", typeof(int));
+            var fkProperty = entityType.GetOrAddProperty("Fk", typeof(int));
 
-            entityType.SetKey(pkProperty);
-            var fk = entityType.AddForeignKey(entityType.GetKey(), fkProperty);
+            entityType.GetOrSetPrimaryKey(pkProperty);
+            var fk = entityType.GetOrAddForeignKey(entityType.GetPrimaryKey(), fkProperty);
 
-            entityType.AddProperty("Name", typeof(string));
+            entityType.GetOrAddProperty("Name", typeof(string));
 
             model.AddEntityType(entityType);
 

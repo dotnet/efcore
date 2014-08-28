@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq.Expressions;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.AzureTableStorage.Utilities;
 using Microsoft.Data.Entity.Metadata;
@@ -97,16 +98,13 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Metadata
             var partitionKeyInfo = partitionKeyExpression.GetPropertyAccess();
             var rowKeyInfo = rowKeyExpression.GetPropertyAccess();
 
-            var partitionKey = entityType.TryGetProperty(partitionKeyInfo.Name)
-                               ?? entityType.AddProperty(partitionKeyInfo);
-
-            var rowKey = entityType.TryGetProperty(rowKeyInfo.Name)
-                         ?? entityType.AddProperty(rowKeyInfo);
+            var partitionKey = entityType.GetOrAddProperty(partitionKeyInfo);
+            var rowKey = entityType.GetOrAddProperty(rowKeyInfo);
 
             partitionKey.SetColumnName("PartitionKey");
             rowKey.SetColumnName("RowKey");
 
-            entityType.SetKey(new[] { partitionKey, rowKey });
+            entityType.GetOrSetPrimaryKey(new[] { partitionKey, rowKey });
 
             return (TEntityBuilder)builder;
         }
@@ -119,11 +117,9 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Metadata
             Check.NotNull(builder, "builder");
             Check.NotNull(expression, "expression");
 
-            var entityType = builder.Metadata;
-
-            var propertyInfo = expression.GetPropertyAccess();
-            (entityType.TryGetProperty(propertyInfo.Name)
-             ?? entityType.AddProperty(propertyInfo)).SetColumnName("Timestamp");
+            builder.Metadata
+                .GetOrAddProperty(expression.GetPropertyAccess())
+                .SetColumnName("Timestamp");
 
             return (TEntityBuilder)builder;
         }
@@ -137,11 +133,9 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Metadata
             Check.NotNull(builder, "builder");
             Check.NotEmpty(name, "name");
 
-            var entityType = builder.Metadata;
-
-            // TODO: Consider forcing property to shadow state if not cuurently in shadow state
-            (entityType.TryGetProperty(name)
-             ?? entityType.AddProperty(name, typeof(DateTimeOffset), shadowProperty, concurrencyToken: false)).SetColumnName("Timestamp");
+            builder.Metadata
+                .GetOrAddProperty(name, typeof(DateTimeOffset), shadowProperty)
+                .SetColumnName("Timestamp");
 
             return (TEntityBuilder)builder;
         }

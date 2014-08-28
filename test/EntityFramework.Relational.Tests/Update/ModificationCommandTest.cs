@@ -84,7 +84,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         public void ModificationCommand_initialized_correctly_for_modified_entities_with_identity_key()
         {
             var stateEntry = CreateStateEntry(EntityState.Modified, ValueGenerationOnSave.WhenInserting);
-            stateEntry.SetPropertyModified(stateEntry.EntityType.GetKey().Properties[0], isModified: false);
+            stateEntry.SetPropertyModified(stateEntry.EntityType.GetPrimaryKey().Properties[0], isModified: false);
 
             var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator());
             command.AddStateEntry(stateEntry);
@@ -118,7 +118,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         public void ModificationCommand_initialized_correctly_for_modified_entities_with_client_generated_key()
         {
             var stateEntry = CreateStateEntry(EntityState.Modified);
-            stateEntry.SetPropertyModified(stateEntry.EntityType.GetKey().Properties[0], isModified: false);
+            stateEntry.SetPropertyModified(stateEntry.EntityType.GetPrimaryKey().Properties[0], isModified: false);
 
             var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator());
             command.AddStateEntry(stateEntry);
@@ -152,7 +152,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         public void ModificationCommand_initialized_correctly_for_modified_entities_with_concurrency_token()
         {
             var stateEntry = CreateStateEntry(EntityState.Modified, nonKeyStrategy: ValueGenerationOnSave.WhenInsertingAndUpdating);
-            stateEntry.SetPropertyModified(stateEntry.EntityType.GetKey().Properties[0], isModified: false);
+            stateEntry.SetPropertyModified(stateEntry.EntityType.GetPrimaryKey().Properties[0], isModified: false);
 
             var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator());
             command.AddStateEntry(stateEntry);
@@ -332,13 +332,14 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
             var entityType = new EntityType(typeof(T1));
 
-            var key = entityType.AddProperty("Id", typeof(int));
+            var key = entityType.GetOrAddProperty("Id", typeof(int));
             key.ValueGenerationOnSave = keyStrategy;
             key.SetColumnName("Col1");
-            entityType.SetKey(key);
+            entityType.GetOrSetPrimaryKey(key);
 
-            var nonKey = entityType.AddProperty("Name",
-                typeof(string), false, nonKeyStrategy == ValueGenerationOnSave.WhenInsertingAndUpdating);
+            var nonKey = entityType.GetOrAddProperty("Name", typeof(string));
+            nonKey.IsConcurrencyToken = nonKeyStrategy == ValueGenerationOnSave.WhenInsertingAndUpdating;
+
             nonKey.SetColumnName("Col2");
             nonKey.ValueGenerationOnSave = nonKeyStrategy;
 

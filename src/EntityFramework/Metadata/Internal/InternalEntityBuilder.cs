@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         private InternalKeyBuilder Key(IEnumerable<Property> properties)
         {
-            return new InternalKeyBuilder(Metadata.SetKey(properties.ToArray()), ModelBuilder);
+            return new InternalKeyBuilder(Metadata.GetOrSetPrimaryKey(properties.ToArray()), ModelBuilder);
         }
 
         public virtual InternalPropertyBuilder Property(
@@ -43,14 +43,14 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Check.NotNull(propertyType, "propertyType");
             Check.NotEmpty(name, "name");
 
-            return new InternalPropertyBuilder(GetOrCreateProperty(propertyType, name, createShadowProperty: true), ModelBuilder);
+            return new InternalPropertyBuilder(Metadata.GetOrAddProperty(name, propertyType, shadowProperty: true), ModelBuilder);
         }
 
         public virtual InternalPropertyBuilder Property([NotNull] PropertyInfo clrProperty)
         {
             Check.NotNull(clrProperty, "clrProperty");
 
-            return new InternalPropertyBuilder(GetOrCreateProperty(clrProperty.PropertyType, clrProperty.Name, createShadowProperty: false), ModelBuilder);
+            return new InternalPropertyBuilder(Metadata.GetOrAddProperty(clrProperty.Name, clrProperty.PropertyType), ModelBuilder);
         }
 
         public virtual InternalForeignKeyBuilder ForeignKey(
@@ -77,7 +77,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         private InternalForeignKeyBuilder ForeignKey(EntityType principalType, IEnumerable<Property> dependentProperties)
         {
             // TODO: This code currently assumes that the FK maps to a PK on the principal end
-            var foreignKey = Metadata.AddForeignKey(principalType.GetKey(), dependentProperties.ToArray());
+            var foreignKey = Metadata.GetOrAddForeignKey(principalType.GetPrimaryKey(), dependentProperties.ToArray());
 
             return new InternalForeignKeyBuilder(foreignKey, ModelBuilder);
         }
@@ -98,7 +98,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         private InternalIndexBuilder Index(IEnumerable<Property> properties)
         {
-            return new InternalIndexBuilder(Metadata.AddIndex(properties.ToArray()), ModelBuilder);
+            return new InternalIndexBuilder(Metadata.GetOrAddIndex(properties.ToArray()), ModelBuilder);
         }
 
         public virtual InternalRelationshipBuilder BuildRelationship(
@@ -148,13 +148,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         private IEnumerable<Property> GetOrCreateProperties(IEnumerable<PropertyInfo> clrProperties)
         {
-            return clrProperties.Select(p => GetOrCreateProperty(p.PropertyType, p.Name, false));
-        }
-
-        private Property GetOrCreateProperty(Type propertyType, string name, bool createShadowProperty)
-        {
-            return Metadata.TryGetProperty(name)
-                   ?? Metadata.AddProperty(name, propertyType, createShadowProperty, concurrencyToken: false);
+            return clrProperties.Select(p => Metadata.GetOrAddProperty(p.Name, p.PropertyType));
         }
     }
 }

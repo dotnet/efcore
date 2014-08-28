@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entity = new Banana { P1 = 7 };
             var entry = new ClrStateEntry(TestHelpers.CreateContextConfiguration(model), type, entity);
 
-            var key = (SimpleEntityKey<int>)new SimpleNullableEntityKeyFactory<int, int?>().Create(type, type.GetKey().Properties, entry);
+            var key = (SimpleEntityKey<int>)new SimpleNullableEntityKeyFactory<int, int?>().Create(type, type.GetPrimaryKey().Properties, entry);
 
             Assert.Equal(7, key.Value);
         }
@@ -97,11 +97,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = new Model();
 
             var entityType = new EntityType(typeof(Banana));
-            var property1 = entityType.AddProperty("P1", typeof(int));
-            var property2 = entityType.AddProperty("P2", typeof(string));
+            var property1 = entityType.GetOrAddProperty("P1", typeof(int));
+            var property2 = entityType.GetOrAddProperty("P2", typeof(int?));
 
-            entityType.SetKey(property1);
-            entityType.AddForeignKey(entityType.GetKey(), property2);
+            entityType.GetOrSetPrimaryKey(property1);
+            entityType.GetOrAddForeignKey(entityType.GetPrimaryKey(), property2);
 
             model.AddEntityType(entityType);
 

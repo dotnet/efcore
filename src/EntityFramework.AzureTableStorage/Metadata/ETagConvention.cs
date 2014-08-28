@@ -10,11 +10,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Metadata
     {
         public virtual void Apply(EntityType entityType)
         {
-            var etag = entityType.TryGetProperty("ETag");
-            if (etag == null)
-            {
-                entityType.AddProperty("ETag", typeof(string), true, true);
-            }
+            entityType.GetOrAddProperty("ETag", typeof(string), shadowProperty: true).IsConcurrencyToken = true;
         }
     }
 }

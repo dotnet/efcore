@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var entry = new ClrStateEntry(TestHelpers.CreateContextConfiguration(model), type, entity);
 
-            var key = (CompositeEntityKey)new CompositeEntityKeyFactory().Create(type, type.GetKey().Properties, entry);
+            var key = (CompositeEntityKey)new CompositeEntityKeyFactory().Create(type, type.GetPrimaryKey().Properties, entry);
 
             Assert.Equal(new object[] { 7, "Ate", random }, key.Value);
         }
@@ -74,7 +74,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var entry = new ClrStateEntry(TestHelpers.CreateContextConfiguration(model), type, entity);
 
-            Assert.Equal(EntityKey.NullEntityKey, new CompositeEntityKeyFactory().Create(type, type.GetKey().Properties, entry));
+            Assert.Equal(EntityKey.NullEntityKey, new CompositeEntityKeyFactory().Create(type, type.GetPrimaryKey().Properties, entry));
         }
 
         [Fact]
@@ -86,7 +86,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var random = new Random();
 
             var key = (CompositeEntityKey)new CompositeEntityKeyFactory().Create(
-                type, type.GetKey().Properties, new ObjectArrayValueReader(new object[] { 7, "Ate", random }));
+                type, type.GetPrimaryKey().Properties, new ObjectArrayValueReader(new object[] { 7, "Ate", random }));
 
             Assert.Equal(new object[] { 7, "Ate", random }, key.Value);
         }
@@ -128,15 +128,15 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = new Model();
 
             var entityType = new EntityType(typeof(Banana));
-            var property1 = entityType.AddProperty("P1", typeof(int));
-            var property2 = entityType.AddProperty("P2", typeof(string));
-            var property3 = entityType.AddProperty("P3", typeof(Random));
-            var property4 = entityType.AddProperty("P4", typeof(int));
-            var property5 = entityType.AddProperty("P5", typeof(string));
-            var property6 = entityType.AddProperty("P6", typeof(Random));
+            var property1 = entityType.GetOrAddProperty("P1", typeof(int));
+            var property2 = entityType.GetOrAddProperty("P2", typeof(string));
+            var property3 = entityType.GetOrAddProperty("P3", typeof(Random));
+            var property4 = entityType.GetOrAddProperty("P4", typeof(int));
+            var property5 = entityType.GetOrAddProperty("P5", typeof(string));
+            var property6 = entityType.GetOrAddProperty("P6", typeof(Random));
 
-            entityType.SetKey(property1, property2, property3);
-            entityType.AddForeignKey(entityType.GetKey(), property6, property4, property5);
+            entityType.GetOrSetPrimaryKey(property1, property2, property3);
+            entityType.GetOrAddForeignKey(entityType.GetPrimaryKey(), property6, property4, property5);
 
             model.AddEntityType(entityType);
 

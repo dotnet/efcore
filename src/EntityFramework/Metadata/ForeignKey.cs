@@ -22,8 +22,8 @@ namespace Microsoft.Data.Entity.Metadata
         {
         }
 
-        internal ForeignKey([NotNull] Key referencedKey, [NotNull] IReadOnlyList<Property> dependentProperties)
-            : base(Check.NotNull(dependentProperties, "dependentProperties"))
+        public ForeignKey([NotNull] Key referencedKey, [NotNull] IReadOnlyList<Property> dependentProperties)
+            : base(dependentProperties)
         {
             Check.NotNull(referencedKey, "referencedKey");
 
@@ -33,6 +33,11 @@ namespace Microsoft.Data.Entity.Metadata
         public virtual IReadOnlyList<Property> ReferencedProperties
         {
             get { return _referencedKey.Properties; }
+        }
+
+        public virtual Key ReferencedKey
+        {
+            get { return _referencedKey; }
         }
 
         public virtual EntityType ReferencedEntityType
@@ -55,6 +60,11 @@ namespace Microsoft.Data.Entity.Metadata
         IEntityType IForeignKey.ReferencedEntityType
         {
             get { return ReferencedEntityType; }
+        }
+
+        IKey IForeignKey.ReferencedKey
+        {
+            get { return ReferencedKey; }
         }
     }
 }

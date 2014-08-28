@@ -15,22 +15,27 @@ namespace Microsoft.Data.Entity.Tests.Utilities
 
         private class A
         {
+            public int P { get; set; }
         }
 
         private class B
         {
+            public int P { get; set; }
         }
 
         private class C
         {
+            public int P { get; set; }
         }
 
         private class D
         {
+            public int P { get; set; }
         }
 
         private class E
         {
+            public int P { get; set; }
         }
 
         #endregion
@@ -68,17 +73,17 @@ namespace Microsoft.Data.Entity.Tests.Utilities
         public void Sort_simple()
         {
             var entityTypeA = new NamedEntityType(typeof(A));
-            entityTypeA.SetKey(entityTypeA.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
+            entityTypeA.GetOrSetPrimaryKey(entityTypeA.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             var entityTypeB = new NamedEntityType(typeof(B));
-            entityTypeB.SetKey(entityTypeB.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
+            entityTypeB.GetOrSetPrimaryKey(entityTypeB.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             var entityTypeC = new NamedEntityType(typeof(C));
-            entityTypeC.SetKey(entityTypeC.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
+            entityTypeC.GetOrSetPrimaryKey(entityTypeC.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             // B -> A -> C
-            entityTypeC.AddForeignKey(entityTypeA.GetKey(), entityTypeC.AddProperty("P", typeof(int)));
-            entityTypeA.AddForeignKey(entityTypeB.GetKey(), entityTypeA.AddProperty("P", typeof(int)));
+            entityTypeC.GetOrAddForeignKey(entityTypeA.GetPrimaryKey(), entityTypeC.GetOrAddProperty("P", typeof(int)));
+            entityTypeA.GetOrAddForeignKey(entityTypeB.GetPrimaryKey(), entityTypeA.GetOrAddProperty("P", typeof(int)));
 
             var model = new EntityTypeGraph();
             model.Populate(entityTypeA, entityTypeB, entityTypeC);
@@ -92,17 +97,17 @@ namespace Microsoft.Data.Entity.Tests.Utilities
         public void Sort_reverse()
         {
             var entityTypeA = new NamedEntityType(typeof(A));
-            entityTypeA.SetKey(entityTypeA.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
+            entityTypeA.GetOrSetPrimaryKey(entityTypeA.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             var entityTypeB = new NamedEntityType(typeof(B));
-            entityTypeB.SetKey(entityTypeB.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
+            entityTypeB.GetOrSetPrimaryKey(entityTypeB.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             var entityTypeC = new NamedEntityType(typeof(C));
-            entityTypeC.SetKey(entityTypeC.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
+            entityTypeC.GetOrSetPrimaryKey(entityTypeC.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             // C -> B -> A
-            entityTypeA.AddForeignKey(entityTypeB.GetKey(), entityTypeA.AddProperty("P", typeof(int)));
-            entityTypeB.AddForeignKey(entityTypeC.GetKey(), entityTypeB.AddProperty("P", typeof(int)));
+            entityTypeA.GetOrAddForeignKey(entityTypeB.GetPrimaryKey(), entityTypeA.GetOrAddProperty("P", typeof(int)));
+            entityTypeB.GetOrAddForeignKey(entityTypeC.GetPrimaryKey(), entityTypeB.GetOrAddProperty("P", typeof(int)));
 
             var model = new EntityTypeGraph();
             model.Populate(entityTypeA, entityTypeB, entityTypeC);
@@ -116,17 +121,17 @@ namespace Microsoft.Data.Entity.Tests.Utilities
         public void Sort_preserves_graph()
         {
             var entityTypeA = new NamedEntityType(typeof(A));
-            entityTypeA.SetKey(entityTypeA.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
+            entityTypeA.GetOrSetPrimaryKey(entityTypeA.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             var entityTypeB = new NamedEntityType(typeof(B));
-            entityTypeB.SetKey(entityTypeB.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
+            entityTypeB.GetOrSetPrimaryKey(entityTypeB.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             var entityTypeC = new NamedEntityType(typeof(C));
-            entityTypeC.SetKey(entityTypeC.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
+            entityTypeC.GetOrSetPrimaryKey(entityTypeC.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             // B -> A -> C
-            entityTypeC.AddForeignKey(entityTypeA.GetKey(), entityTypeC.AddProperty("P", typeof(int)));
-            entityTypeA.AddForeignKey(entityTypeB.GetKey(), entityTypeA.AddProperty("P", typeof(int)));
+            entityTypeC.GetOrAddForeignKey(entityTypeA.GetPrimaryKey(), entityTypeC.GetOrAddProperty("P", typeof(int)));
+            entityTypeA.GetOrAddForeignKey(entityTypeB.GetPrimaryKey(), entityTypeA.GetOrAddProperty("P", typeof(int)));
 
             var model = new EntityTypeGraph();
             model.Populate(entityTypeA, entityTypeB, entityTypeC);
@@ -156,18 +161,18 @@ namespace Microsoft.Data.Entity.Tests.Utilities
         public void Sort_tree()
         {
             var entityTypeA = new NamedEntityType(typeof(A));
-            entityTypeA.SetKey(entityTypeA.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
+            entityTypeA.GetOrSetPrimaryKey(entityTypeA.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             var entityTypeB = new NamedEntityType(typeof(B));
-            entityTypeB.SetKey(entityTypeB.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
+            entityTypeB.GetOrSetPrimaryKey(entityTypeB.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             var entityTypeC = new NamedEntityType(typeof(C));
-            entityTypeC.SetKey(entityTypeC.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
+            entityTypeC.GetOrSetPrimaryKey(entityTypeC.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             // A -> B, A -> C, C -> B
-            entityTypeB.AddForeignKey(entityTypeA.GetKey(), entityTypeB.AddProperty("P", typeof(int)));
-            entityTypeC.AddForeignKey(entityTypeA.GetKey(), entityTypeC.AddProperty("P", typeof(int)));
-            entityTypeB.AddForeignKey(entityTypeC.GetKey(), entityTypeB.AddProperty("P", typeof(int)));
+            entityTypeB.GetOrAddForeignKey(entityTypeA.GetPrimaryKey(), entityTypeB.GetOrAddProperty("P", typeof(int)));
+            entityTypeC.GetOrAddForeignKey(entityTypeA.GetPrimaryKey(), entityTypeC.GetOrAddProperty("P", typeof(int)));
+            entityTypeB.GetOrAddForeignKey(entityTypeC.GetPrimaryKey(), entityTypeB.GetOrAddProperty("P", typeof(int)));
 
             var model = new EntityTypeGraph();
             model.Populate(entityTypeA, entityTypeB, entityTypeC);
@@ -181,13 +186,13 @@ namespace Microsoft.Data.Entity.Tests.Utilities
         public void Sort_no_edges()
         {
             var entityTypeA = new NamedEntityType(typeof(A));
-            entityTypeA.SetKey(entityTypeA.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
+            entityTypeA.GetOrSetPrimaryKey(entityTypeA.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             var entityTypeB = new NamedEntityType(typeof(B));
-            entityTypeB.SetKey(entityTypeB.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
+            entityTypeB.GetOrSetPrimaryKey(entityTypeB.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             var entityTypeC = new NamedEntityType(typeof(C));
-            entityTypeC.SetKey(entityTypeC.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
+            entityTypeC.GetOrSetPrimaryKey(entityTypeC.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             // A B C
             var model = new EntityTypeGraph();
@@ -202,10 +207,10 @@ namespace Microsoft.Data.Entity.Tests.Utilities
         public void Sort_self_ref()
         {
             var entityTypeA = new NamedEntityType(typeof(A));
-            entityTypeA.SetKey(entityTypeA.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
+            entityTypeA.GetOrSetPrimaryKey(entityTypeA.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             // A -> A
-            entityTypeA.AddForeignKey(entityTypeA.GetKey(), entityTypeA.AddProperty("P", typeof(int)));
+            entityTypeA.GetOrAddForeignKey(entityTypeA.GetPrimaryKey(), entityTypeA.GetOrAddProperty("P", typeof(int)));
 
             var model = new EntityTypeGraph();
             model.Populate(entityTypeA);
@@ -219,17 +224,17 @@ namespace Microsoft.Data.Entity.Tests.Utilities
         public void Sort_circular_direct()
         {
             var entityTypeA = new NamedEntityType(typeof(A));
-            entityTypeA.SetKey(entityTypeA.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
+            entityTypeA.GetOrSetPrimaryKey(entityTypeA.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             var entityTypeB = new NamedEntityType(typeof(B));
-            entityTypeB.SetKey(entityTypeB.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
+            entityTypeB.GetOrSetPrimaryKey(entityTypeB.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             var entityTypeC = new NamedEntityType(typeof(C));
-            entityTypeC.SetKey(entityTypeC.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
+            entityTypeC.GetOrSetPrimaryKey(entityTypeC.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             // C, A -> B -> A
-            entityTypeA.AddForeignKey(entityTypeB.GetKey(), entityTypeA.AddProperty("P", typeof(int)));
-            entityTypeB.AddForeignKey(entityTypeA.GetKey(), entityTypeB.AddProperty("P", typeof(int)));
+            entityTypeA.GetOrAddForeignKey(entityTypeB.GetPrimaryKey(), entityTypeA.GetOrAddProperty("P", typeof(int)));
+            entityTypeB.GetOrAddForeignKey(entityTypeA.GetPrimaryKey(), entityTypeB.GetOrAddProperty("P", typeof(int)));
 
             var model = new EntityTypeGraph();
             model.Populate(entityTypeC, entityTypeA, entityTypeB);
@@ -243,18 +248,18 @@ namespace Microsoft.Data.Entity.Tests.Utilities
         public void Sort_circular_transitive()
         {
             var entityTypeA = new NamedEntityType(typeof(A));
-            entityTypeA.SetKey(entityTypeA.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
+            entityTypeA.GetOrSetPrimaryKey(entityTypeA.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             var entityTypeB = new NamedEntityType(typeof(B));
-            entityTypeB.SetKey(entityTypeB.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
+            entityTypeB.GetOrSetPrimaryKey(entityTypeB.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             var entityTypeC = new NamedEntityType(typeof(C));
-            entityTypeC.SetKey(entityTypeC.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
+            entityTypeC.GetOrSetPrimaryKey(entityTypeC.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             // A -> C -> B -> A
-            entityTypeA.AddForeignKey(entityTypeB.GetKey(), entityTypeA.AddProperty("P", typeof(int)));
-            entityTypeB.AddForeignKey(entityTypeC.GetKey(), entityTypeB.AddProperty("P", typeof(int)));
-            entityTypeC.AddForeignKey(entityTypeA.GetKey(), entityTypeC.AddProperty("P", typeof(int)));
+            entityTypeA.GetOrAddForeignKey(entityTypeB.GetPrimaryKey(), entityTypeA.GetOrAddProperty("P", typeof(int)));
+            entityTypeB.GetOrAddForeignKey(entityTypeC.GetPrimaryKey(), entityTypeB.GetOrAddProperty("P", typeof(int)));
+            entityTypeC.GetOrAddForeignKey(entityTypeA.GetPrimaryKey(), entityTypeC.GetOrAddProperty("P", typeof(int)));
 
             var model = new EntityTypeGraph();
             model.Populate(entityTypeA, entityTypeB, entityTypeC);
@@ -268,29 +273,29 @@ namespace Microsoft.Data.Entity.Tests.Utilities
         public void Sort_two_cycles()
         {
             var entityTypeA = new NamedEntityType(typeof(A));
-            entityTypeA.SetKey(entityTypeA.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
+            entityTypeA.GetOrSetPrimaryKey(entityTypeA.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             var entityTypeB = new NamedEntityType(typeof(B));
-            entityTypeB.SetKey(entityTypeB.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
+            entityTypeB.GetOrSetPrimaryKey(entityTypeB.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             var entityTypeC = new NamedEntityType(typeof(C));
-            entityTypeC.SetKey(entityTypeC.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
+            entityTypeC.GetOrSetPrimaryKey(entityTypeC.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             var entityTypeD = new NamedEntityType(typeof(D));
-            entityTypeD.SetKey(entityTypeD.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
+            entityTypeD.GetOrSetPrimaryKey(entityTypeD.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             var entityTypeE = new NamedEntityType(typeof(E));
-            entityTypeE.SetKey(entityTypeE.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
+            entityTypeE.GetOrSetPrimaryKey(entityTypeE.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             // A -> C -> B -> A
-            entityTypeA.AddForeignKey(entityTypeB.GetKey(), entityTypeA.AddProperty("P", typeof(int)));
-            entityTypeB.AddForeignKey(entityTypeC.GetKey(), entityTypeB.AddProperty("P", typeof(int)));
-            entityTypeC.AddForeignKey(entityTypeA.GetKey(), entityTypeC.AddProperty("P", typeof(int)));
+            entityTypeA.GetOrAddForeignKey(entityTypeB.GetPrimaryKey(), entityTypeA.GetOrAddProperty("P", typeof(int)));
+            entityTypeB.GetOrAddForeignKey(entityTypeC.GetPrimaryKey(), entityTypeB.GetOrAddProperty("P", typeof(int)));
+            entityTypeC.GetOrAddForeignKey(entityTypeA.GetPrimaryKey(), entityTypeC.GetOrAddProperty("P", typeof(int)));
 
             // A -> E -> D -> A
-            entityTypeA.AddForeignKey(entityTypeD.GetKey(), entityTypeA.AddProperty("P", typeof(int)));
-            entityTypeD.AddForeignKey(entityTypeE.GetKey(), entityTypeD.AddProperty("P", typeof(int)));
-            entityTypeE.AddForeignKey(entityTypeA.GetKey(), entityTypeE.AddProperty("P", typeof(int)));
+            entityTypeA.GetOrAddForeignKey(entityTypeD.GetPrimaryKey(), entityTypeA.GetOrAddProperty("P", typeof(int)));
+            entityTypeD.GetOrAddForeignKey(entityTypeE.GetPrimaryKey(), entityTypeD.GetOrAddProperty("P", typeof(int)));
+            entityTypeE.GetOrAddForeignKey(entityTypeA.GetPrimaryKey(), entityTypeE.GetOrAddProperty("P", typeof(int)));
 
             var model = new EntityTypeGraph();
             model.Populate(entityTypeA, entityTypeB, entityTypeC, entityTypeD, entityTypeE);
@@ -304,18 +309,18 @@ namespace Microsoft.Data.Entity.Tests.Utilities
         public void Sort_leafy_cycle()
         {
             var entityTypeA = new NamedEntityType(typeof(A));
-            entityTypeA.SetKey(entityTypeA.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
+            entityTypeA.GetOrSetPrimaryKey(entityTypeA.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             var entityTypeB = new NamedEntityType(typeof(B));
-            entityTypeB.SetKey(entityTypeB.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
+            entityTypeB.GetOrSetPrimaryKey(entityTypeB.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             var entityTypeC = new NamedEntityType(typeof(C));
-            entityTypeC.SetKey(entityTypeC.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
+            entityTypeC.GetOrSetPrimaryKey(entityTypeC.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             // C -> B -> C -> A
-            entityTypeB.AddForeignKey(entityTypeC.GetKey(), entityTypeB.AddProperty("P", typeof(int)));
-            entityTypeC.AddForeignKey(entityTypeB.GetKey(), entityTypeC.AddProperty("P", typeof(int)));
-            entityTypeA.AddForeignKey(entityTypeC.GetKey(), entityTypeA.AddProperty("P", typeof(int)));
+            entityTypeB.GetOrAddForeignKey(entityTypeC.GetPrimaryKey(), entityTypeB.GetOrAddProperty("P", typeof(int)));
+            entityTypeC.GetOrAddForeignKey(entityTypeB.GetPrimaryKey(), entityTypeC.GetOrAddProperty("P", typeof(int)));
+            entityTypeA.GetOrAddForeignKey(entityTypeC.GetPrimaryKey(), entityTypeA.GetOrAddProperty("P", typeof(int)));
 
             var model = new EntityTypeGraph();
             model.Populate(entityTypeA, entityTypeB, entityTypeC);

@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                     ConfigureKeyProperty(property);
                 }
 
-                entityType.SetKey(keyProperties);
+                entityType.GetOrSetPrimaryKey(keyProperties);
             }
         }
 

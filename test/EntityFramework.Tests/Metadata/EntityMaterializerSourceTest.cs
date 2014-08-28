@@ -37,9 +37,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Can_create_materializer_for_entity_with_auto_properties()
         {
             var entityType = new EntityType(typeof(SomeEntity));
-            entityType.AddProperty("Id", typeof(int));
-            entityType.AddProperty("Foo", typeof(string));
-            entityType.AddProperty("Goo", typeof(Guid));
+            entityType.GetOrAddProperty("Id", typeof(int));
+            entityType.GetOrAddProperty("Foo", typeof(string));
+            entityType.GetOrAddProperty("Goo", typeof(Guid?));
 
             var factory = new EntityMaterializerSource(new MemberMapper(new FieldMatcher())).GetMaterializer(entityType);
 
@@ -55,9 +55,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Can_create_materializer_for_entity_with_fields()
         {
             var entityType = new EntityType(typeof(SomeEntityWithFields));
-            entityType.AddProperty("Id", typeof(int));
-            entityType.AddProperty("Foo", typeof(string));
-            entityType.AddProperty("Goo", typeof(Guid));
+            entityType.GetOrAddProperty("Id", typeof(int));
+            entityType.GetOrAddProperty("Foo", typeof(string));
+            entityType.GetOrAddProperty("Goo", typeof(Guid?));
 
             var factory = new EntityMaterializerSource(new MemberMapper(new FieldMatcher())).GetMaterializer(entityType);
 
@@ -81,9 +81,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             valueReaderMock.Setup(m => m.IsNull(1)).Returns(true);
 
             var entityType = new EntityType(typeof(SomeEntity));
-            entityType.AddProperty("Id", typeof(int));
-            entityType.AddProperty("Foo", typeof(string));
-            entityType.AddProperty("Goo", typeof(Guid?));
+            entityType.GetOrAddProperty("Id", typeof(int));
+            entityType.GetOrAddProperty("Foo", typeof(string));
+            entityType.GetOrAddProperty("Goo", typeof(Guid?));
 
             var factory = new EntityMaterializerSource(new MemberMapper(new FieldMatcher())).GetMaterializer(entityType);
 
@@ -98,12 +98,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Can_create_materializer_for_entity_ignoring_shadow_fields()
         {
             var entityType = new EntityType(typeof(SomeEntity));
-            entityType.AddProperty("Id", typeof(int));
-            entityType.AddProperty("IdShadow", typeof(int), shadowProperty: true, concurrencyToken: false);
-            entityType.AddProperty("Foo", typeof(string));
-            entityType.AddProperty("FooShadow", typeof(string), shadowProperty: true, concurrencyToken: false);
-            entityType.AddProperty("Goo", typeof(Guid));
-            entityType.AddProperty("GooShadow", typeof(Guid), shadowProperty: true, concurrencyToken: false);
+            entityType.GetOrAddProperty("Id", typeof(int));
+            entityType.GetOrAddProperty("IdShadow", typeof(int), shadowProperty: true);
+            entityType.GetOrAddProperty("Foo", typeof(string));
+            entityType.GetOrAddProperty("FooShadow", typeof(string), shadowProperty: true);
+            entityType.GetOrAddProperty("Goo", typeof(Guid?));
+            entityType.GetOrAddProperty("GooShadow", typeof(Guid), shadowProperty: true);
 
             var factory = new EntityMaterializerSource(new MemberMapper(new FieldMatcher())).GetMaterializer(entityType);
 

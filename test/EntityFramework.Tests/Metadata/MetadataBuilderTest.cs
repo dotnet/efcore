@@ -180,7 +180,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.IsType<BasicModelBuilder.EntityBuilder.KeyBuilder>(returnedBuilder);
 
             var model = builder.Model;
-            var key = model.GetEntityType(typeof(Gunter)).GetKey();
+            var key = model.GetEntityType(typeof(Gunter)).GetPrimaryKey();
 
             Assert.Equal("V2.Annotation", key["Annotation"]);
             Assert.Equal("V2.Metadata", key["Metadata"]);
@@ -201,7 +201,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.IsType<ModelBuilder.EntityBuilder.KeyBuilder>(returnedBuilder);
 
             var model = builder.Model;
-            var key = model.GetEntityType(typeof(Gunter)).GetKey();
+            var key = model.GetEntityType(typeof(Gunter)).GetPrimaryKey();
 
             Assert.Equal("V2.Annotation", key["Annotation"]);
             Assert.Equal("V2.Metadata", key["Metadata"]);
@@ -569,7 +569,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.IsType<BasicModelBuilder.EntityBuilder.KeyBuilder>(returnedBuilder);
 
             var model = builder.Model;
-            var key = model.GetEntityType(typeof(Gunter)).GetKey();
+            var key = model.GetEntityType(typeof(Gunter)).GetPrimaryKey();
 
             Assert.Equal("V2.Annotation", key["Annotation"]);
             Assert.Equal("V2.Metadata", key["Metadata"]);
@@ -590,7 +590,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.IsType<ModelBuilder.EntityBuilder.KeyBuilder>(returnedBuilder);
 
             var model = builder.Model;
-            var key = model.GetEntityType(typeof(Gunter)).GetKey();
+            var key = model.GetEntityType(typeof(Gunter)).GetPrimaryKey();
 
             Assert.Equal("V2.Annotation", key["Annotation"]);
             Assert.Equal("V2.Metadata", key["Metadata"]);

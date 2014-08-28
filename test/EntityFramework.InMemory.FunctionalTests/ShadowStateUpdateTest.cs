@@ -16,8 +16,8 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             var model = new Model();
 
             var customerType = new EntityType("Customer");
-            customerType.SetKey(customerType.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false));
-            customerType.AddProperty("Name", typeof(string), shadowProperty: true, concurrencyToken: false);
+            customerType.GetOrSetPrimaryKey(customerType.AddProperty(new Property("Id", typeof(int), shadowProperty: true)));
+            customerType.GetOrAddProperty("Name", typeof(string), shadowProperty: true);
 
             model.AddEntityType(customerType);
 
@@ -80,8 +80,8 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             var model = new Model();
 
             var customerType = new EntityType(typeof(Customer));
-            customerType.SetKey(customerType.AddProperty("Id", typeof(int), shadowProperty: false, concurrencyToken: false));
-            customerType.AddProperty("Name", typeof(string), shadowProperty: true, concurrencyToken: false);
+            customerType.GetOrSetPrimaryKey(customerType.GetOrAddProperty("Id", typeof(int)));
+            customerType.GetOrAddProperty("Name", typeof(string), shadowProperty: true);
 
             model.AddEntityType(customerType);
 

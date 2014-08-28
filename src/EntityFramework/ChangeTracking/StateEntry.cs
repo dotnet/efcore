@@ -195,7 +195,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 _stateData.SetAllPropertiesModified(_entityType.Properties.Count(), isModified: true);
 
                 // Assuming key properties are not modified
-                foreach (var keyProperty in EntityType.GetKey().Properties)
+                foreach (var keyProperty in EntityType.GetPrimaryKey().Properties)
                 {
                     _stateData.SetPropertyModified(keyProperty.Index, isModified: false);
                 }

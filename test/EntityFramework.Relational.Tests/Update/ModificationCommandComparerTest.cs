@@ -18,8 +18,8 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var configuration = new DbContext(new DbContextOptions().UseInMemoryStore(persist: false)).Configuration;
 
             var entityType1 = new EntityType(typeof(object));
-            var key1 = entityType1.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false);
-            entityType1.SetKey(key1);
+            var key1 = entityType1.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
+            entityType1.GetOrSetPrimaryKey(key1);
             var stateEntry1 = new MixedStateEntry(configuration, entityType1, new object());
             stateEntry1[key1] = 0;
             stateEntry1.EntityState = EntityState.Added;
@@ -27,8 +27,8 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             modificationCommandAdded.AddStateEntry(stateEntry1);
 
             var entityType2 = new EntityType(typeof(object));
-            var key2 = entityType2.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false);
-            entityType2.SetKey(key2);
+            var key2 = entityType2.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
+            entityType2.GetOrSetPrimaryKey(key2);
             var stateEntry2 = new MixedStateEntry(configuration, entityType2, new object());
             stateEntry2[key2] = 0;
             stateEntry2.EntityState = EntityState.Modified;
@@ -36,8 +36,8 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             modificationCommandModified.AddStateEntry(stateEntry2);
 
             var entityType3 = new EntityType(typeof(object));
-            var key3 = entityType3.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false);
-            entityType3.SetKey(key3);
+            var key3 = entityType3.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
+            entityType3.GetOrSetPrimaryKey(key3);
             var stateEntry3 = new MixedStateEntry(configuration, entityType3, new object());
             stateEntry3[key3] = 0;
             stateEntry3.EntityState = EntityState.Deleted;

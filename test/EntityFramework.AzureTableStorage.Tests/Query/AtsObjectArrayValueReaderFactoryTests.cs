@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
         public void It_gets_value_by_storage_name()
         {
             var entityType = new EntityType("TestType");
-            var property = entityType.AddProperty("ClrName", typeof(object));
+            var property = entityType.GetOrAddProperty("ClrName", typeof(object), shadowProperty: true);
             property.SetColumnName("StorageName");
 
             var data = new Dictionary<string, EntityProperty>
@@ -38,8 +38,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
         public void Reader_does_not_contain_ignored_properties()
         {
             var entityType = new EntityType("TestType");
-            entityType.AddProperty("Prop1", typeof(string));
-            entityType.AddProperty("Prop2", typeof(int));
+            entityType.GetOrAddProperty("Prop1", typeof(string), shadowProperty: true);
+            entityType.GetOrAddProperty("Prop2", typeof(int), shadowProperty: true);
             var data = new Dictionary<string, EntityProperty>
                 {
                     { "Prop2", new EntityProperty(3) },
@@ -61,8 +61,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
         public void Reader_contains_nulls_for_unmatched_properties()
         {
             var entityType = new EntityType("TestType");
-            entityType.AddProperty("Prop1", typeof(string));
-            entityType.AddProperty("Prop2", typeof(int));
+            entityType.GetOrAddProperty("Prop1", typeof(string), shadowProperty: true);
+            entityType.GetOrAddProperty("Prop2", typeof(int), shadowProperty: true);
             var buffer = new AtsNamedValueBuffer(new Dictionary<string, EntityProperty>());
             var reader = _factory.Create(entityType, buffer);
 
@@ -76,7 +76,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
         public void Reader_uses_default_clr_for_unmapped_properties()
         {
             var entityType = new EntityType("TestType");
-            entityType.AddProperty("BoolProp", typeof(bool));
+            entityType.GetOrAddProperty("BoolProp", typeof(bool), shadowProperty: true);
 
             var buffer = new AtsNamedValueBuffer(new Dictionary<string, EntityProperty>());
             var reader = _factory.Create(entityType, buffer);

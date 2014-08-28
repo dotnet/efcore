@@ -11,25 +11,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 {
     public class IndexTest
     {
-        #region Fixture
-
-        public class Customer
-        {
-            public static PropertyInfo IdProperty = typeof(Customer).GetProperty("Id");
-            public static PropertyInfo NameProperty = typeof(Customer).GetProperty("Name");
-
-            public int Id { get; set; }
-            public string Name { get; set; }
-        }
-
-        #endregion
-
         [Fact]
         public void Can_create_index_from_properties()
         {
-            var entityType = new EntityType("E");
-            var property1 = entityType.AddProperty(Customer.IdProperty);
-            var property2 = entityType.AddProperty(Customer.NameProperty);
+            var entityType = new EntityType(typeof(Customer));
+            var property1 = entityType.GetOrAddProperty(Customer.IdProperty);
+            var property2 = entityType.GetOrAddProperty(Customer.NameProperty);
 
             var index = new Index(new[] { property1, property2 });
 
@@ -40,9 +27,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_create_unique_index_from_properties()
         {
-            var entityType = new EntityType("E");
-            var property1 = entityType.AddProperty(Customer.IdProperty);
-            var property2 = entityType.AddProperty(Customer.NameProperty);
+            var entityType = new EntityType(typeof(Customer));
+            var property1 = entityType.GetOrAddProperty(Customer.IdProperty);
+            var property2 = entityType.GetOrAddProperty(Customer.NameProperty);
 
             var index = new Index(new[] { property1, property2 }) { IsUnique = true, };
 
@@ -66,16 +53,29 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Constructor_validates_properties_from_same_entity()
         {
-            var entityType = new EntityType("E");
-            var property1 = entityType.AddProperty(Customer.IdProperty);
-            var property2 = entityType.AddProperty(Customer.NameProperty);
+            var entityType = new EntityType(typeof(Customer));
+            var property1 = entityType.GetOrAddProperty(Customer.IdProperty);
+            var property2 = entityType.GetOrAddProperty(Customer.NameProperty);
 
-            property1.EntityType = new EntityType("E1");
-            property2.EntityType = new EntityType("E2");
+            property1.EntityType = new EntityType(typeof(Customer));
+            property2.EntityType = new EntityType(typeof(Order));
 
             Assert.Equal(Strings.FormatInconsistentEntityType("properties"),
                 Assert.Throws<ArgumentException>(
                     () => new Index(new[] { property1, property2 })).Message);
+        }
+
+        private class Customer
+        {
+            public static readonly PropertyInfo IdProperty = typeof(Customer).GetProperty("Id");
+            public static readonly PropertyInfo NameProperty = typeof(Customer).GetProperty("Name");
+
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        private class Order
+        {
         }
     }
 }

@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                 var primitiveProperties = entityType.Type.GetRuntimeProperties().Where(IsPrimitiveProperty);
                 foreach (var propertyInfo in primitiveProperties)
                 {
-                    entityType.AddProperty(propertyInfo);
+                    entityType.GetOrAddProperty(propertyInfo);
                 }
             }
         }

@@ -67,7 +67,7 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
             return Empty.Indexes;
         }
 
-        public IKey GetKey()
+        public IKey GetPrimaryKey()
         {
             return LazyInitializer.EnsureInitialized(ref _key, LoadKey);
         }

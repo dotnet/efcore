@@ -69,10 +69,10 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers
         public TestStateEntry WithType(string name)
         {
             var e = new EntityType(name);
-            e.AddProperty("PartitionKey", typeof(string), true, false);
-            e.AddProperty("RowKey", typeof(string), true, false);
-            e.AddProperty("ETag", typeof(string), true, false);
-            e.AddProperty("Timestamp", typeof(DateTime), true, false);
+            e.GetOrAddProperty("PartitionKey", typeof(string), shadowProperty: true);
+            e.GetOrAddProperty("RowKey", typeof(string), shadowProperty: true);
+            e.GetOrAddProperty("ETag", typeof(string), shadowProperty: true);
+            e.GetOrAddProperty("Timestamp", typeof(DateTime), shadowProperty: true);
             _entityType = e;
             return this;
         }
@@ -80,10 +80,10 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers
         public TestStateEntry WithType(Type type)
         {
             var e = new EntityType(type);
-            e.AddProperty("PartitionKey", typeof(string));
-            e.AddProperty("RowKey", typeof(string));
-            e.AddProperty("ETag", typeof(string));
-            e.AddProperty("Timestamp", typeof(DateTimeOffset));
+            e.GetOrAddProperty("PartitionKey", typeof(string));
+            e.GetOrAddProperty("RowKey", typeof(string));
+            e.GetOrAddProperty("ETag", typeof(string));
+            e.GetOrAddProperty("Timestamp", typeof(DateTimeOffset));
             _entityType = e;
             return this;
         }

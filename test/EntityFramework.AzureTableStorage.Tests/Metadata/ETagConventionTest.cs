@@ -9,7 +9,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Metadata
 {
     public class ETagConventionTest
     {
-        public ETagConvention _convention = new ETagConvention();
+        private readonly ETagConvention _convention = new ETagConvention();
 
         [Fact]
         public void It_adds_etag()
@@ -26,13 +26,13 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Metadata
         public void It_does_not_overwrite_etag_prop()
         {
             var entityType = new EntityType("TestType");
-            entityType.AddProperty("ETag", typeof(int), false, false);
+            entityType.GetOrAddProperty("ETag", typeof(int), shadowProperty: true);
 
             _convention.Apply(entityType);
             var etagProp = entityType.GetProperty("ETag");
             Assert.NotNull(etagProp);
-            Assert.False(etagProp.IsShadowProperty);
-            Assert.False(etagProp.IsConcurrencyToken);
+            Assert.True(etagProp.IsShadowProperty);
+            Assert.True(etagProp.IsConcurrencyToken);
         }
     }
 }

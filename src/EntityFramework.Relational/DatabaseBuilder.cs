@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity.Relational
                             mapping.Map(property, BuildColumn(table, property));
                         }
 
-                        var primaryKey = entityType.GetKey();
+                        var primaryKey = entityType.GetPrimaryKey();
                         if (primaryKey != null)
                         {
                             mapping.Map(primaryKey, BuildPrimaryKey(database, primaryKey));
@@ -75,7 +75,7 @@ namespace Microsoft.Data.Entity.Relational
 
         private static IEnumerable<IProperty> OrderProperties(IEntityType entityType)
         {
-            var primaryKey = entityType.GetKey();
+            var primaryKey = entityType.GetPrimaryKey();
 
             var primaryKeyProperties
                 = primaryKey != null

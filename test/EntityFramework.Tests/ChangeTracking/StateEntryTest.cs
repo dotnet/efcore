@@ -1011,40 +1011,40 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var entityType1 = new EntityType(typeof(SomeEntity));
             model.AddEntityType(entityType1);
-            var key1 = entityType1.AddProperty("Id", typeof(int));
+            var key1 = entityType1.GetOrAddProperty("Id", typeof(int));
             key1.ValueGenerationOnSave = ValueGenerationOnSave.WhenInserting;
             key1.ValueGenerationOnAdd = ValueGenerationOnAdd.Client;
-            entityType1.SetKey(key1);
-            entityType1.AddProperty("Name", typeof(string), shadowProperty: false, concurrencyToken: true);
+            entityType1.GetOrSetPrimaryKey(key1);
+            entityType1.GetOrAddProperty("Name", typeof(string)).IsConcurrencyToken = true;
 
             var entityType2 = new EntityType(typeof(SomeDependentEntity));
             model.AddEntityType(entityType2);
-            var key2a = entityType2.AddProperty("Id1", typeof(int));
-            var key2b = entityType2.AddProperty("Id2", typeof(string));
-            entityType2.SetKey(key2a, key2b);
-            var fk = entityType2.AddProperty("SomeEntityId", typeof(int));
-            entityType2.AddForeignKey(entityType1.GetKey(), new[] { fk });
-            var justAProperty = entityType2.AddProperty("JustAProperty", typeof(int));
+            var key2a = entityType2.GetOrAddProperty("Id1", typeof(int));
+            var key2b = entityType2.GetOrAddProperty("Id2", typeof(string));
+            entityType2.GetOrSetPrimaryKey(key2a, key2b);
+            var fk = entityType2.GetOrAddProperty("SomeEntityId", typeof(int));
+            entityType2.GetOrAddForeignKey(entityType1.GetPrimaryKey(), new[] { fk });
+            var justAProperty = entityType2.GetOrAddProperty("JustAProperty", typeof(int));
             justAProperty.ValueGenerationOnSave = ValueGenerationOnSave.WhenInserting;
             justAProperty.ValueGenerationOnAdd = ValueGenerationOnAdd.Client;
 
             var entityType3 = new EntityType(typeof(FullNotificationEntity));
             model.AddEntityType(entityType3);
-            entityType3.SetKey(entityType3.AddProperty("Id", typeof(int)));
-            entityType3.AddProperty("Name", typeof(string), shadowProperty: false, concurrencyToken: true);
+            entityType3.GetOrSetPrimaryKey(entityType3.GetOrAddProperty("Id", typeof(int)));
+            entityType3.GetOrAddProperty("Name", typeof(string)).IsConcurrencyToken = true;
 
             var entityType4 = new EntityType(typeof(ChangedOnlyEntity));
             model.AddEntityType(entityType4);
-            entityType4.SetKey(entityType4.AddProperty("Id", typeof(int)));
-            entityType4.AddProperty("Name", typeof(string), shadowProperty: false, concurrencyToken: true);
+            entityType4.GetOrSetPrimaryKey(entityType4.GetOrAddProperty("Id", typeof(int)));
+            entityType4.GetOrAddProperty("Name", typeof(string)).IsConcurrencyToken = true;
 
             var entityType5 = new EntityType(typeof(SomeMoreDependentEntity));
             model.AddEntityType(entityType5);
-            var key5 = entityType5.AddProperty("Id", typeof(int));
-            entityType5.SetKey(key5);
-            var fk5a = entityType5.AddProperty("Fk1", typeof(int));
-            var fk5b = entityType5.AddProperty("Fk2", typeof(string));
-            entityType5.AddForeignKey(entityType2.GetKey(), new[] { fk5a, fk5b });
+            var key5 = entityType5.GetOrAddProperty("Id", typeof(int));
+            entityType5.GetOrSetPrimaryKey(key5);
+            var fk5a = entityType5.GetOrAddProperty("Fk1", typeof(int));
+            var fk5b = entityType5.GetOrAddProperty("Fk2", typeof(string));
+            entityType5.GetOrAddForeignKey(entityType2.GetPrimaryKey(), new[] { fk5a, fk5b });
 
             return model;
         }

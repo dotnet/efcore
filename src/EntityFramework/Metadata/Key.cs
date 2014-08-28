@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
         }
 
-        internal Key([NotNull] IReadOnlyList<Property> properties)
+        public Key([NotNull] IReadOnlyList<Property> properties)
         {
             Check.NotEmpty(properties, "properties");
             MetadataHelper.CheckSameEntityType(properties, "properties");

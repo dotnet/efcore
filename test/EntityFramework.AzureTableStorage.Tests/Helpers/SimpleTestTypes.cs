@@ -15,8 +15,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers
         public static EntityType EntityType()
         {
             var entityType = new EntityType(typeof(IntKeysPoco));
-            entityType.AddProperty("PartitionID", typeof(int)).SetColumnName("PartitionKey");
-            entityType.AddProperty("RowID", typeof(int)).SetColumnName("RowKey");
+            entityType.GetOrAddProperty("PartitionID", typeof(int)).SetColumnName("PartitionKey");
+            entityType.GetOrAddProperty("RowID", typeof(int)).SetColumnName("RowKey");
             return entityType;
         }
     }
@@ -29,8 +29,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers
         public static EntityType EntityType()
         {
             var entityType = new EntityType(typeof(NullablePoco));
-            entityType.AddProperty("NullInt", typeof(int?));
-            entityType.AddProperty("NullDouble", typeof(double?));
+            entityType.GetOrAddProperty("NullInt", typeof(int?));
+            entityType.GetOrAddProperty("NullDouble", typeof(double?));
             return entityType;
         }
     }

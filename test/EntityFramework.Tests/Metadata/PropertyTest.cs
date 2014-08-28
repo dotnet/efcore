@@ -10,23 +10,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 {
     public class PropertyTest
     {
-        #region Fixture
-
-        public class Customer
-        {
-            public static PropertyInfo IdProperty = typeof(Customer).GetProperty("Id");
-            public static PropertyInfo NameProperty = typeof(Customer).GetProperty("Name");
-            public static PropertyInfo AgeProperty = typeof(Customer).GetProperty("Age");
-            public static PropertyInfo HashProperty = typeof(Customer).GetProperty("Hash");
-
-            public int Id { get; set; }
-            public string Name { get; set; }
-            public byte? Age { get; set; }
-            public Guid Hash { get; set; }
-        }
-
-        #endregion
-
         [Fact]
         public void Members_check_arguments()
         {
@@ -71,8 +54,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void HasClrProperty_is_set_appropriately()
         {
             Assert.False(new Property("Kake", typeof(int)).IsShadowProperty);
-            Assert.False(new Property("Kake", typeof(int), shadowProperty: false, concurrencyToken: false).IsShadowProperty);
-            Assert.True(new Property("Kake", typeof(int), shadowProperty: true, concurrencyToken: false).IsShadowProperty);
+            Assert.False(new Property("Kake", typeof(int)).IsShadowProperty);
+            Assert.True(new Property("Kake", typeof(int), shadowProperty: true).IsShadowProperty);
         }
 
         [Fact]
@@ -84,7 +67,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_mark_property_as_concurrency_token()
         {
-            Assert.True(new Property("Name", typeof(string), shadowProperty: false, concurrencyToken: true).IsConcurrencyToken);
+            var property = new Property("Name", typeof(string));
+            Assert.False(property.IsConcurrencyToken);
+
+            property.IsConcurrencyToken = true;
+            Assert.True(property.IsConcurrencyToken);
         }
 
         [Fact]
@@ -116,7 +103,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_get_and_set_property_and_shadow_index_for_shadow_property()
         {
-            var property = new Property("Kake", typeof(int), shadowProperty: true, concurrencyToken: false);
+            var property = new Property("Kake", typeof(int), shadowProperty: true);
 
             Assert.Equal(0, property.Index);
             Assert.Equal(0, property.ShadowIndex);

@@ -58,7 +58,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var stateManager = CreateStateManager(model);
             var entityType = model.GetEntityType("Location");
             var stateEntry = stateManager.CreateNewEntry(entityType);
-            stateEntry[entityType.GetKey().Properties.Single()] = 42;
+            stateEntry[entityType.GetPrimaryKey().Properties.Single()] = 42;
 
             Assert.Equal(EntityState.Unknown, stateEntry.EntityState);
             Assert.Null(stateEntry.Entity);
@@ -437,12 +437,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var productType = model.GetEntityType(typeof(Product));
             var categoryType = model.GetEntityType(typeof(Category));
 
-            productType.AddForeignKey(new Key(new[] { categoryType.GetProperty("PrincipalId") }), productType.GetProperty("DependentId"));
+            productType.GetOrAddForeignKey(new Key(new[] { categoryType.GetProperty("PrincipalId") }), productType.GetProperty("DependentId"));
 
             var locationType = new EntityType("Location");
-            var idProperty = locationType.AddProperty("Id", typeof(int), shadowProperty: true, concurrencyToken: false);
-            locationType.AddProperty("Planet", typeof(string), shadowProperty: true, concurrencyToken: false);
-            locationType.SetKey(idProperty);
+            var idProperty = locationType.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
+            locationType.GetOrAddProperty("Planet", typeof(string), shadowProperty: true);
+            locationType.GetOrSetPrimaryKey(idProperty);
             model.AddEntityType(locationType);
 
             return model;

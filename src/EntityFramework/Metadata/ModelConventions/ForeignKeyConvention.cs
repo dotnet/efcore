@@ -71,16 +71,15 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             var fkProperty = foreignKeyProperties.FirstOrDefault()
                              ?? new[]
                                  {
-                                     dependentType.AddProperty(
+                                     dependentType.GetOrAddProperty(
                                          (navigationToPrincipal ?? principalType.SimpleName) + "Id",
                                          // TODO: Make nullable
-                                         principalType.GetKey().Properties.First().PropertyType,
-                                         shadowProperty: true,
-                                         concurrencyToken: false)
+                                         principalType.GetPrimaryKey().Properties.First().PropertyType,
+                                         shadowProperty: true)
                                  };
 
-            var principalKey = referencedProperties.Any() ? new Key(referencedProperties) : principalType.GetKey();
-            var newForeignKey = dependentType.AddForeignKey(principalKey, fkProperty.ToArray());
+            var principalKey = referencedProperties.Any() ?  principalType.GetOrAddKey(referencedProperties.ToArray()) : principalType.GetPrimaryKey();
+            var newForeignKey = dependentType.AddForeignKey(new ForeignKey(principalKey, fkProperty.ToArray()));
             newForeignKey.IsUnique = isUnqiue;
 
             return newForeignKey;
@@ -89,7 +88,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
         private IReadOnlyList<IReadOnlyList<Property>> GetCandidateForeignKeyProperties(
             EntityType principalType, EntityType dependentType, string navigationToPrincipal, bool isUnqiue)
         {
-            var pk = principalType.TryGetKey();
+            var pk = principalType.TryGetPrimaryKey();
             var pkPropertyName = pk != null && pk.Properties.Count == 1 ? pk.Properties[0].Name : null;
 
             var candidateNames = new List<string>();
@@ -125,7 +124,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
 
             if (isUnqiue)
             {
-                var dependentPk = dependentType.TryGetKey();
+                var dependentPk = dependentType.TryGetPrimaryKey();
                 if (dependentPk != null)
                 {
                     matches.Add(dependentPk.Properties.ToArray());

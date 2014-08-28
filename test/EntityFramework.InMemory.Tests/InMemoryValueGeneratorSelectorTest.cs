@@ -97,7 +97,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         private static Property CreateProperty(Type propertyType, ValueGenerationOnAdd valueGeneration)
         {
             var entityType = new EntityType("MyType");
-            var property = entityType.AddProperty("MyProperty", propertyType);
+            var property = entityType.GetOrAddProperty("MyProperty", propertyType, shadowProperty: true);
             property.ValueGenerationOnAdd = valueGeneration;
 
             new Model().AddEntityType(entityType);

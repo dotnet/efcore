@@ -106,7 +106,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 CreateSimpleFKModel().GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
 
             await stateEntry.SetEntityStateAsync(EntityState.Modified);
-            stateEntry.SetPropertyModified(stateEntry.EntityType.GetKey().Properties.Single(), isModified: false);
+            stateEntry.SetPropertyModified(stateEntry.EntityType.GetPrimaryKey().Properties.Single(), isModified: false);
 
             var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { stateEntry }).ToArray();
             Assert.Equal(1, commandBatches.Count());
@@ -221,7 +221,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 configuration,
                 model.GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
             await stateEntry.SetEntityStateAsync(EntityState.Modified);
-            stateEntry.SetPropertyModified(stateEntry.EntityType.GetKey().Properties.Single(), isModified: true);
+            stateEntry.SetPropertyModified(stateEntry.EntityType.GetPrimaryKey().Properties.Single(), isModified: true);
 
             var relatedStateEntry = new MixedStateEntry(
                 configuration,
@@ -277,7 +277,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 model.GetEntityType(typeof(RelatedFakeEntity)), new RelatedFakeEntity { Id = 1, RelatedId = 3 });
             await relatedStateEntry.SetEntityStateAsync(EntityState.Modified);
             relatedStateEntry.OriginalValues[relatedStateEntry.EntityType.GetProperty("RelatedId")] = 42;
-            relatedStateEntry.SetPropertyModified(relatedStateEntry.EntityType.GetKey().Properties.Single(), isModified: false);
+            relatedStateEntry.SetPropertyModified(relatedStateEntry.EntityType.GetPrimaryKey().Properties.Single(), isModified: false);
 
             var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { relatedStateEntry, previousParent, newParent }).ToArray();
 

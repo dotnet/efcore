@@ -128,7 +128,7 @@ namespace Microsoft.Data.Entity.Design
                 {
                     GenerateProperties(entityType.Properties, stringBuilder);
 
-                    GenerateKey(entityType.GetKey(), stringBuilder);
+                    GenerateKey(entityType.GetPrimaryKey(), stringBuilder);
 
                     GenerateForeignKeys(entityType.ForeignKeys, stringBuilder);
 

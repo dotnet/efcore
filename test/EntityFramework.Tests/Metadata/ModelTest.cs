@@ -10,20 +10,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 {
     public class ModelTest
     {
-        #region Fixture
-
-        public class Customer
-        {
-            public int Id { get; set; }
-            public string Name { get; set; }
-        }
-
-        public class Order
-        {
-        }
-
-        #endregion
-
         [Fact]
         public void Members_check_arguments()
         {
@@ -117,7 +103,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var entityType2 = new EntityType(typeof(Order));
             var keyProperty = new Property("Id", typeof(Customer)) { EntityType = entityType1 };
             var fkProperty = new Property("CustomerId", typeof(Order)) { EntityType = entityType2 };
-            var foreignKey = entityType2.AddForeignKey(new Key(new[] { keyProperty }), fkProperty);
+            var foreignKey = entityType2.GetOrAddForeignKey(new Key(new[] { keyProperty }), fkProperty);
 
             model.AddEntityType(entityType1);
             model.AddEntityType(entityType2);
@@ -126,6 +112,16 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Same(foreignKey, referencingForeignKeys.Single());
             Assert.Same(foreignKey, entityType1.GetReferencingForeignKeys().Single());
+        }
+
+        private class Customer
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        private class Order
+        {
         }
     }
 }

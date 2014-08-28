@@ -58,17 +58,17 @@ namespace Microsoft.Data.Entity.Query
             }
         }
 
-        public QueryCompilationContext QueryCompilationContext
+        public virtual QueryCompilationContext QueryCompilationContext
         {
             get { return _queryCompilationContext; }
         }
 
-        public ILinqOperatorProvider LinqOperatorProvider
+        public virtual ILinqOperatorProvider LinqOperatorProvider
         {
             get { return QueryCompilationContext.LinqOperatorProvider; }
         }
 
-        public StreamedSequenceInfo StreamedSequenceInfo
+        public virtual StreamedSequenceInfo StreamedSequenceInfo
         {
             get { return _streamedSequenceInfo; }
         }
@@ -85,7 +85,7 @@ namespace Microsoft.Data.Entity.Query
             return new DefaultExpressionTreeVisitor(this);
         }
 
-        public Func<QueryContext, IEnumerable<TResult>> CreateQueryExecutor<TResult>([NotNull] QueryModel queryModel)
+        public virtual Func<QueryContext, IEnumerable<TResult>> CreateQueryExecutor<TResult>([NotNull] QueryModel queryModel)
         {
             Check.NotNull(queryModel, "queryModel");
 
@@ -111,7 +111,7 @@ namespace Microsoft.Data.Entity.Query
             return qc => queryExecutor(qc, null);
         }
 
-        public Func<QueryContext, IAsyncEnumerable<TResult>> CreateAsyncQueryExecutor<TResult>([NotNull] QueryModel queryModel)
+        public virtual Func<QueryContext, IAsyncEnumerable<TResult>> CreateAsyncQueryExecutor<TResult>([NotNull] QueryModel queryModel)
         {
             Check.NotNull(queryModel, "queryModel");
 

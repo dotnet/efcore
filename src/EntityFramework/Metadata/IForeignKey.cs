@@ -9,6 +9,7 @@ namespace Microsoft.Data.Entity.Metadata
     {
         IReadOnlyList<IProperty> ReferencedProperties { get; }
         IEntityType ReferencedEntityType { get; }
+        IKey ReferencedKey { get; }
         bool IsUnique { get; }
         bool IsRequired { get; }
     }

@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Metadata
             _convention.Apply(entityType);
 
             Assert.Equal(0, entityType.Properties.Count);
-            Assert.Null(entityType.TryGetKey());
+            Assert.Null(entityType.TryGetPrimaryKey());
         }
 
         [Theory]
@@ -29,24 +29,24 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Metadata
         public void It_requires_both_properties(string onlyProp)
         {
             var entityType = new EntityType("John Maynard");
-            entityType.AddProperty(onlyProp, typeof(string));
+            entityType.GetOrAddProperty(onlyProp, typeof(string), shadowProperty: true);
 
             _convention.Apply(entityType);
 
             Assert.Equal(1, entityType.Properties.Count);
-            Assert.Null(entityType.TryGetKey());
+            Assert.Null(entityType.TryGetPrimaryKey());
         }
 
         [Fact]
         public void It_adds_composite_key()
         {
             var entityType = new EntityType("John Maynard");
-            entityType.AddProperty("PartitionKey", typeof(string));
-            entityType.AddProperty("RowKey", typeof(string));
+            entityType.GetOrAddProperty("PartitionKey", typeof(string), shadowProperty: true);
+            entityType.GetOrAddProperty("RowKey", typeof(string), shadowProperty: true);
 
             _convention.Apply(entityType);
 
-            var key = entityType.GetKey();
+            var key = entityType.GetPrimaryKey();
             Assert.Equal(2, key.Properties.Count);
             Assert.Contains("PartitionKey", key.Properties.Select(p => p.ColumnName()));
             Assert.Contains("RowKey", key.Properties.Select(p => p.ColumnName()));

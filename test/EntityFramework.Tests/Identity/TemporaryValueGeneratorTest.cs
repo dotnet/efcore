@@ -54,7 +54,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
         private static Property CreateProperty(Type propertyType)
         {
             var entityType = new EntityType("MyType");
-            return entityType.AddProperty("MyProperty", propertyType);
+            return entityType.GetOrAddProperty("MyProperty", propertyType, shadowProperty: true);
         }
     }
 }

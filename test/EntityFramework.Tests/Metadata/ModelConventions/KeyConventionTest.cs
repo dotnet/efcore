@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
             new KeyConvention().Apply(entityType);
 
-            var key = entityType.TryGetKey();
+            var key = entityType.TryGetPrimaryKey();
             Assert.Null(key);
         }
 
@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
             convention.Object.Apply(entityType);
 
-            var key = entityType.TryGetKey();
+            var key = entityType.TryGetPrimaryKey();
             Assert.NotNull(key);
             Assert.Equal(new[] { "ModifiedDate", "Name" }, key.Properties.Select(p => p.Name));
         }
@@ -58,7 +58,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
             new KeyConvention().Apply(entityType);
 
-            var key = entityType.TryGetKey();
+            var key = entityType.TryGetPrimaryKey();
             Assert.NotNull(key);
             Assert.Equal(new[] { "Id" }, key.Properties.Select(p => p.Name));
             Assert.Equal(ValueGenerationOnSave.WhenInserting, key.Properties.Single().ValueGenerationOnSave);
@@ -77,7 +77,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
             new KeyConvention().Apply(entityType);
 
-            var key = entityType.TryGetKey();
+            var key = entityType.TryGetPrimaryKey();
             Assert.NotNull(key);
             Assert.Equal(new[] { "EntityWithTypeIdId" }, key.Properties.Select(p => p.Name));
             Assert.Equal(ValueGenerationOnSave.WhenInserting, key.Properties.Single().ValueGenerationOnSave);
@@ -97,7 +97,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
             new KeyConvention().Apply(entityType);
 
-            var key = entityType.TryGetKey();
+            var key = entityType.TryGetPrimaryKey();
             Assert.NotNull(key);
             Assert.Equal(new[] { "Id" }, key.Properties.Select(p => p.Name));
             Assert.Equal(ValueGenerationOnSave.WhenInserting, key.Properties.Single().ValueGenerationOnSave);

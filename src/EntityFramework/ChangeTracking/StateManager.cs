@@ -82,7 +82,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotNull(valueReader, "valueReader");
 
             // TODO: Pre-compute this for speed
-            var keyProperties = entityType.GetKey().Properties;
+            var keyProperties = entityType.GetPrimaryKey().Properties;
             var keyValue = _keyFactorySource.GetKeyFactory(keyProperties).Create(entityType, keyProperties, valueReader);
 
             var existingEntry = TryGetEntry(keyValue);

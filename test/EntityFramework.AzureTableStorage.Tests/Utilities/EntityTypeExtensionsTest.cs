@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Utilities
         public void Can_lookup_by_storage_name()
         {
             var entityType = new EntityType("Customer");
-            var property = entityType.AddProperty("Name", typeof(string));
+            var property = entityType.GetOrAddProperty("Name", typeof(string), shadowProperty: true);
             property.SetColumnName("FirstName");
             Assert.Equal(property, entityType.GetPropertyByColumnName("FirstName"));
             Assert.Equal(property, entityType.TryGetPropertyByColumnName("FirstName"));
@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Utilities
         public void Lookup_by_storage_name_returns_null()
         {
             var entityType = new EntityType("Customer");
-            entityType.AddProperty("Name", typeof(string));
+            entityType.GetOrAddProperty("Name", typeof(string), shadowProperty: true);
 
             Assert.Equal(
                 Strings.FormatPropertyWithStorageNameNotFound("FirstName", "Customer"),

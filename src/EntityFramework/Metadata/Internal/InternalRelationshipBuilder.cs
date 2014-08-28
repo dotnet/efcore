@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Check.NotNull(propertyAccessList, "propertyAccessList");
 
             var dependentProperties = propertyAccessList
-                .Select(pi => _dependentType.TryGetProperty(pi.Name) ?? _dependentType.AddProperty(pi))
+                .Select(pi => _dependentType.GetOrAddProperty(pi))
                 .ToArray();
 
             if (Metadata.Properties.SequenceEqual(dependentProperties))
@@ -99,7 +99,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Check.NotNull(propertyAccessList, "propertyAccessList");
 
             var principalProperties = propertyAccessList
-                .Select(pi => _principalType.TryGetProperty(pi.Name) ?? _principalType.AddProperty(pi))
+                .Select(pi => _principalType.GetOrAddProperty(pi))
                 .ToArray();
 
             if (Metadata.ReferencedProperties.SequenceEqual(principalProperties))
@@ -107,7 +107,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return this;
             }
 
-            var newForeignKey = _dependentType.AddForeignKey(new Key(principalProperties), Metadata.Properties.ToArray());
+            var newForeignKey = _dependentType.AddForeignKey(new ForeignKey(new Key(principalProperties), Metadata.Properties.ToArray()));
             newForeignKey.IsUnique = Metadata.IsUnique;
 
             ReplaceForeignKey(newForeignKey, Enumerable.Empty<Property>());
@@ -147,6 +147,16 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         private void ReplaceForeignKey(ForeignKey newForeignKey, IEnumerable<Property> propertiesToRemove)
         {
+            if (_navigationToPrincipal != null)
+            {
+                _dependentType.RemoveNavigation(_navigationToPrincipal);
+            }
+
+            if (_navigationToDependent != null)
+            {
+                _principalType.RemoveNavigation(_navigationToDependent);
+            }
+
             // TODO: Remove FK only if it was added by convention
             Metadata.EntityType.RemoveForeignKey(Metadata);
 
@@ -154,7 +164,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             foreach (var property in propertiesToRemove)
             {
                 // TODO: This check not needed once only removing properties added by convention
-                var dependentPk = Metadata.EntityType.TryGetKey();
+                var dependentPk = Metadata.EntityType.TryGetPrimaryKey();
                 if (dependentPk == null
                     || !dependentPk.Properties.Contains(property))
                 {
@@ -165,11 +175,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             if (_navigationToPrincipal != null)
             {
                 _navigationToPrincipal.ForeignKey = newForeignKey;
+                _dependentType.AddNavigation(_navigationToPrincipal);
             }
 
             if (_navigationToDependent != null)
             {
                 _navigationToDependent.ForeignKey = newForeignKey;
+                _principalType.AddNavigation(_navigationToDependent);
             }
         }
     }

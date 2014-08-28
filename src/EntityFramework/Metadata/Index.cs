@@ -21,16 +21,15 @@ namespace Microsoft.Data.Entity.Metadata
         {
         }
 
-        internal Index([NotNull] IReadOnlyList<Property> properties)
+        public Index([NotNull] IReadOnlyList<Property> properties)
         {
-            Check.NotNull(properties, "properties");
             Check.NotEmpty(properties, "properties");
             MetadataHelper.CheckSameEntityType(properties, "properties");
 
             _properties = properties;
         }
 
-        public bool IsUnique { get; set; }
+        public virtual bool IsUnique { get; set; }
 
         public virtual IReadOnlyList<Property> Properties
         {

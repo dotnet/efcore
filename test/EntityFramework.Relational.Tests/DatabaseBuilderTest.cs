@@ -205,8 +205,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
             principalEntityType.SetSchema("dbo");
             principalEntityType.SetTableName("MyTable1");
 
-            var dependentProperty = dependentEntityType.AddProperty("Id", typeof(int));
-            var principalProperty = principalEntityType.AddProperty("Id", typeof(int));
+            var dependentProperty = dependentEntityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
+            var principalProperty = principalEntityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
             principalProperty.ValueGenerationOnSave = ValueGenerationOnSave.WhenInserting;
 
             model.AddEntityType(principalEntityType);
@@ -217,17 +217,17 @@ namespace Microsoft.Data.Entity.Relational.Tests
             dependentProperty.Annotations.Add(new Annotation(
                 MetadataExtensions.Annotations.StorageTypeName, "int"));
 
-            dependentEntityType.SetKey(dependentProperty);
-            principalEntityType.SetKey(principalProperty);
-            dependentEntityType.GetKey().SetKeyName("MyPK0");
-            principalEntityType.GetKey().SetKeyName("MyPK1");
+            dependentEntityType.GetOrSetPrimaryKey(dependentProperty);
+            principalEntityType.GetOrSetPrimaryKey(principalProperty);
+            dependentEntityType.GetPrimaryKey().SetKeyName("MyPK0");
+            principalEntityType.GetPrimaryKey().SetKeyName("MyPK1");
 
-            var foreignKey = dependentEntityType.AddForeignKey(principalEntityType.GetKey(), dependentProperty);
+            var foreignKey = dependentEntityType.GetOrAddForeignKey(principalEntityType.GetPrimaryKey(), dependentProperty);
             foreignKey.SetKeyName("MyFK");
             foreignKey.Annotations.Add(new Annotation(
                 MetadataExtensions.Annotations.CascadeDelete, "True"));
 
-            var index = dependentEntityType.AddIndex(dependentProperty);
+            var index = dependentEntityType.GetOrAddIndex(dependentProperty);
             index.SetIndexName("MyIndex");
             index.IsUnique = true;
 

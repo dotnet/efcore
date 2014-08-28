@@ -333,19 +333,19 @@ namespace Microsoft.Data.Entity.Tests
                     context.Model.EntityTypes.Select(e => e.Name).ToArray());
 
                 var categoryType = context.Model.GetEntityType(typeof(Category));
-                Assert.Equal("Id", categoryType.GetKey().Properties.Single().Name);
+                Assert.Equal("Id", categoryType.GetPrimaryKey().Properties.Single().Name);
                 Assert.Equal(
                     new[] { "Id", "Name" },
                     categoryType.Properties.Select(p => p.Name).ToArray());
 
                 var productType = context.Model.GetEntityType(typeof(Product));
-                Assert.Equal("Id", productType.GetKey().Properties.Single().Name);
+                Assert.Equal("Id", productType.GetPrimaryKey().Properties.Single().Name);
                 Assert.Equal(
                     new[] { "Id", "Name", "Price" },
                     productType.Properties.Select(p => p.Name).ToArray());
 
                 var guType = context.Model.GetEntityType(typeof(TheGu));
-                Assert.Equal("Id", guType.GetKey().Properties.Single().Name);
+                Assert.Equal("Id", guType.GetPrimaryKey().Properties.Single().Name);
                 Assert.Equal(
                     new[] { "Id", "ShirtColor" },
                     guType.Properties.Select(p => p.Name).ToArray());

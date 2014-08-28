@@ -276,7 +276,7 @@ namespace Microsoft.Data.Entity.Redis
         {
             return string.Join(
                 PropertyValueSeparator,
-                stateEntry.EntityType.GetKey().Properties.Select(p => EncodeKeyValue(propertyValueSelector(stateEntry, p))));
+                stateEntry.EntityType.GetPrimaryKey().Properties.Select(p => EncodeKeyValue(propertyValueSelector(stateEntry, p))));
         }
 
         // returns the object array representing all the properties

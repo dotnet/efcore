@@ -36,8 +36,8 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
                     .SequenceEqual(builtModel.EntityTypes.Select(a => a.Type)));
 
             Assert.True(
-                compiledModel.EntityTypes.First().GetKey().Properties.Select(p => p.Name)
-                    .SequenceEqual(builtModel.EntityTypes.First().GetKey().Properties.Select(p => p.Name)));
+                compiledModel.EntityTypes.First().GetPrimaryKey().Properties.Select(p => p.Name)
+                    .SequenceEqual(builtModel.EntityTypes.First().GetPrimaryKey().Properties.Select(p => p.Name)));
 
             Assert.True(
                 compiledModel.EntityTypes.First().Properties.Select(p => p.Name)
@@ -324,7 +324,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             var navigations = entities.SelectMany(e => e.Navigations);
             memory.Add(Tuple.Create(navigations.Count(), GetMemory(), "All navigations"));
 
-            var keys = entities.SelectMany(e => e.GetKey().Properties);
+            var keys = entities.SelectMany(e => e.GetPrimaryKey().Properties);
             memory.Add(Tuple.Create(keys.Count(), GetMemory(), "All keys"));
 
             var properties = entities.SelectMany(e => e.Properties).ToList();
@@ -360,20 +360,20 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             builder.Annotation("ModelAnnotation2", "ModelValue2");
 
             var entityType1 = new EntityType(typeof(KoolEntity1));
-            var property = entityType1.AddProperty("Id1", typeof(int));
-            entityType1.SetKey(property);
-            entityType1.AddProperty("Id2", typeof(Guid));
-            entityType1.AddProperty("KoolEntity2Id", typeof(int));
+            var property = entityType1.GetOrAddProperty("Id1", typeof(int));
+            entityType1.GetOrSetPrimaryKey(property);
+            entityType1.GetOrAddProperty("Id2", typeof(Guid));
+            entityType1.GetOrAddProperty("KoolEntity2Id", typeof(int));
             model.AddEntityType(entityType1);
 
             var entityType2 = new EntityType(typeof(KoolEntity2));
-            entityType2.AddProperty("KoolEntity1Id1", typeof(int));
-            entityType2.AddProperty("KoolEntity1Id2", typeof(Guid));
-            entityType2.AddProperty("KoolEntity3Id", typeof(int));
+            entityType2.GetOrAddProperty("KoolEntity1Id1", typeof(int));
+            entityType2.GetOrAddProperty("KoolEntity1Id2", typeof(Guid));
+            entityType2.GetOrAddProperty("KoolEntity3Id", typeof(int));
             model.AddEntityType(entityType2);
 
             var entityType3 = new EntityType(typeof(KoolEntity3));
-            entityType3.AddProperty("KoolEntity4Id", typeof(int));
+            entityType3.GetOrAddProperty("KoolEntity4Id", typeof(int));
             model.AddEntityType(entityType3);
 
             var entityType4 = new EntityType(typeof(KoolEntity4));
@@ -383,7 +383,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             model.AddEntityType(entityType5);
 
             var entityType6 = new EntityType(typeof(KoolEntity6));
-            entityType6.AddProperty("Kool5Id", typeof(int));
+            entityType6.GetOrAddProperty("Kool5Id", typeof(int));
             model.AddEntityType(entityType6);
 
             for (var i = 7; i <= 20; i++)
@@ -400,8 +400,8 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
                 var type = Type.GetType("Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity" + i);
 
                 var entityType = model.GetEntityType(type);
-                var id = entityType.AddProperty(entityType.Type.GetProperty("Id"));
-                entityType.SetKey(id);
+                var id = entityType.GetOrAddProperty(entityType.Type.GetProperty("Id"));
+                entityType.GetOrSetPrimaryKey(id);
             }
 
             for (var i = 1; i <= 20; i++)
@@ -413,19 +413,19 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
                 entityType.Annotations.Add(new Annotation("Annotation1", "Value1"));
                 entityType.Annotations.Add(new Annotation("Annotation2", "Value2"));
 
-                var foo = entityType.AddProperty(entityType.Type.GetProperty("Foo" + i));
+                var foo = entityType.GetOrAddProperty(entityType.Type.GetProperty("Foo" + i));
 
                 foo.Annotations.Add(new Annotation("Foo" + i + "Annotation1", "Foo" + i + "Value1"));
                 foo.Annotations.Add(new Annotation("Foo" + i + "Annotation2", "Foo" + i + "Value2"));
 
-                var goo = entityType.AddProperty(entityType.Type.GetProperty("Goo" + i));
+                var goo = entityType.GetOrAddProperty(entityType.Type.GetProperty("Goo" + i));
             }
 
-            var fk11 = entityType1.AddForeignKey(entityType2.GetKey(), new[] { entityType1.GetProperty("KoolEntity2Id") });
-            var fk21 = entityType2.AddForeignKey(entityType1.GetKey(), new[] { entityType2.GetProperty("KoolEntity1Id1") });
-            var fk22 = entityType2.AddForeignKey(entityType3.GetKey(), new[] { entityType2.GetProperty("KoolEntity3Id") });
-            var fk31 = entityType3.AddForeignKey(entityType4.GetKey(), new[] { entityType3.GetProperty("KoolEntity4Id") });
-            var fk61 = entityType6.AddForeignKey(entityType5.GetKey(), new[] { entityType6.GetProperty("Kool5Id") });
+            var fk11 = entityType1.GetOrAddForeignKey(entityType2.GetPrimaryKey(), new[] { entityType1.GetProperty("KoolEntity2Id") });
+            var fk21 = entityType2.GetOrAddForeignKey(entityType1.GetPrimaryKey(), new[] { entityType2.GetProperty("KoolEntity1Id1") });
+            var fk22 = entityType2.GetOrAddForeignKey(entityType3.GetPrimaryKey(), new[] { entityType2.GetProperty("KoolEntity3Id") });
+            var fk31 = entityType3.GetOrAddForeignKey(entityType4.GetPrimaryKey(), new[] { entityType3.GetProperty("KoolEntity4Id") });
+            var fk61 = entityType6.GetOrAddForeignKey(entityType5.GetPrimaryKey(), new[] { entityType6.GetProperty("Kool5Id") });
 
             entityType1.AddNavigation(new Navigation(fk11, "NavTo2", pointsToPrincipal: true));
             entityType1.AddNavigation(new Navigation(fk21, "NavTo2s", pointsToPrincipal: false));
