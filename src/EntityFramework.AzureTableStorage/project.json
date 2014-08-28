@@ -1,14 +1,14 @@
 ﻿{
-  "version": "7.0.0-*",
-  "compilationOptions": {
-    "warningsAsErrors": true
-  },
-  "dependencies": {
-    "WindowsAzure.Storage": "4.1.0",
-    "EntityFramework": ""
-  },
-  "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
-  "frameworks": {
-    "net45": {}
-  }
+    "version": "7.0.0-*",
+    "compilationOptions": {
+        "warningsAsErrors": true
+    },
+    "dependencies": {
+        "WindowsAzure.Storage": "4.1.0",
+        "EntityFramework": ""
+    },
+    "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
+    "frameworks": {
+        "net45": { }
+    }
 }

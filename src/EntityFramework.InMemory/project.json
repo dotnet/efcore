@@ -1,15 +1,15 @@
 ﻿{
-  "version": "7.0.0-*",
-  "compilationOptions": {
-    "warningsAsErrors": true
-  },
-  "dependencies": {
-    "EntityFramework": ""
-  },
-  "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
-  "frameworks": {
-    "net45": {},
-    "k10": {},
-    ".NETPortable,Version=v4.6,Profile=Profile151": {}
-  }
+    "version": "7.0.0-*",
+    "compilationOptions": {
+        "warningsAsErrors": true
+    },
+    "dependencies": {
+        "EntityFramework": ""
+    },
+    "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
+    "frameworks": {
+        "net45": { },
+        "k10": { },
+        ".NETPortable,Version=v4.6,Profile=Profile151": { }
+    }
 }

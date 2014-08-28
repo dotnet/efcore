@@ -1,17 +1,17 @@
 {
-  "dependencies": {
-    "EntityFramework.InMemory" : "",
-    "Xunit.KRunner": "1.0.0-*"
-  },
-  "commands": {
-    "test": "Xunit.KRunner"
-  },
-  "frameworks": {
-    "net45": {},
-    "k10": {
-      "dependencies": {
-        "Microsoft.CSharp": "4.0.0.0"
-      }
+    "dependencies": {
+        "EntityFramework.InMemory": "",
+        "Xunit.KRunner": "1.0.0-*"
+    },
+    "commands": {
+        "test": "Xunit.KRunner"
+    },
+    "frameworks": {
+        "net45": { },
+        "k10": {
+            "dependencies": {
+                "Microsoft.CSharp": "4.0.0.0"
+            }
+        }
     }
-  }
 }

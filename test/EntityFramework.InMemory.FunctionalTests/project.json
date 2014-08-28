@@ -1,12 +1,12 @@
 ﻿{
-  "dependencies": {
-    "EntityFramework.FunctionalTests" : ""
-  },
-  "commands": {
-    "test": "Xunit.KRunner"
-  },
-  "frameworks": {
-    "net45": {},
-    "k10": {}
-  }
+    "dependencies": {
+        "EntityFramework.FunctionalTests": ""
+    },
+    "commands": {
+        "test": "Xunit.KRunner"
+    },
+    "frameworks": {
+        "net45": { },
+        "k10": { }
+    }
 }

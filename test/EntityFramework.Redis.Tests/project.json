@@ -1,14 +1,14 @@
 {
-  "dependencies": {
-    "EntityFramework.Redis": "",
-    "Moq":  "4.2.1402.2112",
-    "Xunit.KRunner": "1.0.0-*"
-  },
-  "commands": {
-    "test": "Xunit.KRunner"
-  },
-  "code": [ "**\\*.cs", "..\\Shared\\ApiConsistencyTestBase.cs" ],
-  "frameworks": {
-    "net45": { }
-  }
+    "dependencies": {
+        "EntityFramework.Redis": "",
+        "Moq": "4.2.1402.2112",
+        "Xunit.KRunner": "1.0.0-*"
+    },
+    "commands": {
+        "test": "Xunit.KRunner"
+    },
+    "code": [ "**\\*.cs", "..\\Shared\\ApiConsistencyTestBase.cs" ],
+    "frameworks": {
+        "net45": { }
+    }
 }

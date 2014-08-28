@@ -1,15 +1,15 @@
 ﻿{
-  "version": "7.0.0-*",
-  "compilationOptions": {
-    "warningsAsErrors": true
-  },
-  "dependencies": {
-    "Microsoft.AspNet.Diagnostics": "1.0.0-*",
-    "EntityFramework.Migrations": ""
-  },
-  "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
-  "configurations": {
-    "net451": { },
-    "k10": { }
-  }
+    "version": "7.0.0-*",
+    "compilationOptions": {
+        "warningsAsErrors": true
+    },
+    "dependencies": {
+        "Microsoft.AspNet.Diagnostics": "1.0.0-*",
+        "EntityFramework.Migrations": ""
+    },
+    "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
+    "configurations": {
+        "net451": { },
+        "k10": { }
+    }
 }

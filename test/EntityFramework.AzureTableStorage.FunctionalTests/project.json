@@ -1,17 +1,17 @@
 {
-  "dependencies": {
-    "EntityFramework.AzureTableStorage": "",
-    "EntityFramework.FunctionalTests" : "",
-    "Microsoft.Framework.ConfigurationModel.Xml": "1.0.0-*"
-  },
-  "commands": {
-    "test": "Xunit.KRunner"
-  },
-  "frameworks": {
-    "net45": {
-      "dependencies": {
-        "System.Threading.Tasks": ""
-      }
+    "dependencies": {
+        "EntityFramework.AzureTableStorage": "",
+        "EntityFramework.FunctionalTests": "",
+        "Microsoft.Framework.ConfigurationModel.Xml": "1.0.0-*"
+    },
+    "commands": {
+        "test": "Xunit.KRunner"
+    },
+    "frameworks": {
+        "net45": {
+            "dependencies": {
+                "System.Threading.Tasks": ""
+            }
+        }
     }
-  }
 }
