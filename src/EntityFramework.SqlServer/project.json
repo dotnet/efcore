@@ -1,4 +1,4 @@
-﻿{
+{
     "version": "7.0.0-*",
     "compilationOptions": {
         "warningsAsErrors": true
@@ -10,7 +10,7 @@
     "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
     "frameworks": {
         "net451": { },
-        "k10": {
+        "aspnetcore50": {
             "dependencies": {
                 "System.Threading.Thread": "4.0.0.0"
             }

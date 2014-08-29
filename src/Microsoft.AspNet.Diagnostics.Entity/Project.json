@@ -1,4 +1,4 @@
-﻿{
+{
     "version": "7.0.0-*",
     "compilationOptions": {
         "warningsAsErrors": true
@@ -10,6 +10,6 @@
     "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
     "configurations": {
         "net451": { },
-        "k10": { }
+        "aspnetcore50": { }
     }
 }

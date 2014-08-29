@@ -1,4 +1,4 @@
-﻿{
+{
     "dependencies": {
         "EntityFramework.FunctionalTests": ""
     },
@@ -7,6 +7,6 @@
     },
     "frameworks": {
         "net45": { },
-        "k10": { }
+        "aspnetcore50": { }
     }
 }

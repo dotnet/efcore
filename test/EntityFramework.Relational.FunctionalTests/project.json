@@ -6,7 +6,7 @@
     },
     "frameworks": {
         "net451": { },
-        "k10": {
+        "aspnetcore50": {
             "dependencies": {
                 "System.Threading.ExecutionContext": "4.0.0.0"
             }

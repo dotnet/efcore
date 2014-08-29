@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using Microsoft.Framework.Logging;
-#if K10
+#if ASPNETCORE50
 using System.Threading;
 #else
 using System.Runtime.Remoting.Messaging;
@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
 {
     public class TestSqlLoggerFactory : ILoggerFactory
     {
-#if K10
+#if ASPNETCORE50
         private readonly static AsyncLocal<SqlLogger> _logger = new AsyncLocal<SqlLogger>();
 #else
         private const string ContextName = "__SQL";
@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
         public SqlLogger Init()
         {
             var logger = new SqlLogger();
-#if K10
+#if ASPNETCORE50
             _logger.Value = logger;
 #else
             CallContext.LogicalSetData(ContextName, logger);
@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
         {
             get
             {
-#if K10
+#if ASPNETCORE50
                 return _logger.Value;
 #else
                 return (SqlLogger)CallContext.LogicalGetData(ContextName);

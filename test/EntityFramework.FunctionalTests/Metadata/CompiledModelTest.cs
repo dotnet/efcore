@@ -7,7 +7,7 @@ using System.Linq;
 using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
-#if K10
+#if ASPNETCORE50
 using System.Reflection;
 #endif
 

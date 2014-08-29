@@ -20,7 +20,7 @@
                 "Microsoft.Bcl.Immutable": "1.1.18-beta-*"
             }
         },
-        "k10": {
+        "aspnetcore50": {
             "dependencies": {
                 "System.ComponentModel": "4.0.0.0",
                 "System.Diagnostics.Contracts": "4.0.0.0",

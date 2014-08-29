@@ -1,4 +1,4 @@
-﻿{
+{
     "dependencies": {
         "EntityFramework.InMemory": "",
         "EntityFramework.Relational": "",

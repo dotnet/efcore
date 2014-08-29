@@ -1,4 +1,4 @@
-﻿{
+{
     "dependencies": {
         "EntityFramework.VisualStudio": "",
         "Moq": "4.2.1312.1622",

@@ -7,7 +7,7 @@ using Microsoft.Data.Entity.Storage;
 using Northwind;
 using Xunit;
 
-#if K10
+#if ASPNETCORE50
 using System.Threading;
 #endif
 

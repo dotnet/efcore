@@ -1,4 +1,4 @@
-﻿{
+{
     "dependencies": {
         "EntityFramework.Migrations": "",
         "Moq": "4.2.1312.1622",

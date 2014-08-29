@@ -1,4 +1,4 @@
-﻿{
+{
     "version": "1.0.0-*",
     "compilationOptions": {
         "warningsAsErrors": true
@@ -10,7 +10,7 @@
     },
     "frameworks": {
         "net451": { },
-        "k10": {
+        "aspnetcore50": {
             "dependencies": {
                 "System.Console": "4.0.0.0"
             }
