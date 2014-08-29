@@ -6,7 +6,7 @@ using System.Reflection;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
-namespace Microsoft.Data.Entity.Redis
+namespace Microsoft.Data.Entity.Redis.FunctionalTests
 {
     public class RedisXunitTestFramework : XunitTestFramework
     {

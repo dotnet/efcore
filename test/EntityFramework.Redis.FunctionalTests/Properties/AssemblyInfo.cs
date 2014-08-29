@@ -3,4 +3,4 @@
 
 using Xunit;
 
-[assembly: TestFramework("Microsoft.Data.Entity.Redis.RedisXunitTestFramework", "EntityFramework.Redis.FunctionalTests")]
+[assembly: TestFramework("Microsoft.Data.Entity.Redis.FunctionalTests.RedisXunitTestFramework", "EntityFramework.Redis.FunctionalTests")]

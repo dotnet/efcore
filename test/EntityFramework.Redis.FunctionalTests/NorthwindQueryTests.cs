@@ -4,13 +4,13 @@
 using Microsoft.Data.Entity.FunctionalTests;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Redis
+namespace Microsoft.Data.Entity.Redis.FunctionalTests
 {
-    public class RedisNorthwindQueryTests : NorthwindQueryTestBase, IClassFixture<RedisNorthwindQueryFixture>
+    public class NorthwindQueryTests : NorthwindQueryTestBase, IClassFixture<NorthwindQueryFixture>
     {
-        private readonly RedisNorthwindQueryFixture _fixture;
+        private readonly NorthwindQueryFixture _fixture;
 
-        public RedisNorthwindQueryTests(RedisNorthwindQueryFixture fixture)
+        public NorthwindQueryTests(NorthwindQueryFixture fixture)
         {
             _fixture = fixture;
         }

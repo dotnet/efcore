@@ -4,7 +4,7 @@
 using System.Linq;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Redis
+namespace Microsoft.Data.Entity.Redis.FunctionalTests
 {
     public class SimpleTests : IClassFixture<SimpleFixture>
     {

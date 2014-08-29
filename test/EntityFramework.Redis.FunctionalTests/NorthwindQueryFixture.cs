@@ -10,26 +10,29 @@ using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Northwind;
 
-namespace Microsoft.Data.Entity.Redis
+namespace Microsoft.Data.Entity.Redis.FunctionalTests
 {
-    public class RedisNorthwindQueryFixture : NorthwindQueryFixtureBase
+    public class NorthwindQueryFixture : NorthwindQueryFixtureBase
     {
         private readonly DbContextOptions _options;
         private readonly IServiceProvider _serviceProvider;
 
-        public RedisNorthwindQueryFixture()
+        public NorthwindQueryFixture()
         {
+            _serviceProvider
+                = new ServiceCollection()
+                    .AddEntityFramework()
+                    .AddRedis()
+                    .ServiceCollection
+                    .BuildServiceProvider();
+
             var model = CreateModel();
 
             _options = new DbContextOptions()
                 .UseModel(model)
                 .UseRedis("127.0.0.1", RedisTestConfig.RedisPort);
 
-            var services = new ServiceCollection();
-            services.AddEntityFramework().AddRedis();
-            _serviceProvider = services.BuildServiceProvider(); 
-            
-            using (var context = new DbContext(_options))
+            using (var context = new DbContext(_serviceProvider, _options))
             {
                 if (!TestDataExists(context))
                 {
@@ -49,16 +52,7 @@ namespace Microsoft.Data.Entity.Redis
 
         private static bool TestDataExists(DbContext context)
         {
-            if (NorthwindData.Customers.Length == context.Set<Customer>().Count()
-                && NorthwindData.Employees.Length == context.Set<Employee>().Count()
-                && NorthwindData.Orders.Length == context.Set<Order>().Count()
-                && NorthwindData.Products.Length == context.Set<Product>().Count()
-                && NorthwindData.OrderDetails.Length == context.Set<OrderDetail>().Count())
-            {
-                return true;
-            }
-
-            return false;
+            return context.Set<Customer>().Any();
         }
 
         private static void CreateTestData(DbContext context, Model model)
@@ -66,16 +60,17 @@ namespace Microsoft.Data.Entity.Redis
             var titleProperty
                 = model.GetEntityType(typeof(Employee)).GetProperty("Title");
 
-            foreach (var employee in NorthwindData.Employees)
+            foreach (var employee in NorthwindData.CreateEmployees())
             {
                 context.Set<Employee>().Add(employee);
                 context.ChangeTracker.Entry(employee).StateEntry[titleProperty] = employee.Title;
             }
 
-            context.Set<Customer>().AddRange(NorthwindData.Customers);
-            context.Set<Order>().AddRange(NorthwindData.Orders);
-            context.Set<Product>().AddRange(NorthwindData.Products);
-            context.Set<OrderDetail>().AddRange(NorthwindData.OrderDetails);
+            context.Set<Customer>().AddRange(NorthwindData.CreateCustomers());
+            context.Set<Order>().AddRange(NorthwindData.CreateOrders());
+            context.Set<Product>().AddRange(NorthwindData.CreateProducts());
+            context.Set<OrderDetail>().AddRange(NorthwindData.CreateOrderDetails());
+
             context.SaveChanges();
         }
 
@@ -86,6 +81,7 @@ namespace Microsoft.Data.Entity.Redis
             context.Set<Order>().RemoveRange(context.Set<Order>());
             context.Set<Employee>().RemoveRange(context.Set<Employee>());
             context.Set<Customer>().RemoveRange(context.Set<Customer>());
+
             context.SaveChanges();
         }
     }

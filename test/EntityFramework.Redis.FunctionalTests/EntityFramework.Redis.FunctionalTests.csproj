@@ -67,8 +67,8 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="RedisNorthwindQueryFixture.cs" />
-    <Compile Include="RedisNorthwindQueryTests.cs" />
+    <Compile Include="NorthwindQueryFixture.cs" />
+    <Compile Include="NorthwindQueryTests.cs" />
     <Compile Include="RedisTestConfig.cs" />
     <Compile Include="RedisXunitTestFramework.cs" />
     <Compile Include="SimpleFixture.cs" />

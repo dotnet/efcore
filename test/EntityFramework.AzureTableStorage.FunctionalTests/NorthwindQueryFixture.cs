@@ -69,17 +69,17 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
                     return;
                 }
 
-                context.Set<Customer>().AddRange(NorthwindData.Customers);
+                context.Set<Customer>().AddRange(NorthwindData.CreateCustomers());
 
-                foreach (var employee in NorthwindData.Employees)
+                foreach (var employee in NorthwindData.CreateEmployees())
                 {
                     context.Set<Employee>().Add(employee);
                     context.ChangeTracker.Entry(employee).StateEntry[titleProperty] = employee.Title;
                 }
 
-                context.Set<Order>().AddRange(NorthwindData.Orders);
-                context.Set<Product>().AddRange(NorthwindData.Products);
-                context.Set<OrderDetail>().AddRange(NorthwindData.OrderDetails);
+                context.Set<Order>().AddRange(NorthwindData.CreateOrders());
+                context.Set<Product>().AddRange(NorthwindData.CreateProducts());
+                context.Set<OrderDetail>().AddRange(NorthwindData.CreateOrderDetails());
                 context.SaveChanges();
             }
         }

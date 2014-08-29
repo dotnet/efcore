@@ -4,7 +4,7 @@
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Redis.Extensions;
 
-namespace Microsoft.Data.Entity.Redis
+namespace Microsoft.Data.Entity.Redis.FunctionalTests
 {
     public class SimpleFixture
     {
