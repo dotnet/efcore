@@ -37,8 +37,7 @@ namespace Microsoft.Data.SQLite.Utilities
 #if ASPNET50 || ASPNETCORE50
             if (TryLoadUnderKRuntime(currentAssembly, dllName))
                 return;
-#endif
-#if NET451 || ASPNET50
+#elif NET451
             if (TryLoadFromDirectory(dllName, new Uri(AppDomain.CurrentDomain.BaseDirectory).LocalPath))
                 return;
 #endif
