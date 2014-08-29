@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Update;
+using Microsoft.Data.Entity.FunctionalTests.TestUtilities;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Relational.FunctionalTests

@@ -3,9 +3,11 @@
 
 using System;
 using System.Linq;
+using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.ModelConventions;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Metadata.ModelConventions
+namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 {
     public class PropertiesConventionTest
     {

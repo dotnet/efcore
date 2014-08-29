@@ -4,9 +4,10 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Metadata
+namespace Microsoft.Data.Entity.Tests.Metadata
 {
     public class BasicModelBuilderTest
     {

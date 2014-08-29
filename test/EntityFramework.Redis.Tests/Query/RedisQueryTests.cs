@@ -6,11 +6,12 @@ using System.Linq;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Redis.Query;
 using Microsoft.Data.Entity.Services;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Redis.Query
+namespace Microsoft.Data.Entity.Redis.Tests.Query
 {
     public class RedisQueryTests
     {

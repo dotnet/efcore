@@ -2,10 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using Microsoft.Data.Entity.Utilities;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Utilities
+namespace Microsoft.Data.Entity.Tests.Utilities
 {
     public class GraphTest
     {

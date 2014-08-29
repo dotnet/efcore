@@ -8,7 +8,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Microsoft.Data.Entity.Metadata;
 
-namespace Microsoft.Data.Entity.MonsterModel
+namespace Microsoft.Data.Entity.FunctionalTests.TestModels
 {
     public class ChangedOnlyMonsterContext : MonsterContext<
         ChangedOnlyMonsterContext.Customer, ChangedOnlyMonsterContext.Barcode, ChangedOnlyMonsterContext.IncorrectScan,

@@ -5,10 +5,9 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.SQLite;
 using Xunit;
 
-namespace Microsoft.Data.Entity
+namespace Microsoft.Data.Entity.SQLite.Tests
 {
     public class SQLiteDbContextOptionsExtensionsTest
     {

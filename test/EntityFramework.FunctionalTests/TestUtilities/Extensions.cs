@@ -6,7 +6,7 @@ using System.Linq;
 using System.Reflection;
 using Xunit;
 
-namespace Microsoft.Data.Entity
+namespace Microsoft.Data.Entity.FunctionalTests.TestUtilities
 {
     public static class Extensions
     {

@@ -5,10 +5,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
-namespace Microsoft.Data.Entity.ChangeTracking
+namespace Microsoft.Data.Entity.Tests.ChangeTracking
 {
     public class RelationshipsSnapshotTest
     {

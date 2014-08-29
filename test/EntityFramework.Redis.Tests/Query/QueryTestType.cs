@@ -3,7 +3,7 @@
 
 using Microsoft.Data.Entity.Metadata;
 
-namespace Microsoft.Data.Entity.Redis.Query
+namespace Microsoft.Data.Entity.Redis.Tests.Query
 {
     public class QueryTestType
     {

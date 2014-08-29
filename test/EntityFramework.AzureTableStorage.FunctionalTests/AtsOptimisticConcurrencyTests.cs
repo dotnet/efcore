@@ -3,10 +3,10 @@
 
 using System;
 using System.Threading.Tasks;
-using ConcurrencyModel;
 using Microsoft.Data.Entity.AzureTableStorage.Metadata;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.FunctionalTests;
+using Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;

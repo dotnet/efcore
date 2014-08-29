@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace ConcurrencyModel
+namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel
 {
     public class Engine
     {

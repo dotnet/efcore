@@ -3,7 +3,7 @@
 
 using System.Reflection;
 
-namespace Microsoft.Data.Entity.Redis
+namespace Microsoft.Data.Entity.Redis.Tests
 {
     public class RedisApiConsistencyTest : ApiConsistencyTestBase
     {

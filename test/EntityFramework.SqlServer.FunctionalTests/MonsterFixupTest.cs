@@ -8,7 +8,7 @@ using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.FunctionalTests;
-using Microsoft.Data.Entity.MonsterModel;
+using Microsoft.Data.Entity.FunctionalTests.TestModels;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;

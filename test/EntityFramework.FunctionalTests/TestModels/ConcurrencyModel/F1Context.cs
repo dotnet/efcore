@@ -2,10 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Metadata;
 
-namespace ConcurrencyModel
+namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel
 {
     public class F1Context : DbContext
     {

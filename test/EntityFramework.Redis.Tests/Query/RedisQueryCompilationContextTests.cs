@@ -2,9 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.Data.Entity.Query;
+using Microsoft.Data.Entity.Redis.Query;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Redis.Query
+namespace Microsoft.Data.Entity.Redis.Tests.Query
 {
     public class RedisQueryCompilationContextTests
     {

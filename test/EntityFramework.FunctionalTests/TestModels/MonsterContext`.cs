@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.Metadata;
 
-namespace Microsoft.Data.Entity.MonsterModel
+namespace Microsoft.Data.Entity.FunctionalTests.TestModels
 {
     public class MonsterContext<
         TCustomer, TBarcode, TIncorrectScan, TBarcodeDetail, TComplaint, TResolution, TLogin, TSuspiciousActivity,

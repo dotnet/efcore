@@ -12,7 +12,7 @@ using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Relational
+namespace Microsoft.Data.Entity.Relational.Tests
 {
     public class RelationalDataStoreTest
     {

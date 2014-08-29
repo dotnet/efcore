@@ -6,8 +6,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.FunctionalTests.TestModels;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.MonsterModel;
 using Microsoft.Data.Entity.Storage;
 using Xunit;
 

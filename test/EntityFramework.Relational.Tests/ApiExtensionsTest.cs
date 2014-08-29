@@ -6,7 +6,7 @@ using System.Reflection;
 using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Relational
+namespace Microsoft.Data.Entity.Relational.Tests
 {
     public class ApiExtensionsTest
     {

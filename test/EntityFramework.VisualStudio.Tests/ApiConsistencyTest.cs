@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace Microsoft.Data.Entity.Design
+namespace Microsoft.Data.Entity.Design.Tests
 {
     internal class ApiConsistencyTest : ApiConsistencyTestBase
     {

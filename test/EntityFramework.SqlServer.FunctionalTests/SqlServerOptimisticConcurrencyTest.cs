@@ -4,7 +4,7 @@
 using System;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
-using ConcurrencyModel;
+using Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Framework.DependencyInjection;

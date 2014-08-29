@@ -6,7 +6,7 @@ using System.Reflection;
 using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
-namespace Microsoft.Data.Entity
+namespace Microsoft.Data.Entity.Tests
 {
     public class ApiConsistencyTest : ApiConsistencyTestBase
     {

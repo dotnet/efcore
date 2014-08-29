@@ -4,12 +4,13 @@
 using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity.ChangeTracking
+namespace Microsoft.Data.Entity.Tests.ChangeTracking
 {
     public class StateEntrySubscriberTest
     {

@@ -5,11 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Identity
+namespace Microsoft.Data.Entity.Tests.Identity
 {
     public class GuidValueGeneratorTest
     {

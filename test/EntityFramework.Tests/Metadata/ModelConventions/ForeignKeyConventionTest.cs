@@ -2,9 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
+using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.ModelConventions;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Metadata.ModelConventions
+namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 {
     public class ForeignKeyConventionTest
     {

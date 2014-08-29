@@ -4,11 +4,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.ModelConventions;
 using Moq;
 using Moq.Protected;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Metadata.ModelConventions
+namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 {
     public class KeyConventionTest
     {

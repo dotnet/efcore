@@ -8,7 +8,7 @@
     <ProjectGuid>{001005B3-D16F-4399-9265-A67D619652BD}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.Data.Entity.Relational</RootNamespace>
+    <RootNamespace>Microsoft.Data.Entity.Relational.Tests</RootNamespace>
     <AssemblyName>EntityFramework.Relational.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

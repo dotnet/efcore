@@ -6,7 +6,7 @@ using Microsoft.Data.Entity.Metadata;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Redis
+namespace Microsoft.Data.Entity.Redis.Tests
 {
     public class RedisDatabaseTests
     {

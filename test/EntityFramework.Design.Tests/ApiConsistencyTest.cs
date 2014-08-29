@@ -3,7 +3,7 @@
 
 using System.Reflection;
 
-namespace Microsoft.Data.Entity.Design
+namespace Microsoft.Data.Entity.Design.Tests
 {
     public class ApiConsistencyTest : ApiConsistencyTestBase
     {

@@ -8,7 +8,7 @@ using Microsoft.Data.Entity.Metadata;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity
+namespace Microsoft.Data.Entity.Tests
 {
     public class DbContextOptionsTest
     {

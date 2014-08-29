@@ -4,7 +4,7 @@
 using System;
 using System.Linq;
 
-namespace Microsoft.Data.Entity.MonsterModel
+namespace Microsoft.Data.Entity.FunctionalTests.TestModels
 {
     public abstract class MonsterContext : DbContext
     {

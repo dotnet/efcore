@@ -18,7 +18,7 @@ using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity
+namespace Microsoft.Data.Entity.Tests
 {
     public class DbContextTest
     {

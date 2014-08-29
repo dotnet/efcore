@@ -3,10 +3,9 @@
 
 using System;
 using System.Text;
-using Microsoft.Data.Entity.Relational.Tests;
 using Microsoft.Data.Entity.Relational.Update;
 
-namespace Microsoft.Data.Entity.Relational
+namespace Microsoft.Data.Entity.Relational.Tests
 {
     public class SqlGeneratorTest : SqlGeneratorTestBase
     {

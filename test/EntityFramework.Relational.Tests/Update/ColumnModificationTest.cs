@@ -3,10 +3,11 @@
 
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Relational.Update;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Relational.Update
+namespace Microsoft.Data.Entity.Relational.Tests.Update
 {
     public class ColumnModificationTest
     {

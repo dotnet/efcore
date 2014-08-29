@@ -3,10 +3,11 @@
 
 using System;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Storage;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Storage
+namespace Microsoft.Data.Entity.Tests.Storage
 {
     public class DataStoreSelectorTest
     {

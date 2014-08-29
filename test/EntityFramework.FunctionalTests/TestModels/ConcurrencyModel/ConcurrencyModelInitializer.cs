@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ConcurrencyModel
+namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel
 {
     public class ConcurrencyModelInitializer
     {

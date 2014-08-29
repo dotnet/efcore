@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Design
+namespace Microsoft.Data.Entity.Design.Tests
 {
     public class ExecutorTest
     {

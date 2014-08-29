@@ -7,7 +7,7 @@ using System.Linq;
 using Microsoft.Data.Entity.Infrastructure;
 using Xunit;
 
-namespace Microsoft.Data.Entity
+namespace Microsoft.Data.Entity.Tests
 {
     public class DbSetFinderTest
     {

@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Microsoft.Data.Entity.MonsterModel
+namespace Microsoft.Data.Entity.FunctionalTests.TestModels
 {
     public interface IBarcodeDetail
     {

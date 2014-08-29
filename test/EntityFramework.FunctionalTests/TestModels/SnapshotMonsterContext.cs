@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Data.Entity.Metadata;
 
-namespace Microsoft.Data.Entity.MonsterModel
+namespace Microsoft.Data.Entity.FunctionalTests.TestModels
 {
     public class SnapshotMonsterContext : MonsterContext<
         SnapshotMonsterContext.Customer, SnapshotMonsterContext.Barcode, SnapshotMonsterContext.IncorrectScan,

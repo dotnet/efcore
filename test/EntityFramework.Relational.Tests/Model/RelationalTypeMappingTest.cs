@@ -4,12 +4,13 @@
 using System.Data;
 using System.Data.Common;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.Relational.Update;
 using Moq;
 using Moq.Protected;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Relational.Model
+namespace Microsoft.Data.Entity.Relational.Tests.Model
 {
     public class RelationalTypeMappingTest
     {

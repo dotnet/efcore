@@ -7,10 +7,11 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Microsoft.Data.Entity.Metadata;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Metadata
+namespace Microsoft.Data.Entity.Tests.Metadata
 {
     public class EntityTypeTest
     {

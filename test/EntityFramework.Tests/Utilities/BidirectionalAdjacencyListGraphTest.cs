@@ -4,9 +4,10 @@
 using System;
 using System.Linq;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Utilities;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Utilities
+namespace Microsoft.Data.Entity.Tests.Utilities
 {
     public class BidirectionalAdjacencyListGraphTest
     {
