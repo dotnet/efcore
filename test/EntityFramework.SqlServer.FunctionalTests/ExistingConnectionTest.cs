@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
     public class ExistingConnectionTest
     {
         // See aspnet/Data#135
-#if !K10
+#if !ASPNETCORE50
         [Fact]
         public async Task Can_use_an_existing_closed_connection()
         {
@@ -60,7 +60,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                                 closeCount++;
                             }
                         };
-#if !K10
+#if !ASPNETCORE50
                     connection.Disposed += (_, __) => disposeCount++;
 #endif
 
