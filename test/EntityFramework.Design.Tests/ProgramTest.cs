@@ -15,7 +15,10 @@ namespace Microsoft.Data.Entity.Design.Tests
 {
     public class ProgramTest
     {
+#if ASPNET50
+        // TODO: Remove #if when aspnet/Configuration#111 is resolved
         [Fact]
+#endif
         public void Command_line_is_added_after_ini_file_to_configuration()
         {
             var mock = new Mock<Program> { CallBase = true };
