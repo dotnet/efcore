@@ -965,6 +965,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         private class Foo
         {
+            // ReSharper disable once UnusedAutoPropertyAccessor.Local
             public string Bar { get; set; }
         }
 

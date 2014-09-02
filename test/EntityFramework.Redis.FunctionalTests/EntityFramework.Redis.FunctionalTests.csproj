@@ -67,12 +67,13 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AsNoTrackingTest.cs" />
     <Compile Include="NorthwindQueryFixture.cs" />
-    <Compile Include="NorthwindQueryTests.cs" />
+    <Compile Include="NorthwindQueryTest.cs" />
     <Compile Include="RedisTestConfig.cs" />
     <Compile Include="RedisXunitTestFramework.cs" />
     <Compile Include="SimpleFixture.cs" />
-    <Compile Include="SimpleTests.cs" />
+    <Compile Include="SimpleTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

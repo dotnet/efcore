@@ -4,26 +4,52 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Query.ResultOperators;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq;
 using Remotion.Linq.Clauses.StreamedData;
 using Remotion.Linq.Parsing.ExpressionTreeVisitors.Transformation;
 using Remotion.Linq.Parsing.Structure;
+using Remotion.Linq.Parsing.Structure.NodeTypeProviders;
 
 namespace Microsoft.Data.Entity.Query
 {
     public class EntityQueryProvider : QueryProviderBase, IAsyncQueryProvider
     {
+        private static CompoundNodeTypeProvider CreateNodeTypeProvider()
+        {
+            var searchedTypes
+                = typeof(MethodInfoBasedNodeTypeRegistry).GetTypeInfo().Assembly.DefinedTypes
+                    .Select(ti => ti.AsType())
+                    .ToList();
+
+            var methodInfoBasedNodeTypeRegistry
+                = MethodInfoBasedNodeTypeRegistry.CreateFromTypes(searchedTypes);
+
+            methodInfoBasedNodeTypeRegistry
+                .Register(AsNoTrackingExpressionNode.SupportedMethods, typeof(AsNoTrackingExpressionNode));
+
+            var innerProviders
+                = new INodeTypeProvider[]
+                    {
+                        methodInfoBasedNodeTypeRegistry,
+                        MethodNameBasedNodeTypeRegistry.CreateFromTypes(searchedTypes)
+                    };
+
+            return new CompoundNodeTypeProvider(innerProviders);
+        }
+
         private static IQueryParser CreateQueryParser()
         {
             var transformerRegistry = ExpressionTransformerRegistry.CreateDefault();
 
             var expressionTreeParser
                 = new ExpressionTreeParser(
-                    ExpressionTreeParser.CreateDefaultNodeTypeProvider(),
+                    CreateNodeTypeProvider(),
                     ExpressionTreeParser.CreateDefaultProcessor(transformerRegistry));
 
             return new QueryParser(expressionTreeParser);

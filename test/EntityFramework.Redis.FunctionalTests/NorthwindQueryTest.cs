@@ -4,15 +4,10 @@
 using Microsoft.Data.Entity.FunctionalTests;
 using Xunit;
 
-namespace Microsoft.Data.Entity.InMemory.FunctionalTests
+namespace Microsoft.Data.Entity.Redis.FunctionalTests
 {
     public class NorthwindQueryTest : NorthwindQueryTestBase, IClassFixture<NorthwindQueryFixture>
     {
-        public override void Where_simple_shadow()
-        {
-            base.Where_simple_shadow();
-        }
-
         private readonly NorthwindQueryFixture _fixture;
 
         public NorthwindQueryTest(NorthwindQueryFixture fixture)

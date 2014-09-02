@@ -3,9 +3,9 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Redis.Query;
 using Microsoft.Data.Entity.Services;
 using Moq;
@@ -63,9 +63,9 @@ namespace Microsoft.Data.Entity.Redis.Tests.Query
         {
             var configurationMock = new Mock<DbContextConfiguration>();
             var redisDatabaseMock = new Mock<RedisDatabase>(configurationMock.Object);
-            var stateManagerMock = new Mock<StateManager>();
+            var materializationStrategyMock = new Mock<IMaterializationStrategy>();
             var redisQueryContextMock = new Mock<RedisQueryContext>(
-                QueryTestType.Model(), NullLogger.Instance, stateManagerMock.Object, redisDatabaseMock.Object);
+                QueryTestType.Model(), NullLogger.Instance, materializationStrategyMock.Object, redisDatabaseMock.Object);
 
             var resultsFromDatabase = new List<object[]>
                 {

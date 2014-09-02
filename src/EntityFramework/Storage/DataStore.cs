@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 using Remotion.Linq;
@@ -53,11 +54,11 @@ namespace Microsoft.Data.Entity.Storage
 
         public abstract IEnumerable<TResult> Query<TResult>(
             [NotNull] QueryModel queryModel,
-            [NotNull] StateManager stateManager);
+            [NotNull] IMaterializationStrategy materializationStrategy);
 
         public abstract IAsyncEnumerable<TResult> AsyncQuery<TResult>(
             [NotNull] QueryModel queryModel,
-            [NotNull] StateManager stateManager,
+            [NotNull] IMaterializationStrategy materializationStrategy,
             CancellationToken cancellationToken);
     }
 }

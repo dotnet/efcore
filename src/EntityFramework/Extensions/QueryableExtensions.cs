@@ -1332,6 +1332,25 @@ namespace System.Linq
 
         #endregion
 
+        #region AsNoTracking
+
+        public static readonly MethodInfo AsNoTrackingMethodInfo
+            = typeof(QueryableExtensions)
+                .GetTypeInfo().GetDeclaredMethod("AsNoTracking");
+
+        public static IQueryable<TEntity> AsNoTracking<TEntity>([NotNull] this IQueryable<TEntity> source)
+        {
+            Check.NotNull(source, "source");
+
+            return source.Provider.CreateQuery<TEntity>(
+                Expression.Call(
+                    null,
+                    AsNoTrackingMethodInfo.MakeGenericMethod(typeof(TEntity)),
+                    new[] { source.Expression }));
+        }
+
+        #endregion
+
         #region Load
 
         public static void Load<TSource>([NotNull] this IQueryable<TSource> source)

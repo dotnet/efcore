@@ -50,8 +50,8 @@ namespace Microsoft.Data.Entity.Redis.Query
         }
 
         protected override Expression BindMethodCallToValueReader(
-            [NotNull] MethodCallExpression methodCallExpression,
-            [NotNull] Expression expression)
+            MethodCallExpression methodCallExpression,
+            Expression expression)
         {
             Check.NotNull(methodCallExpression, "methodCallExpression");
             Check.NotNull(expression, "expression");
@@ -120,6 +120,7 @@ namespace Microsoft.Data.Entity.Redis.Query
             where TResult : class, new()
         {
             var redisQueryContext = (RedisQueryContext)queryContext;
+            
             return redisQueryContext.GetResultsFromRedis<TResult>(entityType);
         }
 
@@ -127,12 +128,12 @@ namespace Microsoft.Data.Entity.Redis.Query
             typeof(RedisQueryModelVisitor).GetTypeInfo().GetDeclaredMethod("ExecuteValueReader");
 
         [UsedImplicitly]
-        private IEnumerable<IValueReader> ExecuteValueReader<TEntity>(
+        private IEnumerable<IValueReader> ExecuteValueReader(
             IQuerySource querySource, QueryContext queryContext)
         {
-            var entityType = queryContext.Model.GetEntityType(typeof(TEntity));
             var redisQuery = FindOrCreateQuery(querySource);
             var redisQueryContext = (RedisQueryContext)queryContext;
+            
             return redisQuery.GetValueReaders(redisQueryContext);
         }
     }

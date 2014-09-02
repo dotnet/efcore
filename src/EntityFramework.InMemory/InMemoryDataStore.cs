@@ -11,6 +11,7 @@ using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.InMemory.Query;
 using Microsoft.Data.Entity.InMemory.Utilities;
+using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq;
@@ -65,22 +66,29 @@ namespace Microsoft.Data.Entity.InMemory
             return Task.FromResult(_database.Value.ExecuteTransaction(stateEntries));
         }
 
-        public override IEnumerable<TResult> Query<TResult>(QueryModel queryModel, StateManager stateManager)
+        public override IEnumerable<TResult> Query<TResult>(
+            QueryModel queryModel, IMaterializationStrategy materializationStrategy)
         {
             Check.NotNull(queryModel, "queryModel");
-            Check.NotNull(stateManager, "stateManager");
+            Check.NotNull(materializationStrategy, "materializationStrategy");
 
             var queryCompilationContext = new InMemoryQueryCompilationContext(Model);
             var queryExecutor = queryCompilationContext.CreateQueryModelVisitor().CreateQueryExecutor<TResult>(queryModel);
-            var queryContext = new InMemoryQueryContext(Model, Logger, stateManager, _database.Value);
+
+            var queryContext
+                = new InMemoryQueryContext(
+                    Model,
+                    Logger,
+                    materializationStrategy,
+                    _database.Value);
 
             return queryExecutor(queryContext);
         }
 
         public override IAsyncEnumerable<TResult> AsyncQuery<TResult>(
-            QueryModel queryModel, StateManager stateManager, CancellationToken cancellationToken)
+            QueryModel queryModel, IMaterializationStrategy materializationStrategy, CancellationToken cancellationToken)
         {
-            return Query<TResult>(queryModel, stateManager).ToAsyncEnumerable();
+            return Query<TResult>(queryModel, materializationStrategy).ToAsyncEnumerable();
         }
     }
 }

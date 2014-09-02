@@ -61,7 +61,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
                 It.IsAny<ILogger>()))
                 .Returns(NewTCallback<T>);
 
-            _dataStore.Query<T>(queryModel, Mock.Of<StateManager>()).ToList();
+            _dataStore.Query<T>(queryModel, Mock.Of<IMaterializationStrategy>()).ToList();
 
             _connection.Verify(s => s.ExecuteRequest(
                 It.IsAny<QueryTableRequest<T>>(),

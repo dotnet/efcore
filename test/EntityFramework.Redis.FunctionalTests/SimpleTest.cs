@@ -6,11 +6,11 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Redis.FunctionalTests
 {
-    public class SimpleTests : IClassFixture<SimpleFixture>
+    public class SimpleTest : IClassFixture<SimpleFixture>
     {
         private readonly DbContext _context;
 
-        public SimpleTests(SimpleFixture fixture)
+        public SimpleTest(SimpleFixture fixture)
         {
             _context = fixture.CreateContext();
         }

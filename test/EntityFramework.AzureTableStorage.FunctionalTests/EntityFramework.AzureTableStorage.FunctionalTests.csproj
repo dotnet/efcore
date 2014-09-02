@@ -72,6 +72,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AsNoTrackingTest.cs" />
     <Compile Include="AtsTestFramework.cs" />
     <Compile Include="BatchTests.cs" />
     <Compile Include="AtsOptimisticConcurrencyTests.cs" />

@@ -25,7 +25,9 @@ namespace Microsoft.Data.Entity.Redis.Query
             protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
             {
                 var visitor = new RedisQueryModelVisitor(_parentVisitor);
+
                 visitor.VisitQueryModel(expression.QueryModel);
+
                 return visitor.Expression;
             }
 
@@ -34,18 +36,18 @@ namespace Microsoft.Data.Entity.Redis.Query
                 if (_parentVisitor.QuerySourceRequiresMaterialization(_querySource))
                 {
                     var entityType = _parentVisitor.QueryCompilationContext.Model.GetEntityType(elementType);
+
                     return Expression.Call(
                         _executeMaterializedQueryExpressionMethodInfo.MakeGenericMethod(elementType),
                         QueryContextParameter,
-                        Expression.Constant(entityType)
-                        );
+                        Expression.Constant(entityType));
                 }
+
                 return Expression.Call(
                     Expression.Constant(_parentVisitor),
-                    _executeNonMaterializedQueryExpressionMethodInfo.MakeGenericMethod(elementType),
+                    _executeNonMaterializedQueryExpressionMethodInfo,
                     Expression.Constant(_querySource),
-                    QueryContextParameter
-                    );
+                    QueryContextParameter);
             }
         }
     }

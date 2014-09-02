@@ -16,6 +16,7 @@
                 "System.Collections": "",
                 "System.Linq.Expressions": "",
                 "System.ObjectModel": "",
+                "System.Reflection":  "",
                 "System.Runtime": "",
                 "Microsoft.Bcl.Immutable": "1.1.18-beta-*"
             }

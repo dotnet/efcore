@@ -35,10 +35,11 @@ namespace Microsoft.Data.Entity.InMemory.Query
         private static IEnumerable<TEntity> EntityQuery<TEntity>(QueryContext queryContext)
         {
             var entityType = queryContext.Model.GetEntityType(typeof(TEntity));
+            var inMemoryTable = ((InMemoryQueryContext)queryContext).Database.GetTable(entityType);
 
-            return ((InMemoryQueryContext)queryContext).Database.GetTable(entityType)
-                .Select(t => (TEntity)queryContext.StateManager
-                    .GetOrMaterializeEntry(entityType, new ObjectArrayValueReader(t)).Entity);
+            return inMemoryTable
+                .Select(t => (TEntity)queryContext.MaterializationStrategy
+                    .Materialize(entityType, new ObjectArrayValueReader(t)));
         }
 
         private static readonly MethodInfo _projectionQueryMethodInfo

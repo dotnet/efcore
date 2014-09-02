@@ -740,7 +740,7 @@ namespace Microsoft.Data.Entity.Query
             [UsedImplicitly]
             private static T GetValue<T>(QueryContext queryContext, object entity, IProperty property)
             {
-                return (T)queryContext.StateManager.GetOrCreateEntry(entity)[property];
+                return (T)queryContext.MaterializationStrategy.GetPropertyValue(entity, property);
             }
         }
 

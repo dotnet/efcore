@@ -3,6 +3,7 @@
 
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Redis.Query;
 using Microsoft.Data.Entity.Services;
 using Moq;
@@ -19,8 +20,8 @@ namespace Microsoft.Data.Entity.Redis.Tests.Query
             var logger = NullLogger.Instance;
             var configurationMock = new Mock<DbContextConfiguration>();
             var redisDatabaseMock = new Mock<RedisDatabase>(configurationMock.Object);
-            var stateManagerMock = new Mock<StateManager>();
-            var stateManager = stateManagerMock.Object;
+            var materializationStrategyMock = new Mock<IMaterializationStrategy>();
+            var stateManager = materializationStrategyMock.Object;
 
             var redisQueryContext = new RedisQueryContext(model, logger, stateManager, redisDatabaseMock.Object);
 
@@ -35,14 +36,15 @@ namespace Microsoft.Data.Entity.Redis.Tests.Query
             var logger = NullLogger.Instance;
             var configurationMock = new Mock<DbContextConfiguration>();
             var redisDatabaseMock = new Mock<RedisDatabase>(configurationMock.Object);
-            var stateManagerMock = new Mock<StateManager>();
-            var redisQueryContext = new RedisQueryContext(model, logger, stateManagerMock.Object, redisDatabaseMock.Object);
+            var materializationStrategyMock = new Mock<IMaterializationStrategy>();
+            var redisQueryContext = new RedisQueryContext(model, logger, materializationStrategyMock.Object, redisDatabaseMock.Object);
             var entityType = QueryTestType.EntityType();
             var redisQuery = new RedisQuery(entityType);
 
             redisQueryContext.GetResultsFromRedis<QueryTestType>(entityType);
 
-            redisDatabaseMock.Verify(m => m.GetMaterializedResults<QueryTestType>(entityType), Times.Once);
+            redisDatabaseMock.Verify(m => 
+                m.GetMaterializedResults<QueryTestType>(entityType, materializationStrategyMock.Object), Times.Once);
             redisDatabaseMock.Verify(m => m.GetResults(redisQuery), Times.Never);
         }
 
@@ -53,15 +55,16 @@ namespace Microsoft.Data.Entity.Redis.Tests.Query
             var logger = NullLogger.Instance;
             var configurationMock = new Mock<DbContextConfiguration>();
             var redisDatabaseMock = new Mock<RedisDatabase>(configurationMock.Object);
-            var stateManagerMock = new Mock<StateManager>();
-            var redisQueryContext = new RedisQueryContext(model, logger, stateManagerMock.Object, redisDatabaseMock.Object);
+            var materializationStrategyMock = new Mock<IMaterializationStrategy>();
+            var redisQueryContext = new RedisQueryContext(model, logger, materializationStrategyMock.Object, redisDatabaseMock.Object);
             var entityType = QueryTestType.EntityType();
             var redisQuery = new RedisQuery(entityType);
 
             redisQueryContext.GetResultsFromRedis(redisQuery);
 
             redisDatabaseMock.Verify(m => m.GetResults(redisQuery), Times.Once);
-            redisDatabaseMock.Verify(m => m.GetMaterializedResults<QueryTestType>(entityType), Times.Never);
+            redisDatabaseMock.Verify(m =>
+                m.GetMaterializedResults<QueryTestType>(entityType, materializationStrategyMock.Object), Times.Never);
         }
     }
 }

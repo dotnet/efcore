@@ -64,6 +64,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AsNoTrackingTest.cs" />
     <Compile Include="MonsterFixupTest.cs" />
     <Compile Include="NorthwindAsyncQueryTest.cs" />
     <Compile Include="NorthwindQueryFixture.cs" />

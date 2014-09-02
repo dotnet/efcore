@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Redis.Utilities;
@@ -18,9 +17,9 @@ namespace Microsoft.Data.Entity.Redis.Query
         public RedisQueryContext(
             [NotNull] IModel model,
             [NotNull] ILogger logger,
-            [NotNull] StateManager stateManager,
+            [NotNull] IMaterializationStrategy materializationStrategy,
             [NotNull] RedisDatabase redisDatabase)
-            : base(model, logger, stateManager)
+            : base(model, logger, materializationStrategy)
         {
             Check.NotNull(redisDatabase, "redisDatabase");
             _redisDatabase = redisDatabase;
@@ -30,12 +29,14 @@ namespace Microsoft.Data.Entity.Redis.Query
             [NotNull] IEntityType entityType)
         {
             Check.NotNull(entityType, "entityType");
-            return _redisDatabase.GetMaterializedResults<TResult>(entityType);
+
+            return _redisDatabase.GetMaterializedResults<TResult>(entityType, MaterializationStrategy);
         }
 
         public virtual IEnumerable<object[]> GetResultsFromRedis([NotNull] RedisQuery redisQuery)
         {
             Check.NotNull(redisQuery, "redisQuery");
+
             return _redisDatabase.GetResults(redisQuery);
         }
     }

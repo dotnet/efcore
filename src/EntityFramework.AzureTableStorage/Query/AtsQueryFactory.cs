@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.AzureTableStorage.Utilities;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Query;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Query
@@ -26,10 +27,10 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
 
         public virtual AtsQueryContext MakeQueryContext([NotNull] IModel model,
             [NotNull] ILogger logger,
-            [NotNull] StateManager stateManager,
+            [NotNull] IMaterializationStrategy materializationStrategy,
             [NotNull] AtsConnection connection)
         {
-            return new AtsQueryContext(model, logger, stateManager, connection, _valueReaderFactory);
+            return new AtsQueryContext(model, logger, materializationStrategy, connection, _valueReaderFactory);
         }
     }
 }

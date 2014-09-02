@@ -110,6 +110,10 @@
     <Compile Include="Metadata\ModelBuilder.cs" />
     <Compile Include="QueryExtensions.cs" />
     <Compile Include="Query\IAsyncEnumerableAccessor.cs" />
+    <Compile Include="Query\IMaterializationStrategy.cs" />
+    <Compile Include="Query\ResultOperators\AsNoTrackingExpressionNode.cs" />
+    <Compile Include="Query\ResultOperators\AsNoTrackingResultOperator.cs" />
+    <Compile Include="Query\StateManagerMaterializationStrategy.cs" />
     <Compile Include="Storage\DataStoreException.cs" />
     <Compile Include="Infrastructure\IDbContextOptionsExtensions.cs" />
     <Compile Include="INotifyPropertyChanging.cs" />

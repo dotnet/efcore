@@ -13,6 +13,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Redis.Query;
 using Microsoft.Data.Entity.Redis.Utilities;
 using StackExchange.Redis;
@@ -138,23 +139,27 @@ namespace Microsoft.Data.Entity.Redis
         /// </summary>
         /// <typeparam name="TResult">type of expected result</typeparam>
         /// <param name="entityType">EntityType of </param>
+        /// <param name="materializationStrategy"></param>
         /// <returns>An Enumerable of materialized EntityType objects</returns>
-        public virtual IEnumerable<TResult> GetMaterializedResults<TResult>([NotNull] IEntityType entityType)
+        public virtual IEnumerable<TResult> GetMaterializedResults<TResult>(
+            [NotNull] IEntityType entityType,
+            [NotNull] IMaterializationStrategy materializationStrategy)
         {
             Check.NotNull(entityType, "entityType");
+            Check.NotNull(materializationStrategy, "materializationStrategy");
 
-            var redisPrimaryKeyIndexKeyName =
-                ConstructRedisPrimaryKeyIndexKeyName(entityType);
+            var redisPrimaryKeyIndexKeyName
+                = ConstructRedisPrimaryKeyIndexKeyName(entityType);
 
-            var allKeysForEntity = GetUnderlyingDatabase().SetMembers(redisPrimaryKeyIndexKeyName);
-            foreach (var compositePrimaryKeyValues in allKeysForEntity)
-            {
-                var objectArrayFromHash =
-                    GetEntityQueryObjectsFromDatabase(compositePrimaryKeyValues, entityType, DecodeBytes);
-                var stateEntry = Configuration.StateManager.GetOrMaterializeEntry(
-                    entityType, new ObjectArrayValueReader(objectArrayFromHash));
-                yield return (TResult)stateEntry.Entity;
-            }
+            var allKeysForEntity
+                = GetUnderlyingDatabase().SetMembers(redisPrimaryKeyIndexKeyName);
+
+            return allKeysForEntity
+                .Select(compositePrimaryKeyValues
+                    => GetEntityQueryObjectsFromDatabase(compositePrimaryKeyValues, entityType, DecodeBytes))
+                .Select(objectArrayFromHash
+                    => (TResult)materializationStrategy
+                        .Materialize(entityType, new ObjectArrayValueReader(objectArrayFromHash)));
         }
 
         /// <summary>

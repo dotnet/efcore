@@ -7,7 +7,6 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.AzureTableStorage.Requests;
 using Microsoft.Data.Entity.AzureTableStorage.Utilities;
-using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Utilities;
@@ -26,14 +25,14 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
         public AtsQueryContext(
             [NotNull] IModel model,
             [NotNull] ILogger logger,
-            [NotNull] StateManager stateManager,
+            [NotNull] IMaterializationStrategy materializationStrategy,
             [NotNull] AtsConnection connection,
             [NotNull] AtsValueReaderFactory readerFactory)
-            : base(model, logger, stateManager)
+            : base(model, logger, materializationStrategy)
         {
             Check.NotNull(model, "model");
             Check.NotNull(logger, "logger");
-            Check.NotNull(stateManager, "stateManager");
+            Check.NotNull(materializationStrategy, "materializationStrategy");
             Check.NotNull(readerFactory, "readerFactory");
 
             _connection = connection;

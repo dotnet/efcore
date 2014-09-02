@@ -3,7 +3,6 @@
 
 using System.Threading;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
@@ -14,20 +13,20 @@ namespace Microsoft.Data.Entity.Query
     {
         private readonly IModel _model;
         private readonly ILogger _logger;
-        private readonly StateManager _stateManager;
+        private readonly IMaterializationStrategy _materializationStrategy;
 
         public QueryContext(
             [NotNull] IModel model,
             [NotNull] ILogger logger,
-            [NotNull] StateManager stateManager)
+            [NotNull] IMaterializationStrategy materializationStrategy)
         {
             Check.NotNull(model, "model");
             Check.NotNull(logger, "logger");
-            Check.NotNull(stateManager, "stateManager");
+            Check.NotNull(materializationStrategy, "materializationStrategy");
 
             _model = model;
             _logger = logger;
-            _stateManager = stateManager;
+            _materializationStrategy = materializationStrategy;
         }
 
         public virtual IModel Model
@@ -40,9 +39,9 @@ namespace Microsoft.Data.Entity.Query
             get { return _logger; }
         }
 
-        public virtual StateManager StateManager
+        public virtual IMaterializationStrategy MaterializationStrategy
         {
-            get { return _stateManager; }
+            get { return _materializationStrategy; }
         }
 
         public virtual CancellationToken CancellationToken { get; set; }

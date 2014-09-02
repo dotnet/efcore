@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Query.ResultOperators;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
@@ -24,6 +25,7 @@ namespace Microsoft.Data.Entity.Query
                 {
                     { typeof(AllResultOperator), (v, r, q) => HandleAll(v, (AllResultOperator)r, q) },
                     { typeof(AnyResultOperator), (v, _, __) => HandleAny(v) },
+                    { typeof(AsNoTrackingResultOperator), (v, _, __) => v.Expression },
                     { typeof(AverageResultOperator), (v, _, __) => HandleAverage(v) },
                     { typeof(CastResultOperator), (v, r, __) => HandleCast(v, (CastResultOperator)r) },
                     { typeof(CountResultOperator), (v, _, __) => HandleCount(v) },

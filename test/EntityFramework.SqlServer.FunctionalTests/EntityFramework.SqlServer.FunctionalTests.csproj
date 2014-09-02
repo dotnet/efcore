@@ -67,6 +67,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AsNoTrackingTest.cs" />
     <Compile Include="ConnectionStringTest.cs" />
     <Compile Include="CompositeKeyEndToEndTest.cs" />
     <Compile Include="ExistingConnectionTest.cs" />

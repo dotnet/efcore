@@ -63,6 +63,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AsNoTrackingTestBase.cs" />
     <Compile Include="ExceptionInterceptionTest.cs" />
     <Compile Include="FixupTest.cs" />
     <Compile Include="Metadata\CompiledModelTest.cs" />
