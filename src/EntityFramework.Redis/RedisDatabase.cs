@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -41,13 +42,8 @@ namespace Microsoft.Data.Entity.Redis
         private const string DataHashNameFormat = // 1st arg is EntityType, 2nd is value of the PK
             DataPrefix + "{0}" + KeyNameSeparator + "{1}";
 
-        private readonly object _connectionLock = new object();
-
-        private static readonly Dictionary<string, ConnectionMultiplexer> _multiplexers = // key = ConfigurationOptions.ToString()
-            new Dictionary<string, ConnectionMultiplexer>();
-
-        private volatile IDatabase _redisDatabase;
-        private volatile IServer _redisServer;
+        private static readonly ConcurrentDictionary<string, ConnectionMultiplexer> _connectionMultiplexers 
+            = new ConcurrentDictionary<string, ConnectionMultiplexer>(); // key = ConfigurationOptions.ToString()
 
         public RedisDatabase([NotNull] DbContextConfiguration configuration)
             : base(configuration)
@@ -58,73 +54,39 @@ namespace Microsoft.Data.Entity.Redis
         {
             get
             {
-                ConnectionMultiplexer multiplexer;
-                lock (_connectionLock)
+                var connection = (RedisConnection)Configuration.Connection;
+                var configurationOptions = ConfigurationOptions.Parse(connection.ConnectionString);
+
+                configurationOptions.AllowAdmin = true; // require Admin access for Server commands
+
+                var connectionMultiplexerKey = configurationOptions.ToString();
+
+                ConnectionMultiplexer connectionMultiplexer;
+
+                if (!_connectionMultiplexers.TryGetValue(connectionMultiplexerKey, out connectionMultiplexer))
                 {
-                    var connection = (RedisConnection)Configuration.Connection;
-                    var configOptions = ConfigurationOptions.Parse(connection.ConnectionString);
-                    configOptions.AllowAdmin = true; // require Admin access for Server commands
-                    var configOptionsString = configOptions.ToString();
-                    if (!_multiplexers.TryGetValue(configOptionsString, out multiplexer))
+                    connectionMultiplexer = ConnectionMultiplexer.Connect(configurationOptions);
+
+                    if (!_connectionMultiplexers.TryAdd(connectionMultiplexerKey, connectionMultiplexer))
                     {
-                        multiplexer =
-                            _multiplexers[configOptionsString] =
-                                ConnectionMultiplexer.Connect(configOptions);
+                        connectionMultiplexer = _connectionMultiplexers[connectionMultiplexerKey];
                     }
                 }
 
-                return multiplexer;
+                return connectionMultiplexer;
             }
         }
 
-        public virtual IDatabase UnderlyingDatabase
+        public virtual IDatabase GetUnderlyingDatabase()
         {
-            get
-            {
-                if (_redisDatabase == null)
-                {
-                    var connectionMultiplexer = ConnectionMultiplexer;
-                    lock (_connectionLock)
-                    {
-                        if (_redisDatabase == null)
-                        {
-                            var connection = (RedisConnection)Configuration.Connection;
-                            _redisDatabase =
-                                connectionMultiplexer.GetDatabase(connection.Database);
-                        }
-                    }
-                }
-
-                return _redisDatabase;
-            }
-
-            // For test purposes only
-            internal set { _redisDatabase = value; }
+            return ConnectionMultiplexer
+                .GetDatabase(((RedisConnection)Configuration.Connection).Database);
         }
 
-        public virtual IServer UnderlyingServer
+        public virtual IServer GetUnderlyingServer()
         {
-            get
-            {
-                if (_redisServer == null)
-                {
-                    var connectionMultiplexer = ConnectionMultiplexer;
-                    lock (_connectionLock)
-                    {
-                        if (_redisServer == null)
-                        {
-                            var connection = (RedisConnection)Configuration.Connection;
-                            _redisServer =
-                                connectionMultiplexer.GetServer(connection.ConnectionString);
-                        }
-                    }
-                }
-
-                return _redisServer;
-            }
-
-            // For test purposes only
-            internal set { _redisServer = value; }
+            return ConnectionMultiplexer
+                .GetServer(((RedisConnection)Configuration.Connection).ConnectionString);
         }
 
         public virtual async Task<int> SaveChangesAsync(
@@ -139,7 +101,7 @@ namespace Microsoft.Data.Entity.Redis
             }
 
             var entitiesProcessed = 0;
-            var transaction = UnderlyingDatabase.CreateTransaction();
+            var transaction = GetUnderlyingDatabase().CreateTransaction();
             foreach (var entry in stateEntries)
             {
                 if (cancellationToken.IsCancellationRequested)
@@ -184,7 +146,7 @@ namespace Microsoft.Data.Entity.Redis
             var redisPrimaryKeyIndexKeyName =
                 ConstructRedisPrimaryKeyIndexKeyName(entityType);
 
-            var allKeysForEntity = UnderlyingDatabase.SetMembers(redisPrimaryKeyIndexKeyName);
+            var allKeysForEntity = GetUnderlyingDatabase().SetMembers(redisPrimaryKeyIndexKeyName);
             foreach (var compositePrimaryKeyValues in allKeysForEntity)
             {
                 var objectArrayFromHash =
@@ -207,7 +169,7 @@ namespace Microsoft.Data.Entity.Redis
             var redisPrimaryKeyIndexKeyName =
                 ConstructRedisPrimaryKeyIndexKeyName(redisQuery.EntityType);
 
-            var allKeysForEntity = UnderlyingDatabase.SetMembers(redisPrimaryKeyIndexKeyName).AsEnumerable();
+            var allKeysForEntity = GetUnderlyingDatabase().SetMembers(redisPrimaryKeyIndexKeyName).AsEnumerable();
             return allKeysForEntity
                 .Select(compositePrimaryKeyValue =>
                     GetProjectionQueryObjectsFromDatabase(compositePrimaryKeyValue, redisQuery.EntityType, redisQuery.SelectedProperties, DecodeBytes));
@@ -219,7 +181,7 @@ namespace Microsoft.Data.Entity.Redis
         public virtual void FlushDatabase()
         {
             var connection = (RedisConnection)Configuration.Connection;
-            UnderlyingServer.FlushDatabase(connection.Database);
+            GetUnderlyingServer().FlushDatabase(connection.Database);
         }
 
         /// <summary>
@@ -235,7 +197,7 @@ namespace Microsoft.Data.Entity.Redis
 
             var connection = (RedisConnection)Configuration.Connection;
 
-            await UnderlyingServer.FlushDatabaseAsync(connection.Database).ConfigureAwait(continueOnCapturedContext: false);
+            await GetUnderlyingServer().FlushDatabaseAsync(connection.Database).ConfigureAwait(continueOnCapturedContext: false);
         }
 
         private void AddInsertEntryCommands(ITransaction transaction, StateEntry stateEntry)
@@ -320,7 +282,7 @@ namespace Microsoft.Data.Entity.Redis
             var results = new object[entityType.Properties.Count];
 
             // HGETALL
-            var redisHashEntries = UnderlyingDatabase.HashGetAll(
+            var redisHashEntries = GetUnderlyingDatabase().HashGetAll(
                 ConstructRedisDataKeyName(entityType, compositePrimaryKeyValues))
                 .ToDictionary(he => he.Name, he => he.Value);
 
@@ -355,7 +317,7 @@ namespace Microsoft.Data.Entity.Redis
 
             // HMGET
             var fields = selectedPropertiesArray.Select(p => (RedisValue)p.Name).ToArray();
-            var redisHashEntries = UnderlyingDatabase.HashGet(
+            var redisHashEntries = GetUnderlyingDatabase().HashGet(
                 ConstructRedisDataKeyName(entityType, primaryKey), fields);
             for (var i = 0; i < selectedPropertiesArray.Length; i++)
             {
