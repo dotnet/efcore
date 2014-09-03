@@ -4,17 +4,15 @@
         "warningsAsErrors": true
     },
     "dependencies": {
-        "EntityFramework.Migrations": ""
+        "EntityFramework.Migrations": "",
+        "Microsoft.Framework.Runtime.Interfaces": "1.0.0-*"
     },
     "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
     "frameworks": {
-        "net451": {
-            "dependencies": { }
-        },
+        "net451": { },
         "aspnetcore50": {
             "dependencies": {
-                "System.Console": "4.0.0.0",
-                "Microsoft.Framework.Runtime.Interfaces": "1.0.0-*"
+                "System.Console": "4.0.0.0"
             }
         }
     }

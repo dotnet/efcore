@@ -3,8 +3,10 @@
 
 using System;
 using System.IO;
+#if NET451 || ASPNETCORE50
 using Microsoft.Framework.Runtime;
 using Microsoft.Framework.Runtime.Infrastructure;
+#endif
 
 namespace Microsoft.Data.Entity.Design.Utilities
 {
@@ -14,21 +16,43 @@ namespace Microsoft.Data.Entity.Design.Utilities
         {
             get
             {
-                var locator = CallContextServiceLocator.Locator;
-
-                if (locator != null)
+#if NET451 || ASPNETCORE50
+                try
                 {
-                    var appEnv = (IApplicationEnvironment)locator.ServiceProvider.GetService(typeof(IApplicationEnvironment));
-                    return appEnv.ApplicationBasePath;
+                    var applicationBasePath = TryGetApplicationBasePath();
+                    if (applicationBasePath != null)
+                    {
+                        return applicationBasePath;
+                    }
                 }
+                catch (FileNotFoundException)
+                {
+                    // Ignore. Running outside of Project K
+                }
+#endif
 
-#if NET451 || ASPNET50
-                return AppDomain.CurrentDomain.BaseDirectory;
-#else
+#if ASPNETCORE50
                 return ApplicationContext.BaseDirectory;
+#else
+                return AppDomain.CurrentDomain.BaseDirectory;
 #endif
             }
         }
+
+#if NET451 || ASPNETCORE50
+        private static string TryGetApplicationBasePath()
+        {
+            var locator = CallContextServiceLocator.Locator;
+
+            if (locator != null)
+            {
+                var appEnv = (IApplicationEnvironment)locator.ServiceProvider.GetService(typeof(IApplicationEnvironment));
+                return appEnv.ApplicationBasePath;
+            }
+
+            return null;
+        }
+#endif
 
         public static string ResolveAppRelativePath(string path)
         {
