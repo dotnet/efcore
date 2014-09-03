@@ -3,10 +3,8 @@
 
 using System;
 using System.IO;
-#if ASPNETCORE50 || ASPNET50
 using Microsoft.Framework.Runtime;
 using Microsoft.Framework.Runtime.Infrastructure;
-#endif
 
 namespace Microsoft.Data.Entity.Design.Utilities
 {
@@ -16,7 +14,6 @@ namespace Microsoft.Data.Entity.Design.Utilities
         {
             get
             {
-#if ASPNETCORE50 || ASPNET50
                 var locator = CallContextServiceLocator.Locator;
 
                 if (locator != null)
@@ -24,7 +21,6 @@ namespace Microsoft.Data.Entity.Design.Utilities
                     var appEnv = (IApplicationEnvironment)locator.ServiceProvider.GetService(typeof(IApplicationEnvironment));
                     return appEnv.ApplicationBasePath;
                 }
-#endif
 
 #if NET451 || ASPNET50
                 return AppDomain.CurrentDomain.BaseDirectory;
