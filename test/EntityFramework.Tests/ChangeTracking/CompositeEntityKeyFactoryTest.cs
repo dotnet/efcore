@@ -136,7 +136,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var property6 = entityType.GetOrAddProperty("P6", typeof(Random));
 
             entityType.GetOrSetPrimaryKey(property1, property2, property3);
-            entityType.GetOrAddForeignKey(entityType.GetPrimaryKey(), property6, property4, property5);
+            entityType.GetOrAddForeignKey(entityType.GetPrimaryKey(), property4, property5, property6);
 
             model.AddEntityType(entityType);
 

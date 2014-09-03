@@ -276,4 +276,34 @@
   <data name="ForeignKeyInUse" xml:space="preserve">
     <value>Cannot remove foreign key from entity type '{entityType}' because it is referenced by navigation property '{navigation}' in entity type '{dependentType}'. All navigations must be removed or redefined before the referenced foreign key can be removed.</value>
   </data>
+  <data name="NavigationAlreadyOwned" xml:space="preserve">
+    <value>The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because it already belongs to entity type '{existingEntityType}'.</value>
+  </data>
+  <data name="DuplicateNavigation" xml:space="preserve">
+    <value>The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because an existing navigation property with the same name already exists.</value>
+  </data>
+  <data name="NavigationOnShadowEntity" xml:space="preserve">
+    <value>The navigation property '{navigation}' cannot be added to entity type '{entityType}' because the entity type is defined in shadow state and navigations properties cannot be added to shadow state.</value>
+  </data>
+  <data name="NoClrNavigation" xml:space="preserve">
+    <value>The navigation property '{navigation}' cannot be added to entity type '{entityType}' because there is no corresponding CLR property on the underlying type and navigations properties cannot be added to shadow state.</value>
+  </data>
+  <data name="WrongClrSingleNavigationType" xml:space="preserve">
+    <value>The navigation property '{navigation}' cannot be added to entity type '{entityType}' because its CLR type '{clrType}' does not match the CLR type '{targetType}' of the related entity.</value>
+  </data>
+  <data name="WrongClrCollectionNavigationType" xml:space="preserve">
+    <value>The collection navigation property '{navigation}' cannot be added to entity type '{entityType}' because its CLR type '{clrType}' does not implement 'IEnumerable&lt;{targetType}&gt;'. Collection navigation properties must implement IEnumerable&lt;&gt; of the related entity.</value>
+  </data>
+  <data name="NavigationNotFound" xml:space="preserve">
+    <value>The navigation property '{navigation}' on entity type '{entityType}' could not be found. Ensure that the navigation property exists and has been included in the model.</value>
+  </data>
+  <data name="MultipleNavigations" xml:space="preserve">
+    <value>The navigation properties '{navigation1}' and '{navigation2}' on entity type '{entityType}' are both backed by the same foreign key and point in the same direction. Each foreign key can have at most one navigation property and one inverse navigation property.</value>
+  </data>
+  <data name="ForeignKeyCountMismatch" xml:space="preserve">
+    <value>The number of properties specified for the foreign key on entity type '{dependentType}' does not match the number of properties in the referenced key on entity type '{principalType}'.</value>
+  </data>
+  <data name="ForeignKeyTypeMismatch" xml:space="preserve">
+    <value>The types of the properties specified for the foreign key on entity type '{dependentType}' do not match the types of the properties in the referenced key on entity type '{principalType}'.</value>
+  </data>
 </root>

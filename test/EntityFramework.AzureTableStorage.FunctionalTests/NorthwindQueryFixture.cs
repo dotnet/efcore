@@ -35,19 +35,23 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
             builder.Entity<Customer>()
                 .PartitionAndRowKey(s => s.City, s => s.CustomerID)
                 .Timestamp("Timestamp", true)
-                .TableName("Customer" + tableSuffix);
+                .TableName("Customer" + tableSuffix)
+                .Key(e => e.CustomerID); // See issue #632
             builder.Entity<Employee>()
                 .PartitionAndRowKey(s => s.City, s => s.EmployeeID)
                 .Timestamp("Timestamp", true)
-                .TableName("Employee" + tableSuffix);
+                .TableName("Employee" + tableSuffix)
+                .Key(e => e.EmployeeID); // See issue #632
             builder.Entity<Order>()
                 .PartitionAndRowKey(s => s.CustomerID, s => s.OrderID)
                 .Timestamp("Timestamp", true)
-                .TableName("Order" + tableSuffix);
+                .TableName("Order" + tableSuffix)
+                .Key(e => e.OrderID); // See issue #632
             builder.Entity<Product>()
                 .PartitionAndRowKey(s => s.SupplierID, s => s.ProductID)
                 .Timestamp("Timestamp", true)
-                .TableName("Product" + tableSuffix);
+                .TableName("Product" + tableSuffix)
+                .Key(e => e.ProductID); // See issue #632
             builder.Entity<OrderDetail>()
                 .PartitionAndRowKey(s => s.OrderID, s => s.ProductID)
                 .Timestamp("Timestamp", true)

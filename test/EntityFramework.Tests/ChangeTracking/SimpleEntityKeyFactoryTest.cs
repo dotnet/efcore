@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = BuildModel();
             var type = model.GetEntityType(typeof(Banana));
 
-            var entity = new Banana { P1 = 7, P2 = "Ate" };
+            var entity = new Banana { P1 = 7, P2 = 8 };
             var entry = new ClrStateEntry(TestHelpers.CreateContextConfiguration(model), type, entity);
 
             var key = (SimpleEntityKey<int>)new SimpleEntityKeyFactory<int>().Create(type, type.GetPrimaryKey().Properties, entry);
@@ -29,13 +29,13 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = BuildModel();
             var type = model.GetEntityType(typeof(Banana));
 
-            var entity = new Banana { P1 = 7, P2 = "Ate" };
+            var entity = new Banana { P1 = 7, P2 = 8 };
             var entry = new ClrStateEntry(TestHelpers.CreateContextConfiguration(model), type, entity);
 
-            var key = (SimpleEntityKey<string>)new SimpleEntityKeyFactory<string>().Create(
+            var key = (SimpleEntityKey<int>)new SimpleEntityKeyFactory<int>().Create(
                 type, new[] { type.GetProperty("P2") }, entry);
 
-            Assert.Equal("Ate", key.Value);
+            Assert.Equal(8, key.Value);
         }
 
         [Fact]
@@ -80,7 +80,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = BuildModel();
             var type = model.GetEntityType(typeof(Banana));
 
-            var entity = new Banana { P1 = 7, P2 = "Ate" };
+            var entity = new Banana { P1 = 7, P2 = 8 };
             var entry = new ClrStateEntry(TestHelpers.CreateContextConfiguration(model), type, entity);
 
             var sidecar = new RelationshipsSnapshot(entry);
@@ -98,15 +98,15 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = BuildModel();
             var type = model.GetEntityType(typeof(Banana));
 
-            var entity = new Banana { P1 = 7, P2 = "Ate" };
+            var entity = new Banana { P1 = 7, P2 = 8 };
             var entry = new ClrStateEntry(TestHelpers.CreateContextConfiguration(model), type, entity);
 
             var sidecar = new RelationshipsSnapshot(entry);
 
-            var key = (SimpleEntityKey<string>)new SimpleEntityKeyFactory<string>().Create(
+            var key = (SimpleEntityKey<int>)new SimpleEntityKeyFactory<int>().Create(
                 type, new[] { type.GetProperty("P2") }, sidecar);
 
-            Assert.Equal("Ate", key.Value);
+            Assert.Equal(8, key.Value);
         }
 
         private static Model BuildModel()
@@ -115,7 +115,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var entityType = new EntityType(typeof(Banana));
             var property1 = entityType.GetOrAddProperty("P1", typeof(int));
-            var property2 = entityType.GetOrAddProperty("P2", typeof(string));
+            var property2 = entityType.GetOrAddProperty("P2", typeof(int?));
 
             entityType.GetOrSetPrimaryKey(property1);
             entityType.GetOrAddForeignKey(entityType.GetPrimaryKey(), property2);
@@ -128,7 +128,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         private class Banana
         {
             public int P1 { get; set; }
-            public string P2 { get; set; }
+            public int? P2 { get; set; }
         }
     }
 }

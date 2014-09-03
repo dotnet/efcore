@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
@@ -29,8 +30,8 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                 dependentType,
                 navigationToPrincipal,
                 navigationToDependent,
-                GetCandidateForeignKeyProperties(principalType, dependentType, navigationToPrincipal, isUnqiue),
-                new Property[0],
+                ImmutableList<Property>.Empty,
+                ImmutableList<Property>.Empty,
                 isUnqiue);
         }
 
@@ -39,47 +40,88 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             [NotNull] EntityType dependentType,
             [CanBeNull] string navigationToPrincipal,
             [CanBeNull] string navigationToDependent,
-            [NotNull] IReadOnlyList<IReadOnlyList<Property>> foreignKeyProperties,
+            [NotNull] IReadOnlyList<Property> foreignKeyProperties,
             [NotNull] IReadOnlyList<Property> referencedProperties,
             bool isUnqiue)
         {
             Check.NotNull(principalType, "principalType");
             Check.NotNull(dependentType, "dependentType");
 
-            if (!foreignKeyProperties.Any())
+            IReadOnlyList<IReadOnlyList<Property>> foreignKeyCandidates;
+            if (foreignKeyProperties.Any())
             {
-                foreignKeyProperties = GetCandidateForeignKeyProperties(principalType, dependentType, navigationToPrincipal, isUnqiue);
+                foreignKeyCandidates = new List<IReadOnlyList<Property>> { foreignKeyProperties };
+            }
+            else if (referencedProperties.Count <= 1)
+            {
+                foreignKeyCandidates = GetCandidateForeignKeyProperties(principalType, dependentType, navigationToPrincipal, isUnqiue);
+                foreignKeyProperties = foreignKeyCandidates.FirstOrDefault() ?? ImmutableList<Property>.Empty;
+            }
+            else
+            {
+                foreignKeyCandidates = new List<IReadOnlyList<Property>>();
             }
 
-            foreach (var properties in foreignKeyProperties)
+            // If existing FK matches, then use it
+            foreach (var properties in foreignKeyCandidates)
             {
-                var foreignKey = dependentType
-                    .ForeignKeys
+                var foreignKey = dependentType.ForeignKeys
                     .FirstOrDefault(fk => fk.IsUnique == isUnqiue
                                           && fk.Properties.SequenceEqual(properties)
                                           && !fk.EntityType.Navigations.Any(n => n.ForeignKey == fk && n.Name != navigationToPrincipal)
-                                          && !fk.ReferencedEntityType.Navigations.Any(n => n.ForeignKey == fk && n.Name != navigationToDependent));
+                                          && !fk.ReferencedEntityType.Navigations.Any(n => n.ForeignKey == fk && n.Name != navigationToDependent)
+                                          && (!referencedProperties.Any()
+                                              || fk.ReferencedKey.Properties.SequenceEqual(referencedProperties)));
+
                 if (foreignKey != null)
                 {
                     return foreignKey;
                 }
             }
 
-            // TODO: Handle case where principal key is not defined
-            // TODO: What if foreignKey exists but is associated with different navigations
+            Key principalKey;
+            if (referencedProperties.Any())
+            {
+                principalKey = principalType.GetOrAddKey(referencedProperties.ToArray());
+            }
+            else
+            {
+                // Use the primary key if it is compatible with the FK properties, otherwise create a principal key
+                principalKey = principalType.TryGetPrimaryKey();
+                if (principalKey == null
+                    || (foreignKeyProperties.Any()
+                        && !principalKey.Properties.Select(p => p.UnderlyingType).SequenceEqual(foreignKeyProperties.Select(p => p.UnderlyingType))))
+                {
+                    // TODO: Convention property naming/disambiguation
+                    if (foreignKeyProperties.Any())
+                    {
+                        principalKey = principalType.GetOrAddKey(
+                            foreignKeyProperties.Select(p => principalType.GetOrAddProperty(p.Name + "Key", p.UnderlyingType, shadowProperty: true))
+                                .ToArray());
+                    }
+                    else
+                    {
+                        principalKey = principalType.GetOrAddKey(principalType.GetOrAddProperty(
+                            (navigationToPrincipal ?? principalType.SimpleName) + "IdKey", typeof(int), shadowProperty: true));
+                    }
+                }
+            }
 
-            var fkProperty = foreignKeyProperties.FirstOrDefault()
-                             ?? new[]
-                                 {
-                                     dependentType.GetOrAddProperty(
-                                         (navigationToPrincipal ?? principalType.SimpleName) + "Id",
-                                         // TODO: Make nullable
-                                         principalType.GetPrimaryKey().Properties.First().PropertyType,
-                                         shadowProperty: true)
-                                 };
+            if (!foreignKeyProperties.Any())
+            {
+                // Create foreign key properties in shadow state
+                // TODO: Convention property naming/disambiguation
+                var baseName = (navigationToPrincipal ?? principalType.SimpleName) + "Id";
+                var isComposite = principalKey.Properties.Count > 1;
 
-            var principalKey = referencedProperties.Any() ?  principalType.GetOrAddKey(referencedProperties.ToArray()) : principalType.GetPrimaryKey();
-            var newForeignKey = dependentType.AddForeignKey(new ForeignKey(principalKey, fkProperty.ToArray()));
+                foreignKeyProperties = principalKey.Properties.Select((p, i) => dependentType.GetOrAddProperty(
+                    baseName + (isComposite ? i.ToString() : ""),
+                    // TODO: Make nullable
+                    principalKey.Properties.First().PropertyType,
+                    shadowProperty: true)).ToList();
+            }
+
+            var newForeignKey = dependentType.AddForeignKey(new ForeignKey(principalKey, foreignKeyProperties.ToArray()));
             newForeignKey.IsUnique = isUnqiue;
 
             return newForeignKey;

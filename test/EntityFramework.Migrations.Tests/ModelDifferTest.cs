@@ -1552,59 +1552,6 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         }
 
         [Fact]
-        public void Foreign_keys_are_not_matched_if_different_property_count()
-        {
-            var sourceModelBuilder = new BasicModelBuilder();
-            sourceModelBuilder.Entity("A",
-                b =>
-                    {
-                        b.Property<int>("Id");
-                        b.Property<int>("P");
-                        b.Key("Id", "P");
-                    });
-            sourceModelBuilder.Entity("B",
-                b =>
-                    {
-                        b.Property<int>("Id");
-                        b.Property<int>("P");
-                        b.Key("Id");
-                        b.ForeignKey("A", "Id").KeyName("FK");
-                    });
-
-            var targetModelBuilder = new BasicModelBuilder();
-            targetModelBuilder.Entity("A",
-                b =>
-                    {
-                        b.Property<int>("Id");
-                        b.Property<int>("P");
-                        b.Key("Id", "P");
-                    });
-            targetModelBuilder.Entity("B",
-                b =>
-                    {
-                        b.Property<int>("Id");
-                        b.Property<int>("P");
-                        b.Key("Id");
-                        b.ForeignKey("A", "Id", "P").KeyName("FK");
-                    });
-
-            var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
-                sourceModelBuilder.Model, targetModelBuilder.Model);
-
-            Assert.Equal(2, operations.Count);
-
-            Assert.IsType<DropForeignKeyOperation>(operations[0]);
-            Assert.IsType<AddForeignKeyOperation>(operations[1]);
-
-            var dropForeignKeyOperation = (DropForeignKeyOperation)operations[0];
-            var addForeignKeyOperation = (AddForeignKeyOperation)operations[1];
-
-            Assert.Equal("FK", dropForeignKeyOperation.ForeignKeyName);
-            Assert.Equal("FK", addForeignKeyOperation.ForeignKeyName);
-            Assert.Equal(new[] { "Id", "P" }, addForeignKeyOperation.ColumnNames);
-        }
-
-        [Fact]
         public void Foreign_keys_are_not_matched_if_different_property_and_column_names()
         {
             var sourceModelBuilder = new BasicModelBuilder();

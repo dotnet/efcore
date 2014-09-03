@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -17,6 +18,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         private EntityType _dependentType;
         private Navigation _navigationToPrincipal;
         private Navigation _navigationToDependent;
+        private IReadOnlyList<Property> _dependentProperties = ImmutableList<Property>.Empty;
+        private IReadOnlyList<Property> _principalProperties = ImmutableList<Property>.Empty;
 
         public InternalRelationshipBuilder(
             [NotNull] ForeignKey foreignKey, [NotNull] InternalModelBuilder modelBuilder,
@@ -31,6 +34,14 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             _dependentType = dependentType;
             _navigationToPrincipal = navigationToPrincipal;
             _navigationToDependent = navigationToDependent;
+        }
+
+        private InternalRelationshipBuilder(ForeignKey foreignKey, InternalRelationshipBuilder currentBuilder)
+            : this(foreignKey, currentBuilder.ModelBuilder, currentBuilder._principalType, currentBuilder._dependentType,
+                currentBuilder._navigationToPrincipal, currentBuilder._navigationToDependent)
+        {
+            _dependentProperties = currentBuilder._dependentProperties;
+            _principalProperties = currentBuilder._principalProperties;
         }
 
         public virtual EntityType PrincipalType
@@ -53,6 +64,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             _dependentType = _principalType;
             _principalType = dependentType;
 
+            var dependentProperties = _dependentProperties;
+            _dependentProperties = _principalProperties;
+            _principalProperties = dependentProperties;
+
             if (_navigationToDependent != null)
             {
                 _navigationToDependent.PointsToPrincipal = false;
@@ -70,50 +85,32 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             Check.NotNull(propertyAccessList, "propertyAccessList");
 
-            var dependentProperties = propertyAccessList
+            _dependentProperties = propertyAccessList
                 .Select(pi => _dependentType.GetOrAddProperty(pi))
                 .ToArray();
 
-            if (Metadata.Properties.SequenceEqual(dependentProperties))
+            if (Metadata.Properties.SequenceEqual(_dependentProperties))
             {
                 return this;
             }
 
-            var newForeignKey = new ForeignKeyConvention().FindOrCreateForeignKey(
-                _principalType,
-                _dependentType,
-                _navigationToPrincipal != null ? _navigationToPrincipal.Name : null,
-                _navigationToDependent != null ? _navigationToDependent.Name : null,
-                dependentProperties.Any() ? new[] { dependentProperties } : new Property[0][],
-                Metadata.EntityType == _dependentType ? Metadata.ReferencedProperties : new Property[0],
-                Metadata.IsUnique);
-
-            ReplaceForeignKey(newForeignKey, Metadata.Properties.Except(dependentProperties));
-
-            return new InternalRelationshipBuilder(
-                newForeignKey, ModelBuilder, _principalType, _dependentType, _navigationToPrincipal, _navigationToDependent);
+            return ReplaceForeignKey();
         }
 
         public virtual InternalRelationshipBuilder ReferencedKey([NotNull] IList<PropertyInfo> propertyAccessList)
         {
             Check.NotNull(propertyAccessList, "propertyAccessList");
 
-            var principalProperties = propertyAccessList
+            _principalProperties = propertyAccessList
                 .Select(pi => _principalType.GetOrAddProperty(pi))
                 .ToArray();
 
-            if (Metadata.ReferencedProperties.SequenceEqual(principalProperties))
+            if (Metadata.ReferencedProperties.SequenceEqual(_principalProperties))
             {
                 return this;
             }
 
-            var newForeignKey = _dependentType.AddForeignKey(new ForeignKey(new Key(principalProperties), Metadata.Properties.ToArray()));
-            newForeignKey.IsUnique = Metadata.IsUnique;
-
-            ReplaceForeignKey(newForeignKey, Enumerable.Empty<Property>());
-
-            return new InternalRelationshipBuilder(
-                newForeignKey, ModelBuilder, _principalType, _dependentType, _navigationToPrincipal, _navigationToDependent);
+            return ReplaceForeignKey();
         }
 
         public virtual InternalRelationshipBuilder OneToOneForeignKey(
@@ -140,13 +137,22 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             var builder = ModelBuilder.GetOrAddEntity(specifiedPrincipalType).Metadata == PrincipalType
                 ? this
-                : Invert().ForeignKey(new PropertyInfo[0]);
+                : Invert().ReplaceForeignKey();
 
             return builder.ReferencedKey(propertyAccessList);
         }
 
-        private void ReplaceForeignKey(ForeignKey newForeignKey, IEnumerable<Property> propertiesToRemove)
+        private InternalRelationshipBuilder ReplaceForeignKey()
         {
+            var newForeignKey = new ForeignKeyConvention().FindOrCreateForeignKey(
+                _principalType,
+                _dependentType,
+                _navigationToPrincipal != null ? _navigationToPrincipal.Name : null,
+                _navigationToDependent != null ? _navigationToDependent.Name : null,
+                _dependentProperties,
+                _principalProperties,
+                Metadata.IsUnique);
+
             if (_navigationToPrincipal != null)
             {
                 _dependentType.RemoveNavigation(_navigationToPrincipal);
@@ -157,19 +163,39 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 _principalType.RemoveNavigation(_navigationToDependent);
             }
 
+            var entityType = Metadata.EntityType;
+
             // TODO: Remove FK only if it was added by convention
-            Metadata.EntityType.RemoveForeignKey(Metadata);
+            entityType.RemoveForeignKey(Metadata);
+
+            // TODO: Remove principal key only if it was added by convention
+            var currentPrincipalKey = Metadata.ReferencedKey;
+            if (currentPrincipalKey != newForeignKey.ReferencedKey
+                && currentPrincipalKey != currentPrincipalKey.EntityType.TryGetPrimaryKey()
+                && currentPrincipalKey.Properties.All(p => p.IsShadowProperty))
+            {
+                currentPrincipalKey.EntityType.RemoveKey(currentPrincipalKey);
+            }
+
+            var propertiesInUse = entityType.Keys.SelectMany(k => k.Properties)
+                .Concat(entityType.ForeignKeys.SelectMany(k => k.Properties))
+                .Concat(Metadata.ReferencedEntityType.Keys.SelectMany(k => k.Properties))
+                .Concat(Metadata.ReferencedEntityType.ForeignKeys.SelectMany(k => k.Properties))
+                .Concat(_principalProperties)
+                .Concat(_dependentProperties)
+                .Where(p => p.IsShadowProperty)
+                .Distinct();
+
+            var propertiesToRemove = Metadata.Properties
+                .Concat(Metadata.ReferencedKey.Properties)
+                .Where(p => p.IsShadowProperty)
+                .Distinct()
+                .Except(propertiesInUse);
 
             // TODO: Remove property only if it was added by convention
             foreach (var property in propertiesToRemove)
             {
-                // TODO: This check not needed once only removing properties added by convention
-                var dependentPk = Metadata.EntityType.TryGetPrimaryKey();
-                if (dependentPk == null
-                    || !dependentPk.Properties.Contains(property))
-                {
-                    Metadata.EntityType.RemoveProperty(property);
-                }
+                property.EntityType.RemoveProperty(property);
             }
 
             if (_navigationToPrincipal != null)
@@ -183,6 +209,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 _navigationToDependent.ForeignKey = newForeignKey;
                 _principalType.AddNavigation(_navigationToDependent);
             }
+
+            return new InternalRelationshipBuilder(newForeignKey, this);
         }
     }
 }

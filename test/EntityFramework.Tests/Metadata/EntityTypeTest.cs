@@ -8,7 +8,6 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Microsoft.Data.Entity.Metadata;
-using Moq;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.Metadata
@@ -320,7 +319,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var customerType = new EntityType(typeof(Customer));
             var customerKey1 = customerType.GetOrAddKey(customerType.GetOrAddProperty(Customer.IdProperty));
-            var customerKey2 = customerType.GetOrAddKey(customerType.GetOrAddProperty(Customer.NameProperty));
+            var customerKey2 = customerType.GetOrAddKey(customerType.GetOrAddProperty("IdAgain", typeof(int), shadowProperty: true));
             var orderType = new EntityType(typeof(Order));
             var customerFk = orderType.GetOrAddProperty(Order.CustomerIdProperty);
 
@@ -387,16 +386,210 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
-        public void Can_add_navigations()
+        public void Can_add_and_remove_navigations()
         {
-            var entityType = new EntityType(typeof(Order));
+            var customerType = new EntityType(typeof(Customer));
+            var customerKey = customerType.GetOrAddKey(customerType.GetOrAddProperty(Customer.IdProperty));
 
-            var navigation = new Navigation(new Mock<ForeignKey>().Object, "Milk", pointsToPrincipal: true);
+            var orderType = new EntityType(typeof(Order));
+            var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
+            var customerForeignKey = orderType.GetOrAddForeignKey(customerKey, foreignKeyProperty);
 
-            entityType.AddNavigation(navigation);
+            var customerNavigation = orderType.AddNavigation(new Navigation(customerForeignKey, "Customer", pointsToPrincipal: true));
+            var ordersNavigation = customerType.AddNavigation(new Navigation(customerForeignKey, "Orders", pointsToPrincipal: false));
 
-            Assert.Same(navigation, entityType.Navigations.Single());
-            Assert.Same(entityType, navigation.EntityType);
+            Assert.Equal("Customer", customerNavigation.Name);
+            Assert.Same(orderType, customerNavigation.EntityType);
+            Assert.Same(customerForeignKey, customerNavigation.ForeignKey);
+            Assert.True(customerNavigation.PointsToPrincipal);
+            Assert.False(customerNavigation.IsCollection());
+            Assert.Same(customerType, customerNavigation.GetTargetType());
+
+            Assert.Equal("Orders", ordersNavigation.Name);
+            Assert.Same(customerType, ordersNavigation.EntityType);
+            Assert.Same(customerForeignKey, ordersNavigation.ForeignKey);
+            Assert.False(ordersNavigation.PointsToPrincipal);
+            Assert.True(ordersNavigation.IsCollection());
+            Assert.Same(orderType, ordersNavigation.GetTargetType());
+
+            Assert.Same(customerNavigation, orderType.Navigations.Single());
+            Assert.Same(ordersNavigation, customerType.Navigations.Single());
+
+            orderType.RemoveNavigation(customerNavigation);
+            Assert.Empty(orderType.Navigations);
+            orderType.RemoveNavigation(customerNavigation);
+        }
+
+        [Fact]
+        public void Can_add_new_navigations_or_get_existing_navigations()
+        {
+            var customerType = new EntityType(typeof(Customer));
+            var customerKey = customerType.GetOrAddKey(customerType.GetOrAddProperty(Customer.IdProperty));
+
+            var orderType = new EntityType(typeof(Order));
+            var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
+            var customerForeignKey = orderType.GetOrAddForeignKey(customerKey, foreignKeyProperty);
+
+            var customerNavigation = orderType.GetOrAddNavigation("Customer", customerForeignKey, pointsToPrincipal: true);
+
+            Assert.Equal("Customer", customerNavigation.Name);
+            Assert.Same(orderType, customerNavigation.EntityType);
+            Assert.Same(customerForeignKey, customerNavigation.ForeignKey);
+            Assert.True(customerNavigation.PointsToPrincipal);
+            Assert.False(customerNavigation.IsCollection());
+            Assert.Same(customerType, customerNavigation.GetTargetType());
+
+            Assert.Same(customerNavigation, orderType.GetOrAddNavigation("Customer", customerForeignKey, pointsToPrincipal: false));
+            Assert.True(customerNavigation.PointsToPrincipal);
+        }
+
+        [Fact]
+        public void Can_get_navigation_and_can_try_get_navigation()
+        {
+            var customerType = new EntityType(typeof(Customer));
+            var customerKey = customerType.GetOrAddKey(customerType.GetOrAddProperty(Customer.IdProperty));
+
+            var orderType = new EntityType(typeof(Order));
+            var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
+            var customerForeignKey = orderType.GetOrAddForeignKey(customerKey, foreignKeyProperty);
+
+            var customerNavigation = orderType.GetOrAddNavigation("Customer", customerForeignKey, pointsToPrincipal: true);
+
+            Assert.Same(customerNavigation, orderType.TryGetNavigation("Customer"));
+            Assert.Same(customerNavigation, orderType.GetNavigation("Customer"));
+
+            Assert.Null(orderType.TryGetNavigation("Nose"));
+
+            Assert.Equal(
+                Strings.FormatNavigationNotFound("Nose", typeof(Order).FullName),
+                Assert.Throws<ModelItemNotFoundException>(() => orderType.GetNavigation("Nose")).Message);
+        }
+
+        [Fact]
+        public void Adding_a_new_navigation_with_a_name_that_already_exists_throws()
+        {
+            var customerType = new EntityType(typeof(Customer));
+            var customerKey = customerType.GetOrAddKey(customerType.GetOrAddProperty(Customer.IdProperty));
+
+            var orderType = new EntityType(typeof(Order));
+            var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
+            var customerForeignKey = orderType.GetOrAddForeignKey(customerKey, foreignKeyProperty);
+
+            orderType.AddNavigation(new Navigation(customerForeignKey, "Customer", pointsToPrincipal: true));
+
+            Assert.Equal(
+                Strings.FormatDuplicateNavigation("Customer", typeof(Order).FullName),
+                Assert.Throws<InvalidOperationException>(
+                    () => orderType.AddNavigation(new Navigation(customerForeignKey, "Customer", pointsToPrincipal: true))).Message);
+        }
+
+        [Fact]
+        public void Adding_a_navigation_that_belongs_to_a_different_type_throws()
+        {
+            var customerType = new EntityType(typeof(Customer));
+            var customerKey = customerType.GetOrAddKey(customerType.GetOrAddProperty(Customer.IdProperty));
+
+            var orderType = new EntityType(typeof(Order));
+            var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
+            var customerForeignKey = orderType.GetOrAddForeignKey(customerKey, foreignKeyProperty);
+
+            var customerNavigation = orderType.AddNavigation(new Navigation(customerForeignKey, "Customer", pointsToPrincipal: true));
+
+            Assert.Equal(
+                Strings.FormatNavigationAlreadyOwned("Customer", typeof(Customer).FullName, typeof(Order).FullName),
+                Assert.Throws<InvalidOperationException>(() => customerType.AddNavigation(customerNavigation)).Message);
+        }
+
+        [Fact]
+        public void Adding_a_navigation_to_a_shadow_entity_type_throws()
+        {
+            var customerType = new EntityType("Customer");
+            var customerKey = customerType.GetOrAddKey(customerType.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
+
+            var orderType = new EntityType("Order");
+            var foreignKeyProperty = orderType.GetOrAddProperty("CustomerId", typeof(int), shadowProperty: true);
+            var customerForeignKey = orderType.GetOrAddForeignKey(customerKey, foreignKeyProperty);
+
+            Assert.Equal(
+                Strings.FormatNavigationOnShadowEntity("Customer", "Order"),
+                Assert.Throws<InvalidOperationException>(
+                    () => orderType.AddNavigation(new Navigation(customerForeignKey, "Customer", pointsToPrincipal: true))).Message);
+        }
+
+        [Fact]
+        public void Adding_a_navigation_that_doesnt_match_a_CLR_property_throws()
+        {
+            var customerType = new EntityType(typeof(Customer));
+            var customerKey = customerType.GetOrAddKey(customerType.GetOrAddProperty(Customer.IdProperty));
+
+            var orderType = new EntityType(typeof(Order));
+            var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
+            var customerForeignKey = orderType.GetOrAddForeignKey(customerKey, foreignKeyProperty);
+
+            Assert.Equal(
+                Strings.FormatNoClrNavigation("Snook", typeof(Order).FullName),
+                Assert.Throws<InvalidOperationException>(
+                    () => orderType.AddNavigation(new Navigation(customerForeignKey, "Snook", pointsToPrincipal: true))).Message);
+        }
+
+        [Fact]
+        public void Collection_navigation_properties_must_be_IEnumerables_of_the_target_type()
+        {
+            var customerType = new EntityType(typeof(Customer));
+            var customerKey = customerType.GetOrAddKey(customerType.GetOrAddProperty(Customer.IdProperty));
+
+            var orderType = new EntityType(typeof(Order));
+            var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
+            var customerForeignKey = orderType.GetOrAddForeignKey(customerKey, foreignKeyProperty);
+
+            Assert.Equal(
+                Strings.FormatWrongClrCollectionNavigationType("NotCollectionOrders", typeof(Customer).FullName, typeof(Order).FullName, typeof(Order).FullName),
+                Assert.Throws<InvalidOperationException>(
+                    () => customerType.AddNavigation(new Navigation(customerForeignKey, "NotCollectionOrders", pointsToPrincipal: false))).Message);
+
+            Assert.Equal(
+                Strings.FormatWrongClrCollectionNavigationType("DerivedOrders", typeof(Customer).FullName, typeof(IEnumerable<SpecialOrder>).FullName, typeof(Order).FullName),
+                Assert.Throws<InvalidOperationException>(
+                    () => customerType.AddNavigation(new Navigation(customerForeignKey, "DerivedOrders", pointsToPrincipal: false))).Message);
+        }
+
+        [Fact]
+        public void Reference_navigation_properties_must_be_of_the_target_type()
+        {
+            var customerType = new EntityType(typeof(Customer));
+            var customerKey = customerType.GetOrAddKey(customerType.GetOrAddProperty(Customer.IdProperty));
+
+            var orderType = new EntityType(typeof(Order));
+            var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
+            var customerForeignKey = orderType.GetOrAddForeignKey(customerKey, foreignKeyProperty);
+
+            Assert.Equal(
+                Strings.FormatWrongClrSingleNavigationType("OrderCustomer", typeof(Order).FullName, typeof(Order).FullName, typeof(Customer).FullName),
+                Assert.Throws<InvalidOperationException>(
+                    () => orderType.AddNavigation(new Navigation(customerForeignKey, "OrderCustomer", pointsToPrincipal: true))).Message);
+
+            Assert.Equal(
+                Strings.FormatWrongClrSingleNavigationType("DerivedCustomer", typeof(Order).FullName, typeof(SpecialCustomer).FullName, typeof(Customer).FullName),
+                Assert.Throws<InvalidOperationException>(
+                    () => orderType.AddNavigation(new Navigation(customerForeignKey, "DerivedCustomer", pointsToPrincipal: true))).Message);
+        }
+
+        [Fact]
+        public void Multiple_sets_of_navigations_using_the_same_foreign_key_are_not_allowed()
+        {
+            var customerType = new EntityType(typeof(Customer));
+            var customerKey = customerType.GetOrAddKey(customerType.GetOrAddProperty(Customer.IdProperty));
+
+            var orderType = new EntityType(typeof(Order));
+            var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
+            var customerForeignKey = orderType.GetOrAddForeignKey(customerKey, foreignKeyProperty);
+
+            customerType.AddNavigation(new Navigation(customerForeignKey, "EnumerableOrders", pointsToPrincipal: false));
+
+            Assert.Equal(
+                Strings.FormatMultipleNavigations("Orders", "EnumerableOrders", typeof(Customer).FullName),
+                Assert.Throws<InvalidOperationException>(
+                    () => customerType.AddNavigation(new Navigation(customerForeignKey, "Orders", pointsToPrincipal: false))).Message);
         }
 
         [Fact]
@@ -902,6 +1095,14 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             public string Name { get; set; }
             public string Mane { get; set; }
             public ICollection<Order> Orders { get; set; }
+
+            public IEnumerable<Order> EnumerableOrders { get; set; }
+            public Order NotCollectionOrders { get; set; }
+            public IEnumerable<SpecialOrder> DerivedOrders { get; set; }
+        }
+
+        private class SpecialCustomer : Customer
+        {
         }
 
         private class Order
@@ -914,6 +1115,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             public int CustomerId { get; set; }
             public Guid CustomerUnique { get; set; }
             public Customer Customer { get; set; }
+
+            public Order OrderCustomer { get; set; }
+            public SpecialCustomer DerivedCustomer { get; set; }
+        }
+
+        private class SpecialOrder : Order
+        {
         }
 
         private class FullNotificationEntity : INotifyPropertyChanging, INotifyPropertyChanged

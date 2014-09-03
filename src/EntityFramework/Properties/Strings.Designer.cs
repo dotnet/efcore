@@ -858,6 +858,166 @@ namespace Microsoft.Data.Entity
             return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyInUse", "entityType", "navigation", "dependentType"), entityType, navigation, dependentType);
         }
 
+        /// <summary>
+        /// The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because it already belongs to entity type '{existingEntityType}'.
+        /// </summary>
+        internal static string NavigationAlreadyOwned
+        {
+            get { return GetString("NavigationAlreadyOwned"); }
+        }
+
+        /// <summary>
+        /// The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because it already belongs to entity type '{existingEntityType}'.
+        /// </summary>
+        internal static string FormatNavigationAlreadyOwned(object navigation, object entityType, object existingEntityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NavigationAlreadyOwned", "navigation", "entityType", "existingEntityType"), navigation, entityType, existingEntityType);
+        }
+
+        /// <summary>
+        /// The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because an existing navigation property with the same name already exists.
+        /// </summary>
+        internal static string DuplicateNavigation
+        {
+            get { return GetString("DuplicateNavigation"); }
+        }
+
+        /// <summary>
+        /// The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because an existing navigation property with the same name already exists.
+        /// </summary>
+        internal static string FormatDuplicateNavigation(object navigation, object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateNavigation", "navigation", "entityType"), navigation, entityType);
+        }
+
+        /// <summary>
+        /// The navigation property '{navigation}' cannot be added to entity type '{entityType}' because the entity type is defined in shadow state and navigations properties cannot be added to shadow state.
+        /// </summary>
+        internal static string NavigationOnShadowEntity
+        {
+            get { return GetString("NavigationOnShadowEntity"); }
+        }
+
+        /// <summary>
+        /// The navigation property '{navigation}' cannot be added to entity type '{entityType}' because the entity type is defined in shadow state and navigations properties cannot be added to shadow state.
+        /// </summary>
+        internal static string FormatNavigationOnShadowEntity(object navigation, object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NavigationOnShadowEntity", "navigation", "entityType"), navigation, entityType);
+        }
+
+        /// <summary>
+        /// The navigation property '{navigation}' cannot be added to entity type '{entityType}' because there is no corresponding CLR property on the underlying type and navigations properties cannot be added to shadow state.
+        /// </summary>
+        internal static string NoClrNavigation
+        {
+            get { return GetString("NoClrNavigation"); }
+        }
+
+        /// <summary>
+        /// The navigation property '{navigation}' cannot be added to entity type '{entityType}' because there is no corresponding CLR property on the underlying type and navigations properties cannot be added to shadow state.
+        /// </summary>
+        internal static string FormatNoClrNavigation(object navigation, object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NoClrNavigation", "navigation", "entityType"), navigation, entityType);
+        }
+
+        /// <summary>
+        /// The navigation property '{navigation}' cannot be added to entity type '{entityType}' because its CLR type '{clrType}' does not match the CLR type '{targetType}' of the related entity.
+        /// </summary>
+        internal static string WrongClrSingleNavigationType
+        {
+            get { return GetString("WrongClrSingleNavigationType"); }
+        }
+
+        /// <summary>
+        /// The navigation property '{navigation}' cannot be added to entity type '{entityType}' because its CLR type '{clrType}' does not match the CLR type '{targetType}' of the related entity.
+        /// </summary>
+        internal static string FormatWrongClrSingleNavigationType(object navigation, object entityType, object clrType, object targetType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("WrongClrSingleNavigationType", "navigation", "entityType", "clrType", "targetType"), navigation, entityType, clrType, targetType);
+        }
+
+        /// <summary>
+        /// The collection navigation property '{navigation}' cannot be added to entity type '{entityType}' because its CLR type '{clrType}' does not implement 'IEnumerable&lt;{targetType}&gt;'. Collection navigation properties must implement IEnumerable&lt;&gt; of the related entity.
+        /// </summary>
+        internal static string WrongClrCollectionNavigationType
+        {
+            get { return GetString("WrongClrCollectionNavigationType"); }
+        }
+
+        /// <summary>
+        /// The collection navigation property '{navigation}' cannot be added to entity type '{entityType}' because its CLR type '{clrType}' does not implement 'IEnumerable&lt;{targetType}&gt;'. Collection navigation properties must implement IEnumerable&lt;&gt; of the related entity.
+        /// </summary>
+        internal static string FormatWrongClrCollectionNavigationType(object navigation, object entityType, object clrType, object targetType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("WrongClrCollectionNavigationType", "navigation", "entityType", "clrType", "targetType"), navigation, entityType, clrType, targetType);
+        }
+
+        /// <summary>
+        /// The navigation property '{navigation}' on entity type '{entityType}' could not be found. Ensure that the navigation property exists and has been included in the model.
+        /// </summary>
+        internal static string NavigationNotFound
+        {
+            get { return GetString("NavigationNotFound"); }
+        }
+
+        /// <summary>
+        /// The navigation property '{navigation}' on entity type '{entityType}' could not be found. Ensure that the navigation property exists and has been included in the model.
+        /// </summary>
+        internal static string FormatNavigationNotFound(object navigation, object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NavigationNotFound", "navigation", "entityType"), navigation, entityType);
+        }
+
+        /// <summary>
+        /// The navigation properties '{navigation1}' and '{navigation2}' on entity type '{entityType}' are both backed by the same foreign key and point in the same direction. Each foreign key can have at most one navigation property and one inverse navigation property.
+        /// </summary>
+        internal static string MultipleNavigations
+        {
+            get { return GetString("MultipleNavigations"); }
+        }
+
+        /// <summary>
+        /// The navigation properties '{navigation1}' and '{navigation2}' on entity type '{entityType}' are both backed by the same foreign key and point in the same direction. Each foreign key can have at most one navigation property and one inverse navigation property.
+        /// </summary>
+        internal static string FormatMultipleNavigations(object navigation1, object navigation2, object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("MultipleNavigations", "navigation1", "navigation2", "entityType"), navigation1, navigation2, entityType);
+        }
+
+        /// <summary>
+        /// The number of properties specified for the foreign key on entity type '{dependentType}' does not match the number of properties in the referenced key on entity type '{principalType}'.
+        /// </summary>
+        internal static string ForeignKeyCountMismatch
+        {
+            get { return GetString("ForeignKeyCountMismatch"); }
+        }
+
+        /// <summary>
+        /// The number of properties specified for the foreign key on entity type '{dependentType}' does not match the number of properties in the referenced key on entity type '{principalType}'.
+        /// </summary>
+        internal static string FormatForeignKeyCountMismatch(object dependentType, object principalType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyCountMismatch", "dependentType", "principalType"), dependentType, principalType);
+        }
+
+        /// <summary>
+        /// The types of the properties specified for the foreign key on entity type '{dependentType}' do not match the types of the properties in the referenced key on entity type '{principalType}'.
+        /// </summary>
+        internal static string ForeignKeyTypeMismatch
+        {
+            get { return GetString("ForeignKeyTypeMismatch"); }
+        }
+
+        /// <summary>
+        /// The types of the properties specified for the foreign key on entity type '{dependentType}' do not match the types of the properties in the referenced key on entity type '{principalType}'.
+        /// </summary>
+        internal static string FormatForeignKeyTypeMismatch(object dependentType, object principalType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyTypeMismatch", "dependentType", "principalType"), dependentType, principalType);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

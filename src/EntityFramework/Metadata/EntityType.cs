@@ -288,11 +288,66 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
+        public virtual Navigation GetOrAddNavigation([NotNull] string name, [NotNull] ForeignKey foreignKey, bool pointsToPrincipal)
+        {
+            Check.NotEmpty(name, "name");
+            Check.NotNull(foreignKey, "foreignKey");
+
+            return _navigations.Value.FirstOrDefault(n => n.Name == name)
+                   ?? AddNavigation(new Navigation(foreignKey, name, pointsToPrincipal));
+        }
+
         public virtual Navigation AddNavigation([NotNull] Navigation navigation)
         {
             Check.NotNull(navigation, "navigation");
 
-            // TODO: Consolidate navigation/property code, update API patterns, and do error checking
+            if (navigation.EntityType != null
+                && navigation.EntityType != this)
+            {
+                throw new InvalidOperationException(Strings.FormatNavigationAlreadyOwned(navigation.Name, Name, navigation.EntityType.Name));
+            }
+
+            if (_navigations.Value.Any(n => n.Name == navigation.Name))
+            {
+                throw new InvalidOperationException(Strings.FormatDuplicateNavigation(navigation.Name, Name));
+            }
+
+            if (!HasClrType)
+            {
+                throw new InvalidOperationException(Strings.FormatNavigationOnShadowEntity(navigation.Name, Name));
+            }
+
+            var clrProperty = Type.GetPropertiesInHierarchy(navigation.Name).FirstOrDefault();
+
+            if (clrProperty == null)
+            {
+                throw new InvalidOperationException(Strings.FormatNoClrNavigation(navigation.Name, Name));
+            }
+
+            var targetClrType = navigation.GetTargetType().Type;
+
+            if (navigation.IsCollection())
+            {
+                var elementType = clrProperty.PropertyType.TryGetElementType(typeof(IEnumerable<>));
+
+                if (elementType == null || !elementType.GetTypeInfo().IsAssignableFrom(targetClrType.GetTypeInfo()))
+                {
+                    throw new InvalidOperationException(Strings.FormatWrongClrCollectionNavigationType(
+                        navigation.Name, Name, clrProperty.PropertyType.FullName, targetClrType.FullName));
+                }
+            }
+            else if (!clrProperty.PropertyType.GetTypeInfo().IsAssignableFrom(targetClrType.GetTypeInfo()))
+            {
+                throw new InvalidOperationException(Strings.FormatWrongClrSingleNavigationType(
+                    navigation.Name, Name, clrProperty.PropertyType.FullName, targetClrType.FullName));
+            }
+
+            var otherNavigation = _navigations.Value.FirstOrDefault(n => n.ForeignKey == navigation.ForeignKey
+                                                  && navigation.PointsToPrincipal == n.PointsToPrincipal);
+            if (otherNavigation != null)
+            {
+                throw new InvalidOperationException(Strings.FormatMultipleNavigations(navigation.Name, otherNavigation.Name, Name));
+            }
 
             _navigations.Value.Add(navigation);
 
@@ -305,13 +360,30 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(navigation, "navigation");
 
-            // TODO: Consolidate navigation/property code, update API patterns, and do error checking
-
             if (_navigations.HasValue
                 && _navigations.Value.Remove(navigation))
             {
                 navigation.EntityType = null;
             }
+        }
+
+        public virtual Navigation TryGetNavigation([NotNull] string name)
+        {
+            Check.NotEmpty(name, "name");
+
+            return Navigations.FirstOrDefault(n => n.Name == name);
+        }
+
+        public virtual Navigation GetNavigation([NotNull] string name)
+        {
+            Check.NotEmpty(name, "name");
+
+            var navigation = TryGetNavigation(name);
+            if (navigation == null)
+            {
+                throw new ModelItemNotFoundException(Strings.FormatNavigationNotFound(name, Name));
+            }
+            return navigation;
         }
 
         public virtual IReadOnlyList<Navigation> Navigations

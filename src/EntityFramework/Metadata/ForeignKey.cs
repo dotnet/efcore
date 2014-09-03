@@ -27,6 +27,20 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(referencedKey, "referencedKey");
 
+            var principalProperties = referencedKey.Properties;
+
+            if (principalProperties.Count != dependentProperties.Count)
+            {
+                throw new ArgumentException(
+                    Strings.FormatForeignKeyCountMismatch(dependentProperties[0].EntityType.Name, referencedKey.EntityType.Name));
+            }
+
+            if (!principalProperties.Select(p => p.UnderlyingType).SequenceEqual(dependentProperties.Select(p => p.UnderlyingType)))
+            {
+                throw new ArgumentException(
+                    Strings.FormatForeignKeyTypeMismatch(dependentProperties[0].EntityType.Name, referencedKey.EntityType.Name));
+            }
+
             _referencedKey = referencedKey;
         }
 

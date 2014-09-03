@@ -47,15 +47,20 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             AccessorTest("AsMyCollection", e => e.AsMyCollection);
         }
 
-        private static void AccessorTest(string navigationName, Func<MyEntity, IEnumerable<Random>> reader)
+        private static void AccessorTest(string navigationName, Func<MyEntity, IEnumerable<MyOtherEntity>> reader)
         {
             var entityType = new EntityType(typeof(MyEntity));
-            var navigation = entityType.AddNavigation(new Navigation(Mock.Of<ForeignKey>(), navigationName, pointsToPrincipal: true));
+            var otherType = new EntityType(typeof(MyOtherEntity));
+            var foreignKey = otherType.GetOrAddForeignKey(
+                entityType.GetOrSetPrimaryKey(entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true)),
+                otherType.GetOrAddProperty("MyEntityId", typeof(int), shadowProperty: true));
+
+            var navigation = entityType.AddNavigation(new Navigation(foreignKey, navigationName, pointsToPrincipal: false));
 
             var accessor = new ClrCollectionAccessorSource().GetAccessor(navigation);
 
             var entity = new MyEntity();
-            var value = new Random();
+            var value = new MyOtherEntity();
 
             Assert.False(accessor.Contains(entity, value));
             Assert.DoesNotThrow(() => accessor.Remove(entity, value));
@@ -75,7 +80,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Delegate_getter_is_cached_by_type_and_property_name()
         {
             var entityType = new EntityType(typeof(MyEntity));
-            var navigation = entityType.AddNavigation(new Navigation(Mock.Of<ForeignKey>(), "AsICollection", pointsToPrincipal: false));
+            var otherType = new EntityType(typeof(MyOtherEntity));
+            var foreignKey = otherType.GetOrAddForeignKey(
+                entityType.GetOrSetPrimaryKey(entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true)),
+                otherType.GetOrAddProperty("MyEntityId", typeof(int), shadowProperty: true));
+
+            var navigation = entityType.AddNavigation(new Navigation(foreignKey, "AsICollection", pointsToPrincipal: false));
 
             var source = new ClrCollectionAccessorSource();
 
@@ -86,33 +96,37 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
         private class MyEntity
         {
-            private readonly ICollection<Random> _asICollection = new HashSet<Random>();
-            private readonly IList<Random> _asIList = new List<Random>();
-            private readonly List<Random> _asList = new List<Random>();
+            private readonly ICollection<MyOtherEntity> _asICollection = new HashSet<MyOtherEntity>();
+            private readonly IList<MyOtherEntity> _asIList = new List<MyOtherEntity>();
+            private readonly List<MyOtherEntity> _asList = new List<MyOtherEntity>();
             private readonly MyCollection _myCollection = new MyCollection();
 
-            internal ICollection<Random> AsICollection
+            internal ICollection<MyOtherEntity> AsICollection
             {
                 get { return _asICollection; }
             }
 
-            internal IList<Random> AsIList
+            internal IList<MyOtherEntity> AsIList
             {
                 get { return _asIList; }
             }
 
-            internal List<Random> AsList
+            internal List<MyOtherEntity> AsList
             {
                 get { return _asList; }
             }
 
-            internal List<Random> AsMyCollection
+            internal List<MyOtherEntity> AsMyCollection
             {
                 get { return _myCollection; }
             }
         }
 
-        private class MyCollection : List<Random>
+        private class MyOtherEntity
+        {
+        }
+
+        private class MyCollection : List<MyOtherEntity>
         {
         }
 
