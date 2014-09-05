@@ -5,6 +5,7 @@ using System;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Framework.DependencyInjection;
@@ -53,9 +54,12 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         public F1Context CreateF1Context(string connectionString)
         {
+            var modelBuilder = new ModelBuilder(new Model());
+            AddStoreMetadata(modelBuilder);
+
             var options
                 = new DbContextOptions()
-                    .UseModel(AddStoreMetadata(F1Context.CreateModel()))
+                    .UseModel(F1Context.CreateModel(modelBuilder).Model)
                     .UseSqlServer(connectionString);
 
             return new F1Context(_serviceProvider, options);
@@ -63,9 +67,12 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         protected override F1Context CreateF1Context(SqlServerTestDatabase testDatabase)
         {
+            var modelBuilder = new ModelBuilder(new Model());
+            AddStoreMetadata(modelBuilder);
+
             var options
                 = new DbContextOptions()
-                    .UseModel(AddStoreMetadata(F1Context.CreateModel()))
+                    .UseModel(F1Context.CreateModel(modelBuilder).Model)
                     .UseSqlServer(testDatabase.Connection);
 
             var context = new F1Context(_serviceProvider, options);

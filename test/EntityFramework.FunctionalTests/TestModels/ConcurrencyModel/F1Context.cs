@@ -20,22 +20,19 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel
         public DbSet<EngineSupplier> EngineSuppliers { get; set; }
 
         // TODO: convert to OnModelCreated
-        public static ModelBuilder CreateModel()
+        public static ModelBuilder CreateModel(ModelBuilder modelBuilder)
         {
-            var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var model = modelBuilder.Model;
 
             // TODO: Uncomment when complex types are supported
             //builder.ComplexType<Location>();
             modelBuilder.Entity<Chassis>(b =>
                 {
-                    b.Key(c => c.TeamId);
                     b.Property(e => e.Version).ConcurrencyToken();
                 });
 
             modelBuilder.Entity<Driver>(b =>
                 {
-                    b.Key(d => d.Id);
                     b.Property(d => d.CarNumber);
                     b.Property(d => d.Championships);
                     b.Property(d => d.FastestLaps);
@@ -50,7 +47,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel
 
             modelBuilder.Entity<Engine>(b =>
                 {
-                    b.Key(e => e.Id);
                     b.Property(e => e.EngineSupplierId).ConcurrencyToken();
                     b.Property(e => e.Name).ConcurrencyToken();
                     b.OneToMany(e => e.Teams, e => e.Engine);
@@ -62,14 +58,12 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel
 
             modelBuilder.Entity<EngineSupplier>(b =>
                 {
-                    b.Key(e => e.Id);
                     b.Property(e => e.Name);
                     b.OneToMany(e => e.Engines, e => e.EngineSupplier);
                 });
 
             modelBuilder.Entity<Gearbox>(b =>
                 {
-                    b.Key(g => g.Id);
                     b.Property(g => g.Name);
                     b.Property<int>("EngineId");
                 });
@@ -87,7 +81,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel
 
             modelBuilder.Entity<Sponsor>(b =>
                 {
-                    b.Key(s => s.Id);
                     b.Property(s => s.Name);
                     b.Property(e => e.Version).ConcurrencyToken();
                 });
@@ -103,7 +96,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel
 
             modelBuilder.Entity<Team>(b =>
                 {
-                    b.Key(t => t.Id);
                     b.Property(t => t.Constructor);
                     b.Property(t => t.ConstructorsChampionships);
                     b.Property(t => t.DriversChampionships);
@@ -121,7 +113,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel
                     b.OneToOne(e => e.Gearbox).ForeignKey<Team>(e => e.GearboxId);
                 });
 
-            modelBuilder.Entity<TestDriver>(b => b.Key(t => t.Id));
+            modelBuilder.Entity<TestDriver>();
 
             modelBuilder.Entity<TitleSponsor>();
             // TODO: Complex type

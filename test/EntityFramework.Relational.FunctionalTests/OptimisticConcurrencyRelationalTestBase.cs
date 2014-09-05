@@ -12,8 +12,18 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
     {
         protected readonly string DatabaseName = "OptimisticConcurrencyTest";
 
-        public virtual Metadata.Model AddStoreMetadata(ModelBuilder modelBuilder)
+        public virtual void AddStoreMetadata(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Chassis>().Key(c => c.TeamId);
+            modelBuilder.Entity<Driver>().Key(d => d.Id);
+            modelBuilder.Entity<Engine>().Key(e => e.Id);
+            modelBuilder.Entity<EngineSupplier>().Key(e => e.Id);
+            modelBuilder.Entity<Gearbox>().Key(g => g.Id);
+            modelBuilder.Entity<Sponsor>().Key(s => s.Id);
+            modelBuilder.Entity<Team>().Key(t => t.Id);
+            modelBuilder.Entity<TestDriver>(b => b.Key(t => t.Id));
+            modelBuilder.Entity<TitleSponsor>();
+
             var model = modelBuilder.Model;
 
             model.GetEntityType(typeof(Chassis)).SetTableName("Chassis");
@@ -27,8 +37,6 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
             model.GetEntityType(typeof(TitleSponsor)).SetTableName("TitleSponsors");
 
             modelBuilder.Entity<Team>().OneToOne(e => e.Chassis, e => e.Team);
-
-            return model;
         }
     }
 }

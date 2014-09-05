@@ -24,7 +24,10 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
         public AtsOptimisticConcurrencyTests()
         {
             var tableSuffix = Guid.NewGuid().ToString().Replace("-", "");
-            _model = AddAtsMetadata(F1Context.CreateModel(), tableSuffix);
+            var modelBuilder = new ModelBuilder(new Model());
+            ConfigureAtsModel(modelBuilder, tableSuffix);
+
+            _model = F1Context.CreateModel(modelBuilder).Model;
 
             _serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
@@ -65,7 +68,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
             return new F1Context(_serviceProvider, options);
         }
 
-        private static IModel AddAtsMetadata(ModelBuilder builder, string tableSuffix)
+        private static void ConfigureAtsModel(ModelBuilder builder, string tableSuffix)
         {
             builder.Entity<Chassis>(
                 b =>
@@ -147,8 +150,6 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
                         b.Property<string>("ETag");
                         b.TableName("TitleSponsors" + tableSuffix);
                     });
-
-            return builder.Model;
         }
 
         public class AtsTestStore : TestStore

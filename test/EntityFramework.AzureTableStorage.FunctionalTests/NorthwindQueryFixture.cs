@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using Microsoft.Data.Entity.AzureTableStorage.Metadata;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Metadata;
@@ -20,6 +21,15 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
         public IModel CreateAzureTableStorageModel()
         {
             var model = CreateModel();
+
+            // TODO: Need to do this because we're not using the ATS conventions and so need to redefine keys manually
+            var productType = model.GetEntityType(typeof(Product));
+            var orderDetailType = model.GetEntityType(typeof(OrderDetail));
+
+            orderDetailType.RemoveNavigation(orderDetailType.Navigations.Single());
+            productType.RemoveNavigation(productType.Navigations.Single());
+            orderDetailType.RemoveForeignKey(orderDetailType.ForeignKeys.Single());
+
             const string tableSuffix = "FunctionalTests";
             var builder = new BasicModelBuilder(model);
             builder.Entity<Customer>()
@@ -42,6 +52,13 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
                 .PartitionAndRowKey(s => s.OrderID, s => s.ProductID)
                 .Timestamp("Timestamp", true)
                 .TableName("OrderDetail" + tableSuffix);
+
+            var modelBuilder = new BasicModelBuilder(model);
+            modelBuilder.Entity<OrderDetail>().ForeignKey<Product>(od => od.ProductID);
+
+            var productIdFk = orderDetailType.ForeignKeys.Single();
+            orderDetailType.AddNavigation(new Navigation(productIdFk, "Product", pointsToPrincipal: true));
+            productType.AddNavigation(new Navigation(productIdFk, "OrderDetails", pointsToPrincipal: false));
 
             return builder.Model;
         }
