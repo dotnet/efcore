@@ -47,20 +47,66 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             AccessorTest("AsMyCollection", e => e.AsMyCollection);
         }
 
-        private static void AccessorTest(string navigationName, Func<MyEntity, IEnumerable<MyOtherEntity>> reader)
+        [Fact]
+        public void Delegate_accessor_is_returned_when_no_setter()
         {
-            var entityType = new EntityType(typeof(MyEntity));
-            var otherType = new EntityType(typeof(MyOtherEntity));
-            var foreignKey = otherType.GetOrAddForeignKey(
-                entityType.GetOrSetPrimaryKey(entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true)),
-                otherType.GetOrAddProperty("MyEntityId", typeof(int), shadowProperty: true));
+            AccessorTest("WithNoSetter", e => e.WithNoSetter);
+        }
 
-            var navigation = entityType.AddNavigation(new Navigation(foreignKey, navigationName, pointsToPrincipal: false));
+        [Fact]
+        public void Delegate_accessor_is_returned_when_no_public_constructor()
+        {
+            AccessorTest("AsMyPrivateCollection", e => e.AsMyPrivateCollection);
+        }
 
-            var accessor = new ClrCollectionAccessorSource().GetAccessor(navigation);
+        [Fact]
+        public void Delegate_accessor_is_returned_when_no_internal_constructor()
+        {
+            AccessorTest("AsMyInternalCollection", e => e.AsMyInternalCollection);
+        }
+
+        [Fact]
+        public void Delegate_accessor_is_returned_when_no_parameterless_constructor()
+        {
+            AccessorTest("AsMyUnavailableCollection", e => e.AsMyUnavailableCollection);
+        }
+
+        [Fact]
+        public void Delegate_accessor_handles_uninitialized_collections()
+        {
+            AccessorTest("AsICollection", e => e.AsICollection, initializeCollections: false);
+        }
+
+        [Fact]
+        public void Delegate_accessor_handles_uninitialized_collections_for_interface_navigation_derived_from_ICollection()
+        {
+            AccessorTest("AsIList", e => e.AsIList, initializeCollections: false);
+        }
+
+        [Fact]
+        public void Delegate_accessor_handles_uninitialized_collections_for_concrete_generic_type_navigation()
+        {
+            AccessorTest("AsList", e => e.AsList, initializeCollections: false);
+        }
+
+        [Fact]
+        public void Delegate_accessor_handles_uninitialized_collections_for_concrete_non_generic_type_navigation()
+        {
+            AccessorTest("AsMyCollection", e => e.AsMyCollection, initializeCollections: false);
+        }
+
+        private static void AccessorTest(
+            string navigationName, Func<MyEntity, IEnumerable<MyOtherEntity>> reader, bool initializeCollections = true)
+        {
+            var accessor = new ClrCollectionAccessorSource().GetAccessor(CreateNavigation(navigationName));
 
             var entity = new MyEntity();
             var value = new MyOtherEntity();
+
+            if (initializeCollections)
+            {
+                entity.InitializeCollections();
+            }
 
             Assert.False(accessor.Contains(entity, value));
             Assert.DoesNotThrow(() => accessor.Remove(entity, value));
@@ -92,33 +138,179 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Same(source.GetAccessor(navigation), source.GetAccessor(navigation));
         }
 
-        #region Fixture
+        [Fact]
+        public void Creating_accessor_for_navigation_without_getter_throws()
+        {
+            var navigation = CreateNavigation("WithNoGetter");
+
+            Assert.Equal(
+                Strings.FormatNavigationNoGetter("WithNoGetter", typeof(MyEntity).FullName),
+                Assert.Throws<NotSupportedException>(() => new ClrCollectionAccessorSource().GetAccessor(navigation)).Message);
+        }
+
+        [Fact]
+        public void Creating_accessor_for_enumerable_navigation_throws()
+        {
+            var navigation = CreateNavigation("AsIEnumerable");
+
+            Assert.Equal(
+                Strings.FormatNavigationBadType(
+                    "AsIEnumerable", typeof(MyEntity).FullName, typeof(IEnumerable<MyOtherEntity>).FullName, typeof(MyOtherEntity).FullName),
+                Assert.Throws<NotSupportedException>(() => new ClrCollectionAccessorSource().GetAccessor(navigation)).Message);
+        }
+
+        [Fact]
+        public void Creating_accessor_for_array_navigation_throws()
+        {
+            var navigation = CreateNavigation("AsArray");
+
+            Assert.Equal(
+                Strings.FormatNavigationArray("AsArray", typeof(MyEntity).FullName, typeof(MyOtherEntity[]).FullName),
+                Assert.Throws<NotSupportedException>(() => new ClrCollectionAccessorSource().GetAccessor(navigation)).Message);
+        }
+
+        [Fact]
+        public void Initialization_for_navigation_without_setter_throws()
+        {
+            var accessor = new ClrCollectionAccessorSource().GetAccessor(CreateNavigation("WithNoSetter"));
+
+            Assert.Equal(
+                Strings.FormatNavigationNoSetter("WithNoSetter", typeof(MyEntity).FullName),
+                Assert.Throws<InvalidOperationException>(() => accessor.Add(new MyEntity(), new MyOtherEntity())).Message);
+        }
+
+        [Fact]
+        public void Initialization_for_navigation_with_private_constructor_throws()
+        {
+            var accessor = new ClrCollectionAccessorSource().GetAccessor(CreateNavigation("AsMyPrivateCollection"));
+
+            Assert.Equal(
+                Strings.FormatNavigationCannotCreateType("AsMyPrivateCollection", typeof(MyEntity).FullName, typeof(MyPrivateCollection).FullName),
+                Assert.Throws<InvalidOperationException>(() => accessor.Add(new MyEntity(), new MyOtherEntity())).Message);
+        }
+
+        [Fact]
+        public void Initialization_for_navigation_with_internal_constructor_throws()
+        {
+            var accessor = new ClrCollectionAccessorSource().GetAccessor(CreateNavigation("AsMyInternalCollection"));
+
+            Assert.Equal(
+                Strings.FormatNavigationCannotCreateType("AsMyInternalCollection", typeof(MyEntity).FullName, typeof(MyInternalCollection).FullName),
+                Assert.Throws<InvalidOperationException>(() => accessor.Add(new MyEntity(), new MyOtherEntity())).Message);
+        }
+
+        [Fact]
+        public void Initialization_for_navigation_without_parameterless_constructor_throws()
+        {
+            var accessor = new ClrCollectionAccessorSource().GetAccessor(CreateNavigation("AsMyUnavailableCollection"));
+
+            Assert.Equal(
+                Strings.FormatNavigationCannotCreateType("AsMyUnavailableCollection", typeof(MyEntity).FullName, typeof(MyUnavailableCollection).FullName),
+                Assert.Throws<InvalidOperationException>(() => accessor.Add(new MyEntity(), new MyOtherEntity())).Message);
+        }
+
+        private static Navigation CreateNavigation(string navigationName)
+        {
+            var entityType = new EntityType(typeof(MyEntity));
+            var otherType = new EntityType(typeof(MyOtherEntity));
+            var foreignKey = otherType.GetOrAddForeignKey(
+                entityType.GetOrSetPrimaryKey(entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true)),
+                otherType.GetOrAddProperty("MyEntityId", typeof(int), shadowProperty: true));
+
+            return entityType.AddNavigation(new Navigation(foreignKey, navigationName, pointsToPrincipal: false));
+        }
 
         private class MyEntity
         {
-            private readonly ICollection<MyOtherEntity> _asICollection = new HashSet<MyOtherEntity>();
-            private readonly IList<MyOtherEntity> _asIList = new List<MyOtherEntity>();
-            private readonly List<MyOtherEntity> _asList = new List<MyOtherEntity>();
-            private readonly MyCollection _myCollection = new MyCollection();
+            private ICollection<MyOtherEntity> _asICollection;
+            private IList<MyOtherEntity> _asIList;
+            private List<MyOtherEntity> _asList;
+            private MyCollection _myCollection;
+            private ICollection<MyOtherEntity> _withNoSetter;
+            private ICollection<MyOtherEntity> _withNoGetter;
+            private IEnumerable<MyOtherEntity> _enumerable;
+            private MyOtherEntity[] _array;
+            private MyPrivateCollection _privateCollection;
+            private MyInternalCollection _internalCollection;
+            private MyUnavailableCollection _unavailableCollection;
+
+            public void InitializeCollections()
+            {
+                _asICollection = new HashSet<MyOtherEntity>();
+                _asIList = new List<MyOtherEntity>();
+                _asList = new List<MyOtherEntity>();
+                _myCollection = new MyCollection();
+                _withNoSetter = new HashSet<MyOtherEntity>();
+                _withNoGetter = new HashSet<MyOtherEntity>();
+                _enumerable = new HashSet<MyOtherEntity>();
+                _array = new MyOtherEntity[0];
+                _privateCollection = MyPrivateCollection.Create();
+                _internalCollection = new MyInternalCollection();
+                _unavailableCollection = new MyUnavailableCollection(true);
+            }
 
             internal ICollection<MyOtherEntity> AsICollection
             {
                 get { return _asICollection; }
+                set { _asICollection = value; }
             }
 
             internal IList<MyOtherEntity> AsIList
             {
                 get { return _asIList; }
+                set { _asIList = value; }
             }
 
             internal List<MyOtherEntity> AsList
             {
                 get { return _asList; }
+                set { _asList = value; }
             }
 
-            internal List<MyOtherEntity> AsMyCollection
+            internal MyCollection AsMyCollection
             {
                 get { return _myCollection; }
+                set { _myCollection = value; }
+            }
+
+            internal ICollection<MyOtherEntity> WithNoSetter
+            {
+                get { return _withNoSetter; }
+            }
+
+            internal ICollection<MyOtherEntity> WithNoGetter
+            {
+                set { _withNoGetter = value; }
+            }
+
+            internal IEnumerable<MyOtherEntity> AsIEnumerable
+            {
+                get { return _enumerable; }
+                set { _enumerable = value; }
+            }
+
+            internal MyOtherEntity[] AsArray
+            {
+                get { return _array; }
+                set { _array = value; }
+            }
+
+            internal MyPrivateCollection AsMyPrivateCollection
+            {
+                get { return _privateCollection; }
+                set { _privateCollection = value; }
+            }
+
+            internal MyInternalCollection AsMyInternalCollection
+            {
+                get { return _internalCollection; }
+                set { _internalCollection = value; }
+            }
+
+            internal MyUnavailableCollection AsMyUnavailableCollection
+            {
+                get { return _unavailableCollection; }
+                set { _unavailableCollection = value; }
             }
         }
 
@@ -130,6 +322,31 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
         }
 
-        #endregion
+        private class MyPrivateCollection : List<MyOtherEntity>
+        {
+            private MyPrivateCollection()
+            {
+            }
+
+            public static MyPrivateCollection Create()
+            {
+                return new MyPrivateCollection();
+            }
+        }
+
+        private class MyInternalCollection : List<MyOtherEntity>
+        {
+            // ReSharper disable once EmptyConstructor
+            internal MyInternalCollection()
+            {
+            }
+        }
+
+        private class MyUnavailableCollection : List<MyOtherEntity>
+        {
+            public MyUnavailableCollection(bool _)
+            {
+            }
+        }
     }
 }

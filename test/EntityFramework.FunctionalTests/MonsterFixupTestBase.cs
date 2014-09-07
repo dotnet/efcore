@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.FunctionalTests.TestModels;
+using Microsoft.Data.Entity.FunctionalTests.TestUtilities;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Xunit;
@@ -1478,7 +1479,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.Same(barcode1, incorrectScan2.ExpectedBarcode);
                 Assert.Same(incorrectScan2, barcode1.BadScans.Single());
 
-                Assert.Empty(barcode3.BadScans);
+                Assert.Null(barcode3.BadScans);
 
                 var complaint1 = context.Complaints.Single(e => e.Details.StartsWith("Don't"));
                 var complaint2 = context.Complaints.Single(e => e.Details.StartsWith("Really"));
@@ -1506,7 +1507,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.Same(customer3, login3.Customer);
                 Assert.Same(login3, customer3.Logins.Single());
 
-                Assert.Empty(customer0.Logins);
+                Assert.Null(customer0.Logins);
 
                 var rsaToken1 = context.RsaTokens.Single(e => e.Serial == "1234");
                 var rsaToken2 = context.RsaTokens.Single(e => e.Serial == "2234");
@@ -1626,7 +1627,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.Same(product2, productReview3.Product);
                 Assert.Same(productReview3, product2.Reviews.Single());
 
-                Assert.Empty(product3.Reviews);
+                Assert.Null(product3.Reviews);
 
                 var productPhoto1 = context.ProductPhotos.Single(e => e.Photo[0] == 101);
                 var productPhoto2 = context.ProductPhotos.Single(e => e.Photo[0] == 103);
@@ -1637,7 +1638,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     product1.Photos.OrderBy(r => r.Photo.First()).ToArray());
 
                 Assert.Same(productPhoto3, product3.Photos.Single());
-                Assert.Empty(product2.Photos);
+                Assert.Null(product2.Photos);
 
                 var productWebFeature1 = context.ProductWebFeatures.Single(e => e.Heading.StartsWith("Waffle"));
                 var productWebFeature2 = context.ProductWebFeatures.Single(e => e.Heading.StartsWith("What"));
@@ -1649,13 +1650,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.Same(productWebFeature1, productReview1.Features.Single());
 
                 Assert.Null(productWebFeature2.Photo);
-                Assert.Empty(productPhoto2.Features);
+                Assert.Null(productPhoto2.Features);
 
                 Assert.Same(productReview3, productWebFeature2.Review);
                 Assert.Same(productWebFeature2, productReview3.Features.Single());
 
-                Assert.Empty(productPhoto3.Features);
-                Assert.Empty(productReview2.Features);
+                Assert.Null(productPhoto3.Features);
+                Assert.Null(productReview2.Features);
 
                 var supplier1 = context.Suppliers.Single(e => e.Name.StartsWith("Trading"));
                 var supplier2 = context.Suppliers.Single(e => e.Name.StartsWith("Ants"));
@@ -1747,7 +1748,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             AssertConsistent(
                 expectedPrincipal,
                 expectedDependents,
-                e => e.BadScans.OrderBy(m => m.Details),
+                e => e.BadScans.NullChecked().OrderBy(m => m.Details),
                 e => e.ExpectedBarcode,
                 e => e.Code,
                 e => e.ExpectedCode);
@@ -1769,7 +1770,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             AssertConsistent(
                 expectedPrincipal,
                 expectedDependents,
-                e => e.Features.OrderBy(f => f.Heading),
+                e => e.Features.NullChecked().OrderBy(f => f.Heading),
                 e => e.Photo,
                 e => Tuple.Create(e.PhotoId, e.ProductId),
                 e => e.ProductId == null || e.PhotoId == null ? null : Tuple.Create(e.ReviewId, e.ProductId));
@@ -1780,7 +1781,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             AssertConsistent(
                 expectedPrincipal,
                 expectedDependents,
-                e => e.Features.OrderBy(f => f.Heading),
+                e => e.Features.NullChecked().OrderBy(f => f.Heading),
                 e => e.Review,
                 e => Tuple.Create(e.ReviewId, e.ProductId),
                 e => e.ProductId == null ? null : Tuple.Create(e.ReviewId, e.ProductId));
@@ -1791,7 +1792,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             AssertConsistent(
                 expectedPrincipal,
                 expectedDependents,
-                e => e.ReceivedMessages.OrderBy(m => m.Body),
+                e => e.ReceivedMessages.NullChecked().OrderBy(m => m.Body),
                 e => e.Recipient,
                 e => e.Username,
                 e => e.ToUsername);
@@ -1802,7 +1803,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             AssertConsistent(
                 expectedPrincipal,
                 expectedDependents,
-                e => e.SentMessages.OrderBy(m => m.Body),
+                e => e.SentMessages.NullChecked().OrderBy(m => m.Body),
                 e => e.Sender,
                 e => e.Username,
                 e => e.FromUsername);

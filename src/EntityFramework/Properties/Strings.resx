@@ -306,4 +306,19 @@
   <data name="ForeignKeyTypeMismatch" xml:space="preserve">
     <value>The types of the properties specified for the foreign key on entity type '{dependentType}' do not match the types of the properties in the referenced key on entity type '{principalType}'.</value>
   </data>
+  <data name="NavigationBadType" xml:space="preserve">
+    <value>The type of navigation property '{navigation}' on entity type '{entityType}' is '{foundType}' which does not implement ICollection&lt;{targetType}&gt;. Collection navigation properties must implement ICollection&lt;&gt; of the target type.</value>
+  </data>
+  <data name="NavigationArray" xml:space="preserve">
+    <value>The type of navigation property '{navigation}' on entity type '{entityType}' is '{foundType}' which is an array type.. Collection navigation properties cannot be arrays.</value>
+  </data>
+  <data name="NavigationNoGetter" xml:space="preserve">
+    <value>The navigation property '{navigation}' on entity type '{entityType}' does not have a getter.</value>
+  </data>
+  <data name="NavigationNoSetter" xml:space="preserve">
+    <value>The navigation property '{navigation}' on entity type '{entityType}' does not have a setter. Read-only collection navigation properties must be initialized before use.</value>
+  </data>
+  <data name="NavigationCannotCreateType" xml:space="preserve">
+    <value>The type of navigation property '{navigation}' on entity type '{entityType}' is '{foundType}' for which it was not possible to create a concrete instance. Either initialize the property before use, add a public parameterless constructor to the type, or use a type which can be assigned a HashSet&lt;&gt; or List&lt;&gt;.</value>
+  </data>
 </root>

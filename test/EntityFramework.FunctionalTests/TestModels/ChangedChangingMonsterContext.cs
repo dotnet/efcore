@@ -100,9 +100,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             private ICollection<IIncorrectScan> _badScans;
             private IBarcodeDetail _detail;
 
-            public Barcode()
+            public void InitializeCollections()
             {
-                BadScans = new HashSet<IIncorrectScan>();
+                BadScans = BadScans ?? new HashSet<IIncorrectScan>();
             }
 
             public byte[] Code
@@ -619,9 +619,13 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
 
             public AnOrder()
             {
-                OrderLines = new HashSet<IOrderLine>();
-                Notes = new HashSet<IOrderNote>();
                 Concurrency = new ConcurrencyInfo();
+            }
+
+            public void InitializeCollections()
+            {
+                OrderLines = OrderLines ?? new HashSet<IOrderLine>();
+                Notes = Notes ?? new HashSet<IOrderNote>();
             }
 
             public int AnOrderId
@@ -862,14 +866,18 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
 
             public Product()
             {
-                Suppliers = new HashSet<ISupplier>();
-                //Replaces = new HashSet<DiscontinuedProduct>();
-                Reviews = new HashSet<IProductReview>();
-                Photos = new HashSet<IProductPhoto>();
-                Barcodes = new HashSet<IBarcode>();
                 Dimensions = new Dimensions();
                 ComplexConcurrency = new ConcurrencyInfo();
                 NestedComplexConcurrency = new AuditInfo();
+            }
+
+            public void InitializeCollections()
+            {
+                Suppliers = Suppliers ?? new HashSet<ISupplier>();
+                //Replaces = new HashSet<DiscontinuedProduct>();
+                Reviews = Reviews ?? new HashSet<IProductReview>();
+                Photos = Photos ?? new HashSet<IProductPhoto>();
+                Barcodes = Barcodes ?? new HashSet<IBarcode>();
             }
 
             public int ProductId
@@ -956,9 +964,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             private byte[] _photo;
             private ICollection<IProductWebFeature> _features;
 
-            public ProductPhoto()
+            public void InitializeCollections()
             {
-                Features = new HashSet<IProductWebFeature>();
+                Features = Features ?? new HashSet<IProductWebFeature>();
             }
 
             public int ProductId
@@ -994,9 +1002,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             private IProduct _product;
             private ICollection<IProductWebFeature> _features;
 
-            public ProductReview()
+            public void InitializeCollections()
             {
-                Features = new HashSet<IProductWebFeature>();
+                Features = Features ?? new HashSet<IProductWebFeature>();
             }
 
             public int ProductId
@@ -1236,9 +1244,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             private ICollection<IProduct> _products;
             private ISupplierLogo _logo;
 
-            public Supplier()
+            public void InitializeCollections()
             {
-                Products = new HashSet<IProduct>();
+                Products = Products ?? new HashSet<IProduct>();
                 //BackOrderLines = new HashSet<BackOrderLine>();
             }
 
@@ -1309,10 +1317,14 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
 
             public Customer()
             {
-                Orders = new HashSet<IAnOrder>();
-                Logins = new HashSet<ILogin>();
                 ContactInfo = new ContactDetails();
                 Auditing = new AuditInfo();
+            }
+
+            public void InitializeCollections()
+            {
+                Orders = Orders ?? new HashSet<IAnOrder>();
+                Logins = Logins ?? new HashSet<ILogin>();
             }
 
             public int CustomerId
@@ -1387,11 +1399,11 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             private ICollection<IMessage> _receivedMessages;
             private ICollection<IAnOrder> _orders;
 
-            public Login()
+            public void InitializeCollections()
             {
-                SentMessages = new HashSet<IMessage>();
-                ReceivedMessages = new HashSet<IMessage>();
-                Orders = new HashSet<IAnOrder>();
+                SentMessages = SentMessages ?? new HashSet<IMessage>();
+                ReceivedMessages = ReceivedMessages ?? new HashSet<IMessage>();
+                Orders = Orders ?? new HashSet<IAnOrder>();
             }
 
             public string Username

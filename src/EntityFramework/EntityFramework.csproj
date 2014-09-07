@@ -86,6 +86,7 @@
     <Compile Include="Identity\ValueGeneratorPool.cs" />
     <Compile Include="Identity\ValueGeneratorSelector.cs" />
     <Compile Include="Metadata\BasicModelBuilder.cs" />
+    <Compile Include="Metadata\CollectionTypeFactory.cs" />
     <Compile Include="Metadata\IEntityBuilder.cs" />
     <Compile Include="Metadata\IEntityBuilder`.cs" />
     <Compile Include="Metadata\IForeignKeyBuilder.cs" />

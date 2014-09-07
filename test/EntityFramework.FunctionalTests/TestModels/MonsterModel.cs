@@ -20,6 +20,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
         IProduct Product { get; set; }
         ICollection<IIncorrectScan> BadScans { get; set; }
         IBarcodeDetail Detail { get; set; }
+        void InitializeCollections();
     }
 
     public interface IComplaint
@@ -159,6 +160,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
         ICollection<IOrderNote> Notes { get; set; }
         string Username { get; set; }
         ILogin Login { get; set; }
+        void InitializeCollections();
     }
 
     public interface IOrderNote
@@ -216,6 +218,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
         ICollection<IProductReview> Reviews { get; set; }
         ICollection<IProductPhoto> Photos { get; set; }
         ICollection<IBarcode> Barcodes { get; set; }
+        void InitializeCollections();
     }
 
     public interface IProductPhoto
@@ -224,6 +227,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
         int PhotoId { get; set; }
         byte[] Photo { get; set; }
         ICollection<IProductWebFeature> Features { get; set; }
+        void InitializeCollections();
     }
 
     public interface IProductReview
@@ -233,6 +237,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
         string Review { get; set; }
         IProduct Product { get; set; }
         ICollection<IProductWebFeature> Features { get; set; }
+        void InitializeCollections();
     }
 
     public interface IProductWebFeature
@@ -291,6 +296,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
         ICollection<IProduct> Products { get; set; }
         //ICollection<BackOrderLine> BackOrderLines { get; set; }
         ISupplierLogo Logo { get; set; }
+        void InitializeCollections();
     }
 
     public interface ISuspiciousActivity
@@ -325,6 +331,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
         ICustomer Husband { get; set; }
         ICustomer Wife { get; set; }
         ICustomerInfo Info { get; set; }
+        void InitializeCollections();
     }
 
     public enum LicenseState
@@ -344,6 +351,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
         ICollection<IMessage> SentMessages { get; set; }
         ICollection<IMessage> ReceivedMessages { get; set; }
         ICollection<IAnOrder> Orders { get; set; }
+        void InitializeCollections();
     }
 
     public class Phone

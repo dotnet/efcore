@@ -199,16 +199,22 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 var added = new HashSet<object>(ReferenceEqualityComparer.Instance);
 
                 var removed = new HashSet<object>(ReferenceEqualityComparer.Instance);
-                foreach (var entity in snapshotCollection)
+                if (snapshotCollection != null)
                 {
-                    removed.Add(entity);
+                    foreach (var entity in snapshotCollection)
+                    {
+                        removed.Add(entity);
+                    }
                 }
 
-                foreach (var entity in currentCollection)
+                if (currentCollection != null)
                 {
-                    if (!removed.Remove(entity))
+                    foreach (var entity in currentCollection)
                     {
-                        added.Add(entity);
+                        if (!removed.Remove(entity))
+                        {
+                            added.Add(entity);
+                        }
                     }
                 }
 

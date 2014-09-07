@@ -709,8 +709,11 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             var barcode3 = Add(new TBarcode { Code = new byte[] { 3, 2, 3, 4 }, Product = dependentNavs ? product3 : null, Text = "Barcode 3 2 3 4" });
             if (principalNavs)
             {
+                product1.InitializeCollections();
                 product1.Barcodes.Add(barcode1);
+                product2.InitializeCollections();
                 product2.Barcodes.Add(barcode2);
+                product3.InitializeCollections();
                 product3.Barcodes.Add(barcode3);
             }
 
@@ -732,6 +735,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                     });
             if (principalNavs)
             {
+                barcode2.InitializeCollections(); 
                 barcode2.BadScans.Add(incorrectScan1);
             }
 
@@ -745,6 +749,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                     });
             if (principalNavs)
             {
+                barcode1.InitializeCollections();
                 barcode1.BadScans.Add(incorrectScan2);
             }
 
@@ -775,8 +780,11 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             var login3 = Add(new TLogin { Customer = dependentNavs ? customer3 : null, Username = "TheStripedMenace", AlternateUsername = "Tarquin" });
             if (principalNavs)
             {
+                customer1.InitializeCollections();
                 customer1.Logins.Add(login1);
+                customer2.InitializeCollections();
                 customer2.Logins.Add(login2);
+                customer3.InitializeCollections();
                 customer3.Logins.Add(login3);
             }
 
@@ -838,7 +846,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                 });
             if (principalNavs)
             {
+                login1.InitializeCollections();
                 login1.SentMessages.Add(message1);
+                login2.InitializeCollections();
                 login2.ReceivedMessages.Add(message1);
             }
 
@@ -880,6 +890,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                 customer3.Orders.Add(order3);
                 login1.Orders.Add(order1);
                 login2.Orders.Add(order2);
+                login3.InitializeCollections();
                 login3.Orders.Add(order3);
             }
 
@@ -888,6 +899,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             var orderNote3 = Add(new TOrderNote { Note = "But no coffee. :-(", Order = dependentNavs ? order1 : null });
             if (principalNavs)
             {
+                order1.InitializeCollections();
                 order1.Notes.Add(orderNote1);
                 order1.Notes.Add(orderNote2);
                 order1.Notes.Add(orderNote3);
@@ -907,9 +919,11 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             {
                 order1.OrderLines.Add(orderLine1);
                 order1.OrderLines.Add(orderLine2);
+                order2.InitializeCollections();
                 order2.OrderLines.Add(orderLine3);
                 order2.OrderLines.Add(orderLine4);
                 order2.OrderLines.Add(orderLine5);
+                order3.InitializeCollections();
                 order3.OrderLines.Add(orderLine6);
             }
 
@@ -950,7 +964,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                 });
             if (principalNavs)
             {
+                productPhoto1.InitializeCollections();
                 productPhoto1.Features.Add(productWebFeature1);
+                productReview1.InitializeCollections();
                 productReview1.Features.Add(productWebFeature1);
             }
 
@@ -962,6 +978,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                 });
             if (principalNavs)
             {
+                productReview3.InitializeCollections();
                 productReview3.Features.Add(productWebFeature2);
             }
 
@@ -1076,8 +1093,11 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             var barcode2 = toAdd[1].AddEx(new TBarcode { Code = new byte[] { 2, 2, 3, 4 }, Text = "Barcode 2 2 3 4" });
             var barcode3 = toAdd[1].AddEx(new TBarcode { Code = new byte[] { 3, 2, 3, 4 }, Text = "Barcode 3 2 3 4" });
 
+            product1.InitializeCollections();
             product1.Barcodes.Add(barcode1);
+            product2.InitializeCollections();
             product2.Barcodes.Add(barcode2);
+            product3.InitializeCollections();
             product3.Barcodes.Add(barcode3);
 
             var barcodeDetails1 = toAdd[1].AddEx(new TBarcodeDetail { RegisteredTo = "Eeky Bear" });
@@ -1093,6 +1113,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                         Details = "Treats not Donuts",
                         ActualBarcode = barcode3
                     });
+            barcode2.InitializeCollections();
             barcode2.BadScans.Add(incorrectScan1);
 
             var incorrectScan2 = toAdd[1].AddEx(
@@ -1102,6 +1123,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                         Details = "Wot no waffles?",
                         ActualBarcode = barcode2
                     });
+            barcode1.InitializeCollections();
             barcode1.BadScans.Add(incorrectScan2);
 
             var complaint1 = toAdd[1].AddEx(new TComplaint
@@ -1127,8 +1149,11 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             var login2 = toAdd[1].AddEx(new TLogin { Username = "MrsBossyPants", AlternateUsername = "Sue" });
             var login3 = toAdd[1].AddEx(new TLogin { Username = "TheStripedMenace", AlternateUsername = "Tarquin" });
 
+            customer1.InitializeCollections();
             customer1.Logins.Add(login1);
+            customer2.InitializeCollections();
             customer2.Logins.Add(login2);
+            customer3.InitializeCollections();
             customer3.Logins.Add(login3);
 
             var suspiciousActivity1 = toAdd[2].AddEx(new TSuspiciousActivity { Activity = "Pig prints on keyboard", Username = login3.Username });
@@ -1178,7 +1203,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                     Sent = DateTime.Now,
                 });
 
+            login1.InitializeCollections();
             login1.SentMessages.Add(message1);
+            login2.InitializeCollections();
             login2.ReceivedMessages.Add(message1);
 
             var message2 = toAdd[2].AddEx(new TMessage
@@ -1211,12 +1238,14 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
 
             login1.Orders.Add(order1);
             login2.Orders.Add(order2);
+            login3.InitializeCollections();
             login3.Orders.Add(order3);
 
             var orderNote1 = toAdd[2].AddEx(new TOrderNote { Note = "Must have tea!" });
             var orderNote2 = toAdd[2].AddEx(new TOrderNote { Note = "And donuts!" });
             var orderNote3 = toAdd[2].AddEx(new TOrderNote { Note = "But no coffee. :-(" });
 
+            order1.InitializeCollections();
             order1.Notes.Add(orderNote1);
             order1.Notes.Add(orderNote2);
             order1.Notes.Add(orderNote3);
@@ -1234,9 +1263,11 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
 
             order1.OrderLines.Add(orderLine1);
             order1.OrderLines.Add(orderLine2);
+            order2.InitializeCollections();
             order2.OrderLines.Add(orderLine3);
             order2.OrderLines.Add(orderLine4);
             order2.OrderLines.Add(orderLine5);
+            order3.InitializeCollections();
             order3.OrderLines.Add(orderLine6);
 
             var productDetail1 = toAdd[0].AddEx(new TProductDetail { Details = "A Waffle Cart specialty!" });
@@ -1267,7 +1298,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                     ProductId = product1.ProductId,
                 });
 
+            productPhoto1.InitializeCollections();
             productPhoto1.Features.Add(productWebFeature1);
+            productReview1.InitializeCollections();
             productReview1.Features.Add(productWebFeature1);
 
             var productWebFeature2 = toAdd[0].AddEx(new TProductWebFeature
@@ -1276,6 +1309,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                     ProductId = product2.ProductId,
                 });
 
+            productReview3.InitializeCollections();
             productReview3.Features.Add(productWebFeature2);
 
             var supplier1 = toAdd[0].AddEx(new TSupplier { Name = "Trading As Trent" });

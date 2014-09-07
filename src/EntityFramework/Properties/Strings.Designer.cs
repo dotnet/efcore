@@ -1018,6 +1018,86 @@ namespace Microsoft.Data.Entity
             return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyTypeMismatch", "dependentType", "principalType"), dependentType, principalType);
         }
 
+        /// <summary>
+        /// The type of navigation property '{navigation}' on entity type '{entityType}' is '{foundType}' which does not implement ICollection&lt;{targetType}&gt;. Collection navigation properties must implement ICollection&lt;&gt; of the target type.
+        /// </summary>
+        internal static string NavigationBadType
+        {
+            get { return GetString("NavigationBadType"); }
+        }
+
+        /// <summary>
+        /// The type of navigation property '{navigation}' on entity type '{entityType}' is '{foundType}' which does not implement ICollection&lt;{targetType}&gt;. Collection navigation properties must implement ICollection&lt;&gt; of the target type.
+        /// </summary>
+        internal static string FormatNavigationBadType(object navigation, object entityType, object foundType, object targetType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NavigationBadType", "navigation", "entityType", "foundType", "targetType"), navigation, entityType, foundType, targetType);
+        }
+
+        /// <summary>
+        /// The type of navigation property '{navigation}' on entity type '{entityType}' is '{foundType}' which is an array type.. Collection navigation properties cannot be arrays.
+        /// </summary>
+        internal static string NavigationArray
+        {
+            get { return GetString("NavigationArray"); }
+        }
+
+        /// <summary>
+        /// The type of navigation property '{navigation}' on entity type '{entityType}' is '{foundType}' which is an array type.. Collection navigation properties cannot be arrays.
+        /// </summary>
+        internal static string FormatNavigationArray(object navigation, object entityType, object foundType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NavigationArray", "navigation", "entityType", "foundType"), navigation, entityType, foundType);
+        }
+
+        /// <summary>
+        /// The navigation property '{navigation}' on entity type '{entityType}' does not have a getter.
+        /// </summary>
+        internal static string NavigationNoGetter
+        {
+            get { return GetString("NavigationNoGetter"); }
+        }
+
+        /// <summary>
+        /// The navigation property '{navigation}' on entity type '{entityType}' does not have a getter.
+        /// </summary>
+        internal static string FormatNavigationNoGetter(object navigation, object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NavigationNoGetter", "navigation", "entityType"), navigation, entityType);
+        }
+
+        /// <summary>
+        /// The navigation property '{navigation}' on entity type '{entityType}' does not have a setter. Read-only collection navigation properties must be initialized before use.
+        /// </summary>
+        internal static string NavigationNoSetter
+        {
+            get { return GetString("NavigationNoSetter"); }
+        }
+
+        /// <summary>
+        /// The navigation property '{navigation}' on entity type '{entityType}' does not have a setter. Read-only collection navigation properties must be initialized before use.
+        /// </summary>
+        internal static string FormatNavigationNoSetter(object navigation, object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NavigationNoSetter", "navigation", "entityType"), navigation, entityType);
+        }
+
+        /// <summary>
+        /// The type of navigation property '{navigation}' on entity type '{entityType}' is '{foundType}' for which it was not possible to create a concrete instance. Either initialize the property before use, add a public parameterless constructor to the type, or use a type which can be assigned a HashSet&lt;&gt; or List&lt;&gt;.
+        /// </summary>
+        internal static string NavigationCannotCreateType
+        {
+            get { return GetString("NavigationCannotCreateType"); }
+        }
+
+        /// <summary>
+        /// The type of navigation property '{navigation}' on entity type '{entityType}' is '{foundType}' for which it was not possible to create a concrete instance. Either initialize the property before use, add a public parameterless constructor to the type, or use a type which can be assigned a HashSet&lt;&gt; or List&lt;&gt;.
+        /// </summary>
+        internal static string FormatNavigationCannotCreateType(object navigation, object entityType, object foundType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NavigationCannotCreateType", "navigation", "entityType", "foundType"), navigation, entityType, foundType);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

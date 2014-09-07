@@ -86,6 +86,7 @@
     <Compile Include="Identity\ValueGeneratorPoolTest.cs" />
     <Compile Include="Identity\ValueGeneratorSelectorTest.cs" />
     <Compile Include="Metadata\BasicModelBuilderTest.cs" />
+    <Compile Include="Metadata\CollectionTyoeFactoryTest.cs" />
     <Compile Include="Metadata\EntityTypeExtensionsTest.cs" />
     <Compile Include="Metadata\IndexTest.cs" />
     <Compile Include="Metadata\MetadataBuilderTest.cs" />
