@@ -37,9 +37,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.InMemory.Fu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.SQLite.Tests", "test\EntityFramework.SQLite.Tests\EntityFramework.SQLite.Tests.csproj", "{1F060759-25F6-47FB-AEBB-3D88195F3DF7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Design", "src\EntityFramework.Design\EntityFramework.Design.csproj", "{10CA97EB-E724-4F08-86AF-F301F2B0BFFF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Commands", "src\EntityFramework.Commands\EntityFramework.Commands.csproj", "{10CA97EB-E724-4F08-86AF-F301F2B0BFFF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Design.Tests", "test\EntityFramework.Design.Tests\EntityFramework.Design.Tests.csproj", "{38F9AD16-B3B4-48A5-B814-77660CF409AE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Commands.Tests", "test\EntityFramework.Commands.Tests\EntityFramework.Commands.Tests.csproj", "{38F9AD16-B3B4-48A5-B814-77660CF409AE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.SQLite.FunctionalTests", "test\EntityFramework.SQLite.FunctionalTests\EntityFramework.SQLite.FunctionalTests.csproj", "{A4604758-4D80-4C71-A972-5655FFF38089}"
 EndProject
@@ -58,10 +58,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Redis.Tests", "test\EntityFramework.Redis.Tests\EntityFramework.Redis.Tests.csproj", "{7B30247D-BF61-46F3-ABC0-091F97842AA7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.AspNet.Diagnostics.Entity", "src\Microsoft.AspNet.Diagnostics.Entity\Microsoft.AspNet.Diagnostics.Entity.csproj", "{D91BB58A-1515-4E19-AA47-630E1B708CB0}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.VisualStudio", "src\EntityFramework.VisualStudio\EntityFramework.VisualStudio.csproj", "{A4D254E2-54D4-49F2-B3F5-E4661803C4E5}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.VisualStudio.Tests", "test\EntityFramework.VisualStudio.Tests\EntityFramework.VisualStudio.Tests.csproj", "{B5D3AC05-7C73-4986-9B9E-193853712D68}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -173,14 +169,6 @@ Global
 		{D91BB58A-1515-4E19-AA47-630E1B708CB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D91BB58A-1515-4E19-AA47-630E1B708CB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D91BB58A-1515-4E19-AA47-630E1B708CB0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A4D254E2-54D4-49F2-B3F5-E4661803C4E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A4D254E2-54D4-49F2-B3F5-E4661803C4E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A4D254E2-54D4-49F2-B3F5-E4661803C4E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A4D254E2-54D4-49F2-B3F5-E4661803C4E5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B5D3AC05-7C73-4986-9B9E-193853712D68}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B5D3AC05-7C73-4986-9B9E-193853712D68}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B5D3AC05-7C73-4986-9B9E-193853712D68}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B5D3AC05-7C73-4986-9B9E-193853712D68}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -212,7 +200,5 @@ Global
 		{D1F26BE2-6569-4C18-B322-1B717267194D} = {547020C0-976F-4542-81CE-7FD465595614}
 		{7B30247D-BF61-46F3-ABC0-091F97842AA7} = {547020C0-976F-4542-81CE-7FD465595614}
 		{D91BB58A-1515-4E19-AA47-630E1B708CB0} = {35BED7DE-CA6F-41EA-91E3-25CA7295C7B9}
-		{A4D254E2-54D4-49F2-B3F5-E4661803C4E5} = {35BED7DE-CA6F-41EA-91E3-25CA7295C7B9}
-		{B5D3AC05-7C73-4986-9B9E-193853712D68} = {547020C0-976F-4542-81CE-7FD465595614}
 	EndGlobalSection
 EndGlobal

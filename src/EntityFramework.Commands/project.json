@@ -1,0 +1,29 @@
+{
+    "version": "7.0.0-*",
+    "compilationOptions": {
+        "warningsAsErrors": true
+    },
+    "dependencies": {
+        "EntityFramework.Migrations": ""
+    },
+    "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
+    "exclude": "tools\\Handler.cs",
+    "frameworks": {
+        "net451": { },
+        "aspnet50": {
+            "dependencies": {
+                "Microsoft.Framework.CommandLineUtils": "1.0.0-*"
+            }
+        },
+        "aspnetcore50": {
+            "dependencies": {
+                "Microsoft.Framework.CommandLineUtils": "1.0.0-*",
+                "System.Console": "4.0.0.0",
+                "System.Reflection.TypeExtensions": "4.0.0.0"
+            }
+        }
+    },
+    "commands": { 
+        "ef":  "EntityFramework.Commands"
+    }
+}
