@@ -843,8 +843,8 @@ namespace Microsoft.Data.Entity.Relational.Query
             return new QuerySourceScope<TEntity>(
                 querySource,
                 // ReSharper disable once AssignNullToNotNullAttribute
-                (TEntity)queryContext.MaterializationStrategy
-                    .Materialize(
+                (TEntity)queryContext.QueryBuffer
+                    .GetEntity(
                         queryContext.Model.GetEntityType(typeof(TEntity)),
                         valueReader),
                 parentQuerySourceScope);

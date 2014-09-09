@@ -11,7 +11,6 @@ using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.InMemory.Query;
 using Microsoft.Data.Entity.InMemory.Utilities;
-using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq;
@@ -66,11 +65,9 @@ namespace Microsoft.Data.Entity.InMemory
             return Task.FromResult(_database.Value.ExecuteTransaction(stateEntries));
         }
 
-        public override IEnumerable<TResult> Query<TResult>(
-            QueryModel queryModel, IMaterializationStrategy materializationStrategy)
+        public override IEnumerable<TResult> Query<TResult>(QueryModel queryModel)
         {
             Check.NotNull(queryModel, "queryModel");
-            Check.NotNull(materializationStrategy, "materializationStrategy");
 
             var queryCompilationContext = new InMemoryQueryCompilationContext(Model);
             var queryExecutor = queryCompilationContext.CreateQueryModelVisitor().CreateQueryExecutor<TResult>(queryModel);
@@ -79,16 +76,17 @@ namespace Microsoft.Data.Entity.InMemory
                 = new InMemoryQueryContext(
                     Model,
                     Logger,
-                    materializationStrategy,
+                    CreateQueryBuffer(),
+                    StateManager,
                     _database.Value);
 
             return queryExecutor(queryContext);
         }
 
         public override IAsyncEnumerable<TResult> AsyncQuery<TResult>(
-            QueryModel queryModel, IMaterializationStrategy materializationStrategy, CancellationToken cancellationToken)
+            QueryModel queryModel, CancellationToken cancellationToken)
         {
-            return Query<TResult>(queryModel, materializationStrategy).ToAsyncEnumerable();
+            return Query<TResult>(queryModel).ToAsyncEnumerable();
         }
     }
 }

@@ -32,9 +32,9 @@ namespace Microsoft.Data.Entity.Storage
 
         protected DataStore([NotNull] DbContextConfiguration configuration)
         {
-            _configuration = configuration;
             Check.NotNull(configuration, "configuration");
 
+            _configuration = configuration;
             _logger = configuration.LoggerFactory.Create(GetType().Name);
         }
 
@@ -48,17 +48,27 @@ namespace Microsoft.Data.Entity.Storage
             get { return _configuration.Model; }
         }
 
+        public virtual StateManager StateManager
+        {
+            get { return _configuration.StateManager; }
+        }
+
+        protected virtual IQueryBuffer CreateQueryBuffer()
+        {
+            return new StateEntryQueryBuffer(
+                StateManager,
+                _configuration.Services.EntityKeyFactorySource,
+                _configuration.Services.StateEntryFactory);
+        }
+
         public abstract Task<int> SaveChangesAsync(
             [NotNull] IReadOnlyList<StateEntry> stateEntries,
             CancellationToken cancellationToken = default(CancellationToken));
 
-        public abstract IEnumerable<TResult> Query<TResult>(
-            [NotNull] QueryModel queryModel,
-            [NotNull] IMaterializationStrategy materializationStrategy);
+        public abstract IEnumerable<TResult> Query<TResult>([NotNull] QueryModel queryModel);
 
         public abstract IAsyncEnumerable<TResult> AsyncQuery<TResult>(
             [NotNull] QueryModel queryModel,
-            [NotNull] IMaterializationStrategy materializationStrategy,
             CancellationToken cancellationToken);
     }
 }

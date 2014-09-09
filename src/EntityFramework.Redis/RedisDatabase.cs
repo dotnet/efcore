@@ -139,14 +139,14 @@ namespace Microsoft.Data.Entity.Redis
         /// </summary>
         /// <typeparam name="TResult">type of expected result</typeparam>
         /// <param name="entityType">EntityType of </param>
-        /// <param name="materializationStrategy"></param>
+        /// <param name="queryBuffer"></param>
         /// <returns>An Enumerable of materialized EntityType objects</returns>
         public virtual IEnumerable<TResult> GetMaterializedResults<TResult>(
             [NotNull] IEntityType entityType,
-            [NotNull] IMaterializationStrategy materializationStrategy)
+            [NotNull] IQueryBuffer queryBuffer)
         {
             Check.NotNull(entityType, "entityType");
-            Check.NotNull(materializationStrategy, "materializationStrategy");
+            Check.NotNull(queryBuffer, "queryBuffer");
 
             var redisPrimaryKeyIndexKeyName
                 = ConstructRedisPrimaryKeyIndexKeyName(entityType);
@@ -158,8 +158,8 @@ namespace Microsoft.Data.Entity.Redis
                 .Select(compositePrimaryKeyValues
                     => GetEntityQueryObjectsFromDatabase(compositePrimaryKeyValues, entityType, DecodeBytes))
                 .Select(objectArrayFromHash
-                    => (TResult)materializationStrategy
-                        .Materialize(entityType, new ObjectArrayValueReader(objectArrayFromHash)));
+                    => (TResult)queryBuffer
+                        .GetEntity(entityType, new ObjectArrayValueReader(objectArrayFromHash)));
         }
 
         /// <summary>

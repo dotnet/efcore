@@ -17,6 +17,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
         public AtsQueryFactory([NotNull] AtsValueReaderFactory valueReaderFactory)
         {
             Check.NotNull(valueReaderFactory, "valueReaderFactory");
+
             _valueReaderFactory = valueReaderFactory;
         }
 
@@ -25,12 +26,20 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
             return new AtsQueryCompilationContext(model);
         }
 
-        public virtual AtsQueryContext MakeQueryContext([NotNull] IModel model,
+        public virtual AtsQueryContext MakeQueryContext(
+            [NotNull] IModel model,
             [NotNull] ILogger logger,
-            [NotNull] IMaterializationStrategy materializationStrategy,
+            [NotNull] IQueryBuffer queryBuffer,
+            [NotNull] StateManager stateManager,
             [NotNull] AtsConnection connection)
         {
-            return new AtsQueryContext(model, logger, materializationStrategy, connection, _valueReaderFactory);
+            Check.NotNull(model, "model");
+            Check.NotNull(logger, "logger");
+            Check.NotNull(queryBuffer, "queryBuffer");
+            Check.NotNull(stateManager, "stateManager");
+            Check.NotNull(connection, "connection");
+
+            return new AtsQueryContext(model, logger, queryBuffer, stateManager, connection, _valueReaderFactory);
         }
     }
 }

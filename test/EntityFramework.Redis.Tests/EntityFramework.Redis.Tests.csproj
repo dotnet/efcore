@@ -67,7 +67,6 @@
     </Compile>
     <Compile Include="Query\QueryTestType.cs" />
     <Compile Include="Query\RedisQueryCompilationContextTests.cs" />
-    <Compile Include="Query\RedisQueryContextTests.cs" />
     <Compile Include="Query\RedisQueryModelVisitorTests.cs" />
     <Compile Include="Query\RedisQueryTests.cs" />
     <Compile Include="RedisApiConsistencyTest.cs" />

@@ -15,7 +15,6 @@ using Microsoft.Data.Entity.AzureTableStorage.Requests;
 using Microsoft.Data.Entity.AzureTableStorage.Utilities;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
 using Microsoft.WindowsAzure.Storage;
@@ -72,28 +71,30 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         }
 
         public override IEnumerable<TResult> Query<TResult>(
-            QueryModel queryModel, IMaterializationStrategy materializationStrategy)
+            QueryModel queryModel)
         {
             Check.NotNull(queryModel, "queryModel");
-            Check.NotNull(materializationStrategy, "materializationStrategy");
 
             var compilationContext = _queryFactory.MakeCompilationContext(Model);
             var queryExecutor = compilationContext.CreateQueryModelVisitor().CreateQueryExecutor<TResult>(queryModel);
-            var queryContext = _queryFactory.MakeQueryContext(Model, Logger, materializationStrategy, Connection);
+
+            var queryContext
+                = _queryFactory.MakeQueryContext(
+                    Model,
+                    Logger,
+                    CreateQueryBuffer(),
+                    StateManager,
+                    Connection);
 
             return queryExecutor(queryContext);
         }
 
-        public override IAsyncEnumerable<TResult> AsyncQuery<TResult>(
-            QueryModel queryModel, 
-            IMaterializationStrategy materializationStrategy, 
-            CancellationToken cancellationToken)
+        public override IAsyncEnumerable<TResult> AsyncQuery<TResult>(QueryModel queryModel, CancellationToken cancellationToken)
         {
             Check.NotNull(queryModel, "queryModel");
-            Check.NotNull(materializationStrategy, "materializationStrategy");
 
             // TODO This should happen properly async
-            return Query<TResult>(queryModel, materializationStrategy).ToAsyncEnumerable();
+            return Query<TResult>(queryModel).ToAsyncEnumerable();
         }
 
         //TODO merge similarities with batch execution

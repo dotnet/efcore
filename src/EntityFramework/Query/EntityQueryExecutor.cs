@@ -4,16 +4,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Query.ResultOperators;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
-using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
@@ -74,12 +71,9 @@ namespace Microsoft.Data.Entity.Query
 
             LogQueryModel(queryModel);
 
-            return new EnumerableExceptionInterceptor<T>(
-                _context.Configuration.DataStore.Query<T>(
-                    queryModel,
-                    SelectMaterializationStrategy(queryModel)),
-                _context,
-                _logger);
+            var enumerable = _context.Configuration.DataStore.Query<T>(queryModel);
+
+            return new EnumerableExceptionInterceptor<T>(enumerable, _context, _logger);
         }
 
         public virtual IAsyncEnumerable<T> AsyncExecuteCollection<T>(
@@ -91,40 +85,11 @@ namespace Microsoft.Data.Entity.Query
 
             LogQueryModel(queryModel);
 
-            return new AsyncEnumerableExceptionInterceptor<T>(
-                _context.Configuration.DataStore.AsyncQuery<T>(
-                    queryModel,
-                    SelectMaterializationStrategy(queryModel),
-                    cancellationToken),
-                _context,
-                _logger);
-        }
+            var asyncEnumerable
+                = _context.Configuration.DataStore
+                    .AsyncQuery<T>(queryModel, cancellationToken);
 
-        private StateManagerMaterializationStrategy SelectMaterializationStrategy(QueryModel queryModel)
-        {
-            var stateManager = _context.Configuration.StateManager;
-
-            if (queryModel.ResultOperators.OfType<AsNoTrackingResultOperator>().Any())
-            {
-                var serviceProvider
-                    = _context.Configuration.Services.ServiceProvider
-                        .GetService<IServiceScopeFactory>()
-                        .CreateScope()
-                        .ServiceProvider;
-
-                serviceProvider
-                    .GetService<DbContextConfiguration>()
-                    .Initialize(
-                        _context.Configuration.Services.ServiceProvider,
-                        serviceProvider,
-                        (DbContextOptions)_context.Configuration.ContextOptions,
-                        _context,
-                        _context.Configuration.ProviderSource);
-
-                stateManager = serviceProvider.GetService<StateManager>();
-            }
-
-            return new StateManagerMaterializationStrategy(stateManager);
+            return new AsyncEnumerableExceptionInterceptor<T>(asyncEnumerable, _context, _logger);
         }
 
         private void LogQueryModel(QueryModel queryModel)
@@ -197,6 +162,7 @@ namespace Microsoft.Data.Entity.Query
                 return GetEnumerator();
             }
 
+            [DebuggerStepThrough]
             private class EnumeratorExceptionInterceptor : IEnumerator<T>
             {
                 private readonly IEnumerator<T> _inner;
@@ -277,6 +243,7 @@ namespace Microsoft.Data.Entity.Query
                 return new AsyncEnumeratorExceptionInterceptor(_inner.GetEnumerator(), _context, _logger);
             }
 
+            [DebuggerStepThrough]
             private class AsyncEnumeratorExceptionInterceptor : IAsyncEnumerator<T>
             {
                 private readonly IAsyncEnumerator<T> _inner;

@@ -38,8 +38,8 @@ namespace Microsoft.Data.Entity.InMemory.Query
             var inMemoryTable = ((InMemoryQueryContext)queryContext).Database.GetTable(entityType);
 
             return inMemoryTable
-                .Select(t => (TEntity)queryContext.MaterializationStrategy
-                    .Materialize(entityType, new ObjectArrayValueReader(t)));
+                .Select(t => (TEntity)queryContext.QueryBuffer
+                    .GetEntity(entityType, new ObjectArrayValueReader(t)));
         }
 
         private static readonly MethodInfo _projectionQueryMethodInfo

@@ -36,11 +36,9 @@ namespace Microsoft.Data.Entity.Redis
             return _database.Value.SaveChangesAsync(stateEntries, cancellationToken);
         }
 
-        public override IEnumerable<TResult> Query<TResult>(
-            QueryModel queryModel, IMaterializationStrategy materializationStrategy)
+        public override IEnumerable<TResult> Query<TResult>(QueryModel queryModel)
         {
             Check.NotNull(queryModel, "queryModel");
-            Check.NotNull(materializationStrategy, "materializationStrategy");
 
             var queryCompilationContext
                 = CreateQueryCompilationContext(
@@ -48,14 +46,20 @@ namespace Microsoft.Data.Entity.Redis
                     new ResultOperatorHandler());
 
             var queryExecutor = queryCompilationContext.CreateQueryModelVisitor().CreateQueryExecutor<TResult>(queryModel);
-            var queryContext = new RedisQueryContext(Model, Logger, materializationStrategy, _database.Value);
+
+            var queryContext
+                = new RedisQueryContext(
+                    Model,
+                    Logger,
+                    CreateQueryBuffer(),
+                    StateManager,
+                    _database.Value);
+
             return queryExecutor(queryContext);
         }
 
         public override IAsyncEnumerable<TResult> AsyncQuery<TResult>(
-            QueryModel queryModel,
-            IMaterializationStrategy materializationStrategy, 
-            CancellationToken cancellationToken)
+            QueryModel queryModel, CancellationToken cancellationToken)
         {
             // TODO
             throw new NotImplementedException();
