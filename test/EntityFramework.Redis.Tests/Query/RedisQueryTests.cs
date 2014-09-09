@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
@@ -63,9 +64,16 @@ namespace Microsoft.Data.Entity.Redis.Tests.Query
         {
             var configurationMock = new Mock<DbContextConfiguration>();
             var redisDatabaseMock = new Mock<RedisDatabase>(configurationMock.Object);
-            var materializationStrategyMock = new Mock<IMaterializationStrategy>();
-            var redisQueryContextMock = new Mock<RedisQueryContext>(
-                QueryTestType.Model(), NullLogger.Instance, materializationStrategyMock.Object, redisDatabaseMock.Object);
+            var materializationStrategyMock = new Mock<IQueryBuffer>();
+            var stateManagerMockMock = new Mock<StateManager>();
+
+            var redisQueryContextMock
+                = new Mock<RedisQueryContext>(
+                    QueryTestType.Model(),
+                    NullLogger.Instance,
+                    materializationStrategyMock.Object,
+                    stateManagerMockMock.Object,
+                    redisDatabaseMock.Object);
 
             var resultsFromDatabase = new List<object[]>
                 {
@@ -75,7 +83,7 @@ namespace Microsoft.Data.Entity.Redis.Tests.Query
             redisQueryContextMock.Setup(m => m.GetResultsFromRedis(It.IsAny<RedisQuery>())).Returns(resultsFromDatabase);
             var entityType = QueryTestType.EntityType();
             var redisQuery = new RedisQuery(entityType);
-
+            
             var readers = redisQuery.GetValueReaders(redisQueryContextMock.Object);
 
             Assert.Equal(2, readers.Count());

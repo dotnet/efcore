@@ -14,163 +14,197 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual void Queryable_simple()
         {
-            Assert.Equal(91,
-                AssertQuery<Customer>(cs => cs));
+            AssertQuery<Customer>(
+                cs => cs,
+                stateEntryCount: 91);
         }
 
         [Fact]
         public virtual void Queryable_simple_anonymous()
         {
-            Assert.Equal(91,
-                AssertQuery<Customer>(cs => cs.Select(c => new { c })));
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new { c }));
         }
 
         [Fact]
         public virtual void Queryable_nested_simple()
         {
-            Assert.Equal(91,
-                AssertQuery<Customer>(cs =>
-                    from c1 in (from c2 in (from c3 in cs select c3) select c2) select c1));
+            AssertQuery<Customer>(
+                cs =>
+                    from c1 in (from c2 in (from c3 in cs select c3) select c2) select c1,
+                stateEntryCount: 91);
         }
 
         [Fact]
         public virtual void Take_simple()
         {
-            Assert.Equal(10,
-                AssertQuery<Customer>(cs => cs.OrderBy(c => c.CustomerID).Take(10), assertOrder: true));
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.CustomerID).Take(10),
+                assertOrder: true,
+                stateEntryCount: 10);
         }
 
         [Fact]
         public virtual void Take_simple_projection()
         {
-            Assert.Equal(10,
-                AssertQuery<Customer>(cs => cs.OrderBy(c => c.CustomerID).Select(c => c.City).Take(10), assertOrder: true));
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.CustomerID).Select(c => c.City).Take(10),
+                assertOrder: true);
         }
 
         [Fact]
         public virtual void Skip()
         {
-            AssertQuery<Customer>(cs => cs.OrderBy(c => c.CustomerID).Skip(5), assertOrder: true);
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.CustomerID).Skip(5),
+                assertOrder: true,
+                stateEntryCount: 86);
         }
 
         [Fact]
         public virtual void Take_Skip()
         {
-            AssertQuery<Customer>(cs => cs.OrderBy(c => c.ContactName).Take(10).Skip(5), assertOrder: true);
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.ContactName).Take(10).Skip(5),
+                assertOrder: true,
+                stateEntryCount: 5);
         }
 
         [Fact]
         public virtual void Distinct_Skip()
         {
-            AssertQuery<Customer>(cs =>
-                cs.Distinct().OrderBy(c => c.ContactName).Skip(5), assertOrder: true);
+            AssertQuery<Customer>(
+                cs => cs.Distinct().OrderBy(c => c.ContactName).Skip(5),
+                assertOrder: true,
+                stateEntryCount: 86);
         }
 
         [Fact]
         public virtual void Skip_Take()
         {
-            AssertQuery<Customer>(cs =>
-                cs.OrderBy(c => c.ContactName).Skip(5).Take(10), assertOrder: true);
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.ContactName).Skip(5).Take(10),
+                assertOrder: true,
+                stateEntryCount: 10);
         }
 
         [Fact]
         public virtual void Distinct_Skip_Take()
         {
-            AssertQuery<Customer>(cs =>
-                cs.Distinct().OrderBy(c => c.ContactName).Skip(5).Take(10), assertOrder: true);
+            AssertQuery<Customer>(
+                cs => cs.Distinct().OrderBy(c => c.ContactName).Skip(5).Take(10),
+                assertOrder: true,
+                stateEntryCount: 10);
         }
 
         [Fact]
         public virtual void Skip_Distinct()
         {
-            AssertQuery<Customer>(cs =>
-                cs.OrderBy(c => c.ContactName).Skip(5).Distinct());
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.ContactName).Skip(5).Distinct(),
+                stateEntryCount: 86);
         }
 
         [Fact]
         public virtual void Skip_Take_Distinct()
         {
-            AssertQuery<Customer>(cs =>
-                cs.OrderBy(c => c.ContactName).Skip(5).Take(10).Distinct());
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.ContactName).Skip(5).Take(10).Distinct(),
+                stateEntryCount: 10);
         }
 
         [Fact]
         public virtual void Take_Skip_Distinct()
         {
-            AssertQuery<Customer>(cs =>
-                cs.OrderBy(c => c.ContactName).Take(10).Skip(5).Distinct());
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.ContactName).Take(10).Skip(5).Distinct(),
+                stateEntryCount: 5);
         }
 
         [Fact]
         public virtual void Take_Distinct()
         {
-            AssertQuery<Order>(os => os.OrderBy(o => o.OrderID).Take(5).Distinct());
+            AssertQuery<Order>(
+                os => os.OrderBy(o => o.OrderID).Take(5).Distinct(),
+                stateEntryCount: 5);
         }
 
         [Fact]
         public virtual void Distinct_Take()
         {
-            AssertQuery<Order>(os => os.Distinct().OrderBy(o => o.OrderID).Take(5), assertOrder: true);
+            AssertQuery<Order>(
+                os => os.Distinct().OrderBy(o => o.OrderID).Take(5),
+                assertOrder: true,
+                stateEntryCount: 5);
         }
 
         [Fact]
         public virtual void Distinct_Take_Count()
         {
-            AssertQuery<Order>(os => os.Distinct().Take(5).Count());
+            AssertQuery<Order>(
+                os => os.Distinct().Take(5).Count());
         }
 
         [Fact]
         public virtual void Take_Distinct_Count()
         {
-            AssertQuery<Order>(os => os.Take(5).Distinct().Count());
+            AssertQuery<Order>(
+                os => os.Take(5).Distinct().Count());
         }
 
         [Fact]
         public virtual void Any_simple()
         {
-            AssertQuery<Customer>(cs => cs.Any());
+            AssertQuery<Customer>(
+                cs => cs.Any());
         }
 
         [Fact]
         public virtual void Any_predicate()
         {
-            AssertQuery<Customer>(cs => cs.Any(c => c.ContactName.StartsWith("A")));
+            AssertQuery<Customer>(
+                cs => cs.Any(c => c.ContactName.StartsWith("A")));
         }
 
         [Fact]
         public virtual void All_top_level()
         {
-            AssertQuery<Customer>(cs => cs.All(c => c.ContactName.StartsWith("A")));
+            AssertQuery<Customer>(
+                cs => cs.All(c => c.ContactName.StartsWith("A")));
         }
 
         [Fact]
         public virtual void All_top_level_subquery()
         {
             // ReSharper disable once PossibleUnintendedReferenceComparison
-            AssertQuery<Customer>(cs => cs.All(c1 => cs.Any(c2 => cs.Any(c3 => c1 == c3))));
+            AssertQuery<Customer>(
+                cs => cs.All(c1 => cs.Any(c2 => cs.Any(c3 => c1 == c3))));
         }
 
         [Fact]
         public virtual void Select_into()
         {
-            AssertQuery<Customer>(cs =>
-                from c in cs
-                select c.CustomerID
-                into id
-                where id == "ALFKI"
-                select id);
+            AssertQuery<Customer>(
+                cs =>
+                    from c in cs
+                    select c.CustomerID
+                    into id
+                    where id == "ALFKI"
+                    select id);
         }
 
         [Fact]
         public virtual void Projection_when_null_value()
         {
-            AssertQuery<Customer>(cs => cs.Select(c => c.Region));
+            AssertQuery<Customer>(
+                cs => cs.Select(c => c.Region));
         }
 
         [Fact]
         public virtual void Take_with_single()
         {
-            AssertQuery<Customer>(cs => cs.OrderBy(c => c.CustomerID).Take(1).Single());
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.CustomerID).Take(1).Single());
         }
 
         [Fact]
@@ -188,13 +222,17 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual void Where_simple()
         {
-            AssertQuery<Customer>(cs => cs.Where(c => c.City == "London"));
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.City == "London"),
+                stateEntryCount: 6);
         }
 
         [Fact]
         public virtual void Where_simple_shadow()
         {
-            AssertQuery<Employee>(es => es.Where(e => e.Property<string>("Title") == "Sales Representative"));
+            AssertQuery<Employee>(
+                es => es.Where(e => e.Property<string>("Title") == "Sales Representative"),
+                stateEntryCount: 6);
         }
 
         [Fact]
@@ -208,94 +246,120 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual void Where_client()
         {
-            AssertQuery<Customer>(cs => cs.Where(c => c.IsLondon));
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.IsLondon),
+                stateEntryCount: 6);
         }
 
         [Fact]
         public virtual void First_client_predicate()
         {
-            AssertQuery<Customer>(cs => cs.OrderBy(c => c.CustomerID).First(c => c.IsLondon));
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.CustomerID).First(c => c.IsLondon));
         }
 
         [Fact]
         public virtual void Where_equals_method_string()
         {
-            AssertQuery<Customer>(cs => cs.Where(c => c.City.Equals("London")));
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.City.Equals("London")),
+                stateEntryCount: 6);
         }
 
         [Fact]
         public virtual void Where_equals_method_int()
         {
-            AssertQuery<Employee>(es => es.Where(e => e.EmployeeID.Equals(1)));
+            AssertQuery<Employee>(
+                es => es.Where(e => e.EmployeeID.Equals(1)),
+                stateEntryCount: 1);
         }
 
         [Fact]
         public virtual void Where_comparison_nullable_type_not_null()
         {
-            AssertQuery<Employee>(es => es.Where(e => e.ReportsTo == 2));
+            AssertQuery<Employee>(
+                es => es.Where(e => e.ReportsTo == 2),
+                stateEntryCount: 5);
         }
 
         [Fact]
         public virtual void Where_comparison_nullable_type_null()
         {
-            AssertQuery<Employee>(es => es.Where(e => e.ReportsTo == null));
+            AssertQuery<Employee>(
+                es => es.Where(e => e.ReportsTo == null),
+                stateEntryCount: 1);
         }
 
         [Fact]
         public virtual void Where_string_length()
         {
-            AssertQuery<Customer>(cs => cs.Where(c => c.City.Length == 6));
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.City.Length == 6),
+                stateEntryCount: 20);
         }
 
         [Fact]
         public virtual void Where_simple_reversed()
         {
-            AssertQuery<Customer>(cs => cs.Where(c => "London" == c.City));
+            AssertQuery<Customer>(
+                cs => cs.Where(c => "London" == c.City),
+                stateEntryCount: 6);
         }
 
         [Fact]
         public virtual void Where_is_null()
         {
-            AssertQuery<Customer>(cs => cs.Where(c => c.City == null));
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.City == null));
         }
 
         [Fact]
         public virtual void Where_null_is_null()
         {
             // ReSharper disable once EqualExpressionComparison
-            AssertQuery<Customer>(cs => cs.Where(c => null == null));
+            AssertQuery<Customer>(
+                cs => cs.Where(c => null == null),
+                stateEntryCount: 91);
         }
 
         [Fact]
         public virtual void Where_constant_is_null()
         {
-            AssertQuery<Customer>(cs => cs.Where(c => "foo" == null));
+            AssertQuery<Customer>(
+                cs => cs.Where(c => "foo" == null));
         }
 
         [Fact]
         public virtual void Where_is_not_null()
         {
-            AssertQuery<Customer>(cs => cs.Where(c => c.City != null));
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.City != null),
+                stateEntryCount: 91);
         }
 
         [Fact]
         public virtual void Where_null_is_not_null()
         {
             // ReSharper disable once EqualExpressionComparison
-            AssertQuery<Customer>(cs => cs.Where(c => null != null));
+            AssertQuery<Customer>(
+                cs => cs.Where(c => null != null));
         }
 
         [Fact]
         public virtual void Where_constant_is_not_null()
         {
-            AssertQuery<Customer>(cs => cs.Where(c => "foo" != null));
+            AssertQuery<Customer>(
+                cs => cs.Where(c => "foo" != null),
+                stateEntryCount: 91);
         }
 
         [Fact]
         public virtual void Where_identity_comparison()
         {
             // ReSharper disable once EqualExpressionComparison
-            AssertQuery<Customer>(cs => cs.Where(c => c.City == c.City));
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.City == c.City),
+                stateEntryCount: 91);
         }
 
         [Fact]
@@ -334,169 +398,187 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual void Where_primitive()
         {
-            AssertQuery<Employee>(es =>
-                es.Select(e => e.EmployeeID).Take(9).Where(i => i == 5));
+            AssertQuery<Employee>(
+                es =>
+                    es.Select(e => e.EmployeeID).Take(9).Where(i => i == 5));
         }
 
         [Fact]
         public virtual void Where_true()
         {
-            Assert.Equal(91,
-                AssertQuery<Customer>(cs => cs.Where(c => true)));
+            AssertQuery<Customer>(
+                cs => cs.Where(c => true),
+                stateEntryCount: 91);
         }
 
         [Fact]
         public virtual void Where_false()
         {
-            Assert.Equal(0,
-                AssertQuery<Customer>(cs => cs.Where(c => false)));
+            AssertQuery<Customer>(
+                cs => cs.Where(c => false));
         }
 
-        //        TODO: Re-write entity ref equality to identity equality.
+        // TODO: Re-write entity ref equality to identity equality.
         //
-        //        [Fact]
-        //        public virtual void Where_compare_entity_equal()
-        //        {
-        //            var alfki = NorthwindData.Customers.Single(c => c.CustomerID == "ALFKI");
+        // [Fact]
+        // public virtual void Where_compare_entity_equal()
+        // {
+        //     var alfki = NorthwindData.Customers.Single(c => c.CustomerID == "ALFKI");
         //
-        //            Assert.Equal(1,
-        //                // ReSharper disable once PossibleUnintendedReferenceComparison
-        //                AssertQuery<Customer>(cs => cs.Where(c => c == alfki)));
-        //        }
+        //     Assert.Equal(1,
+        //         // ReSharper disable once PossibleUnintendedReferenceComparison
+        //         AssertQuery<Customer>(cs => cs.Where(c => c == alfki)));
+        // }
         //
-        //        [Fact]
-        //        public virtual void Where_compare_entity_not_equal()
-        //        {
-        //            var alfki = new Customer { CustomerID = "ALFKI" };
+        // [Fact]
+        // public virtual void Where_compare_entity_not_equal()
+        // {
+        //     var alfki = new Customer { CustomerID = "ALFKI" };
         //
-        //            Assert.Equal(90,
-        //                // ReSharper disable once PossibleUnintendedReferenceComparison
-        //                AssertQuery<Customer>(cs => cs.Where(c => c != alfki)));
+        //     Assert.Equal(90,
+        //         // ReSharper disable once PossibleUnintendedReferenceComparison
+        //         AssertQuery<Customer>(cs => cs.Where(c => c != alfki)));
         //
-        //        [Fact]
-        //        public virtual void Project_compare_entity_equal()
-        //        {
-        //            var alfki = NorthwindData.Customers.Single(c => c.CustomerID == "ALFKI");
+        // [Fact]
+        // public virtual void Project_compare_entity_equal()
+        // {
+        //     var alfki = NorthwindData.Customers.Single(c => c.CustomerID == "ALFKI");
         //
-        //            Assert.Equal(1,
-        //                // ReSharper disable once PossibleUnintendedReferenceComparison
-        //                AssertQuery<Customer>(cs => cs.Select(c => c == alfki)));
-        //        }
+        //     Assert.Equal(1,
+        //         // ReSharper disable once PossibleUnintendedReferenceComparison
+        //         AssertQuery<Customer>(cs => cs.Select(c => c == alfki)));
+        // }
         //
-        //        [Fact]
-        //        public virtual void Project_compare_entity_not_equal()
-        //        {
-        //            var alfki = new Customer { CustomerID = "ALFKI" };
+        // [Fact]
+        // public virtual void Project_compare_entity_not_equal()
+        // {
+        //     var alfki = new Customer { CustomerID = "ALFKI" };
         //
-        //            Assert.Equal(90,
-        //                // ReSharper disable once PossibleUnintendedReferenceComparison
-        //                AssertQuery<Customer>(cs => cs.Select(c => c != alfki)));
-        //        }
+        //     Assert.Equal(90,
+        //         // ReSharper disable once PossibleUnintendedReferenceComparison
+        //         AssertQuery<Customer>(cs => cs.Select(c => c != alfki)));
+        // }
 
         [Fact]
         public virtual void Where_compare_constructed_equal()
         {
-            AssertQuery<Customer>(cs =>
-                cs.Where(c => new { x = c.City } == new { x = "London" }));
+            AssertQuery<Customer>(
+                cs => cs.Where(c => new { x = c.City } == new { x = "London" }));
         }
 
         [Fact]
         public virtual void Where_compare_constructed_multi_value_equal()
         {
-            AssertQuery<Customer>(cs =>
-                cs.Where(c => new { x = c.City, y = c.Country } == new { x = "London", y = "UK" }));
+            AssertQuery<Customer>(
+                cs => cs.Where(c => new { x = c.City, y = c.Country } == new { x = "London", y = "UK" }));
         }
 
         [Fact]
         public virtual void Where_compare_constructed_multi_value_not_equal()
         {
-            AssertQuery<Customer>(cs =>
-                cs.Where(c => new { x = c.City, y = c.Country } != new { x = "London", y = "UK" }));
+            AssertQuery<Customer>(
+                cs => cs.Where(c => new { x = c.City, y = c.Country } != new { x = "London", y = "UK" }),
+                stateEntryCount: 91);
         }
 
         [Fact]
         public virtual void Where_compare_constructed()
         {
-            AssertQuery<Customer>(cs =>
-                cs.Where(c => new { x = c.City } == new { x = "London" }));
+            AssertQuery<Customer>(
+                cs => cs.Where(c => new { x = c.City } == new { x = "London" }));
         }
 
         [Fact]
         public virtual void Where_projection()
         {
-            AssertQuery<Customer>(cs => cs.Where(c => c.City == "London").Select(c => c.CompanyName));
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.City == "London").Select(c => c.CompanyName));
         }
 
         [Fact]
         public virtual void Select_scalar()
         {
-            AssertQuery<Customer>(cs => cs.Select(c => c.City));
+            AssertQuery<Customer>(
+                cs => cs.Select(c => c.City));
         }
 
         [Fact]
         public virtual void Select_anonymous_one()
         {
-            AssertQuery<Customer>(cs => cs.Select(c => new { c.City }));
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new { c.City }));
         }
 
         [Fact]
         public virtual void Select_anonymous_two()
         {
-            AssertQuery<Customer>(cs => cs.Select(c => new { c.City, c.Phone }));
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new { c.City, c.Phone }));
         }
 
         [Fact]
         public virtual void Select_anonymous_three()
         {
-            AssertQuery<Customer>(cs => cs.Select(c => new { c.City, c.Phone, c.Country }));
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new { c.City, c.Phone, c.Country }));
         }
 
         [Fact]
         public virtual void Select_customer_table()
         {
-            AssertQuery<Customer>(cs => cs);
+            AssertQuery<Customer>(
+                cs => cs,
+                stateEntryCount: 91);
         }
 
         [Fact]
         public virtual void Select_customer_identity()
         {
-            AssertQuery<Customer>(cs => cs.Select(c => c));
+            AssertQuery<Customer>(
+                cs => cs.Select(c => c),
+                stateEntryCount: 91);
         }
 
         [Fact]
         public virtual void Select_anonymous_with_object()
         {
-            AssertQuery<Customer>(cs => cs.Select(c => new { c.City, c }));
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new { c.City, c }));
         }
 
         [Fact]
         public virtual void Select_anonymous_nested()
         {
-            AssertQuery<Customer>(cs => cs.Select(c => new { c.City, Country = new { c.Country } }));
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new { c.City, Country = new { c.Country } }));
         }
 
         [Fact]
         public virtual void Select_anonymous_empty()
         {
-            AssertQuery<Customer>(cs => cs.Select(c => new { }));
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new { }));
         }
 
         [Fact]
         public virtual void Select_anonymous_literal()
         {
-            AssertQuery<Customer>(cs => cs.Select(c => new { X = 10 }));
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new { X = 10 }));
         }
 
         [Fact]
         public virtual void Select_constant_int()
         {
-            AssertQuery<Customer>(cs => cs.Select(c => 0));
+            AssertQuery<Customer>(
+                cs => cs.Select(c => 0));
         }
 
         [Fact]
         public virtual void Select_constant_null_string()
         {
-            AssertQuery<Customer>(cs => cs.Select(c => (string)null));
+            AssertQuery<Customer>(
+                cs => cs.Select(c => (string)null));
         }
 
         [Fact]
@@ -505,39 +587,42 @@ namespace Microsoft.Data.Entity.FunctionalTests
             // ReSharper disable once ConvertToConstant.Local
             var x = 10;
 
-            AssertQuery<Customer>(cs => cs.Select(c => x));
+            AssertQuery<Customer>(
+                cs => cs.Select(c => x));
         }
 
         [Fact]
         public virtual void Select_scalar_primitive()
         {
-            Assert.Equal(9,
-                AssertQuery<Employee>(es => es.Select(e => e.EmployeeID)));
+            AssertQuery<Employee>(
+                es => es.Select(e => e.EmployeeID));
         }
 
         [Fact]
         public virtual void Select_scalar_primitive_after_take()
         {
-            Assert.Equal(9,
-                AssertQuery<Employee>(es => es.Take(9).Select(e => e.EmployeeID)));
+            AssertQuery<Employee>(
+                es => es.Take(9).Select(e => e.EmployeeID));
         }
 
         [Fact]
         public virtual void Select_project_filter()
         {
-            AssertQuery<Customer>(cs =>
-                from c in cs
-                where c.City == "London"
-                select c.CompanyName);
+            AssertQuery<Customer>(
+                cs =>
+                    from c in cs
+                    where c.City == "London"
+                    select c.CompanyName);
         }
 
         [Fact]
         public virtual void Select_project_filter2()
         {
-            AssertQuery<Customer>(cs =>
-                from c in cs
-                where c.City == "London"
-                select c.City);
+            AssertQuery<Customer>(
+                cs =>
+                    from c in cs
+                    where c.City == "London"
+                    select c.City);
         }
 
         [Fact]
@@ -655,12 +740,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual void Select_subquery_recursive_trivial()
         {
-            AssertQuery<Employee>(es =>
-                from e1 in es
-                select (from e2 in es
-                    select (from e3 in es
-                        orderby e3.EmployeeID
-                        select e3)),
+            AssertQuery<Employee>(
+                es =>
+                    from e1 in es
+                    select (from e2 in es
+                        select (from e3 in es
+                            orderby e3.EmployeeID
+                            select e3)),
                 asserter:
                     (l2oResults, efResults) =>
                         {
@@ -684,32 +770,35 @@ namespace Microsoft.Data.Entity.FunctionalTests
             AssertQuery<Product, OrderDetail>((pr, od) =>
                 from p in pr
                 where p.OrderDetails.Contains(od.FirstOrDefault(orderDetail => orderDetail.Discount == 0.1))
-                select p,
-                assertOrder: false);
+                select p);
         }
 
         [Fact]
         public virtual void Where_query_composition()
         {
-            AssertQuery<Employee>(es =>
-                from e1 in es
-                where e1.FirstName == es.OrderBy(e => e.EmployeeID).First().FirstName
-                select e1);
+            AssertQuery<Employee>(
+                es =>
+                    from e1 in es
+                    where e1.FirstName == es.OrderBy(e => e.EmployeeID).First().FirstName
+                    select e1,
+                stateEntryCount: 1);
         }
 
         [Fact]
         public virtual void Where_subquery_recursive_trivial()
         {
-            AssertQuery<Employee>(es =>
-                from e1 in es
-                where (from e2 in es
-                    where (from e3 in es
-                        orderby e3.EmployeeID
-                        select e3).Any()
-                    select e2).Any()
-                orderby e1.EmployeeID
-                select e1,
-                assertOrder: true);
+            AssertQuery<Employee>(
+                es =>
+                    from e1 in es
+                    where (from e2 in es
+                        where (from e3 in es
+                            orderby e3.EmployeeID
+                            select e3).Any()
+                        select e2).Any()
+                    orderby e1.EmployeeID
+                    select e1,
+                assertOrder: true,
+                stateEntryCount: 9);
         }
 
         [Fact]
@@ -747,8 +836,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual void OrderBy_scalar_primitive()
         {
-            AssertQuery<Employee>(es =>
-                es.Select(e => e.EmployeeID).OrderBy(i => i),
+            AssertQuery<Employee>(
+                es =>
+                    es.Select(e => e.EmployeeID).OrderBy(i => i),
                 assertOrder: true);
         }
 
@@ -814,13 +904,15 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual void SelectMany_nested_simple()
         {
-            AssertQuery<Customer>(cs =>
-                from c in cs
-                from c1 in
-                    (from c2 in (from c3 in cs select c3) select c2)
-                orderby c1.CustomerID
-                select c1,
-                assertOrder: true);
+            AssertQuery<Customer>(
+                cs =>
+                    from c in cs
+                    from c1 in
+                        (from c2 in (from c3 in cs select c3) select c2)
+                    orderby c1.CustomerID
+                    select c1,
+                assertOrder: true,
+                stateEntryCount: 91);
         }
 
         [Fact]
@@ -1049,17 +1141,19 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual void OrderBy()
         {
-            AssertQuery<Customer>(cs =>
-                cs.OrderBy(c => c.CustomerID),
-                assertOrder: true);
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.CustomerID),
+                assertOrder: true,
+                stateEntryCount: 91);
         }
 
         [Fact]
         public virtual void OrderBy_client_mixed()
         {
-            AssertQuery<Customer>(cs =>
-                cs.OrderBy(c => c.IsLondon).ThenBy(c => c.CompanyName),
-                assertOrder: true);
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.IsLondon).ThenBy(c => c.CompanyName),
+                assertOrder: true,
+                stateEntryCount: 91);
         }
 
         [Fact]
@@ -1075,79 +1169,88 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual void OrderBy_shadow()
         {
-            AssertQuery<Employee>(es =>
-                es.OrderBy(e => e.Property<string>("Title")).ThenBy(e => e.EmployeeID),
-                assertOrder: true);
+            AssertQuery<Employee>(
+                es => es.OrderBy(e => e.Property<string>("Title")).ThenBy(e => e.EmployeeID),
+                assertOrder: true,
+                stateEntryCount: 9);
         }
 
         [Fact]
         public virtual void OrderBy_ThenBy_predicate()
         {
-            AssertQuery<Customer>(cs =>
-                cs.Where(c => c.City == "London")
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.City == "London")
                     .OrderBy(c => c.City)
                     .ThenBy(c => c.CustomerID),
-                assertOrder: true);
+                assertOrder: true,
+                stateEntryCount: 6);
         }
 
         [Fact]
         public virtual void OrderBy_correlated_subquery_lol()
         {
-            AssertQuery<Customer>(cs =>
-                from c in cs
-                orderby cs.Any(c2 => c2.CustomerID == c.CustomerID)
-                select c);
+            AssertQuery<Customer>(
+                cs => from c in cs
+                    orderby cs.Any(c2 => c2.CustomerID == c.CustomerID)
+                    select c,
+                stateEntryCount: 91);
         }
 
         [Fact]
         public virtual void OrderBy_Select()
         {
-            AssertQuery<Customer>(cs =>
-                cs.OrderBy(c => c.CustomerID)
-                    .Select(c => c.ContactName),
+            AssertQuery<Customer>(
+                cs =>
+                    cs.OrderBy(c => c.CustomerID)
+                        .Select(c => c.ContactName),
                 assertOrder: true);
         }
 
         [Fact]
         public virtual void OrderBy_multiple()
         {
-            AssertQuery<Customer>(cs =>
-                cs.OrderBy(c => c.CustomerID)
-                    // ReSharper disable once MultipleOrderBy
-                    .OrderBy(c => c.Country)
-                    .Select(c => c.City),
+            AssertQuery<Customer>(
+                cs =>
+                    cs.OrderBy(c => c.CustomerID)
+                        // ReSharper disable once MultipleOrderBy
+                        .OrderBy(c => c.Country)
+                        .Select(c => c.City),
                 assertOrder: true);
         }
 
         [Fact]
         public virtual void OrderBy_ThenBy()
         {
-            AssertQuery<Customer>(cs =>
-                cs.OrderBy(c => c.CustomerID).ThenBy(c => c.Country).Select(c => c.City),
+            AssertQuery<Customer>(
+                cs =>
+                    cs.OrderBy(c => c.CustomerID).ThenBy(c => c.Country).Select(c => c.City),
                 assertOrder: true);
         }
 
         [Fact]
         public virtual void OrderByDescending()
         {
-            AssertQuery<Customer>(cs =>
-                cs.OrderByDescending(c => c.CustomerID).Select(c => c.City),
+            AssertQuery<Customer>(
+                cs =>
+                    cs.OrderByDescending(c => c.CustomerID).Select(c => c.City),
                 assertOrder: true);
         }
 
         [Fact]
         public virtual void OrderByDescending_ThenBy()
         {
-            AssertQuery<Customer>(cs =>
-                cs.OrderByDescending(c => c.CustomerID).ThenBy(c => c.Country).Select(c => c.City),
+            AssertQuery<Customer>(
+                cs =>
+                    cs.OrderByDescending(c => c.CustomerID).ThenBy(c => c.Country).Select(c => c.City),
                 assertOrder: true);
         }
 
         [Fact]
         public virtual void OrderByDescending_ThenByDescending()
         {
-            AssertQuery<Customer>(cs =>
-                cs.OrderByDescending(c => c.CustomerID).ThenByDescending(c => c.Country).Select(c => c.City),
+            AssertQuery<Customer>(
+                cs =>
+                    cs.OrderByDescending(c => c.CustomerID).ThenByDescending(c => c.Country).Select(c => c.City),
                 assertOrder: true);
         }
 
@@ -1157,8 +1260,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             AssertQuery<Customer, Order>((cs, os) =>
                 from c in cs.OrderBy(c => c.CustomerID)
                 join o in os.OrderBy(o => o.OrderID) on c.CustomerID equals o.CustomerID
-                select new { c.CustomerID, o.OrderID },
-                assertOrder: false);
+                select new { c.CustomerID, o.OrderID });
         }
 
         [Fact]
@@ -1205,8 +1307,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual void GroupBy_SelectMany()
         {
-            AssertQuery<Customer>(cs =>
-                cs.GroupBy(c => c.City).SelectMany(g => g));
+            AssertQuery<Customer>(
+                cs => cs.GroupBy(c => c.City).SelectMany(g => g),
+                stateEntryCount: 91);
         }
 
         [Fact]
@@ -1314,7 +1417,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
             AssertQuery<Order>(os =>
                 os.OrderBy(o => o.OrderID)
                     .GroupBy(o => o.CustomerID)
-                    .SelectMany(g => g));
+                    .SelectMany(g => g),
+                stateEntryCount: 830);
         }
 
         [Fact]
@@ -1369,28 +1473,33 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual void Distinct()
         {
-            AssertQuery<Customer>(cs => cs.Distinct());
+            AssertQuery<Customer>(
+                cs => cs.Distinct(),
+                stateEntryCount: 91);
         }
 
         [Fact]
         public virtual void Distinct_Scalar()
         {
-            AssertQuery<Customer>(cs =>
-                cs.Select(c => c.City).Distinct());
+            AssertQuery<Customer>(
+                cs =>
+                    cs.Select(c => c.City).Distinct());
         }
 
         [Fact]
         public virtual void OrderBy_Distinct()
         {
-            AssertQuery<Customer>(cs =>
-                cs.OrderBy(c => c.CustomerID).Select(c => c.City).Distinct());
+            AssertQuery<Customer>(
+                cs =>
+                    cs.OrderBy(c => c.CustomerID).Select(c => c.City).Distinct());
         }
 
         [Fact]
         public virtual void Distinct_OrderBy()
         {
-            AssertQuery<Customer>(cs =>
-                cs.Select(c => c.City).Distinct().OrderBy(c => c),
+            AssertQuery<Customer>(
+                cs =>
+                    cs.Select(c => c.City).Distinct().OrderBy(c => c),
                 assertOrder: true);
         }
 
@@ -1415,28 +1524,32 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual void Distinct_Count()
         {
-            AssertQuery<Customer>(cs => cs.Distinct().Count());
+            AssertQuery<Customer>(
+                cs => cs.Distinct().Count());
         }
 
         [Fact]
         public virtual void Select_Distinct_Count()
         {
-            AssertQuery<Customer>(cs =>
-                cs.Select(c => c.City).Distinct().Count());
+            AssertQuery<Customer>(
+                cs =>
+                    cs.Select(c => c.City).Distinct().Count());
         }
 
         [Fact]
         public virtual void Select_Select_Distinct_Count()
         {
-            AssertQuery<Customer>(cs =>
-                cs.Select(c => c.City).Select(c => c).Distinct().Count());
+            AssertQuery<Customer>(
+                cs =>
+                    cs.Select(c => c.City).Select(c => c).Distinct().Count());
         }
 
         [Fact]
         public virtual void Single_Throws()
         {
             Assert.Throws<InvalidOperationException>(() =>
-                AssertQuery<Customer>(cs => cs.Single()));
+                AssertQuery<Customer>(
+                    cs => cs.Single()));
         }
 
         [Fact]
@@ -1458,7 +1571,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public virtual void SingleOrDefault_Throws()
         {
             Assert.Throws<InvalidOperationException>(() =>
-                AssertQuery<Customer>(cs => cs.SingleOrDefault()));
+                AssertQuery<Customer>(
+                    cs => cs.SingleOrDefault()));
         }
 
         [Fact]
@@ -1575,49 +1689,65 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual void String_StartsWith_Literal()
         {
-            AssertQuery<Customer>(cs => cs.Where(c => c.ContactName.StartsWith("M")));
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.ContactName.StartsWith("M")),
+                stateEntryCount: 12);
         }
 
         [Fact]
         public virtual void String_StartsWith_Identity()
         {
-            AssertQuery<Customer>(cs => cs.Where(c => c.ContactName.StartsWith(c.ContactName)));
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.ContactName.StartsWith(c.ContactName)),
+                stateEntryCount: 91);
         }
 
         [Fact]
         public virtual void String_StartsWith_Column()
         {
-            AssertQuery<Customer>(cs => cs.Where(c => c.ContactName.StartsWith(c.ContactName)));
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.ContactName.StartsWith(c.ContactName)),
+                stateEntryCount: 91);
         }
 
         [Fact]
         public virtual void String_StartsWith_MethodCall()
         {
-            AssertQuery<Customer>(cs => cs.Where(c => c.ContactName.StartsWith(LocalMethod1())));
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.ContactName.StartsWith(LocalMethod1())),
+                stateEntryCount: 12);
         }
 
         [Fact]
         public virtual void String_EndsWith_Literal()
         {
-            AssertQuery<Customer>(cs => cs.Where(c => c.ContactName.EndsWith("b")));
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.ContactName.EndsWith("b")),
+                stateEntryCount: 1);
         }
 
         [Fact]
         public virtual void String_EndsWith_Identity()
         {
-            AssertQuery<Customer>(cs => cs.Where(c => c.ContactName.EndsWith(c.ContactName)));
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.ContactName.EndsWith(c.ContactName)),
+                stateEntryCount: 91);
         }
 
         [Fact]
         public virtual void String_EndsWith_Column()
         {
-            AssertQuery<Customer>(cs => cs.Where(c => c.ContactName.EndsWith(c.ContactName)));
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.ContactName.EndsWith(c.ContactName)),
+                stateEntryCount: 91);
         }
 
         [Fact]
         public virtual void String_EndsWith_MethodCall()
         {
-            AssertQuery<Customer>(cs => cs.Where(c => c.ContactName.EndsWith(LocalMethod2())));
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.ContactName.EndsWith(LocalMethod2())),
+                stateEntryCount: 1);
         }
 
         private static string LocalMethod1()
@@ -1632,49 +1762,49 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         protected abstract DbContext CreateContext();
 
-        private int AssertQuery<TItem>(
+        private void AssertQuery<TItem>(
             Func<IQueryable<TItem>, int> query,
             bool assertOrder = false)
             where TItem : class
         {
             using (var context = CreateContext())
             {
-                return AssertResults(
+                AssertResults(
                     new[] { query(NorthwindData.Set<TItem>()) },
                     new[] { query(context.Set<TItem>()) },
                     assertOrder);
             }
         }
 
-        private int AssertQuery<TItem>(
+        private void AssertQuery<TItem>(
             Func<IQueryable<TItem>, bool> query,
             bool assertOrder = false)
             where TItem : class
         {
             using (var context = CreateContext())
             {
-                return AssertResults(
+                AssertResults(
                     new[] { query(NorthwindData.Set<TItem>()) },
                     new[] { query(context.Set<TItem>()) },
                     assertOrder);
             }
         }
 
-        private int AssertQuery<TItem>(
+        private void AssertQuery<TItem>(
             Func<IQueryable<TItem>, TItem> query,
             bool assertOrder = false)
             where TItem : class
         {
             using (var context = CreateContext())
             {
-                return AssertResults(
+                AssertResults(
                     new[] { query(NorthwindData.Set<TItem>()) },
                     new[] { query(context.Set<TItem>()) },
                     assertOrder);
             }
         }
 
-        private int AssertQuery<TItem1, TItem2>(
+        private void AssertQuery<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, object> query,
             bool assertOrder = false)
             where TItem1 : class
@@ -1682,14 +1812,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                return AssertResults(
+                AssertResults(
                     new[] { query(NorthwindData.Set<TItem1>(), NorthwindData.Set<TItem2>()) },
                     new[] { query(context.Set<TItem1>(), context.Set<TItem2>()) },
                     assertOrder);
             }
         }
 
-        private int AssertQuery<TItem>(
+        private void AssertQuery<TItem>(
             Func<IQueryable<TItem>, IQueryable<IQueryable<object>>> query,
             bool assertOrder = false,
             Action<IList<IQueryable<object>>, IList<IQueryable<object>>> asserter = null)
@@ -1697,7 +1827,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                return AssertResults(
+                AssertResults(
                     query(NorthwindData.Set<TItem>()).ToArray(),
                     query(context.Set<TItem>()).ToArray(),
                     assertOrder,
@@ -1705,20 +1835,24 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        protected int AssertQuery<TItem>(
-            Func<IQueryable<TItem>, IQueryable<object>> query, bool assertOrder = false)
+        protected void AssertQuery<TItem>(
+            Func<IQueryable<TItem>, IQueryable<object>> query,
+            bool assertOrder = false,
+            int stateEntryCount = 0)
             where TItem : class
         {
             using (var context = CreateContext())
             {
-                return AssertResults(
+                AssertResults(
                     query(NorthwindData.Set<TItem>()).ToArray(),
                     query(context.Set<TItem>()).ToArray(),
                     assertOrder);
+
+                Assert.Equal(stateEntryCount, context.ChangeTracker.Entries().Count());
             }
         }
 
-        private int AssertQuery<TItem1, TItem2>(
+        private void AssertQuery<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> query,
             bool assertOrder = false,
             Action<IList<object>, IList<object>> asserter = null)
@@ -1727,7 +1861,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                return AssertResults(
+                AssertResults(
                     query(NorthwindData.Set<TItem1>(), NorthwindData.Set<TItem2>()).ToArray(),
                     query(context.Set<TItem1>(), context.Set<TItem2>()).ToArray(),
                     assertOrder,
@@ -1735,7 +1869,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        private int AssertQuery<TItem1, TItem2, TItem3>(
+        private void AssertQuery<TItem1, TItem2, TItem3>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<object>> query,
             bool assertOrder = false)
             where TItem1 : class
@@ -1744,53 +1878,53 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                return AssertResults(
+                AssertResults(
                     query(NorthwindData.Set<TItem1>(), NorthwindData.Set<TItem2>(), NorthwindData.Set<TItem3>()).ToArray(),
                     query(context.Set<TItem1>(), context.Set<TItem2>(), context.Set<TItem3>()).ToArray(),
                     assertOrder);
             }
         }
 
-        private int AssertQuery<TItem>(
+        private void AssertQuery<TItem>(
             Func<IQueryable<TItem>, IQueryable<int>> query, bool assertOrder = false)
             where TItem : class
         {
             using (var context = CreateContext())
             {
-                return AssertResults(
+                AssertResults(
                     query(NorthwindData.Set<TItem>()).ToArray(),
                     query(context.Set<TItem>()).ToArray(),
                     assertOrder);
             }
         }
 
-        private int AssertQuery<TItem>(
+        private void AssertQuery<TItem>(
             Func<IQueryable<TItem>, IQueryable<long>> query, bool assertOrder = false)
             where TItem : class
         {
             using (var context = CreateContext())
             {
-                return AssertResults(
+                AssertResults(
                     query(NorthwindData.Set<TItem>()).ToArray(),
                     query(context.Set<TItem>()).ToArray(),
                     assertOrder);
             }
         }
 
-        private int AssertQuery<TItem>(
+        private void AssertQuery<TItem>(
             Func<IQueryable<TItem>, IQueryable<bool>> query, bool assertOrder = false)
             where TItem : class
         {
             using (var context = CreateContext())
             {
-                return AssertResults(
+                AssertResults(
                     query(NorthwindData.Set<TItem>()).ToArray(),
                     query(context.Set<TItem>()).ToArray(),
                     assertOrder);
             }
         }
 
-        private static int AssertResults<T>(
+        private static void AssertResults<T>(
             IList<T> l2oItems,
             IList<T> efItems,
             bool assertOrder,
@@ -1821,8 +1955,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     }
                 }
             }
-
-            return l2oItems.Count;
         }
     }
 }

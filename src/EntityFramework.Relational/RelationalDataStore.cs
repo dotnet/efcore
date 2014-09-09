@@ -64,11 +64,9 @@ namespace Microsoft.Data.Entity.Relational
             return _batchExecutor.ExecuteAsync(commandBatches, _connection, cancellationToken);
         }
 
-        public override IEnumerable<TResult> Query<TResult>(
-            QueryModel queryModel, IMaterializationStrategy materializationStrategy)
+        public override IEnumerable<TResult> Query<TResult>(QueryModel queryModel)
         {
             Check.NotNull(queryModel, "queryModel");
-            Check.NotNull(materializationStrategy, "materializationStrategy");
 
             var queryCompilationContext
                 = CreateQueryCompilationContext(
@@ -77,18 +75,22 @@ namespace Microsoft.Data.Entity.Relational
                     new QueryMethodProvider());
 
             var queryExecutor = queryCompilationContext.CreateQueryModelVisitor().CreateQueryExecutor<TResult>(queryModel);
-            var queryContext = new RelationalQueryContext(Model, Logger, materializationStrategy, _connection, ValueReaderFactory);
+
+            var queryContext
+                = new RelationalQueryContext(
+                    Model,
+                    Logger,
+                    CreateQueryBuffer(),
+                    StateManager,
+                    _connection,
+                    ValueReaderFactory);
 
             return queryExecutor(queryContext);
         }
 
-        public override IAsyncEnumerable<TResult> AsyncQuery<TResult>(
-            QueryModel queryModel, 
-            IMaterializationStrategy materializationStrategy, 
-            CancellationToken cancellationToken)
+        public override IAsyncEnumerable<TResult> AsyncQuery<TResult>(QueryModel queryModel, CancellationToken cancellationToken)
         {
             Check.NotNull(queryModel, "queryModel");
-            Check.NotNull(materializationStrategy, "materializationStrategy");
 
             var queryCompilationContext
                 = CreateQueryCompilationContext(
@@ -102,7 +104,13 @@ namespace Microsoft.Data.Entity.Relational
                     .CreateAsyncQueryExecutor<TResult>(queryModel);
 
             var queryContext
-                = new RelationalQueryContext(Model, Logger, materializationStrategy, _connection, ValueReaderFactory)
+                = new RelationalQueryContext(
+                    Model,
+                    Logger,
+                    CreateQueryBuffer(),
+                    StateManager,
+                    _connection,
+                    ValueReaderFactory)
                     {
                         CancellationToken = cancellationToken
                     };

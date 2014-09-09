@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Relational.Utilities;
@@ -17,10 +18,15 @@ namespace Microsoft.Data.Entity.Relational.Query
         public RelationalQueryContext(
             [NotNull] IModel model,
             [NotNull] ILogger logger,
-            [NotNull] IMaterializationStrategy materializationStrategy,
+            [NotNull] IQueryBuffer queryBuffer,
+            [NotNull] StateManager stateManager,
             [NotNull] RelationalConnection connection,
             [NotNull] RelationalValueReaderFactory valueReaderFactory)
-            : base(model, logger, materializationStrategy)
+            : base(
+                Check.NotNull(model, "model"),
+                Check.NotNull(logger, "logger"),
+                Check.NotNull(queryBuffer, "queryBuffer"),
+                Check.NotNull(stateManager, "stateManager"))
         {
             Check.NotNull(connection, "connection");
             Check.NotNull(valueReaderFactory, "valueReaderFactory");

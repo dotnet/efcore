@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Query.ResultOperators;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
@@ -102,6 +103,16 @@ namespace Microsoft.Data.Entity.Query
                         _expression);
             }
 
+            if (ShouldTrackResults(queryModel))
+            {
+                _expression
+                    = Expression.Call(
+                        _trackEntitiesShim
+                            .MakeGenericMethod(typeof(TResult)),
+                        _expression,
+                        QueryContextParameter);
+            }
+
             var queryExecutor
                 = Expression
                     .Lambda<Func<QueryContext, QuerySourceScope, IEnumerable<TResult>>>(
@@ -109,6 +120,29 @@ namespace Microsoft.Data.Entity.Query
                     .Compile();
 
             return qc => queryExecutor(qc, null);
+        }
+
+        private static readonly MethodInfo _trackEntitiesShim
+            = typeof(EntityQueryModelVisitor)
+                .GetTypeInfo().GetDeclaredMethod("TrackEntities");
+
+        [UsedImplicitly]
+        private static IEnumerable<T> TrackEntities<T>(IEnumerable<T> entities, QueryContext queryContext)
+            where T : class
+        {
+            foreach (var entity in entities)
+            {
+                if (entity != null)
+                {
+                    var stateEntry = queryContext.QueryBuffer.GetStateEntry(entity);
+
+                    queryContext.StateManager.AttachStateEntry(stateEntry);
+
+                    stateEntry.EntityState = EntityState.Unchanged;
+                }
+
+                yield return entity;
+            }
         }
 
         public virtual Func<QueryContext, IAsyncEnumerable<TResult>> CreateAsyncQueryExecutor<TResult>([NotNull] QueryModel queryModel)
@@ -127,6 +161,16 @@ namespace Microsoft.Data.Entity.Query
                         _expression);
             }
 
+            if (ShouldTrackResults(queryModel))
+            {
+                _expression
+                    = Expression.Call(
+                        _asyncTrackEntitiesShim
+                            .MakeGenericMethod(typeof(TResult)),
+                        _expression,
+                        QueryContextParameter);
+            }
+
             var asyncQueryExecutor
                 = Expression
                     .Lambda<Func<QueryContext, QuerySourceScope, IAsyncEnumerable<TResult>>>(
@@ -134,6 +178,41 @@ namespace Microsoft.Data.Entity.Query
                     .Compile();
 
             return qc => asyncQueryExecutor(qc, null);
+        }
+
+        private static readonly MethodInfo _asyncTrackEntitiesShim
+            = typeof(EntityQueryModelVisitor)
+                .GetTypeInfo().GetDeclaredMethod("AsyncTrackEntities");
+
+        [UsedImplicitly]
+        private static IAsyncEnumerable<T> AsyncTrackEntities<T>(IAsyncEnumerable<T> entities, QueryContext queryContext)
+            where T : class
+        {
+            return entities.Select(entity =>
+                {
+                    if (entity != null)
+                    {
+                        var stateEntry = queryContext.QueryBuffer.GetStateEntry(entity);
+
+                        queryContext.StateManager.AttachStateEntry(stateEntry);
+
+                        stateEntry.EntityState = EntityState.Unchanged;
+                    }
+
+                    return entity;
+                });
+        }
+
+        private bool ShouldTrackResults(QueryModel queryModel)
+        {
+            var itemType
+                = _streamedSequenceInfo != null
+                    ? _streamedSequenceInfo.ResultItemType
+                    : queryModel.ResultOperators.Last()
+                        .GetOutputDataInfo(queryModel.SelectClause.GetOutputDataInfo()).DataType;
+
+            return QueryCompilationContext.Model.TryGetEntityType(itemType) != null
+                   && !queryModel.ResultOperators.OfType<AsNoTrackingResultOperator>().Any();
         }
 
         private static readonly MethodInfo _taskToSequenceShim
@@ -740,7 +819,7 @@ namespace Microsoft.Data.Entity.Query
             [UsedImplicitly]
             private static T GetValue<T>(QueryContext queryContext, object entity, IProperty property)
             {
-                return (T)queryContext.MaterializationStrategy.GetPropertyValue(entity, property);
+                return (T)queryContext.QueryBuffer.GetStateEntry(entity)[property];
             }
         }
 

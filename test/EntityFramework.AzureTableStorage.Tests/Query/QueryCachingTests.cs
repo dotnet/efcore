@@ -34,6 +34,9 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
             configuration.SetupGet(s => s.Connection).Returns(_connection.Object);
             configuration.SetupGet(s => s.Model).Returns(CreateModel());
             configuration.SetupGet(s => s.LoggerFactory).Returns(new NullLoggerFactory());
+            configuration.SetupGet(s => s.StateManager).Returns(new Mock<StateManager>().Object);
+            configuration.SetupGet(s => s.Services.EntityKeyFactorySource).Returns(new Mock<EntityKeyFactorySource>().Object);
+            configuration.SetupGet(s => s.Services.StateEntryFactory).Returns(new Mock<StateEntryFactory>().Object);
 
             _dataStore = new AtsDataStore(
                 configuration.Object,
@@ -46,9 +49,9 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
         public void Multiple_identical_queries()
         {
             AssertQuery<Customer>(Times.Once(), cs =>
-                from c in cs
+                (from c in cs
                 orderby cs.Any(c2 => c2.CustomerID == c.CustomerID)
-                select c);
+                select c).AsNoTracking());
         }
 
         private void AssertQuery<T>(Times times, Expression<Func<DbSet<T>, IQueryable>> expression) where T : class, new()
@@ -61,7 +64,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
                 It.IsAny<ILogger>()))
                 .Returns(NewTCallback<T>);
 
-            _dataStore.Query<T>(queryModel, Mock.Of<IMaterializationStrategy>()).ToList();
+            _dataStore.Query<T>(queryModel).ToList();
 
             _connection.Verify(s => s.ExecuteRequest(
                 It.IsAny<QueryTableRequest<T>>(),

@@ -70,7 +70,10 @@ namespace Microsoft.Data.Entity.ChangeTracking
             StateEntry stateEntry;
             if (!_entityReferenceMap.TryGetValue(entity, out stateEntry))
             {
-                stateEntry = _subscriber.SnapshotAndSubscribe(_factory.Create(Model.GetEntityType(entity.GetType()), entity));
+                var entityType = Model.GetEntityType(entity.GetType());
+
+                stateEntry = _subscriber.SnapshotAndSubscribe(_factory.Create(entityType, entity));
+                
                 _entityReferenceMap[entity] = stateEntry;
             }
             return stateEntry;
@@ -106,12 +109,34 @@ namespace Microsoft.Data.Entity.ChangeTracking
             return newEntry;
         }
 
+        public virtual void AttachStateEntry([NotNull] StateEntry stateEntry)
+        {
+            Check.NotNull(stateEntry, "stateEntry");
+
+            if (stateEntry.Entity != null
+                && !_entityReferenceMap.ContainsKey(stateEntry.Entity))
+            {
+                _subscriber.SnapshotAndSubscribe(stateEntry);
+
+                _entityReferenceMap[stateEntry.Entity] = stateEntry;
+            }
+        }
+
         public virtual StateEntry TryGetEntry([NotNull] EntityKey keyValue)
         {
             Check.NotNull(keyValue, "keyValue");
 
             StateEntry entry;
             _identityMap.TryGetValue(keyValue, out entry);
+            return entry;
+        }
+
+        public virtual StateEntry TryGetEntry([NotNull] object entity)
+        {
+            Check.NotNull(entity, "entity");
+
+            StateEntry entry;
+            _entityReferenceMap.TryGetValue(entity, out entry);
             return entry;
         }
 
@@ -130,7 +155,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             {
                 throw new InvalidOperationException(Strings.FormatWrongStateManager(entityType.Name));
             }
-
+           
             StateEntry existingEntry;
             if (entry.Entity != null)
             {

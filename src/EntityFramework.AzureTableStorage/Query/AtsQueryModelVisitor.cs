@@ -98,10 +98,9 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
             var request = new QueryTableRequest<TResult>(
                 table,
                 query, s =>
-                    (TResult)context.MaterializationStrategy.Materialize(
+                    (TResult)context.QueryBuffer.GetEntity(
                         entityType,
-                        context.ValueReaderFactory.Create(entityType, s)
-                        ));
+                        context.ValueReaderFactory.Create(entityType, s)));
 
             return context.GetOrAddQueryResults(request);
         }

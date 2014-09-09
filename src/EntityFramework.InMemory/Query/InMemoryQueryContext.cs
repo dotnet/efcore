@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.InMemory.Utilities;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
@@ -16,12 +17,14 @@ namespace Microsoft.Data.Entity.InMemory.Query
         public InMemoryQueryContext(
             [NotNull] IModel model,
             [NotNull] ILogger logger,
-            [NotNull] IMaterializationStrategy materializationStrategy,
+            [NotNull] IQueryBuffer queryBuffer,
+            [NotNull] StateManager stateManager,
             [NotNull] InMemoryDatabase database)
             : base(
                 Check.NotNull(model, "model"),
                 Check.NotNull(logger, "logger"),
-                Check.NotNull(materializationStrategy, "materializationStrategy"))
+                Check.NotNull(queryBuffer, "queryBuffer"),
+                Check.NotNull(stateManager, "stateManager"))
         {
             Check.NotNull(database, "database");
 
