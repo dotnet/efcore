@@ -547,7 +547,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
 
             var migrator = MockMigrator(databaseMigrations, localMigrations);
 
-            var sqlStatements = migrator.GenerateUpdateDatabaseSql(DbMigrator.InitialDatabase);
+            var sqlStatements = migrator.GenerateUpdateDatabaseSql(Migrator.InitialDatabase);
 
             Assert.Equal(6, sqlStatements.Count);
             Assert.Equal("DropColumnOperationSql", sqlStatements[0].Sql);
@@ -667,7 +667,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                 .Callback<DbConnection, DbTransaction, IEnumerable<SqlStatement>>(AssertCallback);
 
             var migratorMock
-                = new Mock<DbMigrator>(
+                = new Mock<Migrator>(
                     contextConfigurationMock.Object,
                     MockHistoryRepository(contextConfigurationMock.Object, new IMigrationMetadata[0]).Object,
                     MockMigrationAssembly(contextConfigurationMock.Object, new IMigrationMetadata[0]).Object,
@@ -701,7 +701,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
 
         #region Fixture
 
-        private static DbMigrator MockMigrator(
+        private static Migrator MockMigrator(
             IReadOnlyList<IMigrationMetadata> databaseMigrations,
             IReadOnlyList<IMigrationMetadata> localMigrations,
             bool historyRepositoryExists = true)
@@ -709,7 +709,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             var contextConfigurationMock = new Mock<DbContextConfiguration>();
 
             return
-                new Mock<DbMigrator>(
+                new Mock<Migrator>(
                     contextConfigurationMock.Object,
                     MockHistoryRepository(contextConfigurationMock.Object, databaseMigrations, historyRepositoryExists).Object,
                     MockMigrationAssembly(contextConfigurationMock.Object, localMigrations).Object,

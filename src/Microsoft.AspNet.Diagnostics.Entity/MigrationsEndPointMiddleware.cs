@@ -44,7 +44,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity
                     // TODO Handle context not being registered in DI
                     using (var db = (DbContext)context.ApplicationServices.GetService(contextType))
                     {
-                        var migrator = db.Configuration.Services.ServiceProvider.GetService<DbMigrator>();
+                        var migrator = db.Configuration.Services.ServiceProvider.GetService<Migrator>();
                         migrator.UpdateDatabase();
 
                         context.Response.StatusCode = 204;

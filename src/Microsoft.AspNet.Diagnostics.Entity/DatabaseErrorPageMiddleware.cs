@@ -53,7 +53,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity
 
                     var serviceProvider = ex.Context.Configuration.Services.ServiceProvider;
 
-                    var migrator = serviceProvider.GetService<DbMigrator>();
+                    var migrator = serviceProvider.GetService<Migrator>();
                     // TODO GetPendingMigrations should handle database not existing (Issue #523)
                     var pendingMigrations = databaseExists
                         ? migrator.GetPendingMigrations().Select(m => m.MigrationId)

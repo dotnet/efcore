@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.True(services.Any(sd => sd.ServiceType == typeof(SqlServerDataStoreCreator)));
             Assert.True(services.Any(sd => sd.ServiceType == typeof(MigrationAssembly)));
             Assert.True(services.Any(sd => sd.ServiceType == typeof(HistoryRepository)));
-            Assert.True(services.Any(sd => sd.ServiceType == typeof(DbMigrator)));
+            Assert.True(services.Any(sd => sd.ServiceType == typeof(Migrator)));
         }
 
         [Fact]
@@ -84,7 +84,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var sqlServerDataStoreCreator = scopedProvider.GetService<SqlServerDataStoreCreator>();
             var migrationAssembly = scopedProvider.GetService<MigrationAssembly>();
             var historyRepository = scopedProvider.GetService<HistoryRepository>();
-            var sqlServerMigrator = scopedProvider.GetService<DbMigrator>() as SqlServerMigrator;
+            var sqlServerMigrator = scopedProvider.GetService<Migrator>() as SqlServerMigrator;
 
             Assert.NotNull(databaseBuilder);
             Assert.NotNull(arrayReaderFactory);
@@ -140,7 +140,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.NotSame(sqlServerDataStoreCreator, scopedProvider.GetService<SqlServerDataStoreCreator>());
             Assert.NotSame(migrationAssembly, scopedProvider.GetService<MigrationAssembly>());
             Assert.NotSame(historyRepository, scopedProvider.GetService<HistoryRepository>());
-            Assert.NotSame(sqlServerMigrator, scopedProvider.GetService<DbMigrator>());
+            Assert.NotSame(sqlServerMigrator, scopedProvider.GetService<Migrator>());
 
             context.Dispose();
         }

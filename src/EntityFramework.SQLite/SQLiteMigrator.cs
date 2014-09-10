@@ -9,7 +9,7 @@ using Microsoft.Data.Entity.Relational;
 
 namespace Microsoft.Data.Entity.SQLite
 {
-    public class SQLiteMigrator : DbMigrator
+    public class SQLiteMigrator : Migrator
     {
         public SQLiteMigrator(
             [NotNull] DbContextConfiguration contextConfiguration,

@@ -13,7 +13,7 @@ using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.Migrations.Infrastructure
 {
-    public class DbMigrator
+    public class Migrator
     {
         public const string InitialDatabase = "0";
 
@@ -30,11 +30,11 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
         ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
         /// </summary>
-        protected DbMigrator()
+        protected Migrator()
         {
         }
 
-        public DbMigrator(
+        public Migrator(
             [NotNull] DbContextConfiguration contextConfiguration,
             [NotNull] HistoryRepository historyRepository,
             [NotNull] MigrationAssembly migrationAssembly,
