@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             Check.NotEmpty(migrationId, "migrationId");
 
             return _migrationIdPattern.IsMatch(migrationId)
-                   || migrationId == DbMigrator.InitialDatabase;
+                   || migrationId == Migrator.InitialDatabase;
         }
 
         public static string GetMigrationName([NotNull] this IMigrationMetadata metadata)

@@ -208,7 +208,7 @@ namespace Microsoft.Data.Entity.Design.Tests
         public void GetMigrations_with_source_database()
         {
             var toolMock = new Mock<MyMigrationTool> { CallBase = true };
-            var migratorMock = new Mock<DbMigrator>();
+            var migratorMock = new Mock<Migrator>();
             var tool = toolMock.Object;
             var configuration = new Configuration();
 
@@ -219,7 +219,7 @@ namespace Microsoft.Data.Entity.Design.Tests
                     });
 
             toolMock.Protected()
-                .Setup<DbMigrator>("GetMigrator", ItExpr.IsAny<DbContextConfiguration>())
+                .Setup<Migrator>("GetMigrator", ItExpr.IsAny<DbContextConfiguration>())
                 .Returns(migratorMock.Object);
 
             configuration.AddCommandLine(
@@ -240,7 +240,7 @@ namespace Microsoft.Data.Entity.Design.Tests
         public void GetMigrations_with_default_source()
         {
             var toolMock = new Mock<MyMigrationTool> { CallBase = true };
-            var migratorMock = new Mock<DbMigrator>();
+            var migratorMock = new Mock<Migrator>();
             var tool = toolMock.Object;
             var configuration = new Configuration();
 
@@ -251,7 +251,7 @@ namespace Microsoft.Data.Entity.Design.Tests
                     });
 
             toolMock.Protected()
-                .Setup<DbMigrator>("GetMigrator", ItExpr.IsAny<DbContextConfiguration>())
+                .Setup<Migrator>("GetMigrator", ItExpr.IsAny<DbContextConfiguration>())
                 .Returns(migratorMock.Object);
 
             configuration.AddCommandLine(
@@ -271,7 +271,7 @@ namespace Microsoft.Data.Entity.Design.Tests
         public void GetMigrations_with_source_local()
         {
             var toolMock = new Mock<MyMigrationTool> { CallBase = true };
-            var migratorMock = new Mock<DbMigrator>();
+            var migratorMock = new Mock<Migrator>();
             var tool = toolMock.Object;
             var configuration = new Configuration();
 
@@ -283,7 +283,7 @@ namespace Microsoft.Data.Entity.Design.Tests
                     });
 
             toolMock.Protected()
-                .Setup<DbMigrator>("GetMigrator", ItExpr.IsAny<DbContextConfiguration>())
+                .Setup<Migrator>("GetMigrator", ItExpr.IsAny<DbContextConfiguration>())
                 .Returns(migratorMock.Object);
 
             configuration.AddCommandLine(
@@ -305,7 +305,7 @@ namespace Microsoft.Data.Entity.Design.Tests
         public void GetMigrations_with_source_pending()
         {
             var toolMock = new Mock<MyMigrationTool> { CallBase = true };
-            var migratorMock = new Mock<DbMigrator>();
+            var migratorMock = new Mock<Migrator>();
             var tool = toolMock.Object;
             var configuration = new Configuration();
 
@@ -316,7 +316,7 @@ namespace Microsoft.Data.Entity.Design.Tests
                     });
 
             toolMock.Protected()
-                .Setup<DbMigrator>("GetMigrator", ItExpr.IsAny<DbContextConfiguration>())
+                .Setup<Migrator>("GetMigrator", ItExpr.IsAny<DbContextConfiguration>())
                 .Returns(migratorMock.Object);
 
             configuration.AddCommandLine(
@@ -356,7 +356,7 @@ namespace Microsoft.Data.Entity.Design.Tests
         public void GenerateScript()
         {
             var toolMock = new Mock<MyMigrationTool> { CallBase = true };
-            var migratorMock = new Mock<DbMigrator>();
+            var migratorMock = new Mock<Migrator>();
             var tool = toolMock.Object;
             var configuration = new Configuration();
 
@@ -367,7 +367,7 @@ namespace Microsoft.Data.Entity.Design.Tests
                     });
 
             toolMock.Protected()
-                .Setup<DbMigrator>("GetMigrator", ItExpr.IsAny<DbContextConfiguration>())
+                .Setup<Migrator>("GetMigrator", ItExpr.IsAny<DbContextConfiguration>())
                 .Returns(migratorMock.Object);
 
             configuration.AddCommandLine(
@@ -388,7 +388,7 @@ namespace Microsoft.Data.Entity.Design.Tests
         public void GenerateScript_with_target_migration()
         {
             var toolMock = new Mock<MyMigrationTool> { CallBase = true };
-            var migratorMock = new Mock<DbMigrator>();
+            var migratorMock = new Mock<Migrator>();
             var tool = toolMock.Object;
             var configuration = new Configuration();
 
@@ -399,7 +399,7 @@ namespace Microsoft.Data.Entity.Design.Tests
                     });
 
             toolMock.Protected()
-                .Setup<DbMigrator>("GetMigrator", ItExpr.IsAny<DbContextConfiguration>())
+                .Setup<Migrator>("GetMigrator", ItExpr.IsAny<DbContextConfiguration>())
                 .Returns(migratorMock.Object);
 
             configuration.AddCommandLine(
@@ -421,12 +421,12 @@ namespace Microsoft.Data.Entity.Design.Tests
         public void UpdateDatabase()
         {
             var toolMock = new Mock<MyMigrationTool> { CallBase = true };
-            var migratorMock = new Mock<DbMigrator>();
+            var migratorMock = new Mock<Migrator>();
             var tool = toolMock.Object;
             var configuration = new Configuration();
 
             toolMock.Protected()
-                .Setup<DbMigrator>("GetMigrator", ItExpr.IsAny<DbContextConfiguration>())
+                .Setup<Migrator>("GetMigrator", ItExpr.IsAny<DbContextConfiguration>())
                 .Returns(migratorMock.Object);
 
             configuration.AddCommandLine(
@@ -445,12 +445,12 @@ namespace Microsoft.Data.Entity.Design.Tests
         public void UpdateDatabase_with_target_migration()
         {
             var toolMock = new Mock<MyMigrationTool> { CallBase = true };
-            var migratorMock = new Mock<DbMigrator>();
+            var migratorMock = new Mock<Migrator>();
             var tool = toolMock.Object;
             var configuration = new Configuration();
 
             toolMock.Protected()
-                .Setup<DbMigrator>("GetMigrator", ItExpr.IsAny<DbContextConfiguration>())
+                .Setup<Migrator>("GetMigrator", ItExpr.IsAny<DbContextConfiguration>())
                 .Returns(migratorMock.Object);
 
             configuration.AddCommandLine(
