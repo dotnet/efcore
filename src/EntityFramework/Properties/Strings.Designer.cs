@@ -1098,6 +1098,38 @@ namespace Microsoft.Data.Entity
             return string.Format(CultureInfo.CurrentCulture, GetString("NavigationCannotCreateType", "navigation", "entityType", "foundType"), navigation, entityType, foundType);
         }
 
+        /// <summary>
+        /// The property '{property}' on entity type '{entityType}' is read-only and so cannot be modified or marked as modified.
+        /// </summary>
+        internal static string PropertyReadOnly
+        {
+            get { return GetString("PropertyReadOnly"); }
+        }
+
+        /// <summary>
+        /// The property '{property}' on entity type '{entityType}' is read-only and so cannot be modified or marked as modified.
+        /// </summary>
+        internal static string FormatPropertyReadOnly(object property, object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("PropertyReadOnly", "property", "entityType"), property, entityType);
+        }
+
+        /// <summary>
+        /// The property '{property}' on entity type '{entityType}' cannot be marked as read-write because it is part of a key. Key properties are always read-only.
+        /// </summary>
+        internal static string KeyPropertyMustBeReadOnly
+        {
+            get { return GetString("KeyPropertyMustBeReadOnly"); }
+        }
+
+        /// <summary>
+        /// The property '{property}' on entity type '{entityType}' cannot be marked as read-write because it is part of a key. Key properties are always read-only.
+        /// </summary>
+        internal static string FormatKeyPropertyMustBeReadOnly(object property, object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("KeyPropertyMustBeReadOnly", "property", "entityType"), property, entityType);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

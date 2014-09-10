@@ -194,8 +194,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             {
                 _stateData.FlagAllProperties(_entityType.Properties.Count(), isFlagged: true);
 
-                // Assuming key properties are not modified
-                foreach (var keyProperty in EntityType.GetPrimaryKey().Properties)
+                foreach (var keyProperty in EntityType.Properties.Where(p => p.IsReadOnly))
                 {
                     _stateData.FlagProperty(keyProperty.Index, isFlagged: false);
                 }
@@ -224,6 +223,10 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             if (newState == EntityState.Added)
             {
+                // Temporarily change the internal state to unknown so that key generation, including setting key values
+                // can happen without constraints on changing read-only values kicking in
+                _stateData.EntityState = EntityState.Unknown;
+
                 foreach (var generatedValue in generatedValues.Where(v => v != null && v.Item2 != null))
                 {
                     this[generatedValue.Item1] = generatedValue.Item2;
@@ -286,6 +289,11 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 && currentState != EntityState.Unchanged)
             {
                 return;
+            }
+
+            if (isModified && property.IsReadOnly)
+            {
+                throw new NotSupportedException(Strings.FormatPropertyReadOnly(property.Name, EntityType.Name));
             }
 
             _stateData.FlagProperty(property.Index, isModified);

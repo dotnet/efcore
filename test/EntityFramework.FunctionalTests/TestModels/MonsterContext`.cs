@@ -220,157 +220,157 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             modelBuilder.Entity<TMessage>().Key(e => new { e.MessageId, e.FromUsername });
             modelBuilder.Entity<TOrderNote>().Key(e => e.NoteId);
             modelBuilder.Entity<TProductDetail>().Key(e => e.ProductId);
-            modelBuilder.Entity<TProductWebFeature>().Key(e => e.ProductId);
+            modelBuilder.Entity<TProductWebFeature>().Key(e => e.FeatureId);
             modelBuilder.Entity<TSupplierLogo>().Key(e => e.SupplierId);
             modelBuilder.Entity<TCustomerInfo>();
             modelBuilder.Entity<TComputerDetail>();
             modelBuilder.Entity<TLicense>().Key(e => e.Name);
 
             modelBuilder.Entity<TAnOrder>(b =>
-                {
-                    b.OneToMany(e => (IEnumerable<TOrderLine>)e.OrderLines, e => (TAnOrder)e.Order);
+            {
+                b.OneToMany(e => (IEnumerable<TOrderLine>)e.OrderLines, e => (TAnOrder)e.Order);
 
-                    if (SupportsCandidateKeys)
-                    {
-                        b.OneToMany(e => (IEnumerable<TOrderNote>)e.Notes, e => (TAnOrder)e.Order)
-                            .ReferencedKey(e => e.AlternateId);
-                    }
-                    else
-                    {
-                        b.OneToMany(e => (IEnumerable<TOrderNote>)e.Notes, e => (TAnOrder)e.Order)
-                            .ReferencedKey(e => e.AnOrderId);
-                    }
-                });
+                if (SupportsCandidateKeys)
+                {
+                    b.OneToMany(e => (IEnumerable<TOrderNote>)e.Notes, e => (TAnOrder)e.Order)
+                        .ReferencedKey(e => e.AlternateId);
+                }
+                else
+                {
+                    b.OneToMany(e => (IEnumerable<TOrderNote>)e.Notes, e => (TAnOrder)e.Order)
+                        .ReferencedKey(e => e.AnOrderId);
+                }
+            });
 
             modelBuilder.Entity<TOrderQualityCheck>(b =>
-                {
-                    b.Key(e => e.OrderId);
+            {
+                b.Key(e => e.OrderId);
 
-                    if (SupportsCandidateKeys)
-                    {
-                        b.OneToOne(e => (TAnOrder)e.Order)
-                            .ForeignKey<TOrderQualityCheck>(e => e.OrderId)
-                            .ReferencedKey<TAnOrder>(e => e.AlternateId);
-                    }
-                    else
-                    {
-                        b.OneToOne(e => (TAnOrder)e.Order)
-                            .ForeignKey<TOrderQualityCheck>(e => e.OrderId)
-                            .ReferencedKey<TAnOrder>(e => e.AnOrderId);
-                    }
-                });
+                if (SupportsCandidateKeys)
+                {
+                    b.OneToOne(e => (TAnOrder)e.Order)
+                        .ForeignKey<TOrderQualityCheck>(e => e.OrderId)
+                        .ReferencedKey<TAnOrder>(e => e.AlternateId);
+                }
+                else
+                {
+                    b.OneToOne(e => (TAnOrder)e.Order)
+                        .ForeignKey<TOrderQualityCheck>(e => e.OrderId)
+                        .ReferencedKey<TAnOrder>(e => e.AnOrderId);
+                }
+            });
 
             modelBuilder.Entity<TProduct>(b =>
-                {
-                    b.OneToMany(e => (IEnumerable<TProductReview>)e.Reviews, e => (TProduct)e.Product);
-                    b.OneToMany(e => (IEnumerable<TBarcode>)e.Barcodes, e => (TProduct)e.Product);
-                    b.OneToMany(e => (IEnumerable<TProductPhoto>)e.Photos);
-                    b.OneToOne(e => (TProductDetail)e.Detail, e => (TProduct)e.Product);
-                    b.OneToOne<TProductWebFeature>();
-                });
+            {
+                b.OneToMany(e => (IEnumerable<TProductReview>)e.Reviews, e => (TProduct)e.Product);
+                b.OneToMany(e => (IEnumerable<TBarcode>)e.Barcodes, e => (TProduct)e.Product);
+                b.OneToMany(e => (IEnumerable<TProductPhoto>)e.Photos);
+                b.OneToOne(e => (TProductDetail)e.Detail, e => (TProduct)e.Product);
+                b.OneToOne<TProductWebFeature>();
+            });
 
             modelBuilder.Entity<TOrderLine>(b =>
-                {
-                    b.Key(e => new { e.OrderId, e.ProductId });
-                    b.ManyToOne(e => (TProduct)e.Product);
-                });
+            {
+                b.Key(e => new { e.OrderId, e.ProductId });
+                b.ManyToOne(e => (TProduct)e.Product);
+            });
 
             modelBuilder.Entity<TSupplier>().OneToOne(e => (TSupplierLogo)e.Logo);
 
             modelBuilder.Entity<TCustomer>(b =>
-                {
-                    b.OneToMany(e => (IEnumerable<TAnOrder>)e.Orders, e => (TCustomer)e.Customer);
-                    b.OneToMany(e => (IEnumerable<TLogin>)e.Logins, e => (TCustomer)e.Customer);
-                    b.OneToOne(e => (TCustomerInfo)e.Info);
+            {
+                b.OneToMany(e => (IEnumerable<TAnOrder>)e.Orders, e => (TCustomer)e.Customer);
+                b.OneToMany(e => (IEnumerable<TLogin>)e.Logins, e => (TCustomer)e.Customer);
+                b.OneToOne(e => (TCustomerInfo)e.Info);
 
-                    b.OneToOne(e => (TCustomer)e.Wife, e => (TCustomer)e.Husband)
-                        .ForeignKey<TCustomer>(e => e.HusbandId);
-                });
+                b.OneToOne(e => (TCustomer)e.Wife, e => (TCustomer)e.Husband)
+                    .ForeignKey<TCustomer>(e => e.HusbandId);
+            });
 
             modelBuilder.Entity<TComplaint>(b =>
-                {
-                    b.ManyToOne(e => (TCustomer)e.Customer)
-                        .ForeignKey(e => e.CustomerId);
+            {
+                b.ManyToOne(e => (TCustomer)e.Customer)
+                    .ForeignKey(e => e.CustomerId);
 
-                    if (SupportsCandidateKeys)
-                    {
-                        b.OneToOne(e => (TResolution)e.Resolution, e => (TComplaint)e.Complaint)
-                            .ReferencedKey<TComplaint>(e => e.AlternateId);
-                    }
-                    else
-                    {
-                        b.OneToOne(e => (TResolution)e.Resolution, e => (TComplaint)e.Complaint)
-                            .ReferencedKey<TComplaint>(e => e.ComplaintId);
-                    }
-                });
+                if (SupportsCandidateKeys)
+                {
+                    b.OneToOne(e => (TResolution)e.Resolution, e => (TComplaint)e.Complaint)
+                        .ReferencedKey<TComplaint>(e => e.AlternateId);
+                }
+                else
+                {
+                    b.OneToOne(e => (TResolution)e.Resolution, e => (TComplaint)e.Complaint)
+                        .ReferencedKey<TComplaint>(e => e.ComplaintId);
+                }
+            });
 
             modelBuilder.Entity<TProductPhoto>(b =>
-                {
-                    b.Key(e => new { e.ProductId, e.PhotoId });
+            {
+                b.Key(e => new { e.ProductId, e.PhotoId });
 
-                    b.OneToMany(e => (IEnumerable<TProductWebFeature>)e.Features, e => (TProductPhoto)e.Photo)
-                        .ForeignKey(e => new { e.ProductId, e.PhotoId })
-                        .ReferencedKey(e => new { e.ProductId, e.PhotoId });
-                });
+                b.OneToMany(e => (IEnumerable<TProductWebFeature>)e.Features, e => (TProductPhoto)e.Photo)
+                    .ForeignKey(e => new { e.ProductId, e.PhotoId })
+                    .ReferencedKey(e => new { e.ProductId, e.PhotoId });
+            });
 
             modelBuilder.Entity<TProductReview>(b =>
-                {
-                    b.Key(e => new { e.ProductId, e.ReviewId });
+            {
+                b.Key(e => new { e.ProductId, e.ReviewId });
 
-                    b.OneToMany(e => (IEnumerable<TProductWebFeature>)e.Features, e => (TProductReview)e.Review)
-                        .ForeignKey(e => new { e.ProductId, e.ReviewId });
-                });
+                b.OneToMany(e => (IEnumerable<TProductWebFeature>)e.Features, e => (TProductReview)e.Review)
+                    .ForeignKey(e => new { e.ProductId, e.ReviewId });
+            });
 
             modelBuilder.Entity<TLogin>(b =>
-                {
-                    b.Key(e => e.Username);
+            {
+                b.Key(e => e.Username);
 
-                    b.OneToMany(e => (IEnumerable<TMessage>)e.SentMessages, e => (TLogin)e.Sender)
-                        .ForeignKey(e => e.FromUsername);
+                b.OneToMany(e => (IEnumerable<TMessage>)e.SentMessages, e => (TLogin)e.Sender)
+                    .ForeignKey(e => e.FromUsername);
 
-                    b.OneToMany(e => (IEnumerable<TMessage>)e.ReceivedMessages, e => (TLogin)e.Recipient)
-                        .ForeignKey(e => e.ToUsername);
+                b.OneToMany(e => (IEnumerable<TMessage>)e.ReceivedMessages, e => (TLogin)e.Recipient)
+                    .ForeignKey(e => e.ToUsername);
 
-                    b.OneToMany(e => (IEnumerable<TAnOrder>)e.Orders, e => (TLogin)e.Login)
-                        .ForeignKey(e => e.Username);
+                b.OneToMany(e => (IEnumerable<TAnOrder>)e.Orders, e => (TLogin)e.Login)
+                    .ForeignKey(e => e.Username);
 
-                    b.OneToMany<TSuspiciousActivity>()
-                        .ForeignKey(e => e.Username);
+                b.OneToMany<TSuspiciousActivity>()
+                    .ForeignKey(e => e.Username);
 
-                    b.OneToOne(e => (TLastLogin)e.LastLogin, e => (TLogin)e.Login);
-                });
+                b.OneToOne(e => (TLastLogin)e.LastLogin, e => (TLogin)e.Login);
+            });
 
             modelBuilder.Entity<TPasswordReset>(b =>
-                {
-                    b.Key(e => new { e.ResetNo, e.Username });
+            {
+                b.Key(e => new { e.ResetNo, e.Username });
 
-                    if (SupportsCandidateKeys)
-                    {
-                        b.ManyToOne(e => (TLogin)e.Login)
-                            .ForeignKey(e => e.Username)
-                            .ReferencedKey(e => e.AlternateUsername);
-                    }
-                    else
-                    {
-                        b.ManyToOne(e => (TLogin)e.Login)
-                            .ForeignKey(e => e.Username)
-                            .ReferencedKey(e => e.Username);
-                    }
-                });
+                if (SupportsCandidateKeys)
+                {
+                    b.ManyToOne(e => (TLogin)e.Login)
+                        .ForeignKey(e => e.Username)
+                        .ReferencedKey(e => e.AlternateUsername);
+                }
+                else
+                {
+                    b.ManyToOne(e => (TLogin)e.Login)
+                        .ForeignKey(e => e.Username)
+                        .ReferencedKey(e => e.Username);
+                }
+            });
 
             modelBuilder.Entity<TPageView>()
                 .ManyToOne(e => (TLogin)e.Login)
                 .ForeignKey(e => e.Username);
 
             modelBuilder.Entity<TBarcode>(b =>
-                {
-                    b.Key(e => e.Code);
+            {
+                b.Key(e => e.Code);
 
-                    b.OneToMany(e => (IEnumerable<TIncorrectScan>)e.BadScans, e => (TBarcode)e.ExpectedBarcode)
-                        .ForeignKey(e => e.ExpectedCode);
+                b.OneToMany(e => (IEnumerable<TIncorrectScan>)e.BadScans, e => (TBarcode)e.ExpectedBarcode)
+                    .ForeignKey(e => e.ExpectedCode);
 
-                    b.OneToOne(e => (TBarcodeDetail)e.Detail);
-                });
+                b.OneToOne(e => (TBarcodeDetail)e.Detail);
+            });
 
             modelBuilder.Entity<TIncorrectScan>()
                 .ManyToOne(e => (TBarcode)e.ActualBarcode)
@@ -381,28 +381,28 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             modelBuilder.Entity<TComputer>().OneToOne(e => (TComputerDetail)e.ComputerDetail, e => (TComputer)e.Computer);
 
             modelBuilder.Entity<TDriver>(b =>
-                {
-                    b.Key(e => e.Name);
-                    b.OneToOne(e => (TLicense)e.License, e => (TDriver)e.Driver);
-                });
+            {
+                b.Key(e => e.Name);
+                b.OneToOne(e => (TLicense)e.License, e => (TDriver)e.Driver);
+            });
 
             modelBuilder.Entity<TSmartCard>(b =>
-                {
-                    b.Key(e => e.Username);
+            {
+                b.Key(e => e.Username);
 
-                    b.OneToOne(e => (TLogin)e.Login)
-                        .ForeignKey<TSmartCard>(e => e.Username);
+                b.OneToOne(e => (TLogin)e.Login)
+                    .ForeignKey<TSmartCard>(e => e.Username);
 
-                    b.OneToOne(e => (TLastLogin)e.LastLogin)
-                        .ForeignKey<TLastLogin>(e => e.SmartcardUsername);
-                });
+                b.OneToOne(e => (TLastLogin)e.LastLogin)
+                    .ForeignKey<TLastLogin>(e => e.SmartcardUsername);
+            });
 
             modelBuilder.Entity<TRsaToken>(b =>
-                {
-                    b.Key(e => e.Serial);
-                    b.OneToOne(e => (TLogin)e.Login)
-                        .ForeignKey<TRsaToken>(e => e.Username);
-                });
+            {
+                b.Key(e => e.Serial);
+                b.OneToOne(e => (TLogin)e.Login)
+                    .ForeignKey<TRsaToken>(e => e.Username);
+            });
 
             // TODO: Many-to-many
             //modelBuilder.Entity<TSupplier>().ForeignKeys(fk => fk.ForeignKey<TProduct>(e => e.SupplierId));
@@ -472,43 +472,43 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
 
             var incorrectScan1 = Add(
                 new TIncorrectScan
-                    {
-                        ScanDate = new DateTime(2014, 5, 28, 19, 9, 6),
-                        Details = "Treats not Donuts",
-                        ActualCode = barcode3.Code,
-                        ExpectedCode = barcode2.Code
-                    });
+                {
+                    ScanDate = new DateTime(2014, 5, 28, 19, 9, 6),
+                    Details = "Treats not Donuts",
+                    ActualCode = barcode3.Code,
+                    ExpectedCode = barcode2.Code
+                });
 
             var incorrectScan2 = Add(
                 new TIncorrectScan
-                    {
-                        ScanDate = new DateTime(2014, 5, 28, 19, 15, 31),
-                        Details = "Wot no waffles?",
-                        ActualCode = barcode2.Code,
-                        ExpectedCode = barcode1.Code
-                    });
+                {
+                    ScanDate = new DateTime(2014, 5, 28, 19, 15, 31),
+                    Details = "Wot no waffles?",
+                    ActualCode = barcode2.Code,
+                    ExpectedCode = barcode1.Code
+                });
 
             var complaint1 = Add(new TComplaint
-                {
-                    CustomerId = customer2.CustomerId,
-                    AlternateId = 88,
-                    Details = "Don't give coffee to Eeky!",
-                    Logged = new DateTime(2014, 5, 27, 19, 22, 26)
-                });
+            {
+                CustomerId = customer2.CustomerId,
+                AlternateId = 88,
+                Details = "Don't give coffee to Eeky!",
+                Logged = new DateTime(2014, 5, 27, 19, 22, 26)
+            });
 
             var complaint2 = Add(new TComplaint
-                {
-                    CustomerId = customer2.CustomerId,
-                    AlternateId = 89,
-                    Details = "Really! Don't give coffee to Eeky!",
-                    Logged = new DateTime(2014, 5, 28, 19, 22, 26)
-                });
+            {
+                CustomerId = customer2.CustomerId,
+                AlternateId = 89,
+                Details = "Really! Don't give coffee to Eeky!",
+                Logged = new DateTime(2014, 5, 28, 19, 22, 26)
+            });
 
             var resolution = Add(new TResolution
-                {
-                    ResolutionId = SupportsCandidateKeys ? complaint2.AlternateId : complaint2.ComplaintId,
-                    Details = "Destroyed all coffee in Redmond area."
-                });
+            {
+                ResolutionId = SupportsCandidateKeys ? complaint2.AlternateId : complaint2.ComplaintId,
+                Details = "Destroyed all coffee in Redmond area."
+            });
 
             var login1 = Add(new TLogin { CustomerId = customer1.CustomerId, Username = "MrsKoalie73", AlternateUsername = "Sheila" });
             var login2 = Add(new TLogin { CustomerId = customer2.CustomerId, Username = "MrsBossyPants", AlternateUsername = "Sue" });
@@ -525,59 +525,59 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             var smartCard2 = Add(new TSmartCard { Username = login2.Username, CardSerial = rsaToken2.Serial, Issued = rsaToken2.Issued });
 
             var reset1 = Add(new TPasswordReset
-                {
-                    EmailedTo = "trent@example.com",
-                    ResetNo = 1,
-                    TempPassword = "Rent-A-Mole",
-                    Username = SupportsCandidateKeys ? login3.AlternateUsername : login3.Username
-                });
+            {
+                EmailedTo = "trent@example.com",
+                ResetNo = 1,
+                TempPassword = "Rent-A-Mole",
+                Username = SupportsCandidateKeys ? login3.AlternateUsername : login3.Username
+            });
 
             var pageView1 = Add(new TPageView { PageUrl = "somePage1", Username = login1.Username, Viewed = DateTime.Now });
             var pageView2 = Add(new TPageView { PageUrl = "somePage2", Username = login1.Username, Viewed = DateTime.Now });
             var pageView3 = Add(new TPageView { PageUrl = "somePage3", Username = login1.Username, Viewed = DateTime.Now });
 
             var lastLogin1 = Add(new TLastLogin
-                {
-                    LoggedIn = new DateTime(2014, 5, 27, 10, 22, 26),
-                    LoggedOut = new DateTime(2014, 5, 27, 11, 22, 26),
-                    Username = login1.Username,
-                    SmartcardUsername = smartCard1.Username
-                });
+            {
+                LoggedIn = new DateTime(2014, 5, 27, 10, 22, 26),
+                LoggedOut = new DateTime(2014, 5, 27, 11, 22, 26),
+                Username = login1.Username,
+                SmartcardUsername = smartCard1.Username
+            });
 
             var lastLogin2 = Add(new TLastLogin
-                {
-                    LoggedIn = new DateTime(2014, 5, 27, 12, 22, 26),
-                    LoggedOut = new DateTime(2014, 5, 27, 13, 22, 26),
-                    Username = login2.Username,
-                    SmartcardUsername = smartCard2.Username
-                });
+            {
+                LoggedIn = new DateTime(2014, 5, 27, 12, 22, 26),
+                LoggedOut = new DateTime(2014, 5, 27, 13, 22, 26),
+                Username = login2.Username,
+                SmartcardUsername = smartCard2.Username
+            });
 
             var message1 = Add(new TMessage
-                {
-                    Subject = "Tea?",
-                    Body = "Fancy a cup of tea?",
-                    FromUsername = login1.Username,
-                    ToUsername = login2.Username,
-                    Sent = DateTime.Now,
-                });
+            {
+                Subject = "Tea?",
+                Body = "Fancy a cup of tea?",
+                FromUsername = login1.Username,
+                ToUsername = login2.Username,
+                Sent = DateTime.Now,
+            });
 
             var message2 = Add(new TMessage
-                {
-                    Subject = "Re: Tea?",
-                    Body = "Love one!",
-                    FromUsername = login2.Username,
-                    ToUsername = login1.Username,
-                    Sent = DateTime.Now,
-                });
+            {
+                Subject = "Re: Tea?",
+                Body = "Love one!",
+                FromUsername = login2.Username,
+                ToUsername = login1.Username,
+                Sent = DateTime.Now,
+            });
 
             var message3 = Add(new TMessage
-                {
-                    Subject = "Re: Tea?",
-                    Body = "I'll put the kettle on.",
-                    FromUsername = login1.Username,
-                    ToUsername = login2.Username,
-                    Sent = DateTime.Now,
-                });
+            {
+                Subject = "Re: Tea?",
+                Body = "I'll put the kettle on.",
+                FromUsername = login1.Username,
+                ToUsername = login2.Username,
+                Sent = DateTime.Now,
+            });
 
             var order1 = Add(new TAnOrder { CustomerId = customer1.CustomerId, Username = login1.Username, AlternateId = 77 });
             var order2 = Add(new TAnOrder { CustomerId = customer2.CustomerId, Username = login2.Username, AlternateId = 78 });
@@ -610,19 +610,19 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             var productPhoto3 = Add(new TProductPhoto { ProductId = product3.ProductId, Photo = new byte[] { 105, 106 } });
 
             var productWebFeature1 = Add(new TProductWebFeature
-                {
-                    Heading = "Waffle Style",
-                    PhotoId = productPhoto1.PhotoId,
-                    ProductId = product1.ProductId,
-                    ReviewId = productReview1.ReviewId
-                });
+            {
+                Heading = "Waffle Style",
+                PhotoId = productPhoto1.PhotoId,
+                ProductId = product1.ProductId,
+                ReviewId = productReview1.ReviewId
+            });
 
             var productWebFeature2 = Add(new TProductWebFeature
-                {
-                    Heading = "What does the waffle say?",
-                    ProductId = product2.ProductId,
-                    ReviewId = productReview3.ReviewId
-                });
+            {
+                Heading = "What does the waffle say?",
+                ProductId = product2.ProductId,
+                ReviewId = productReview3.ReviewId
+            });
 
             var supplier1 = Add(new TSupplier { Name = "Trading As Trent" });
             var supplier2 = Add(new TSupplier { Name = "Ants By Boris" });
@@ -640,47 +640,47 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             var computer2 = Add(new TComputer { Name = "unicorns420" });
 
             var computerDetail1 = Add(new TComputerDetail
-                {
-                    ComputerDetailId = computer1.ComputerId,
-                    Manufacturer = "Dell",
-                    Model = "420",
-                    PurchaseDate = new DateTime(2008, 4, 1),
-                    Serial = "4201",
-                    Specifications = "It's a Dell!"
-                });
+            {
+                ComputerDetailId = computer1.ComputerId,
+                Manufacturer = "Dell",
+                Model = "420",
+                PurchaseDate = new DateTime(2008, 4, 1),
+                Serial = "4201",
+                Specifications = "It's a Dell!"
+            });
 
             var computerDetail2 = Add(new TComputerDetail
-                {
-                    ComputerDetailId = computer2.ComputerId,
-                    Manufacturer = "Not A Dell",
-                    Model = "Not 420",
-                    PurchaseDate = new DateTime(2012, 4, 1),
-                    Serial = "4202",
-                    Specifications = "It's not a Dell!"
-                });
+            {
+                ComputerDetailId = computer2.ComputerId,
+                Manufacturer = "Not A Dell",
+                Model = "Not 420",
+                PurchaseDate = new DateTime(2012, 4, 1),
+                Serial = "4202",
+                Specifications = "It's not a Dell!"
+            });
 
             var driver1 = Add(new TDriver { BirthDate = new DateTime(2006, 9, 19), Name = "Eeky Bear" });
             var driver2 = Add(new TDriver { BirthDate = new DateTime(2007, 9, 19), Name = "Splash Bear" });
 
             var license1 = Add(new TLicense
-                {
-                    Name = driver1.Name,
-                    LicenseClass = "C",
-                    LicenseNumber = "10",
-                    Restrictions = "None",
-                    State = LicenseState.Active,
-                    ExpirationDate = new DateTime(2018, 9, 19)
-                });
+            {
+                Name = driver1.Name,
+                LicenseClass = "C",
+                LicenseNumber = "10",
+                Restrictions = "None",
+                State = LicenseState.Active,
+                ExpirationDate = new DateTime(2018, 9, 19)
+            });
 
             var license2 = Add(new TLicense
-                {
-                    Name = driver2.Name,
-                    LicenseClass = "A",
-                    LicenseNumber = "11",
-                    Restrictions = "None",
-                    State = LicenseState.Revoked,
-                    ExpirationDate = new DateTime(2018, 9, 19)
-                });
+            {
+                Name = driver2.Name,
+                LicenseClass = "A",
+                LicenseNumber = "11",
+                Restrictions = "None",
+                State = LicenseState.Revoked,
+                ExpirationDate = new DateTime(2018, 9, 19)
+            });
 
             if (saveChanges)
             {
@@ -727,26 +727,26 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
 
             var incorrectScan1 = Add(
                 new TIncorrectScan
-                    {
-                        ScanDate = new DateTime(2014, 5, 28, 19, 9, 6),
-                        Details = "Treats not Donuts",
-                        ActualBarcode = barcode3,
-                        ExpectedBarcode = dependentNavs ? barcode2 : null
-                    });
+                {
+                    ScanDate = new DateTime(2014, 5, 28, 19, 9, 6),
+                    Details = "Treats not Donuts",
+                    ActualBarcode = barcode3,
+                    ExpectedBarcode = dependentNavs ? barcode2 : null
+                });
             if (principalNavs)
             {
-                barcode2.InitializeCollections(); 
+                barcode2.InitializeCollections();
                 barcode2.BadScans.Add(incorrectScan1);
             }
 
             var incorrectScan2 = Add(
                 new TIncorrectScan
-                    {
-                        ScanDate = new DateTime(2014, 5, 28, 19, 15, 31),
-                        Details = "Wot no waffles?",
-                        ActualBarcode = barcode2,
-                        ExpectedBarcode = dependentNavs ? barcode1 : null
-                    });
+                {
+                    ScanDate = new DateTime(2014, 5, 28, 19, 15, 31),
+                    Details = "Wot no waffles?",
+                    ActualBarcode = barcode2,
+                    ExpectedBarcode = dependentNavs ? barcode1 : null
+                });
             if (principalNavs)
             {
                 barcode1.InitializeCollections();
@@ -754,20 +754,20 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             }
 
             var complaint1 = Add(new TComplaint
-                {
-                    Customer = customer2,
-                    AlternateId = 88,
-                    Details = "Don't give coffee to Eeky!",
-                    Logged = new DateTime(2014, 5, 27, 19, 22, 26)
-                });
+            {
+                Customer = customer2,
+                AlternateId = 88,
+                Details = "Don't give coffee to Eeky!",
+                Logged = new DateTime(2014, 5, 27, 19, 22, 26)
+            });
 
             var complaint2 = Add(new TComplaint
-                {
-                    Customer = customer2,
-                    AlternateId = 89,
-                    Details = "Really! Don't give coffee to Eeky!",
-                    Logged = new DateTime(2014, 5, 28, 19, 22, 26)
-                });
+            {
+                Customer = customer2,
+                AlternateId = 89,
+                Details = "Really! Don't give coffee to Eeky!",
+                Logged = new DateTime(2014, 5, 28, 19, 22, 26)
+            });
 
             var resolution = Add(new TResolution { Complaint = dependentNavs ? complaint2 : null, Details = "Destroyed all coffee in Redmond area." });
             if (principalNavs)
@@ -799,24 +799,24 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             var smartCard2 = Add(new TSmartCard { Login = login2, CardSerial = rsaToken2.Serial, Issued = rsaToken2.Issued });
 
             var reset1 = Add(new TPasswordReset
-                {
-                    EmailedTo = "trent@example.com",
-                    ResetNo = 1,
-                    TempPassword = "Rent-A-Mole",
-                    Login = login3
-                });
+            {
+                EmailedTo = "trent@example.com",
+                ResetNo = 1,
+                TempPassword = "Rent-A-Mole",
+                Login = login3
+            });
 
             var pageView1 = Add(new TPageView { PageUrl = "somePage1", Login = login1, Viewed = DateTime.Now });
             var pageView2 = Add(new TPageView { PageUrl = "somePage2", Login = login1, Viewed = DateTime.Now });
             var pageView3 = Add(new TPageView { PageUrl = "somePage3", Login = login1, Viewed = DateTime.Now });
 
             var lastLogin1 = Add(new TLastLogin
-                {
-                    LoggedIn = new DateTime(2014, 5, 27, 10, 22, 26),
-                    LoggedOut = new DateTime(2014, 5, 27, 11, 22, 26),
-                    Login = login1,
-                    SmartcardUsername = smartCard1.Username
-                });
+            {
+                LoggedIn = new DateTime(2014, 5, 27, 10, 22, 26),
+                LoggedOut = new DateTime(2014, 5, 27, 11, 22, 26),
+                Login = login1,
+                SmartcardUsername = smartCard1.Username
+            });
             if (principalNavs)
             {
                 login1.LastLogin = lastLogin1;
@@ -824,12 +824,12 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             }
 
             var lastLogin2 = Add(new TLastLogin
-                {
-                    LoggedIn = new DateTime(2014, 5, 27, 12, 22, 26),
-                    LoggedOut = new DateTime(2014, 5, 27, 13, 22, 26),
-                    Login = login2,
-                    SmartcardUsername = smartCard2.Username
-                });
+            {
+                LoggedIn = new DateTime(2014, 5, 27, 12, 22, 26),
+                LoggedOut = new DateTime(2014, 5, 27, 13, 22, 26),
+                Login = login2,
+                SmartcardUsername = smartCard2.Username
+            });
             if (principalNavs)
             {
                 login2.LastLogin = lastLogin2;
@@ -837,13 +837,13 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             }
 
             var message1 = Add(new TMessage
-                {
-                    Subject = "Tea?",
-                    Body = "Fancy a cup of tea?",
-                    Sender = login1,
-                    Recipient = dependentNavs ? login2 : null,
-                    Sent = DateTime.Now,
-                });
+            {
+                Subject = "Tea?",
+                Body = "Fancy a cup of tea?",
+                Sender = login1,
+                Recipient = dependentNavs ? login2 : null,
+                Sent = DateTime.Now,
+            });
             if (principalNavs)
             {
                 login1.InitializeCollections();
@@ -853,13 +853,13 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             }
 
             var message2 = Add(new TMessage
-                {
-                    Subject = "Re: Tea?",
-                    Body = "Love one!",
-                    Sender = login2,
-                    Recipient = dependentNavs ? login1 : null,
-                    Sent = DateTime.Now,
-                });
+            {
+                Subject = "Re: Tea?",
+                Body = "Love one!",
+                Sender = login2,
+                Recipient = dependentNavs ? login1 : null,
+                Sent = DateTime.Now,
+            });
             if (principalNavs)
             {
                 login2.SentMessages.Add(message2);
@@ -867,13 +867,13 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             }
 
             var message3 = Add(new TMessage
-                {
-                    Subject = "Re: Tea?",
-                    Body = "I'll put the kettle on.",
-                    Sender = login1,
-                    Recipient = dependentNavs ? login2 : null,
-                    Sent = DateTime.Now,
-                });
+            {
+                Subject = "Re: Tea?",
+                Body = "I'll put the kettle on.",
+                Sender = login1,
+                Recipient = dependentNavs ? login2 : null,
+                Sent = DateTime.Now,
+            });
             if (principalNavs)
             {
                 login1.SentMessages.Add(message3);
@@ -956,12 +956,12 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             }
 
             var productWebFeature1 = Add(new TProductWebFeature
-                {
-                    Heading = "Waffle Style",
-                    Photo = dependentNavs ? productPhoto1 : null,
-                    ProductId = product1.ProductId,
-                    Review = dependentNavs ? productReview1 : null
-                });
+            {
+                Heading = "Waffle Style",
+                Photo = dependentNavs ? productPhoto1 : null,
+                ProductId = product1.ProductId,
+                Review = dependentNavs ? productReview1 : null
+            });
             if (principalNavs)
             {
                 productPhoto1.InitializeCollections();
@@ -971,11 +971,11 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             }
 
             var productWebFeature2 = Add(new TProductWebFeature
-                {
-                    Heading = "What does the waffle say?",
-                    ProductId = product2.ProductId,
-                    Review = dependentNavs ? productReview3 : null
-                });
+            {
+                Heading = "What does the waffle say?",
+                ProductId = product2.ProductId,
+                Review = dependentNavs ? productReview3 : null
+            });
             if (principalNavs)
             {
                 productReview3.InitializeCollections();
@@ -1007,28 +1007,28 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             var computer2 = Add(new TComputer { Name = "unicorns420" });
 
             var computerDetail1 = Add(new TComputerDetail
-                {
-                    Computer = computer1,
-                    Manufacturer = "Dell",
-                    Model = "420",
-                    PurchaseDate = new DateTime(2008, 4, 1),
-                    Serial = "4201",
-                    Specifications = "It's a Dell!"
-                });
+            {
+                Computer = computer1,
+                Manufacturer = "Dell",
+                Model = "420",
+                PurchaseDate = new DateTime(2008, 4, 1),
+                Serial = "4201",
+                Specifications = "It's a Dell!"
+            });
             if (principalNavs)
             {
                 computer1.ComputerDetail = computerDetail1;
             }
 
             var computerDetail2 = Add(new TComputerDetail
-                {
-                    Computer = computer2,
-                    Manufacturer = "Not A Dell",
-                    Model = "Not 420",
-                    PurchaseDate = new DateTime(2012, 4, 1),
-                    Serial = "4202",
-                    Specifications = "It's not a Dell!"
-                });
+            {
+                Computer = computer2,
+                Manufacturer = "Not A Dell",
+                Model = "Not 420",
+                PurchaseDate = new DateTime(2012, 4, 1),
+                Serial = "4202",
+                Specifications = "It's not a Dell!"
+            });
             if (principalNavs)
             {
                 computer2.ComputerDetail = computerDetail2;
@@ -1038,28 +1038,28 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             var driver2 = Add(new TDriver { BirthDate = new DateTime(2007, 9, 19), Name = "Splash Bear" });
 
             var license1 = Add(new TLicense
-                {
-                    Driver = driver1,
-                    LicenseClass = "C",
-                    LicenseNumber = "10",
-                    Restrictions = "None",
-                    State = LicenseState.Active,
-                    ExpirationDate = new DateTime(2018, 9, 19)
-                });
+            {
+                Driver = driver1,
+                LicenseClass = "C",
+                LicenseNumber = "10",
+                Restrictions = "None",
+                State = LicenseState.Active,
+                ExpirationDate = new DateTime(2018, 9, 19)
+            });
             if (principalNavs)
             {
                 driver1.License = license1;
             }
 
             var license2 = Add(new TLicense
-                {
-                    Driver = driver2,
-                    LicenseClass = "A",
-                    LicenseNumber = "11",
-                    Restrictions = "None",
-                    State = LicenseState.Revoked,
-                    ExpirationDate = new DateTime(2018, 9, 19)
-                });
+            {
+                Driver = driver2,
+                LicenseClass = "A",
+                LicenseNumber = "11",
+                Restrictions = "None",
+                State = LicenseState.Revoked,
+                ExpirationDate = new DateTime(2018, 9, 19)
+            });
             if (principalNavs)
             {
                 driver2.License = license2;
@@ -1108,39 +1108,39 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
 
             var incorrectScan1 = toAdd[1].AddEx(
                 new TIncorrectScan
-                    {
-                        ScanDate = new DateTime(2014, 5, 28, 19, 9, 6),
-                        Details = "Treats not Donuts",
-                        ActualBarcode = barcode3
-                    });
+                {
+                    ScanDate = new DateTime(2014, 5, 28, 19, 9, 6),
+                    Details = "Treats not Donuts",
+                    ActualBarcode = barcode3
+                });
             barcode2.InitializeCollections();
             barcode2.BadScans.Add(incorrectScan1);
 
             var incorrectScan2 = toAdd[1].AddEx(
                 new TIncorrectScan
-                    {
-                        ScanDate = new DateTime(2014, 5, 28, 19, 15, 31),
-                        Details = "Wot no waffles?",
-                        ActualBarcode = barcode2
-                    });
+                {
+                    ScanDate = new DateTime(2014, 5, 28, 19, 15, 31),
+                    Details = "Wot no waffles?",
+                    ActualBarcode = barcode2
+                });
             barcode1.InitializeCollections();
             barcode1.BadScans.Add(incorrectScan2);
 
             var complaint1 = toAdd[1].AddEx(new TComplaint
-                {
-                    Customer = customer2,
-                    AlternateId = 88,
-                    Details = "Don't give coffee to Eeky!",
-                    Logged = new DateTime(2014, 5, 27, 19, 22, 26)
-                });
+            {
+                Customer = customer2,
+                AlternateId = 88,
+                Details = "Don't give coffee to Eeky!",
+                Logged = new DateTime(2014, 5, 27, 19, 22, 26)
+            });
 
             var complaint2 = toAdd[1].AddEx(new TComplaint
-                {
-                    Customer = customer2,
-                    AlternateId = 89,
-                    Details = "Really! Don't give coffee to Eeky!",
-                    Logged = new DateTime(2014, 5, 28, 19, 22, 26)
-                });
+            {
+                Customer = customer2,
+                AlternateId = 89,
+                Details = "Really! Don't give coffee to Eeky!",
+                Logged = new DateTime(2014, 5, 28, 19, 22, 26)
+            });
 
             var resolution = toAdd[2].AddEx(new TResolution { Details = "Destroyed all coffee in Redmond area." });
             complaint2.Resolution = resolution;
@@ -1167,41 +1167,41 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             var smartCard2 = toAdd[2].AddEx(new TSmartCard { Login = login2, CardSerial = rsaToken2.Serial, Issued = rsaToken2.Issued });
 
             var reset1 = toAdd[2].AddEx(new TPasswordReset
-                {
-                    EmailedTo = "trent@example.com",
-                    ResetNo = 1,
-                    TempPassword = "Rent-A-Mole",
-                    Login = login3
-                });
+            {
+                EmailedTo = "trent@example.com",
+                ResetNo = 1,
+                TempPassword = "Rent-A-Mole",
+                Login = login3
+            });
 
             var pageView1 = toAdd[1].AddEx(new TPageView { PageUrl = "somePage1", Login = login1, Viewed = DateTime.Now });
             var pageView2 = toAdd[1].AddEx(new TPageView { PageUrl = "somePage2", Login = login1, Viewed = DateTime.Now });
             var pageView3 = toAdd[1].AddEx(new TPageView { PageUrl = "somePage3", Login = login1, Viewed = DateTime.Now });
 
             var lastLogin1 = toAdd[2].AddEx(new TLastLogin
-                {
-                    LoggedIn = new DateTime(2014, 5, 27, 10, 22, 26),
-                    LoggedOut = new DateTime(2014, 5, 27, 11, 22, 26),
-                });
+            {
+                LoggedIn = new DateTime(2014, 5, 27, 10, 22, 26),
+                LoggedOut = new DateTime(2014, 5, 27, 11, 22, 26),
+            });
 
             login1.LastLogin = lastLogin1;
             smartCard1.LastLogin = lastLogin1;
 
             var lastLogin2 = toAdd[2].AddEx(new TLastLogin
-                {
-                    LoggedIn = new DateTime(2014, 5, 27, 12, 22, 26),
-                    LoggedOut = new DateTime(2014, 5, 27, 13, 22, 26),
-                });
+            {
+                LoggedIn = new DateTime(2014, 5, 27, 12, 22, 26),
+                LoggedOut = new DateTime(2014, 5, 27, 13, 22, 26),
+            });
 
             login2.LastLogin = lastLogin2;
             smartCard2.LastLogin = lastLogin2;
 
             var message1 = toAdd[2].AddEx(new TMessage
-                {
-                    Subject = "Tea?",
-                    Body = "Fancy a cup of tea?",
-                    Sent = DateTime.Now,
-                });
+            {
+                Subject = "Tea?",
+                Body = "Fancy a cup of tea?",
+                Sent = DateTime.Now,
+            });
 
             login1.InitializeCollections();
             login1.SentMessages.Add(message1);
@@ -1209,21 +1209,21 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             login2.ReceivedMessages.Add(message1);
 
             var message2 = toAdd[2].AddEx(new TMessage
-                {
-                    Subject = "Re: Tea?",
-                    Body = "Love one!",
-                    Sent = DateTime.Now,
-                });
+            {
+                Subject = "Re: Tea?",
+                Body = "Love one!",
+                Sent = DateTime.Now,
+            });
 
             login2.SentMessages.Add(message2);
             login1.ReceivedMessages.Add(message2);
 
             var message3 = toAdd[2].AddEx(new TMessage
-                {
-                    Subject = "Re: Tea?",
-                    Body = "I'll put the kettle on.",
-                    Sent = DateTime.Now,
-                });
+            {
+                Subject = "Re: Tea?",
+                Body = "I'll put the kettle on.",
+                Sent = DateTime.Now,
+            });
 
             login1.SentMessages.Add(message3);
             login2.ReceivedMessages.Add(message3);
@@ -1293,10 +1293,10 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             product3.Photos.Add(productPhoto3);
 
             var productWebFeature1 = toAdd[0].AddEx(new TProductWebFeature
-                {
-                    Heading = "Waffle Style",
-                    ProductId = product1.ProductId,
-                });
+            {
+                Heading = "Waffle Style",
+                ProductId = product1.ProductId,
+            });
 
             productPhoto1.InitializeCollections();
             productPhoto1.Features.Add(productWebFeature1);
@@ -1304,10 +1304,10 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             productReview1.Features.Add(productWebFeature1);
 
             var productWebFeature2 = toAdd[0].AddEx(new TProductWebFeature
-                {
-                    Heading = "What does the waffle say?",
-                    ProductId = product2.ProductId,
-                });
+            {
+                Heading = "What does the waffle say?",
+                ProductId = product2.ProductId,
+            });
 
             productReview3.InitializeCollections();
             productReview3.Features.Add(productWebFeature2);
@@ -1333,24 +1333,24 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             var computer2 = toAdd[0].AddEx(new TComputer { Name = "unicorns420" });
 
             var computerDetail1 = toAdd[0].AddEx(new TComputerDetail
-                {
-                    Manufacturer = "Dell",
-                    Model = "420",
-                    PurchaseDate = new DateTime(2008, 4, 1),
-                    Serial = "4201",
-                    Specifications = "It's a Dell!"
-                });
+            {
+                Manufacturer = "Dell",
+                Model = "420",
+                PurchaseDate = new DateTime(2008, 4, 1),
+                Serial = "4201",
+                Specifications = "It's a Dell!"
+            });
 
             computer1.ComputerDetail = computerDetail1;
 
             var computerDetail2 = toAdd[0].AddEx(new TComputerDetail
-                {
-                    Manufacturer = "Not A Dell",
-                    Model = "Not 420",
-                    PurchaseDate = new DateTime(2012, 4, 1),
-                    Serial = "4202",
-                    Specifications = "It's not a Dell!"
-                });
+            {
+                Manufacturer = "Not A Dell",
+                Model = "Not 420",
+                PurchaseDate = new DateTime(2012, 4, 1),
+                Serial = "4202",
+                Specifications = "It's not a Dell!"
+            });
 
             computer2.ComputerDetail = computerDetail2;
 
@@ -1358,24 +1358,24 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             var driver2 = toAdd[0].AddEx(new TDriver { BirthDate = new DateTime(2007, 9, 19), Name = "Splash Bear" });
 
             var license1 = toAdd[1].AddEx(new TLicense
-                {
-                    LicenseClass = "C",
-                    LicenseNumber = "10",
-                    Restrictions = "None",
-                    State = LicenseState.Active,
-                    ExpirationDate = new DateTime(2018, 9, 19)
-                });
+            {
+                LicenseClass = "C",
+                LicenseNumber = "10",
+                Restrictions = "None",
+                State = LicenseState.Active,
+                ExpirationDate = new DateTime(2018, 9, 19)
+            });
 
             driver1.License = license1;
 
             var license2 = toAdd[1].AddEx(new TLicense
-                {
-                    LicenseClass = "A",
-                    LicenseNumber = "11",
-                    Restrictions = "None",
-                    State = LicenseState.Revoked,
-                    ExpirationDate = new DateTime(2018, 9, 19)
-                });
+            {
+                LicenseClass = "A",
+                LicenseNumber = "11",
+                Restrictions = "None",
+                State = LicenseState.Revoked,
+                ExpirationDate = new DateTime(2018, 9, 19)
+            });
             driver2.License = license2;
 
             foreach (var entity in toAdd.SelectMany(l => l))

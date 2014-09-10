@@ -98,10 +98,60 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.False(entry.IsPropertyModified(keyProperty));
             Assert.False(entry.IsPropertyModified(nonKeyProperty));
 
-            entry.SetPropertyModified(keyProperty);
+            entry.SetPropertyModified(nonKeyProperty);
 
             Assert.Equal(EntityState.Modified, entry.EntityState);
-            Assert.True(entry.IsPropertyModified(keyProperty));
+            Assert.False(entry.IsPropertyModified(keyProperty));
+            Assert.True(entry.IsPropertyModified(nonKeyProperty));
+        }
+
+        [Fact]
+        public void Read_only_properties_cannot_be_modified()
+        {
+            var model = BuildModel();
+            var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
+            var keyProperty = entityType.GetProperty("Id");
+            var nonKeyProperty = entityType.GetProperty("Name");
+            nonKeyProperty.IsReadOnly = true;
+            var configuration = TestHelpers.CreateContextConfiguration(model);
+
+            var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
+
+            entry[keyProperty] = 1;
+            entry[nonKeyProperty] = "Jillybean";
+
+            entry.EntityState = EntityState.Modified;
+
+            Assert.False(entry.IsPropertyModified(keyProperty));
+            Assert.False(entry.IsPropertyModified(nonKeyProperty));
+
+            entry.EntityState = EntityState.Unchanged;
+
+            Assert.False(entry.IsPropertyModified(keyProperty));
+            Assert.False(entry.IsPropertyModified(nonKeyProperty));
+
+            Assert.Equal(
+                Strings.FormatPropertyReadOnly("Name", typeof(SomeEntity).FullName),
+                Assert.Throws<NotSupportedException>(() => entry.SetPropertyModified(nonKeyProperty)).Message);
+
+            Assert.Equal(
+                Strings.FormatPropertyReadOnly("Id", typeof(SomeEntity).FullName),
+                Assert.Throws<NotSupportedException>(() => entry.SetPropertyModified(keyProperty)).Message);
+
+            Assert.Equal(EntityState.Unchanged, entry.EntityState);
+            Assert.False(entry.IsPropertyModified(keyProperty));
+            Assert.False(entry.IsPropertyModified(nonKeyProperty));
+
+            Assert.Equal(
+                Strings.FormatPropertyReadOnly("Id", typeof(SomeEntity).FullName),
+                Assert.Throws<NotSupportedException>(() => entry[keyProperty] = 2).Message);
+
+            Assert.Equal(
+                Strings.FormatPropertyReadOnly("Name", typeof(SomeEntity).FullName),
+                Assert.Throws<NotSupportedException>(() => entry[nonKeyProperty] = "Beanjilly").Message);
+
+            Assert.Equal(EntityState.Unchanged, entry.EntityState);
+            Assert.False(entry.IsPropertyModified(keyProperty));
             Assert.False(entry.IsPropertyModified(nonKeyProperty));
         }
 
@@ -633,10 +683,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.False(entry.IsPropertyModified(nameProperty));
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
 
-            entry[idProperty] = 2;
             entry[nameProperty] = "Beans";
 
-            Assert.True(entry.IsPropertyModified(idProperty));
+            Assert.False(entry.IsPropertyModified(idProperty));
             Assert.True(entry.IsPropertyModified(nameProperty));
             Assert.Equal(EntityState.Modified, entry.EntityState);
         }

@@ -321,4 +321,10 @@
   <data name="NavigationCannotCreateType" xml:space="preserve">
     <value>The type of navigation property '{navigation}' on entity type '{entityType}' is '{foundType}' for which it was not possible to create a concrete instance. Either initialize the property before use, add a public parameterless constructor to the type, or use a type which can be assigned a HashSet&lt;&gt; or List&lt;&gt;.</value>
   </data>
+  <data name="PropertyReadOnly" xml:space="preserve">
+    <value>The property '{property}' on entity type '{entityType}' is read-only and so cannot be modified or marked as modified.</value>
+  </data>
+  <data name="KeyPropertyMustBeReadOnly" xml:space="preserve">
+    <value>The property '{property}' on entity type '{entityType}' cannot be marked as read-write because it is part of a key. Key properties are always read-only.</value>
+  </data>
 </root>

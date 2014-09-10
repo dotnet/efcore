@@ -14,7 +14,8 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotNull(property, "property");
 
             // TODO: Perf: Avoid doing Contains check everywhere we need to know if a property is part of a foreign key
-            return property.EntityType.ForeignKeys.SelectMany(k => k.Properties).Contains(property);
+            return property.EntityType != null
+                   && property.EntityType.ForeignKeys.SelectMany(k => k.Properties).Contains(property);
         }
 
         public static bool IsPrimaryKey([NotNull] this IProperty property)
@@ -22,7 +23,17 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotNull(property, "property");
 
             // TODO: Perf: make it fast to check if a property is part of the primary key
-            return property.EntityType.GetPrimaryKey().Properties.Contains(property);
+            return property.EntityType != null
+                   && property.EntityType.GetPrimaryKey().Properties.Contains(property);
+        }
+
+        public static bool IsKey([NotNull] this IProperty property)
+        {
+            Check.NotNull(property, "property");
+
+            // TODO: Perf: make it fast to check if a property is part of a key
+            return property.EntityType != null
+                   && property.EntityType.Keys.SelectMany(e => e.Properties).Contains(property);
         }
     }
 }

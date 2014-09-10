@@ -38,6 +38,21 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
             return property;
         }
 
+        public INavigation TryGetNavigation([NotNull] string name)
+        {
+            return Navigations.FirstOrDefault(p => p.Name == name);
+        }
+
+        public INavigation GetNavigation([NotNull] string name)
+        {
+            var navigation = TryGetNavigation(name);
+            if (navigation == null)
+            {
+                throw new Exception(Strings.FormatNavigationNotFound(name, typeof(TEntity).Name));
+            }
+            return navigation;
+        }
+
         public Type Type
         {
             get { return typeof(TEntity); }
@@ -70,6 +85,11 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
         public IKey GetPrimaryKey()
         {
             return LazyInitializer.EnsureInitialized(ref _key, LoadKey);
+        }
+
+        public IReadOnlyList<IKey> Keys
+        {
+            get { return new[] { GetPrimaryKey() }; }
         }
 
         public IReadOnlyList<IForeignKey> ForeignKeys

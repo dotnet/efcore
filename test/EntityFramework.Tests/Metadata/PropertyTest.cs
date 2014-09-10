@@ -75,6 +75,25 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
+        public void Property_is_read_write_by_default()
+        {
+            Assert.False(new Property("Name", typeof(string)).IsReadOnly);
+        }
+
+        [Fact]
+        public void Property_can_be_marked_as_read_only()
+        {
+            var property = new Property("Name", typeof(string));
+            Assert.False(property.IsReadOnly);
+
+            property.IsReadOnly = true;
+            Assert.True(property.IsReadOnly);
+
+            property.IsReadOnly = false;
+            Assert.False(property.IsReadOnly);
+        }
+
+        [Fact]
         public void Can_get_and_set_property_index_for_normal_property()
         {
             var property = new Property("Kake", typeof(int));

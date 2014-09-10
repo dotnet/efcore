@@ -39,6 +39,12 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
             get { return typeof(TProperty).IsNullableType(); }
         }
 
+        public bool IsReadOnly
+        {
+            // TODO:
+            get { return false; }
+        }
+
         public IEntityType EntityType
         {
             get { return _entityType; }
