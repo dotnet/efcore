@@ -192,17 +192,13 @@ namespace Microsoft.Data.Entity.ChangeTracking
             // set all properties to modified if the entity state is explicitly set to Modified.
             if (newState == EntityState.Modified)
             {
-                _stateData.SetAllPropertiesModified(_entityType.Properties.Count(), isModified: true);
+                _stateData.FlagAllProperties(_entityType.Properties.Count(), isFlagged: true);
 
                 // Assuming key properties are not modified
                 foreach (var keyProperty in EntityType.GetPrimaryKey().Properties)
                 {
-                    _stateData.SetPropertyModified(keyProperty.Index, isModified: false);
+                    _stateData.FlagProperty(keyProperty.Index, isFlagged: false);
                 }
-            }
-            else if (newState == EntityState.Unchanged)
-            {
-                _stateData.SetAllPropertiesModified(_entityType.Properties.Count(), isModified: false);
             }
 
             var oldState = _stateData.EntityState;
@@ -219,6 +215,11 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 newState = EntityState.Unknown;
             }
 
+            if (newState == EntityState.Unchanged || newState == EntityState.Added)
+            {
+                _stateData.FlagAllProperties(_entityType.Properties.Count(), isFlagged: false);
+            }
+
             _configuration.Services.StateEntryNotifier.StateChanging(this, newState);
 
             if (newState == EntityState.Added)
@@ -226,6 +227,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 foreach (var generatedValue in generatedValues.Where(v => v != null && v.Item2 != null))
                 {
                     this[generatedValue.Item1] = generatedValue.Item2;
+                    // TODO: Set default flag or not based on strategy
+                    _stateData.FlagProperty(generatedValue.Item1.Index, isFlagged: false);
                 }
             }
             else
@@ -268,19 +271,26 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 return false;
             }
 
-            return _stateData.IsPropertyModified(property.Index);
+            return _stateData.IsPropertyFlagged(property.Index);
         }
 
-        public virtual void SetPropertyModified([NotNull] IProperty property, bool isModified)
+        public virtual void SetPropertyModified([NotNull] IProperty property, bool isModified = true)
         {
             Check.NotNull(property, "property");
 
             // TODO: Restore original value to reject changes when isModified is false
 
-            _stateData.SetPropertyModified(property.Index, isModified);
+            var currentState = _stateData.EntityState;
+
+            if (currentState != EntityState.Modified
+                && currentState != EntityState.Unchanged)
+            {
+                return;
+            }
+
+            _stateData.FlagProperty(property.Index, isModified);
 
             // Don't change entity state if it is Added or Deleted
-            var currentState = _stateData.EntityState;
             if (isModified && currentState == EntityState.Unchanged)
             {
                 var notifier = _configuration.Services.StateEntryNotifier;
@@ -289,13 +299,37 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 notifier.StateChanged(this, currentState);
             }
             else if (!isModified
-                     && !_stateData.AnyPropertiesModified())
+                     && !_stateData.AnyPropertiesFlagged())
             {
                 var notifier = _configuration.Services.StateEntryNotifier;
                 notifier.StateChanging(this, EntityState.Unchanged);
                 _stateData.EntityState = EntityState.Unchanged;
                 notifier.StateChanged(this, currentState);
             }
+        }
+
+        public virtual bool HasTemporaryValue([NotNull] IProperty property)
+        {
+            Check.NotNull(property, "property");
+
+            if (_stateData.EntityState != EntityState.Added)
+            {
+                return false;
+            }
+
+            return _stateData.IsPropertyFlagged(property.Index);
+        }
+
+        public virtual void MarkAsTemporary([NotNull] IProperty property, bool isTemporary = true)
+        {
+            Check.NotNull(property, "property");
+
+            if (_stateData.EntityState != EntityState.Added)
+            {
+                return;
+            }
+
+            _stateData.FlagProperty(property.Index, isTemporary);
         }
 
         protected virtual object ReadPropertyValue([NotNull] IPropertyBase propertyBase)

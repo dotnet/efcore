@@ -24,11 +24,11 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 _bits = new int[(propertyCount + BitsForAdditionalState - 1) / BitsPerInt + 1];
             }
 
-            public void SetAllPropertiesModified(int propertyCount, bool isModified)
+            public void FlagAllProperties(int propertyCount, bool isFlagged)
             {
                 for (var i = 0; i < _bits.Length; i++)
                 {
-                    if (isModified)
+                    if (isFlagged)
                     {
                         _bits[i] |= CreateMaskForWrite(i, propertyCount);
                     }
@@ -51,18 +51,18 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 set { _bits[0] = (_bits[0] & ~TransparentSidecarMask) | (value ? TransparentSidecarMask : 0); }
             }
 
-            public bool IsPropertyModified(int propertyIndex)
+            public bool IsPropertyFlagged(int propertyIndex)
             {
                 propertyIndex += BitsForAdditionalState;
 
                 return (_bits[propertyIndex / BitsPerInt] & (1 << propertyIndex % BitsPerInt)) != 0;
             }
 
-            public void SetPropertyModified(int propertyIndex, bool isModified)
+            public void FlagProperty(int propertyIndex, bool isFlagged)
             {
                 propertyIndex += BitsForAdditionalState;
 
-                if (isModified)
+                if (isFlagged)
                 {
                     _bits[propertyIndex / BitsPerInt] |= 1 << propertyIndex % BitsPerInt;
                 }
@@ -72,7 +72,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 }
             }
 
-            public bool AnyPropertiesModified()
+            public bool AnyPropertiesFlagged()
             {
                 return _bits.Where((t, i) => (t & CreateMaskForRead(i)) != 0).Any();
             }

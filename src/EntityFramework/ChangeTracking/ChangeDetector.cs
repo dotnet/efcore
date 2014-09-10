@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             if (property != null)
             {
-                entry.SetPropertyModified(property, true);
+                entry.SetPropertyModified(property);
 
                 // Note: Make sure DetectPrincipalKeyChange is called even if DetectForeignKeyChange has returned true
                 var foreignKeyChange = DetectForeignKeyChange(entry, property);
@@ -140,7 +140,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 // TODO: Perf: don't lookup accessor twice
                 if (!Equals(entry[property], originalValues[property]))
                 {
-                    entry.SetPropertyModified(property, true);
+                    entry.SetPropertyModified(property);
                     foundChanges = true;
                 }
 

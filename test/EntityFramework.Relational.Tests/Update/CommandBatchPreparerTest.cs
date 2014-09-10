@@ -221,7 +221,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 configuration,
                 model.GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
             await stateEntry.SetEntityStateAsync(EntityState.Modified);
-            stateEntry.SetPropertyModified(stateEntry.EntityType.GetPrimaryKey().Properties.Single(), isModified: true);
+            stateEntry.SetPropertyModified(stateEntry.EntityType.GetPrimaryKey().Properties.Single());
 
             var relatedStateEntry = new MixedStateEntry(
                 configuration,

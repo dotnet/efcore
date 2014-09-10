@@ -98,10 +98,72 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.False(entry.IsPropertyModified(keyProperty));
             Assert.False(entry.IsPropertyModified(nonKeyProperty));
 
-            entry.SetPropertyModified(keyProperty, isModified: true);
+            entry.SetPropertyModified(keyProperty);
 
             Assert.Equal(EntityState.Modified, entry.EntityState);
             Assert.True(entry.IsPropertyModified(keyProperty));
+            Assert.False(entry.IsPropertyModified(nonKeyProperty));
+        }
+
+        [Fact]
+        public void Added_entities_can_have_temporary_values()
+        {
+            var model = BuildModel();
+            var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
+            var keyProperty = entityType.GetProperty("Id");
+            var nonKeyProperty = entityType.GetProperty("Name");
+            var configuration = TestHelpers.CreateContextConfiguration(model);
+
+            var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
+            entry[keyProperty] = 1;
+
+            Assert.False(entry.HasTemporaryValue(keyProperty));
+            Assert.False(entry.HasTemporaryValue(nonKeyProperty));
+            Assert.False(entry.IsPropertyModified(keyProperty));
+            Assert.False(entry.IsPropertyModified(nonKeyProperty));
+
+            entry.EntityState = EntityState.Added;
+
+            Assert.False(entry.HasTemporaryValue(keyProperty));
+            Assert.False(entry.HasTemporaryValue(nonKeyProperty));
+            Assert.False(entry.IsPropertyModified(keyProperty));
+            Assert.False(entry.IsPropertyModified(nonKeyProperty));
+
+            entry.MarkAsTemporary(keyProperty);
+
+            Assert.True(entry.HasTemporaryValue(keyProperty));
+            Assert.False(entry.HasTemporaryValue(nonKeyProperty));
+            Assert.False(entry.IsPropertyModified(keyProperty));
+            Assert.False(entry.IsPropertyModified(nonKeyProperty));
+
+            entry.MarkAsTemporary(nonKeyProperty);
+            entry.MarkAsTemporary(keyProperty, isTemporary: false);
+
+            Assert.False(entry.HasTemporaryValue(keyProperty));
+            Assert.True(entry.HasTemporaryValue(nonKeyProperty));
+            Assert.False(entry.IsPropertyModified(keyProperty));
+            Assert.False(entry.IsPropertyModified(nonKeyProperty));
+
+            entry.EntityState = EntityState.Unchanged;
+
+            Assert.False(entry.HasTemporaryValue(keyProperty));
+            Assert.False(entry.HasTemporaryValue(nonKeyProperty));
+            Assert.False(entry.IsPropertyModified(keyProperty));
+            Assert.False(entry.IsPropertyModified(nonKeyProperty));
+
+            entry.MarkAsTemporary(keyProperty);
+            entry.MarkAsTemporary(nonKeyProperty);
+
+            Assert.False(entry.HasTemporaryValue(keyProperty));
+            Assert.False(entry.HasTemporaryValue(nonKeyProperty));
+            Assert.False(entry.IsPropertyModified(keyProperty));
+            Assert.False(entry.IsPropertyModified(nonKeyProperty));
+
+            entry.EntityState = EntityState.Added;
+
+            Assert.False(entry.HasTemporaryValue(keyProperty));
+            Assert.False(entry.HasTemporaryValue(nonKeyProperty));
+            Assert.False(entry.IsPropertyModified(keyProperty));
             Assert.False(entry.IsPropertyModified(nonKeyProperty));
         }
 

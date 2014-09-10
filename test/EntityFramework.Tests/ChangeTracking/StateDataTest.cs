@@ -21,53 +21,53 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var data = new StateEntry.StateData(propertyCount);
 
-            Assert.False(data.AnyPropertiesModified());
+            Assert.False(data.AnyPropertiesFlagged());
 
             for (var i = 0; i < propertyCount; i++)
             {
-                data.SetPropertyModified(i, true);
+                data.FlagProperty(i, true);
 
                 for (var j = 0; j < propertyCount; j++)
                 {
-                    Assert.Equal(j <= i, data.IsPropertyModified(j));
+                    Assert.Equal(j <= i, data.IsPropertyFlagged(j));
                 }
 
-                Assert.True(data.AnyPropertiesModified());
+                Assert.True(data.AnyPropertiesFlagged());
             }
 
             for (var i = 0; i < propertyCount; i++)
             {
-                data.SetPropertyModified(i, false);
+                data.FlagProperty(i, false);
 
                 for (var j = 0; j < propertyCount; j++)
                 {
-                    Assert.Equal(j > i, data.IsPropertyModified(j));
+                    Assert.Equal(j > i, data.IsPropertyFlagged(j));
                 }
 
-                Assert.Equal(i < propertyCount - 1, data.AnyPropertiesModified());
+                Assert.Equal(i < propertyCount - 1, data.AnyPropertiesFlagged());
             }
 
             for (var i = 0; i < propertyCount; i++)
             {
-                Assert.False(data.IsPropertyModified(i));
+                Assert.False(data.IsPropertyFlagged(i));
             }
 
-            data.SetAllPropertiesModified(propertyCount, isModified: true);
+            data.FlagAllProperties(propertyCount, isFlagged: true);
 
-            Assert.Equal(propertyCount > 0, data.AnyPropertiesModified());
+            Assert.Equal(propertyCount > 0, data.AnyPropertiesFlagged());
 
             for (var i = 0; i < propertyCount; i++)
             {
-                Assert.True(data.IsPropertyModified(i));
+                Assert.True(data.IsPropertyFlagged(i));
             }
 
-            data.SetAllPropertiesModified(propertyCount, isModified: false);
+            data.FlagAllProperties(propertyCount, isFlagged: false);
 
-            Assert.False(data.AnyPropertiesModified());
+            Assert.False(data.AnyPropertiesFlagged());
 
             for (var i = 0; i < propertyCount; i++)
             {
-                Assert.False(data.IsPropertyModified(i));
+                Assert.False(data.IsPropertyFlagged(i));
             }
         }
 
@@ -90,7 +90,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             data.EntityState = EntityState.Deleted;
             Assert.Equal(EntityState.Deleted, data.EntityState);
 
-            data.SetAllPropertiesModified(70, isModified: true);
+            data.FlagAllProperties(70, isFlagged: true);
 
             Assert.Equal(EntityState.Deleted, data.EntityState);
 
@@ -120,7 +120,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             data.TransparentSidecarInUse = false;
             Assert.False(data.TransparentSidecarInUse);
 
-            data.SetAllPropertiesModified(70, isModified: true);
+            data.FlagAllProperties(70, isFlagged: true);
 
             Assert.False(data.TransparentSidecarInUse);
 
