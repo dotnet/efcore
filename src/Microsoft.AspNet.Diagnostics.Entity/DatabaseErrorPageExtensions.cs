@@ -9,14 +9,14 @@ namespace Microsoft.AspNet.Builder
 {
     public static class DatabaseErrorPageExtensions
     {
-        public static IBuilder UseDatabaseErrorPage([NotNull] this IBuilder builder)
+        public static IApplicationBuilder UseDatabaseErrorPage([NotNull] this IApplicationBuilder builder)
         {
             Check.NotNull(builder, "builder");
 
             return builder.UseDatabaseErrorPage(new DatabaseErrorPageOptions());
         }
 
-        public static IBuilder UseDatabaseErrorPage([NotNull] this IBuilder builder, [NotNull] DatabaseErrorPageOptions options)
+        public static IApplicationBuilder UseDatabaseErrorPage([NotNull] this IApplicationBuilder builder, [NotNull] DatabaseErrorPageOptions options)
         {
             Check.NotNull(builder, "builder");
             Check.NotNull(options, "options");

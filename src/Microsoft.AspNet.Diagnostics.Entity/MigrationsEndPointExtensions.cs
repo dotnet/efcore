@@ -9,14 +9,14 @@ namespace Microsoft.AspNet.Builder
 {
     public static class MigrationsEndPointExtensions
     {
-        public static IBuilder UseMigrationsEndPoint([NotNull] this IBuilder builder)
+        public static IApplicationBuilder UseMigrationsEndPoint([NotNull] this IApplicationBuilder builder)
         {
             Check.NotNull(builder, "builder");
 
             return builder.UseMigrationsEndPoint(new MigrationsEndPointOptions());
         }
 
-        public static IBuilder UseMigrationsEndPoint([NotNull] this IBuilder builder, [NotNull] MigrationsEndPointOptions options)
+        public static IApplicationBuilder UseMigrationsEndPoint([NotNull] this IApplicationBuilder builder, [NotNull] MigrationsEndPointOptions options)
         {
             Check.NotNull(builder, "builder");
             Check.NotNull(options, "options");
