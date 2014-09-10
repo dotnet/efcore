@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
@@ -14,6 +15,8 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 {
     public class HistoryRepository
     {
+        internal static readonly string ProductVersion = typeof(HistoryRepository).GetTypeInfo().Assembly.GetInformationalVersion();
+
         private readonly DbContextConfiguration _contextConfiguration;
         private IModel _historyModel;
         private DbContextOptions _contextOptions;
@@ -89,10 +92,14 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 .Append(sqlGenerator.DelimitIdentifier("MigrationId"))
                 .Append(", ")
                 .Append(sqlGenerator.DelimitIdentifier("ContextKey"))
+                .Append(", ")
+                .Append(sqlGenerator.DelimitIdentifier("ProductVersion"))
                 .Append(") VALUES (")
                 .Append(sqlGenerator.GenerateLiteral(migration.MigrationId))
                 .Append(", ")
                 .Append(sqlGenerator.GenerateLiteral(GetContextKey()))
+                .Append(", ")
+                .Append(sqlGenerator.GenerateLiteral(ProductVersion))
                 .Append(")");
 
             return new[] { new SqlStatement(stringBuilder.ToString()) };
@@ -130,9 +137,9 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             builder.Entity<HistoryRow>(b =>
                 {
                     b.Key(e => new { e.MigrationId, e.ContextKey });
-                    // TODO: Add column constraints (FixedLength, MaxLength) where needed.
-                    b.Property(e => e.MigrationId);
-                    b.Property(e => e.ContextKey);
+                    b.Property(e => e.MigrationId).Required().ColumnMaxLength(150);
+                    b.Property(e => e.ContextKey).Required().ColumnMaxLength(300);
+                    b.Property(e => e.ProductVersion).Required().ColumnMaxLength(32);
                     b.ToTable(TableName);
                 });
 
@@ -164,6 +171,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         {
             public string MigrationId { get; set; }
             public string ContextKey { get; set; }
+            public string ProductVersion { get; set; }
         }
     }
 }

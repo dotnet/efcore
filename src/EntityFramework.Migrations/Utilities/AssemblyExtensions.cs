@@ -24,5 +24,13 @@ namespace Microsoft.Data.Entity.Migrations.Utilities
                 return ex.Types.Where(t => t != null);
             }
         }
+
+        public static string GetInformationalVersion(this Assembly assembly)
+        {
+            return assembly
+                .GetCustomAttributes<AssemblyInformationalVersionAttribute>()
+                .Single()
+                .InformationalVersion;
+        }
     }
 }
