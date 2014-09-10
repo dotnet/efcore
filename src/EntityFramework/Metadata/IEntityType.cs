@@ -26,10 +26,18 @@ namespace Microsoft.Data.Entity.Metadata
         [NotNull]
         IProperty GetProperty([NotNull] string name);
 
+        [CanBeNull]
+        INavigation TryGetNavigation([NotNull] string name);
+
+        [NotNull]
+        INavigation GetNavigation([NotNull] string name);
+
         IReadOnlyList<IProperty> Properties { get; }
         IReadOnlyList<IForeignKey> ForeignKeys { get; }
         IReadOnlyList<INavigation> Navigations { get; }
         IReadOnlyList<IIndex> Indexes { get; }
+        IReadOnlyList<IKey> Keys { get; }
+
         int ShadowPropertyCount { get; }
         int OriginalValueCount { get; }
         bool HasClrType { get; }

@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
@@ -15,6 +16,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         private bool _isConcurrencyToken;
         private bool _isNullable;
+        private bool _isReadOnly;
         private int _shadowIndex;
         private int _originalValueIndex = -1;
         private int _index;
@@ -43,6 +45,22 @@ namespace Microsoft.Data.Entity.Metadata
         {
             get { return _isNullable; }
             set { _isNullable = value; }
+        }
+
+        public virtual bool IsReadOnly
+        {
+            get
+            {
+                return this.IsKey() || _isReadOnly;
+            }
+            set
+            {
+                if (!value && this.IsKey())
+                {
+                    throw new NotSupportedException(Strings.FormatKeyPropertyMustBeReadOnly(Name, EntityType.Name));
+                }
+                _isReadOnly = value;
+            }
         }
 
         public virtual ValueGenerationOnSave ValueGenerationOnSave { get; set; }

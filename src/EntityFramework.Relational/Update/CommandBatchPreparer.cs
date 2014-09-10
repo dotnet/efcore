@@ -124,12 +124,6 @@ namespace Microsoft.Data.Entity.Relational.Update
                                     foreignKey.ReferencedProperties.Contains(cm.Property)
                                     && (cm.IsWrite || cm.IsRead)).ToList();
 
-                            if (command.EntityState == EntityState.Modified
-                                && candidateKeyValueColumnModifications.Any(cm => cm.IsWrite))
-                            {
-                                throw new InvalidOperationException(Strings.FormatPrincipalKeyModified());
-                            }
-
                             if (command.EntityState == EntityState.Added
                                 || candidateKeyValueColumnModifications.Count != 0)
                             {

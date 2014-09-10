@@ -674,6 +674,16 @@ namespace Microsoft.Data.Entity.Metadata
             return GetProperty(name);
         }
 
+        INavigation IEntityType.TryGetNavigation(string name)
+        {
+            return TryGetNavigation(name);
+        }
+
+        INavigation IEntityType.GetNavigation(string name)
+        {
+            return GetNavigation(name);
+        }
+
         IReadOnlyList<IProperty> IEntityType.Properties
         {
             get { return Properties; }
@@ -692,6 +702,11 @@ namespace Microsoft.Data.Entity.Metadata
         IReadOnlyList<IIndex> IEntityType.Indexes
         {
             get { return Indexes; }
+        }
+
+        IReadOnlyList<IKey> IEntityType.Keys
+        {
+            get { return Keys; }
         }
 
         private class PropertyComparer : IComparer<Property>

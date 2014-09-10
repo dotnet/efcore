@@ -212,28 +212,6 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         }
 
         [Fact]
-        public async Task BatchCommands_throws_on_modified_principal_key()
-        {
-            var configuration = CreateConfiguration();
-            var model = CreateSimpleFKModel();
-
-            var stateEntry = new MixedStateEntry(
-                configuration,
-                model.GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
-            await stateEntry.SetEntityStateAsync(EntityState.Modified);
-            stateEntry.SetPropertyModified(stateEntry.EntityType.GetPrimaryKey().Properties.Single());
-
-            var relatedStateEntry = new MixedStateEntry(
-                configuration,
-                model.GetEntityType(typeof(RelatedFakeEntity)), new RelatedFakeEntity { Id = 42 });
-            await relatedStateEntry.SetEntityStateAsync(EntityState.Modified);
-
-            Assert.Equal(
-                Strings.FormatPrincipalKeyModified(),
-                Assert.Throws<InvalidOperationException>(() => CreateCommandBatchPreparer().BatchCommands(new[] { relatedStateEntry, stateEntry }).ToArray()).Message);
-        }
-
-        [Fact]
         public async Task BatchCommands_sorts_unrelated_entities()
         {
             var configuration = CreateConfiguration();

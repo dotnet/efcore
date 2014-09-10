@@ -1006,31 +1006,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 incorrectScan1.ActualCode = incorrectScan1.ActualCode.ToArray();
                 incorrectScan2.ActualCode = incorrectScan2.ActualCode.ToArray();
 
-                // Change PK objects without changing values
-                // This is not really allowed so if/when it starts to throw this part of the test can be removed
-                barcode1.Code = barcode1.Code.ToArray();
-                barcode2.Code = barcode2.Code.ToArray();
-                barcode3.Code = barcode3.Code.ToArray();
-                barcodeDetails1.Code = barcodeDetails1.Code.ToArray();
-                barcodeDetails2.Code = barcodeDetails2.Code.ToArray();
-
-                if (useDetectChanges)
-                {
-                    context.ChangeTracker.DetectChanges();
-                }
-
-                AssertBadScansConsistent(barcode1, incorrectScan2);
-                AssertBadScansConsistent(barcode2, incorrectScan1);
-                AssertBadScansConsistent(barcode3);
-
-                AssertActualBarcodeConsistent(barcode1);
-                AssertActualBarcodeConsistent(barcode2, incorrectScan2);
-                AssertActualBarcodeConsistent(barcode3, incorrectScan1);
-
-                AssertBarcodeDetailsConsistent(barcode1, barcodeDetails1);
-                AssertBarcodeDetailsConsistent(barcode2, barcodeDetails2);
-                AssertBarcodeDetailsConsistent(barcode3, null);
-
                 // Collection navigation changes
                 barcode1.BadScans.Remove(incorrectScan2);
                 barcode2.BadScans.Add(incorrectScan2);
@@ -1718,25 +1693,25 @@ namespace Microsoft.Data.Entity.FunctionalTests
         private SnapshotMonsterContext CreateSnapshotMonsterContext(IServiceProvider serviceProvider, string databaseName = SnapshotDatabaseName)
         {
             return new SnapshotMonsterContext(serviceProvider, CreateOptions(databaseName), OnModelCreating)
-                {
-                    SupportsCandidateKeys = SupportsCandidateKeys
-                };
+            {
+                SupportsCandidateKeys = SupportsCandidateKeys
+            };
         }
 
         private ChangedChangingMonsterContext CreateChangedChangingMonsterContext(IServiceProvider serviceProvider, string databaseName = FullNotifyDatabaseName)
         {
             return new ChangedChangingMonsterContext(serviceProvider, CreateOptions(databaseName), OnModelCreating)
-                {
-                    SupportsCandidateKeys = SupportsCandidateKeys
-                };
+            {
+                SupportsCandidateKeys = SupportsCandidateKeys
+            };
         }
 
         private ChangedOnlyMonsterContext CreateChangedOnlyMonsterContext(IServiceProvider serviceProvider, string databaseName = ChangedOnlyDatabaseName)
         {
             return new ChangedOnlyMonsterContext(serviceProvider, CreateOptions(databaseName), OnModelCreating)
-                {
-                    SupportsCandidateKeys = SupportsCandidateKeys
-                };
+            {
+                SupportsCandidateKeys = SupportsCandidateKeys
+            };
         }
 
         protected virtual void OnModelCreating(ModelBuilder builder)

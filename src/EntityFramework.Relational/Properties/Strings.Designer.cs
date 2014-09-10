@@ -219,22 +219,6 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         /// <summary>
-        /// The principal key value cannot be modified.
-        /// </summary>
-        internal static string PrincipalKeyModified
-        {
-            get { return GetString("PrincipalKeyModified"); }
-        }
-
-        /// <summary>
-        /// The principal key value cannot be modified.
-        /// </summary>
-        internal static string FormatPrincipalKeyModified()
-        {
-            return GetString("PrincipalKeyModified");
-        }
-
-        /// <summary>
         /// An error occurred while updating the entries. See the inner exception for details.
         /// </summary>
         internal static string UpdateStoreException

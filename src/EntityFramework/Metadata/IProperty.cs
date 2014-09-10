@@ -10,6 +10,7 @@ namespace Microsoft.Data.Entity.Metadata
         Type PropertyType { get; }
         Type UnderlyingType { get; }
         bool IsNullable { get; }
+        bool IsReadOnly { get; }
         ValueGenerationOnSave ValueGenerationOnSave { get; }
         ValueGenerationOnAdd ValueGenerationOnAdd { get; }
         int Index { get; }

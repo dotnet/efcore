@@ -156,9 +156,6 @@
   <data name="RelationalNotInUse" xml:space="preserve">
     <value>Relational-specific methods can only be used when the context is using a relational data store.</value>
   </data>
-  <data name="PrincipalKeyModified" xml:space="preserve">
-    <value>The principal key value cannot be modified.</value>
-  </data>
   <data name="UpdateStoreException" xml:space="preserve">
     <value>An error occurred while updating the entries. See the inner exception for details.</value>
   </data>

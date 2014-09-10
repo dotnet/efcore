@@ -280,6 +280,31 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
+        public void Key_properties_are_always_read_only()
+        {
+            var entityType = new EntityType(typeof(Customer));
+            var idProperty = entityType.GetOrAddProperty(Customer.IdProperty);
+            var nameProperty = entityType.GetOrAddProperty(Customer.NameProperty);
+
+            Assert.False(idProperty.IsReadOnly);
+            Assert.False(nameProperty.IsReadOnly);
+
+            entityType.GetOrAddKey(idProperty, nameProperty);
+
+            Assert.True(idProperty.IsReadOnly);
+            Assert.True(nameProperty.IsReadOnly);
+
+            nameProperty.IsReadOnly = true;
+
+            Assert.Equal(
+                Strings.FormatKeyPropertyMustBeReadOnly("Name", typeof(Customer).FullName),
+                Assert.Throws<NotSupportedException>(() => nameProperty.IsReadOnly = false).Message);
+
+            Assert.True(idProperty.IsReadOnly);
+            Assert.True(nameProperty.IsReadOnly);
+        }
+        
+        [Fact]
         public void Can_add_a_foreign_key_explicitly()
         {
             var customerType = new EntityType(typeof(Customer));

@@ -85,7 +85,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
                     mask &= ~AdditionalStateMask;
                 }
 
-                // TODO: Remove keys/readonly indexes from the mask to avoid setting them to modified
                 return mask;
             }
 
@@ -101,7 +100,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
                     mask &= ~overlay;
                 }
 
-                // TODO: Remove keys/readonly indexes from the mask to avoid setting them to modified
                 return mask;
             }
         }
