@@ -9,6 +9,7 @@ using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Update;
 using Moq;
+using Moq.Protected;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
@@ -41,8 +42,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
 
                 var entityType = historyModel1.EntityTypes[0];
                 Assert.Equal("Microsoft.Data.Entity.Migrations.Infrastructure.HistoryRepository+HistoryRow", entityType.Name);
-                Assert.Equal(2, entityType.Properties.Count);
-                Assert.Equal(new[] { "ContextKey", "MigrationId" }, entityType.Properties.Select(p => p.Name));
+                Assert.Equal(3, entityType.Properties.Count);
+                Assert.Equal(new[] { "ContextKey", "MigrationId", "ProductVersion" }, entityType.Properties.Select(p => p.Name));
             }
         }
 
@@ -147,9 +148,28 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     new MigrationMetadata("000000000000001_Foo"), new DmlSqlGenerator());
 
                 Assert.Equal(1, sqlStatements.Count);
-                Assert.Equal(
-                    @"INSERT INTO ""__MigrationHistory"" (""MigrationId"", ""ContextKey"") VALUES ('000000000000001_Foo', 'Microsoft.Data.Entity.Migrations.Tests.Infrastructure.HistoryRepositoryTest+Context')",
-                    sqlStatements[0].Sql);
+                Assert.Equal(string.Format(
+                    @"INSERT INTO ""__MigrationHistory"" (""MigrationId"", ""ContextKey"", ""ProductVersion"") VALUES ('000000000000001_Foo', 'Microsoft.Data.Entity.Migrations.Tests.Infrastructure.HistoryRepositoryTest+Context', '{0}')", 
+                    HistoryRepository.ProductVersion), sqlStatements[0].Sql);
+            }
+        }
+
+        [Fact]
+        public void Generate_insert_migration_sql_with_custom_context_key()
+        {
+            using (var context = new Context())
+            {
+                var historyRepository = new Mock<HistoryRepository>(context.Configuration) { CallBase = true };
+
+                historyRepository.Protected().Setup<string>("GetContextKey").Returns("SomeContextKey");
+
+                var sqlStatements = historyRepository.Object.GenerateInsertMigrationSql(
+                    new MigrationMetadata("000000000000001_Foo"), new DmlSqlGenerator());
+
+                Assert.Equal(1, sqlStatements.Count);
+                Assert.Equal(string.Format(
+                    @"INSERT INTO ""__MigrationHistory"" (""MigrationId"", ""ContextKey"", ""ProductVersion"") VALUES ('000000000000001_Foo', 'SomeContextKey', '{0}')",
+                    HistoryRepository.ProductVersion), sqlStatements[0].Sql);
             }
         }
 
