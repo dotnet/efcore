@@ -1296,13 +1296,22 @@ namespace System.Linq
 
         #region Include
 
-        public static IQueryable<T> Include<T, TProperty>(
-            [NotNull] this IQueryable<T> source,
-            [NotNull] Expression<Func<T, TProperty>> path)
+        public static readonly MethodInfo IncludeMethodInfo
+            = typeof(QueryableExtensions)
+                .GetTypeInfo().GetDeclaredMethod("Include");
+
+        public static IQueryable<TEntity> Include<TEntity, TProperty>(
+            [NotNull] this IQueryable<TEntity> source,
+            [NotNull] Expression<Func<TEntity, TProperty>> navigationPropertyPath)
         {
             Check.NotNull(source, "source");
+            Check.NotNull(navigationPropertyPath, "navigationPropertyPath");
 
-            throw new NotImplementedException();
+            return source.Provider.CreateQuery<TEntity>(
+                Expression.Call(
+                    null,
+                    IncludeMethodInfo.MakeGenericMethod(typeof(TEntity), typeof(TProperty)),
+                    new[] { source.Expression, Expression.Quote(navigationPropertyPath) }));
         }
 
         #endregion

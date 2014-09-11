@@ -77,6 +77,7 @@ namespace Microsoft.Data.Entity.InMemory
                     Logger,
                     CreateQueryBuffer(),
                     StateManager,
+                    EntityKeyFactorySource,
                     _database.Value);
 
             return queryExecutor(queryContext);

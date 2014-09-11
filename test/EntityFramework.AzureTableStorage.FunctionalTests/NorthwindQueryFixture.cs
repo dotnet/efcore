@@ -25,10 +25,16 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
             // TODO: Need to do this because we're not using the ATS conventions and so need to redefine keys manually
             var productType = model.GetEntityType(typeof(Product));
             var orderDetailType = model.GetEntityType(typeof(OrderDetail));
+            var customerType = model.GetEntityType(typeof(Customer));
+            var orderType = model.GetEntityType(typeof(Order));
 
             orderDetailType.RemoveNavigation(orderDetailType.Navigations.Single());
             productType.RemoveNavigation(productType.Navigations.Single());
+            customerType.RemoveNavigation(customerType.Navigations.Single());
+            orderType.RemoveNavigation(orderType.Navigations.Single());
+
             orderDetailType.RemoveForeignKey(orderDetailType.ForeignKeys.Single());
+            orderType.RemoveForeignKey(orderType.ForeignKeys.Single());
 
             const string tableSuffix = "FunctionalTests";
             var builder = new BasicModelBuilder(model);
@@ -58,12 +64,18 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
                 .TableName("OrderDetail" + tableSuffix);
 
             var modelBuilder = new BasicModelBuilder(model);
-            modelBuilder.Entity<OrderDetail>().ForeignKey<Product>(od => od.ProductID);
 
+            modelBuilder.Entity<OrderDetail>().ForeignKey<Product>(od => od.ProductID);
+            modelBuilder.Entity<Order>().ForeignKey<Customer>(o => o.CustomerID);
+            
             var productIdFk = orderDetailType.ForeignKeys.Single();
             orderDetailType.AddNavigation(new Navigation(productIdFk, "Product", pointsToPrincipal: true));
             productType.AddNavigation(new Navigation(productIdFk, "OrderDetails", pointsToPrincipal: false));
 
+            var customerIdFk = orderType.ForeignKeys.Single();
+            orderType.AddNavigation(new Navigation(customerIdFk, "Customer", pointsToPrincipal: true));
+            customerType.AddNavigation(new Navigation(customerIdFk, "Orders", pointsToPrincipal: false));
+            
             return builder.Model;
         }
 

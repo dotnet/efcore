@@ -109,19 +109,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
             return newEntry;
         }
 
-        public virtual void AttachStateEntry([NotNull] StateEntry stateEntry)
-        {
-            Check.NotNull(stateEntry, "stateEntry");
-
-            if (stateEntry.Entity != null
-                && !_entityReferenceMap.ContainsKey(stateEntry.Entity))
-            {
-                _subscriber.SnapshotAndSubscribe(stateEntry);
-
-                _entityReferenceMap[stateEntry.Entity] = stateEntry;
-            }
-        }
-
         public virtual StateEntry TryGetEntry([NotNull] EntityKey keyValue)
         {
             Check.NotNull(keyValue, "keyValue");

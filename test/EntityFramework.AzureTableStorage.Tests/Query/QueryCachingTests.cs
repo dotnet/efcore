@@ -37,6 +37,9 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
             configuration.SetupGet(s => s.StateManager).Returns(new Mock<StateManager>().Object);
             configuration.SetupGet(s => s.Services.EntityKeyFactorySource).Returns(new Mock<EntityKeyFactorySource>().Object);
             configuration.SetupGet(s => s.Services.StateEntryFactory).Returns(new Mock<StateEntryFactory>().Object);
+            configuration.SetupGet(s => s.Services.EntityMaterializerSource).Returns(new Mock<EntityMaterializerSource>().Object);
+            configuration.SetupGet(s => s.Services.ClrCollectionAccessorSource).Returns(new Mock<ClrCollectionAccessorSource>().Object);
+            configuration.SetupGet(s => s.Services.ClrPropertySetterSource).Returns(new Mock<ClrPropertySetterSource>().Object);
 
             _dataStore = new AtsDataStore(
                 configuration.Object,

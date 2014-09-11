@@ -48,6 +48,11 @@ namespace Microsoft.Data.Entity.Storage
             get { return _configuration.Model; }
         }
 
+        public virtual EntityKeyFactorySource EntityKeyFactorySource
+        {
+            get { return _configuration.Services.EntityKeyFactorySource; }
+        }
+
         public virtual StateManager StateManager
         {
             get { return _configuration.StateManager; }
@@ -55,10 +60,12 @@ namespace Microsoft.Data.Entity.Storage
 
         protected virtual IQueryBuffer CreateQueryBuffer()
         {
-            return new StateEntryQueryBuffer(
+            return new QueryBuffer(
                 StateManager,
                 _configuration.Services.EntityKeyFactorySource,
-                _configuration.Services.StateEntryFactory);
+                _configuration.Services.EntityMaterializerSource,
+                _configuration.Services.ClrCollectionAccessorSource,
+                _configuration.Services.ClrPropertySetterSource);
         }
 
         public abstract Task<int> SaveChangesAsync(

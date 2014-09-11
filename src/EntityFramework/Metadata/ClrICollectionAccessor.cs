@@ -36,6 +36,27 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotNull(instance, "instance");
             Check.NotNull(value, "value");
 
+            GetOrCreateCollection(instance).Add((TElement)value);
+        }
+
+        public virtual void AddRange(object instance, IEnumerable<object> values)
+        {
+            Check.NotNull(instance, "instance");
+            Check.NotNull(values, "values");
+
+            var collection = GetOrCreateCollection(instance);
+
+            foreach (TElement value in values)
+            {
+                if (!collection.Contains(value))
+                {
+                    collection.Add(value);
+                }
+            }
+        }
+
+        private TCollection GetOrCreateCollection(object instance)
+        {
             var collection = _getCollection((TEntity)instance);
 
             if (collection == null)
@@ -53,8 +74,7 @@ namespace Microsoft.Data.Entity.Metadata
 
                 collection = _createAndSetCollection((TEntity)instance, _setCollection);
             }
-
-            collection.Add((TElement)value);
+            return collection;
         }
 
         public virtual bool Contains(object instance, object value)

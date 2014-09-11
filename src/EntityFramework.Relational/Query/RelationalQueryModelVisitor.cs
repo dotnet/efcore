@@ -844,8 +844,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             return new QuerySourceScope<TEntity>(
                 querySource,
-                (TEntity)queryContext.QueryBuffer
-                    .GetEntity(entityType, valueReader),
+                (TEntity)queryContext.QueryBuffer.GetEntity(entityType, valueReader),
                 parentQuerySourceScope);
         }
 

@@ -32,6 +32,9 @@ namespace Microsoft.Data.Entity.Query
 
             methodInfoBasedNodeTypeRegistry
                 .Register(AsNoTrackingExpressionNode.SupportedMethods, typeof(AsNoTrackingExpressionNode));
+            
+            methodInfoBasedNodeTypeRegistry
+                .Register(IncludeExpressionNode.SupportedMethods, typeof(IncludeExpressionNode));
 
             var innerProviders
                 = new INodeTypeProvider[]

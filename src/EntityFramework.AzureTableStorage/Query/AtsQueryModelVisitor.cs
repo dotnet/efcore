@@ -89,18 +89,20 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
             = typeof(AtsQueryModelVisitor).GetTypeInfo().GetDeclaredMethod("ExecuteSelectExpression");
 
         [UsedImplicitly]
-        private static IEnumerable<TResult> ExecuteSelectExpression<TResult>(QueryContext queryContext, IEntityType entityType, SelectExpression selectExpression)
+        private static IEnumerable<TResult> ExecuteSelectExpression<TResult>(
+            QueryContext queryContext, IEntityType entityType, SelectExpression selectExpression)
             where TResult : class, new()
         {
             var context = ((AtsQueryContext)queryContext);
             var table = new AtsTable(entityType.TableName());
             var query = context.TableQueryGenerator.GenerateTableQuery(selectExpression);
-            var request = new QueryTableRequest<TResult>(
-                table,
-                query, s =>
-                    (TResult)context.QueryBuffer.GetEntity(
-                        entityType,
-                        context.ValueReaderFactory.Create(entityType, s)));
+
+            var request
+                = new QueryTableRequest<TResult>(
+                    table,
+                    query,
+                    s => (TResult)context.QueryBuffer
+                        .GetEntity(entityType, context.ValueReaderFactory.Create(entityType, s)));
 
             return context.GetOrAddQueryResults(request);
         }

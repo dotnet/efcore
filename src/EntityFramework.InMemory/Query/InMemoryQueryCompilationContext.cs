@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.InMemory.Query
     public class InMemoryQueryCompilationContext : QueryCompilationContext
     {
         public InMemoryQueryCompilationContext([NotNull] IModel model)
-            : base(Check.NotNull(model, "model"), new LinqOperatorProvider(), new ResultOperatorHandler())
+            : base(Check.NotNull(model, "model"), new LinqOperatorProvider(), new InMemoryResultOperatorHandler())
         {
         }
 
