@@ -470,7 +470,17 @@ namespace Microsoft.Data.Entity.Design
         {
             Check.NotNull(path, "path");
 
-            return Path.IsPathRooted(path) ? path : PathResolver.ResolveAppRelativePath(path);
+            if (Path.IsPathRooted(path))
+            {
+                return path;
+            }
+
+#if NET451
+            return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, path);
+#else
+            // TODO
+            throw new NotImplementedException();
+#endif
         }
     }
 }
