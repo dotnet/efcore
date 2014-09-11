@@ -172,7 +172,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                         var newArguments = new List<Expression>(newExpression.Arguments);
                         newArguments[2] = _outerShaperExpression;
 
-                        if (newArguments.Count == 5)
+                        if (newArguments.Count == 6)
                         {
                             newArguments[4]
                                 = Expression.Constant(
@@ -828,12 +828,14 @@ namespace Microsoft.Data.Entity.Relational.Query
             QueryContext queryContext,
             QuerySourceScope parentQuerySourceScope,
             DbDataReader dataReader,
-            int readerOffset)
+            int readerOffset,
+            IEntityType entityType)
         {
             var relationalQueryContext = (RelationalQueryContext)queryContext;
 
             var valueReader
-                = relationalQueryContext.ValueReaderFactory.Create(dataReader);
+                = relationalQueryContext.ValueReaderFactory
+                    .Create(dataReader);
 
             if (readerOffset > 0)
             {
@@ -842,11 +844,8 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             return new QuerySourceScope<TEntity>(
                 querySource,
-                // ReSharper disable once AssignNullToNotNullAttribute
                 (TEntity)queryContext.QueryBuffer
-                    .GetEntity(
-                        queryContext.Model.GetEntityType(typeof(TEntity)),
-                        valueReader),
+                    .GetEntity(entityType, valueReader),
                 parentQuerySourceScope);
         }
 
@@ -958,7 +957,9 @@ namespace Microsoft.Data.Entity.Relational.Query
                     }
 
                     queryMethodInfo = CreateEntityMethodInfo.MakeGenericMethod(elementType);
+
                     queryMethodArguments.Add(Expression.Constant(0));
+                    queryMethodArguments.Add(Expression.Constant(entityType));
                 }
 
                 return Expression.Call(

@@ -4,7 +4,6 @@
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.InMemory.Utilities;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Framework.Logging;
 
@@ -15,13 +14,11 @@ namespace Microsoft.Data.Entity.InMemory.Query
         private readonly InMemoryDatabase _database;
 
         public InMemoryQueryContext(
-            [NotNull] IModel model,
             [NotNull] ILogger logger,
             [NotNull] IQueryBuffer queryBuffer,
             [NotNull] StateManager stateManager,
             [NotNull] InMemoryDatabase database)
             : base(
-                Check.NotNull(model, "model"),
                 Check.NotNull(logger, "logger"),
                 Check.NotNull(queryBuffer, "queryBuffer"),
                 Check.NotNull(stateManager, "stateManager"))
