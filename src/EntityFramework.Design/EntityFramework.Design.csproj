@@ -35,11 +35,16 @@
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
-    <PackageReference Include="System.Data.Common" />
+    <Reference Include="System.Data" />
+    <PackageReference Include="System.Data.Common">
+      <TargetFramework>net451</TargetFramework>
+    </PackageReference>
     <PackageReference Include="Microsoft.Framework.ConfigurationModel">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
-    <PackageReference Include="Microsoft.Framework.DependencyInjection" />
+    <PackageReference Include="Microsoft.Framework.DependencyInjection">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\packages\KoreBuild\build\Resources.cs">
@@ -95,7 +100,7 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>

@@ -60,8 +60,12 @@
     <PackageReference Include="Microsoft.Framework.DependencyInjection">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
-    <PackageReference Include="Microsoft.Framework.Logging" />
-    <PackageReference Include="Microsoft.Framework.Logging.Interfaces" />
+    <PackageReference Include="Microsoft.Framework.Logging">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Framework.Logging.Interfaces">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
     <PackageReference Include="StackExchange.Redis">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
@@ -98,7 +102,7 @@
     <None Include="README.md" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
