@@ -78,7 +78,6 @@ namespace Microsoft.Data.Entity.Relational
 
             var queryContext
                 = new RelationalQueryContext(
-                    Model,
                     Logger,
                     CreateQueryBuffer(),
                     StateManager,
@@ -105,7 +104,6 @@ namespace Microsoft.Data.Entity.Relational
 
             var queryContext
                 = new RelationalQueryContext(
-                    Model,
                     Logger,
                     CreateQueryBuffer(),
                     StateManager,

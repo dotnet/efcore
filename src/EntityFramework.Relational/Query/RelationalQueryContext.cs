@@ -3,7 +3,6 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Relational.Utilities;
 using Microsoft.Framework.Logging;
@@ -16,14 +15,12 @@ namespace Microsoft.Data.Entity.Relational.Query
         private readonly RelationalValueReaderFactory _valueReaderFactory;
 
         public RelationalQueryContext(
-            [NotNull] IModel model,
             [NotNull] ILogger logger,
             [NotNull] IQueryBuffer queryBuffer,
             [NotNull] StateManager stateManager,
             [NotNull] RelationalConnection connection,
             [NotNull] RelationalValueReaderFactory valueReaderFactory)
             : base(
-                Check.NotNull(model, "model"),
                 Check.NotNull(logger, "logger"),
                 Check.NotNull(queryBuffer, "queryBuffer"),
                 Check.NotNull(stateManager, "stateManager"))

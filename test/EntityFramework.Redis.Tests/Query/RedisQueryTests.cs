@@ -69,7 +69,6 @@ namespace Microsoft.Data.Entity.Redis.Tests.Query
 
             var redisQueryContextMock
                 = new Mock<RedisQueryContext>(
-                    QueryTestType.Model(),
                     NullLogger.Instance,
                     materializationStrategyMock.Object,
                     stateManagerMockMock.Object,

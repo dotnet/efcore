@@ -74,7 +74,6 @@ namespace Microsoft.Data.Entity.InMemory
 
             var queryContext
                 = new InMemoryQueryContext(
-                    Model,
                     Logger,
                     CreateQueryBuffer(),
                     StateManager,

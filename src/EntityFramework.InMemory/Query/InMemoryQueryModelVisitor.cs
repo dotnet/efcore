@@ -32,10 +32,11 @@ namespace Microsoft.Data.Entity.InMemory.Query
                 .GetDeclaredMethod("EntityQuery");
 
         [UsedImplicitly]
-        private static IEnumerable<TEntity> EntityQuery<TEntity>(QueryContext queryContext)
+        private static IEnumerable<TEntity> EntityQuery<TEntity>(QueryContext queryContext, IEntityType entityType)
         {
-            var entityType = queryContext.Model.GetEntityType(typeof(TEntity));
-            var inMemoryTable = ((InMemoryQueryContext)queryContext).Database.GetTable(entityType);
+            var inMemoryTable
+                = ((InMemoryQueryContext)queryContext).Database
+                    .GetTable(entityType);
 
             return inMemoryTable
                 .Select(t => (TEntity)queryContext.QueryBuffer
@@ -47,10 +48,8 @@ namespace Microsoft.Data.Entity.InMemory.Query
                 .GetDeclaredMethod("ProjectionQuery");
 
         [UsedImplicitly]
-        private static IEnumerable<IValueReader> ProjectionQuery<TEntity>(QueryContext queryContext)
+        private static IEnumerable<IValueReader> ProjectionQuery(QueryContext queryContext, IEntityType entityType)
         {
-            var entityType = queryContext.Model.GetEntityType(typeof(TEntity));
-
             return ((InMemoryQueryContext)queryContext).Database.GetTable(entityType)
                 .Select(t => new ObjectArrayValueReader(t));
         }
@@ -75,16 +74,21 @@ namespace Microsoft.Data.Entity.InMemory.Query
             {
                 Check.NotNull(elementType, "elementType");
 
+                var entityType 
+                    = QueryModelVisitor.QueryCompilationContext.Model
+                        .GetEntityType(elementType);
+
                 var queryMethodInfo = _projectionQueryMethodInfo;
 
                 if (QueryModelVisitor.QuerySourceRequiresMaterialization(_querySource))
                 {
-                    queryMethodInfo = _entityQueryMethodInfo;
+                    queryMethodInfo = _entityQueryMethodInfo.MakeGenericMethod(elementType);
                 }
 
                 return Expression.Call(
-                    queryMethodInfo.MakeGenericMethod(elementType),
-                    QueryContextParameter);
+                    queryMethodInfo,
+                    QueryContextParameter, 
+                    Expression.Constant(entityType));
             }
         }
     }

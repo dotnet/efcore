@@ -49,7 +49,6 @@ namespace Microsoft.Data.Entity.Redis
 
             var queryContext
                 = new RedisQueryContext(
-                    Model,
                     Logger,
                     CreateQueryBuffer(),
                     StateManager,

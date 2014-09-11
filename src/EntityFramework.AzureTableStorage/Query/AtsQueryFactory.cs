@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
             Check.NotNull(stateManager, "stateManager");
             Check.NotNull(connection, "connection");
 
-            return new AtsQueryContext(model, logger, queryBuffer, stateManager, connection, _valueReaderFactory);
+            return new AtsQueryContext(logger, queryBuffer, stateManager, connection, _valueReaderFactory);
         }
     }
 }

@@ -16,13 +16,11 @@ namespace Microsoft.Data.Entity.Redis.Query
         protected RedisDatabase _redisDatabase;
 
         public RedisQueryContext(
-            [NotNull] IModel model,
             [NotNull] ILogger logger,
             [NotNull] IQueryBuffer queryBuffer,
             [NotNull] StateManager stateManager,
             [NotNull] RedisDatabase redisDatabase)
             : base(
-                Check.NotNull(model, "model"),
                 Check.NotNull(logger, "logger"),
                 Check.NotNull(queryBuffer, "queryBuffer"),
                 Check.NotNull(stateManager, "stateManager"))
