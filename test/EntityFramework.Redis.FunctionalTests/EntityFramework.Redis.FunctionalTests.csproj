@@ -72,6 +72,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AsNoTrackingTest.cs" />
+    <Compile Include="BuiltInDataTypesFixture.cs" />
+    <Compile Include="BuiltInDataTypesTest.cs" />
     <Compile Include="NorthwindQueryFixture.cs" />
     <Compile Include="NorthwindQueryTest.cs" />
     <Compile Include="RedisTestConfig.cs" />
@@ -79,6 +81,8 @@
     <Compile Include="SimpleFixture.cs" />
     <Compile Include="SimpleTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SupplementalBuiltInDataTypesFixture.cs" />
+    <Compile Include="SupplementalBuiltInDataTypesTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\EntityFramework.Redis\EntityFramework.Redis.csproj">

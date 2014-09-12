@@ -69,6 +69,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AsNoTrackingTest.cs" />
+    <Compile Include="BuiltInDataTypesFixture.cs" />
+    <Compile Include="BuiltInDataTypesTest.cs" />
     <Compile Include="MonsterFixupTest.cs" />
     <Compile Include="NorthwindAsyncQueryTest.cs" />
     <Compile Include="NorthwindQueryFixture.cs" />

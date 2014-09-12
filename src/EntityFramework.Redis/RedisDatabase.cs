@@ -401,6 +401,10 @@ namespace Microsoft.Data.Entity.Redis
             {
                 return MaybeNullable(DateTime.Parse(value), property);
             }
+            if (typeof(DateTimeOffset) == underlyingType)
+            {
+                return MaybeNullable(DateTimeOffset.Parse(value), property);
+            }
             if (typeof(Single) == underlyingType)
             {
                 return MaybeNullable(Convert.ToSingle(value), property);
