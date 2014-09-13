@@ -158,9 +158,11 @@ namespace Microsoft.Data.Entity
         // TODO: Consider Framework Guidelines recommended dispose pattern
         public virtual void Dispose()
         {
-            if (_scopedServiceProvider != null)
+            var disposableServiceProvider = _scopedServiceProvider as IDisposable;
+
+            if (disposableServiceProvider != null)
             {
-                ((IDisposable)_scopedServiceProvider).Dispose();
+                disposableServiceProvider.Dispose();
             }
         }
 
