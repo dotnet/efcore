@@ -61,12 +61,16 @@ namespace Microsoft.Data.Entity.Query
             return stateEntry.Entity;
         }
 
-        public virtual StateEntry GetStateEntry(object entity)
+        public virtual StateEntry TryGetStateEntry(object entity)
         {
             Check.NotNull(entity, "entity");
 
+            StateEntry stateEntry;
+
             return _stateManager.TryGetEntry(entity)
-                   ?? _stateEntriesByEntityInstance[entity];
+                   ?? (_stateEntriesByEntityInstance.TryGetValue(entity, out stateEntry)
+                       ? stateEntry
+                       : null);
         }
     }
 }

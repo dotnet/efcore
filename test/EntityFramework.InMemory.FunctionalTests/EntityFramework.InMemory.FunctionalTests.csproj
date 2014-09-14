@@ -65,6 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AsNoTrackingTest.cs" />
+    <Compile Include="MusicStoreQueryTests.cs" />
     <Compile Include="CompositeKeyEndToEndTest.cs" />
     <Compile Include="GuidValueGeneratorEndToEndTest.cs" />
     <Compile Include="InMemoryConfigPatternsTest.cs" />

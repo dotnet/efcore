@@ -10,6 +10,6 @@ namespace Microsoft.Data.Entity.Query
     public interface IQueryBuffer
     {
         object GetEntity([NotNull] IEntityType entityType, [NotNull] IValueReader valueReader);
-        StateEntry GetStateEntry([NotNull] object entity);
+        StateEntry TryGetStateEntry([NotNull] object entity);
     }
 }

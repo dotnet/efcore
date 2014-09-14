@@ -134,11 +134,14 @@ namespace Microsoft.Data.Entity.Query
             {
                 if (entity != null)
                 {
-                    var stateEntry = queryContext.QueryBuffer.GetStateEntry(entity);
+                    var stateEntry = queryContext.QueryBuffer.TryGetStateEntry(entity);
 
-                    queryContext.StateManager.AttachStateEntry(stateEntry);
+                    if (stateEntry != null)
+                    {
+                        queryContext.StateManager.AttachStateEntry(stateEntry);
 
-                    stateEntry.EntityState = EntityState.Unchanged;
+                        stateEntry.EntityState = EntityState.Unchanged;
+                    }
                 }
 
                 yield return entity;
@@ -192,11 +195,14 @@ namespace Microsoft.Data.Entity.Query
                 {
                     if (entity != null)
                     {
-                        var stateEntry = queryContext.QueryBuffer.GetStateEntry(entity);
+                        var stateEntry = queryContext.QueryBuffer.TryGetStateEntry(entity);
 
-                        queryContext.StateManager.AttachStateEntry(stateEntry);
+                        if (stateEntry != null)
+                        {
+                            queryContext.StateManager.AttachStateEntry(stateEntry);
 
-                        stateEntry.EntityState = EntityState.Unchanged;
+                            stateEntry.EntityState = EntityState.Unchanged;
+                        }
                     }
 
                     return entity;
@@ -819,7 +825,7 @@ namespace Microsoft.Data.Entity.Query
             [UsedImplicitly]
             private static T GetValue<T>(QueryContext queryContext, object entity, IProperty property)
             {
-                return (T)queryContext.QueryBuffer.GetStateEntry(entity)[property];
+                return (T)queryContext.QueryBuffer.TryGetStateEntry(entity)[property];
             }
         }
 
