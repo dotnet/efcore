@@ -85,7 +85,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     var expression = (MethodCallExpression)query.Expression;
 
                     Assert.Equal("Select", expression.Method.Name);
-                    Assert.Equal("h => new MigrationMetadata(h.MigrationId)", expression.Arguments[1].ToString());
+                    Assert.Equal(
+                        "h => new MigrationMetadata(h.MigrationId, value(Microsoft.Data.Entity.Migrations.Infrastructure.HistoryRepository).ContextConfiguration.Context.GetType())", 
+                        expression.Arguments[1].ToString());
 
                     expression = (MethodCallExpression)expression.Arguments[0];
 
@@ -131,8 +133,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         {
             return new IMigrationMetadata[]
                 {
-                    new MigrationMetadata("000000000000001_Migration1"),
-                    new MigrationMetadata("000000000000002_Migration2")
+                    new MigrationMetadata("000000000000001_Migration1", typeof(Context)),
+                    new MigrationMetadata("000000000000002_Migration2", typeof(Context))
                 }
                 .AsQueryable();
         }
@@ -145,7 +147,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                 var historyRepository = new HistoryRepository(context.Configuration);
 
                 var sqlStatements = historyRepository.GenerateInsertMigrationSql(
-                    new MigrationMetadata("000000000000001_Foo"), new DmlSqlGenerator());
+                    new MigrationMetadata("000000000000001_Foo", typeof(Context)), new DmlSqlGenerator());
 
                 Assert.Equal(1, sqlStatements.Count);
                 Assert.Equal(string.Format(
@@ -164,7 +166,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                 historyRepository.Protected().Setup<string>("GetContextKey").Returns("SomeContextKey");
 
                 var sqlStatements = historyRepository.Object.GenerateInsertMigrationSql(
-                    new MigrationMetadata("000000000000001_Foo"), new DmlSqlGenerator());
+                    new MigrationMetadata("000000000000001_Foo", typeof(Context)), new DmlSqlGenerator());
 
                 Assert.Equal(1, sqlStatements.Count);
                 Assert.Equal(string.Format(
@@ -181,7 +183,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                 var historyRepository = new HistoryRepository(context.Configuration);
 
                 var sqlStatements = historyRepository.GenerateDeleteMigrationSql(
-                    new MigrationMetadata("000000000000001_Foo"), new DmlSqlGenerator());
+                    new MigrationMetadata("000000000000001_Foo", typeof(Context)), new DmlSqlGenerator());
 
                 Assert.Equal(1, sqlStatements.Count);
                 Assert.Equal(

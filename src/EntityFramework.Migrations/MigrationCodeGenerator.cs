@@ -33,6 +33,22 @@ namespace Microsoft.Data.Entity.Migrations
             return GetDefaultNamespaces();
         }
 
+        public virtual IReadOnlyList<string> GetMetadataNamespaces([NotNull] IMigrationMetadata migration)
+        {
+            Check.NotNull(migration, "migration");
+
+            var namespaces = new List<string>(GetMetadataDefaultNamespaces());
+
+            if (!string.IsNullOrEmpty(migration.ContextType.Namespace))
+            {
+                namespaces.Add(migration.ContextType.Namespace);
+            }
+
+            namespaces.AddRange(ModelCodeGenerator.GetNamespaces(migration.TargetModel));
+
+            return namespaces;
+        }
+
         public virtual IReadOnlyList<string> GetDefaultNamespaces()
         {
             return new[]

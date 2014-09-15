@@ -27,6 +27,8 @@ namespace Microsoft.Data.Entity.Commands.Migrations
         public static string Generate<T>([NotNull] T migrationOperation)
             where T : MigrationOperation
         {
+            Check.NotNull(migrationOperation, "migrationOperation");
+
             var generator = new CSharpMigrationCodeGenerator(new CSharpModelCodeGenerator());
             var stringBuilder = new IndentedStringBuilder();
 
@@ -41,6 +43,11 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             IMigrationMetadata migration,
             IndentedStringBuilder stringBuilder)
         {
+            Check.NotEmpty(@namespace, "namespace");
+            Check.NotEmpty(className, "className");
+            Check.NotNull(migration, "migration");
+            Check.NotNull(stringBuilder, "stringBuilder");
+
             var operations = migration.UpgradeOperations.Concat(migration.DowngradeOperations);
 
             foreach (var ns in GetNamespaces(operations).OrderBy(n => n).Distinct())
@@ -90,10 +97,12 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             IMigrationMetadata migration,
             IndentedStringBuilder stringBuilder)
         {
-            foreach (var ns in GetMetadataDefaultNamespaces()
-                .Concat(ModelCodeGenerator.GetNamespaces(migration.TargetModel))
-                .OrderBy(n => n)
-                .Distinct())
+            Check.NotEmpty(@namespace, "namespace");
+            Check.NotEmpty(className, "className");
+            Check.NotNull(migration, "migration");
+            Check.NotNull(stringBuilder, "stringBuilder");
+
+            foreach (var ns in GetMetadataNamespaces(migration).OrderBy(n => n).Distinct())
             {
                 stringBuilder
                     .Append("using ")
@@ -110,6 +119,9 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             using (stringBuilder.Indent())
             {
                 stringBuilder
+                    .Append("[ContextType(typeof(")
+                    .Append(migration.ContextType.GetNestedName())
+                    .AppendLine("))]")
                     .Append("public partial class ")
                     .Append(className)
                     .AppendLine(" : IMigrationMetadata")
@@ -148,7 +160,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             [NotNull] IReadOnlyList<MigrationOperation> migrationOperations,
             [NotNull] IndentedStringBuilder stringBuilder)
         {
-            Check.NotNull(methodName, "methodName");
+            Check.NotEmpty(methodName, "methodName");
             Check.NotNull(migrationOperations, "migrationOperations");
             Check.NotNull(stringBuilder, "stringBuilder");
 
@@ -181,6 +193,10 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             [NotNull] Action generateCode,
             [NotNull] IndentedStringBuilder stringBuilder)
         {
+            Check.NotEmpty(signature, "signature");
+            Check.NotNull(generateCode, "generateCode");
+            Check.NotNull(stringBuilder, "stringBuilder");
+
             stringBuilder
                 .AppendLine(signature)
                 .AppendLine("{");
@@ -304,6 +320,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
         public override void Generate(RenameTableOperation renameTableOperation, IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(renameTableOperation, "renameTableOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
 
             stringBuilder
                 .Append("RenameTable(")
@@ -647,6 +664,8 @@ namespace Microsoft.Data.Entity.Commands.Migrations
 
         public virtual string Generate([NotNull] object value)
         {
+            Check.NotNull(value, "value");
+
             return string.Format(CultureInfo.InvariantCulture, "{0}", value);
         }
 
@@ -691,6 +710,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
         protected virtual void GenerateColumn([NotNull] Column column, [NotNull] IndentedStringBuilder stringBuilder, bool emitName)
         {
             Check.NotNull(column, "column");
+            Check.NotNull(stringBuilder, "stringBuilder");
 
             stringBuilder
                 .Append("c.")
@@ -767,6 +787,9 @@ namespace Microsoft.Data.Entity.Commands.Migrations
         protected virtual void GenerateColumnReferences(
             [NotNull] IReadOnlyList<Column> columns, [NotNull] IndentedStringBuilder stringBuilder)
         {
+            Check.NotNull(columns, "columns");
+            Check.NotNull(stringBuilder, "stringBuilder");
+
             if (columns.Count == 1)
             {
                 stringBuilder
@@ -804,6 +827,8 @@ namespace Microsoft.Data.Entity.Commands.Migrations
 
         protected virtual string TranslateColumnType([NotNull] Type clrType)
         {
+            Check.NotNull(clrType, "clrType");
+
             if (clrType == typeof(short))
             {
                 return "Short";

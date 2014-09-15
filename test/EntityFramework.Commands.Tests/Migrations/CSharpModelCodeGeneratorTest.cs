@@ -62,8 +62,7 @@ return builder.Model;",
 
 builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Customer"", b =>
     {
-        b.Property<int>(""Id"")
-            .Shadow(false);
+        b.Property<int>(""Id"");
         b.Key(""Id"");
     });
 
@@ -116,7 +115,6 @@ return builder.Model;",
 builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Customer"", b =>
     {
         b.Property<int>(""Id"")
-            .Shadow(false)
             .ConcurrencyToken();
         b.Key(""Id"");
     });
@@ -173,7 +171,6 @@ return builder.Model;",
 builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Customer"", b =>
     {
         b.Property<int>(""Id"")
-            .Shadow(false)
             .Annotation(""A1"", ""V1"")
             .Annotation(""A2"", ""V2"");
         b.Key(""Id"");
@@ -202,10 +199,8 @@ return builder.Model;",
 
 builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Customer"", b =>
     {
-        b.Property<int>(""Id"")
-            .Shadow(false);
-        b.Property<string>(""Name"")
-            .Shadow(false);
+        b.Property<int>(""Id"");
+        b.Property<string>(""Name"");
         b.Key(""Id"");
     });
 
@@ -237,11 +232,9 @@ return builder.Model;",
 builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Customer"", b =>
     {
         b.Property<int>(""Id"")
-            .Shadow(false)
             .Annotation(""A1"", ""V1"")
             .Annotation(""A2"", ""V2"");
         b.Property<string>(""Name"")
-            .Shadow(false)
             .Annotation(""A1"", ""V1"")
             .Annotation(""A2"", ""V2"");
         b.Key(""Id"");
@@ -272,10 +265,8 @@ return builder.Model;",
 
 builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Customer"", b =>
     {
-        b.Property<int>(""Id"")
-            .Shadow(false);
-        b.Property<string>(""Name"")
-            .Shadow(false);
+        b.Property<int>(""Id"");
+        b.Property<string>(""Name"");
         b.Key(k => k.Properties(""Id"", ""Name"")
             .Annotation(""A1"", ""V1"")
             .Annotation(""A2"", ""V2""));
@@ -315,19 +306,15 @@ return builder.Model;",
 
 builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Customer"", b =>
     {
-        b.Property<int>(""Id"")
-            .Shadow(false);
-        b.Property<string>(""Name"")
-            .Shadow(false);
+        b.Property<int>(""Id"");
+        b.Property<string>(""Name"");
         b.Key(""Id"");
     });
 
 builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Order"", b =>
     {
-        b.Property<int>(""CustomerId"")
-            .Shadow(false);
-        b.Property<int>(""Id"")
-            .Shadow(false);
+        b.Property<int>(""CustomerId"");
+        b.Property<int>(""Id"");
         b.Key(""Id"");
         b.ForeignKey(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Customer"", ""CustomerId"");
     });
@@ -367,21 +354,16 @@ return builder.Model;",
 
 builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Customer"", b =>
     {
-        b.Property<int>(""Id"")
-            .Shadow(false);
-        b.Property<string>(""Name"")
-            .Shadow(false);
+        b.Property<int>(""Id"");
+        b.Property<string>(""Name"");
         b.Key(""Id"", ""Name"");
     });
 
 builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Order"", b =>
     {
-        b.Property<int>(""CustomerId"")
-            .Shadow(false);
-        b.Property<string>(""CustomerName"")
-            .Shadow(false);
-        b.Property<int>(""Id"")
-            .Shadow(false);
+        b.Property<int>(""CustomerId"");
+        b.Property<string>(""CustomerName"");
+        b.Property<int>(""Id"");
         b.Key(""Id"");
         b.ForeignKey(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Customer"", ""CustomerId"", ""CustomerName"");
     });
@@ -421,19 +403,15 @@ return builder.Model;",
 
 builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Customer"", b =>
     {
-        b.Property<int>(""Id"")
-            .Shadow(false);
-        b.Property<string>(""Name"")
-            .Shadow(false);
+        b.Property<int>(""Id"");
+        b.Property<string>(""Name"");
         b.Key(""Id"");
     });
 
 builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Order"", b =>
     {
-        b.Property<int>(""CustomerId"")
-            .Shadow(false);
-        b.Property<int>(""Id"")
-            .Shadow(false);
+        b.Property<int>(""CustomerId"");
+        b.Property<int>(""Id"");
         b.Key(""Id"");
         b.ForeignKey(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Customer"", ""CustomerId"")
             .Annotation(""A1"", ""V1"")
@@ -484,23 +462,17 @@ return builder.Model;",
 
 builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Customer"", b =>
     {
-        b.Property<int>(""Id"")
-            .Shadow(false);
-        b.Property<string>(""Name"")
-            .Shadow(false);
+        b.Property<int>(""Id"");
+        b.Property<string>(""Name"");
         b.Key(""Id"", ""Name"");
     });
 
 builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Order"", b =>
     {
-        b.Property<int>(""CustomerId"")
-            .Shadow(false);
-        b.Property<string>(""CustomerName"")
-            .Shadow(false);
-        b.Property<int>(""Id"")
-            .Shadow(false);
-        b.Property<int>(""ProductId"")
-            .Shadow(false);
+        b.Property<int>(""CustomerId"");
+        b.Property<string>(""CustomerName"");
+        b.Property<int>(""Id"");
+        b.Property<int>(""ProductId"");
         b.Key(""Id"");
         b.ForeignKey(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Customer"", ""CustomerId"", ""CustomerName"");
         b.ForeignKey(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Product"", ""ProductId"");
@@ -508,8 +480,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCode
 
 builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Product"", b =>
     {
-        b.Property<int>(""Id"")
-            .Shadow(false);
+        b.Property<int>(""Id"");
         b.Key(""Id"");
     });
 
@@ -561,23 +532,17 @@ return builder.Model;",
 
 builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Customer"", b =>
     {
-        b.Property<int>(""Id"")
-            .Shadow(false);
-        b.Property<string>(""Name"")
-            .Shadow(false);
+        b.Property<int>(""Id"");
+        b.Property<string>(""Name"");
         b.Key(""Id"", ""Name"");
     });
 
 builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Order"", b =>
     {
-        b.Property<int>(""CustomerId"")
-            .Shadow(false);
-        b.Property<string>(""CustomerName"")
-            .Shadow(false);
-        b.Property<int>(""Id"")
-            .Shadow(false);
-        b.Property<int>(""ProductId"")
-            .Shadow(false);
+        b.Property<int>(""CustomerId"");
+        b.Property<string>(""CustomerName"");
+        b.Property<int>(""Id"");
+        b.Property<int>(""ProductId"");
         b.Key(""Id"");
         b.ForeignKey(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Customer"", ""CustomerId"", ""CustomerName"")
             .Annotation(""A1"", ""V1"")
@@ -589,8 +554,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCode
 
 builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Product"", b =>
     {
-        b.Property<int>(""Id"")
-            .Shadow(false);
+        b.Property<int>(""Id"");
         b.Key(""Id"");
     });
 

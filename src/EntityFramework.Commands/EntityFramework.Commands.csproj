@@ -72,6 +72,7 @@
     <Compile Include="Utilities\CSharpHelper.cs" />
     <Compile Include="Utilities\EnumerableExtensions.cs" />
     <Compile Include="Utilities\ForwardingProxy.cs" />
+    <Compile Include="Utilities\TypeExtensions.cs" />
     <EmbeddedResource Include="Properties\Strings.resx">
       <LogicalName>EntityFramework.Commands.Strings.resources</LogicalName>
       <SubType>Designer</SubType>

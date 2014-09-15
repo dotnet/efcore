@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             var downgradeOperations = new MigrationOperation[0];
 
             var migration
-                = new MigrationMetadata("000000000000001_Name")
+                = new MigrationMetadata("000000000000001_Name", typeof(MyContext))
                     {
                         TargetModel = targetModel,
                         UpgradeOperations = upgradeOperations,
@@ -25,9 +25,14 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     };
 
             Assert.Equal("000000000000001_Name", migration.MigrationId);
+            Assert.Same(typeof(MyContext), migration.ContextType);
             Assert.Same(targetModel, migration.TargetModel);
             Assert.Same(upgradeOperations, migration.UpgradeOperations);
             Assert.Same(downgradeOperations, migration.DowngradeOperations);
+        }
+
+        public class MyContext : DbContext
+        {
         }
     }
 }

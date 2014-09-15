@@ -30,6 +30,23 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             Assert.IsType<DropTableOperation>(migration.DowngradeOperations[1]);
         }
 
+        [Fact]
+        public void ContextType_property_returns_value_of_ContextTypeAttribute()
+        {
+            var migration = (IMigrationMetadata)new AMigration();
+
+            Assert.Same(typeof(MyContext), migration.ContextType);
+        }
+
+        [Fact]
+        public void ContextType_property_returns_null_if_no_ContextTypeAttribute()
+        {
+            var migration = (IMigrationMetadata)new BMigration();
+
+            Assert.Null(migration.ContextType);
+        }
+        
+        [ContextType(typeof(MyContext))]
         public class AMigration : Migration
         {
             public override void Up(MigrationBuilder migrationBuilder)
@@ -50,6 +67,21 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 migrationBuilder.DropColumn("dbo.MyTable", "Foo");
                 migrationBuilder.DropTable("dbo.MyTable");
             }
+        }
+
+        public class BMigration : Migration
+        {
+            public override void Up(MigrationBuilder migrationBuilder)
+            {
+            }
+
+            public override void Down(MigrationBuilder migrationBuilder)
+            {
+            }
+        }
+
+        public class MyContext : DbContext
+        {
         }
     }
 }

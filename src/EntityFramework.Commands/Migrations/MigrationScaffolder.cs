@@ -115,7 +115,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             }
 
             return
-                new MigrationMetadata(CreateMigrationId(migrationName))
+                new MigrationMetadata(CreateMigrationId(migrationName), ContextConfiguration.Context.GetType())
                     {
                         TargetModel = targetModel,
                         UpgradeOperations = upgradeOperations,

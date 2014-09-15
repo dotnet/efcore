@@ -116,12 +116,14 @@ namespace MyNamespace
                 migrationClass);
 
             Assert.Equal(
-                @"using Microsoft.Data.Entity.Metadata;
+@"using Microsoft.Data.Entity.Commands.Tests.Migrations;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using System;
 
 namespace MyNamespace
 {
+    [ContextType(typeof(MigrationScaffolderTest.Context))]
     public partial class MyMigration : IMigrationMetadata
     {
         string IMigrationMetadata.MigrationId
@@ -203,12 +205,15 @@ namespace MyNamespace
 }",
                 migrationClass);
 
-            Assert.Equal(@"using Microsoft.Data.Entity.Metadata;
+            Assert.Equal(
+@"using Microsoft.Data.Entity.Commands.Tests.Migrations;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using System;
 
 namespace MyNamespace
 {
+    [ContextType(typeof(MigrationScaffolderTest.Context))]
     public partial class MyMigration : IMigrationMetadata
     {
         string IMigrationMetadata.MigrationId
@@ -227,8 +232,7 @@ namespace MyNamespace
                 
                 builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.MigrationScaffolderTest+Entity"", b =>
                     {
-                        b.Property<int>(""Id"")
-                            .Shadow(false);
+                        b.Property<int>(""Id"");
                         b.Key(k => k.Properties(""Id"")
                             .KeyName(""MyPK""));
                         b.TableName(""MyTable"", ""dbo"");
@@ -263,8 +267,7 @@ namespace MyNamespace
                 
                 builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.MigrationScaffolderTest+Entity"", b =>
                     {
-                        b.Property<int>(""Id"")
-                            .Shadow(false);
+                        b.Property<int>(""Id"");
                         b.Key(k => k.Properties(""Id"")
                             .KeyName(""MyPK""));
                         b.TableName(""MyTable"", ""dbo"");
@@ -338,12 +341,14 @@ namespace MyNamespace
                 migrationClass);
 
             Assert.Equal(
-                @"using Microsoft.Data.Entity.Metadata;
+@"using Microsoft.Data.Entity.Commands.Tests.Migrations;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using System;
 
 namespace MyNamespace
 {
+    [ContextType(typeof(MigrationScaffolderTest.Context))]
     public partial class MyMigration : IMigrationMetadata
     {
         string IMigrationMetadata.MigrationId
@@ -369,10 +374,8 @@ namespace MyNamespace
                 builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.MigrationScaffolderTest+Customer"", b =>
                     {
                         b.Property<int>(""HouseId"")
-                            .Shadow(false)
                             .ColumnName(""House[\""Id]Column"");
-                        b.Property<int>(""Id"")
-                            .Shadow(false);
+                        b.Property<int>(""Id"");
                         b.Key(k => k.Properties(""Id"")
                             .KeyName(""My[\""PK]"")
                             .Annotation(""My\""PK\""Annotat!on"", ""\""Foo\""""));
@@ -384,10 +387,8 @@ namespace MyNamespace
                 
                 builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.MigrationScaffolderTest+Order"", b =>
                     {
-                        b.Property<int>(""CustomerId"")
-                            .Shadow(false);
-                        b.Property<int>(""OrderId"")
-                            .Shadow(false);
+                        b.Property<int>(""CustomerId"");
+                        b.Property<int>(""OrderId"");
                         b.Key(""OrderId"");
                         b.ForeignKey(""Microsoft.Data.Entity.Commands.Tests.Migrations.MigrationScaffolderTest+Customer"", ""CustomerId"");
                         b.TableName(""Ord[\""e.r]s"", ""dbo"");
@@ -430,10 +431,8 @@ namespace MyNamespace
                 builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.MigrationScaffolderTest+Customer"", b =>
                     {
                         b.Property<int>(""HouseId"")
-                            .Shadow(false)
                             .ColumnName(""House[\""Id]Column"");
-                        b.Property<int>(""Id"")
-                            .Shadow(false);
+                        b.Property<int>(""Id"");
                         b.Key(k => k.Properties(""Id"")
                             .KeyName(""My[\""PK]"")
                             .Annotation(""My\""PK\""Annotat!on"", ""\""Foo\""""));
@@ -445,10 +444,8 @@ namespace MyNamespace
                 
                 builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.MigrationScaffolderTest+Order"", b =>
                     {
-                        b.Property<int>(""CustomerId"")
-                            .Shadow(false);
-                        b.Property<int>(""OrderId"")
-                            .Shadow(false);
+                        b.Property<int>(""CustomerId"");
+                        b.Property<int>(""OrderId"");
                         b.Key(""OrderId"");
                         b.ForeignKey(""Microsoft.Data.Entity.Commands.Tests.Migrations.MigrationScaffolderTest+Customer"", ""CustomerId"");
                         b.TableName(""Ord[\""e.r]s"", ""dbo"");
@@ -526,12 +523,14 @@ namespace MyNamespace
                 migrationClass);
 
             Assert.Equal(
-                @"using Microsoft.Data.Entity.Metadata;
+@"using Microsoft.Data.Entity.Commands.Tests.Migrations;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using System;
 
 namespace MyNamespace
 {
+    [ContextType(typeof(MigrationScaffolderTest.Context))]
     public partial class MyMigration : IMigrationMetadata
     {
         string IMigrationMetadata.MigrationId

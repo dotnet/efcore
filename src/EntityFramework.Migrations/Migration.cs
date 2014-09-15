@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Builders;
@@ -20,6 +21,15 @@ namespace Microsoft.Data.Entity.Migrations
         string IMigrationMetadata.MigrationId
         {
             get { throw new NotImplementedException(); }
+        }
+
+        Type IMigrationMetadata.ContextType
+        {
+            get 
+            {
+                var attribute = GetType().GetTypeInfo().GetCustomAttribute<ContextTypeAttribute>(inherit: true);
+                return attribute != null ? attribute.ContextType : null;
+            }
         }
 
         IModel IMigrationMetadata.TargetModel

@@ -48,6 +48,7 @@
       <DependentUpon>Resources.tt</DependentUpon>
     </Compile>
     <Compile Include="IMigrationOperationSqlGeneratorFactory.cs" />
+    <Compile Include="Infrastructure\ContextTypeAttribute.cs" />
     <Compile Include="Infrastructure\HistoryRepository.cs" />
     <Compile Include="Infrastructure\IMigrationMetadata.cs" />
     <Compile Include="Infrastructure\MigrationAssembly.cs" />

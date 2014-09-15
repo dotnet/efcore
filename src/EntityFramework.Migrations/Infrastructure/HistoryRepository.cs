@@ -72,7 +72,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 historyContext.Set<HistoryRow>()
                     .Where(h => h.ContextKey == GetContextKey())
                     .OrderBy(h => h.MigrationId)
-                    .Select(h => new MigrationMetadata(h.MigrationId));
+                    .Select(h => new MigrationMetadata(h.MigrationId, ContextConfiguration.Context.GetType()));
         }
 
         public virtual IReadOnlyList<SqlStatement> GenerateInsertMigrationSql(
