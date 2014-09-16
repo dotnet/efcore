@@ -152,7 +152,7 @@ namespace Microsoft.Data.Entity.Redis.FunctionalTests
 
                     if (_redisServerProcess == null)
                     {
-                        var serverArgs = "--port " + RedisPort;
+                        var serverArgs = "--port " + RedisPort + " --maxheap 512MB";
                         var processInfo = new ProcessStartInfo
                             {
                                 // start the process in users TMP dir (a .dat file will be created but will be removed when the server dies)
@@ -168,6 +168,14 @@ namespace Microsoft.Data.Entity.Redis.FunctionalTests
                         {
                             _redisServerProcess = Process.Start(processInfo);
                             Thread.Sleep(3000); // to give server time to initialize
+
+                            if (_redisServerProcess.HasExited)
+                            {
+                                throw new Exception("Could not start Redis Server at path "
+                                                    + tempRedisServerFullPath + " with Arguments '" + serverArgs + "', working dir = " + tempPath + Environment.NewLine
+                                                    + _redisServerProcess.StandardError.ReadToEnd() + Environment.NewLine
+                                                    + _redisServerProcess.StandardOutput.ReadToEnd());
+                            }
                         }
                         catch (Exception e)
                         {
