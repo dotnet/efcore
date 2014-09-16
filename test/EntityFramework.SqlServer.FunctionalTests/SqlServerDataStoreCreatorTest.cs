@@ -5,6 +5,7 @@ using System;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
@@ -320,6 +321,13 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 }
 
                 Assert.Equal(0, (await testDatabase.QueryAsync<string>("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES")).Count());
+
+                Assert.True(await testDatabase.ExecuteScalarAsync<bool>(
+                    string.Concat(
+                        "SELECT is_read_committed_snapshot_on FROM sys.databases WHERE name='",
+                        testDatabase.Connection.Database,
+                        "'"),
+                    CancellationToken.None));
             }
         }
 
