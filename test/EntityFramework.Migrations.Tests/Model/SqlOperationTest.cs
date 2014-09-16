@@ -21,6 +21,22 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Model
         }
 
         [Fact]
+        public void Get_set_suppress_transaction()
+        {
+            var sqlOperation = new SqlOperation("MySql");
+
+            Assert.False(sqlOperation.SuppressTransaction);
+
+            sqlOperation.SuppressTransaction = true;
+
+            Assert.True(sqlOperation.SuppressTransaction);
+
+            sqlOperation.SuppressTransaction = false;
+
+            Assert.False(sqlOperation.SuppressTransaction);
+        }
+
+        [Fact]
         public void Dispatches_visitor()
         {
             var sqlOperation = new SqlOperation("MySql");

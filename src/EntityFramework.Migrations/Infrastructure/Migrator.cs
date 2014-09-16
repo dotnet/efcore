@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
@@ -156,7 +157,73 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 database.Create();
             }
 
-            SqlExecutor.ExecuteNonQuery(database.Connection.DbConnection, database.Connection.DbTransaction, sqlStatements);
+            ExecuteStatements(sqlStatements, database.Connection);
+        }
+
+        protected virtual void ExecuteStatements(
+            [NotNull] IEnumerable<SqlStatement> sqlStatements, [NotNull] RelationalConnection connection)
+        {
+            Check.NotNull(sqlStatements, "sqlStatements");
+            Check.NotNull(connection, "connection");
+
+            var pendingStatements = new List<SqlStatement>();
+
+            foreach (var statement in sqlStatements.Where(s => !string.IsNullOrEmpty(s.Sql)))
+            {
+                if (!statement.SuppressTransaction)
+                {
+                    pendingStatements.Add(statement);
+
+                    continue;
+                }
+
+                if (pendingStatements.Any())
+                {
+                    ExecuteStatementsWithinTransaction(pendingStatements, connection);
+
+                    pendingStatements.Clear();
+                }
+
+                ExecuteStatementsWithoutTransaction(new[] { statement }, connection);
+            }
+
+            if (pendingStatements.Any())
+            {
+                ExecuteStatementsWithinTransaction(pendingStatements, connection);
+            }
+        }
+
+        protected virtual void ExecuteStatementsWithinTransaction(
+            [NotNull] IEnumerable<SqlStatement> sqlStatements, [NotNull] RelationalConnection connection)
+        {
+            Check.NotNull(sqlStatements, "sqlStatements");
+            Check.NotNull(connection, "connection");
+
+            RelationalTransaction transaction = null;
+            try
+            {
+                transaction = connection.BeginTransaction(IsolationLevel.Serializable);
+
+                SqlExecutor.ExecuteNonQuery(connection.DbConnection, transaction.DbTransaction, sqlStatements);
+
+                transaction.Commit();
+            }
+            finally 
+            {
+                if (transaction != null)
+                {
+                    transaction.Dispose();
+                }
+            }
+        }
+
+        protected virtual void ExecuteStatementsWithoutTransaction(
+            [NotNull] IEnumerable<SqlStatement> sqlStatements, [NotNull] RelationalConnection connection)
+        {
+            Check.NotNull(sqlStatements, "sqlStatements");
+            Check.NotNull(connection, "connection");
+
+            SqlExecutor.ExecuteNonQuery(connection.DbConnection, null, sqlStatements);
         }
 
         public virtual IReadOnlyList<SqlStatement> GenerateUpdateDatabaseSql()
