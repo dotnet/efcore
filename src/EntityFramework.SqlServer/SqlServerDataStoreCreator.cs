@@ -101,15 +101,28 @@ namespace Microsoft.Data.Entity.SqlServer
         {
             // TODO Check DbConnection.Database always gives us what we want
             var databaseName = _connection.DbConnection.Database;
+            var sqlGenerator = _sqlGeneratorFactory.Create();
 
             var operations = new MigrationOperation[]
                 {
-                    new CreateDatabaseOperation(databaseName)
+                    new CreateDatabaseOperation(databaseName),
+                    SetReadCommittedSnapshotOn(sqlGenerator, databaseName)
                 };
 
-            var sqlGenerator = _sqlGeneratorFactory.Create();
-            var masterCommands = sqlGenerator.Generate(operations);
-            return masterCommands;
+            return sqlGenerator.Generate(operations);
+        }
+
+        private static SqlOperation SetReadCommittedSnapshotOn(
+            SqlServerMigrationOperationSqlGenerator sqlGenerator, string databaseName)
+        {
+            return new SqlOperation(
+                string.Concat(
+                    "IF SERVERPROPERTY('EngineEdition') <> 5 EXECUTE sp_executesql N",
+                    sqlGenerator.GenerateLiteral(
+                        string.Concat(
+                            "ALTER DATABASE ",
+                            sqlGenerator.DelimitIdentifier(databaseName),
+                            " SET READ_COMMITTED_SNAPSHOT ON"))));
         }
 
         public override bool Exists()
