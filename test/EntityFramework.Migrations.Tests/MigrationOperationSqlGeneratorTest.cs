@@ -265,12 +265,29 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         [Fact]
         public void Generate_when_sql_operation()
         {
-            var sql =
+            const string sql =
                 @"UPDATE T
     SET C1='V1'
     WHERE C2='V2'";
 
-            Assert.Equal(sql, Generate(new SqlOperation(sql)).Sql);
+            var statement = Generate(new SqlOperation(sql));
+
+            Assert.Equal(sql, statement.Sql);
+            Assert.False(statement.SuppressTransaction);
+        }
+
+        [Fact]
+        public void Generate_when_sql_operation_with_suppress_transaction_true()
+        {
+            const string sql =
+                @"UPDATE T
+    SET C1='V1'
+    WHERE C2='V2'";
+
+            var statement = Generate(new SqlOperation(sql) { SuppressTransaction = true });
+
+            Assert.Equal(sql, statement.Sql);
+            Assert.True(statement.SuppressTransaction);
         }
 
         [Fact]

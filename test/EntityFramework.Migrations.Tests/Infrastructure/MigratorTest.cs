@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Linq;
 using Microsoft.Data.Entity.Infrastructure;
@@ -656,11 +657,12 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             var contextConfigurationMock = new Mock<DbContextConfiguration>();
             var databaseMock = new Mock<RelationalDatabase>(contextConfigurationMock.Object);
             var connectionMock = new Mock<RelationalConnection>();
+            var transactionMock = new Mock<RelationalTransaction>();
 
-            contextConfigurationMock.SetupGet(cc => cc.Connection).Returns(new Mock<RelationalConnection>().Object);
             contextConfigurationMock.SetupGet(cc => cc.Database).Returns(databaseMock.Object);
             databaseMock.SetupGet(db => db.Connection).Returns(connectionMock.Object);
             databaseMock.Setup(db => db.Exists()).Returns(false);
+            connectionMock.Setup(c => c.BeginTransaction(IsolationLevel.Serializable)).Returns(transactionMock.Object);
 
             var sqlStatementExecutorMock = new Mock<SqlStatementExecutor>();
             sqlStatementExecutorMock.Setup(sse => sse.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlStatement>>()))
@@ -685,18 +687,103 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
 
             databaseMock.Verify(db => db.Exists(), Times.Once);
             databaseMock.Verify(db => db.Create(), Times.Once);
+            connectionMock.Verify(c => c.BeginTransaction(IsolationLevel.Serializable), Times.Once);
+            transactionMock.Verify(t => t.Commit(), Times.Once);
+            transactionMock.Verify(t => t.Dispose(), Times.Once);
             sqlStatementExecutorMock.Verify(sse => sse.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlStatement>>()), Times.Once());
 
             migratorMock.Object.UpdateDatabase("TargetMigrationName");
 
             databaseMock.Verify(db => db.Exists(), Times.Exactly(2));
             databaseMock.Verify(db => db.Create(), Times.Exactly(2));
+            connectionMock.Verify(c => c.BeginTransaction(IsolationLevel.Serializable), Times.Exactly(2));
+            transactionMock.Verify(t => t.Commit(), Times.Exactly(2));
+            transactionMock.Verify(t => t.Dispose(), Times.Exactly(2));
             sqlStatementExecutorMock.Verify(sse => sse.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlStatement>>()), Times.Exactly(2));
         }
 
         private static void AssertCallback(DbConnection _, DbTransaction __, IEnumerable<SqlStatement> statements)
         {
             Assert.Equal("GeneratedUpdateDatabaseSql", statements.First().Sql);
+        }
+
+        [Fact]
+        public void Sql_statements_with_suppress_transaction_true_trigger_commit_of_current_transaction()
+        {
+            var contextConfigurationMock = new Mock<DbContextConfiguration>();
+            var databaseMock = new Mock<RelationalDatabase>(contextConfigurationMock.Object);
+            var connectionMock = new Mock<RelationalConnection>();
+            var transactionMock = new Mock<RelationalTransaction>();
+            var dbTransactionMock = new Mock<DbTransaction>();
+
+            contextConfigurationMock.SetupGet(m => m.Database).Returns(databaseMock.Object);
+            databaseMock.SetupGet(m => m.Connection).Returns(connectionMock.Object);
+            databaseMock.Setup(m => m.Exists()).Returns(true);
+            connectionMock.Setup(m => m.BeginTransaction(IsolationLevel.Serializable)).Returns(transactionMock.Object);
+            transactionMock.SetupGet(m => m.DbTransaction).Returns(dbTransactionMock.Object);
+
+            var sqlStatementExecutorMock = new Mock<SqlStatementExecutor>();
+            var callCount = 0;
+
+            sqlStatementExecutorMock.Setup(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlStatement>>()))
+                .Callback<DbConnection, DbTransaction, IEnumerable<SqlStatement>>(
+                    (connection, transaction, statements) =>
+                    {
+                        switch (++callCount)
+                        {
+                            case 1:
+                                Assert.Null(transaction);
+                                Assert.Equal(new[] { "1" }, statements.Select(s => s.Sql));
+                                break;
+                            case 2:
+                                Assert.Equal(new[] { "2", "3" }, statements.Select(s => s.Sql));
+                                break;
+                            case 3:
+                                Assert.Null(transaction);
+                                Assert.Equal(new[] { "4" }, statements.Select(s => s.Sql));
+                                break;
+                            case 4:
+                                Assert.NotNull(transaction);
+                                Assert.Equal(new[] { "5", "6" }, statements.Select(s => s.Sql));
+                                break;
+                            case 5:
+                                Assert.Null(transaction);
+                                Assert.Equal(new[] { "7" }, statements.Select(s => s.Sql));
+                                break;
+                        }
+                    });
+
+            var migratorMock
+                = new Mock<Migrator>(
+                    contextConfigurationMock.Object,
+                    MockHistoryRepository(contextConfigurationMock.Object, new IMigrationMetadata[0]).Object,
+                    MockMigrationAssembly(contextConfigurationMock.Object, new IMigrationMetadata[0]).Object,
+                    new ModelDiffer(new DatabaseBuilder()),
+                    MockMigrationOperationSqlGeneratorFactory().Object,
+                    new Mock<SqlGenerator>().Object,
+                    sqlStatementExecutorMock.Object)
+                {
+                    CallBase = true
+                };
+
+            migratorMock.Setup(m => m.GenerateUpdateDatabaseSql()).Returns(
+                new[]
+                    {
+                        new SqlStatement("1") { SuppressTransaction = true },
+                        new SqlStatement("2"),
+                        new SqlStatement("3"),
+                        new SqlStatement("4") { SuppressTransaction = true },
+                        new SqlStatement("5"),
+                        new SqlStatement("6"),
+                        new SqlStatement("7") { SuppressTransaction = true }
+                    });
+
+            migratorMock.Object.UpdateDatabase();
+
+            connectionMock.Verify(m => m.BeginTransaction(IsolationLevel.Serializable), Times.Exactly(2));
+            transactionMock.Verify(m => m.Commit(), Times.Exactly(2));
+            transactionMock.Verify(m => m.Dispose(), Times.Exactly(2));
+            sqlStatementExecutorMock.Verify(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlStatement>>()), Times.Exactly(5));
         }
 
         #region Fixture
@@ -808,7 +895,6 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                 builder.Append(operation.GetType().Name).Append("Sql");
             }
         }
-
         #endregion
     }
 }

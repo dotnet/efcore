@@ -23,6 +23,8 @@ namespace Microsoft.Data.Entity.Migrations.Model
             get { return _sql; }
         }
 
+        public virtual bool SuppressTransaction { get; set; }
+
         public override bool IsDestructiveChange
         {
             get { return true; }

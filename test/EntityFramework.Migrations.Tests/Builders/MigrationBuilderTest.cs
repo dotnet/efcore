@@ -415,6 +415,23 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Builders
             var operation = (SqlOperation)builder.Operations[0];
 
             Assert.Equal("MySql", operation.Sql);
+            Assert.False(operation.SuppressTransaction);
+        }
+
+        [Fact]
+        public void Sql_adds_operation_with_suppress_transaction_true()
+        {
+            var builder = new MigrationBuilder();
+
+            builder.Sql("MySql", suppressTransaction: true);
+
+            Assert.Equal(1, builder.Operations.Count);
+            Assert.IsType<SqlOperation>(builder.Operations[0]);
+
+            var operation = (SqlOperation)builder.Operations[0];
+
+            Assert.Equal("MySql", operation.Sql);
+            Assert.True(operation.SuppressTransaction);
         }
 
         private class MyMigrationOperation : MigrationOperation

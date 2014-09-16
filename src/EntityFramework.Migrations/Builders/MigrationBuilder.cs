@@ -220,11 +220,11 @@ namespace Microsoft.Data.Entity.Migrations.Builders
             AddOperation(new CopyDataOperation(sourceTableName, sourceColumnNames, targetTableName, targetColumnNames));
         }
 
-        public virtual void Sql([NotNull] string sql)
+        public virtual void Sql([NotNull] string sql, bool suppressTransaction = false)
         {
             Check.NotEmpty(sql, "sql");
 
-            AddOperation(new SqlOperation(sql));
+            AddOperation(new SqlOperation(sql) { SuppressTransaction = suppressTransaction });
         }
 
         private static IReadOnlyList<Column> GetColumns<TColumns>(

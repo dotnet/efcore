@@ -90,8 +90,11 @@ namespace Microsoft.Data.Entity.Migrations
 
             operation.GenerateSql(this, builder);
 
+            var sqlOperation = operation as SqlOperation;
+            var suppressTransaction = sqlOperation != null && sqlOperation.SuppressTransaction;
+
             // TODO: Should we support implementations of Generate that output more than one SQL statement?
-            return new SqlStatement(builder.ToString());
+            return new SqlStatement(builder.ToString()) { SuppressTransaction = suppressTransaction };
         }
 
         public virtual void Generate([NotNull] CreateDatabaseOperation createDatabaseOperation, [NotNull] IndentedStringBuilder stringBuilder)
