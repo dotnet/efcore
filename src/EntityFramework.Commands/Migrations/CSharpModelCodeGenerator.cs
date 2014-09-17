@@ -189,6 +189,32 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             }
 
             stringBuilder.Append(";");
+
+            if (property.ValueGenerationOnAdd != ValueGenerationOnAdd.None)
+            {
+                stringBuilder
+                    .AppendLine()
+                    .Append("b.Property<")
+                    .Append(property.PropertyType.GetTypeName())
+                    .Append(">(")
+                    .Append(DelimitString(property.Name))
+                    .Append(").Metadata.ValueGenerationOnAdd = ValueGenerationOnAdd.")
+                    .Append(property.ValueGenerationOnAdd.ToString("G"))
+                    .Append(";");
+            }
+
+            if (property.ValueGenerationOnSave != ValueGenerationOnSave.None)
+            {
+                stringBuilder
+                    .AppendLine()
+                    .Append("b.Property<")
+                    .Append(property.PropertyType.GetTypeName())
+                    .Append(">(")
+                    .Append(DelimitString(property.Name))
+                    .Append(").Metadata.ValueGenerationOnSave = ValueGenerationOnSave.")
+                    .Append(property.ValueGenerationOnSave.ToString("G"))
+                    .Append(";");
+            }
         }
 
         protected virtual void GeneratePropertyAnnotations([NotNull] IProperty property, [NotNull] IndentedStringBuilder stringBuilder)

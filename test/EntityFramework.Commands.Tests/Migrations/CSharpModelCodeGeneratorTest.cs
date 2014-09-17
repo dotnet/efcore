@@ -563,6 +563,35 @@ return builder.Model;",
         }
 
         [Fact]
+        public void Generate_outputs_property_value_generation_settings()
+        {
+            var builder = new BasicModelBuilder();
+            builder.Entity<Customer>(b =>
+            {
+                b.Key(e => e.Id);
+                b.Property(e => e.Id).Metadata.ValueGenerationOnAdd = ValueGenerationOnAdd.Client;
+                b.Property(e => e.Id).Metadata.ValueGenerationOnSave = ValueGenerationOnSave.WhenInserting;
+            });
+
+            var stringBuilder = new IndentedStringBuilder();
+            new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
+
+            Assert.Equal(
+                @"var builder = new BasicModelBuilder();
+
+builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Customer"", b =>
+    {
+        b.Property<int>(""Id"");
+        b.Property<int>(""Id"").Metadata.ValueGenerationOnAdd = ValueGenerationOnAdd.Client;
+        b.Property<int>(""Id"").Metadata.ValueGenerationOnSave = ValueGenerationOnSave.WhenInserting;
+        b.Key(""Id"");
+    });
+
+return builder.Model;",
+                stringBuilder.ToString());
+        }
+
+        [Fact]
         public void Generate_model_snapshot_class()
         {
             var model = new Model();
