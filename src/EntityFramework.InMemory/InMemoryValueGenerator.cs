@@ -14,12 +14,12 @@ namespace Microsoft.Data.Entity.InMemory
     {
         private long _current;
 
-        public override object Next(StateEntry entry, IProperty property)
+        public override void Next(StateEntry stateEntry, IProperty property)
         {
-            Check.NotNull(entry, "entry");
+            Check.NotNull(stateEntry, "stateEntry");
             Check.NotNull(property, "property");
 
-            return Convert.ChangeType(Interlocked.Increment(ref _current), property.PropertyType);
+            stateEntry[property] = Convert.ChangeType(Interlocked.Increment(ref _current), property.PropertyType);
         }
     }
 }

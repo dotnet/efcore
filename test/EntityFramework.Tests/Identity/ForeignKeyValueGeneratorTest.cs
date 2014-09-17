@@ -20,8 +20,11 @@ namespace Microsoft.Data.Entity.Tests.Identity
             var dependent = new Product { Id = 21, Category = principal };
 
             var dependentEntry = CreateContextConfiguration(model).StateManager.GetOrCreateEntry(dependent);
+            var property = model.GetEntityType(typeof(Product)).GetProperty("CategoryId");
 
-            Assert.Equal(11, CreateValueGenerator().Next(dependentEntry, model.GetEntityType(typeof(Product)).GetProperty("CategoryId")));
+            CreateValueGenerator().Next(dependentEntry, property);
+
+            Assert.Equal(11, dependentEntry[property]);
         }
 
         [Fact]
@@ -36,8 +39,11 @@ namespace Microsoft.Data.Entity.Tests.Identity
 
             manager.StartTracking(manager.GetOrCreateEntry(principal));
             var dependentEntry = manager.GetOrCreateEntry(dependent);
+            var property = model.GetEntityType(typeof(Product)).GetProperty("CategoryId");
 
-            Assert.Equal(11, CreateValueGenerator().Next(dependentEntry, model.GetEntityType(typeof(Product)).GetProperty("CategoryId")));
+            CreateValueGenerator().Next(dependentEntry, property);
+
+            Assert.Equal(11, dependentEntry[property]);
         }
 
         [Fact]
@@ -49,8 +55,11 @@ namespace Microsoft.Data.Entity.Tests.Identity
             var dependent = new ProductDetail { Product = principal };
 
             var dependentEntry = CreateContextConfiguration(model).StateManager.GetOrCreateEntry(dependent);
+            var property = model.GetEntityType(typeof(ProductDetail)).GetProperty("Id");
 
-            Assert.Equal(21, CreateValueGenerator().Next(dependentEntry, model.GetEntityType(typeof(ProductDetail)).GetProperty("Id")));
+            CreateValueGenerator().Next(dependentEntry, property);
+
+            Assert.Equal(21, dependentEntry[property]);
         }
 
         [Fact]
@@ -64,8 +73,11 @@ namespace Microsoft.Data.Entity.Tests.Identity
 
             manager.StartTracking(manager.GetOrCreateEntry(principal));
             var dependentEntry = manager.GetOrCreateEntry(dependent);
+            var property = model.GetEntityType(typeof(ProductDetail)).GetProperty("Id");
 
-            Assert.Equal(21, CreateValueGenerator().Next(dependentEntry, model.GetEntityType(typeof(ProductDetail)).GetProperty("Id")));
+            CreateValueGenerator().Next(dependentEntry, property);
+
+            Assert.Equal(21, dependentEntry[property]);
         }
 
         [Fact]
@@ -77,9 +89,14 @@ namespace Microsoft.Data.Entity.Tests.Identity
             var dependent = new OrderLineDetail { OrderLine = principal };
 
             var dependentEntry = CreateContextConfiguration(model).StateManager.GetOrCreateEntry(dependent);
+            var property1 = model.GetEntityType(typeof(OrderLineDetail)).GetProperty("OrderId");
+            var property2 = model.GetEntityType(typeof(OrderLineDetail)).GetProperty("ProductId");
 
-            Assert.Equal(11, CreateValueGenerator().Next(dependentEntry, model.GetEntityType(typeof(OrderLineDetail)).GetProperty("OrderId")));
-            Assert.Equal(21, CreateValueGenerator().Next(dependentEntry, model.GetEntityType(typeof(OrderLineDetail)).GetProperty("ProductId")));
+            CreateValueGenerator().Next(dependentEntry, property1);
+            CreateValueGenerator().Next(dependentEntry, property2);
+
+            Assert.Equal(11, dependentEntry[property1]);
+            Assert.Equal(21, dependentEntry[property2]);
         }
 
         [Fact]
@@ -93,9 +110,14 @@ namespace Microsoft.Data.Entity.Tests.Identity
 
             manager.StartTracking(manager.GetOrCreateEntry(principal));
             var dependentEntry = manager.GetOrCreateEntry(dependent);
+            var property1 = model.GetEntityType(typeof(OrderLineDetail)).GetProperty("OrderId");
+            var property2 = model.GetEntityType(typeof(OrderLineDetail)).GetProperty("ProductId");
 
-            Assert.Equal(11, CreateValueGenerator().Next(dependentEntry, model.GetEntityType(typeof(OrderLineDetail)).GetProperty("OrderId")));
-            Assert.Equal(21, CreateValueGenerator().Next(dependentEntry, model.GetEntityType(typeof(OrderLineDetail)).GetProperty("ProductId")));
+            CreateValueGenerator().Next(dependentEntry, property1);
+            CreateValueGenerator().Next(dependentEntry, property2);
+
+            Assert.Equal(11, dependentEntry[property1]);
+            Assert.Equal(21, dependentEntry[property2]);
         }
 
         private static DbContextConfiguration CreateContextConfiguration(IModel model = null)
@@ -176,10 +198,10 @@ namespace Microsoft.Data.Entity.Tests.Identity
             var builder = new ModelBuilder(model);
 
             builder.Entity<Product>(b =>
-                {
-                    b.OneToMany(e => e.OrderLines, e => e.Product);
-                    b.OneToOne(e => e.Detail, e => e.Product);
-                });
+            {
+                b.OneToMany(e => e.OrderLines, e => e.Product);
+                b.OneToOne(e => e.Detail, e => e.Product);
+            });
 
             builder.Entity<Category>().OneToMany(e => e.Products, e => e.Category);
 
@@ -190,10 +212,10 @@ namespace Microsoft.Data.Entity.Tests.Identity
             builder.Entity<OrderLineDetail>().Key(e => new { e.OrderId, e.ProductId });
 
             builder.Entity<OrderLine>(b =>
-                {
-                    b.Key(e => new { e.OrderId, e.ProductId });
-                    b.OneToOne(e => e.Detail, e => e.OrderLine);
-                });
+            {
+                b.Key(e => new { e.OrderId, e.ProductId });
+                b.OneToOne(e => e.Detail, e => e.OrderLine);
+            });
 
             return model;
         }

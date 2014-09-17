@@ -14,9 +14,9 @@ namespace Microsoft.Data.Entity.SqlServer
     {
         private long _counter = DateTime.UtcNow.Ticks;
 
-        public override object Next(StateEntry entry, IProperty property)
+        public override void Next(StateEntry stateEntry, IProperty property)
         {
-            Check.NotNull(entry, "entry");
+            Check.NotNull(stateEntry, "stateEntry");
             Check.NotNull(property, "property");
 
             var guidBytes = Guid.NewGuid().ToByteArray();
@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.SqlServer
             guidBytes[14] = counterBytes[3];
             guidBytes[15] = counterBytes[2];
 
-            return new Guid(guidBytes);
+            stateEntry[property] = new Guid(guidBytes);
         }
     }
 }

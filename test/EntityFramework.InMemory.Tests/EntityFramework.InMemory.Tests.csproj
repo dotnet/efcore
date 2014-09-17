@@ -69,8 +69,10 @@
     <Compile Include="InMemoryDataStoreTest.cs" />
     <Compile Include="InMemoryEntityServicesBuilderExtensionsTest.cs" />
     <Compile Include="..\Shared\ApiConsistencyTestBase.cs" />
+    <Compile Include="..\Shared\TestHelpers.cs" />
     <Compile Include="InMemoryValueGeneratorSelectorTest.cs" />
     <Compile Include="InMemoryValueGeneratorTest.cs" />
+    <Compile Include="TestHelperExtensions.cs" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
@@ -88,6 +90,9 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

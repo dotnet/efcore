@@ -129,7 +129,15 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         private void SetEntityState(EntityState entityState)
         {
-            SetEntityState(entityState, GenerateValues(GetValueGenerators(entityState)));
+            var oldState = _stateData.EntityState;
+            var valueGenerators = GetValueGenerators(entityState);
+
+            if (valueGenerators != null)
+            {
+                GenerateValues(valueGenerators);
+            }
+
+            SetEntityState(oldState, entityState);
         }
 
         public virtual async Task SetEntityStateAsync(
@@ -137,56 +145,64 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             Check.IsDefined(entityState, "entityState");
 
-            SetEntityState(entityState,
-                await GenerateValuesAsync(GetValueGenerators(entityState), cancellationToken)
-                    .ConfigureAwait(continueOnCapturedContext: false));
-        }
+            var oldState = _stateData.EntityState;
+            var valueGenerators = GetValueGenerators(entityState);
 
-        private Tuple<IProperty, object>[] GenerateValues(Tuple<IProperty, IValueGenerator>[] generators)
-        {
-            return generators == null
-                ? null
-                : generators
-                    .Select(t => t.Item2 == null ? null : Tuple.Create(t.Item1, t.Item2.Next(this, t.Item1)))
-                    .ToArray();
-        }
-
-        private async Task<Tuple<IProperty, object>[]> GenerateValuesAsync(
-            Tuple<IProperty, IValueGenerator>[] generators,
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
-            if (generators == null)
+            if (valueGenerators != null)
             {
-                return null;
+                await GenerateValuesAsync(valueGenerators, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
             }
 
-            var values = new Tuple<IProperty, object>[generators.Length];
-            for (var i = 0; i < generators.Length; i++)
-            {
-                var generator = generators[i].Item2;
-                if (generator != null)
-                {
-                    var property = generators[i].Item1;
-                    values[i] = Tuple.Create(property,
-                        await generator.NextAsync(this, property, cancellationToken)
-                            .ConfigureAwait(continueOnCapturedContext: false));
-                }
-            }
-            return values;
+            SetEntityState(oldState, entityState);
         }
 
-        private Tuple<IProperty, IValueGenerator>[] GetValueGenerators(EntityState newState)
+        private void GenerateValues(IEnumerable<Tuple<IProperty, IValueGenerator>> generators)
+        {
+            Contract.Assert(generators != null);
+
+            foreach (var generator in generators)
+            {
+                var property = generator.Item1;
+                generator.Item2.Next(this, property);
+            }
+        }
+
+        private async Task GenerateValuesAsync(
+            IEnumerable<Tuple<IProperty, IValueGenerator>> generators, CancellationToken cancellationToken)
+        {
+            Contract.Assert(generators != null);
+
+            foreach (var generator in generators)
+            {
+                var property = generator.Item1;
+                await generator.Item2.NextAsync(this, property, cancellationToken)
+                    .ConfigureAwait(continueOnCapturedContext: false);
+            }
+        }
+
+        private IEnumerable<Tuple<IProperty, IValueGenerator>> GetValueGenerators(EntityState newState)
         {
             if (newState != EntityState.Added
                 || EntityState == EntityState.Added)
             {
                 return null;
             }
+
+            // Temporarily change the internal state to unknown so that key generation, including setting key values
+            // can happen without constraints on changing read-only values kicking in
+            _stateData.EntityState = EntityState.Unknown;
+
+            _stateData.FlagAllProperties(_entityType.Properties.Count(), isFlagged: false);
+
             var properties = _entityType.Properties.Where(p => p.ValueGenerationOnAdd != ValueGenerationOnAdd.None || p.IsForeignKey());
-            return properties.Select(p => Tuple.Create(p, _configuration.ValueGeneratorCache.GetGenerator(p))).ToArray();
+
+            return properties
+                .Select(p => Tuple.Create(p, _configuration.ValueGeneratorCache.GetGenerator(p)))
+                .Where(g => g.Item2 != null)
+                .ToList();
         }
 
-        private void SetEntityState(EntityState newState, Tuple<IProperty, object>[] generatedValues)
+        private void SetEntityState(EntityState oldState, EntityState newState)
         {
             // The entity state can be Modified even if some properties are not modified so always
             // set all properties to modified if the entity state is explicitly set to Modified.
@@ -200,7 +216,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 }
             }
 
-            var oldState = _stateData.EntityState;
             if (oldState == newState)
             {
                 return;
@@ -214,30 +229,12 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 newState = EntityState.Unknown;
             }
 
-            if (newState == EntityState.Unchanged || newState == EntityState.Added)
+            if (newState == EntityState.Unchanged)
             {
                 _stateData.FlagAllProperties(_entityType.Properties.Count(), isFlagged: false);
             }
 
             _configuration.Services.StateEntryNotifier.StateChanging(this, newState);
-
-            if (newState == EntityState.Added)
-            {
-                // Temporarily change the internal state to unknown so that key generation, including setting key values
-                // can happen without constraints on changing read-only values kicking in
-                _stateData.EntityState = EntityState.Unknown;
-
-                foreach (var generatedValue in generatedValues.Where(v => v != null && v.Item2 != null))
-                {
-                    this[generatedValue.Item1] = generatedValue.Item2;
-                    // TODO: Set default flag or not based on strategy
-                    _stateData.FlagProperty(generatedValue.Item1.Index, isFlagged: false);
-                }
-            }
-            else
-            {
-                Contract.Assert(generatedValues == null);
-            }
 
             _stateData.EntityState = newState;
 

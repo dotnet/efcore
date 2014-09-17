@@ -10,12 +10,12 @@ namespace Microsoft.Data.Entity.Identity
 {
     public class GuidValueGenerator : SimpleValueGenerator
     {
-        public override object Next(StateEntry entry, IProperty property)
+        public override void Next(StateEntry stateEntry, IProperty property)
         {
-            Check.NotNull(entry, "entry");
+            Check.NotNull(stateEntry, "stateEntry");
             Check.NotNull(property, "property");
 
-            return Guid.NewGuid();
+            stateEntry[property] = Guid.NewGuid();
         }
     }
 }

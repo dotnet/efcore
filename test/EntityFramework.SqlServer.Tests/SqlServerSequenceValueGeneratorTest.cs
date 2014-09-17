@@ -7,91 +7,111 @@ using System.Data.Common;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.ChangeTracking;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
-using Moq;
+using Microsoft.Data.Entity.Tests;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.Tests
 {
     public class SqlServerSequenceValueGeneratorTest
     {
+        private static readonly Model _model = TestHelpers.BuildModelFor<AnEntity>();
+
         [Fact]
         public void Generates_sequential_values()
         {
-            var configMock = new Mock<DbContextConfiguration>();
-            configMock.Setup(m => m.Connection).Returns(new Mock<RelationalConnection>().Object);
-
-            var entryMock = new Mock<StateEntry>();
-            entryMock.Setup(m => m.Configuration).Returns(configMock.Object);
+            var stateEntry = TestHelpers.CreateStateEntry<AnEntity>(_model, EntityState.Added);
+            var intProperty = stateEntry.EntityType.GetProperty("Id");
+            var longProperty = stateEntry.EntityType.GetProperty("Long");
+            var shortProperty = stateEntry.EntityType.GetProperty("Short");
+            var byteProperty = stateEntry.EntityType.GetProperty("Byte");
 
             var executor = new FakeSqlStatementExecutor(10);
             var generator = new SqlServerSequenceValueGenerator(executor, "Foo", 10);
 
             for (var i = 0; i < 15; i++)
             {
-                Assert.Equal((long)i, generator.Next(entryMock.Object, CreateProperty(typeof(long))));
+                generator.Next(stateEntry, intProperty);
+
+                Assert.Equal(i, stateEntry[intProperty]);
+                Assert.False(stateEntry.HasTemporaryValue(intProperty));
             }
 
             for (var i = 15; i < 30; i++)
             {
-                Assert.Equal(i, generator.Next(entryMock.Object, CreateProperty(typeof(int))));
+                generator.Next(stateEntry, longProperty);
+
+                Assert.Equal((long)i, stateEntry[longProperty]);
+                Assert.False(stateEntry.HasTemporaryValue(longProperty));
             }
 
             for (var i = 30; i < 45; i++)
             {
-                Assert.Equal((short)i, generator.Next(entryMock.Object, CreateProperty(typeof(short))));
+                generator.Next(stateEntry, shortProperty);
+
+                Assert.Equal((short)i, stateEntry[shortProperty]);
+                Assert.False(stateEntry.HasTemporaryValue(shortProperty));
             }
 
             for (var i = 45; i < 60; i++)
             {
-                Assert.Equal((byte)i, generator.Next(entryMock.Object, CreateProperty(typeof(byte))));
+                generator.Next(stateEntry, byteProperty);
+
+                Assert.Equal((byte)i, stateEntry[byteProperty]);
+                Assert.False(stateEntry.HasTemporaryValue(byteProperty));
             }
         }
 
         [Fact]
         public async Task Generates_sequential_values_async()
         {
-            var configMock = new Mock<DbContextConfiguration>();
-            configMock.Setup(m => m.Connection).Returns(new Mock<RelationalConnection>().Object);
-
-            var entryMock = new Mock<StateEntry>();
-            entryMock.Setup(m => m.Configuration).Returns(configMock.Object);
+            var stateEntry = TestHelpers.CreateStateEntry<AnEntity>(_model, EntityState.Added);
+            var intProperty = stateEntry.EntityType.GetProperty("Id");
+            var longProperty = stateEntry.EntityType.GetProperty("Long");
+            var shortProperty = stateEntry.EntityType.GetProperty("Short");
+            var byteProperty = stateEntry.EntityType.GetProperty("Byte");
 
             var executor = new FakeSqlStatementExecutor(10);
             var generator = new SqlServerSequenceValueGenerator(executor, "Foo", 10);
 
             for (var i = 0; i < 15; i++)
             {
-                Assert.Equal((long)i, await generator.NextAsync(entryMock.Object, CreateProperty(typeof(long))));
+                await generator.NextAsync(stateEntry, intProperty);
+
+                Assert.Equal(i, stateEntry[intProperty]);
+                Assert.False(stateEntry.HasTemporaryValue(intProperty));
             }
 
             for (var i = 15; i < 30; i++)
             {
-                Assert.Equal(i, await generator.NextAsync(entryMock.Object, CreateProperty(typeof(int))));
+                await generator.NextAsync(stateEntry, longProperty);
+
+                Assert.Equal((long)i, stateEntry[longProperty]);
+                Assert.False(stateEntry.HasTemporaryValue(longProperty));
             }
 
             for (var i = 30; i < 45; i++)
             {
-                Assert.Equal((short)i, await generator.NextAsync(entryMock.Object, CreateProperty(typeof(short))));
+                await generator.NextAsync(stateEntry, shortProperty);
+
+                Assert.Equal((short)i, stateEntry[shortProperty]);
+                Assert.False(stateEntry.HasTemporaryValue(shortProperty));
             }
 
             for (var i = 45; i < 60; i++)
             {
-                Assert.Equal((byte)i, await generator.NextAsync(entryMock.Object, CreateProperty(typeof(byte))));
+                await generator.NextAsync(stateEntry, byteProperty);
+
+                Assert.Equal((byte)i, stateEntry[byteProperty]);
+                Assert.False(stateEntry.HasTemporaryValue(byteProperty));
             }
         }
 
         [Fact]
         public void Multiple_threads_can_use_the_same_generator()
         {
-            var configMock = new Mock<DbContextConfiguration>();
-            configMock.Setup(m => m.Connection).Returns(new Mock<RelationalConnection>().Object);
-
-            var entryMock = new Mock<StateEntry>();
-            entryMock.Setup(m => m.Configuration).Returns(configMock.Object);
+            var property = _model.GetEntityType(typeof(AnEntity)).GetProperty("Long");
 
             var executor = new FakeSqlStatementExecutor(10);
             var generator = new SqlServerSequenceValueGenerator(executor, "Foo", 10);
@@ -107,9 +127,13 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 generatedValues[testNumber] = new List<long>();
                 tests[testNumber] = () =>
                     {
+                        var stateEntry = TestHelpers.CreateStateEntry<AnEntity>(_model, EntityState.Added);
+
                         for (var j = 0; j < valueCount; j++)
                         {
-                            generatedValues[testNumber].Add((long)generator.Next(entryMock.Object, CreateProperty(typeof(long))));
+                            generator.Next(stateEntry, property);
+
+                            generatedValues[testNumber].Add((long)stateEntry[property]);
                         }
                     };
             }
@@ -133,11 +157,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public async Task Multiple_threads_can_use_the_same_generator_async()
         {
-            var configMock = new Mock<DbContextConfiguration>();
-            configMock.Setup(m => m.Connection).Returns(new Mock<RelationalConnection>().Object);
-
-            var entryMock = new Mock<StateEntry>();
-            entryMock.Setup(m => m.Configuration).Returns(configMock.Object);
+            var property = _model.GetEntityType(typeof(AnEntity)).GetProperty("Long");
 
             var executor = new FakeSqlStatementExecutor(10);
             var generator = new SqlServerSequenceValueGenerator(executor, "Foo", 10);
@@ -153,9 +173,13 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 generatedValues[testNumber] = new List<long>();
                 tests[testNumber] = async () =>
                     {
+                        var stateEntry = TestHelpers.CreateStateEntry<AnEntity>(_model, EntityState.Added);
+
                         for (var j = 0; j < valueCount; j++)
                         {
-                            generatedValues[testNumber].Add((long)await generator.NextAsync(entryMock.Object, CreateProperty(typeof(long))));
+                            await generator.NextAsync(stateEntry, property);
+
+                            generatedValues[testNumber].Add((long)stateEntry[property]);
                         }
                     };
             }
@@ -181,12 +205,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.True(checks.All(c => c));
         }
 
-        private static Property CreateProperty(Type propertyType)
-        {
-            var entityType = new EntityType("MyType");
-            return entityType.GetOrAddProperty("MyProperty", propertyType, shadowProperty: true);
-        }
-
         private class FakeSqlStatementExecutor : SqlStatementExecutor
         {
             private readonly int _blockSize;
@@ -208,6 +226,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             {
                 return Task.FromResult<object>(Interlocked.Add(ref _current, _blockSize));
             }
+        }
+
+        private class AnEntity
+        {
+            public int Id { get; set; }
+            public long Long { get; set; }
+            public short Short { get; set; }
+            public byte Byte { get; set; }
         }
     }
 }

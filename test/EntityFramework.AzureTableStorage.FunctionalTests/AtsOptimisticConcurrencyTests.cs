@@ -72,84 +72,84 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
         {
             builder.Entity<Chassis>(
                 b =>
-                    {
-                        b.PartitionAndRowKey(c => c.Name, c => c.TeamId);
-                        b.Key(c => c.TeamId);
-                        b.Property<string>("ETag");
-                        b.TableName("Chassis" + tableSuffix);
-                    });
+                {
+                    b.PartitionAndRowKey(c => c.Name, c => c.TeamId);
+                    b.Key(c => c.TeamId);
+                    b.Property<string>("ETag");
+                    b.TableName("Chassis" + tableSuffix);
+                });
 
             builder.Entity<Team>(
                 b =>
-                    {
-                        b.PartitionAndRowKey(c => c.Name, c => c.Id);
-                        b.Key(c => c.Id);
-                        b.Property<string>("ETag");
-                        b.TableName("Teams" + tableSuffix);
-                    });
+                {
+                    b.PartitionAndRowKey(c => c.Name, c => c.Id);
+                    b.Key(c => c.Id);
+                    b.Property<string>("ETag");
+                    b.TableName("Teams" + tableSuffix);
+                });
 
             builder.Entity<Driver>(
                 b =>
-                    {
-                        b.PartitionAndRowKey(c => c.Name, c => c.Id);
-                        b.Key(c => c.Id);
-                        b.Property<string>("ETag");
-                        b.TableName("Drivers" + tableSuffix);
-                    });
+                {
+                    b.PartitionAndRowKey(c => c.Name, c => c.Id);
+                    b.Key(c => c.Id);
+                    b.Property<string>("ETag");
+                    b.TableName("Drivers" + tableSuffix);
+                });
 
             builder.Entity<Engine>(
                 b =>
-                    {
-                        b.PartitionAndRowKey(c => c.Name, c => c.Id);
-                        b.Key(c => c.Id);
-                        b.Property<string>("ETag");
-                        b.TableName("Engines" + tableSuffix);
-                    });
+                {
+                    b.PartitionAndRowKey(c => c.Name, c => c.Id);
+                    b.Key(c => c.Id);
+                    b.Property<string>("ETag");
+                    b.TableName("Engines" + tableSuffix);
+                });
 
             builder.Entity<EngineSupplier>(
                 b =>
-                    {
-                        b.PartitionAndRowKey(c => c.Name, c => c.Id);
-                        b.Key(c => c.Id);
-                        b.Property<string>("ETag");
-                        b.TableName("EngineSuppliers" + tableSuffix);
-                    });
+                {
+                    b.PartitionAndRowKey(c => c.Name, c => c.Id);
+                    b.Key(c => c.Id);
+                    b.Property<string>("ETag");
+                    b.TableName("EngineSuppliers" + tableSuffix);
+                });
 
             builder.Entity<Gearbox>(
                 b =>
-                    {
-                        b.PartitionAndRowKey(c => c.Name, c => c.Id);
-                        b.Key(c => c.Id);
-                        b.Property<string>("ETag");
-                        b.TableName("Gearboxes" + tableSuffix);
-                    });
+                {
+                    b.PartitionAndRowKey(c => c.Name, c => c.Id);
+                    b.Key(c => c.Id);
+                    b.Property<string>("ETag");
+                    b.TableName("Gearboxes" + tableSuffix);
+                });
 
             builder.Entity<Sponsor>(
                 b =>
-                    {
-                        b.PartitionAndRowKey(c => c.Name, c => c.Id);
-                        b.Key(c => c.Id);
-                        b.Property<string>("ETag");
-                        b.TableName("Sponsors" + tableSuffix);
-                    });
+                {
+                    b.PartitionAndRowKey(c => c.Name, c => c.Id);
+                    b.Key(c => c.Id);
+                    b.Property<string>("ETag");
+                    b.TableName("Sponsors" + tableSuffix);
+                });
 
             builder.Entity<TestDriver>(
                 b =>
-                    {
-                        b.PartitionAndRowKey(c => c.Name, c => c.Id);
-                        b.Key(c => c.Id);
-                        b.Property<string>("ETag");
-                        b.TableName("TestDrivers" + tableSuffix);
-                    });
+                {
+                    b.PartitionAndRowKey(c => c.Name, c => c.Id);
+                    b.Key(c => c.Id);
+                    b.Property<string>("ETag");
+                    b.TableName("TestDrivers" + tableSuffix);
+                });
 
             builder.Entity<TitleSponsor>(
                 b =>
-                    {
-                        b.PartitionAndRowKey(c => c.Name, c => c.Id);
-                        b.Key(c => c.Id);
-                        b.Property<string>("ETag");
-                        b.TableName("TitleSponsors" + tableSuffix);
-                    });
+                {
+                    b.PartitionAndRowKey(c => c.Name, c => c.Id);
+                    b.Key(c => c.Id);
+                    b.Property<string>("ETag");
+                    b.TableName("TitleSponsors" + tableSuffix);
+                });
         }
 
         public class AtsTestStore : TestStore
@@ -174,9 +174,9 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
         {
             private class IntGenerator : SimpleValueGenerator
             {
-                public override object Next(StateEntry entry, IProperty property)
+                public override void Next(StateEntry stateEntry, IProperty property)
                 {
-                    return Guid.NewGuid().GetHashCode();
+                    stateEntry[property] = Guid.NewGuid().GetHashCode();
                 }
             }
 

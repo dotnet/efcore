@@ -36,14 +36,14 @@ namespace Microsoft.Data.Entity.Identity
             _collectionAccessorSource = collectionAccessorSource;
         }
 
-        public override object Next(StateEntry entry, IProperty property)
+        public override void Next(StateEntry stateEntry, IProperty property)
         {
             Check.NotNull(property, "property");
 
             Contract.Assert(property.IsForeignKey());
 
             var entityType = property.EntityType;
-            var stateManager = entry.Configuration.StateManager;
+            var stateManager = stateEntry.Configuration.StateManager;
 
             foreach (var foreignKey in entityType.ForeignKeys)
             {
@@ -56,20 +56,18 @@ namespace Microsoft.Data.Entity.Identity
                             .Where(n => n.ForeignKey == foreignKey)
                             .Distinct())
                         {
-                            var principal = TryFindPrincipal(stateManager, navigation, entry.Entity);
+                            var principal = TryFindPrincipal(stateManager, navigation, stateEntry.Entity);
 
                             if (principal != null)
                             {
                                 var principalEntry = stateManager.GetOrCreateEntry(principal);
 
-                                return principalEntry[foreignKey.ReferencedProperties[propertyIndex]];
+                                stateEntry[property] = principalEntry[foreignKey.ReferencedProperties[propertyIndex]];
                             }
                         }
                     }
                 }
             }
-
-            return null;
         }
 
         private object TryFindPrincipal(StateManager stateManager, INavigation navigation, object dependentEntity)

@@ -13,12 +13,13 @@ namespace Microsoft.Data.Entity.Identity
     {
         private long _current;
 
-        public override object Next(StateEntry entry, IProperty property)
+        public override void Next(StateEntry stateEntry, IProperty property)
         {
-            Check.NotNull(entry, "entry");
+            Check.NotNull(stateEntry, "stateEntry");
             Check.NotNull(property, "property");
 
-            return Convert.ChangeType(Interlocked.Decrement(ref _current), property.PropertyType);
+            stateEntry[property] = Convert.ChangeType(Interlocked.Decrement(ref _current), property.PropertyType);
+            stateEntry.MarkAsTemporary(property);
         }
     }
 }

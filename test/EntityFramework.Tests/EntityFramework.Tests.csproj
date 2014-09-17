@@ -96,9 +96,9 @@
     <Compile Include="Metadata\MetadataBuilderTest.cs" />
     <Compile Include="Metadata\ModelConventions\ForeignKeyConventionTest.cs" />
     <Compile Include="Metadata\NavigationExtensionsTest.cs" />
+    <Compile Include="TestHelperExtensions.cs" />
     <Compile Include="QueryableExtensionsTest.cs" />
     <Compile Include="ServiceProviderCacheTest.cs" />
-    <Compile Include="TestHelpers.cs" />
     <Compile Include="ChangeTracking\ChangeTrackerTest.cs" />
     <Compile Include="ChangeTracking\ClrStateEntryTest.cs" />
     <Compile Include="ChangeTracking\CompositeEntityKeyFactoryTest.cs" />
@@ -154,6 +154,7 @@
     <Compile Include="Utilities\ThreadSafeLazyRefTest.cs" />
     <Compile Include="Utilities\TypeExtensionsTest.cs" />
     <Compile Include="..\Shared\ApiConsistencyTestBase.cs" />
+    <Compile Include="..\Shared\TestHelpers.cs" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>

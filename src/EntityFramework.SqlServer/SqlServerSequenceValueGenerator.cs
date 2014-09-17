@@ -47,9 +47,9 @@ namespace Microsoft.Data.Entity.SqlServer
             get { return _blockSize; }
         }
 
-        public virtual object Next(StateEntry entry, IProperty property)
+        public virtual void Next(StateEntry stateEntry, IProperty property)
         {
-            Check.NotNull(entry, "entry");
+            Check.NotNull(stateEntry, "stateEntry");
             Check.NotNull(property, "property");
 
             var newValue = GetNextValue();
@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.SqlServer
                     // case just get a value out of the new block instead of requesting one.
                     if (newValue.Max == _currentValue.Max)
                     {
-                        var commandInfo = PrepareCommand(entry.Configuration);
+                        var commandInfo = PrepareCommand(stateEntry.Configuration);
 
                         var newCurrent = (long)_executor.ExecuteScalar(commandInfo.Item1.DbConnection, commandInfo.Item1.DbTransaction, commandInfo.Item2);
                         newValue = new SequenceValue(newCurrent, newCurrent + _blockSize);
@@ -78,10 +78,10 @@ namespace Microsoft.Data.Entity.SqlServer
                 }
             }
 
-            return Convert.ChangeType(newValue.Current, property.PropertyType);
+            stateEntry[property] = Convert.ChangeType(newValue.Current, property.PropertyType);
         }
 
-        public virtual async Task<object> NextAsync(StateEntry stateEntry, IProperty property, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task NextAsync(StateEntry stateEntry, IProperty property, CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(stateEntry, "stateEntry");
             Check.NotNull(property, "property");
@@ -114,7 +114,7 @@ namespace Microsoft.Data.Entity.SqlServer
                 }
             }
 
-            return Convert.ChangeType(newValue.Current, property.PropertyType);
+            stateEntry[property] = Convert.ChangeType(newValue.Current, property.PropertyType);
         }
 
         private SequenceValue GetNextValue()

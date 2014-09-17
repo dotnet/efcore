@@ -11,9 +11,9 @@ namespace Microsoft.Data.Entity.Identity
 {
     public interface IValueGenerator
     {
-        object Next([NotNull] StateEntry entry, [NotNull] IProperty property);
+        void Next([NotNull] StateEntry stateEntry, [NotNull] IProperty property);
 
-        Task<object> NextAsync(
+        Task NextAsync(
             [NotNull] StateEntry stateEntry,
             [NotNull] IProperty property,
             CancellationToken cancellationToken = default(CancellationToken));

@@ -3,30 +3,53 @@
 
 using System;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
-using Moq;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.Identity
 {
     public class TemporaryValueGeneratorTest
     {
+        private static readonly Model _model = TestHelpers.BuildModelFor<AnEntity>();
+
         [Fact]
         public async Task Creates_negative_values()
         {
             var generator = new TemporaryValueGenerator();
 
-            var property = CreateProperty(typeof(int));
+            var stateEntry = TestHelpers.CreateStateEntry<AnEntity>(_model, EntityState.Added);
+            var property = stateEntry.EntityType.GetProperty("Id");
 
-            Assert.Equal(-1, await generator.NextAsync(Mock.Of<StateEntry>(), property));
-            Assert.Equal(-2, await generator.NextAsync(Mock.Of<StateEntry>(), property));
-            Assert.Equal(-3, await generator.NextAsync(Mock.Of<StateEntry>(), property));
+            await generator.NextAsync(stateEntry, property);
 
-            Assert.Equal(-4, generator.Next(Mock.Of<StateEntry>(), property));
-            Assert.Equal(-5, generator.Next(Mock.Of<StateEntry>(), property));
-            Assert.Equal(-6, generator.Next(Mock.Of<StateEntry>(), property));
+            Assert.Equal(-1, stateEntry[property]);
+            Assert.True(stateEntry.HasTemporaryValue(property));
+
+            await generator.NextAsync(stateEntry, property);
+
+            Assert.Equal(-2, stateEntry[property]);
+            Assert.True(stateEntry.HasTemporaryValue(property));
+
+            await generator.NextAsync(stateEntry, property);
+
+            Assert.Equal(-3, stateEntry[property]);
+            Assert.True(stateEntry.HasTemporaryValue(property));
+
+            generator.Next(stateEntry, property);
+
+            Assert.Equal(-4, stateEntry[property]);
+            Assert.True(stateEntry.HasTemporaryValue(property));
+
+            generator.Next(stateEntry, property);
+
+            Assert.Equal(-5, stateEntry[property]);
+            Assert.True(stateEntry.HasTemporaryValue(property));
+
+            generator.Next(stateEntry, property);
+
+            Assert.Equal(-6, stateEntry[property]);
+            Assert.True(stateEntry.HasTemporaryValue(property));
         }
 
         [Fact]
@@ -34,13 +57,40 @@ namespace Microsoft.Data.Entity.Tests.Identity
         {
             var generator = new TemporaryValueGenerator();
 
-            Assert.Equal(-1L, await generator.NextAsync(Mock.Of<StateEntry>(), CreateProperty(typeof(long))));
-            Assert.Equal(-2, await generator.NextAsync(Mock.Of<StateEntry>(), CreateProperty(typeof(int))));
-            Assert.Equal((short)-3, await generator.NextAsync(Mock.Of<StateEntry>(), CreateProperty(typeof(short))));
+            var stateEntry = TestHelpers.CreateStateEntry<AnEntity>(_model, EntityState.Added);
+            var intProperty = stateEntry.EntityType.GetProperty("Id");
+            var longProperty = stateEntry.EntityType.GetProperty("Long");
+            var shortProperty = stateEntry.EntityType.GetProperty("Short");
 
-            Assert.Equal(-4L, generator.Next(Mock.Of<StateEntry>(), CreateProperty(typeof(long))));
-            Assert.Equal(-5, generator.Next(Mock.Of<StateEntry>(), CreateProperty(typeof(int))));
-            Assert.Equal((short)-6, generator.Next(Mock.Of<StateEntry>(), CreateProperty(typeof(short))));
+            await generator.NextAsync(stateEntry, longProperty);
+
+            Assert.Equal(-1L, stateEntry[longProperty]);
+            Assert.True(stateEntry.HasTemporaryValue(longProperty));
+
+            await generator.NextAsync(stateEntry, intProperty);
+
+            Assert.Equal(-2, stateEntry[intProperty]);
+            Assert.True(stateEntry.HasTemporaryValue(intProperty));
+
+            await generator.NextAsync(stateEntry, shortProperty);
+
+            Assert.Equal((short)-3, stateEntry[shortProperty]);
+            Assert.True(stateEntry.HasTemporaryValue(shortProperty));
+
+            generator.Next(stateEntry, longProperty);
+
+            Assert.Equal(-4L, stateEntry[longProperty]);
+            Assert.True(stateEntry.HasTemporaryValue(longProperty));
+
+            generator.Next(stateEntry, intProperty);
+
+            Assert.Equal(-5, stateEntry[intProperty]);
+            Assert.True(stateEntry.HasTemporaryValue(intProperty));
+
+            generator.Next(stateEntry, shortProperty);
+
+            Assert.Equal((short)-6, stateEntry[shortProperty]);
+            Assert.True(stateEntry.HasTemporaryValue(shortProperty));
         }
 
         [Fact]
@@ -48,13 +98,18 @@ namespace Microsoft.Data.Entity.Tests.Identity
         {
             var generator = new TemporaryValueGenerator();
 
-            Assert.Throws<OverflowException>(() => generator.Next(Mock.Of<StateEntry>(), CreateProperty(typeof(byte))));
+            var stateEntry = TestHelpers.CreateStateEntry<AnEntity>(_model, EntityState.Added);
+            var byteProperty = stateEntry.EntityType.GetProperty("Byte");
+
+            Assert.Throws<OverflowException>(() => generator.Next(stateEntry, byteProperty));
         }
 
-        private static Property CreateProperty(Type propertyType)
+        private class AnEntity
         {
-            var entityType = new EntityType("MyType");
-            return entityType.GetOrAddProperty("MyProperty", propertyType, shadowProperty: true);
+            public int Id { get; set; }
+            public long Long { get; set; }
+            public short Short { get; set; }
+            public byte Byte { get; set; }
         }
     }
 }

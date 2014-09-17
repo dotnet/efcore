@@ -11,9 +11,9 @@ namespace Microsoft.Data.Entity.Identity
 {
     public abstract class SimpleValueGenerator : IValueGenerator
     {
-        public abstract object Next(StateEntry entry, IProperty property);
+        public abstract void Next(StateEntry stateEntry, IProperty property);
 
-        public virtual Task<object> NextAsync(
+        public virtual Task NextAsync(
             StateEntry stateEntry,
             IProperty property,
             CancellationToken cancellationToken = default(CancellationToken))
@@ -21,7 +21,9 @@ namespace Microsoft.Data.Entity.Identity
             Check.NotNull(stateEntry, "stateEntry");
             Check.NotNull(property, "property");
 
-            return Task.FromResult(Next(stateEntry, property));
+            Next(stateEntry, property);
+
+            return Task.FromResult(true);
         }
     }
 }
