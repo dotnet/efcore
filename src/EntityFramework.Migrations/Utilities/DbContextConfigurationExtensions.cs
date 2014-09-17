@@ -22,15 +22,7 @@ namespace Microsoft.Data.Entity.Migrations.Utilities
         {
             Check.NotNull(configuration, "configuration");
 
-            return RelationalOptionsExtension.Extract(configuration).MigrationNamespace
-                   ?? Combine(configuration.Context.GetType().Namespace, "Migrations");
-        }
-
-        private static string Combine(string namespace1, string namespace2)
-        {
-            return string.IsNullOrEmpty(namespace1)
-                ? namespace2
-                : namespace1 + "." + namespace2;
+            return RelationalOptionsExtension.Extract(configuration).MigrationNamespace;
         }
     }
 }

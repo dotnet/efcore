@@ -36,11 +36,6 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             get { return ContextConfiguration.GetMigrationAssembly(); }
         }
 
-        public virtual string Namespace
-        {
-            get { return ContextConfiguration.GetMigrationNamespace(); }
-        }
-
         public virtual IReadOnlyList<IMigrationMetadata> Migrations
         {
             get { return _migrations ?? (_migrations = LoadMigrations()); }
@@ -53,12 +48,13 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
         protected virtual IReadOnlyList<IMigrationMetadata> LoadMigrations()
         {
+            var contextType = ContextConfiguration.Context.GetType();
             return Assembly.GetAccessibleTypes()
                 .Where(t => t.GetTypeInfo().IsSubclassOf(typeof(Migration))
                             && t.GetPublicConstructor() != null
                             && !t.GetTypeInfo().IsAbstract
                             && !t.GetTypeInfo().IsGenericType
-                            && t.Namespace == Namespace)
+                            && TryGetContextType(t) == contextType)
                 .Select(t => (IMigrationMetadata)Activator.CreateInstance(t))
                 .OrderBy(m => m.MigrationId)
                 .ToArray();
@@ -66,16 +62,24 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
         protected virtual IModel LoadModel()
         {
+            var contextType = ContextConfiguration.Context.GetType();
             var modelSnapshotType = Assembly.GetAccessibleTypes().SingleOrDefault(
                 t => t.GetTypeInfo().IsSubclassOf(typeof(ModelSnapshot))
                      && t.GetPublicConstructor() != null
                      && !t.GetTypeInfo().IsAbstract
                      && !t.GetTypeInfo().IsGenericType
-                     && t.Namespace == Namespace);
+                     && TryGetContextType(t) == contextType);
 
             return modelSnapshotType != null
                 ? ((ModelSnapshot)Activator.CreateInstance(modelSnapshotType)).Model
                 : null;
+        }
+
+        protected virtual Type TryGetContextType(Type type)
+        {
+            var contextTypeAttribute = type.GetTypeInfo().GetCustomAttribute<ContextTypeAttribute>(inherit: true);
+
+            return contextTypeAttribute != null ? contextTypeAttribute.ContextType : null;
         }
     }
 }

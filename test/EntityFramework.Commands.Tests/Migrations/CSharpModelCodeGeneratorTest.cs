@@ -572,15 +572,18 @@ return builder.Model;",
             model.AddEntityType(entityType);
 
             var stringBuilder = new IndentedStringBuilder();
-            new CSharpModelCodeGenerator().GenerateModelSnapshotClass("MyNamespace", "MyClass", model, stringBuilder);
+            new CSharpModelCodeGenerator()
+                .GenerateModelSnapshotClass("MyNamespace", "MyClass", model, typeof(MyContext), stringBuilder);
 
             Assert.Equal(
-                @"using Microsoft.Data.Entity.Metadata;
+                @"using Microsoft.Data.Entity.Commands.Tests.Migrations;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using System;
 
 namespace MyNamespace
 {
+    [ContextType(typeof(CSharpModelCodeGeneratorTest.MyContext))]
     public class MyClass : ModelSnapshot
     {
         public override IModel Model
@@ -620,6 +623,10 @@ namespace MyNamespace
         private class Product
         {
             public int Id { get; set; }
+        }
+
+        public class MyContext : DbContext
+        {
         }
     }
 }

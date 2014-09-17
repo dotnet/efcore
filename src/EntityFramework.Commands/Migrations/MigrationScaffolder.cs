@@ -81,7 +81,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             var snapshotModelCode = new IndentedStringBuilder();
 
             ScaffoldMigration(migration, migrationCode, migrationMetadataCode);
-            ScaffoldSnapshotModel(migration.TargetModel, snapshotModelCode);
+            ScaffoldSnapshotModel(migration.TargetModel, migration.ContextType, snapshotModelCode);
 
             return
                 new ScaffoldedMigration(migration.MigrationId)
@@ -145,13 +145,15 @@ namespace Microsoft.Data.Entity.Commands.Migrations
 
         protected virtual void ScaffoldSnapshotModel(
             [NotNull] IModel model,
+            [NotNull] Type contextType,
             [NotNull] IndentedStringBuilder snapshotModelCode)
         {
             Check.NotNull(model, "model");
+            Check.NotNull(contextType, "contextType");
 
             var className = GetClassName(model);
 
-            MigrationCodeGenerator.ModelCodeGenerator.GenerateModelSnapshotClass(MigrationNamespace, className, model, snapshotModelCode);
+            MigrationCodeGenerator.ModelCodeGenerator.GenerateModelSnapshotClass(MigrationNamespace, className, model, contextType, snapshotModelCode);
         }
 
         protected virtual string GetClassName([NotNull] IMigrationMetadata migration)
