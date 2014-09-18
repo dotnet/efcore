@@ -80,6 +80,7 @@
     <Compile Include="DefaultModelSourceTest.cs" />
     <Compile Include="DbContextOptionsTest.cs" />
     <Compile Include="EntitySetFinderTest.cs" />
+    <Compile Include="Extensions\TaskExtensionsTest.cs" />
     <Compile Include="Identity\ForeignKeyValueGeneratorTest.cs" />
     <Compile Include="Identity\GuidValueGeneratorTest.cs" />
     <Compile Include="Identity\SimpleValueGeneratorFactoryTest.cs" />
@@ -96,8 +97,8 @@
     <Compile Include="Metadata\MetadataBuilderTest.cs" />
     <Compile Include="Metadata\ModelConventions\ForeignKeyConventionTest.cs" />
     <Compile Include="Metadata\NavigationExtensionsTest.cs" />
+    <Compile Include="Extensions\QueryableExtensionsTest.cs" />
     <Compile Include="TestHelperExtensions.cs" />
-    <Compile Include="QueryableExtensionsTest.cs" />
     <Compile Include="ServiceProviderCacheTest.cs" />
     <Compile Include="ChangeTracking\ChangeTrackerTest.cs" />
     <Compile Include="ChangeTracking\ClrStateEntryTest.cs" />
