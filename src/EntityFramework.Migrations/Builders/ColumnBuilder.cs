@@ -303,7 +303,7 @@ namespace Microsoft.Data.Entity.Migrations.Builders
 
             if (identity)
             {
-                column.ValueGenerationStrategy = ValueGenerationOnSave.WhenInserting;
+                column.ValueGenerationStrategy = ValueGeneration.OnAdd;
             }
 
             return column;

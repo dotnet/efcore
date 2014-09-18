@@ -208,17 +208,15 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 var unicornType = modelBuilder.Model.GetEntityType(typeof(Unicorn));
 
                 var id1 = unicornType.GetProperty("Id1");
-                id1.ValueGenerationOnAdd = ValueGenerationOnAdd.Client;
-                id1.ValueGenerationOnSave = ValueGenerationOnSave.WhenInserting;
+                id1.ValueGeneration = ValueGeneration.OnAdd;
 
                 var id3 = unicornType.GetProperty("Id3");
-                id3.ValueGenerationOnAdd = ValueGenerationOnAdd.Client;
+                id3.ValueGeneration = ValueGeneration.OnAdd;
 
                 var earthType = modelBuilder.Model.GetEntityType(typeof(EarthPony));
 
                 var id = earthType.GetProperty("Id1");
-                id.ValueGenerationOnAdd = ValueGenerationOnAdd.Client;
-                id.ValueGenerationOnSave = ValueGenerationOnSave.WhenInserting;
+                id.ValueGeneration = ValueGeneration.OnAdd;
             }
         }
 

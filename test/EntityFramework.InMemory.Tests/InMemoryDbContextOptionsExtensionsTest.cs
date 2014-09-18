@@ -3,8 +3,8 @@
 
 using System;
 using System.Linq;
-using System.Reflection;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Tests;
 using Xunit;
 
 namespace Microsoft.Data.Entity.InMemory.Tests
@@ -54,14 +54,8 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             options.Lock();
 
             Assert.Equal(
-                GetString("FormatEntityConfigurationLocked", "UseInMemoryStore"),
+                TestHelpers.GetCoreString("FormatEntityConfigurationLocked", "UseInMemoryStore"),
                 Assert.Throws<InvalidOperationException>(() => options.UseInMemoryStore()).Message);
-        }
-
-        private static string GetString(string stringName, params object[] parameters)
-        {
-            var strings = typeof(DbContext).GetTypeInfo().Assembly.GetType(typeof(DbContext).Namespace + ".Strings");
-            return (string)strings.GetTypeInfo().GetDeclaredMethods(stringName).Single().Invoke(null, parameters);
         }
     }
 }

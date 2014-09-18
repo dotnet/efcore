@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             var sequentialGuidIdentityGenerator = new SequentialGuidValueGenerator();
 
-            var stateEntry = TestHelpers.CreateStateEntry<WithGuid>(_model, EntityState.Added);
+            var stateEntry = TestHelpers.CreateStateEntry<WithGuid>(_model);
             var property = stateEntry.EntityType.GetProperty("Id");
 
             var values = new HashSet<Guid>();

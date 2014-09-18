@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.SQLite
 
         public override IValueGeneratorFactory Select(IProperty property)
         {
-            if (property.ValueGenerationOnAdd == ValueGenerationOnAdd.Client)
+            if (property.ValueGeneration == ValueGeneration.OnAdd)
             {
                 // If INTEGER PRIMARY KEY column...
                 var keyProperties = property.EntityType.GetPrimaryKey().Properties;

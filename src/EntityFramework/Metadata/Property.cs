@@ -3,7 +3,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
@@ -20,6 +19,7 @@ namespace Microsoft.Data.Entity.Metadata
         private int _shadowIndex;
         private int _originalValueIndex = -1;
         private int _index;
+        private ValueGeneration _valueGeneration;
 
         public Property([NotNull] string name, [NotNull] Type propertyType, bool shadowProperty = false)
             : base(name)
@@ -49,13 +49,11 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual bool IsReadOnly
         {
-            get
-            {
-                return this.IsKey() || _isReadOnly;
-            }
+            get { return this.IsKey() || _isReadOnly; }
             set
             {
-                if (!value && this.IsKey())
+                if (!value
+                    && this.IsKey())
                 {
                     throw new NotSupportedException(Strings.FormatKeyPropertyMustBeReadOnly(Name, EntityType.Name));
                 }
@@ -63,8 +61,16 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        public virtual ValueGenerationOnSave ValueGenerationOnSave { get; set; }
-        public virtual ValueGenerationOnAdd ValueGenerationOnAdd { get; set; }
+        public virtual ValueGeneration ValueGeneration
+        {
+            get { return _valueGeneration; }
+            set
+            {
+                Check.IsDefined(value, "value");
+
+                _valueGeneration = value;
+            }
+        }
 
         public virtual bool IsShadowProperty
         {

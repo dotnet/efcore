@@ -152,7 +152,7 @@ namespace Microsoft.Data.Entity.Relational
                         IsNullable = property.IsNullable,
                         DefaultValue = property.ColumnDefaultValue(),
                         DefaultSql = property.ColumnDefaultSql(),
-                        ValueGenerationStrategy = property.ValueGenerationOnSave,
+                        ValueGenerationStrategy = property.ValueGeneration,
                         IsTimestamp = property.PropertyType == typeof(byte[]) && property.IsConcurrencyToken
                     };
 

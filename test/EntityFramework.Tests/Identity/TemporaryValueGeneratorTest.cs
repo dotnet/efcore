@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
         {
             var generator = new TemporaryValueGenerator();
 
-            var stateEntry = TestHelpers.CreateStateEntry<AnEntity>(_model, EntityState.Added);
+            var stateEntry = TestHelpers.CreateStateEntry<AnEntity>(_model);
             var property = stateEntry.EntityType.GetProperty("Id");
 
             await generator.NextAsync(stateEntry, property);
@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
         {
             var generator = new TemporaryValueGenerator();
 
-            var stateEntry = TestHelpers.CreateStateEntry<AnEntity>(_model, EntityState.Added);
+            var stateEntry = TestHelpers.CreateStateEntry<AnEntity>(_model);
             var intProperty = stateEntry.EntityType.GetProperty("Id");
             var longProperty = stateEntry.EntityType.GetProperty("Long");
             var shortProperty = stateEntry.EntityType.GetProperty("Short");
@@ -98,7 +98,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
         {
             var generator = new TemporaryValueGenerator();
 
-            var stateEntry = TestHelpers.CreateStateEntry<AnEntity>(_model, EntityState.Added);
+            var stateEntry = TestHelpers.CreateStateEntry<AnEntity>(_model);
             var byteProperty = stateEntry.EntityType.GetProperty("Byte");
 
             Assert.Throws<OverflowException>(() => generator.Next(stateEntry, byteProperty));

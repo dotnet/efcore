@@ -195,7 +195,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
 
             stringBuilder.Append(";");
 
-            if (property.ValueGenerationOnAdd != ValueGenerationOnAdd.None)
+            if (property.ValueGeneration != ValueGeneration.None)
             {
                 stringBuilder
                     .AppendLine()
@@ -203,21 +203,8 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                     .Append(property.PropertyType.GetTypeName())
                     .Append(">(")
                     .Append(DelimitString(property.Name))
-                    .Append(").Metadata.ValueGenerationOnAdd = ValueGenerationOnAdd.")
-                    .Append(property.ValueGenerationOnAdd.ToString("G"))
-                    .Append(";");
-            }
-
-            if (property.ValueGenerationOnSave != ValueGenerationOnSave.None)
-            {
-                stringBuilder
-                    .AppendLine()
-                    .Append("b.Property<")
-                    .Append(property.PropertyType.GetTypeName())
-                    .Append(">(")
-                    .Append(DelimitString(property.Name))
-                    .Append(").Metadata.ValueGenerationOnSave = ValueGenerationOnSave.")
-                    .Append(property.ValueGenerationOnSave.ToString("G"))
+                    .Append(").Metadata.ValueGeneration = ValueGeneration.")
+                    .Append(property.ValueGeneration.ToString("G"))
                     .Append(";");
             }
         }

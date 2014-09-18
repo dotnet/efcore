@@ -177,7 +177,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                             IsNullable = false,
                             DefaultValue = "V",
                             DefaultSql = "Sql",
-                            ValueGenerationStrategy = ValueGenerationOnSave.WhenInsertingAndUpdating,
+                            ValueGenerationStrategy = ValueGeneration.OnAddAndUpdate,
                             IsTimestamp = true,
                             MaxLength = 4,
                             Precision = 3,
@@ -196,7 +196,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             Assert.Equal("T", column.DataType);
             Assert.Equal("V", column.DefaultValue);
             Assert.Equal("Sql", column.DefaultSql);
-            Assert.Equal(ValueGenerationOnSave.WhenInsertingAndUpdating, column.ValueGenerationStrategy);
+            Assert.Equal(ValueGeneration.OnAddAndUpdate, column.ValueGenerationStrategy);
             Assert.True(column.IsTimestamp);
             Assert.Equal(4, column.MaxLength.Value);
             Assert.Equal(3, column.Precision.Value);

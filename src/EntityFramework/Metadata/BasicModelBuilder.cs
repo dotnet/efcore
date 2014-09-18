@@ -280,24 +280,6 @@ namespace Microsoft.Data.Entity.Metadata
 
                     return this;
                 }
-
-                // TODO Consider if this should be relational only
-                public virtual PropertyBuilder UseStoreSequence()
-                {
-                    _builder.UseStoreSequence();
-
-                    return this;
-                }
-
-                // TODO Consider if this should be relational only
-                public virtual PropertyBuilder UseStoreSequence([NotNull] string sequenceName, int blockSize)
-                {
-                    Check.NotEmpty(sequenceName, "sequenceName");
-
-                    _builder.UseStoreSequence(sequenceName, blockSize);
-
-                    return this;
-                }
             }
 
             public class ForeignKeyBuilder : IForeignKeyBuilder<ForeignKeyBuilder>

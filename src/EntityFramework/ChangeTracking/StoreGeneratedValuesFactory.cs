@@ -3,7 +3,6 @@
 
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking
@@ -18,7 +17,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             return new StoreGeneratedValues(
                 stateEntry,
-                entityType.Properties.Where(p => p.ValueGenerationOnSave != ValueGenerationOnSave.None)
+                entityType.Properties.Where(stateEntry.NeedsStoreValue)
                     .Concat(entityType.ForeignKeys.SelectMany(f => f.Properties))
                     .Distinct()
                     .ToArray());

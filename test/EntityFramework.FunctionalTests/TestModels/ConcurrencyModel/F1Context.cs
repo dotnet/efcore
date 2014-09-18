@@ -124,18 +124,17 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel
             // TODO: Remove once temporary keys can be overridden
             var teamType = model.GetEntityType(typeof(Team));
 
-            teamType.GetProperty("Id").ValueGenerationOnAdd = ValueGenerationOnAdd.None;
-            teamType.GetProperty("Id").ValueGenerationOnSave = ValueGenerationOnSave.None;
+            teamType.GetProperty("Id").ValueGeneration = ValueGeneration.None;
 
             // TODO: Remove when FAPI supports this
             var chassisType = model.GetEntityType(typeof(Chassis));
             var driverType = model.GetEntityType(typeof(Driver));
             var sponsorType = model.GetEntityType(typeof(Sponsor));
 
-            chassisType.GetProperty("Version").ValueGenerationOnSave = ValueGenerationOnSave.WhenInsertingAndUpdating;
-            driverType.GetProperty("Version").ValueGenerationOnSave = ValueGenerationOnSave.WhenInsertingAndUpdating;
-            teamType.GetProperty("Version").ValueGenerationOnSave = ValueGenerationOnSave.WhenInsertingAndUpdating;
-            sponsorType.GetProperty("Version").ValueGenerationOnSave = ValueGenerationOnSave.WhenInsertingAndUpdating;
+            chassisType.GetProperty("Version").ValueGeneration = ValueGeneration.OnAddAndUpdate;
+            driverType.GetProperty("Version").ValueGeneration = ValueGeneration.OnAddAndUpdate;
+            teamType.GetProperty("Version").ValueGeneration = ValueGeneration.OnAddAndUpdate;
+            sponsorType.GetProperty("Version").ValueGeneration = ValueGeneration.OnAddAndUpdate;
 
             return modelBuilder;
         }

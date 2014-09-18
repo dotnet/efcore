@@ -2,10 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Linq;
-using System.Reflection;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Tests;
 using Moq;
 using Xunit;
 
@@ -14,7 +13,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
     public class InMemoryValueGeneratorSelectorTest
     {
         [Fact]
-        public void Returns_in_memory_integer_generator_for_all_integer_types_setup_for_client_values()
+        public void Returns_in_memory_integer_generator_for_all_integer_types_setup_for_generation_on_Add()
         {
             var inMemoryFactory = new SimpleValueGeneratorFactory<InMemoryValueGenerator>();
 
@@ -22,29 +21,14 @@ namespace Microsoft.Data.Entity.InMemory.Tests
                 new SimpleValueGeneratorFactory<GuidValueGenerator>(),
                 inMemoryFactory);
 
-            Assert.Same(inMemoryFactory, selector.Select(CreateProperty(typeof(long), ValueGenerationOnAdd.Client)));
-            Assert.Same(inMemoryFactory, selector.Select(CreateProperty(typeof(int), ValueGenerationOnAdd.Client)));
-            Assert.Same(inMemoryFactory, selector.Select(CreateProperty(typeof(short), ValueGenerationOnAdd.Client)));
-            Assert.Same(inMemoryFactory, selector.Select(CreateProperty(typeof(byte), ValueGenerationOnAdd.Client)));
+            Assert.Same(inMemoryFactory, selector.Select(CreateProperty(typeof(long), ValueGeneration.OnAdd)));
+            Assert.Same(inMemoryFactory, selector.Select(CreateProperty(typeof(int), ValueGeneration.OnAdd)));
+            Assert.Same(inMemoryFactory, selector.Select(CreateProperty(typeof(short), ValueGeneration.OnAdd)));
+            Assert.Same(inMemoryFactory, selector.Select(CreateProperty(typeof(byte), ValueGeneration.OnAdd)));
         }
 
         [Fact]
-        public void Returns_in_memory_integer_generator_for_all_integer_types_setup_for_server_values()
-        {
-            var inMemoryFactory = new SimpleValueGeneratorFactory<InMemoryValueGenerator>();
-
-            var selector = new InMemoryValueGeneratorSelector(
-                new SimpleValueGeneratorFactory<GuidValueGenerator>(),
-                inMemoryFactory);
-
-            Assert.Same(inMemoryFactory, selector.Select(CreateProperty(typeof(long), ValueGenerationOnAdd.Server)));
-            Assert.Same(inMemoryFactory, selector.Select(CreateProperty(typeof(int), ValueGenerationOnAdd.Server)));
-            Assert.Same(inMemoryFactory, selector.Select(CreateProperty(typeof(short), ValueGenerationOnAdd.Server)));
-            Assert.Same(inMemoryFactory, selector.Select(CreateProperty(typeof(byte), ValueGenerationOnAdd.Server)));
-        }
-
-        [Fact]
-        public void Returns_in_memory_GUID_generator_for_GUID_types_setup_for_client_values()
+        public void Returns_in_memory_GUID_generator_for_GUID_types_setup_for_generation_on_Add()
         {
             var guidFactory = new SimpleValueGeneratorFactory<GuidValueGenerator>();
 
@@ -52,19 +36,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
                 guidFactory,
                 new SimpleValueGeneratorFactory<InMemoryValueGenerator>());
 
-            Assert.Same(guidFactory, selector.Select(CreateProperty(typeof(Guid), ValueGenerationOnAdd.Client)));
-        }
-
-        [Fact]
-        public void Returns_in_memory_GUID_generator_for_GUID_types_setup_for_server_values()
-        {
-            var guidFactory = new SimpleValueGeneratorFactory<GuidValueGenerator>();
-
-            var selector = new InMemoryValueGeneratorSelector(
-                guidFactory,
-                new SimpleValueGeneratorFactory<InMemoryValueGenerator>());
-
-            Assert.Same(guidFactory, selector.Select(CreateProperty(typeof(Guid), ValueGenerationOnAdd.Server)));
+            Assert.Same(guidFactory, selector.Select(CreateProperty(typeof(Guid), ValueGeneration.OnAdd)));
         }
 
         [Fact]
@@ -74,7 +46,8 @@ namespace Microsoft.Data.Entity.InMemory.Tests
                 new SimpleValueGeneratorFactory<GuidValueGenerator>(),
                 new SimpleValueGeneratorFactory<InMemoryValueGenerator>());
 
-            Assert.Null(selector.Select(CreateProperty(typeof(int), ValueGenerationOnAdd.None)));
+            Assert.Null(selector.Select(CreateProperty(typeof(int), ValueGeneration.None)));
+            Assert.Null(selector.Select(CreateProperty(typeof(int), ValueGeneration.OnAddAndUpdate)));
         }
 
         [Fact]
@@ -87,28 +60,22 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var typeMock = new Mock<IEntityType>();
             typeMock.Setup(m => m.Name).Returns("AnEntity");
 
-            var property = CreateProperty(typeof(double), ValueGenerationOnAdd.Client);
+            var property = CreateProperty(typeof(double), ValueGeneration.OnAdd);
 
             Assert.Equal(
-                GetString("FormatNoValueGenerator", "client", "MyType", "MyProperty", "Double"),
+                TestHelpers.GetCoreString("FormatNoValueGenerator", "MyProperty", "MyType", "Double"),
                 Assert.Throws<NotSupportedException>(() => selector.Select(property)).Message);
         }
 
-        private static Property CreateProperty(Type propertyType, ValueGenerationOnAdd valueGeneration)
+        private static Property CreateProperty(Type propertyType, ValueGeneration valueGeneration)
         {
             var entityType = new EntityType("MyType");
             var property = entityType.GetOrAddProperty("MyProperty", propertyType, shadowProperty: true);
-            property.ValueGenerationOnAdd = valueGeneration;
+            property.ValueGeneration = valueGeneration;
 
             new Model().AddEntityType(entityType);
 
             return property;
-        }
-
-        private static string GetString(string stringName, params object[] parameters)
-        {
-            var strings = typeof(DbContext).GetTypeInfo().Assembly.GetType(typeof(DbContext).Namespace + ".Strings");
-            return (string)strings.GetTypeInfo().GetDeclaredMethods(stringName).Single().Invoke(null, parameters);
         }
     }
 }

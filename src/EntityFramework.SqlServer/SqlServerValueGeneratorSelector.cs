@@ -34,30 +34,27 @@ namespace Microsoft.Data.Entity.SqlServer
         {
             Check.NotNull(property, "property");
 
-            switch (property.ValueGenerationOnAdd)
+            if (property.ValueGeneration == ValueGeneration.OnAdd)
             {
-                case ValueGenerationOnAdd.Client:
-                    if (property.PropertyType.IsInteger()
-                        && property.PropertyType != typeof(byte))
-                    {
-                        return _tempFactory;
-                    }
-                    if (property.PropertyType == typeof(Guid))
-                    {
-                        return _sequentialGuidFactory;
-                    }
-                    goto default;
+                if (property.PropertyType.IsInteger()
+                    && property.PropertyType != typeof(byte))
+                {
+                    return _tempFactory;
+                }
 
-                case ValueGenerationOnAdd.Server:
-                    if (property.PropertyType.IsInteger())
-                    {
-                        return _sequenceFactory;
-                    }
-                    goto default;
+                // TODO: Allow specifying different SQL Server strategies and make sequence the default
+                if (property.PropertyType.IsInteger())
+                {
+                    return _sequenceFactory;
+                }
 
-                default:
-                    return base.Select(property);
+                if (property.PropertyType == typeof(Guid))
+                {
+                    return _sequentialGuidFactory;
+                }
             }
+
+            return base.Select(property);
         }
     }
 }

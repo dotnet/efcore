@@ -109,8 +109,6 @@ namespace Microsoft.Data.Entity.Relational.Update
         private IReadOnlyList<ColumnModification> GenerateColumnModifications()
         {
             var adding = EntityState == EntityState.Added;
-            var deleting = EntityState == EntityState.Deleted;
-            var modifying = EntityState == EntityState.Modified;
             var columnModifications = new List<ColumnModification>();
 
             foreach (var stateEntry in _stateEntries)
@@ -123,13 +121,10 @@ namespace Microsoft.Data.Entity.Relational.Update
 
                     var isCondition = !adding && (isKey || property.IsConcurrencyToken);
 
-                    var readValue = (!deleting && property.ValueGenerationOnSave == ValueGenerationOnSave.WhenInsertingAndUpdating)
-                                    || (adding && property.ValueGenerationOnSave == ValueGenerationOnSave.WhenInserting);
+                    var readValue = stateEntry.NeedsStoreValue(property);
 
                     // TODO: Default values
-                    var writeValue = (adding && property.ValueGenerationOnSave == ValueGenerationOnSave.None)
-                                     || (modifying && stateEntry.IsPropertyModified(property)
-                                         && property.ValueGenerationOnSave != ValueGenerationOnSave.WhenInsertingAndUpdating);
+                    var writeValue = !readValue && (adding || stateEntry.IsPropertyModified(property));
 
                     if (readValue
                         || writeValue

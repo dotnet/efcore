@@ -24,14 +24,9 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
             get { return Nullable.GetUnderlyingType(typeof(TProperty)) ?? typeof(TProperty); }
         }
 
-        public virtual ValueGenerationOnSave ValueGenerationOnSave
+        public virtual ValueGeneration ValueGeneration
         {
-            get { return ValueGenerationOnSave.None; }
-        }
-
-        public virtual ValueGenerationOnAdd ValueGenerationOnAdd
-        {
-            get { return ValueGenerationOnAdd.None; }
+            get { return ValueGeneration.None; }
         }
 
         public bool IsNullable

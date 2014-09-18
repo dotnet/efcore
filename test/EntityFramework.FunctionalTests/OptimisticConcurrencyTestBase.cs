@@ -133,7 +133,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         #region Concurrency resolution with FK associations
 
         [Fact]
-        public Task Simple_concurrency_exception_can_be_resolved_with_client_values()
+        public virtual Task Simple_concurrency_exception_can_be_resolved_with_client_values()
         {
             return ConcurrencyTestAsync(
                 ClientPodiums, (c, ex) =>
@@ -145,7 +145,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public Task Simple_concurrency_exception_can_be_resolved_with_store_values()
+        public virtual Task Simple_concurrency_exception_can_be_resolved_with_store_values()
         {
             return ConcurrencyTestAsync(
                 StorePodiums, (c, ex) =>
@@ -159,7 +159,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public Task Simple_concurrency_exception_can_be_resolved_with_new_values()
+        public virtual Task Simple_concurrency_exception_can_be_resolved_with_new_values()
         {
             return ConcurrencyTestAsync(
                 10, (c, ex) =>
@@ -172,7 +172,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public Task Simple_concurrency_exception_can_be_resolved_with_store_values_using_equivalent_of_accept_changes()
+        public virtual Task Simple_concurrency_exception_can_be_resolved_with_store_values_using_equivalent_of_accept_changes()
         {
             return ConcurrencyTestAsync(
                 StorePodiums, (c, ex) =>
@@ -186,14 +186,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public Task Simple_concurrency_exception_can_be_resolved_with_store_values_using_Reload()
+        public virtual Task Simple_concurrency_exception_can_be_resolved_with_store_values_using_Reload()
         {
             return ConcurrencyTestAsync(StorePodiums, (c, ex) => ex.StateEntries.Single().Reload(c));
         }
 
         // TODO: Uncomment the tests below when lazy loading works
         // [Fact]
-        public Task Two_concurrency_issues_in_one_to_one_related_entities_can_be_handled_by_dealing_with_dependent_first()
+        public virtual Task Two_concurrency_issues_in_one_to_one_related_entities_can_be_handled_by_dealing_with_dependent_first()
         {
             return ConcurrencyTestAsync(
                 c =>
@@ -236,7 +236,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         //[Fact]
-        public Task Two_concurrency_issues_in_one_to_many_related_entities_can_be_handled_by_dealing_with_dependent_first()
+        public virtual Task Two_concurrency_issues_in_one_to_many_related_entities_can_be_handled_by_dealing_with_dependent_first()
         {
             return ConcurrencyTestAsync(
                 c =>
@@ -280,7 +280,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         //TODO: Uncomment when Include is implemented
         //[Fact]
-        public Task Concurrency_issue_where_the_FK_is_the_concurrency_token_can_be_handled()
+        public virtual Task Concurrency_issue_where_the_FK_is_the_concurrency_token_can_be_handled()
         {
             return ConcurrencyTestAsync(
                 c =>
@@ -308,7 +308,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         #region Concurrency exceptions with shadow FK associations
 
         [Fact]
-        public async Task Change_in_independent_association_results_in_independent_association_exception()
+        public virtual async Task Change_in_independent_association_results_in_independent_association_exception()
         {
             await ConcurrencyTestAsync(
                 c => c.Teams.Single(t => t.Id == Team.Ferrari).Engine = c.Engines.Single(s => s.Name == "FO 108X"),
@@ -322,7 +322,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public async Task
+        public virtual async Task
             Change_in_independent_association_after_change_in_different_concurrency_token_results_in_independent_association_exception()
         {
             await ConcurrencyTestAsync(
@@ -341,7 +341,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         // TODO: Many to Many
         //[Fact]
-        public async Task
+        public virtual async Task
             Attempting_to_delete_same_relationship_twice_for_many_to_many_results_in_independent_association_exception()
         {
             await ConcurrencyTestAsync(
@@ -358,7 +358,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         // TODO: Many to Many
         //[Fact]
-        public async Task
+        public virtual async Task
             Attempting_to_add_same_relationship_twice_for_many_to_many_results_in_independent_association_exception()
         {
             await ConcurrencyTestAsync(
@@ -379,7 +379,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         // TODO: Complex types
         //[Fact]
-        public void Concurrency_issue_where_a_complex_type_nested_member_is_the_concurrency_token_can_be_handled()
+        public virtual void Concurrency_issue_where_a_complex_type_nested_member_is_the_concurrency_token_can_be_handled()
         {
             ConcurrencyTestAsync(
                 c => c.Engines.Single(s => s.Name == "CA2010").StorageLocation.Latitude = 47.642576,
@@ -400,7 +400,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         #region Tests for update exceptions involving adding and deleting entities
 
         [Fact]
-        public void Adding_the_same_entity_twice_results_in_DbUpdateException()
+        public virtual void Adding_the_same_entity_twice_results_in_DbUpdateException()
         {
             ConcurrencyTestAsync(
                 c =>
@@ -420,7 +420,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public void Deleting_the_same_entity_twice_results_in_DbUpdateConcurrencyException()
+        public virtual void Deleting_the_same_entity_twice_results_in_DbUpdateConcurrencyException()
         {
             ConcurrencyTestAsync(
                 c => c.Drivers.Remove(c.Drivers.Single(d => d.Name == "Fernando Alonso")),
@@ -436,7 +436,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public void
+        public virtual void
             Deleting_the_same_entity_twice_when_entity_has_independent_association_results_in_DbIndependentAssociationUpdateException()
         {
             ConcurrencyTestAsync(
@@ -451,7 +451,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public Task Updating_then_deleting_the_same_entity_results_in_DbUpdateConcurrencyException()
+        public virtual Task Updating_then_deleting_the_same_entity_results_in_DbUpdateConcurrencyException()
         {
             return ConcurrencyTestAsync(
                 c => c.Drivers.Single(d => d.Name == "Fernando Alonso").Wins = 1,
@@ -468,7 +468,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public Task Updating_then_deleting_the_same_entity_results_in_DbUpdateConcurrencyException_which_can_be_resolved_with_store_values()
+        public virtual Task Updating_then_deleting_the_same_entity_results_in_DbUpdateConcurrencyException_which_can_be_resolved_with_store_values()
         {
             return ConcurrencyTestAsync(
                 c => c.Drivers.Single(d => d.Name == "Fernando Alonso").Wins = 1,
@@ -490,7 +490,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public Task Deleting_then_updating_the_same_entity_results_in_DbUpdateConcurrencyException()
+        public virtual Task Deleting_then_updating_the_same_entity_results_in_DbUpdateConcurrencyException()
         {
             return ConcurrencyTestAsync(
                 c => c.Drivers.Remove(c.Drivers.Single(d => d.Name == "Fernando Alonso")),
@@ -507,7 +507,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public Task Deleting_then_updating_the_same_entity_results_in_DbUpdateConcurrencyException_which_can_be_resolved_with_store_values()
+        public virtual Task Deleting_then_updating_the_same_entity_results_in_DbUpdateConcurrencyException_which_can_be_resolved_with_store_values()
         {
             return ConcurrencyTestAsync(
                 c => c.Drivers.Remove(c.Drivers.Single(d => d.Name == "Fernando Alonso")),
@@ -530,7 +530,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         #region Tests for calling Reload on an entity in various states
 
         [Fact]
-        public async Task Calling_Reload_on_an_Added_entity_throws()
+        public virtual async Task Calling_Reload_on_an_Added_entity_throws()
         {
             using (var testDatabase = await CreateTestDatabaseAsync())
             {
@@ -552,7 +552,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public async Task Calling_Reload_on_a_detached_entity_throws()
+        public virtual async Task Calling_Reload_on_a_detached_entity_throws()
         {
             using (var testDatabase = await CreateTestDatabaseAsync())
             {
@@ -575,19 +575,19 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public Task Calling_Reload_on_a_Unchanged_entity_makes_the_entity_unchanged()
+        public virtual Task Calling_Reload_on_a_Unchanged_entity_makes_the_entity_unchanged()
         {
             return TestReloadPositive(EntityState.Unchanged);
         }
 
         [Fact]
-        public Task Calling_Reload_on_a_Modified_entity_makes_the_entity_unchanged()
+        public virtual Task Calling_Reload_on_a_Modified_entity_makes_the_entity_unchanged()
         {
             return TestReloadPositive(EntityState.Modified);
         }
 
         [Fact]
-        public Task Calling_Reload_on_a_Deleted_entity_makes_the_entity_unchanged()
+        public virtual Task Calling_Reload_on_a_Deleted_entity_makes_the_entity_unchanged()
         {
             return TestReloadPositive(EntityState.Deleted);
         }
@@ -616,7 +616,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         // TODO: Reload
 
         [Fact]
-        public async Task Calling_ReloadAsync_on_an_Added_entity_throws()
+        public virtual async Task Calling_ReloadAsync_on_an_Added_entity_throws()
         {
             using (var testDatabase = await CreateTestDatabaseAsync())
             {
@@ -638,7 +638,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public async Task Calling_ReloadAsync_on_a_detached_entity_throws()
+        public virtual async Task Calling_ReloadAsync_on_a_detached_entity_throws()
         {
             using (var testDatabase = await CreateTestDatabaseAsync())
             {
@@ -661,19 +661,19 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public Task Calling_ReloadAsync_on_a_Unchanged_entity_makes_the_entity_unchanged()
+        public virtual Task Calling_ReloadAsync_on_a_Unchanged_entity_makes_the_entity_unchanged()
         {
             return TestReloadAsyncPositive(EntityState.Unchanged);
         }
 
         [Fact]
-        public Task Calling_ReloadAsync_on_a_Modified_entity_makes_the_entity_unchanged()
+        public virtual Task Calling_ReloadAsync_on_a_Modified_entity_makes_the_entity_unchanged()
         {
             return TestReloadAsyncPositive(EntityState.Modified);
         }
 
         [Fact]
-        public Task Calling_ReloadAsync_on_a_Deleted_entity_makes_the_entity_unchanged()
+        public virtual Task Calling_ReloadAsync_on_a_Deleted_entity_makes_the_entity_unchanged()
         {
             return TestReloadAsyncPositive(EntityState.Deleted);
         }

@@ -571,7 +571,7 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        /// No {generator} value generator has been configured for property '{entityType}.{propertyName}'. To use value generation for properties of type '{propertyType}' the data store must configure an appropriate value generator.
+        /// The '{propertyName}' on entity type '{entityType}' is set up to use generated values, but no value generator is available for properties of type '{propertyType}'. To use value generation for properties of type '{propertyType}' the data store must configure an appropriate value generator.
         /// </summary>
         internal static string NoValueGenerator
         {
@@ -579,11 +579,11 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        /// No {generator} value generator has been configured for property '{entityType}.{propertyName}'. To use value generation for properties of type '{propertyType}' the data store must configure an appropriate value generator.
+        /// The '{propertyName}' on entity type '{entityType}' is set up to use generated values, but no value generator is available for properties of type '{propertyType}'. To use value generation for properties of type '{propertyType}' the data store must configure an appropriate value generator.
         /// </summary>
-        internal static string FormatNoValueGenerator(object generator, object entityType, object propertyName, object propertyType)
+        internal static string FormatNoValueGenerator(object propertyName, object entityType, object propertyType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("NoValueGenerator", "generator", "entityType", "propertyName", "propertyType"), generator, entityType, propertyName, propertyType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("NoValueGenerator", "propertyName", "entityType", "propertyType"), propertyName, entityType, propertyType);
         }
 
         /// <summary>

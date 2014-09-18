@@ -27,24 +27,13 @@ namespace Microsoft.Data.Entity.InMemory
         {
             Check.NotNull(property, "property");
 
-            switch (property.ValueGenerationOnAdd)
+            if (property.ValueGeneration == ValueGeneration.OnAdd
+                && property.PropertyType.IsInteger())
             {
-                case ValueGenerationOnAdd.Client:
-                case ValueGenerationOnAdd.Server:
-                    // Client/server is essentially the same for in-memory store
-                    if (property.PropertyType.IsInteger())
-                    {
-                        return _inMemoryFactory;
-                    }
-                    if (property.PropertyType == typeof(Guid))
-                    {
-                        return GuidFactory;
-                    }
-                    goto default;
-
-                default:
-                    return base.Select(property);
+                return _inMemoryFactory;
             }
+
+            return base.Select(property);
         }
     }
 }

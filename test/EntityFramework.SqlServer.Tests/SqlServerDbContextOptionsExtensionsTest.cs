@@ -4,8 +4,8 @@
 using System;
 using System.Data.SqlClient;
 using System.Linq;
-using System.Reflection;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Tests;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.Tests
@@ -73,18 +73,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             options.Lock();
 
             Assert.Equal(
-                GetString("FormatEntityConfigurationLocked", "UseSqlServer"),
+                TestHelpers.GetCoreString("FormatEntityConfigurationLocked", "UseSqlServer"),
                 Assert.Throws<InvalidOperationException>(() => options.UseSqlServer("Database=DoubleDecker")).Message);
 
             Assert.Equal(
-                GetString("FormatEntityConfigurationLocked", "UseSqlServer"),
+                TestHelpers.GetCoreString("FormatEntityConfigurationLocked", "UseSqlServer"),
                 Assert.Throws<InvalidOperationException>(() => options.UseSqlServer(new SqlConnection())).Message);
-        }
-
-        private static string GetString(string stringName, params object[] parameters)
-        {
-            var strings = typeof(DbContext).GetTypeInfo().Assembly.GetType(typeof(DbContext).Namespace + ".Strings");
-            return (string)strings.GetTypeInfo().GetDeclaredMethods(stringName).Single().Invoke(null, parameters);
         }
     }
 }

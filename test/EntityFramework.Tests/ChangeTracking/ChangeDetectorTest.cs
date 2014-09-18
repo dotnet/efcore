@@ -271,7 +271,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var productType = model.GetEntityType(typeof(Product));
             var categoryType = model.GetEntityType(typeof(Category));
 
-            categoryType.GetProperty("Id").ValueGenerationOnAdd = ValueGenerationOnAdd.None;
+            categoryType.GetProperty("Id").ValueGeneration = ValueGeneration.None;
 
             productType.GetOrAddForeignKey(new Key(new[] { categoryType.GetProperty("PrincipalId") }), productType.GetProperty("DependentId"));
 

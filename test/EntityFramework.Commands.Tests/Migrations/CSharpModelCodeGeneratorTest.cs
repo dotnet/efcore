@@ -569,8 +569,7 @@ return builder.Model;",
             builder.Entity<Customer>(b =>
             {
                 b.Key(e => e.Id);
-                b.Property(e => e.Id).Metadata.ValueGenerationOnAdd = ValueGenerationOnAdd.Client;
-                b.Property(e => e.Id).Metadata.ValueGenerationOnSave = ValueGenerationOnSave.WhenInserting;
+                b.Property(e => e.Id).Metadata.ValueGeneration = ValueGeneration.OnAdd;
             });
 
             var stringBuilder = new IndentedStringBuilder();
@@ -582,8 +581,7 @@ return builder.Model;",
 builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Customer"", b =>
     {
         b.Property<int>(""Id"");
-        b.Property<int>(""Id"").Metadata.ValueGenerationOnAdd = ValueGenerationOnAdd.Client;
-        b.Property<int>(""Id"").Metadata.ValueGenerationOnSave = ValueGenerationOnSave.WhenInserting;
+        b.Property<int>(""Id"").Metadata.ValueGeneration = ValueGeneration.OnAdd;
         b.Key(""Id"");
     });
 

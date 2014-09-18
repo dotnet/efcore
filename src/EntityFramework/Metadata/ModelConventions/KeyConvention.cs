@@ -56,15 +56,9 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
         {
             Check.NotNull(property, "property");
 
-            if (property.PropertyType == typeof(Guid))
+            if (property.PropertyType == typeof(Guid) || property.PropertyType.IsInteger())
             {
-                property.ValueGenerationOnAdd = ValueGenerationOnAdd.Client;
-            }
-
-            if (property.PropertyType.IsInteger())
-            {
-                property.ValueGenerationOnAdd = ValueGenerationOnAdd.Client;
-                property.ValueGenerationOnSave = ValueGenerationOnSave.WhenInserting;
+                property.ValueGeneration = ValueGeneration.OnAdd;
             }
 
             // TODO: Nullable, Sequence

@@ -36,10 +36,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             using (var context = new BronieContext(serviceProvider, "GooieBronies"))
             {
-                // TODO: Currently test passes because SQL Server happens to return values in
-                // inserted order. When OrderBy is done on server it should be added to the query.
-                //var pegasuses = await context.Pegasuses.OrderBy(e => e.Id).ToListAsync();
-                var pegasuses = await context.Pegasuses.ToListAsync();
+                var pegasuses = await context.Pegasuses.OrderBy(e => e.Id).ToListAsync();
 
                 for (var i = 0; i < 50; i++)
                 {

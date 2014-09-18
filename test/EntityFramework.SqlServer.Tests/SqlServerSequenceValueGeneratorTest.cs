@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Generates_sequential_values()
         {
-            var stateEntry = TestHelpers.CreateStateEntry<AnEntity>(_model, EntityState.Added);
+            var stateEntry = TestHelpers.CreateStateEntry<AnEntity>(_model);
             var intProperty = stateEntry.EntityType.GetProperty("Id");
             var longProperty = stateEntry.EntityType.GetProperty("Long");
             var shortProperty = stateEntry.EntityType.GetProperty("Short");
@@ -66,7 +66,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public async Task Generates_sequential_values_async()
         {
-            var stateEntry = TestHelpers.CreateStateEntry<AnEntity>(_model, EntityState.Added);
+            var stateEntry = TestHelpers.CreateStateEntry<AnEntity>(_model);
             var intProperty = stateEntry.EntityType.GetProperty("Id");
             var longProperty = stateEntry.EntityType.GetProperty("Long");
             var shortProperty = stateEntry.EntityType.GetProperty("Short");
@@ -127,7 +127,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 generatedValues[testNumber] = new List<long>();
                 tests[testNumber] = () =>
                     {
-                        var stateEntry = TestHelpers.CreateStateEntry<AnEntity>(_model, EntityState.Added);
+                        var stateEntry = TestHelpers.CreateStateEntry<AnEntity>(_model);
 
                         for (var j = 0; j < valueCount; j++)
                         {
@@ -173,7 +173,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 generatedValues[testNumber] = new List<long>();
                 tests[testNumber] = async () =>
                     {
-                        var stateEntry = TestHelpers.CreateStateEntry<AnEntity>(_model, EntityState.Added);
+                        var stateEntry = TestHelpers.CreateStateEntry<AnEntity>(_model);
 
                         for (var j = 0; j < valueCount; j++)
                         {

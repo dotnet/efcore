@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
+using System.Reflection;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
@@ -56,17 +58,24 @@ namespace Microsoft.Data.Entity.Tests
             return builder.Model;
         }
 
-        public static StateEntry CreateStateEntry<TEntity>(IModel model, EntityState entityState = EntityState.Unknown)
-            where TEntity : new()
+        public static StateEntry CreateStateEntry<TEntity>(
+            IModel model, EntityState entityState = EntityState.Unknown, TEntity entity = null)
+            where TEntity : class, new()
         {
             var entry = CreateContextConfiguration(model)
                 .Services
                 .StateEntryFactory
-                .Create(model.GetEntityType(typeof(TEntity)), new TEntity());
+                .Create(model.GetEntityType(typeof(TEntity)), entity ?? new TEntity());
 
             entry.EntityState = entityState;
 
             return entry;
+        }
+        
+        public static string GetCoreString(string stringName, params object[] parameters)
+        {
+            var strings = typeof(DbContext).GetTypeInfo().Assembly.GetType(typeof(DbContext).Namespace + ".Strings");
+            return (string)strings.GetTypeInfo().GetDeclaredMethods(stringName).Single().Invoke(null, parameters);
         }
     }
 }

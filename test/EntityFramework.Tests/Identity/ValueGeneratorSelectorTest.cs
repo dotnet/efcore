@@ -12,21 +12,22 @@ namespace Microsoft.Data.Entity.Tests.Identity
     public class ValueGeneratorSelectorTest
     {
         [Fact]
-        public void Returns_in_memory_GUID_generator_for_GUID_types_setup_for_client_values()
+        public void Returns_in_memory_GUID_generator_for_GUID_types_setup_for_value_generation()
         {
             var guidFactory = new SimpleValueGeneratorFactory<GuidValueGenerator>();
 
             var selector = new ValueGeneratorSelector(guidFactory);
 
-            Assert.Same(guidFactory, selector.Select(CreateProperty(typeof(Guid), ValueGenerationOnAdd.Client)));
+            Assert.Same(guidFactory, selector.Select(CreateProperty(typeof(Guid), ValueGeneration.OnAdd)));
         }
 
         [Fact]
-        public void Returns_null_when_no_value_generation_configured()
+        public void Returns_null_when_no_value_generation_not_required()
         {
             var selector = new ValueGeneratorSelector(new SimpleValueGeneratorFactory<GuidValueGenerator>());
 
-            Assert.Null(selector.Select(CreateProperty(typeof(int), ValueGenerationOnAdd.None)));
+            Assert.Null(selector.Select(CreateProperty(typeof(int), ValueGeneration.None)));
+            Assert.Null(selector.Select(CreateProperty(typeof(int), ValueGeneration.OnAddAndUpdate)));
         }
 
         [Fact]
@@ -38,18 +39,18 @@ namespace Microsoft.Data.Entity.Tests.Identity
             var typeMock = new Mock<IEntityType>();
             typeMock.Setup(m => m.Name).Returns("AnEntity");
 
-            var property = CreateProperty(typeof(Guid), ValueGenerationOnAdd.Server);
+            var property = CreateProperty(typeof(Random), ValueGeneration.OnAdd);
 
             Assert.Equal(
-                Strings.FormatNoValueGenerator("server", "MyType", "MyProperty", "Guid"),
+                Strings.FormatNoValueGenerator("MyProperty", "MyType", "Random"),
                 Assert.Throws<NotSupportedException>(() => selector.Select(property)).Message);
         }
 
-        private static Property CreateProperty(Type propertyType, ValueGenerationOnAdd valueGeneration)
+        private static Property CreateProperty(Type propertyType, ValueGeneration valueGeneration)
         {
             var entityType = new EntityType("MyType");
             var property = entityType.GetOrAddProperty("MyProperty", propertyType, shadowProperty: true);
-            property.ValueGenerationOnAdd = valueGeneration;
+            property.ValueGeneration = valueGeneration;
 
             new Model().AddEntityType(entityType);
 

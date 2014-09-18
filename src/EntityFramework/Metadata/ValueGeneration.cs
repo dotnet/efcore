@@ -3,10 +3,10 @@
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public enum ValueGenerationOnAdd
+    public enum ValueGeneration
     {
         None,
-        Client,
-        Server
+        OnAdd,
+        OnAddAndUpdate,
     }
 }
