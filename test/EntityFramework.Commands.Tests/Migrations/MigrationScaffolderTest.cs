@@ -98,6 +98,7 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
             Assert.Equal(
                 @"using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Builders;
+using Microsoft.Data.Entity.Relational.Model;
 using System;
 
 namespace MyNamespace
@@ -183,6 +184,7 @@ namespace MyNamespace
 
             Assert.Equal(@"using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Builders;
+using Microsoft.Data.Entity.Relational.Model;
 using System;
 
 namespace MyNamespace
@@ -235,8 +237,8 @@ namespace MyNamespace
                 builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.MigrationScaffolderTest+Entity"", b =>
                     {
                         b.Property<int>(""Id"");
-                        b.Key(k => k.Properties(""Id"")
-                            .KeyName(""MyPK""));
+                        b.Key(""Id"")
+                            .KeyName(""MyPK"");
                         b.TableName(""MyTable"", ""dbo"");
                     });
                 
@@ -272,8 +274,8 @@ namespace MyNamespace
                 builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.MigrationScaffolderTest+Entity"", b =>
                     {
                         b.Property<int>(""Id"");
-                        b.Key(k => k.Properties(""Id"")
-                            .KeyName(""MyPK""));
+                        b.Key(""Id"")
+                            .KeyName(""MyPK"");
                         b.TableName(""MyTable"", ""dbo"");
                     });
                 
@@ -292,6 +294,7 @@ namespace MyNamespace
             Assert.Equal(
                 @"using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Builders;
+using Microsoft.Data.Entity.Relational.Model;
 using System;
 
 namespace MyNamespace
@@ -380,12 +383,9 @@ namespace MyNamespace
                         b.Property<int>(""HouseId"")
                             .ColumnName(""House[\""Id]Column"");
                         b.Property<int>(""Id"");
-                        b.Key(k => k.Properties(""Id"")
+                        b.Key(""Id"")
                             .KeyName(""My[\""PK]"")
-                            .Annotation(""My\""PK\""Annotat!on"", ""\""Foo\""""));
-                        b.ForeignKey(""Ho!use[]"", ""HouseId"")
-                            .KeyName(""My_[\""FK]"")
-                            .Annotation(""My\""FK\""Annotation"", ""\""Bar\"""");
+                            .Annotation(""My\""PK\""Annotat!on"", ""\""Foo\"""");
                         b.TableName(""Cus[\""om.er]s"", ""dbo"");
                     });
                 
@@ -394,9 +394,20 @@ namespace MyNamespace
                         b.Property<int>(""CustomerId"");
                         b.Property<int>(""OrderId"");
                         b.Key(""OrderId"");
-                        b.ForeignKey(""Microsoft.Data.Entity.Commands.Tests.Migrations.MigrationScaffolderTest+Customer"", ""CustomerId"");
                         b.TableName(""Ord[\""e.r]s"", ""dbo"");
                         b.Annotation(""Random annotation"", ""42"");
+                    });
+                
+                builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.MigrationScaffolderTest+Customer"", b =>
+                    {
+                        b.ForeignKey(""Ho!use[]"", ""HouseId"")
+                            .KeyName(""My_[\""FK]"")
+                            .Annotation(""My\""FK\""Annotation"", ""\""Bar\"""");
+                    });
+                
+                builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.MigrationScaffolderTest+Order"", b =>
+                    {
+                        b.ForeignKey(""Microsoft.Data.Entity.Commands.Tests.Migrations.MigrationScaffolderTest+Customer"", ""CustomerId"");
                     });
                 
                 return builder.Model;
@@ -439,12 +450,9 @@ namespace MyNamespace
                         b.Property<int>(""HouseId"")
                             .ColumnName(""House[\""Id]Column"");
                         b.Property<int>(""Id"");
-                        b.Key(k => k.Properties(""Id"")
+                        b.Key(""Id"")
                             .KeyName(""My[\""PK]"")
-                            .Annotation(""My\""PK\""Annotat!on"", ""\""Foo\""""));
-                        b.ForeignKey(""Ho!use[]"", ""HouseId"")
-                            .KeyName(""My_[\""FK]"")
-                            .Annotation(""My\""FK\""Annotation"", ""\""Bar\"""");
+                            .Annotation(""My\""PK\""Annotat!on"", ""\""Foo\"""");
                         b.TableName(""Cus[\""om.er]s"", ""dbo"");
                     });
                 
@@ -453,9 +461,20 @@ namespace MyNamespace
                         b.Property<int>(""CustomerId"");
                         b.Property<int>(""OrderId"");
                         b.Key(""OrderId"");
-                        b.ForeignKey(""Microsoft.Data.Entity.Commands.Tests.Migrations.MigrationScaffolderTest+Customer"", ""CustomerId"");
                         b.TableName(""Ord[\""e.r]s"", ""dbo"");
                         b.Annotation(""Random annotation"", ""42"");
+                    });
+                
+                builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.MigrationScaffolderTest+Customer"", b =>
+                    {
+                        b.ForeignKey(""Ho!use[]"", ""HouseId"")
+                            .KeyName(""My_[\""FK]"")
+                            .Annotation(""My\""FK\""Annotation"", ""\""Bar\"""");
+                    });
+                
+                builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.MigrationScaffolderTest+Order"", b =>
+                    {
+                        b.ForeignKey(""Microsoft.Data.Entity.Commands.Tests.Migrations.MigrationScaffolderTest+Customer"", ""CustomerId"");
                     });
                 
                 return builder.Model;
@@ -473,6 +492,7 @@ namespace MyNamespace
             Assert.Equal(
                 @"using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Builders;
+using Microsoft.Data.Entity.Relational.Model;
 using System;
 
 namespace MyNamespace
@@ -557,8 +577,8 @@ namespace MyNamespace
                     {
                         b.Property<int>(""Foo"");
                         b.Property<int>(""Id"");
-                        b.Key(k => k.Properties(""Id"", ""Foo"")
-                            .KeyName(""MyPK2""));
+                        b.Key(""Id"", ""Foo"")
+                            .KeyName(""MyPK2"");
                     });
                 
                 builder.Entity(""EntityWithNamedKeyAndAnnotations"", b =>
@@ -568,10 +588,10 @@ namespace MyNamespace
                         b.Property<int>(""Id"")
                             .Annotation(""Id_Annotation1"", ""Id1"")
                             .Annotation(""Id_Annotation2"", ""Id2"");
-                        b.Key(k => k.Properties(""Id"", ""Foo"")
+                        b.Key(""Id"", ""Foo"")
                             .KeyName(""MyPK1"")
                             .Annotation(""KeyAnnotation1"", ""Key1"")
-                            .Annotation(""KeyAnnotation2"", ""Key2""));
+                            .Annotation(""KeyAnnotation2"", ""Key2"");
                     });
                 
                 builder.Entity(""EntityWithUnnamedKey"", b =>
@@ -588,9 +608,9 @@ namespace MyNamespace
                         b.Property<int>(""Id"")
                             .Annotation(""Id_Annotation1"", ""Id1"")
                             .Annotation(""Id_Annotation2"", ""Id2"");
-                        b.Key(k => k.Properties(""Id"", ""Foo"")
+                        b.Key(""Id"", ""Foo"")
                             .Annotation(""KeyAnnotation1"", ""Key1"")
-                            .Annotation(""KeyAnnotation2"", ""Key2""));
+                            .Annotation(""KeyAnnotation2"", ""Key2"");
                     });
                 
                 return builder.Model;
@@ -626,8 +646,8 @@ namespace MyNamespace
                     {
                         b.Property<int>(""Foo"");
                         b.Property<int>(""Id"");
-                        b.Key(k => k.Properties(""Id"", ""Foo"")
-                            .KeyName(""MyPK2""));
+                        b.Key(""Id"", ""Foo"")
+                            .KeyName(""MyPK2"");
                     });
                 
                 builder.Entity(""EntityWithNamedKeyAndAnnotations"", b =>
@@ -637,10 +657,10 @@ namespace MyNamespace
                         b.Property<int>(""Id"")
                             .Annotation(""Id_Annotation1"", ""Id1"")
                             .Annotation(""Id_Annotation2"", ""Id2"");
-                        b.Key(k => k.Properties(""Id"", ""Foo"")
+                        b.Key(""Id"", ""Foo"")
                             .KeyName(""MyPK1"")
                             .Annotation(""KeyAnnotation1"", ""Key1"")
-                            .Annotation(""KeyAnnotation2"", ""Key2""));
+                            .Annotation(""KeyAnnotation2"", ""Key2"");
                     });
                 
                 builder.Entity(""EntityWithUnnamedKey"", b =>
@@ -657,9 +677,9 @@ namespace MyNamespace
                         b.Property<int>(""Id"")
                             .Annotation(""Id_Annotation1"", ""Id1"")
                             .Annotation(""Id_Annotation2"", ""Id2"");
-                        b.Key(k => k.Properties(""Id"", ""Foo"")
+                        b.Key(""Id"", ""Foo"")
                             .Annotation(""KeyAnnotation1"", ""Key1"")
-                            .Annotation(""KeyAnnotation2"", ""Key2""));
+                            .Annotation(""KeyAnnotation2"", ""Key2"");
                     });
                 
                 return builder.Model;
