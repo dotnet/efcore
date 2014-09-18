@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using Microsoft.Data.Entity.Commands.Migrations;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Utilities;
 using Xunit;
 
@@ -23,6 +25,8 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
 
 return builder.Model;",
                 stringBuilder.ToString());
+
+            GenerateAndValidateCode(builder.Model);
         }
 
         [Fact]
@@ -42,6 +46,8 @@ return builder.Model;",
 
 return builder.Model;",
                 stringBuilder.ToString());
+
+            GenerateAndValidateCode(builder.Model);
         }
 
         [Fact]
@@ -68,6 +74,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCode
 
 return builder.Model;",
                 stringBuilder.ToString());
+
+            GenerateAndValidateCode(builder.Model);
         }
 
         [Fact]
@@ -94,6 +102,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCode
 
 return builder.Model;",
                 stringBuilder.ToString());
+
+            GenerateAndValidateCode(builder.Model);
         }
 
         [Fact]
@@ -121,6 +131,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCode
 
 return builder.Model;",
                 stringBuilder.ToString());
+
+            GenerateAndValidateCode(builder.Model);
         }
 
         [Fact]
@@ -148,6 +160,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCode
 
 return builder.Model;",
                 stringBuilder.ToString());
+
+            GenerateAndValidateCode(builder.Model);
         }
 
         [Fact]
@@ -178,6 +192,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCode
 
 return builder.Model;",
                 stringBuilder.ToString());
+
+            GenerateAndValidateCode(builder.Model);
         }
 
         [Fact]
@@ -206,6 +222,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCode
 
 return builder.Model;",
                 stringBuilder.ToString());
+
+            GenerateAndValidateCode(builder.Model);
         }
 
         [Fact]
@@ -242,6 +260,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCode
 
 return builder.Model;",
                 stringBuilder.ToString());
+
+            GenerateAndValidateCode(builder.Model);
         }
 
         [Fact]
@@ -267,13 +287,15 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCode
     {
         b.Property<int>(""Id"");
         b.Property<string>(""Name"");
-        b.Key(k => k.Properties(""Id"", ""Name"")
+        b.Key(""Id"", ""Name"")
             .Annotation(""A1"", ""V1"")
-            .Annotation(""A2"", ""V2""));
+            .Annotation(""A2"", ""V2"");
     });
 
 return builder.Model;",
                 stringBuilder.ToString());
+
+            GenerateAndValidateCode(builder.Model);
         }
 
         [Fact]
@@ -316,11 +338,17 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCode
         b.Property<int>(""CustomerId"");
         b.Property<int>(""Id"");
         b.Key(""Id"");
+    });
+
+builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Order"", b =>
+    {
         b.ForeignKey(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Customer"", ""CustomerId"");
     });
 
 return builder.Model;",
                 stringBuilder.ToString());
+
+            GenerateAndValidateCode(builder.Model);
         }
 
         [Fact]
@@ -365,11 +393,17 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCode
         b.Property<string>(""CustomerName"");
         b.Property<int>(""Id"");
         b.Key(""Id"");
+    });
+
+builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Order"", b =>
+    {
         b.ForeignKey(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Customer"", ""CustomerId"", ""CustomerName"");
     });
 
 return builder.Model;",
                 stringBuilder.ToString());
+
+            GenerateAndValidateCode(builder.Model);
         }
 
         [Fact]
@@ -413,6 +447,10 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCode
         b.Property<int>(""CustomerId"");
         b.Property<int>(""Id"");
         b.Key(""Id"");
+    });
+
+builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Order"", b =>
+    {
         b.ForeignKey(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Customer"", ""CustomerId"")
             .Annotation(""A1"", ""V1"")
             .Annotation(""A2"", ""V2"");
@@ -420,6 +458,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCode
 
 return builder.Model;",
                 stringBuilder.ToString());
+
+            GenerateAndValidateCode(builder.Model);
         }
 
         [Fact]
@@ -474,8 +514,6 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCode
         b.Property<int>(""Id"");
         b.Property<int>(""ProductId"");
         b.Key(""Id"");
-        b.ForeignKey(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Customer"", ""CustomerId"", ""CustomerName"");
-        b.ForeignKey(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Product"", ""ProductId"");
     });
 
 builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Product"", b =>
@@ -484,8 +522,16 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCode
         b.Key(""Id"");
     });
 
+builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Order"", b =>
+    {
+        b.ForeignKey(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Customer"", ""CustomerId"", ""CustomerName"");
+        b.ForeignKey(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Product"", ""ProductId"");
+    });
+
 return builder.Model;",
                 stringBuilder.ToString());
+
+            GenerateAndValidateCode(builder.Model);
         }
 
         [Fact]
@@ -544,12 +590,6 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCode
         b.Property<int>(""Id"");
         b.Property<int>(""ProductId"");
         b.Key(""Id"");
-        b.ForeignKey(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Customer"", ""CustomerId"", ""CustomerName"")
-            .Annotation(""A1"", ""V1"")
-            .Annotation(""A2"", ""V2"");
-        b.ForeignKey(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Product"", ""ProductId"")
-            .Annotation(""A3"", ""V3"")
-            .Annotation(""A4"", ""V4"");
     });
 
 builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Product"", b =>
@@ -558,8 +598,20 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCode
         b.Key(""Id"");
     });
 
+builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Order"", b =>
+    {
+        b.ForeignKey(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Customer"", ""CustomerId"", ""CustomerName"")
+            .Annotation(""A1"", ""V1"")
+            .Annotation(""A2"", ""V2"");
+        b.ForeignKey(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Product"", ""ProductId"")
+            .Annotation(""A3"", ""V3"")
+            .Annotation(""A4"", ""V4"");
+    });
+
 return builder.Model;",
                 stringBuilder.ToString());
+
+            GenerateAndValidateCode(builder.Model);
         }
 
         [Fact]
@@ -634,6 +686,49 @@ namespace MyNamespace
 }",
                 stringBuilder.ToString());
         }
+
+        #region Helper methods
+
+        private void GenerateAndValidateCode(IModel model)
+        {
+            var @namespace = GetType().Namespace + ".DynamicallyCompiled";
+            var className = "ModelSnapshot" + Guid.NewGuid().ToString("N");
+
+            var generator = new CSharpModelCodeGenerator();
+            var modelSnapshotBuilder = new IndentedStringBuilder();
+
+            generator.GenerateModelSnapshotClass(@namespace, className, model, typeof(DbContext), modelSnapshotBuilder);
+
+            var modelSnapshotSource = modelSnapshotBuilder.ToString();
+
+            var compiledAssembly = CodeGeneratorTestHelper.Compile(
+                @namespace + ".dll",
+                new[] { modelSnapshotSource },
+                new[]
+                    {
+                        "mscorlib", 
+                        "System.Runtime",
+                        "EntityFramework",
+                        "EntityFramework.Migrations"
+                    });
+            var compiledModelSnapshot = (ModelSnapshot)
+                compiledAssembly.CreateInstance(@namespace + "." + className);
+
+            Assert.NotNull(compiledModelSnapshot);
+
+            var compiledModel = (IModel)compiledModelSnapshot.GetType().GetProperty("Model").GetValue(compiledModelSnapshot);
+
+            Assert.NotNull(compiledModel);
+
+            generator = new CSharpModelCodeGenerator();
+            modelSnapshotBuilder = new IndentedStringBuilder();
+
+            generator.GenerateModelSnapshotClass(@namespace, className, compiledModel, typeof(DbContext), modelSnapshotBuilder);
+
+            Assert.Equal(modelSnapshotSource, modelSnapshotBuilder.ToString());
+        }
+
+        #endregion
 
         private class Customer
         {

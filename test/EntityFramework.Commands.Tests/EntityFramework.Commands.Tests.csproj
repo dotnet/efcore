@@ -18,7 +18,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;VSBUILD</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -26,7 +26,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;VSBUILD</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -40,6 +40,17 @@
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <PackageReference Include="Microsoft.Framework.DependencyInjection">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Bcl.Immutable">
+      <TargetFramework>portable-net45+win8+wpa81</TargetFramework>
+      <Assemblies>System.Collections.Immutable</Assemblies>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.Common">
+      <TargetFramework>net45</TargetFramework>
+      <Assemblies>Microsoft.CodeAnalysis;Microsoft.CodeAnalysis.Desktop</Assemblies>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <PackageReference Include="xunit.abstractions">
@@ -64,6 +75,7 @@
       <Link>Handler.cs</Link>
     </Compile>
     <Compile Include="ApiConsistencyTest.cs" />
+    <Compile Include="Migrations\CodeGeneratorTestHelper.cs" />
     <Compile Include="Migrations\CSharpMigrationCodeGeneratorTest.cs" />
     <Compile Include="Migrations\CSharpModelCodeGeneratorTest.cs" />
     <Compile Include="..\Shared\ApiConsistencyTestBase.cs" />

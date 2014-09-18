@@ -109,6 +109,14 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 .Append("return builder.Model;");
         }
 
+        [Flags]
+        protected enum GenerateEntityTypeOptions
+        {
+            Primary = 1,
+            Secondary = 2,
+            Full = Primary | Secondary
+        }
+
         protected virtual void GenerateEntityTypes(
             IReadOnlyList<IEntityType> entityTypes, IndentedStringBuilder stringBuilder)
         {
@@ -119,12 +127,19 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             {
                 stringBuilder.AppendLine();
 
-                GenerateEntityType(entityType, stringBuilder);
+                GenerateEntityType(entityType, stringBuilder, GenerateEntityTypeOptions.Primary);
+            }
+
+            foreach (var entityType in entityTypes.Where(e => e.ForeignKeys.Count > 0))
+            {
+                stringBuilder.AppendLine();
+
+                GenerateEntityType(entityType, stringBuilder, GenerateEntityTypeOptions.Secondary);
             }
         }
 
         protected virtual void GenerateEntityType(
-            [NotNull] IEntityType entityType, [NotNull] IndentedStringBuilder stringBuilder)
+            [NotNull] IEntityType entityType, [NotNull] IndentedStringBuilder stringBuilder, GenerateEntityTypeOptions options)
         {
             Check.NotNull(entityType, "entityType");
             Check.NotNull(stringBuilder, "stringBuilder");
@@ -140,13 +155,22 @@ namespace Microsoft.Data.Entity.Commands.Migrations
 
                 using (stringBuilder.Indent())
                 {
-                    GenerateProperties(entityType.Properties, stringBuilder);
+                    if ((options & GenerateEntityTypeOptions.Primary) != 0)
+                    {
+                        GenerateProperties(entityType.Properties, stringBuilder);
 
-                    GenerateKey(entityType.GetPrimaryKey(), stringBuilder);
+                        GenerateKey(entityType.GetPrimaryKey(), stringBuilder);
+                    }
 
-                    GenerateForeignKeys(entityType.ForeignKeys, stringBuilder);
+                    if ((options & GenerateEntityTypeOptions.Secondary) != 0)
+                    {
+                        GenerateForeignKeys(entityType.ForeignKeys, stringBuilder);
+                    }
 
-                    GenerateEntityTypeAnnotations(entityType, stringBuilder);
+                    if ((options & GenerateEntityTypeOptions.Primary) != 0)
+                    {
+                        GenerateEntityTypeAnnotations(entityType, stringBuilder);
+                    }
                 }
 
                 stringBuilder
@@ -250,14 +274,14 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 return;
             }
 
+            stringBuilder
+                .AppendLine()
+                .Append("b.Key(")
+                .Append(key.Properties.Select(p => DelimitString(p.Name)).Join())
+                .Append(")");
+
             if (key.Annotations.Any())
             {
-                stringBuilder
-                    .AppendLine()
-                    .Append("b.Key(k => k.Properties(")
-                    .Append(key.Properties.Select(p => DelimitString(p.Name)).Join())
-                    .Append(")");
-
                 var keyName = key[KeyNameAnnotationName];
                 if (keyName != null)
                 {
@@ -275,17 +299,9 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 {
                     GenerateAnnotations(key.Annotations.Where(a => a.Name != KeyNameAnnotationName).ToArray(), stringBuilder);
                 }
+            }
 
-                stringBuilder.Append(");");
-            }
-            else
-            {
-                stringBuilder
-                    .AppendLine()
-                    .Append("b.Key(")
-                    .Append(key.Properties.Select(p => DelimitString(p.Name)).Join())
-                    .Append(");");
-            }
+            stringBuilder.Append(";");
         }
 
         protected virtual void GenerateEntityTypeAnnotations([NotNull] IEntityType entityType, [NotNull] IndentedStringBuilder stringBuilder)
