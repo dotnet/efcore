@@ -75,13 +75,14 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             }
 
             var migration = CreateMigration(migrationName);
+            var contextType = ContextConfiguration.Context.GetType();
 
             var migrationCode = new IndentedStringBuilder();
             var migrationMetadataCode = new IndentedStringBuilder();
             var snapshotModelCode = new IndentedStringBuilder();
 
-            ScaffoldMigration(migration, migrationCode, migrationMetadataCode);
-            ScaffoldSnapshotModel(migration.TargetModel, migration.ContextType, snapshotModelCode);
+            ScaffoldMigration(migration, contextType, migrationCode, migrationMetadataCode);
+            ScaffoldSnapshotModel(migration.TargetModel, contextType, snapshotModelCode);
 
             return
                 new ScaffoldedMigration(migration.MigrationId)
@@ -115,7 +116,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             }
 
             return
-                new MigrationMetadata(CreateMigrationId(migrationName), ContextConfiguration.Context.GetType())
+                new MigrationMetadata(CreateMigrationId(migrationName))
                     {
                         TargetModel = targetModel,
                         UpgradeOperations = upgradeOperations,
@@ -130,6 +131,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
 
         protected virtual void ScaffoldMigration(
             [NotNull] IMigrationMetadata migration,
+            [NotNull] Type contextType,
             [NotNull] IndentedStringBuilder migrationCode,
             [NotNull] IndentedStringBuilder migrationMetadataCode)
         {
@@ -140,7 +142,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             var className = GetClassName(migration);
 
             MigrationCodeGenerator.GenerateMigrationClass(MigrationNamespace, className, migration, migrationCode);
-            MigrationCodeGenerator.GenerateMigrationMetadataClass(MigrationNamespace, className, migration, migrationMetadataCode);
+            MigrationCodeGenerator.GenerateMigrationMetadataClass(MigrationNamespace, className, migration, contextType, migrationMetadataCode);
         }
 
         protected virtual void ScaffoldSnapshotModel(

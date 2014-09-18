@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -34,12 +35,13 @@ namespace Microsoft.Data.Entity.Migrations
             return GetDefaultNamespaces();
         }
 
-        public virtual IReadOnlyList<string> GetMetadataNamespaces([NotNull] IMigrationMetadata migration)
+        public virtual IReadOnlyList<string> GetMetadataNamespaces([NotNull] IMigrationMetadata migration, [NotNull] Type contextType)
         {
             Check.NotNull(migration, "migration");
+            Check.NotNull(contextType, "contextType");
 
             return GetMetadataDefaultNamespaces()
-                .Concat(ModelCodeGenerator.GetNamespaces(migration.TargetModel, migration.ContextType))
+                .Concat(ModelCodeGenerator.GetNamespaces(migration.TargetModel, contextType))
                 .ToList();
         }
 
@@ -71,6 +73,7 @@ namespace Microsoft.Data.Entity.Migrations
             [NotNull] string @namespace,
             [NotNull] string className,
             [NotNull] IMigrationMetadata migration,
+            [NotNull] Type contextType,
             [NotNull] IndentedStringBuilder stringBuilder);
 
         public abstract void Generate([NotNull] CreateDatabaseOperation createDatabaseOperation, [NotNull] IndentedStringBuilder stringBuilder);

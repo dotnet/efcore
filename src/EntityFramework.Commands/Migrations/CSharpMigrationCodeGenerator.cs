@@ -95,14 +95,16 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             string @namespace,
             string className,
             IMigrationMetadata migration,
+            Type contextType,
             IndentedStringBuilder stringBuilder)
         {
             Check.NotEmpty(@namespace, "namespace");
             Check.NotEmpty(className, "className");
             Check.NotNull(migration, "migration");
+            Check.NotNull(contextType, "contextType");
             Check.NotNull(stringBuilder, "stringBuilder");
 
-            foreach (var ns in GetMetadataNamespaces(migration).OrderBy(n => n).Distinct())
+            foreach (var ns in GetMetadataNamespaces(migration, contextType).OrderBy(n => n).Distinct())
             {
                 stringBuilder
                     .Append("using ")
@@ -120,7 +122,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             {
                 stringBuilder
                     .Append("[ContextType(typeof(")
-                    .Append(migration.ContextType.GetNestedName())
+                    .Append(contextType.GetNestedName())
                     .AppendLine("))]")
                     .Append("public partial class ")
                     .Append(className)

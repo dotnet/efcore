@@ -344,7 +344,7 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
                     };
 
             var migration
-                = new MigrationMetadata("000000000000001_Name", typeof(MyContext))
+                = new MigrationMetadata("000000000000001_Name")
                     {
                         UpgradeOperations = upgradeOperations,
                         DowngradeOperations = downgradeOperations
@@ -392,7 +392,7 @@ namespace MyNamespace
             model.AddEntityType(entityType);
 
             var migration
-                = new MigrationMetadata("000000000000001_Name", typeof(MyContext))
+                = new MigrationMetadata("000000000000001_Name")
                     {
                         TargetModel = model
                     };
@@ -400,7 +400,7 @@ namespace MyNamespace
             var codeGenerator = new CSharpMigrationCodeGenerator(new CSharpModelCodeGenerator());
             var stringBuilder = new IndentedStringBuilder();
 
-            codeGenerator.GenerateMigrationMetadataClass("MyNamespace", "MyClass", migration, stringBuilder);
+            codeGenerator.GenerateMigrationMetadataClass("MyNamespace", "MyClass", migration, typeof(MyContext), stringBuilder);
 
             Assert.Equal(
 @"using Microsoft.Data.Entity.Commands.Tests.Migrations;

@@ -13,12 +13,10 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
     public class MigrationMetadata : IMigrationMetadata
     {
         private readonly string _migrationId;
-        private readonly Type _contextType;
 
-        public MigrationMetadata([NotNull] string migrationId, [NotNull] Type contextType)
+        public MigrationMetadata([NotNull] string migrationId)
         {
             Check.NotEmpty(migrationId, "migrationId");
-            Check.NotNull(contextType, "contextType");
 
             if (!MigrationMetadataExtensions.IsValidMigrationId(migrationId))
             {
@@ -26,17 +24,11 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             }
 
             _migrationId = migrationId;
-            _contextType = contextType;
         }
 
         public virtual string MigrationId
         {
             get { return _migrationId; }
-        }
-
-        public virtual Type ContextType
-        {
-            get { return _contextType; }
         }
 
         public virtual IModel TargetModel { get; [param: NotNull] set; }
