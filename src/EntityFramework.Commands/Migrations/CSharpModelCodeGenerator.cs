@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -22,6 +23,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             string @namespace,
             string className,
             IModel model,
+            Type contextType,
             IndentedStringBuilder stringBuilder)
         {
             Check.NotEmpty(className, "className");
@@ -30,7 +32,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             Check.NotNull(stringBuilder, "stringBuilder");
 
             // TODO: Consider namespace ordering, for example putting System namespaces first
-            foreach (var ns in GetNamespaces(model).OrderBy(n => n).Distinct())
+            foreach (var ns in GetNamespaces(model, contextType).OrderBy(n => n).Distinct())
             {
                 stringBuilder
                     .Append("using ")
@@ -47,6 +49,9 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             using (stringBuilder.Indent())
             {
                 stringBuilder
+                    .Append("[ContextType(typeof(")
+                    .Append(contextType.GetNestedName())
+                    .AppendLine("))]")
                     .Append("public class ")
                     .Append(className)
                     .AppendLine(" : ModelSnapshot")

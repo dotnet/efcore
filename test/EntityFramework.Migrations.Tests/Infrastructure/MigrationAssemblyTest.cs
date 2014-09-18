@@ -22,7 +22,6 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                 var migrationAssembly = new MigrationAssembly(context.Configuration);
 
                 Assert.Equal("EntityFramework.Migrations.Tests", migrationAssembly.Assembly.GetName().Name);
-                Assert.Equal("Microsoft.Data.Entity.Migrations.Tests.Infrastructure.Migrations", migrationAssembly.Namespace);
             }
         }
 
@@ -39,7 +38,6 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                 var migrationAssembly = new MigrationAssembly(context.Configuration);
 
                 Assert.Equal("MockAssembly", migrationAssembly.Assembly.FullName);
-                Assert.Equal("MyNamespace", migrationAssembly.Namespace);
             }
         }
 
@@ -121,6 +119,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
 
     namespace Migrations
     {
+        [ContextType(typeof(MigrationAssemblyTest.Context))]
         public class Migration2 : Migration, IMigrationMetadata
         {
             public override void Up(MigrationBuilder migrationBuilder)
@@ -139,6 +138,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             }
         }
 
+        [ContextType(typeof(MigrationAssemblyTest.Context))]
         public class Migration1 : Migration, IMigrationMetadata
         {
             public override void Up(MigrationBuilder migrationBuilder)
@@ -157,6 +157,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             }
         }
 
+        [ContextType(typeof(MigrationAssemblyTest.Context))]
         public class ContextModelSnapshot : ModelSnapshot
         {
             public override IModel Model

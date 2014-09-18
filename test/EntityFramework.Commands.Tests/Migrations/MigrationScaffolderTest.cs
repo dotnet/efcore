@@ -153,12 +153,14 @@ namespace MyNamespace
             Assert.Equal("ContextModelSnapshot", className);
 
             Assert.Equal(
-                @"using Microsoft.Data.Entity.Metadata;
+                @"using Microsoft.Data.Entity.Commands.Tests.Migrations;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using System;
 
 namespace MyNamespace
 {
+    [ContextType(typeof(MigrationScaffolderTest.Context))]
     public class ContextModelSnapshot : ModelSnapshot
     {
         public override IModel Model
@@ -251,12 +253,14 @@ namespace MyNamespace
             Assert.Equal("ContextModelSnapshot", className);
 
             Assert.Equal(
-                @"using Microsoft.Data.Entity.Metadata;
+                @"using Microsoft.Data.Entity.Commands.Tests.Migrations;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using System;
 
 namespace MyNamespace
 {
+    [ContextType(typeof(MigrationScaffolderTest.Context))]
     public class ContextModelSnapshot : ModelSnapshot
     {
         public override IModel Model
@@ -408,12 +412,14 @@ namespace MyNamespace
             Assert.Equal("ContextModelSnapshot", className);
 
             Assert.Equal(
-                @"using Microsoft.Data.Entity.Metadata;
+                @"using Microsoft.Data.Entity.Commands.Tests.Migrations;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using System;
 
 namespace MyNamespace
 {
+    [ContextType(typeof(MigrationScaffolderTest.Context))]
     public class ContextModelSnapshot : ModelSnapshot
     {
         public override IModel Model
@@ -600,12 +606,14 @@ namespace MyNamespace
             Assert.Equal("ContextModelSnapshot", className);
 
             Assert.Equal(
-                @"using Microsoft.Data.Entity.Metadata;
+                @"using Microsoft.Data.Entity.Commands.Tests.Migrations;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using System;
 
 namespace MyNamespace
 {
+    [ContextType(typeof(MigrationScaffolderTest.Context))]
     public class ContextModelSnapshot : ModelSnapshot
     {
         public override IModel Model
