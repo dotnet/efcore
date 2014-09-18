@@ -54,7 +54,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity
                 System.Configuration.ConfigurationManager.GetSection("system.xml/xmlReader");
 #endif
                 _loggerProvider.Logger.StartLoggingForCurrentCallContext();
-                await _next(context);
+                await _next(context).WithCurrentCulture();
             }
             catch (Exception ex)
             {

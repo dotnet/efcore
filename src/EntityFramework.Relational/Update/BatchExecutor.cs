@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             Check.NotNull(connection, "connection");
 
             var rowsAffected = 0;
-            await connection.OpenAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+            await connection.OpenAsync(cancellationToken).WithCurrentCulture();
             RelationalTransaction startedTransaction = null;
             try
             {
@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                         _typeMapper,
                         _context,
                         Logger, cancellationToken)
-                        .ConfigureAwait(continueOnCapturedContext: false);
+                        .WithCurrentCulture();
                 }
 
                 if (startedTransaction != null)

@@ -150,7 +150,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             if (valueGenerators != null)
             {
-                await GenerateValuesAsync(valueGenerators, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+                await GenerateValuesAsync(valueGenerators, cancellationToken).WithCurrentCulture();
             }
 
             SetEntityState(oldState, entityState);
@@ -176,7 +176,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             {
                 var property = generator.Item1;
                 await generator.Item2.NextAsync(this, property, cancellationToken)
-                    .ConfigureAwait(continueOnCapturedContext: false);
+                    .WithCurrentCulture();
             }
         }
 

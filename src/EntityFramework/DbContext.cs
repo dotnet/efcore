@@ -132,7 +132,7 @@ namespace Microsoft.Data.Entity
 
             try
             {
-                return await stateManager.SaveChangesAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+                return await stateManager.SaveChangesAsync(cancellationToken).WithCurrentCulture();
             }
             catch (Exception ex)
             {
@@ -177,7 +177,7 @@ namespace Microsoft.Data.Entity
             await Configuration.StateManager
                 .GetOrCreateEntry(entity)
                 .SetEntityStateAsync(EntityState.Added, cancellationToken)
-                .ConfigureAwait(continueOnCapturedContext: false);
+                .WithCurrentCulture();
 
             return entity;
         }

@@ -258,7 +258,7 @@ namespace Microsoft.Data.Entity.Query
                 {
                     try
                     {
-                        return await _inner.MoveNext().ConfigureAwait(continueOnCapturedContext: false);
+                        return await _inner.MoveNext().WithCurrentCulture();
                     }
                     catch (Exception ex)
                     {

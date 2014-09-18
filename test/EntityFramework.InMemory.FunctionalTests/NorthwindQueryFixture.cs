@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.Data.Entity.FunctionalTests;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Northwind;
@@ -13,6 +14,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
     {
         private readonly DbContextOptions _options;
         private readonly IServiceProvider _serviceProvider;
+        private readonly Model _model;
 
         public NorthwindQueryFixture()
         {
@@ -23,37 +25,53 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                     .ServiceCollection
                     .BuildServiceProvider();
 
-            var model = CreateModel();
-
-            var titleProperty
-                = model.GetEntityType(typeof(Employee)).GetProperty("Title");
-
+            _model = CreateModel();
+            
             _options
                 = new DbContextOptions()
-                    .UseModel(model)
+                    .UseModel(_model)
                     .UseInMemoryStore();
 
-            using (var context = new DbContext(_serviceProvider, _options))
+            using (var context = CreateContext())
             {
-                context.Set<Customer>().AddRange(NorthwindData.CreateCustomers());
-
-                foreach (var employee in NorthwindData.CreateEmployees())
-                {
-                    context.Set<Employee>().Add(employee);
-                    context.ChangeTracker.Entry(employee).StateEntry[titleProperty] = employee.Title;
-                }
-
-                context.Set<Order>().AddRange(NorthwindData.CreateOrders());
-                context.Set<Product>().AddRange(NorthwindData.CreateProducts());
-                context.Set<OrderDetail>().AddRange(NorthwindData.CreateOrderDetails());
-
-                context.SaveChanges();
+                Seed(context);
             }
         }
 
-        public DbContext CreateContext()
+        public DbContext CreateContext(bool persist = true)
         {
-            return new DbContext(_serviceProvider, _options);
+            if (persist)
+            {
+                return new DbContext(_serviceProvider, _options);
+            }
+            else
+            {
+                var options = new DbContextOptions()
+                    .UseModel(_model)
+                    .UseInMemoryStore(persist: false);
+
+                return new DbContext(_serviceProvider, options);
+            }
+        }
+
+        public void Seed(DbContext context)
+        {
+            var titleProperty
+                = _model.GetEntityType(typeof(Employee)).GetProperty("Title");
+
+            context.Set<Customer>().AddRange(NorthwindData.CreateCustomers());
+
+            foreach (var employee in NorthwindData.CreateEmployees())
+            {
+                context.Set<Employee>().Add(employee);
+                context.ChangeTracker.Entry(employee).StateEntry[titleProperty] = employee.Title;
+            }
+
+            context.Set<Order>().AddRange(NorthwindData.CreateOrders());
+            context.Set<Product>().AddRange(NorthwindData.CreateProducts());
+            context.Set<OrderDetail>().AddRange(NorthwindData.CreateOrderDetails());
+
+            context.SaveChanges();
         }
     }
 }

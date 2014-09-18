@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                         = await (_reader == null
                             ? InitializeAndReadAsync(cancellationToken)
                             : _reader.ReadAsync(cancellationToken))
-                            .ConfigureAwait(continueOnCapturedContext: false);
+                            .WithCurrentCulture();
 
                     if (!hasNext)
                     {
@@ -104,17 +104,15 @@ namespace Microsoft.Data.Entity.Relational.Query
                 {
                     await _enumerable._connection
                         .OpenAsync(cancellationToken)
-                        .ConfigureAwait(continueOnCapturedContext: false);
+                        .WithCurrentCulture();
 
                     _command = _enumerable._commandBuilder.Build(_enumerable._connection);
 
                     _enumerable._logger.WriteSql(_command.CommandText);
 
-                    _reader 
-                        = await _command.ExecuteReaderAsync(cancellationToken)
-                            .ConfigureAwait(continueOnCapturedContext: false);
+                    _reader = await _command.ExecuteReaderAsync(cancellationToken).WithCurrentCulture();
 
-                    return await _reader.ReadAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+                    return await _reader.ReadAsync(cancellationToken).WithCurrentCulture();
                 }
 
                 public T Current

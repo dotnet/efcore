@@ -95,7 +95,7 @@ namespace Microsoft.Data.Entity.SqlServer
             {
                 // Once inside the lock check to see if another thread already got a new block, in which
                 // case just get a value out of the new block instead of requesting one.
-                using (await _lock.LockAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false))
+                using (await _lock.LockAsync(cancellationToken).WithCurrentCulture())
                 {
                     if (newValue.Max == _currentValue.Max)
                     {
@@ -103,7 +103,7 @@ namespace Microsoft.Data.Entity.SqlServer
 
                         var newCurrent = (long)await _executor
                             .ExecuteScalarAsync(commandInfo.Item1.DbConnection, commandInfo.Item1.DbTransaction, commandInfo.Item2, cancellationToken)
-                            .ConfigureAwait(continueOnCapturedContext: false);
+                            .WithCurrentCulture();
                         newValue = new SequenceValue(newCurrent, newCurrent + _blockSize);
                         _currentValue = newValue;
                     }

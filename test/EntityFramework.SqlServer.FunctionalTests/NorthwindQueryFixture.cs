@@ -51,6 +51,14 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             return new DbContext(_serviceProvider, _options);
         }
 
+        public DbContext CreateContext(SqlServerTestDatabase testDatabase)
+        {
+            var options = new DbContextOptions()
+                .UseModel(SetTableNames(CreateModel()))
+                .UseSqlServer(testDatabase.Connection.ConnectionString);
+            return new DbContext(_serviceProvider, options);
+        }
+
         public void InitLogger()
         {
             _loggingFactory.Init();

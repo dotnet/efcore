@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
         private readonly DbContextOptions _options;
         private readonly IServiceProvider _serviceProvider;
 
-        public IModel CreateAzureTableStorageModel()
+        public IModel CreateAzureTableStorageModel(string tableSuffix)
         {
             var model = CreateModel();
 
@@ -36,7 +36,6 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
             orderDetailType.RemoveForeignKey(orderDetailType.ForeignKeys.Single());
             orderType.RemoveForeignKey(orderType.ForeignKeys.Single());
 
-            const string tableSuffix = "FunctionalTests";
             var builder = new BasicModelBuilder(model);
             builder.Entity<Customer>()
                 .PartitionAndRowKey(s => s.City, s => s.CustomerID)
@@ -81,15 +80,11 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
 
         public NorthwindQueryFixture()
         {
-            var model = CreateAzureTableStorageModel();
+            var model = CreateAzureTableStorageModel("FunctionalTests");
 
-            var titleProperty
-                = model.GetEntityType(typeof(Employee)).GetProperty("Title");
-
-            _options
-                = new DbContextOptions()
-                    .UseModel(model)
-                    .UseAzureTableStorage(TestConfig.Instance.ConnectionString, batchRequests: false);
+            _options = new DbContextOptions()
+                .UseModel(model)
+                .UseAzureTableStorage(TestConfig.Instance.ConnectionString, batchRequests: false);
 
             var services = new ServiceCollection();
             services.AddEntityFramework().UseLoggerFactory(TestFileLogger.Factory).AddAzureTableStorage();
@@ -104,6 +99,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
 
                 context.Set<Customer>().AddRange(NorthwindData.CreateCustomers());
 
+                var titleProperty = model.GetEntityType(typeof(Employee)).GetProperty("Title");
                 foreach (var employee in NorthwindData.CreateEmployees())
                 {
                     context.Set<Employee>().Add(employee);
@@ -120,6 +116,17 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
         public DbContext CreateContext()
         {
             return new DbContext(_serviceProvider, _options);
+        }
+
+        public DbContext CreateContext(string suffix)
+        {
+            var model = CreateAzureTableStorageModel(suffix);
+
+            var options = new DbContextOptions()
+                .UseModel(model)
+                .UseAzureTableStorage(TestConfig.Instance.ConnectionString, batchRequests: false);
+
+            return new DbContext(_serviceProvider, options);
         }
     }
 }

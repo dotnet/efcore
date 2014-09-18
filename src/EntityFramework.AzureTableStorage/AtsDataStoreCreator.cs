@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
                 .Select(request => _connection.ExecuteRequestAsync(request, cancellationToken: cancellationToken))
                 .ToList();
 
-            await Task.WhenAll(tasks).ConfigureAwait(continueOnCapturedContext: false);
+            await Task.WhenAll(tasks).WithCurrentCulture();
 
             return tasks.Any(t => t.Result);
         }
@@ -73,7 +73,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
                 .Select(request => _connection.ExecuteRequestAsync(request, cancellationToken: cancellationToken))
                 .ToList();
 
-            await Task.WhenAll(tasks).ConfigureAwait(continueOnCapturedContext: false);
+            await Task.WhenAll(tasks).WithCurrentCulture();
 
             return tasks.Any(t => t.Result);
         }
