@@ -67,7 +67,7 @@ namespace Microsoft.Data.Entity.Relational.Model
 
         public virtual string DefaultSql { get; [param: CanBeNull] set; }
 
-        public virtual ValueGenerationOnSave ValueGenerationStrategy { get; set; }
+        public virtual ValueGeneration ValueGenerationStrategy { get; set; }
 
         public virtual bool HasDefault
         {

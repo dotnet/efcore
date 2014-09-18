@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
@@ -26,25 +25,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual void Shadow(bool isShadowProperty = true)
         {
             Metadata.IsShadowProperty = isShadowProperty;
-        }
-
-        // TODO Consider if this should be relational only
-        public virtual void UseStoreSequence()
-        {
-            Metadata.ValueGenerationOnAdd = ValueGenerationOnAdd.Server;
-            Metadata.ValueGenerationOnSave = ValueGenerationOnSave.None;
-        }
-
-        // TODO Consider if this should be relational only
-        public virtual void UseStoreSequence([NotNull] string sequenceName, int blockSize)
-        {
-            Check.NotEmpty(sequenceName, "sequenceName");
-
-            UseStoreSequence();
-
-            // TODO: Make these constants in some class once decided if this should be relational-only
-            Metadata["StoreSequenceName"] = sequenceName;
-            Metadata["StoreSequenceBlockSize"] = blockSize.ToString();
         }
     }
 }

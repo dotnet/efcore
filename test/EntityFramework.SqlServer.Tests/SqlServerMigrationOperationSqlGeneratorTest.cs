@@ -79,7 +79,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 "dbo.MyTable",
                 new[]
                     {
-                        foo = new Column("Foo", "int") { IsNullable = false, ValueGenerationStrategy = ValueGenerationOnSave.WhenInserting },
+                        foo = new Column("Foo", "int") { IsNullable = false, ClrType = typeof(int), ValueGenerationStrategy = ValueGeneration.OnAdd },
                         bar = new Column("Bar", "int") { IsNullable = true }
                     })
                 {

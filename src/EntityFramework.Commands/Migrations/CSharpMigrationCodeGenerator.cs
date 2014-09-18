@@ -761,7 +761,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 args.Add("unicode: " + GenerateLiteral(column.IsUnicode.Value));
             }
 
-            if (column.ValueGenerationStrategy == ValueGenerationOnSave.WhenInserting)
+            if (column.ValueGenerationStrategy == ValueGeneration.OnAdd)
             {
                 args.Add("identity: " + GenerateLiteral(true));
             }

@@ -48,10 +48,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Can_read_and_write_values()
         {
-            var entity = new Banana { Id = 77, Name = "Stand", Fk = 88 };
+            var entity = new Banana { Name = "Stand", Fk = 88 };
             var sidecar = CreateSidecar(CreateStateEntry(entity));
 
-            Assert.Equal(77, sidecar[IdProperty]);
+            Assert.Equal(1, sidecar[IdProperty]);
             Assert.Equal(88, sidecar[FkProperty]);
 
             sidecar[IdProperty] = 78;
@@ -60,14 +60,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.Equal(78, sidecar[IdProperty]);
             Assert.Equal(89, sidecar[FkProperty]);
 
-            Assert.Equal(77, entity.Id);
+            Assert.Equal(1, entity.Id);
             Assert.Equal(88, entity.Fk);
         }
 
         [Fact]
         public void Can_read_and_write_null()
         {
-            var entity = new Banana { Id = 77, Name = "Stand", Fk = 88 };
+            var entity = new Banana { Name = "Stand", Fk = 88 };
             var sidecar = CreateSidecar(CreateStateEntry(entity));
 
             sidecar[FkProperty] = null;
@@ -81,20 +81,20 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Can_commit_values_into_state_entry()
         {
-            var entity = new Banana { Id = 77, Name = "Stand", Fk = 88 };
+            var entity = new Banana { Name = "Stand", Fk = 88 };
             var sidecar = CreateSidecar(CreateStateEntry(entity));
 
             sidecar[FkProperty] = 89;
             sidecar.Commit();
 
-            Assert.Equal(77, entity.Id);
+            Assert.Equal(1, entity.Id);
             Assert.Equal(89, entity.Fk);
         }
 
         [Fact]
         public void Committing_detaches_sidecar()
         {
-            var entity = new Banana { Id = 77, Name = "Stand", Fk = 88 };
+            var entity = new Banana { Name = "Stand", Fk = 88 };
             var stateEntry = CreateStateEntry(entity);
 
             var sidecar = stateEntry.AddSidecar(CreateSidecar(stateEntry));
@@ -107,7 +107,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Rolling_back_detaches_sidecar_without_committing_values()
         {
-            var entity = new Banana { Id = 77, Name = "Stand", Fk = 88 };
+            var entity = new Banana { Name = "Stand", Fk = 88 };
             var stateEntry = CreateStateEntry(entity);
 
             var sidecar = stateEntry.AddSidecar(CreateSidecar(stateEntry));
@@ -117,19 +117,19 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             Assert.Null(stateEntry.TryGetSidecar(sidecar.Name));
 
-            Assert.Equal(77, entity.Id);
+            Assert.Equal(1, entity.Id);
             Assert.Equal(88, entity.Fk);
         }
 
         [Fact]
         public void Can_snapshot_values()
         {
-            var entity = new Banana { Id = 77, Name = "Stand", Fk = 88 };
+            var entity = new Banana { Name = "Stand", Fk = 88 };
             var sidecar = CreateSidecar(CreateStateEntry(entity));
 
             sidecar.TakeSnapshot();
 
-            Assert.Equal(77, sidecar[IdProperty]);
+            Assert.Equal(1, sidecar[IdProperty]);
             Assert.Equal(88, sidecar[FkProperty]);
 
             sidecar[IdProperty] = 78;
@@ -138,7 +138,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.Equal(78, sidecar[IdProperty]);
             Assert.Equal(89, sidecar[FkProperty]);
 
-            Assert.Equal(77, entity.Id);
+            Assert.Equal(1, entity.Id);
             Assert.Equal(88, entity.Fk);
 
             entity.Id = 76;
@@ -159,20 +159,20 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Can_snapshot_individual_values()
         {
-            var entity = new Banana { Id = 77, Name = "Stand", Fk = 88 };
+            var entity = new Banana { Name = "Stand", Fk = 88 };
             var sidecar = CreateSidecar(CreateStateEntry(entity));
 
             sidecar.TakeSnapshot(FkProperty);
 
-            Assert.Equal(77, sidecar[IdProperty]);
+            Assert.Equal(1, sidecar[IdProperty]);
             Assert.Equal(88, sidecar[FkProperty]);
 
             sidecar[FkProperty] = 89;
 
-            Assert.Equal(77, sidecar[IdProperty]);
+            Assert.Equal(1, sidecar[IdProperty]);
             Assert.Equal(89, sidecar[FkProperty]);
 
-            Assert.Equal(77, entity.Id);
+            Assert.Equal(1, entity.Id);
             Assert.Equal(88, entity.Fk);
 
             entity.Id = 76;
@@ -193,7 +193,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Can_snapshot_null_values()
         {
-            var entity = new Banana { Id = 77, Name = "Stand", State = null };
+            var entity = new Banana { Name = "Stand", State = null };
             var sidecar = CreateSidecar(CreateStateEntry(entity));
 
             sidecar.TakeSnapshot();
@@ -219,7 +219,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Can_update_already_saved_values()
         {
-            var entity = new Banana { Id = 77, Name = "Stand", Fk = 88 };
+            var entity = new Banana { Name = "Stand", Fk = 88 };
             var sidecar = CreateSidecar(CreateStateEntry(entity));
 
             sidecar[IdProperty] = 78;
@@ -244,26 +244,26 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Can_ensure_value_is_snapshotted_but_not_overwrite_existing_snapshot_value()
         {
-            var entity = new Banana { Id = 77, Name = "Stand", Fk = 88 };
+            var entity = new Banana { Name = "Stand", Fk = 88 };
             var sidecar = CreateSidecar(CreateStateEntry(entity));
 
             sidecar.EnsureSnapshot(IdProperty);
 
             Assert.True(sidecar.HasValue(IdProperty));
-            Assert.Equal(77, sidecar[IdProperty]);
+            Assert.Equal(1, sidecar[IdProperty]);
 
             entity.Id = 76;
 
             sidecar.EnsureSnapshot(IdProperty);
 
             Assert.True(sidecar.HasValue(IdProperty));
-            Assert.Equal(77, sidecar[IdProperty]);
+            Assert.Equal(1, sidecar[IdProperty]);
         }
 
         [Fact]
         public void Can_ensure_null_value_is_snapshotted_but_not_overwrite_existing_snapshot_value()
         {
-            var entity = new Banana { Id = 77, Name = "Stand", State = null };
+            var entity = new Banana { Name = "Stand", State = null };
             var sidecar = CreateSidecar(CreateStateEntry(entity));
 
             sidecar.EnsureSnapshot(FkProperty);
@@ -282,7 +282,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Ensuring_snapshot_does_nothing_for_property_that_cannot_be_stored()
         {
-            var entity = new Banana { Id = 77, Name = "Stand", Fk = 88 };
+            var entity = new Banana { Name = "Stand", Fk = 88 };
             var sidecar = CreateSidecar(CreateStateEntry(entity));
 
             sidecar.EnsureSnapshot(NameProperty);
@@ -338,7 +338,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entityType = _model.GetEntityType(typeof(SomeMoreDependentEntity).FullName);
             var foreignKey = entityType.ForeignKeys.Single();
 
-            var entry = CreateStateEntry(new SomeMoreDependentEntity());
+            var entry = TestHelpers.CreateStateEntry<SomeMoreDependentEntity>(_model);
             var sidecar = CreateSidecar(entry);
             sidecar[foreignKey.Properties[0]] = 77;
             sidecar[foreignKey.Properties[1]] = "CheeseAndOnion";
@@ -354,7 +354,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var dependentType = _model.GetEntityType(typeof(SomeMoreDependentEntity).FullName);
             var foreignKey = dependentType.ForeignKeys.Single();
 
-            var entry = CreateStateEntry(new SomeDependentEntity());
+            var entry = TestHelpers.CreateStateEntry<SomeDependentEntity>(_model);
             var sidecar = CreateSidecar(entry);
             sidecar[foreignKey.ReferencedProperties[0]] = 77;
             sidecar[foreignKey.ReferencedProperties[1]] = "PrawnCocktail";
@@ -368,16 +368,13 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
         protected StateEntry CreateStateEntry(Banana entity = null)
         {
-            entity = entity ?? new Banana { Id = 77, Name = "Stand", Fk = 88 };
+            entity = entity ?? new Banana { Name = "Stand", Fk = 88 };
 
-            return CreateStateEntry<Banana>(entity);
-        }
+            var stateEntry = TestHelpers.CreateStateEntry(_model, EntityState.Added, entity);
 
-        protected StateEntry CreateStateEntry<TEntity>(TEntity entity)
-        {
-            var configuration = TestHelpers.CreateContextConfiguration(_model);
+            stateEntry.MarkAsTemporary(IdProperty);
 
-            return configuration.Services.StateEntryFactory.Create(_model.GetEntityType(typeof(TEntity)), entity);
+            return stateEntry;
         }
 
         private static Model BuildModel()
@@ -388,7 +385,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var idProperty = entityType.GetOrAddProperty("Id", typeof(int));
             idProperty.IsConcurrencyToken = true;
-            idProperty.ValueGenerationOnSave = ValueGenerationOnSave.WhenInserting;
+            idProperty.ValueGeneration = ValueGeneration.OnAdd;
             entityType.GetOrSetPrimaryKey(idProperty);
 
             entityType.GetOrAddProperty("Name", typeof(string));
@@ -408,8 +405,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var fk = entityType2.GetOrAddProperty("SomeEntityId", typeof(int));
             entityType2.GetOrAddForeignKey(entityType.GetPrimaryKey(), new[] { fk });
             var justAProperty = entityType2.GetOrAddProperty("JustAProperty", typeof(int));
-            justAProperty.ValueGenerationOnSave = ValueGenerationOnSave.WhenInserting;
-            justAProperty.ValueGenerationOnAdd = ValueGenerationOnAdd.Client;
+            justAProperty.ValueGeneration = ValueGeneration.OnAdd;
 
             var entityType5 = new EntityType(typeof(SomeMoreDependentEntity));
             model.AddEntityType(entityType5);

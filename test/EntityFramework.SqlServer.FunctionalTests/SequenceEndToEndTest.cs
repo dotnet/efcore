@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 var pegasuses = context.Pegasuses.ToList();
 
-                for (var i = 0; i < 50; i++)
+                for (var i = 0; i < 10; i++)
                 {
                     Assert.Equal(3, pegasuses.Count(p => p.Name == "Rainbow Dash " + i));
                     Assert.Equal(3, pegasuses.Count(p => p.Name == "Fluttershy " + i));
@@ -61,7 +61,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             using (var context = new BronieContext(serviceProvider, "Bronies"))
             {
-                for (var i = 0; i < 50; i++)
+                for (var i = 0; i < 10; i++)
                 {
                     context.Add(new Pegasus { Name = "Rainbow Dash " + i });
                     context.Add(new Pegasus { Name = "Fluttershy " + i });
@@ -106,7 +106,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 var pegasuses = await context.Pegasuses.ToListAsync();
 
-                for (var i = 0; i < 50; i++)
+                for (var i = 0; i < 10; i++)
                 {
                     Assert.Equal(3, pegasuses.Count(p => p.Name == "Rainbow Dash " + i));
                     Assert.Equal(3, pegasuses.Count(p => p.Name == "Fluttershy " + i));
@@ -118,7 +118,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             using (var context = new BronieContext(serviceProvider, databaseName))
             {
-                for (var i = 0; i < 50; i++)
+                for (var i = 0; i < 10; i++)
                 {
                     await context.AddAsync(new Pegasus { Name = "Rainbow Dash " + i });
                     await context.AddAsync(new Pegasus { Name = "Fluttershy " + i });
@@ -213,14 +213,15 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 modelBuilder.Entity<Pegasus>(b =>
                     {
                         b.Key(e => e.Identifier);
-                        b.Property(e => e.Identifier).UseStoreSequence("PegasusSequence", 11);
+                        b.Property(e => e.Identifier).Metadata.ValueGeneration = ValueGeneration.OnAdd;
                     });
             }
         }
 
         private class Pegasus
         {
-            public int Identifier { get; set; }
+            // TODO: This is only byte until ability to set specific value generation strategy is enabled
+            public byte Identifier { get; set; }
             public string Name { get; set; }
         }
     }

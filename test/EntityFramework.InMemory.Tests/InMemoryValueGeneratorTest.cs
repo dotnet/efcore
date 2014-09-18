@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         {
             var generator = new InMemoryValueGenerator();
 
-            var stateEntry = TestHelpers.CreateStateEntry<AnEntity>(_model, EntityState.Added);
+            var stateEntry = TestHelpers.CreateStateEntry<AnEntity>(_model);
             var property = stateEntry.EntityType.GetProperty("Id");
 
             await generator.NextAsync(stateEntry, property);
@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         {
             var generator = new InMemoryValueGenerator();
 
-            var stateEntry = TestHelpers.CreateStateEntry<AnEntity>(_model, EntityState.Added);
+            var stateEntry = TestHelpers.CreateStateEntry<AnEntity>(_model);
             var intProperty = stateEntry.EntityType.GetProperty("Id");
             var longProperty = stateEntry.EntityType.GetProperty("Long");
             var shortProperty = stateEntry.EntityType.GetProperty("Short");

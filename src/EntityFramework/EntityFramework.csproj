@@ -133,7 +133,7 @@
     <Compile Include="Query\QueryCompilationContext.cs" />
     <Compile Include="Query\QuerySourceScope`.cs" />
     <Compile Include="Query\ResultOperatorHandler.cs" />
-    <Compile Include="Metadata\ValueGenerationOnSave.cs" />
+    <Compile Include="Metadata\ValueGeneration.cs" />
     <Compile Include="ServiceProviderCache.cs" />
     <Compile Include="ChangeTracking\ArraySidecar.cs" />
     <Compile Include="ChangeTracking\ChangeTracker.cs" />
@@ -215,7 +215,6 @@
     <Compile Include="Metadata\Navigation.cs" />
     <Compile Include="Metadata\ObjectArrayValueReader.cs" />
     <Compile Include="Metadata\Property.cs" />
-    <Compile Include="Metadata\ValueGenerationStrategy.cs" />
     <Compile Include="Metadata\Compiled\CompiledEntityType.cs" />
     <Compile Include="Metadata\Compiled\CompiledForeignKey.cs" />
     <Compile Include="Metadata\Compiled\CompiledKey.cs" />

@@ -319,40 +319,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
-        public void Can_set_use_of_store_sequence()
-        {
-            var model = new Model();
-            var modelBuilder = new BasicModelBuilder(model);
-
-            modelBuilder
-                .Entity<Customer>()
-                .Property(c => c.Name).UseStoreSequence();
-
-            var property = model.GetEntityType(typeof(Customer)).GetProperty("Name");
-
-            Assert.Equal(ValueGenerationOnAdd.Server, property.ValueGenerationOnAdd);
-            Assert.Equal(ValueGenerationOnSave.None, property.ValueGenerationOnSave);
-        }
-
-        [Fact]
-        public void Can_set_use_of_store_sequence_with_name_and_block_size()
-        {
-            var model = new Model();
-            var modelBuilder = new BasicModelBuilder(model);
-
-            modelBuilder
-                .Entity<Customer>()
-                .Property(c => c.Name).UseStoreSequence("UltrasonicTarsier", 17);
-
-            var property = model.GetEntityType(typeof(Customer)).GetProperty("Name");
-
-            Assert.Equal(ValueGenerationOnAdd.Server, property.ValueGenerationOnAdd);
-            Assert.Equal(ValueGenerationOnSave.None, property.ValueGenerationOnSave);
-            Assert.Equal("UltrasonicTarsier", property["StoreSequenceName"]);
-            Assert.Equal("17", property["StoreSequenceBlockSize"]);
-        }
-
-        [Fact]
         public void Can_add_multiple_properties()
         {
             var model = new Model();

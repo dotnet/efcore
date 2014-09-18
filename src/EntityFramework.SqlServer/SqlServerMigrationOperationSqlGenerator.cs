@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
@@ -144,8 +145,10 @@ namespace Microsoft.Data.Entity.SqlServer
 
         protected override void GenerateColumnTraits(Column column, IndentedStringBuilder stringBuilder)
         {
-            if (column.ValueGenerationStrategy == ValueGenerationOnSave.WhenInserting)
+            if (column.ValueGenerationStrategy == ValueGeneration.OnAdd
+                && column.ClrType.IsInteger() && column.ClrType != typeof(byte))
             {
+                // TODO: Handle other SQL Server strategies
                 stringBuilder.Append(" IDENTITY");
             }
         }

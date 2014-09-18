@@ -194,7 +194,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             _stateData.FlagAllProperties(_entityType.Properties.Count(), isFlagged: false);
 
-            var properties = _entityType.Properties.Where(p => p.ValueGenerationOnAdd != ValueGenerationOnAdd.None || p.IsForeignKey());
+            var properties = _entityType.Properties.Where(p => p.ValueGeneration == ValueGeneration.OnAdd || p.IsForeignKey());
 
             return properties
                 .Select(p => Tuple.Create(p, _configuration.ValueGeneratorCache.GetGenerator(p)))
@@ -210,7 +210,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
             {
                 _stateData.FlagAllProperties(_entityType.Properties.Count(), isFlagged: true);
 
-                foreach (var keyProperty in EntityType.Properties.Where(p => p.IsReadOnly))
+                foreach (var keyProperty in EntityType.Properties.Where(
+                    p => p.IsReadOnly
+                         || p.ValueGeneration == ValueGeneration.OnAddAndUpdate))
                 {
                     _stateData.FlagProperty(keyProperty.Index, isFlagged: false);
                 }
@@ -282,8 +284,10 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             var currentState = _stateData.EntityState;
 
-            if (currentState != EntityState.Modified
-                && currentState != EntityState.Unchanged)
+            if ((currentState != EntityState.Modified
+                 && currentState != EntityState.Unchanged)
+                // TODO: Consider allowing computed properties to be forcibly marked as modified
+                || property.ValueGeneration == ValueGeneration.OnAddAndUpdate)
             {
                 return;
             }
@@ -317,7 +321,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             Check.NotNull(property, "property");
 
-            if (_stateData.EntityState != EntityState.Added)
+            if (_stateData.EntityState != EntityState.Added
+                && _stateData.EntityState != EntityState.Unknown)
             {
                 return false;
             }
@@ -329,7 +334,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             Check.NotNull(property, "property");
 
-            if (_stateData.EntityState != EntityState.Added)
+            if (_stateData.EntityState != EntityState.Added
+                && _stateData.EntityState != EntityState.Unknown)
             {
                 return;
             }
@@ -493,7 +499,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         public virtual StateEntry PrepareToSave()
         {
-            if (_entityType.Properties.Any(p => p.ValueGenerationOnSave != ValueGenerationOnSave.None))
+            if (_entityType.Properties.Any(NeedsStoreValue))
             {
                 AddSidecar(_configuration.Services.StoreGeneratedValuesFactory.Create(this));
             }
@@ -513,6 +519,16 @@ namespace Microsoft.Data.Entity.ChangeTracking
                     }
                 }
             }
+        }
+
+        public virtual bool NeedsStoreValue([NotNull] IProperty property)
+        {
+            Check.NotNull(property, "property");
+
+            return HasTemporaryValue(property)
+                   || (property.ValueGeneration == ValueGeneration.OnAddAndUpdate
+                       && (EntityState == EntityState.Modified || EntityState == EntityState.Added)
+                       && !IsPropertyModified(property));
         }
 
         [UsedImplicitly]

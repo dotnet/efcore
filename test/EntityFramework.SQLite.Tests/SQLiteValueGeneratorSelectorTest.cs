@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.SQLite.Tests
         {
             var entityType = new EntityType("Entity");
             var property = entityType.GetOrAddProperty("Id", typeof(long), shadowProperty: true);
-            property.ValueGenerationOnAdd = ValueGenerationOnAdd.Client;
+            property.ValueGeneration = ValueGeneration.OnAdd;
             entityType.GetOrSetPrimaryKey(property);
 
             var result = CreateSelector().Select(property);
@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.SQLite.Tests
         {
             var entityType = new EntityType("Entity");
             var property = entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
-            property.ValueGenerationOnAdd = ValueGenerationOnAdd.Client;
+            property.ValueGeneration = ValueGeneration.OnAdd;
             property[MetadataExtensions.Annotations.StorageTypeName] = "INTEGER";
             entityType.GetOrSetPrimaryKey(property);
 
@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.SQLite.Tests
         }
 
         [Fact]
-        public void Select_returns_null_when_ValueGenerationOnAdd_is_not_Client()
+        public void Select_returns_null_when_ValueGeneration_is_not_set()
         {
             var entityType = new EntityType("Entity");
             var property = entityType.GetOrAddProperty("Id", typeof(long), shadowProperty: true);
@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity.SQLite.Tests
             var selector = CreateSelector();
             var entityType = new EntityType("Entity");
             var property = entityType.GetOrAddProperty("Id1", typeof(long), shadowProperty: true);
-            property.ValueGenerationOnAdd = ValueGenerationOnAdd.Client;
+            property.ValueGeneration = ValueGeneration.OnAdd;
             entityType.GetOrSetPrimaryKey(property, entityType.GetOrAddProperty("Id2", typeof(long), shadowProperty: true));
 
             Assert.Throws<NotSupportedException>(() => selector.Select(property));
@@ -67,7 +67,7 @@ namespace Microsoft.Data.Entity.SQLite.Tests
             var selector = CreateSelector();
             var entityType = new EntityType("Entity");
             var property = entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
-            property.ValueGenerationOnAdd = ValueGenerationOnAdd.Client;
+            property.ValueGeneration = ValueGeneration.OnAdd;
             entityType.GetOrSetPrimaryKey(property);
 
             Assert.Throws<NotSupportedException>(() => selector.Select(property));

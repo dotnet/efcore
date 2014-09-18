@@ -33,23 +33,18 @@ namespace Microsoft.Data.Entity.Identity
         {
             Check.NotNull(property, "property");
 
-            switch (property.ValueGenerationOnAdd)
+            if (property.ValueGeneration != ValueGeneration.OnAdd)
             {
-                case ValueGenerationOnAdd.None:
-                    return null;
-
-                case ValueGenerationOnAdd.Client:
-                    if (property.PropertyType == typeof(Guid))
-                    {
-                        return _guidFactory;
-                    }
-                    goto default;
-
-                default:
-                    throw new NotSupportedException(
-                        Strings.FormatNoValueGenerator(
-                            property.ValueGenerationOnAdd.ToString().ToLowerInvariant(), property.EntityType.Name, property.Name, property.PropertyType.Name));
+                return null;
             }
+
+            if (property.PropertyType == typeof(Guid))
+            {
+                return _guidFactory;
+            }
+
+            throw new NotSupportedException(
+                Strings.FormatNoValueGenerator(property.Name, property.EntityType.Name, property.PropertyType.Name));
         }
 
         public virtual SimpleValueGeneratorFactory<GuidValueGenerator> GuidFactory
