@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.Relational
                         foreach (var statement in statements)
                         {
                             await CreateCommand(connection, transaction, statement).ExecuteNonQueryAsync(cancellationToken)
-                                .ConfigureAwait(continueOnCapturedContext: false);
+                                .WithCurrentCulture();
                         }
                         return Task.FromResult<object>(null);
                     },
@@ -64,12 +64,12 @@ namespace Microsoft.Data.Entity.Relational
             var connectionWasOpen = connection.State == ConnectionState.Open;
             if (!connectionWasOpen)
             {
-                await connection.OpenAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+                await connection.OpenAsync(cancellationToken).WithCurrentCulture();
             }
 
             try
             {
-                return await action().ConfigureAwait(continueOnCapturedContext: false);
+                return await action().WithCurrentCulture();
             }
             finally
             {

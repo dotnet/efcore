@@ -118,7 +118,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             }
             try
             {
-                await Task.WhenAll(allTasks).ConfigureAwait(continueOnCapturedContext: false);
+                await Task.WhenAll(allTasks).WithCurrentCulture();
             }
             catch (StorageException exception)
             {
@@ -170,7 +170,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             }
             try
             {
-                await Task.WhenAll(allBatchTasks).ConfigureAwait(continueOnCapturedContext: false);
+                await Task.WhenAll(allBatchTasks).WithCurrentCulture();
             }
             catch (StorageException exception)
             {

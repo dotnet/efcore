@@ -1390,7 +1390,7 @@ namespace System.Linq
 
             using (var enumerator = asyncEnumerable.GetEnumerator())
             {
-                while (await enumerator.MoveNext())
+                while (await enumerator.MoveNext().WithCurrentCulture())
                 {
                 }
             }

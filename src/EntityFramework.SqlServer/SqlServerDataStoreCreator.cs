@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity.SqlServer
             {
                 await _statementExecutor
                     .ExecuteNonQueryAsync(masterConnection, null, CreateCreateOperations(), cancellationToken)
-                    .ConfigureAwait(continueOnCapturedContext: false);
+                    .WithCurrentCulture();
                 ClearPool();
             }
         }
@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.SqlServer
 
             await _statementExecutor
                 .ExecuteNonQueryAsync(_connection.DbConnection, _connection.DbTransaction, CreateSchemaCommands(model), cancellationToken)
-                .ConfigureAwait(continueOnCapturedContext: false);
+                .WithCurrentCulture();
         }
 
         public override bool HasTables()
@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.SqlServer
         {
             return (int)(await _statementExecutor
                 .ExecuteScalarAsync(_connection.DbConnection, _connection.DbTransaction, CreateHasTablesCommand(), cancellationToken)
-                .ConfigureAwait(continueOnCapturedContext: false)) != 0;
+                .WithCurrentCulture()) != 0;
         }
 
         private IEnumerable<SqlStatement> CreateSchemaCommands(IModel model)
@@ -158,7 +158,7 @@ namespace Microsoft.Data.Entity.SqlServer
             {
                 try
                 {
-                    await _connection.OpenAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+                    await _connection.OpenAsync(cancellationToken).WithCurrentCulture();
                     _connection.Close();
                     return true;
                 }
@@ -221,7 +221,7 @@ namespace Microsoft.Data.Entity.SqlServer
             {
                 await _statementExecutor
                     .ExecuteNonQueryAsync(masterConnection, null, CreateDropCommands(), cancellationToken)
-                    .ConfigureAwait(continueOnCapturedContext: false);
+                    .WithCurrentCulture();
             }
         }
 

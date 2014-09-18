@@ -65,6 +65,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AsNoTrackingTest.cs" />
+    <Compile Include="DeadlockTest.cs" />
+    <Compile Include="InMemoryTestStore.cs" />
     <Compile Include="BuiltInDataTypesFixture.cs" />
     <Compile Include="BuiltInDataTypesTest.cs" />
     <Compile Include="IncludeOneToOneTest.cs" />

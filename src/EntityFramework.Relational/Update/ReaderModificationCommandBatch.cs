@@ -166,20 +166,20 @@ namespace Microsoft.Data.Entity.Relational.Update
             {
                 try
                 {
-                    using (var reader = await storeCommand.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false))
+                    using (var reader = await storeCommand.ExecuteReaderAsync(cancellationToken).WithCurrentCulture())
                     {
                         var actualResultSetCount = 0;
                         do
                         {
                             commandIndex = ModificationCommands[commandIndex].RequiresResultPropagation
                                 ? await ConsumeResultSetWithPropagationAsync(commandIndex, reader, context, cancellationToken)
-                                    .ConfigureAwait(false)
+                                    .WithCurrentCulture()
                                 : await ConsumeResultSetWithoutPropagationAsync(commandIndex, reader, context, cancellationToken)
-                                    .ConfigureAwait(false);
+                                    .WithCurrentCulture();
                             actualResultSetCount++;
                         }
                         while (commandIndex < ResultSetEnds.Count
-                               && await reader.NextResultAsync(cancellationToken).ConfigureAwait(false));
+                               && await reader.NextResultAsync(cancellationToken).WithCurrentCulture());
 
                         Contract.Assert(commandIndex == ModificationCommands.Count, "Expected " + ModificationCommands.Count + " results, got " + commandIndex);
 #if DEBUG
@@ -216,7 +216,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                 var tableModification = ModificationCommands[commandIndex];
                 Contract.Assert(tableModification.RequiresResultPropagation);
 
-                if (!await reader.ReadAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false))
+                if (!await reader.ReadAsync(cancellationToken).WithCurrentCulture())
                 {
                     var expectedRowsAffected = rowsAffected + 1;
                     while (++commandIndex < ResultSetEnds.Count
@@ -251,7 +251,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                 expectedRowsAffected++;
             }
 
-            if (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+            if (await reader.ReadAsync(cancellationToken).WithCurrentCulture())
             {
                 var rowsAffected = reader.GetFieldValue<int>(0);
                 if (rowsAffected != expectedRowsAffected)

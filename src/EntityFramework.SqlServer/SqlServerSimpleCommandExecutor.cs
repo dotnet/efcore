@@ -37,14 +37,14 @@ namespace Microsoft.Data.Entity.SqlServer
 
             using (var connection = new SqlConnection(_connectionString))
             {
-                await connection.OpenAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+                await connection.OpenAsync(cancellationToken).WithCurrentCulture();
 
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = commandText;
                     command.CommandTimeout = _commandTimeout;
 
-                    return (T)await command.ExecuteScalarAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+                    return (T)await command.ExecuteScalarAsync(cancellationToken).WithCurrentCulture();
                 }
             }
         }

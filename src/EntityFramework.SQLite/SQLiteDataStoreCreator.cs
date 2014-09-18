@@ -112,7 +112,7 @@ namespace Microsoft.Data.Entity.SQLite
         {
             return (long)(await _executor
                 .ExecuteScalarAsync(_connection.DbConnection, _connection.DbTransaction, CreateHasTablesCommand(), cancellationToken)
-                .ConfigureAwait(continueOnCapturedContext: false)) != 0;
+                .WithCurrentCulture()) != 0;
         }
 
         private SqlStatement CreateHasTablesCommand()

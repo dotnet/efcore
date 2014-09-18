@@ -55,7 +55,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity
                 }
             }
 
-            await _next(context);
+            await _next(context).WithCurrentCulture();
         }
     }
 }
