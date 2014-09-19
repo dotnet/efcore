@@ -68,6 +68,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AsNoTrackingTestBase.cs" />
+    <Compile Include="BuiltInDataTypesFixtureBase.cs" />
+    <Compile Include="BuiltInDataTypesTestBase.cs" />
     <Compile Include="ExceptionInterceptionTest.cs" />
     <Compile Include="FixupTest.cs" />
     <Compile Include="Metadata\CompiledModelTest.cs" />
@@ -77,6 +79,8 @@
     <Compile Include="NorthwindAsyncQueryTestBase.cs" />
     <Compile Include="NorthwindQueryTestBase.cs" />
     <Compile Include="OptimisticConcurrencyTestBase.cs" />
+    <Compile Include="SupplementalBuiltInDataTypesFixtureBase.cs" />
+    <Compile Include="SupplementalBuiltInDataTypesTestBase.cs" />
     <Compile Include="TestStore.cs" />
     <Compile Include="TestFileLogger.cs" />
     <Compile Include="TestModels\ChangedChangingMonsterContext.cs" />
