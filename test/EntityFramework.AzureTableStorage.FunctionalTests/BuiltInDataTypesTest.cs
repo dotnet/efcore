@@ -4,7 +4,7 @@
 using Xunit;
 using Microsoft.Data.Entity.FunctionalTests;
 
-namespace Microsoft.Data.Entity.SQLite.FunctionalTests
+namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
 {
     public class BuiltInDataTypesTest : BuiltInDataTypesTestBase, IClassFixture<BuiltInDataTypesFixture>
     {
@@ -14,4 +14,3 @@ namespace Microsoft.Data.Entity.SQLite.FunctionalTests
         }
     }
 }
-

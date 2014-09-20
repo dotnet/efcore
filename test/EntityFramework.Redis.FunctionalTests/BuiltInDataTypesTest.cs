@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.Redis.FunctionalTests
     {
         public BuiltInDataTypesTest(BuiltInDataTypesFixture fixture)
         {
-            _context = fixture.CreateContext();
+            _fixture = fixture;
         }
     }
 }

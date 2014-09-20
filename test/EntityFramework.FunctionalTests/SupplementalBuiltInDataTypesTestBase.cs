@@ -26,7 +26,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
             var allDataTypes = _context.Set<SupplementalBuiltInNonNullableDataTypes>().Add(
                 new SupplementalBuiltInNonNullableDataTypes
                 {
-                    Id = 0,
+                    Id0 = 0,
+                    Id1 = 1,
                     TestUnsignedInt32 = 1234565789U,
                     TestUnsignedInt64 = 1234567890123456789UL,
                     TestUnsignedInt16 = 1234,
@@ -37,7 +38,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             var changes = _context.SaveChanges();
             Assert.Equal(1, changes);
 
-            var dt = _context.Set<SupplementalBuiltInNonNullableDataTypes>().Where(nndt => nndt.Id == 0).Single();
+            var dt = _context.Set<SupplementalBuiltInNonNullableDataTypes>().Where(nndt => nndt.Id0 == 0).Single();
 
             Assert.Equal(1234565789U, dt.TestUnsignedInt32);
             Assert.Equal(1234567890123456789UL, dt.TestUnsignedInt64);
@@ -52,7 +53,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
             var allDataTypes = _context.Set<SupplementalBuiltInNullableDataTypes>().Add(
                 new SupplementalBuiltInNullableDataTypes
                 {
-                    Id = 0,
+                    Id0 = 0,
+                    Id1 = 100,
                     TestNullableUnsignedInt32 = null,
                     TestNullableUnsignedInt64 = null,
                     TestNullableInt16 = null,
@@ -64,7 +66,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             var changes = _context.SaveChanges();
             Assert.Equal(1, changes);
 
-            var dt = _context.Set<SupplementalBuiltInNullableDataTypes>().Where(ndt => ndt.Id == 0).Single();
+            var dt = _context.Set<SupplementalBuiltInNullableDataTypes>().Where(ndt => ndt.Id0 == 0).Single();
 
             Assert.Null(dt.TestNullableUnsignedInt32);
             Assert.Null(dt.TestNullableUnsignedInt64);
@@ -80,7 +82,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
             var allDataTypes = _context.Set<SupplementalBuiltInNullableDataTypes>().Add(
                 new SupplementalBuiltInNullableDataTypes
                 {
-                    Id = 1,
+                    Id0 = 1,
+                    Id1 = 101,
                     TestNullableUnsignedInt32 = 1234565789U,
                     TestNullableUnsignedInt64 = 1234567890123456789UL,
                     TestNullableInt16 = -1234,
@@ -92,7 +95,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             var changes = _context.SaveChanges();
             Assert.Equal(1, changes);
 
-            var dt = _context.Set<SupplementalBuiltInNullableDataTypes>().Where(ndt => ndt.Id == 1).Single();
+            var dt = _context.Set<SupplementalBuiltInNullableDataTypes>().Where(ndt => ndt.Id0 == 1).Single();
 
             Assert.Equal(1234565789U, dt.TestNullableUnsignedInt32);
             Assert.Equal(1234567890123456789UL, dt.TestNullableUnsignedInt64);
