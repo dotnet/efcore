@@ -26,15 +26,16 @@ namespace Microsoft.Data.Entity.FunctionalTests
             var allDataTypes = _context.Set<BuiltInNonNullableDataTypes>().Add(
                 new BuiltInNonNullableDataTypes
                 {
-                    Id = 0,
+                    Id0 = 0,
+                    Id1 = 0,
                     TestInt32 = -123456789,
                     TestInt64 = -1234567890123456789L,
                     TestDouble = -1.23456789,
                     // TODO: SQL Server default precision is 18 (use max precision, 38, 
                     // when available but no way to define that in the model at the moment)
                     TestDecimal = -1234567890.012345678M,
-                    TestDateTime = new DateTime(123456789L),
-                    TestDateTimeOffset = new DateTimeOffset(987654321L, TimeSpan.FromHours(-8.0)),
+                    TestDateTime = DateTime.Parse("01/01/2000 12:34:56"),
+                    TestDateTimeOffset = new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)),
                     TestSingle = -1.234F,
                     TestBoolean = true,
                     TestByte = 255,
@@ -46,14 +47,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
             var changes = _context.SaveChanges();
             Assert.Equal(1, changes);
 
-            var dt = _context.Set<BuiltInNonNullableDataTypes>().Where(nndt => nndt.Id == 0).Single();
+            var dt = _context.Set<BuiltInNonNullableDataTypes>().Where(nndt => nndt.Id0 == 0).Single();
 
             Assert.Equal(-123456789, dt.TestInt32);
             Assert.Equal(-1234567890123456789L, dt.TestInt64);
             Assert.Equal(-1.23456789, dt.TestDouble);
             Assert.Equal(-1234567890.012345678M, dt.TestDecimal);
-            Assert.Equal(new DateTime(123456789L), dt.TestDateTime);
-            Assert.Equal(new DateTimeOffset(987654321L, TimeSpan.FromHours(-8.0)), dt.TestDateTimeOffset);
+            Assert.Equal(DateTime.Parse("01/01/2000 12:34:56"), dt.TestDateTime);
+            Assert.Equal(new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)), dt.TestDateTimeOffset);
             Assert.Equal(-1.234F, dt.TestSingle);
             Assert.Equal(true, dt.TestBoolean);
             Assert.Equal(255, dt.TestByte);
@@ -68,7 +69,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
             var allDataTypes = _context.Set<BuiltInNullableDataTypes>().Add(
                 new BuiltInNullableDataTypes
                 {
-                    Id = 0,
+                    Id0 = 100,
+                    Id1 = 100,
                     TestNullableInt32 = null,
                     TestString = null,
                     TestNullableInt64 = null,
@@ -85,9 +87,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
             var changes = _context.SaveChanges();
             Assert.Equal(1, changes);
 
-            var dt = _context.Set<BuiltInNullableDataTypes>().Where(ndt => ndt.Id == 0).Single();
+            var dt = _context.Set<BuiltInNullableDataTypes>().Where(ndt => ndt.Id0 == 100).Single();
 
             Assert.Null(dt.TestNullableInt32);
+            Assert.Null(dt.TestString);
             Assert.Null(dt.TestNullableInt64);
             Assert.Null(dt.TestNullableDouble);
             Assert.Null(dt.TestNullableDecimal);
@@ -105,7 +108,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
             var allDataTypes = _context.Set<BuiltInNullableDataTypes>().Add(
                 new BuiltInNullableDataTypes
                 {
-                    Id = 1,
+                    Id0 = 101,
+                    Id1 = 101,
                     TestNullableInt32 = -123456789,
                     TestString = "TestString",
                     TestNullableInt64 = -1234567890123456789L,
@@ -113,8 +117,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     // TODO: SQL Server default precision is 18 (use max precision, 38, 
                     // when available but no way to define that in the model at the moment)
                     TestNullableDecimal = -1234567890.012345678M,
-                    TestNullableDateTime = new DateTime(123456789L),
-                    TestNullableDateTimeOffset = new DateTimeOffset(987654321L, TimeSpan.FromHours(-8.0)),
+                    TestNullableDateTime = DateTime.Parse("01/01/2000 12:34:56"),
+                    TestNullableDateTimeOffset = new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)),
                     TestNullableSingle = -1.234F,
                     TestNullableBoolean = false,
                     TestNullableByte = 255,
@@ -124,15 +128,15 @@ namespace Microsoft.Data.Entity.FunctionalTests
             var changes = _context.SaveChanges();
             Assert.Equal(1, changes);
 
-            var dt = _context.Set<BuiltInNullableDataTypes>().Where(ndt => ndt.Id == 1).Single();
+            var dt = _context.Set<BuiltInNullableDataTypes>().Where(ndt => ndt.Id0 == 101).Single();
 
             Assert.Equal(-123456789, dt.TestNullableInt32);
             Assert.Equal("TestString", dt.TestString);
             Assert.Equal(-1234567890123456789L, dt.TestNullableInt64);
             Assert.Equal(-1.23456789, dt.TestNullableDouble);
             Assert.Equal(-1234567890.012345678M, dt.TestNullableDecimal);
-            Assert.Equal(new DateTime(123456789L), dt.TestNullableDateTime);
-            Assert.Equal(new DateTimeOffset(987654321L, TimeSpan.FromHours(-8.0)), dt.TestNullableDateTimeOffset);
+            Assert.Equal(DateTime.Parse("01/01/2000 12:34:56"), dt.TestNullableDateTime);
+            Assert.Equal(new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)), dt.TestNullableDateTimeOffset);
             Assert.Equal(-1.234F, dt.TestNullableSingle);
             Assert.Equal(false, dt.TestNullableBoolean);
             Assert.Equal((byte)255, dt.TestNullableByte);

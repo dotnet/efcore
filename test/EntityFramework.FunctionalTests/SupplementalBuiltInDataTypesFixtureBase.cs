@@ -25,7 +25,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
             var builder = new BasicModelBuilder(model);
             builder.Entity<SupplementalBuiltInNonNullableDataTypes>(b =>
                 {
-                    b.Key(dt => dt.Id);
+                    b.Key(dt => dt.Id0);
+                    // having 2 non-null properies is needed for Azure Table Storage (and should be supported by all other providers)
+                    b.Property(dt => dt.Id0);
+                    b.Property(dt => dt.Id1);
                     b.Property(dt => dt.TestUnsignedInt32);
                     b.Property(dt => dt.TestUnsignedInt64);
                     b.Property(dt => dt.TestUnsignedInt16);
@@ -35,7 +38,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             builder.Entity<SupplementalBuiltInNullableDataTypes>(b =>
             {
-                b.Key(dt => dt.Id);
+                b.Key(dt => dt.Id0);
+                // having 2 non-null properies is needed for Azure Table Storage (and should be supported by all other providers)
+                b.Property(dt => dt.Id0);
+                b.Property(dt => dt.Id1);
                 b.Property(dt => dt.TestNullableUnsignedInt32);
                 b.Property(dt => dt.TestNullableUnsignedInt64);
                 b.Property(dt => dt.TestNullableInt16);
@@ -50,7 +56,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
     public class SupplementalBuiltInNonNullableDataTypes
     {
-        public int Id { get; set; }
+        public int Id0 { get; set; }
+        public int Id1 { get; set; }
         public uint TestUnsignedInt32 { get; set; }
         public ulong TestUnsignedInt64 { get; set; }
         public ushort TestUnsignedInt16 { get; set; }
@@ -60,7 +67,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
     public class SupplementalBuiltInNullableDataTypes
     {
-        public int Id { get; set; }
+        public int Id0 { get; set; }
+        public int Id1 { get; set; }
         public uint? TestNullableUnsignedInt32 { get; set; }
         public ulong? TestNullableUnsignedInt64 { get; set; }
         public short? TestNullableInt16 { get; set; }
