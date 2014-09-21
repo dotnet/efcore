@@ -72,6 +72,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AsNoTrackingTest.cs" />
+    <Compile Include="DataTypesFixture.cs" />
+    <Compile Include="DataTypesTest.cs" />
     <Compile Include="NorthwindQueryFixture.cs" />
     <Compile Include="NorthwindQueryTest.cs" />
     <Compile Include="RedisTestConfig.cs" />
