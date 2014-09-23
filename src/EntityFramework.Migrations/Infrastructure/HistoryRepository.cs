@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
@@ -15,8 +14,6 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 {
     public class HistoryRepository
     {
-        internal static readonly string ProductVersion = typeof(HistoryRepository).GetTypeInfo().Assembly.GetInformationalVersion();
-
         private readonly DbContextConfiguration _contextConfiguration;
         private IModel _historyModel;
         private DbContextOptions _contextOptions;
@@ -72,7 +69,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 historyContext.Set<HistoryRow>()
                     .Where(h => h.ContextKey == GetContextKey())
                     .OrderBy(h => h.MigrationId)
-                    .Select(h => new MigrationMetadata(h.MigrationId));
+                    .Select(h => new MigrationMetadata(h.MigrationId, h.ProductVersion));
         }
 
         public virtual IReadOnlyList<SqlStatement> GenerateInsertMigrationSql(
@@ -99,7 +96,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 .Append(", ")
                 .Append(sqlGenerator.GenerateLiteral(GetContextKey()))
                 .Append(", ")
-                .Append(sqlGenerator.GenerateLiteral(ProductVersion))
+                .Append(sqlGenerator.GenerateLiteral(migration.ProductVersion))
                 .Append(")");
 
             return new[] { new SqlStatement(stringBuilder.ToString()) };

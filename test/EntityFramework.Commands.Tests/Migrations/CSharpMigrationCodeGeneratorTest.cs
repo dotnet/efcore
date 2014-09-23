@@ -488,7 +488,7 @@ namespace MyNamespace
             model.AddEntityType(entityType);
 
             var migration
-                = new MigrationMetadata("000000000000001_Name")
+                = new MigrationMetadata("000000000000001_Name", "1.2.3.4")
                     {
                         TargetModel = model
                     };
@@ -514,6 +514,14 @@ namespace MyNamespace
             get
             {
                 return ""000000000000001_Name"";
+            }
+        }
+        
+        string IMigrationMetadata.ProductVersion
+        {
+            get
+            {
+                return ""1.2.3.4"";
             }
         }
         

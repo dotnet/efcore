@@ -142,6 +142,16 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                     stringBuilder.AppendLine().AppendLine();
 
                     GenerateMigrationProperty(
+                        "string IMigrationMetadata.ProductVersion",
+                        () => stringBuilder
+                            .Append("return ")
+                            .Append(GenerateLiteral(migration.ProductVersion))
+                            .Append(";"),
+                        stringBuilder);
+
+                    stringBuilder.AppendLine().AppendLine();
+
+                    GenerateMigrationProperty(
                         "IModel IMigrationMetadata.TargetModel",
                         () => ModelCodeGenerator.Generate(migration.TargetModel, stringBuilder),
                         stringBuilder);

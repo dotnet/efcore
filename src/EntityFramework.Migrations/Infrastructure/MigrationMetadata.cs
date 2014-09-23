@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Model;
@@ -12,11 +13,20 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 {
     public class MigrationMetadata : IMigrationMetadata
     {
+        internal static readonly string CurrentProductVersion = typeof(HistoryRepository).GetTypeInfo().Assembly.GetInformationalVersion();
+
         private readonly string _migrationId;
+        private readonly string _productVersion;
 
         public MigrationMetadata([NotNull] string migrationId)
+            : this(migrationId, CurrentProductVersion)
+        {
+        }
+
+        public MigrationMetadata([NotNull] string migrationId, [NotNull] string productVersion)
         {
             Check.NotEmpty(migrationId, "migrationId");
+            Check.NotEmpty(productVersion, "productVersion");
 
             if (!MigrationMetadataExtensions.IsValidMigrationId(migrationId))
             {
@@ -24,11 +34,17 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             }
 
             _migrationId = migrationId;
+            _productVersion = productVersion;
         }
 
         public virtual string MigrationId
         {
             get { return _migrationId; }
+        }
+
+        public virtual string ProductVersion
+        {
+            get { return _productVersion; }
         }
 
         public virtual IModel TargetModel { get; [param: NotNull] set; }

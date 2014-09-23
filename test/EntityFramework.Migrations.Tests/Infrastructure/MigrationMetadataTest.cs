@@ -25,6 +25,29 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     };
 
             Assert.Equal("000000000000001_Name", migration.MigrationId);
+            Assert.Equal(MigrationMetadata.CurrentProductVersion, migration.ProductVersion);
+            Assert.Same(targetModel, migration.TargetModel);
+            Assert.Same(upgradeOperations, migration.UpgradeOperations);
+            Assert.Same(downgradeOperations, migration.DowngradeOperations);            
+        }
+
+        [Fact]
+        public void Create_migration_metadata_with_product_version()
+        {
+            var targetModel = new Metadata.Model();
+            var upgradeOperations = new MigrationOperation[0];
+            var downgradeOperations = new MigrationOperation[0];
+
+            var migration
+                = new MigrationMetadata("000000000000001_Name", "1.2.3.4")
+                {
+                    TargetModel = targetModel,
+                    UpgradeOperations = upgradeOperations,
+                    DowngradeOperations = downgradeOperations,
+                };
+
+            Assert.Equal("000000000000001_Name", migration.MigrationId);
+            Assert.Equal("1.2.3.4", migration.ProductVersion);
             Assert.Same(targetModel, migration.TargetModel);
             Assert.Same(upgradeOperations, migration.UpgradeOperations);
             Assert.Same(downgradeOperations, migration.DowngradeOperations);

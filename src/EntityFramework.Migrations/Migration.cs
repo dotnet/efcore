@@ -22,6 +22,11 @@ namespace Microsoft.Data.Entity.Migrations
             get { throw new NotImplementedException(); }
         }
 
+        string IMigrationMetadata.ProductVersion
+        {
+            get { throw new NotImplementedException(); }
+        }
+
         IModel IMigrationMetadata.TargetModel
         {
             get { throw new NotImplementedException(); }

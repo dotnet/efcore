@@ -135,6 +135,14 @@ namespace MyNamespace
             }
         }
         
+        string IMigrationMetadata.ProductVersion
+        {
+            get
+            {
+                return ""1.2.3.4"";
+            }
+        }
+        
         IModel IMigrationMetadata.TargetModel
         {
             get
@@ -225,6 +233,14 @@ namespace MyNamespace
             get
             {
                 return ""000000000000001_MyMigration"";
+            }
+        }
+        
+        string IMigrationMetadata.ProductVersion
+        {
+            get
+            {
+                return ""1.2.3.4"";
             }
         }
         
@@ -363,6 +379,14 @@ namespace MyNamespace
             get
             {
                 return ""000000000000001_MyMigration"";
+            }
+        }
+        
+        string IMigrationMetadata.ProductVersion
+        {
+            get
+            {
+                return ""1.2.3.4"";
             }
         }
         
@@ -564,6 +588,14 @@ namespace MyNamespace
             get
             {
                 return ""000000000000001_MyMigration"";
+            }
+        }
+        
+        string IMigrationMetadata.ProductVersion
+        {
+            get
+            {
+                return ""1.2.3.4"";
             }
         }
         
@@ -865,6 +897,19 @@ namespace MyNamespace
             protected override string CreateMigrationId(string migrationName)
             {
                 return "000000000000001_" + migrationName;
+            }
+
+            protected override IMigrationMetadata CreateMigration(string migrationName)
+            {
+                var migration = base.CreateMigration(migrationName);
+
+                return
+                    new MigrationMetadata(migration.MigrationId, "1.2.3.4")
+                        {
+                            TargetModel = migration.TargetModel,
+                            UpgradeOperations = migration.UpgradeOperations,
+                            DowngradeOperations = migration.DowngradeOperations
+                        };
             }
 
             public override ScaffoldedMigration ScaffoldMigration(string migrationName)

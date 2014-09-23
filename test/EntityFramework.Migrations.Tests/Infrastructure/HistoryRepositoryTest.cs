@@ -86,7 +86,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
 
                     Assert.Equal("Select", expression.Method.Name);
                     Assert.Equal(
-                        "h => new MigrationMetadata(h.MigrationId)", 
+                        "h => new MigrationMetadata(h.MigrationId, h.ProductVersion)", 
                         expression.Arguments[1].ToString());
 
                     expression = (MethodCallExpression)expression.Arguments[0];
@@ -152,7 +152,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                 Assert.Equal(1, sqlStatements.Count);
                 Assert.Equal(string.Format(
                     @"INSERT INTO ""__MigrationHistory"" (""MigrationId"", ""ContextKey"", ""ProductVersion"") VALUES ('000000000000001_Foo', 'Microsoft.Data.Entity.Migrations.Tests.Infrastructure.HistoryRepositoryTest+Context', '{0}')", 
-                    HistoryRepository.ProductVersion), sqlStatements[0].Sql);
+                    MigrationMetadata.CurrentProductVersion), sqlStatements[0].Sql);
             }
         }
 
@@ -171,7 +171,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                 Assert.Equal(1, sqlStatements.Count);
                 Assert.Equal(string.Format(
                     @"INSERT INTO ""__MigrationHistory"" (""MigrationId"", ""ContextKey"", ""ProductVersion"") VALUES ('000000000000001_Foo', 'SomeContextKey', '{0}')",
-                    HistoryRepository.ProductVersion), sqlStatements[0].Sql);
+                    MigrationMetadata.CurrentProductVersion), sqlStatements[0].Sql);
             }
         }
 

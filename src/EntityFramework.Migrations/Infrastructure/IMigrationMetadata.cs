@@ -10,6 +10,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
     public interface IMigrationMetadata
     {
         string MigrationId { get; }
+        string ProductVersion { get; }
         IModel TargetModel { get; }
         IReadOnlyList<MigrationOperation> UpgradeOperations { get; }
         IReadOnlyList<MigrationOperation> DowngradeOperations { get; }
