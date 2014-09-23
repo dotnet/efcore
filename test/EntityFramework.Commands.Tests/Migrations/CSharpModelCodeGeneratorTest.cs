@@ -621,7 +621,7 @@ return builder.Model;",
             builder.Entity<Customer>(b =>
             {
                 b.Key(e => e.Id);
-                b.Property(e => e.Id).Metadata.ValueGeneration = ValueGeneration.OnAdd;
+                b.Property(e => e.Id).GenerateValuesOnAdd();
             });
 
             var stringBuilder = new IndentedStringBuilder();
@@ -632,8 +632,8 @@ return builder.Model;",
 
 builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Customer"", b =>
     {
-        b.Property<int>(""Id"");
-        b.Property<int>(""Id"").Metadata.ValueGeneration = ValueGeneration.OnAdd;
+        b.Property<int>(""Id"")
+            .GenerateValuesOnAdd();
         b.Key(""Id"");
     });
 

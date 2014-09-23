@@ -26,5 +26,15 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             Metadata.IsShadowProperty = isShadowProperty;
         }
+
+        public virtual void GenerateValuesOnAdd(bool generateValues = true)
+        {
+            Metadata.ValueGeneration = generateValues ? ValueGeneration.OnAdd : ValueGeneration.None;
+        }
+
+        public virtual void StoreComputed(bool computed = true)
+        {
+            Metadata.ValueGeneration = computed ? ValueGeneration.OnAddAndUpdate : ValueGeneration.None;
+        }
     }
 }

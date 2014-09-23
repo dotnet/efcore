@@ -214,16 +214,44 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<TBarcodeDetail>().Key(e => e.Code);
-            modelBuilder.Entity<TResolution>();
+
+            // TODO: Key should not get by-convention value generation if it is dependent of identifying relationship
+            modelBuilder.Entity<TResolution>()
+                .Property(e => e.ResolutionId)
+                .GenerateValuesOnAdd(false);
+
             modelBuilder.Entity<TSuspiciousActivity>();
             modelBuilder.Entity<TLastLogin>().Key(e => e.Username);
             modelBuilder.Entity<TMessage>().Key(e => new { e.MessageId, e.FromUsername });
-            modelBuilder.Entity<TOrderNote>().Key(e => e.NoteId);
+
+            modelBuilder.Entity<TOrderNote>(b =>
+                {
+                    b.Key(e => e.NoteId);
+                    // TODO: Key should get by-convention value generation even if key is not discovered by convention
+                    b.Property(e => e.NoteId).GenerateValuesOnAdd();
+                });
+            
             modelBuilder.Entity<TProductDetail>().Key(e => e.ProductId);
-            modelBuilder.Entity<TProductWebFeature>().Key(e => e.FeatureId);
+
+            modelBuilder.Entity<TProductWebFeature>(b =>
+                {
+                    b.Key(e => e.FeatureId);
+                    // TODO: Key should get by-convention value generation even if key is not discovered by convention
+                    b.Property(e => e.FeatureId).GenerateValuesOnAdd();
+                });
+            
             modelBuilder.Entity<TSupplierLogo>().Key(e => e.SupplierId);
-            modelBuilder.Entity<TCustomerInfo>();
-            modelBuilder.Entity<TComputerDetail>();
+
+            // TODO: Key should not get by-convention value generation if it is dependent of identifying relationship
+            modelBuilder.Entity<TCustomerInfo>()
+                .Property(e => e.CustomerInfoId)
+                .GenerateValuesOnAdd(false);
+
+            // TODO: Key should not get by-convention value generation if it is dependent of identifying relationship
+            modelBuilder.Entity<TComputerDetail>()
+                .Property(e => e.ComputerDetailId)
+                .GenerateValuesOnAdd(false);
+            
             modelBuilder.Entity<TLicense>().Key(e => e.Name);
 
             modelBuilder.Entity<TAnOrder>(b =>
@@ -307,6 +335,8 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             modelBuilder.Entity<TProductPhoto>(b =>
             {
                 b.Key(e => new { e.ProductId, e.PhotoId });
+                // TODO: Key should get by-convention value generation even if key is not discovered by convention
+                b.Property(e => e.PhotoId).GenerateValuesOnAdd();
 
                 b.OneToMany(e => (IEnumerable<TProductWebFeature>)e.Features, e => (TProductPhoto)e.Photo)
                     .ForeignKey(e => new { e.ProductId, e.PhotoId })
@@ -316,6 +346,8 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             modelBuilder.Entity<TProductReview>(b =>
             {
                 b.Key(e => new { e.ProductId, e.ReviewId });
+                // TODO: Key should get by-convention value generation even if key is not discovered by convention
+                b.Property(e => e.ReviewId).GenerateValuesOnAdd();
 
                 b.OneToMany(e => (IEnumerable<TProductWebFeature>)e.Features, e => (TProductReview)e.Review)
                     .ForeignKey(e => new { e.ProductId, e.ReviewId });
@@ -411,32 +443,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             //modelBuilder.Entity<TBackOrderLine>().ForeignKeys(fk => fk.ForeignKey<TSupplier>(e => e.SupplierId));
             //modelBuilder.Entity<TDiscontinuedProduct>().ForeignKeys(fk => fk.ForeignKey<TProduct>(e => e.ReplacementProductId));
             //modelBuilder.Entity<TProductPageView>().ForeignKeys(fk => fk.ForeignKey<TProduct>(e => e.ProductId));
-
-            var model = modelBuilder.Model;
-
-            // TODO: Key should get by-convention value generation even if key is not discovered by convention
-            var noteId = model.GetEntityType(typeof(TOrderNote)).GetProperty("NoteId");
-            noteId.ValueGeneration = ValueGeneration.OnAdd;
-
-            var featureId = model.GetEntityType(typeof(TProductWebFeature)).GetProperty("FeatureId");
-            featureId.ValueGeneration = ValueGeneration.OnAdd;
-
-            // TODO: Should key get by-convention value generation even if part of composite key?
-            var reviewId = model.GetEntityType(typeof(TProductReview)).GetProperty("ReviewId");
-            reviewId.ValueGeneration = ValueGeneration.OnAdd;
-
-            var photoId = model.GetEntityType(typeof(TProductPhoto)).GetProperty("PhotoId");
-            photoId.ValueGeneration = ValueGeneration.OnAdd;
-
-            // TODO: Key should not get by-convention value generation if it is dependent of identifying relationship
-            var detailId = model.GetEntityType(typeof(TComputerDetail)).GetProperty("ComputerDetailId");
-            detailId.ValueGeneration = ValueGeneration.None;
-
-            var resolutionId = model.GetEntityType(typeof(TResolution)).GetProperty("ResolutionId");
-            resolutionId.ValueGeneration = ValueGeneration.None;
-
-            var customerId = model.GetEntityType(typeof(TCustomerInfo)).GetProperty("CustomerInfoId");
-            customerId.ValueGeneration = ValueGeneration.None;
 
             if (_onModelCreating != null)
             {

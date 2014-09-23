@@ -322,6 +322,20 @@ namespace Microsoft.Data.Entity.Metadata
 
                     return this;
                 }
+
+                public virtual PropertyBuilder GenerateValuesOnAdd(bool generateValues = true)
+                {
+                    Builder.GenerateValuesOnAdd(generateValues);
+
+                    return this;
+                }
+
+                public virtual PropertyBuilder StoreComputed(bool computed = true)
+                {
+                    Builder.StoreComputed(computed);
+
+                    return this;
+                }
             }
 
             public class ForeignKeyBuilder : IForeignKeyBuilder<ForeignKeyBuilder>

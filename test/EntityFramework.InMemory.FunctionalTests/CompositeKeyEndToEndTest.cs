@@ -186,21 +186,19 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 modelBuilder.Entity<Pegasus>().Key(e => new { e.Id1, e.Id2 });
-                modelBuilder.Entity<Unicorn>().Key(e => new { e.Id1, e.Id2, e.Id3 });
-                modelBuilder.Entity<EarthPony>().Key(e => new { e.Id1, e.Id2 });
 
-                var unicornType = modelBuilder.Model.GetEntityType(typeof(Unicorn));
+                modelBuilder.Entity<Unicorn>(b =>
+                    {
+                        b.Key(e => new { e.Id1, e.Id2, e.Id3 });
+                        b.Property(e => e.Id1).GenerateValuesOnAdd();
+                        b.Property(e => e.Id3).GenerateValuesOnAdd();
+                    });
 
-                var id1 = unicornType.GetProperty("Id1");
-                id1.ValueGeneration = ValueGeneration.OnAdd;
-
-                var id3 = unicornType.GetProperty("Id3");
-                id3.ValueGeneration = ValueGeneration.OnAdd;
-
-                var earthType = modelBuilder.Model.GetEntityType(typeof(EarthPony));
-
-                var id = earthType.GetProperty("Id1");
-                id.ValueGeneration = ValueGeneration.OnAdd;
+                modelBuilder.Entity<EarthPony>(b =>
+                    {
+                        b.Key(e => new { e.Id1, e.Id2 });
+                        b.Property(e => e.Id1).GenerateValuesOnAdd();
+                    });
             }
         }
 

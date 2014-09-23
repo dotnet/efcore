@@ -28,7 +28,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel
             //builder.ComplexType<Location>();
             modelBuilder.Entity<Chassis>(b =>
                 {
-                    b.Property(e => e.Version).ConcurrencyToken();
+                    b.Property(e => e.Version)
+                        .StoreComputed()
+                        .ConcurrencyToken();
                 });
 
             modelBuilder.Entity<Driver>(b =>
@@ -42,7 +44,10 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel
                     b.Property(d => d.Races);
                     b.Property(d => d.TeamId);
                     b.Property(d => d.Wins);
-                    b.Property(e => e.Version).ConcurrencyToken();
+
+                    b.Property(e => e.Version)
+                        .StoreComputed()
+                        .ConcurrencyToken();
                 });
 
             modelBuilder.Entity<Engine>(b =>
@@ -82,7 +87,10 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel
             modelBuilder.Entity<Sponsor>(b =>
                 {
                     b.Property(s => s.Name);
-                    b.Property(e => e.Version).ConcurrencyToken();
+
+                    b.Property(e => e.Version)
+                        .StoreComputed()
+                        .ConcurrencyToken();
                 });
 
             // TODO: Complex type
@@ -96,6 +104,8 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel
 
             modelBuilder.Entity<Team>(b =>
                 {
+                    // TODO: Remove once temporary keys can be overridden
+                    b.Property(t => t.Id).GenerateValuesOnAdd(false);
                     b.Property(t => t.Constructor);
                     b.Property(t => t.ConstructorsChampionships);
                     b.Property(t => t.DriversChampionships);
@@ -107,7 +117,11 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel
                     b.Property(t => t.Principal);
                     b.Property(t => t.Races);
                     b.Property(t => t.Tire);
-                    b.Property(t => t.Version).ConcurrencyToken();
+                    
+                    b.Property(t => t.Version)
+                        .StoreComputed()
+                        .ConcurrencyToken();
+
                     b.Property(t => t.Victories);
                     b.OneToMany(e => e.Drivers, e => e.Team);
                     b.OneToOne(e => e.Gearbox).ForeignKey<Team>(e => e.GearboxId);
@@ -120,21 +134,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel
             // .Property(t => t.Details);
 
             // TODO: Sponsor * <-> * Team
-
-            // TODO: Remove once temporary keys can be overridden
-            var teamType = model.GetEntityType(typeof(Team));
-
-            teamType.GetProperty("Id").ValueGeneration = ValueGeneration.None;
-
-            // TODO: Remove when FAPI supports this
-            var chassisType = model.GetEntityType(typeof(Chassis));
-            var driverType = model.GetEntityType(typeof(Driver));
-            var sponsorType = model.GetEntityType(typeof(Sponsor));
-
-            chassisType.GetProperty("Version").ValueGeneration = ValueGeneration.OnAddAndUpdate;
-            driverType.GetProperty("Version").ValueGeneration = ValueGeneration.OnAddAndUpdate;
-            teamType.GetProperty("Version").ValueGeneration = ValueGeneration.OnAddAndUpdate;
-            sponsorType.GetProperty("Version").ValueGeneration = ValueGeneration.OnAddAndUpdate;
 
             return modelBuilder;
         }

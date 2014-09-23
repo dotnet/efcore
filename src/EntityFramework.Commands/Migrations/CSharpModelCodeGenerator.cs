@@ -214,23 +214,23 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                         .Append(".ConcurrencyToken()");
                 }
 
+                if (property.ValueGeneration == ValueGeneration.OnAdd)
+                {
+                    stringBuilder
+                        .AppendLine()
+                        .Append(".GenerateValuesOnAdd()");
+                }
+                else if (property.ValueGeneration == ValueGeneration.OnAddAndUpdate)
+                {
+                    stringBuilder
+                        .AppendLine()
+                        .Append(".StoreComputed()");
+                }
+
                 GeneratePropertyAnnotations(property, stringBuilder);
             }
 
             stringBuilder.Append(";");
-
-            if (property.ValueGeneration != ValueGeneration.None)
-            {
-                stringBuilder
-                    .AppendLine()
-                    .Append("b.Property<")
-                    .Append(property.PropertyType.GetTypeName())
-                    .Append(">(")
-                    .Append(DelimitString(property.Name))
-                    .Append(").Metadata.ValueGeneration = ValueGeneration.")
-                    .Append(property.ValueGeneration.ToString("G"))
-                    .Append(";");
-            }
         }
 
         protected virtual void GeneratePropertyAnnotations([NotNull] IProperty property, [NotNull] IndentedStringBuilder stringBuilder)

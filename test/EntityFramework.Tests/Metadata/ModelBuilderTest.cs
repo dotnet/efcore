@@ -529,6 +529,62 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
+        public void Properties_can_be_set_to_generate_values_on_Add()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+
+            modelBuilder.Entity<Quarks>(b =>
+            {
+                b.Property(e => e.Id).GenerateValuesOnAdd(false);
+                b.Property(e => e.Up).GenerateValuesOnAdd();
+                b.Property(e => e.Down).GenerateValuesOnAdd(true);
+                b.Property<int>("Charm").GenerateValuesOnAdd();
+                b.Property<string>("Strange").GenerateValuesOnAdd(false);
+                b.Property(typeof(int), "Top").GenerateValuesOnAdd();
+                b.Property(typeof(string), "Bottom").GenerateValuesOnAdd(false);
+            });
+
+            var entityType = model.GetEntityType(typeof(Quarks));
+
+            Assert.Equal(ValueGeneration.None, entityType.GetProperty("Id").ValueGeneration);
+            Assert.Equal(ValueGeneration.OnAdd, entityType.GetProperty("Up").ValueGeneration);
+            Assert.Equal(ValueGeneration.OnAdd, entityType.GetProperty("Down").ValueGeneration);
+            Assert.Equal(ValueGeneration.OnAdd, entityType.GetProperty("Charm").ValueGeneration);
+            Assert.Equal(ValueGeneration.None, entityType.GetProperty("Strange").ValueGeneration);
+            Assert.Equal(ValueGeneration.OnAdd, entityType.GetProperty("Top").ValueGeneration);
+            Assert.Equal(ValueGeneration.None, entityType.GetProperty("Bottom").ValueGeneration);
+        }
+
+        [Fact]
+        public void Properties_can_be_set_to_be_store_computed()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+
+            modelBuilder.Entity<Quarks>(b =>
+            {
+                b.Property(e => e.Id);
+                b.Property(e => e.Up).StoreComputed();
+                b.Property(e => e.Down).StoreComputed(false);
+                b.Property<int>("Charm").StoreComputed();
+                b.Property<string>("Strange").StoreComputed(false);
+                b.Property(typeof(int), "Top").StoreComputed();
+                b.Property(typeof(string), "Bottom").StoreComputed(false);
+            });
+
+            var entityType = model.GetEntityType(typeof(Quarks));
+
+            Assert.Equal(ValueGeneration.OnAdd, entityType.GetProperty("Id").ValueGeneration);
+            Assert.Equal(ValueGeneration.OnAddAndUpdate, entityType.GetProperty("Up").ValueGeneration);
+            Assert.Equal(ValueGeneration.None, entityType.GetProperty("Down").ValueGeneration);
+            Assert.Equal(ValueGeneration.OnAddAndUpdate, entityType.GetProperty("Charm").ValueGeneration);
+            Assert.Equal(ValueGeneration.None, entityType.GetProperty("Strange").ValueGeneration);
+            Assert.Equal(ValueGeneration.OnAddAndUpdate, entityType.GetProperty("Top").ValueGeneration);
+            Assert.Equal(ValueGeneration.None, entityType.GetProperty("Bottom").ValueGeneration);
+        }
+
+        [Fact]
         public void PropertyBuilder_methods_can_be_chained()
         {
             new ModelBuilder()
@@ -538,6 +594,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .Annotation("A", "V")
                 .ConcurrencyToken()
                 .Shadow()
+                .StoreComputed()
+                .GenerateValuesOnAdd()
                 .Required();
         }
 

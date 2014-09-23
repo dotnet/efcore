@@ -243,13 +243,21 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var model = modelBuilder.Model;
 
-                modelBuilder.Entity<Product>().OneToMany(e => e.SpecialOffers, e => e.Product);
-                modelBuilder.Entity<Category>().OneToMany(e => e.Products, e => e.Category);
-                modelBuilder.Entity<SpecialOffer>();
+                modelBuilder.Entity<Product>(b =>
+                    {
+                        b.Property(e => e.Id).GenerateValuesOnAdd(false);
+                        b.OneToMany(e => e.SpecialOffers, e => e.Product);
+                    });
 
-                model.GetEntityType(typeof(Category)).GetProperty("Id").ValueGeneration = ValueGeneration.None;
-                model.GetEntityType(typeof(Product)).GetProperty("Id").ValueGeneration = ValueGeneration.None;
-                model.GetEntityType(typeof(SpecialOffer)).GetProperty("Id").ValueGeneration = ValueGeneration.None;
+                modelBuilder.Entity<Category>(b =>
+                    {
+                        b.Property(e => e.Id).GenerateValuesOnAdd(false);
+                        b.OneToMany(e => e.Products, e => e.Category);
+                    });
+
+                modelBuilder.Entity<SpecialOffer>()
+                    .Property(e => e.Id)
+                    .GenerateValuesOnAdd(false);
             }
 
             protected override void OnConfiguring(DbContextOptions options)

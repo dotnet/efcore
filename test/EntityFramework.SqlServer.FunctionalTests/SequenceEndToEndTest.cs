@@ -213,7 +213,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 modelBuilder.Entity<Pegasus>(b =>
                     {
                         b.Key(e => e.Identifier);
-                        b.Property(e => e.Identifier).Metadata.ValueGeneration = ValueGeneration.OnAdd;
+                        b.Property(e => e.Identifier).GenerateValuesOnAdd();
                     });
             }
         }
