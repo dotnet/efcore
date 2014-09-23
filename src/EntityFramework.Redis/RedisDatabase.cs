@@ -43,6 +43,12 @@ namespace Microsoft.Data.Entity.Redis
         private const string DataHashNameFormat = // 1st arg is EntityType, 2nd is value of the PK
             DataPrefix + "{0}" + KeyNameSeparator + "{1}";
 
+        private const string ValueGeneratorPrefix =
+            EntityFrameworkPrefix + "ValueGenerator" + KeyNameSeparator;
+
+        private const string ValueGeneratorKeyNameFormat = // 1st arg is EntityType, 2nd is name of the property
+            ValueGeneratorPrefix + "{0}" + KeyNameSeparator + "{1}";
+
         private static readonly ConcurrentDictionary<string, ConnectionMultiplexer> _connectionMultiplexers 
             = new ConcurrentDictionary<string, ConnectionMultiplexer>(); // key = ConfigurationOptions.ToString()
 
@@ -288,6 +294,14 @@ namespace Microsoft.Data.Entity.Redis
                 DataHashNameFormat, Escape(entityType.SimpleName), compositePrimaryKeyValues);
         }
 
+        public static string ConstructRedisValueGeneratorKeyName([NotNull] IProperty property)
+        {
+            Check.NotNull(property, "property");
+
+            return string.Format(CultureInfo.InvariantCulture,
+                ValueGeneratorKeyNameFormat, Escape(property.EntityType.SimpleName), Escape(property.Name));
+        }
+
         private static string ConstructKeyValue(
             StateEntry stateEntry, Func<StateEntry, IProperty, object> propertyValueSelector)
         {
@@ -352,9 +366,28 @@ namespace Microsoft.Data.Entity.Redis
             return results;
         }
 
+        /// <summary>
+        ///     Get the next generated value for the given property
+        /// </summary>
+        /// <param name="property">the property for which to get the next generated value</param>
+        /// <param name="incrementBy">when getting blocks of values, set this to the block size, otherwise use 1</param>
+        /// <param name="sequenceName">the name under which the generated sequence is kept on the underlying database, can be null to use default name</param>
+        /// <returns>The next generated value</returns>
+        public virtual long GetNextGeneratedValue([NotNull] IProperty property, long incrementBy, [CanBeNull] string sequenceName)
+        {
+            if (sequenceName == null)
+            {
+                sequenceName = ConstructRedisValueGeneratorKeyName(property);
+            }
+
+            // INCRBY
+            return GetUnderlyingDatabase().StringIncrement(sequenceName, incrementBy);
+        }
+
         private static string EncodeKeyValue([NotNull] object propertyValue)
         {
             Check.NotNull(propertyValue, "propertyValue");
+
             return Escape(Convert.ToString(propertyValue));
         }
 
