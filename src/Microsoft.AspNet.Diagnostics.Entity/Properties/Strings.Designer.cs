@@ -237,17 +237,17 @@ namespace Microsoft.AspNet.Diagnostics.Entity
         /// <summary>
         /// Applying existing migrations for {0} may resolve this issue
         /// </summary>
-        internal static string DatabaseErrorPage_Title
+        internal static string DatabaseErrorPage_PendingMigrationsTitle
         {
-            get { return GetString("DatabaseErrorPage_Title"); }
+            get { return GetString("DatabaseErrorPage_PendingMigrationsTitle"); }
         }
 
         /// <summary>
         /// Applying existing migrations for {0} may resolve this issue
         /// </summary>
-        internal static string FormatDatabaseErrorPage_Title(object p0)
+        internal static string FormatDatabaseErrorPage_PendingMigrationsTitle(object p0)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("DatabaseErrorPage_Title"), p0);
+            return string.Format(CultureInfo.CurrentCulture, GetString("DatabaseErrorPage_PendingMigrationsTitle"), p0);
         }
 
         /// <summary>

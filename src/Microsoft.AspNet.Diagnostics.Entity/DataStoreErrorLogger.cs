@@ -22,7 +22,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity
         private const string ContextName = "__DataStoreErrorLog";
 #endif
 
-        public DataStoreErrorLog LastError
+        public virtual DataStoreErrorLog LastError
         {
             get
             {
@@ -34,7 +34,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity
             }
         }
 
-        public void StartLoggingForCurrentCallContext()
+        public virtual void StartLoggingForCurrentCallContext()
         {
             // Because CallContext is cloned at each async operation we cannot
             // lazily create the error object when an error is encountered, otherwise
@@ -48,7 +48,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity
 #endif
         }
 
-        public bool WriteCore(TraceType eventType, int eventId, [CanBeNull] object state, [CanBeNull] Exception exception, [CanBeNull] Func<object, Exception, string> formatter)
+        public virtual bool WriteCore(TraceType eventType, int eventId, [CanBeNull] object state, [CanBeNull] Exception exception, [CanBeNull] Func<object, Exception, string> formatter)
         {
             var errorState = state as DataStoreErrorLogState;
             if (errorState != null && exception != null && LastError != null)
@@ -59,7 +59,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity
             return true;
         }
 
-        public IDisposable BeginScope(object state)
+        public virtual IDisposable BeginScope(object state)
         {
             return NullScope.Instance;
         }
@@ -77,7 +77,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity
             private Type _contextType;
             private Exception _exception;
 
-            public void SetError([NotNull] Type contextType, [NotNull] Exception exception)
+            public virtual void SetError([NotNull] Type contextType, [NotNull] Exception exception)
             {
                 Check.NotNull(contextType, "contextType");
                 Check.NotNull(exception, "exception");
@@ -86,17 +86,17 @@ namespace Microsoft.AspNet.Diagnostics.Entity
                 _exception = exception;
             }
 
-            public bool IsErrorLogged
+            public virtual bool IsErrorLogged
             {
                 get { return _exception != null; }
             }
 
-            public Type ContextType
+            public virtual Type ContextType
             {
                 get { return _contextType; }
             }
 
-            public Exception Exception
+            public virtual Exception Exception
             {
                 get { return _exception; }
             }

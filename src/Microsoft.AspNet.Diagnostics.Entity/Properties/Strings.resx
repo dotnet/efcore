@@ -159,7 +159,7 @@
   <data name="DatabaseErrorPage_PendingMigrationsInfo" xml:space="preserve">
     <value>There are migrations for {0} that have not been applied to the database</value>
   </data>
-  <data name="DatabaseErrorPage_Title" xml:space="preserve">
+  <data name="DatabaseErrorPage_PendingMigrationsTitle" xml:space="preserve">
     <value>Applying existing migrations for {0} may resolve this issue</value>
   </data>
   <data name="DatabaseErrorPage_UpdateDatabaseCommand" xml:space="preserve">

@@ -86,15 +86,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity
                         if ((!databaseExists && pendingMigrations.Any()) || pendingMigrations.Any() || pendingModelChanges)
                         {
                             var page = new DatabaseErrorPage();
-                            page.Model = new DatabaseErrorPageModel
-                            {
-                                Options = _options,
-                                ContextType = dbContextType,
-                                Exception = ex,
-                                DatabaseExists = databaseExists,
-                                PendingMigrations = pendingMigrations,
-                                PendingModelChanges = pendingModelChanges
-                            };
+                            page.Model = new DatabaseErrorPageModel(dbContextType, ex, databaseExists, pendingModelChanges, pendingMigrations, _options);
 
                             // TODO Building in VS2013 prevents await in catch block
                             //      swap to await once we move to just VS14

@@ -1,6 +1,8 @@
 ﻿@using System
 @using System.Linq
+@using JetBrains.Annotations;
 @using Microsoft.AspNet.Diagnostics.Entity
+@using Microsoft.AspNet.Diagnostics.Entity.Utilities;
 @using Microsoft.AspNet.Diagnostics.Entity.Views
 @{
     Response.StatusCode = 500;
@@ -10,7 +12,18 @@
 }
 @functions
 {
-    public DatabaseErrorPageModel Model { get; set; }
+    private DatabaseErrorPageModel _model;
+
+    public virtual DatabaseErrorPageModel Model
+    {
+        get { return _model;}
+        [param: NotNull] set
+        {
+            Check.NotNull(value, "value");
+
+            _model = value;
+        }
+    }
 }
 <!DOCTYPE html>
 
@@ -55,7 +68,7 @@
                  if (Model.PendingMigrations.Any())
                  {
                      <div>
-                         <h2>@Strings.FormatDatabaseErrorPage_Title(Model.ContextType.Name)</h2>
+                         <h2>@Strings.FormatDatabaseErrorPage_PendingMigrationsTitle(Model.ContextType.Name)</h2>
                          <p>@Strings.FormatDatabaseErrorPage_PendingMigrationsInfo(Model.ContextType.Name)</p>
                          <ul>
                              @foreach (var migration in Model.PendingMigrations)

@@ -72,20 +72,21 @@ namespace Microsoft.Data.Entity
         [Fact]
         public void Async_methods_should_have_overload_with_cancellation_token_and_end_with_async_suffix()
         {
-            var asyncMethodsWithToken
+            var asyncMethods
                 = (from t in GetAllTypes(TargetAssembly.GetTypes())
                     where t.IsVisible
                     from m in t.GetMethods(PublicInstance)
                     where typeof(Task).IsAssignableFrom(m.ReturnType)
-                          && m.GetParameters().Any(pi => pi.ParameterType == typeof(CancellationToken))
+                    select m).ToList();
+
+            var asyncMethodsWithToken
+                = (from m in asyncMethods
+                    where m.GetParameters().Any(pi => pi.ParameterType == typeof(CancellationToken))
                     select m).ToList();
 
             var asyncMethodsWithoutToken
-                = (from t in GetAllTypes(TargetAssembly.GetTypes())
-                    where t.IsVisible
-                    from m in t.GetMethods(PublicInstance)
-                    where typeof(Task).IsAssignableFrom(m.ReturnType)
-                          && m.GetParameters().All(pi => pi.ParameterType != typeof(CancellationToken))
+                = (from m in asyncMethods
+                    where m.GetParameters().All(pi => pi.ParameterType != typeof(CancellationToken))
                     select m).ToList();
 
             var missingOverloads
@@ -94,21 +95,34 @@ namespace Microsoft.Data.Entity
                         .Any(m2 => m1.Name == m2.Name
                                    && m1.ReflectedType == m2.ReflectedType)
                     // ReSharper disable once PossibleNullReferenceException
-                    select m1.DeclaringType.Name + "." + m1.Name).ToList();
+                    select m1.DeclaringType.Name + "." + m1.Name)
+                    .Except(GetCancellationTokenExceptions())
+                    .ToList();
 
             Assert.False(
                 missingOverloads.Any(),
                 "\r\n-- Missing async overloads --\r\n" + string.Join("\r\n", missingOverloads));
 
             var missingSuffixMethods
-                = asyncMethodsWithToken
+                = asyncMethods
                     .Where(mi => !mi.Name.EndsWith("Async"))
                     .Select(mi => mi.DeclaringType.Name + "." + mi.Name)
+                    .Except(GetAsyncSuffixExceptions())
                     .ToList();
 
             Assert.False(
                 missingSuffixMethods.Any(),
                 "\r\n-- Missing async suffix --\r\n" + string.Join("\r\n", missingSuffixMethods));
+        }
+
+        protected virtual IEnumerable<string> GetCancellationTokenExceptions()
+        {
+            return Enumerable.Empty<string>();
+        }
+
+        protected virtual IEnumerable<string> GetAsyncSuffixExceptions()
+        {
+            return Enumerable.Empty<string>();
         }
 
         protected abstract Assembly TargetAssembly { get; }
