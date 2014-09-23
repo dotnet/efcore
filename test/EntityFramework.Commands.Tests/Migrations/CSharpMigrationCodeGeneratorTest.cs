@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Reflection;
 using Microsoft.Data.Entity.Commands.Migrations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
@@ -567,6 +568,8 @@ namespace MyNamespace
 
             var migrationSource = migrationBuilder.ToString();
             var migrationMetadataSource = migrationMetadataBuilder.ToString();
+
+            Assembly.Load("System.Linq.Expressions, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a");
 
             var compiledAssembly = CodeGeneratorTestHelper.Compile(
                 @namespace + ".dll",
