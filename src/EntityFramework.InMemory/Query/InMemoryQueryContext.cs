@@ -12,20 +12,29 @@ namespace Microsoft.Data.Entity.InMemory.Query
     public class InMemoryQueryContext : QueryContext
     {
         private readonly InMemoryDatabase _database;
+        private readonly EntityKeyFactorySource _entityKeyFactorySource;
 
         public InMemoryQueryContext(
             [NotNull] ILogger logger,
             [NotNull] IQueryBuffer queryBuffer,
             [NotNull] StateManager stateManager,
+            [NotNull] EntityKeyFactorySource entityKeyFactorySource,
             [NotNull] InMemoryDatabase database)
             : base(
                 Check.NotNull(logger, "logger"),
                 Check.NotNull(queryBuffer, "queryBuffer"),
                 Check.NotNull(stateManager, "stateManager"))
         {
+            Check.NotNull(entityKeyFactorySource, "entityKeyFactorySource");
             Check.NotNull(database, "database");
 
+            _entityKeyFactorySource = entityKeyFactorySource;
             _database = database;
+        }
+
+        public virtual EntityKeyFactorySource EntityKeyFactorySource
+        {
+            get { return _entityKeyFactorySource; }
         }
 
         public virtual InMemoryDatabase Database

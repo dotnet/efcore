@@ -134,17 +134,12 @@ namespace Microsoft.Data.Entity.Query
             {
                 if (entity != null)
                 {
-                    var stateEntry = queryContext.QueryBuffer.TryGetStateEntry(entity);
-
-                    if (stateEntry != null)
-                    {
-                        queryContext.StateManager.AttachStateEntry(stateEntry);
-
-                        stateEntry.EntityState = EntityState.Unchanged;
-                    }
+                    yield return (T)queryContext.QueryBuffer.StartTracking(entity);
                 }
-
-                yield return entity;
+                else
+                {
+                    yield return null;
+                }
             }
         }
 
@@ -168,8 +163,7 @@ namespace Microsoft.Data.Entity.Query
             {
                 _expression
                     = Expression.Call(
-                        _asyncTrackEntitiesShim
-                            .MakeGenericMethod(typeof(TResult)),
+                        _asyncTrackEntitiesShim.MakeGenericMethod(typeof(TResult)),
                         _expression,
                         QueryContextParameter);
             }
@@ -195,14 +189,7 @@ namespace Microsoft.Data.Entity.Query
                 {
                     if (entity != null)
                     {
-                        var stateEntry = queryContext.QueryBuffer.TryGetStateEntry(entity);
-
-                        if (stateEntry != null)
-                        {
-                            queryContext.StateManager.AttachStateEntry(stateEntry);
-
-                            stateEntry.EntityState = EntityState.Unchanged;
-                        }
+                        queryContext.QueryBuffer.StartTracking(entity);
                     }
 
                     return entity;
@@ -211,14 +198,18 @@ namespace Microsoft.Data.Entity.Query
 
         private bool ShouldTrackResults(QueryModel queryModel)
         {
+            if (queryModel.ResultOperators.OfType<AsNoTrackingResultOperator>().Any())
+            {
+                return false;
+            }
+
             var itemType
                 = _streamedSequenceInfo != null
                     ? _streamedSequenceInfo.ResultItemType
                     : queryModel.ResultOperators.Last()
                         .GetOutputDataInfo(queryModel.SelectClause.GetOutputDataInfo()).DataType;
 
-            return QueryCompilationContext.Model.TryGetEntityType(itemType) != null
-                   && !queryModel.ResultOperators.OfType<AsNoTrackingResultOperator>().Any();
+            return QueryCompilationContext.Model.TryGetEntityType(itemType) != null;
         }
 
         private static readonly MethodInfo _taskToSequenceShim
@@ -825,7 +816,7 @@ namespace Microsoft.Data.Entity.Query
             [UsedImplicitly]
             private static T GetValue<T>(QueryContext queryContext, object entity, IProperty property)
             {
-                return (T)queryContext.QueryBuffer.TryGetStateEntry(entity)[property];
+                return (T)queryContext.QueryBuffer.GetPropertyValue(entity, property);
             }
         }
 
@@ -866,6 +857,24 @@ namespace Microsoft.Data.Entity.Query
                 Expression.Constant(index));
         }
 
+        public virtual TResult BindNavigationMemberExpression<TResult>(
+            [NotNull] MemberExpression memberExpression,
+            [NotNull] Func<INavigation, IQuerySource, TResult> memberBinder)
+        {
+            Check.NotNull(memberExpression, "memberExpression");
+            Check.NotNull(memberBinder, "memberBinder");
+
+            return BindMemberExpressionCore(memberExpression, null,
+                (p, qs) =>
+                    {
+                        var navigation = p as INavigation;
+
+                        return navigation != null
+                            ? memberBinder(navigation, qs)
+                            : default(TResult);
+                    });
+        }
+
         protected virtual void BindMemberExpression(
             [NotNull] MemberExpression memberExpression,
             [NotNull] Action<IProperty, IQuerySource> memberBinder)
@@ -900,6 +909,25 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(memberExpression, "memberExpression");
             Check.NotNull(memberBinder, "memberBinder");
 
+            return BindMemberExpressionCore(memberExpression, querySource,
+                (p, qs) =>
+                    {
+                        var property = p as IProperty;
+
+                        return property != null
+                            ? memberBinder(property, qs)
+                            : default(TResult);
+                    });
+        }
+
+        private TResult BindMemberExpressionCore<TResult>(
+            [NotNull] MemberExpression memberExpression,
+            [CanBeNull] IQuerySource querySource,
+            [NotNull] Func<IPropertyBase, IQuerySource, TResult> memberBinder)
+        {
+            Check.NotNull(memberExpression, "memberExpression");
+            Check.NotNull(memberBinder, "memberBinder");
+
             var querySourceReferenceExpression
                 = memberExpression.Expression as QuerySourceReferenceExpression;
 
@@ -914,7 +942,9 @@ namespace Microsoft.Data.Entity.Query
 
                 if (entityType != null)
                 {
-                    var property = entityType.TryGetProperty(memberExpression.Member.Name);
+                    var property
+                        = (IPropertyBase)entityType.TryGetProperty(memberExpression.Member.Name)
+                          ?? entityType.TryGetNavigation(memberExpression.Member.Name);
 
                     if (property != null)
                     {

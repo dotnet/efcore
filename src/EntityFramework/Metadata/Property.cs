@@ -8,7 +8,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    [DebuggerDisplay("{PropertyType.Name,nq} {Name,nq}")]
+    [DebuggerDisplay("{EntityType.Name,nq}.{Name,nq} ({PropertyType.Name,nq})")]
     public class Property : PropertyBase, IProperty
     {
         private readonly Type _propertyType;

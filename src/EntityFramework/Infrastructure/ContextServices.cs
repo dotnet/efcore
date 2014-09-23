@@ -54,6 +54,11 @@ namespace Microsoft.Data.Entity.Infrastructure
             get { return _serviceProvider.GetService<ClrPropertySetterSource>(); }
         }
 
+        public virtual ClrCollectionAccessorSource ClrCollectionAccessorSource
+        {
+            get { return _serviceProvider.GetService<ClrCollectionAccessorSource>(); }
+        }
+
         public virtual ContextSets ContextSets
         {
             get { return ServiceProvider.GetService<ContextSets>(); }
@@ -62,6 +67,11 @@ namespace Microsoft.Data.Entity.Infrastructure
         public virtual DataStoreSelector DataStoreSelector
         {
             get { return _serviceProvider.GetService<DataStoreSelector>(); }
+        }
+
+        public virtual EntityMaterializerSource EntityMaterializerSource
+        {
+            get { return _serviceProvider.GetService<EntityMaterializerSource>(); }
         }
 
         public virtual StateManager StateManager

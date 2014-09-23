@@ -3503,6 +3503,20 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             ((KoolEntity1)instance).NavTo2s.Add((KoolEntity2)value);
         }
 
+        public void AddRange(object instance, IEnumerable<object> values)
+        {
+            foreach (var value in values)
+            {
+                var koolEntity1 = (KoolEntity1)instance;
+                var koolEntity2 = (KoolEntity2)value;
+
+                if (!koolEntity1.NavTo2s.Contains(koolEntity2))
+                {
+                    koolEntity1.NavTo2s.Add(koolEntity2);
+                }
+            }
+        }
+
         public bool Contains(object instance, object value)
         {
             return ((KoolEntity1)instance).NavTo2s.Contains((KoolEntity2)value);
@@ -3642,6 +3656,20 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         public void Add(object instance, object value)
         {
             ((KoolEntity5)instance).AddKool6((KoolEntity6)value);
+        }
+
+        public void AddRange(object instance, IEnumerable<object> values)
+        {
+            foreach (var value in values)
+            {
+                var koolEntity5 = (KoolEntity5)instance;
+                var koolEntity6 = (KoolEntity6)value;
+
+                if (!koolEntity5.Kool6s.Contains(koolEntity6))
+                {
+                    koolEntity5.AddKool6(koolEntity6);
+                }
+            }
         }
 
         public bool Contains(object instance, object value)

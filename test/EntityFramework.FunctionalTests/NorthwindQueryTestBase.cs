@@ -1759,6 +1759,34 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             return "m";
         }
+        
+        [Fact]
+        public virtual void JoinInto_DefaultIfEmpty()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                join o in os on c.CustomerID equals o.CustomerID into ords
+                from o in ords.DefaultIfEmpty()
+                select new { c, o });
+        }
+
+        [Fact]
+        public virtual void SelectMany_Joined()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                from o in os.Where(o => o.CustomerID == c.CustomerID)
+                select new { c.ContactName, o.OrderDate });
+        }
+
+        [Fact]
+        public virtual void SelectMany_Joined_DefaultIfEmpty()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                from o in os.Where(o => o.CustomerID == c.CustomerID).DefaultIfEmpty()
+                select new { c.ContactName, o });
+        }
 
         protected abstract DbContext CreateContext();
 

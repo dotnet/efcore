@@ -668,7 +668,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return TryGetProperty(name);
         }
-
+        
         IProperty IEntityType.GetProperty(string name)
         {
             return GetProperty(name);

@@ -67,13 +67,16 @@
     <Compile Include="AsNoTrackingTest.cs" />
     <Compile Include="BuiltInDataTypesFixture.cs" />
     <Compile Include="BuiltInDataTypesTest.cs" />
+    <Compile Include="IncludeOneToOneTest.cs" />
     <Compile Include="MusicStoreQueryTests.cs" />
     <Compile Include="CompositeKeyEndToEndTest.cs" />
     <Compile Include="GuidValueGeneratorEndToEndTest.cs" />
+    <Compile Include="IncludeNorthwindTest.cs" />
     <Compile Include="InMemoryConfigPatternsTest.cs" />
     <Compile Include="InMemoryDataStoreTest.cs" />
     <Compile Include="InMemoryIntegerGeneratorEndToEndTest.cs" />
     <Compile Include="MonsterFixupTest.cs" />
+    <Compile Include="OneToOneQueryFixture.cs" />
     <Compile Include="NorthwindQueryFixture.cs" />
     <Compile Include="NorthwindAsyncQueryTest.cs" />
     <Compile Include="NorthwindQueryTest.cs" />

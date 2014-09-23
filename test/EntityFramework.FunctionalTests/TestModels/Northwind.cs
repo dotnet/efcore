@@ -29,6 +29,8 @@ namespace Northwind
         public string Phone { get; set; }
         public string Fax { get; set; }
 
+        public virtual ICollection<Order> Orders { get; set; }
+
         public bool IsLondon
         {
             get { return City == "London"; }
@@ -184,6 +186,8 @@ namespace Northwind
         public string ShipRegion { get; set; }
         public string ShipPostalCode { get; set; }
         public string ShipCountry { get; set; }
+
+        public Customer Customer { get; set; }
 
         protected bool Equals(Order other)
         {

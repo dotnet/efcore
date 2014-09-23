@@ -79,6 +79,7 @@
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
     <Compile Include="Query\InMemoryQueryModelVisitor.cs" />
+    <Compile Include="Query\InMemoryResultOperatorHandler.cs" />
     <Compile Include="Utilities\Check.cs" />
     <Compile Include="..\Shared\CodeAnnotations.cs" />
     <Compile Include="..\Shared\StringBuilderExtensions.cs" />

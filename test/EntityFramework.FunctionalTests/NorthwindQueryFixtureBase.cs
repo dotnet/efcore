@@ -14,60 +14,67 @@ namespace Microsoft.Data.Entity.FunctionalTests
             var model = new Model();
             var modelBuilder = new BasicModelBuilder(model);
 
-            modelBuilder.Entity<Customer>(b =>
+            modelBuilder.Entity<Customer>(e =>
                 {
-                    b.Key(c => c.CustomerID);
-                    b.Property(c => c.CompanyName);
-                    b.Property(c => c.ContactName);
-                    b.Property(c => c.ContactTitle);
-                    b.Property(c => c.Address);
-                    b.Property(c => c.City);
-                    b.Property(c => c.Region);
-                    b.Property(c => c.PostalCode);
-                    b.Property(c => c.Country);
-                    b.Property(c => c.Phone);
-                    b.Property(c => c.Fax);
+                    e.Key(c => c.CustomerID);
+                    e.Property(c => c.CompanyName);
+                    e.Property(c => c.ContactName);
+                    e.Property(c => c.ContactTitle);
+                    e.Property(c => c.Address);
+                    e.Property(c => c.City);
+                    e.Property(c => c.Region);
+                    e.Property(c => c.PostalCode);
+                    e.Property(c => c.Country);
+                    e.Property(c => c.Phone);
+                    e.Property(c => c.Fax);
                 });
 
-            modelBuilder.Entity<Employee>(b =>
+            modelBuilder.Entity<Employee>(e =>
                 {
-                    b.Key(e => e.EmployeeID);
-                    b.Property(e => e.City);
-                    b.Property(e => e.Country);
-                    b.Property(e => e.FirstName);
-                    b.Property(e => e.ReportsTo);
-                    b.Property<string>("Title");
+                    e.Key(em => em.EmployeeID);
+                    e.Property(em => em.City);
+                    e.Property(em => em.Country);
+                    e.Property(em => em.FirstName);
+                    e.Property(em => em.ReportsTo);
+                    e.Property<string>("Title");
                 });
 
-            modelBuilder.Entity<Product>(b =>
+            modelBuilder.Entity<Product>(e =>
                 {
-                    b.Key(e => e.ProductID);
-                    b.Property(c => c.ProductName);
+                    e.Key(p => p.ProductID);
+                    e.Property(p => p.ProductName);
                 });
 
-            modelBuilder.Entity<Order>(ps =>
+            modelBuilder.Entity<Order>(e =>
                 {
-                    ps.Key(o => o.OrderID);
-                    ps.Property(o => o.CustomerID);
-                    ps.Property(o => o.OrderDate);
+                    e.Key(o => o.OrderID);
+                    e.Property(o => o.OrderDate);
+                    e.ForeignKey<Customer>(o => o.CustomerID);
                 });
 
-            modelBuilder.Entity<OrderDetail>(b =>
+            modelBuilder.Entity<OrderDetail>(e =>
                 {
-                    b.Key(od => new { od.OrderID, od.ProductID });
-                    b.Property(od => od.UnitPrice);
-                    b.Property(od => od.Quantity);
-                    b.Property(od => od.Discount);
-                    b.ForeignKey<Product>(od => od.ProductID);
+                    e.Key(od => new { od.OrderID, od.ProductID });
+                    e.Property(od => od.UnitPrice);
+                    e.Property(od => od.Quantity);
+                    e.Property(od => od.Discount);
+                    e.ForeignKey<Product>(od => od.ProductID);
                 });
 
             // TODO: Use FAPIS when avail.
             var productType = model.GetEntityType(typeof(Product));
             var orderDetailType = model.GetEntityType(typeof(OrderDetail));
-
             var productIdFk = orderDetailType.ForeignKeys.Single();
-            orderDetailType.AddNavigation(new Navigation(productIdFk, "Product", pointsToPrincipal: true));
+
             productType.AddNavigation(new Navigation(productIdFk, "OrderDetails", pointsToPrincipal: false));
+            orderDetailType.AddNavigation(new Navigation(productIdFk, "Product", pointsToPrincipal: true));
+
+            var customerType = model.GetEntityType(typeof(Customer));
+            var orderType = model.GetEntityType(typeof(Order));
+            var customerIdFk = orderType.ForeignKeys.Single();
+
+            customerType.AddNavigation(new Navigation(customerIdFk, "Orders", pointsToPrincipal: false));
+            orderType.AddNavigation(new Navigation(customerIdFk, "Customer", pointsToPrincipal: true));
 
             return model;
         }
