@@ -90,6 +90,54 @@ namespace Microsoft.Data.Entity.SqlServer
             return GetString("MaxBatchSizeMustBePositive");
         }
 
+        /// <summary>
+        /// The value provided for the SQL Server sequence block size must be positive.
+        /// </summary>
+        internal static string SequenceBadBlockSize
+        {
+            get { return GetString("SequenceBadBlockSize"); }
+        }
+
+        /// <summary>
+        /// The value provided for the SQL Server sequence block size must be positive.
+        /// </summary>
+        internal static string FormatSequenceBadBlockSize()
+        {
+            return GetString("SequenceBadBlockSize");
+        }
+
+        /// <summary>
+        /// Identity value generation cannot be used for the property '{property}' on entity type '{entityType}' because the property type is '{propertyType}'. Identity value generation can only be used with signed integer properties.
+        /// </summary>
+        internal static string IdentityBadType
+        {
+            get { return GetString("IdentityBadType"); }
+        }
+
+        /// <summary>
+        /// Identity value generation cannot be used for the property '{property}' on entity type '{entityType}' because the property type is '{propertyType}'. Identity value generation can only be used with signed integer properties.
+        /// </summary>
+        internal static string FormatIdentityBadType(object property, object entityType, object propertyType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("IdentityBadType", "property", "entityType", "propertyType"), property, entityType, propertyType);
+        }
+
+        /// <summary>
+        /// SQL Server sequences cannot be used to generate values for the property '{property}' on entity type '{entityType}' because the property type is '{propertyType}'. Sequences can only be used with integer properties.
+        /// </summary>
+        internal static string SequenceBadType
+        {
+            get { return GetString("SequenceBadType"); }
+        }
+
+        /// <summary>
+        /// SQL Server sequences cannot be used to generate values for the property '{property}' on entity type '{entityType}' because the property type is '{propertyType}'. Sequences can only be used with integer properties.
+        /// </summary>
+        internal static string FormatSequenceBadType(object property, object entityType, object propertyType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("SequenceBadType", "property", "entityType", "propertyType"), property, entityType, propertyType);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

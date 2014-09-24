@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
     {
         public IEnumerable<IAnnotation> Annotations
         {
-            get { return ImmutableList<Annotation>.Empty; }
+            get { return ImmutableList<IAnnotation>.Empty; }
         }
 
         public string this[[NotNull] string annotationName]

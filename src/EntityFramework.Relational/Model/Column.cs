@@ -10,7 +10,9 @@ using Microsoft.Data.Entity.Relational.Utilities;
 namespace Microsoft.Data.Entity.Relational.Model
 {
     // TODO: Consider adding more validation.
-    public class Column
+    // TODO: Inheriting from MetadataBase to get annotations; it is unfortunate that all property information
+    // has to be duplicated in the relational model
+    public class Column : MetadataBase
     {
         private Table _table;
         private bool _isNullable = true;
@@ -105,6 +107,11 @@ namespace Microsoft.Data.Entity.Relational.Model
             Scale = source.Scale;
             IsFixedLength = source.IsFixedLength;
             IsUnicode = source.IsUnicode;
+
+            foreach (var annotation in source.Annotations)
+            {
+                Annotations.Add(annotation);
+            }
         }
 
         public virtual Column Clone([NotNull] CloneContext cloneContext)

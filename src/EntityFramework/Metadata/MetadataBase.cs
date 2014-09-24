@@ -20,11 +20,10 @@ namespace Microsoft.Data.Entity.Metadata
 
                 return _annotations[annotationName];
             }
-            [param: NotNull]
+            [param: CanBeNull]
             set
             {
                 Check.NotEmpty(annotationName, "annotationName");
-                Check.NotEmpty(value, "value");
 
                 _annotations[annotationName] = value;
             }

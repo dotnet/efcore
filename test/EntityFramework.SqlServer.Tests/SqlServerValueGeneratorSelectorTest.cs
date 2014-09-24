@@ -14,6 +14,58 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
     public class SqlServerValueGeneratorSelectorTest
     {
         [Fact]
+        public void Returns_sequence_generator_when_explicitly_configured()
+        {
+            var sequenceFactory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor());
+
+            var selector = new SqlServerValueGeneratorSelector(
+                new SimpleValueGeneratorFactory<GuidValueGenerator>(),
+                new SimpleValueGeneratorFactory<TemporaryValueGenerator>(),
+                sequenceFactory,
+                new SimpleValueGeneratorFactory<SequentialGuidValueGenerator>());
+
+            Assert.Same(
+                sequenceFactory, 
+                selector.Select(CreateProperty(typeof(long), ValueGeneration.OnAdd, SqlServerMetadataExtensions.Annotations.Sequence)));
+
+            Assert.Same(
+                sequenceFactory,
+                selector.Select(CreateProperty(typeof(int), ValueGeneration.OnAdd, SqlServerMetadataExtensions.Annotations.Sequence)));
+
+            Assert.Same(
+                sequenceFactory,
+                selector.Select(CreateProperty(typeof(short), ValueGeneration.OnAdd, SqlServerMetadataExtensions.Annotations.Sequence)));
+
+            Assert.Same(
+                sequenceFactory,
+                selector.Select(CreateProperty(typeof(byte), ValueGeneration.OnAdd, SqlServerMetadataExtensions.Annotations.Sequence)));
+        }
+
+        [Fact]
+        public void Returns_temp_generator_for_identity_generator_when_explicitly_configured()
+        {
+            var tempFactory = new SimpleValueGeneratorFactory<TemporaryValueGenerator>();
+
+            var selector = new SqlServerValueGeneratorSelector(
+                new SimpleValueGeneratorFactory<GuidValueGenerator>(),
+                tempFactory,
+                new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor()),
+                new SimpleValueGeneratorFactory<SequentialGuidValueGenerator>());
+
+            Assert.Same(
+                tempFactory,
+                selector.Select(CreateProperty(typeof(long), ValueGeneration.OnAdd, SqlServerMetadataExtensions.Annotations.Identity)));
+
+            Assert.Same(
+                tempFactory,
+                selector.Select(CreateProperty(typeof(int), ValueGeneration.OnAdd, SqlServerMetadataExtensions.Annotations.Identity)));
+
+            Assert.Same(
+                tempFactory,
+                selector.Select(CreateProperty(typeof(short), ValueGeneration.OnAdd, SqlServerMetadataExtensions.Annotations.Identity)));
+        }
+
+        [Fact] // TODO: This will change when sequence becomes the default
         public void Returns_in_temp_generator_for_all_integer_types_except_byte_setup_for_value_generation()
         {
             var tempFactory = new SimpleValueGeneratorFactory<TemporaryValueGenerator>();
@@ -29,22 +81,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.Same(tempFactory, selector.Select(CreateProperty(typeof(short), ValueGeneration.OnAdd)));
         }
 
-        [Fact] // TODO: This will change when sequence becomes the default
-        public void Returns_sequence_generator_for_bytes()
-        {
-            var sequenceFactory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor());
-
-            var selector = new SqlServerValueGeneratorSelector(
-                new SimpleValueGeneratorFactory<GuidValueGenerator>(),
-                new SimpleValueGeneratorFactory<TemporaryValueGenerator>(),
-                sequenceFactory,
-                new SimpleValueGeneratorFactory<SequentialGuidValueGenerator>());
-
-            Assert.Same(sequenceFactory, selector.Select(CreateProperty(typeof(byte), ValueGeneration.OnAdd)));
-        }
-
         [Fact]
-        public void Returns_sequential_GUID_generator_for_GUID_types_setup_for_client_values()
+        public void Returns_sequential_GUID_generator_for_GUID_types()
         {
             var sequentialGuidFactory = new SimpleValueGeneratorFactory<SequentialGuidValueGenerator>();
 
@@ -89,7 +127,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 Assert.Throws<NotSupportedException>(() => selector.Select(property)).Message);
         }
 
-        private static Property CreateProperty(Type propertyType, ValueGeneration valueGeneration)
+        private static Property CreateProperty(Type propertyType, ValueGeneration valueGeneration, string annotation = null)
         {
             var entityType = new EntityType("MyType");
             var property = entityType.GetOrAddProperty("MyProperty", propertyType, shadowProperty: true);
@@ -97,6 +135,11 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             entityType.SetTableName("MyTable");
 
             new Model().AddEntityType(entityType);
+
+            if (annotation != null)
+            {
+                property[SqlServerMetadataExtensions.Annotations.ValueGeneration] = annotation;
+            }
 
             return property;
         }

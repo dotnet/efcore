@@ -35,5 +35,27 @@ namespace Microsoft.Data.Entity.Metadata
             return property.EntityType != null
                    && property.EntityType.Keys.SelectMany(e => e.Properties).Contains(property);
         }
+
+        public static string FindAnnotationInHierarchy([NotNull] this IProperty property, [NotNull] string name)
+        {
+            Check.NotNull(property, "property");
+            Check.NotEmpty(name, "name");
+
+            var value = property[name];
+            if (value != null
+                || property.EntityType == null)
+            {
+                return value;
+            }
+
+            value = property.EntityType[name];
+            if (value != null
+                || property.EntityType.Model == null)
+            {
+                return value;
+            }
+
+            return property.EntityType.Model[name];
+        }
     }
 }

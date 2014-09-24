@@ -17,9 +17,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Block_size_is_obtained_from_property_annotation()
         {
             var property = CreateProperty();
-            property["StoreSequenceBlockSize"] = "11";
-            property.EntityType["StoreSequenceBlockSize"] = "-1";
-            property.EntityType.Model["StoreSequenceBlockSize"] = "-1";
+            property[SqlServerMetadataExtensions.Annotations.SequenceBlockSize] = "11";
+            property.EntityType[SqlServerMetadataExtensions.Annotations.SequenceBlockSize] = "-1";
+            property.EntityType.Model[SqlServerMetadataExtensions.Annotations.SequenceBlockSize] = "-1";
 
             var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor());
 
@@ -30,8 +30,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Block_size_is_obtained_from_entity_type_annotation_if_not_set_on_property()
         {
             var property = CreateProperty();
-            property.EntityType["StoreSequenceBlockSize"] = "11";
-            property.EntityType.Model["StoreSequenceBlockSize"] = "-1";
+            property.EntityType[SqlServerMetadataExtensions.Annotations.SequenceBlockSize] = "11";
+            property.EntityType.Model[SqlServerMetadataExtensions.Annotations.SequenceBlockSize] = "-1";
 
             var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor());
 
@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Block_size_is_obtained_from_model_annotation_if_not_set_on_property_or_type()
         {
             var property = CreateProperty();
-            property.EntityType.Model["StoreSequenceBlockSize"] = "11";
+            property.EntityType.Model[SqlServerMetadataExtensions.Annotations.SequenceBlockSize] = "11";
 
             var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor());
 
@@ -63,9 +63,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Sequence_name_is_obtained_from_property_annotation()
         {
             var property = CreateProperty();
-            property["StoreSequenceName"] = "Robert";
-            property.EntityType["StoreSequenceName"] = "Jimmy";
-            property.EntityType.Model["StoreSequenceName"] = "Jimmy";
+            property[SqlServerMetadataExtensions.Annotations.SequenceName] = "Robert";
+            property.EntityType[SqlServerMetadataExtensions.Annotations.SequenceName] = "Jimmy";
+            property.EntityType.Model[SqlServerMetadataExtensions.Annotations.SequenceName] = "Jimmy";
 
             var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor());
 
@@ -76,8 +76,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Sequence_name_is_obtained_from_entity_type_annotation_if_not_set_on_property()
         {
             var property = CreateProperty();
-            property.EntityType["StoreSequenceName"] = "Robert";
-            property.EntityType.Model["StoreSequenceName"] = "Jimmy";
+            property.EntityType[SqlServerMetadataExtensions.Annotations.SequenceName] = "Robert";
+            property.EntityType.Model[SqlServerMetadataExtensions.Annotations.SequenceName] = "Jimmy";
 
             var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor());
 
@@ -88,7 +88,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Sequence_name_is_obtained_from_model_annotation_if_not_set_on_property_or_type()
         {
             var property = CreateProperty();
-            property.EntityType.Model["StoreSequenceName"] = "Robert";
+            property.EntityType.Model[SqlServerMetadataExtensions.Annotations.SequenceName] = "Robert";
 
             var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor());
 
@@ -109,8 +109,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Creates_CreateSequenceOperation()
         {
             var property = CreateProperty();
-            property["StoreSequenceBlockSize"] = "11";
-            property["StoreSequenceName"] = "Plant";
+            property[SqlServerMetadataExtensions.Annotations.SequenceBlockSize] = "11";
+            property[SqlServerMetadataExtensions.Annotations.SequenceName] = "Plant";
 
             var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor());
 
@@ -126,7 +126,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Creates_DropSequenceOperation()
         {
             var property = CreateProperty();
-            property["StoreSequenceName"] = "Page";
+            property[SqlServerMetadataExtensions.Annotations.SequenceName] = "Page";
 
             var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor());
 
@@ -139,8 +139,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Creates_the_appropriate_value_generator()
         {
             var property = CreateProperty();
-            property["StoreSequenceBlockSize"] = "11";
-            property["StoreSequenceName"] = "Zeppelin";
+            property[SqlServerMetadataExtensions.Annotations.SequenceBlockSize] = "11";
+            property[SqlServerMetadataExtensions.Annotations.SequenceName] = "Zeppelin";
 
             var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor());
 
@@ -164,7 +164,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Sequence_name_is_the_cache_key()
         {
             var property = CreateProperty();
-            property["StoreSequenceName"] = "Led";
+            property[SqlServerMetadataExtensions.Annotations.SequenceName] = "Led";
 
             var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor());
 

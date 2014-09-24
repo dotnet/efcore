@@ -36,16 +36,22 @@ namespace Microsoft.Data.Entity.SqlServer
 
             if (property.ValueGeneration == ValueGeneration.OnAdd)
             {
-                if (property.PropertyType.IsInteger()
-                    && property.PropertyType != typeof(byte))
+                var strategy = property.FindAnnotationInHierarchy(SqlServerMetadataExtensions.Annotations.ValueGeneration);
+
+                if (strategy == SqlServerMetadataExtensions.Annotations.Sequence)
+                {
+                    return _sequenceFactory;
+                }
+
+                if (strategy == SqlServerMetadataExtensions.Annotations.Identity)
                 {
                     return _tempFactory;
                 }
 
-                // TODO: Allow specifying different SQL Server strategies and make sequence the default
-                if (property.PropertyType.IsInteger())
+                if (property.PropertyType.IsInteger()
+                    && property.PropertyType != typeof(byte))
                 {
-                    return _sequenceFactory;
+                    return _tempFactory;
                 }
 
                 if (property.PropertyType == typeof(Guid))

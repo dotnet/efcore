@@ -10,20 +10,20 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public class Annotations : IEnumerable<Annotation>
+    public class Annotations : IEnumerable<IAnnotation>
     {
-        private readonly LazyRef<ImmutableSortedSet<Annotation>> _annotations
-            = new LazyRef<ImmutableSortedSet<Annotation>>(
-                () => ImmutableSortedSet<Annotation>.Empty.WithComparer(new AnnotationComparer()));
+        private readonly LazyRef<ImmutableSortedSet<IAnnotation>> _annotations
+            = new LazyRef<ImmutableSortedSet<IAnnotation>>(
+                () => ImmutableSortedSet<IAnnotation>.Empty.WithComparer(new AnnotationComparer()));
 
-        public virtual void Add([NotNull] Annotation annotation)
+        public virtual void Add([NotNull] IAnnotation annotation)
         {
             Check.NotNull(annotation, "annotation");
 
             _annotations.Value = _annotations.Value.Remove(annotation).Add(annotation);
         }
 
-        public virtual void Remove([NotNull] Annotation annotation)
+        public virtual void Remove([NotNull] IAnnotation annotation)
         {
             Check.NotNull(annotation, "annotation");
 
@@ -37,28 +37,30 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 Check.NotEmpty(annotationName, "annotationName");
 
-                Annotation value;
+                IAnnotation value;
                 return _annotations.HasValue
                        && _annotations.Value.TryGetValue(new Annotation(annotationName, "_"), out value)
                     ? value.Value
                     : null;
             }
-            [param: NotNull]
+            [param: CanBeNull]
             set
             {
                 Check.NotEmpty(annotationName, "annotationName");
-                Check.NotEmpty(value, "value");
 
-                var annotation = new Annotation(annotationName, value);
-                _annotations.Value = _annotations.Value.Remove(annotation).Add(annotation);
+                var annotation = new Annotation(annotationName, value ?? "_");
+                
+                var afterRemove = _annotations.Value.Remove(annotation);
+
+                _annotations.Value = value == null ? afterRemove : afterRemove.Add(annotation);
             }
         }
 
-        public virtual IEnumerator<Annotation> GetEnumerator()
+        public virtual IEnumerator<IAnnotation> GetEnumerator()
         {
             return _annotations.HasValue
-                ? (IEnumerator<Annotation>)_annotations.Value.GetEnumerator()
-                : ImmutableList<Annotation>.Empty.GetEnumerator();
+                ? (IEnumerator<IAnnotation>)_annotations.Value.GetEnumerator()
+                : ImmutableList<IAnnotation>.Empty.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -66,9 +68,9 @@ namespace Microsoft.Data.Entity.Metadata
             return GetEnumerator();
         }
 
-        private class AnnotationComparer : IComparer<Annotation>
+        private class AnnotationComparer : IComparer<IAnnotation>
         {
-            public int Compare(Annotation x, Annotation y)
+            public int Compare(IAnnotation x, IAnnotation y)
             {
                 return StringComparer.Ordinal.Compare(x.Name, y.Name);
             }

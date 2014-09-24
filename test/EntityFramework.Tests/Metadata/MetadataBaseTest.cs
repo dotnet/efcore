@@ -40,10 +40,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(
                 Strings.FormatArgumentIsEmpty("annotationName"),
                 Assert.Throws<ArgumentException>(() => metadataBase[""] = "The kake is a lie").Message);
-
-            Assert.Equal(
-                "value",
-                Assert.Throws<ArgumentNullException>(() => metadataBase["X"] = null).ParamName);
         }
 
         [Fact]
@@ -106,9 +102,21 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var metadataBase = new ConcreteMetadata();
 
+            Assert.Null(metadataBase["foo"]);
+
             metadataBase["foo"] = "bar";
 
             Assert.Equal("bar", metadataBase["foo"]);
+
+            metadataBase["foo"] = "horse";
+
+            Assert.Equal("horse", metadataBase["foo"]);
+
+            metadataBase["foo"] = null;
+
+            Assert.Null(metadataBase["foo"]);
+
+            Assert.Empty(metadataBase.Annotations);
         }
 
         [Fact]

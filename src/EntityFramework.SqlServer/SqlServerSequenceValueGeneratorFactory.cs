@@ -29,8 +29,7 @@ namespace Microsoft.Data.Entity.SqlServer
         {
             Check.NotNull(property, "property");
 
-            // TODO: StoreSequenceBlockSize string should be in a constant somewhere--not sure where yet
-            var annotatedIncrement = TryFindAnnotation(property, "StoreSequenceBlockSize");
+            var annotatedIncrement = property.FindAnnotationInHierarchy(SqlServerMetadataExtensions.Annotations.SequenceBlockSize);
 
             // TODO: Allow integer annotations
             return annotatedIncrement != null ? int.Parse(annotatedIncrement) : DefaultBlockSize;
@@ -40,8 +39,7 @@ namespace Microsoft.Data.Entity.SqlServer
         {
             Check.NotNull(property, "property");
 
-            // TODO: StoreSequenceName string should be in a constant somewhere--not sure where yet
-            var sequenceName = TryFindAnnotation(property, "StoreSequenceName");
+            var sequenceName = property.FindAnnotationInHierarchy(SqlServerMetadataExtensions.Annotations.SequenceName);
             if (sequenceName != null)
             {
                 return sequenceName;
@@ -82,11 +80,6 @@ namespace Microsoft.Data.Entity.SqlServer
                 {
                     new DropSequenceOperation(DelimitSequenceName(GetSequenceName(property)))
                 };
-        }
-
-        private static string TryFindAnnotation(IProperty property, string name)
-        {
-            return property[name] ?? property.EntityType[name] ?? property.EntityType.Model[name];
         }
 
         public virtual IValueGenerator Create(IProperty property)

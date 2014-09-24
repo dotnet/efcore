@@ -90,6 +90,7 @@
     <Compile Include="Identity\ValueGeneratorCacheTest.cs" />
     <Compile Include="Identity\ValueGeneratorPoolTest.cs" />
     <Compile Include="Identity\ValueGeneratorSelectorTest.cs" />
+    <Compile Include="Metadata\AnnotationsTest.cs" />
     <Compile Include="Metadata\BasicModelBuilderTest.cs" />
     <Compile Include="Metadata\CollectionTyoeFactoryTest.cs" />
     <Compile Include="Metadata\EntityTypeExtensionsTest.cs" />
@@ -98,6 +99,7 @@
     <Compile Include="Metadata\ModelConventions\ForeignKeyConventionTest.cs" />
     <Compile Include="Metadata\NavigationExtensionsTest.cs" />
     <Compile Include="Extensions\QueryableExtensionsTest.cs" />
+    <Compile Include="Metadata\PropertyExtensionsTest.cs" />
     <Compile Include="TestHelperExtensions.cs" />
     <Compile Include="ServiceProviderCacheTest.cs" />
     <Compile Include="ChangeTracking\ChangeTrackerTest.cs" />

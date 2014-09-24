@@ -145,11 +145,17 @@ namespace Microsoft.Data.Entity.SqlServer
 
         protected override void GenerateColumnTraits(Column column, IndentedStringBuilder stringBuilder)
         {
-            if (column.ValueGenerationStrategy == ValueGeneration.OnAdd
-                && column.ClrType.IsInteger() && column.ClrType != typeof(byte))
+            // TODO: This is essentially duplicated logic from the selector; combine if possible
+            if (column.ValueGenerationStrategy == ValueGeneration.OnAdd)
             {
-                // TODO: Handle other SQL Server strategies
-                stringBuilder.Append(" IDENTITY");
+                var strategy = column[SqlServerMetadataExtensions.Annotations.ValueGeneration];
+
+                if (strategy == SqlServerMetadataExtensions.Annotations.Identity
+                    || (strategy == null
+                        && column.ClrType.IsInteger()))
+                {
+                    stringBuilder.Append(" IDENTITY");
+                }
             }
         }
 

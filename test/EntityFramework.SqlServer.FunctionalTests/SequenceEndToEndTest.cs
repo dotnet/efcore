@@ -213,15 +213,14 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 modelBuilder.Entity<Pegasus>(b =>
                     {
                         b.Key(e => e.Identifier);
-                        b.Property(e => e.Identifier).GenerateValuesOnAdd();
+                        b.Property(e => e.Identifier).GenerateValuesUsingSequence();
                     });
             }
         }
 
         private class Pegasus
         {
-            // TODO: This is only byte until ability to set specific value generation strategy is enabled
-            public byte Identifier { get; set; }
+            public int Identifier { get; set; }
             public string Name { get; set; }
         }
     }

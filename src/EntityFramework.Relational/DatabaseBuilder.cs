@@ -156,6 +156,16 @@ namespace Microsoft.Data.Entity.Relational
                         IsTimestamp = property.PropertyType == typeof(byte[]) && property.IsConcurrencyToken
                     };
 
+            // TODO: This is a workaround to get the value-generation annotations into the relational model
+            // so they can be used for appropriate DDL gen. Hopefully changes can be made to avoid copying all
+            // this stuff, or to do it in a cleaner manner.
+            foreach (var annotation in property.EntityType.Model.Annotations
+                .Concat(property.EntityType.Annotations)
+                .Concat(property.Annotations))
+            {
+                column[annotation.Name] = annotation.Value;
+            }
+
             table.AddColumn(column);
 
             return column;
