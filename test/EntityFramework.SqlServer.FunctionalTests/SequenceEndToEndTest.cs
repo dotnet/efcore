@@ -6,7 +6,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
+using Microsoft.Data.Entity.Services;
 using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;
 
@@ -20,6 +22,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
+                .UseLoggerFactory<NullLoggerFactory>()
                 .ServiceCollection
                 .BuildServiceProvider();
 
@@ -40,6 +43,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
+                .UseLoggerFactory<NullLoggerFactory>()
                 .ServiceCollection
                 .BuildServiceProvider();
 
@@ -77,6 +81,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
+                .UseLoggerFactory<NullLoggerFactory>()
                 .ServiceCollection
                 .BuildServiceProvider();
 
@@ -97,6 +102,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
+                .UseLoggerFactory<NullLoggerFactory>()
                 .ServiceCollection
                 .BuildServiceProvider();
 
@@ -134,6 +140,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
+                .UseLoggerFactory<NullLoggerFactory>()
                 .ServiceCollection
                 .BuildServiceProvider();
 
@@ -180,6 +187,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
+                .UseLoggerFactory<NullLoggerFactory>()
                 .ServiceCollection
                 .BuildServiceProvider();
 
@@ -200,6 +208,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
+                .UseLoggerFactory<NullLoggerFactory>()
                 .ServiceCollection
                 .BuildServiceProvider();
 
@@ -238,7 +247,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private static void CreateDatabaseSequence(BronieContext context, RelationalConnection storeConnection)
         {
-            var executor = new SqlStatementExecutor();
+            var executor = new SqlStatementExecutor(new NullLoggerFactory());
 
             var operations = new SqlServerSequenceValueGeneratorFactory(executor)
                 .GetUpMigrationOperations(context.Model.GetEntityType(typeof(Pegasus))

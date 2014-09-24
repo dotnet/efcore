@@ -7,7 +7,9 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Services;
 using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;
 
@@ -33,7 +35,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         private static async Task Can_use_an_existing_closed_connection_test(bool openConnection)
         {
             var serviceCollection = new ServiceCollection();
-            serviceCollection.AddEntityFramework().AddSqlServer();
+            serviceCollection
+                .AddEntityFramework()
+                .AddSqlServer()
+                .UseLoggerFactory<NullLoggerFactory>();
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
             using (await SqlServerTestDatabase.Northwind())

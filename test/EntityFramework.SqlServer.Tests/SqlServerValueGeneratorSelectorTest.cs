@@ -5,6 +5,7 @@ using System;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
+using Microsoft.Data.Entity.Services;
 using Microsoft.Data.Entity.Tests;
 using Moq;
 using Xunit;
@@ -16,7 +17,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Returns_sequence_generator_when_explicitly_configured()
         {
-            var sequenceFactory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor());
+            var sequenceFactory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory()));
 
             var selector = new SqlServerValueGeneratorSelector(
                 new SimpleValueGeneratorFactory<GuidValueGenerator>(),
@@ -49,7 +50,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var selector = new SqlServerValueGeneratorSelector(
                 new SimpleValueGeneratorFactory<GuidValueGenerator>(),
                 tempFactory,
-                new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor()),
+                new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory())),
                 new SimpleValueGeneratorFactory<SequentialGuidValueGenerator>());
 
             Assert.Same(
@@ -73,7 +74,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var selector = new SqlServerValueGeneratorSelector(
                 new SimpleValueGeneratorFactory<GuidValueGenerator>(),
                 tempFactory,
-                new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor()),
+                new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory())),
                 new SimpleValueGeneratorFactory<SequentialGuidValueGenerator>());
 
             Assert.Same(tempFactory, selector.Select(CreateProperty(typeof(long), ValueGeneration.OnAdd)));
@@ -89,7 +90,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var selector = new SqlServerValueGeneratorSelector(
                 new SimpleValueGeneratorFactory<GuidValueGenerator>(),
                 new SimpleValueGeneratorFactory<TemporaryValueGenerator>(),
-                new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor()),
+                new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory())),
                 sequentialGuidFactory);
 
             Assert.Same(sequentialGuidFactory, selector.Select(CreateProperty(typeof(Guid), ValueGeneration.OnAdd)));
@@ -101,7 +102,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var selector = new SqlServerValueGeneratorSelector(
                 new SimpleValueGeneratorFactory<GuidValueGenerator>(),
                 new SimpleValueGeneratorFactory<TemporaryValueGenerator>(),
-                new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor()),
+                new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory())),
                 new SimpleValueGeneratorFactory<SequentialGuidValueGenerator>());
 
             Assert.Null(selector.Select(CreateProperty(typeof(int), ValueGeneration.None)));
@@ -114,7 +115,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var selector = new SqlServerValueGeneratorSelector(
                 new SimpleValueGeneratorFactory<GuidValueGenerator>(),
                 new SimpleValueGeneratorFactory<TemporaryValueGenerator>(),
-                new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor()),
+                new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory())),
                 new SimpleValueGeneratorFactory<SequentialGuidValueGenerator>());
 
             var typeMock = new Mock<IEntityType>();

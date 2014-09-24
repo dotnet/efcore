@@ -13,6 +13,7 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Microsoft.Data.Entity.Relational.Update;
+using Microsoft.Data.Entity.Services;
 using Microsoft.Data.Entity.SqlServer.Update;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Advanced;
@@ -55,7 +56,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             using (await SqlServerTestDatabase.Northwind())
             {
                 var serviceCollection = new ServiceCollection();
-                serviceCollection.AddEntityFramework().AddSqlServer();
+                serviceCollection
+                    .AddEntityFramework()
+                    .AddSqlServer()
+                    .UseLoggerFactory<NullLoggerFactory>();
                 serviceCollection.AddScoped<SqlServerDataStore, SqlStoreWithBufferReader>();
                 var serviceProvider = serviceCollection.BuildServiceProvider();
 

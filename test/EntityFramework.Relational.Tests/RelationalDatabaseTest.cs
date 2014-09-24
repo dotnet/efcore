@@ -1,10 +1,12 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Services;
 using Moq;
 using Xunit;
 
@@ -22,11 +24,15 @@ namespace Microsoft.Data.Entity.Relational.Tests
             creatorMock.Setup(m => m.EnsureCreated(model)).Returns(true);
             creatorMock.Setup(m => m.EnsureDeleted(model)).Returns(true);
 
-            var connection = Mock.Of<RelationalConnection>();
             var configurationMock = new Mock<DbContextConfiguration>();
+            var connectionMock = new Mock<RelationalConnection>();
+            var dbConnectionMock = new Mock<DbConnection>();
             configurationMock.Setup(m => m.DataStoreCreator).Returns(creatorMock.Object);
             configurationMock.Setup(m => m.Model).Returns(model);
-            configurationMock.Setup(m => m.Connection).Returns(connection);
+            configurationMock.Setup(m => m.Connection).Returns(connectionMock.Object);
+            configurationMock.Setup(m => m.LoggerFactory).Returns(new NullLoggerFactory());
+            connectionMock.SetupGet(m => m.DbConnection).Returns(dbConnectionMock.Object);
+            dbConnectionMock.SetupGet(m => m.Database).Returns("MyDb");
 
             var database = new RelationalDatabase(configurationMock.Object);
 
@@ -51,7 +57,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
             Assert.True(database.EnsureDeleted());
             creatorMock.Verify(m => m.EnsureDeleted(model), Times.Once);
 
-            Assert.Same(connection, database.Connection);
+            Assert.Same(connectionMock.Object, database.Connection);
         }
 
         [Fact]
@@ -67,8 +73,14 @@ namespace Microsoft.Data.Entity.Relational.Tests
             creatorMock.Setup(m => m.EnsureDeletedAsync(model, cancellationToken)).Returns(Task.FromResult(true));
 
             var configurationMock = new Mock<DbContextConfiguration>();
+            var connectionMock = new Mock<RelationalConnection>();
+            var dbConnectionMock = new Mock<DbConnection>();
             configurationMock.Setup(m => m.DataStoreCreator).Returns(creatorMock.Object);
             configurationMock.Setup(m => m.Model).Returns(model);
+            configurationMock.Setup(m => m.Connection).Returns(connectionMock.Object);
+            configurationMock.Setup(m => m.LoggerFactory).Returns(new NullLoggerFactory());
+            connectionMock.SetupGet(m => m.DbConnection).Returns(dbConnectionMock.Object);
+            dbConnectionMock.SetupGet(m => m.Database).Returns("MyDb");
 
             var database = new RelationalDatabase(configurationMock.Object);
 

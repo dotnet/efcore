@@ -106,12 +106,76 @@ namespace Microsoft.Data.Entity.Migrations
             return string.Format(CultureInfo.CurrentCulture, GetString("InvalidMigrationId", "migrationId"), migrationId);
         }
 
+        /// <summary>
+        /// Creating migration history table.
+        /// </summary>
+        internal static string MigratorLoggerCreatingHistoryTable
+        {
+            get { return GetString("MigratorLoggerCreatingHistoryTable"); }
+        }
+
+        /// <summary>
+        /// Creating migration history table.
+        /// </summary>
+        internal static string FormatMigratorLoggerCreatingHistoryTable()
+        {
+            return GetString("MigratorLoggerCreatingHistoryTable");
+        }
+
+        /// <summary>
+        /// Dropping migration history table.
+        /// </summary>
+        internal static string MigratorLoggerDroppingHistoryTable
+        {
+            get { return GetString("MigratorLoggerDroppingHistoryTable"); }
+        }
+
+        /// <summary>
+        /// Dropping migration history table.
+        /// </summary>
+        internal static string FormatMigratorLoggerDroppingHistoryTable()
+        {
+            return GetString("MigratorLoggerDroppingHistoryTable");
+        }
+
+        /// <summary>
+        /// Applying migration '{migrationId}'.
+        /// </summary>
+        internal static string MigratorLoggerApplyingMigration
+        {
+            get { return GetString("MigratorLoggerApplyingMigration"); }
+        }
+
+        /// <summary>
+        /// Applying migration '{migrationId}'.
+        /// </summary>
+        internal static string FormatMigratorLoggerApplyingMigration(object migrationId)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("MigratorLoggerApplyingMigration", "migrationId"), migrationId);
+        }
+
+        /// <summary>
+        /// Reverting migration '{migrationId}'.
+        /// </summary>
+        internal static string MigratorLoggerRevertingMigration
+        {
+            get { return GetString("MigratorLoggerRevertingMigration"); }
+        }
+
+        /// <summary>
+        /// Reverting migration '{migrationId}'.
+        /// </summary>
+        internal static string FormatMigratorLoggerRevertingMigration(object migrationId)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("MigratorLoggerRevertingMigration", "migrationId"), migrationId);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
 
             System.Diagnostics.Debug.Assert(value != null);
-    
+
             if (formatterNames != null)
             {
                 for (var i = 0; i < formatterNames.Length; i++)

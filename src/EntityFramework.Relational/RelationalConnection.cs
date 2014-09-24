@@ -11,6 +11,7 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational.Utilities;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Relational
 {
@@ -34,6 +35,7 @@ namespace Microsoft.Data.Entity.Relational
         protected RelationalConnection(
             [NotNull] DbContextConfiguration configuration,
             [NotNull] ConnectionStringResolver connectionStringResolver)
+            : base(configuration.LoggerFactory)
         {
             Check.NotNull(configuration, "configuration");
             Check.NotNull(connectionStringResolver, "connectionStringResolver");
@@ -131,7 +133,9 @@ namespace Microsoft.Data.Entity.Relational
 
         private RelationalTransaction BeginTransactionWithNoPreconditions(IsolationLevel isolationLevel)
         {
-            Transaction = new RelationalTransaction(this, DbConnection.BeginTransaction(isolationLevel), transactionOwned: true);
+            Logger.BeginningTransaction(isolationLevel);
+
+            Transaction = new RelationalTransaction(this, DbConnection.BeginTransaction(isolationLevel), /*transactionOwned*/ true, Logger);
 
             return Transaction;
         }
@@ -156,7 +160,7 @@ namespace Microsoft.Data.Entity.Relational
 
                 Open();
 
-                Transaction = new RelationalTransaction(this, transaction, transactionOwned: false);
+                Transaction = new RelationalTransaction(this, transaction, /*transactionOwned*/ false, Logger);
             }
 
             return Transaction;

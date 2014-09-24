@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
+using Microsoft.Data.Entity.Services;
 using Microsoft.Data.Entity.Tests;
 using Xunit;
 
@@ -211,6 +212,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             private long _current;
 
             public FakeSqlStatementExecutor(int blockSize)
+                : base(new NullLoggerFactory())
             {
                 _blockSize = blockSize;
                 _current = -blockSize;

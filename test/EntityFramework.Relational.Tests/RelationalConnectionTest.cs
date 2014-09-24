@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Services;
 using Microsoft.Framework.ConfigurationModel;
 using Moq;
 using Moq.Protected;
@@ -377,6 +378,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
 
             var contextConfigurationMock = new Mock<DbContextConfiguration>();
             contextConfigurationMock.Setup(m => m.ContextOptions).Returns(contextOptions);
+            contextConfigurationMock.Setup(m => m.LoggerFactory).Returns(new NullLoggerFactory());
 
             return contextConfigurationMock.Object;
         }

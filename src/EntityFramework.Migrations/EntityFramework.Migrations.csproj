@@ -39,6 +39,7 @@
   <ItemGroup>
     <PackageReference Include="System.Data.Common" />
     <PackageReference Include="Microsoft.Framework.DependencyInjection" />
+    <PackageReference Include="Microsoft.Framework.Logging.Interfaces" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\packages\KoreBuild\build\Resources.cs">
@@ -55,6 +56,8 @@
     <Compile Include="Infrastructure\MigrationMetadataExtensions.cs" />
     <Compile Include="Infrastructure\MigrationMetadata.cs" />
     <Compile Include="Infrastructure\Migrator.cs" />
+    <Compile Include="Infrastructure\MigratorLoggerEventIds.cs" />
+    <Compile Include="Infrastructure\MigratorLoggerExtensions.cs" />
     <Compile Include="Infrastructure\ModelSnapshot.cs" />
     <Compile Include="Migration.cs" />
     <Compile Include="MigrationCodeGenerator.cs" />

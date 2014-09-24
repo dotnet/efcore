@@ -314,6 +314,102 @@ namespace Microsoft.Data.Entity.Relational
             return GetString("SkipNeedsOrderBy");
         }
 
+        /// <summary>
+        /// Creating database '{databaseName}'.
+        /// </summary>
+        internal static string RelationalLoggerCreatingDatabase
+        {
+            get { return GetString("RelationalLoggerCreatingDatabase"); }
+        }
+
+        /// <summary>
+        /// Creating database '{databaseName}'.
+        /// </summary>
+        internal static string FormatRelationalLoggerCreatingDatabase(object databaseName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("RelationalLoggerCreatingDatabase", "databaseName"), databaseName);
+        }
+
+        /// <summary>
+        /// Opening connection '{connectionString}'.
+        /// </summary>
+        internal static string RelationalLoggerOpeningConnection
+        {
+            get { return GetString("RelationalLoggerOpeningConnection"); }
+        }
+
+        /// <summary>
+        /// Opening connection '{connectionString}'.
+        /// </summary>
+        internal static string FormatRelationalLoggerOpeningConnection(object connectionString)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("RelationalLoggerOpeningConnection", "connectionString"), connectionString);
+        }
+
+        /// <summary>
+        /// Closing connection '{connectionString}'.
+        /// </summary>
+        internal static string RelationalLoggerClosingConnection
+        {
+            get { return GetString("RelationalLoggerClosingConnection"); }
+        }
+
+        /// <summary>
+        /// Closing connection '{connectionString}'.
+        /// </summary>
+        internal static string FormatRelationalLoggerClosingConnection(object connectionString)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("RelationalLoggerClosingConnection", "connectionString"), connectionString);
+        }
+
+        /// <summary>
+        /// Beginning transaction with isolation level '{isolationLevel}'.
+        /// </summary>
+        internal static string RelationalLoggerBeginningTransaction
+        {
+            get { return GetString("RelationalLoggerBeginningTransaction"); }
+        }
+
+        /// <summary>
+        /// Beginning transaction with isolation level '{isolationLevel}'.
+        /// </summary>
+        internal static string FormatRelationalLoggerBeginningTransaction(object isolationLevel)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("RelationalLoggerBeginningTransaction", "isolationLevel"), isolationLevel);
+        }
+
+        /// <summary>
+        /// Committing transaction.
+        /// </summary>
+        internal static string RelationalLoggerCommittingTransaction
+        {
+            get { return GetString("RelationalLoggerCommittingTransaction"); }
+        }
+
+        /// <summary>
+        /// Committing transaction.
+        /// </summary>
+        internal static string FormatRelationalLoggerCommittingTransaction()
+        {
+            return GetString("RelationalLoggerCommittingTransaction");
+        }
+
+        /// <summary>
+        /// Rolling back transaction.
+        /// </summary>
+        internal static string RelationalLoggerRollingbackTransaction
+        {
+            get { return GetString("RelationalLoggerRollingbackTransaction"); }
+        }
+
+        /// <summary>
+        /// Rolling back transaction.
+        /// </summary>
+        internal static string FormatRelationalLoggerRollingbackTransaction()
+        {
+            return GetString("RelationalLoggerRollingbackTransaction");
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

@@ -7,6 +7,7 @@ using System.Linq;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Relational;
+using Microsoft.Data.Entity.Services;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.Tests
@@ -21,7 +22,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             property.EntityType[SqlServerMetadataExtensions.Annotations.SequenceBlockSize] = "-1";
             property.EntityType.Model[SqlServerMetadataExtensions.Annotations.SequenceBlockSize] = "-1";
 
-            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor());
+            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory()));
 
             Assert.Equal(11, factory.GetBlockSize(property));
         }
@@ -33,7 +34,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             property.EntityType[SqlServerMetadataExtensions.Annotations.SequenceBlockSize] = "11";
             property.EntityType.Model[SqlServerMetadataExtensions.Annotations.SequenceBlockSize] = "-1";
 
-            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor());
+            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory()));
 
             Assert.Equal(11, factory.GetBlockSize(property));
         }
@@ -44,7 +45,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var property = CreateProperty();
             property.EntityType.Model[SqlServerMetadataExtensions.Annotations.SequenceBlockSize] = "11";
 
-            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor());
+            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory()));
 
             Assert.Equal(11, factory.GetBlockSize(property));
         }
@@ -54,7 +55,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             var property = CreateProperty();
 
-            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor());
+            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory()));
 
             Assert.Equal(SqlServerSequenceValueGeneratorFactory.DefaultBlockSize, factory.GetBlockSize(property));
         }
@@ -67,7 +68,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             property.EntityType[SqlServerMetadataExtensions.Annotations.SequenceName] = "Jimmy";
             property.EntityType.Model[SqlServerMetadataExtensions.Annotations.SequenceName] = "Jimmy";
 
-            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor());
+            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory()));
 
             Assert.Equal("Robert", factory.GetSequenceName(property));
         }
@@ -79,7 +80,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             property.EntityType[SqlServerMetadataExtensions.Annotations.SequenceName] = "Robert";
             property.EntityType.Model[SqlServerMetadataExtensions.Annotations.SequenceName] = "Jimmy";
 
-            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor());
+            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory()));
 
             Assert.Equal("Robert", factory.GetSequenceName(property));
         }
@@ -90,7 +91,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var property = CreateProperty();
             property.EntityType.Model[SqlServerMetadataExtensions.Annotations.SequenceName] = "Robert";
 
-            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor());
+            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory()));
 
             Assert.Equal("Robert", factory.GetSequenceName(property));
         }
@@ -100,7 +101,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             var property = CreateProperty();
 
-            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor());
+            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory()));
 
             Assert.Equal("MyTable_Sequence", factory.GetSequenceName(property));
         }
@@ -112,7 +113,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             property[SqlServerMetadataExtensions.Annotations.SequenceBlockSize] = "11";
             property[SqlServerMetadataExtensions.Annotations.SequenceName] = "Plant";
 
-            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor());
+            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory()));
 
             var operation = (CreateSequenceOperation)factory.GetUpMigrationOperations(property).Single();
 
@@ -128,7 +129,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var property = CreateProperty();
             property[SqlServerMetadataExtensions.Annotations.SequenceName] = "Page";
 
-            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor());
+            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory()));
 
             var operation = (DropSequenceOperation)factory.GetDownMigrationOperations(property).Single();
 
@@ -142,7 +143,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             property[SqlServerMetadataExtensions.Annotations.SequenceBlockSize] = "11";
             property[SqlServerMetadataExtensions.Annotations.SequenceName] = "Zeppelin";
 
-            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor());
+            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory()));
 
             var generator = (SqlServerSequenceValueGenerator)factory.Create(property);
 
@@ -155,7 +156,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             var property = CreateProperty();
 
-            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor());
+            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory()));
 
             Assert.Equal(5, factory.GetPoolSize(property));
         }
@@ -166,7 +167,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var property = CreateProperty();
             property[SqlServerMetadataExtensions.Annotations.SequenceName] = "Led";
 
-            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor());
+            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory()));
 
             Assert.Equal("Led", factory.GetCacheKey(property));
         }

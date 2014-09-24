@@ -10,7 +10,9 @@ using System.Threading.Tasks;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
+using Microsoft.Data.Entity.Services;
 using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;
 
@@ -217,7 +219,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             using (var testDatabase = await SqlServerTestDatabase.Scratch())
             {
                 var serviceCollection = new ServiceCollection();
-                serviceCollection.AddEntityFramework().AddSqlServer();
+                serviceCollection
+                    .AddEntityFramework()
+                    .AddSqlServer()
+                    .UseLoggerFactory<NullLoggerFactory>();
                 var serviceProvider = serviceCollection.BuildServiceProvider();
 
                 var options = new DbContextOptions().UseSqlServer(testDatabase.Connection.ConnectionString);
@@ -360,7 +365,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         private static DbContextConfiguration CreateConfiguration(SqlServerTestDatabase testDatabase)
         {
             var serviceCollection = new ServiceCollection();
-            serviceCollection.AddEntityFramework().AddSqlServer();
+            serviceCollection
+                .AddEntityFramework()
+                .AddSqlServer()
+                .UseLoggerFactory<NullLoggerFactory>();
             return new DbContext(
                 serviceCollection.BuildServiceProvider(),
                 new DbContextOptions().UseSqlServer(testDatabase.Connection.ConnectionString))

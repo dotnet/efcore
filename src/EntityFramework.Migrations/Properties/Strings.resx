@@ -135,4 +135,16 @@
   <data name="InvalidMigrationId" xml:space="preserve">
     <value>'{migrationId}' is not a valid migration identifier.</value>
   </data>
+  <data name="MigratorLoggerCreatingHistoryTable" xml:space="preserve">
+    <value>Creating migration history table.</value>
+  </data>
+  <data name="MigratorLoggerDroppingHistoryTable" xml:space="preserve">
+    <value>Dropping migration history table.</value>
+  </data>
+  <data name="MigratorLoggerApplyingMigration" xml:space="preserve">
+    <value>Applying migration '{migrationId}'.</value>
+  </data>
+  <data name="MigratorLoggerRevertingMigration" xml:space="preserve">
+    <value>Reverting migration '{migrationId}'.</value>
+  </data>
 </root>

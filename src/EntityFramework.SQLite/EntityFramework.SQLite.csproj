@@ -40,6 +40,7 @@
     <PackageReference Include="System.Data.Common" />
     <PackageReference Include="Microsoft.Data.SQLite" />
     <PackageReference Include="Microsoft.Framework.DependencyInjection" />
+    <PackageReference Include="Microsoft.Framework.Logging.Interfaces" />
     <PackageReference Include="Remotion.Linq">
       <TargetFramework>portable-net45+wp80+wpa81+win</TargetFramework>
     </PackageReference>

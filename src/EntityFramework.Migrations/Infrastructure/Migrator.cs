@@ -11,7 +11,8 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Utilities;
 using Microsoft.Data.Entity.Relational;
-using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Migrations.Infrastructure
 {
@@ -26,6 +27,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         private readonly IMigrationOperationSqlGeneratorFactory _ddlSqlGeneratorFactory;
         private readonly SqlGenerator _dmlSqlGenerator;
         private readonly SqlStatementExecutor _sqlExecutor;
+        private readonly LazyRef<ILogger> _logger;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -60,6 +62,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             _ddlSqlGeneratorFactory = ddlSqlGeneratorFactory;
             _dmlSqlGenerator = dmlSqlGenerator;
             _sqlExecutor = sqlExecutor;
+            _logger = new LazyRef<ILogger>(() => ContextConfiguration.LoggerFactory.Create(GetType().Name));
         }
 
         protected virtual DbContextConfiguration ContextConfiguration
@@ -97,6 +100,11 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             get { return _sqlExecutor; }
         }
 
+        protected virtual ILogger Logger
+        {
+            get { return _logger.Value; }
+        }
+
         public virtual IReadOnlyList<IMigrationMetadata> GetLocalMigrations()
         {
             return MigrationAssembly.Migrations;
@@ -119,19 +127,19 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                     .ToArray();
         }
 
-        protected virtual IReadOnlyList<IMigrationMetadata> GetDatabaseMigrations(out bool historyRepositoryExists)
+        protected virtual IReadOnlyList<IMigrationMetadata> GetDatabaseMigrations(out bool historyTableExists)
         {
             IReadOnlyList<IMigrationMetadata> migrations;
             try
             {
                 migrations = HistoryRepository.Migrations;
-                historyRepositoryExists = true;
+                historyTableExists = true;
             }
             catch (DbException)
             {
                 // TODO: Log the exception message.
                 migrations = new IMigrationMetadata[0];
-                historyRepositoryExists = false;
+                historyTableExists = false;
             }
 
             return migrations;
@@ -139,34 +147,229 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
         public virtual void UpdateDatabase()
         {
-            UpdateDatabase(GenerateUpdateDatabaseSql());
+            UpdateDatabase(GetLocalMigrations().Count - 1, simulate: false);
         }
 
         public virtual void UpdateDatabase([NotNull] string targetMigrationName)
         {
             Check.NotEmpty(targetMigrationName, "targetMigrationName");
 
-            UpdateDatabase(GenerateUpdateDatabaseSql(targetMigrationName));
+            UpdateDatabase(GetTargetMigrationIndex(targetMigrationName), simulate: false);
         }
 
-        protected virtual void UpdateDatabase(IReadOnlyList<SqlStatement> sqlStatements)
+        public virtual IReadOnlyList<SqlStatement> GenerateUpdateDatabaseSql()
         {
-            var database = (RelationalDatabase)ContextConfiguration.Database;
+            return UpdateDatabase(GetLocalMigrations().Count - 1, simulate: true);
+        }
 
-            if (!database.Exists())
+        public virtual IReadOnlyList<SqlStatement> GenerateUpdateDatabaseSql([NotNull] string targetMigrationName)
+        {
+            Check.NotEmpty(targetMigrationName, "targetMigrationName");
+
+            return UpdateDatabase(GetTargetMigrationIndex(targetMigrationName), simulate: true);
+        }
+
+        protected virtual IReadOnlyList<SqlStatement> UpdateDatabase(int targetMigrationIndex, bool simulate)
+        {
+            bool historyTableExists;
+            var migrationPairs = PairMigrations(GetLocalMigrations(), GetDatabaseMigrations(out historyTableExists));
+            var downgradeIndexes
+                = GetLocalMigrations()
+                    .Select((m, i) => i)
+                    .Skip(targetMigrationIndex + 1)
+                    .Where(i => migrationPairs[i].DatabaseMigration != null)
+                    .Reverse()
+                    .ToArray();
+            var upgradeIndexes
+                = GetLocalMigrations()
+                    .Select((m, i) => i)
+                    .Take(targetMigrationIndex + 1)
+                    .Where(i => migrationPairs[i].DatabaseMigration == null)
+                    .ToArray();
+            var database = (RelationalDatabase)ContextConfiguration.Database;
+            var statements = new List<SqlStatement>();
+
+            if (!simulate && (downgradeIndexes.Any() || upgradeIndexes.Any()) && !database.Exists())
             {
                 database.Create();
             }
 
-            ExecuteStatements(sqlStatements, database.Connection);
+            if (upgradeIndexes.Any() && !historyTableExists)
+            {
+                statements.AddRange(CreateHistoryTable(simulate));
+            }
+
+            statements.AddRange(downgradeIndexes.SelectMany(i => RevertMigration(i, simulate)));
+
+            statements.AddRange(upgradeIndexes.SelectMany(i => ApplyMigration(i, simulate)));
+
+            if (targetMigrationIndex == -1)
+            {
+                statements.AddRange(DropHistoryTable(simulate));
+            }
+
+            return statements;
         }
 
-        protected virtual void ExecuteStatements(
-            [NotNull] IEnumerable<SqlStatement> sqlStatements, [NotNull] RelationalConnection connection)
+        protected virtual IReadOnlyList<SqlStatement> CreateHistoryTable(bool simulate)
+        {
+            var targetDatabase = ModelDiffer.DatabaseBuilder.GetDatabase(HistoryRepository.HistoryModel);
+            var ddlSqlGenerator = DdlSqlGeneratorFactory.Create();
+
+            var statements = ddlSqlGenerator.Generate(ModelDiffer.CreateSchema(targetDatabase)).ToArray();
+
+            if (simulate)
+            {
+                return statements;
+            }
+
+            Logger.CreatingHistoryTable();
+
+            ExecuteStatements(statements);
+
+            return statements;
+        }
+
+        protected virtual IReadOnlyList<SqlStatement> DropHistoryTable(bool simulate)
+        {
+            var sourceDatabase = ModelDiffer.DatabaseBuilder.GetDatabase(HistoryRepository.HistoryModel);
+            var ddlSqlGenerator = DdlSqlGeneratorFactory.Create(sourceDatabase);
+
+            var statements = ddlSqlGenerator.Generate(ModelDiffer.DropSchema(sourceDatabase)).ToArray();
+
+            if (simulate)
+            {
+                return statements;
+            }
+
+            Logger.DroppingHistoryTable();
+
+            ExecuteStatements(statements);
+
+            return statements;
+        }
+
+        protected virtual IReadOnlyList<SqlStatement> ApplyMigration(int index, bool simulate)
+        {
+            var migration = GetLocalMigrations()[index];
+            var sourceDatabase = ModelDiffer.DatabaseBuilder.GetDatabase(GetSourceModel(index));
+            var ddlSqlGenerator = DdlSqlGeneratorFactory.Create(sourceDatabase);
+
+            var statements = ddlSqlGenerator.Generate(migration.UpgradeOperations)
+                .Concat(HistoryRepository.GenerateInsertMigrationSql(migration, DmlSqlGenerator))
+                .ToArray();
+
+            if (simulate)
+            {
+                return statements;
+            }
+
+            Logger.ApplyingMigration(migration.MigrationId);
+
+            ExecuteStatements(statements);
+
+            return statements;
+        }
+
+        protected virtual IReadOnlyList<SqlStatement> RevertMigration(int index, bool simulate)
+        {
+            var migration = GetLocalMigrations()[index];
+            var sourceDatabase = ModelDiffer.DatabaseBuilder.GetDatabase(migration.TargetModel);
+            var ddlSqlGenerator = DdlSqlGeneratorFactory.Create(sourceDatabase);
+
+            var statements = ddlSqlGenerator.Generate(migration.DowngradeOperations)
+                .Concat(HistoryRepository.GenerateDeleteMigrationSql(migration, DmlSqlGenerator))
+                .ToArray();
+
+            if (simulate)
+            {
+                return statements;
+            }
+
+            Logger.RevertingMigration(migration.MigrationId);
+
+            ExecuteStatements(statements);
+
+            return statements;
+        }
+
+        protected virtual IReadOnlyList<MigrationPair> PairMigrations(
+            IReadOnlyList<IMigrationMetadata> localMigrations,
+            IReadOnlyList<IMigrationMetadata> databaseMigrations)
+        {
+            Check.NotNull(localMigrations, "localMigrations");
+            Check.NotNull(databaseMigrations, "databaseMigrations");
+
+            var pairs = new List<MigrationPair>(localMigrations.Count);
+            var i = 0;
+            var j = 0;
+
+            while (i < localMigrations.Count
+                   && j < databaseMigrations.Count)
+            {
+                var compareResult = string.CompareOrdinal(
+                    localMigrations[i].MigrationId, databaseMigrations[j].MigrationId);
+
+                if (compareResult == 0)
+                {
+                    pairs.Add(new MigrationPair(localMigrations[i++], databaseMigrations[j++]));
+                }
+                else if (compareResult < 0)
+                {
+                    pairs.Add(new MigrationPair(localMigrations[i++], null));
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            if (j < databaseMigrations.Count)
+            {
+                throw new InvalidOperationException(Strings.FormatLocalMigrationNotFound(
+                    databaseMigrations[j].MigrationId));
+            }
+
+            while (i < localMigrations.Count)
+            {
+                pairs.Add(new MigrationPair(localMigrations[i++], null));
+            }
+
+            return pairs;
+        }
+
+        protected virtual int GetTargetMigrationIndex([NotNull] string name)
+        {
+            Check.NotEmpty(name, "name");
+
+            int index;
+
+            if (name == InitialDatabase)
+            {
+                index = -1;
+            }
+            else
+            {
+                index = GetLocalMigrations().IndexOf(m => m.GetMigrationName() == name);
+                if (index < 0)
+                {
+                    throw new InvalidOperationException(Strings.FormatTargetMigrationNotFound(name));
+                }
+            }
+
+            return index;
+        }
+
+        protected virtual IModel GetSourceModel(int index)
+        {
+            return index == 0 ? new Metadata.Model() : GetLocalMigrations()[index - 1].TargetModel;
+        }
+
+        protected virtual void ExecuteStatements([NotNull] IEnumerable<SqlStatement> sqlStatements)
         {
             Check.NotNull(sqlStatements, "sqlStatements");
-            Check.NotNull(connection, "connection");
 
+            var connection = ((RelationalDatabase)ContextConfiguration.Database).Connection;
             var pendingStatements = new List<SqlStatement>();
 
             foreach (var statement in sqlStatements.Where(s => !string.IsNullOrEmpty(s.Sql)))
@@ -209,7 +412,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
                 transaction.Commit();
             }
-            finally 
+            finally
             {
                 if (transaction != null)
                 {
@@ -227,172 +430,17 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             SqlExecutor.ExecuteNonQuery(connection.DbConnection, null, sqlStatements);
         }
 
-        public virtual IReadOnlyList<SqlStatement> GenerateUpdateDatabaseSql()
-        {
-            bool historyRepositoryExists;
-            var localMigrations = GetLocalMigrations();
-            var migrationPairs = PairMigrations(localMigrations, GetDatabaseMigrations(out historyRepositoryExists));
-
-            return
-                GenerateUpdateDatabaseSql(
-                    localMigrations,
-                    new int[0],
-                    localMigrations
-                        .Select((p, i) => i)
-                        .Where(i => migrationPairs[i].DatabaseMigration == null)
-                        .ToArray(),
-                    historyRepositoryExists,
-                    removeHistoryRepository: false);
-        }
-
-        public virtual IReadOnlyList<SqlStatement> GenerateUpdateDatabaseSql([NotNull] string targetMigrationName)
-        {
-            Check.NotEmpty(targetMigrationName, "targetMigrationName");
-
-            bool historyRepositoryExists;
-            var localMigrations = GetLocalMigrations();
-            var migrationPairs = PairMigrations(localMigrations, GetDatabaseMigrations(out historyRepositoryExists));
-
-            int index;
-            if (targetMigrationName == InitialDatabase)
-            {
-                index = -1;
-            }
-            else
-            {
-                index = localMigrations.IndexOf(m => m.GetMigrationName() == targetMigrationName);
-                if (index < 0)
-                {
-                    throw new InvalidOperationException(Strings.FormatTargetMigrationNotFound(targetMigrationName));
-                }
-            }
-
-            return
-                GenerateUpdateDatabaseSql(
-                    localMigrations,
-                    localMigrations
-                        .Select((m, i) => i)
-                        .Skip(index + 1)
-                        .Where(i => migrationPairs[i].DatabaseMigration != null)
-                        .Reverse()
-                        .ToArray(),
-                    localMigrations
-                        .Select((m, i) => i)
-                        .Take(index + 1)
-                        .Where(i => migrationPairs[i].DatabaseMigration == null)
-                        .ToArray(),
-                    historyRepositoryExists, index == -1);
-        }
-
-        protected virtual IReadOnlyList<SqlStatement> GenerateUpdateDatabaseSql(
-            IReadOnlyList<IMigrationMetadata> migrations,
-            IReadOnlyList<int> downgradeIndexes,
-            IReadOnlyList<int> upgradeIndexes,
-            bool historyRepositoryExists,
-            bool removeHistoryRepository)
-        {
-            var sqlStatements = new List<SqlStatement>();
-
-            if (!historyRepositoryExists
-                && upgradeIndexes.Count > 0)
-            {
-                var targetDatabase = ModelDiffer.DatabaseBuilder.GetDatabase(HistoryRepository.HistoryModel);
-                var ddlSqlGenerator = DdlSqlGeneratorFactory.Create();
-
-                sqlStatements.AddRange(ddlSqlGenerator.Generate(ModelDiffer.CreateSchema(targetDatabase)));
-            }
-
-            foreach (var index in downgradeIndexes)
-            {
-                var migration = migrations[index];
-                var sourceDatabase = ModelDiffer.DatabaseBuilder.GetDatabase(migration.TargetModel);
-                var ddlSqlGenerator = DdlSqlGeneratorFactory.Create(sourceDatabase);
-
-                sqlStatements.AddRange(ddlSqlGenerator.Generate(migration.DowngradeOperations));
-
-                sqlStatements.AddRange(
-                    HistoryRepository.GenerateDeleteMigrationSql(migration, DmlSqlGenerator));
-            }
-
-            foreach (var index in upgradeIndexes)
-            {
-                var migration = migrations[index];
-                var sourceDatabase = ModelDiffer.DatabaseBuilder.GetDatabase(GetSourceModel(migrations, index));
-                var ddlSqlGenerator = DdlSqlGeneratorFactory.Create(sourceDatabase);
-
-                sqlStatements.AddRange(ddlSqlGenerator.Generate(migration.UpgradeOperations));
-
-                sqlStatements.AddRange(
-                    HistoryRepository.GenerateInsertMigrationSql(migration, DmlSqlGenerator));
-            }
-
-            if (historyRepositoryExists && removeHistoryRepository)
-            {
-                var sourceDatabase = ModelDiffer.DatabaseBuilder.GetDatabase(HistoryRepository.HistoryModel);
-                var ddlSqlGenerator = DdlSqlGeneratorFactory.Create(sourceDatabase);
-
-                sqlStatements.AddRange(ddlSqlGenerator.Generate(ModelDiffer.DropSchema(sourceDatabase)));
-            }
-
-            return sqlStatements;
-        }
-
-        protected virtual IReadOnlyList<MigrationPair> PairMigrations(
-            IReadOnlyList<IMigrationMetadata> localMigrations,
-            IReadOnlyList<IMigrationMetadata> databaseMigrations)
-        {
-            var pairs = new List<MigrationPair>(localMigrations.Count);
-            var i = 0;
-            var j = 0;
-
-            while (i < localMigrations.Count
-                   && j < databaseMigrations.Count)
-            {
-                var compareResult = string.CompareOrdinal(
-                    localMigrations[i].MigrationId, databaseMigrations[j].MigrationId);
-
-                if (compareResult == 0)
-                {
-                    pairs.Add(new MigrationPair(localMigrations[i++], databaseMigrations[j++]));
-                }
-                else if (compareResult < 0)
-                {
-                    pairs.Add(new MigrationPair(localMigrations[i++], null));
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            if (j < databaseMigrations.Count)
-            {
-                throw new InvalidOperationException(Strings.FormatLocalMigrationNotFound(
-                    databaseMigrations[j].MigrationId));
-            }
-
-            while (i < localMigrations.Count)
-            {
-                pairs.Add(new MigrationPair(localMigrations[i++], null));
-            }
-
-            return pairs;
-        }
-
-        private static IModel GetSourceModel(IReadOnlyList<IMigrationMetadata> migrations, int index)
-        {
-            return index == 0 ? new Metadata.Model() : migrations[index - 1].TargetModel;
-        }
-
         protected struct MigrationPair
         {
             public readonly IMigrationMetadata LocalMigration;
             public readonly IMigrationMetadata DatabaseMigration;
 
             public MigrationPair(
-                IMigrationMetadata localMigration,
-                IMigrationMetadata databaseMigration)
+                [NotNull] IMigrationMetadata localMigration,
+                [CanBeNull] IMigrationMetadata databaseMigration)
             {
+                Check.NotNull(localMigration, "localMigration");
+
                 LocalMigration = localMigration;
                 DatabaseMigration = databaseMigration;
             }

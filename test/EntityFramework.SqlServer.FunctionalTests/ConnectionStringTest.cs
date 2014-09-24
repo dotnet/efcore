@@ -6,8 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Services;
 using Microsoft.Framework.ConfigurationModel;
 using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;
 
@@ -60,7 +62,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             serviceCollection
                 .AddInstance<IConfiguration>(configuration)
                 .AddEntityFramework()
-                .AddSqlServer();
+                .AddSqlServer()
+                .UseLoggerFactory<NullLoggerFactory>();
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
 

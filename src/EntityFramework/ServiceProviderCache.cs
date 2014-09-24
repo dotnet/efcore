@@ -4,9 +4,12 @@
 using System;
 using System.Linq;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Services;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
+using Microsoft.Framework.DependencyInjection.Advanced;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity
 {
@@ -26,6 +29,12 @@ namespace Microsoft.Data.Entity
         {
             var services = new ServiceCollection();
             var builder = services.AddEntityFramework();
+
+            if (services.All(s => s.ServiceType != typeof(ILoggerFactory)))
+            {
+                builder.UseLoggerFactory<NullLoggerFactory>();
+            }
+
             foreach (var extension in options.Extensions)
             {
                 extension.ApplyServices(builder);

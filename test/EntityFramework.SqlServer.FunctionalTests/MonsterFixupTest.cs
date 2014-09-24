@@ -9,8 +9,10 @@ using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels;
+using Microsoft.Data.Entity.Services;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
@@ -24,7 +26,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         protected override IServiceProvider CreateServiceProvider(bool throwingStateManager = false)
         {
-            var serviceCollection = new ServiceCollection().AddEntityFramework().AddSqlServer().ServiceCollection;
+            var serviceCollection = new ServiceCollection()
+                .AddEntityFramework()
+                .AddSqlServer()
+                .UseLoggerFactory<NullLoggerFactory>()
+                .ServiceCollection;
 
             if (throwingStateManager)
             {

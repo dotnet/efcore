@@ -7,7 +7,9 @@ using System.Reflection;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Services;
 using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
 
 namespace Microsoft.Data.Entity.Tests
@@ -27,7 +29,10 @@ namespace Microsoft.Data.Entity.Tests
         public static IServiceProvider CreateServiceProvider()
         {
             var services = new ServiceCollection();
-            services.AddEntityFramework().AddProviderServices();
+            services
+                .AddEntityFramework()
+                .UseLoggerFactory<NullLoggerFactory>()
+                .AddProviderServices();
             return services.BuildServiceProvider();
         }
 

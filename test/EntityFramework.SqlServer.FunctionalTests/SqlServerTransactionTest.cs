@@ -5,7 +5,9 @@ using System;
 using System.Data.Common;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
+using Microsoft.Data.Entity.Services;
 using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
@@ -19,6 +21,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             _serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
+                .UseLoggerFactory<NullLoggerFactory>()
                 .ServiceCollection
                 .BuildServiceProvider();
         }

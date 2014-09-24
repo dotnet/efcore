@@ -5,7 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.Services;
 using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;
 
@@ -19,6 +21,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
+                .UseLoggerFactory<NullLoggerFactory>()
                 .ServiceCollection
                 .BuildServiceProvider();
 
@@ -52,6 +55,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
+                .UseLoggerFactory<NullLoggerFactory>()
                 .ServiceCollection
                 .BuildServiceProvider();
 

@@ -6,23 +6,31 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Infrastructure
 {
     public class Database
     {
         private readonly DbContextConfiguration _configuration;
+        private readonly LazyRef<ILogger> _logger;
 
         public Database([NotNull] DbContextConfiguration configuration)
         {
             Check.NotNull(configuration, "configuration");
 
             _configuration = configuration;
+            _logger = new LazyRef<ILogger>(() => Configuration.LoggerFactory.Create(GetType().Name));
         }
 
         protected virtual DbContextConfiguration Configuration
         {
             get { return _configuration; }
+        }
+
+        protected virtual ILogger Logger
+        {
+            get { return _logger.Value; }
         }
 
         public virtual DataStoreConnection Connection

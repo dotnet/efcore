@@ -9,11 +9,27 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Utilities;
+using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Relational
 {
     public class SqlStatementExecutor
     {
+        private readonly LazyRef<ILogger> _logger;
+
+        public SqlStatementExecutor([NotNull] ILoggerFactory loggerFactory)
+        {
+            Check.NotNull(loggerFactory, "loggerFactory");
+
+            _logger = new LazyRef<ILogger>(() => loggerFactory.Create(GetType().Name));
+        }
+
+        protected virtual ILogger Logger
+        {
+            get { return _logger.Value; }
+        }
+
         public virtual Task ExecuteNonQueryAsync(
             [NotNull] DbConnection connection,
             [CanBeNull] DbTransaction transaction,
@@ -29,6 +45,8 @@ namespace Microsoft.Data.Entity.Relational
                     {
                         foreach (var statement in statements)
                         {
+                            Logger.WriteSql(statement.Sql);
+
                             await CreateCommand(connection, transaction, statement).ExecuteNonQueryAsync(cancellationToken)
                                 .WithCurrentCulture();
                         }
@@ -48,7 +66,12 @@ namespace Microsoft.Data.Entity.Relational
 
             return ExecuteAsync(
                 connection,
-                () => CreateCommand(connection, transaction, statement).ExecuteScalarAsync(cancellationToken),
+                () =>
+                    {
+                        Logger.WriteSql(statement.Sql);
+
+                        return CreateCommand(connection, transaction, statement).ExecuteScalarAsync(cancellationToken);
+                    },
                 cancellationToken);
         }
 
@@ -64,6 +87,8 @@ namespace Microsoft.Data.Entity.Relational
             var connectionWasOpen = connection.State == ConnectionState.Open;
             if (!connectionWasOpen)
             {
+                Logger.OpeningConnection(connection.ConnectionString);
+
                 await connection.OpenAsync(cancellationToken).WithCurrentCulture();
             }
 
@@ -75,6 +100,8 @@ namespace Microsoft.Data.Entity.Relational
             {
                 if (!connectionWasOpen)
                 {
+                    Logger.ClosingConnection(connection.ConnectionString);
+
                     connection.Close();
                 }
             }
@@ -94,6 +121,8 @@ namespace Microsoft.Data.Entity.Relational
                     {
                         foreach (var statement in statements)
                         {
+                            Logger.WriteSql(statement.Sql);
+
                             CreateCommand(connection, transaction, statement).ExecuteNonQuery();
                         }
                         return null;
@@ -110,7 +139,12 @@ namespace Microsoft.Data.Entity.Relational
 
             return Execute(
                 connection,
-                () => CreateCommand(connection, transaction, statement).ExecuteScalar());
+                () =>
+                    {
+                        Logger.WriteSql(statement.Sql);
+
+                        return CreateCommand(connection, transaction, statement).ExecuteScalar();
+                    });
         }
 
         public virtual object Execute(
@@ -124,6 +158,8 @@ namespace Microsoft.Data.Entity.Relational
             var connectionWasOpen = connection.State == ConnectionState.Open;
             if (!connectionWasOpen)
             {
+                Logger.OpeningConnection(connection.ConnectionString);
+
                 connection.Open();
             }
 
@@ -135,12 +171,14 @@ namespace Microsoft.Data.Entity.Relational
             {
                 if (!connectionWasOpen)
                 {
+                    Logger.ClosingConnection(connection.ConnectionString);
+
                     connection.Close();
                 }
             }
         }
 
-        private static DbCommand CreateCommand(
+        protected virtual DbCommand CreateCommand(
             DbConnection connection,
             DbTransaction transaction,
             SqlStatement statement)

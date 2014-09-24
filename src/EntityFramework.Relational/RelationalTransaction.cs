@@ -7,6 +7,7 @@ using System.Diagnostics.Contracts;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Utilities;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Relational
 {
@@ -26,10 +27,13 @@ namespace Microsoft.Data.Entity.Relational
         {
         }
 
-        public RelationalTransaction([NotNull] RelationalConnection connection, [NotNull] DbTransaction dbTransaction, bool transactionOwned)
+        public RelationalTransaction([NotNull] RelationalConnection connection, [NotNull] DbTransaction dbTransaction, bool transactionOwned, [NotNull] ILogger logger)
+            : base(logger)
         {
             Check.NotNull(connection, "connection");
             Check.NotNull(dbTransaction, "dbTransaction");
+            Check.NotNull(logger, "logger");
+
             if (connection.DbConnection != dbTransaction.Connection)
             {
                 throw new InvalidOperationException(Strings.FormatTransactionAssociatedWithDifferentConnection());
@@ -52,12 +56,16 @@ namespace Microsoft.Data.Entity.Relational
 
         public override void Commit()
         {
+            Logger.CommittingTransaction();
+
             DbTransaction.Commit();
             ClearTransaction();
         }
 
         public override void Rollback()
         {
+            Logger.RollingbackTransaction();
+
             DbTransaction.Rollback();
             ClearTransaction();
         }

@@ -174,4 +174,22 @@
   <data name="SkipNeedsOrderBy" xml:space="preserve">
     <value>A query containing the Skip operator must include at least one OrderBy operation.</value>
   </data>
+  <data name="RelationalLoggerCreatingDatabase" xml:space="preserve">
+    <value>Creating database '{databaseName}'.</value>
+  </data>
+  <data name="RelationalLoggerOpeningConnection" xml:space="preserve">
+    <value>Opening connection '{connectionString}'.</value>
+  </data>
+  <data name="RelationalLoggerClosingConnection" xml:space="preserve">
+    <value>Closing connection '{connectionString}'.</value>
+  </data>
+  <data name="RelationalLoggerBeginningTransaction" xml:space="preserve">
+    <value>Beginning transaction with isolation level '{isolationLevel}'.</value>
+  </data>
+  <data name="RelationalLoggerCommittingTransaction" xml:space="preserve">
+    <value>Committing transaction.</value>
+  </data>
+  <data name="RelationalLoggerRollingbackTransaction" xml:space="preserve">
+    <value>Rolling back transaction.</value>
+  </data>
 </root>

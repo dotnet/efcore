@@ -6,10 +6,12 @@ using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Update;
+using Microsoft.Data.Entity.Services;
 using Microsoft.Data.Entity.SqlServer.Update;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;
 
@@ -21,7 +23,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Can_get_default_services()
         {
             var services = new ServiceCollection();
-            services.AddEntityFramework().AddSqlServer();
+            services
+                .AddEntityFramework()
+                .AddSqlServer()
+                .UseLoggerFactory<NullLoggerFactory>();
 
             // Relational
             Assert.True(services.Any(sd => sd.ServiceType == typeof(DatabaseBuilder)));
@@ -54,7 +59,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Services_wire_up_correctly()
         {
             var services = new ServiceCollection();
-            services.AddEntityFramework().AddSqlServer();
+            services
+                .AddEntityFramework()
+                .AddSqlServer()
+                .UseLoggerFactory<NullLoggerFactory>();
             var serviceProvider = services.BuildServiceProvider();
 
             var context = new DbContext(

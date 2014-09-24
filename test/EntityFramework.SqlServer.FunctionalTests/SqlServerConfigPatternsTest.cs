@@ -6,7 +6,9 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Services;
 using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;
 
@@ -84,7 +86,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 using (await SqlServerTestDatabase.Northwind())
                 {
                     var serviceCollection = new ServiceCollection();
-                    serviceCollection.AddEntityFramework().AddSqlServer();
+                    serviceCollection
+                        .AddEntityFramework()
+                        .AddSqlServer()
+                        .UseLoggerFactory<NullLoggerFactory>();
                     var serviceProvider = serviceCollection.BuildServiceProvider();
 
                     using (var context = new NorthwindContext(serviceProvider))
@@ -123,7 +128,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 using (await SqlServerTestDatabase.Northwind())
                 {
                     var serviceCollection = new ServiceCollection();
-                    serviceCollection.AddEntityFramework().AddSqlServer();
+                    serviceCollection
+                        .AddEntityFramework()
+                        .AddSqlServer()
+                        .UseLoggerFactory<NullLoggerFactory>();
                     var serviceProvider = serviceCollection.BuildServiceProvider();
 
                     var options = new DbContextOptions().UseSqlServer(SqlServerTestDatabase.NorthwindConnectionString);
@@ -159,7 +167,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 using (await SqlServerTestDatabase.Northwind())
                 {
                     var serviceCollection = new ServiceCollection();
-                    serviceCollection.AddEntityFramework().AddSqlServer();
+                    serviceCollection
+                        .AddEntityFramework()
+                        .AddSqlServer()
+                        .UseLoggerFactory<NullLoggerFactory>();
                     var serviceProvider = serviceCollection.BuildServiceProvider();
 
                     Assert.Equal(
@@ -228,7 +239,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 using (await SqlServerTestDatabase.Northwind())
                 {
                     var serviceCollection = new ServiceCollection();
-                    serviceCollection.AddEntityFramework();
+                    serviceCollection
+                        .AddEntityFramework()
+                        .UseLoggerFactory<NullLoggerFactory>();
                     var serviceProvider = serviceCollection.BuildServiceProvider();
 
                     Assert.Equal(
@@ -270,7 +283,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             public async Task Can_register_context_with_DI_container_and_have_it_injected()
             {
                 var serviceCollection = new ServiceCollection();
-                serviceCollection.AddEntityFramework().AddSqlServer();
+                serviceCollection
+                    .AddEntityFramework()
+                    .AddSqlServer()
+                    .UseLoggerFactory<NullLoggerFactory>();
                 var serviceProvider = serviceCollection
                     .AddTransient<NorthwindContext>()
                     .AddTransient<MyController>()
@@ -329,7 +345,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 var options = new DbContextOptions().UseSqlServer(SqlServerTestDatabase.NorthwindConnectionString);
 
                 var serviceCollection = new ServiceCollection();
-                serviceCollection.AddEntityFramework().AddSqlServer();
+                serviceCollection
+                    .AddEntityFramework()
+                    .AddSqlServer()
+                    .UseLoggerFactory<NullLoggerFactory>();
                 serviceCollection
                     .AddTransient<MyController>()
                     .AddTransient<NorthwindContext>()
@@ -388,7 +407,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 var options = new DbContextOptions().UseSqlServer(SqlServerTestDatabase.NorthwindConnectionString);
 
                 var serviceCollection = new ServiceCollection();
-                serviceCollection.AddEntityFramework().AddSqlServer();
+                serviceCollection
+                    .AddEntityFramework()
+                    .AddSqlServer()
+                    .UseLoggerFactory<NullLoggerFactory>();
                 serviceCollection
                     .AddTransient<NorthwindContext>()
                     .AddTransient<MyController>()
@@ -510,7 +532,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 using (await SqlServerTestDatabase.Northwind())
                 {
                     var serviceCollection = new ServiceCollection();
-                    serviceCollection.AddEntityFramework().AddSqlServer();
+                    serviceCollection
+                        .AddEntityFramework()
+                        .AddSqlServer()
+                        .UseLoggerFactory<NullLoggerFactory>();
                     var serviceProvider = serviceCollection.BuildServiceProvider();
 
                     using (var context1 = new NorthwindContext(serviceProvider))
@@ -563,7 +588,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 using (await SqlServerTestDatabase.Northwind())
                 {
                     var serviceCollection = new ServiceCollection();
-                    serviceCollection.AddEntityFramework().AddSqlServer().AddInMemoryStore();
+                    serviceCollection
+                        .AddEntityFramework()
+                        .AddSqlServer()
+                        .AddInMemoryStore()
+                        .UseLoggerFactory<NullLoggerFactory>();
                     var serviceProvider = serviceCollection.BuildServiceProvider();
 
                     await NestedContextTest(() => new BlogContext(serviceProvider), () => new NorthwindContext(serviceProvider));

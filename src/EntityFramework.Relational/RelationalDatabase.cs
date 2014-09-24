@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Relational
 {
@@ -22,11 +23,15 @@ namespace Microsoft.Data.Entity.Relational
 
         public virtual void Create()
         {
+            Logger.CreatingDatabase(Connection.DbConnection.Database);
+
             RelationalDataStoreCreator.Create();
         }
 
         public virtual Task CreateAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
+            Logger.CreatingDatabase(Connection.DbConnection.Database);
+
             return RelationalDataStoreCreator.CreateAsync(cancellationToken);
         }
 
