@@ -11,6 +11,8 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel
     {
         public static async Task SeedAsync(F1Context context)
         {
+            // TODO: only delete if model has changed
+            await context.Database.EnsureDeletedAsync();
             if (await context.Database.EnsureCreatedAsync())
             {
                 foreach (var engineSupplier in new List<EngineSupplier>
@@ -840,12 +842,10 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel
 
                 var shell = new Sponsor
                     {
-                        Id = 1,
                         Name = "Shell"
                     };
                 var vodafone = new TitleSponsor
                     {
-                        Id = 2,
                         Name = "Vodafone",
                         Details = new SponsorDetails
                             {
@@ -855,12 +855,10 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel
                     };
                 var bridgestone = new Sponsor
                     {
-                        Id = 3,
                         Name = "Bridgestone"
                     };
                 var fia = new Sponsor
                     {
-                        Id = 4,
                         Name = "FIA"
                     };
 

@@ -53,12 +53,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Constructor_validates_properties_from_same_entity()
         {
-            var entityType = new EntityType(typeof(Customer));
-            var property1 = entityType.GetOrAddProperty(Customer.IdProperty);
-            var property2 = entityType.GetOrAddProperty(Customer.NameProperty);
-
-            property1.EntityType = new EntityType(typeof(Customer));
-            property2.EntityType = new EntityType(typeof(Order));
+            var property1 =  new EntityType(typeof(Customer)).GetOrAddProperty(Customer.IdProperty);
+            var property2 =  new EntityType(typeof(Order)).GetOrAddProperty(Order.IdProperty);
 
             Assert.Equal(Strings.FormatInconsistentEntityType("properties"),
                 Assert.Throws<ArgumentException>(
@@ -76,6 +72,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
         private class Order
         {
+            public static readonly PropertyInfo IdProperty = typeof(Order).GetProperty("Id");
+
+            public int Id { get; set; }
         }
     }
 }

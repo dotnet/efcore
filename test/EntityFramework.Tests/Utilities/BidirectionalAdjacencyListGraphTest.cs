@@ -16,26 +16,31 @@ namespace Microsoft.Data.Entity.Tests.Utilities
         private class A
         {
             public int P { get; set; }
+            public int P2 { get; set; }
         }
 
         private class B
         {
             public int P { get; set; }
+            public int P2 { get; set; }
         }
 
         private class C
         {
             public int P { get; set; }
+            public int P2 { get; set; }
         }
 
         private class D
         {
             public int P { get; set; }
+            public int P2 { get; set; }
         }
 
         private class E
         {
             public int P { get; set; }
+            public int P2 { get; set; }
         }
 
         #endregion
@@ -82,8 +87,8 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             entityTypeC.GetOrSetPrimaryKey(entityTypeC.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             // B -> A -> C
-            entityTypeC.GetOrAddForeignKey(entityTypeA.GetPrimaryKey(), entityTypeC.GetOrAddProperty("P", typeof(int)));
-            entityTypeA.GetOrAddForeignKey(entityTypeB.GetPrimaryKey(), entityTypeA.GetOrAddProperty("P", typeof(int)));
+            entityTypeC.GetOrAddForeignKey(entityTypeC.GetOrAddProperty("P", typeof(int)), entityTypeA.GetPrimaryKey());
+            entityTypeA.GetOrAddForeignKey(entityTypeA.GetOrAddProperty("P", typeof(int)), entityTypeB.GetPrimaryKey());
 
             var model = new EntityTypeGraph();
             model.Populate(entityTypeA, entityTypeB, entityTypeC);
@@ -106,8 +111,8 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             entityTypeC.GetOrSetPrimaryKey(entityTypeC.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             // C -> B -> A
-            entityTypeA.GetOrAddForeignKey(entityTypeB.GetPrimaryKey(), entityTypeA.GetOrAddProperty("P", typeof(int)));
-            entityTypeB.GetOrAddForeignKey(entityTypeC.GetPrimaryKey(), entityTypeB.GetOrAddProperty("P", typeof(int)));
+            entityTypeA.GetOrAddForeignKey(entityTypeA.GetOrAddProperty("P", typeof(int)), entityTypeB.GetPrimaryKey());
+            entityTypeB.GetOrAddForeignKey(entityTypeB.GetOrAddProperty("P", typeof(int)), entityTypeC.GetPrimaryKey());
 
             var model = new EntityTypeGraph();
             model.Populate(entityTypeA, entityTypeB, entityTypeC);
@@ -130,8 +135,8 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             entityTypeC.GetOrSetPrimaryKey(entityTypeC.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             // B -> A -> C
-            entityTypeC.GetOrAddForeignKey(entityTypeA.GetPrimaryKey(), entityTypeC.GetOrAddProperty("P", typeof(int)));
-            entityTypeA.GetOrAddForeignKey(entityTypeB.GetPrimaryKey(), entityTypeA.GetOrAddProperty("P", typeof(int)));
+            entityTypeC.GetOrAddForeignKey(entityTypeC.GetOrAddProperty("P", typeof(int)), entityTypeA.GetPrimaryKey());
+            entityTypeA.GetOrAddForeignKey(entityTypeA.GetOrAddProperty("P", typeof(int)), entityTypeB.GetPrimaryKey());
 
             var model = new EntityTypeGraph();
             model.Populate(entityTypeA, entityTypeB, entityTypeC);
@@ -170,9 +175,9 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             entityTypeC.GetOrSetPrimaryKey(entityTypeC.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             // A -> B, A -> C, C -> B
-            entityTypeB.GetOrAddForeignKey(entityTypeA.GetPrimaryKey(), entityTypeB.GetOrAddProperty("P", typeof(int)));
-            entityTypeC.GetOrAddForeignKey(entityTypeA.GetPrimaryKey(), entityTypeC.GetOrAddProperty("P", typeof(int)));
-            entityTypeB.GetOrAddForeignKey(entityTypeC.GetPrimaryKey(), entityTypeB.GetOrAddProperty("P", typeof(int)));
+            entityTypeB.GetOrAddForeignKey(entityTypeB.GetOrAddProperty("P", typeof(int)), entityTypeA.GetPrimaryKey());
+            entityTypeC.GetOrAddForeignKey(entityTypeC.GetOrAddProperty("P", typeof(int)), entityTypeA.GetPrimaryKey());
+            entityTypeB.GetOrAddForeignKey(entityTypeB.GetOrAddProperty("P2", typeof(int)), entityTypeC.GetPrimaryKey());
 
             var model = new EntityTypeGraph();
             model.Populate(entityTypeA, entityTypeB, entityTypeC);
@@ -210,7 +215,7 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             entityTypeA.GetOrSetPrimaryKey(entityTypeA.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             // A -> A
-            entityTypeA.GetOrAddForeignKey(entityTypeA.GetPrimaryKey(), entityTypeA.GetOrAddProperty("P", typeof(int)));
+            entityTypeA.GetOrAddForeignKey(entityTypeA.GetOrAddProperty("P", typeof(int)), entityTypeA.GetPrimaryKey());
 
             var model = new EntityTypeGraph();
             model.Populate(entityTypeA);
@@ -233,8 +238,8 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             entityTypeC.GetOrSetPrimaryKey(entityTypeC.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             // C, A -> B -> A
-            entityTypeA.GetOrAddForeignKey(entityTypeB.GetPrimaryKey(), entityTypeA.GetOrAddProperty("P", typeof(int)));
-            entityTypeB.GetOrAddForeignKey(entityTypeA.GetPrimaryKey(), entityTypeB.GetOrAddProperty("P", typeof(int)));
+            entityTypeA.GetOrAddForeignKey(entityTypeA.GetOrAddProperty("P", typeof(int)), entityTypeB.GetPrimaryKey());
+            entityTypeB.GetOrAddForeignKey(entityTypeB.GetOrAddProperty("P", typeof(int)), entityTypeA.GetPrimaryKey());
 
             var model = new EntityTypeGraph();
             model.Populate(entityTypeC, entityTypeA, entityTypeB);
@@ -257,9 +262,9 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             entityTypeC.GetOrSetPrimaryKey(entityTypeC.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             // A -> C -> B -> A
-            entityTypeA.GetOrAddForeignKey(entityTypeB.GetPrimaryKey(), entityTypeA.GetOrAddProperty("P", typeof(int)));
-            entityTypeB.GetOrAddForeignKey(entityTypeC.GetPrimaryKey(), entityTypeB.GetOrAddProperty("P", typeof(int)));
-            entityTypeC.GetOrAddForeignKey(entityTypeA.GetPrimaryKey(), entityTypeC.GetOrAddProperty("P", typeof(int)));
+            entityTypeA.GetOrAddForeignKey(entityTypeA.GetOrAddProperty("P", typeof(int)), entityTypeB.GetPrimaryKey());
+            entityTypeB.GetOrAddForeignKey(entityTypeB.GetOrAddProperty("P", typeof(int)), entityTypeC.GetPrimaryKey());
+            entityTypeC.GetOrAddForeignKey(entityTypeC.GetOrAddProperty("P", typeof(int)), entityTypeA.GetPrimaryKey());
 
             var model = new EntityTypeGraph();
             model.Populate(entityTypeA, entityTypeB, entityTypeC);
@@ -288,14 +293,14 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             entityTypeE.GetOrSetPrimaryKey(entityTypeE.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             // A -> C -> B -> A
-            entityTypeA.GetOrAddForeignKey(entityTypeB.GetPrimaryKey(), entityTypeA.GetOrAddProperty("P", typeof(int)));
-            entityTypeB.GetOrAddForeignKey(entityTypeC.GetPrimaryKey(), entityTypeB.GetOrAddProperty("P", typeof(int)));
-            entityTypeC.GetOrAddForeignKey(entityTypeA.GetPrimaryKey(), entityTypeC.GetOrAddProperty("P", typeof(int)));
+            entityTypeA.GetOrAddForeignKey(entityTypeA.GetOrAddProperty("P", typeof(int)), entityTypeB.GetPrimaryKey());
+            entityTypeB.GetOrAddForeignKey(entityTypeB.GetOrAddProperty("P", typeof(int)), entityTypeC.GetPrimaryKey());
+            entityTypeC.GetOrAddForeignKey(entityTypeC.GetOrAddProperty("P", typeof(int)), entityTypeA.GetPrimaryKey());
 
             // A -> E -> D -> A
-            entityTypeA.GetOrAddForeignKey(entityTypeD.GetPrimaryKey(), entityTypeA.GetOrAddProperty("P", typeof(int)));
-            entityTypeD.GetOrAddForeignKey(entityTypeE.GetPrimaryKey(), entityTypeD.GetOrAddProperty("P", typeof(int)));
-            entityTypeE.GetOrAddForeignKey(entityTypeA.GetPrimaryKey(), entityTypeE.GetOrAddProperty("P", typeof(int)));
+            entityTypeA.GetOrAddForeignKey(entityTypeA.GetOrAddProperty("P2", typeof(int)), entityTypeD.GetPrimaryKey());
+            entityTypeD.GetOrAddForeignKey(entityTypeD.GetOrAddProperty("P2", typeof(int)), entityTypeE.GetPrimaryKey());
+            entityTypeE.GetOrAddForeignKey(entityTypeE.GetOrAddProperty("P2", typeof(int)), entityTypeA.GetPrimaryKey());
 
             var model = new EntityTypeGraph();
             model.Populate(entityTypeA, entityTypeB, entityTypeC, entityTypeD, entityTypeE);
@@ -318,9 +323,9 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             entityTypeC.GetOrSetPrimaryKey(entityTypeC.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             // C -> B -> C -> A
-            entityTypeB.GetOrAddForeignKey(entityTypeC.GetPrimaryKey(), entityTypeB.GetOrAddProperty("P", typeof(int)));
-            entityTypeC.GetOrAddForeignKey(entityTypeB.GetPrimaryKey(), entityTypeC.GetOrAddProperty("P", typeof(int)));
-            entityTypeA.GetOrAddForeignKey(entityTypeC.GetPrimaryKey(), entityTypeA.GetOrAddProperty("P", typeof(int)));
+            entityTypeB.GetOrAddForeignKey(entityTypeB.GetOrAddProperty("P", typeof(int)), entityTypeC.GetPrimaryKey());
+            entityTypeC.GetOrAddForeignKey(entityTypeC.GetOrAddProperty("P", typeof(int)), entityTypeB.GetPrimaryKey());
+            entityTypeA.GetOrAddForeignKey(entityTypeA.GetOrAddProperty("P", typeof(int)), entityTypeC.GetPrimaryKey());
 
             var model = new EntityTypeGraph();
             model.Populate(entityTypeA, entityTypeB, entityTypeC);

@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.SQLite.Tests
             var entityType = new EntityType("Entity");
             var property = entityType.GetOrAddProperty("Id1", typeof(long), shadowProperty: true);
             property.ValueGeneration = ValueGeneration.OnAdd;
-            entityType.GetOrSetPrimaryKey(property, entityType.GetOrAddProperty("Id2", typeof(long), shadowProperty: true));
+            entityType.GetOrSetPrimaryKey(new[] { property, entityType.GetOrAddProperty("Id2", typeof(long), shadowProperty: true) });
 
             Assert.Throws<NotSupportedException>(() => selector.Select(property));
         }

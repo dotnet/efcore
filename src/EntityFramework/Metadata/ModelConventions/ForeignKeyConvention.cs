@@ -48,7 +48,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             Check.NotNull(dependentType, "dependentType");
 
             IReadOnlyList<IReadOnlyList<Property>> foreignKeyCandidates;
-            if (foreignKeyProperties.Any())
+            if (foreignKeyProperties.Count != 0)
             {
                 foreignKeyCandidates = new List<IReadOnlyList<Property>> { foreignKeyProperties };
             }
@@ -70,7 +70,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                                           && fk.Properties.SequenceEqual(properties)
                                           && !fk.EntityType.Navigations.Any(n => n.ForeignKey == fk && n.Name != navigationToPrincipal)
                                           && !fk.ReferencedEntityType.Navigations.Any(n => n.ForeignKey == fk && n.Name != navigationToDependent)
-                                          && (!referencedProperties.Any()
+                                          && (referencedProperties.Count == 0
                                               || fk.ReferencedKey.Properties.SequenceEqual(referencedProperties)));
 
                 if (foreignKey != null)
@@ -80,20 +80,20 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             }
 
             Key principalKey;
-            if (referencedProperties.Any())
+            if (referencedProperties.Count != 0)
             {
-                principalKey = principalType.GetOrAddKey(referencedProperties.ToArray());
+                principalKey = principalType.GetOrAddKey(referencedProperties);
             }
             else
             {
                 // Use the primary key if it is compatible with the FK properties, otherwise create a principal key
                 principalKey = principalType.TryGetPrimaryKey();
                 if (principalKey == null
-                    || (foreignKeyProperties.Any()
+                    || (foreignKeyProperties.Count != 0
                         && !principalKey.Properties.Select(p => p.UnderlyingType).SequenceEqual(foreignKeyProperties.Select(p => p.UnderlyingType))))
                 {
                     // TODO: Convention property naming/disambiguation
-                    if (foreignKeyProperties.Any())
+                    if (foreignKeyProperties.Count != 0)
                     {
                         principalKey = principalType.GetOrAddKey(
                             foreignKeyProperties.Select(p => principalType.GetOrAddProperty(p.Name + "Key", p.UnderlyingType, shadowProperty: true))
@@ -101,13 +101,15 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                     }
                     else
                     {
-                        principalKey = principalType.GetOrAddKey(principalType.GetOrAddProperty(
-                            (navigationToPrincipal ?? principalType.SimpleName) + "IdKey", typeof(int), shadowProperty: true));
+                        var shadowId = principalType.GetOrAddProperty(
+                            (navigationToPrincipal ?? principalType.SimpleName) + "IdKey", typeof(int), shadowProperty: true);
+                        principalKey = principalType.GetOrAddKey(new[] { shadowId });
                     }
                 }
             }
 
-            if (!foreignKeyProperties.Any())
+            if (foreignKeyProperties.Count == 0
+                || dependentType.TryGetForeignKey(foreignKeyProperties) != null)
             {
                 // Create foreign key properties in shadow state
                 // TODO: Convention property naming/disambiguation
@@ -121,7 +123,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                     shadowProperty: true)).ToList();
             }
 
-            var newForeignKey = dependentType.AddForeignKey(new ForeignKey(principalKey, foreignKeyProperties.ToArray()));
+            var newForeignKey = dependentType.AddForeignKey(foreignKeyProperties, principalKey);
             newForeignKey.IsUnique = isUnqiue;
 
             return newForeignKey;

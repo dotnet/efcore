@@ -35,15 +35,16 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
 
             // TODO: Honor [Key]
             var keyProperties = entityType.Properties
-                .Where(p => string.Equals(p.Name, KeySuffix, StringComparison.OrdinalIgnoreCase));
+                .Where(p => string.Equals(p.Name, KeySuffix, StringComparison.OrdinalIgnoreCase))
+                .ToArray();
 
-            if (!keyProperties.Any())
+            if (keyProperties.Length == 0)
             {
                 keyProperties = entityType.Properties.Where(
-                    p => string.Equals(p.Name, entityType.SimpleName + KeySuffix, StringComparison.OrdinalIgnoreCase));
+                    p => string.Equals(p.Name, entityType.SimpleName + KeySuffix, StringComparison.OrdinalIgnoreCase)).ToArray();
             }
 
-            if (keyProperties.Count() > 1)
+            if (keyProperties.Length > 1)
             {
                 throw new InvalidOperationException(
                     Strings.FormatMultiplePropertiesMatchedAsKeys(keyProperties.First().Name, entityType.Name));

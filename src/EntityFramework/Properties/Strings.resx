@@ -172,13 +172,13 @@
     <value>The entity type '{entityType}' requires a key to be defined.</value>
   </data>
   <data name="KeyPropertiesWrongEntity" xml:space="preserve">
-    <value>The specified key properties are not declared on the entity type '{entityType}'. Ensure key properties are declared on the target entity type.</value>
+    <value>The specified key properties [{key}] are not declared on the entity type '{entityType}'. Ensure key properties are declared on the target entity type.</value>
   </data>
   <data name="ForeignKeyPropertiesWrongEntity" xml:space="preserve">
-    <value>The specified foreign key properties are not declared on the entity type '{entityType}'. Ensure foreign key properties are declared on the target entity type.</value>
+    <value>The specified foreign key properties [{foreignKey}] are not declared on the entity type '{entityType}'. Ensure foreign key properties are declared on the target entity type.</value>
   </data>
   <data name="IndexPropertiesWrongEntity" xml:space="preserve">
-    <value>The specified index properties are not declared on the entity type '{entityType}'. Ensure index properties are declared on the target entity type.</value>
+    <value>The specified index properties [{index}] are not declared on the entity type '{entityType}'. Ensure index properties are declared on the target entity type.</value>
   </data>
   <data name="IQueryableNotAsync" xml:space="preserve">
     <value>The source IQueryable doesn't implement IAsyncEnumerable&lt;{genericParameter}&gt;. Only sources that implement IAsyncEnumerable can be used for Entity Framework asynchronous operations.</value>
@@ -243,11 +243,8 @@
   <data name="PropertyExtensionInvoked" xml:space="preserve">
     <value>The Property&amp;lt;T&amp;gt; extension method may only be used within LINQ queries.</value>
   </data>
-  <data name="PropertyAlreadyOwned" xml:space="preserve">
-    <value>The property '{property}' cannot be added to the entity type '{entityType}' because it already belongs to entity type '{existingEntityType}'.</value>
-  </data>
   <data name="DuplicateProperty" xml:space="preserve">
-    <value>The property '{property}' cannot be added to the entity type '{entityType}' because an existing property with the same name already exists.</value>
+    <value>The property '{property}' cannot be added to the entity type '{entityType}' because a property with the same name already exists.</value>
   </data>
   <data name="NoClrProperty" xml:space="preserve">
     <value>The property '{property}' cannot exist on entity type '{entityType}' because the property is not marked as shadow state and no corresponding CLR property exists on the underlying type.</value>
@@ -262,16 +259,16 @@
     <value>The property '{property}' cannot be removed from entity type '{entityType}' because it is being used in an index or key. All indexes and keys must be removed or redefined before the property can be removed.</value>
   </data>
   <data name="KeyInUse" xml:space="preserve">
-    <value>Cannot remove key from entity type '{entityType}' because it is referenced by a foreign key in entity type '{dependentType}'. All foreign keys must be removed or redefined before the referenced key can be removed.</value>
+    <value>Cannot remove key [{key}] from entity type '{entityType}' because it is referenced by a foreign key in entity type '{dependentType}'. All foreign keys must be removed or redefined before the referenced key can be removed.</value>
   </data>
   <data name="ForeignKeyInUse" xml:space="preserve">
-    <value>Cannot remove foreign key from entity type '{entityType}' because it is referenced by navigation property '{navigation}' in entity type '{dependentType}'. All navigations must be removed or redefined before the referenced foreign key can be removed.</value>
+    <value>Cannot remove foreign key [{foreignKey}] from entity type '{entityType}' because it is referenced by navigation property '{navigation}' in entity type '{dependentType}'. All navigations must be removed or redefined before the referenced foreign key can be removed.</value>
   </data>
   <data name="NavigationAlreadyOwned" xml:space="preserve">
     <value>The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because it already belongs to entity type '{existingEntityType}'.</value>
   </data>
   <data name="DuplicateNavigation" xml:space="preserve">
-    <value>The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because an existing navigation property with the same name already exists.</value>
+    <value>The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because a navigation property with the same name already exists.</value>
   </data>
   <data name="NavigationOnShadowEntity" xml:space="preserve">
     <value>The navigation property '{navigation}' cannot be added to entity type '{entityType}' because the entity type is defined in shadow state and navigations properties cannot be added to shadow state.</value>
@@ -292,10 +289,10 @@
     <value>The navigation properties '{navigation1}' and '{navigation2}' on entity type '{entityType}' are both backed by the same foreign key and point in the same direction. Each foreign key can have at most one navigation property and one inverse navigation property.</value>
   </data>
   <data name="ForeignKeyCountMismatch" xml:space="preserve">
-    <value>The number of properties specified for the foreign key on entity type '{dependentType}' does not match the number of properties in the referenced key on entity type '{principalType}'.</value>
+    <value>The number of properties specified for the foreign key [{foreignKey}] on entity type '{dependentType}' does not match the number of properties in the referenced key [{referencedKey}] on entity type '{principalType}'.</value>
   </data>
   <data name="ForeignKeyTypeMismatch" xml:space="preserve">
-    <value>The types of the properties specified for the foreign key on entity type '{dependentType}' do not match the types of the properties in the referenced key on entity type '{principalType}'.</value>
+    <value>The types of the properties specified for the foreign key [{foreignKey}] on entity type '{dependentType}' do not match the types of the properties in the referenced key on entity type '{principalType}'.</value>
   </data>
   <data name="NavigationBadType" xml:space="preserve">
     <value>The type of navigation property '{navigation}' on entity type '{entityType}' is '{foundType}' which does not implement ICollection&lt;{targetType}&gt;. Collection navigation properties must implement ICollection&lt;&gt; of the target type.</value>
@@ -317,5 +314,29 @@
   </data>
   <data name="KeyPropertyMustBeReadOnly" xml:space="preserve">
     <value>The property '{property}' on entity type '{entityType}' cannot be marked as read-write because it is part of a key. Key properties are always read-only.</value>
+  </data>
+  <data name="DuplicateForeignKey" xml:space="preserve">
+    <value>The foreign key [{foreignKey}] cannot be added to the entity type '{entityType}' because a foreign key on the same properties already exists.</value>
+  </data>
+  <data name="DuplicateIndex" xml:space="preserve">
+    <value>The index [{index}] cannot be added to the entity type '{entityType}' because an index on the same properties already exists.</value>
+  </data>
+  <data name="DuplicateKey" xml:space="preserve">
+    <value>The key [{key}] cannot be added to the entity type '{entityType}' because a key on the same properties already exists.</value>
+  </data>
+  <data name="ForeignKeyNotFound" xml:space="preserve">
+    <value>The foreign key [{foreignKey}] on entity type '{entityType}' could not be found. Ensure that the foreign key been added to the entity type.</value>
+  </data>
+  <data name="IndexNotFound" xml:space="preserve">
+    <value>The index [{index}] on entity type '{entityType}' could not be found. Ensure that the index been added to the entity type.</value>
+  </data>
+  <data name="KeyNotFound" xml:space="preserve">
+    <value>The key [{key}] on entity type '{entityType}' could not be found. Ensure that the key been added to the entity type.</value>
+  </data>
+  <data name="NavigationToShadowEntity" xml:space="preserve">
+    <value>The navigation property '{navigation}' cannot be added to entity type '{entityType}' because the target entity type '{targetType}' is defined in shadow state and navigations properties cannot point to shadow state entities.</value>
+  </data>
+  <data name="CollectionArgumentContainsNulls" xml:space="preserve">
+    <value>The collection argument '{argumentName}' must not contain any null references.</value>
   </data>
 </root>

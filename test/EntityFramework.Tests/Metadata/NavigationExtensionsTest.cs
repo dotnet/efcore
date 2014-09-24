@@ -102,26 +102,26 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var categoryType = model.GetEntityType(typeof(Category));
             var productType = model.GetEntityType(typeof(Product));
 
-            var categoryFk = productType.GetOrAddForeignKey(categoryType.GetPrimaryKey(), productType.GetProperty("CategoryId"));
-            var featuredProductFk = categoryType.GetOrAddForeignKey(productType.GetPrimaryKey(), categoryType.GetProperty("FeaturedProductId"));
+            var categoryFk = productType.GetOrAddForeignKey(productType.GetProperty("CategoryId"), categoryType.GetPrimaryKey());
+            var featuredProductFk = categoryType.GetOrAddForeignKey(categoryType.GetProperty("FeaturedProductId"), productType.GetPrimaryKey());
             featuredProductFk.IsUnique = true;
 
             if (createProducts)
             {
-                categoryType.AddNavigation(new Navigation(categoryFk, "Products", pointsToPrincipal: false));
+                categoryType.AddNavigation("Products", categoryFk, pointsToPrincipal: false);
             }
             if (createCategory)
             {
-                productType.AddNavigation(new Navigation(categoryFk, "Category", pointsToPrincipal: true));
+                productType.AddNavigation("Category", categoryFk, pointsToPrincipal: true);
             }
 
             if (createFeaturedProductCategory)
             {
-                productType.AddNavigation(new Navigation(featuredProductFk, "FeaturedProductCategory", pointsToPrincipal: false));
+                productType.AddNavigation("FeaturedProductCategory", featuredProductFk, pointsToPrincipal: false);
             }
             if (createFeaturedProduct)
             {
-                categoryType.AddNavigation(new Navigation(featuredProductFk, "FeaturedProduct", pointsToPrincipal: true));
+                categoryType.AddNavigation("FeaturedProduct", featuredProductFk, pointsToPrincipal: true);
             }
 
             return model;

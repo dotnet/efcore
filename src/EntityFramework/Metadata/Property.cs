@@ -18,12 +18,14 @@ namespace Microsoft.Data.Entity.Metadata
         private int _index;
         private ValueGeneration _valueGeneration;
 
-        public Property([NotNull] string name, [NotNull] Type propertyType, bool shadowProperty = false)
+        public Property([NotNull] string name, [NotNull] Type propertyType, [NotNull] EntityType entityType, bool shadowProperty = false)
             : base(name)
         {
             Check.NotNull(propertyType, "propertyType");
+            Check.NotNull(entityType, "entityType");
 
             _propertyType = propertyType;
+            EntityType = entityType;
             _shadowIndex = shadowProperty ? 0 : -1;
             IsNullable = propertyType.IsNullableType();
         }

@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.Utilities
@@ -59,6 +60,20 @@ namespace Microsoft.Data.Entity.Utilities
             if (value.Length == 0)
             {
                 throw new ArgumentException(Strings.FormatArgumentIsEmpty(parameterName));
+            }
+
+            return value;
+        }
+
+        public static IReadOnlyList<T> HasNoNulls<T>(IReadOnlyList<T> value, [InvokerParameterName] [NotNull] string parameterName)
+            where T : class
+        {
+            NotEmpty(parameterName, "parameterName");
+            NotNull(value, parameterName);
+
+            if (value.Any(e => e == null))
+            {
+                throw new ArgumentException(Strings.FormatCollectionArgumentContainsNulls(parameterName));
             }
 
             return value;

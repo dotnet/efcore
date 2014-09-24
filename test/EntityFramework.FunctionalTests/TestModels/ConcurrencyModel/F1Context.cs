@@ -22,8 +22,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel
         // TODO: convert to OnModelCreated
         public static ModelBuilder CreateModel(ModelBuilder modelBuilder)
         {
-            var model = modelBuilder.Model;
-
             // TODO: Uncomment when complex types are supported
             //builder.ComplexType<Location>();
             modelBuilder.Entity<Chassis>(b =>

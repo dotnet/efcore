@@ -77,7 +77,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         private InternalForeignKeyBuilder ForeignKey(EntityType principalType, IEnumerable<Property> dependentProperties)
         {
             // TODO: This code currently assumes that the FK maps to a PK on the principal end
-            var foreignKey = Metadata.GetOrAddForeignKey(principalType.GetPrimaryKey(), dependentProperties.ToArray());
+            var foreignKey = Metadata.GetOrAddForeignKey(dependentProperties.ToArray(), principalType.GetPrimaryKey());
 
             return new InternalForeignKeyBuilder(foreignKey, ModelBuilder);
         }
@@ -111,8 +111,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var dependentEntityType = ModelBuilder.GetOrAddEntity(dependentType).Metadata;
             var principalEntityType = ModelBuilder.GetOrAddEntity(principalType).Metadata;
 
-            var navToDependent = principalEntityType.Navigations.FirstOrDefault(e => e.Name == navNameToDependent);
-            var navToPrincipal = dependentEntityType.Navigations.FirstOrDefault(e => e.Name == navNameToPrincipal);
+            var navToDependent = navNameToDependent == null ? null : principalEntityType.TryGetNavigation(navNameToDependent);
+            var navToPrincipal = navNameToPrincipal == null ? null : dependentEntityType.TryGetNavigation(navNameToPrincipal);
 
             // Find the associated FK on an already existing navigation, or create one by convention
             // TODO: If FK isn't already specified, then creating the navigation should cause it to be found/created
@@ -128,13 +128,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             if (navNameToDependent != null
                 && navToDependent == null)
             {
-                navToDependent = principalEntityType.AddNavigation(new Navigation(foreignKey, navNameToDependent, false));
+                navToDependent = principalEntityType.AddNavigation(navNameToDependent, foreignKey, pointsToPrincipal: false);
             }
 
             if (navNameToPrincipal != null
                 && navToPrincipal == null)
             {
-                navToPrincipal = dependentEntityType.AddNavigation(new Navigation(foreignKey, navNameToPrincipal, true));
+                navToPrincipal = dependentEntityType.AddNavigation(navNameToPrincipal, foreignKey, pointsToPrincipal: true);
             }
 
             return new InternalRelationshipBuilder(

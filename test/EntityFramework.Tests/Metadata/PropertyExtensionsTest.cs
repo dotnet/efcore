@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Null_returned_if_annotation_not_found_with_no_model_entity_type()
         {
-            Assert.Null(new Property("MyProperty", typeof(string)).FindAnnotationInHierarchy("ArnieTheAnnotation"));
+            Assert.Null(new Property("MyProperty", typeof(string), new EntityType(typeof(object))).FindAnnotationInHierarchy("ArnieTheAnnotation"));
         }
 
         private static Property CreateProperty()

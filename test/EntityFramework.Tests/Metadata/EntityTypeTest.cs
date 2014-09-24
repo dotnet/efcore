@@ -75,27 +75,33 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
-        public void Can_set_reset_and_clear_primary_key_explicitly()
+        public void Can_set_reset_and_clear_primary_key()
         {
             var entityType = new EntityType(typeof(Customer));
             var idProperty = entityType.GetOrAddProperty(Customer.IdProperty);
             var nameProperty = entityType.GetOrAddProperty(Customer.NameProperty);
 
-            var key1 = new Key(new[] { idProperty, nameProperty });
+            var key1 = entityType.SetPrimaryKey(new[] { idProperty, nameProperty });
 
-            Assert.Same(key1, entityType.SetPrimaryKey(key1));
+            Assert.NotNull(key1);
             Assert.Same(key1, entityType.GetPrimaryKey());
             Assert.Same(key1, entityType.TryGetPrimaryKey());
             Assert.Same(key1, entityType.Keys.Single());
 
-            var key2 = new Key(new[] { idProperty });
+            var key2 = entityType.SetPrimaryKey(idProperty);
 
-            Assert.Same(key2, entityType.SetPrimaryKey(key2));
+            Assert.NotNull(key2);
             Assert.Same(key2, entityType.GetPrimaryKey());
             Assert.Same(key2, entityType.TryGetPrimaryKey());
             Assert.Same(key2, entityType.Keys.Single());
 
-            Assert.Null(entityType.SetPrimaryKey(null));
+            Assert.Null(entityType.SetPrimaryKey((Property)null));
+
+            Assert.Null(entityType.TryGetPrimaryKey());
+            Assert.Empty(entityType.Keys);
+
+            Assert.Null(entityType.SetPrimaryKey(new Property[0]));
+
             Assert.Null(entityType.TryGetPrimaryKey());
             Assert.Empty(entityType.Keys);
 
@@ -111,34 +117,49 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var entityType2 = new EntityType(typeof(Order));
             var idProperty = entityType2.GetOrAddProperty(Customer.IdProperty);
 
-            var key = new Key(new[] { idProperty });
-
             Assert.Equal(
-                Strings.FormatKeyPropertiesWrongEntity(typeof(Customer).FullName),
-                Assert.Throws<ArgumentException>(() => entityType1.SetPrimaryKey(key)).Message);
+                Strings.FormatKeyPropertiesWrongEntity(Customer.IdProperty.Name, typeof(Customer).FullName),
+                Assert.Throws<ArgumentException>(() => entityType1.SetPrimaryKey(idProperty)).Message);
         }
 
         [Fact]
-        public void Can_set_reset_and_clear_primary_key_using_properties()
+        public void Can_get_set_reset_and_clear_primary_key()
         {
             var entityType = new EntityType(typeof(Customer));
             var idProperty = entityType.GetOrAddProperty(Customer.IdProperty);
             var nameProperty = entityType.GetOrAddProperty(Customer.NameProperty);
 
-            var key1 = entityType.GetOrSetPrimaryKey(idProperty, nameProperty);
+            var key1 = entityType.GetOrSetPrimaryKey(new []{idProperty, nameProperty});
 
+            Assert.NotNull(key1);
+            Assert.Same(key1, entityType.GetOrSetPrimaryKey(new []{idProperty, nameProperty}));
             Assert.Same(key1, entityType.GetPrimaryKey());
             Assert.Same(key1, entityType.TryGetPrimaryKey());
-            Assert.Same(key1, entityType.GetOrSetPrimaryKey(idProperty, nameProperty));
+            Assert.Same(key1, entityType.TryGetPrimaryKey(new []{idProperty, nameProperty}));
+            Assert.Null(entityType.TryGetPrimaryKey(idProperty));
+            Assert.Same(key1, entityType.Keys.Single());
 
             var key2 = entityType.GetOrSetPrimaryKey(idProperty);
 
+            Assert.NotNull(key2);
+            Assert.NotEqual(key1, key2);
+            Assert.Same(key2, entityType.GetOrSetPrimaryKey(idProperty));
             Assert.Same(key2, entityType.GetPrimaryKey());
             Assert.Same(key2, entityType.TryGetPrimaryKey());
-            Assert.NotSame(key1, key2);
+            Assert.Same(key2, entityType.TryGetPrimaryKey(idProperty));
+            Assert.Null(entityType.TryGetPrimaryKey(new []{idProperty, nameProperty}));
+            Assert.Same(key2, entityType.Keys.Single());
 
-            Assert.Null(entityType.GetOrSetPrimaryKey(null));
+            Assert.Null(entityType.GetOrSetPrimaryKey((Property)null));
+
             Assert.Null(entityType.TryGetPrimaryKey());
+            Assert.Null(entityType.TryGetPrimaryKey(idProperty));
+            Assert.Empty(entityType.Keys);
+
+            Assert.Null(entityType.GetOrSetPrimaryKey(new Property[0]));
+
+            Assert.Null(entityType.TryGetPrimaryKey());
+            Assert.Empty(entityType.Keys);
 
             Assert.Equal(
                 Strings.FormatEntityRequiresKey(typeof(Customer).FullName),
@@ -149,58 +170,58 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Clearing_the_primary_throws_if_it_referenced_from_a_foreign_key_in_the_model()
         {
             var customerType = new EntityType(typeof(Customer));
-            var customerPk = customerType.GetOrSetPrimaryKey(customerType.GetOrAddProperty(Customer.IdProperty));
+            var customerPk = customerType.GetOrSetPrimaryKey(customerType.AddProperty(Customer.IdProperty));
 
             var orderType = new EntityType(typeof(Order));
             var customerFk = orderType.GetOrAddProperty(Order.CustomerIdProperty);
-            orderType.GetOrAddForeignKey(customerPk, customerFk);
+            orderType.GetOrAddForeignKey(customerFk, customerPk);
 
             var model = new Model();
             model.AddEntityType(customerType);
             model.AddEntityType(orderType);
 
             Assert.Equal(
-                Strings.FormatKeyInUse(typeof(Customer).FullName, typeof(Order).FullName),
-                Assert.Throws<InvalidOperationException>(() => customerType.SetPrimaryKey(null)).Message);
+                Strings.FormatKeyInUse(Customer.IdProperty.Name, typeof(Customer).FullName, typeof(Order).FullName),
+                Assert.Throws<InvalidOperationException>(() => customerType.SetPrimaryKey((Property)null)).Message);
         }
 
         [Fact]
-        public void Changing_the_primary_throws_if_it_referenced_from_a_foreign_key_in_the_model()
+        public void Changing_the_primary_key_throws_if_it_referenced_from_a_foreign_key_in_the_model()
         {
             var customerType = new EntityType(typeof(Customer));
-            var customerPk = customerType.GetOrSetPrimaryKey(customerType.GetOrAddProperty(Customer.IdProperty));
+            var customerPk = customerType.GetOrSetPrimaryKey(customerType.AddProperty(Customer.IdProperty));
 
             var orderType = new EntityType(typeof(Order));
             var customerFk = orderType.GetOrAddProperty(Order.CustomerIdProperty);
-            orderType.GetOrAddForeignKey(customerPk, customerFk);
+            orderType.GetOrAddForeignKey(customerFk, customerPk);
 
             var model = new Model();
             model.AddEntityType(customerType);
             model.AddEntityType(orderType);
 
             Assert.Equal(
-                Strings.FormatKeyInUse(typeof(Customer).FullName, typeof(Order).FullName),
+                Strings.FormatKeyInUse(Customer.IdProperty.Name, typeof(Customer).FullName, typeof(Order).FullName),
                 Assert.Throws<InvalidOperationException>(
-                    () => customerType.GetOrSetPrimaryKey(customerType.GetOrAddProperty(Customer.NameProperty))).Message);
+                    () => customerType.SetPrimaryKey(customerType.GetOrAddProperty(Customer.NameProperty))).Message);
         }
 
         [Fact]
-        public void Can_add_a_key_explicitly()
+        public void Can_add_and_get_a_key()
         {
             var entityType = new EntityType(typeof(Customer));
             var idProperty = entityType.GetOrAddProperty(Customer.IdProperty);
             var nameProperty = entityType.GetOrAddProperty(Customer.NameProperty);
 
-            var key1 = new Key(new[] { idProperty, nameProperty });
+            var key1 = entityType.AddKey(new []{idProperty, nameProperty});
 
-            Assert.Same(key1, entityType.AddKey(key1));
-            Assert.Same(key1, entityType.AddKey(key1));
+            Assert.NotNull(key1);
+            Assert.Same(key1, entityType.GetOrAddKey(new []{idProperty, nameProperty}));
             Assert.Same(key1, entityType.Keys.Single());
 
-            var key2 = new Key(new[] { idProperty });
+            var key2 = entityType.GetOrAddKey(idProperty);
 
-            Assert.Same(key2, entityType.AddKey(key2));
-            Assert.Same(key2, entityType.AddKey(key2));
+            Assert.NotNull(key2);
+            Assert.Same(key2, entityType.GetKey(idProperty));
             Assert.Equal(new[] { key1, key2 }, entityType.Keys.ToArray());
         }
 
@@ -211,31 +232,35 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var entityType2 = new EntityType(typeof(Order));
             var idProperty = entityType2.GetOrAddProperty(Customer.IdProperty);
 
-            var key = new Key(new[] { idProperty });
-
             Assert.Equal(
-                Strings.FormatKeyPropertiesWrongEntity(typeof(Customer).FullName),
-                Assert.Throws<ArgumentException>(() => entityType1.AddKey(key)).Message);
+                Strings.FormatKeyPropertiesWrongEntity(Customer.IdProperty.Name, typeof(Customer).FullName),
+                Assert.Throws<ArgumentException>(() => entityType1.AddKey(idProperty)).Message);
         }
 
         [Fact]
-        public void Can_get_or_add_key_using_properties()
+        public void Adding_a_key_throws_if_duplicated()
         {
             var entityType = new EntityType(typeof(Customer));
             var idProperty = entityType.GetOrAddProperty(Customer.IdProperty);
             var nameProperty = entityType.GetOrAddProperty(Customer.NameProperty);
+            entityType.GetOrAddKey(new []{idProperty, nameProperty});
 
-            var key1 = entityType.GetOrAddKey(idProperty, nameProperty);
+            Assert.Equal(
+                Strings.FormatDuplicateKey(Customer.IdProperty.Name + ", " + Customer.NameProperty.Name, typeof(Customer).FullName),
+                Assert.Throws<InvalidOperationException>(() => entityType.AddKey(new []{idProperty, nameProperty})).Message);
+        }
 
-            Assert.Same(key1, entityType.Keys.Single());
-            Assert.Same(key1, entityType.GetOrAddKey(idProperty, nameProperty));
-            Assert.Same(key1, entityType.Keys.Single());
+        [Fact]
+        public void Adding_a_key_throws_if_same_as_primary()
+        {
+            var entityType = new EntityType(typeof(Customer));
+            var idProperty = entityType.GetOrAddProperty(Customer.IdProperty);
+            var nameProperty = entityType.GetOrAddProperty(Customer.NameProperty);
+            entityType.GetOrSetPrimaryKey(new []{idProperty, nameProperty});
 
-            var key2 = entityType.GetOrAddKey(idProperty);
-
-            Assert.Equal(new[] { key1, key2 }, entityType.Keys.ToArray());
-            Assert.Same(key2, entityType.GetOrAddKey(idProperty));
-            Assert.Equal(new[] { key1, key2 }, entityType.Keys.ToArray());
+            Assert.Equal(
+                Strings.FormatDuplicateKey(Customer.IdProperty.Name + ", " + Customer.NameProperty.Name, typeof(Customer).FullName),
+                Assert.Throws<InvalidOperationException>(() => entityType.AddKey(new []{idProperty, nameProperty})).Message);
         }
 
         [Fact]
@@ -245,16 +270,23 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var idProperty = entityType.GetOrAddProperty(Customer.IdProperty);
             var nameProperty = entityType.GetOrAddProperty(Customer.NameProperty);
 
-            var key1 = entityType.GetOrSetPrimaryKey(idProperty, nameProperty);
+            Assert.Equal(
+                Strings.FormatKeyNotFound(idProperty.Name + ", " + nameProperty.Name, typeof(Customer).FullName),
+                Assert.Throws<ModelItemNotFoundException>(() => entityType.GetKey(new []{idProperty, nameProperty})).Message);
+
+            var key1 = entityType.GetOrSetPrimaryKey(new []{idProperty, nameProperty});
             var key2 = entityType.GetOrAddKey(idProperty);
 
             Assert.Equal(new[] { key1, key2 }, entityType.Keys.ToArray());
 
             entityType.RemoveKey(key1);
 
+            Assert.Equal(
+                Strings.FormatKeyNotFound(key1, typeof(Customer).FullName),
+                Assert.Throws<ModelItemNotFoundException>(() => entityType.GetKey(new []{idProperty, nameProperty})).Message);
+
             Assert.Equal(new[] { key2 }, entityType.Keys.ToArray());
 
-            entityType.RemoveKey(key1);
             entityType.RemoveKey(key2);
 
             Assert.Empty(entityType.Keys);
@@ -268,15 +300,32 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var orderType = new EntityType(typeof(Order));
             var customerFk = orderType.GetOrAddProperty(Order.CustomerIdProperty);
-            orderType.GetOrAddForeignKey(customerKey, customerFk);
+            orderType.GetOrAddForeignKey(customerFk, customerKey);
 
             var model = new Model();
             model.AddEntityType(customerType);
             model.AddEntityType(orderType);
 
             Assert.Equal(
-                Strings.FormatKeyInUse(typeof(Customer).FullName, typeof(Order).FullName),
+                Strings.FormatKeyInUse(Customer.IdProperty.Name, typeof(Customer).FullName, typeof(Order).FullName),
                 Assert.Throws<InvalidOperationException>(() => customerType.RemoveKey(customerKey)).Message);
+        }
+
+        [Fact]
+        public void Removing_a_key_throws_if_not_found()
+        {
+            var entityType = new EntityType(typeof(Customer));
+            var idProperty = entityType.GetOrAddProperty(Customer.IdProperty);
+
+            Assert.Equal(
+                Strings.FormatKeyNotFound(Customer.IdProperty.Name, typeof(Customer).FullName),
+                Assert.Throws<ModelItemNotFoundException>(() => entityType.RemoveKey(new Key(new[] { idProperty }))).Message);
+
+            entityType.GetOrAddKey(entityType.GetOrAddProperty(Customer.IdProperty));
+
+            Assert.Equal(
+                Strings.FormatKeyNotFound(Customer.IdProperty.Name, typeof(Customer).FullName),
+                Assert.Throws<ModelItemNotFoundException>(() => entityType.RemoveKey(new Key(new[] { idProperty }))).Message);
         }
 
         [Fact]
@@ -289,7 +338,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.False(idProperty.IsReadOnly);
             Assert.False(nameProperty.IsReadOnly);
 
-            entityType.GetOrAddKey(idProperty, nameProperty);
+            entityType.GetOrAddKey(new []{idProperty, nameProperty});
 
             Assert.True(idProperty.IsReadOnly);
             Assert.True(nameProperty.IsReadOnly);
@@ -297,32 +346,50 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             nameProperty.IsReadOnly = true;
 
             Assert.Equal(
-                Strings.FormatKeyPropertyMustBeReadOnly("Name", typeof(Customer).FullName),
+                Strings.FormatKeyPropertyMustBeReadOnly(Customer.NameProperty.Name, typeof(Customer).FullName),
                 Assert.Throws<NotSupportedException>(() => nameProperty.IsReadOnly = false).Message);
 
             Assert.True(idProperty.IsReadOnly);
             Assert.True(nameProperty.IsReadOnly);
         }
-        
+
         [Fact]
-        public void Can_add_a_foreign_key_explicitly()
+        public void Can_add_a_foreign_key()
+        {
+            var customerType = new EntityType(typeof(Customer));
+            var idProperty = customerType.GetOrAddProperty(Customer.IdProperty);
+            var customerKey = customerType.GetOrAddKey(idProperty);
+            var orderType = new EntityType(typeof(Order));
+            var customerFk1 = orderType.GetOrAddProperty(Order.CustomerIdProperty);
+            var customerFk2 = orderType.GetOrAddProperty("IdAgain", typeof(int), shadowProperty: true);
+
+            var fk1 = orderType.AddForeignKey(customerFk1, customerKey);
+
+            Assert.NotNull(fk1);
+            Assert.Same(fk1, orderType.GetForeignKey(customerFk1));
+            Assert.Same(fk1, orderType.TryGetForeignKey(customerFk1));
+            Assert.Same(fk1, orderType.GetOrAddForeignKey(customerFk1, new Key(new[] { idProperty })));
+            Assert.Same(fk1, orderType.ForeignKeys.Single());
+
+            var fk2 = orderType.AddForeignKey(customerFk2, customerKey);
+            Assert.Same(fk2, orderType.GetForeignKey(customerFk2));
+            Assert.Same(fk2, orderType.TryGetForeignKey(customerFk2));
+            Assert.Same(fk2, orderType.GetOrAddForeignKey(customerFk2, new Key(new[] { idProperty })));
+            Assert.Equal(new[] { fk1, fk2 }, orderType.ForeignKeys.ToArray());
+        }
+
+        [Fact]
+        public void Adding_a_foreign_key_throws_if_duplicate()
         {
             var customerType = new EntityType(typeof(Customer));
             var customerKey = customerType.GetOrAddKey(customerType.GetOrAddProperty(Customer.IdProperty));
             var orderType = new EntityType(typeof(Order));
-            var customerFk = orderType.GetOrAddProperty(Order.CustomerIdProperty);
+            var customerFk1 = orderType.GetOrAddProperty(Order.CustomerIdProperty);
+            orderType.AddForeignKey(customerFk1, customerKey);
 
-            var fk1 = new ForeignKey(customerKey, new[] { customerFk });
-
-            Assert.Same(fk1, orderType.AddForeignKey(fk1));
-            Assert.Same(fk1, orderType.AddForeignKey(fk1));
-            Assert.Same(fk1, orderType.ForeignKeys.Single());
-
-            var fk2 = new ForeignKey(customerKey, new[] { customerFk }) { IsUnique = true };
-
-            Assert.Same(fk2, orderType.AddForeignKey(fk2));
-            Assert.Same(fk2, orderType.AddForeignKey(fk2));
-            Assert.Equal(new[] { fk1, fk2 }, orderType.ForeignKeys.ToArray());
+            Assert.Equal(
+                Strings.FormatDuplicateForeignKey(Order.CustomerIdProperty.Name, typeof(Order).FullName),
+                Assert.Throws<InvalidOperationException>(() => orderType.AddForeignKey(customerFk1, customerKey)).Message);
         }
 
         [Fact]
@@ -332,32 +399,31 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var entityType2 = new EntityType(typeof(Order));
             var idProperty = entityType2.GetOrAddProperty(Customer.IdProperty);
 
-            var fk = new ForeignKey(entityType2.GetOrAddKey(idProperty), new[] { idProperty });
-
             Assert.Equal(
-                Strings.FormatForeignKeyPropertiesWrongEntity(typeof(Customer).FullName),
-                Assert.Throws<ArgumentException>(() => entityType1.AddForeignKey(fk)).Message);
+                Strings.FormatForeignKeyPropertiesWrongEntity(Customer.IdProperty.Name, typeof(Customer).FullName),
+                Assert.Throws<ArgumentException>(() => entityType1.AddForeignKey(new[] { idProperty }, entityType2.GetOrAddKey(idProperty))).Message);
         }
 
         [Fact]
-        public void Can_get_or_add_foreign_key_using_properties()
+        public void Can_get_or_add_a_foreign_key()
         {
             var customerType = new EntityType(typeof(Customer));
-            var customerKey1 = customerType.GetOrAddKey(customerType.GetOrAddProperty(Customer.IdProperty));
-            var customerKey2 = customerType.GetOrAddKey(customerType.GetOrAddProperty("IdAgain", typeof(int), shadowProperty: true));
+            var idProperty = customerType.GetOrAddProperty(Customer.IdProperty);
+            var customerKey = customerType.GetOrAddKey(idProperty);
             var orderType = new EntityType(typeof(Order));
-            var customerFk = orderType.GetOrAddProperty(Order.CustomerIdProperty);
+            var customerFk1 = orderType.GetOrAddProperty(Order.CustomerIdProperty);
+            var customerFk2 = orderType.GetOrAddProperty("IdAgain", typeof(int), shadowProperty: true);
+            var fk1 = orderType.AddForeignKey(customerFk1, customerKey);
 
-            var fk1 = orderType.GetOrAddForeignKey(customerKey1, new[] { customerFk });
+            var fk2 = orderType.GetOrAddForeignKey(customerFk2, customerKey);
 
-            Assert.Same(fk1, orderType.ForeignKeys.Single());
-            Assert.Same(fk1, orderType.GetOrAddForeignKey(customerKey1, new[] { customerFk }));
-            Assert.Same(fk1, orderType.ForeignKeys.Single());
-
-            var fk2 = orderType.GetOrAddForeignKey(customerKey2, new[] { customerFk });
-
+            Assert.NotNull(fk2);
+            Assert.NotEqual(fk1, fk2);
+            Assert.Same(fk2, orderType.GetForeignKey(customerFk2));
+            Assert.Same(fk2, orderType.TryGetForeignKey(customerFk2));
             Assert.Equal(new[] { fk1, fk2 }, orderType.ForeignKeys.ToArray());
-            Assert.Same(fk2, orderType.GetOrAddForeignKey(customerKey2, new[] { customerFk }));
+
+            Assert.Same(fk2, orderType.GetOrAddForeignKey(customerFk2, customerKey));
             Assert.Equal(new[] { fk1, fk2 }, orderType.ForeignKeys.ToArray());
         }
 
@@ -367,21 +433,47 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var customerType = new EntityType(typeof(Customer));
             var customerKey = customerType.GetOrAddKey(customerType.GetOrAddProperty(Customer.IdProperty));
             var orderType = new EntityType(typeof(Order));
-            var customerFk = orderType.GetOrAddProperty(Order.CustomerIdProperty);
+            var customerFk1 = orderType.GetOrAddProperty(Order.CustomerIdProperty);
+            var customerFk2 = orderType.GetOrAddProperty("IdAgain", typeof(int), shadowProperty: true);
 
-            var fk1 = orderType.GetOrAddForeignKey(customerKey, new[] { customerFk });
-            var fk2 = orderType.AddForeignKey(new ForeignKey(customerKey, new[] { customerFk }));
+            Assert.Equal(
+                Strings.FormatForeignKeyNotFound(Order.CustomerIdProperty.Name, typeof(Order).FullName),
+                Assert.Throws<ModelItemNotFoundException>(() => orderType.GetForeignKey(customerFk1)).Message);
+
+            var fk1 = orderType.AddForeignKey(customerFk1, customerKey);
+            var fk2 = orderType.AddForeignKey(customerFk2, customerKey);
 
             Assert.Equal(new[] { fk1, fk2 }, orderType.ForeignKeys.ToArray());
 
             orderType.RemoveForeignKey(fk1);
 
+            Assert.Equal(
+                Strings.FormatForeignKeyNotFound(Order.CustomerIdProperty.Name, typeof(Order).FullName),
+                Assert.Throws<ModelItemNotFoundException>(() => orderType.GetForeignKey(customerFk1)).Message);
             Assert.Equal(new[] { fk2 }, orderType.ForeignKeys.ToArray());
 
-            orderType.RemoveForeignKey(fk1);
             orderType.RemoveForeignKey(fk2);
 
             Assert.Empty(orderType.ForeignKeys);
+        }
+
+        [Fact]
+        public void Removing_a_foreign_key_throws_if_not_found()
+        {
+            var customerType = new EntityType(typeof(Customer));
+            var customerKey = customerType.GetOrAddKey(customerType.GetOrAddProperty(Customer.IdProperty));
+            var orderType = new EntityType(typeof(Order));
+            var customerFk = orderType.GetOrAddProperty(Order.CustomerIdProperty);
+
+            Assert.Equal(
+                Strings.FormatForeignKeyNotFound(Order.CustomerIdProperty.Name, typeof(Order).FullName),
+                Assert.Throws<ModelItemNotFoundException>(() => orderType.RemoveForeignKey(new ForeignKey(new[] { customerFk }, customerKey))).Message);
+
+            orderType.AddForeignKey(customerFk, customerKey);
+
+            Assert.Equal(
+                Strings.FormatForeignKeyNotFound(Order.CustomerIdProperty.Name, typeof(Order).FullName),
+                Assert.Throws<ModelItemNotFoundException>(() => orderType.RemoveForeignKey(new ForeignKey(new[] { customerFk }, customerKey))).Message);
         }
 
         [Fact]
@@ -392,13 +484,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var orderType = new EntityType(typeof(Order));
             var customerFk = orderType.GetOrAddProperty(Order.CustomerIdProperty);
-            var fk = orderType.GetOrAddForeignKey(customerKey, customerFk);
+            var fk = orderType.GetOrAddForeignKey(customerFk, customerKey);
 
-            orderType.AddNavigation(new Navigation(fk, "Customer", pointsToPrincipal: true));
-            customerType.AddNavigation(new Navigation(fk, "Orders", pointsToPrincipal: false));
+            orderType.AddNavigation("Customer", fk, pointsToPrincipal: true);
+            customerType.AddNavigation("Orders", fk, pointsToPrincipal: false);
 
             Assert.Equal(
-                Strings.FormatForeignKeyInUse(typeof(Order).FullName, "Customer", typeof(Order).FullName),
+                Strings.FormatForeignKeyInUse(Order.CustomerIdProperty.Name, typeof(Order).FullName, "Customer", typeof(Order).FullName),
                 Assert.Throws<InvalidOperationException>(() => orderType.RemoveForeignKey(fk)).Message);
 
             var model = new Model();
@@ -406,7 +498,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             model.AddEntityType(orderType);
 
             Assert.Equal(
-                Strings.FormatForeignKeyInUse(typeof(Order).FullName, "Orders", typeof(Customer).FullName),
+                Strings.FormatForeignKeyInUse(Order.CustomerIdProperty.Name, typeof(Order).FullName, "Orders", typeof(Customer).FullName),
                 Assert.Throws<InvalidOperationException>(() => orderType.RemoveForeignKey(fk)).Message);
         }
 
@@ -418,10 +510,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var orderType = new EntityType(typeof(Order));
             var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
-            var customerForeignKey = orderType.GetOrAddForeignKey(customerKey, foreignKeyProperty);
+            var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey);
 
-            var customerNavigation = orderType.AddNavigation(new Navigation(customerForeignKey, "Customer", pointsToPrincipal: true));
-            var ordersNavigation = customerType.AddNavigation(new Navigation(customerForeignKey, "Orders", pointsToPrincipal: false));
+            var customerNavigation = orderType.AddNavigation("Customer", customerForeignKey, pointsToPrincipal: true);
+            var ordersNavigation = customerType.AddNavigation("Orders", customerForeignKey, pointsToPrincipal: false);
 
             Assert.Equal("Customer", customerNavigation.Name);
             Assert.Same(orderType, customerNavigation.EntityType);
@@ -442,7 +534,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             orderType.RemoveNavigation(customerNavigation);
             Assert.Empty(orderType.Navigations);
-            orderType.RemoveNavigation(customerNavigation);
         }
 
         [Fact]
@@ -453,7 +544,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var orderType = new EntityType(typeof(Order));
             var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
-            var customerForeignKey = orderType.GetOrAddForeignKey(customerKey, foreignKeyProperty);
+            var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey);
 
             var customerNavigation = orderType.GetOrAddNavigation("Customer", customerForeignKey, pointsToPrincipal: true);
 
@@ -476,7 +567,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var orderType = new EntityType(typeof(Order));
             var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
-            var customerForeignKey = orderType.GetOrAddForeignKey(customerKey, foreignKeyProperty);
+            var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey);
 
             var customerNavigation = orderType.GetOrAddNavigation("Customer", customerForeignKey, pointsToPrincipal: true);
 
@@ -498,14 +589,14 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var orderType = new EntityType(typeof(Order));
             var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
-            var customerForeignKey = orderType.GetOrAddForeignKey(customerKey, foreignKeyProperty);
+            var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey);
 
-            orderType.AddNavigation(new Navigation(customerForeignKey, "Customer", pointsToPrincipal: true));
+            orderType.AddNavigation("Customer", customerForeignKey, pointsToPrincipal: true);
 
             Assert.Equal(
                 Strings.FormatDuplicateNavigation("Customer", typeof(Order).FullName),
                 Assert.Throws<InvalidOperationException>(
-                    () => orderType.AddNavigation(new Navigation(customerForeignKey, "Customer", pointsToPrincipal: true))).Message);
+                    () => orderType.AddNavigation("Customer", customerForeignKey, pointsToPrincipal: true)).Message);
         }
 
         [Fact]
@@ -516,29 +607,43 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var orderType = new EntityType(typeof(Order));
             var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
-            var customerForeignKey = orderType.GetOrAddForeignKey(customerKey, foreignKeyProperty);
-
-            var customerNavigation = orderType.AddNavigation(new Navigation(customerForeignKey, "Customer", pointsToPrincipal: true));
+            var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey);
 
             Assert.Equal(
                 Strings.FormatNavigationAlreadyOwned("Customer", typeof(Customer).FullName, typeof(Order).FullName),
-                Assert.Throws<InvalidOperationException>(() => customerType.AddNavigation(customerNavigation)).Message);
+                Assert.Throws<InvalidOperationException>(() => customerType.AddNavigation("Customer", customerForeignKey, pointsToPrincipal: true)).Message);
         }
 
         [Fact]
         public void Adding_a_navigation_to_a_shadow_entity_type_throws()
         {
-            var customerType = new EntityType("Customer");
+            var customerType = new EntityType(typeof(Customer));
             var customerKey = customerType.GetOrAddKey(customerType.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             var orderType = new EntityType("Order");
             var foreignKeyProperty = orderType.GetOrAddProperty("CustomerId", typeof(int), shadowProperty: true);
-            var customerForeignKey = orderType.GetOrAddForeignKey(customerKey, foreignKeyProperty);
+            var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey);
 
             Assert.Equal(
                 Strings.FormatNavigationOnShadowEntity("Customer", "Order"),
                 Assert.Throws<InvalidOperationException>(
-                    () => orderType.AddNavigation(new Navigation(customerForeignKey, "Customer", pointsToPrincipal: true))).Message);
+                    () => orderType.AddNavigation("Customer", customerForeignKey, pointsToPrincipal: true)).Message);
+        }
+
+        [Fact]
+        public void Adding_a_navigation_pointing_to_a_shadow_entity_type_throws()
+        {
+            var customerType = new EntityType("Customer");
+            var customerKey = customerType.GetOrAddKey(customerType.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
+
+            var orderType = new EntityType(typeof(Order));
+            var foreignKeyProperty = orderType.GetOrAddProperty("CustomerId", typeof(int), shadowProperty: true);
+            var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey);
+
+            Assert.Equal(
+                Strings.FormatNavigationToShadowEntity("Customer", typeof(Order).FullName, "Customer"),
+                Assert.Throws<InvalidOperationException>(
+                    () => orderType.AddNavigation("Customer", customerForeignKey, pointsToPrincipal: true)).Message);
         }
 
         [Fact]
@@ -549,12 +654,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var orderType = new EntityType(typeof(Order));
             var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
-            var customerForeignKey = orderType.GetOrAddForeignKey(customerKey, foreignKeyProperty);
+            var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey);
 
             Assert.Equal(
                 Strings.FormatNoClrNavigation("Snook", typeof(Order).FullName),
                 Assert.Throws<InvalidOperationException>(
-                    () => orderType.AddNavigation(new Navigation(customerForeignKey, "Snook", pointsToPrincipal: true))).Message);
+                    () => orderType.AddNavigation("Snook", customerForeignKey, pointsToPrincipal: true)).Message);
         }
 
         [Fact]
@@ -565,17 +670,17 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var orderType = new EntityType(typeof(Order));
             var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
-            var customerForeignKey = orderType.GetOrAddForeignKey(customerKey, foreignKeyProperty);
+            var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey);
 
             Assert.Equal(
                 Strings.FormatWrongClrCollectionNavigationType("NotCollectionOrders", typeof(Customer).FullName, typeof(Order).FullName, typeof(Order).FullName),
                 Assert.Throws<InvalidOperationException>(
-                    () => customerType.AddNavigation(new Navigation(customerForeignKey, "NotCollectionOrders", pointsToPrincipal: false))).Message);
+                    () => customerType.AddNavigation("NotCollectionOrders", customerForeignKey, pointsToPrincipal: false)).Message);
 
             Assert.Equal(
                 Strings.FormatWrongClrCollectionNavigationType("DerivedOrders", typeof(Customer).FullName, typeof(IEnumerable<SpecialOrder>).FullName, typeof(Order).FullName),
                 Assert.Throws<InvalidOperationException>(
-                    () => customerType.AddNavigation(new Navigation(customerForeignKey, "DerivedOrders", pointsToPrincipal: false))).Message);
+                    () => customerType.AddNavigation("DerivedOrders", customerForeignKey, pointsToPrincipal: false)).Message);
         }
 
         [Fact]
@@ -586,17 +691,17 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var orderType = new EntityType(typeof(Order));
             var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
-            var customerForeignKey = orderType.GetOrAddForeignKey(customerKey, foreignKeyProperty);
+            var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey);
 
             Assert.Equal(
                 Strings.FormatWrongClrSingleNavigationType("OrderCustomer", typeof(Order).FullName, typeof(Order).FullName, typeof(Customer).FullName),
                 Assert.Throws<InvalidOperationException>(
-                    () => orderType.AddNavigation(new Navigation(customerForeignKey, "OrderCustomer", pointsToPrincipal: true))).Message);
+                    () => orderType.AddNavigation("OrderCustomer", customerForeignKey, pointsToPrincipal: true)).Message);
 
             Assert.Equal(
                 Strings.FormatWrongClrSingleNavigationType("DerivedCustomer", typeof(Order).FullName, typeof(SpecialCustomer).FullName, typeof(Customer).FullName),
                 Assert.Throws<InvalidOperationException>(
-                    () => orderType.AddNavigation(new Navigation(customerForeignKey, "DerivedCustomer", pointsToPrincipal: true))).Message);
+                    () => orderType.AddNavigation("DerivedCustomer", customerForeignKey, pointsToPrincipal: true)).Message);
         }
 
         [Fact]
@@ -607,14 +712,37 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var orderType = new EntityType(typeof(Order));
             var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
-            var customerForeignKey = orderType.GetOrAddForeignKey(customerKey, foreignKeyProperty);
+            var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey);
 
-            customerType.AddNavigation(new Navigation(customerForeignKey, "EnumerableOrders", pointsToPrincipal: false));
+            customerType.AddNavigation("EnumerableOrders", customerForeignKey, pointsToPrincipal: false);
 
             Assert.Equal(
                 Strings.FormatMultipleNavigations("Orders", "EnumerableOrders", typeof(Customer).FullName),
                 Assert.Throws<InvalidOperationException>(
-                    () => customerType.AddNavigation(new Navigation(customerForeignKey, "Orders", pointsToPrincipal: false))).Message);
+                    () => customerType.AddNavigation("Orders", customerForeignKey, pointsToPrincipal: false)).Message);
+        }
+
+        [Fact]
+        public void Removing_non_existing_navigation_throws()
+        {
+            var customerType = new EntityType(typeof(Customer));
+            var customerKey = customerType.GetOrAddKey(customerType.GetOrAddProperty(Customer.IdProperty));
+
+            var orderType = new EntityType(typeof(Order));
+            var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
+            var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey);
+
+            Assert.Equal(
+                Strings.FormatNavigationNotFound("Customer", typeof(Order).FullName),
+                Assert.Throws<ModelItemNotFoundException>(
+                    () => orderType.RemoveNavigation(new Navigation("Customer", customerForeignKey, pointsToPrincipal: true))).Message);
+
+            orderType.AddNavigation("Customer", customerForeignKey, pointsToPrincipal: true);
+
+            Assert.Equal(
+                Strings.FormatNavigationNotFound("Customer", typeof(Order).FullName),
+                Assert.Throws<ModelItemNotFoundException>(
+                    () => orderType.RemoveNavigation(new Navigation("Customer", customerForeignKey, pointsToPrincipal: true))).Message);
         }
 
         [Fact]
@@ -629,11 +757,15 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var index1 = entityType.GetOrAddIndex(property1);
 
             Assert.Equal(1, index1.Properties.Count);
+            Assert.Same(index1, entityType.GetIndex(property1));
+            Assert.Same(index1, entityType.TryGetIndex(property1));
             Assert.Same(property1, index1.Properties[0]);
 
-            var index2 = entityType.GetOrAddIndex(property1, property2);
+            var index2 = entityType.AddIndex(new []{property1, property2});
 
             Assert.Equal(2, index2.Properties.Count);
+            Assert.Same(index2, entityType.GetOrAddIndex(new []{property1, property2}));
+            Assert.Same(index2, entityType.TryGetIndex(new []{property1, property2}));
             Assert.Same(property1, index2.Properties[0]);
             Assert.Same(property2, index2.Properties[1]);
 
@@ -652,43 +784,65 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
-        public void AddIndex_check_arguments()
-        {
-            var entityType = new EntityType(typeof(Order));
-
-            Assert.Equal(
-                "properties",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => entityType.GetOrAddIndex(null)).ParamName);
-
-            Assert.Equal(
-                Strings.FormatCollectionArgumentIsEmpty("properties"),
-                Assert.Throws<ArgumentException>(() => entityType.GetOrAddIndex(new Property[0])).Message);
-        }
-
-        [Fact]
-        public void RemoveIndex_check_arguments()
-        {
-            var entityType = new EntityType(typeof(Order));
-
-            Assert.Equal(
-                "index",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => entityType.RemoveIndex(null)).ParamName);
-        }
-
-        [Fact]
-        public void AddIndex_validates_properties_from_same_entity()
+        public void AddIndex_throws_if_not_from_same_entity()
         {
             var entityType1 = new EntityType(typeof(Customer));
             var entityType2 = new EntityType(typeof(Order));
-
             var property1 = entityType1.GetOrAddProperty(Customer.IdProperty);
             var property2 = entityType1.GetOrAddProperty(Customer.NameProperty);
 
-            Assert.Equal(Strings.FormatIndexPropertiesWrongEntity(entityType2.Name),
+            Assert.Equal(Strings.FormatIndexPropertiesWrongEntity(Customer.IdProperty.Name + ", " + Customer.NameProperty.Name, typeof(Order).FullName),
                 Assert.Throws<ArgumentException>(
-                    () => entityType2.GetOrAddIndex(property1, property2)).Message);
+                    () => entityType2.AddIndex(new []{property1, property2})).Message);
+        }
+
+        [Fact]
+        public void AddIndex_throws_if_duplicate()
+        {
+            var entityType = new EntityType(typeof(Customer));
+            var property1 = entityType.GetOrAddProperty(Customer.IdProperty);
+            var property2 = entityType.GetOrAddProperty(Customer.NameProperty);
+            entityType.AddIndex(new []{property1, property2});
+
+            Assert.Equal(Strings.FormatDuplicateIndex(Customer.IdProperty.Name + ", " + Customer.NameProperty.Name, typeof(Customer).FullName),
+                Assert.Throws<InvalidOperationException>(
+                    () => entityType.AddIndex(new []{property1, property2})).Message);
+        }
+
+        [Fact]
+        public void GetIndex_throws_if_index_not_found()
+        {
+            var entityType = new EntityType(typeof(Customer));
+            var property1 = entityType.GetOrAddProperty(Customer.IdProperty);
+            var property2 = entityType.GetOrAddProperty(Customer.NameProperty);
+
+            Assert.Equal(Strings.FormatIndexNotFound(Customer.IdProperty.Name + ", " + Customer.NameProperty.Name, typeof(Customer).FullName),
+                Assert.Throws<ModelItemNotFoundException>(
+                    () => entityType.GetIndex(new []{property1, property2})).Message);
+
+            entityType.AddIndex(property1);
+
+            Assert.Equal(Strings.FormatIndexNotFound(Customer.IdProperty.Name + ", " + Customer.NameProperty.Name, typeof(Customer).FullName),
+                Assert.Throws<ModelItemNotFoundException>(
+                    () => entityType.GetIndex(new []{property1, property2})).Message);
+        }
+
+        [Fact]
+        public void RemoveIndex_throws_if_index_not_found()
+        {
+            var entityType = new EntityType(typeof(Customer));
+            var property1 = entityType.GetOrAddProperty(Customer.IdProperty);
+            var property2 = entityType.GetOrAddProperty(Customer.NameProperty);
+
+            Assert.Equal(Strings.FormatIndexNotFound(Customer.IdProperty.Name + ", " + Customer.NameProperty.Name, typeof(Customer).FullName),
+                Assert.Throws<ModelItemNotFoundException>(
+                    () => entityType.RemoveIndex(new Index(new[] { property1, property2 }))).Message);
+
+            entityType.AddIndex(new []{property1, property2});
+
+            Assert.Equal(Strings.FormatIndexNotFound(Customer.IdProperty.Name + ", " + Customer.NameProperty.Name, typeof(Customer).FullName),
+                Assert.Throws<ModelItemNotFoundException>(
+                    () => entityType.RemoveIndex(new Index(new[] { property1, property2 }))).Message);
         }
 
         [Fact]
@@ -696,7 +850,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var entityType = new EntityType(typeof(Customer));
 
-            var property1 = entityType.AddProperty(new Property("Id", typeof(int)));
+            var property1 = entityType.AddProperty("Id", typeof(int));
 
             Assert.False(property1.IsShadowProperty);
             Assert.Equal("Id", property1.Name);
@@ -704,13 +858,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.False(property1.IsConcurrencyToken);
             Assert.Same(entityType, property1.EntityType);
 
-            var property2 = entityType.AddProperty(new Property("Name", typeof(string)));
+            var property2 = entityType.AddProperty("Name", typeof(string));
 
             Assert.True(new[] { property1, property2 }.SequenceEqual(entityType.Properties));
 
             entityType.RemoveProperty(property1);
-
-            Assert.Null(property1.EntityType);
 
             Assert.True(new[] { property2 }.SequenceEqual(entityType.Properties));
         }
@@ -781,7 +933,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var orderType = new EntityType(typeof(Order));
             var customerFk = orderType.GetOrAddProperty(Order.CustomerIdProperty);
-            orderType.GetOrAddForeignKey(customerPk, customerFk);
+            orderType.GetOrAddForeignKey(customerFk, customerPk);
 
             Assert.Equal(
                 Strings.FormatPropertyInUse("CustomerId", typeof(Order).FullName),
@@ -799,6 +951,24 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(
                 Strings.FormatPropertyInUse("Id", typeof(Customer).FullName),
                 Assert.Throws<InvalidOperationException>(() => entityType.RemoveProperty(property)).Message);
+        }
+
+        [Fact]
+        public void RemoveProperty_throws_if_not_found()
+        {
+            var entityType = new EntityType(typeof(Customer));
+
+            Assert.Equal(
+                Strings.FormatPropertyNotFound("Id", typeof(Customer).FullName),
+                Assert.Throws<ModelItemNotFoundException>(() =>
+                    entityType.RemoveProperty(new Property(Customer.IdProperty.Name, Customer.IdProperty.PropertyType, entityType))).Message);
+
+            entityType.GetOrAddProperty(Customer.IdProperty);
+
+            Assert.Equal(
+                Strings.FormatPropertyNotFound("Id", typeof(Customer).FullName),
+                Assert.Throws<ModelItemNotFoundException>(() =>
+                    entityType.RemoveProperty(new Property(Customer.IdProperty.Name, Customer.IdProperty.PropertyType, entityType))).Message);
         }
 
         [Fact]
@@ -822,10 +992,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Can_get_property_and_can_try_get_property()
         {
             var entityType = new EntityType(typeof(Customer));
-            entityType.GetOrAddProperty(Customer.IdProperty);
+            var property = entityType.GetOrAddProperty(Customer.IdProperty);
 
-            Assert.Equal("Id", entityType.TryGetProperty("Id").Name);
-            Assert.Equal("Id", entityType.GetProperty("Id").Name);
+            Assert.Same(property, entityType.TryGetProperty(Customer.IdProperty));
+            Assert.Same(property, entityType.TryGetProperty("Id"));
+            Assert.Same(property, entityType.GetProperty(Customer.IdProperty));
+            Assert.Same(property, entityType.GetProperty("Id"));
 
             Assert.Null(entityType.TryGetProperty("Nose"));
 
@@ -853,24 +1025,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var entityType = new EntityType(typeof(Customer));
 
-            entityType.AddProperty(new Property("Id", typeof(int)));
+            entityType.AddProperty("Id", typeof(int));
 
             Assert.Equal(
                 Strings.FormatDuplicateProperty("Id", typeof(Customer).FullName),
-                Assert.Throws<InvalidOperationException>(() => entityType.AddProperty(new Property("Id", typeof(int)))).Message);
-        }
-
-        [Fact]
-        public void Adding_a_property_that_belongs_to_a_different_type_throws()
-        {
-            var entityType1 = new EntityType(typeof(Customer));
-            var entityType2 = new EntityType(typeof(Order));
-
-            var property1 = entityType1.AddProperty(new Property("Id", typeof(int)));
-
-            Assert.Equal(
-                Strings.FormatPropertyAlreadyOwned("Id", typeof(Order).FullName, typeof(Customer).FullName),
-                Assert.Throws<InvalidOperationException>(() => entityType2.AddProperty(property1)).Message);
+                Assert.Throws<InvalidOperationException>(() => entityType.AddProperty("Id", typeof(int))).Message);
         }
 
         [Fact]
@@ -880,7 +1039,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(
                 Strings.FormatClrPropertyOnShadowEntity("Kitty", "Hello"),
-                Assert.Throws<InvalidOperationException>(() => entityType.AddProperty(new Property("Kitty", typeof(int)))).Message);
+                Assert.Throws<InvalidOperationException>(() => entityType.AddProperty("Kitty", typeof(int))).Message);
         }
 
         [Fact]
@@ -890,7 +1049,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(
                 Strings.FormatNoClrProperty("Snook", typeof(Customer).FullName),
-                Assert.Throws<InvalidOperationException>(() => entityType.AddProperty(new Property("Snook", typeof(int)))).Message);
+                Assert.Throws<InvalidOperationException>(() => entityType.AddProperty("Snook", typeof(int))).Message);
         }
 
         [Fact]
@@ -900,7 +1059,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(
                 Strings.FormatWrongClrPropertyType("Id", typeof(Customer).FullName),
-                Assert.Throws<InvalidOperationException>(() => entityType.AddProperty(new Property("Id", typeof(string)))).Message);
+                Assert.Throws<InvalidOperationException>(() => entityType.AddProperty("Id", typeof(string))).Message);
         }
 
         [Fact]
@@ -908,8 +1067,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var entityType = new EntityType(typeof(Customer));
 
-            var property1 = entityType.AddProperty(new Property("Snook", typeof(int), shadowProperty: true));
-            var property2 = entityType.AddProperty(new Property("Id", typeof(string), shadowProperty: true));
+            var property1 = entityType.AddProperty("Snook", typeof(int), shadowProperty: true);
+            var property2 = entityType.AddProperty("Id", typeof(string), shadowProperty: true);
 
             Assert.Equal(
                 Strings.FormatNoClrProperty("Snook", typeof(Customer).FullName),
@@ -1105,7 +1264,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(-1, entityType.GetProperty("Id").OriginalValueIndex);
 
-            entityType.GetOrAddForeignKey(entityType.GetPrimaryKey(), new[] { entityType.GetOrAddProperty("Id", typeof(int)) });
+            entityType.GetOrAddForeignKey(new[] { entityType.GetOrAddProperty("Id", typeof(int)) }, entityType.GetPrimaryKey());
 
             Assert.Equal(0, entityType.GetProperty("Id").OriginalValueIndex);
         }

@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         // TODO: Consider properties that are part of some complex/value type
-        public virtual EntityType EntityType { get; [param: CanBeNull] set; }
+        public virtual EntityType EntityType { get; [param: CanBeNull] protected set; }
 
         IEntityType IPropertyBase.EntityType
         {
