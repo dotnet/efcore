@@ -16,13 +16,12 @@ namespace Microsoft.Data.Entity.Tests
             var fluentApiTypes = new[] { typeof(BasicModelBuilder) };
 
             var voidMethods
-                = from t in GetAllTypes(fluentApiTypes)
-                    where t.IsVisible
-                    from m in t.GetMethods(PublicInstance)
-                    where m.DeclaringType != null
-                          && m.DeclaringType.Assembly == TargetAssembly
-                          && m.ReturnType == typeof(void)
-                    select t.Name + "." + m.Name;
+                = from type in GetAllTypes(fluentApiTypes)
+                    where type.IsVisible
+                    from method in type.GetMethods(PublicInstance)
+                    where GetBasestTypeInAssembly(method.DeclaringType) == type
+                          && method.ReturnType == typeof(void)
+                    select type.Name + "." + method.Name;
 
             Assert.Equal("", string.Join("\r\n", voidMethods));
         }

@@ -23,17 +23,16 @@ namespace Microsoft.Data.Entity
         public void Public_inheritable_apis_should_be_virtual()
         {
             var nonVirtualMethods
-                = (from t in GetAllTypes(TargetAssembly.GetTypes())
-                    where t.IsVisible
-                          && !t.IsSealed
-                          && t.GetConstructors(AnyInstance).Any(c => c.IsPublic || c.IsFamily || c.IsFamilyOrAssembly)
-                          && t.Namespace != null
-                          && !t.Namespace.EndsWith(".Compiled")
-                    from m in t.GetMethods(PublicInstance)
-                    where m.DeclaringType != null
-                          && m.DeclaringType.Assembly == TargetAssembly
-                          && !(m.IsVirtual && !m.IsFinal)
-                    select t.Name + "." + m.Name)
+                = (from type in GetAllTypes(TargetAssembly.GetTypes())
+                    where type.IsVisible
+                          && !type.IsSealed
+                          && type.GetConstructors(AnyInstance).Any(c => c.IsPublic || c.IsFamily || c.IsFamilyOrAssembly)
+                          && type.Namespace != null
+                          && !type.Namespace.EndsWith(".Compiled")
+                    from method in type.GetMethods(PublicInstance)
+                    where GetBasestTypeInAssembly(method.DeclaringType) == type
+                          && !(method.IsVirtual && !method.IsFinal)
+                    select type.Name + "." + method.Name)
                     .ToList();
 
             Assert.False(
@@ -45,23 +44,22 @@ namespace Microsoft.Data.Entity
         public void Public_api_arguments_should_have_not_null_annotation()
         {
             var parametersMissingAttribute
-                = (from t in GetAllTypes(TargetAssembly.GetTypes())
-                    where t.IsVisible && !typeof(Delegate).IsAssignableFrom(t)
-                    let ims = t.GetInterfaces().Select(t.GetInterfaceMap)
-                    let es = t.GetEvents()
-                    from m in t.GetMethods(PublicInstance | BindingFlags.Static)
-                        .Concat<MethodBase>(t.GetConstructors())
-                    where m.DeclaringType != null
-                          && m.DeclaringType.Assembly == TargetAssembly
-                    where t.IsInterface || !ims.Any(im => im.TargetMethods.Contains(m))
-                    where !es.Any(e => e.AddMethod == m || e.RemoveMethod == m)
-                    from p in m.GetParameters()
-                    where !p.ParameterType.IsValueType
-                          && !p.GetCustomAttributes()
+                = (from type in GetAllTypes(TargetAssembly.GetTypes())
+                    where type.IsVisible && !typeof(Delegate).IsAssignableFrom(type)
+                    let interfaceMappings = type.GetInterfaces().Select(type.GetInterfaceMap)
+                    let events = type.GetEvents()
+                    from method in type.GetMethods(PublicInstance | BindingFlags.Static)
+                        .Concat<MethodBase>(type.GetConstructors())
+                    where GetBasestTypeInAssembly(method.DeclaringType) == type
+                    where type.IsInterface || !interfaceMappings.Any(im => im.TargetMethods.Contains(method))
+                    where !events.Any(e => e.AddMethod == method || e.RemoveMethod == method)
+                    from parameter in method.GetParameters()
+                    where !parameter.ParameterType.IsValueType
+                          && !parameter.GetCustomAttributes()
                               .Any(
                                   a => a.GetType().Name == "NotNullAttribute"
                                        || a.GetType().Name == "CanBeNullAttribute")
-                    select t.Name + "." + m.Name + "[" + p.Name + "]")
+                    select type.Name + "." + method.Name + "[" + parameter.Name + "]")
                     .ToList();
 
             Assert.False(
@@ -73,29 +71,30 @@ namespace Microsoft.Data.Entity
         public void Async_methods_should_have_overload_with_cancellation_token_and_end_with_async_suffix()
         {
             var asyncMethods
-                = (from t in GetAllTypes(TargetAssembly.GetTypes())
-                    where t.IsVisible
-                    from m in t.GetMethods(PublicInstance)
-                    where typeof(Task).IsAssignableFrom(m.ReturnType)
-                    select m).ToList();
+                = (from type in GetAllTypes(TargetAssembly.GetTypes())
+                    where type.IsVisible
+                    from method in type.GetMethods(PublicInstance | BindingFlags.Static)
+                    where GetBasestTypeInAssembly(method.DeclaringType) == type
+                    where typeof(Task).IsAssignableFrom(method.ReturnType)
+                    select method).ToList();
 
             var asyncMethodsWithToken
-                = (from m in asyncMethods
-                    where m.GetParameters().Any(pi => pi.ParameterType == typeof(CancellationToken))
-                    select m).ToList();
+                = (from method in asyncMethods
+                    where method.GetParameters().Any(pi => pi.ParameterType == typeof(CancellationToken))
+                    select method).ToList();
 
             var asyncMethodsWithoutToken
-                = (from m in asyncMethods
-                    where m.GetParameters().All(pi => pi.ParameterType != typeof(CancellationToken))
-                    select m).ToList();
+                = (from method in asyncMethods
+                    where method.GetParameters().All(pi => pi.ParameterType != typeof(CancellationToken))
+                    select method).ToList();
 
             var missingOverloads
-                = (from m1 in asyncMethodsWithoutToken
+                = (from methodWithoutToken in asyncMethodsWithoutToken
                     where !asyncMethodsWithToken
-                        .Any(m2 => m1.Name == m2.Name
-                                   && m1.ReflectedType == m2.ReflectedType)
+                        .Any(methodWithToken => methodWithoutToken.Name == methodWithToken.Name
+                                                && methodWithoutToken.ReflectedType == methodWithToken.ReflectedType)
                     // ReSharper disable once PossibleNullReferenceException
-                    select m1.DeclaringType.Name + "." + m1.Name)
+                    select methodWithoutToken.DeclaringType.Name + "." + methodWithoutToken.Name)
                     .Except(GetCancellationTokenExceptions())
                     .ToList();
 
@@ -105,8 +104,8 @@ namespace Microsoft.Data.Entity
 
             var missingSuffixMethods
                 = asyncMethods
-                    .Where(mi => !mi.Name.EndsWith("Async"))
-                    .Select(mi => mi.DeclaringType.Name + "." + mi.Name)
+                    .Where(method => !method.Name.EndsWith("Async"))
+                    .Select(method => method.DeclaringType.Name + "." + method.Name)
                     .Except(GetAsyncSuffixExceptions())
                     .ToList();
 
@@ -138,6 +137,17 @@ namespace Microsoft.Data.Entity
                     yield return nestedType;
                 }
             }
+        }
+
+        protected Type GetBasestTypeInAssembly(Type type)
+        {
+            while (type.BaseType != null
+                   && type.BaseType.Assembly == type.Assembly)
+            {
+                type = type.BaseType;
+            }
+
+            return type;
         }
     }
 }

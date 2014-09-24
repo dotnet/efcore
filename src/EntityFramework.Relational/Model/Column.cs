@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
@@ -12,6 +13,7 @@ namespace Microsoft.Data.Entity.Relational.Model
     // TODO: Consider adding more validation.
     // TODO: Inheriting from MetadataBase to get annotations; it is unfortunate that all property information
     // has to be duplicated in the relational model
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class Column : MetadataBase
     {
         private Table _table;
@@ -119,6 +121,12 @@ namespace Microsoft.Data.Entity.Relational.Model
             Check.NotNull(cloneContext, "cloneContext");
 
             return (Column)cloneContext.GetOrAdd(this, () => new Column(this));
+        }
+
+        [UsedImplicitly]
+        private string DebuggerDisplay
+        {
+            get { return string.Format("{0}[{1}]", Table.Name, Name); }
         }
     }
 }

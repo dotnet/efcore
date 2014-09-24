@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                 typeof(ushort)
             };
 
-        public virtual void Apply([NotNull] EntityType entityType)
+        public virtual void Apply(EntityType entityType)
         {
             Check.NotNull(entityType, "entityType");
 
