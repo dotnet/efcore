@@ -367,6 +367,21 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             Assert.True(fk.IsRequired);
         }
 
+        [Fact]
+        public void Creates_correct_foreign_key_for_entity_with_composite_key()
+        {
+            var fk = new ForeignKeyConvention().FindOrCreateForeignKey(
+                _model.GetEntityType(typeof(PrincipalEntityWithCompositeKey)),
+                _model.GetEntityType(typeof(DependentEntityWithCompositeKey)),
+                "NavProp",
+                "NavProp",
+                isUnqiue: false);
+
+            Assert.Equal(2, fk.ReferencedProperties.Count);
+            Assert.Equal(typeof(int), fk.ReferencedProperties[0].PropertyType);
+            Assert.Equal(typeof(string), fk.ReferencedProperties[1].PropertyType);
+        }
+
         private static Model BuildModel()
         {
             var model = new Model();
@@ -378,6 +393,16 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             var dependentType = new EntityType(typeof(DependentEntity));
             dependentType.GetOrSetPrimaryKey(dependentType.GetOrAddProperty("KayPee", typeof(int), shadowProperty: true));
             model.AddEntityType(dependentType);
+
+            var principalTypeWithCompositeKey = new EntityType(typeof(PrincipalEntityWithCompositeKey));
+            principalTypeWithCompositeKey.GetOrSetPrimaryKey(
+                principalTypeWithCompositeKey.GetOrAddProperty("Id", typeof(int)),
+                principalTypeWithCompositeKey.GetOrAddProperty("Name", typeof(string)));
+            model.AddEntityType(principalTypeWithCompositeKey);
+
+            var dependentTypeWithCompositeKey = new EntityType(typeof(DependentEntityWithCompositeKey));
+            dependentTypeWithCompositeKey.GetOrSetPrimaryKey(dependentTypeWithCompositeKey.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
+            model.AddEntityType(dependentTypeWithCompositeKey);
 
             return model;
         }
@@ -407,6 +432,18 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         {
             public PrincipalEntity Navigator { get; set; }
             public PrincipalEntity AnotherNav { get; set; }
+        }
+
+        private class PrincipalEntityWithCompositeKey
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public IEnumerable<DependentEntityWithCompositeKey> NavProp { get; set; }
+        }
+
+        private class DependentEntityWithCompositeKey
+        {
+            public PrincipalEntityWithCompositeKey NavProp { get; set; }
         }
     }
 }
