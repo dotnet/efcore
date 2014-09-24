@@ -44,7 +44,9 @@ namespace Microsoft.Data.Entity.Query
                 {
                     await _task.WithCurrentCulture();
 
-                    return (_moved = true);
+                    _moved = true;
+
+                    return _moved;
                 }
 
                 return false;

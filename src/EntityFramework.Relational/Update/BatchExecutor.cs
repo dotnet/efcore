@@ -46,6 +46,58 @@ namespace Microsoft.Data.Entity.Relational.Update
             get { return _logger.Value; }
         }
 
+        public virtual int Execute(
+            [NotNull] IEnumerable<ModificationCommandBatch> commandBatches,
+            [NotNull] RelationalConnection connection)
+        {
+            Check.NotNull(commandBatches, "commandBatches");
+            Check.NotNull(connection, "connection");
+
+            var rowsAffected = 0;
+            connection.Open();
+            RelationalTransaction startedTransaction = null;
+            try
+            {
+                if (connection.Transaction == null)
+                {
+                    startedTransaction = connection.BeginTransaction();
+                }
+
+                foreach (var commandbatch in commandBatches)
+                {
+                    rowsAffected += commandbatch.Execute(
+                        connection.Transaction,
+                        _typeMapper,
+                        _context,
+                        Logger);
+                }
+
+                if (startedTransaction != null)
+                {
+                    startedTransaction.Commit();
+                }
+            }
+            catch
+            {
+                if (connection.Transaction != null)
+                {
+                    connection.Transaction.Rollback();
+                }
+
+                throw;
+            }
+            finally
+            {
+                if (startedTransaction != null)
+                {
+                    startedTransaction.Dispose();
+                }
+                connection.Close();
+            }
+
+            return rowsAffected;
+        }
+
         public virtual async Task<int> ExecuteAsync(
             [NotNull] IEnumerable<ModificationCommandBatch> commandBatches,
             [NotNull] RelationalConnection connection,

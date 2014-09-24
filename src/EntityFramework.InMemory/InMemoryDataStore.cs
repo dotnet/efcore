@@ -56,6 +56,14 @@ namespace Microsoft.Data.Entity.InMemory
             get { return _database.Value; }
         }
 
+        public override int SaveChanges(
+            IReadOnlyList<StateEntry> stateEntries)
+        {
+            Check.NotNull(stateEntries, "stateEntries");
+
+            return _database.Value.ExecuteTransaction(stateEntries);
+        }
+
         public override Task<int> SaveChangesAsync(
             IReadOnlyList<StateEntry> stateEntries,
             CancellationToken cancellationToken = default(CancellationToken))

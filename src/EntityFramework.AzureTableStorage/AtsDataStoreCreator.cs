@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             _connection = connection;
         }
 
-        public override bool EnsureDeleted([NotNull] IModel model)
+        public override bool EnsureDeleted(IModel model)
         {
             Check.NotNull(model, "model");
 
@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             return deleted;
         }
 
-        public override async Task<bool> EnsureDeletedAsync([NotNull] IModel model, CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task<bool> EnsureDeletedAsync(IModel model, CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(model, "model");
 
@@ -46,16 +46,17 @@ namespace Microsoft.Data.Entity.AzureTableStorage
                 .Select(request => _connection.ExecuteRequestAsync(request, cancellationToken: cancellationToken))
                 .ToList();
 
-            await Task.WhenAll(tasks).WithCurrentCulture();
+            var deleted = await Task.WhenAll(tasks).WithCurrentCulture();
 
-            return tasks.Any(t => t.Result);
+            return deleted.Any();
         }
 
-        public override bool EnsureCreated([NotNull] IModel model)
+        public override bool EnsureCreated(IModel model)
         {
             Check.NotNull(model, "model");
 
             var created = false;
+            // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var type in model.EntityTypes)
             {
                 var request = new CreateTableRequest(new AtsTable(type.TableName()));
@@ -64,7 +65,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             return created;
         }
 
-        public override async Task<bool> EnsureCreatedAsync([NotNull] IModel model, CancellationToken cancellationToken = new CancellationToken())
+        public override async Task<bool> EnsureCreatedAsync(IModel model, CancellationToken cancellationToken = new CancellationToken())
         {
             Check.NotNull(model, "model");
 
@@ -73,9 +74,9 @@ namespace Microsoft.Data.Entity.AzureTableStorage
                 .Select(request => _connection.ExecuteRequestAsync(request, cancellationToken: cancellationToken))
                 .ToList();
 
-            await Task.WhenAll(tasks).WithCurrentCulture();
+            var created = await Task.WhenAll(tasks).WithCurrentCulture();
 
-            return tasks.Any(t => t.Result);
+            return created.Any();
         }
     }
 }

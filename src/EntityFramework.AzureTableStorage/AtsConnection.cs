@@ -77,13 +77,11 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             if (logger != null)
             {
                 operationContext.Retrying += (sender, args) => logger.WriteInformation(
-                    String.Format("Retrying request to '{0}'", args.Request.RequestUri.ToString())
-                    );
+                    String.Format("Retrying request to '{0}'", args.Request.RequestUri.ToString()));
 
                 operationContext.SendingRequest += (sender, args) =>
                     logger.WriteVerbose(
-                        String.Format("Sending request to '{0}'", args.Request.RequestUri.ToString())
-                        );
+                        String.Format("Sending request to '{0}'", args.Request.RequestUri.ToString()));
                 operationContext.ResponseReceived += (sender, args) =>
                     {
                         var msg = String.Format("Response from '{0}' = {1} {2}", args.Request.RequestUri.ToString(), (int)args.Response.StatusCode, args.Response.StatusDescription);

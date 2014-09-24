@@ -68,6 +68,9 @@ namespace Microsoft.Data.Entity.Storage
                 _configuration.Services.ClrPropertySetterSource);
         }
 
+        public abstract int SaveChanges(
+            [NotNull] IReadOnlyList<StateEntry> stateEntries);
+
         public abstract Task<int> SaveChangesAsync(
             [NotNull] IReadOnlyList<StateEntry> stateEntries,
             CancellationToken cancellationToken = default(CancellationToken));

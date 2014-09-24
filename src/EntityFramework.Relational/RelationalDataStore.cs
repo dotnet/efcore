@@ -53,6 +53,16 @@ namespace Microsoft.Data.Entity.Relational
             get { return new RelationalTypedValueReaderFactory(); }
         }
 
+        public override int SaveChanges(
+            IReadOnlyList<StateEntry> stateEntries)
+        {
+            Check.NotNull(stateEntries, "stateEntries");
+
+            var commandBatches = _batchPreparer.BatchCommands(stateEntries);
+
+            return _batchExecutor.Execute(commandBatches, _connection);
+        }
+
         public override Task<int> SaveChangesAsync(
             IReadOnlyList<StateEntry> stateEntries,
             CancellationToken cancellationToken = default(CancellationToken))

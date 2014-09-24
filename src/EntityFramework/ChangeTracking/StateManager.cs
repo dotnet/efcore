@@ -280,6 +280,41 @@ namespace Microsoft.Data.Entity.ChangeTracking
                          && principalKeyValue.Equals(e.GetDependentKeyValue(foreignKey)));
         }
 
+        public virtual int SaveChanges()
+        {
+            var entriesToSave = StateEntries
+                .Where(e => e.EntityState.IsDirty())
+                .Select(e => e.PrepareToSave())
+                .ToList();
+
+            if (!entriesToSave.Any())
+            {
+                return 0;
+            }
+
+            try
+            {
+                var result = SaveChanges(entriesToSave);
+
+                // TODO: When transactions supported, make it possible to commit/accept at end of all transactions
+                foreach (var entry in entriesToSave)
+                {
+                    entry.AutoCommitSidecars();
+                    entry.AcceptChanges();
+                }
+
+                return result;
+            }
+            catch
+            {
+                foreach (var entry in entriesToSave)
+                {
+                    entry.AutoRollbackSidecars();
+                }
+                throw;
+            }
+        }
+
         public virtual async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var entriesToSave = StateEntries
@@ -315,6 +350,15 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 }
                 throw;
             }
+        }
+
+        protected virtual int SaveChanges(
+            [NotNull] IReadOnlyList<StateEntry> entriesToSave)
+        {
+            Check.NotNull(entriesToSave, "entriesToSave");
+
+            return _configuration.DataStore
+                .SaveChanges(entriesToSave);
         }
 
         protected virtual async Task<int> SaveChangesAsync(

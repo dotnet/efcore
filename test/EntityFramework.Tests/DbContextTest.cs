@@ -185,14 +185,50 @@ namespace Microsoft.Data.Entity.Tests
             }
         }
 
+        [Fact]
+        public async Task SaveChangesAsync_calls_state_manager_SaveChangesAsync()
+        {
+            var services = new ServiceCollection();
+            services.AddEntityFramework()
+                .ServiceCollection
+                .AddScoped<StateManager, FakeStateManager>()
+                .AddScoped<ChangeDetector, FakeChangeDetector>();
+
+            var serviceProvider = services.BuildServiceProvider();
+
+            var options = new DbContextOptions();
+
+            using (var context = new DbContext(serviceProvider, options))
+            {
+                var stateManager = (FakeStateManager)context.Configuration.StateManager;
+
+                var entryMock = new Mock<StateEntry>();
+                entryMock.Setup(m => m.EntityState).Returns(EntityState.Modified);
+                stateManager.Entries = new[] { entryMock.Object };
+
+                Assert.False(stateManager.SaveChangesAsyncCalled);
+
+                await context.SaveChangesAsync();
+
+                Assert.True(stateManager.SaveChangesAsyncCalled);
+            }
+        }
+
         private class FakeStateManager : StateManager
         {
             public IEnumerable<StateEntry> Entries { get; set; }
             public bool SaveChangesCalled { get; set; }
+            public bool SaveChangesAsyncCalled { get; set; }
+
+            public override int SaveChanges()
+            {
+                SaveChangesCalled = true;
+                return 1;
+            }
 
             public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
             {
-                SaveChangesCalled = true;
+                SaveChangesAsyncCalled = true;
                 return Task.FromResult(1);
             }
 
@@ -448,7 +484,51 @@ namespace Microsoft.Data.Entity.Tests
         }
 
         [Fact]
-        public void SaveChanges_only_passes_dirty_entries_to_DatStore()
+        public void SaveChanges_only_passes_dirty_entries_to_DataStore()
+        {
+            var passedEntries = new List<StateEntry>();
+            var store = new Mock<DataStore>();
+            store.Setup(s => s.SaveChanges(It.IsAny<IReadOnlyList<StateEntry>>()))
+                .Callback<IEnumerable<StateEntry>>(passedEntries.AddRange)
+                .Returns(3);
+
+            var servicesMock = new Mock<DataStoreServices>();
+            servicesMock.Setup(m => m.Store).Returns(store.Object);
+            servicesMock.Setup(m => m.ValueGeneratorCache).Returns(Mock.Of<ValueGeneratorCache>);
+            servicesMock.Setup(m => m.ModelBuilderFactory).Returns(new ModelBuilderFactory());
+
+            var sourceMock = new Mock<DataStoreSource>();
+            sourceMock.Setup(m => m.IsAvailable).Returns(true);
+            sourceMock.Setup(m => m.IsConfigured).Returns(true);
+            sourceMock.Setup(m => m.StoreServices).Returns(servicesMock.Object);
+
+            var services = new ServiceCollection();
+            services.AddEntityFramework();
+            services.AddInstance(sourceMock.Object);
+            var serviceProvider = services.BuildServiceProvider();
+
+            var options = new DbContextOptions();
+
+            using (var context = new EarlyLearningCenter(serviceProvider, options))
+            {
+                context.ChangeTracker.Entry(new Category { Id = 1 }).State = EntityState.Unchanged;
+                context.ChangeTracker.Entry(new Category { Id = 2 }).State = EntityState.Modified;
+                context.ChangeTracker.Entry(new Category { Id = 3 }).State = EntityState.Added;
+                context.ChangeTracker.Entry(new Category { Id = 4 }).State = EntityState.Deleted;
+                Assert.Equal(4, context.ChangeTracker.Entries().Count());
+
+                context.SaveChanges();
+            }
+
+            Assert.Equal(3, passedEntries.Count);
+
+            store.Verify(
+                s => s.SaveChanges(It.IsAny<IReadOnlyList<StateEntry>>()),
+                Times.Once);
+        }
+
+        [Fact]
+        public async Task SaveChangesAsync_only_passes_dirty_entries_to_DataStore()
         {
             var passedEntries = new List<StateEntry>();
             var store = new Mock<DataStore>();
@@ -481,7 +561,7 @@ namespace Microsoft.Data.Entity.Tests
                 context.ChangeTracker.Entry(new Category { Id = 4 }).State = EntityState.Deleted;
                 Assert.Equal(4, context.ChangeTracker.Entries().Count());
 
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             }
 
             Assert.Equal(3, passedEntries.Count);

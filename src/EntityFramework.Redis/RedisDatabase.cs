@@ -90,6 +90,22 @@ namespace Microsoft.Data.Entity.Redis
                 .GetServer(((RedisConnection)Configuration.Connection).ConnectionString);
         }
 
+        public virtual int SaveChanges(
+            [NotNull] IReadOnlyList<StateEntry> stateEntries)
+        {
+            Check.NotNull(stateEntries, "stateEntries");
+            
+            var transaction = PrepareTransactionForSaveChanges(stateEntries);
+
+            var entitiesProcessed = 0;
+            if (transaction.Execute())
+            {
+                entitiesProcessed = stateEntries.Count;
+            }
+
+            return entitiesProcessed;
+        }
+
         public virtual async Task<int> SaveChangesAsync(
             [NotNull] IReadOnlyList<StateEntry> stateEntries,
             CancellationToken cancellationToken = default(CancellationToken))
@@ -101,15 +117,22 @@ namespace Microsoft.Data.Entity.Redis
                 return 0;
             }
 
+            var transaction = PrepareTransactionForSaveChanges(stateEntries);
+
             var entitiesProcessed = 0;
+            if (await transaction.ExecuteAsync().WithCurrentCulture())
+            {
+                entitiesProcessed = stateEntries.Count;
+            }
+
+            return entitiesProcessed;
+        }
+
+        private ITransaction PrepareTransactionForSaveChanges(IReadOnlyList<StateEntry> stateEntries)
+        {
             var transaction = GetUnderlyingDatabase().CreateTransaction();
             foreach (var entry in stateEntries)
             {
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    return 0;
-                }
-
                 switch (entry.EntityState)
                 {
                     case EntityState.Added:
@@ -124,14 +147,8 @@ namespace Microsoft.Data.Entity.Redis
                         AddModifyEntryCommands(transaction, entry);
                         break;
                 }
-
-                if (await transaction.ExecuteAsync().WithCurrentCulture())
-                {
-                    entitiesProcessed = stateEntries.Count;
-                }
             }
-
-            return entitiesProcessed;
+            return transaction;
         }
 
         /// <summary>

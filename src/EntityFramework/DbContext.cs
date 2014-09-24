@@ -119,8 +119,26 @@ namespace Microsoft.Data.Entity
 
         public virtual int SaveChanges()
         {
-            // TODO: May need a parallel code path :-(
-            return SaveChangesAsync().GetAwaiter().GetResult();
+            var stateManager = Configuration.StateManager;
+
+            // TODO: Allow auto-detect changes to be switched off
+            Configuration.Services.ChangeDetector.DetectChanges(stateManager);
+
+            try
+            {
+                return stateManager.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                _logger.Value.WriteCore(
+                    TraceType.Error,
+                    0,
+                    new DataStoreErrorLogState(GetType()),
+                    ex,
+                    (state, exception) => string.Format("{0}" + Environment.NewLine + "{1}", Strings.LogExceptionDuringSaveChanges, exception.ToString()));
+
+                throw;
+            }
         }
 
         public virtual async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
@@ -139,9 +157,9 @@ namespace Microsoft.Data.Entity
                 _logger.Value.WriteCore(
                     TraceType.Error, 
                     0, 
-                    new DataStoreErrorLogState(this.GetType()), 
-                    ex, 
-                    (state, exception) => string.Format("{0}\r\n{1}", Strings.LogExceptionDuringSaveChanges, exception.ToString()));
+                    new DataStoreErrorLogState(GetType()), 
+                    ex,
+                    (state, exception) => string.Format("{0}" + Environment.NewLine + "{1}", Strings.LogExceptionDuringSaveChanges, exception.ToString()));
 
                 throw;
             }

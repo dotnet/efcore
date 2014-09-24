@@ -140,6 +140,70 @@ namespace Microsoft.Data.Entity.Relational.Update
             return command;
         }
 
+        public override int Execute(
+            RelationalTransaction transaction,
+            RelationalTypeMapper typeMapper,
+            DbContext context,
+            ILogger logger)
+        {
+            Check.NotNull(transaction, "transaction");
+            Check.NotNull(typeMapper, "typeMapper");
+            Check.NotNull(context, "context");
+            Check.NotNull(logger, "logger");
+
+            var commandText = GetCommandText();
+            if (logger.IsEnabled(TraceType.Verbose))
+            {
+                // TODO: Write parameter values
+                logger.WriteSql(commandText);
+            }
+
+            Contract.Assert(ResultSetEnds.Count == ModificationCommands.Count);
+
+            var commandIndex = 0;
+            using (var storeCommand = CreateStoreCommand(commandText, transaction.DbTransaction, typeMapper))
+            {
+                try
+                {
+                    using (var reader = storeCommand.ExecuteReader())
+                    {
+                        var actualResultSetCount = 0;
+                        do
+                        {
+                            commandIndex = ModificationCommands[commandIndex].RequiresResultPropagation
+                                ? ConsumeResultSetWithPropagation(commandIndex, reader, context)
+                                : ConsumeResultSetWithoutPropagation(commandIndex, reader, context);
+                            actualResultSetCount++;
+                        }
+                        while (commandIndex < ResultSetEnds.Count
+                               && reader.NextResult());
+
+                        Contract.Assert(commandIndex == ModificationCommands.Count, "Expected " + ModificationCommands.Count + " results, got " + commandIndex);
+#if DEBUG
+                        var expectedResultSetCount = 1 + ResultSetEnds.Count(e => e);
+                        expectedResultSetCount += ResultSetEnds[ResultSetEnds.Count - 1] ? -1 : 0;
+
+                        Contract.Assert(actualResultSetCount == expectedResultSetCount, "Expected " + expectedResultSetCount + " result sets, got " + actualResultSetCount);
+#endif
+                    }
+                }
+                catch (DbUpdateException)
+                {
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    throw new DbUpdateException(
+                        Strings.FormatUpdateStoreException(),
+                        context,
+                        ex,
+                        commandIndex < ModificationCommands.Count ? ModificationCommands[commandIndex].StateEntries : new StateEntry[0]);
+                }
+            }
+
+            return commandIndex;
+        }
+
         public override async Task<int> ExecuteAsync(
             RelationalTransaction transaction,
             RelationalTypeMapper typeMapper,
@@ -206,6 +270,38 @@ namespace Microsoft.Data.Entity.Relational.Update
 
             return commandIndex;
         }
+        private int ConsumeResultSetWithPropagation(int commandIndex, DbDataReader reader, DbContext context)
+        {
+            var rowsAffected = 0;
+            var valueReader = new RelationalTypedValueReader(reader);
+            do
+            {
+                var tableModification = ModificationCommands[commandIndex];
+                Contract.Assert(tableModification.RequiresResultPropagation);
+
+                if (!reader.Read())
+                {
+                    var expectedRowsAffected = rowsAffected + 1;
+                    while (++commandIndex < ResultSetEnds.Count
+                           && !ResultSetEnds[commandIndex - 1])
+                    {
+                        expectedRowsAffected++;
+                    }
+
+                    throw new DbUpdateConcurrencyException(
+                        Strings.FormatUpdateConcurrencyException(expectedRowsAffected, rowsAffected),
+                        context,
+                        AggregateStateEntries(commandIndex, expectedRowsAffected));
+                }
+
+                tableModification.PropagateResults(valueReader);
+                rowsAffected++;
+            }
+            while (++commandIndex < ResultSetEnds.Count
+                   && !ResultSetEnds[commandIndex - 1]);
+
+            return commandIndex;
+        }
 
         private async Task<int> ConsumeResultSetWithPropagationAsync(int commandIndex, DbDataReader reader, DbContext context, CancellationToken cancellationToken)
         {
@@ -236,6 +332,39 @@ namespace Microsoft.Data.Entity.Relational.Update
             }
             while (++commandIndex < ResultSetEnds.Count
                    && !ResultSetEnds[commandIndex - 1]);
+
+            return commandIndex;
+        }
+
+        private int ConsumeResultSetWithoutPropagation(int commandIndex, DbDataReader reader, DbContext context)
+        {
+            var expectedRowsAffected = 1;
+            while (++commandIndex < ResultSetEnds.Count
+                   && !ResultSetEnds[commandIndex - 1])
+            {
+                Contract.Assert(!ModificationCommands[commandIndex].RequiresResultPropagation);
+
+                expectedRowsAffected++;
+            }
+
+            if (reader.Read())
+            {
+                var rowsAffected = reader.GetFieldValue<int>(0);
+                if (rowsAffected != expectedRowsAffected)
+                {
+                    throw new DbUpdateConcurrencyException(
+                        Strings.FormatUpdateConcurrencyException(expectedRowsAffected, rowsAffected),
+                        context,
+                        AggregateStateEntries(commandIndex, expectedRowsAffected));
+                }
+            }
+            else
+            {
+                throw new DbUpdateConcurrencyException(
+                    Strings.FormatUpdateConcurrencyException(1, 0),
+                    context,
+                    AggregateStateEntries(commandIndex, expectedRowsAffected));
+            }
 
             return commandIndex;
         }

@@ -1,7 +1,8 @@
-﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Redis.FunctionalTests
@@ -34,6 +35,89 @@ namespace Microsoft.Data.Entity.Redis.FunctionalTests
             _context.Set<SimplePoco>().Remove(simplePoco);
             changes = _context.SaveChanges();
             Assert.Equal(1, changes);
+        }
+        
+        [Fact]
+        public async Task Add_modify_and_delete_Customer_Async()
+        {
+            var simplePoco = _context.Set<SimplePoco>().Add(
+                new SimplePoco
+                {
+                    PocoKey = 100,
+                    Name = "A. Name",
+                });
+            var changes = await _context.SaveChangesAsync();
+            Assert.Equal(1, changes);
+
+            simplePoco.Name = "Updated Name";
+            changes = await _context.SaveChangesAsync();
+            Assert.Equal(1, changes);
+
+            _context.Set<SimplePoco>().Remove(simplePoco);
+            changes = await _context.SaveChangesAsync();
+            Assert.Equal(1, changes);
+        }
+
+        [Fact]
+        public void Add_modify_and_delete_Customer_together()
+        {
+            var simplePoco = _context.Set<SimplePoco>().Add(
+                new SimplePoco
+                {
+                    PocoKey = 100,
+                    Name = "A. Name",
+                });
+            var simplePoco2 = _context.Set<SimplePoco>().Add(
+                new SimplePoco
+                {
+                    PocoKey = 101,
+                    Name = "B. Name",
+                });
+            var changes = _context.SaveChanges();
+            Assert.Equal(2, changes);
+            
+            _context.Set<SimplePoco>().Add(
+                new SimplePoco
+                {
+                    PocoKey = 102,
+                    Name = "C. Name",
+                });
+            simplePoco.Name = "Updated Name";
+
+            _context.Set<SimplePoco>().Remove(simplePoco2);
+            changes = _context.SaveChanges();
+            Assert.Equal(3, changes);
+        }
+
+        [Fact]
+        public async Task Add_modify_and_delete_Customer_together_Async()
+        {
+            var simplePoco = _context.Set<SimplePoco>().Add(
+                new SimplePoco
+                {
+                    PocoKey = 100,
+                    Name = "A. Name",
+                });
+            var simplePoco2 = _context.Set<SimplePoco>().Add(
+                new SimplePoco
+                {
+                    PocoKey = 101,
+                    Name = "B. Name",
+                });
+            var changes = await _context.SaveChangesAsync();
+            Assert.Equal(2, changes);
+
+            _context.Set<SimplePoco>().Add(
+                new SimplePoco
+                {
+                    PocoKey = 102,
+                    Name = "C. Name",
+                });
+            simplePoco.Name = "Updated Name";
+
+            _context.Set<SimplePoco>().Remove(simplePoco2);
+            changes = await _context.SaveChangesAsync();
+            Assert.Equal(3, changes);
         }
 
         [Fact]

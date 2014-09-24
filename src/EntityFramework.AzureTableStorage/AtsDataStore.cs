@@ -58,6 +58,17 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             Connection = connection;
         }
 
+        public override int SaveChanges(IReadOnlyList<StateEntry> stateEntries)
+        {
+            Check.NotNull(stateEntries, "stateEntries");
+
+            if (Connection.Batching)
+            {
+                return ExecuteBatchedChanges(stateEntries);
+            }
+            return ExecuteChanges(stateEntries);
+        }
+
         public override Task<int> SaveChangesAsync(IReadOnlyList<StateEntry> stateEntries, CancellationToken cancellationToken = new CancellationToken())
         {
             Check.NotNull(stateEntries, "stateEntries");
@@ -98,27 +109,20 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         }
 
         //TODO merge similarities with batch execution
-        private async Task<int> ExecuteChangesAsync(IReadOnlyList<StateEntry> stateEntries,
-            CancellationToken cancellationToken = default(CancellationToken))
+        private int ExecuteChanges(IReadOnlyList<StateEntry> stateEntries)
         {
             var tableGroups = stateEntries.GroupBy(s => s.EntityType);
-            var allTasks = new List<Task<TableResult>>();
-            foreach (var tableGroup in tableGroups)
-            {
-                var table = new AtsTable(tableGroup.Key.TableName());
-                var tasks = tableGroup.Select(entry => CreateRequest(table, entry))
-                    .TakeWhile(operation => !cancellationToken.IsCancellationRequested)
-                    .Select(request => Connection.ExecuteRequestAsync(request, Logger, cancellationToken));
-                allTasks.AddRange(tasks);
+            var allResults = new List<TableResult>();
 
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    break;
-                }
-            }
             try
             {
-                await Task.WhenAll(allTasks).WithCurrentCulture();
+                foreach (var tableGroup in tableGroups)
+                {
+                    var table = new AtsTable(tableGroup.Key.TableName());
+                    var results = tableGroup.Select(entry => CreateRequest(table, entry))
+                        .Select(request => Connection.ExecuteRequest(request, Logger));
+                    allResults.AddRange(results);
+                }
             }
             catch (StorageException exception)
             {
@@ -129,7 +133,96 @@ namespace Microsoft.Data.Entity.AzureTableStorage
                 }
                 throw;
             }
-            return allTasks.Count(t => t.Result.HttpStatusCode < (int)HttpStatusCode.BadRequest);
+
+            return allResults.Count(r => r.HttpStatusCode < (int)HttpStatusCode.BadRequest);
+        }
+
+        private async Task<int> ExecuteChangesAsync(IReadOnlyList<StateEntry> stateEntries,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var tableGroups = stateEntries.GroupBy(s => s.EntityType);
+            var allTasks = new List<Task<TableResult>>();
+            TableResult[] results;
+
+            try
+            {
+                foreach (var tableGroup in tableGroups)
+                {
+                    var table = new AtsTable(tableGroup.Key.TableName());
+                    var tasks = tableGroup.Select(entry => CreateRequest(table, entry))
+                        .TakeWhile(operation => !cancellationToken.IsCancellationRequested)
+                        .Select(request => Connection.ExecuteRequestAsync(request, Logger, cancellationToken));
+                    allTasks.AddRange(tasks);
+
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        break;
+                    }
+                }
+                results = await Task.WhenAll(allTasks).WithCurrentCulture();
+                cancellationToken.ThrowIfCancellationRequested();
+            }
+            catch (StorageException exception)
+            {
+                var handled = HandleStorageException(exception, stateEntries);
+                if (handled != null)
+                {
+                    throw handled;
+                }
+                throw;
+            }
+
+            return results.Count(r => r.HttpStatusCode < (int)HttpStatusCode.BadRequest);
+        }
+
+        private int ExecuteBatchedChanges(IReadOnlyList<StateEntry> stateEntries)
+        {
+            var tableGroups = stateEntries.GroupBy(s => s.EntityType.TableName());
+            var results = new List<IList<TableResult>>();
+
+            try
+            {
+                foreach (var tableGroup in tableGroups)
+                {
+                    var table = new AtsTable(tableGroup.Key);
+                    var partitionGroups = tableGroup.GroupBy(s =>
+                        {
+                            var property = s.EntityType.GetPropertyByColumnName("PartitionKey");
+                            return s[property];
+                        }
+                        );
+                    foreach (var partitionGroup in partitionGroups)
+                    {
+                        var request = new TableBatchRequest(table);
+                        foreach (var operation in partitionGroup
+                            .Select(entry => CreateRequest(table, entry))
+                            .Where(operation => operation != null)
+                            )
+                        {
+                            request.Add(operation);
+                            if (request.Count >= MaxBatchOperations)
+                            {
+                                results.Add(Connection.ExecuteRequest(request, Logger));
+                                request = new TableBatchRequest(table);
+                            }
+                        }
+                        if (request.Count != 0)
+                        {
+                            results.Add(Connection.ExecuteRequest(request, Logger));
+                        }
+                    }
+                }
+            }
+            catch (StorageException exception)
+            {
+                var handled = HandleStorageException(exception, stateEntries);
+                if (handled != null)
+                {
+                    throw handled;
+                }
+                throw;
+            }
+            return results.Sum(r => r == null ? 0 : r.Count(t => t.HttpStatusCode < (int)HttpStatusCode.BadRequest));
         }
 
         private async Task<int> ExecuteBatchedChangesAsync(IReadOnlyList<StateEntry> stateEntries,
@@ -137,40 +230,42 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         {
             var tableGroups = stateEntries.GroupBy(s => s.EntityType.TableName());
             var allBatchTasks = new List<Task<IList<TableResult>>>();
+            IList<TableResult>[] results;
 
-            foreach (var tableGroup in tableGroups)
-            {
-                var table = new AtsTable(tableGroup.Key);
-                var partitionGroups = tableGroup.GroupBy(s =>
-                    {
-                        var property = s.EntityType.GetPropertyByColumnName("PartitionKey");
-                        return s[property];
-                    }
-                    );
-                foreach (var partitionGroup in partitionGroups)
-                {
-                    var request = new TableBatchRequest(table);
-                    foreach (var operation in partitionGroup
-                        .Select(entry => CreateRequest(table, entry))
-                        .Where(operation => operation != null)
-                        )
-                    {
-                        request.Add(operation);
-                        if (request.Count >= MaxBatchOperations)
-                        {
-                            allBatchTasks.Add(Connection.ExecuteRequestAsync(request, Logger, cancellationToken));
-                            request = new TableBatchRequest(table);
-                        }
-                    }
-                    if (request.Count != 0)
-                    {
-                        allBatchTasks.Add(Connection.ExecuteRequestAsync(request, Logger, cancellationToken));
-                    }
-                }
-            }
             try
             {
-                await Task.WhenAll(allBatchTasks).WithCurrentCulture();
+                foreach (var tableGroup in tableGroups)
+                {
+                    var table = new AtsTable(tableGroup.Key);
+                    var partitionGroups = tableGroup.GroupBy(s =>
+                        {
+                            var property = s.EntityType.GetPropertyByColumnName("PartitionKey");
+                            return s[property];
+                        }
+                        );
+                    foreach (var partitionGroup in partitionGroups)
+                    {
+                        var request = new TableBatchRequest(table);
+                        foreach (var operation in partitionGroup
+                            .Select(entry => CreateRequest(table, entry))
+                            .Where(operation => operation != null)
+                            )
+                        {
+                            request.Add(operation);
+                            if (request.Count >= MaxBatchOperations)
+                            {
+                                allBatchTasks.Add(Connection.ExecuteRequestAsync(request, Logger, cancellationToken));
+                                request = new TableBatchRequest(table);
+                            }
+                        }
+                        if (request.Count != 0)
+                        {
+                            allBatchTasks.Add(Connection.ExecuteRequestAsync(request, Logger, cancellationToken));
+                        }
+                    }
+                }
+
+                results = await Task.WhenAll(allBatchTasks).WithCurrentCulture();
             }
             catch (StorageException exception)
             {
@@ -181,7 +276,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
                 }
                 throw;
             }
-            return allBatchTasks.Sum(l => l.Result == null ? 0 : l.Result.Count(t => t.HttpStatusCode < (int)HttpStatusCode.BadRequest));
+            return results.Sum(r => r == null ? 0 : r.Count(t => t.HttpStatusCode < (int)HttpStatusCode.BadRequest));
         }
 
         protected Exception HandleStorageException(StorageException exception, IReadOnlyList<StateEntry> stateEntries)

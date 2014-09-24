@@ -26,6 +26,13 @@ namespace Microsoft.Data.Entity.Redis
         {
             _database = new LazyRef<RedisDatabase>(() => (RedisDatabase)configuration.Database);
         }
+        public override int SaveChanges(
+            IReadOnlyList<StateEntry> stateEntries)
+        {
+            Check.NotNull(stateEntries, "stateEntries");
+
+            return _database.Value.SaveChanges(stateEntries);
+        }
 
         public override Task<int> SaveChangesAsync(
             IReadOnlyList<StateEntry> stateEntries,

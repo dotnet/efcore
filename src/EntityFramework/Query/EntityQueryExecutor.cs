@@ -199,7 +199,7 @@ namespace Microsoft.Data.Entity.Query
                             0,
                             new DataStoreErrorLogState(_context.GetType()),
                             ex,
-                            (state, exception) => string.Format("{0}\r\n{1}", Strings.LogExceptionDuringQueryIteration, exception.ToString()));
+                            (state, exception) => string.Format("{0}" + Environment.NewLine + "{1}", Strings.LogExceptionDuringQueryIteration, exception.ToString()));
 
                         throw;
                     }
@@ -267,7 +267,7 @@ namespace Microsoft.Data.Entity.Query
                            0,
                            new DataStoreErrorLogState(_context.GetType()),
                            ex,
-                           (state, exception) => string.Format("{0}\r\n{1}", Strings.LogExceptionDuringQueryIteration, exception.ToString()));
+                           (state, exception) => string.Format("{0}" + Environment.NewLine + "{1}", Strings.LogExceptionDuringQueryIteration, exception.ToString()));
 
                         throw;
                     }
