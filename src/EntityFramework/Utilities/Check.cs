@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Utilities
         }
 
         [ContractAnnotation("value:null => halt")]
-        public static IReadOnlyList<T> NotEmpty<T>(IReadOnlyList<T> value, [InvokerParameterName] [NotNull] string parameterName)
+        public static IReadOnlyCollection<T> NotEmpty<T>(IReadOnlyCollection<T> value, [InvokerParameterName] [NotNull] string parameterName)
         {
             NotEmpty(parameterName, "parameterName");
             NotNull(value, parameterName);
@@ -37,6 +37,26 @@ namespace Microsoft.Data.Entity.Utilities
             }
 
             return value;
+        }
+
+        [ContractAnnotation("value:null => halt")]
+        public static IList<T> NotEmpty<T>(IList<T> value, [InvokerParameterName] [NotNull] string parameterName)
+        {
+            NotEmpty(parameterName, "parameterName");
+            NotNull(value, parameterName);
+
+            if (value.Count == 0)
+            {
+                throw new ArgumentException(Strings.FormatCollectionArgumentIsEmpty(parameterName));
+            }
+
+            return value;
+        }
+
+        [ContractAnnotation("value:null => halt")]
+        public static T[] NotEmpty<T>(T[] value, [InvokerParameterName] [NotNull] string parameterName)
+        {
+            return (T[])NotEmpty((IList<T>)value, parameterName);
         }
 
         [ContractAnnotation("value:null => halt")]

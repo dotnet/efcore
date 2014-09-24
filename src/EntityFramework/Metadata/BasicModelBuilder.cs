@@ -70,21 +70,21 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual EntityBuilder<T> Entity<T>()
         {
-            return new EntityBuilder<T>(Builder.GetOrAddEntity(typeof(T)));
+            return new EntityBuilder<T>(Builder.Entity(typeof(T)));
         }
 
         public virtual EntityBuilder Entity([NotNull] Type entityType)
         {
             Check.NotNull(entityType, "entityType");
 
-            return new EntityBuilder(Builder.GetOrAddEntity(entityType));
+            return new EntityBuilder(Builder.Entity(entityType));
         }
 
         public virtual EntityBuilder Entity([NotNull] string name)
         {
             Check.NotEmpty(name, "name");
 
-            return new EntityBuilder(Builder.GetOrAddEntity(name));
+            return new EntityBuilder(Builder.Entity(name));
         }
 
         public virtual BasicModelBuilder Entity<T>([NotNull] Action<EntityBuilder<T>> entityBuilder)

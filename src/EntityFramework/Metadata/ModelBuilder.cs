@@ -113,21 +113,21 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual EntityBuilder<T> Entity<T>()
         {
-            return new EntityBuilder<T>(Builder.GetOrAddEntity(typeof(T)));
+            return new EntityBuilder<T>(Builder.Entity(typeof(T)));
         }
 
         public virtual EntityBuilder Entity([NotNull] Type entityType)
         {
             Check.NotNull(entityType, "entityType");
 
-            return new EntityBuilder(Builder.GetOrAddEntity(entityType));
+            return new EntityBuilder(Builder.Entity(entityType));
         }
 
         public virtual EntityBuilder Entity([NotNull] string name)
         {
             Check.NotEmpty(name, "name");
 
-            return new EntityBuilder(Builder.GetOrAddEntity(name));
+            return new EntityBuilder(Builder.Entity(name));
         }
 
         public virtual ModelBuilder Entity<T>([NotNull] Action<EntityBuilder<T>> entityBuilder)
@@ -240,7 +240,7 @@ namespace Microsoft.Data.Entity.Metadata
                 Check.NotNull(relatedEntityType, "relatedEntityType");
 
                 return new OneToManyBuilder(Builder.BuildRelationship(
-                    Metadata, Builder.ModelBuilder.GetOrAddEntity(relatedEntityType).Metadata, reference, collection, oneToOne: false));
+                    Metadata, Builder.ModelBuilder.Entity(relatedEntityType).Metadata, reference, collection, oneToOne: false));
             }
 
             public virtual ManyToOneBuilder ManyToOne(
@@ -251,7 +251,7 @@ namespace Microsoft.Data.Entity.Metadata
                 Check.NotNull(relatedEntityType, "relatedEntityType");
 
                 return new ManyToOneBuilder(Builder.BuildRelationship(
-                    Builder.ModelBuilder.GetOrAddEntity(relatedEntityType).Metadata, Metadata, reference, collection, oneToOne: false));
+                    Builder.ModelBuilder.Entity(relatedEntityType).Metadata, Metadata, reference, collection, oneToOne: false));
             }
 
             public virtual OneToOneBuilder OneToOne(
@@ -262,7 +262,7 @@ namespace Microsoft.Data.Entity.Metadata
                 Check.NotNull(relatedEntityType, "relatedEntityType");
 
                 return new OneToOneBuilder(Builder.BuildRelationship(
-                    Metadata, Builder.ModelBuilder.GetOrAddEntity(relatedEntityType).Metadata, inverse, reference, oneToOne: true));
+                    Metadata, Builder.ModelBuilder.Entity(relatedEntityType).Metadata, inverse, reference, oneToOne: true));
             }
 
             public virtual OneToManyBuilder OneToMany(

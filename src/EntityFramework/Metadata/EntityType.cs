@@ -98,13 +98,13 @@ namespace Microsoft.Data.Entity.Metadata
 
         #region Primary and Candidate Keys
 
-        [CanBeNull]
+        [ContractAnnotation("null => null; notnull => notnull")]
         public virtual Key SetPrimaryKey([CanBeNull] Property property)
         {
             return SetPrimaryKey(property == null ? null : new[] { property });
         }
 
-        [CanBeNull]
+        [ContractAnnotation("null => null; notnull => notnull")]
         public virtual Key SetPrimaryKey([CanBeNull] IReadOnlyList<Property> properties)
         {
             Key key = null;
@@ -129,13 +129,13 @@ namespace Microsoft.Data.Entity.Metadata
             return _primaryKey;
         }
 
-        [CanBeNull]
+        [ContractAnnotation("null => null; notnull => notnull")]
         public virtual Key GetOrSetPrimaryKey([CanBeNull] Property property)
         {
             return GetOrSetPrimaryKey(property == null ? null : new[] { property });
         }
 
-        [CanBeNull]
+        [ContractAnnotation("null => null; notnull => notnull")]
         public virtual Key GetOrSetPrimaryKey([CanBeNull] IReadOnlyList<Property> properties)
         {
             if (properties != null

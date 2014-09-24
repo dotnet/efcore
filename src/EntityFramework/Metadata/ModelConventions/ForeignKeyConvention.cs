@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             [CanBeNull] string navigationToDependent,
             [NotNull] IReadOnlyList<Property> foreignKeyProperties,
             [NotNull] IReadOnlyList<Property> referencedProperties,
-            bool isUnqiue)
+            bool isUnique)
         {
             Check.NotNull(principalType, "principalType");
             Check.NotNull(dependentType, "dependentType");
@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             }
             else if (referencedProperties.Count <= 1)
             {
-                foreignKeyCandidates = GetCandidateForeignKeyProperties(principalType, dependentType, navigationToPrincipal, isUnqiue);
+                foreignKeyCandidates = GetCandidateForeignKeyProperties(principalType, dependentType, navigationToPrincipal, isUnique);
                 foreignKeyProperties = foreignKeyCandidates.FirstOrDefault() ?? ImmutableList<Property>.Empty;
             }
             else
@@ -64,10 +64,28 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             }
 
             // If existing FK matches, then use it
+            if (!foreignKeyCandidates.Any())
+            {
+
+                var foreignKey = dependentType.ForeignKeys
+                    .FirstOrDefault(fk => fk.IsUnique == isUnique
+                                          && fk.ReferencedEntityType == principalType
+                                          && !fk.EntityType.Navigations.Any(n => n.ForeignKey == fk && n.Name != navigationToPrincipal)
+                                          && !fk.ReferencedEntityType.Navigations.Any(n => n.ForeignKey == fk && n.Name != navigationToDependent)
+                                          && (!referencedProperties.Any()
+                                              || fk.ReferencedKey.Properties.SequenceEqual(referencedProperties)));
+
+                if (foreignKey != null)
+                {
+                    return foreignKey;
+                }
+            }
+
             foreach (var properties in foreignKeyCandidates)
             {
                 var foreignKey = dependentType.ForeignKeys
-                    .FirstOrDefault(fk => fk.IsUnique == isUnqiue
+                    .FirstOrDefault(fk => fk.IsUnique == isUnique
+                                          && fk.ReferencedEntityType == principalType
                                           && fk.Properties.SequenceEqual(properties)
                                           && !fk.EntityType.Navigations.Any(n => n.ForeignKey == fk && n.Name != navigationToPrincipal)
                                           && !fk.ReferencedEntityType.Navigations.Any(n => n.ForeignKey == fk && n.Name != navigationToDependent)
@@ -128,13 +146,13 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             }
 
             var newForeignKey = dependentType.AddForeignKey(foreignKeyProperties, principalKey);
-            newForeignKey.IsUnique = isUnqiue;
+            newForeignKey.IsUnique = isUnique;
 
             return newForeignKey;
         }
-
+        
         private IReadOnlyList<IReadOnlyList<Property>> GetCandidateForeignKeyProperties(
-            EntityType principalType, EntityType dependentType, string navigationToPrincipal, bool isUnqiue)
+            EntityType principalType, EntityType dependentType, string navigationToPrincipal, bool isUnique)
         {
             var pk = principalType.TryGetPrimaryKey();
             var pkPropertyName = pk != null && pk.Properties.Count == 1 ? pk.Properties[0].Name : null;
@@ -170,7 +188,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                 }
             }
 
-            if (isUnqiue)
+            if (isUnique)
             {
                 var dependentPk = dependentType.TryGetPrimaryKey();
                 if (dependentPk != null)

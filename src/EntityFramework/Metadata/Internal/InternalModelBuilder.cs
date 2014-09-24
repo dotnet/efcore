@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
@@ -10,6 +11,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
     public class InternalModelBuilder : InternalMetadataBuilder<Model>
     {
         private readonly IModelChangeListener _modelChangeListener;
+        private readonly Dictionary<EntityType, InternalEntityBuilder> _entityBuilders = new Dictionary<EntityType, InternalEntityBuilder>();
 
         public InternalModelBuilder([NotNull] Model metadata, [CanBeNull] IModelChangeListener modelChangeListener)
             : base(metadata)
@@ -22,34 +24,54 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             get { return this; }
         }
 
-        public virtual InternalEntityBuilder GetOrAddEntity([NotNull] string name)
+        public virtual InternalEntityBuilder Entity([NotNull] string name)
         {
             Check.NotEmpty(name, "name");
 
+            InternalEntityBuilder entityBuilder;
             var entityType = Metadata.TryGetEntityType(name);
-
             if (entityType == null)
             {
-                Metadata.AddEntityType(entityType = new EntityType(name));
+                entityType = new EntityType(name);
+                Metadata.AddEntityType(entityType);
                 EntityTypeAdded(entityType);
             }
+            else
+            {
+                if (_entityBuilders.TryGetValue(entityType, out entityBuilder))
+                {
+                    return entityBuilder;
+                }
+            }
 
-            return new InternalEntityBuilder(entityType, ModelBuilder);
+            entityBuilder = new InternalEntityBuilder(entityType, ModelBuilder);
+            _entityBuilders.Add(entityType, entityBuilder);
+            return entityBuilder;
         }
 
-        public virtual InternalEntityBuilder GetOrAddEntity([NotNull] Type type)
+        public virtual InternalEntityBuilder Entity([NotNull] Type type)
         {
             Check.NotNull(type, "type");
 
+            InternalEntityBuilder entityBuilder;
             var entityType = Metadata.TryGetEntityType(type);
-
             if (entityType == null)
             {
-                Metadata.AddEntityType(entityType = new EntityType(type));
+                entityType = new EntityType(type);
+                Metadata.AddEntityType(entityType);
                 EntityTypeAdded(entityType);
             }
+            else
+            {
+                if (_entityBuilders.TryGetValue(entityType, out entityBuilder))
+                {
+                    return entityBuilder;
+                }
+            }
 
-            return new InternalEntityBuilder(entityType, ModelBuilder);
+            entityBuilder = new InternalEntityBuilder(entityType, ModelBuilder);
+            _entityBuilders.Add(entityType, entityBuilder);
+            return entityBuilder;
         }
 
         private void EntityTypeAdded(EntityType entityType)
